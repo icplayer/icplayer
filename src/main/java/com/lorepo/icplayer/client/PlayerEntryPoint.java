@@ -59,7 +59,10 @@ public class PlayerEntryPoint implements EntryPoint {
 		}
 
 		// Call App loaded function
-		if(typeof $wnd.qpOnAppLoaded == 'function') {
+		if(typeof $wnd.icOnAppLoaded == 'function') {
+		  $wnd.icOnAppLoaded();	
+		}
+		else if(typeof $wnd.qpOnAppLoaded == 'function') {
 		  $wnd.qpOnAppLoaded();	
 		}
 	}-*/;
