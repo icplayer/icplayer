@@ -5,3 +5,5 @@
 /reports
 /target
 /test
+/ build.properties
+/build.properties

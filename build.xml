@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer" default="dist" basedir=".">
 	
+	<property file="build.properties" />
 	<property name="src" location="src/main/java" />
 	<property name="src-test" location="src/test/java" />
 	<property name="icfoundation-src" location="../icfoundation/src/main/java" />
 	
-  <!-- Arguments to gwtc and devmode targets -->
-  <property name="gwt.args" value="" />
+  	<!-- Arguments to gwtc and devmode targets -->
+  	<property name="gwt.args" value="" />
 
-  <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="/home/klangner/bin/gwt" />
-  <property name="libs.junit" location="libs/junit-4.9.jar" />
+  	<property name="libs.junit" location="libs/junit-4.9.jar" />
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
@@ -172,7 +171,6 @@
 		<copy todir="dist/build">
 	      <fileset dir="doc/demo"/>
 	    </copy>
-		<copy todir="dist/build" file="doc/readme.txt" />
 
 	    <zip destfile="dist/icplayer.zip" basedir="dist/build"/>
 		
