@@ -6,9 +6,9 @@ HTML5 player for interactive lessons.
 ## How to compile player
 
 * Download projects:
-** https://github.com/icplayer/icfoundation
-** https://github.com/icplayer/icplayer
-* Dpwnload GWT SDK: https://developers.google.com/web-toolkit/download
+  * https://github.com/icplayer/icfoundation
+  * https://github.com/icplayer/icplayer
+* Download GWT SDK: https://developers.google.com/web-toolkit/download
 * Rename build-example.properties to build.properties and configure GWT path
 * run build.xml with ant
 * You can find distribution in dist/icplayer.zip
@@ -25,7 +25,7 @@ Example html page:
     <script type="text/javascript" language="javascript" src="icplayer/icplayer.nocache.js"></script>
     <script language="javascript">
 		var player1;
-      	function qpOnAppLoaded(){
+      	function icOnAppLoaded(){
 	        // Load assessment
     	    player1 = icCreatePlayer('_icplayer');
         	player1.load('content/default.ic.xml');
