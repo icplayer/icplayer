@@ -1,0 +1,71 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+    <title>Runtime test</title>
+    
+    <script type="text/javascript" language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" language="javascript" src="icplayer/icplayer.nocache.js"></script>
+    
+    <script language="javascript">
+		var player1;
+      	function qpOnAppLoaded(){
+	        // Load assessment
+    	    player1 = icCreatePlayer('_icplayer');
+    	    player1.setApiUrl('/player/api/123');
+    	    //player1.setTestMode();
+    	    //player1.setAnalyticsUrl('/analytics/presentation/add?pid=506&session=7e190a209bbaa831cf6d51eccb680ad1&');
+			var page = parseInt(window.location.hash.substring(1), 10);
+	        if (isNaN(page)) {
+	        	page = page - 1;
+	        } else {
+	        	page = 0;
+	        }        	
+	        player1.load('content/default.ic.xml', page);
+//        	player1.onPageLoaded(function(){
+//        		var height = $('#_icplayer').css('height');
+//        		alert("Page loaded: " + height);
+//        	});
+      	}
+      	
+      	function testPlayerService(){
+      		var ps = player1.getPlayerServices();
+      		//alert(ps.getScore().getPageScore('ordering')['errorCount']);
+      		alert("time: " + ps.getCommands().getTimeElapsed());
+      	}
+      
+      	
+      	var state;
+      	function getPlayerState(){
+      		state = player1.getState();
+      		console.log(state);
+      	}
+      
+      	
+      	function setPlayerState(){
+      		//player1.setState(state);
+      		var state2 = {"1976247Text1 (page links)":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1976247Text3":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1976247Image1":"true", "1967304Text4":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304Text1":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304Glossary1":"", "1967304Text2":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304Text3":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304Double_State_Button1":"{\"isVisible\":true,\"isSelected\":true,\"isDisabled\":false}", "1967304video1":"{\"currentMovie\":0,\"currentTime\":0,\"isCurrentlyVisible\":true,\"isPaused\":true}", "1967304Double_State_Button2":"{\"isVisible\":true,\"isSelected\":false,\"isDisabled\":false}", "1967304Double_State_Button3":"{\"isVisible\":true,\"isSelected\":false,\"isDisabled\":false}", "1967304feedback_videoTitle":"{\"currentStateDefault\":true,\"currentStateId\":null}", "1967304Text5":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304TrueFalse1":"[true,false,false,true,false,true,false,true,false,false]", "1967304Image_Viewer_Public1":"{\"currentFrame\":3,\"currentVisibility\":true,\"showWatermark\":false}", "1967304Connector1":"", "1967304Check Counter1":"0", "1967304Page Progress1":"0", "1967304Text6":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304Text7":"{\"values\":\"{}\", \"consumed\":\"{}\", \"disabled\":\"[]\"}", "1967304Image2":"true", "1967304Animation1":"{\"currentFrame\":0,\"animationState\":0,\"currentVisibility\":true,\"watermarkClicked\":false}", "1967304Animation2":"{\"currentFrame\":0,\"animationState\":0,\"currentVisibility\":true,\"watermarkClicked\":false}", "1967304Animation3":"{\"currentFrame\":0,\"animationState\":0,\"currentVisibility\":true,\"watermarkClicked\":false}", "1967304Animation4":"{\"currentFrame\":0,\"animationState\":0,\"currentVisibility\":true,\"watermarkClicked\":false}", "1967304Image source1":"true", "1967304Image source2":"true", "1967304Image source3":"true", "1967304Image source4":"true", "1967304Image gap1":"", "1967304Image gap2":"", "1967304Image gap3":"", "1967304Image gap4":"", "1967304Single_State_Button1":"{\"isVisible\":true,\"isDisabled\":false}"};
+      		player1.setState( JSON.stringify(state2) );
+      	}
+    </script>
+    
+    <script type="text/javascript"
+  		src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+    
+  </head>
+
+  <body>
+
+    <h1>Player test</h1>
+    
+	<div id="_icplayer"></div>
+	<button onClick="testPlayerService()">Test Service</button>
+	<button onClick="getPlayerState()">Get state</button>
+	<button onClick="setPlayerState()">Set state</button>
+
+  </body>
+</html>
+

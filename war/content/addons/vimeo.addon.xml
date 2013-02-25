@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<addon id="Vimeo">
+	
+	<metadata>
+		<title>Vimeo Addon</title>
+		<description>
+			Przykładowy addon osadzający film z vimeo.
+		</description>
+	</metadata>
+	
+	<model>
+		<property name="movie_id" type="string"/>
+	</model>
+	
+	<view>
+		&lt;iframe src='http://player.vimeo.com/video/${movie_id}?title=0&amp;byline=0&amp;portrait=0' width='100%' height='100%' frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen&gt; &lt;/iframe&gt;
+	</view>
+	
+	<presenter>
+		function AddonVimeo_create(){
+			
+			var presenter = function(){}
+
+			presenter.run = function(view, model){
+				
+				var iframe = view.getElementsByTagName('iframe')[0];
+				var src = iframe.getAttribute('src');
+				src = src.replace('${movie_id}', model['movie_id'])
+				iframe.setAttribute('src', src);
+			}
+
+			presenter.test = function(){
+				return 'Ala ma kota';
+			}
+			
+			return presenter;
+		}
+	</presenter>
+	
+</addon>

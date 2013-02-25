@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<addon id="DebugAddon">
+	
+	<libs>
+		<js src="buzz.js"/>
+		<js src="raphael.js"/>
+		<js src="raphael.free_transform.js"/>
+	</libs>
+	
+	<model>
+		<property name="Test" type="string"/>
+		<property name="Picture" type="image"/>
+		<property name="Items" type="list">
+			<property name="Text" type="string"/>
+		</property>
+	</model>
+	
+	<css>
+		.debugGreen{background-color:lightgreen;}
+	</css>
+	
+	<view>
+	  	&lt;div&gt;
+		&lt;p class='debugGreen'&gt;${mytext}&lt;/p&gt;
+		&lt;button id='mybutton'&gt; Click me! &lt;/button&gt;
+		&lt;/div&gt;
+	</view>
+	
+	<preview>
+		&lt;p&gt;DebugAddon: Text = ${mytext}&lt;/p&gt;
+	</preview>
+	
+	<presenter>
+		function AddonDebugAddon_create(){
+			
+			var presenter = function(){}
+
+			var element;
+			var playerController;
+			var mode = true;
+			
+			
+			presenter.setPlayerController = function(service){
+				playerController = service;
+			}
+			
+			
+			presenter.run = function(view, model){
+				
+				element = view.getElementsByTagName('p')[0];
+				element.innerHTML = "Picture:" + model['Picture'];
+					
+				var button = document.getElementById('mybutton');
+				button.onclick=function(){
+					var module = playerController.getModule('cloze1');
+					module.hide();
+				};
+			}
+
+			presenter.onEventReceived = function(eventName, eventData){
+			
+			}
+			
+			
+			presenter.executeCommand = function(name, values){
+				element.innerHTML = name + " " + values;			  
+				return 'ok';
+			}
+
+			return presenter;
+		}
+	</presenter>
+	
+</addon>

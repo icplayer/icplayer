@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<interactiveContent>
+
+
+<addons>
+	<!-- 
+	<addon-descriptor addonId="feedback" href="http://www.lorepo.com/public/feedback/getaddon"/>
+	 <addon-descriptor addonId="Connection" href="http://www.lorepo.com/public/Connection/getaddon"/>
+	 <addon-descriptor addonId="Navigation_Bar" href="http://www.lorepo.com/public/Navigation_Bar/getaddon"/>
+	 <addon-descriptor addonId="Page_Counter" href="http://www.lorepo.com/public/Page_Counter/getaddon"/>
+	 <addon-descriptor addonId="Single_State_Button" href="http://www.lorepo.com/public/Single_State_Button/getaddon"/>
+	 <addon-descriptor addonId="Audio" href="http://www.lorepo.com/public/Audio/getaddon"/>
+	 <addon-descriptor addonId="MultiAudio" href="http://www.lorepo.com/public/MultiAudio/getaddon"/>
+	 <addon-descriptor addonId="Double_State_Button" href="http://www.lorepo.com/public/Double_State_Button/getaddon"/>
+	 <addon-descriptor addonId="text_identification" href="http://www.lorepo.com/public/text_identification/getaddon"/>
+	 <addon-descriptor addonId="Image_Identification" href="http://www.lorepo.com/public/Image_Identification/getaddon"/>
+	 <addon-descriptor addonId="WritingCalculations" href="http://www.lorepo.com/public/WritingCalculations/getaddon"/>
+	 <addon-descriptor addonId="TrueFalse" href="http://www.lorepo.com/public/TrueFalse/getaddon"/>
+	 -->
+	<addon-descriptor addonId="Vimeo" href="addons/vimeo.addon.xml"/>
+	<addon-descriptor addonId="DebugAddon" href="addons/debug.addon.xml"/>
+	<addon-descriptor addonId="EventMonitor" href="addons/eventmonitor.addon.xml"/>
+	<addon-descriptor addonId="EventSource" href="addons/eventsource.addon.xml"/>
+	<addon-descriptor addonId="ParserDebug" href="addons/parser-debug.addon.xml"/>
+</addons>
+
+
+
+
+<style>
+
+.ic_player{
+	background-color: red;
+}
+
+.ic_page{
+	background-color: #efefef;
+	font-size:18px;
+	width:	800px;
+	height:	600px;
+}
+
+.myText{
+	background-color:yellow;
+	border:1px solid blue;
+}
+
+.silver{
+	background-color:silver;
+}
+
+.lightgreen{
+background-color:lightgreen;
+}
+
+.text_paragraph_withEditableGaps input{
+	border: 1px solid #B0BDD2;
+	border-radius: 5px 5px 5px 5px;
+	display: block;
+	font-size: 17px;
+	height: 25px;
+	width: 100%;
+	overflow: hidden;
+}
+
+</style>
+
+<pages>
+	<page name="addon" href="pages/addon.page.xml"/>
+	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
+	<page name="eventbus" href="pages/eventbus.page.xml"/>
+	<page name="links" href="pages/links.page.xml" reportable="false"/>
+	<page name="report" href="pages/report.page.xml" reportable="false"/>
+	<folder name="commons">
+		<page name="popup1" href="pages/popup.page.xml"/>
+		<page name="header" href="pages/header.xml"/>
+		<page name="footer" href="pages/footer.xml"/>
+	</folder>
+	<!--
+	<page name="Converging Lens, f &gt; x &lt; 2f" href="pages/math.page.xml"/>
+	<page name="inline choice" href="pages/inline-choice.page.xml"/>
+	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
+	<page name="cloze" href="pages/cloze.page.xml"/>
+	<page name="image source" href="pages/image-source.xml"/>
+	<page name="images" href="pages/images.xml"/>
+	<page name="goto" href="pages/goto.page.xml"/>
+	<page name="problem" href="pages/problem.page.xml"/>
+	<page name="feedback addon" href="pages/feedback-addon.page.xml"/>
+	<page name="test" href="pages/test.xml"/>
+	<page name="text parser" href="pages/text-parser.xml"/>
+	<page name="text" href="pages/text.page.xml"/> 
+	<page name="open-popup" href="pages/open-popup.xml"/>
+	<page name="style-audio" href="pages/style-audio.page.xml"/>
+	<page name="image source" href="pages/image-source.xml"/>
+	<page name="events" href="pages/events.xml"/>
+	<page name="schoice" href="pages/schoice.page.xml"/>
+	<page name="mchoice" href="pages/mchoice.page.xml"/>
+	<page name="goto" href="pages/goto.page.xml"/>
+	<page name="feedback" href="pages/feedback.page.xml"/>
+	<page name="popup1" href="pages/popup.page.xml"/>
+	<page name="summary" href="pages/summary.xml"/>
+ 	-->
+ 	
+	<header ref="commons/header"/>
+	<footer ref="commons/footer"/>
+</pages>
+
+</interactiveContent>

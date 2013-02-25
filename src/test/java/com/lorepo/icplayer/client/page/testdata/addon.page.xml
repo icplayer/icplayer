@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page class="myclass">
+
+	<modules>
+		
+		<addonModule id="addon1" addonId="HelloWorldAddon" left='5' top='10' width='80.0' height='40.0' style="background-color:silver">
+			<properties>
+				<property name="text" value="Hello world!"/>
+			</properties>
+		</addonModule>
+		
+		<buttonModule  id="button1" left="0" top="90" width="10" height="10" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+		<buttonModule  id="button2" left="90" top="90" width="10" height="10" style="">
+			<button type="nextPage" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

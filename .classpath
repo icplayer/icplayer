@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="libs/mockito-all-1.9.0.jar"/>
+	<classpathentry kind="lib" path="libs/objenesis-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/powermock-mockito-1.4.12-full.jar"/>
+	<classpathentry kind="lib" path="libs/javassist-3.16.1-GA.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icfoundation"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>

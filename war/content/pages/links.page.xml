@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+	
+		<textModule left="10" top="10" width="80" height="80"> 
+			<text><![CDATA[
+			Przykłady linków:
+			<ul>
+				<li>[[Converging Lens, f &gt; x &lt; 2f|Converging Lens, f > x < 2f]]</li>
+				<li>[[ordering|Przejście na stronę z ordering]]</li>
+				<li><a href='http://onet.pl'>onet.pl</a></li>
+			</ul>
+			]]></text>
+		</textModule>
+		
+	</modules>
+
+</page>

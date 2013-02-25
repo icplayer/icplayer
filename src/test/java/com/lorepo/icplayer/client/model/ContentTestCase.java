@@ -1,0 +1,443 @@
+package com.lorepo.icplayer.client.model;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.tools.ant.filters.StringInputStream;
+import org.junit.Test;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.google.gwt.xml.client.Element;
+import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.model.asset.AudioAsset;
+import com.lorepo.icplayer.client.model.asset.ImageAsset;
+import com.lorepo.icplayer.client.module.api.player.IPage;
+
+public class ContentTestCase {
+
+	private boolean receivedEvent = false;
+
+	
+	@Test
+	public void toXMLNotNull() {
+		
+		Content content = new Content();
+		String xml = content.toXML();
+		
+		assertNotNull(xml);
+	}
+
+	/**
+	 * Sprawdzenie, ze podczas zapisu jest poprawny XML
+	 * @throws ParserConfigurationException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 */
+	@Test
+	public void toXML() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content content = new Content();
+		content.getPages().add(new Page("1", ""));
+		String xml = content.toXML();
+		
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder;
+		docBuilder = docBuilderFactory.newDocumentBuilder();
+		InputSource is = new InputSource(new StringReader(xml));
+        docBuilder.parse(is);
+
+	}
+
+	@Test
+	public void escapeXML() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content content = new Content();
+		content.getPages().add(new Page("1\'s", ""));
+		String xml = content.toXML();
+		
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder;
+		docBuilder = docBuilderFactory.newDocumentBuilder();
+		InputSource is = new InputSource(new StringReader(xml));
+        docBuilder.parse(is);
+
+	}
+
+	@Test
+	public void toXMLSinglePage() {
+		
+		Content content = new Content();
+		content.getPages().add(new Page("1", ""));
+		String xml = content.toXML();
+		
+		int index = xml.indexOf("<page ");
+		
+		assertTrue(index > -1);
+	}
+
+	@Test
+	public void toXMLSingleAsset() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content content = new Content();
+		content.addAsset(new ImageAsset("/file/2"));
+		String xml = content.toXML();
+		
+		int index = xml.indexOf("<asset type='image' href='/file/2'");
+		assertTrue(index > -1);
+	}
+
+	@Test
+	public void toXMLCheckValid() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		String xml = model.toXML();
+		initContentFromString(xml);
+	}
+
+	@Test
+	public void toXMLCheckAddons() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		String xml = model.toXML();
+		
+		int index = xml.indexOf("<addon-descriptor"); 
+		assertTrue(index > 0);
+	}
+
+	@Test
+	public void loadFromXMLCheckPages() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		
+		assertEquals(17, model.getPages().size());
+	}
+
+	@Test
+	public void findPage() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+
+		Page page = model.findPageByName("cloze");
+		
+		assertNotNull(page);
+	}
+
+	
+	@Test
+	public void findCommonPage() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+
+		Page page = model.findPageByName("commons/Popup1");
+		
+		assertNotNull(page);
+	}
+
+	
+	@Test
+	public void commonsCount() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+
+		assertEquals(2, model.getCommonPages().size());
+
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		assertEquals(2, model.getCommonPages().size());
+
+	}
+
+	@Test
+	public void checkReportablePages() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content3.xml");
+		
+		assertEquals(3, model.getPages().size());
+		
+		assertTrue(model.getPages().get(0).isReportable());
+		assertFalse(model.getPages().get(1).isReportable());
+		assertTrue(model.getPages().get(0).isReportable());
+	}
+
+	@Test
+	public void loadSaveReportablePages() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content3.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		assertEquals(3, model.getPages().size());
+		
+		assertTrue(model.getPages().get(0).isReportable());
+		assertFalse(model.getPages().get(1).isReportable());
+		assertTrue(model.getPages().get(0).isReportable());
+	}
+
+	@Test
+	public void loadFromXMLCheckStyles() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		
+		int index = model.getStyles().indexOf("ic_page");
+		assertTrue(index > 0);
+	}
+
+	@Test
+	public void loadFromXMLCheckAssets() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		
+		assertEquals(3, model.getAssetCount());
+	}
+
+	@Test
+	public void loadFromXMLCheckAddons() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content2.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		assertEquals(1, model.getAddonDescriptors().size());
+		
+		AddonDescriptor addonDescriptor = model.getAddonDescriptors().get("140");
+		assertNotNull(addonDescriptor);
+	}
+
+	@Test
+	public void addAssetWrongUrl() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content content = new Content();
+		content.addAsset(new ImageAsset("/file/2<as>"));
+		
+		assertEquals(0, content.getAssetCount());
+	}
+
+	@Test
+	public void addAssetCorrectUrl() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content content = new Content();
+		content.addAsset(new ImageAsset("/file/2"));
+		
+		assertEquals(1, content.getAssetCount());
+	}
+
+	@Test
+	public void addAssetSameUrl() throws ParserConfigurationException, SAXException, IOException {
+		
+		Content content = new Content();
+		content.addAsset(new ImageAsset("/file/2"));
+		content.addAsset(new ImageAsset("/file/2"));
+		
+		assertEquals(1, content.getAssetCount());
+	}
+
+	
+	private Content initContentFromFile(String path) throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream(path);
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Content model = new Content();
+		model.load(element, "");
+
+		return model;
+	}
+
+	private Content initContentFromString(String xml) throws SAXException, IOException {
+
+		Content model;
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(new StringInputStream(xml));
+		model = new Content();
+		model.load(element, "");
+		return model;
+	}
+
+	
+	@Test
+	public void pageListener() {
+		
+		receivedEvent = false;
+		Content content = new Content();
+		content.addChangeListener(new IContentListener() {
+			
+			@Override
+			public void onRemovePage(Page page) {
+			}
+			
+			@Override
+			public void onPageMove(int from, int to) {
+			}
+			
+			@Override
+			public void onAddPage(Page page) {
+				receivedEvent = true;
+			}
+		});
+
+		content.getPages().add(new Page("1", ""));
+		assertTrue(receivedEvent);
+	}
+
+	@Test
+	public void commonPageListener() {
+		
+		receivedEvent = false;
+		Content content = new Content();
+		content.addChangeListener(new IContentListener() {
+			
+			@Override
+			public void onRemovePage(Page page) {
+			}
+			
+			@Override
+			public void onPageMove(int from, int to) {
+			}
+			
+			@Override
+			public void onAddPage(Page page) {
+				receivedEvent = true;
+			}
+		});
+
+		content.getCommonPages().add(new Page("1", ""));
+		assertTrue(receivedEvent);
+	}
+
+	
+	@Test
+	public void headerAndFooter() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content-headerfooter.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		Page header = model.getHeader();
+		Page footer = model.getFooter();
+		
+		assertNotNull(header);
+		assertEquals("header", header.getName());
+		assertNotNull(footer);
+		assertEquals("footer", footer.getName());
+		
+	}
+
+	
+	@Test
+	public void caseInsensitiveFolder() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content-headerfooter.xml");
+		
+		Page page = model.findPageByName("COMMONS/HEADER");
+		
+		assertNotNull(page);
+		assertEquals("header", page.getName());
+		
+	}
+	
+	@Test
+	public void movePage() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		IPage page;
+		
+		page = model.getPage(0);
+		assertEquals("style-audio", page.getName());
+
+		model.movePage(0, 1, true);
+		page = model.getPage(0);
+		assertEquals("schoice", page.getName());
+
+		model.movePage(1, 0, true);
+		page = model.getPage(0);
+		assertEquals("style-audio", page.getName());
+	}
+
+	
+	@Test
+	public void soundAsset() throws SAXException, IOException {
+		
+		Content model = new Content();
+
+		model.addAsset(new AudioAsset("1"));
+
+		String xml = model.toXML();
+		model = new Content();
+		model = initContentFromString(xml);
+		
+		IAsset asset = model.getAsset(0);
+		assertTrue(asset instanceof AudioAsset);
+	}
+
+
+	@Test
+	public void loadSaveAssets() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		IAsset asset = model.getAsset(0);
+		assertTrue(asset instanceof ImageAsset);
+		assertEquals("title1", asset.getTitle());
+		assertEquals("file2", asset.getFileName());
+		assertEquals("image", asset.getContentType());
+	}
+
+
+	@Test
+	public void loadSavePreview() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content3.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		IPage page = model.getPage(0);
+		assertEquals("/file/12", page.getPreview());
+	}
+
+
+	@Test
+	public void contentName() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		assertEquals("My lesson", model.getName());
+	}
+
+	@Test
+	public void randomPageId() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content3.xml");
+		
+		IPage page = model.getPage(0);
+		assertTrue(page.getId().length() > 0);
+	}
+
+
+	@Test
+	public void loadSavePageId() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content3.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		IPage page = model.getPage(0);
+		assertEquals("123456", page.getId());
+	}
+}

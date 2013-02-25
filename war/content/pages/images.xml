@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+		
+		<imageModule id="image1" isVisible="false" left="10" top="10" width="200" height="300" style="border:1px solid red;">
+			<image src="media/river.jpg" mode="keepAspect"/>
+		</imageModule>
+		
+		<imageModule left="380" top="10" width="300" height="300" style="border:1px solid red;">
+			<image src="media/river.jpg" mode="keepSize"/>
+		</imageModule>
+		
+		<addonModule id="addon2" addonId="DebugAddon" left='20' top='400' width='60' height='10'>
+			<properties>
+				<property name="Text" type="string" value="Hello world!"/>
+				<property name="Picture" type="image" value="ala/ma/kota"/>
+			</properties>
+		</addonModule>
+		 
+		<buttonModule  left="600" top="500" width="80" height="60" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

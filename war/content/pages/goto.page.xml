@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+		
+		<buttonModule  left="0" top="90" width="10" height="10" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="45" top="30" width="10" height="10" style="">
+			<button type="gotoPage" text="" onclick="math"/>
+		</buttonModule>
+		
+		<buttonModule  left="90" top="90" width="10" height="10" style="">
+			<button type="nextPage" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

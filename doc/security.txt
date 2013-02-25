@@ -1,0 +1,6 @@
+Problemy związane z bezpieczenstwem rozwiązania.
+
+Testy:
+Wstawienie:
+	<script>alert('hi!');</script>
+	

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<addon id="EventSource">
+	
+	<libs>
+	</libs>
+	
+	<model>
+		<property name="Text" type="string"/>
+	</model>
+	
+	<css>
+		.debugGreen{background-color:lightgreen;}
+	</css>
+	
+	<view>
+	  	&lt;div&gt;
+		&lt;button id='event1'&gt; ItemConsumed &lt;/button&gt;
+		&lt;button id='event2'&gt; ItemReturned &lt;/button&gt;
+		&lt;button id='event3'&gt; ItemSelected &lt;/button&gt;
+		&lt;button id='event4'&gt; ValueChanged &lt;/button&gt;
+		&lt;/div&gt;
+	</view>
+	
+	<preview>
+		&lt;p&gt;DebugAddon: Text = ${mytext}&lt;/p&gt;
+	</preview>
+	
+	<presenter>
+		function AddonEventSource_create(){
+			
+			var presenter = function(){}
+
+			var element;
+			var playerController;
+			var modelData;
+			
+			
+			presenter.setPlayerController = function(service){
+				playerController = service;
+			}
+			
+			
+			presenter.run = function(view, model){
+				
+				//modelData = model;
+				var button1 = document.getElementById('event1');
+				button1.onclick=function(){
+					data = {'id':'12', 'type':'string', 'value':'abc'};
+					playerController.getEventBus().sendEvent('ItemConsumed', data);
+				}; 
+				
+				var button2 = document.getElementById('event2');
+				button2.onclick=function(){
+					data = {'id':'12', 'type':'string', 'value':'abc'};
+					playerController.getEventBus().sendEvent('ItemReturned', data);
+				}; 
+				
+				var button3 = document.getElementById('event3');
+				button3.onclick=function(){
+					data = {'id':'12', 'type':'string', 'value':'abc'};
+					playerController.getEventBus().sendEvent('ItemSelected', data);
+				}; 
+				
+				var button4 = document.getElementById('event4');
+				button4.onclick=function(){
+					data = {'source':model['ID'], 'item':'12', 'value':'abc', 'score': "1"};
+					playerController.getEventBus().sendEvent('ValueChanged', data);
+				}; 
+			}
+
+			return presenter;
+		}
+	</presenter>
+	
+</addon>

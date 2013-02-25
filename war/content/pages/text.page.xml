@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+	
+		<textModule left="20" top="20" width="500" height="600" 
+			style="background-color:#eeeeff; border: 1px solid gray">
+			<text>
+			Tu jest tekst bez żadnego formatowania. Domyślnie powinien być trochę większy.
+			Ale jego wielkość nie może być wyrażona w pixelach. A to dlatego, że musi się on
+			skalować razm z aplikacją.
+				&lt;p&gt;To jest przykładowy &lt;b&gt;tekst&lt;/b&gt;.&lt;/p&gt;
+				&lt;p style='font-size:150%'&gt;Może to być html&lt;/p&gt;
+			&lt;img  src='media/river.jpg'/&gt;
+			</text>
+		</textModule>
+		
+		<imageModule left="550" top="20" width="200" height="200" style="border:1px solid red;">
+			<image src="media/river.jpg"/>
+		</imageModule>
+		
+	</modules>
+
+</page>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<interactiveContent name="My lesson">
+
+<addons>
+	<addon-descriptor addonId="123" href="addons/helloworld.addon.xml"/>
+</addons>
+
+
+<style>
+.ic_page{
+	background-color: #efefef;
+	font-size:18px;
+	width:	800px;
+	height:	600px;
+}
+
+.myText{
+	background-color:yellow;
+	border:1px solid blue;
+}
+
+.silver{
+	background-color:silver;
+	}
+</style>
+
+<pages>
+	<page name="style-audio" href="pages/style-audio.page.xml"/>
+	<page name="schoice" href="pages/schoice.page.xml"/>
+	<page name="ordering" href="pages/ordering.page.xml"/>
+	<page name="cloze" href="pages/cloze.page.xml"/>
+	<page name="inline choice" href="pages/inline-choice.page.xml"/>
+	<page name="report" href="pages/report.page.xml"/>
+	<page name="text" href="pages/text.page.xml"/>
+	<page name="mchoice" href="pages/mchoice.page.xml"/>
+	<page name="addon" href="pages/addon.xml"/>
+	<page name="summary" href="pages/summary.xml"/>
+	<page name="goto" href="pages/goto.page.xml"/>
+	<page name="links" href="pages/links.page.xml"/>
+	<page name="feedback" href="pages/feedback.page.xml"/>
+	<page name="test" href="pages/test.xml"/>
+	<page name="video" href="pages/youtube.page.xml"/>
+	<page name="popup1" href="pages/popup.page.xml"/>
+	<page name="math" href="pages/math.page.xml"/>
+	<folder name="test">
+		<page name="Popup1" href="pages/popup1.xml"/>
+		<page name="Popup2" href="pages/popup2.xml"/>
+	</folder>
+</pages>
+
+<assets>
+	<asset href="box2" type="image" title="title1" fileName="file2" contentType="image"/>
+	<asset href="box3" type="image" title="title &lt;" fileName="file2 &amp;" />
+	<asset href="box4" type="image"/>
+</assets>
+
+
+</interactiveContent>

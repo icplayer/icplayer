@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+	
+		<textModule left='15' top='15' width='70.0' height='30' style=''>
+			<text>
+				Twój wynik to {{score.total}} a wynik maksymalny to {{score.max}}
+			</text>
+		</textModule>
+		
+		<feedbackModule left="15" top="80" width="70" height="20">
+			<scope type="presentation"/>
+			<feedback value="10">
+				Zdobyłeś ponad 10 punktów.
+			</feedback>
+			<feedback value="5">
+				Zdobyłeś ponad 5 punktów.
+			</feedback>
+			<feedback value="1">
+				Zdobyłeś ponad 1 punkt.
+			</feedback>
+		</feedbackModule>
+		
+		<buttonModule  left="90" top="90" width="10" height="10" style="">
+			<button type="sendResults" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="0" top="90" width="10" height="10" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>
+
+

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<addon id="EventMonitor">
+	
+	<libs>
+	</libs>
+	
+	<model>
+		<property name="Text" type="string"/>
+	</model>
+	
+	<css>
+		.eventMonitor{background-color:white;border:1px solid gray;}
+	</css>
+	
+	<view>
+	    &lt;p class='eventMonitor'&gt;No events&lt;/p&gt;
+	</view>
+	
+	<preview>
+		&lt;p&gt;EventMonitor&lt;/p&gt;
+	</preview>
+	
+	<presenter>
+		function AddonEventMonitor_create(){
+			
+			var presenter = function(){}
+
+			var outputView;
+			var playerController;
+			
+			
+			presenter.setPlayerController = function(service){
+				playerController = service;
+			}
+			
+			presenter.onEventReceived = function(eventName, eventData){
+			
+				var html = 'Event: ' + eventName + "<br/>";
+				for(var key in eventData){
+					html += key + ":" + eventData[key] + " | ";
+				}
+				outputView.innerHTML = html;
+			}
+			
+			
+			presenter.run = function(view, model){
+				outputView = view;				
+				
+				playerController.getEventBus().addEventListener('ItemSelected', this);
+				playerController.getEventBus().addEventListener('ItemConsumed', this);
+				playerController.getEventBus().addEventListener('ItemReturned', this);
+				playerController.getEventBus().addEventListener('ValueChanged', this);
+				playerController.getEventBus().addEventListener('Definition', this);
+				playerController.getEventBus().addEventListener('AllOk', this);
+				playerController.getEventBus().addEventListener('PageLoaded', this);
+			}
+
+			return presenter;
+		}
+	</presenter>
+	
+</addon>

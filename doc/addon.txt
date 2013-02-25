@@ -1,0 +1,25 @@
+===============================================================================
+1. Specyfikacja addonów
+===============================================================================
+
+* Addon opisany jest w pliku deskryptora i składa się z
+  * Model (lista properties)
+  * View (kod html)
+  * Presenter (kod javascript)
+* Każdy Addon posiada swój unikalny id.
+* Tworzenie addona zaczyna się od wywołania funkcji o nazwie:
+
+  <addon_id>create(model)
+
+  Gdzie jako model podawana jest mapa z wartościami properties. 
+  Funkcja ta powinna zwrócić obiekt implementujący interface Presenter
+  
+  
+  
+2. Definicja interface
+-------------------------------------------------------------------------------
+
+interface Presenter{
+    // Rozpoczęcie pracy z podanym jako parametr view
+	void run(view);
+}

@@ -1,0 +1,677 @@
+/** CSS rules for player. */
+.ic_player h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl,
+hr, table, fieldset {
+  margin: 0px;
+}
+
+.ic_player{
+	border: 1px solid gray;
+	margin: 0px;
+	padding:0px;
+	font: 16px Verdana, Arial;
+}
+
+.ic_page{
+	width:	578px;
+	height:	398px;
+	margin: 0px;
+	padding:0px;
+	background-color: white;
+	color:black;
+}
+
+.ic_audio-load{
+	background-image	:url('images/wait_animation.gif');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_audio-start{
+	background-image	:url('images/media-playback-start.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_audio-stop{
+	background-image	:url('images/media-playback-stop.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+
+.ic_button_nextpage{
+	background-image	:url('images/next_page.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_button_nextpage-up-disabled{
+	background-image	:none;
+}
+
+.ic_button_nextpage-down-hovering
+{
+	background-image	:url('images/next_page.png');
+}
+
+.ic_button_prevpage{
+	background-image	:url('images/prev_page.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_button_prevpage-up-disabled{
+	background-image	:none;
+}
+
+.ic_button_prevpage-down-hovering
+{
+	background-image	:url('images/prev_page.png');
+}
+
+.ic_button_gotopage{
+	background-image	:url('images/goto_page.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+
+.ic_button_check{
+	background-image	:url('images/check.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_button_uncheck{
+	background-image	:url('images/uncheck.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_button_reset{
+	background-image	:url('images/reset.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
+.ic_button_popup{
+	background-image	:url('images/popup.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
+.ic_button_cancel{
+	background-image	:url('images/cancel.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
+.ic_button_send{
+	background-image	:url('images/send.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
+.ic_button_standard{
+	background-image	:url('images/standard-button.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
+.ic_gap{
+}
+
+.ic_gap-correct{
+	padding-left:16px;
+	background-image:url('images/correct.png');
+	background-repeat:no-repeat;
+}
+
+.ic_gap-wrong{
+	padding-left:16px;
+	background-image:url('images/wrong.png');
+	background-repeat:no-repeat;
+}
+
+.ic_draggableGapEmpty{
+	width:100px;
+	border:1px solid gray;
+	display:inline-block;
+}
+
+.ic_draggableGapEmpty-correct{
+	padding-left:16px;
+	background-image:url('images/correct.png');
+	background-repeat:no-repeat;
+}
+
+.ic_draggableGapEmpty-wrong{
+	padding-left:16px;
+	background-image:url('images/wrong.png');
+	background-repeat:no-repeat;
+}
+
+.ic_draggableGapFilled{
+	width:100px;
+	display:inline-block;
+	border: 1px solid green;
+	background-color: PaleGreen;
+	margin-right: 10px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.ic_draggableGapFilled-correct{
+	padding-left:16px;
+	background-image:url('images/correct.png');
+	background-repeat:no-repeat;
+}
+
+.ic_draggableGapFilled-wrong{
+	padding-left:16px;
+	background-image:url('images/wrong.png');
+	background-repeat:no-repeat;
+}
+
+.ic_inlineChoice{
+}
+
+.ic_inlineChoice-correct{
+	border: 2px solid green;
+}
+
+.ic_inlineChoice-wrong{
+	border: 2px solid red;
+}
+
+
+
+/**
+ * choice
+ */
+.ic_choice-feedback-correct{
+	border: 2px solid green;
+	border-radius: 5px;
+	background-color:PaleGreen;
+	padding:4px;
+}
+
+.ic_choice-feedback-wrong{
+	border: 2px solid red;
+	border-radius: 5px;
+	background-color:Tomato;
+	padding:4px;
+	color:black;
+}
+
+.ic_moption{
+	padding-left:56px;
+	background-repeat:no-repeat;
+	background-position:left center; 
+	cursor: pointer;
+}
+
+.ic_moption .html-face{
+	min-height:25px;
+	padding-top:10px;
+}
+
+.ic_moption-up{
+	background-image:url('images/checkbox-up.png');
+}
+
+.ic_moption-up-hovering{
+	background-image:url('images/checkbox-up.png');
+}
+
+.ic_moption-down{
+	background-image:url('images/checkbox-down.png');
+}
+
+.ic_moption-down-hovering{
+	background-image:url('images/checkbox-down.png');
+}
+
+.ic_moption-up-correct{
+	background-image:url('images/checkbox-up-disabled.png');
+}
+
+.ic_moption-up-wrong{
+	background-image:url('images/checkbox-up-disabled.png');
+}
+
+.ic_moption-down-correct{
+	background-image:url('images/checkbox-down-correct.png');
+}
+
+.ic_moption-down-wrong{
+	background-image:url('images/checkbox-down-wrong.png');
+}
+
+/**
+ * Single choice options
+ */
+.ic_soption{
+	padding-left:56px;
+	background-repeat:no-repeat;
+	background-position:left center; 
+	cursor: pointer;
+}
+
+.ic_soption .html-face{
+	min-height:30px;
+	padding-top:10px;
+}
+
+.ic_soption-up{
+	background-image:url('images/radio-up.png');
+}
+
+.ic_soption-up-hovering{
+	background-image:url('images/radio-up.png');
+}
+
+.ic_soption-down{
+	background-image:url('images/radio-down.png');
+}
+
+.ic_soption-down-hovering{
+	background-image:url('images/radio-down.png');
+}
+
+.ic_soption-up-correct{
+	background-image:url('images/radio-up-disabled.png');
+}
+
+.ic_soption-up-wrong{
+	background-image:url('images/radio-up-disabled.png');
+}
+
+.ic_soption-down-correct{
+	background-image:url('images/radio-down-correct.png');
+}
+
+.ic_soption-down-wrong{
+	background-image:url('images/radio-down-wrong.png');
+}
+
+/**
+ * Ordering
+ */
+
+.ic_ordering{
+	
+}
+
+.ic_ordering-item{
+	margin: 4px;
+	padding:4px;
+	border: 1px solid gray;
+	border-radius: 5px;
+	background-color:white;
+}
+
+.ic_ordering-item-correct{
+	border: 1px solid lightgreen;
+}
+
+.ic_ordering-item-wrong{
+	border: 1px solid red;
+}
+
+
+/**
+ * Page counters
+ */
+.ic_checkcounter{
+	text-align: center;
+}
+
+.ic_errorcounter{
+	text-align: center;
+	color:red;
+}
+
+/**
+ * Page progress
+ */
+.ic_progress { 
+	padding:2px;
+	width:	130px;
+	height: 25px;
+	border-radius: 5px;
+	border:2px solid #02789F; 
+}
+
+.ic_progress-bar { 
+	background-color: #3CC6CD;
+	border-radius: 5px;
+}
+
+.ic_progress-text { 
+	color:#0A8DBD;
+	font-size:18px;
+	padding-top:4px;
+}
+
+.ic_pageprogress { 
+	padding:2px;
+	width:	130px;
+	height: 25px;
+	border-radius: 5px;
+	border:2px solid #02789F; 
+}
+
+.ic_pageprogress .ic_progress-bar { 
+	background-color: #3CC6CD;
+	border-radius: 5px;
+}
+
+.ic_pageprogress .ic_progress-text { 
+	color:#0A8DBD;
+	font-size:18px;
+	padding-top:4px;
+}
+
+.ic_pageprogress .ic_progress-text-firstHalf {
+}
+
+.ic_pageprogress .ic_progress-text-secondHalf {
+}
+ 
+ 
+
+
+
+/**
+ * Stylizacja modułu raportu
+ */
+.ic_report {
+	padding: 15px;
+	border-radius: 5px;
+	border:1px solid gray;
+	background-color:white;
+	color:gray;
+}
+
+.ic_report td{
+	padding: 10px;
+}
+
+.ic_report-header{
+	font-weight: bold;
+	color:black;
+}
+
+.ic_report-odd{
+	background-color: AliceBlue;
+}
+
+.ic_report-even{
+	background-color: Lavender;
+}
+
+.ic_report-footer{
+	font-weight: bold;
+	color:black;
+}
+
+.ic_report td:nth-child(3) {
+    color: green;
+    text-align:center;
+}
+
+.ic_report td:nth-child(4) {
+    color: red;
+    text-align:center;
+}
+
+.ic_reportPage{
+	cursor:pointer;
+}
+
+
+.ic_drag-source{
+	border: 1px solid orange;
+}
+
+
+/**
+ * Source list
+ */
+
+.ic_sourceList{
+	padding:10px;
+}
+
+.ic_sourceListItem{
+	display: inline;
+	padding:4px;
+	border: 1px solid green;
+	background-color: PaleGreen;
+	margin-right: 10px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.ic_sourceListItem-selected{
+	background-color: orange;
+	cursor: pointer;
+}
+
+/**
+ * Source image
+ */
+.ic_sourceImage{
+	cursor: pointer;
+}
+
+.ic_sourceImage-selected{
+	cursor: pointer;
+	border: 1px solid orange;
+}
+
+.ic_imageGap{
+	cursor: pointer;
+	border: 1px solid gray;
+}
+
+.ic_imageGap-Filled{
+	cursor: pointer;
+}
+
+.ic_imageGap-correct{
+	border: 1px solid green;
+}
+
+.ic_imageGap-wrong{
+	border: 1px solid red;
+}
+
+
+
+/**
+ * Stylizacja panelu popupa
+ */
+.ic_popup .Caption {
+  background: #F1F1F1;
+  padding: 4px 8px 4px 4px;
+  cursor: default;
+  font-family: Arial Unicode MS, Arial, sans-serif;
+  font-weight: bold;
+  border-bottom: 1px solid #bbbbbb;
+  border-top: 1px solid #D2D2D2;
+}
+.ic_popup .dialogContent {
+}
+.ic_popup .dialogMiddleCenter {
+  padding: 0px;
+  background: white;
+}
+.ic_popup .dialogBottomCenter {
+  background: url(images/hborder.png) repeat-x 0px -2145px;
+}
+.ic_popup .dialogMiddleLeft {
+  background: url(images/vborder.png) repeat-y -31px 0px;
+}
+.ic_popup .dialogMiddleRight {
+  background: url(images/vborder.png) repeat-y -32px 0px;
+}
+.ic_popup .dialogTopLeftInner {
+  width: 10px;
+  height: 8px;
+  zoom: 1;
+}
+.ic_popup .dialogTopRightInner {
+  width: 12px;
+  zoom: 1;
+}
+.ic_popup .dialogBottomLeftInner {
+  width: 10px;
+  height: 12px;
+  zoom: 1;
+}
+.ic_popup .dialogBottomRightInner {
+  width: 12px;
+  height: 12px;
+  zoom: 1;
+}
+.ic_popup .dialogTopLeft {
+  background: url(images/circles.png) no-repeat -20px 0px;
+}
+.ic_popup .dialogTopRight {
+  background: url(images/circles.png) no-repeat -28px 0px;
+}
+.ic_popup .dialogBottomLeft {
+  background: url(images/circles.png) no-repeat 0px -36px;
+}
+.ic_popup .dialogBottomRight {
+  background: url(images/circles.png) no-repeat -8px -36px;
+}
+
+
+/**
+ * Progress bar
+ */
+.gwt-ProgressBar-shell { 
+	padding:2px;
+	width:	130px;
+	height: 25px;
+	border-radius: 5px;
+	border:2px solid #02789F; 
+}
+
+.gwt-ProgressBar-bar { 
+	background-color: #3CC6CD;
+	border-radius: 5px;
+}
+
+.gwt-ProgressBar-text { 
+	color:#0A8DBD;
+	font-size:18px;
+	padding-top:4px;
+}
+
+.gwt-ProgressBar-shell .gwt-ProgressBar-text-firstHalf {
+}
+
+.gwt-ProgressBar-shell .gwt-ProgressBar-text-secondHalf {
+}
+ 
+ 
+/******************************************************************************
+ GWT classes
+******************************************************************************/
+.gwt-DialogBox .Caption {
+  background: #F1F1F1;
+  padding: 4px 8px 4px 4px;
+  cursor: default;
+  font-family: Arial Unicode MS, Arial, sans-serif;
+  font-weight: bold;
+  border-bottom: 1px solid #bbbbbb;
+  border-top: 1px solid #D2D2D2;
+}
+.gwt-DialogBox .dialogContent {
+}
+.gwt-DialogBox .dialogMiddleCenter {
+  padding: 3px;
+  background: white;
+}
+.gwt-DialogBox .dialogBottomCenter {
+  background: url(images/hborder.png) repeat-x 0px -2145px;
+}
+.gwt-DialogBox .dialogMiddleLeft {
+  background: url(images/vborder.png) repeat-y -31px 0px;
+}
+.gwt-DialogBox .dialogMiddleRight {
+  background: url(images/vborder.png) repeat-y -32px 0px;
+}
+.gwt-DialogBox .dialogTopLeftInner {
+  width: 10px;
+  height: 8px;
+  zoom: 1;
+}
+.gwt-DialogBox .dialogTopRightInner {
+  width: 12px;
+  zoom: 1;
+}
+.gwt-DialogBox .dialogBottomLeftInner {
+  width: 10px;
+  height: 12px;
+  zoom: 1;
+}
+.gwt-DialogBox .dialogBottomRightInner {
+  width: 12px;
+  height: 12px;
+  zoom: 1;
+}
+.gwt-DialogBox .dialogTopLeft {
+  background: url(images/circles.png) no-repeat -20px 0px;
+}
+.gwt-DialogBox .dialogTopRight {
+  background: url(images/circles.png) no-repeat -28px 0px;
+}
+.gwt-DialogBox .dialogBottomLeft {
+  background: url(images/circles.png) no-repeat 0px -36px;
+}
+.gwt-DialogBox .dialogBottomRight {
+  background: url(images/circles.png) no-repeat -8px -36px;
+}
+* html .gwt-DialogBox .dialogTopLeftInner {
+  width: 10px;
+  overflow: hidden;
+}
+* html .gwt-DialogBox .dialogTopRightInner {
+  width: 12px;
+  overflow: hidden;
+}
+* html .gwt-DialogBox .dialogBottomLeftInner {
+  width: 10px;
+  height: 12px;
+  overflow: hidden;
+}
+* html .gwt-DialogBox .dialogBottomRightInner {
+  width: 12px;
+  height: 12px;
+  overflow: hidden;
+}
+.gwt-PopupPanelGlass {
+  background-color: #000;
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+}

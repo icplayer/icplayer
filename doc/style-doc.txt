@@ -1,0 +1,221 @@
+Nazwa stylu
+Moduł którego dotyczy
+Stan
+.ic_page
+ Cała strona
+
+
+.ic_button_nextpage
+ Przycisk następna strona
+
+
+.ic_button_nextpage-up-disabled
+ Przycisk następna strona
+ zablokowany
+
+.ic_button_nextpage-down-hovering
+ Przycisk następna strona
+ mysz nad przyciskiem
+
+.ic_button_prevpage
+ Przycisk poprzednia strona
+
+
+.ic_button_prevpage-up-disabled
+ Przycisk poprzednia strona
+ zablokowany
+
+.ic_button_prevpage-down-hovering
+ Przycisk oprzednia strona
+ mysz nad przyciskiem
+
+.ic_button_gotopage
+ Przycisk przejdz do wybranej strony
+
+
+.ic_button_check
+ Przycisk sprawdż odpowiedzi
+
+
+.ic_button_uncheck
+ Przecisk wyłącz tryb sprawdzania odpowiedzi
+
+
+.ic_button_reset
+ Przycisk reset
+
+
+.ic_button_popup
+ Przycisk pokaż popup
+
+
+.ic_button_cancel
+ Przycisk zamknij popup
+
+
+.ic_button_send
+ Przycisk wyślij
+
+
+.ic_gap
+ Gapa w tekście
+
+
+.ic_gap-correct
+ Gapa zaznaczona jako poprawna
+
+
+.ic_gap-wrong
+ Gapa zaznaczona jako błędna
+
+
+.ic_inlineChoice
+ Cwiczenie wyboru w tekscie
+
+
+.ic_inlineChoice-correct
+ Cwiczenie wyboru w tekscie zaznaczone jako poprawne
+
+
+.ic_inlineChoice-wrong
+ Cwiczenie wyboru w tekscie zaznaczone jako błedne
+
+
+.ic_moption
+ Opcja ćwiczenia multiple choice 
+
+
+.ic_moption-up
+ Opcja ćwiczenia multiple choice
+ nie wybrana
+
+.ic_moption-up-hovering
+ Opcja ćwiczenia multiple choice
+ mysz na opcją
+
+.ic_moption-down 
+ Opcja ćwiczenia multiple choice - wybrana
+
+
+.ic_moption-down-hovering 
+Opcja ćwiczenia multiple choice wybrana i mysz nad opcją
+
+
+.ic_moption-up-correct
+ Opcja ćwiczenia pokazana jako poprawna
+ nie zaznaczona
+
+.ic_moption-up-wrong
+ Opcja ćwiczenia pokazana jako błędna
+ nie zaznaczona
+
+.ic_moption-down-correct
+ Opcja ćwiczenia pokazana jako poprawna
+ zaznaczona
+
+.ic_moption-down-wrong
+ Opcja ćwiczenia pokazana jako błędna
+ zaznaczona
+
+.ic_soption
+ Opcja ćwiczenia single choice 
+
+
+.ic_soption-up
+ Opcja ćwiczenia single choice
+ nie wybrana
+
+.ic_soption-up-hovering
+ Opcja ćwiczenia single choice
+ mysz na opcją
+
+.ic_soption-down 
+ Opcja ćwiczenia single choicewybrana
+
+
+.ic_soption-down-hovering 
+Opcja ćwiczenia single choice wybrana i mysz nad opcją
+
+
+.ic_soption-up-correct
+ Opcja ćwiczenia pokazana jako poprawna
+ nie zaznaczona
+
+.ic_soption-up-wrong
+ Opcja ćwiczenia pokazana jako błędna
+ nie zaznaczona
+
+.ic_soption-down-correct
+ Opcja ćwiczenia pokazana jako poprawna
+ zaznaczona
+
+.ic_soption-down-wrong
+ Opcja ćwiczenia pokazana jako błędna
+ zaznaczona
+.ic_ordering
+ ćwiczenie ordering
+
+
+.ic_ordering-item
+ element ćwiczenia ordering
+
+
+.ic_ordering-item-correct
+ element ćwicznia ordering zaznaczony jako poprawny
+
+
+.ic_ordering-item-wrong
+ element ćwicznia ordering zaznaczony jako błędny
+
+
+.ic_drag-source element 
+ćwicznia ordering zaznaczony jako aktywny
+
+
+.ic_checkcounter
+ Licznik wciśnięcia przycisku check
+
+
+.ic_errorcounter
+ Licznik błędów
+
+
+.ic_pageprogress-shell
+ Progres rozwiązania strony
+
+
+.ic_pageprogress-bar
+ Pasek progresu rozwiązania strony
+
+
+.ic_pageprogress-text 
+ Text progresu rozwiązania strony
+
+
+.ic_report
+ Raport lekcji
+
+
+.ic_report-header
+ Nagłówek raportu
+
+
+.ic_report-odd
+ Wiersz nieparzysty
+
+
+.ic_report-even
+ Wiersz parzysty
+
+
+.ic_report-footer
+ Stopka raportu
+
+
+
+.ic_text
+Moduł tekstowy
+
+.ic_image
+Moduł obrazka
+

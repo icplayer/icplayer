@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels" height="100" style="background-color:lighgreen">
+
+	<modules>
+		
+		<buttonModule  left="0" top="40" width="80" height="60" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="720" top="40" width="80" height="60" style="">
+			<button type="nextPage" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

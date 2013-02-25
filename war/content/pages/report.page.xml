@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+	
+		<reportModule left="10" top="2" width="80" height="96">
+			<labels showCounters="true">
+				<label name="ErrorCount" value="Ilość błędów"/>
+				<label name="CheckCount" value="Ilość sprawdzeń"/>
+				<label name="Results" value="Wynik:"/>
+				<label name="Total" value="Razem:"/>
+			</labels>
+		</reportModule>
+		
+	</modules>
+
+</page>
+
+

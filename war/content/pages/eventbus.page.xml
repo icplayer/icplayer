@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+		
+		<sourceListModule id="sl2" left='10' top='10' width='600' height='40'>
+			<items>
+				<item text="didn&apos;t" type="string"/>
+				<item text="volvo" type="string"/>
+				<item text="Opcja 1" type="string"/>
+				<item text="Pozostałe z dosyć długim tekstem, który nie powinien się złamać" type="string"/>
+			</items>
+		</sourceListModule>
+		
+		<textModule id="cloze" left='10' top='200' width='300' height='240'>
+			<text draggable='false'>
+				&lt;p&gt;She {{2:didn&apos;t}} like him very much (didn&apos;t).&lt;/p&gt;
+				&lt;p&gt;I \def{like} to drive {{2:volvo}}.&lt;/p&gt;
+				&lt;p&gt;I like {{2:volvo|opel|audi}}.&lt;/p&gt;
+			</text>
+		</textModule>
+		
+		<choiceModule id="n34" left="420" top="100" width="350" height="300">
+			<choice isMulti="true"/>
+			<option value="5">To jest opcja pierwsza za 5 punktów</option>
+			<option value="0">To jest opcja druga za 0 punktów</option>
+			<option value="1">To jest opcja trzecia za 1 punkt</option>
+		</choiceModule>
+		
+		<buttonModule  left="520" top="500" width="80" height="60" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="600" top="500" width="80" height="60" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+		<addonModule id="addon1" addonId="EventSource" left='40' top='320' width='400' height='100'>
+			<properties>
+				<property name="Text" type="string" value=""/>
+			</properties>
+		</addonModule>
+		
+		<addonModule id="addon10" addonId="EventMonitor" left='40' top='400' width='350' height='100'>
+			<properties>
+				<property name="Text" type="string" value=""/>
+			</properties>
+		</addonModule>
+		
+	</modules>
+
+</page>

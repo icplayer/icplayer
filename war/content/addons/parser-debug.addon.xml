@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<addon id="ParserDebug">
+	
+	<libs>
+	</libs>
+	
+	<model>
+		<property name="Text" type="html"/>
+	</model>
+	
+	<css>
+		.debugGreen{background-color:lightgreen;}
+	</css>
+	
+	<view>
+	  	&lt;div&gt;
+		&lt;p id='parserText'&gt;&lt;/p&gt;
+		&lt;p id='parserCount'&gt;&lt;/p&gt;
+		&lt;/div&gt;
+	</view>
+	
+	<preview>
+		&lt;p&gt;DebugAddon: Text = ${mytext}&lt;/p&gt;
+	</preview>
+	
+	<presenter>
+		function AddonParserDebug_create(){
+			
+			var presenter = function(){}
+
+			var element;
+			var playerController;
+			
+			
+			presenter.setPlayerController = function(service){
+				playerController = service;
+			}
+			
+			
+			presenter.run = function(view, model){
+				
+				parsedText = playerController.getTextParser().parse(model['Text']);
+				element = view.getElementsByTagName('p')[0];
+				$('#parserText').html(parsedText)
+				playerController.getTextParser().connectLinks(view);
+			}
+
+			return presenter;
+		}
+	</presenter>
+	
+</addon>

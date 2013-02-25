@@ -1,0 +1,12 @@
+<page layout="pixels" width="0" height="112">
+	<modules>
+		<buttonModule id="PrevPage" left="0" top="450" width="71" height="50" isVisible="true">
+			<button type="prevPage" text="" onclick=""/>
+		</buttonModule>
+		
+		<buttonModule id="NextPage" left="639" top="450" width="71" height="50" isVisible="true">
+			<button type="nextPage" text="" onclick=""/>
+		</buttonModule>
+			
+	</modules>
+</page>

@@ -1,0 +1,7 @@
+/.gwt
+/.settings
+/dist
+/gwt-unitCache
+/reports
+/target
+/test

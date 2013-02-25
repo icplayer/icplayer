@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+	
+		<textModule id="text" left='400' top='300' width='350' height='100'>
+			<text>
+				&lt;p&gt;Tu powinna pokazać się wysłana komenda&lt;/p&gt;
+			</text>
+		</textModule>
+		
+		<addonModule id="addon2" addonId="DebugAddon" left='20' top='10' width='400' height='60'>
+			<properties>
+				<property name="Text" value="Hello world!"/>
+			</properties>
+		</addonModule>
+		
+		<buttonModule  left="520" top="400" width="80" height="60" style="">
+			<button type="standard" text="" onclick="var a = addon2.setText(1, 'ala');text.setText(a);"/>
+		</buttonModule>
+		
+		<buttonModule  left="0" top="540" width="80" height="60" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="720" top="540" width="80" height="60" style="">
+			<button type="nextPage" text=""/>
+		</buttonModule>
+	</modules>
+
+</page>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<interactiveContent>
+
+<pages>
+	<page name="Page 1" href="pages/style-audio.page.xml"/>
+	<page name="Page 2" href="pages/schoice.page.xml" reportable="False"/>
+	<page name="Page 3" href="pages/ordering.page.xml"/>
+</pages>
+
+</interactiveContent>

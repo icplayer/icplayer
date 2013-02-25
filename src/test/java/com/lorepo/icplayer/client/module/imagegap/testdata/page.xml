@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+		<imageGapModule id="ig1" left="5" top="5" width="30" height="30">
+			<gap answerId="si1"/>
+		</imageGapModule>
+	</modules>
+
+</page>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+	
+		<choiceModule id="2frg43d" left="10" top="10" width="300" height="380">
+			<options>
+				<option value="5">
+					<text>To jest \def{opcja} pierwsza za 5 punktów</text>
+				</option>
+				<option value="0">
+					<text>To jest opcja \def{druga} za 0 punktów</text>
+				</option>
+				<option value="1">To jest opcja trzecia za 1 punkt</option>
+			</options>
+		</choiceModule>
+		
+		<orderingModule id="22243d" left="400" top="10" width="300" height="380">
+			<ordering isVertical="true"/>
+			
+			<item>To jest \def{pierwszy} element &lt;img  src='media/puzzle.png'/&gt;</item>
+			<item>To jest drugi element</item>
+			<item>To jest trzeci element</item>
+			<item>To jest czwarty element</item>
+		</orderingModule>
+		
+		<addonModule id="addon10" addonId="EventMonitor" left='40' top='400' width='350' height='100'>
+			<properties>
+				<property name="Text" type="string" value=""/>
+			</properties>
+		</addonModule>
+
+	</modules>
+
+</page>

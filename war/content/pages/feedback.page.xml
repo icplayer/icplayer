@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page  style="background-color:yellow;width:600px;height:400px;">
+
+	<modules>
+		
+		<choiceModule id="22d43d" left="15" top="10" width="40" height="40">
+			<option value="5">To jest opcja pierwsza za 5 punktów</option>
+			<option value="0">To jest opcja druga za 0 punktów</option>
+			<option value="1">To jest opcja trzecia za 1 punkt</option>
+		</choiceModule>
+		
+		<buttonModule  left="65" top="50" width="10" height="10" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="75" top="50" width="10" height="10" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+		<feedbackModule left="15" top="80" width="70" height="20" style="background-color:white">
+			<scope type="page"/>
+			<feedback value="5">
+				Tak sobie. 5 punktów
+			</feedback>
+			<feedback value="1">
+				To jest słabo punktowana opcja. Tylko 1 punkt
+			</feedback>
+			<feedback value="10">
+				Strzał w dziesiatkę. Całe uzyskujesz 10 punktów.
+			</feedback>
+		</feedbackModule>
+		
+		<buttonModule  left="0" top="90" width="10" height="10" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="90" top="90" width="10" height="10" style="">
+			<button type="nextPage" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

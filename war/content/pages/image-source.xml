@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+	
+		<imageSourceModule id="is1" left="100" top="50" width="64" height="64">
+			<image src="media/vimeo.png"/>
+		</imageSourceModule>
+		<imageSourceModule id="is2" left="200" top="50" width="64" height="64">
+			<image src="media/puzzle.png"/>
+		</imageSourceModule>
+		<imageSourceModule id="is3" left="300" top="50" width="64" height="64">
+			<image src="media/flash.png"/>
+		</imageSourceModule>
+
+		<imageGapModule id="ig1" left="200" top="150" width="64" height="64">
+			<gap answerId="is2"/>
+		</imageGapModule>
+
+		<addonModule id="addon10" addonId="EventMonitor" left='40' top='300' width='350' height='100'>
+			<properties>
+				<property name="Text" type="string" value=""/>
+			</properties>
+		</addonModule>
+
+		<addonModule id="addon2" addonId="DebugAddon" left='450' top='300' width='200' height='100'>
+			<properties>
+				<property name="Text" type="string" value="Hello world!"/>
+				<property name="Picture" type="image" value="ala/ma/kota"/>
+			</properties>
+		</addonModule>
+		 
+		<buttonModule  left="520" top="400" width="80" height="60" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="600" top="400" width="80" height="60" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

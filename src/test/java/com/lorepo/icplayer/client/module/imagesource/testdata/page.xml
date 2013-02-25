@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+	
+		<imageSourceModule id="is1" left="5" top="5" width="30" height="30" style="border:1px solid red;">
+			<image src="media/river.jpg"/>
+		</imageSourceModule>
+	</modules>
+
+</page>

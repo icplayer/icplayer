@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+		
+		<sourceListModule id="sl1" left='40' top='50' width='640' height='40'>
+			<items>
+				<item text="didn&apos;t" type="string"/>
+				<item text="\(a&gt;0\)" type="string"/>
+				<item text="\(a&lt;0\)" type="string"/>
+				<item text="Pozostałe" type="string"/>
+			</items>
+		</sourceListModule>
+		
+		<sourceListModule id="sl2" left='40' top='100' width='640' height='40'>
+			<items>
+				<item text="didn&apos;t" type="string"/>
+				<item text="volvo" type="string"/>
+				<item text="Opcja 1" type="string"/>
+				<item text="Pozostałe z dosyć długim tekstem, który nie powinien się złamać" type="string"/>
+			</items>
+		</sourceListModule>
+		
+		<textModule id="cloze" left='40' top='200' width='640' height='240'>
+			<text draggable='true' gapWidth="200" isActivity="true"><![CDATA[A parabola defined by the function \(y=ax^2+bx+c\) opens upwards if \gap{\(a&gt;0\)} and opens downwards if \gap{\(a&lt;0\)}.<br>]]></text>
+		</textModule>
+		
+		<buttonModule  left="520" top="400" width="80" height="60" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="600" top="400" width="80" height="60" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

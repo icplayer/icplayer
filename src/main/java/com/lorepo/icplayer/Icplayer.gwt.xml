@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='icplayer'>
+  	<inherits name='com.google.gwt.user.User'/>
+
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.xml.XML" />
+	<inherits name="com.google.gwt.json.JSON" />
+	<!-- inherits name="com.google.gwt.logging.Logging"/-->
+	<inherits name='com.lorepo.icf.Properties'/>
+	<inherits name='com.lorepo.icf.Utils'/>
+	<inherits name='com.lorepo.icf.Scripting'/>
+
+	<stylesheet src="theme/player.css"/>
+	<stylesheet src="libs/jquery-ui.css"/>
+	
+	<script src="libs/buzz.js"/>
+	<script src="libs/jcanvas.min.js"/>
+	<script src="libs/jquery-ui.js"/>
+	<script src="libs/jquery.dotimeout.js"/>
+	<script src="libs/jquery.imgpreload.js"/>
+	<script src="libs/jquery.mousewheel.js"/>
+	<script src="libs/js-expression-eval.js"/>
+	<script src="libs/raphael.js"/>
+	<script src="libs/raphael.free_transform.js"/>
+	<script src="libs/jquery.svg.min.js"/>
+	<script src="libs/jquery.svganim.min.js"/>
+	<script src="libs/jquery.svgdom.min.js"/>
+	<script src="libs/expression-evaluator.js"/>
+	<script src="libs/commons.js"/>
+	<script src="libs/dictionary.js"/>
+	<script src="libs/aop.min.js"/>
+	<script src="libs/scorm.js"/>
+
+	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
+
+	<source path='client'/>
+	
+	<extend-property name="locale" values="ar"/>
+
+</module>

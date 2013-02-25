@@ -1,0 +1,85 @@
+package com.lorepo.icplayer.client.mockup.services;
+
+import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
+import com.lorepo.icplayer.client.module.api.player.PageScore;
+
+public class CommandsMockup implements IPlayerCommands {
+
+	private float score = 34;
+	private float maxScore = 50;
+	private int errorCount = 13;
+	private String lastCode;
+	
+	private String command;
+	
+	@Override
+	public void checkAnswers() {
+	}
+
+	@Override
+	public void uncheckAnswers() {
+	}
+
+	@Override
+	public void reset() {
+	}
+
+	@Override
+	public PageScore getCurrentPageScore() {
+		PageScore pageScore = new PageScore("");
+		pageScore.setScore(score);
+		pageScore.setMaxScore(maxScore);
+		pageScore.setErrorCount(errorCount);
+		return pageScore;
+	}
+
+	@Override
+	public void showPopup(String pageName) {
+	}
+
+	@Override
+	public void closePopup() {
+	}
+
+	@Override
+	public void nextPage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void prevPage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void gotoPage(String name) {
+		command = "gotoPage: " + name;
+	}
+	
+	public String getCommand(){
+		return command;
+	}
+
+	@Override
+	public void executeEventCode(String code) {
+		lastCode = code;
+	}
+	
+	public String getLastCode(){
+		return lastCode;
+	}
+
+	@Override
+	public void updateCurrentPageScore() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public long getTimeElapsed() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="pixels">
+
+	<modules>
+		
+				
+		<textModule id="cloze" left='40' top='20' width='640' height='240'>
+			<text draggable="false" gapWidth="150" isActivity="true" isDisabled="false" 
+			isCaseSensitive="false"><![CDATA[<div align="center">\(x=\) \gap{50}°<br></div>]]></text>
+		</textModule>
+		
+		<checkCounterModule id="c1" left="50" top="350" width="50" height="50">
+		</checkCounterModule>
+		
+		<errorCounterModule id="c2" left="150" top="350" width="50" height="50">
+		</errorCounterModule>
+		
+		<pageProgressModule id="c3" left="250" top="350" width="350" height="50">
+		</pageProgressModule>
+
+		<buttonModule  left="50" top="450" width="80" height="50">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="150" top="450" width="80" height="60">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+	</modules>
+
+</page>

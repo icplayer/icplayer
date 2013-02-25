@@ -1,0 +1,34 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+    <title>Runtime test</title>
+    
+    <script type="text/javascript" language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" language="javascript" src="icplayer/icplayer.nocache.js"></script>
+    
+    <script language="javascript">
+		var player1;
+      	function qpOnAppLoaded(){
+	        // Load assessment
+    	    player1 = icCreatePlayer('_icplayer');
+        	player1.load('content/default.ic.xml');
+      	}
+      
+    </script>
+    
+    <script type="text/javascript"
+  		src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+    
+  </head>
+
+  <body>
+
+    <h1>Player test</h1>
+
+	<div id="_icplayer"></div>
+  </body>
+</html>
