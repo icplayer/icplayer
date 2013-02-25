@@ -42,3 +42,14 @@ Example html page:
   </body>
 </html>
 ```
+
+
+## Demo content
+
+Check same demo lessons powered by this player:
+* http://www.mauthor.com/embed/1009048
+* http://www.mauthor.com/embed/1008049
+* http://www.mauthor.com/embed/1015581
+* http://www.mauthor.com/embed/951516
+
+You can also check http://www.mauthor.com website where you can find editor for this kind of content
