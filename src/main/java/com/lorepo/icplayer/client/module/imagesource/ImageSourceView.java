@@ -16,15 +16,15 @@ public class ImageSourceView extends Image implements IDisplay {
 	private IViewListener listener;
 	
 	
-	public ImageSourceView(ImageSourceModule module) {
+	public ImageSourceView(ImageSourceModule module, boolean isPreview) {
 		
 		this.module = module;
-		createUI();
+		createUI(isPreview);
 		connectHandlers();
 	}
 
 	
-	private void createUI() {
+	private void createUI(boolean isPreview) {
 		
 		setStyleName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
@@ -32,7 +32,10 @@ public class ImageSourceView extends Image implements IDisplay {
 		if(imageUrl.length() > 0){
 			setUrl(imageUrl);
 		}
-		setVisible(module.isVisible());
+		
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 	

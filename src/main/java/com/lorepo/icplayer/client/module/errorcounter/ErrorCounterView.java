@@ -5,12 +5,15 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 
 public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDisplay{
 
-	public ErrorCounterView(ErrorCounterModule module){
+	public ErrorCounterView(ErrorCounterModule module, boolean isPreview){
 	
 		setStyleName("ic_errorcounter");
 		StyleUtils.applyInlineStyle(this, module);
-		setText("5");
-		setVisible(module.isVisible());
+		if(isPreview){
+			setText("5");
+		}else{
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 

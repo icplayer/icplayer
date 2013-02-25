@@ -68,7 +68,9 @@ public class ButtonView extends Composite implements IModuleView{
 			pushButton.setText(module.getText());
 		}
 
-		button.setVisible(module.isVisible());
+		if(playerServices != null){
+			button.setVisible(module.isVisible());
+		}
 		
 		return button;
 	}

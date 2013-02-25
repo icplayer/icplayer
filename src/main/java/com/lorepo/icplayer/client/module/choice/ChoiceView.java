@@ -19,18 +19,19 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private IOptionListener listener;
 	
 	
-	public ChoiceView(ChoiceModel module){
+	public ChoiceView(ChoiceModel module, boolean isPreview){
 	
 		this.module = module;
-		createUI();
+		createUI(isPreview);
 	}
 
 	
 	/**
 	 * To zamieszanie z tworzeniem VerticalPanel jest potrzebne ponieważ bez tego 
 	 * GWT głupieje.
+	 * @param isPreview 
 	 */
-	private void createUI(){
+	private void createUI(boolean isPreview){
 		
 		optionsPanel = new VerticalPanel();
 
@@ -49,7 +50,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		setWidgetPosition(optionsPanel, 0, 0);
 		
 		StyleUtils.applyInlineStyle(this, module);
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 

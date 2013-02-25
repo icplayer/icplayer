@@ -50,8 +50,8 @@ public class OrderingView extends Composite implements IDisplay{
 		if(playerServices != null){
 			randomizeViewItems();
 			saveScore();
+			setVisible(module.isVisible());
 		}
-		setVisible(module.isVisible());
 		getElement().setId(module.getId());
 	}
 	

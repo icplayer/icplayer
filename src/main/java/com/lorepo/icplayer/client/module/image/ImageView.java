@@ -15,15 +15,15 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 	private Image image;
 	
 	
-	public ImageView(ImageModule module) {
+	public ImageView(ImageModule module, boolean isPreview) {
 	
 		this.module = module;
 
-		createUI(module);
+		createUI(isPreview);
 	}
 
 
-	private void createUI(ImageModule module) {
+	private void createUI(boolean isPreview) {
 		
 		image = new Image();
 		setStyleName("ic_image");
@@ -42,7 +42,9 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		}
 		
 		setImageSize();
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 

@@ -19,15 +19,14 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private IViewListener listener;
 	
 	
-	public SourceListView(SourceListModule module){
+	public SourceListView(SourceListModule module, boolean isPreview){
 
 		this.module = module;
-		
-		createUI();
+		createUI(isPreview);
 	}
 
 
-	private void createUI() {
+	private void createUI(boolean isPreview) {
 
 		if(module.getStyleClass().isEmpty()){
 			setStyleName("ic_sourceList");
@@ -37,7 +36,9 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		}
 		
 		StyleUtils.applyInlineStyle(this, module);
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 

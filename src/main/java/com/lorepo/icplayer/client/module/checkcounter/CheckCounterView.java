@@ -6,12 +6,15 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 public class CheckCounterView extends Label implements CheckCounterPresenter.IDisplay{
 
 	
-	public CheckCounterView(CheckCounterModule module){
+	public CheckCounterView(CheckCounterModule module, boolean isPreview){
 	
 		setStyleName("ic_checkcounter");
 		StyleUtils.applyInlineStyle(this, module);
-		setText("3");
-		setVisible(module.isVisible());
+		if(isPreview){
+			setText("3");
+		}else{
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 

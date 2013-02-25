@@ -19,14 +19,14 @@ public class ReportView extends Composite implements IDisplay{
 	private IViewListener listener;
 	
 	
-	public ReportView(ReportModule module){
+	public ReportView(ReportModule module, boolean isPreview){
 	
 		this.module = module;
 		
-		createUI();
+		createUI(isPreview);
 	}
 	
-	private void createUI(){
+	private void createUI(boolean isPreview){
 		
 		grid = new Grid(2, getColumnCount());
 		lastRow = 1;
@@ -43,7 +43,9 @@ public class ReportView extends Composite implements IDisplay{
 		}
 
 		initWidget(grid);
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 		grid.addClickHandler(new ClickHandler() {
 			

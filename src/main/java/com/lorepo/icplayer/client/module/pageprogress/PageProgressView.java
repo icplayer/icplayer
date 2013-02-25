@@ -9,16 +9,18 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 //	private ProgressBar progress;
 	private PageProgressModule module;
 	
-	public PageProgressView(PageProgressModule module){
+	public PageProgressView(PageProgressModule module, boolean isPreview){
 		
 		this.module = module;
-		createUI();
+		createUI(isPreview);
 	}
 
 
-	private void createUI() {
+	private void createUI(boolean isPreview) {
 
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		setStyleName("ic_pageprogress");
 		StyleUtils.applyInlineStyle(this, module);
 		setProgress(50);

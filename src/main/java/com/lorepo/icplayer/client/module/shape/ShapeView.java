@@ -6,11 +6,13 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 
 public class ShapeView extends AbsolutePanel implements IModuleView{
 
-	public ShapeView(ShapeModule module){
+	public ShapeView(ShapeModule module, boolean isPreview){
 
 		setStyleName("ic_shape");
 		StyleUtils.applyInlineStyle(this, module);
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 }

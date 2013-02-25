@@ -23,19 +23,21 @@ public class ImageGapView extends Image implements IDisplay {
 	private boolean disabled = false;
 	
 	
-	public ImageGapView(ImageGapModule module) {
+	public ImageGapView(ImageGapModule module, boolean isPreview) {
 		
 		this.module = module;
-		createUI();
+		createUI(isPreview);
 		connectHandlers();
 	}
 
 	
-	private void createUI() {
+	private void createUI(boolean isPreview) {
 		
 		setStylePrimaryName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 		setImageUrl("");
 		getElement().setId(module.getId());
 	}

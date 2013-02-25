@@ -119,6 +119,8 @@ public class ModuleFactory implements IModuleFactory{
 	@Override
 	public IModuleView createView(IModuleModel module){
 		
+		boolean isPreview = (services == null);
+		
 		if(module instanceof AddonModel){
 			return new AddonView((AddonModel) module);
 		}
@@ -126,40 +128,40 @@ public class ModuleFactory implements IModuleFactory{
 			return new ButtonView((ButtonModule)module, services);
 		}
 		else if(module instanceof CheckCounterModule){
-			return new CheckCounterView((CheckCounterModule) module);
+			return new CheckCounterView((CheckCounterModule) module, isPreview);
 		}
 		else if(module instanceof ChoiceModel){
-			return new ChoiceView((ChoiceModel) module);
+			return new ChoiceView((ChoiceModel) module, isPreview);
 		}
 		else if(module instanceof ErrorCounterModule){
-			return new ErrorCounterView((ErrorCounterModule) module);
+			return new ErrorCounterView((ErrorCounterModule) module, isPreview);
 		}
 		else if(module instanceof ImageModule){
-			return new ImageView((ImageModule) module);
+			return new ImageView((ImageModule) module, isPreview);
 		}
 		else if(module instanceof ImageSourceModule){
-			return new ImageSourceView((ImageSourceModule) module);
+			return new ImageSourceView((ImageSourceModule) module, isPreview);
 		}
 		else if(module instanceof ImageGapModule){
-			return new ImageGapView((ImageGapModule) module);
+			return new ImageGapView((ImageGapModule) module, isPreview);
 		}
 		else if(module instanceof OrderingModule){
 			return new OrderingView((OrderingModule) module, services);
 		}
 		else if(module instanceof PageProgressModule){
-			return new PageProgressView((PageProgressModule) module);
+			return new PageProgressView((PageProgressModule) module, isPreview);
 		}
 		else if(module instanceof ReportModule){
-			return new ReportView((ReportModule) module);
+			return new ReportView((ReportModule) module, isPreview);
 		}
 		else if(module instanceof ShapeModule){
-			return new ShapeView((ShapeModule) module);
+			return new ShapeView((ShapeModule) module, isPreview);
 		}
 		else if(module instanceof SourceListModule){
-			return new SourceListView((SourceListModule) module);
+			return new SourceListView((SourceListModule) module, isPreview);
 		}
 		else if(module instanceof TextModel){
-			return new TextView((TextModel) module);
+			return new TextView((TextModel) module, isPreview);
 		}
 		
 		return new DummyView("Can't find view for module: " + module.toString());

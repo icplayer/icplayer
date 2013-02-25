@@ -20,20 +20,20 @@ public class TextView extends HTML implements IDisplay{
 	private ArrayList<TextElementDisplay>	textElements = new ArrayList<TextElementDisplay>();
 	
 	
-	public TextView(TextModel module){
-		
+	public TextView(TextModel module, boolean isPreview){
 		this.module = module;
-
-		createUI();
+		createUI(isPreview);
 	}
 
 	
-	private void createUI() {
+	private void createUI(boolean isPreview) {
 
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
-		setVisible(module.isVisible());
+		if(!isPreview){
+			setVisible(module.isVisible());
+		}
 	}
 	
 	
