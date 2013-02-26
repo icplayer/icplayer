@@ -42,6 +42,7 @@ Example html page:
 </html>
 ```
 
+[More information about embedding player](doc/embed.md)
 
 ## Demo content
 
