@@ -24,11 +24,10 @@ Example html page:
     <script type="text/javascript" language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" language="javascript" src="icplayer/icplayer.nocache.js"></script>
     <script language="javascript">
-		var player1;
+		var player;
       	function icOnAppLoaded(){
-	        // Load assessment
-    	    player1 = icCreatePlayer('_icplayer');
-        	player1.load('content/default.ic.xml');
+    	    player = icCreatePlayer('_icplayer');
+        	player.load('content/default.ic.xml');
       	}
     </script>
     

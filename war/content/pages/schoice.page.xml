@@ -10,11 +10,9 @@
 			<options>
 				<option value="5">
 					<text>To jest opcja pierwsza za 5 punktów</text>
-					<feedback>To poprawna opcja za 5 punktów.</feedback>
 				</option>
 				<option value="0">
 					<text>To jest opcja druga za 0 punktów</text>
-					<feedback>To błędna opcja.</feedback>
 				</option>
 				<option value="1">To jest opcja trzecia za 1 punkt</option>
 			</options>

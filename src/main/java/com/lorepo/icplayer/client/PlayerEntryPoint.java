@@ -108,13 +108,13 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	
 	private void setState(String state) {
-		theApplication.getState().loadFromString(state);
+		theApplication.setState(state);
 	}
 
 	
 	private String getState() {
 		
-		return theApplication.getState().getAsString();
+		return theApplication.getState();
 	}
 
 	

@@ -181,7 +181,7 @@ public class PageController {
 	}
 
 
-	private void loadPageState() {
+	public void loadPageState() {
 		
 		for(IPresenter presenter : presenters){
 			

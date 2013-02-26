@@ -4,7 +4,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
-import com.lorepo.icplayer.client.content.services.PlayerState;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.ServerService;
 import com.lorepo.icplayer.client.model.Content;
@@ -36,6 +35,7 @@ public class PlayerApp {
 	private DOMInjector domInjector;
 	private PlayerEntryPoint	entryPoint;
 	private int startPageIndex;
+	private String loadedState;
 	
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
@@ -159,6 +159,10 @@ public class PlayerApp {
 			page = contentModel.getPages().get(0);
 		}
 		appController.showHeaderAndFooter();
+		if(loadedState != null){
+			appController.getPageController().getPlayerState().loadFromString(loadedState);
+			appController.getPageController().loadPageState();
+		}
 		appController.switchToPage(page);
 	}
 
@@ -173,9 +177,11 @@ public class PlayerApp {
 		entryPoint.onPageLoaded();
 	}
 
-
-	public PlayerState getState() {
-		return appController.getPageController().getPlayerState();
+	public void setState(String state) {
+		loadedState = state;
 	}
 
+	public String getState() {
+		return appController.getPageController().getPlayerState().getAsString();
+	}
 }
