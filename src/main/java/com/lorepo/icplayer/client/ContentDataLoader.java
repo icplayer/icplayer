@@ -9,6 +9,7 @@ import com.google.gwt.core.client.GWT;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.AddonDescriptor;
+import com.lorepo.icplayer.client.model.AddonDescriptorFactory;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
@@ -27,11 +28,13 @@ public class ContentDataLoader{
 	private Collection<AddonDescriptor> descriptors;
 	private List<Page> pages = new ArrayList<Page>();
 	private List<String> libs = new ArrayList<String>();
+	private AddonDescriptorFactory localAddons;
 	
 	
 	public ContentDataLoader(String baseUrl) {
 		this.baseUrl = baseUrl;
 		domInjector = new DOMInjector();
+		localAddons = AddonDescriptorFactory.getInstance();
 	}
 
 	public void addPage(Page page){
@@ -72,7 +75,14 @@ public class ContentDataLoader{
 	
 	private void loadDescriptor(final AddonDescriptor descriptor) {
 
-		String url = URLUtils.resolveURL(baseUrl, descriptor.getHref());
+		String url;
+		
+		if(localAddons.isLocalAddon(descriptor.getAddonId())){
+			url = URLUtils.resolveURL(GWT.getModuleBaseURL() + "addons/", descriptor.getAddonId() + ".xml");
+		}
+		else{
+			url = URLUtils.resolveURL(baseUrl, descriptor.getHref());
+		}
 		XMLLoader loader = new XMLLoader(descriptor);
 		
 		loader.load(url, new ILoadListener() {
@@ -81,9 +91,6 @@ public class ContentDataLoader{
 			public void onFinishedLoading(Object obj) {
 
 				domInjector.injectJavaScript(descriptor.getCode());
-//				for(String libName : descriptor.getLibraries()){
-//					addLibrary(libName);
-//				}
 				resourceLoaded();
 			}
 			

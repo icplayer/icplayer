@@ -3,20 +3,7 @@
 
 
 <addons>
-	<!-- 
-	<addon-descriptor addonId="feedback" href="http://www.lorepo.com/public/feedback/getaddon"/>
-	 <addon-descriptor addonId="Connection" href="http://www.lorepo.com/public/Connection/getaddon"/>
-	 <addon-descriptor addonId="Navigation_Bar" href="http://www.lorepo.com/public/Navigation_Bar/getaddon"/>
-	 <addon-descriptor addonId="Page_Counter" href="http://www.lorepo.com/public/Page_Counter/getaddon"/>
-	 <addon-descriptor addonId="Single_State_Button" href="http://www.lorepo.com/public/Single_State_Button/getaddon"/>
-	 <addon-descriptor addonId="Audio" href="http://www.lorepo.com/public/Audio/getaddon"/>
-	 <addon-descriptor addonId="MultiAudio" href="http://www.lorepo.com/public/MultiAudio/getaddon"/>
-	 <addon-descriptor addonId="Double_State_Button" href="http://www.lorepo.com/public/Double_State_Button/getaddon"/>
-	 <addon-descriptor addonId="text_identification" href="http://www.lorepo.com/public/text_identification/getaddon"/>
-	 <addon-descriptor addonId="Image_Identification" href="http://www.lorepo.com/public/Image_Identification/getaddon"/>
-	 <addon-descriptor addonId="WritingCalculations" href="http://www.lorepo.com/public/WritingCalculations/getaddon"/>
-	 <addon-descriptor addonId="TrueFalse" href="http://www.lorepo.com/public/TrueFalse/getaddon"/>
-	 -->
+	<addon-descriptor addonId="YouTube_Addon"/>
 	<addon-descriptor addonId="Vimeo" href="addons/vimeo.addon.xml"/>
 	<addon-descriptor addonId="DebugAddon" href="addons/debug.addon.xml"/>
 	<addon-descriptor addonId="EventMonitor" href="addons/eventmonitor.addon.xml"/>
@@ -66,6 +53,7 @@ background-color:lightgreen;
 </style>
 
 <pages>
+	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>

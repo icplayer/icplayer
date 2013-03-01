@@ -11,24 +11,27 @@
 
   	<property name="libs.junit" location="libs/junit-4.9.jar" />
 
-  <path id="project.class.path">
-    <pathelement location="war/WEB-INF/classes"/>
-    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
-    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
-    <!-- Add any additional non-server libs (such as JUnit) -->
-    <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
-  	<pathelement location="libs/gwt-dnd-3.2.0.jar"/>
-  	<pathelement location="libs/gwt-voices-2.1.6.jar"/>
-  	<pathelement location="../icfoundation/war/WEB-INF/classes"/>
-  </path>
+	<path id="project.class.path">
+	    <pathelement location="war/WEB-INF/classes"/>
+	    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+	    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+	    <!-- Add any additional non-server libs (such as JUnit) -->
+	    <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+	  	<pathelement location="../icfoundation/war/WEB-INF/classes"/>
+	</path>
 
-  <target name="clean" description="Cleans this project">
-    <delete dir="war/WEB-INF/classes" failonerror="false" />
-    <delete dir="war/icplayer" failonerror="false" />
-  </target>
+  	<target name="clean" description="Cleans this project">
+    	<delete dir="war/WEB-INF/classes" failonerror="false" />
+    	<delete dir="war/icplayer" failonerror="false" />
+  	</target>
 
+  	<target name="addons" description="Copy addon descriptors">
+  		<!--
+  		<ant dir="addons"/>
+	  	-->
+  	</target>
 	
-  <target name="javac" description="Compile java source to bytecode">
+  <target name="javac" depends="addons" description="Compile java source to bytecode">
 
     <mkdir dir="war/WEB-INF/classes"/>
     <javac srcdir="${src}" includes="**" encoding="utf-8"
