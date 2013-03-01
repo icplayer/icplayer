@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="icplayer-addons" default="copy">
+	
+	<property name="dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
+	<property name="src" location="." />
+  	
+	<target name="copy">
+		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
+		<delete>
+			<fileset dir="${dest}"/>
+		</delete>
+		<copyAddon src="${src}" dest="${dest}" addon="YouTube_Addon"/>
+	</target>
+
+</project>

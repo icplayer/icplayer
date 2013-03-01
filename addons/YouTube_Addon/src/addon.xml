@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='YouTube_Addon'>
+	<model>
+		<property name='HTTPS' type='boolean'/>
+		<property name='ID' type='string'/>
+		<property name='URL' type='string'/>
+	</model>
+</addon>
