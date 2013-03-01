@@ -29,6 +29,7 @@ public class AddonDescriptorFactory {
 	private void registerLocalDescriptors() {
 		
 		addonList = new HashMap<String, AddonEntry>();
+		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}
 

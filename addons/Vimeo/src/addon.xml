@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Vimeo'>
+	<model>
+		<property name='movie id' type='string'/>
+	</model>
+</addon>

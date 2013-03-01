@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project name="icplayer-addons" default="copy">
+<project name="icplayer-addons" default="copy" basedir=".">
 	
-	<property name="dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
-	<property name="src" location="." />
+	<property name="addons.dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
+	<property name="addons.src" location="." />
   	
 	<target name="copy">
 		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
 		<delete>
-			<fileset dir="${dest}"/>
+			<fileset dir="${addons.dest}"/>
 		</delete>
-		<copyAddon src="${src}" dest="${dest}" addon="YouTube_Addon"/>
+		
+		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="YouTube_Addon"/>
+		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Vimeo"/>
 	</target>
 
 </project>

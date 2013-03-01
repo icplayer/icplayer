@@ -26,9 +26,7 @@
   	</target>
 
   	<target name="addons" description="Copy addon descriptors">
-  		<!--
   		<ant dir="addons"/>
-	  	-->
   	</target>
 	
   <target name="javac" depends="addons" description="Compile java source to bytecode">
