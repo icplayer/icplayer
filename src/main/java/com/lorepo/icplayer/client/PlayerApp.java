@@ -1,6 +1,9 @@
 package com.lorepo.icplayer.client;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
@@ -35,7 +38,7 @@ public class PlayerApp {
 	private DOMInjector domInjector;
 	private PlayerEntryPoint	entryPoint;
 	private int startPageIndex;
-	private String loadedState;
+	private HashMap<String, String> loadedState;
 	
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
@@ -155,7 +158,8 @@ public class PlayerApp {
 		}
 		appController.showHeaderAndFooter();
 		if(loadedState != null){
-			appController.getPageController().getPlayerState().loadFromString(loadedState);
+			appController.getPageController().getPlayerState().loadFromString(loadedState.get("state"));
+			appController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 			appController.getPageController().loadPageState();
 		}
 		appController.switchToPage(page);
@@ -173,10 +177,18 @@ public class PlayerApp {
 	}
 
 	public void setState(String state) {
-		loadedState = state;
+		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
+		if(data.containsKey("state") && data.containsKey("score")){
+			loadedState = data;
+		}
 	}
 
 	public String getState() {
-		return appController.getPageController().getPlayerState().getAsString();
+		String state = appController.getPageController().getPlayerState().getAsString();
+		String score = appController.getPlayerServices().getScoreService().getAsString();
+		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("state", state);
+		data.put("score", score);
+		return JSONUtils.toJSONString(data);
 	}
 }

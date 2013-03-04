@@ -1,5 +1,9 @@
 package com.lorepo.icplayer.client.module.api.player;
 
+import java.util.HashMap;
+
+import com.lorepo.icf.utils.JSONUtils;
+
 
 /**
  * Informacja o wyniku strony
@@ -95,5 +99,27 @@ public class PageScore {
 
 	public int getMistakeCount() {
 		return mistakeCount;
+	}
+
+
+	public String getAsString() {
+		HashMap<String, String> data = new HashMap<String, String>();
+		
+		data.put("score", Float.toString(score));
+		data.put("maxScore", Float.toString(maxScore));
+		data.put("checkCount", Integer.toString(checkCount));
+		data.put("errorCount", Integer.toString(errorCount));
+		data.put("mistakeCount", Integer.toString(mistakeCount));
+		return JSONUtils.toJSONString(data);
+	}
+
+
+	public void loadFromString(String state) {
+		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
+		score = Float.parseFloat(data.get("score"));
+		maxScore = Float.parseFloat(data.get("maxScore"));
+		checkCount = Integer.parseInt(data.get("checkCount"));
+		errorCount = Integer.parseInt(data.get("errorCount"));
+		mistakeCount = Integer.parseInt(data.get("mistakeCount"));
 	}
 }

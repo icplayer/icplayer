@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.content.services;
 
 import java.util.HashMap;
 
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 
@@ -84,4 +85,23 @@ public class ScoreService implements IScoreService {
 		return pageScore;
 	}
 
+	@Override
+	public String getAsString(){
+		HashMap<String, String> data = new HashMap<String, String>();
+		for(PageScore score : pageScores.values()){
+			data.put(score.getPageName(), score.getAsString());
+		}
+		return JSONUtils.toJSONString(data);
+	}
+
+	@Override
+	public void loadFromString(String state){
+		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
+		for(String pageName : data.keySet()){
+			PageScore pageScore = pageScores.get(pageName);
+			pageScore = new PageScore(pageName);
+			pageScore.loadFromString(data.get(pageName));
+			pageScores.put(pageName, pageScore);
+		}
+	}
 }

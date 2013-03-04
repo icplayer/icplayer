@@ -35,14 +35,6 @@
 		<pageProgressModule id="2frcd65" left="200" top="400" width="200" height="20">
 		</pageProgressModule>
 		
-		<buttonModule  left="0" top="550" width="50" height="50" style="">
-			<button type="prevPage" text=""/>
-		</buttonModule>
-		
-		<buttonModule  left="750" top="550" width="50" height="50" style="">
-			<button type="nextPage" text=""/>
-		</buttonModule>
-		
 	</modules>
 
 </page>

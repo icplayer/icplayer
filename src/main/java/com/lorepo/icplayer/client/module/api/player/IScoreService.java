@@ -9,4 +9,6 @@ public interface IScoreService {
 	public void	setScore(String moduleName, int score, int maxScore);
 	int getTotalMaxScore();
 	int getTotalScore();
+	String getAsString();
+	void loadFromString(String state);
 }

@@ -3,12 +3,14 @@
 HTML5 player for interactive lessons.
 
 
-## Documentation
+## Useful links
 
-* How to [compile](doc/compile.md) player
 * How to [embed](doc/embed.md) on your html page
-* [Sample lessons](doc/samples.md)
+* [icplayer.com](http://icplayer.com) - project site with documentation and samples
+* [Discussion group](https://groups.google.com/forum/?fromgroups=#!forum/icplayer) - ask questions there.
+* [mauthor.com](http://mauthor.com) - Professional support for player and editor
 
+
+## How to contrubute
   
-You can also check [mauthor.com](http://www.mauthor.com) website 
-where you can find editor for this kind of content.
+If you want to contribute to this project, then fork it, make changes and send pull request.
