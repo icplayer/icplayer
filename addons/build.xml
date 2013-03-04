@@ -6,6 +6,7 @@
   	
 	<target name="copy">
 		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
+		<mkdir dir="${addons.dest}" />
 		<delete>
 			<fileset dir="${addons.dest}"/>
 		</delete>
