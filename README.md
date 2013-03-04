@@ -13,4 +13,4 @@ HTML5 player for interactive lessons.
 
 ## How to contrubute
   
-If you want to contribute to this project, then fork it, make changes and send pull request.
+If you want to contribute to this project, fork it, make changes and send pull request.
