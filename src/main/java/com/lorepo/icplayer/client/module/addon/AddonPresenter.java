@@ -273,7 +273,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			obj.run(element, model);
 		}
 		catch(err){
-  			alert("Can't load addon: " + addonId + "\n" + err);
+  			console.log("Can't load addon: " + addonId + "\n" + err);
   		}		
 	}-*/;
 

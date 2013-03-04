@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.Window;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
@@ -100,7 +101,7 @@ public class AppController{
 			switchToPage(page);
 		}
 		else{
-			playerApp.alert("Missing page:\n<" + pageName + ">");
+			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
 
@@ -175,7 +176,7 @@ public class AppController{
 			@Override
 			public void onError(String error) {
 				waitDlg.hide();
-				playerApp.alert("Can't load page: " + error);
+				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
 			

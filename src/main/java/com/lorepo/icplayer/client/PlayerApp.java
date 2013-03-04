@@ -1,7 +1,7 @@
 package com.lorepo.icplayer.client;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.content.services.ScoreService;
@@ -49,11 +49,6 @@ public class PlayerApp {
 	 }
 
 	
-	public void alert(String msg) {
-	
-		Window.alert(msg);
-	}
-
 	/**
 	 * Get global score service
 	 * @return
@@ -83,7 +78,7 @@ public class PlayerApp {
 			
 			@Override
 			public void onError(String error) {
-				alert("Can't load:" + error);
+				JavaScriptUtils.log("Can't load:" + error);
 			}
 			
 			@Override
