@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.report;
 
+import java.util.HashMap;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -17,6 +19,7 @@ public class ReportView extends Composite implements IDisplay{
 	private Grid grid;
 	private int lastRow;
 	private IViewListener listener;
+	private HashMap<Integer, String> pageLinks;
 	
 	
 	public ReportView(ReportModule module, boolean isPreview){
@@ -28,6 +31,7 @@ public class ReportView extends Composite implements IDisplay{
 	
 	private void createUI(boolean isPreview){
 		
+		pageLinks = new HashMap<Integer, String>();
 		grid = new Grid(2, getColumnCount());
 		lastRow = 1;
 
@@ -73,7 +77,8 @@ public class ReportView extends Composite implements IDisplay{
 		int row = cell.getRowIndex();
 		if(cell.getCellIndex() == 0 && row > 0 && row < grid.getRowCount()-1){
 			if(listener != null){
-				listener.onClicked(grid.getText(row, 0));
+				String link = pageLinks.get(row);
+				listener.onClicked(link);
 			}
 		}
 	}
@@ -89,6 +94,7 @@ public class ReportView extends Composite implements IDisplay{
 	public void addRow(String pageName, PageScore pageScore){
 
 		appendEmptyRow();
+		pageLinks.put(lastRow, pageName);
 		grid.setText(lastRow, 0, pageName);
 		grid.getCellFormatter().addStyleName(lastRow, 0, "ic_reportPage");
 
