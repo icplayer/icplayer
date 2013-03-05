@@ -7,6 +7,14 @@
 			<button type="prevPage" text=""/>
 		</buttonModule>
 		
+		<buttonModule id='Button1' left='530' top='3' width='50' height='50'>
+			<button type='checkAnswers' text='' onclick=''/>
+		</buttonModule>
+
+		<buttonModule id='Button2' left='600' top='3' width='50' height='50'>
+			<button type='reset' text='' onclick=''/>
+		</buttonModule>
+
 		<buttonModule  left="720" top="0" width="80" height="60" style="">
 			<button type="nextPage" text=""/>
 		</buttonModule>

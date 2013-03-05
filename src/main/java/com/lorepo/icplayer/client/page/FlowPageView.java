@@ -57,8 +57,8 @@ public class FlowPageView extends FlowPanel implements IDisplay{
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
 			
+			moduleView.addStyleName("ic_module");
 		    add(moduleView);
-			
 		}
 	}
 

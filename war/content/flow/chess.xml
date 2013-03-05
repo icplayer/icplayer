@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='flow'>
+	<modules>
+		<textModule id='Text2' left='20' top='9' width='700' height='37' class='text_Title'>
+			<text draggable='false'>&lt;div style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;text-align: left;&quot;&gt;Chessmen&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;text-align: left; &quot;&gt;&lt;/span&gt;&lt;/div&gt;</text>
+		</textModule>
+		<textModule id='Text1' left='19' top='52' width='664' height='23' class='text_exerciseText'>
+			<text draggable='false'>Try to put piece names in the same order as they appear on the picture&lt;br&gt;</text>
+		</textModule>
+		<imageModule id='Image2' left='64' top='128' width='605' height='327'>
+			<image src='media/chess.jpeg'/>
+		</imageModule>
+		<orderingModule id='Ordering1' left='64' top='468' width='608' height='47'>
+			<ordering isVertical='false'/>
+			<item>King</item>
+			<item>Queen</item>
+			<item>Rook</item>
+			<item>Bishop</item>
+			<item>Knight</item>
+			<item>Pawn</item>
+		</orderingModule>
+	</modules>
+</page>
