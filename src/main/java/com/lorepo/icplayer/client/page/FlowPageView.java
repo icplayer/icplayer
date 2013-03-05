@@ -1,10 +1,8 @@
 package com.lorepo.icplayer.client.page;
 
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IDisplay;
@@ -13,19 +11,19 @@ import com.lorepo.icplayer.client.utils.MathJax;
 
 
 /**
- * This is X,Y laytout
+ * This view is used with flow layout
  * 
  * @author Krzysztof Langner
  *
  */
-public class PageView extends AbsolutePanel implements IDisplay{
+public class FlowPageView extends FlowPanel implements IDisplay{
 
 	private Page currentPage;
 
 	
-	public PageView(){
+	public FlowPageView(){
 
-		addStyleName("ic_page");
+		addStyleName("ic_flowPage");
 	}
 	
 
@@ -33,7 +31,7 @@ public class PageView extends AbsolutePanel implements IDisplay{
 	public void setPage(Page newPage) {
 	
 		currentPage = newPage;
-		String styles = "position:relative;overflow:hidden;";
+		String styles = "";
 		if(currentPage.getInlineStyle() != null){
 			styles += currentPage.getInlineStyle(); 
 			
@@ -56,34 +54,10 @@ public class PageView extends AbsolutePanel implements IDisplay{
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module){
 		
-		int left;
-		int top;
-		int width;
-		int height;
-	
-		float 	pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
-		float 	pageHeight = DOM.getElementPropertyInt(getElement(), "clientHeight");
-
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
 			
-			if(currentPage.getLayout() == LayoutType.percentage){
-			
-				left = (int) (module.getLeft()*pageWidth)/100;
-				top = (int) (module.getTop()*pageHeight)/100;
-				width = (int) (module.getWidth()*pageWidth)/100;
-				height = (int) (module.getHeight()*pageHeight)/100;
-			}
-			else{
-				
-				left = (int) module.getLeft();
-				top = (int) module.getTop();
-				width = (int) module.getWidth();
-				height = (int) module.getHeight();
-			}
-			
-			moduleView.setPixelSize(width, height);
-		    add(moduleView, left, top);
+		    add(moduleView);
 			
 		}
 	}

@@ -1,11 +1,14 @@
 package com.lorepo.icplayer.client.ui;
 
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.lorepo.icplayer.client.page.FlowPageView;
+import com.lorepo.icplayer.client.page.PageController.IDisplay;
 import com.lorepo.icplayer.client.page.PageView;
 
-public class PlayerView extends VerticalPanel {
+public class PlayerView extends VerticalPanel{
 
-	PageView pageView;
+	Panel pageView;
 	PageView headerView;
 	PageView footerView;
 	
@@ -36,11 +39,26 @@ public class PlayerView extends VerticalPanel {
 		add(footerView);
 	}
 	
-	public PageView getPageView(){
-		return pageView;
+	public PageView getAbsolutePageView(){
+		replaceView(new PageView());
+		return (PageView) pageView;
 	}
 	
 	
+	public IDisplay getFlowPageView() {
+		replaceView(new FlowPageView());
+		return (IDisplay) pageView;
+	}
+
+
+	private void replaceView(Panel view) {
+		int index = getWidgetIndex(pageView);
+		insert(view, index);
+		remove(pageView);
+		pageView = view;
+	}
+
+
 	public PageView getHeaderView(){
 		return headerView;
 	}

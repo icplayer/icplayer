@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<interactiveContent>
+
+
+<addons>
+	<addon-descriptor addonId="YouTube_Addon"/>
+	<addon-descriptor addonId="Vimeo"/>
+	<addon-descriptor addonId="DebugAddon" href="addons/debug.addon.xml"/>
+	<addon-descriptor addonId="EventMonitor" href="addons/eventmonitor.addon.xml"/>
+	<addon-descriptor addonId="EventSource" href="addons/eventsource.addon.xml"/>
+	<addon-descriptor addonId="ParserDebug" href="addons/parser-debug.addon.xml"/>
+</addons>
+
+
+
+
+<style>
+
+.ic_player{
+	background-color: red;
+}
+
+.ic_page{
+	font-size:18px;
+	width:	800px;
+}
+
+.myText{
+	background-color:yellow;
+	border:1px solid blue;
+}
+
+.silver{
+	background-color:silver;
+}
+
+.lightgreen{
+background-color:lightgreen;
+}
+
+.text_paragraph_withEditableGaps input{
+	border: 1px solid #B0BDD2;
+	border-radius: 5px 5px 5px 5px;
+	display: block;
+	font-size: 17px;
+	height: 25px;
+	width: 100%;
+	overflow: hidden;
+}
+
+</style>
+
+<pages>
+	<page name="flow" href="flow/flow.page.xml"/>
+	<folder name="commons">
+		<page name="header" href="flow/header.xml"/>
+		<page name="footer" href="flow/footer.xml"/>
+	</folder>
+ 	
+	<header ref="commons/header"/>
+	<footer ref="commons/footer"/>
+</pages>
+
+</interactiveContent>

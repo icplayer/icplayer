@@ -27,7 +27,8 @@ public class PageControllerTestCase {
 	public void init(String pageURL) throws SAXException, IOException {
 		
 		display = new PageViewMockup();
-		pageController = new PageController(display);
+		pageController = new PageController();
+		pageController.setView(display);
 		IPlayerServices services = new PlayerServicesMockup();
 		pageController.setPlayerServices(services);
 		pageController.setModuleFactory(new ModuleFactoryMockup(services));

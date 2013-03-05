@@ -43,17 +43,19 @@ public class PageController {
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
 	
 	
-	public PageController(IDisplay view) {
-
-		this.pageView = view;
+	public PageController() {
 		presenters = new ArrayList<IPresenter>();
 	}
 	
 	
 	public void setPlayerServices(IPlayerServices playerService) {
-
 		this.playerService = playerService;
 		moduleFactory = new ModuleFactory(playerService);
+	}
+	
+	
+	public void setView(IDisplay view){
+		pageView = view;
 	}
 
 	

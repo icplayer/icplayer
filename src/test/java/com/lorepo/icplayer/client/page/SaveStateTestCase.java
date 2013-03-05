@@ -20,7 +20,8 @@ public class SaveStateTestCase {
 	public void testSaveLoadState() {
 
 		PageViewMockup display = new PageViewMockup();
-		PageController pageController = new PageController(display);
+		PageController pageController = new PageController();
+		pageController.setView(display);
 		IPlayerServices services = new PlayerServicesMockup();
 		pageController.setPlayerServices(services);
 		pageController.setModuleFactory(new ModuleFactoryMockup(services));
@@ -46,7 +47,8 @@ public class SaveStateTestCase {
 	public void sameIdDifferentPageName() {
 
 		PageViewMockup display = new PageViewMockup();
-		PageController pageController = new PageController(display);
+		PageController pageController = new PageController();
+		pageController.setView(display);
 		IPlayerServices services = new PlayerServicesMockup();
 		pageController.setPlayerServices(services);
 		pageController.setModuleFactory(new ModuleFactoryMockup(services));

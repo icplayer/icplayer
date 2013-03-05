@@ -1,4 +1,4 @@
-<page layout="pixels" width="0" height="60">
+<page layout="pixels" width="0" height="60" style="background-color:lightblue">
 	<modules>
 		<textModule id="title" left='5' top='5' width='400' height='50'>
 			<text>

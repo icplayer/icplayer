@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -38,7 +39,7 @@ public class AppController{
 		playerApp = app;
 		contentModel = content;
 		playerView = new PlayerView();
-		pageController = new PageController(playerView.getPageView());
+		pageController = new PageController();
 		playerService = new PlayerServices(this, playerApp);
 		pageController.setPlayerServices(playerService);
 	}
@@ -82,7 +83,7 @@ public class AppController{
 	public PagePopupPanel getPopup(){
 		
 		if(popupPanel == null){
-			popupPanel = new PagePopupPanel(playerView.getPageView());
+			popupPanel = new PagePopupPanel(playerView.getAbsolutePageView());
 		}
 		
 		return popupPanel;
@@ -187,6 +188,12 @@ public class AppController{
 
 		playerService.resetEventBus();
 		
+		if(page.getLayout() == LayoutType.flow){
+			pageController.setView(playerView.getAbsolutePageView());
+		}
+		else{
+			pageController.setView(playerView.getFlowPageView());
+		}
 		if(popupPanel != null){
 			popupPanel.show();
 			pageController.setPage(page);
@@ -194,9 +201,11 @@ public class AppController{
 		}
 		else{
 			if(headerController != null){
+				headerController.setView(playerView.getHeaderView());
 				headerController.setPage(contentModel.getHeader());
 			}
 			if(footerController != null){
+				footerController.setView(playerView.getFooterView());
 				footerController.setPage(contentModel.getFooter());
 			}
 			pageController.setPage(page);
@@ -246,13 +255,13 @@ public class AppController{
 
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
-			headerController = new PageController(playerView.getHeaderView());
+			headerController = new PageController();
 			headerController.setPlayerServices(playerService);
 		}
 
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
-			footerController = new PageController(playerView.getFooterView());
+			footerController = new PageController();
 			footerController.setPlayerServices(playerService);
 		}
 	}

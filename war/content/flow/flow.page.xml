@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout="flow" style="background-color:white">
+
+	<modules>
+		
+		<textModule id="dropdown1" left='5' top='10' width='80.0' height='20.0' class="myText">
+			<text isDisabled="false">
+				&lt;p&gt;She {{2: likes | \(a \ne 0\) | \(ax^2 + bx + c = 0\) }} him very much (like).&lt;/p&gt;
+				&lt;p&gt;She {{2: don't | aaaaa aa | bbb bb }} him very much (like).&lt;/p&gt;
+				&lt;p&gt;Większy równy {{1:≥|&lt;p&gt;|≤|&lt;/p&gt;}} .&lt;/p&gt;
+			</text>
+		</textModule>
+		
+		<textModule id="cloze1" left='5' top='30' width='80.0' height='20.0' class="myText">
+			<text isDisabled="false"><![CDATA[median {{1:&lt;|=|&gt;}} mean {{1:&lt;|=|&gt;}} midrange]]></text>
+		</textModule>
+		
+		<!-- 
+		<pageProgressModule id="c3" left="5" top="52" width="40" height="5">
+		</pageProgressModule>
+
+		<checkCounterModule id="c1" left="50" top="52" width="5" height="5">
+		</checkCounterModule>
+		
+		<errorCounterModule id="c2" left="55" top="52" width="5" height="5">
+		</errorCounterModule>
+
+		<buttonModule  left="65" top="50" width="10" height="10" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		 -->
+		
+		<buttonModule  left="75" top="50" width="10" height="10" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+		<textModule id="text1" left='5' top='30' width='80.0' height='20.0'>
+			<text isDisabled="false"><![CDATA[Text module]]></text>
+		</textModule>
+		
+		<addonModule id="addon2" addonId="DebugAddon" left='20' top='70' width='80' height='20'>
+			<properties>
+				<property name="Text" type="string" value="Hello world!"/>
+				<property name="Picture" type="image" value="ala/ma/kota"/>
+			</properties>
+		</addonModule>
+		 
+	</modules>
+
+</page>
