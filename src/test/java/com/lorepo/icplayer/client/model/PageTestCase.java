@@ -31,6 +31,7 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 
@@ -419,4 +420,42 @@ public class PageTestCase {
 		assertEquals("Test1", name);
 	}
 
+	@Test
+	public void getPixelLayout() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Page page = new Page("Sizes", "");
+		page.load(element, "");
+		
+		assertTrue(page.getLayout() == LayoutType.pixels);
+	}
+
+	@Test
+	public void getFlowLayout() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Page page = new Page("Sizes", "");
+		page.load(element, "");
+		
+		assertTrue(page.getLayout() == LayoutType.flow);
+	}
+
+	@Test
+	public void getPercentLayout() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page3.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Page page = new Page("Sizes", "");
+		page.load(element, "");
+		
+		assertTrue(page.getLayout() == LayoutType.percentage);
+	}
 }

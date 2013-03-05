@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page width="100" height="200">
+
+	<modules>
+		
+		<buttonModule  id="button1" left="0" top="10" width="10" height="10" style="">
+			<button type="prevPage" text=""/>
+		</buttonModule>
+		
+		<buttonModule  id="button2" left="90" top="90" width="10" height="10" style="">
+			<button type="nextPage" text=""/>
+		</buttonModule>
+		
+		<sourceListModule id="sl2" left='40' top='100' width='640' height='40'>
+			<items>
+				<item text="didn&apos;t" type="string"/>
+				<item text="volvo" type="string"/>
+				<item text="Opcja 1" type="string"/>
+				<item text="Others" type="string"/>
+			</items>
+		</sourceListModule>
+
+		<textModule id="cloze" left='40' top='200' width='640' height='240'>
+			<text draggable='false'>
+				&lt;p&gt;She {{2:didn&apos;t}} like him very much (didn&apos;t).&lt;/p&gt;
+				&lt;p&gt;I like to drive {{2:volvo}}.&lt;/p&gt;
+			</text>
+		</textModule>
+		
+		<imageSourceModule id="is1" left="100" top="100" width="64" height="64">
+			<image src="media/vimeo.png"/>
+		</imageSourceModule>
+		<imageSourceModule id="is2" left="200" top="100" width="64" height="64">
+			<image src="media/puzzle.png"/>
+		</imageSourceModule>
+		<imageSourceModule id="is3" left="300" top="100" width="64" height="64">
+			<image src="media/flash.png"/>
+		</imageSourceModule>
+
+		<imageGapModule id="ig1" left="200" top="300" width="64" height="64">
+			<gap answerId="is2"/>
+		</imageGapModule>
+		
+	</modules>
+
+</page>
