@@ -191,7 +191,13 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		setStyleClass(rootElement.getAttribute("class"));
 		
 		String positioning = rootElement.getAttribute("layout");
-		if(positioning != null && positioning.compareTo(LayoutType.pixels.toString()) == 0){
+		if(positioning == null){
+			setLayout(LayoutType.percentage);
+		}
+		else if(positioning.equals(LayoutType.pixels.toString())){
+			setLayout(LayoutType.flow);
+		}
+		else{
 			setLayout(LayoutType.pixels);
 		}
 	}

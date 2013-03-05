@@ -189,10 +189,10 @@ public class AppController{
 		playerService.resetEventBus();
 		
 		if(page.getLayout() == LayoutType.flow){
-			pageController.setView(playerView.getAbsolutePageView());
+			pageController.setView(playerView.getFlowPageView());
 		}
 		else{
-			pageController.setView(playerView.getFlowPageView());
+			pageController.setView(playerView.getAbsolutePageView());
 		}
 		if(popupPanel != null){
 			popupPanel.show();
