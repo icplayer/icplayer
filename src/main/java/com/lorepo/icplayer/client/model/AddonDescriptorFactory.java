@@ -31,6 +31,7 @@ public class AddonDescriptorFactory {
 		addonList = new HashMap<String, AddonEntry>();
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
+		addDescriptor("Connection", "Connection", "Activities");
 	}
 
 

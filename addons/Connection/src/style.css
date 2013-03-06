@@ -1,0 +1,50 @@
+.connectionContainer {
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+    border-collapse:collapse;
+    border-spacing: 0px;
+    direction: ltr;
+}
+
+.connectionContainer .connectionLeftColumn {
+    width: 33%;
+    height: 100%;
+    padding: 0px;
+}
+
+.connectionContainer .connectionMiddleColumn {
+    width: 34%;
+    height: 100%;
+    padding: 0px;
+}
+
+.connectionContainer .connectionRightColumn {
+    width: 33%;
+    padding: 0px;
+    height: 100%;
+}
+
+.connectionContainer .connections {
+    width: 100%;
+    height: 100%;
+}
+
+.connectionContainer .connectionItem {
+    width: 100%;
+    padding: 0px;
+    border-collapse:collapse;
+    border-spacing: 0px;
+    border: solid 1px black;
+}
+
+.connectionContainer .content {
+    height: 100%;
+    width: 100%;
+    border-collapse:collapse;
+    border-spacing: 0px;
+}
+
+.connectionContainer .content .connectionItemWrapper {
+    padding: 0px;
+}
