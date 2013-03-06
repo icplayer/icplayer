@@ -23,6 +23,7 @@ public class ReportModule extends BasicModuleModel {
 	private String resultsLabel = DictionaryWrapper.get("report_results");
 	private String totalLabel = DictionaryWrapper.get("report_total");
 	private boolean showCounters = true;
+	private int pageNameWidth = 0;
 	
 	
 	public ReportModule() {
@@ -33,6 +34,7 @@ public class ReportModule extends BasicModuleModel {
 		addResultsLabel();
 		addTotalLabel();
 		addPropertyShowCounters();
+		addPropertyTitleWidth();
 	}
 
 	
@@ -43,8 +45,9 @@ public class ReportModule extends BasicModuleModel {
 		
 		NodeList labels = node.getElementsByTagName("labels");
 		if(labels.getLength() > 0){
-			Element choice = (Element)labels.item(0);
-			showCounters = XMLUtils.getAttributeAsBoolean(choice, "showCounters", true);
+			Element labelsElement = (Element)labels.item(0);
+			showCounters = XMLUtils.getAttributeAsBoolean(labelsElement, "showCounters", true);
+			pageNameWidth = XMLUtils.getAttributeAsInt(labelsElement, "pageNameWidth");
 		}
 		
 		NodeList labelNodes = node.getElementsByTagName("label");
@@ -77,7 +80,8 @@ public class ReportModule extends BasicModuleModel {
 		String xml; 
 		
 		xml = "<reportModule " + getBaseXML() + ">";
-		xml += "<labels showCounters='" + showCounters + "'>";
+		xml += "<labels showCounters='" + showCounters + "' pageNameWidth='" +
+				pageNameWidth + "'>";
 		
 		xml += "<label name='ErrorCount' value='" + StringUtils.escapeHTML(errorsLabel) +"'/>";
 		xml += "<label name='CheckCount' value='" + StringUtils.escapeHTML(checksLabel) +"'/>";
@@ -224,6 +228,31 @@ public class ReportModule extends BasicModuleModel {
 		addProperty(property);
 	}
 
+	
+	private void addPropertyTitleWidth() {
+
+IProperty property = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				pageNameWidth = Integer.parseInt(newValue);
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return Integer.toString(pageNameWidth);
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("report_title_width");
+			}
+		};
+		
+		addProperty(property);
+	}
+
 
 	public String getErrorsLabel(){
 		return errorsLabel;
@@ -247,5 +276,9 @@ public class ReportModule extends BasicModuleModel {
 	
 	public boolean isShowCounters(){
 		return showCounters;
+	}
+	
+	public int getPageNameWidth(){
+		return pageNameWidth;
 	}
 }

@@ -321,4 +321,22 @@ public class ReportModelTestCase {
 	}
 
 
+	@Test
+	public void pageNameColumnWidth() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/report.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ReportModule module = new ReportModule();
+		module.load(element, "");
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new ReportModule();
+		module.load(element, "");
+		
+		assertEquals(100, module.getPageNameWidth());
+	}
+
+
 }

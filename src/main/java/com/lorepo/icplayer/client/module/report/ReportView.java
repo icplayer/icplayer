@@ -40,6 +40,9 @@ public class ReportView extends Composite implements IDisplay{
 		grid.setCellSpacing(0);
 
 		grid.getRowFormatter().addStyleName(0, "ic_report-header");
+		if(module.getPageNameWidth() > 0){
+			grid.getColumnFormatter().setWidth(0, module.getPageNameWidth() + "px");
+		}
 		grid.setText(0, 0, module.getResultLabel());
 		if(module.isShowCounters()){
 			grid.setText(0, 2, module.getChecksLabel());

@@ -53,9 +53,9 @@ background-color:lightgreen;
 </style>
 
 <pages>
+	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="flow" href="flow/flow.page.xml"/>
-	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<folder name="commons">

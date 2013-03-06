@@ -168,6 +168,7 @@ var ice_dictionary = {
 	"report_checks_label" : "Checks label",
 	"report_results_label" : "Results label",
 	"report_total_label" : "Total label",
+	"report_title_width" : "Title width",
 	"shape_module" : "Shape",
 	"source_list_module" : "Source list",
 	"source_list_items" : "Items",
