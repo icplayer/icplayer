@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<project name="Addon" basedir=".">
+    <target name="test" description="Run jsTestDriver tests">
+        <mkdir dir="test-reports" />
+        <java jar="../tools/JsTestDriver.jar" fork="true">
+            <arg line="--tests all"/>
+            <arg line="--config jsTestDriver.conf" />
+            <arg line="--testOutput test-reports" />
+            <arg line="--captureConsole" />
+        </java>
+    </target>
+</project>
