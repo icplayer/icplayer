@@ -467,8 +467,9 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 
 	public void outstreachHeight(int position, int amount) {
 
+		int visibleHeight = getHeight() - amount;
 		for(IModuleModel module : getModules()){
-			if(module.getTop() > position){
+			if(module.getTop() > position && module.getTop() < visibleHeight){
 				module.disableChangeEvent(true);
 				module.setTop(module.getTop()+amount);
 				module.disableChangeEvent(false);
