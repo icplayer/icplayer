@@ -11,10 +11,11 @@
 			<fileset dir="${addons.dest}"/>
 		</delete>
 
+		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Advanced_Connector"/>
+		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Animation"/>
+		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connection"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="YouTube_Addon"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Vimeo"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connection"/>
-        <copyAddon src="${addons.src}" dest="${addons.dest}" addon="Advanced_Connector"/>
 	</target>
 
 </project>

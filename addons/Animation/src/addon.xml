@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Animation'>
+	<model>
+		<property name="Preview image" type="image" />
+		<property name="Animation" type="image" />
+		<property name="Frames count" type="string" />
+		<property name="Frame duration" type="string" />
+		<property name="Frame size" type="{Original, Keep aspect ratio, Stretch}"/>
+		<property name="Loop" type="boolean" />
+		<property name="Labels" type="list">
+			<property name="Text" type="string" isLocalized="true" />
+			<property name="Top" type="string" />
+			<property name="Left" type="string" />
+			<property name="Frames" type="string" />
+		</property>
+		<property name="Show watermark" type="boolean" />
+		<property name="Watermark color" type="string" />
+		<property name="Watermark opacity" type="string" />
+		<property name="Watermark size" type="string" />
+		<property name="Don't reset on end" type="boolean" />
+		<property name="Is click disabled" type="boolean" />
+	</model>
+</addon>

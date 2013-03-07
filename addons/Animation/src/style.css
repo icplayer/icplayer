@@ -1,0 +1,48 @@
+.animation-image-animation,
+.animation-image-preview,
+.animation-loading-image,
+.animation-label {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.animation-image-animation,
+.animation-image-preview {
+    border: none;
+    float: left;
+    overflow: hidden;
+    background: no-repeat 0 0;
+}
+
+.animation-image-animation {
+    display: none;
+}
+
+.animation-image-preview {
+    position: relative;
+}
+
+.animation-loading-image {
+    display: none;
+    position: absolute;
+    border: 0 solid black;
+    width: 50px;
+    height: 50px;
+}
+
+.animation-label {
+    position: absolute;
+}
+
+.animation-hidden-image {
+    visibility: hidden;
+}
+
+.animation-watermark {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: none;
+    position: absolute;
+}
