@@ -8,14 +8,13 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
+import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
-import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
 public class AppController{
 
@@ -29,13 +28,11 @@ public class AppController{
 	private PagePopupPanel 		popupPanel;
 	private PlayerServices		playerService;
 	private Page				currentPage;
-	private WaitDialog			waitDlg;
 	private long				timeStart = 0;
 	
 	
 	public AppController(PlayerApp app, Content content){
 		
-		waitDlg = new WaitDialog();
 		playerApp = app;
 		contentModel = content;
 		playerView = new PlayerView();
@@ -157,7 +154,7 @@ public class AppController{
 
 		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		waitDlg.show();
+		playerView.showWaitDialog();
 		reader.load(url, new ILoadListener() {
 			
 			@Override
@@ -165,7 +162,7 @@ public class AppController{
 				Page page = (Page) obj;
 				createView(page);
 				playerApp.onPageLoaded();
-				waitDlg.hide();
+				playerView.hideWaitDialog();
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
@@ -176,7 +173,7 @@ public class AppController{
 
 			@Override
 			public void onError(String error) {
-				waitDlg.hide();
+				playerView.hideWaitDialog();
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
