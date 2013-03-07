@@ -534,11 +534,7 @@ function AddonConnection_create(){
     }
 
     function redraw() {
-        var ua = navigator.userAgent.toLowerCase();
-        var isAndroid = ua.indexOf("android") > -1;
-        if (isAndroid) {
-            connections.width = connections.width;
-        }
+        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
@@ -558,11 +554,7 @@ function AddonConnection_create(){
     }
 
     presenter.setShowErrorsMode = function(){
-        var ua = navigator.userAgent.toLowerCase();
-        var isAndroid = ua.indexOf("android") > -1;
-        if (isAndroid) {
-            connections.width = connections.width;
-        }
+        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
