@@ -13,6 +13,7 @@ function AddonConnection_create(){
 
     presenter.uniqueIDs = [];
     presenter.elements = [];
+    presenter.lastClickTime = 0;
 
     var connections;
     var singleMode = false;
@@ -186,7 +187,6 @@ function AddonConnection_create(){
     presenter.run = function(view, model){
         presenter.view = view;
         presenter.model = model;
-
         eventBus = playerController.getEventBus();
         addonID = model.ID;
 
@@ -314,10 +314,15 @@ function AddonConnection_create(){
     }
 
     presenter.registerListeners = function(view) {
+
         presenter.$connectionContainer = $(view).find('.connectionContainer');
         $(view).find('.connectionItem').click(function () {
-            if (!isSelectionPossible) return;
-
+            // workaround for android webView
+            // http://code.google.com/p/android/issues/detail?id=38808
+            var current = new Date().getTime();
+            var delta = current - presenter.lastClickTime;
+            if (!isSelectionPossible || delta < 500) return;
+            presenter.lastClickTime = current;
             if (!$(this).hasClass('selected') && selectedItem == null) {
                 // zaznaczony pierwszy element
                 $(this).parent().find('.connectionItem').removeClass('selected');
@@ -372,7 +377,8 @@ function AddonConnection_create(){
 
             redraw();
             selectedItem.removeClass('selected');
-            selectedItem = null
+            selectedItem = null;
+
         });
     };
 
@@ -528,6 +534,11 @@ function AddonConnection_create(){
     }
 
     function redraw() {
+        var ua = navigator.userAgent.toLowerCase();
+        var isAndroid = ua.indexOf("android") > -1;
+        if (isAndroid) {
+            connections.width = connections.width;
+        }
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
@@ -538,7 +549,6 @@ function AddonConnection_create(){
         var from = getElementSnapPoint(line.from);
         var to = getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
-
         connections.drawLine({
             strokeStyle: color,
             strokeWidth: connectionThickness,
@@ -548,8 +558,12 @@ function AddonConnection_create(){
     }
 
     presenter.setShowErrorsMode = function(){
+        var ua = navigator.userAgent.toLowerCase();
+        var isAndroid = ua.indexOf("android") > -1;
+        if (isAndroid) {
+            connections.width = connections.width;
+        }
         connections.clearCanvas();
-
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
 
@@ -612,20 +626,15 @@ function AddonConnection_create(){
     };
 
     presenter.setState = function(state) {
-        var hookExecuted = false;
-
         MathJax.Hub.Register.MessageHook("End Process", function(){
-            if (state != '' && !hookExecuted) {
+            if (state != '') {
                 var id = JSON.parse(state);
                 for (var i = 0; i < id.length; i++) {
                     var pair = id[i].split(':');
                     pushConnection(new Line(getElementById(pair[0]), getElementById(pair[1])), false);
                 }
-
-                redraw();
             }
-
-            hookExecuted = true;
+            redraw();
         });
     };
 
