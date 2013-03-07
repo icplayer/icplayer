@@ -3,17 +3,18 @@
 	
 	<property name="addons.dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
 	<property name="addons.src" location="." />
-  	
+
 	<target name="copy">
 		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
 		<mkdir dir="${addons.dest}" />
 		<delete>
 			<fileset dir="${addons.dest}"/>
 		</delete>
-		
+
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="YouTube_Addon"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Vimeo"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connection"/>
+        <copyAddon src="${addons.src}" dest="${addons.dest}" addon="Advanced_Connector"/>
 	</target>
 
 </project>
