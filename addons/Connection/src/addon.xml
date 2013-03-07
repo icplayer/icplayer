@@ -5,13 +5,13 @@
 		<property name='Single connection mode' type='boolean'/>
 		<property name="Left column" type="list">
 			<property name="id" type="string" />
-			<property name="content" type="html" />
+			<property name="content" type="html" isLocalized="true" />
 			<property name="connects to" type="string" />
 			<property name="additional class" type="string" />
 		</property>
 		<property name="Right column" type="list">
 			<property name="id" type="string" />
-			<property name="content" type="html" />
+			<property name="content" type="html" isLocalized="true" />
 			<property name="connects to" type="string" />
 			<property name="additional class" type="string" />
 		</property>
