@@ -29,6 +29,7 @@ hr, table, fieldset {
 	padding:20px;
 	padding-left: 50px;
 	padding-right: 50px; 
+	opacity:0.75;
 }
 
 .ic_audio-load{

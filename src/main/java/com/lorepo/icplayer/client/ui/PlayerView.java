@@ -77,7 +77,7 @@ public class PlayerView extends VerticalPanel{
 		waitDlg.setPopupPositionAndShow(new PositionCallback() {
 			public void setPosition(int offsetWidth, int offsetHeight) {
 				int left = getAbsoluteLeft() + (getOffsetWidth()-offsetHeight)/2;
-				int top = Math.max(getAbsoluteTop(), 0);
+				int top = Math.max(getAbsoluteTop(), 0)+100;
 				waitDlg.setPopupPosition(left, top);
 			}
 		});
