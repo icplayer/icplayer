@@ -8,6 +8,7 @@ import com.lorepo.icplayer.client.AppController;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -25,6 +26,7 @@ public class PlayerServices implements IPlayerServices {
 	private ResettableEventBus	eventBus;
 	private AppController 		appController;
 	private JavaScriptPlayerServices	jsServiceImpl;
+	private IJsonServices	jsonServices = new JsonServices();
 	
 	
 	/**
@@ -103,6 +105,12 @@ public class PlayerServices implements IPlayerServices {
 	public IPresenter getModule(String moduleName) {
 		
 		return appController.getPageController().findModule(moduleName);
+	}
+
+
+	@Override
+	public IJsonServices getJsonServices() {
+		return jsonServices;
 	}
 
 }

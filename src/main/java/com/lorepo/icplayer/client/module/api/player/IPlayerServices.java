@@ -15,18 +15,12 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 public interface IPlayerServices {
 
 	public IContent getModel();
-	
 	public EventBus	getEventBus();
-	
 	public int getCurrentPageIndex();
-
 	public IPlayerCommands	getCommands();
-
 	public IScoreService	getScoreService();
-
 	public IServerService	getServerService();
-	
+	public IJsonServices	getJsonServices();
 	public JavaScriptObject getAsJSObject();
-	
 	public IPresenter getModule(String moduleName);
 }
