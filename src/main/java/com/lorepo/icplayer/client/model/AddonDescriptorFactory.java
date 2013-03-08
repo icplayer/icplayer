@@ -29,11 +29,12 @@ public class AddonDescriptorFactory {
 	private void registerLocalDescriptors() {
 		
 		addonList = new HashMap<String, AddonEntry>();
+		addDescriptor("Advanced_Connector", "Advanced Connector", "Scripting");
+		addDescriptor("Animation", "Animation", "Media");
+		addDescriptor("Audio", "Audio", "Media");
+		addDescriptor("Connection", "Connection", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
-		addDescriptor("Connection", "Connection", "Activities");
-        addDescriptor("Advanced_Connector", "Advanced Connector", "Scripting");
-        addDescriptor("Animation", "Animation", "Media");
 	}
 
 

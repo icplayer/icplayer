@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Audio'>
+	<model>
+		<property name="mp3" type="file" />
+		<property name="ogg" type="file" />
+		<property name="defaultControls" type="boolean" />
+		<property name="displayTime" type="boolean" />
+		<property name="enableLoop" type="boolean" />
+		<property name="Narration" type="narration" isLocalized="true" />
+		<property name="onEnd" type="event"/>
+	</model>
+</addon>
