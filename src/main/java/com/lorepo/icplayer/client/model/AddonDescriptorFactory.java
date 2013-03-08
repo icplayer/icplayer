@@ -33,6 +33,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Animation", "Animation", "Media");
 		addDescriptor("Audio", "Audio", "Media");
 		addDescriptor("Connection", "Connection", "Activities");
+        addDescriptor("Connector", "Connector", "Scripting");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}

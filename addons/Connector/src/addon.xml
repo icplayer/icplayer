@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Connector'>
+	<model>
+		<property name='Tasks' type='list'>
+			<property name="Source" type="string" />
+			<property name="Item" type="string" />
+			<property name="Value" type="string" />
+			<property name="Score" type="string" />
+			<property name="Script" type="text" />
+		</property>
+	</model>
+</addon>

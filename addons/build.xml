@@ -15,6 +15,7 @@
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Animation"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Audio"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connection"/>
+		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connector"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="YouTube_Addon"/>
 		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Vimeo"/>
 	</target>
