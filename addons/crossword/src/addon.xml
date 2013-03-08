@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='crossword'>
+	<model>
+		<property name='Crossword' type='text' isLocalized="true" />
+		<property name='Columns' type='string' />
+		<property name='Rows' type='string' />
+		<property name="Cell width" type="string" />
+		<property name="Cell height" type="string" />
+		<property name="Blank cells border color" type="string" />
+		<property name="Blank cells border style" type="{solid, dotted, dashed}" />
+		<property name="Blank cells border width" type="string" />
+		<property name="Letter cells border color" type="string" />
+		<property name="Letter cells border style" type="{solid, dotted, dashed}" />
+		<property name="Letter cells border width" type="string" />
+		<property name="Word numbers" type="{both, horizontal, vertical, none}" />
+		<property name="Marked column index" type="string" />
+		<property name="Marked row index" type="string" />
+	</model>
+</addon>

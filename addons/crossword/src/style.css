@@ -1,0 +1,57 @@
+.crossword_container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.crossword_container .cell_container {
+    float: left;
+    position: relative;
+}
+
+.crossword_container .cell {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
+.crossword_container .cell_letter {
+    background: white;
+}
+
+.crossword_container .cell_valid {
+    background: #00ff00;
+}
+
+.crossword_container .cell_invalid {
+    background: #aa0000;
+}
+
+.crossword_container .cell_invalid input {
+    color: #fff;
+}
+
+.crossword_container .cell_container_blank {
+    background: black;
+}
+
+.crossword_container .cell_letter input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    -webkit-appearance: none;
+}
+
+.crossword_container .cell .word_number {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 6pt;
+}
