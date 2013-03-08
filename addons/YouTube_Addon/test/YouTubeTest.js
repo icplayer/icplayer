@@ -1,136 +1,183 @@
-YouTubeTest = TestCase("YouTube Test");
+TestCase("YouTube Test", {
+    setUp: function () {
+        this.presenter = AddonYouTube_Addon_create();
+    },
 
-YouTubeTest.prototype.testDecodeVideoID = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = 'Decoded ID should be same as method argument';
+    'test decode video ID': function() {
+        var ERROR_MESSAGE = 'Decoded ID should be same as method argument';
 
-    var methodResult = presenter.decodeVideoID('', '114331');
+        var methodResult = this.presenter.decodeVideoID('', '114331');
 
-    assertBoolean(methodResult.isError === false);
-    assertEquals(methodResult.errorMessage, "");
-    assertEquals(ERROR_MESSAGE, '114331', methodResult.videoID);
-};
+        assertBoolean(methodResult.isError === false);
+        assertEquals(methodResult.errorMessage, "");
+        assertEquals(ERROR_MESSAGE, '114331', methodResult.videoID);
+    },
 
-YouTubeTest.prototype.testDecodeVideoIDFromURL = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = 'Decoded ID should be same as method argument';
+    'test decode video ID from URL': function () {
+        var ERROR_MESSAGE = 'Decoded ID should be same as method argument';
 
-    var methodResult = presenter.decodeVideoID('http://www.youtube.com/watch?v=XNtTEibFvlQ', '');
+        var methodResult = this.presenter.decodeVideoID('http://www.youtube.com/watch?v=XNtTEibFvlQ', '');
 
-    assertBoolean(methodResult.isError === false);
-    assertEquals(methodResult.errorMessage, "");
-    assertEquals(ERROR_MESSAGE, 'XNtTEibFvlQ', methodResult.videoID);
+        assertBoolean(methodResult.isError === false);
+        assertEquals(methodResult.errorMessage, "");
+        assertEquals(ERROR_MESSAGE, 'XNtTEibFvlQ', methodResult.videoID);
+    },
 
-    // Test the same URL but without protocol given (HTTP)
-    methodResult = presenter.decodeVideoID('www.youtube.com/watch?v=XNtTEibFvlQ', '');
+    'test decode video ID from URL without protocol': function () {
+        var ERROR_MESSAGE = 'Decoded ID should be same as method argument';
 
-    assertBoolean(methodResult.isError === false);
-    assertEquals(methodResult.errorMessage, "");
-    assertEquals(ERROR_MESSAGE, 'XNtTEibFvlQ', methodResult.videoID);
-};
+        var methodResult = this.presenter.decodeVideoID('www.youtube.com/watch?v=XNtTEibFvlQ', '');
 
-YouTubeTest.prototype.testDecodeVideoIDFromURLAndID = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = 'Decoded ID must be given ID';
+        assertBoolean(methodResult.isError === false);
+        assertEquals(methodResult.errorMessage, "");
+        assertEquals(ERROR_MESSAGE, 'XNtTEibFvlQ', methodResult.videoID);
+    },
 
-    var methodResult = presenter.decodeVideoID('http://www.youtube.com/watch?v=XNtTEibFvlQ', '114331');
+    'test decode video ID from URL and ID': function () {
+        var ERROR_MESSAGE = 'Decoded ID must be given ID';
 
-    assertBoolean(methodResult.isError === false);
-    assertEquals(methodResult.errorMessage, "");
-    assertEquals(ERROR_MESSAGE, '114331', methodResult.videoID);
+        var methodResult = this.presenter.decodeVideoID('http://www.youtube.com/watch?v=XNtTEibFvlQ', '114331');
 
-    // Test the same ID but shortened URL
-    methodResult = presenter.decodeVideoID('http://www.youtu.be/XNtTEibFvlQ', '114331');
+        assertBoolean(methodResult.isError === false);
+        assertEquals(methodResult.errorMessage, "");
+        assertEquals(ERROR_MESSAGE, '114331', methodResult.videoID);
+    },
 
-    assertBoolean(methodResult.isError === false);
-    assertEquals(methodResult.errorMessage, "");
-    assertEquals(ERROR_MESSAGE, '114331', methodResult.videoID);
-};
+    'test decode video ID from ID and shortened URL': function () {
+        var ERROR_MESSAGE = 'Decoded ID must be given ID';
 
-YouTubeTest.prototype.testEmptyVideoIDAndURL = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = "Neither video ID nor URL was given!";
+        var methodResult = this.presenter.decodeVideoID('http://www.youtu.be/XNtTEibFvlQ', '114331');
 
-    var methodResult = presenter.decodeVideoID('', '');
+        assertBoolean(methodResult.isError === false);
+        assertEquals(methodResult.errorMessage, "");
+        assertEquals(ERROR_MESSAGE, '114331', methodResult.videoID);
+    },
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
-};
+    'test empty video ID and URL': function () {
+        var ERROR_MESSAGE = "Neither video ID nor URL was given!";
 
-YouTubeTest.prototype.testIncorrectID = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = "Video ID seems to be incorrect!";
+        var methodResult = this.presenter.decodeVideoID('', '');
 
-    // Test with special character - '%' at the beginning of ID
-    var methodResult = presenter.decodeVideoID('', '%114331');
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
+    'test incorrect ID - with special character "%" at the beginning of ID': function () {
+        var ERROR_MESSAGE = "Video ID seems to be incorrect!";
 
-    // Test with special character - '$' in the middle of ID
-    methodResult = presenter.decodeVideoID('', '11$4331');
+        var methodResult = this.presenter.decodeVideoID('', '%114331');
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
 
-    // Test with special character - '#' at the end of ID
-    methodResult = presenter.decodeVideoID('', '114331#');
+        // Test with special character - '$' in the middle of ID
+        methodResult = this.presenter.decodeVideoID('', '11$4331');
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
-};
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
 
-YouTubeTest.prototype.testURLWithoutID = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = "URL seems to be incorrect. It must contain video ID!";
+        // Test with special character - '#' at the end of ID
+        methodResult = this.presenter.decodeVideoID('', '114331#');
 
-    // Test with shortened URL
-    var methodResult = presenter.decodeVideoID('youtu.be/', '');
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
+    'test incorrect ID - with special character "$" in the middle of ID': function () {
+        var ERROR_MESSAGE = "Video ID seems to be incorrect!";
 
-    // Test with original URL
-    methodResult = presenter.decodeVideoID('www.youtube.com/watch?v=', '');
+        var methodResult = this.presenter.decodeVideoID('', '11$4331');
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
-};
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
 
-YouTubeTest.prototype.testIncorrectURL = function() {
-    var presenter = AddonYouTube_Development_create();
-    var ERROR_MESSAGE = "URL seems to be incorrect!";
+        // Test with special character - '#' at the end of ID
+        methodResult = this.presenter.decodeVideoID('', '114331#');
 
-    var methodResult = presenter.decodeVideoID('youtube.com/', '');
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
+    'test incorrect ID - with special character "#" at the end of ID': function () {
+        var ERROR_MESSAGE = "Video ID seems to be incorrect!";
 
-    // Added 'watch' parameter but without value (ID)
-    methodResult = presenter.decodeVideoID('youtube.com', '');
+        var methodResult = this.presenter.decodeVideoID('', '114331#');
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
 
-    // Given URL is not valid YouTube URL
-    methodResult = presenter.decodeVideoID('lorepo.com', '');
+    'test URL without ID and with shortened URL': function () {
+        var ERROR_MESSAGE = "URL seems to be incorrect. It must contain video ID!";
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
+        var methodResult = this.presenter.decodeVideoID('youtu.be/', '');
 
-    // Given URL is not valid URL at all
-    methodResult = presenter.decodeVideoID('I am am not a url', '');
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
 
-    assertBoolean(methodResult.isError);
-    assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
-    assertEquals('-1', methodResult.videoID);
-};
+        // Test with original URL
+        methodResult = this.presenter.decodeVideoID('www.youtube.com/watch?v=', '');
+
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
+
+    'test URL without ID and with original URL': function () {
+        var ERROR_MESSAGE = "URL seems to be incorrect. It must contain video ID!";
+
+        var methodResult = this.presenter.decodeVideoID('www.youtube.com/watch?v=', '');
+
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
+
+    'test incorrect URL': function () {
+        var ERROR_MESSAGE = "URL seems to be incorrect!";
+
+        var methodResult = this.presenter.decodeVideoID('youtube.com/', '');
+
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
+
+    'test incorrect URL - with "watch" parameter but without value (ID)': function () {
+        var ERROR_MESSAGE = "URL seems to be incorrect!";
+
+        var methodResult = this.presenter.decodeVideoID('youtube.com', '');
+
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
+
+    'test incorrect URL - given URL is not valid YouTube URL': function () {
+        var ERROR_MESSAGE = "URL seems to be incorrect!";
+
+        var methodResult = this.presenter.decodeVideoID('lorepo.com', '');
+
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    },
+
+    'test incorrect URL - given URL is not valid URL at all': function () {
+        var ERROR_MESSAGE = "URL seems to be incorrect!";
+
+        var methodResult = this.presenter.decodeVideoID('I am am not a url', '');
+
+        assertBoolean(methodResult.isError);
+        assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
+        assertEquals('-1', methodResult.videoID);
+    }
+});
