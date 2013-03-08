@@ -53,7 +53,7 @@
 					
 				var button = document.getElementById('mybutton');
 				button.onclick=function(){
-					var module = playerController.getModule('cloze1');
+					var module = playerController.getModule('ig1');
 					module.hide();
 				};
 			}

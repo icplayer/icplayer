@@ -10,6 +10,7 @@ public class ImageGapViewMockup implements IDisplay {
 	private String imageUrl;
 	private String style;
 	private boolean disabled;
+	private boolean visible = true;
 	
 	
 	public ImageGapViewMockup(ImageGapModule module) {
@@ -65,14 +66,16 @@ public class ImageGapViewMockup implements IDisplay {
 
 	@Override
 	public void show() {
-		// TODO Auto-generated method stub
-		
+		visible = true;
 	}
 
 	@Override
 	public void hide() {
-		// TODO Auto-generated method stub
-		
+		visible = false;
+	}
+	
+	public boolean isVisible(){
+		return visible;
 	}
 
 	@Override

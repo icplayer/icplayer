@@ -1,10 +1,12 @@
 package com.lorepo.icplayer.client.module.imagegap;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -43,12 +45,14 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private DraggableItem readyToDraggableItem;
 	private DraggableItem consumedItem;
 	private JavaScriptObject	jsObject;
+	private boolean isVisible;
 	
 	
 	public ImageGapPresenter(ImageGapModule model, IPlayerServices services){
 
 		this.model = model;
 		this.playerServices = services;
+		isVisible = model.isVisible();
 		
 		connectHandlers();
 	}
@@ -202,21 +206,31 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public String getState() {
+		HashMap<String, String> state = new HashMap<String, String>();
 		if(consumedItem != null){
-			return consumedItem.toString();
+			state.put("consumed",  consumedItem.toString());
 		}
-		else{
-			return "";
-		}
+		state.put("isVisible", Boolean.toString(isVisible));		
+		return JSONUtils.toJSONString(state);
 	}
 
 
 	@Override
-	public void setState(String state) {
+	public void setState(String stateObj) {
 		
-		consumedItem = DraggableItem.createFromString(state);
-		if(consumedItem != null){
+		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
+		if(state.containsKey("consumed")){
+			consumedItem = DraggableItem.createFromString(state.get("consumed"));
 			view.setImageUrl(consumedItem.getValue());
+		}
+		if(state.containsKey("isVisible")){
+			isVisible = Boolean.parseBoolean(state.get("isVisible"));
+			if(!isVisible){
+				hide();
+			}
+			else{
+				show();
+			}
 		}
 	}
 
@@ -357,18 +371,20 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}-*/;
 	
 	
-	private void show(){
+	protected void show(){
 		
 		if(view != null){
 			view.show();
+			isVisible = true;
 		}
 	}
 	
 	
-	private void hide(){
+	protected void hide(){
 		
 		if(view != null){
 			view.hide();
+			isVisible = false;
 		}
 	}
 
