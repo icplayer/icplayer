@@ -6,7 +6,6 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
-import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -21,6 +20,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
@@ -206,19 +206,22 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public String getState() {
+
+		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
 		if(consumedItem != null){
 			state.put("consumed",  consumedItem.toString());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));		
-		return JSONUtils.toJSONString(state);
+		return json.toJSONString(state);
 	}
 
 
 	@Override
 	public void setState(String stateObj) {
 		
-		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
+		IJsonServices json = playerServices.getJsonServices();
+		HashMap<String, String> state = json.decodeHashMap(stateObj);
 		if(state.containsKey("consumed")){
 			consumedItem = DraggableItem.createFromString(state.get("consumed"));
 			view.setImageUrl(consumedItem.getValue());

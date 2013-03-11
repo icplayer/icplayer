@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -23,6 +24,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private IPlayerCommands	commands;
 	private IScoreService	scoreService;
 	private IContent		contentModel;
+	private IJsonServices	jsonMockup;
 	
 	/**
 	 * constructor
@@ -33,6 +35,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
 		scoreService = new ScoreService();
+		jsonMockup = new JsonMockup();
 	}
 	
 	
@@ -91,6 +94,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public IPresenter getModule(String moduleName) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public IJsonServices getJsonServices() {
+		return jsonMockup;
 	}
 	
 }

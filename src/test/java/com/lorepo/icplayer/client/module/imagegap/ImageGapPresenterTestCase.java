@@ -165,7 +165,7 @@ public class ImageGapPresenterTestCase {
 		assertEquals(0, presenter.getScore());
 		assertEquals(1, presenter.getErrorCount());
 	}
-/*	
+
 	@Test
 	public void saveLoadState(){
 		
@@ -183,7 +183,7 @@ public class ImageGapPresenterTestCase {
 		presenter.setState(stateObj);
 		assertEquals("/path", display.getImageUrl());
 	}
-*/	
+	
 	
 	@Test
 	public void showCorrectStyle(){
@@ -287,7 +287,7 @@ public class ImageGapPresenterTestCase {
 		assertEquals("1", imageID);
 	}
 	
-/*
+
 	@Test
 	public void hideAfterState(){
 		
@@ -298,5 +298,4 @@ public class ImageGapPresenterTestCase {
 		presenter.setState(stateObj);
 		assertFalse(display.isVisible());
 	}
-*/	
 }
