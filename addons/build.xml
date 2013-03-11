@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer-addons" default="copy" basedir=".">
-	
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
 	<property name="addons.dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
 	<property name="addons.src" location="." />
 
@@ -11,14 +12,13 @@
 			<fileset dir="${addons.dest}"/>
 		</delete>
 
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Advanced_Connector"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Animation"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Audio"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connection"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Connector"/>
-        <copyAddon src="${addons.src}" dest="${addons.dest}" addon="crossword"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="YouTube_Addon"/>
-		<copyAddon src="${addons.src}" dest="${addons.dest}" addon="Vimeo"/>
+        <loadfile property="addons.list" srcFile="addons.list"/>
+        <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
+            <sequential>
+                <echo>Copying @{addonid} addon</echo>
+                <copyAddon src="${addons.src}" dest="${addons.dest}" addon="@{addonid}"/>
+            </sequential>
+        </for>
 	</target>
 
 </project>

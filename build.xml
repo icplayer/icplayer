@@ -157,6 +157,7 @@
   </target>
 
   <target name="test.single.addon">
+    <echo>Testing addon with ID ${addon.id}</echo>
     <exec executable="java" failonerror="true">
       <arg line="-jar" />
       <arg path="${jstestdriver.jar}" />
@@ -174,10 +175,6 @@
     <loadfile property="addons.list" srcFile="addons/addons.list"/>
     <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
       <sequential>
-        <echo>
-Testing addon with ID @{addonid}
-
-</echo>
         <antcall target="test.single.addon">
           <param name="addon.id" value="@{addonid}"/>
         </antcall>
