@@ -11,7 +11,7 @@ HTML5 player for interactive lessons.
 * [mauthor.com](http://mauthor.com) - Professional support for player and editor
 
 
-## How to contrubute
+## How to contribute
   
 If you want to contribute to this project, fork it, make changes and send pull request.
 
