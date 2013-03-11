@@ -14,3 +14,8 @@ HTML5 player for interactive lessons.
 ## How to contrubute
   
 If you want to contribute to this project, fork it, make changes and send pull request.
+
+## Redistributing
+
+icplayer source code is distributed under the Apache 2.0 License.
+icplayer may be freely redistributed, subject to the provisions of these licenses.
