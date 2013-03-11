@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer" default="dist" basedir=".">
-	
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
 	<property file="build.properties" />
 	<property name="src" location="src/main/java" />
 	<property name="src-test" location="src/test/java" />
 	<property name="icfoundation-src" location="../icfoundation/src/main/java" />
+    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar" />
+    <property name="jstestdriver.port" value="9876" />
 	
   	<!-- Arguments to gwtc and devmode targets -->
   	<property name="gwt.args" value="" />
@@ -153,9 +156,40 @@
     </junit>
   </target>
 
+  <target name="test.single.addon">
+    <exec executable="java" failonerror="true">
+      <arg line="-jar" />
+      <arg path="${jstestdriver.jar}" />
+      <arg line="--port ${jstestdriver.port}" />
+      <arg line="--browser C:/Users/lrybka/AppData/Local/Google/Chrome/Application/chrome.exe" />
+      <arg line="--config" />
+      <arg path="addons/${addon.id}/jsTestDriver.conf" />
+      <arg line="--tests all" />
+      <arg line="--testOutput" />
+      <arg path="addons/${addon.id}/test-results" />
+    </exec>
+  </target>
+
+  <target name="test.addons">
+    <loadfile property="addons.list" srcFile="addons/addons.list"/>
+    <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
+      <sequential>
+        <echo>
+Testing addon with ID @{addonid}
+
+</echo>
+        <antcall target="test.single.addon">
+          <param name="addon.id" value="@{addonid}"/>
+        </antcall>
+      </sequential>
+    </for>
+  </target>
+
+
   <target name="test" description="Run development and production mode tests">
     <antcall target="test.dev" />
     <antcall target="test.prod" />
+    <antcall target="test.addons" />
   </target>
 
 
