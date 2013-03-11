@@ -18,4 +18,4 @@ If you want to contribute to this project, fork it, make changes and send pull r
 ## Redistributing
 
 icplayer source code is distributed under the Apache 2.0 License.
-icplayer may be freely redistributed, subject to the provisions of these licenses.
+icplayer may be freely redistributed, subject to the provisions of this license.
