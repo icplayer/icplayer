@@ -24,11 +24,7 @@ hr, table, fieldset {
 
 .ic_waitdlg{
 	background-color:white;
-	border-radius: 5px;
-	border:1px solid gray;
 	padding:20px;
-	padding-left: 50px;
-	padding-right: 50px; 
 	opacity:0.75;
 }
 
