@@ -162,7 +162,8 @@
       <arg line="-jar" />
       <arg path="${jstestdriver.jar}" />
       <arg line="--port ${jstestdriver.port}" />
-      <arg line="--browser C:/Users/lrybka/AppData/Local/Google/Chrome/Application/chrome.exe" />
+      <arg line="--browser" />
+      <arg path="${jstestdriver.browsers}" />
       <arg line="--config" />
       <arg path="addons/${addon.id}/jsTestDriver.conf" />
       <arg line="--tests all" />
