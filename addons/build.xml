@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer-addons" default="copy" basedir=".">
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
 
 	<property name="addons.dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
 	<property name="addons.src" location="." />

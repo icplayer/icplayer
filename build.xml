@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer" default="dist" basedir=".">
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
 
 	<property file="build.properties" />
 	<property name="src" location="src/main/java" />
