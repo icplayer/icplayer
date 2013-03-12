@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Double_State_Button'>
+	<model>
+		<property name='Text' type='string' isLocalized="true" />
+		<property name="Image" type="image" />
+		<property name="onSelected" type="event" />
+		<property name='Text selected' type='string' isLocalized="true" />
+		<property name="Image selected" type="image" />
+		<property name="onDeselected" type="event" />
+		<property name="isSelected" type="boolean" />
+		<property name="Disable" type="boolean" />
+	</model>
+</addon>

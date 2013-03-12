@@ -1,0 +1,27 @@
+.doublestate-button-wrapper {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+}
+
+.doublestate-button-element,
+.doublestate-button-element-mouse-hover,
+.doublestate-button-element-mouse-click,
+.doublestate-button-element-selected,
+.doublestate-button-element-selected-mouse-hover,
+.doublestate-button-element-selected-mouse-click {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    background: url('http://www.lorepo.com/media/iceditor/theme/images/standard-button.png') no-repeat center;
+    cursor: pointer;
+}
+
+.doublestate-button-text,
+.doublestate-button-image {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: absolute;
+}
