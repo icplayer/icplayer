@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='feedback'>
+	<model>
+		<property name="Responses" type="list">
+			<property name="Unique response ID" type="string" />
+			<property name="Status" type="string" />
+			<property name="Text" type="html" isLocalized="true" />
+		</property>
+		<property name="Default response" type="html" isLocalized="true" />
+		<property name="Preview response ID" type="string" />
+		<property name="Reset response on page change" type="boolean" />
+		<property name="Fade transitions" type="boolean" />
+		<property name="Center horizontally" type="boolean" />
+		<property name="Center vertically" type="boolean" />
+		<property name="Is not an activity" type="boolean" />
+	</model>
+</addon>

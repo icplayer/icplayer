@@ -36,6 +36,7 @@ public class AddonDescriptorFactory {
         addDescriptor("Connector", "Connector", "Scripting");
         addDescriptor("crossword", "Crossword", "Activities");
         addDescriptor("Double_State_Button", "Double State Button", "Scripting");
+        addDescriptor("feedback", "Feedback", "Scripting");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}

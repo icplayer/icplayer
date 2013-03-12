@@ -1,0 +1,19 @@
+.feedback_container .response {
+    padding: 1em;
+    position: absolute;
+    width: 100%;
+}
+
+.feedback_container .response.visible a {
+    z-index: 1;
+}
+
+.feedback_container .true_response {
+    border: 2px solid #00aa00;
+    border-radius: 4px;
+}
+
+.feedback_container .false_response {
+    border: 2px solid #ff0000;
+    border-radius: 4px;
+}
