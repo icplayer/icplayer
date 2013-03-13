@@ -39,6 +39,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("feedback", "Feedback", "Scripting");
 		addDescriptor("Glossary", "Glossary", "Activities");
 		addDescriptor("graph", "Graph", "Activities");
+		addDescriptor("Hangman", "Hangman", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}

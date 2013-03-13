@@ -1,0 +1,53 @@
+.hangman-wrapper {
+    height: 100%;
+    text-align: center;
+}
+
+.hangman-letter {
+    float: left;
+    margin: 3px;
+    padding: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+    width: 20px;
+    height: 20px;
+}
+
+.hangman-letters,
+.hangman-phrase {
+    border: 2px solid black;
+    border-radius: 5px;
+    width: 97%;
+    height: 48%;
+}
+
+.hangman-letters {
+    margin-bottom: 5px;
+}
+
+.hangman-phrase-word {
+    margin-left: 5px;
+    margin-right: 10px;
+    float: left;
+}
+
+.hangman-phrase-word .hangman-letter {
+    border: none;
+    border-radius: 0;
+}
+
+.hangman-phrase-word .hangman-letter.empty {
+    border-bottom: 3px solid black;
+}
+
+.hangman-letters .hangman-letter.selected {
+    background-color: #dcdcdc;
+}
+
+.hangman-letters .hangman-letter.correct {
+    background-color: #adff2f;
+}
+
+.hangman-letters .hangman-letter.incorrect {
+    background-color: red;
+}

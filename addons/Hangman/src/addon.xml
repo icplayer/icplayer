@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Hangman'>
+	<model>
+		<property name="Phrases" type="list">
+			<property name="Letters" type="string" isLocalized="true" />
+			<property name="Phrase" type="string" isLocalized="true" />
+		</property>
+		<property name="Possible mistakes" type="string" />
+	</model>
+</addon>
