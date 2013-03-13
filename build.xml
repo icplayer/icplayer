@@ -158,17 +158,17 @@
 
   <target name="test.single.addon">
     <echo>Testing addon with ID ${addon.id}</echo>
+
+    <mkdir dir="addons/${addon.id}/test-reports" />
     <exec executable="java" failonerror="true">
       <arg line="-jar" />
       <arg path="${jstestdriver.jar}" />
-      <arg line="--port ${jstestdriver.port}" />
-      <arg line="--browser" />
-      <arg path="${jstestdriver.browsers}" />
+      <arg line="--tests all"/>
       <arg line="--config" />
       <arg path="addons/${addon.id}/jsTestDriver.conf" />
-      <arg line="--tests all" />
       <arg line="--testOutput" />
-      <arg path="addons/${addon.id}/test-results" />
+      <arg path="addons/${addon.id}/test-reports" />
+      <arg line="--captureConsole" />
     </exec>
   </target>
 
