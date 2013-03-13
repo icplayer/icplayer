@@ -68,6 +68,8 @@ var ice_dictionary = {
 	"add_page_menu" : "Add page",
 	"add_page_from_template_menu" : "Add page from template",
 	"duplicate_page_menu" : "Duplicate page",
+	"export_page_menu" : "Export page",
+	"import_page_menu" : "Import page",
 	"edit_name_menu" : "Edit name...",
 	"move_up_menu" : "Move up",
 	"move_down_menu" : "Move Down",
