@@ -33,11 +33,12 @@ public class AddonDescriptorFactory {
 		addDescriptor("Animation", "Animation", "Media");
 		addDescriptor("Audio", "Audio", "Media");
 		addDescriptor("Connection", "Connection", "Activities");
-        addDescriptor("Connector", "Connector", "Scripting");
-        addDescriptor("crossword", "Crossword", "Activities");
-        addDescriptor("Double_State_Button", "Double State Button", "Scripting");
-        addDescriptor("feedback", "Feedback", "Scripting");
-        addDescriptor("Glossary", "Glossary", "Activities");
+		addDescriptor("Connector", "Connector", "Scripting");
+		addDescriptor("crossword", "Crossword", "Activities");
+		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
+		addDescriptor("feedback", "Feedback", "Scripting");
+		addDescriptor("Glossary", "Glossary", "Activities");
+		addDescriptor("graph", "Graph", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}

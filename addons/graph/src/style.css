@@ -1,0 +1,200 @@
+.graph_container_outer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.graph_container_outer div {
+    position: absolute;
+}
+
+.graph_container_inner {
+    top: 10px;
+    left: 10px;
+    bottom: 10px;
+    right: 10px;
+}
+
+.graph_axis_y_description {
+    top: 0;
+    left: 0;
+}
+
+.graph_axis_x_description {
+    right: 0;
+}
+
+.graph_chart_outer {
+    left: 0;
+    bottom: 0;
+}
+
+.graph_grid_description {
+    text-align: right;
+    color: #999;
+    font-size: 75%;
+}
+
+.graph_chart_inner {
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.graph_axis_line {
+    background: #000;
+}
+
+.graph_axis_x_line {
+    left: 0;
+    height: 2px;
+    right: 0;
+}
+
+.graph_axis_y_line {
+    left: 0;
+    width: 2px;
+    bottom: 0;
+    top: 0;
+}
+
+.graph_axis_arrow {
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.graph_axis_y_arrow {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid black;
+    top: 0;
+    left: -4px;
+}
+
+.graph_axis_x_arrow {
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid black;
+    right: 0;
+}
+
+.graph_grid_block {
+    left: 0;
+    right: 0;
+}
+
+.graph_grid_block_above {
+    border-top: 1px dotted #999;
+}
+
+.graph_grid_block_below {
+    border-bottom: 1px dotted #999;
+}
+
+.graph_serie_container {
+    position: relative  !important;
+    float: left;
+    height: 100%;
+}
+
+.graph_serie_element {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.graph_column_container {
+    position: relative !important;
+    float: left;
+    height: 100%;
+}
+
+.graph_value_container {
+    width: 100%;
+    bottom: 0;
+}
+
+.graph_value_element {
+    border-left: 1px solid #666;
+    border-right: 1px solid #666;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+
+.graph_value_element_positive {
+    border-top: 1px solid #666;
+}
+
+.graph_value_element_negative {
+    border-bottom: 1px solid #666;
+}
+
+.graph_value_element_invalid {
+    border-left-color: #ff0000;
+    border-right-color: #ff0000;
+}
+
+.graph_value_element_positive_invalid {
+    border-top-color: #ff0000;
+}
+
+.graph_value_element_negative_invalid {
+    border-bottom-color: #ff0000;
+}
+
+.graph_value_element_valid {
+    border-left-color: #00ff00;
+    border-right-color: #00ff00;
+}
+
+.graph_value_element_positive_valid {
+    border-top-color: #00ff00;
+}
+
+.graph_value_element_negative_valid {
+    border-bottom-color: #00ff00;
+}
+
+
+.graph_grid, .graph_series, .graph_axises  {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.graph_column_container_interactive {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.graph_column_container_above {
+    cursor: n-resize;
+}
+
+.graph_value_element_interactive, .graph_column_container_below {
+    cursor: s-resize;
+}
+
+.graph_serie_description, .graph_column_description {
+    text-align: center;
+    color: #999;
+    font-size: 75%;
+    overflow: hidden;
+    height: 16px;
+    left: 0;
+    right: 0;
+}
+
+.graph_column_description {
+    bottom: -20px;
+}

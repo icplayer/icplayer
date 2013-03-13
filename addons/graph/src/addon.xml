@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='graph'>
+	<model>
+		<property name="X axis description" type="string" isLocalized="true" />
+		<property name="Show X axis bars descriptions" type="boolean" />
+		<property name="X axis bars descriptions" type="list">
+			<property name="Description" type="string" isLocalized="true" />
+		</property>
+		<property name="Show X axis series descriptions" type="boolean" />
+		<property name="X axis series descriptions" type="list">
+			<property name="Description" type="string" isLocalized="true" />
+		</property>
+		<property name="Y axis description" type="string" isLocalized="true" />
+		<property name="Y axis maximum value" type="string" />
+		<property name="Y axis minimum value" type="string" />
+		<property name="Y axis grid step" type="string" />
+		<property name="Interactive" type="boolean" />
+		<property name="Interactive step" type="string" />
+		<property name="Data" type="text" />
+		<property name="Answers" type="list">
+			<property name="Answer" type="string" />
+		</property>
+		<property name="Series colors" type="list">
+			<property name="Color" type="string" />
+		</property>
+	</model>
+</addon>
