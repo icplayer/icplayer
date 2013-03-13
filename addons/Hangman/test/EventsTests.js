@@ -1,7 +1,9 @@
 TestCase("Events creation", {
     setUp : function() {
         this.presenter = AddonHangman_create();
-        this.presenter.addonID = 'Hangman1';
+        this.presenter.configuration = {
+            addonID: 'Hangman1'
+        };
         this.presenter.currentPhrase = 0;
     },
 
@@ -45,7 +47,6 @@ TestCase("Events creation", {
 TestCase("Events triggering", {
     setUp : function() {
         this.presenter = AddonHangman_create();
-        this.presenter.addonID = 'Hangman1';
         this.presenter.configuration = {
             phrases: [{
                 letters: this.presenter.DEFAULT_LETTERS,
@@ -58,7 +59,8 @@ TestCase("Events triggering", {
                 errorCount: 0,
                 selectedLetters: []
             }],
-            trialsCount: 3
+            trialsCount: 3,
+            addonID: 'Hangman1'
         };
         this.presenter.currentPhrase = 1;
 
