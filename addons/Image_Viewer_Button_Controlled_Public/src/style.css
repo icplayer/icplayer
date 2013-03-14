@@ -1,0 +1,38 @@
+.image-viewer {
+    border: none;
+    padding: 0;
+    margin: 0;
+    float: left;
+    overflow: hidden;
+    background: no-repeat 0 0;
+}
+
+.image-viewer-audio-wrapper {
+    display: none;
+}
+
+.image-viewer-audio-wrapper audio {
+    display: inherit;
+}
+
+.image-viewer-hidden-image {
+    display: none;
+}
+
+.image-viewer-loading-image {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: none;
+    position: absolute;
+    z-index: 10;
+    width: 50px;
+    height: 50px;
+}
+
+.image-viewer-label {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+}
