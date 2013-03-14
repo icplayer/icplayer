@@ -41,6 +41,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("graph", "Graph", "Activities");
 		addDescriptor("Hangman", "Hangman", "Activities");
 		addDescriptor("Image_Identification", "Image Identification", "Activities");
+        addDescriptor("Image_Viewer_Public", "Image Viewer", "Media");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}

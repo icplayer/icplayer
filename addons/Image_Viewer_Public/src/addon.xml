@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Image_Viewer_Public'>
+	<model>
+		<property name='Image' type='file' />
+		<property name="Frames" type="string" />
+		<property name="Frame size" type="{Original, Keep aspect ratio, Stretch}" />
+		<property name="Sounds" type="list">
+			<property name="MP3 sound" type="file" />
+			<property name="OGG sound" type="file" />
+			<property name="AAC sound" type="fule" />
+		</property>
+		<property name="Frame names" type="list">
+			<property name="name" type="string" />
+			<property name="frame" type="string" />
+		</property>
+		<property name="isClickDisabled" type="boolean" />
+		<property name="Labels" type="list">
+			<property name="Text" type="string" isLocalized="true" />
+			<property name="Top" type="string" />
+			<property name="Left" type="string" />
+			<property name="Frames" type="string" />
+		</property>
+		<property name="Show watermark" type="boolean" />
+		<property name="Watermark color" type="string" />
+		<property name="Watermark opacity" type="string" />
+		<property name="Watermark size" type="string" />
+		<property name="Show frame" type="string" />
+		<property name="Animation" type="{None, Linear, Fading}" />
+		<property name="Correct frames" type="string" />
+		<property name="Do not reset" type="boolean" />
+		<property name="Random frame" type="boolean" />
+		<property name="Initial frame" type="string" />
+		<property name="Show frame counter" type="boolean" />
+	</model>
+</addon>
