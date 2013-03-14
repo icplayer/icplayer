@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Image_Identification'>
+	<model>
+		<property name='Image' type='image'/>
+		<property name="SelectionCorrect" type="boolean" />
+	</model>
+</addon>

@@ -7,8 +7,7 @@
 	<property name="src-test" location="src/test/java" />
 	<property name="icfoundation-src" location="../icfoundation/src/main/java" />
     <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar" />
-    <property name="jstestdriver.port" value="9876" />
-	
+
   	<!-- Arguments to gwtc and devmode targets -->
   	<property name="gwt.args" value="" />
 
