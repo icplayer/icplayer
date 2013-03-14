@@ -1,0 +1,17 @@
+.image-identification-element-selected,
+.image-identification-element-correct,
+.image-identification-element-incorrect,
+.image-identification-element-mouse-hover,
+.image-identification-element {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+}
+
+.image-identification-background-image {
+    border: 0 solid white;
+    padding: 0;
+    margin: 0;
+    background-size: 100%;
+    background-position: 0 0;
+}

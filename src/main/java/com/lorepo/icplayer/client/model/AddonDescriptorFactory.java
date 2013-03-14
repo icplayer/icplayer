@@ -40,6 +40,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Glossary", "Glossary", "Activities");
 		addDescriptor("graph", "Graph", "Activities");
 		addDescriptor("Hangman", "Hangman", "Activities");
+		addDescriptor("Image_Identification", "Image Identification", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "Youtube", "Media");
 	}
