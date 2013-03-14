@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer" default="dist" basedir=".">
-    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	<taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addons/addon-compiler.jar"/>
 
 	<property file="build.properties" />
 	<property name="src" location="src/main/java" />
@@ -187,7 +187,6 @@
   <target name="test" description="Run development and production mode tests">
     <antcall target="test.dev" />
     <antcall target="test.prod" />
-    <antcall target="test.addons" />
   </target>
 
 
