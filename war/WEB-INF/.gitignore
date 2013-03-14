@@ -1,3 +1,4 @@
 /deploy
 /appengine-web.xml
 /logging.properties
+/classes
