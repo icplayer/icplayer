@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Layered_Image'>
+	<model>
+		<property name='Base image' type='image' />
+		<property name="Layers" type="list">
+			<property name="Image" type="file" />
+			<property name="Show at start" type="boolean" />
+		</property>
+		<property name="Image size" type="{Original, Keep aspect ratio, Stretch}" />
+	</model>
+</addon>

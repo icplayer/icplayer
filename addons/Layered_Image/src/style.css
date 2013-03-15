@@ -1,0 +1,24 @@
+.layeredimage-wrapper,
+.layeredimage-image {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.layeredimage-wrapper {
+    position: relative;
+}
+
+.layeredimage-image {
+    position: absolute;
+    background-repeat: no-repeat;
+}
+
+.layeredimage-loading {
+    display: none;
+    z-index: 10;
+    position: absolute;
+    border: 0 solid black;
+    width: 50px;
+    height: 50px;
+}
