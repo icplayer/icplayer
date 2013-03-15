@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Math'>
+	<model>
+		<property name='Variables' type='text' />
+		<property name="Expressions" type="text" />
+		<property name="onCorrect" type="event" />
+		<property name="onIncorrect" type="event" />
+		<property name="onPartiallyCompleted" type="event" />
+	</model>
+</addon>
