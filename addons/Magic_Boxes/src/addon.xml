@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Magic_Boxes'>
+	<model>
+		<property name='Grid' type='text' isLocalized="true" />
+		<property name='Answers' type='text' isLocalized="true" />
+	</model>
+</addon>
