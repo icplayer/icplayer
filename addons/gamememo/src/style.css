@@ -1,0 +1,74 @@
+.gamememo_container table {
+    border-spacing: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.gamememo_container table td {
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+
+.gamememo_container table td img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+}
+
+.gamememo_container p {
+    text-align: center;
+}
+
+.gamememo_container div.cell {
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+
+
+.gamememo_container div.placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.gamememo_container div.front {
+    cursor: pointer;
+}
+
+.gamememo_container div.front_A {
+    background: #ff0000;
+}
+
+.gamememo_container div.front_A:hover {
+    background: #aa0000;
+}
+
+.gamememo_container div.front_B {
+    background: #0000ff;
+}
+
+.gamememo_container div.front_B:hover {
+    background: #0000bb;
+}
+
+.gamememo_container div.mismatch_mark {
+    color: #cc0000;
+    font-weight: bold;
+    font-size: 64pt;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    vertical-align: middle;
+    margin-top: -0.15ex;
+    cursor: default;
+}

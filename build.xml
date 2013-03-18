@@ -9,7 +9,7 @@
     <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar" />
 
   	<!-- Arguments to gwtc and devmode targets -->
-  	<property name="gwt.args" value="" />
+  	<property name="gwt.args" value="-style PRETTY" />
 
   	<property name="libs.junit" location="libs/junit-4.9.jar" />
 

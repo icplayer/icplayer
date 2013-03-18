@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='gamememo'>
+	<model>
+		<property name='Pairs' type='list'>
+			<property name="A (text)" type="string" isLocalized="true" />
+			<property name="A (image)" type="file" />
+			<property name="B (text)" type="string" isLocalized="true" />
+			<property name="B (image)" type="file" />
+		</property>
+		<property name="Columns" type="string" />
+		<property name="Rows" type="string" />
+		<property name="Use two styles for cards" type="boolean" />
+		<property name="Image for style A" type="image" />
+		<property name="Image for style B" type="image" />
+		<property name="Keep cards aspect ratio" type="boolean" />
+		<property name="Show cards for preview" type="boolean" />
+	</model>
+</addon>
