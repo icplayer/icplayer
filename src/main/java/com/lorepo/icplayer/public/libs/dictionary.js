@@ -191,5 +191,7 @@ var ice_dictionary = {
 	"page_preview": "Page preview",
 	"Preview": "Preview",
 	"showCounters": "Show counters",
-	"Ignore_punctuation": "Ignore punctuation"
+	"Ignore_punctuation": "Ignore punctuation",
+	"page_exported": "Page exported",
+	"cant_import_page": "There is no page available to import"
 }
