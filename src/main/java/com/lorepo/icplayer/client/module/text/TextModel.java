@@ -37,6 +37,7 @@ public class TextModel extends BasicModuleModel{
 	private boolean isDisabled = false;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
+	public String rawText;
 	
 	
 	public TextModel() {
@@ -49,6 +50,15 @@ public class TextModel extends BasicModuleModel{
 		addPropertyIsCaseSensitive();
 		addPropertyIsIgnorePunctuation();
 		addPropertyText();
+	}
+	
+	
+	@Override
+	public void setId(String id){
+		super.setId(id);
+		if(rawText != null){
+			setText(rawText);
+		}
 	}
 	
 	
@@ -87,7 +97,7 @@ public class TextModel extends BasicModuleModel{
 					isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
 					isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
 					isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
-					String rawText = XMLUtils.getCharacterDataFromElement(textElement);
+					rawText = XMLUtils.getCharacterDataFromElement(textElement);
 					if(rawText == null){
 						rawText = XMLUtils.getText(textElement);
 						rawText = StringUtils.unescapeXML(rawText);
