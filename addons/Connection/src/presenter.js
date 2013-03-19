@@ -618,15 +618,20 @@ function AddonConnection_create(){
     };
 
     presenter.setState = function(state) {
+        var hookExecuted = false;
+
         MathJax.Hub.Register.MessageHook("End Process", function(){
-            if (state != '') {
+            if (state != '' && !hookExecuted) {
                 var id = JSON.parse(state);
                 for (var i = 0; i < id.length; i++) {
                     var pair = id[i].split(':');
                     pushConnection(new Line(getElementById(pair[0]), getElementById(pair[1])), false);
                 }
-            }
+
             redraw();
+            }
+
+            hookExecuted = true;
         });
     };
 
