@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='multiplegap'>
+	<model>
+		<property name='Orientation' type='{horizontal, vertical}' />
+		<property name="Source type" type="{images, texts}" />
+		<property name="Items" type="list">
+			<property name="Answer ID" type="string" />
+		</property>
+		<property name="Item width" type="string" />
+		<property name="Item height" type="string" />
+		<property name="Item spacing" type="string" />
+		<property name="Stretch images?" type="boolean" />
+		<property name="Item horizontal align" type="{none, left, right, center}" />
+		<property name="Item vertical align" type="{none, top, bottom, center}" />
+		<property name="Maximum item count" type="string" />
+		<property name="Is not an activity" type="boolean" />
+	</model>
+</addon>

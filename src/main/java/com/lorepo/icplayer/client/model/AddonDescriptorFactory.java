@@ -48,7 +48,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Math", "Math", "Activities");
 		addDescriptor("gamememo", "Memo Game", "Activities");
 		addDescriptor("MultiAudio", "MultiAudio", "Media");
-        addDescriptor("Multiple_Audio_Controls_Binder", "Multiple Audio Controls Binder", "Scripting");
+		addDescriptor("Multiple_Audio_Controls_Binder", "Multiple Audio Controls Binder", "Scripting");
+		addDescriptor("multiplegap", "Multiple Gap", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}
