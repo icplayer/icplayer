@@ -49,7 +49,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("MultiAudio", "MultiAudio", "Media");
 		addDescriptor("Math", "Math", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
-		addDescriptor("YouTube_Addon", "Youtube", "Media");
+		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}
 
 
