@@ -45,7 +45,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Image_Viewer_Button_Controlled_Public", "Image Viewer Button Controlled", "Media");
 		addDescriptor("Layered_Image", "Layered Image", "Media");
 		addDescriptor("Magic_Boxes", "Magic Boxes", "Activities");
-        addDescriptor("gamememo", "Memo Game", "Activities");
+		addDescriptor("gamememo", "Memo Game", "Activities");
+		addDescriptor("MultiAudio", "MultiAudio", "Media");
 		addDescriptor("Math", "Math", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
