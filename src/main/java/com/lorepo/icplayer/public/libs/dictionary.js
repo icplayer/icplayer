@@ -23,7 +23,7 @@ var ice_dictionary = {
 	"no_templates" : "There are no templates",
 	"select_template_strong" : "<b>Select template</b>",
 	"select_page" : "Select page",
-	"select_page_strong" : "<b>Select page</b>",
+	"select_page_strong" : "<b>Add page</b>",
 	"pages" : "Pages",
 	"modules" : "Modules",
 	"create_page" : "Create new page",
