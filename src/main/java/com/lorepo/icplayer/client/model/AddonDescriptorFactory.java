@@ -48,7 +48,7 @@ public class AddonDescriptorFactory {
         addDescriptor("gamememo", "Memo Game", "Activities");
 		addDescriptor("Math", "Math", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
-		addDescriptor("YouTube_Addon", "Youtube", "Media");
+		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}
 
 
