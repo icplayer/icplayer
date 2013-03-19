@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='MultiAudio'>
+	<model>
+		<property name='Files' type='list'>
+			<property name="ID" type="string" />
+			<property name="Mp3" type="file" />
+			<property name="Ogg" type="file" />
+			<property name="Enable loop" type="boolean" />
+			<property name="Interface" type="{ None, Default controls, Display time }"/>
+			<property name="Narration" type="narration" isLocalized="true"/>
+		</property>
+	</model>
+</addon>

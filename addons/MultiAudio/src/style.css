@@ -1,0 +1,9 @@
+.wrapper-addon-audio audio {
+    bottom: 0;
+    position: absolute;
+}
+
+.wrapper-addon-audio {
+    height: 30px;
+    position: relative;
+}
