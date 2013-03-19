@@ -182,29 +182,38 @@
     </for>
   </target>
 
-
   <target name="test" description="Run development and production mode tests">
     <antcall target="test.dev" />
     <antcall target="test.prod" />
   </target>
 
+  <target name="test.full" description="Run development, production and addons tests" depends="test">
+    <antcall target="test.addons" />
+  </target>
 
   <target name="build" depends="clean, test, gwtc" description="Build this project" />
 
-	<target name="dist" depends="build" description="Create player package">
+  <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests" />
 
-		<delete dir="dist" failonerror="false" />
-		<mkdir dir="dist/build" />
-	    
-		<copy todir="dist/build/icplayer">
-	      <fileset dir="war/icplayer"/>
-	    </copy>
-		<copy todir="dist/build">
-	      <fileset dir="doc/demo"/>
-	    </copy>
+  <target name="create.package" >
+    <delete dir="dist" failonerror="false" />
+    <mkdir dir="dist/build" />
 
-	    <zip destfile="dist/icplayer.zip" basedir="dist/build"/>
-		
-	</target>
-	
+    <copy todir="dist/build/icplayer">
+      <fileset dir="war/icplayer"/>
+    </copy>
+    <copy todir="dist/build">
+      <fileset dir="doc/demo"/>
+    </copy>
+
+    <zip destfile="dist/icplayer.zip" basedir="dist/build"/>
+  </target>
+
+  <target name="dist" depends="build" description="Create player package">
+    <antcall target="create.package" />
+  </target>
+
+  <target name="dist.full" depends="build.full" description="Create player package after full build">
+    <antcall target="create.package" />
+  </target>
 </project>
