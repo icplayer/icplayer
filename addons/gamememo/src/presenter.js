@@ -49,46 +49,46 @@ function Addongamememo_create(){
     };
 
     presenter.STATES = {
-        READY:          0,
-        CLICKED_FIRST:  1,
+        READY: 0,
+        CLICKED_FIRST: 1,
         CLICKED_SECOND: 2
     };
 
     presenter.state = presenter.STATES.READY;
 
-    presenter.cardClickedFirst    = null;
-    presenter.cardClickedSecond   = null;
-    presenter.cardClickedFirstId  = null;
+    presenter.cardClickedFirst = null;
+    presenter.cardClickedSecond = null;
+    presenter.cardClickedFirstId = null;
     presenter.cardClickedSecondId = null;
-    presenter.cardClickedStyle    = null;
+    presenter.cardClickedStyle = null;
 
-    presenter.errorCount      = 0;
-    presenter.score           = 0;
-    presenter.maxScore        = null;
+    presenter.errorCount = 0;
+    presenter.score = 0;
+    presenter.maxScore = null;
 
-    presenter.preview         = false;
-    presenter.previewCards    = false;
+    presenter.preview = false;
+    presenter.previewCards = false;
 
-    presenter.cards           = [];
+    presenter.cards = [];
     presenter.serializedCards = [];
-    presenter.rowCount        = null;
-    presenter.columnCount     = null;
-    presenter.useTwoStyles    = false;
+    presenter.rowCount = null;
+    presenter.columnCount = null;
+    presenter.useTwoStyles = false;
     presenter.keepAspectRatio = false;
-    presenter.styleAImage     = null;
-    presenter.styleBImage     = null;
+    presenter.styleAImage = null;
+    presenter.styleBImage = null;
 
-    presenter.requestedRowHeight   = null;
+    presenter.requestedRowHeight = null;
     presenter.requestedColumnWidth = null;
 
     presenter.ERROR_MESSAGES = {
-        PAIRS_NOT_SPECIFIED:                 "Pairs are not specified",
-        ROWS_NOT_SPECIFIED:                  "Amount of rows is not specified",
-        COLUMNS_NOT_SPECIFIED:               "Amount of columns is not specified",
-        INVALID_GEOMETRY:                    "Invalid amount of columns and/or rows - their multiplication must be even",
+        PAIRS_NOT_SPECIFIED: "Pairs are not specified",
+        ROWS_NOT_SPECIFIED: "Amount of rows is not specified",
+        COLUMNS_NOT_SPECIFIED: "Amount of columns is not specified",
+        INVALID_GEOMETRY: "Invalid amount of columns and/or rows - their multiplication must be even",
         AMOUNT_OF_PAIRS_OTHER_THAN_GEOMETRY: "Invalid amount of pairs: for %columns% columns and %rows% rows there should be defined %pairs% pairs",
-        PAIR_MEMBER_SPECIFIED_TWICE:         "Pair %pair% is invalid: its member \"%member%\" is specified both as a text and an image",
-        PAIR_MEMBERS_NOT_SPECIFIED:          "Pair %pair% is invalid: its members are not specified"
+        PAIR_MEMBER_SPECIFIED_TWICE: "Pair %pair% is invalid: its member \"%member%\" is specified both as a text and an image",
+        PAIR_MEMBERS_NOT_SPECIFIED: "Pair %pair% is invalid: its members are not specified"
     };
 
     presenter.showErrorMessage = function(message, substitutions) {
@@ -141,9 +141,9 @@ function Addongamememo_create(){
                 isError: true,
                 errorMessage: presenter.ERROR_MESSAGES.AMOUNT_OF_PAIRS_OTHER_THAN_GEOMETRY,
                 errorMessageSubstitutions: {
-                    rows:    parseInt(model['Rows']),
+                    rows: parseInt(model['Rows']),
                     columns: parseInt(model['Columns']),
-                    pairs:   parseInt(model['Rows']) * parseInt(model['Columns']) / 2
+                    pairs: parseInt(model['Rows']) * parseInt(model['Columns']) / 2
                 }
             };
         }
@@ -174,20 +174,20 @@ function Addongamememo_create(){
             }
         }
 
-        presenter.maxScore        = model['Pairs'].length;
-        presenter.rowCount        = parseInt(model['Rows']);
-        presenter.columnCount     = parseInt(model['Columns']);
-        presenter.useTwoStyles    = model['Use two styles for cards'] == 'True';
+        presenter.maxScore = model['Pairs'].length;
+        presenter.rowCount = parseInt(model['Rows']);
+        presenter.columnCount = parseInt(model['Columns']);
+        presenter.useTwoStyles = model['Use two styles for cards'] == 'True';
         presenter.keepAspectRatio = model['Keep cards aspect ratio'] == 'True';
-        presenter.previewCards    = model['Show cards for preview'] == 'True';
-        presenter.styleAImage     = model['Image for style A'] != '' ? model['Image for style A'] : null;
-        presenter.styleBImage     = model['Image for style B'] != '' ? model['Image for style B'] : null;
+        presenter.previewCards = model['Show cards for preview'] == 'True';
+        presenter.styleAImage = model['Image for style A'] != '' ? model['Image for style A'] : null;
+        presenter.styleBImage = model['Image for style B'] != '' ? model['Image for style B'] : null;
 
-        var viewWidth  = parseInt(presenter.viewContainer.css('width'));
+        var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
 
         presenter.requestedColumnWidth = Math.round(viewWidth / presenter.columnCount);
-        presenter.requestedRowHeight   = Math.round(viewHeight / presenter.rowCount);
+        presenter.requestedRowHeight = Math.round(viewHeight / presenter.rowCount);
 
 
         return {
@@ -327,7 +327,7 @@ function Addongamememo_create(){
                 presenter.cardClickedSecond = $(e.target).parent();
                 presenter.showCard(presenter.cardClickedSecond);
 
-                presenter.cardClickedFirstId  = presenter.cardClickedFirst.find('.card').attr('card_id');
+                presenter.cardClickedFirstId = presenter.cardClickedFirst.find('.card').attr('card_id');
                 presenter.cardClickedSecondId = presenter.cardClickedSecond.find('.card').attr('card_id');
 
                 if(presenter.cardClickedFirstId != presenter.cardClickedSecondId) {
@@ -358,8 +358,8 @@ function Addongamememo_create(){
 
                 presenter.handleCardClickedFirst($(e.target).parent());
 
-                presenter.cardClickedSecond   = null;
-                presenter.cardClickedFirstId  = null;
+                presenter.cardClickedSecond = null;
+                presenter.cardClickedFirstId = null;
                 presenter.cardClickedSecondId = null;
                 break;
 
@@ -401,12 +401,12 @@ function Addongamememo_create(){
                     front.click(presenter.onCardClicked);
                 }
 
-                var back  = $('<div class="back placeholder"></div>')
+                var back = $('<div class="back placeholder"></div>')
                     .append(cards[r * presenter.columnCount + c]);
 
-                var cell  = $('<div class="cell"></div>').css({
+                var cell = $('<div class="cell"></div>').css({
                     height : rowHeightPercent,
-                    width  : columnWidthPercent
+                    width : columnWidthPercent
                 });
 
 
@@ -439,9 +439,9 @@ function Addongamememo_create(){
         $container.find('p.card').each(function(i, e) {
             var element = $(e);
             element.css({
-                position  : 'absolute',
-                width     : '100%',
-                top       : Math.round((parseInt(element.parent().css('height')) - parseInt(element.css('height'))) / 2) + 'px'
+                position : 'absolute',
+                width : '100%',
+                top : Math.round((parseInt(element.parent().css('height')) - parseInt(element.css('height'))) / 2) + 'px'
             });
         });
 
@@ -510,9 +510,9 @@ function Addongamememo_create(){
         presenter.errorCount = 0;
         presenter.state = presenter.STATES.READY;
 
-        presenter.cardClickedFirst    = null;
-        presenter.cardClickedSecond   = null;
-        presenter.cardClickedFirstId  = null;
+        presenter.cardClickedFirst = null;
+        presenter.cardClickedSecond = null;
+        presenter.cardClickedFirstId = null;
         presenter.cardClickedSecondId = null;
 
         presenter.shuffleCards();
