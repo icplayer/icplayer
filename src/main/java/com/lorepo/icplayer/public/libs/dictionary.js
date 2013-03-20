@@ -24,6 +24,7 @@ var ice_dictionary = {
 	"select_template_strong" : "<b>Select template</b>",
 	"select_page" : "Select page",
 	"select_page_strong" : "<b>Add page</b>",
+	"select_module_strong" : "<b>Add module</b>",
 	"pages" : "Pages",
 	"modules" : "Modules",
 	"create_page" : "Create new page",
