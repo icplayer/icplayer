@@ -52,6 +52,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("multiplegap", "Multiple Gap", "Activities");
 		addDescriptor("Navigation_Bar", "Navigation Bar", "Navigation");
 		addDescriptor("Page_Counter", "Page Counter", "Navigation");
+		addDescriptor("Page_Name", "Page Name", "Navigation");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}

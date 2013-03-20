@@ -1,0 +1,9 @@
+.pagename {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 1px;
+    color: #7C818E;
+    font-size: 25px;
+    direction: inherit;
+}
