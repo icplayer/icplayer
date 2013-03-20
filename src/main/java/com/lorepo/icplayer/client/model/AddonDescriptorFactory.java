@@ -50,6 +50,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("MultiAudio", "MultiAudio", "Media");
 		addDescriptor("Multiple_Audio_Controls_Binder", "Multiple Audio Controls Binder", "Scripting");
 		addDescriptor("multiplegap", "Multiple Gap", "Activities");
+		addDescriptor("Navigation_Bar", "Navigation Bar", "Navigation");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}

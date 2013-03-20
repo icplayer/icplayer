@@ -1,0 +1,67 @@
+.navigationbar-wrapper {
+    direction: inherit;
+}
+
+.navigationbar-wrapper * {
+    direction: inherit;
+}
+
+.navigationbar-wrapper a {
+    text-decoration: none !important;
+}
+
+.navigationbar-wrapper a span {
+    display: block;
+    float: left;
+    text-align: center;
+    white-space: nowrap;
+    text-decoration: none;
+    height: auto;
+    font: 1.5em "Lucida Grande", Geneva, Verdana, Arial, Helvetica, sans-serif;
+    width: 40px;
+}
+
+.navigationbar-element,
+.navigationbar-element-first,
+.navigationbar-element-next,
+.navigationbar-element-previous,
+.navigationbar-element-last {
+    color: #7F7F7F;
+    background-color: #F3F3F3;
+}
+
+.navigationbar-element-current {
+    background-color: #2091AB;
+    color: white;
+}
+
+.navigationbar-element-mouse-hover,
+.navigationbar-element-first-mouse-hover,
+.navigationbar-element-next-mouse-hover,
+.navigationbar-element-previous-mouse-hover,
+.navigationbar-element-last-mouse-hover {
+    background-color: #7F7F7F;
+    color: #F3F3F3;
+}
+
+.navigationbar-element-current-mouse-hover {
+    background-color: #17697B;
+}
+
+.navigationbar-element-first-inactive,
+.navigationbar-element-next-inactive,
+.navigationbar-element-previous-inactive,
+.navigationbar-element-last-inactive {
+    background-color: #80BBC8;
+    color: #C0C0C0;
+}
+
+.navigationbar-element-mouse-click,
+.navigationbar-element-current-mouse-click,
+.navigationbar-element-first-mouse-click,
+.navigationbar-element-next-mouse-click,
+.navigationbar-element-previous-mouse-click,
+.navigationbar-element-last-mouse-click {
+    background-color: #0A7058;
+    color: white;
+}
