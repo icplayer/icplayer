@@ -1,4 +1,4 @@
-function AddonPage_Name_Development_create() {
+function AddonPage_Name_create() {
     var presenter = function () {};
     var presentationController;
 
