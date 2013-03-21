@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Puzzle'>
+	<model>
+		<property name="Columns" type="string" />
+		<property name="Rows" type="string" />
+		<property name="Image" type="image" />
+	</model>
+</addon>
