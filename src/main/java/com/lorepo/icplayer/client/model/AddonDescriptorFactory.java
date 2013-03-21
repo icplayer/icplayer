@@ -53,7 +53,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Navigation_Bar", "Navigation Bar", "Navigation");
 		addDescriptor("Page_Counter", "Page Counter", "Navigation");
 		addDescriptor("Page_Name", "Page Name", "Navigation");
-        addDescriptor("Puzzle", "Puzzle", "Activities");
+		addDescriptor("Puzzle", "Puzzle", "Activities");
+		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}

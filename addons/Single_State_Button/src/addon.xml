@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Single_State_Button'>
+	<model>
+		<property name="Title" type="string" isLocalized="true" />
+		<property name="Image" type="image" />
+		<property name="onClick" type="event" />
+		<property name="Disable" type="boolean" />
+	</model>
+</addon>
