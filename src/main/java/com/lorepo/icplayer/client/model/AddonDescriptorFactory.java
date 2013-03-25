@@ -59,6 +59,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
+		addDescriptor("Table", "Table", "Media");
 	}
 
 

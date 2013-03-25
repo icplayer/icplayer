@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Table'>
+	<model>
+		<property name='Rows' type='string' />
+		<property name="Columns" type="string" />
+		<property name="Table cells" type="list">
+			<property name="Row" type="string" />
+			<property name="Column" type="string" />
+			<property name="Content" type="html" isLocalized="true" />
+		</property>
+		<property name="Columns width" type="list">
+			<property name="Width" type="string" />
+		</property>
+		<property name="Rows height" type="list">
+			<property name="Height" type="string" />
+		</property>
+	</model>
+</addon>
