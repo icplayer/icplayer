@@ -60,6 +60,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 		addDescriptor("Table", "Table", "Media");
+		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 	}
 
 

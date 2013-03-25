@@ -1,0 +1,43 @@
+.table-of-contents {
+    border: 0;
+    padding: 1px;
+    color: #7C818E;
+    direction: inherit;
+}
+
+.table-of-contents-title {
+    height: 25px;
+    font-weight: bold;
+    color: #7F7F7F;
+    font-family: Verdana, Tahoma, "DejaVu Sans", sans-serif;
+    margin: 1px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.table-of-contents-pagination {
+    height: 30px;
+    vertical-align: middle;
+    text-decoration: none;
+    position: absolute;
+    bottom: 0;
+}
+
+.table-of-contents-pagination a,
+.table-of-contents-pagination a:hover {
+    text-decoration: none;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.table-of-contents-list {
+    overflow: hidden;
+}
+
+.table-of-contents-list ul {
+    padding-left: 5px;
+}
+
+.table-of-contents-list ul li a {
+    text-decoration: none;
+}

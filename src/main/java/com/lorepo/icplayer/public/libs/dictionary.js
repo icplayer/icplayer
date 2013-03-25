@@ -225,6 +225,7 @@ var ice_dictionary = {
 	"Slider_info": "Slider description",
 	"Standard_Shapes_info": "Standard Shapes description",
 	"Table_info": "Table description",
+    "Table_Of_Contents_info": "Table Of Contents description",
 	"Vimeo_info": "Vimeo description",
 	"YouTube_Addon_info": "Insert movie from youtube.com",
 	"error_counter_info": "error_counter_info",
