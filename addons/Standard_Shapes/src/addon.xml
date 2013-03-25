@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Standard_Shapes'>
+	<model>
+		<property name='Shape' type='{Line, Square, Rectangle, Circle, Ellipse}' />
+		<property name="Rotation angle" type="string" />
+		<property name="Stroke width" type="string" />
+		<property name="Stroke color" type="string" />
+		<property name="Corners rounding" type="boolean" />
+		<property name="Line ending" type="{None, Circles, Arrows, None - Arrow, None - Circle, Circle - Arrow}" />
+		<property name="Stroke opacity" type="string" />
+		<property name="Fill color" type="string" />
+	</model>
+</addon>

@@ -56,6 +56,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Puzzle", "Puzzle", "Activities");
 		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
 		addDescriptor("Slider", "Slider", "Scripting");
+		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}
