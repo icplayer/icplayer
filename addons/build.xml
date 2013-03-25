@@ -16,6 +16,7 @@
             <sequential>
                 <echo>Copying @{addonid} addon</echo>
                 <copyAddon src="${addons.src}" dest="${addons.dest}" addon="@{addonid}"/>
+            	<copy file="${addons.src}/@{addonid}/src/icon.png" tofile="${addons.dest}/@{addonid}.png"/>
             </sequential>
         </for>
 	</target>

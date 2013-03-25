@@ -195,5 +195,6 @@ var ice_dictionary = {
 	"Ignore_punctuation": "Ignore punctuation",
 	"page_exported": "Page exported",
 	"cant_import_page": "There is no page available to import",
-	"add_module_menu": "Add module"
+	"add_module_menu": "Add module",
+	"YouTube_Addon_info": "Insert movie from youtube.com"
 }
