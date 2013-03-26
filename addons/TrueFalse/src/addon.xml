@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='TrueFalse'>
+	<model>
+		<property name="Multi" type="boolean" />
+		<property name="Questions" type="list">
+			<property name="Question" type="string" isLocalized="true" />
+			<property name="Answer" type="string" />
+		</property>
+		<property name="Choices" type="list">
+			<property name="Choice" type="string" isLocalized="true" />
+		</property>
+	</model>
+</addon>

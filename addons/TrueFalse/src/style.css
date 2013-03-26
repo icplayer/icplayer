@@ -1,0 +1,116 @@
+.ic_page{
+    direction:ltr;
+}
+
+#container * {
+    direction:inherit;
+}
+
+.tf_radio,
+.tf_checkbox {
+    margin:0 0 1em 0;
+    width: 100%;
+    height: 100%;
+    text-align:left;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-spacing:0 5px;
+}
+
+.tf_radio_row,
+.tf_checkbox_row {
+}
+
+.tf_radio_image,
+.tf_checkbox_image {
+    cursor:pointer;
+    border-collapse: separate;
+    width:70px;
+    min-width:70px;
+    height:26px;
+    min-height:26px;
+    border-bottom:1px solid #111;
+    border-top:1px solid #111;
+
+}
+
+.tf_radio_image.last,
+.tf_checkbox_image.last {
+    border-radius: 0 10px 10px 0;
+    -moz-border-radius: 0 10px 10px 0;
+    border-right:1px solid #111;
+}
+
+.tf_radio_text,
+.tf_checkbox_text {
+    margin:5px 0 0 4px;
+    width:70px;
+    min-width:70px;
+    height:26px;
+    min-height:26px;
+    text-align:center;
+}
+
+.tf_radio_question.first,
+.tf_checkbox_question.first {
+    border:0;
+}
+
+.tf_radio_question,
+.tf_checkbox_question {
+    margin-top:5px;
+    border-bottom:1px solid #111;
+    border-top:1px solid #111;
+    border-left:1px solid #111;
+    padding:10px;
+    border-radius: 10px 0 0 10px;
+    -moz-border-radius: 10px 0 0 10px;
+}
+
+.tf_radio_image.up div {
+    background-image: url("http://www.lorepo.com/file/serve/381257");
+}
+
+.tf_radio_image.up.disabled div {
+    background-image: url("http://www.lorepo.com/file/serve/377333");
+}
+
+.tf_radio_image.down div {
+    background-image: url("http://www.lorepo.com/file/serve/379360");
+}
+
+.tf_radio_image.down.correct div {
+    background-image: url("http://www.lorepo.com/file/serve/383372");
+}
+
+.tf_radio_image.down.wrong div {
+    background-image: url("http://www.lorepo.com/file/serve/382347");
+}
+
+.tf_checkbox_image.up div {
+    background-image: url("http://www.lorepo.com/file/serve/387002");
+}
+
+.tf_checkbox_image.up.disabled div {
+    background-image: url("http://www.lorepo.com/file/serve/385002");
+}
+
+.tf_checkbox_image.down div {
+    background-image: url("http://www.lorepo.com/file/serve/354620");
+}
+
+.tf_checkbox_image.down.correct div {
+    background-image: url("http://www.lorepo.com/file/serve/382349");
+}
+
+.tf_checkbox_image.down.wrong div {
+    background-image: url("http://www.lorepo.com/file/serve/354618");
+}
+
+.tf_checkbox_image div,
+.tf_radio_image div {
+    width: 100%;
+    height: 100%;
+    background: no-repeat left center;
+}

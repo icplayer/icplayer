@@ -227,6 +227,7 @@ var ice_dictionary = {
 	"Table_info": "Table description",
 	"Table_Of_Contents_info": "Table Of Contents description",
 	"text_identification_info": "Text Identification description",
+    "TrueFalse_info": "True False description",
 	"Vimeo_info": "Vimeo description",
 	"YouTube_Addon_info": "Insert movie from youtube.com",
 	"error_counter_info": "error_counter_info",
