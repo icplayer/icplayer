@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page layout="pixels" width="0" height="0">
+    <modules>
+        <textModule id="Text1" left="62" top="56" width="516" height="29" isVisible="true" class="text_pageTitle">
+            <text draggable="false" gapWidth="0" isActivity="true" isDisabled="false" isCaseSensitive="false">Demo presentation</text>
+        </textModule>
+        <textModule id="Text2" left="62" top="16" width="516" height="37" isVisible="true" class="text_Title">
+            <text draggable="false" gapWidth="0" isActivity="true" isDisabled="false" isCaseSensitive="false">&lt;span style="text-align: left; "&gt;Connection&lt;/span&gt;</text>
+        </textModule>
+        <shapeModule id="Shape1" left="21" top="15" width="27" height="27" isVisible="true" style=" " class="shape_redSquare"/>
+        <shapeModule id="Shape2" left="35" top="23" width="23" height="23" isVisible="true" style=" " class="shape_orangeSquare"/>
+        <shapeModule id="Shape3" left="28" top="35" width="17" height="16" isVisible="true" style="  " class="shape_graySquare"/>
+        <buttonModule id="Button1" left="577" top="524" width="50" height="50" isVisible="true">
+            <button type="checkAnswers" text="" onclick=""/>
+        </buttonModule>
+        <buttonModule id="Button2" left="647" top="524" width="50" height="50" isVisible="true">
+            <button type="reset" text="" onclick=""/>
+        </buttonModule>
+        <buttonModule id="Button3" left="611" top="23" width="52" height="50" isVisible="true">
+            <button type="prevPage" text="" onclick=""/>
+        </buttonModule>
+        <buttonModule id="Button4" left="680" top="23" width="52" height="50" isVisible="true">
+            <button type="nextPage" text="" onclick=""/>
+        </buttonModule>
+        <addonModule addonId="Connection" id="Connection1" left="22" top="98" width="697" height="412" isVisible="true" style=" " class="ConnectionSample">
+            <properties>
+                <property name="Single connection mode" type="boolean" value=""/>
+                <property name="Left column" type="list">
+                    <template>
+                        <property name="id" type="string" value=""/>
+                        <property name="content" type="html"/>
+                        <property name="connects to" type="string" value=""/>
+                        <property name="additionalClass" type="string" value=""/>
+                        <property name="additional class" type="string" value=""/>
+                    </template>
+                    <items>
+                        <item>
+                            <property name="id" type="string" value="1"/>
+                            <property name="content" type="html">Sky is ...</property>
+                            <property name="connects to" type="string" value="7"/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                        <item>
+                            <property name="id" type="string" value="2"/>
+                            <property name="content" type="html">Grass is ...</property>
+                            <property name="connects to" type="string" value="5"/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                        <item>
+                            <property name="id" type="string" value="3"/>
+                            <property name="content" type="html">Ferraris are usually ...</property>
+                            <property name="connects to" type="string" value="6"/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                        <item>
+                            <property name="id" type="string" value="4"/>
+                            <property name="content" type="html">Sun is ...</property>
+                            <property name="connects to" type="string" value="8"/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                    </items>
+                </property>
+                <property name="Right column" type="list">
+                    <template>
+                        <property name="id" type="string" value=""/>
+                        <property name="content" type="html"/>
+                        <property name="connects to" type="string" value=""/>
+                        <property name="additionalClass" type="string" value=""/>
+                        <property name="additional class" type="string" value=""/>
+                    </template>
+                    <items>
+                        <item>
+                            <property name="id" type="string" value="5"/>
+                            <property name="content" type="html">&lt;font color="#008000"&gt;green&lt;/font&gt;</property>
+                            <property name="connects to" type="string" value=""/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                        <item>
+                            <property name="id" type="string" value="6"/>
+                            <property name="content" type="html">&lt;font color="#ff0000"&gt;red&lt;/font&gt;</property>
+                            <property name="connects to" type="string" value=""/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                        <item>
+                            <property name="id" type="string" value="7"/>
+                            <property name="content" type="html">&lt;font color="#0000ff"&gt;blue&lt;/font&gt;</property>
+                            <property name="connects to" type="string" value=""/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                        <item>
+                            <property name="id" type="string" value="8"/>
+                            <property name="content" type="html">&lt;font color="#ffff00"&gt;yellow&lt;/font&gt;</property>
+                            <property name="connects to" type="string" value=""/>
+                            <property name="additionalClass" type="string" value=""/>
+                            <property name="additional class" type="string" value=""/>
+                        </item>
+                    </items>
+                </property>
+                <property name="Default connection color" type="string" value=""/>
+                <property name="Correct connection color" type="string" value=""/>
+                <property name="Incorrect connection color" type="string" value=""/>
+                <property name="Connection thickness" type="string" value=""/>
+                <property name="Columns width" type="list">
+                    <template>
+                        <property name="left" type="string" value=""/>
+                        <property name="middle" type="string" value=""/>
+                        <property name="right" type="string" value=""/>
+                    </template>
+                    <items>
+                        <item>
+                            <property name="left" type="string" value="30%"/>
+                            <property name="middle" type="string" value="35%"/>
+                            <property name="right" type="string" value="30%"/>
+                        </item>
+                    </items>
+                </property>
+            </properties>
+        </addonModule>
+        <textModule id="Text3" left="21" top="526" width="431" height="35" isVisible="true">
+            <text draggable="false" gapWidth="0" isActivity="true" isDisabled="false" isCaseSensitive="false">Connection module with custom styling.</text>
+        </textModule>
+    </modules>
+</page>
+

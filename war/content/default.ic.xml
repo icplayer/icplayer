@@ -6,6 +6,7 @@
 	<addon-descriptor addonId="YouTube_Addon"/>
 	<addon-descriptor addonId="Vimeo"/>
 	<addon-descriptor addonId="gamememo"/>
+	<addon-descriptor addonId="Connection"/>
 	<addon-descriptor addonId="DebugAddon" href="addons/debug.addon.xml"/>
 	<addon-descriptor addonId="EventMonitor" href="addons/eventmonitor.addon.xml"/>
 	<addon-descriptor addonId="EventSource" href="addons/eventsource.addon.xml"/>
@@ -54,7 +55,7 @@ background-color:lightgreen;
 </style>
 
 <pages>
-	<page name="memo" href="pages/memo.page.xml"/>
+	<page name="test" href="pages/connection.page.xml"/>
 	<page name="addon" href="pages/addon.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
