@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Slideshow'>
+	<model>
+		<property name='Audio' type='list'>
+			<property name="MP3" type="file" />
+			<property name="OGG" type="file" />
+		</property>
+		<property name="Slides" type="list">
+			<property name="Image" type="file" />
+			<property name="Start" type="string" />
+		</property>
+		<property name="Texts" type="list">
+			<property name="Text" type="string" />
+			<property name="Top" type="string" />
+			<property name="Left" type="string" />
+			<property name="Start" type="string" />
+			<property name="End" type="string" />
+		</property>
+		<property name="Slide animation" type="boolean" />
+		<property name="Text animation" type="boolean" />
+		<property name="Hide progressbar" type="boolean" />
+		<property name="Show slide" type="string" />
+		<property name="Group next and previous buttons" type="boolean" />
+		<property name="Narration" type="narration" />
+	</model>
+</addon>
