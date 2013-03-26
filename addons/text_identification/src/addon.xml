@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='text_identification'>
+	<model>
+		<property name="Text" type="html" isLocalized="true" />
+		<property name="SelectionCorrect" type="boolean" />
+		<property name="onSelected" type="event" />
+		<property name="onDeselected" type="event" />
+	</model>
+</addon>

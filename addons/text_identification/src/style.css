@@ -1,0 +1,26 @@
+.text-identification-content {
+    text-align: center;
+    position: absolute;
+}
+
+.text-identification-element-selected,
+.text-identification-element-correct,
+.text-identification-element-incorrect,
+.text-identification-element-mouse-hover,
+.text-identification-element {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+}
+
+.text-identification-container {
+    cursor: pointer;
+}
+
+.text-identification-background-image {
+    border: 0 solid white;
+    padding: 0;
+    margin: 0;
+    background-size: 100%;
+    background-position: 0 0;
+}

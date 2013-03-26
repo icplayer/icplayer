@@ -57,10 +57,11 @@ public class AddonDescriptorFactory {
 		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
 		addDescriptor("Slider", "Slider", "Scripting");
 		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
-		addDescriptor("Vimeo", "Vimeo", "Media");
-		addDescriptor("YouTube_Addon", "YouTube", "Media");
 		addDescriptor("Table", "Table", "Media");
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
+		addDescriptor("text_identification", "Text Identification", "Activities");
+		addDescriptor("Vimeo", "Vimeo", "Media");
+		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}
 
 
