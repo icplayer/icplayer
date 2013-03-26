@@ -62,6 +62,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 		addDescriptor("text_identification", "Text Identification", "Activities");
 		addDescriptor("TrueFalse", "True False", "Activities");
+		addDescriptor("video", "Video", "Media");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}

@@ -1,0 +1,10 @@
+.video-container {
+    background-color: #000;
+    position: relative;
+}
+
+.captions {
+    position: absolute;
+    z-index: 999;
+    color: #fff;
+}

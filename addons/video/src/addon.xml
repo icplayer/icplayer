@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='video'>
+	<model>
+		<property name='Files' type='list'>
+			<property name="Ogg video" type="file" />
+			<property name="MP4 video" type="file" />
+			<property name="WebM video" type="file" />
+			<property name="Subtitles" type="text" isLocalized="true" />
+			<property name="Poster" type="image" />
+			<property name="ID" type="string" />
+		</property>
+		<property name="Show video" type="string" />
+		<property name="Show time" type="string" />
+		<property name="Narration" type="narration" isLocalized="true" />
+	</model>
+</addon>
