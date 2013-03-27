@@ -226,8 +226,8 @@ public class JavaScriptPlayerServices{
 			return score;
 		}	
 		
-		playerServices.getAssetsPath = function(){ 
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAssetsPath()();
+		playerServices.getStaticFilesPath = function(){ 
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getStaticFilesPath()();
 		}
 		
 		return playerServices;
@@ -335,7 +335,7 @@ public class JavaScriptPlayerServices{
 	}
 	
 	
-	private String getAssetsPath(){
+	private String getStaticFilesPath(){
 		return GWT.getModuleBaseForStaticFiles();
 	}
 
