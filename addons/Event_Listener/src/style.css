@@ -1,0 +1,44 @@
+.event-listener-body,
+.event-listener-header,
+.event-listener-clear,
+.event-listener-filters {
+    text-align: center;
+    font-weight: bold;
+    border: 2px dashed #999999;
+    padding: 3px;
+    color: red;
+    width: 100%;
+}
+
+.event-listener-header {
+    height: 10%;
+}
+
+.event-listener-body {
+    height: 85%;
+    overflow: auto;
+}
+
+.event-info {
+    color: black;
+    border-bottom: 1px dotted black;
+    font-weight: normal;
+}
+
+.event-name {
+    color: red;
+    font-weight: bold;
+}
+
+.event-listener-clear {
+    display: none;
+    color: #00008b;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    cursor: pointer;
+}
+
+.event-listener-filters{
+    border-top-width: 0;
+    color: black;
+}

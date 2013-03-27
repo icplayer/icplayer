@@ -203,6 +203,7 @@ var ice_dictionary = {
 	"Connector_info": "A special type of addon that allows to combine multiple addons and modules in fully interactive, responsive activities.",
 	"crossword_info": "Enables to insert a ready-to-use Crossword game into a presentation. To make the activity work, it is enough to predefine a few specific parameters in the addon’s menu.",
 	"Double_State_Button_info": "Allows users to perform different actions in presentations, such as changing other addons' states when the button is selected/deselected.",
+	"Event_Listener_info": "Event Listener description",
 	"feedback_info": "Allows to display feedback messages in any form that a regular text module can display, including images, HTML formatting and mathematical formulae. There are three categories (statuses) of feedbacks: positive, neutral, and negative. It is possible to define an arbitrary amount of responses and each of them has to belong to one of the categories mentioned above. ",
 	"Glossary_info": "Enables to add a dictionary to a presentation. After triggering a proper command in the Advanced Connector addon, a selected word or phrase is displayed together with its definition in a modal dialogue box.",
 	"graph_info": "Enables to insert a ready-made bar graph into a presentation. To make the activity work, it is enough to predefine a few specific properties in the addon’s side menu.",
