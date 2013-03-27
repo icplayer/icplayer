@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page style="background-color:yellow;width:600px;height:400px;">
+<page layout="pixels" style="background-color:yellow;width:300px;height:200px;">
 
 	<modules>
 
-		<youtubeModule left="2" top="12" width="96" height="86" style="background-color:green">
-			<video id="AOcD-iaLzU0"/>
-		</youtubeModule>
-
-		<buttonModule  left="90" top="0" width="10" height="10" style="">
+		<buttonModule  left="200" top="0" width="100" height="100" style="">
 			<button type="cancel" text=""/>
 		</buttonModule>
 		

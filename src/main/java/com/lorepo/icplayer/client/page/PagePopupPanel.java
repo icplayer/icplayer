@@ -15,12 +15,14 @@ public class PagePopupPanel extends DialogBox {
 	 * Widget ktorego należy uzyc jako parenta do wycentrowania dialogu
 	 */
 	private Widget centerParent;
+	PageView playerWidget;
 	
 	/**
 	 * Set page
 	 */
 	public PagePopupPanel(PageView playerWidget) {
 
+		this.playerWidget = playerWidget;
 		setStyleName("ic_popup");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
@@ -108,5 +110,9 @@ public class PagePopupPanel extends DialogBox {
                 break;
         }
     }
+
 	
+	public PageView getView(){
+		return playerWidget;
+	}
 }

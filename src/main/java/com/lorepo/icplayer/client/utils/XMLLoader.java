@@ -77,7 +77,7 @@ public class XMLLoader {
 
 				public void onResponseReceived(Request request, Response response){
 					// StatusCode == 0 when loading from local file
-					try {
+//					try {
 						if (response.getStatusCode() == 200 || response.getStatusCode() == 0) {
 						
 							Document dom = XMLParser.parse(response.getText());
@@ -89,9 +89,9 @@ public class XMLLoader {
 							errorString = "Wrong status: " + response.getText();
 							listener.onError(errorString);
 						}
-					} catch (Exception e) {
-						listener.onError(e.getMessage());
-					}
+//					} catch (Exception e) {
+//						listener.onError(e.getMessage());
+//					}
 				}
 
 			});

@@ -57,8 +57,13 @@ public class PlayerView extends VerticalPanel{
 
 	private void replaceView(Panel view) {
 		int index = getWidgetIndex(pageView);
-		insert(view, index);
-		remove(pageView);
+		if(index >= 0){
+			insert(view, index);
+			remove(pageView);
+		}
+		else{
+			add(view);
+		}
 		pageView = view;
 	}
 

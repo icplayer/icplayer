@@ -185,18 +185,19 @@ public class AppController{
 
 		playerService.resetEventBus();
 		
-		if(page.getLayout() == LayoutType.flow){
-			pageController.setView(playerView.getFlowPageView());
-		}
-		else{
-			pageController.setView(playerView.getAbsolutePageView());
-		}
 		if(popupPanel != null){
 			popupPanel.show();
+			pageController.setView(popupPanel.getView());
 			pageController.setPage(page);
 			popupPanel.center();
 		}
 		else{
+			if(page.getLayout() == LayoutType.flow){
+				pageController.setView(playerView.getFlowPageView());
+			}
+			else{
+				pageController.setView(playerView.getAbsolutePageView());
+			}
 			if(headerController != null){
 				headerController.setView(playerView.getHeaderView());
 				headerController.setPage(contentModel.getHeader());
