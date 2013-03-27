@@ -63,6 +63,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("text_identification", "Text Identification", "Activities");
 		addDescriptor("TrueFalse", "True False", "Activities");
 		addDescriptor("video", "Video", "Media");
+		addDescriptor("WritingCalculations", "Writing Calculations", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
 	}

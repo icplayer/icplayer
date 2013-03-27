@@ -230,6 +230,7 @@ var ice_dictionary = {
 	"text_identification_info": "Text Identification description",
 	"TrueFalse_info": "True False description",
 	"video_info": "Video description",
+	"WritingCalculations_info": "Writing Calculations description",
 	"Vimeo_info": "Vimeo description",
 	"YouTube_Addon_info": "Insert movie from youtube.com",
 	"error_counter_info": "Displays the number of mistakes made on a current page of a presentation.",

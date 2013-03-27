@@ -1,0 +1,30 @@
+.wrapper-cell, .writing-calculations-input {
+    float:left;
+    width:50px;
+    height: 25px;
+    line-height: 25px;
+    padding:0;
+    text-align: center;
+    font-size:12px;
+    margin: 1px 0;
+}
+
+.writing-calculations-input {
+    width: 25px;
+    float:none;
+    height: 23px;
+}
+
+.wrapper-row {
+    float:left;
+}
+
+.writing-calculations-input.incorrect {
+    border: 1px solid red !important;
+    background-color: #faa !important;
+}
+
+.writing-calculations-input.correct {
+    border: 1px solid green !important;
+    background-color: #afa !important;
+}
