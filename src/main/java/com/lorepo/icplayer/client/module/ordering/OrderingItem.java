@@ -91,4 +91,9 @@ public class OrderingItem extends BasicPropertyProvider{
 		
 		return false;
 	}
+
+
+	public void clearAlternativeIndexes() {
+		alternativeIndexes.clear();
+	}
 }

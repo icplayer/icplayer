@@ -119,10 +119,12 @@ public class OrderingModule extends BasicModuleModel{
 	
 	private void setOptionalOrder() {
 
-		try{
-
-			String[] orders = optionalOrder.split(";");
+		for(OrderingItem item : items){
+			item.clearAlternativeIndexes();
+		}
 		
+		try{
+			String[] orders = optionalOrder.split(";");
 			for(int i = 0; i < orders.length; i++){
 	
 				String[] alternativeIndexes = orders[i].split(",");
@@ -282,6 +284,7 @@ public class OrderingModule extends BasicModuleModel{
 			@Override
 			public void setValue(String newValue) {
 				optionalOrder = newValue.replace("\n", ";");
+				setOptionalOrder();
 				sendPropertyChangedEvent(this);
 			}
 			
