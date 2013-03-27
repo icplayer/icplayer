@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
@@ -225,6 +226,10 @@ public class JavaScriptPlayerServices{
 			return score;
 		}	
 		
+		playerServices.getAssetsPath = function(){ 
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAssetsPath()();
+		}
+		
 		return playerServices;
 	}-*/;
 	
@@ -330,6 +335,11 @@ public class JavaScriptPlayerServices{
 	}
 	
 	
+	private String getAssetsPath(){
+		return GWT.getModuleBaseForStaticFiles();
+	}
+
+	
 	private int getTimeElapsed(){
 		return (int)playerServices.getCommands().getTimeElapsed();
 	}
@@ -377,8 +387,8 @@ public class JavaScriptPlayerServices{
 
 	
 	private native void onEvent(JavaScriptObject listener, String name, JavaScriptObject data) /*-{
-		
 		listener.onEventReceived(name, data);
 	}-*/;
+
 	
 }
