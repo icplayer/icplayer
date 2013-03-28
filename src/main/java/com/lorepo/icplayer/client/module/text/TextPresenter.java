@@ -480,6 +480,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		else if(commandName.compareTo("hide") == 0){
 			hide();
 		}
+		else if(commandName.compareTo("reset") == 0){
+			reset();
+		}
 		
 		return "";
 	}
@@ -571,6 +574,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			
 		presenter.hide = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::hide()();
+		}
+		
+		presenter.reset = function(){ 
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset()();
 		}
 		
 		return presenter;
