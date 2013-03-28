@@ -144,6 +144,9 @@ public class JavaScriptPlayerServices{
 				page.getBaseURL = function(){
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getBaseURL(I)(index);
 				}
+				page.isReportable = function(){
+					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageReportable(I)(index);
+				}
 				
 				return page;
 			}
@@ -251,6 +254,11 @@ public class JavaScriptPlayerServices{
 	private String getBaseURL(int index){
 		return playerServices.getModel().getPage(index).getBaseURL();
 	}
+
+	private boolean isPageReportable(int index){
+		return playerServices.getModel().getPage(index).isReportable();
+	}
+
 
 	private void gotoPage(String pageName){
 		playerServices.getCommands().gotoPage(pageName);

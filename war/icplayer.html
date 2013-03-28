@@ -32,16 +32,30 @@
 	        	page = 0;
 	        }        	
     		setPlayerState();
-	        //player1.load('test/pages/main.xml');
-	       	player1.load('content/default.ic.xml', page);
+	        player1.load('test/pages/main.xml');
+	       	//player1.load('content/default.ic.xml', page);
         	player1.onPageLoaded(function(){
         	});
       	}
       	
       	function testPlayerService(){
       		var ps = player1.getPlayerServices();
-      		//alert(ps.getScore().getPageScore('ordering')['errorCount']);
-      		alert(ps.getStaticFilesPath());
+      		var model = ps.getPresentation();
+      		var scoreService = ps.getScore();
+      		var sumOfScore = 0.0;
+      		var count = 0;
+      		for(var i = 0; i < model.getPageCount(); i++){
+      			var page = model.getPage(i);
+      			if(page.isReportable()){
+      				count += 1;
+      				var score = scoreService.getPageScore(page.getName());
+      				var percentageScore = (score['score']*100.0)/score['maxScore']
+      				sumOfScore += percentageScore; 
+      			}
+      		}
+      		
+      		var lessonScore = sumOfScore/count;
+      		console.log("Lesson score: " + lessonScore);
       	}
       
       	
