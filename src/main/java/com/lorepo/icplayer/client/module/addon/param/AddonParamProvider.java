@@ -40,7 +40,7 @@ public class AddonParamProvider implements IPropertyProvider{
 		return addonParams.get(index).getAsProperty();
 	}
 
-	public void load(Element rootElement) {
+	public void load(Element rootElement, String baseUrl) {
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		NodeList optionNodes = rootElement.getElementsByTagName("property");
 		for(int i = 0; i < optionNodes.getLength(); i++){
@@ -49,7 +49,7 @@ public class AddonParamProvider implements IPropertyProvider{
 			String type = XMLUtils.getAttributeAsString(element, "type");
 			IAddonParam addonParam = paramFactory.createAddonParam(null, type);
 			
-			addonParam.load(element, "");
+			addonParam.load(element, baseUrl);
 			addonParams.add(addonParam);
 		}
 	}

@@ -497,7 +497,7 @@ public class AddonModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		AddonModel module = new AddonModel();
-		module.load(element, "/ala/ma/kota");
+		module.load(element, "http://ala/ma/kota/");
 		
 		IHtmlProperty foundProperty = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){

@@ -108,7 +108,7 @@ public class ListAddonParam extends StringAddonParam{
 
 			Element element = (Element)optionNodes.item(i);
 			AddonParamProvider provider = new AddonParamProvider();
-			provider.load(element);
+			provider.load(element, baseUrl);
 			propertyProviders.add(provider);
 		}
 	}

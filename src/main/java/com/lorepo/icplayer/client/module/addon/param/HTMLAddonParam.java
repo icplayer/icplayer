@@ -43,7 +43,6 @@ public class HTMLAddonParam extends StringAddonParam{
 			rawText = StringUtils.updateLinks(rawText, baseUrl);
 		}
 
-		
 		value = rawText;
 	}
 
