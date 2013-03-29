@@ -6,6 +6,7 @@ Connector
 crossword
 Double_State_Button
 Event_Listener
+Event_Sender
 feedback
 Glossary
 graph

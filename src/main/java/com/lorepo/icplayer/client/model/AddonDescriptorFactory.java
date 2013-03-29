@@ -37,6 +37,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("crossword", "Crossword", "Activities");
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
 		addDescriptor("Event_Listener", "Event Listener", "Others");
+		addDescriptor("Event_Sender", "Event Sender", "Others");
 		addDescriptor("feedback", "Feedback", "Scripting");
 		addDescriptor("Glossary", "Glossary", "Activities");
 		addDescriptor("graph", "Graph", "Activities");

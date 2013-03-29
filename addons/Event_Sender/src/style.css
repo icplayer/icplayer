@@ -1,0 +1,25 @@
+.event-sender-table {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+.event-sender-table-left {
+    width: 40%;
+    font-weight: bold;
+    border-right: 1px dotted black;
+}
+
+.event-sender-table th {
+    font-weight: bold;
+    border-bottom: 1px dotted black;
+}
+
+.event-sender-table button {
+    width: 80%;
+    border: 1px dotted black;
+}
+
+.event-sender-table select {
+    width: 95%;
+}

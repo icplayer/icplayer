@@ -1,0 +1,37 @@
+<table class="event-sender-table">
+    <tr>
+        <th class="event-sender-table-left">Field</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td class="event-sender-table-left">Type:</td>
+        <td>
+            <select id="type">
+                <option value="ValueChanged" selected>ValueChanged</option>
+                <option value="ItemConsumed">ItemConsumed</option>
+                <option value="ItemReturned">ItemReturned</option>
+                <option value="ItemSelected">ItemSelected</option>
+                <option value="Definition">Definition</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="event-sender-table-left">Source:</td>
+        <td><input id="source"></td>
+    </tr>
+    <tr>
+        <td class="event-sender-table-left">Item:</td>
+        <td><input id="item"></td>
+    </tr>
+    <tr>
+        <td class="event-sender-table-left">Value</td>
+        <td><input id="value"></td>
+    </tr>
+    <tr>
+        <td class="event-sender-table-left">Score</td>
+        <td><input id="score"></td>
+    </tr>
+    <tr class="send-button">
+        <td colspan="2"><button>Send event</button></td>
+    </tr>
+</table>
