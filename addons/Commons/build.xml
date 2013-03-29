@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<project name="Commons" basedir="." default="Addon.test">
+    <property name="version" value="1.6.3" />
+    <property name="commons.lib.directory" value="lib" />
+    <import file="../tools/targets.xml" />
+
+    <target name="compile" description="Compile and minimize source files into one, optimized one" depends="Addon.test">
+        <mkdir dir="bin" />
+        <mkdir dir="bin/commons-${version}" />
+
+        <java jar="../tools/closure.jar" fork="true">
+            <arg line="--js src/model-validation.js" />
+            <arg line="--js src/loading-screen.js" />
+            <arg line="--js src/dom-operations.js" />
+            <arg line="--js src/states-serialization.js" />
+            <arg line="--js src/watermark.js" />
+            <arg line="--js src/helpers.js" />
+            <arg line="--js src/commands.js" />
+            <arg line="--js src/image-viewer.js" />
+            <arg line="--js_output_file bin/commons-${version}/commons.js" />
+        </java>
+
+        <concat destfile="bin/commons-${version}/commons.js" append="true">/**
+ * Lorepo Addons Commons library
+ * @version ${version}
+ * Components:
+ * - Model Validation Utils
+ * - Loading Screen
+ * - DOM Operations
+ * - States Serialization
+ * - Watermark
+ * - Commands
+ * - Image Viewer (partial)
+ * - Helpers
+ */</concat>
+
+    </target>
+
+    <target name="publish" depends="compile" description="Publish new version of commons to ICPlayer libs">
+        <copy file="bin/commons-${version}/commons.js" tofile="../../src/main/java/com/lorepo/icplayer/public/libs/commons.js"/>
+    </target>
+</project>
