@@ -41,7 +41,7 @@ public class StringAddonParam implements IAddonParam{
 
 
 	@Override
-	public void load(Element element) {
+	public void load(Element element, String baseUrl) {
 		name = XMLUtils.getAttributeAsString(element, "name");
 		type = XMLUtils.getAttributeAsString(element, "type");
 		String rawPropertyValue = XMLUtils.getAttributeAsString(element, "value");

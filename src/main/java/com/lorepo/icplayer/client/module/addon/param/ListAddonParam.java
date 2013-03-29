@@ -17,6 +17,7 @@ public class ListAddonParam extends StringAddonParam{
 	private AddonParamFactory factory;
 	private ArrayList<AddonParamProvider>	propertyProviders = new ArrayList<AddonParamProvider>();
 	private ArrayList<IAddonParam>	template = new ArrayList<IAddonParam>();
+	private String baseUrl;
 	
 	
 	public ListAddonParam(AddonModel parent, String type, AddonParamFactory factory) {
@@ -69,8 +70,9 @@ public class ListAddonParam extends StringAddonParam{
 
 
 	@Override
-	public void load(Element rootElement) {
+	public void load(Element rootElement, String baseUrl) {
 		
+		this.baseUrl = baseUrl;
 		propertyProviders.clear();
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
@@ -91,7 +93,7 @@ public class ListAddonParam extends StringAddonParam{
 					Element element = (Element)optionNodes.item(i);
 					String type = XMLUtils.getAttributeAsString(element, "type");
 					IAddonParam addonParam = factory.createAddonParam(null, type);
-					addonParam.load(element);
+					addonParam.load(element, baseUrl);
 		
 					template.add(addonParam);
 				}

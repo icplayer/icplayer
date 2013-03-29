@@ -34,7 +34,7 @@ public class TextAddonParam extends StringAddonParam{
 
 
 	@Override
-	public void load(Element element) {
+	public void load(Element element, String baseUrl) {
 		name = XMLUtils.getAttributeAsString(element, "name");
 		type = XMLUtils.getAttributeAsString(element, "type");
 		String rawText = XMLUtils.getText(element);

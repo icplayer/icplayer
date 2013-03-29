@@ -30,7 +30,7 @@ public class HTMLAddonParam extends StringAddonParam{
 
 
 	@Override
-	public void load(Element element) {
+	public void load(Element element, String baseUrl) {
 		name = XMLUtils.getAttributeAsString(element, "name");
 		type = XMLUtils.getAttributeAsString(element, "type");
 		
@@ -39,6 +39,10 @@ public class HTMLAddonParam extends StringAddonParam{
 			rawText = XMLUtils.getText(element);
 			rawText = StringUtils.unescapeXML(rawText);
 		}
+		if(baseUrl != null){
+			rawText = StringUtils.updateLinks(rawText, baseUrl);
+		}
+
 		
 		value = rawText;
 	}

@@ -5,7 +5,7 @@ import com.lorepo.icf.properties.IProperty;
 
 public interface IAddonParam {
 
-	void load(Element element);
+	void load(Element element, String baseURL);
 	IProperty getAsProperty();
 	String toXML();
 	void setName(String name);

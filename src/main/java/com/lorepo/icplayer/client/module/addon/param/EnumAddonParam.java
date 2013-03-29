@@ -19,9 +19,9 @@ public class EnumAddonParam extends StringAddonParam{
 
 
 	@Override
-	public void load(Element element) {
+	public void load(Element element, String baseUrl) {
 		
-		super.load(element);
+		super.load(element,baseUrl);
 		loadAllovedValues();
 	}
 

@@ -15,6 +15,7 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IFileProperty;
+import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
@@ -487,5 +488,32 @@ public class AddonModelTestCase {
 		assertEquals(8, module.getPropertyCount());
 	}
 	
+	
+	@Test
+	public void replaceLinks() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/addon4.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		AddonModel module = new AddonModel();
+		module.load(element, "/ala/ma/kota");
+		
+		IHtmlProperty foundProperty = null;
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			
+			IProperty property = module.getProperty(i); 
+			if(property.getName().compareTo("Rich text") == 0){
+				if(property instanceof IHtmlProperty){
+					foundProperty = (IHtmlProperty) property;
+					break;
+				}
+			}
+		}
+		
+		assertNotNull(foundProperty);
+		int index = foundProperty.getValue().indexOf("/ala/ma/kota");
+		assertTrue(index > 0);
+	}
 
 }

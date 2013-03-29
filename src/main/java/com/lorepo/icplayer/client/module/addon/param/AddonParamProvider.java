@@ -49,7 +49,7 @@ public class AddonParamProvider implements IPropertyProvider{
 			String type = XMLUtils.getAttributeAsString(element, "type");
 			IAddonParam addonParam = paramFactory.createAddonParam(null, type);
 			
-			addonParam.load(element);
+			addonParam.load(element, "");
 			addonParams.add(addonParam);
 		}
 	}

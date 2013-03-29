@@ -3,6 +3,7 @@
 <addonModule id="addon1" addonId="DemoAddon" left='5' top='10' width='80' height='40'>
 	<properties>
 		<property name="Subtitles" type="text">temperature \(\:neq\)</property>
+		<property name="Rich text" type="html"><![CDATA[<img src="test.png"/>]]></property>
 	</properties>
 </addonModule>
 		

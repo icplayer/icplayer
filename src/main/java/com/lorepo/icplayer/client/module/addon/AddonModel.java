@@ -75,7 +75,7 @@ public class AddonModel extends BasicModuleModel {
 					String type = XMLUtils.getAttributeAsString(element, "type");
 					IAddonParam addonParam = paramFactory.createAddonParam(this, type);
 					
-					addonParam.load(element);
+					addonParam.load(element, baseURL);
 					addAddonParam(addonParam);
 				}
 			}

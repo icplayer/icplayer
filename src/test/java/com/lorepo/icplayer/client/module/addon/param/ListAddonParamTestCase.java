@@ -39,7 +39,7 @@ public class ListAddonParamTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ListAddonParam param = new ListAddonParam(null, "list", factory);
-		param.load(element);
+		param.load(element, "");
 		return param;
 	}
 
