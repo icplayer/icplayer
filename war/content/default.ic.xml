@@ -7,7 +7,7 @@
 	<addon-descriptor addonId="Vimeo"/>
 	<addon-descriptor addonId="gamememo"/>
 	<addon-descriptor addonId="Connection"/>
-	<addon-descriptor addonId="DebugAddon" href="addons/debug.addon.xml"/>
+	<addon-descriptor addonId="DebugAddon" href="addons2/debug.addon.xml"/>
 	<addon-descriptor addonId="EventMonitor" href="addons/eventmonitor.addon.xml"/>
 	<addon-descriptor addonId="EventSource" href="addons/eventsource.addon.xml"/>
 	<addon-descriptor addonId="ParserDebug" href="addons/parser-debug.addon.xml"/>
@@ -55,6 +55,7 @@ background-color:lightgreen;
 </style>
 
 <pages>
+	<page name="no addon" href="pages/no-addon.page.xml"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
 	<page name="test" href="pages/connection.page.xml"/>
 	<page name="addon" href="pages/addon.page.xml"/>

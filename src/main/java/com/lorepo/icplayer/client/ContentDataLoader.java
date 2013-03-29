@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.AddonDescriptor;
@@ -96,6 +97,8 @@ public class ContentDataLoader{
 			
 			@Override
 			public void onError(String error) {
+				JavaScriptUtils.log("Error loading addon: " + descriptor.getAddonId());
+				resourceLoaded();
 			}
 		});
 	}
@@ -129,6 +132,7 @@ public class ContentDataLoader{
 
 			@Override
 			public void onError(String error) {
+				JavaScriptUtils.log("Error loading page: " + error);
 			}
 		});
 	}

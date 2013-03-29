@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+		
+		<sourceListModule id="sl2" left='10' top='0' width='600' height='40'>
+			<items>
+				<item text="didn&apos;t" type="string"/>
+				<item text="volvo" type="string"/>
+				<item text="Opcja 1" type="string"/>
+				<item text="Pozostałe z dosyć długim tekstem, który nie powinien się złamać" type="string"/>
+			</items>
+		</sourceListModule>
+		
+		<textModule id="cloze1" left='5' top='15' width='80' height='60'>
+			<text draggable='false' isDisabled="true">
+				&lt;p&gt;She {{2:didn&apos;t}} like him very much (didn&apos;t).&lt;/p&gt;
+				&lt;p&gt;I like to drive {{2:volvo}}.&lt;/p&gt;
+			</text>
+		</textModule>
+		 
+		<imageModule id="image1" isVisible="true" left="5" top="30" width="20" height="30" style="border:1px solid red;">
+			<image src="media/river.jpg" mode="keepSize"/>
+		</imageModule>
+		
+		<imageGapModule id="ig1" left="30" top="30" width="10" height="10">
+			<gap answerId="is2"/>
+		</imageGapModule>
+
+		<addonModule id="addon2" addonId="DebugAddon2" left='20' top='80' width='60' height='10'>
+			<properties>
+				<property name="Text" type="string" value="Hello world!"/>
+				<property name="Picture" type="image" value="ala/ma/kota"/>
+			</properties>
+		</addonModule>
+		 
+		<pageProgressModule id='PageProgress2' left='20' top='90' width='30' height='5'>
+		</pageProgressModule>
+
+		<buttonModule  left="60" top="90" width="10" height="10" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="70" top="90" width="10" height="10" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+
+		<errorCounterModule id="c2" left="80" top="90" width="10" height="5">
+		</errorCounterModule>
+		
+		
+	</modules>
+
+</page>
