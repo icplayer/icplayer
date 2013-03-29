@@ -7,6 +7,7 @@ crossword
 Double_State_Button
 Event_Listener
 Event_Sender
+Logger
 feedback
 Glossary
 graph
