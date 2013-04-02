@@ -13,7 +13,7 @@
     border: 0 solid black;
     padding: 0;
     margin: 0;
-    background: url('http://www.lorepo.com/media/iceditor/theme/images/standard-button.png') no-repeat center;
+    background: url('resources/standard-button.png') no-repeat center;
     cursor: pointer;
 }
 

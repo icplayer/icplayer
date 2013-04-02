@@ -7,6 +7,7 @@
 		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
 		<taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addon-compiler.jar"/>
 		<mkdir dir="${addons.dest}" />
+		<mkdir dir="${addons.dest}/resources" />
 		<delete>
 			<fileset dir="${addons.dest}"/>
 		</delete>
@@ -17,6 +18,9 @@
                 <echo>Copying @{addonid} addon</echo>
                 <copyAddon src="${addons.src}" dest="${addons.dest}" addon="@{addonid}"/>
             	<copy file="${addons.src}/@{addonid}/src/icon.png" tofile="${addons.dest}/@{addonid}.png"/>
+            	<copy todir="${addons.dest}/resources" failonerror="false">
+            		<fileset dir="${addons.src}/@{addonid}/src/resources"/>
+            	</copy>
             </sequential>
         </for>
 	</target>

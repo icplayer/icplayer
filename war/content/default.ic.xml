@@ -56,8 +56,8 @@ background-color:lightgreen;
 </style>
 
 <pages>
-	<page name="addon" href="pages/addon.page.xml"/>
 	<page name="problem" href="pages/problem.page.xml"/>
+	<page name="addon" href="pages/addon.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
