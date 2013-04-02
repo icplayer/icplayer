@@ -192,11 +192,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	public void run() {
 		jsObject = initJavaScript("Addon" + model.getAddonId() + "_create");
-		
-		JavaScriptObject jsModel = createModel(model);
-		
-		setPlayerController(jsObject, services.getAsJSObject());
-		run(jsObject, view.getElement(), jsModel, model.getAddonId());
+
+		if(jsObject != null){
+			JavaScriptObject jsModel = createModel(model);
+			setPlayerController(jsObject, services.getAsJSObject());
+			run(jsObject, view.getElement(), jsModel, model.getAddonId());
+		}
 	}
 
 
@@ -255,6 +256,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 
 	private native JavaScriptObject initJavaScript(String name) /*-{
+		if($wnd.window[name] == null){
+			return function(){};
+		}
+		
 		return $wnd.window[name]();
 	}-*/; 
 
