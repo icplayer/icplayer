@@ -8,27 +8,24 @@ function AddonSingle_State_Button_create() {
         BOTH: 3
     };
 
-    var playerController;
-
     presenter.executeUserEventCode = function() {
-        if (!presenter.configuration.onClickEvent.isEmpty) {
-            playerController.getCommands().executeEventCode(presenter.configuration.onClickEvent.value);
-        }
+        if (presenter.playerController == null) return;
+        if (presenter.configuration.onClickEvent.isEmpty) return;
 
-        presenter.triggerButtonClickedEvent();
+        presenter.playerController.getCommands().executeEventCode(presenter.configuration.onClickEvent.value);
     };
 
-    function clickHandler() {
-        if (presenter.configuration.onClickEvent.isEmpty) return;
+    presenter.clickHandler = function () {
         if (presenter.configuration.isDisabled) return;
         if (presenter.configuration.isErrorMode) return;
 
-        playerController.getCommands().executeEventCode(presenter.configuration.onClickEvent.value);
-    }
+        presenter.executeUserEventCode();
+        presenter.triggerButtonClickedEvent();
+    };
 
     function handleMouseActions() {
         var $element = presenter.$view.find('div[class*=singlestate-button-element]:first');
-        $element.click(clickHandler);
+        $element.click(presenter.clickHandler);
     }
 
     function setElementsDimensions(model, wrapper, element) {
@@ -102,7 +99,7 @@ function AddonSingle_State_Button_create() {
     }
 
     presenter.setPlayerController = function(controller) {
-        playerController = controller;
+        presenter.playerController = controller;
     };
 
     presenter.createPreview = function(view, model) {
@@ -194,9 +191,9 @@ function AddonSingle_State_Button_create() {
     };
 
     presenter.triggerButtonClickedEvent = function() {
-        if (playerController !== null) {
-            playerController.getEventBus().sendEvent('ValueChanged', this.createEventData());
-        }
+        if (presenter.playerController == null) return;
+
+        presenter.playerController.getEventBus().sendEvent('ValueChanged', this.createEventData());
     };
 
     presenter.setVisibility = function(isVisible) {
