@@ -2,15 +2,9 @@ function Addontext_identification_create(){
     var presenter = function() {};
 
     var viewContainer;
-    presenter.isSelected = false;
-    presenter.shouldBeSelected = false;
-    var isErrorCheckMode = false;
     var isHoverEnabled = true;
 
-    presenter.addonID = null;
     presenter.playerController = null;
-    presenter.onSelected = null;
-    presenter.onDeselected = null;
     presenter.eventBus = null;
 
     var CSS_CLASSES = {
@@ -29,52 +23,74 @@ function Addontext_identification_create(){
             CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.EMPTY + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED;
     }
 
-    function handleMouseActions() {
-        var element = viewContainer.find('div.text-identification-container');
+    presenter.executeUserEventCode = function () {
+        if (presenter.playerController == null) return;
 
-        element.hover(
+        if (!presenter.isSelected()) {
+            if (presenter.configuration.onDeselected) {
+                presenter.playerController.getCommands().executeEventCode(presenter.configuration.onDeselected);
+            }
+        } else {
+            if (presenter.configuration.onSelected) {
+                presenter.playerController.getCommands().executeEventCode(presenter.configuration.onSelected);
+            }
+        }
+    };
+
+    presenter.triggerSelectionChangeEvent = function() {
+        if (presenter.playerController == null) return;
+
+        presenter.playerController.getEventBus().sendEvent('ValueChanged', this.createEventData());
+    };
+
+    presenter.clickHandler = function () {
+        if (presenter.configuration.isErrorCheckMode) return;
+
+        presenter.configuration.isSelected = !presenter.configuration.isSelected;
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.executeUserEventCode();
+        presenter.triggerSelectionChangeEvent();
+    };
+
+    function handleMouseActions() {
+        var $element = viewContainer.find('div.text-identification-container');
+
+        $element.hover(
             function() {
-                if (!isErrorCheckMode && isHoverEnabled) {
+                if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
-                    $(this).addClass(presenter.isSelected ? CSS_CLASSES.MOUSE_HOVER_SELECTED : CSS_CLASSES.MOUSE_HOVER);
+                    $(this).addClass(presenter.isSelected() ? CSS_CLASSES.MOUSE_HOVER_SELECTED : CSS_CLASSES.MOUSE_HOVER);
                 }
             },
             function() {
-                if (!isErrorCheckMode && isHoverEnabled) {
+                if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
-                    $(this).addClass(presenter.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+                    $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
                 }
             }
         );
 
-        element.click(function() {
-            if (!isErrorCheckMode) {
-                presenter.isSelected = !presenter.isSelected;
-                var eventData = presenter.createEventData();
-                presenter.eventBus.sendEvent('ValueChanged', eventData);
-                $(this).removeClass(CSS_CLASSESToString());
-                $(this).addClass(presenter.isSelected ? CSS_CLASSES.MOUSE_HOVER_SELECTED : CSS_CLASSES.ELEMENT);
-
-                if(!presenter.isSelected) {
-                    if(presenter.onDeselected) {
-                        presenter.playerController.getCommands().executeEventCode(presenter.onDeselected);
-                    }
-                } else {
-                    if(presenter.onSelected) {
-                        presenter.playerController.getCommands().executeEventCode(presenter.onSelected);
-                    }
-                }
-            }
-        });
+        $element.click(presenter.clickHandler);
     }
+
+    presenter.validateModel = function (model) {
+        return {
+            addonID: model.ID,
+            onSelected: model.onSelected,
+            onDeselected: model.onDeselected,
+            shouldBeSelected: ModelValidationUtils.validateBoolean(model.SelectionCorrect),
+            isSelected: false,
+            isErrorCheckMode: false
+        };
+    };
 
     function presenterLogic(view, model) {
         viewContainer = $(view);
         var textSrc = model.Text;
-        presenter.shouldBeSelected = model.SelectionCorrect === 'True';
-        presenter.addonID = model.ID;
+        presenter.configuration = presenter.validateModel(model);
+
         var container = $('<div class="text-identification-container"></div>');
-        container.addClass(presenter.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+        container.addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
 
         var text = $('<div class="text-identification-content"></div>');
@@ -99,10 +115,6 @@ function Addontext_identification_create(){
             height: containerHeight + 'px'
         });
 
-
-        copyEventToPresenter(model, 'onSelected');
-        copyEventToPresenter(model, 'onDeselected');
-
         handleMouseActions();
     }
 
@@ -110,58 +122,53 @@ function Addontext_identification_create(){
         presenter.playerController = controller;
     };
 
-    function copyEventToPresenter(model, name) {
-        if(typeof(model[name]) != 'undefined' && (typeof(model[name] == "string") && model[name] !== "")) {
-            presenter[name] = model[name];
-        }
-    }
-
-    function applySelectionStyle(selected, selectedClass, unselectedClass) {
+    presenter.applySelectionStyle = function (selected, selectedClass, unselectedClass) {
         var element = viewContainer.find('div:first')[0];
 
         $(element).removeClass(CSS_CLASSESToString());
         $(element).addClass(selected ? selectedClass : unselectedClass);
-    }
+    };
 
     presenter.select = function () {
-        presenter.isSelected = true;
-        if (presenter.onSelected) {
-            presenter.playerController.getCommands().executeEventCode(presenter.onSelected);
-        }
-        applySelectionStyle(true, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.configuration.isSelected = true;
+        presenter.executeUserEventCode();
+        presenter.applySelectionStyle(true, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
     presenter.deselect = function () {
-        presenter.isSelected = false;
-        if (presenter.onDeselected) {
-            presenter.playerController.getCommands().executeEventCode(presenter.onDeselected);
-        }
-        applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.configuration.isSelected = false;
+        presenter.executeUserEventCode();
+        presenter.applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+    };
+
+    presenter.isSelected = function () {
+        return presenter.configuration.isSelected;
     };
 
     presenter.markAsCorrect = function() {
         isHoverEnabled = false;
-        presenter.isSelected = true;
-        applySelectionStyle(true, CSS_CLASSES.CORRECT, CSS_CLASSES.ELEMENT);
+        presenter.configuration.isSelected = true;
+        presenter.applySelectionStyle(true, CSS_CLASSES.CORRECT, CSS_CLASSES.ELEMENT);
     };
 
     presenter.markAsWrong = function() {
         isHoverEnabled = false;
-        presenter.isSelected = true;
-        applySelectionStyle(true, CSS_CLASSES.INCORRECT, CSS_CLASSES.ELEMENT);
+        presenter.configuration.isSelected = true;
+        presenter.applySelectionStyle(true, CSS_CLASSES.INCORRECT, CSS_CLASSES.ELEMENT);
     };
 
     presenter.markAsEmpty = function() {
         isHoverEnabled = false;
-        applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
     };
 
     presenter.executeCommand = function(name, params) {
-        if (isErrorCheckMode) return;
+        if (presenter.configuration.isErrorCheckMode) return;
 
         var commands = {
             'select': presenter.select,
             'deselect': presenter.deselect,
+            'isSelected': presenter.isSelected,
             'markAsCorrect': presenter.markAsCorrect,
             'markAsWrong': presenter.markAsWrong,
             'markAsEmpty': presenter.markAsEmpty
@@ -180,57 +187,56 @@ function Addontext_identification_create(){
     };
 
     presenter.reset = function() {
-        presenter.isSelected = false;
-        isErrorCheckMode = false;
+        presenter.configuration.isSelected = false;
+        presenter.configuration.isErrorCheckMode = false;
         isHoverEnabled = true;
-        applySelectionStyle(presenter.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
     presenter.setWorkMode = function() {
-        isErrorCheckMode = false;
+        presenter.configuration.isErrorCheckMode = false;
 
-        applySelectionStyle(presenter.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
     presenter.setShowErrorsMode = function() {
-        isErrorCheckMode = true;
+        presenter.configuration.isErrorCheckMode = true;
 
-        if (presenter.isSelected) {
-            applySelectionStyle(presenter.isSelected === presenter.shouldBeSelected, CSS_CLASSES.CORRECT, CSS_CLASSES.INCORRECT);
-        } else if (presenter.shouldBeSelected) {
-            applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT)
+        if (presenter.isSelected()) {
+            presenter.applySelectionStyle(presenter.isSelected() === presenter.configuration.shouldBeSelected, CSS_CLASSES.CORRECT, CSS_CLASSES.INCORRECT);
+        } else if (presenter.configuration.shouldBeSelected) {
+            presenter.applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT)
         }
-
     };
 
     presenter.getErrorCount = function() {
-        return !presenter.shouldBeSelected && presenter.isSelected ? 1 : 0;
+        return !presenter.configuration.shouldBeSelected && presenter.isSelected() ? 1 : 0;
     };
 
     presenter.getMaxScore = function() {
-        return presenter.shouldBeSelected ? 1 : 0;
+        return presenter.configuration.shouldBeSelected ? 1 : 0;
     };
 
     presenter.getScore = function() {
-        return presenter.shouldBeSelected && presenter.isSelected ? 1 : 0;
+        return presenter.configuration.shouldBeSelected && presenter.isSelected() ? 1 : 0;
     };
 
     presenter.getState = function() {
-        return presenter.isSelected ? 'True' : 'False';
+        return presenter.isSelected() ? 'True' : 'False';
     };
 
     presenter.setState = function(state) {
-        presenter.isSelected = state.toString() === "True";
+        presenter.configuration.isSelected = state.toString() === "True";
 
-        applySelectionStyle(presenter.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
     presenter.createEventData = function() {
         return {
-            'source' : presenter.addonID,
+            'source' : presenter.configuration.addonID,
             'item' : '1',
-            'value' : presenter.isSelected ? '1' : '0',
-            'score' : presenter.shouldBeSelected ? '1' : '0'
+            'value' : presenter.isSelected() ? '1' : '0',
+            'score' : presenter.configuration.shouldBeSelected ? '1' : '0'
         }
     };
 
