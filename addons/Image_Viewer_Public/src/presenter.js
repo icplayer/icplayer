@@ -529,6 +529,11 @@ function AddonImage_Viewer_Public_create() {
         loadingScreen.element = presenter.$view.find('.image-viewer-loading-image:first')[0];
         watermarkElement = presenter.$view.find('.image-viewer-watermark:first')[0];
 
+        if (!preview) {
+            var loadingSrc = DOMOperationsUtils.getResourceFullPath(playerController, "media/loading.gif");
+            if (loadingSrc) $(loadingScreen.element).attr('src', loadingSrc);
+        }
+
         var configuration = presenter.validateModel(model);
         if (configuration.isError) {
             showErrorMessage(view, configuration.errorCode);

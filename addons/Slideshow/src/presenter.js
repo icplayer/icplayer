@@ -986,8 +986,17 @@ function AddonSlideshow_create() {
         };
     }
 
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+    };
+
     function presenterLogic(view, model, preview) {
         setDOMElementsHrefsAndSelectors(view);
+
+        if (!preview) {
+            var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
+            if (loadingSrc) $(DOMElements.loading.image).attr('src', loadingSrc);
+        }
 
         presenter.configuration = presenter.validateModel(model);
         if (presenter.configuration.isError) {

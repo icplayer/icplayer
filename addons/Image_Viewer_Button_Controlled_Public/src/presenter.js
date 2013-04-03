@@ -441,10 +441,19 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
         presenter.changeFrame(viewerElement, configuration, true);
     }
 
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+    };
+
     function presenterLogic(view, model, preview) {
         presenter.$view = $(view);
         viewerElement = presenter.$view.find('.image-viewer:first');
         loadingScreen.element = presenter.$view.find('.image-viewer-loading-image:first')[0];
+
+        if (!preview) {
+            var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
+            if (loadingSrc) $(loadingScreen.element).attr('src', loadingSrc);
+        }
 
         presenter.configuration = presenter.validateModel(model);
         if (presenter.configuration.isError) {

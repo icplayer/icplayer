@@ -192,11 +192,20 @@ function AddonLayered_Image_create() {
         $(DOMElements.loading).hide();
     }
 
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+    };
+
     function presenterLogic(view, model, preview) {
         var width = model.Width;
         var height = model.Height;
 
         setDOMElementsHrefAndSelectors(view);
+
+        if (!preview) {
+            var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
+            if (loadingSrc) $(DOMElements.loading).attr('src', loadingSrc);
+        }
 
         $(DOMElements.$view).bind("onLoadImagesEnd", function() {
             setStateCallback();

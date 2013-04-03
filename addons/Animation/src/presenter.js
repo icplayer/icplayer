@@ -327,8 +327,18 @@ function AddonAnimation_create (){
         $(presenter.DOMElements.watermark).click(elementClickHandler);
     }
 
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+    };
+
     function presenterLogic(view, model, preview) {
         setDOMElementsHrefsAndSelectors(view);
+
+        if (!preview) {
+            var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
+            if (loadingSrc) presenter.DOMElements.loading.attr('src', loadingSrc);
+        }
+
         presenter.model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(presenter.model);
 

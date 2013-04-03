@@ -108,6 +108,20 @@
          */
         showErrorMessage: function showErrorMessage(element, errorCodes, code) {
             $(element).html(errorCodes[code]);
+        },
+
+        /**
+         @method getResourceFullPath
+         @param {Object} controller PlayerController instance
+         @param {String} resource relative path to the resource
+         @return {String} resource full path (or {undefined} if either controller or resource are not defined
+         */
+        getResourceFullPath: function getResourceFullPath(controller, resource) {
+            if (!controller || !resource) { //noinspection JSValidateTypes
+                return undefined;
+            }
+
+            return controller.getStaticFilesPath() +resource;
         }
     };
 })(window);
