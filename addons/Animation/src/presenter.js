@@ -400,12 +400,14 @@ function AddonAnimation_create (){
     presenter.setState = function(stateString) {
         presenter.configuration.savedState = stateString;
 
-        if (stateString) {
+        if (stateString && !presenter.configuration.stateRestored) {
             restoreState();
         }
     };
 
     function restoreState() {
+        presenter.configuration.stateRestored = true;
+
         var state = JSON.parse(presenter.configuration.savedState);
         presenter.configuration.currentFrame = state.currentFrame;
         presenter.configuration.animationState = state.animationState;
@@ -416,6 +418,10 @@ function AddonAnimation_create (){
             presenter.show();
         } else {
             presenter.hide();
+        }
+
+        if (!presenter.configuration.watermarkOptions.clicked) {
+            showLabelsForFrame(0);
         }
 
         switch (presenter.configuration.animationState) {
@@ -461,7 +467,7 @@ function AddonAnimation_create (){
             presenter.hideLabels();
         }
 
-        if (presenter.configuration.savedState) {
+        if (presenter.configuration.savedState && !presenter.configuration.stateRestored) {
             restoreState();
         }
     }
