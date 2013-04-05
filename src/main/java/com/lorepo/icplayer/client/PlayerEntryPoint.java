@@ -121,11 +121,11 @@ public class PlayerEntryPoint implements EntryPoint {
 		firePageLoaded(pageLoadedListener);
 		int currentPageIndex = theApplication.getPlayerServices().getCurrentPageIndex(); 
 		String source = Integer.toString(currentPageIndex+1);
-		fireStatusChanges(statusChangedListener, "PageLoaded", source, "");
+		fireStatusChanged(statusChangedListener, "PageLoaded", source, "");
 	}
 
 	
-	private static native void fireStatusChanges(JavaScriptObject callback, String type, String source, String value) /*-{
+	private static native void fireStatusChanged(JavaScriptObject callback, String type, String source, String value) /*-{
 		if(callback != null){
 			callback(type, source, value);
 		}
