@@ -8,7 +8,7 @@
 	<addon-descriptor addonId="gamememo"/>
 	<addon-descriptor addonId="Connection"/>
 	<addon-descriptor addonId="Double_State_Button"/>
-	<addon-descriptor addonId="DebugAddon" href="addons2/debug.addon.xml"/>
+	<addon-descriptor addonId="DebugAddon" href="addons/debug.addon.xml"/>
 	<addon-descriptor addonId="EventMonitor" href="addons/eventmonitor.addon.xml"/>
 	<addon-descriptor addonId="EventSource" href="addons/eventsource.addon.xml"/>
 	<addon-descriptor addonId="ParserDebug" href="addons/parser-debug.addon.xml"/>

@@ -111,7 +111,6 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	
 	private static native void firePageLoaded(JavaScriptObject callback) /*-{
-		
 		if(callback != null){
 			callback();
 		}
@@ -120,5 +119,17 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public void onPageLoaded() {
 		firePageLoaded(pageLoadedListener);
+		int currentPageIndex = theApplication.getPlayerServices().getCurrentPageIndex(); 
+		String source = Integer.toString(currentPageIndex+1);
+		fireStatusChanges(statusChangedListener, "PageLoaded", source, "");
 	}
+
+	
+	private static native void fireStatusChanges(JavaScriptObject callback, String type, String source, String value) /*-{
+		if(callback != null){
+			callback(type, source, value);
+		}
+	}-*/;
+
+
 }
