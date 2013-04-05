@@ -11,7 +11,6 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.module.api.player.IServerService;
 
 /**
  * Implementacja serwisów udostępnianych przez playera
@@ -49,13 +48,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public IPlayerCommands getCommands() {
 		
 		return commands;
-	}
-
-
-	@Override
-	public IServerService getServerService() {
-
-		return null;
 	}
 
 

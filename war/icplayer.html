@@ -22,19 +22,12 @@
       	function icOnAppLoaded(){
 	        // Load assessment
     	    player1 = icCreatePlayer('_icplayer');
-    	    player1.setApiUrl('/player/api/123');
-    	    //player1.setTestMode();
-    	    //player1.setAnalyticsUrl('/analytics/presentation/add?pid=506&session=7e190a209bbaa831cf6d51eccb680ad1&');
-			var page = parseInt(window.location.hash.substring(1), 10);
-	        if (isNaN(page)) {
-	        	page = page - 1;
-	        } else {
-	        	page = 0;
-	        }        	
-    		setPlayerState();
 	        //player1.load('test/pages/main.xml');
-	       	player1.load('content/default.ic.xml', page);
+	       	player1.load('content/default.ic.xml');
         	player1.onPageLoaded(function(){
+        	});
+        	player1.onStatusChanged(function(type, source, value){
+        		console.log("type:" + type + ", source: " + source, ", value:" + value);
         	});
       	}
       	

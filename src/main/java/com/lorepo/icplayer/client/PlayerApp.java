@@ -8,12 +8,10 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.content.services.ScoreService;
-import com.lorepo.icplayer.client.content.services.ServerService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.module.api.player.IServerService;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
 
@@ -33,8 +31,6 @@ public class PlayerApp {
 	private AppController	appController;
 	/** Score service impl */
 	private ScoreService		scoreService;
-	/** State service impl */
-	private ServerService		serverService;
 	private DOMInjector domInjector;
 	private PlayerEntryPoint	entryPoint;
 	private int startPageIndex;
@@ -47,7 +43,6 @@ public class PlayerApp {
 		this.entryPoint = entryPoint;
 		
 		scoreService = new ScoreService();
-		serverService = new ServerService("");
 		domInjector = new DOMInjector();
 	 }
 
@@ -90,25 +85,6 @@ public class PlayerApp {
 			}
 
 		});		
-	}
-
-	
-	/**
-	 * Get Server service impl
-	 * @return
-	 */
-	public IServerService getServerService() {
-		return serverService;
-	}
-
-	
-	public void setApiUrl(String url) {
-		serverService = new ServerService(url);
-	}
-
-	
-	public void setAnalyticsUrl(String url) {
-		serverService.setAnalyticsUrl(url);
 	}
 
 	

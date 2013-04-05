@@ -10,6 +10,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private PlayerApp	theApplication;
 	private JavaScriptObject pageLoadedListener;
+	private JavaScriptObject statusChangedListener;
 	
 	
 	/**
@@ -33,11 +34,8 @@ public class PlayerEntryPoint implements EntryPoint {
 		  	index = index || 0;
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
 		  }
-		  player.setApiUrl = function(url){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setApiUrl(Ljava/lang/String;)(url);
-		  }
-		  player.setAnalyticsUrl = function(url){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalyticsUrl(Ljava/lang/String;)(url);
+		  player.onStatusChanged = function(listener){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
 		  }
 		  player.setTestMode = function(){
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setTestMode()();
@@ -86,18 +84,6 @@ public class PlayerEntryPoint implements EntryPoint {
 			pageIndex = 0;
 		}
 		theApplication.load(url, pageIndex);
-	}
-
-	
-	private void setApiUrl(String url) {
-		
-		theApplication.setApiUrl(url);
-	}
-
-	
-	private void setAnalyticsUrl(String url) {
-		
-		theApplication.setAnalyticsUrl(url);
 	}
 
 	

@@ -144,8 +144,6 @@ public class AppController{
 
 		String baseUrl = contentModel.getBaseUrl();
 		
-		playerService.getServerService().sendAnalytics(contentModel.getPages().indexOf(page)+1);
-		
 		// Release current page
 		closeCurrentPage();
 		
