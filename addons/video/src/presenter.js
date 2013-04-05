@@ -344,9 +344,7 @@ function Addonvideo_create() {
     presenter.getState = function() {
         var isPaused = this.video.paused;
         this.video.pause();
-
         return JSON.stringify({
-            currentMovie : this.currentMovie,
             currentTime : this.video.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
             isPaused: isPaused
@@ -355,12 +353,12 @@ function Addonvideo_create() {
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
-
         var state = JSON.parse(stateString);
-        this.currentMovie = state.currentMovie;
         var currentTime = state.currentTime;
         this.isCurrentlyVisible = state.isCurrentlyVisible;
-        if (presenter.isCurrentlyVisible !== presenter.$view.is(':visible')) {
+        this.currentMovie = state.currentMovie;
+
+        if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') == 'visible')) {
             presenter.setVisibility(this.isCurrentlyVisible);
         }
         this.reload();
@@ -555,7 +553,6 @@ function Addonvideo_create() {
 
     presenter.show = function() {
         if (presenter.isCurrentlyVisible) return;
-
         if(presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
             this.video.play();
         }
