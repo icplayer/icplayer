@@ -83,10 +83,17 @@ function AddonConnection_create(){
         };
 
         this.remove = function(line) {
+            function getID (element) {
+                // innerWrapper -> td -> tr -> tbody -> table (which has id attribute)
+                var rawID = $(element).find('.innerWrapper').parent().parent().parent().parent().attr('id');
+
+                return rawID.split('connection-')[1];
+            }
+
             var linePosition = this.stack.indexOf(line);
             this.stack.splice(linePosition, 1);
-            var lineFromID = $(line.from).find('.innerWrapper').html();
-            var lineToID = $(line.to).find('.innerWrapper').html();
+            var lineFromID = getID(line.from);
+            var lineToID = getID(line.to);
             var pair = [lineFromID, lineToID];
             var score;
 
