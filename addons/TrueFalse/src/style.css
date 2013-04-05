@@ -69,43 +69,43 @@
 }
 
 .tf_radio_image.up div {
-    background-image: url("http://www.lorepo.com/file/serve/381257");
+    background-image: url('resources/tf-radio-image-up.png');
 }
 
 .tf_radio_image.up.disabled div {
-    background-image: url("http://www.lorepo.com/file/serve/377333");
+    background-image: url('resources/tf-radio-image-up-disabled.png');
 }
 
 .tf_radio_image.down div {
-    background-image: url("http://www.lorepo.com/file/serve/379360");
+    background-image: url('resources/tf-radio-image-down.png');
 }
 
 .tf_radio_image.down.correct div {
-    background-image: url("http://www.lorepo.com/file/serve/383372");
+    background-image: url('resources/tf-radio-image-down-correct.png');
 }
 
 .tf_radio_image.down.wrong div {
-    background-image: url("http://www.lorepo.com/file/serve/382347");
+    background-image: url('resources/tf-radio-image-down-wrong.png');
 }
 
 .tf_checkbox_image.up div {
-    background-image: url("http://www.lorepo.com/file/serve/387002");
+    background-image: url('resources/tf-checkbox-image-up.png');
 }
 
 .tf_checkbox_image.up.disabled div {
-    background-image: url("http://www.lorepo.com/file/serve/385002");
+    background-image: url('resources/tf-checkbox-image-up-disabled.png');
 }
 
 .tf_checkbox_image.down div {
-    background-image: url("http://www.lorepo.com/file/serve/354620");
+    background-image: url('resources/tf-checkbox-image-down.png');
 }
 
 .tf_checkbox_image.down.correct div {
-    background-image: url("http://www.lorepo.com/file/serve/382349");
+    background-image: url('resources/tf-checkbox-image-down-correct.png');
 }
 
 .tf_checkbox_image.down.wrong div {
-    background-image: url("http://www.lorepo.com/file/serve/354618");
+    background-image: url('resources/tf-checkbox-image-down-wrong.png');
 }
 
 .tf_checkbox_image div,

@@ -15,12 +15,12 @@
 }
 
 .mark.wrong {
-    background-image: url("http://www.lorepo.com/file/serve/213029");
+    background-image: url("resources/puzzle-mark-wrong.png");
     visibility: visible;
 }
 
 .mark.correct {
-    background-image: url("http://www.lorepo.com/file/serve/218030");
+    background-image: url("resources/puzzle-mark-correct.png");
     visibility: visible;
 }
 
