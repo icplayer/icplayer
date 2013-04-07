@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Plot'>
+	<model>
+		<property name='Expressions' type='list'>
+			<property name='id' type='string' isLocalized='false'/>
+			<property name='expression' type='string' isLocalized='false'/>
+			<property name='xMin' type='int' isLocalized='false'/>
+			<property name='xMax' type='int' isLocalized='false'/>
+			<property name='yMin' type='int' isLocalized='false'/>
+			<property name='yMax' type='int' isLocalized='false'/>
+			<property name='selectable' type='boolean' isLocalized='false'/>
+			<property name='correct' type='boolean' isLocalized='false'/>
+			<property name='y to x' type='boolean' isLocalized='false'/>
+			<property name='hidden' type='boolean' isLocalized='false'/>
+			<property name='color' type='string' isLocalized='false'/>
+		</property>
+		<property name='Variables' type='list'>
+			<property name='plot id' type='string' isLocalized='false'/>
+			<property name='variable' type='string' isLocalized='false'/>
+			<property name='value' type='string' isLocalized='false'/>
+			<property name='expected' type='string' isLocalized='false'/>
+		</property>
+		<property name='Points' type='list'>
+			<property name='x value' type='string' isLocalized='false'/>
+			<property name='y value' type='string' isLocalized='false'/>
+			<property name='selected' type='boolean' isLocalized='false'/>
+			<property name='correct' type='boolean' isLocalized='false'/>
+			<property name='not scored' type='boolean' isLocalized='false'/>
+		</property>
+		<property name='xMin' type='int' isLocalized='false'/>
+		<property name='xMax' type='int' isLocalized='false'/>
+		<property name='yMin' type='int' isLocalized='false'/>
+		<property name='yMax' type='int' isLocalized='false'/>
+		<property name='Grid' type='boolean' isLocalized='false'/>
+		<property name='GridStepX' type='int' isLocalized='false'/>
+		<property name='GridStepY' type='int' isLocalized='false'/>
+		<property name='Arrowhead size' type='int' isLocalized='false'/>
+		<property name='Axis values' type='boolean' isLocalized='false'/>
+		<property name='Axis x values' type='string' isLocalized='false'/>
+		<property name='Axis y values' type='string' isLocalized='false'/>
+		<property name='X axis description' type='string' isLocalized='true'/>
+		<property name='Y axis description' type='string' isLocalized='true'/>
+		<property name='hide X axis' type='boolean' isLocalized='false'/>
+		<property name='hide Y axis' type='boolean' isLocalized='false'/>
+		<property name='Point active area size' type='int' isLocalized='false'/>
+		<property name='Point radius' type='int' isLocalized='false'/>
+		<property name='Point outline radius' type='int' isLocalized='false'/>
+		<property name='Max selected points' type='int' isLocalized='false'/>
+		<property name='Not activity' type='boolean' isLocalized='false'/>
+		<property name='Free points' type='boolean' isLocalized='false'/>
+		<property name='Asymptote DY' type='int' isLocalized='false'/>
+	</model>
+</addon>
