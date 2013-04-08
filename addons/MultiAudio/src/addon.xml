@@ -7,8 +7,8 @@
 			<property name="Mp3" type="file" />
 			<property name="Ogg" type="file" />
 			<property name="Enable loop" type="boolean" />
-			<property name="Interface" type="{ None, Default controls, Display time }"/>
-			<property name="Narration" type="narration" isLocalized="true"/>
 		</property>
+		<property name="Interface" type="{None, Default controls, Display time}"/>
+		<property name="Narration" type="narration" isLocalized="true"/>
 	</model>
 </addon>

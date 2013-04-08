@@ -8,7 +8,7 @@
 		<property name="Sounds" type="list">
 			<property name="MP3 sound" type="file" />
 			<property name="OGG sound" type="file" />
-			<property name="AAC sound" type="fule" />
+			<property name="AAC sound" type="file" />
 		</property>
 		<property name="Frame names" type="list">
 			<property name="name" type="string" />
