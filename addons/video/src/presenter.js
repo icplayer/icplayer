@@ -358,7 +358,7 @@ function Addonvideo_create() {
         this.isCurrentlyVisible = state.isCurrentlyVisible;
         this.currentMovie = state.currentMovie;
 
-        if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') == 'visible')) {
+        if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
             presenter.setVisibility(this.isCurrentlyVisible);
         }
         this.reload();
