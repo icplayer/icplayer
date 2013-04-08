@@ -89,6 +89,10 @@ public class AddonDescriptorFactory {
 		return addonList.containsKey(addonId);
 	}
 	
+	public AddonEntry getEntry(String addonId){
+		return addonList.get(addonId);
+	}
+	
 	public Collection<AddonEntry> getEntries(){
 		return addonList.values();
 	}
