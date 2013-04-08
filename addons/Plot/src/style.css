@@ -1,0 +1,148 @@
+.canvas {
+	background-color:#ffffff;
+}
+/* axis */
+.axisText {
+	font-family:Verdana, sans-serif; 
+	font-size:8pt; 
+	fill:#000000;
+	stroke-width:0;
+}
+.axisXText {
+	text-anchor: end;
+}		
+.axisYText {
+}	
+.axis {
+	stroke:#000000;
+	stroke-width: 1;
+}
+.axisArrows {
+	fill: #000000;
+}
+.axisThicksTextX {
+	text-anchor: middle;
+	dominant-baseline: central
+}
+.axisThicksTextY {
+	text-anchor: left;
+	dominant-baseline: central
+}
+/* grid */
+.grid {
+	stroke:#ddd;
+	stroke-width: 1;
+    stroke-dasharray: 2 2;
+}
+/* plot */
+.draw_active_area {
+	stroke-opacity:0.0;
+	stroke-linecap:round;
+	stroke-linejoin:round;
+	stroke-width:10;
+	fill:none;
+	stroke:#ffffff;
+}
+.draw_outline_base {
+	stroke-linecap:round;
+	stroke-linejoin:round;
+	stroke-opacity:0;
+	fill:none;
+}
+.draw_outline {
+	stroke-opacity:0.5;
+	stroke-width:5;
+	fill:none;
+	stroke:#008800;
+}
+.draw_outline_mark_error {
+	stroke-opacity:0.5;
+	stroke-width:5;
+	fill:none;			
+	stroke:#ff0000;
+}
+.draw_outline_mark_correct {
+	stroke-opacity:0.5;
+	stroke-width:5;
+	fill:none;
+	stroke:#008800;
+}
+.draw {
+	fill: none;
+	stroke:#0000ff;
+	stroke-width: 2;			
+}
+.draw_selected {
+	fill: none;
+	stroke-width:3;
+	stroke:#008800;
+}
+.draw_over{
+	stroke:#888888;
+}	
+.draw_mark_error {
+	stroke: #ff0000;
+    stroke-width:2;
+}
+.draw_mark_correct {
+	stroke:#008800;
+}
+/* point */
+.point_active_area {
+	stroke-width:0;
+	fill:#ff0000;
+	fill-opacity:0;
+}
+.point_outline_base {
+	stroke-opacity:0;
+	stroke:#bb0000;
+	stroke-width:2;
+	fill-opacity:0;
+	fill:#dd0000;
+}		
+.point_outline {
+	stroke-opacity:1;
+	stroke:#006600;
+	stroke-width:2;
+	fill-opacity:1;
+	fill:#00bb00;
+}	
+.point_outline_mark_error {
+	stroke-opacity:1;
+	stroke:#bb0000;
+	stroke-width:2;
+    fill-opacity:1;
+	fill:#ff0000;
+}
+.point_outline_mark_correct {
+	stroke-opacity:1;
+	stroke:#006600;
+	stroke-width:2;
+	fill-opacity:1;
+	fill:#00bb00;
+}
+.point {
+	fill:#dddddd;
+	stroke:#bbbbbb;
+	stroke-width:0.5;
+}
+.point_selected {
+	fill:#00bb00;
+	stroke:#006600;
+	stroke-width:2;
+}
+.point_over {
+	fill:#aaaaaa;
+	stroke:#666666;
+	stroke-width:2;
+}
+.point_error {
+	fill:#ff0000;
+	stroke:#bb0000;
+	stroke-width:2;
+}
+.point_correct {
+	fill:#00bb00;
+	stroke:#00bb00;
+	stroke-width:2;
+}
