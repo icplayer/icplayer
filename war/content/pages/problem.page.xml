@@ -1,21 +1,18 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<page layout='pixels' width='0' height='255'>
+<page layout='pixels'>
 	<modules>
 		
-		<addonModule id="addon2" addonId="Double_State_Button" 
-			left='20' top='80' width='100' height='100'>
-			<properties>
-				<property name="Text" type="string" value="Hello world!"/>
-				<property name="Image" value="" />
-				<property name="onSelected" value="" />
-				<property name='Text selected' value="" />
-				<property name="Image selected" value="" />
-				<property name="onDeselected" value="" />
-				<property name="isSelected" value="" />
-				<property name="Disable" value="" />
-			</properties>
-		</addonModule>
+		<sourceListModule id="sl2" left='10' top='10' width='500' height='150'>
+			<items removable="True" vertical="False">
+				<item text="\(\begin{cases}y \leqslant x - 1\\y-x \geqslant x-3\\\end{cases}\)"/>
+				<item text='\(\begin{cases}y+x+1 &lt; 2x\\y+2x+1 &gt; x+2\\\end{cases}\)'/>
+				<item text='\(\begin{cases}4x -y &lt; 0\\y+x -2 \leqslant 2x\\\end{cases}\)'/>
+			</items>
+		</sourceListModule>
 
+		<textModule id="cloze" left='10' top='200' width='400' height='240'>
+			<text draggable='true' gapWidth="200" isActivity="true"><![CDATA[A parabola defined by the function \(\begin{cases}0.5x < y-1\\0.5x-y+2 > 0\\\end{cases}\) opens upwards if \gap{\(a&gt;0\)} and opens downwards if \gap{\(a&lt;0\)}.<br>]]></text>
+		</textModule>
 	</modules>
 
 </page>

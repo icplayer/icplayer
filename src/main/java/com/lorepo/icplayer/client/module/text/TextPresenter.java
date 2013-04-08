@@ -420,7 +420,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		else if(draggableItem != null){
 			value = StringUtils.removeAllFormatting(draggableItem.getValue());
-			view.setValue(gapId, value);
+			view.setValue(gapId, draggableItem.getValue());
 			consumedItems.put(gapId, draggableItem);
 			values.put(gapId, value);
 			fireItemConsumedEvent();
