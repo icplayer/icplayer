@@ -10,7 +10,6 @@ SetGetStateTests.prototype.setUp = function() {
     this.presenter.videoContainer = $('<div></div>');
     this.presenter.videoContainer.append(this.presenter.video);
     this.presenter.files = ['video1.ogg', 'video2.ogg'];
-    sinon.stub(this.presenter, 'reload');
     sinon.stub(this.presenter, 'setVisibility');
 };
 
