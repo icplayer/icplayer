@@ -18,6 +18,7 @@ public class TextView extends HTML implements IDisplay{
 	private TextModel	module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay>	textElements = new ArrayList<TextElementDisplay>();
+	String text = "";
 	
 	
 	public TextView(TextModel module, boolean isPreview){
@@ -146,7 +147,8 @@ public class TextView extends HTML implements IDisplay{
 	
 	@Override
 	public void setHTML(String html){
-		
+
+		text = html;
 		super.setHTML(html);
 	}
 
@@ -166,5 +168,7 @@ public class TextView extends HTML implements IDisplay{
 	@Override
 	public void show() {
 		setVisible(true);
+		super.setHTML(text);
+		refreshMath();
 	}
 }
