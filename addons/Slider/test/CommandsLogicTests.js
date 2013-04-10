@@ -21,6 +21,7 @@ CommandsLogicTestsUtils = {
         sinon.stub(this.presenter, 'show');
         sinon.stub(this.presenter, 'hide');
         sinon.stub(this.presenter, 'setVisibility');
+        sinon.stub(this.presenter, 'removeDisabledClass');
     },
 
     tearDown: function() {
@@ -31,6 +32,7 @@ CommandsLogicTestsUtils = {
         this.presenter.show.restore();
         this.presenter.hide.restore();
         this.presenter.setVisibility.restore();
+        this.presenter.removeDisabledClass.restore();
     }
 };
 
@@ -298,6 +300,7 @@ TestCase("Reset command logic", {
         assertFalse(this.presenter.triggerStepChangeEvent.called);
         assertFalse(this.presenter.triggerOnStepChangeUserEvent.called);
         assertTrue(this.presenter.setVisibility.calledWith(true));
+        assertTrue(this.presenter.removeDisabledClass.calledOnce);
         assertTrue(this.presenter.configuration.isVisible);
     },
 
@@ -314,6 +317,7 @@ TestCase("Reset command logic", {
         assertFalse(this.presenter.triggerStepChangeEvent.called);
         assertFalse(this.presenter.triggerOnStepChangeUserEvent.called);
         assertTrue(this.presenter.setVisibility.calledWith(false));
+        assertTrue(this.presenter.removeDisabledClass.calledOnce);
         assertFalse(this.presenter.configuration.isVisible);
     }
 });

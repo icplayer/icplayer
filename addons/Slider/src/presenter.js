@@ -656,9 +656,17 @@ function AddonSlider_create () {
         }
     };
 
+    presenter.addDisabledClass = function () {
+        presenter.getContainerAndImageElements().addonContainer.addClass('disabled');
+    };
+
+    presenter.removeDisabledClass = function () {
+        presenter.getContainerAndImageElements().addonContainer.removeClass('disabled');
+    };
+
     presenter.reset = function () {
         presenter.configuration.isErrorMode = false;
-
+        presenter.removeDisabledClass();
         var elements = this.getContainerAndImageElements();
         presenter.configuration.currentStep = presenter.configuration.initialStep;
         presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
@@ -706,10 +714,15 @@ function AddonSlider_create () {
 
     presenter.setShowErrorsMode = function() {
         presenter.configuration.isErrorMode = true;
+
+        if (presenter.configuration.shouldBlockInErrorMode) {
+            presenter.addDisabledClass();
+        }
     };
 
     presenter.setWorkMode = function() {
         presenter.configuration.isErrorMode = false;
+        presenter.removeDisabledClass();
     };
 
     return presenter;
