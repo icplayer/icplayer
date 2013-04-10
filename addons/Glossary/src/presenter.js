@@ -17,7 +17,6 @@ function AddonGlossary_create(){
 
     presenter.addDescription = function(element, description) {
         $(element).html(description);
-        this.updateLaTeX(description);
     };
 
     presenter.updateLaTeX = function(text) {
@@ -148,6 +147,7 @@ function AddonGlossary_create(){
         var dialogData = presenter.getDialogDataById(id);
         dialog.dialog("option", "title", dialogData.title);
         presenter.addDescription(dialog, dialogData.description);
+        presenter.updateLaTeX(dialogData.description);
         dialog.dialog("open");
     };
 

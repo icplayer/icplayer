@@ -166,6 +166,16 @@ function AddonConnection_create(){
     }
 
     presenter.setPlayerController = function(controller) {
+        var mathJaxDeferred = new jQuery.Deferred();
+        presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
+        presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
+
+        MathJax.Hub.Register.MessageHook("End Process", function (message) {
+            if ($(message[1]).hasClass('ic_page')) {
+                presenter.mathJaxProcessEndedDeferred.resolve();
+            }
+        });
+
         playerController = controller;
     };
 
@@ -236,15 +246,14 @@ function AddonConnection_create(){
             incorrectConnection = model['Incorrect connection color'];
         }
 
-        MathJax.Hub.Register.MessageHook("End Process", function(){
-            if(!isAlreadyInitialized) {
+        if (isPreview) {
+            presenter.initializeView(view, model);
+            presenter.drawConfiguredConnections();
+        } else {
+            presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
-                if(isPreview){
-                    presenter.drawConfiguredConnections();
-                }
-            }
-            isAlreadyInitialized = true;
-        });
+            });
+        }
 
         this.gatherCorrectConnections();
     };
@@ -627,7 +636,7 @@ function AddonConnection_create(){
     presenter.setState = function(state) {
         var hookExecuted = false;
 
-        MathJax.Hub.Register.MessageHook("End Process", function(){
+        presenter.mathJaxProcessEnded.then(function () {
             if (state != '' && !hookExecuted) {
                 var id = JSON.parse(state);
                 for (var i = 0; i < id.length; i++) {

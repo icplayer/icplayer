@@ -181,6 +181,29 @@ function Addonvideo_create() {
         this.video.addEventListener("webkitfullscreenchange", fullScreenChange, false);
     };
 
+    presenter.setPlayerController = function (controller) {
+        var mathJaxDeferred = new jQuery.Deferred();
+        presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
+        presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
+
+        MathJax.Hub.Register.MessageHook("End Process", function (message) {
+            if ($(message[1]).hasClass('ic_page')) {
+                presenter.mathJaxProcessEndedDeferred.resolve();
+            }
+        });
+
+        var eventBus = controller.getEventBus();
+        eventBus.addEventListener('PageLoaded', this);
+
+        var pageLoadedDeferred = new jQuery.Deferred();
+        presenter.pageLoadedDeferred = pageLoadedDeferred;
+        presenter.pageLoaded = pageLoadedDeferred.promise();
+    };
+
+    presenter.onEventReceived = function () {
+        presenter.pageLoadedDeferred.resolve();
+    };
+
     presenter.run = function(view, model){
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isCurrentlyVisible = true;
@@ -266,7 +289,9 @@ function Addonvideo_create() {
             if (caption.start <= time && caption.end >= time) {
                 $(caption.element).attr('visibility', 'visible');
                 $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
-                updateLaTeX(caption.element);
+                $.when(presenter.pageLoaded, presenter.mathJaxProcessEnded).then(function () {
+                    updateLaTeX(caption.element);
+                });
 
                 if (presenter.configuration.isFullScreen && !$(caption.element).attr('oldTop')) {
                     var top = parseInt($(caption.element).css('top'), 10),
@@ -474,13 +499,17 @@ function Addonvideo_create() {
                     lines = presenter.splitLines(data);
                     presenter.convertLinesToCaptions(lines);
                     captions = $(presenter.videoContainer[0]).find(".captions").html();
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, captions])();
+                    $.when(presenter.pageLoaded, presenter.mathJaxProcessEnded).then(function () {
+                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, captions])();
+                    });
                 });
             } else {
                 lines = presenter.splitLines(subtitles);
                 presenter.convertLinesToCaptions(lines);
                 captions = $(presenter.videoContainer[0]).find(".captions").html();
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, captions])();
+                $.when(presenter.pageLoaded, presenter.mathJaxProcessEnded).then(function () {
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, captions])();
+                });
             }
         }
     };
