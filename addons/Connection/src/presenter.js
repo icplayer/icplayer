@@ -57,6 +57,10 @@ function AddonConnection_create(){
         this.ids = [];
         this.sendEvents = sendEvents;
 
+        this.setSendEvents = function (value) {
+            this.sendEvents = value;
+        };
+
         this.push = function(line) {
             var pair = [], score, i;
             for (i = 0; i < presenter.elements.length; i++) {
@@ -638,13 +642,16 @@ function AddonConnection_create(){
 
         presenter.mathJaxProcessEnded.then(function () {
             if (state != '' && !hookExecuted) {
+                presenter.lineStack.setSendEvents(false);
+
                 var id = JSON.parse(state);
                 for (var i = 0; i < id.length; i++) {
                     var pair = id[i].split(':');
                     pushConnection(new Line(getElementById(pair[0]), getElementById(pair[1])), false);
                 }
 
-            redraw();
+                presenter.lineStack.setSendEvents(true);
+                redraw();
             }
 
             hookExecuted = true;
