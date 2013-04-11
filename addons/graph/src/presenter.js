@@ -248,6 +248,7 @@ function Addongraph_create(){
 
     presenter.setShowErrorsMode = function() {
         presenter.errorMode = true;
+        presenter.configuration.shouldCalcScore = true;
 
         if(presenter.interactive) {
             presenter.$view.find('.graph_value_element_interactive, .graph_column_container_below, .graph_column_container_above').css('cursor', 'default');
@@ -268,6 +269,7 @@ function Addongraph_create(){
 
     presenter.setWorkMode = function() {
         presenter.errorMode = false;
+        presenter.configuration.shouldCalcScore = true;
 
         if(presenter.interactive) {
             presenter.$view.find('.graph_value_element_interactive, .graph_column_container_below, .graph_column_container_above').css('cursor', '');
@@ -283,14 +285,16 @@ function Addongraph_create(){
     };
 
     presenter.getScore = function() {
-        var r = 0;
-        presenter.$view.find('.graph_value_container').each(function(i, e) {
-            if(presenter.answers[i] == parseFloat($(e).attr('current-value'))) {
-                r++
+        if (!presenter.configuration.shouldCalcScore) return 0;
+
+        var score = 0;
+        presenter.$view.find('.graph_value_container').each(function(index, element) {
+            if(presenter.answers[index] == parseFloat($(element).attr('current-value'))) {
+                score++
             }
         });
 
-        return r;
+        return score;
     };
 
     presenter.getMaxScore = function() {
@@ -298,6 +302,8 @@ function Addongraph_create(){
     };
 
     presenter.getErrorCount = function() {
+        if (!presenter.configuration.shouldCalcScore) return 0;
+
         return presenter.getMaxScore() - presenter.getScore();
     };
 
@@ -316,6 +322,8 @@ function Addongraph_create(){
     };
 
     presenter.reset = function() {
+        presenter.configuration.shouldCalcScore = true;
+
         presenter.redrawValueContainers();
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
@@ -332,29 +340,29 @@ function Addongraph_create(){
         });
         var state = {
             'r' : r,
-            'isVisible' : presenter.configuration.isVisible
+            'isVisible' : presenter.configuration.isVisible,
+            shouldCalcScore: presenter.configuration.shouldCalcScore
         };
         return JSON.stringify(state);
     };
 
 
     presenter.setState = function(stateString) {
-        var state = JSON.parse(stateString);
-        var valueContainers = presenter.$view.find('.graph_value_container');
-        var currentValueContainer;
-        var r = state.r;
+        var state = JSON.parse(stateString),
+            valueContainers = presenter.$view.find('.graph_value_container'),
+            currentValueContainer,
+            r = state.r, i,
+            shouldCalcScore = state.shouldCalcScore;
 
-        for(var i = 0; i < r.length; i++) {
+        for (i = 0; i < r.length; i++) {
             currentValueContainer = $(valueContainers[i]);
             currentValueContainer.attr('current-value', parseFloat(r[i]));
             presenter.redrawGraphValue(currentValueContainer);
         }
 
-        if (state.isVisible) {
-            presenter.show();
-        } else {
-            presenter.hide();
-        }
+        presenter.setVisibility(state.isVisible);
+        presenter.configuration.isVisible = state.isVisible;
+        presenter.configuration.shouldCalcScore = shouldCalcScore;
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -364,11 +372,13 @@ function Addongraph_create(){
     presenter.hide = function() {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
+        presenter.configuration.shouldCalcScore = true;
     };
 
     presenter.show = function() {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+        presenter.configuration.shouldCalcScore = true;
     };
 
     presenter.executeCommand = function(name, params) {
@@ -398,6 +408,7 @@ function Addongraph_create(){
 
     presenter.increaseGraphValue = function(eventData) {
         if(presenter.errorMode) return;
+        presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
             presenter.configuration.mouseData.wasDragged = false;
             return false;
@@ -423,6 +434,7 @@ function Addongraph_create(){
 
     presenter.decreaseGraphValue = function(eventData) {
         if(presenter.errorMode) return;
+        presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
             presenter.configuration.mouseData.wasDragged = false;
             return false;
@@ -507,6 +519,7 @@ function Addongraph_create(){
     function columnContainerMouseDownCallback (eventData) {
         if(presenter.errorMode) return;
 
+        presenter.configuration.shouldCalcScore = true;
         presenter.configuration.mouseData.$element = $(eventData.target);
         var $element = getValueElement(), currentValue = parseFloat($element.parent().attr('current-value'));
 
@@ -562,6 +575,8 @@ function Addongraph_create(){
 
     function mouseUpCallback () {
         if(presenter.errorMode) return;
+
+        presenter.configuration.shouldCalcScore = true;
 
         if (!presenter.configuration.mouseData.isMouseDown) {
             if (presenter.configuration.mouseData.isColumnContainerTouchTriggered) {
@@ -631,6 +646,7 @@ function Addongraph_create(){
         if(presenter.errorMode) return;
         if (presenter.configuration.mouseData.isMouseDown !== true) return;
 
+        presenter.configuration.shouldCalcScore = true;
         presenter.configuration.mouseData.wasDragged = true;
 
         var $element = getValueElement();
@@ -695,7 +711,8 @@ function Addongraph_create(){
             isError: false,
             ID: model.ID,
             isVisible: isVisible,
-            isVisibleByDefault: isVisible
+            isVisibleByDefault: isVisible,
+            shouldCalcScore: false
         };
     };
 

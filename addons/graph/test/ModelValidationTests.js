@@ -17,6 +17,7 @@ TestCase("Model validation", {
         assertEquals('graph1', validationResult.ID);
 
         assertTrue(validationResult.isVisible);
-        assertTrue(validationResult.isVisibleByDefault)
+        assertTrue(validationResult.isVisibleByDefault);
+        assertFalse(validationResult.shouldCalcScore);
     }
 });
