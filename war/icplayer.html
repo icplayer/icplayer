@@ -18,19 +18,19 @@
     });
     </script>    
     <script language="javascript">
-		var player1;
+		var player;
       	function icOnAppLoaded(){
 	        // Load assessment
-    	    player1 = icCreatePlayer('_icplayer');
-	        //player1.load('test/pages/main.xml');
-	       	player1.load('content/default.ic.xml');
-        	player1.onStatusChanged(function(type, source, value){
+    	    player = icCreatePlayer('_icplayer');
+	        player.load('test/pages/main.xml');
+	       	//player1.load('content/default.ic.xml');
+        	player.onStatusChanged(function(type, source, value){
         		//console.log("type:" + type + ", source: " + source, ", value:" + value);
         	});
       	}
       	
       	function testPlayerService(){
-      		var ps = player1.getPlayerServices();
+      		var ps = player.getPlayerServices();
       		var model = ps.getPresentation();
       		var scoreService = ps.getScore();
       		var sumOfScore = 0.0;
@@ -64,7 +64,7 @@
       	
       	function setPlayerState(){
       		if(localStorage.state){
-      			player1.setState(localStorage.state);
+      			player.setState(localStorage.state);
       		}
       	}
     </script>
