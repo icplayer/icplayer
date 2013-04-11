@@ -381,13 +381,26 @@ function Addongraph_create(){
         presenter.configuration.shouldCalcScore = true;
     };
 
+    presenter.getValue = function (index) {
+        presenter.configuration.shouldCalcScore = true;
+
+        var maxIndex = presenter.$view.find('.graph_column_container').length;
+
+        if (!ModelValidationUtils.validateIntegerInRange(index, maxIndex, 1).isValid) return;
+
+        var $column = presenter.$view.find('.graph_column_container:eq(' + (index - 1) + ') .graph_value_container');
+
+        return parseFloat($column.attr('current-value'));
+    };
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
-            'hide' : presenter.hide
+            'hide' : presenter.hide,
+            'getValue': presenter.getValue
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     function prepareAndSendEvent(direction, changedBarIndex, currentValue, newValue, valueContainer) {
@@ -696,7 +709,6 @@ function Addongraph_create(){
     }
 
     presenter.run = function(view, model) {
-        this.$view = $(view);
         presenter.initialize(view, model, false);
     };
 
