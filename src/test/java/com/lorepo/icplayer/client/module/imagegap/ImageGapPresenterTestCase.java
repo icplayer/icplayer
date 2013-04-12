@@ -158,7 +158,7 @@ public class ImageGapPresenterTestCase {
 	@Test
 	public void wrong(){
 		
-		DraggableItem item = new DraggableItem("si2", "/path");
+		DraggableImage item = new DraggableImage("si2", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
 		display.getListener().onClicked();

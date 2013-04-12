@@ -241,7 +241,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public int getErrorCount() {
 		
-		if(getScore() == 0 && model.isActivity()){
+		if(consumedItem != null && getScore() == 0 && model.isActivity()){
 			return 1;
 		}
 		return 0;
