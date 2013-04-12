@@ -84,7 +84,28 @@ function Addontext_identification_create(){
         };
     };
 
-    function presenterLogic(view, model) {
+    presenter.centerElements = function ($text, $container) {
+        $.when(presenter.mathJaxProcessEnded).then(function () {
+            var contentWidth = parseInt($text.css('width'), 10),
+                contentHeight = parseInt($text.css('height'), 10),
+                containerWidth = parseInt(viewContainer.css('width'), 10),
+                containerHeight = parseInt(viewContainer.css('height'), 10);
+
+            $text.css({
+                left: Math.round((containerWidth - contentWidth) / 2) + 'px',
+                top: Math.round((containerHeight - contentHeight) / 2) + 'px'
+            });
+
+            $container.css({
+                width: containerWidth + 'px',
+                height: containerHeight + 'px'
+            });
+        });
+    };
+
+    function presenterLogic(view, model, isPreview) {
+        presenter.registerMathJaxListener();
+
         viewContainer = $(view);
         var textSrc = model.Text;
         presenter.configuration = presenter.validateModel(model);
@@ -92,34 +113,19 @@ function Addontext_identification_create(){
         var container = $('<div class="text-identification-container"></div>');
         container.addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
-
         var text = $('<div class="text-identification-content"></div>');
         text.html(textSrc);
         container.append(text);
 
         viewContainer.append(container);
+        presenter.centerElements(text, container);
 
-        var contentWidth = parseInt(text.css('width'));
-        var contentHeight = parseInt(text.css('height'));
-
-        var containerWidth = parseInt(viewContainer.css('width'));
-        var containerHeight = parseInt(viewContainer.css('height'));
-
-        text.css({
-            left: Math.round((containerWidth - contentWidth) / 2) + 'px',
-            top:  Math.round((containerHeight - contentHeight) / 2) + 'px'
-        });
-
-        container.css({
-            width: containerWidth + 'px',
-            height: containerHeight + 'px'
-        });
-
-        handleMouseActions();
+        if (isPreview) handleMouseActions();
     }
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
     };
 
     presenter.applySelectionStyle = function (selected, selectedClass, unselectedClass) {
@@ -177,13 +183,24 @@ function Addontext_identification_create(){
         Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.registerMathJaxListener = function () {
+        var mathJaxDeferred = new jQuery.Deferred();
+        presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
+        presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
+
+        MathJax.Hub.Register.MessageHook("End Process", function (message) {
+            if ($(message[1]).hasClass('ic_page')) {
+                presenter.mathJaxProcessEndedDeferred.resolve();
+            }
+        });
+    };
+
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model);
+        presenterLogic(view, model, true);
     };
 
     presenter.run = function(view, model){
-        presenterLogic(view, model);
-        presenter.eventBus = presenter.playerController.getEventBus();
+        presenterLogic(view, model, false);
     };
 
     presenter.reset = function() {
