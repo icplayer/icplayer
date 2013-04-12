@@ -57,8 +57,6 @@ background-color:lightgreen;
 </style>
 
 <pages>
-	<page name="links" href="pages/links.page.xml" reportable="false"/>
-	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="problem" href="pages/problem.page.xml"/>
 	<page name="addon" href="pages/addon.page.xml"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
@@ -70,6 +68,8 @@ background-color:lightgreen;
 		<page name="footer" href="pages/footer.xml"/>
 	</folder>
 	<!--
+	<page name="links" href="pages/links.page.xml" reportable="false"/>
+	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
 	<page name="test" href="pages/connection.page.xml"/>
 	<page name="no addon" href="pages/no-addon.page.xml"/>

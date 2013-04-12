@@ -22,6 +22,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.text.TextParser;
@@ -310,6 +311,9 @@ public class JavaScriptPlayerServices{
 		}
 		else if(presenter instanceof ImageGapPresenter){
 			return ((ImageGapPresenter)presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ChoicePresenter){
+			return ((ChoicePresenter)presenter).getAsJavaScript();
 		}
 		
 		return null;

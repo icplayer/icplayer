@@ -26,6 +26,7 @@ public class ChoiceModel extends BasicModuleModel{
 	private ArrayList<ChoiceOption>	options = new ArrayList<ChoiceOption>();	
 	private IListProperty optionsProperty;
 	private int maxScore = 0;
+	private boolean isDisabled = false;
 
 	
 	public ChoiceModel() {
@@ -36,7 +37,7 @@ public class ChoiceModel extends BasicModuleModel{
 		
 		addPropertyIsMulti();
 		addPropertyOptions();
-		
+		addPropertyIsDisabled();
 	}
 	
 	
@@ -95,6 +96,7 @@ public class ChoiceModel extends BasicModuleModel{
 		if(nodeList.getLength() > 0){
 			Element choice = (Element)nodeList.item(0);
 			isMulti = XMLUtils.getAttributeAsBoolean(choice, "isMulti");
+			isDisabled = XMLUtils.getAttributeAsBoolean(choice, "isDisabled", false);
 		}
 		
 		// Read options nodes
@@ -139,12 +141,7 @@ public class ChoiceModel extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = "<choiceModule " + getBaseXML() + ">";
-		
-		if(isMulti){
-			xml += "<choice isMulti='true'/>";
-		}
-		
-		
+		xml += "<choice isMulti='" + isMulti + "' isDisabled='" + isDisabled + "'/>";
 		xml += "<options>";
 		for(ChoiceOption option : options){
 			xml += option.toXML();
@@ -260,5 +257,43 @@ public class ChoiceModel extends BasicModuleModel{
 
 	public ArrayList<ChoiceOption> getOptions() {
 		return options;
+	}
+
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
+	private void addPropertyIsDisabled() {
+		
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value!= isDisabled){
+					isDisabled = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				if(isDisabled){
+					return "True";
+				}
+				else{
+					return "False";
+				}
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("is_disabled");
+			}
+
+		};
+		
+		addProperty(property);	
 	}
 }

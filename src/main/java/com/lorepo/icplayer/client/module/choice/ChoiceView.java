@@ -54,6 +54,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		if(module.isDisabled()){
+			setEnabled(false);
+		}
 	}
 
 	@Override

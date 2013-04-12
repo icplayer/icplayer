@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.choice;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -148,5 +149,60 @@ public class ChoiceModelTestCase {
 		String newText = module.getOption(0).getText();
 		
 		assertEquals(oldText, newText);
+	}
+
+	@Test
+	public void notDisabled() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/choice1.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ChoiceModel module = new ChoiceModel();
+		module.load(element, "");
+
+		assertFalse(module.isDisabled());
+	}
+
+	@Test
+	public void isDisabled() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/choice2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ChoiceModel module = new ChoiceModel();
+		module.load(element, "");
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new ChoiceModel();
+		module.load(element, "");
+		
+		assertTrue(module.isDisabled());
+	}
+
+	@Test
+	public void propertyisDisabled() throws SAXException, IOException {
+		
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("is_disabled")).thenReturn("Is&nbsp;disabled");
+
+		InputStream inputStream = getClass().getResourceAsStream("testdata/choice1.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ChoiceModel module = new ChoiceModel();
+		module.load(element, "");
+
+		boolean foundProperty = false;
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			
+			IProperty property = module.getProperty(i);
+			if(property.getName().compareTo("Is&nbsp;disabled") == 0){
+				foundProperty = true;
+			}
+		}
+
+		assertTrue(foundProperty);
 	}
 }

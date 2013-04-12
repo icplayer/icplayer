@@ -1,8 +1,11 @@
 package com.lorepo.icplayer.client.module.choice;
 
+import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -12,10 +15,11 @@ import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 
-public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity{
+public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver{
 
 	public interface IOptionDisplay{
 		public ChoiceOption getModel();
@@ -36,12 +40,15 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	private IDisplay view;
 	private ChoiceModel module;
 	private IPlayerServices playerServices;
+	private boolean isDisabled;
+	private JavaScriptObject	jsObject;
 	
 	
 	public ChoicePresenter(ChoiceModel module, IPlayerServices services){
 	
 		this.module = module;
 		this.playerServices = services;
+		isDisabled = module.isDisabled();
 
 		connectHandlers();
 	}
@@ -117,7 +124,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			optionView.setDown(false);
 		}
 		
-		view.setEnabled(true);
+		isDisabled = module.isDisabled();
+		view.setEnabled(!isDisabled);
 		saveScore();
 	}
 
@@ -130,43 +138,73 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public String getState() {
 
-		String state = "";
+		IJsonServices json = playerServices.getJsonServices();
+		HashMap<String, String> state = new HashMap<String, String>();
+		String optionState = "";
 		
 		for(IOptionDisplay option : view.getOptions()){
 			if(option.isDown()){
-				state += "1";
+				optionState += "1";
 			}
 			else{
-				state += "0";
+				optionState += "0";
 			}
 		}
 		
-		return state;
+		state.put("options", optionState);
+		state.put("isDisabled", Boolean.toString(isDisabled));
+		return json.toJSONString(state);
 	}
 
 	
 	@Override
-	public void setState(String state) {
+	public void setState(String stateObj) {
 
-		int index = 0;
-		for(IOptionDisplay option : view.getOptions()){
-			
-			if(state.length() < index+1){
-				break;
+		IJsonServices json = playerServices.getJsonServices();
+		HashMap<String, String> state = json.decodeHashMap(stateObj);
+		if(state.containsKey("options")){
+			String optionState = state.get("options");
+			int index = 0;
+			for(IOptionDisplay option : view.getOptions()){
+				
+				if(optionState.length() < index+1){
+					break;
+				}
+				
+				boolean value = (optionState.charAt(index) == '1');
+	
+				if(value){
+					option.setDown(true);
+				}
+				else{
+					option.setDown(false);
+				}
+				
+				index++;
 			}
-			
-			boolean value = (state.charAt(index) == '1');
-
-			if(value){
-				option.setDown(true);
+		}
+		if(state.containsKey("isDisabled")){
+			isDisabled = Boolean.parseBoolean(state.get("isDisabled"));
+			if(isDisabled){
+				disable();
 			}
 			else{
-				option.setDown(false);
+				enable();
 			}
-			
-			index++;
 		}
 		
+	}
+
+
+	private void enable() {
+		isDisabled = false;
+		view.setEnabled(true);
+	}
+
+
+	private void disable() {
+		isDisabled = true;
+		view.setEnabled(false);
 	}
 
 
@@ -284,4 +322,50 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		return module;
 	}
 
+	@Override
+	public String executeCommand(String commandName, List<String> params) {
+		
+		if(commandName.compareTo("enable") == 0){
+			enable();
+		}
+		else if(commandName.compareTo("disable") == 0){
+			disable();
+		}
+		
+		return "";
+	}
+
+
+	@Override
+	public String getName() {
+		return module.getId();
+	}
+
+	
+	public JavaScriptObject getAsJavaScript(){
+		
+		if(jsObject == null){
+			jsObject = initJSObject(this);
+		}
+
+		return jsObject;
+	}
+
+	
+	private native JavaScriptObject initJSObject(ChoicePresenter x) /*-{
+	
+		var presenter = function(){}
+			
+		presenter.disable = function(){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::disable()();
+		}
+			
+		presenter.enable = function(){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::enable()();
+		}
+			
+		return presenter;
+	}-*/;
+	
+	
 }
