@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.0.10';
+        this.VERSION = '1.0.12';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1463,6 +1463,7 @@ function AddonPlot_create(){
     }
 
     presenter.reset = function(){
+		presenter.errorsMode = false;
         presenter._allDoneState = false;
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
@@ -1523,8 +1524,8 @@ function AddonPlot_create(){
         plot.initYMin = plot.yMin;
         plot.initYMax = plot.yMax;
         plot.grid = model['Grid'].toLowerCase() === 'true' ? true : false;
-        plot.gridStepX = parseFloat(model['GridStepX']) || 1;
-        plot.gridStepY = parseFloat(model['GridStepY']) || 1;
+        plot.gridStepX = Math.abs(parseFloat(model['GridStepX'])) || 1;
+        plot.gridStepY = Math.abs(parseFloat(model['GridStepY'])) || 1;
         plot.arrowheadSize = parseInt(model['Arrowhead size']) || 6;
         plot.asymptoteMinimumDY = model['Asymptote DY'] || 5;
         plot.axisValues = model['Axis values'].toLowerCase() === 'true' ? true : false;
