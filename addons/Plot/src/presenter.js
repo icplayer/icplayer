@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.0.10';
+        this.VERSION = '1.0.11';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1463,6 +1463,7 @@ function AddonPlot_create(){
     }
 
     presenter.reset = function(){
+		presenter.errorsMode = false;
         presenter._allDoneState = false;
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
