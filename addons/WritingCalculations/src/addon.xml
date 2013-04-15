@@ -3,5 +3,11 @@
 <addon id='WritingCalculations'>
 	<model>
 		<property name='Value' type='text' />
+        <property name='Signs' type='list'>
+            <property name='Addition' type='string' />
+            <property name='Subtraction' type='string' />
+            <property name='Division' type='string' />
+            <property name='Multiplication' type='string' />
+        </property>
 	</model>
 </addon>

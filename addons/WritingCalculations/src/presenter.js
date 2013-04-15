@@ -32,10 +32,40 @@ function AddonWritingCalculations_create() {
         presenter.array = presenter.convertStringToArray(model.Value);
         presenter.$view = $(view);
         presenter.model = model;
+        presenter.signs = presenter.readSigns( model['Signs'][0] );
         presenter.createView(presenter.array);
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
     }
+
+    presenter.readSigns = function( signs ) {
+        var properSigns = {};
+        for ( var key in signs ) {
+            if ( signs.hasOwnProperty(key) ) {
+                if ( signs[key] == '' || signs[key] == '<br>' ) {
+                    properSigns[key] = presenter.useDefaultSign( key );
+                } else {
+                    properSigns[key] = signs[key];
+                }
+            }
+        }
+        return properSigns;
+    };
+
+    presenter.useDefaultSign = function( key ) {
+        if (key == 'Addition') {
+            return "\\(+\\)";
+        }
+        if (key == 'Subtraction') {
+            return "\\(-\\)";
+        }
+        if (key == 'Division') {
+            return "\\(\\big)\\)";
+        }
+        if (key == 'Multiplication') {
+            return "\\(\\times\\)";
+        }
+    };
 
     presenter.setContainerWidth = function() {
         var viewWrapper = this.$view.find("#writing-calculations-wrapper");
@@ -201,16 +231,16 @@ function AddonWritingCalculations_create() {
 
     presenter.convertLaTeX = function (value) {
         if (value === "*") {
-            value = "\\times";
+            return presenter.signs['Multiplication'];
         }
-        else if (value === ":") {
-            value = "\\div";
+        else if (value === ":" || value === ")") {
+            return presenter.signs['Division'];
         }
-        else {
-            return value;
+        else if (value === "+") {
+            return presenter.signs['Addition'];
+        } else if (value === "-") {
+            return presenter.signs['Subtraction'];
         }
-        value = MathJax.HTML.Element("div", {id: "MathDiv"}, ["\\(" + value + "\\)"]);
-        return value;
     };
 
     presenter.getElementType = function(element) {

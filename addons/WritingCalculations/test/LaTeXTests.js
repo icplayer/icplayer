@@ -1,44 +1,45 @@
 TestCase("LaTeX Methods Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
+        this.presenter.signs = {
+            'Multiplication' : '\\(\\times\\)',
+            'Division' : '\\(\\big)\\)',
+            'Addition' : '\\(\\+\\)'
+        }
     },
 
     'test convertLaTeX method for multiplication': function() {
         // Given
-        var expectedElementID = "MathDiv";
         var expectedConvertedValue = "\\(\\times\\)";
 
         // When
-        var element = this.presenter.convertLaTeX("*");
+        var value = this.presenter.convertLaTeX("*");
 
         // Then
-        assertEquals("", expectedElementID, $(element).attr("id"));
-        assertEquals("", expectedConvertedValue, $(element).last().html())
+        assertEquals("", expectedConvertedValue, value);
     },
 
     'test convertLaTeX method for division': function() {
         // Given
-        var expectedElementID = "MathDiv";
-        var expectedConvertedValue = "\\(\\div\\)";
+        var expectedConvertedValue = "\\(\\big)\\)";
 
         // When
-        var element = this.presenter.convertLaTeX(":");
+        var value1 = this.presenter.convertLaTeX(":");
+        var value2 = this.presenter.convertLaTeX(")");
 
         // Then
-        assertEquals("", expectedElementID, $(element).attr("id"));
-        assertEquals("", expectedConvertedValue, $(element).last().html())
+        assertEquals("", expectedConvertedValue, value1);
+        assertEquals("", expectedConvertedValue, value2);
     },
 
     'test convertLaTeX method for others': function() {
         // Given
-        var expectedElementID = undefined;
-        var expectedValue = "a";
+        var expectedValue = "\\(\\+\\)";
 
         // When
-        var element = this.presenter.convertLaTeX("a");
+        var value = this.presenter.convertLaTeX("+");
 
         // Then
-        assertEquals("", expectedElementID, $(element).attr("id"));
-        assertEquals("", expectedValue, element);
+        assertEquals("", expectedValue, value);
     }
 });
