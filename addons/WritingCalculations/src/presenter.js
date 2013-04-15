@@ -16,6 +16,23 @@ function AddonWritingCalculations_create() {
         "DOT" : 6
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeSigns(model);
+    };
+
+    presenter.upgradeSigns = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        upgradedModel['Signs'] = new Array();
+        upgradedModel['Signs'][0]  = {
+            'Addition' : '',
+            'Subtraction' : '',
+            'Division' : '',
+            'Multiplication' : ''
+        };
+        return upgradedModel;
+    };
+
     presenter.ERROR_MESSAGES = {
         "OUT_OF_RANGE" : "Number between brackets must be from 0 to 9"
     };
@@ -31,7 +48,7 @@ function AddonWritingCalculations_create() {
     function presenterLogic(view, model) {
         presenter.array = presenter.convertStringToArray(model.Value);
         presenter.$view = $(view);
-        presenter.model = model;
+        presenter.model = presenter.upgradeModel(model);
         presenter.signs = presenter.readSigns( model['Signs'][0] );
         presenter.createView(presenter.array);
         presenter.bindValueChangeEvent();
