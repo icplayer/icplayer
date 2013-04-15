@@ -372,7 +372,8 @@ function Addonvideo_create() {
         return JSON.stringify({
             currentTime : this.video.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
-            isPaused: isPaused
+            isPaused: isPaused,
+            currentMovie: this.currentMovie
         });
     };
 
@@ -385,6 +386,8 @@ function Addonvideo_create() {
         if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
             presenter.setVisibility(this.isCurrentlyVisible);
         }
+
+        this.currentMovie = state.currentMovie;
         this.reload();
 
         $(this.video).on('canplay', function() {

@@ -18,23 +18,24 @@ SetGetStateTests.prototype.testGetState = function() {
     var stateString = this.presenter.getState();
 
     // Then
-    assertEquals('{\"currentTime\":0,\"isCurrentlyVisible\":false,\"isPaused\":true}', stateString);
+    assertEquals('{\"currentTime\":0,\"isCurrentlyVisible\":false,\"isPaused\":true,\"currentMovie\":1}', stateString);
 };
 
 SetGetStateTests.prototype.testSetState = function() {
     // Given
-    var stateString = '{\"currentTime\":12,\"isCurrentlyVisible\":true,\"isPaused\":false}';
+    var stateString = '{\"currentTime\":0,\"isCurrentlyVisible\":true,\"isPaused\":true,\"currentMovie\":0}';
 
     // When
     this.presenter.setState(stateString);
 
     // Then
     assertEquals(true, this.presenter.isCurrentlyVisible);
+    assertEquals(0, this.presenter.currentMovie);
 };
 
 SetGetStateTests.prototype.testSetStateSetVisibilityCalledProperly = function() {
     // Given
-    var stateString = '{\"currentTime\":12,\"isCurrentlyVisible\":true,\"isPaused\":false}';
+    var stateString = '{\"currentTime\":12,\"isCurrentlyVisible\":true,\"isPaused\":false,\"currentMovie\":0}';
 
     // When
     this.presenter.setState(stateString);
@@ -46,7 +47,7 @@ SetGetStateTests.prototype.testSetStateSetVisibilityCalledProperly = function() 
 SetGetStateTests.prototype.testSetStateSetVisibilityCalledProperlyIfViewIsHidden = function() {
     // Given
     this.presenter.$view.css('visibility', 'hidden');
-    var stateString = '{\"currentTime\":12,\"isCurrentlyVisible\":true,\"isPaused\":false}';
+    var stateString = '{\"currentTime\":12,\"isCurrentlyVisible\":true,\"isPaused\":false,\"currentMovie\":0}';
 
     // When
     this.presenter.setState(stateString);
