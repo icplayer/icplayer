@@ -45,7 +45,6 @@ function Addontext_identification_create(){
 
     presenter.clickHandler = function () {
         if (presenter.configuration.isErrorCheckMode) return;
-
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
         presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
         presenter.executeUserEventCode();
@@ -54,7 +53,6 @@ function Addontext_identification_create(){
 
     function handleMouseActions() {
         var $element = viewContainer.find('div.text-identification-container');
-
         $element.hover(
             function() {
                 if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
@@ -120,7 +118,7 @@ function Addontext_identification_create(){
         viewContainer.append(container);
         presenter.centerElements(text, container);
 
-        if (isPreview) handleMouseActions();
+        if (!isPreview) handleMouseActions();
     }
 
     presenter.setPlayerController = function (controller) {
