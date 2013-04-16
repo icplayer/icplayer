@@ -11,6 +11,7 @@ var ice_dictionary = {
 	"check_answers" : "Check answers",
 	"reset" : "Reset",
 	"edit_css" : "Edit CSS",
+	"preferences" : "Preferences",
 	"save_strong" : "<strong>Save</strong>",
 	"cancel" : "Cancel",
 	"editor_tips" : "Tip: Ctrl-F: Find, Ctrl-G: Find next",
