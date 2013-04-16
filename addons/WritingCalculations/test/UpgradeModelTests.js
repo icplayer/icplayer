@@ -27,3 +27,16 @@ UpgradeModelTests.prototype.testUpgradeSigns = function() {
     assertEquals(expectedModelAfterUpgradeSigns, upgradedModel);
     assertNotEquals(this.model, upgradedModel); // Ensure that changes were made on copy
 };
+
+UpgradeModelTests.prototype.testUpgradeSignsWhenSignsAreAlreadyHere = function() {
+    this.model['Signs'] = [{
+        'Addition' : 'a',
+        'Subtraction' : 'b',
+        'Division' : 'c',
+        'Multiplication' : 'd'
+    }];
+
+    var upgradedModel = this.presenter.upgradeSigns(this.model);
+
+    assertEquals(this.model, upgradedModel);
+};

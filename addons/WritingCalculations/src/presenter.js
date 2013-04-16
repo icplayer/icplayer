@@ -21,15 +21,16 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.upgradeSigns = function (model) {
+        if ('Signs' in model) return model;
+
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
-        upgradedModel['Signs'] = new Array();
-        upgradedModel['Signs'][0]  = {
+        upgradedModel['Signs'] = [{
             'Addition' : '',
             'Subtraction' : '',
             'Division' : '',
             'Multiplication' : ''
-        };
+        }];
         return upgradedModel;
     };
 
@@ -49,7 +50,7 @@ function AddonWritingCalculations_create() {
         presenter.array = presenter.convertStringToArray(model.Value);
         presenter.$view = $(view);
         presenter.model = presenter.upgradeModel(model);
-        presenter.signs = presenter.readSigns( model['Signs'][0] );
+        presenter.signs = presenter.readSigns( presenter.model['Signs'][0] );
         presenter.createView(presenter.array);
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
