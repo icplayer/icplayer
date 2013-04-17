@@ -147,8 +147,8 @@ function AddonGlossary_create(){
         var dialogData = presenter.getDialogDataById(id);
         dialog.dialog("option", "title", dialogData.title);
         presenter.addDescription(dialog, dialogData.description);
-        presenter.updateLaTeX(dialogData.description);
         dialog.dialog("open");
+        presenter.updateLaTeX(dialogData.description);
     };
 
     presenter.initializeView = function(view, model) {
