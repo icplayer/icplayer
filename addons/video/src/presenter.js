@@ -624,6 +624,24 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.play = function () {
+        if (this.video.paused)
+        this.video.play();
+    };
+
+    presenter.stop = function () {
+        if (!this.video.paused) {
+            presenter.seek(0); // sets the current time to 0
+            this.video.pause();
+        }
+    };
+
+    presenter.pause = function () {
+        if (!this.video.paused) {
+            this.video.pause();
+        }
+    };
+
     presenter.jumpToIDCommand = function (params) {
         presenter.jumpToID(params[0]);
     };
