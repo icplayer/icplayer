@@ -206,10 +206,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 		if(!isVisible){
-			hide();
+			view.hide();
 		}
 		else{
-			show();
+			view.show();
 		}
 	}
 	
