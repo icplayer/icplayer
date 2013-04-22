@@ -559,7 +559,9 @@ function Addonvideo_create() {
             'previous': presenter.previous,
             'jumpTo': presenter.jumpToCommand,
             'jumpToID': presenter.jumpToIDCommand,
-            'seek': presenter.seekCommand
+            'seek': presenter.seekCommand,
+            'play' : presenter.play,
+            'stop' : presenter.stop
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -625,8 +627,7 @@ function Addonvideo_create() {
     };
 
     presenter.play = function () {
-        if (this.video.paused)
-        this.video.play();
+        if (this.video.paused) this.video.play();
     };
 
     presenter.stop = function () {
