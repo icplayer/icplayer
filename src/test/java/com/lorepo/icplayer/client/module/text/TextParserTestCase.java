@@ -376,6 +376,21 @@ public class TextParserTestCase {
 		assertEquals(2, parsed.gapInfos.size());
 
 	}
+
+	@Test
+	public void testGap3() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\gap{1:answer1|}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.gapInfos.size());
+
+		GapInfo gi = parsed.gapInfos.get(0);
+		assertTrue(gi.isCorrect("1:answer1"));
+	}
 	
 	
 	@Test
