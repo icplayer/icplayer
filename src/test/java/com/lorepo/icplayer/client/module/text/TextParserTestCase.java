@@ -434,4 +434,15 @@ public class TextParserTestCase {
 		assertEquals("This is \\(\\cfrac{{1}}{10^4}\\) not a gap", parsed.parsedText);
 	}
 
+	@Test
+	public void skipGaps() {
+		
+		TextParser parser = new TextParser();
+		parser.skipGaps();
+		String srcText ="This is {{2:ala}} and \\def{słówko1}";
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.linkInfos.size());
+		assertTrue(parsed.parsedText.indexOf("{{2:ala}}") > 0);
+	}
 }
