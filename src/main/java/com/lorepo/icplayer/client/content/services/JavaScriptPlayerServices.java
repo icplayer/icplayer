@@ -291,6 +291,7 @@ public class JavaScriptPlayerServices{
 	private String parseText(String text){
 
 		TextParser parser = new TextParser();
+		parser.skipGaps();
 		ParserResult result = parser.parse(text);
 		return result.parsedText;
 	}

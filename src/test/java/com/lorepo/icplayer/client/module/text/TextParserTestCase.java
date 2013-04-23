@@ -376,6 +376,21 @@ public class TextParserTestCase {
 		assertEquals(2, parsed.gapInfos.size());
 
 	}
+
+	@Test
+	public void testGap3() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\gap{1:answer1|}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.gapInfos.size());
+
+		GapInfo gi = parsed.gapInfos.get(0);
+		assertTrue(gi.isCorrect("1:answer1"));
+	}
 	
 	
 	@Test
@@ -434,4 +449,15 @@ public class TextParserTestCase {
 		assertEquals("This is \\(\\cfrac{{1}}{10^4}\\) not a gap", parsed.parsedText);
 	}
 
+	@Test
+	public void skipGaps() {
+		
+		TextParser parser = new TextParser();
+		parser.skipGaps();
+		String srcText ="This is {{2:ala}} and \\def{słówko1}";
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.linkInfos.size());
+		assertTrue(parsed.parsedText.indexOf("{{2:ala}}") > 0);
+	}
 }

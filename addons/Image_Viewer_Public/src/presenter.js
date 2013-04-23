@@ -366,6 +366,10 @@ function AddonImage_Viewer_Public_create() {
                 height: elementHeight + 'px',
                 backgroundImage: "url('" + presenter.configuration.imageSrc + "')"
             });
+            presenter.$elementHelper.css({
+                width: elementWidth + 'px',
+                height: elementHeight + 'px',
+            });
 
             if (backgroundSize) {
                 $(presenter.$element).css('background-size', backgroundSize);
@@ -526,6 +530,7 @@ function AddonImage_Viewer_Public_create() {
         presenter.model = model;
         presenter.preview = preview;
         presenter.$element = $(presenter.$view.find('.image-viewer:first')[0]);
+        presenter.$elementHelper = $(presenter.$view.find('.image-viewer-helper:first')[0]);
         loadingScreen.element = presenter.$view.find('.image-viewer-loading-image:first')[0];
         watermarkElement = presenter.$view.find('.image-viewer-watermark:first')[0];
 

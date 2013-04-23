@@ -30,6 +30,7 @@ public class TextParser {
 	private boolean useDraggableGaps = false;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
+	private boolean skipGaps = false;
 	
 	private HashMap<String, String>	variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -61,9 +62,14 @@ public class TextParser {
 
 		try{
 			srcText = srcText.replaceAll("\\s+", " ");
-			parserResult.parsedText = parseGaps(srcText);
-			parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
-			parserResult.parsedText = parseLinks(parserResult.parsedText);
+			if(!skipGaps){
+				parserResult.parsedText = parseGaps(srcText);
+				parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
+				parserResult.parsedText = parseLinks(parserResult.parsedText);
+			}
+			else{
+				parserResult.parsedText = parseLinks(srcText);
+			}
 			parserResult.parsedText = parseDefinitions(parserResult.parsedText);
 		}
 		catch(Exception e){
@@ -418,6 +424,11 @@ public class TextParser {
 		
 		output += input;
 		return output;
+	}
+
+
+	public void skipGaps() {
+		skipGaps = true;
 	}
 
 	
