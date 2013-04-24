@@ -57,6 +57,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Page_Counter", "Page Counter", "Navigation");
 		addDescriptor("Page_Name", "Page Name", "Navigation");
 		addDescriptor("Plot", "Plot", "Activities");
+		addDescriptor("Points_To_Plot", "Points To Plot", "Activities");
 		addDescriptor("Puzzle", "Puzzle", "Activities");
 		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
 		addDescriptor("Slider", "Slider", "Scripting");
