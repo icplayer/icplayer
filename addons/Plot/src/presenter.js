@@ -1199,7 +1199,26 @@ function AddonPlot_create(){
             });
             return state;
         }
+        this.isPointOnPlot = function(pid, x, y) {
+            var ry;
+            var isCorrect = false;
+            $.each(this.expressions, function(idx, val) {
+                if (val.id == pid) {
+                    var variables = plot._mapPlotVariables(idx);
+                    variables.x = x;
+                    try {
+                        ry = Parser.evaluate(plot.expressions[idx].expression, variables);
+                    } catch (e) {
+                        return false;
+                    }
 
+                    isCorrect = ry == y;
+                    return false;
+                }
+            });
+
+            return isCorrect;
+        };
         //state 1 - point was selected, 0 - deselected
         this.isCorrectPoint = function(vx, vy, state) {
             var currentState = false;
