@@ -505,8 +505,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for(InlineChoiceInfo choice : module.getChoiceInfos()){
 			if(choice.getId().compareTo(itemID) == 0){
 				String enteredValue = getElementText(choice.getId());
-				if(choice.getAnswer().compareToIgnoreCase(enteredValue) == 0){
-					score = choice.getValue();
+				if(module.isCaseSensitive()){
+					if(choice.getAnswer().compareTo(enteredValue) == 0){
+						score = choice.getValue();
+					}
+				}
+				else{
+					if(choice.getAnswer().compareToIgnoreCase(enteredValue) == 0){
+						score = choice.getValue();
+					}
 				}
 				break;
 			}

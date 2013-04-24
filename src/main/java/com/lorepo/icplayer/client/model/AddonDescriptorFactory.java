@@ -39,7 +39,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Event_Listener", "Event Listener", "Others");
 		addDescriptor("Event_Sender", "Event Sender", "Others");
 		addDescriptor("feedback", "Feedback", "Scripting");
-		addDescriptor("Glossary", "Glossary", "Activities");
+		addDescriptor("Glossary", "Glossary", "Media");
 		addDescriptor("graph", "Graph", "Activities");
 		addDescriptor("Hangman", "Hangman", "Activities");
 		addDescriptor("Image_Identification", "Image Identification", "Activities");
@@ -62,7 +62,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Slider", "Slider", "Scripting");
 		addDescriptor("Slideshow", "Slideshow", "Media");
 		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
-		addDescriptor("Table", "Table", "Media");
+		addDescriptor("Table", "Table", "Activities");
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 		addDescriptor("text_identification", "Text Identification", "Activities");
 		addDescriptor("TrueFalse", "True False", "Activities");

@@ -15,5 +15,10 @@
 		<property name="Rows height" type="list">
 			<property name="Height" type="string" />
 		</property>
+		<property name="Is not an activity" type="boolean" />
+		<property name="Is disabled" type="boolean" />
+		<property name="Case sensitive" type="boolean" />
+		<property name="Ignore punctuation" type="boolean" />
+		<property name="Gap width" type="string" />
 	</model>
 </addon>

@@ -3,6 +3,7 @@ TestCase("Model validation", {
         this.presenter = AddonTable_create();
 
         this.emptyContentModel = {
+            "ID": 'Table1',
             "Is Visible": "True",
             Rows: "2",
             Columns: "3",
@@ -18,6 +19,7 @@ TestCase("Model validation", {
 
     'test empty configuration': function() {
         var model = {
+            "ID": 'Table1',
             Rows: "",
             Columns: "",
             "Table cells": [{
@@ -41,9 +43,18 @@ TestCase("Model validation", {
         assertNotUndefined(validatedModel.contents);
         assertEquals([ "auto" , "auto" , "auto" ], validatedModel.columnsWidths);
         assertEquals([ "auto" , "auto" ], validatedModel.rowsHeight);
+        assertEquals('Table1', validatedModel.addonID);
 
         assertTrue(validatedModel.isVisible);
         assertTrue(validatedModel.isVisibleByDefault);
+
+        // Properties for gaps
+        assertFalse(validatedModel.isDisabled);
+        assertTrue(validatedModel.isActivity);
+        assertFalse(validatedModel.isCaseSensitive);
+        assertFalse(validatedModel.isPunctuationIgnored);
+        assertEquals({isSet: false, value: undefined}, validatedModel.gapWidth);
+        assertEquals(this.presenter.GAP_TYPE.EDITABLE, validatedModel.gapType);
     },
 
     'test rows error': function() {
@@ -116,5 +127,50 @@ TestCase("Model validation", {
 
         assertFalse(validatedModel.isValid);
         assertEquals('RH_01', validatedModel.errorCode);
+    },
+
+    'test gap width error': function() {
+        this.emptyContentModel["Gap width"] = "gap";
+
+        var validatedModel = this.presenter.validateModel(this.emptyContentModel);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals('GW_01', validatedModel.errorCode);
+    },
+
+    'test gap width set': function() {
+        this.emptyContentModel["Gap width"] = "10";
+
+        var validatedModel = this.presenter.validateModel(this.emptyContentModel);
+
+        assertTrue(validatedModel.isValid);
+        assertNotUndefined(validatedModel.contents);
+        assertEquals([ "auto" , "auto" , "auto" ], validatedModel.columnsWidths);
+        assertEquals([ "auto" , "auto" ], validatedModel.rowsHeight);
+        assertEquals('Table1', validatedModel.addonID);
+
+        assertTrue(validatedModel.isVisible);
+        assertTrue(validatedModel.isVisibleByDefault);
+
+        // Properties for gaps
+        assertFalse(validatedModel.isDisabled);
+        assertTrue(validatedModel.isActivity);
+        assertFalse(validatedModel.isCaseSensitive);
+        assertFalse(validatedModel.isPunctuationIgnored);
+        assertEquals({isSet: true, value: 10}, validatedModel.gapWidth);
+        assertEquals(this.presenter.GAP_TYPE.EDITABLE, validatedModel.gapType);
+    },
+
+    'test is not an activity option selected': function() {
+        this.emptyContentModel["Is not an activity"] = "True";
+
+        var validatedModel = this.presenter.validateModel(this.emptyContentModel);
+
+        assertFalse(validatedModel.isDisabled);
+        assertFalse(validatedModel.isActivity);
+        assertFalse(validatedModel.isCaseSensitive);
+        assertFalse(validatedModel.isPunctuationIgnored);
+        assertEquals({isSet: false, value: undefined}, validatedModel.gapWidth);
+        assertEquals(this.presenter.GAP_TYPE.EDITABLE, validatedModel.gapType);
     }
 });
