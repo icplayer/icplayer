@@ -225,6 +225,7 @@ var ice_dictionary = {
 	"Page_Counter_info": "Allows to add a page counter to a presentation. It can present a current page index and a presentation page count in a normal or reversed order.",
 	"Page_Name_info": "Displays a current page name. Perfect for using in presentation templates.",
 	"Plot_info": "Plot drawing/exercise module allows users to present plots and make plot/points based activities. Plot enables to draw functions f(x) and f(y).",
+	"Points_To_Plot_info": "Addon to plot module. It allows to create exercises based on points to plot relations, eg. check if selected point belongs to plot.",
 	"Puzzle_info": "Allows to insert a puzzle game into a presenttaion. It is enough to upload an image which is later automatically divided into separate items put in rows and columns. A user’s task is to arrange the elements in the right order and make the image whole again.",
 	"Single_State_Button_info": "Allows users to perform various actions in presentations, such as changing other addons' states when the button is selected.",
 	"Slider_info": "Allows to add the slider functionality to an activity. It is possible to either slide an image from one position to another or mouse click on the position that a slider is to be moved to.",
