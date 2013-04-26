@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='SVG2'>
+	<model>
+		<property name='SVG file' type='file' />
+		<property name="Skip aspect ratio" type="boolean" />
+	</model>
+</addon>
