@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.0.12';
+        this.VERSION = '1.1.0';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1198,8 +1198,27 @@ function AddonPlot_create(){
                 }
             });
             return state;
-        }
+        };
+        this.isPointOnPlot = function(pid, x, y) {
+            var ry;
+            var isCorrect = false;
+            $.each(this.expressions, function(idx, val) {
+                if (val.id == pid) {
+                    var variables = plot._mapPlotVariables(idx);
+                    variables.x = x;
+                    try {
+                        ry = Parser.evaluate(plot.expressions[idx].expression, variables);
+                    } catch (e) {
+                        return false;
+                    }
 
+                    isCorrect = ry == y;
+                    return false;
+                }
+            });
+
+            return isCorrect;
+        };
         //state 1 - point was selected, 0 - deselected
         this.isCorrectPoint = function(vx, vy, state) {
             var currentState = false;
@@ -1268,7 +1287,6 @@ function AddonPlot_create(){
     }
 
     var presenter = function(){};
-    var playerController;
     var eventBus; // Modules communication
     var addonID;
     var plot = new Plot();
@@ -1288,13 +1306,23 @@ function AddonPlot_create(){
                 plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').removeClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
             }
         });
+        this.removePointsStateMarks();
+        plot.enableUI(true);
+    };
+    presenter.removePointsStateMarks = function() {
         plot.svgDoc.find('.point_error').removeClass('point_error');
         plot.svgDoc.find('.point_outline_mark_error').removeClass('point_outline_mark_error');
         plot.svgDoc.find('.point_correct').removeClass('point_correct');
         plot.svgDoc.find('.point_outline_mark_correct').removeClass('point_outline_mark_correct');
-        plot.enableUI(true);
-    }
-
+    };
+    presenter.markPointAsError = function(x, y) {
+        plot.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]').addClass('point_error');
+        plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('point_outline_mark_error');
+    };
+    presenter.markPointAsCorrect = function(x, y) {
+        plot.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]').addClass('point_correct');
+        plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('point_outline_mark_correct');
+    };
     presenter.setShowErrorsMode = function() {
         if(!presenter.isActivity) {
             return;
@@ -1332,12 +1360,10 @@ function AddonPlot_create(){
             if(val.notScored === false) {
                 if(!val.correct && res && val.touched) {
                     //mark wrong
-                    plot.svgDoc.find('.point[vx="'+val.x+'"][vy="'+val.y+'"]').addClass('point_error');
-                    plot.svgDoc.find('.point_outline_base[vx="'+val.x+'"][vy="'+val.y+'"]').addClass('point_outline_mark_error');
+                    presenter.markPointAsError(val.x, val.y);
                 } else if(val.correct && res && val.touched) {
                     //mark correct
-                    plot.svgDoc.find('.point[vx="'+val.x+'"][vy="'+val.y+'"]').addClass('point_correct');
-                    plot.svgDoc.find('.point_outline_base[vx="'+val.x+'"][vy="'+val.y+'"]').addClass('point_outline_mark_correct');
+                    presenter.markPointAsCorrect(val.x, val.y);
                 }
             }
 
@@ -1345,11 +1371,9 @@ function AddonPlot_create(){
 
         //check excess points
         $.each(plot.selectedPoints, function(idx, val) {
-            //var res = $.grep(plot.points, function(e){ return e.x == plot.selectedPoints[p].x && e.y == plot.selectedPoints[p].y; }); - doesn't work on galaxy tab
             res = presenter.grepPoints(plot.points, val);
             if(!res) {
-                plot.svgDoc.find('.point[vx="'+val.x+'"][vy="'+val.y+'"]').addClass('point_error');
-                plot.svgDoc.find('.point_outline_base[vx="'+val.x+'"][vy="'+val.y+'"]').addClass('point_outline_mark_error');
+                presenter.markPointAsError(val.x, val.y);
             }
         });
     }
@@ -1463,7 +1487,7 @@ function AddonPlot_create(){
     }
 
     presenter.reset = function(){
-		presenter.errorsMode = false;
+        presenter.errorsMode = false;
         presenter._allDoneState = false;
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
@@ -1489,14 +1513,14 @@ function AddonPlot_create(){
         presenter.model = model;
         presenter._allDoneState = false;
 
-        eventBus = playerController.getEventBus();
+        eventBus = presenter.playerController.getEventBus();
         addonID = model.ID;
 
         presenter.initialize(presenter.view, presenter.model, true);
     };
 
     presenter.setPlayerController = function(controller) {
-        playerController = controller;
+        presenter.playerController = controller;
     };
 
     presenter.updateVisibility = function() {
@@ -1557,7 +1581,6 @@ function AddonPlot_create(){
         plot.pointActiveArea = parseInt(model['Point active area size']) || 10;
         plot.pointRadius = parseInt(model['Point radius']) || 3;
         plot.pointOutlineRadius = parseInt(model['Point outline radius']) || 7;
-        plot.stateChanged = presenter.stateChanged;
 
         for (p in model['Expressions']) {
             if(model['Expressions'][p]['expression'] != '') {
@@ -1635,6 +1658,15 @@ function AddonPlot_create(){
         presenter.isActivity = model['Not activity'] !== undefined && model['Not activity'] != '' && model['Not activity'].toLowerCase() === 'true' ? false : true;
         plot.isActivity = presenter.isActivity;
         plot.freePoints = model['Free points'] !== undefined && model['Free points'] != '' && model['Free points'].toLowerCase() === 'true' ? true : false;
+
+        presenter.broadcast = [];
+        if(model['Broadcast'] !== '' && model['Broadcast'] !== undefined) {
+            var broadcasts = model['Broadcast'].split(',');
+            $.each(broadcasts, function(idx, val) {
+                presenter.broadcast.push(val.trim());
+            });
+        }
+        plot.stateChanged = presenter.stateChanged;
 
         $(view).find('.canvas:first').svg({
             onLoad: presenter.onSvgCreate,
@@ -1757,7 +1789,9 @@ function AddonPlot_create(){
             presenter.setShowErrorsMode();
         }
     };
-
+    presenter.enableUI = function(state) {
+        plot.enableUI(state);
+    };
     presenter.hide = function() {
         $(presenter.view).css('visibility', 'hidden').hide();
         presenter.isVisible = false;
@@ -1866,8 +1900,8 @@ function AddonPlot_create(){
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
-
     presenter.stateChanged = function(data) {
+        var receiver;
         if(data) {
             //chained events when data is array
             if(!(data instanceof Array)) {
@@ -1881,19 +1915,31 @@ function AddonPlot_create(){
                 data[t].item = data[t].item.toString();
                 data[t].value = data[t].value.toString();
                 data[t].score = data[t].score === null ? null : data[t].score.toString();
-                eventBus.sendEvent('ValueChanged', data[t]);
+                //broadcast events or send event to bus
+                if(presenter.broadcast.length > 0) {
+                    $.each(presenter.broadcast, function(idx, broadcastTo) {
+                        receiver = presenter.playerController.getModule(broadcastTo);
+                        if(receiver) {
+                            receiver.onEvent('ValueChanged', data[t]);
+                        }
+                    });
+                } else {
+                    eventBus.sendEvent('ValueChanged', data[t]);
+                }
             }
         }
 
-        if(presenter.isActivity && presenter.isAllOK()) {
-            if(!presenter._allDoneState) {
-                presenter._allDoneState = true;
-                sendAllOKEvent();
+        if(presenter.broadcast.length === 0) {
+            if(presenter.isActivity && presenter.isAllOK()) {
+                if(!presenter._allDoneState) {
+                    presenter._allDoneState = true;
+                    sendAllOKEvent();
+                }
+            } else {
+                presenter._allDoneState = false;
             }
-        } else {
-            presenter._allDoneState = false;
         }
-    }
+    };
 
     function sendAllOKEvent () {
         var eventData = {

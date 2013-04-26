@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Points_To_Plot'>
+	<model>
+		<property name='Source' type='string' isLocalized='false'/>
+		<property name='Points to plot' type='list'>
+			<property name='plot id' type='string' isLocalized='false'/>
+			<property name='points' type='int' isLocalized='false'/>
+			<property name='strict points' type='string' isLocalized='false'/>
+		</property>		
+	</model>
+</addon>

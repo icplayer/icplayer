@@ -34,7 +34,7 @@ function getScorm() {
 
 	scorm.initializeScormCommunication = function(win) {
 		this.getAPI(win);
-		if (initialized == false) {
+		if (initialized == false && API != null) {
 			var result = API.Initialize("");
 			if (result == "true") {
 				initialized = true;
@@ -88,6 +88,41 @@ function getScorm() {
 		return false;
 	}
 
+	scorm.setPageName = function(page, name) {
+		if (initialized == true) {
+			return API.SetValue("cmi.objectives." + page + ".id", name);
+		}
+		return false;
+	}
+	
+	scorm.setPageMinScore = function(page, score) {
+		if (initialized == true) {
+			return API.SetValue("cmi.objectives." + page + ".score.min", score);
+		}
+		return false;
+	}
+
+	scorm.setPageMaxScore = function(page, score) {
+		if (initialized == true) {
+			return API.SetValue("cmi.objectives." + page + ".score.max", score);
+		}
+		return false;
+	}
+
+	scorm.setPageRawScore = function(page, score) {
+		if (initialized == true) {
+			return API.SetValue("cmi.objectives." + page + ".score.raw", score);
+		}
+		return false;
+	}
+
+	scorm.setPageScaledScore = function(page, score) {
+		if (initialized == true) {
+			return API.SetValue("cmi.objectives." + page + ".score.scaled", score);
+		}
+		return false;
+	}
+	
 	scorm.setCompleted = function() {
 		if (initialized == true) {
 			return API.SetValue("cmi.completion_status", "completed");

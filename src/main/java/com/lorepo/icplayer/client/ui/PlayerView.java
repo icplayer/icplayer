@@ -27,6 +27,7 @@ public class PlayerView extends VerticalPanel{
 		
 		waitDlg = new WaitDialog();
 		pageView = new PageView();
+		pageView.addStyleName("ic_mainPage");
 		add(pageView);
 	}
 	
@@ -34,12 +35,14 @@ public class PlayerView extends VerticalPanel{
 	public void showHeader(){
 		
 		headerView = new PageView();
+		headerView.addStyleName("ic_header");
 		insert(headerView, 0);
 	}
 	
 	public void showFooter(){
 		
 		footerView = new PageView();
+		footerView.addStyleName("ic_footer");
 		add(footerView);
 	}
 	
@@ -65,6 +68,7 @@ public class PlayerView extends VerticalPanel{
 			add(view);
 		}
 		pageView = view;
+		pageView.addStyleName("ic_mainPage");
 	}
 
 

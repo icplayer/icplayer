@@ -49,25 +49,6 @@ public class ModuleListTestCase {
 	
 
 	@Test
-	public void moveDown() {
-		
-		ModuleList modules = new ModuleList();
-		ShapeModule module = new ShapeModule();
-		
-		modules.add(new ShapeModule());
-		modules.add(new ShapeModule());
-		modules.add(module);
-		modules.add(new ShapeModule());
-		modules.add(new ShapeModule());
-
-		modules.moveModuleDown(module);
-		IModuleModel foundModule = modules.get(3);
-		
-		assertEquals(foundModule, module);
-	}
-	
-
-	@Test
 	public void moveUp() {
 		
 		ModuleList modules = new ModuleList();
@@ -80,6 +61,25 @@ public class ModuleListTestCase {
 		modules.add(new ShapeModule());
 
 		modules.moveModuleUp(module);
+		IModuleModel foundModule = modules.get(3);
+		
+		assertEquals(foundModule, module);
+	}
+	
+
+	@Test
+	public void moveDown() {
+		
+		ModuleList modules = new ModuleList();
+		ShapeModule module = new ShapeModule();
+		
+		modules.add(new ShapeModule());
+		modules.add(new ShapeModule());
+		modules.add(module);
+		modules.add(new ShapeModule());
+		modules.add(new ShapeModule());
+
+		modules.moveModuleDown(module);
 		IModuleModel foundModule = modules.get(1);
 		
 		assertEquals(foundModule, module);

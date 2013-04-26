@@ -57,11 +57,13 @@ public class AddonDescriptorFactory {
 		addDescriptor("Page_Counter", "Page Counter", "Navigation");
 		addDescriptor("Page_Name", "Page Name", "Navigation");
 		addDescriptor("Plot", "Plot", "Activities");
+		addDescriptor("Points_To_Plot", "Points To Plot", "Activities");
 		addDescriptor("Puzzle", "Puzzle", "Activities");
 		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
 		addDescriptor("Slider", "Slider", "Scripting");
 		addDescriptor("Slideshow", "Slideshow", "Media");
 		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
+		addDescriptor("SVG2", "SVG", "Media");
 		addDescriptor("Table", "Table", "Activities");
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 		addDescriptor("text_identification", "Text Identification", "Activities");
