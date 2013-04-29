@@ -4,14 +4,21 @@ function AddonParagraph_create() {
     var myEditor;
 
     presenter.createPreview = function (view, model) {
-    	$('.paragraph_field').css('height', model['Height'] + 'px');
-    	$('.paragraph_field').css('width', model['Width'] + 'px');
+    	$(view).find('.paragraph_field').css('height', model['Height'] + 'px');
+    	$(view).find('.paragraph_field').css('width', model['Width'] + 'px');
     };
 
     presenter.onInit = function() {
     	myEditor = tinymce.activeEditor.id;
     }
 
+    /**
+     * Initialize the addon.
+     * For now the height is set to addon height minus 37 which is TinyMCE toolbar height.
+     * It was not possible to get that value in easy and dynamic way and it didn't make sense
+     * for prototype purpose. Also the set of controls is static and it coulde be moved to
+     * configuration.
+     */
     presenter.run = function (view, model) {
     	tinymce.init({
     		selector : '.paragraph_field',
