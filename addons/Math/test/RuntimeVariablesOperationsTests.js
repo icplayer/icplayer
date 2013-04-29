@@ -37,6 +37,8 @@ TestCase("Runtime variable conversion", {
                         return '12';
                     case '3':
                         return '2a';
+                    case '4':
+                        return '2,2';
                     default:
                         return "[error]";
                 }
@@ -48,6 +50,8 @@ TestCase("Runtime variable conversion", {
                         return '10';
                     case '2':
                         return '3b';
+                    case '3':
+                        return '3.1';
                     default:
                         return "[error]"
                 }
@@ -66,41 +70,70 @@ TestCase("Runtime variable conversion", {
     },
 
     'test convert variables from existing modules': function () {
-        assertNumber(this.presenter.convertVariable('Text1.1'));
-        assertEquals(1, this.presenter.convertVariable('Text1.1'));
+        assertNumber(this.presenter.convertVariable('Text1.1', false, undefined));
+        assertEquals(1, this.presenter.convertVariable('Text1.1', false, undefined));
 
-        assertNumber(this.presenter.convertVariable('Text1.2'));
-        assertEquals('12', this.presenter.convertVariable('Text1.2'));
+        assertNumber(this.presenter.convertVariable('Text1.2', false, undefined));
+        assertEquals('12', this.presenter.convertVariable('Text1.2', false, undefined));
 
-        assertString(this.presenter.convertVariable('Text1.3'));
-        assertEquals('2a', this.presenter.convertVariable('Text1.3'));
+        assertString(this.presenter.convertVariable('Text1.3', false, undefined));
+        assertEquals('2a', this.presenter.convertVariable('Text1.3', false, undefined));
 
-        assertNumber(this.presenter.convertVariable('Text2.1'));
-        assertEquals('10', this.presenter.convertVariable('Text2.1'));
+        assertString(this.presenter.convertVariable('Text1.4', false, undefined));
+        assertEquals('2,2', this.presenter.convertVariable('Text1.4', false, undefined));
 
-        assertString(this.presenter.convertVariable('Text2.2'));
-        assertEquals('3b', this.presenter.convertVariable('Text2.2'));
+        assertNumber(this.presenter.convertVariable('Text2.1', false, undefined));
+        assertEquals('10', this.presenter.convertVariable('Text2.1', false, undefined));
 
-        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.1'));
-        assertEquals('1', this.presenter.convertVariable('Text.with.multiple.dots.1'));
+        assertString(this.presenter.convertVariable('Text2.2', false, undefined));
+        assertEquals('3b', this.presenter.convertVariable('Text2.2', false, undefined));
 
-        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.2'));
-        assertEquals('12', this.presenter.convertVariable('Text.with.multiple.dots.2'));
+        assertNumber(this.presenter.convertVariable('Text2.3', false, undefined));
+        assertEquals(3.1, this.presenter.convertVariable('Text2.3', false, undefined));
 
-        assertString(this.presenter.convertVariable('Text.with.multiple.dots.3'));
-        assertEquals('2a', this.presenter.convertVariable('Text.with.multiple.dots.3'));
+        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.1', false, undefined));
+        assertEquals('1', this.presenter.convertVariable('Text.with.multiple.dots.1', false, undefined));
+
+        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.2', false, undefined));
+        assertEquals('12', this.presenter.convertVariable('Text.with.multiple.dots.2', false, undefined));
+
+        assertString(this.presenter.convertVariable('Text.with.multiple.dots.3', false, undefined));
+        assertEquals('2a', this.presenter.convertVariable('Text.with.multiple.dots.3', false, undefined));
+    },
+
+    'test convert variables from existing modules with not standard decimal separator': function () {
+        assertNumber(this.presenter.convertVariable('Text1.1', true, ","));
+        assertEquals(1, this.presenter.convertVariable('Text1.1', true, ","));
+
+        assertNumber(this.presenter.convertVariable('Text1.2', true, ","));
+        assertEquals('12', this.presenter.convertVariable('Text1.2', true, ","));
+
+        assertString(this.presenter.convertVariable('Text1.3', true, ","));
+        assertEquals('2a', this.presenter.convertVariable('Text1.3', true, ","));
+
+        assertNumber(this.presenter.convertVariable('Text1.4', true, ","));
+        assertEquals(2.2, this.presenter.convertVariable('Text1.4', true, ","));
+
+        assertNumber(this.presenter.convertVariable('Text2.1', true, ","));
+        assertEquals('10', this.presenter.convertVariable('Text2.1', true, ","));
+
+        assertString(this.presenter.convertVariable('Text2.2', true, ","));
+        assertEquals('3b', this.presenter.convertVariable('Text2.2', true, ","));
+
+        assertNumber(this.presenter.convertVariable('Text2.3', true, ","));
+        assertEquals(3.1, this.presenter.convertVariable('Text2.3', true, ","));
     },
 
     'test convert variables for not existing modules': function () {
-        assertUndefined(this.presenter.convertVariable('Text1.4'));
-        assertUndefined(this.presenter.convertVariable('Text2.3'));
-        assertUndefined(this.presenter.convertVariable('Text3.1'));
+        assertUndefined(this.presenter.convertVariable('Text1.5', false, undefined));
+        assertUndefined(this.presenter.convertVariable('Text2.4', false, undefined));
+        assertUndefined(this.presenter.convertVariable('Text3.1', false, undefined));
     },
 
     'test gap identifier invalid': function () {
-        assertUndefined(this.presenter.convertVariable('Text4'));
-        assertUndefined(this.presenter.convertVariable('.3'));
-        assertUndefined(this.presenter.convertVariable('Text3.'));
+        assertUndefined(this.presenter.convertVariable('Text4', false, undefined));
+        assertUndefined(this.presenter.convertVariable('.3', false, undefined));
+        assertUndefined(this.presenter.convertVariable('Text3.', false, undefined));
     }
 });
 
