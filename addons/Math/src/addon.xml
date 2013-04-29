@@ -4,6 +4,7 @@
 	<model>
 		<property name='Variables' type='text' />
 		<property name="Expressions" type="text" />
+		<property name="Decimal separator" type="string" />
 		<property name="onCorrect" type="event" />
 		<property name="onIncorrect" type="event" />
 		<property name="onPartiallyCompleted" type="event" />
