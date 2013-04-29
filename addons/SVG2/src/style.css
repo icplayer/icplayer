@@ -1,0 +1,14 @@
+.addon_SVG2 .errorContainer {
+    border: 1px dotted red;
+    display: none;
+}
+.addon_SVG2 .svgContainer {
+    border: 1px dotted lightgray;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+.addon_SVG2 .errorContainer .message{
+    padding: 5px;
+    color: red;
+}

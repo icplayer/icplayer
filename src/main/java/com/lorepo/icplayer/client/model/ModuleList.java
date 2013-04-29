@@ -118,7 +118,7 @@ public class ModuleList extends ArrayList<IModuleModel> {
 	}
 	
 	
-	public void moveModuleUp(IModuleModel module) {
+	public void moveModuleDown(IModuleModel module) {
 
 		int index = indexOf(module);
 		if(index > 0){
@@ -130,7 +130,7 @@ public class ModuleList extends ArrayList<IModuleModel> {
 	}
 
 	
-	public void moveModuleDown(IModuleModel module) {
+	public void moveModuleUp(IModuleModel module) {
 
 		int index = indexOf(module);
 		if(index < size()-1){
