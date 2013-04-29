@@ -4,8 +4,8 @@ function AddonParagraph_create() {
     var myEditor;
 
     presenter.createPreview = function (view, model) {
-    	$('#paragraph_field').css('height', model['Height'] + 'px');
-    	$('#paragraph_field').css('width', model['Width'] + 'px');
+    	$('.paragraph_field').css('height', model['Height'] + 'px');
+    	$('.paragraph_field').css('width', model['Width'] + 'px');
     };
 
     presenter.onInit = function() {
