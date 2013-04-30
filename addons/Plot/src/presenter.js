@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.0';
+        this.VERSION = '1.1.1';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1145,12 +1145,12 @@ function AddonPlot_create(){
                 }
             }
         }
-        this.setPlotStyle = function(id, type, prop, val) {
+        this.setPlotStyle = function(id, type, prop, value) {
             if(id != '') {
                 $.each(this.expressions, function(idx, val) {
                     if(val.id == id) {
                         if(type == 'plot' && (prop == 'color' || prop == 'stroke')) {
-                            val.cssColor = val;
+                            val.cssColor = value;
                             //remove existing plot
                             plot.removePlot(idx);
                             //show plot

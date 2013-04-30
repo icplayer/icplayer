@@ -409,7 +409,12 @@ public class TextParser {
 				input = input.substring(matchResult.getIndex()+group.length());
 				String expression = group.substring(5, group.length()-1);
 				
-				replaceText = link2Anchor(expression + "|" + expression, LinkType.DEFINITION);
+				if(expression.indexOf("|") > 0){
+					replaceText = link2Anchor(expression, LinkType.DEFINITION);
+				}
+				else{
+					replaceText = link2Anchor(expression + "|" + expression, LinkType.DEFINITION);
+				}
 
 				if(replaceText == null){
 					replaceText = "#ERR#";

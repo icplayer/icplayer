@@ -419,6 +419,20 @@ public class TextParserTestCase {
 		assertTrue(index > 0);
 	}
 
+	@Test
+	public void testDefinition3() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\def{abc|słówko1} \\def{słówko2}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		System.out.println(parsed.parsedText);
+		int index = parsed.parsedText.indexOf(">słówko1</a>");
+		assertTrue(index > 0);
+	}
+
 
 	/**
 	 * Błędna składania nie powinna sypać parsera
