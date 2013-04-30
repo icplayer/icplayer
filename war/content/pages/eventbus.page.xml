@@ -15,7 +15,7 @@
 		<textModule id="cloze" left='10' top='200' width='300' height='240'>
 			<text draggable='false' isCaseSensitive="true">
 				&lt;p&gt;She {{2:didn&apos;t}} like him very much (didn&apos;t).&lt;/p&gt;
-				&lt;p&gt;I \def{like} to drive {{2:volvo}}.&lt;/p&gt;
+				&lt;p&gt;I \def{like|opis} to drive {{2:volvo}}.&lt;/p&gt;
 				&lt;p&gt;I like {{2:volvo|opel|audi}}.&lt;/p&gt;
 				{{1:a|A}}
 			</text>
