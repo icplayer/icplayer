@@ -3,14 +3,15 @@ function AddonParagraph_create() {
     var presentationController;
     var myEditor;
 
-    presenter.createPreview = function (view, model) {
-    	$(view).find('.paragraph_field').css('height', model['Height'] + 'px');
-    	$(view).find('.paragraph_field').css('width', model['Width'] + 'px');
+    var defaultToolbar = "bold italic underline numlist bullist alignleft aligncenter alignright alignjustify";
+
+    presenter.createPreview = function(view, model) {
+    	presenter.initializeEditor(view, model);
     };
 
-    presenter.onInit = function() {
-    	myEditor = tinymce.activeEditor.id;
-    }
+    presenter.run = function(view, model) {
+    	presenter.initializeEditor(view, model);
+    };
 
     /**
      * Initialize the addon.
@@ -19,17 +20,21 @@ function AddonParagraph_create() {
      * for prototype purpose. Also the set of controls is static and it coulde be moved to
      * configuration.
      */
-    presenter.run = function (view, model) {
+    presenter.initializeEditor = function(view, model) {
     	tinymce.init({
     		selector : '.paragraph_field',
     		width: model['Width'],
     		height: model['Height'] - 37,
     		statusbar: false,
     		menubar: false,
-    		toolbar: "bold italic underline numlist bullist alignleft aligncenter alignright alignjustify",
+    		toolbar: defaultToolbar,
     		oninit: presenter.onInit
     	});
-    };
+    }
+
+    presenter.onInit = function() {
+    	myEditor = tinymce.activeEditor.id;
+    }
 
     presenter.setPlayerController = function(controller) {
         presentationController = controller;
