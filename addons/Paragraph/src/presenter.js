@@ -23,8 +23,8 @@ function AddonParagraph_create() {
      * configuration.
      */
     presenter.initializeEditor = function(view, model) {
-    	var id = $(view).attr('id');
-    	var selector = '#' + id + ' .paragraph_field';
+    	$(view).find('.paragraph-wrapper').attr('id', model.ID + '-wrapper');
+    	var selector = '#' + model.ID + '-wrapper .paragraph_field';
     	if (model['Default font family'] !== '') {
     		defaultFontFamily = model['Default font family'];
     	}
