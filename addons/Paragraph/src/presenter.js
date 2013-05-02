@@ -4,6 +4,8 @@ function AddonParagraph_create() {
     var myEditor;
 
     var defaultToolbar = "bold italic underline numlist bullist alignleft aligncenter alignright alignjustify";
+    var defaultFontFamily = 'Verdana,Arial,Helvetica,sans-serif';
+    var defaultFontSize = '11px';
 
     presenter.createPreview = function(view, model) {
     	presenter.initializeEditor(view, model);
@@ -21,8 +23,17 @@ function AddonParagraph_create() {
      * configuration.
      */
     presenter.initializeEditor = function(view, model) {
+    	var id = $(view).attr('id');
+    	var selector = '#' + id + ' .paragraph_field';
+    	if (model['Default font family'] !== '') {
+    		defaultFontFamily = model['Default font family'];
+    	}
+    	if (model['Default font size'] !== '') {
+    		defaultFontSize = model['Default font size'];
+    	}
+
     	tinymce.init({
-    		selector : '.paragraph_field',
+    		selector : selector,
     		width: model['Width'],
     		height: model['Height'] - 37,
     		statusbar: false,
@@ -34,6 +45,10 @@ function AddonParagraph_create() {
 
     presenter.onInit = function() {
     	myEditor = tinymce.activeEditor.id;
+    	var dom = tinymce.get(myEditor).dom;
+    	var pElements = dom.select('p');
+    	dom.setStyle(pElements, 'font-family', defaultFontFamily);
+    	dom.setStyle(pElements, 'font-size', defaultFontSize);
     }
 
     presenter.setPlayerController = function(controller) {
@@ -46,6 +61,10 @@ function AddonParagraph_create() {
 
     presenter.setState = function(state) {
     	tinymce.get(myEditor).setContent(state, {format : 'raw'});
+    }
+
+    presenter.reset = function() {
+    	tinymce.get(myEditor).setContent('');
     }
 
     return presenter;
