@@ -177,7 +177,7 @@ function AddonAnimation_create (){
         $(animationImage).remove();
     }
 
-    function loadImages(id, preview) {
+    function loadImages() {
         showLoadingScreen();
 
         $.imgpreload([presenter.configuration.image, presenter.configuration.animation], {
@@ -189,12 +189,18 @@ function AddonAnimation_create (){
                 previewImageLogic(previewImage);
                 animationImageLogic(animationImage);
                 hideLoadingScreen();
-                $(presenter.DOMElements.viewContainer).trigger("onLoadImagesEnd", [id, preview]);
+
+                loadImagesEndCallback();
             }
         });
     }
 
     function prepareLoadingScreen(containerWidth, containerHeight) {
+        if (presenter.configuration.isPreview) return;
+
+        var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
+        if (loadingSrc) presenter.DOMElements.loading.attr('src', loadingSrc);
+
         $(presenter.DOMElements.loading).css({
             top: ((containerHeight - $(presenter.DOMElements.loading).height()) / 2) + 'px',
             left: ((containerWidth - $(presenter.DOMElements.loading).width()) / 2) + 'px'
@@ -322,6 +328,8 @@ function AddonAnimation_create (){
     }
 
     function handleMouseActions() {
+        if (presenter.configuration.isClickDisabled) return;
+
         $(presenter.DOMElements.preview).click(elementClickHandler);
         $(presenter.DOMElements.animation).click(elementClickHandler);
         $(presenter.DOMElements.watermark).click(elementClickHandler);
@@ -331,16 +339,12 @@ function AddonAnimation_create (){
         presenter.playerController = controller;
     };
 
-    function presenterLogic(view, model, preview) {
+    function presenterLogic(view, model, isPreview) {
         setDOMElementsHrefsAndSelectors(view);
-
-        if (!preview) {
-            var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
-            if (loadingSrc) presenter.DOMElements.loading.attr('src', loadingSrc);
-        }
 
         presenter.model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(presenter.model);
+        presenter.configuration.isPreview = isPreview;
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -350,17 +354,16 @@ function AddonAnimation_create (){
         setElementsDimensions(view);
         prepareLoadingScreen(model.Width, model.Height);
 
-        $(presenter.DOMElements.viewContainer).bind("onLoadImagesEnd", function(event, id, preview) {
-            loadImagesEndCallback(id, preview);
-        });
+        presenter.imagesLoadedDfd = new jQuery.Deferred();
+        presenter.imagesLoaded = presenter.imagesLoadedDfd.promise();
 
-        loadImages(model.ID, preview);
+        loadImages();
         prepareLabels();
         showLabelsForFrame(0);
     }
 
     presenter.createPreview = function(view, model){
-        presenterLogic(view, model, false);
+        presenterLogic(view, model, true);
     };
 
     presenter.run = function(view, model){
@@ -388,72 +391,59 @@ function AddonAnimation_create (){
             presenter.pause();
         }
 
-        var state = {
+        return JSON.stringify({
             "currentFrame": presenter.configuration.currentFrame,
             "animationState": presenter.configuration.animationState,
             "currentVisibility" : presenter.configuration.currentVisibility,
             "watermarkClicked" : presenter.configuration.watermarkOptions.clicked
-        };
-        return JSON.stringify(state);
+        });
     };
 
     presenter.setState = function(stateString) {
-        presenter.configuration.savedState = stateString;
+        if (!stateString) return;
 
-        if (stateString && !presenter.configuration.stateRestored) {
-            restoreState();
-        }
+        $.when(presenter.imagesLoaded).then(function () {
+            var state = JSON.parse(stateString);
+
+            presenter.configuration.currentFrame = state.currentFrame;
+            presenter.configuration.animationState = state.animationState;
+            presenter.configuration.watermarkOptions.clicked = state.watermarkClicked;
+            changeFrame();
+
+            if (state.currentVisibility) {
+                presenter.show();
+            } else {
+                presenter.hide();
+            }
+
+            if (!presenter.configuration.watermarkOptions.clicked) {
+                showLabelsForFrame(0);
+            }
+
+            switch (presenter.configuration.animationState) {
+                case presenter.ANIMATION_STATE.PLAYING:
+                    presenter.playAnimation();
+                    break;
+                case presenter.ANIMATION_STATE.PAUSED:
+                case presenter.ANIMATION_STATE.ENDED:
+                    $(presenter.DOMElements.preview).hide();
+                    $(presenter.DOMElements.animation).show();
+                    break;
+            }
+
+            if (presenter.configuration.watermarkOptions.show && !presenter.configuration.watermarkOptions.clicked) {
+                $(presenter.DOMElements.watermark).show();
+            } else {
+                $(presenter.DOMElements.watermark).hide();
+            }
+        });
     };
 
-    function restoreState() {
-        presenter.configuration.stateRestored = true;
-
-        var state = JSON.parse(presenter.configuration.savedState);
-        presenter.configuration.currentFrame = state.currentFrame;
-        presenter.configuration.animationState = state.animationState;
-        presenter.configuration.watermarkOptions.clicked = state.watermarkClicked;
-        changeFrame();
-
-        if (state.currentVisibility) {
-            presenter.show();
-        } else {
-            presenter.hide();
-        }
-
-        if (!presenter.configuration.watermarkOptions.clicked) {
-            showLabelsForFrame(0);
-        }
-
-        switch (presenter.configuration.animationState) {
-            case presenter.ANIMATION_STATE.PLAYING:
-                presenter.playAnimation();
-                break;
-            case presenter.ANIMATION_STATE.PAUSED:
-            case presenter.ANIMATION_STATE.ENDED:
-                $(presenter.DOMElements.preview).hide();
-                $(presenter.DOMElements.animation).show();
-                break;
-        }
-
-        if (presenter.configuration.watermarkOptions.show && !presenter.configuration.watermarkOptions.clicked) {
-            $(presenter.DOMElements.watermark).show();
-        } else {
-            $(presenter.DOMElements.watermark).hide();
-        }
-    }
-
-    function loadImagesEndCallback(id, preview) {
-        if (preview) {
-            return;
-        }
-
+    function loadImagesEndCallback () {
         presenter.configuration.animationState = presenter.ANIMATION_STATE.PAUSED;
         presenter.configuration.currentFrame = 0;
-        presenter.configuration.queueName = id;
 
-        if (!presenter.configuration.isClickDisabled) {
-            handleMouseActions();
-        }
+        handleMouseActions();
 
         Watermark.draw(presenter.DOMElements.watermark, presenter.configuration.watermarkOptions);
         if (presenter.configuration.watermarkOptions.show && !presenter.configuration.watermarkOptions.clicked) {
@@ -467,9 +457,7 @@ function AddonAnimation_create (){
             presenter.hideLabels();
         }
 
-        if (presenter.configuration.savedState && !presenter.configuration.stateRestored) {
-            restoreState();
-        }
+        presenter.imagesLoadedDfd.resolve();
     }
 
     presenter.play = function () {
@@ -696,6 +684,7 @@ function AddonAnimation_create (){
         var defaultVisibility = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         return {
             isError: false,
+            queueName: model.ID,
             image: model["Preview image"],
             animation: model.Animation,
             framesCount: validatedFramesCount.framesCount,
