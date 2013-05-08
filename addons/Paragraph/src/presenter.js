@@ -3,14 +3,17 @@ function AddonParagraph_create() {
     var presentationController;
     var myEditor;
 
-    presenter.createPreview = function (view, model) {
-    	$(view).find('.paragraph_field').css('height', model['Height'] + 'px');
-    	$(view).find('.paragraph_field').css('width', model['Width'] + 'px');
+    var defaultToolbar = "bold italic underline numlist bullist alignleft aligncenter alignright alignjustify";
+    var defaultFontFamily = 'Verdana,Arial,Helvetica,sans-serif';
+    var defaultFontSize = '11px';
+
+    presenter.createPreview = function(view, model) {
+    	presenter.initializeEditor(view, model);
     };
 
-    presenter.onInit = function() {
-    	myEditor = tinymce.activeEditor.id;
-    }
+    presenter.run = function(view, model) {
+    	presenter.initializeEditor(view, model);
+    };
 
     /**
      * Initialize the addon.
@@ -19,17 +22,34 @@ function AddonParagraph_create() {
      * for prototype purpose. Also the set of controls is static and it coulde be moved to
      * configuration.
      */
-    presenter.run = function (view, model) {
+    presenter.initializeEditor = function(view, model) {
+    	$(view).find('.paragraph-wrapper').attr('id', model.ID + '-wrapper');
+    	var selector = '#' + model.ID + '-wrapper .paragraph_field';
+    	if (model['Default font family'] !== '') {
+    		defaultFontFamily = model['Default font family'];
+    	}
+    	if (model['Default font size'] !== '') {
+    		defaultFontSize = model['Default font size'];
+    	}
+
     	tinymce.init({
-    		selector : '.paragraph_field',
+    		selector : selector,
     		width: model['Width'],
     		height: model['Height'] - 37,
     		statusbar: false,
     		menubar: false,
-    		toolbar: "bold italic underline numlist bullist alignleft aligncenter alignright alignjustify",
+    		toolbar: defaultToolbar,
     		oninit: presenter.onInit
     	});
-    };
+    }
+
+    presenter.onInit = function() {
+    	myEditor = tinymce.activeEditor.id;
+    	var dom = tinymce.get(myEditor).dom;
+    	var pElements = dom.select('p');
+    	dom.setStyle(pElements, 'font-family', defaultFontFamily);
+    	dom.setStyle(pElements, 'font-size', defaultFontSize);
+    }
 
     presenter.setPlayerController = function(controller) {
         presentationController = controller;
@@ -41,6 +61,10 @@ function AddonParagraph_create() {
 
     presenter.setState = function(state) {
     	tinymce.get(myEditor).setContent(state, {format : 'raw'});
+    }
+
+    presenter.reset = function() {
+    	tinymce.get(myEditor).setContent('');
     }
 
     return presenter;

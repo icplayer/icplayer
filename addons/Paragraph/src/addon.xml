@@ -2,5 +2,7 @@
 
 <addon id='Paragraph'>
 	<model>
+		<property name="Default font family" type="string" />
+		<property name="Default font size" type="string" />
 	</model>
 </addon>
