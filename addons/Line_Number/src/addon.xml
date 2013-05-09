@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Line_Number'>
+    <model>
+        <property name="Min" type="string" />
+        <property name="Max" type="string" />
+        <property name="Ranges" type="text" />
+        <property name="Is Activity" type="boolean" />
+        <property name="Step" type="string" />
+        <property name="Show Axis X Values" type="boolean" />
+        <property name="Axis X Values" type="string" />
+    </model>
+</addon>
