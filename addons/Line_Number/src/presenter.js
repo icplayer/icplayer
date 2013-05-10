@@ -55,8 +55,10 @@ function AddonLine_Number_create() {
 
         clickArea.on('mousedown', function (){
             presenter.configuration.mouseData.isMouseDown = true;
-            selectedRange.addClass('current');
-            element.append(selectedRange);
+            if ( !presenter.configuration.isRangeAlreadyDrawn ) {
+                selectedRange.addClass('current');
+                element.append(selectedRange);
+            }
         });
 
         clickArea.on('mouseup', function (e){
@@ -64,6 +66,7 @@ function AddonLine_Number_create() {
             addEndRangeImages(e);
             presenter.$view.find('.current').removeClass('current');
             presenter.configuration.mouseData.isMouseDown = false;
+            presenter.configuration.isRangeAlreadyDrawn = true;
         });
 
         clickArea.on('mouseenter', function(e) {
@@ -85,6 +88,8 @@ function AddonLine_Number_create() {
     }
 
     function drawRange(e) {
+        if (presenter.configuration.isRangeAlreadyDrawn) return;
+
         var endElement = $(e.target).parent();
         var startElement = presenter.$view.find('.current').parent();
         var start = parseFloat(startElement.css('left'));
@@ -100,6 +105,8 @@ function AddonLine_Number_create() {
     }
 
     function addEndRangeImages(e) {
+        if (presenter.configuration.isRangeAlreadyDrawn) return;
+
         var endElement = $(e.target).parent();
         var startElement = presenter.$view.find('.current').parent();
         var imageContainer = $('<div></div>');
@@ -298,7 +305,8 @@ function AddonLine_Number_create() {
             'step' : validatedStep.value,
             'showAxisXValues' : validatedShowAxisXValues,
             'axisXValues' : validatedAxisXValues,
-            'mouseData' : { 'isMouseDown' : false }
+            'mouseData' : { 'isMouseDown' : false },
+            'isRangeAlreadyDrawn' : false
         }
     };
 
