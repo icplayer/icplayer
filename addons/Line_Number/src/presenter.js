@@ -61,6 +61,7 @@ function AddonLine_Number_create() {
 
         clickArea.on('mouseup', function (e){
             drawRange(e);
+            addEndRangeImages(e);
             presenter.$view.find('.current').removeClass('current');
             presenter.configuration.mouseData.isMouseDown = false;
         });
@@ -76,6 +77,10 @@ function AddonLine_Number_create() {
             presenter.configuration.mouseData.isMouseDown = false;
         });
 
+        clickArea.css({
+            'width' :  presenter.configuration.stepWidth
+        });
+
         moveYAxisClickArea();
     }
 
@@ -88,17 +93,33 @@ function AddonLine_Number_create() {
         var currentSelectedRange = presenter.$view.find('.current');
         currentSelectedRange.css('width', difference + 2 + 'px');
 
+
+
         if (start > end) {
             currentSelectedRange.css('left', - (difference) + 'px');
         }
         if (startElement.find('.clickArea').attr('value') == '0') {
             currentSelectedRange.css('top', ($('#y-axis').height() / 2) - 10 + 'px');
         }
+
+    }
+
+    function addEndRangeImages(e) {
+        var endElement = $(e.target).parent();
+        var startElement = presenter.$view.find('.current').parent();
+        var imageContainer = $('<div></div>');
+        imageContainer.addClass('rangeImage');
+        imageContainer.addClass('include');
+
+        startElement.append(imageContainer.clone(true));
+        endElement.append(imageContainer);
+        console.log(startElement)
+        console.log(endElement)
     }
 
     presenter.createSteps = function () {
         var xAxisValues = getXAxisValues();
-        var stepWidth = calculateStepWidth(xAxisValues);
+        presenter.configuration.stepWidth = calculateStepWidth(xAxisValues);
         var isDrawOnlyChosen = presenter.configuration.axisXValues.length > 0;
 
         for (var i = 0; i < xAxisValues.length; i++) {
@@ -126,7 +147,7 @@ function AddonLine_Number_create() {
 
             }
 
-            stepLine.css('left', stepWidth * i);
+            stepLine.css('left', presenter.configuration.stepWidth * i);
             createClickArea(stepLine, xAxisValues[i]);
             presenter.$view.find('#x-axis').append(stepLine);
         }
