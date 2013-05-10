@@ -93,13 +93,8 @@ function AddonLine_Number_create() {
         var currentSelectedRange = presenter.$view.find('.current');
         currentSelectedRange.css('width', difference + 2 + 'px');
 
-
-
         if (start > end) {
             currentSelectedRange.css('left', - (difference) + 'px');
-        }
-        if (startElement.find('.clickArea').attr('value') == '0') {
-            currentSelectedRange.css('top', ($('#y-axis').height() / 2) - 10 + 'px');
         }
 
     }
@@ -113,8 +108,6 @@ function AddonLine_Number_create() {
 
         startElement.append(imageContainer.clone(true));
         endElement.append(imageContainer);
-        console.log(startElement)
-        console.log(endElement)
     }
 
     presenter.createSteps = function () {
@@ -123,20 +116,27 @@ function AddonLine_Number_create() {
         var isDrawOnlyChosen = presenter.configuration.axisXValues.length > 0;
 
         for (var i = 0; i < xAxisValues.length; i++) {
-            var stepLine;
+            var stepLine = $('<div></div>');
+            stepLine.addClass('stepLine');
+
             if (xAxisValues[i] == 0) {
                 var innerHeight = presenter.$view.find('#inner').height();
-                stepLine = presenter.$view.find('#y-axis');
-                stepLine.height(innerHeight);
-                stepLine.css('top', - (innerHeight / 2));
+                var yAxis = presenter.$view.find('#y-axis');
+                var xAxis = presenter.$view.find('#x-axis');
+
+                yAxis.height(innerHeight);
+                yAxis.css({
+                    'top' : - (innerHeight / 2),
+                    'left' : presenter.configuration.stepWidth * i
+                });
+                xAxis.append(yAxis);
             } else {
                 var text = $('<div></div>');
                 text.addClass('stepText');
                 text.html(xAxisValues[i]);
                 text.css('left', - new String(xAxisValues[i]).length * (4) + 'px');
 
-                stepLine = $('<div></div>');
-                stepLine.addClass('stepLine');
+
                 if (isDrawOnlyChosen && presenter.configuration.showAxisXValues) {
                     if ($.inArray(xAxisValues[i], presenter.configuration.axisXValues) !== -1) {
                         stepLine.append(text);
