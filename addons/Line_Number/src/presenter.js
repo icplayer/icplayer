@@ -75,6 +75,8 @@ function AddonLine_Number_create() {
             presenter.$view.find('.current').removeClass('current');
             presenter.configuration.mouseData.isMouseDown = false;
         });
+
+        moveYAxisClickArea();
     }
 
     function drawRange(e) {
@@ -121,6 +123,7 @@ function AddonLine_Number_create() {
                 } else if (presenter.configuration.showAxisXValues) {
                     stepLine.append(text);
                 }
+
             }
 
             stepLine.css('left', stepWidth * i);
@@ -128,6 +131,11 @@ function AddonLine_Number_create() {
             presenter.$view.find('#x-axis').append(stepLine);
         }
     };
+
+    function moveYAxisClickArea() {
+        var yAxisClickArea = $('#y-axis .clickArea');
+        yAxisClickArea.css('top', ($('#y-axis').height() / 2) - 50 + 'px');
+    }
 
     function checkIsMinLowerThanMax(min, max) {
         var parsedMin = parseInt(min, 10);

@@ -41,6 +41,17 @@
     margin-top: -4px;
 }
 
+.addon_Line_Number .clickArea {
+    width: 10px;
+    height: 100px;
+    top: -50px;
+    min-height: 10px;
+    min-width: 10px;
+    margin-left: -5px;
+    position: absolute;
+    z-index: 11;
+}
+
 .addon_Line_Number .stepText {
     position: absolute;
     top: 10px;
@@ -63,14 +74,6 @@
     right: -5px;
     top: -5px;
     position: absolute;
-}
-
-.addon_Line_Number .clickArea {
-    width: 10px;
-    height: 100%;
-    min-height: 10px;
-    min-width: 10px;
-    margin-left: -5px;
 }
 
 .addon_Line_Number .clickArea:hover {
