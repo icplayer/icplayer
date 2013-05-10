@@ -446,8 +446,17 @@ function Addongraph_create(){
 
         var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer),
             currentValue = parseFloat(valueContainer.attr('current-value')),
-            newValue = currentValue + presenter.interactiveStep,
+            minInteractivePoint = presenter.getMinimumInteractivePoint(valueContainer.attr('value-id')),
+            newValue, newValuePrecision;
+
+        if (currentValue == presenter.axisYMinimumValue && minInteractivePoint !== currentValue) {
+            // Special case when current value is minimum and can not match with those calculated with interactive step
+            newValue = minInteractivePoint;
+            newValuePrecision = presenter.getProperPrecision(minInteractivePoint, presenter.interactiveStep);
+        } else {
+            newValue = currentValue + presenter.interactiveStep;
             newValuePrecision = presenter.getProperPrecision(currentValue, presenter.interactiveStep);
+        }
 
         if(newValue > presenter.axisYMaximumValue) return;
 
@@ -479,8 +488,17 @@ function Addongraph_create(){
 
         var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer),
             currentValue = parseFloat(valueContainer.attr('current-value')),
-            newValue = currentValue - presenter.interactiveStep,
+            maxInteractivePoint = presenter.getMaximumInteractivePoint(valueContainer.attr('value-id')),
+            newValue, newValuePrecision;
+
+        if (currentValue == presenter.axisYMaximumValue && maxInteractivePoint !== currentValue) {
+            // Special case when current value is maximum and can not match with those calculated with interactive step
+            newValue = maxInteractivePoint;
+            newValuePrecision = presenter.getProperPrecision(maxInteractivePoint, presenter.interactiveStep);
+        } else {
+            newValue = currentValue - presenter.interactiveStep;
             newValuePrecision = presenter.getProperPrecision(currentValue, presenter.interactiveStep);
+        }
 
         if(newValue < presenter.axisYMinimumValue) return;
 
@@ -597,6 +615,32 @@ function Addongraph_create(){
             index = parseInt(valueID.split(' ')[1], 10);
 
         return parseFloat(presenter.data[series][index]);
+    };
+
+    presenter.getMaximumInteractivePoint = function (valueID) {
+        var initialData = presenter.getInitialData(valueID),
+            interactiveStep = presenter.interactiveStep,
+            maxYValue = presenter.axisYMaximumValue,
+            maxPoint = initialData;
+
+        while (maxPoint + interactiveStep <= maxYValue) {
+            maxPoint += interactiveStep;
+        }
+
+        return maxPoint
+    };
+
+    presenter.getMinimumInteractivePoint = function (valueID) {
+        var initialData = presenter.getInitialData(valueID),
+            interactiveStep = presenter.interactiveStep,
+            minYValue = presenter.axisYMinimumValue,
+            minPoint = initialData;
+
+        while (minPoint - interactiveStep >= minYValue) {
+            minPoint -= interactiveStep;
+        }
+
+        return minPoint
     };
 
     function triggerColumnContainerClickHandler() {
