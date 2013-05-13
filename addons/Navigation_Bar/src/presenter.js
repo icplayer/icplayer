@@ -1,116 +1,62 @@
 function AddonNavigation_Bar_create() {
-    var presenter = function () {
-    };
+    var presenter = function () { };
 
     var NAVIGATION_PAGE = {
-        FIRST:0,
-        LAST:1,
-        PREVIOUS:2,
-        NEXT:3,
-        OTHER:4
+        FIRST: 0,
+        LAST: 1,
+        PREVIOUS: 2,
+        NEXT: 3,
+        OTHER: 4
     };
 
     var DOTTED_SIDE = {
-        LEFT:{CSSClass:"dotted-element-left"},
-        RIGTH:{CSSClass:"dotted-element-right"}
+        LEFT: { CSSClass: "dotted-element-left" },
+        RIGHT: { CSSClass: "dotted-element-right" }
     };
 
-    var viewContainer;
-    var wrapper;
-
-    var presentationController;
-    var showNextPrevArrows;
-    var hideHomeLastArrows;
-
-    var pageCount;
-    var currentIndex;
-    var movedFromIndex;
-    var maxElementCount;
+    var movedFromIndex,
+        maxElementCount;
 
     presenter.setPlayerController = function (controller) {
-        presentationController = controller;
-        pageCount = presentationController.getPresentation().getPageCount();
-        currentIndex = presentationController.getCurrentPageIndex();
+        presenter.playerController = controller;
+        presenter.presentation = controller.getPresentation();
+        presenter.commander = controller.getCommands();
+        presenter.pageCount = controller.getPresentation().getPageCount();
+        presenter.currentIndex = controller.getCurrentPageIndex();
     };
 
-    function getElementDimensions(element) {
-        element = $(element);
-
-        return {
-            border:{
-                top:parseInt(element.css('border-top-width'), 10),
-                bottom:parseInt(element.css('border-bottom-width'), 10),
-                left:parseInt(element.css('border-left-width'), 10),
-                right:parseInt(element.css('border-right-width'), 10)
-            },
-            margin:{
-                top:parseInt(element.css('margin-top'), 10),
-                bottom:parseInt(element.css('margin-bottom'), 10),
-                left:parseInt(element.css('margin-left'), 10),
-                right:parseInt(element.css('margin-right'), 10)
-            },
-            padding:{
-                top:parseInt(element.css('padding-top'), 10),
-                bottom:parseInt(element.css('padding-bottom'), 10),
-                left:parseInt(element.css('padding-left'), 10),
-                right:parseInt(element.css('padding-right'), 10)
-            }
-        };
-    }
-
-    function calculateInnerDistance(elementDimensions) {
-        var vertical = elementDimensions.border.top + elementDimensions.border.bottom;
-        vertical += elementDimensions.margin.top + elementDimensions.margin.bottom;
-        vertical += elementDimensions.padding.top + elementDimensions.padding.top;
-
-        var horizontal = elementDimensions.border.left + elementDimensions.border.right;
-        horizontal += elementDimensions.margin.left + elementDimensions.margin.right;
-        horizontal += elementDimensions.padding.left + elementDimensions.padding.right;
-
-        return {
-            vertical : vertical,
-            horizontal : horizontal
-        };
-    }
-
-    function gotoPage(whereTo, index) {
-        var presentation = presentationController.getPresentation();
-        var commander = presentationController.getCommands();
-
-        var currentIndex = presentationController.getCurrentPageIndex();
-        var pageCount = presentation.getPageCount();
-        var gotoIndex;
+    function goToPage(whereTo, index) {
+        var goToIndex;
 
         switch (whereTo) {
             case NAVIGATION_PAGE.FIRST:
-                if (currentIndex !== 0) {
-                    gotoIndex = 0;
+                if (presenter.currentIndex !== 0) {
+                    goToIndex = 0;
                 }
                 break;
             case NAVIGATION_PAGE.LAST:
-                if (currentIndex !== (pageCount - 1)) {
-                    gotoIndex = pageCount - 1;
+                if (presenter.currentIndex !== (presenter.pageCount - 1)) {
+                    goToIndex = presenter.pageCount - 1;
                 }
                 break;
             case NAVIGATION_PAGE.NEXT:
-                if (currentIndex !== (pageCount - 1)) {
-                    gotoIndex = currentIndex + 1;
+                if (presenter.currentIndex !== (presenter.pageCount - 1)) {
+                    goToIndex = presenter.currentIndex + 1;
                 }
                 break;
             case NAVIGATION_PAGE.PREVIOUS:
-                if (currentIndex !== 0) {
-                    gotoIndex = currentIndex - 1;
+                if (presenter.currentIndex !== 0) {
+                    goToIndex = presenter.currentIndex - 1;
                 }
                 break;
             case NAVIGATION_PAGE.OTHER:
-                if (currentIndex !== index && (index >= 0) && (index <= (pageCount - 1))) {
-                    gotoIndex = index;
+                if (presenter.currentIndex !== index && (index >= 0) && (index <= (presenter.pageCount - 1))) {
+                    goToIndex = index;
                 }
                 break;
         }
 
-        var pageName = presentation.getPage(gotoIndex).getName();
-        commander.gotoPage(pageName);
+        presenter.commander.gotoPage(presenter.presentation.getPage(goToIndex).getName());
     }
 
     function handleMouseActions(dotsLeftIndex, dotsRightIndex, elementWidth, elementHeight, preview, horizontalGap) {
@@ -121,39 +67,39 @@ function AddonNavigation_Bar_create() {
     }
 
     function handleArrowClickActions() {
-        viewContainer.find('[class*="navigationbar-element-first"]').parent().click(function () {
-            gotoPage(NAVIGATION_PAGE.FIRST);
+        presenter.$view.find('[class*="navigationbar-element-first"]').parent().click(function () {
+            goToPage(NAVIGATION_PAGE.FIRST);
 
             return false;
         });
 
-        viewContainer.find('[class*="navigationbar-element-previous"]').parent().click(function () {
-            gotoPage(NAVIGATION_PAGE.PREVIOUS);
+        presenter.$view.find('[class*="navigationbar-element-previous"]').parent().click(function () {
+            goToPage(NAVIGATION_PAGE.PREVIOUS);
 
             return false;
         });
 
-        viewContainer.find('[class*="navigationbar-element-next"]').parent().click(function () {
-            gotoPage(NAVIGATION_PAGE.NEXT);
+        presenter.$view.find('[class*="navigationbar-element-next"]').parent().click(function () {
+            goToPage(NAVIGATION_PAGE.NEXT);
 
             return false;
         });
 
-        viewContainer.find('[class*="navigationbar-element-last"]').parent().click(function () {
-            gotoPage(NAVIGATION_PAGE.LAST);
+        presenter.$view.find('[class*="navigationbar-element-last"]').parent().click(function () {
+            goToPage(NAVIGATION_PAGE.LAST);
 
             return false;
         });
     }
 
     function handleIndexClickActions() {
-        viewContainer.find('[class*="navigationbar-indexed-element"]').each(function () {
+        presenter.$view.find('[class*="navigationbar-indexed-element"]').each(function () {
             var pageIndex = parseInt($(this).html(), 10) - 1;
             var isCurrentPage = $(this).hasClass("navigationbar-element-current");
 
             $(this).parent().click(function () {
                 if (!isCurrentPage) {
-                    gotoPage(NAVIGATION_PAGE.OTHER, pageIndex);
+                    goToPage(NAVIGATION_PAGE.OTHER, pageIndex);
                 }
 
                 return false;
@@ -162,32 +108,32 @@ function AddonNavigation_Bar_create() {
     }
 
     function handleDottedClickActions(dotsLeftIndex, dotsRightIndex, elementWidth, elementHeight, preview, horizontalGap) {
-        viewContainer.find(".dotted-element-left:first").click(function () {
+        presenter.$view.find(".dotted-element-left:first").click(function () {
             if (dotsLeftIndex === undefined || dotsLeftIndex < 0) {
                 dotsLeftIndex = 0;
             }
 
             removeAllElements();
             if (movedFromIndex == undefined) {
-                movedFromIndex = currentIndex;
+                movedFromIndex = presenter.currentIndex;
             }
-            currentIndex = dotsLeftIndex;
+            presenter.currentIndex = dotsLeftIndex;
 
             generateElements(elementWidth, elementHeight, true, preview, horizontalGap);
 
             return false;
         });
 
-        viewContainer.find(".dotted-element-right:first").click(function () {
-            if (dotsRightIndex === undefined || dotsRightIndex > pageCount - 1) {
-                dotsRightIndex = pageCount - 1;
+        presenter.$view.find(".dotted-element-right:first").click(function () {
+            if (dotsRightIndex === undefined || dotsRightIndex > presenter.pageCount - 1) {
+                dotsRightIndex = presenter.pageCount - 1;
             }
 
             removeAllElements();
             if (movedFromIndex == undefined) {
-                movedFromIndex = currentIndex;
+                movedFromIndex = presenter.currentIndex;
             }
-            currentIndex = dotsRightIndex;
+            presenter.currentIndex = dotsRightIndex;
 
             generateElements(elementWidth, elementHeight, true, preview, horizontalGap);
 
@@ -196,8 +142,8 @@ function AddonNavigation_Bar_create() {
     }
 
     function handleHoverAndMouseDownActions() {
-        var isHomeInactive = currentIndex === 0;
-        var isReportInactive = currentIndex === pageCount - 1;
+        var isHomeInactive = presenter.currentIndex === 0;
+        var isReportInactive = presenter.currentIndex === presenter.pageCount - 1;
 
         handleSpecificElementHoverAndMouseDown('navigationbar-element-first', isHomeInactive);
         handleSpecificElementHoverAndMouseDown('navigationbar-element-previous', isHomeInactive);
@@ -213,7 +159,7 @@ function AddonNavigation_Bar_create() {
             ' ' + selector + '-mouse-click' + ' ' + selector + '-inactive';
 
 
-        wrapper.find("span[class^=" + selector + "]").each(function() {
+        presenter.$wrapper.find("span[class^=" + selector + "]").each(function() {
             var addClassName = inactive ? selector + '-inactive' : selector;
 
             $(this).hover(
@@ -247,7 +193,7 @@ function AddonNavigation_Bar_create() {
         var notSelectorsList = '.navigationbar-element-first,.navigationbar-element-last,' +
             '.navigationbar-element-next,.navigationbar-element-previous,.navigationbar-element-current';
 
-        wrapper.find('.navigationbar-element').not(notSelectorsList).each(function() {
+        presenter.$wrapper.find('.navigationbar-element').not(notSelectorsList).each(function() {
             $(this).hover(
                 function() {
                     $(this).removeClass('navigationbar-element');
@@ -276,35 +222,33 @@ function AddonNavigation_Bar_create() {
     }
 
     function removeAllElements() {
-        viewContainer.find("span[class*=navigationbar-element]").parent().each(function() {
-            $(this).remove();
-        })
+        presenter.$view.find("span[class*=navigationbar-element]").parent().remove();
     }
 
     function generateHomeArrowElement() {
-        var isElementInactive = currentIndex === 0;
+        var isElementInactive = presenter.currentIndex === 0;
         var elementStyle = isElementInactive ? "navigationbar-element-first-inactive" : "navigationbar-element-first";
 
-        if (viewContainer.has('[class*="navigationbar-element-first"]').length < 1) {
+        if (presenter.$view.has('[class*="navigationbar-element-first"]').length < 1) {
             var homeElementArrow = '<a title="First page" href="#">' +
                 '<span class="' + elementStyle + '">&lt;&lt;</span>' +
                 '</a>';
 
-            wrapper.append(homeElementArrow);
+            presenter.$wrapper.append(homeElementArrow);
         }
     }
 
     function generatePreviousArrowElement() {
-        var homeElement = $(viewContainer).find('[class*="navigationbar-element-first"]:first').parent();
-        var isElementInactive = currentIndex === 0;
+        var homeElement = presenter.$view.find('[class*="navigationbar-element-first"]:first').parent();
+        var isElementInactive = presenter.currentIndex === 0;
         var elementStyle = isElementInactive ? "navigationbar-element-previous-inactive" : "navigationbar-element-previous";
 
         var previousElementArrow = '<a title="Previous page" href="#">' +
             '<span class="' + elementStyle + '">&lt;</span>' +
             '</a>';
 
-        if (hideHomeLastArrows) {
-            wrapper.append(previousElementArrow);
+        if (presenter.configuration.hideHomeLastArrows) {
+            presenter.$wrapper.append(previousElementArrow);
         } else {
             homeElement.after(previousElementArrow);
         }
@@ -312,9 +256,8 @@ function AddonNavigation_Bar_create() {
     }
 
     function generateNextArrowElement() {
-        var raportElement = $(viewContainer).find('[class*="navigationbar-element-last"]:first').parent();
-        var previousElement = $(viewContainer).find('[class*="navigationbar-element-previous"]:first').parent();
-        var isElementInactive = currentIndex === pageCount - 1;
+        var previousElement = presenter.$view.find('[class*="navigationbar-element-previous"]:first').parent();
+        var isElementInactive = presenter.currentIndex === presenter.pageCount - 1;
         var elementStyle = isElementInactive ? "navigationbar-element-next-inactive" : "navigationbar-element-next";
 
         var nextElementArrow = '<a title="Next page" href="#">' +
@@ -325,34 +268,34 @@ function AddonNavigation_Bar_create() {
     }
 
     function generateReportArrowElement() {
-        var isElementInactive = currentIndex === pageCount - 1;
+        var isElementInactive = presenter.currentIndex === presenter.pageCount - 1;
         var elementStyle = isElementInactive ? "navigationbar-element-last-inactive" : "navigationbar-element-last";
 
-        if (viewContainer.has('[class*="navigationbar-element-last"]').length < 1) {
-            var raportElementArrow = '<a title="Last page" href="#">' +
+        if (presenter.$view.has('[class*="navigationbar-element-last"]').length < 1) {
+            var reportElementArrow = '<a title="Last page" href="#">' +
                 '<span class="' + elementStyle + '">&gt;&gt;</span>' +
                 '</a>';
 
-            wrapper.append(raportElementArrow);
+            presenter.$wrapper.append(reportElementArrow);
         }
     }
 
     function generateHomeAndPreviousArrowsElements() {
-        if (!hideHomeLastArrows) {
+        if (!presenter.configuration.hideHomeLastArrows) {
             generateHomeArrowElement();
         }
 
-        if (showNextPrevArrows) {
+        if (presenter.configuration.showNextPrevArrows) {
             generatePreviousArrowElement();
         }
     }
 
     function generateRaportAndNextArrowsElements() {
-        if (!hideHomeLastArrows) {
+        if (!presenter.configuration.hideHomeLastArrows) {
             generateReportArrowElement();
         }
 
-        if (showNextPrevArrows) {
+        if (presenter.configuration.showNextPrevArrows) {
             generateNextArrowElement();
         }
     }
@@ -366,8 +309,8 @@ function AddonNavigation_Bar_create() {
     }
 
     // Index is displayed page number
-    function generateIndedexElementStub(index, navigationBarMoved) {
-        var isCurrentElement = !navigationBarMoved ? (index - 1) === currentIndex : (index - 1) === movedFromIndex;
+    function generateIndexElementStub(index, navigationBarMoved) {
+        var isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
 
         var currentElementStyle = isCurrentElement ? "navigationbar-element-current" : "navigationbar-element";
         var elementTitle = isCurrentElement ? "Current page" : "Page " + index;
@@ -378,8 +321,8 @@ function AddonNavigation_Bar_create() {
     }
 
     function generateIndexedElements(navigationBarMoved) {
-        var firstElementSelector = showNextPrevArrows ? '[class*="navigationbar-element-previous"]' : '[class*="navigationbar-element-first"]';
-        var firstElement = viewContainer.find(firstElementSelector).parent();
+        var firstElementSelector = presenter.configuration.showNextPrevArrows ? '[class*="navigationbar-element-previous"]' : '[class*="navigationbar-element-first"]';
+        var firstElement = presenter.$view.find(firstElementSelector).parent();
 
         var element; // Works as temporary indexed element
         var dottedElement; // Works as temporary dotted element
@@ -388,95 +331,95 @@ function AddonNavigation_Bar_create() {
         var dotsRightTargetIndex;
         var n = 0;
         var nthChildCount = 0;
-        if (!hideHomeLastArrows) {
+        if (!presenter.configuration.hideHomeLastArrows) {
             nthChildCount++;
         }
-        if (showNextPrevArrows) {
+        if (presenter.configuration.showNextPrevArrows) {
             nthChildCount++;
         }
 
-        if (maxElementCount >= pageCount) { // All pages will be displayed
-            for (n = 1; n <= pageCount; n++) {
-                element = generateIndedexElementStub(n, navigationBarMoved);
+        if (maxElementCount >= presenter.pageCount) { // All pages will be displayed
+            for (n = 1; n <= presenter.pageCount; n++) {
+                element = generateIndexElementStub(n, navigationBarMoved);
 
-                if (hideHomeLastArrows && !showNextPrevArrows && n === 1) {
-                    wrapper.append(element);
+                if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows && n === 1) {
+                    presenter.$wrapper.append(element);
                 } else {
                     $(firstElement).after(element);
                 }
 
                 nthChildCount++;
-                firstElement = $(wrapper).find('a:nth-child(' + nthChildCount + ')');
+                firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
             }
         } else {
-            if (currentIndex < maxElementCount - 1) { // -1 for dotted element
+            if (presenter.currentIndex < maxElementCount - 1) { // -1 for dotted element
                 for (n = 0; n < maxElementCount - 1; n++) {
-                    element = generateIndedexElementStub(n + 1, navigationBarMoved);
+                    element = generateIndexElementStub(n + 1, navigationBarMoved);
 
-                    if (hideHomeLastArrows && !showNextPrevArrows && n === 0) {
-                        wrapper.append(element);
+                    if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows && n === 0) {
+                        presenter.$wrapper.append(element);
                     } else {
                         $(firstElement).after(element);
                     }
 
                     nthChildCount++;
-                    firstElement = $(wrapper).find('a:nth-child(' + nthChildCount + ')');
+                    firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
                 }
 
                 // Dots are displayed on the right
                 dotsRightTargetIndex = maxElementCount - 1;
-                firstElement.after(generateDottedElement(DOTTED_SIDE.RIGTH));
-            } else if (currentIndex > (pageCount - maxElementCount)) {
+                firstElement.after(generateDottedElement(DOTTED_SIDE.RIGHT));
+            } else if (presenter.currentIndex > (presenter.pageCount - maxElementCount)) {
                 // Dots are displayed on the left -> -1 to max element count
-                dotsLeftTargetIndex = (pageCount - 1) - (maxElementCount - 2) - 1;
+                dotsLeftTargetIndex = (presenter.pageCount - 1) - (maxElementCount - 2) - 1;
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
 
-                if (hideHomeLastArrows && !showNextPrevArrows) {
-                    wrapper.append(dottedElement);
+                if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows) {
+                    presenter.$wrapper.append(dottedElement);
                 } else {
                     firstElement.after(dottedElement);
                 }
 
                 nthChildCount++;
-                firstElement = $(wrapper).find('a:nth-child(' + nthChildCount + ')');
+                firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
 
-                for (n = pageCount - maxElementCount + 1; n < pageCount; n++) {
-                    element = generateIndedexElementStub(n + 1, navigationBarMoved);
+                for (n = presenter.pageCount - maxElementCount + 1; n < presenter.pageCount; n++) {
+                    element = generateIndexElementStub(n + 1, navigationBarMoved);
                     $(firstElement).after(element);
 
                     nthChildCount++;
-                    firstElement = $(wrapper).find('a:nth-child(' + nthChildCount + ')');
+                    firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
                 }
             } else {
                 var numberOfElement = maxElementCount - 2;
 
-                var temp = currentIndex - (numberOfElement + 1);
+                var temp = presenter.currentIndex - (numberOfElement + 1);
                 var multiplier = parseInt(temp / numberOfElement, 10);
                 var startIndex = (numberOfElement + 1) + multiplier * numberOfElement;
 
                 dotsLeftTargetIndex = startIndex - 1;
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
 
-                if (hideHomeLastArrows && !showNextPrevArrows) {
-                    wrapper.append(dottedElement);
+                if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows) {
+                    presenter.$wrapper.append(dottedElement);
                 } else {
                     firstElement.after(dottedElement);
                 }
 
                 nthChildCount++;
-                firstElement = $(wrapper).find('a:nth-child(' + nthChildCount + ')');
+                firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
 
                 for (n = 0; n < numberOfElement; n++) {
-                    var indexedElement = generateIndedexElementStub(startIndex + 1 + n, navigationBarMoved);
+                    var indexedElement = generateIndexElementStub(startIndex + 1 + n, navigationBarMoved);
                     firstElement.after(indexedElement);
 
                     nthChildCount++;
-                    firstElement = $(wrapper).find('a:nth-child(' + nthChildCount + ')');
+                    firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
                 }
 
 
                 dotsRightTargetIndex = startIndex  + numberOfElement;
-                firstElement.after(generateDottedElement(DOTTED_SIDE.RIGTH));
+                firstElement.after(generateDottedElement(DOTTED_SIDE.RIGHT));
             }
         }
 
@@ -497,11 +440,11 @@ function AddonNavigation_Bar_create() {
             handleMouseActions(dotsIndexes.leftIndex, dotsIndexes.rightIndex, elementWidth, elementHeight, preview, horizontalGap);
         }
 
-        if (wrapper.css('direction') === 'rtl') {
+        if (presenter.$wrapper.css('direction') === 'rtl') {
             reorderElements(dotsIndexes, elementWidth, elementHeight, preview, horizontalGap);
         }
 
-        viewContainer.find("span[class^=navigationbar-element]").each(function () {
+        presenter.$view.find("span[class^=navigationbar-element]").each(function () {
             var width = $(this).hasClass('navigationbar-element-last') ? elementWidth + horizontalGap : elementWidth;
             $(this).width(width + 'px');
             $(this).height(elementHeight + 'px');
@@ -514,13 +457,13 @@ function AddonNavigation_Bar_create() {
     function reorderElements(dotsIndexes, elementWidth, elementHeight, preview, horizontalGap) {
         var elements = [];
 
-        $(wrapper).children('a').each(function () {
+        presenter.$wrapper.children('a').each(function () {
             elements.push($(this));
             $(this).remove();
         });
 
         for (var i = elements.length - 1; i >= 0; i--) {
-            wrapper.append(elements[i]);
+            presenter.$wrapper.append(elements[i]);
         }
 
         if (!preview) {
@@ -528,47 +471,52 @@ function AddonNavigation_Bar_create() {
         }
     }
 
-    function presenterLogic(view, model, preview) {
-        viewContainer = $(view);
-        wrapper = viewContainer.find('.navigationbar-wrapper:first');
-        var element = viewContainer.find('[class*="navigationbar-element-first"]:first');
+    presenter.validateModel = function (model) {
+        return {
+            showNextPrevArrows: model.ShowNextPrevArrows === 'True',
+            hideHomeLastArrows: model.HideHomeLastArrows === 'True'
+        };
+    };
 
-        showNextPrevArrows = model.ShowNextPrevArrows === 'True';
-        hideHomeLastArrows = model.HideHomeLastArrows === 'True';
-
+    presenter.getArrowsCount = function () {
         var arrowsCount = 0;
-        if (!hideHomeLastArrows) {
-            arrowsCount += 2;
+
+        if (!presenter.configuration.hideHomeLastArrows) arrowsCount += 2;
+        if (presenter.configuration.showNextPrevArrows) arrowsCount += 2;
+
+        return arrowsCount;
+    };
+
+    function presenterLogic(view, model, isPreview) {
+        presenter.$view = $(view);
+        presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
+        var $element = presenter.$view.find('[class*="navigationbar-element-first"]:first');
+
+        presenter.configuration = presenter.validateModel(model);
+        var arrowsCount = presenter.getArrowsCount();
+
+        if (isPreview) {
+            presenter.currentIndex = 0;
+            presenter.pageCount = 21;
         }
-        if (showNextPrevArrows) {
-            arrowsCount += 2;
-        }
 
-        var wrapperDimensions = getElementDimensions(wrapper);
-        var wrapperDistances = calculateInnerDistance(wrapperDimensions);
+        DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$wrapper);
+        var elementDimensions = DOMOperationsUtils.getOuterDimensions($element),
+            elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
 
-        var elementDimensions = getElementDimensions(element);
-        var elementDistances = calculateInnerDistance(elementDimensions);
-
-        wrapper.height(viewContainer.height() - wrapperDistances.vertical);
-        wrapper.width(viewContainer.width() - wrapperDistances.horizontal);
-
-        var elementBaseWidth = parseInt(element.width(), 10) + elementDistances.horizontal;
-        maxElementCount = parseInt((wrapper.width() - (arrowsCount * elementBaseWidth)) / elementBaseWidth, 10) - 4;
-        var numberOfElements = pageCount < maxElementCount ? pageCount + arrowsCount : maxElementCount + arrowsCount;
-        var elementWidth = parseInt(wrapper.width() / numberOfElements - elementDistances.horizontal, 10);
-        var elementHeight = parseInt(wrapper.height() - elementDistances.vertical, 10);
-        var horizontalGap = model.Width - (elementWidth + elementDistances.horizontal) * numberOfElements;
+        var elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;
+        maxElementCount = parseInt((presenter.$wrapper.width() - (arrowsCount * elementBaseWidth)) / elementBaseWidth, 10) - 4;
+        var numberOfElements = presenter.pageCount < maxElementCount ? presenter.pageCount + arrowsCount : maxElementCount + arrowsCount;
+        var elementWidth = parseInt(presenter.$wrapper.width() / numberOfElements - elementDistances.horizontal, 10);
+        var elementHeight = parseInt(presenter.$wrapper.height() - elementDistances.vertical, 10);
+        var horizontalGap = presenter.$wrapper.width() - (elementWidth + elementDistances.horizontal) * numberOfElements;
 
         removeAllElements();
 
-        generateElements(elementWidth, elementHeight, false, preview, horizontalGap);
+        generateElements(elementWidth, elementHeight, false, isPreview, horizontalGap);
     }
 
     presenter.createPreview = function(view, model) {
-        currentIndex = 0;
-        pageCount = 21;
-
         presenterLogic(view, model, true);
     };
 
