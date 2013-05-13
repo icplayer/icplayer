@@ -55,7 +55,7 @@ function AddonLine_Number_create() {
 
         clickArea.on('mousedown', function (){
             presenter.configuration.mouseData.isMouseDown = true;
-            if ( !presenter.configuration.isRangeAlreadyDrawn ) {
+            if ( !presenter.configuration.drawnRangesData.isDrawn ) {
                 selectedRange.addClass('current');
                 element.append(selectedRange);
             }
@@ -66,7 +66,7 @@ function AddonLine_Number_create() {
             addEndRangeImages(e);
             presenter.$view.find('.current').removeClass('current');
             presenter.configuration.mouseData.isMouseDown = false;
-            presenter.configuration.isRangeAlreadyDrawn = true;
+            presenter.configuration.drawnRangesData.isDrawn = true;
         });
 
         clickArea.on('mouseenter', function(e) {
@@ -88,7 +88,7 @@ function AddonLine_Number_create() {
     }
 
     function drawRange(e) {
-        if (presenter.configuration.isRangeAlreadyDrawn) return;
+        if (presenter.configuration.drawnRangesData.isDrawn) return;
 
         var endElement = $(e.target).parent();
         var startElement = presenter.$view.find('.current').parent();
@@ -98,6 +98,13 @@ function AddonLine_Number_create() {
         var currentSelectedRange = presenter.$view.find('.current');
         currentSelectedRange.css('width', difference + 2 + 'px');
 
+        presenter.configuration.drawnRangesData.ranges = {
+            'start' : startElement,
+            'end' : endElement
+        };
+
+        console.log(presenter.configuration.drawnRangesData.ranges)
+
         if (start > end) {
             currentSelectedRange.css('left', - (difference) + 'px');
         }
@@ -105,7 +112,7 @@ function AddonLine_Number_create() {
     }
 
     function addEndRangeImages(e) {
-        if (presenter.configuration.isRangeAlreadyDrawn) return;
+        if (presenter.configuration.drawnRangesData.isDrawn) return;
 
         var endElement = $(e.target).parent();
         var startElement = presenter.$view.find('.current').parent();
@@ -236,10 +243,13 @@ function AddonLine_Number_create() {
             }
 
             var regexResult = rangesPattern.exec(this)[0];
+            var brackets = regexResult.match(/[\(\)<>]+/g);
             var onlyNumbersAndCommas = regexResult.replace(/[ \(\)<>]*/g, '');
             var onlyNumbers = onlyNumbersAndCommas.split(',');
             var min = onlyNumbers[0];
             var max = onlyNumbers[1];
+            var minInclude = brackets[0] == '<';
+            var maxInclude = brackets[0] == '>';
             var shouldDrawRange = onlyNumbers[2] == '1';
 
             if(!checkIsMinLowerThanMax(min, max)) {
@@ -306,7 +316,7 @@ function AddonLine_Number_create() {
             'showAxisXValues' : validatedShowAxisXValues,
             'axisXValues' : validatedAxisXValues,
             'mouseData' : { 'isMouseDown' : false },
-            'isRangeAlreadyDrawn' : false
+            'drawnRangesData' : { 'isDrawn' : false, 'ranges' : { 'start' : null, 'end' : null } }
         }
     };
 
