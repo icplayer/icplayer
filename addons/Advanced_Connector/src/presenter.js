@@ -5,8 +5,14 @@ function AddonAdvanced_Connector_create() {
         presenter.playerController = controller;
     };
 
-    presenter.alertErrorMessage = function (errorMessage) {
-        alert(errorMessage);
+    presenter.alertErrorMessage = function (error, message) {
+        var alertMessage = message + '\n\n';
+
+        if (error.name) alertMessage += '[' + error.name + '] ';
+
+        alertMessage += error.message ? error.message : error;
+
+        alert(alertMessage);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
@@ -19,8 +25,8 @@ function AddonAdvanced_Connector_create() {
             for (i = 0, length = filteredEvents.length; i < length; i++) {
                 eval(filteredEvents[i].Code);
             }
-        } catch (exception) {
-            presenter.alertErrorMessage("Advanced Connector - problem occurred while running scripts!");
+        } catch (error) {
+            presenter.alertErrorMessage(error, "Advanced Connector - problem occurred while running scripts!");
         }
     };
 
@@ -232,8 +238,8 @@ function AddonAdvanced_Connector_create() {
                     filteredArray.push(events[i]);
                 }
             }
-        } catch (exception) {
-            presenter.alertErrorMessage("Advanced Connector - problem occurred while processing conditions!");
+        } catch (error) {
+            presenter.alertErrorMessage(error, "Advanced Connector - problem occurred while processing conditions!");
         }
 
         return filteredArray;
