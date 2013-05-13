@@ -3,6 +3,7 @@ var ice_dictionary = {
 	"save" : "Save",
 	"close_editor" : "Close editor",
 	"add" : "Add",
+	"apply" : "Apply",
 	"duplicate" : "Duplicate",
 	"copy_tooltip" : "Copy module to clipboard",
 	"paste_tooltip" : "Paste module from clipboard",
