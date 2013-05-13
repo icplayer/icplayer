@@ -2,6 +2,8 @@ var ice_dictionary = {
 	"editor_title" : "Multiplatform Interactive Content Editor",
 	"save" : "Save",
 	"close_editor" : "Close editor",
+	"add" : "Add",
+	"duplicate" : "Duplicate",
 	"copy_tooltip" : "Copy module to clipboard",
 	"paste_tooltip" : "Paste module from clipboard",
 	"text" : "Text",
