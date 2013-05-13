@@ -20,11 +20,15 @@ function AddonLine_Number_create() {
 
         presenter.configuration = presenter.readConfiguration(model);
 
+
         if (presenter.configuration.isError) {
             return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
         }
 
         presenter.createSteps();
+
+
+        drawRangeFromList(presenter.configuration.ranges)
     };
 
     function calculateStepWidth(xAxisValues) {
@@ -62,8 +66,13 @@ function AddonLine_Number_create() {
         });
 
         clickArea.on('mouseup', function (e){
-            drawRange(e);
-            addEndRangeImages(e);
+            drawRangeFromEvent(e);
+
+            var endElement = $(e.target).parent();
+            var startElement = presenter.$view.find('.current').parent();
+
+            addEndRangeImages(startElement, endElement, true, true);
+
             presenter.$view.find('.current').removeClass('current');
             presenter.configuration.mouseData.isMouseDown = false;
             presenter.configuration.drawnRangesData.isDrawn = true;
@@ -71,7 +80,7 @@ function AddonLine_Number_create() {
 
         clickArea.on('mouseenter', function(e) {
             if(presenter.configuration.mouseData.isMouseDown) {
-                drawRange(e);
+                drawRangeFromEvent(e);
             }
         });
 
@@ -81,13 +90,14 @@ function AddonLine_Number_create() {
         });
 
         clickArea.css({
-            'width' :  presenter.configuration.stepWidth
+            'width' :  presenter.configuration.stepWidth,
+            'left' : - (presenter.configuration.stepWidth / 2) + 'px'
         });
 
         moveYAxisClickArea();
     }
 
-    function drawRange(e) {
+    function drawRangeFromEvent(e) {
         if (presenter.configuration.drawnRangesData.isDrawn) return;
 
         var endElement = $(e.target).parent();
@@ -103,25 +113,48 @@ function AddonLine_Number_create() {
             'end' : endElement
         };
 
-        console.log(presenter.configuration.drawnRangesData.ranges)
-
         if (start > end) {
             currentSelectedRange.css('left', - (difference) + 'px');
         }
 
     }
 
-    function addEndRangeImages(e) {
+    function drawRangeFromList(rangesList) {
+        $.each(rangesList, function() {
+            if (this.shouldDrawRange) {
+                var startElement = presenter.$view.find('.clickArea[value=' + this.min.value + ']').parent();
+                var endElement = presenter.$view.find('.clickArea[value=' + this.max.value + ']').parent();
+                var start = parseFloat($(startElement).css('left'));
+                var end = parseFloat(endElement.css('left'));
+                var difference = Math.abs(start - end);
+                var range = $('<div></div>');
+                range.addClass('selectedRange');
+                range.css('width', difference + 2 + 'px');
+                startElement.append(range);
+
+                if (start > end) {
+                    range.css('left', - (difference) + 'px');
+                }
+
+                addEndRangeImages(startElement, endElement, this.min.include, this.max.include);
+            }
+        });
+    }
+
+    function addEndRangeImages(startElement, endElement, includeStart, includeEnd) {
         if (presenter.configuration.drawnRangesData.isDrawn) return;
 
-        var endElement = $(e.target).parent();
-        var startElement = presenter.$view.find('.current').parent();
         var imageContainer = $('<div></div>');
         imageContainer.addClass('rangeImage');
-        imageContainer.addClass('include');
 
-        startElement.append(imageContainer.clone(true));
-        endElement.append(imageContainer);
+        var startImageContainer = imageContainer.clone(true);
+        var endImageContainer = imageContainer.clone(true);
+
+        startImageContainer.addClass(includeStart ? 'include' : 'exclude');
+        endImageContainer.addClass(includeEnd ? 'include' : 'exclude');
+
+        startElement.append(startImageContainer);
+        endElement.append(endImageContainer);
     }
 
     presenter.createSteps = function () {
@@ -228,28 +261,29 @@ function AddonLine_Number_create() {
             }
         }
 
-//        var rangesList = Helpers.splitLines(model['Ranges']);
-        var rangesList = model['Ranges'].split(/[\n\r]+/);
-        var rangesPattern = /(\(|<){1}[(?P \d)]+,[(?P \d)]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
+        var rangesList = Helpers.splitLines(model['Ranges']);
+//        var rangesList = model['Ranges'].split(/[\n\r]+/);
+        var rangesPattern = /(\(|<){1}[(?P \d)-]+,[(?P \d)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
         var validatedRanges = [];
 
-        $.each(rangesList, function() {
+        $.each(rangesList, function(i) {
+            var rangeString = this.toString();
 
-            if(!rangesPattern.test(this)) {
+            if( !rangesPattern.test(rangeString) ) {
                 return {
                     'isError' : true,
                     'errorCode' : 'RAN01'
                 }
             }
 
-            var regexResult = rangesPattern.exec(this)[0];
+            var regexResult = rangesPattern.exec(rangeString)[0];
             var brackets = regexResult.match(/[\(\)<>]+/g);
             var onlyNumbersAndCommas = regexResult.replace(/[ \(\)<>]*/g, '');
             var onlyNumbers = onlyNumbersAndCommas.split(',');
             var min = onlyNumbers[0];
             var max = onlyNumbers[1];
             var minInclude = brackets[0] == '<';
-            var maxInclude = brackets[0] == '>';
+            var maxInclude = brackets[1] == '>';
             var shouldDrawRange = onlyNumbers[2] == '1';
 
             if(!checkIsMinLowerThanMax(min, max)) {
@@ -260,8 +294,8 @@ function AddonLine_Number_create() {
             }
 
             var validatedRange = {
-                min: parseInt(min, 10),
-                max: parseInt(max, 10),
+                min: { value : parseInt(min, 10), include: minInclude },
+                max: { value: parseInt(max, 10), include: maxInclude },
                 shouldDrawRange: shouldDrawRange
             };
 
@@ -269,7 +303,6 @@ function AddonLine_Number_create() {
         });
 
         var validatedIsActivity = ModelValidationUtils.validateBoolean(model['Is Activity']);
-
         var validatedStep;
 
         if (model['Step'] == '') {

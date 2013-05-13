@@ -71,12 +71,16 @@ TestCase("Model Validation Tests", {
         assertFalse('', configuration.isError);
         assertEquals('', 2, configuration.ranges.length);
 
-        assertEquals('', 0, configuration.ranges[0].min);
-        assertEquals('', 1, configuration.ranges[0].max);
+        assertEquals('', 0, configuration.ranges[0].min.value);
+        assertEquals('', 1, configuration.ranges[0].max.value);
+        assertTrue('', configuration.ranges[0].min.include);
+        assertFalse('', configuration.ranges[0].max.include);
         assertEquals('', true, configuration.ranges[0].shouldDrawRange);
 
-        assertEquals('', 0, configuration.ranges[1].min);
-        assertEquals('', 5, configuration.ranges[1].max);
+        assertEquals('', 0, configuration.ranges[1].min.value);
+        assertEquals('', 5, configuration.ranges[1].max.value);
+        assertFalse('', configuration.ranges[1].min.include);
+        assertTrue('', configuration.ranges[1].max.include);
         assertEquals('', false, configuration.ranges[1].shouldDrawRange);
     },
 
