@@ -43,3 +43,39 @@ TestCase("Runtime exceptions catching", {
         assertTrue(this.presenter.alertErrorMessage.calledOnce);
     }
 });
+
+TestCase("Runtime exceptions notification", {
+    setUp: function () {
+        this.presenter = AddonAdvanced_Connector_create();
+
+        sinon.stub(window, 'alert');
+    },
+
+    tearDown: function () {
+        window.alert.restore();
+    },
+
+    'test exception is just a string': function () {
+        var error = "exception";
+
+        this.presenter.alertErrorMessage(error, "Advanced Connector - some message");
+
+        assertTrue(window.alert.calledWith("Advanced Connector - some message\n\nexception"));
+    },
+
+    'test exception is Error object but without name': function () {
+        var error = { message: "message" };
+
+        this.presenter.alertErrorMessage(error, "Advanced Connector - some message");
+
+        assertTrue(window.alert.calledWith("Advanced Connector - some message\n\nmessage"));
+    },
+
+    'test exception is full Error object (with name and message)': function () {
+        var error = new TypeError("type error");
+
+        this.presenter.alertErrorMessage(error, "Advanced Connector - some message");
+
+        assertTrue(window.alert.calledWith("Advanced Connector - some message\n\n[TypeError] type error"));
+    }
+});
