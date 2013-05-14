@@ -26,31 +26,32 @@ function AddonNavigation_Bar_create() {
     };
 
     function goToPage(whereTo, index) {
-        var goToIndex;
+        var currentIndex = presenter.playerController.getCurrentPageIndex(),
+            goToIndex;
 
         switch (whereTo) {
             case NAVIGATION_PAGE.FIRST:
-                if (presenter.currentIndex !== 0) {
+                if (currentIndex !== 0) {
                     goToIndex = 0;
                 }
                 break;
             case NAVIGATION_PAGE.LAST:
-                if (presenter.currentIndex !== (presenter.pageCount - 1)) {
+                if (currentIndex !== (presenter.pageCount - 1)) {
                     goToIndex = presenter.pageCount - 1;
                 }
                 break;
             case NAVIGATION_PAGE.NEXT:
-                if (presenter.currentIndex !== (presenter.pageCount - 1)) {
+                if (currentIndex !== (presenter.pageCount - 1)) {
                     goToIndex = presenter.currentIndex + 1;
                 }
                 break;
             case NAVIGATION_PAGE.PREVIOUS:
-                if (presenter.currentIndex !== 0) {
+                if (currentIndex !== 0) {
                     goToIndex = presenter.currentIndex - 1;
                 }
                 break;
             case NAVIGATION_PAGE.OTHER:
-                if (presenter.currentIndex !== index && (index >= 0) && (index <= (presenter.pageCount - 1))) {
+                if (currentIndex !== index && (index >= 0) && (index <= (presenter.pageCount - 1))) {
                     goToIndex = index;
                 }
                 break;
@@ -97,12 +98,12 @@ function AddonNavigation_Bar_create() {
             var pageIndex = parseInt($(this).html(), 10) - 1;
             var isCurrentPage = $(this).hasClass("navigationbar-element-current");
 
-            $(this).parent().click(function () {
+            $(this).parent().click(function (event) {
+                event.preventDefault();
+
                 if (!isCurrentPage) {
                     goToPage(NAVIGATION_PAGE.OTHER, pageIndex);
                 }
-
-                return false;
             });
         });
     }
