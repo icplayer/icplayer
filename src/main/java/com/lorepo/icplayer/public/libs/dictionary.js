@@ -195,7 +195,7 @@ var ice_dictionary = {
 	"add_header_footer": "Replace headers",
 	"move_module_up_menu": "Move module up",
 	"move_module_down_menu": "Move module down",
-	"page_preview": "Page preview",
+	"page_preview": "Preview",
 	"Preview": "Preview",
 	"showCounters": "Show counters",
 	"Ignore_punctuation": "Ignore punctuation",
