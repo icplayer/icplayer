@@ -43,19 +43,21 @@
 
 .addon_Line_Number .rangeImage {
     background-repeat: no-repeat;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     position: absolute;
-    left: -4px;
+    left: -5px;
+    top: -1px;
     z-index: 12;
+    background-size: 12px 12px;
 }
 
 .addon_Line_Number .exclude {
-    background: url('resources/range_exclude.png');
+    background-image: url('resources/range_exclude.svg');
 }
 
 .addon_Line_Number .include {
-    background: url('resources/range_include.png');
+    background-image: url('resources/range_include.svg');
 }
 
 .addon_Line_Number .clickArea {
@@ -97,7 +99,8 @@
 }
 
 .addon_Line_Number .selectedRange {
-    background-color: red;
+    background-color: #00bb44;
+    box-shadow: 0px 0px 1px #111;
     min-height: 10px;
     height: 10px;
     min-width: 2px;

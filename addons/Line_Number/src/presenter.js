@@ -20,15 +20,13 @@ function AddonLine_Number_create() {
 
         presenter.configuration = presenter.readConfiguration(model);
 
-
         if (presenter.configuration.isError) {
             return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
         }
 
         presenter.createSteps();
-
-
-        drawRangeFromList(presenter.configuration.ranges)
+            console.log(presenter.configuration.shouldDrawRanges)
+        drawRangeFromList(presenter.configuration.shouldDrawRanges);
     };
 
     function calculateStepWidth(xAxisValues) {
@@ -47,6 +45,46 @@ function AddonLine_Number_create() {
         return xAxisValues;
     }
 
+    function setIsInRange(e) {
+        presenter.configuration.mouseData.isInRange = false;
+
+        $.each(presenter.configuration.drawnRangesData.ranges, function() {
+            if ( presenter.isValueInRange($(e.target).attr('value'), this, false) ) {
+                presenter.configuration.mouseData.isInRange = true;
+                return;
+            }
+        });
+    }
+
+    function setClickedElementRange(e) {
+        var allRanges = presenter.configuration.drawnRangesData.ranges.concat(presenter.configuration.shouldDrawRanges);
+
+        $.each(allRanges, function(i) {
+            if ( presenter.isValueInRange($(e.target).attr('value'), this, false) ) {
+                presenter.configuration.mouseData.clickedElementRange = allRanges[i];
+            }
+        });
+    }
+
+    function setClickedElementPosition(e) {
+        var range = presenter.configuration.mouseData.clickedElementRange;
+        presenter.configuration.mouseData.isStartClicked = false;
+        presenter.configuration.mouseData.isEndClicked = false;
+        presenter.configuration.mouseData.isMiddleClicked = false;
+
+        if (range.start.element[0] == $(e.target).parent()[0]) {
+            presenter.configuration.mouseData.isStartClicked = true;
+        }
+
+        else if (range.end.element[0] == $(e.target).parent()[0]) {
+            presenter.configuration.mouseData.isEndClicked = true;
+        }
+
+        else {
+            presenter.configuration.mouseData.isMiddleClicked = true;
+        }
+    }
+
     function createClickArea(element, value) {
         var clickArea = $('<div></div>');
         var selectedRange = $('<div></div>');
@@ -57,21 +95,29 @@ function AddonLine_Number_create() {
         $(element).append(clickArea);
         clickArea.attr('value', value);
 
-        clickArea.on('mousedown', function (){
+        clickArea.on('mousedown', function (e){
             presenter.configuration.mouseData.isMouseDown = true;
             if ( !presenter.configuration.drawnRangesData.isDrawn ) {
                 selectedRange.addClass('current');
                 element.append(selectedRange);
+            } else {
+                $.when( setClickedElementRange(e) ).then( function() {
+                    setClickedElementPosition(e);
+                });
             }
+
+            drawRangeFromEvent(e);
+
+            setIsInRange(e);
+
         });
 
         clickArea.on('mouseup', function (e){
-            drawRangeFromEvent(e);
-
-            var endElement = $(e.target).parent();
-            var startElement = presenter.$view.find('.current').parent();
-
-            addEndRangeImages(startElement, endElement, true, true);
+            if (!presenter.configuration.drawnRangesData.isDrawn) {
+                var startElement = presenter.$view.find('.current').parent();
+                var endElement = $(e.target).parent();
+                addEndRangeImages(startElement, endElement, true, true);
+            }
 
             presenter.$view.find('.current').removeClass('current');
             presenter.configuration.mouseData.isMouseDown = false;
@@ -81,6 +127,32 @@ function AddonLine_Number_create() {
         clickArea.on('mouseenter', function(e) {
             if(presenter.configuration.mouseData.isMouseDown) {
                 drawRangeFromEvent(e);
+
+                setIsInRange(e);
+
+                if (presenter.configuration.mouseData.isStartClicked) {
+                    var drawnRange = presenter.configuration.mouseData.clickedElementRange.start.element.find('.selectedRange');
+                    var startValue = presenter.configuration.mouseData.clickedElementRange.start.value;
+
+                    var newStartElement = presenter.$view.find('.clickArea[value=' + (startValue + 1) + ']').parent();
+                    var newDrawnRange = drawnRange.clone(true);
+
+                    if (presenter.configuration.mouseData.isInRange) {
+                        newDrawnRange.css({
+                            'width' : $(drawnRange).width() - presenter.configuration.stepWidth + 'px'
+                        });
+                    }
+
+                    drawnRange.remove();
+                    newStartElement.append(newDrawnRange);
+
+                    console.log(drawnRange)
+                } else if (presenter.configuration.mouseData.isEndClicked) {
+                    console.log('end')
+                } else if (presenter.configuration.mouseData.isMiddleClicked) {
+                    console.log('middd')
+                }
+
             }
         });
 
@@ -97,21 +169,130 @@ function AddonLine_Number_create() {
         moveYAxisClickArea();
     }
 
-    function drawRangeFromEvent(e) {
-        if (presenter.configuration.drawnRangesData.isDrawn) return;
+    presenter.isValueInRange = function( value, range, takeExcludeIntoConsideration ) {
+        var start, end;
+        if (takeExcludeIntoConsideration) {
+            start = range.start.include ? range.start.value : range.start.value + 1;
+            end = range.end.include ? range.end.value + 1 : range.end.value;
+        } else {
+            start = range.start.value;
+            end = range.end.value + 1;
+        }
 
-        var endElement = $(e.target).parent();
+        for( var i = start; i < end; i++ ) {
+            if ( i == value ) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    function toggleIncludeImage(imageWrapper, shouldInclude) {
+        if (shouldInclude) {
+            imageWrapper.addClass('include');
+            imageWrapper.removeClass('exclude');
+        } else {
+            imageWrapper.addClass('exclude');
+            imageWrapper.removeClass('include');
+        }
+    }
+
+    function excludeElementFromRange(element, range) {
+        var rangeStartImage = range.start.element.find('.rangeImage');
+        var rangeEndImage = range.end.element.find('.rangeImage');
+
+        if (element.parent()[0] == range.start.element[0] && !presenter.configuration.mouseData.isMouseDown) {
+            range.start.include = !range.start.include;
+            toggleIncludeImage(rangeStartImage, range.start.include);
+
+        } else if (element.parent()[0] == range.end.element[0] && !presenter.configuration.mouseData.isMouseDown) {
+            range.end.include = !range.end.include;
+            toggleIncludeImage(rangeEndImage, range.end.include);
+
+        } else {
+            var currentRanges = presenter.configuration.drawnRangesData.ranges;
+            var currentIndex = 0;
+
+            $.each(presenter.configuration.drawnRangesData.ranges, function(i) {
+                if ( presenter.isValueInRange(element.parent().find('.clickArea').attr('value'), this, false) ) {
+                    currentIndex = i;
+                }
+            });
+
+            var first = {
+                start : {
+                    element: currentRanges[currentIndex].start.element,
+                    include: currentRanges[currentIndex].start.include,
+                    value: currentRanges[currentIndex].start.element.find('.clickArea').attr('value')
+                },
+                end: {
+                    element: element.parent(),
+                    include: false,
+                    value: element.parent().find('.clickArea').attr('value')
+                },
+                shouldDrawRange: true
+            };
+
+            var second = {
+                start : {
+                    element: element.parent(),
+                    include: false,
+                    value: element.parent().find('.clickArea').attr('value')
+                },
+                end: {
+                    element: currentRanges[currentIndex].end.element,
+                    include: currentRanges[currentIndex].end.include,
+                    value: currentRanges[currentIndex].end.element.find('.clickArea').attr('value')
+                },
+                shouldDrawRange: true
+            };
+
+            presenter.configuration.drawnRangesData.ranges.splice(currentIndex, 1, first, second);
+
+            clearDrawnElements();
+            drawRangeFromList(presenter.configuration.drawnRangesData.ranges);
+        }
+    }
+
+    function clearDrawnElements() {
+        $.each(presenter.configuration.drawnRangesData.ranges, function() {
+            var currentDrawnElement = this.start.element.find('.selectedRange');
+            currentDrawnElement.remove();
+        });
+    }
+
+    function drawRangeFromEvent(e) {
+        if (presenter.configuration.drawnRangesData.isDrawn) {
+            var currentElement = $(e.target);
+            var value = currentElement.attr('value');
+//            var index = 0;
+//
+//            $.each(presenter.configuration.drawnRangesData.ranges, function(i) {
+//                if ( presenter.isValueInRange(currentElement.parent().find('.clickArea').attr('value'), this, false) ) {
+//                    index = i;
+//                }
+//            });
+
+            /*if ( presenter.isValueInRange(value, presenter.configuration.drawnRangesData.ranges[index], false) ) {
+                excludeElementFromRange(currentElement, presenter.configuration.drawnRangesData.ranges[index]);
+            }*/
+
+            return;
+        }
         var startElement = presenter.$view.find('.current').parent();
+        var endElement = $(e.target).parent();
         var start = parseFloat(startElement.css('left'));
         var end = parseFloat(endElement.css('left'));
         var difference = Math.abs(start - end);
         var currentSelectedRange = presenter.$view.find('.current');
         currentSelectedRange.css('width', difference + 2 + 'px');
 
-        presenter.configuration.drawnRangesData.ranges = {
-            'start' : startElement,
-            'end' : endElement
+        var drawnRange = {
+            start : { element: startElement, include: true, value: startElement.find('.clickArea').attr('value') },
+            end: { element: endElement, include: true, value: endElement.find('.clickArea').attr('value') }
         };
+
+        presenter.configuration.drawnRangesData.ranges[0] = drawnRange;
 
         if (start > end) {
             currentSelectedRange.css('left', - (difference) + 'px');
@@ -120,41 +301,47 @@ function AddonLine_Number_create() {
     }
 
     function drawRangeFromList(rangesList) {
-        $.each(rangesList, function() {
-            if (this.shouldDrawRange) {
-                var startElement = presenter.$view.find('.clickArea[value=' + this.min.value + ']').parent();
-                var endElement = presenter.$view.find('.clickArea[value=' + this.max.value + ']').parent();
-                var start = parseFloat($(startElement).css('left'));
-                var end = parseFloat(endElement.css('left'));
-                var difference = Math.abs(start - end);
-                var range = $('<div></div>');
-                range.addClass('selectedRange');
-                range.css('width', difference + 2 + 'px');
-                startElement.append(range);
 
-                if (start > end) {
-                    range.css('left', - (difference) + 'px');
-                }
+        $.each(rangesList, function(i) {
+            var startElement = presenter.$view.find('.clickArea[value=' + this.start.value + ']').parent();
+            var endElement = presenter.$view.find('.clickArea[value=' + this.end.value + ']').parent();
 
-                addEndRangeImages(startElement, endElement, this.min.include, this.max.include);
+//                if (!this.start.element || !this.end.element) {
+//                    presenter.configuration.ranges[i].start.element = startElement;
+//                    presenter.configuration.ranges[i].end.element = endElement;
+//                }
+
+            var start = parseFloat($(startElement).css('left'));
+            var end = parseFloat(endElement.css('left'));
+            var difference = Math.abs(start - end);
+            var range = $('<div></div>');
+            range.addClass('selectedRange');
+            range.css('width', difference + 2 + 'px');
+            startElement.append(range);
+
+            if (start > end) {
+                range.css('left', - (difference) + 'px');
             }
+
+            addEndRangeImages(startElement, endElement, this.start.include, this.end.include);
         });
     }
 
     function addEndRangeImages(startElement, endElement, includeStart, includeEnd) {
-        if (presenter.configuration.drawnRangesData.isDrawn) return;
+        startElement.find('.rangeImage').remove();
 
         var imageContainer = $('<div></div>');
         imageContainer.addClass('rangeImage');
 
-        var startImageContainer = imageContainer.clone(true);
         var endImageContainer = imageContainer.clone(true);
-
-        startImageContainer.addClass(includeStart ? 'include' : 'exclude');
         endImageContainer.addClass(includeEnd ? 'include' : 'exclude');
-
-        startElement.append(startImageContainer);
         endElement.append(endImageContainer);
+
+        if (startElement[0] != endElement[0]) {
+            var startImageContainer = imageContainer.clone(true);
+            startImageContainer.addClass(includeStart ? 'include' : 'exclude');
+            startElement.append(startImageContainer);
+        }
     }
 
     presenter.createSteps = function () {
@@ -264,7 +451,8 @@ function AddonLine_Number_create() {
         var rangesList = Helpers.splitLines(model['Ranges']);
 //        var rangesList = model['Ranges'].split(/[\n\r]+/);
         var rangesPattern = /(\(|<){1}[(?P \d)-]+,[(?P \d)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
-        var validatedRanges = [];
+        var validatedShouldDrawRanges = [];
+        var validatedOtherRanges = [];
 
         $.each(rangesList, function(i) {
             var rangeString = this.toString();
@@ -294,12 +482,16 @@ function AddonLine_Number_create() {
             }
 
             var validatedRange = {
-                min: { value : parseInt(min, 10), include: minInclude },
-                max: { value: parseInt(max, 10), include: maxInclude },
-                shouldDrawRange: shouldDrawRange
+                start: { value : parseInt(min, 10), include: minInclude, element: null },
+                end: { value: parseInt(max, 10), include: maxInclude, element: null }
             };
 
-            validatedRanges.push(validatedRange);
+            if (shouldDrawRange) {
+                validatedShouldDrawRanges.push(validatedRange);
+            } else {
+                validatedOtherRanges.push(validatedRange);
+            }
+
         });
 
         var validatedIsActivity = ModelValidationUtils.validateBoolean(model['Is Activity']);
@@ -343,13 +535,20 @@ function AddonLine_Number_create() {
             'isError' : false,
             'min' : min,
             'max' : max,
-            'ranges' : validatedRanges,
+            'shouldDrawRanges' : validatedShouldDrawRanges,
+            'otherRanges' : validatedOtherRanges,
             'isActivity' : validatedIsActivity,
             'step' : validatedStep.value,
             'showAxisXValues' : validatedShowAxisXValues,
             'axisXValues' : validatedAxisXValues,
-            'mouseData' : { 'isMouseDown' : false },
-            'drawnRangesData' : { 'isDrawn' : false, 'ranges' : { 'start' : null, 'end' : null } }
+            'mouseData' : {
+                'isMouseDown' : false,
+                'isInRange' : false
+            },
+            'drawnRangesData' : {
+                'isDrawn' : false,
+                'ranges' : []
+            }
         }
     };
 
