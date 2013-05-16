@@ -14,6 +14,12 @@ function AddonLine_Number_create() {
         'VAL01' : 'One or more X axis values are invalid.'
     };
 
+    presenter.CLICKED_POSITION = {
+        START: 1,
+        MIDDLE: 2,
+        END: 3
+    };
+
     presenter.run = function(view, model) {
         presenter.$view = $(view);
         presenter.$view.disableSelection();
@@ -25,7 +31,6 @@ function AddonLine_Number_create() {
         }
 
         presenter.createSteps();
-            console.log(presenter.configuration.shouldDrawRanges)
         drawRangeFromList(presenter.configuration.shouldDrawRanges);
     };
 
@@ -47,8 +52,9 @@ function AddonLine_Number_create() {
 
     function setIsInRange(e) {
         presenter.configuration.mouseData.isInRange = false;
+        var allRanges = presenter.configuration.drawnRangesData.ranges.concat(presenter.configuration.shouldDrawRanges);
 
-        $.each(presenter.configuration.drawnRangesData.ranges, function() {
+        $.each(allRanges, function() {
             if ( presenter.isValueInRange($(e.target).attr('value'), this, false) ) {
                 presenter.configuration.mouseData.isInRange = true;
                 return;
@@ -66,22 +72,67 @@ function AddonLine_Number_create() {
         });
     }
 
-    function setClickedElementPosition(e) {
+    function setClickedPosition(e) {
         var range = presenter.configuration.mouseData.clickedElementRange;
-        presenter.configuration.mouseData.isStartClicked = false;
-        presenter.configuration.mouseData.isEndClicked = false;
-        presenter.configuration.mouseData.isMiddleClicked = false;
+        presenter.configuration.mouseData.clickedPosition = null;
 
         if (range.start.element[0] == $(e.target).parent()[0]) {
-            presenter.configuration.mouseData.isStartClicked = true;
+            presenter.configuration.mouseData.clickedPosition = presenter.CLICKED_POSITION.START;
         }
 
         else if (range.end.element[0] == $(e.target).parent()[0]) {
-            presenter.configuration.mouseData.isEndClicked = true;
+            presenter.configuration.mouseData.clickedPosition = presenter.CLICKED_POSITION.END;
         }
 
         else {
-            presenter.configuration.mouseData.isMiddleClicked = true;
+            presenter.configuration.mouseData.clickedPosition = presenter.CLICKED_POSITION.MIDDLE;
+        }
+    }
+
+    function isEndOfCurrentSelectedRange() {
+        return presenter.configuration.mouseData.clickedElementRange.start.element[0] == presenter.configuration.mouseData.clickedElementRange.end.element[0];
+    }
+
+    function eraseCurrentSelectedRange(clickArea) {
+        var stepLine = $(clickArea).parent();
+        stepLine.find('.selectedRange').remove();
+        stepLine.find('.rangeImage').remove();
+        presenter.configuration.mouseData.clickedElementRange = null;
+    }
+
+
+    function shortenFromLeft() {
+        var drawnRange = presenter.configuration.mouseData.clickedElementRange.start.element.find('.selectedRange');
+        var rangeImage = presenter.configuration.mouseData.clickedElementRange.start.element.find('.rangeImage');
+        var startValue = presenter.configuration.mouseData.clickedElementRange.start.value;
+        var clickedElementRange = presenter.configuration.mouseData.clickedElementRange;
+
+        var start = parseFloat(clickedElementRange.start.element.css('left'));
+        var end = parseFloat(clickedElementRange.end.element.css('left'));
+        var difference = Math.abs(start - end);
+
+        var clickArea = presenter.$view.find('.clickArea[value=' + (startValue + 1) + ']');
+
+        var newStartElement = clickArea.parent();
+        var newDrawnRange = drawnRange.clone(true);
+
+        if (presenter.configuration.mouseData.isInRange) {
+            newDrawnRange.css({
+                'width' : (difference - presenter.configuration.stepWidth) + 2 + 'px'
+            });
+        }
+
+        drawnRange.remove();
+        newStartElement.append(newDrawnRange);
+        rangeImage.remove();
+
+        addEndRangeImage(newStartElement, true);
+
+        presenter.configuration.mouseData.clickedElementRange.start.element = newStartElement;
+        presenter.configuration.mouseData.clickedElementRange.start.value = (startValue + 1);
+
+        if (isEndOfCurrentSelectedRange()) {
+            eraseCurrentSelectedRange(clickArea);
         }
     }
 
@@ -102,7 +153,7 @@ function AddonLine_Number_create() {
                 element.append(selectedRange);
             } else {
                 $.when( setClickedElementRange(e) ).then( function() {
-                    setClickedElementPosition(e);
+                    setClickedPosition(e);
                 });
             }
 
@@ -130,26 +181,12 @@ function AddonLine_Number_create() {
 
                 setIsInRange(e);
 
-                if (presenter.configuration.mouseData.isStartClicked) {
-                    var drawnRange = presenter.configuration.mouseData.clickedElementRange.start.element.find('.selectedRange');
-                    var startValue = presenter.configuration.mouseData.clickedElementRange.start.value;
+                if (presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.START) {
+                    shortenFromLeft();
 
-                    var newStartElement = presenter.$view.find('.clickArea[value=' + (startValue + 1) + ']').parent();
-                    var newDrawnRange = drawnRange.clone(true);
-
-                    if (presenter.configuration.mouseData.isInRange) {
-                        newDrawnRange.css({
-                            'width' : $(drawnRange).width() - presenter.configuration.stepWidth + 'px'
-                        });
-                    }
-
-                    drawnRange.remove();
-                    newStartElement.append(newDrawnRange);
-
-                    console.log(drawnRange)
-                } else if (presenter.configuration.mouseData.isEndClicked) {
+                } else if (presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.END) {
                     console.log('end')
-                } else if (presenter.configuration.mouseData.isMiddleClicked) {
+                } else if (presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.MIDDLE) {
                     console.log('middd')
                 }
 
@@ -161,9 +198,10 @@ function AddonLine_Number_create() {
             presenter.configuration.mouseData.isMouseDown = false;
         });
 
+        var clickAreaWidth = presenter.configuration.stepWidth - (presenter.configuration.stepWidth / 4);
         clickArea.css({
-            'width' :  presenter.configuration.stepWidth,
-            'left' : - (presenter.configuration.stepWidth / 2) + 'px'
+            'width' : clickAreaWidth,
+            'left' : - (clickAreaWidth / 2) + 'px'
         });
 
         moveYAxisClickArea();
@@ -306,10 +344,10 @@ function AddonLine_Number_create() {
             var startElement = presenter.$view.find('.clickArea[value=' + this.start.value + ']').parent();
             var endElement = presenter.$view.find('.clickArea[value=' + this.end.value + ']').parent();
 
-//                if (!this.start.element || !this.end.element) {
-//                    presenter.configuration.ranges[i].start.element = startElement;
-//                    presenter.configuration.ranges[i].end.element = endElement;
-//                }
+            if (!this.start.element || !this.end.element) {
+                presenter.configuration.shouldDrawRanges[i].start.element = startElement;
+                presenter.configuration.shouldDrawRanges[i].end.element = endElement;
+            }
 
             var start = parseFloat($(startElement).css('left'));
             var end = parseFloat(endElement.css('left'));
@@ -328,20 +366,21 @@ function AddonLine_Number_create() {
     }
 
     function addEndRangeImages(startElement, endElement, includeStart, includeEnd) {
-        startElement.find('.rangeImage').remove();
+        addEndRangeImage(endElement, includeEnd);
+
+        if (startElement[0] != endElement[0]) {
+            addEndRangeImage(startElement, includeStart);
+        }
+    }
+
+    function addEndRangeImage(element, include) {
+        element.find('.rangeImage').remove();
 
         var imageContainer = $('<div></div>');
         imageContainer.addClass('rangeImage');
+        imageContainer.addClass(include ? 'include' : 'exclude');
+        element.append(imageContainer);
 
-        var endImageContainer = imageContainer.clone(true);
-        endImageContainer.addClass(includeEnd ? 'include' : 'exclude');
-        endElement.append(endImageContainer);
-
-        if (startElement[0] != endElement[0]) {
-            var startImageContainer = imageContainer.clone(true);
-            startImageContainer.addClass(includeStart ? 'include' : 'exclude');
-            startElement.append(startImageContainer);
-        }
     }
 
     presenter.createSteps = function () {
