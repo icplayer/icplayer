@@ -113,7 +113,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			optionView.resetStyles();
 		}
 		
-		view.setEnabled(true);
+		view.setEnabled(!isDisabled);
 	}	
 	
 	

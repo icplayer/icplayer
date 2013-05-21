@@ -7,6 +7,7 @@
 		</shapeModule>
 		
 		<choiceModule id="2frg43d" left="120" top="120" width="560" height="200" style="background-color:yellow">
+			<choice isDisabled='true'/>
 			<options>
 				<option value="5">
 					<text>To jest opcja pierwsza za 5 punktów</text>
