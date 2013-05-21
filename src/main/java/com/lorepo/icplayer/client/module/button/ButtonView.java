@@ -48,9 +48,6 @@ public class ButtonView extends Composite implements IModuleView{
 		else if(ButtonType.prevPage == type){
 			button = new PrevPageButton(playerServices);
 		}
-		else if(ButtonType.sendResults == type){
-			button = new SendResultButton(playerServices);
-		}
 		else if(ButtonType.gotoPage == type){
 			button = new GotoPageButton(module.getOnClick(), playerServices);
 		}
