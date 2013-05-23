@@ -5,8 +5,12 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 
 public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDisplay{
 
+	private ErrorCounterModule module;
+	
+	
 	public ErrorCounterView(ErrorCounterModule module, boolean isPreview){
 	
+		this.module = module;
 		setStyleName("ic_errorcounter");
 		StyleUtils.applyInlineStyle(this, module);
 		if(isPreview){
@@ -22,7 +26,15 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 	public void setData(int errorCount, int mistakeCount) {
 		
 		if(errorCount > 0 || mistakeCount > 0){
-			setText(Integer.toString(errorCount) + "/" + Integer.toString(mistakeCount));
+			if(module.getShowErrorCounter() && module.getShowMistakeCounter()){
+				setText(Integer.toString(errorCount) + "/" + Integer.toString(mistakeCount));
+			}
+			else if(module.getShowErrorCounter()){
+				setText(Integer.toString(errorCount));
+			}
+			else if(module.getShowMistakeCounter()){
+				setText(Integer.toString(mistakeCount));
+			}
 		}
 		else{
 			setText("");

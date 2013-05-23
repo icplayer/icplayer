@@ -154,6 +154,8 @@ var ice_dictionary = {
 	"choice_item_value" : "Value",
 	"choice_item_event" : "Event",
 	"error_counter_module" : "Error Counter",
+	"mistakes_property" : "Show mistakes",
+	"errors_property" : "Show errors",
 	"image_module" : "Image",
 	"image_property" : "Image",
 	"mode_property" : "Mode",
