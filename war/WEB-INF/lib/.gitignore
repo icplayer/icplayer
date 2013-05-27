@@ -12,3 +12,6 @@
 /geronimo-jta_1.1_spec-1.1.1.jar
 /jdo2-api-2.3-eb.jar
 /jsr107cache-1.1.jar
+/appengine-jsr107cache-1.7.6.jar
+/appengine-api-1.0-sdk-1.7.6.jar
+/gwt-servlet.jar
