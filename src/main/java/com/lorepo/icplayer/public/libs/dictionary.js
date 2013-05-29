@@ -73,7 +73,7 @@ var ice_dictionary = {
 	"paste_menu" : "Paste",
 	"edit_menu" : "Edit",
 	"add_page_menu" : "Add page",
-	"add_page_menu" : "Add page",
+	"add_page_from_template_menu" : "Add page from template",
 	"add_empty_page_menu" : "Add empty page",
 	"add_empty" : "Add&nbsp;empty",
 	"add_from_template" : "Add&nbsp;from&nbsp;template",
