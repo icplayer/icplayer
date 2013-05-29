@@ -1,12 +1,14 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.1';
+        this.VERSION = '1.1.2';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
         this.INFINITY_NEGATIVE_VALUE = -2147483647;
         this.INFINITY_POSITIVE_VALUE = 2147483647;
         this.ASYMPTOTE_MINIMUM_TRIAL = 3;
+        this.TYPE_X_TO_Y = 1;
+        this.TYPE_Y_TO_X = 2;
         this.asymptoteMinimumDY = 5;
         this.interactive = true;
         this.xMin = -10;
@@ -416,10 +418,10 @@ function AddonPlot_create(){
             var obj, cp;
             var path = this.svg.createPath();
             //function type x to y
-            if(this.expressions[p].type == 1) {
+            if(this.expressions[p].type == this.TYPE_X_TO_Y) {
                 path = this._drawXToY(p);
             //function type y to x
-            } else if(this.expressions[p].type == 2) {
+            } else if(this.expressions[p].type == this.TYPE_Y_TO_X) {
                 path = this._drawYToX(p);
             }
             this.svg.path(this.svgDoc.find('.drawings'), path, {
@@ -1200,19 +1202,25 @@ function AddonPlot_create(){
             return state;
         };
         this.isPointOnPlot = function(pid, x, y) {
-            var ry;
+            var rv, rc;
             var isCorrect = false;
             $.each(this.expressions, function(idx, val) {
                 if (val.id == pid) {
                     var variables = plot._mapPlotVariables(idx);
-                    variables.x = x;
+                    if(val.type == plot.TYPE_X_TO_Y) {
+                        rc = y;
+                        variables.x = x;
+                    } else {
+                        rc = x;
+                        variables.y = y;
+                    }
                     try {
-                        ry = Parser.evaluate(plot.expressions[idx].expression, variables);
+                        rv = Parser.evaluate(plot.expressions[idx].expression, variables);
                     } catch (e) {
                         return false;
                     }
 
-                    isCorrect = ry == y;
+                    isCorrect = rv == rc;
                     return false;
                 }
             });
@@ -1596,7 +1604,7 @@ function AddonPlot_create(){
                     yMax: model['Expressions'][p]['yMax'] === undefined || (model['Expressions'][p]['yMax'] == '' && model['Expressions'][p]['yMax'] != '0') ? false : model['Expressions'][p]['yMax'],
                     variables: {},
                     initVisible: model['Expressions'][p]['hidden'] !== undefined && model['Expressions'][p]['hidden'] != '' && model['Expressions'][p]['hidden'].toLowerCase() === 'true' ? false : true,
-                    type: model['Expressions'][p]['y to x'] === undefined || model['Expressions'][p]['y to x'] == '' || model['Expressions'][p]['y to x'].toLowerCase() === 'false' ? 1 : 2,
+                    type: model['Expressions'][p]['y to x'] === undefined || model['Expressions'][p]['y to x'] == '' || model['Expressions'][p]['y to x'].toLowerCase() === 'false' ? plot.TYPE_X_TO_Y : plot.TYPE_Y_TO_X,
                     touched: false,
                     cssColorInitialValue: model['Expressions'][p]['color'] === undefined || model['Expressions'][p]['color'] == '' ? '' : model['Expressions'][p]['color']
                 };
