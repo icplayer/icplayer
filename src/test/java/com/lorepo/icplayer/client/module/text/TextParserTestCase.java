@@ -428,7 +428,6 @@ public class TextParserTestCase {
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
 		
-		System.out.println(parsed.parsedText);
 		int index = parsed.parsedText.indexOf(">słówko1</a>");
 		assertTrue(index > 0);
 	}

@@ -419,8 +419,23 @@ function Addongraph_create(){
         );
     }
 
+    presenter.getProperPrecision = function (number1, number2) {
+        var number1Precision = 0, number2Precision = 0;
+
+        if (('' + number1).split('.')[1]) {
+            number1Precision = ('' + number1).split('.')[1].length;
+        }
+
+        if (('' + number2).split('.')[1]) {
+            number2Precision = ('' + number2).split('.')[1].length;
+        }
+
+        return Math.max(number1Precision, number2Precision);
+    };
+
     presenter.increaseGraphValue = function(eventData) {
         if(presenter.errorMode) return;
+
         presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
             presenter.configuration.mouseData.wasDragged = false;
@@ -429,15 +444,23 @@ function Addongraph_create(){
 
         var valueContainer = $(eventData.target).parent().find('.graph_value_container');
 
-        var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer);
-        var currentValue = parseFloat(valueContainer.attr('current-value'));
-        var newValue = currentValue + presenter.interactiveStep;
+        var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer),
+            currentValue = parseFloat(valueContainer.attr('current-value')),
+            minInteractivePoint = presenter.getMinimumInteractivePoint(valueContainer.attr('value-id')),
+            newValue, newValuePrecision;
 
-        if(newValue > presenter.axisYMaximumValue) {
-            return;
+        if (currentValue == presenter.axisYMinimumValue && minInteractivePoint !== currentValue) {
+            // Special case when current value is minimum and can not match with those calculated with interactive step
+            newValue = minInteractivePoint;
+            newValuePrecision = presenter.getProperPrecision(minInteractivePoint, presenter.interactiveStep);
+        } else {
+            newValue = currentValue + presenter.interactiveStep;
+            newValuePrecision = presenter.getProperPrecision(currentValue, presenter.interactiveStep);
         }
 
-        valueContainer.attr('current-value', newValue);
+        if(newValue > presenter.axisYMaximumValue) return;
+
+        valueContainer.attr('current-value', newValue.toFixed(newValuePrecision));
         presenter.redrawGraphValue(valueContainer);
 
         if (currentValue === newValue) return;
@@ -447,6 +470,7 @@ function Addongraph_create(){
 
     presenter.decreaseGraphValue = function(eventData) {
         if(presenter.errorMode) return;
+
         presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
             presenter.configuration.mouseData.wasDragged = false;
@@ -462,15 +486,23 @@ function Addongraph_create(){
             valueContainer = $(eventData.target).parent().find('.graph_value_container');
         }
 
-        var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer);
-        var currentValue = parseFloat(valueContainer.attr('current-value'));
-        var newValue = currentValue - presenter.interactiveStep;
+        var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer),
+            currentValue = parseFloat(valueContainer.attr('current-value')),
+            maxInteractivePoint = presenter.getMaximumInteractivePoint(valueContainer.attr('value-id')),
+            newValue, newValuePrecision;
 
-        if(newValue < presenter.axisYMinimumValue) {
-            return;
+        if (currentValue == presenter.axisYMaximumValue && maxInteractivePoint !== currentValue) {
+            // Special case when current value is maximum and can not match with those calculated with interactive step
+            newValue = maxInteractivePoint;
+            newValuePrecision = presenter.getProperPrecision(maxInteractivePoint, presenter.interactiveStep);
+        } else {
+            newValue = currentValue - presenter.interactiveStep;
+            newValuePrecision = presenter.getProperPrecision(currentValue, presenter.interactiveStep);
         }
 
-        valueContainer.attr('current-value', newValue);
+        if(newValue < presenter.axisYMinimumValue) return;
+
+        valueContainer.attr('current-value', newValue.toFixed(newValuePrecision));
         presenter.redrawGraphValue(valueContainer);
 
         if (currentValue === newValue) return;
@@ -578,6 +610,39 @@ function Addongraph_create(){
         }
     };
 
+    presenter.getInitialData = function (valueID) {
+        var series = parseInt(valueID.split(' ')[0], 10),
+            index = parseInt(valueID.split(' ')[1], 10);
+
+        return parseFloat(presenter.data[series][index]);
+    };
+
+    presenter.getMaximumInteractivePoint = function (valueID) {
+        var initialData = presenter.getInitialData(valueID),
+            interactiveStep = presenter.interactiveStep,
+            maxYValue = presenter.axisYMaximumValue,
+            maxPoint = initialData;
+
+        while (maxPoint + interactiveStep <= maxYValue) {
+            maxPoint += interactiveStep;
+        }
+
+        return maxPoint
+    };
+
+    presenter.getMinimumInteractivePoint = function (valueID) {
+        var initialData = presenter.getInitialData(valueID),
+            interactiveStep = presenter.interactiveStep,
+            minYValue = presenter.axisYMinimumValue,
+            minPoint = initialData;
+
+        while (minPoint - interactiveStep >= minYValue) {
+            minPoint -= interactiveStep;
+        }
+
+        return minPoint
+    };
+
     function triggerColumnContainerClickHandler() {
         if (presenter.configuration.mouseData.isColumnContainerTriggerIncrease) {
             presenter.increaseGraphValue(presenter.configuration.mouseData.columnContainerEventData);
@@ -629,6 +694,9 @@ function Addongraph_create(){
             if (!isAboveXAxis($element)) {
                 newValue = -1 * newValue;
             }
+
+            var initialValue = presenter.getInitialData($container.attr('value-id'));
+            newValue = initialValue + newValue;
         }
 
         $container.attr('current-value', newValue);
@@ -1016,7 +1084,7 @@ function Addongraph_create(){
                 bottom: presenter.drawingXPosition - drawingGridStep + (drawingGridStep * i / axisYGridStep)
             });
 
-            presenter.$view.find('.graph_grid_description_' + new String(i).toString().replace('.', '_')).each(function(index, element) {
+            presenter.$view.find('.graph_grid_description_' + String(i).toString().replace('.', '_')).each(function(index, element) {
                 $(element).css({
                     bottom: (presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep) - $(element).height() / 2 + xAxisDescriptionMargin) + 'px'
                 });
@@ -1032,7 +1100,7 @@ function Addongraph_create(){
                 bottom: presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep)
             });
 
-            presenter.$view.find('.graph_grid_description_' + new String(i).toString().replace('.', '_')).each(function(index, element) {
+            presenter.$view.find('.graph_grid_description_' + String(i).toString().replace('.', '_')).each(function(index, element) {
                 $(element).css({
                     bottom: (presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep) - $(element).height() / 2 + xAxisDescriptionMargin) + 'px'
                 });
