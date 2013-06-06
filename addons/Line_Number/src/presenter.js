@@ -196,11 +196,6 @@ function AddonLine_Number_create() {
             secondRange = ranges[0];
         }
 
-        log('join')
-        log(ranges)
-        log(firstRange)
-        log(secondRange)
-
         $.each(ranges, function() {
             removeRange(this, true);
         });
@@ -394,96 +389,11 @@ function AddonLine_Number_create() {
         }
     }
 
-    function excludeElementFromRange(element, range) {
-        var rangeStartImage = range.start.element.find('.rangeImage');
-        var rangeEndImage = range.end.element.find('.rangeImage');
-
-        if (element.parent()[0] == range.start.element[0] && !presenter.configuration.mouseData.isMouseDown) {
-            range.start.include = !range.start.include;
-            toggleIncludeImage(rangeStartImage, range.start.include);
-
-        } else if (element.parent()[0] == range.end.element[0] && !presenter.configuration.mouseData.isMouseDown) {
-            range.end.include = !range.end.include;
-            toggleIncludeImage(rangeEndImage, range.end.include);
-
-        } else {
-            var currentRanges = presenter.configuration.drawnRangesData.ranges;
-            var currentIndex = 0;
-
-            $.each(presenter.configuration.drawnRangesData.ranges, function(i) {
-                if ( presenter.isValueInRange(element.parent().find('.clickArea').attr('value'), this, false) ) {
-                    currentIndex = i;
-                }
-            });
-
-            var first = {
-                start : {
-                    element: currentRanges[currentIndex].start.element,
-                    include: currentRanges[currentIndex].start.include,
-                    value: currentRanges[currentIndex].start.element.find('.clickArea').attr('value')
-                },
-                end: {
-                    element: element.parent(),
-                    include: false,
-                    value: element.parent().find('.clickArea').attr('value')
-                },
-                shouldDrawRange: true
-            };
-
-            var second = {
-                start : {
-                    element: element.parent(),
-                    include: false,
-                    value: element.parent().find('.clickArea').attr('value')
-                },
-                end: {
-                    element: currentRanges[currentIndex].end.element,
-                    include: currentRanges[currentIndex].end.include,
-                    value: currentRanges[currentIndex].end.element.find('.clickArea').attr('value')
-                },
-                shouldDrawRange: true
-            };
-
-            presenter.configuration.drawnRangesData.ranges.splice(currentIndex, 1, first, second);
-
-            clearDrawnElements();
-            drawRangeFromList(presenter.configuration.drawnRangesData.ranges);
-        }
-    }
-
     function clearDrawnElements() {
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
             var currentDrawnElement = this.start.element.find('.selectedRange');
             currentDrawnElement.remove();
         });
-    }
-
-    function drawRangeFromEvent(e) {
-        if (presenter.configuration.drawnRangesData.isDrawn) {
-            var currentElement = $(e.target);
-            var value = currentElement.attr('value');
-
-            return;
-        }
-        var startElement = presenter.$view.find('.current').parent();
-        var endElement = $(e.target).parent();
-        var start = parseFloat(startElement.css('left'));
-        var end = parseFloat(endElement.css('left'));
-        var difference = Math.abs(start - end);
-        var currentSelectedRange = presenter.$view.find('.current');
-        currentSelectedRange.css('width', difference + 2 + 'px');
-
-        var drawnRange = {
-            start : { element: startElement, include: true, value: startElement.find('.clickArea').attr('value') },
-            end: { element: endElement, include: true, value: endElement.find('.clickArea').attr('value') }
-        };
-
-        presenter.configuration.drawnRangesData.ranges[0] = drawnRange;
-
-        if (start > end) {
-            currentSelectedRange.css('left', - (difference) + 'px');
-        }
-
     }
 
     function drawRangeFromList(rangesList) {
