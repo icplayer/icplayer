@@ -145,7 +145,9 @@ public class ChoiceOption extends BasicPropertyProvider{
 				text = XMLUtils.getText(textElement);
 				text = StringUtils.unescapeXML(text);
 			}
-			
+			if(baseUrl != null){
+				text = StringUtils.updateLinks(text, baseUrl);
+			}
 			
 			NodeList feedbackNodes = element.getElementsByTagName("feedback");
 			if(feedbackNodes.getLength() > 0){
