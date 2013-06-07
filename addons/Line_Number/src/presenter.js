@@ -96,9 +96,9 @@ function AddonLine_Number_create() {
         }
         else if ( rangesThatMouseWasAbove.length > 0 && value < rangesThatMouseWasAbove[0].start.value ) {
 //            log('rangesThatMouseWasAbove removed')
-//            log(presenter.configuration.mouseData.rangesThatMouseWasAbove.pop())
+            log(presenter.configuration.mouseData.rangesThatMouseWasAbove.pop())
 //            log('rangesToRemove removed')
-//            log(presenter.configuration.mouseData.rangesToRemove.pop())
+            log(presenter.configuration.mouseData.rangesToRemove.pop())
         }
     }
 
