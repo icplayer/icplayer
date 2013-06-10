@@ -1,6 +1,9 @@
-icplayer build 100
+icplayer build 101
+
+Changes in version 101:
+ - fixed problem with fonts in multiple Paragraph editors on one page
 
 Changes in version 100:
- - Added JSC3D library for viewing 3D models purposes
- - Added 3D Viewer module. This module allow simple viewing 3D objects saved in OBJ format
- - Added commands queue utility to Commons which allows postponing commands execution (while module is loading asynchronously)
+ - added JSC3D library for viewing 3D models purposes
+ - added 3D Viewer module. This module allow simple viewing 3D objects saved in OBJ format
+ - added commands queue utility to Commons which allows postponing commands execution (while module is loading asynchronously)

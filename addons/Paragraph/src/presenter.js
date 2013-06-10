@@ -1,6 +1,6 @@
 function AddonParagraph_create() {
     var presenter = function () {};
-    var myEditor;
+    var editorID;
 
     presenter.DEFAULTS = {
         TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
@@ -65,7 +65,7 @@ function AddonParagraph_create() {
     };
 
     presenter.setStyles = function () {
-        var dom = tinymce.get(tinymce.activeEditor.id).dom, i,
+        var dom = tinymce.get(editorID).dom, i,
             elements = [ dom.select('p'), dom.select('ol'), dom.select('ul') ];
 
         for (i = 0; i < elements.length; i++) {
@@ -74,10 +74,10 @@ function AddonParagraph_create() {
         }
     };
     presenter.onInit = function() {
-        myEditor = tinymce.activeEditor.id;
+        editorID = tinymce.activeEditor.id;
 
-        $(tinymce.activeEditor.dom.select('html')).click(function () {
-            tinymce.activeEditor.dom.select('html').focus();
+        $(tinymce.get(editorID).dom.select('html')).click(function () {
+            tinymce.get(editorID).dom.select('html')[0].focus();
         });
 
         presenter.setStyles();
@@ -88,15 +88,15 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function() {
-        return tinymce.get(myEditor).getContent({format : 'raw'});
+        return tinymce.get(editorID).getContent({format : 'raw'});
     };
 
     presenter.setState = function(state) {
-        tinymce.get(myEditor).setContent(state, {format : 'raw'});
+        tinymce.get(editorID).setContent(state, {format : 'raw'});
     };
 
     presenter.reset = function() {
-        tinymce.get(myEditor).setContent('');
+        tinymce.get(editorID).setContent('');
     };
 
     return presenter;
