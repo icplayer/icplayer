@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Viewer_3D'>
+	<model>
+		<property name='OBJ File' type='file' />
+		<property name='MTL File' type='file' />
+		<property name="Initial Rotation X" type="string" />
+		<property name="Initial Rotation Y" type="string" />
+		<property name="Initial Rotation Z" type="string" />
+		<property name="Model Color" type="string" />
+		<property name="Background Color 1" type="string" />
+		<property name="Background Color 2" type="string" />
+		<property name="Render Mode" type="{Smooth,Points,Wireframe,Flat}" />
+	</model>
+</addon>
