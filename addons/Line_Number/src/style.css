@@ -48,7 +48,7 @@
     position: absolute;
     left: -5px;
     top: -1px;
-    z-index: 12;
+    z-index: 11;
     background-size: 12px 12px;
 }
 
@@ -67,7 +67,7 @@
     min-height: 10px;
     min-width: 10px;
     position: absolute;
-    z-index: 11;
+    z-index: 12;
 }
 
 .addon_Line_Number .stepText {

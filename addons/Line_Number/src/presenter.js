@@ -272,7 +272,7 @@ function AddonLine_Number_create() {
 
             rangeToDraw = {
                 start: clickedRange.start,
-                end: createRangeElement( $(e.target).parent(), value, $(clickedRange.end.element).parent().find('.rangeImage').hasClass('include') )
+                end: createRangeElement( $(e.target).parent(), value, $(clickedRange.end.element).find('.rangeImage').hasClass('include') )
             };
 
             $(clickedRange.end.element).find('.rangeImage').remove();
@@ -281,7 +281,7 @@ function AddonLine_Number_create() {
             && presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.START ) {
 
             rangeToDraw = {
-                start: createRangeElement( $(e.target).parent(), value, $(clickedRange.start.element).parent().find('.rangeImage').hasClass('include') ),
+                start: createRangeElement( $(e.target).parent(), value, $(clickedRange.start.element).find('.rangeImage').hasClass('include') ),
                 end: clickedRange.end
             };
 
@@ -317,7 +317,7 @@ function AddonLine_Number_create() {
 
             rangeToDraw = {
                 start: clickedRange.start,
-                end: createRangeElement( $(e.target).parent(), value, $(e.target).parent().find('.rangeImage').hasClass('include') )
+                end: createRangeElement( $(e.target).parent(), value, $(clickedRange.end.element).find('.rangeImage').hasClass('include') )
             };
 
             $(clickedRange.end.element).find('.rangeImage').remove();
@@ -330,7 +330,7 @@ function AddonLine_Number_create() {
             }
 
             rangeToDraw = {
-                start: createRangeElement( $(e.target).parent(), value, $(e.target).parent().find('.rangeImage').hasClass('include') ),
+                start: createRangeElement( $(e.target).parent(), value, $(clickedRange.start.element).find('.rangeImage').hasClass('include') ),
                 end: clickedRange.end
             };
 
