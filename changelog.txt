@@ -1,4 +1,7 @@
-icplayer build 101
+icplayer build 102
+
+Changes in version 102:
+ - fixed problem with restoring visibility in Table module after page change
 
 Changes in version 101:
  - fixed problem with fonts in multiple Paragraph editors on one page

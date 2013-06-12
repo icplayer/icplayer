@@ -255,7 +255,9 @@ function AddonTable_create() {
         });
 
         presenter.restoreGapValues(gapValues);
+
         presenter.setVisibility(state.isVisible);
+        presenter.configuration.isVisible = state.isVisible;
 
         $.each(state.gaps, function (index, gap) {
             presenter.setGapDisableProperties(index, gap.isEnabled);

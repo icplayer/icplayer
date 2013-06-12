@@ -93,6 +93,7 @@ TestCase("State saving", {
 TestCase("State restoring", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        this.presenter.configuration = {};
 
         sinon.stub(this.presenter, 'setVisibility');
         sinon.stub(this.presenter, 'restoreGapValues');
@@ -113,6 +114,8 @@ TestCase("State restoring", {
 
         this.presenter.setState(state);
 
+        assertTrue(this.presenter.configuration.isVisible);
+
         assertTrue(this.presenter.setVisibility.calledWith(true));
         assertTrue(this.presenter.restoreGapValues.calledWith([]));
         assertFalse(this.presenter.setGapDisableProperties.called);
@@ -125,6 +128,8 @@ TestCase("State restoring", {
         });
 
         this.presenter.setState(state);
+
+        assertFalse(this.presenter.configuration.isVisible);
 
         assertTrue(this.presenter.setVisibility.calledWith(false));
         assertTrue(this.presenter.restoreGapValues.calledWith([]));
@@ -143,6 +148,8 @@ TestCase("State restoring", {
         });
 
         this.presenter.setState(state);
+
+        assertFalse(this.presenter.configuration.isVisible);
 
         assertTrue(this.presenter.setVisibility.calledWith(false));
         assertTrue(this.presenter.restoreGapValues.calledWith(["", "", "", ""]));
@@ -166,6 +173,8 @@ TestCase("State restoring", {
         });
 
         this.presenter.setState(state);
+
+        assertFalse(this.presenter.configuration.isVisible);
 
         assertTrue(this.presenter.setVisibility.calledWith(false));
         assertTrue(this.presenter.restoreGapValues.calledWith(["some value", "", "another value", ""]));
