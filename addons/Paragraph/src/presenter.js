@@ -1,6 +1,7 @@
 function AddonParagraph_create() {
     var presenter = function () {};
     var editorID;
+    var editorDOM;
 
     presenter.DEFAULTS = {
         TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
@@ -65,19 +66,21 @@ function AddonParagraph_create() {
     };
 
     presenter.setStyles = function () {
-        var dom = tinymce.get(editorID).dom, i,
-            elements = [ dom.select('p'), dom.select('ol'), dom.select('ul') ];
+        if (!editorDOM) return;
+
+        var elements = [ editorDOM.select('p'), editorDOM.select('ol'), editorDOM.select('ul') ], i;
 
         for (i = 0; i < elements.length; i++) {
-            dom.setStyle(elements[i], 'font-family', presenter.configuration.fontFamily);
-            dom.setStyle(elements[i], 'font-size', presenter.configuration.fontSize);
+            editorDOM.setStyle(elements[i], 'font-family', presenter.configuration.fontFamily);
+            editorDOM.setStyle(elements[i], 'font-size', presenter.configuration.fontSize);
         }
     };
     presenter.onInit = function() {
         editorID = tinymce.activeEditor.id;
+        editorDOM = tinymce.activeEditor.dom;
 
-        $(tinymce.get(editorID).dom.select('html')).click(function () {
-            tinymce.get(editorID).dom.select('html')[0].focus();
+        $(editorDOM.select('html')).click(function () {
+            editorDOM.select('html')[0].focus();
         });
 
         presenter.setStyles();

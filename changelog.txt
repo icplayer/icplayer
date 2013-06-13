@@ -1,3 +1,4 @@
+2013-06-13 fixed problem with adding Paragraph module into presentation
 2013-06-12 fixed problem with restoring visibility in Table module after page change
 2013-06-12 fixed problem with fonts in multiple Paragraph editors on one page
 2013-06-12 added JSC3D library for viewing 3D models purposes
