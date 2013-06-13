@@ -69,19 +69,12 @@ TestCase("Model Validation Tests", {
         var configuration = this.presenter.readConfiguration(this.model);
 
         assertFalse('', configuration.isError);
-        assertEquals('', 2, configuration.ranges.length);
+        assertEquals('', 1, configuration.shouldDrawRanges.length);
 
-        assertEquals('', 0, configuration.ranges[0].min.value);
-        assertEquals('', 1, configuration.ranges[0].max.value);
-        assertTrue('', configuration.ranges[0].min.include);
-        assertFalse('', configuration.ranges[0].max.include);
-        assertEquals('', true, configuration.ranges[0].shouldDrawRange);
-
-        assertEquals('', 0, configuration.ranges[1].min.value);
-        assertEquals('', 5, configuration.ranges[1].max.value);
-        assertFalse('', configuration.ranges[1].min.include);
-        assertTrue('', configuration.ranges[1].max.include);
-        assertEquals('', false, configuration.ranges[1].shouldDrawRange);
+        assertEquals('', 0, configuration.shouldDrawRanges[0].start.value);
+        assertEquals('', 1, configuration.shouldDrawRanges[0].end.value);
+        assertTrue('', configuration.shouldDrawRanges[0].start.include);
+        assertFalse('', configuration.shouldDrawRanges[0].end.include);
     },
 
     'test step value is proper': function() {
