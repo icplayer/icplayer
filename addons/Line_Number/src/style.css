@@ -1,0 +1,116 @@
+.addon_Line_Number #outer {
+    width: 100%;
+    height: 100%;
+    background-color: #f3f3f3;
+    position: relative;
+}
+
+.addon_Line_Number #inner {
+    width: 94%;
+    height: 100%;
+    position: absolute;
+    left: 3%;
+    background-color: #fefefe;
+}
+
+.addon_Line_Number #x-axis {
+    width: 100%;
+    height: 2px;
+    min-height: 2px;
+    max-height: 2px;
+    position: absolute;
+    top: 50%;
+    background-color: #111;
+}
+
+.addon_Line_Number #y-axis {
+    width: 2px;
+    min-width: 2px;
+    max-width: 2px;
+    position: absolute;
+    background-color: #111;
+}
+
+.addon_Line_Number .stepLine {
+    width: 2px;
+    height: 8px;
+    min-height: 8px;
+    background-color: #111;
+    position: absolute;
+    top: 50%;
+    margin-top: -4px;
+}
+
+.addon_Line_Number .rangeImage, .addon_Line_Number .currentMousePosition {
+    background-repeat: no-repeat;
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    left: -5px;
+    top: -1px;
+    z-index: 11;
+    background-size: 12px 12px;
+}
+
+.addon_Line_Number .exclude {
+    background-image: url('resources/range_exclude.svg');
+}
+
+.addon_Line_Number .include {
+    background-image: url('resources/range_include.svg');
+}
+
+.addon_Line_Number .clickArea {
+    width: 10px;
+    height: 100px;
+    top: -50px;
+    min-height: 10px;
+    min-width: 10px;
+    position: absolute;
+    z-index: 12;
+}
+
+.addon_Line_Number .stepText {
+    position: absolute;
+    top: 10px;
+    font-size: small;
+}
+
+.addon_Line_Number #x-arrow {
+    border-bottom: 6px solid transparent;
+    border-left: 6px solid black;
+    border-top: 6px solid transparent;
+    right: -4px;
+    top: -5px;
+    position: absolute;
+}
+
+.addon_Line_Number #y-arrow {
+    border-bottom: 6px solid black;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    right: -5px;
+    top: -5px;
+    position: absolute;
+}
+
+.addon_Line_Number .clickArea:hover {
+    cursor: pointer;
+}
+
+.addon_Line_Number .selectedRange {
+    background-color: #00bb44;
+    box-shadow: 0px 0px 1px #111;
+    min-height: 10px;
+    height: 10px;
+    min-width: 2px;
+    width: 2px;
+    top: -7px;
+    position: absolute;
+    z-index: 10;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.addon_Line_Number .currentMousePosition {
+    background-image: url('resources/current_mouse_pos.svg');
+}
