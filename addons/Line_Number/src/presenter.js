@@ -87,48 +87,6 @@ function AddonLine_Number_create() {
         return ranges;
     }
 
-    function setDirection(e) {
-        var value = parseInt( $(e).attr('value'), 10);
-
-        if ( value < presenter.configuration.mouseData.lastElementValue ) {
-            presenter.configuration.mouseData.direction = presenter.DIRECTION.LEFT;
-        } else if ( value > presenter.configuration.mouseData.lastElementValue ) {
-            presenter.configuration.mouseData.direction = presenter.DIRECTION.RIGHT;
-        }
-
-        presenter.configuration.mouseData.lastElementValue = value;
-    }
-
-    function setRangesToRemove(e) {
-        var value = $(e).attr('value');
-        var rangesThatMouseWasAbove = presenter.configuration.mouseData.rangesThatMouseWasAbove;
-        var lastIndex = rangesThatMouseWasAbove.length - 1;
-
-        if ( presenter.configuration.mouseData.direction == presenter.DIRECTION.LEFT ) {
-
-            if ( rangesThatMouseWasAbove.length > 0 && value < rangesThatMouseWasAbove[0].start.value ) {
-                presenter.configuration.mouseData.rangesToRemove.push(rangesThatMouseWasAbove[0]);
-                presenter.configuration.mouseData.rangesThatMouseWasAbove.splice(0, 1);
-            }
-            else if ( rangesThatMouseWasAbove.length > 0 && value > rangesThatMouseWasAbove[0].end.value ) {
-                presenter.configuration.mouseData.rangesThatMouseWasAbove.splice(0, 1);
-                presenter.configuration.mouseData.rangesToRemove.splice(0, 1);
-            }
-
-        } else if ( presenter.configuration.mouseData.direction == presenter.DIRECTION.RIGHT ) {
-
-            if ( rangesThatMouseWasAbove.length > 0 && value > rangesThatMouseWasAbove[lastIndex].end.value ) {
-                presenter.configuration.mouseData.rangesToRemove.push(rangesThatMouseWasAbove[lastIndex]);
-                presenter.configuration.mouseData.rangesThatMouseWasAbove.pop();
-            }
-            else if ( rangesThatMouseWasAbove.length > 0 && value < rangesThatMouseWasAbove[lastIndex].start.value ) {
-                presenter.configuration.mouseData.rangesThatMouseWasAbove.pop();
-                presenter.configuration.mouseData.rangesToRemove.pop();
-            }
-
-        }
-    }
-
     function getClickedRangePosition(e) {
         var range = presenter.configuration.mouseData.clickedRanges[0];
 
@@ -143,14 +101,6 @@ function AddonLine_Number_create() {
         else {
             return presenter.CLICKED_POSITION.MIDDLE;
         }
-    }
-
-    function setMouseDown() {
-        presenter.configuration.mouseData.isMouseDown = true;
-    }
-
-    function isIncludeImageClicked(e) {
-        return $(e).parent().find('.rangeImage').length > 0;
     }
 
     function removeRange(range, removeIncludeImages) {
@@ -228,6 +178,8 @@ function AddonLine_Number_create() {
         };
 
         drawRanges([joinedRange]);
+
+        return joinedRange;
     }
 
     function setClicks(e) {
@@ -248,136 +200,6 @@ function AddonLine_Number_create() {
         presenter.configuration.mouseData.clicks.push( click );
     }
 
-    function addRangeFromElement(element) {
-
-        var start = createRangeElement($(element).parent(), $(element).attr('value'), true);
-        var end = start;
-        var values = [start.value];
-        var range = {
-            start: start,
-            end: end,
-            values: values
-        };
-
-        presenter.configuration.drawnRangesData.ranges.push( range );
-
-        var value = parseInt( $(element).attr('value'), 10 );
-        if ( presenter.configuration.drawnRangesData.values.indexOf( value ) == -1 ) {
-            presenter.configuration.drawnRangesData.values.push( value );
-        }
-    }
-
-    function isStartSameAsEnd(range) {
-        return range.values.length == 1;
-    }
-
-    function lengthenRange(e) {
-
-        var clickedRange = presenter.configuration.mouseData.clickedRanges[0];
-        var rangeToDraw = null;
-        var value = $(e).attr('value');
-        var shouldJoin = isValueInDrawnRanges(value);
-
-        if( presenter.configuration.mouseData.direction == presenter.DIRECTION.RIGHT
-            && presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.END ) {
-
-            rangeToDraw = {
-                start: clickedRange.start,
-                end: createRangeElement( $(e).parent(), value, $(clickedRange.end.element).find('.rangeImage').hasClass('include') )
-            };
-
-            $(clickedRange.end.element).find('.rangeImage').remove();
-
-        } else if ( presenter.configuration.mouseData.direction == presenter.DIRECTION.LEFT
-            && presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.START ) {
-
-            rangeToDraw = {
-                start: createRangeElement( $(e).parent(), value, $(clickedRange.start.element).find('.rangeImage').hasClass('include') ),
-                end: clickedRange.end
-            };
-
-            $(clickedRange.start.element).find('.rangeImage').remove();
-
-        } else {
-            return;
-        }
-
-        removeRange(clickedRange);
-
-        if ( shouldJoin ) {
-            var ranges = getRangesThatMouseIsAbove(e);
-            ranges.push(rangeToDraw);
-            joinRanges(ranges);
-        } else {
-            drawRanges([rangeToDraw]);
-        }
-
-    }
-
-    function shortenRange(e) {
-
-        var clickedRange = presenter.configuration.mouseData.clickedRanges[0];
-        var rangeToDraw = null;
-        var value = $(e).attr('value');
-        var shouldDraw = true;
-
-        if( presenter.configuration.mouseData.direction == presenter.DIRECTION.LEFT
-            && presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.END ) {
-
-            if ( value == clickedRange.start.value ) {
-                shouldDraw = false;
-            }
-
-            rangeToDraw = {
-                start: clickedRange.start,
-                end: createRangeElement( $(e).parent(), value, $(clickedRange.end.element).find('.rangeImage').hasClass('include') )
-            };
-
-            $(clickedRange.end.element).find('.rangeImage').remove();
-
-        } else if ( presenter.configuration.mouseData.direction == presenter.DIRECTION.RIGHT
-            && presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.START ) {
-
-            if ( value == clickedRange.end.value ) {
-                shouldDraw = false;
-            }
-
-            rangeToDraw = {
-                start: createRangeElement( $(e).parent(), value, $(clickedRange.start.element).find('.rangeImage').hasClass('include') ),
-                end: clickedRange.end
-            };
-
-            $(clickedRange.start.element).find('.rangeImage').remove();
-
-        } else {
-            return;
-        }
-
-        removeRange(clickedRange);
-
-        if ( shouldDraw ) {
-            drawRanges([rangeToDraw]);
-        } else {
-            var rangeImage = $(e).parent().find('.rangeImage');
-
-            if ( rangeImage.hasClass('exclude') ) {
-
-                if ( !isValueInDrawnRanges(value) ) {
-                    rangeImage.remove();
-                }
-
-            } else {
-
-                setDrawnRangeValues(rangeToDraw);
-                presenter.configuration.drawnRangesData.ranges.push(rangeToDraw);
-                presenter.configuration.mouseData.clickedRanges = [];
-
-            }
-
-        }
-
-    }
-
     function isValueInDrawnRanges(value) {
         return $.inArray(value, presenter.configuration.drawnRangesData.values) >= 0;
     }
@@ -391,14 +213,6 @@ function AddonLine_Number_create() {
 
     function hideCurrentMousePosition() {
         presenter.$view.find('.currentMousePosition').remove();
-    }
-
-    function handleTouchEnter (e) {
-        log( 'touchenter' )
-        e.preventDefault();
-        var eventData = event.touches[0] || event.changedTouches[0];
-        log( eventData.target )
-        moveLogic(eventData.target);
     }
 
     function createClickArea(element, value) {
@@ -415,50 +229,29 @@ function AddonLine_Number_create() {
             hideCurrentMousePosition();
         });
 
+        clickArea.on('mouseenter', function (e) {
+            e.preventDefault();
+            displayCurrentMousePosition($(e.target));
+        });
+
         clickArea.on('contextmenu', function (e) {
             e.preventDefault();
         });
 
-//        clickArea.on('mousedown', function (e){
-//            e.preventDefault();
-//            var eventTarget = $(e.target);
-//            downLogic(eventTarget);
-//        });
-
         clickArea.on('touchstart', function (e){
             e.preventDefault();
-            var eventData = event.touches[0] || event.changedTouches[0];
-            downLogic(eventData.target);
+            presenter.configuration.touchData.lastEvent = e;
         });
-
-//        clickArea.on('mouseup', function (e){
-//            e.preventDefault();
-//            var eventTarget = $(e.target);
-//            upLogic(eventTarget);
-//        });
 
         clickArea.on('touchend', function (e){
             e.preventDefault();
-            var eventData = event.touches[0] || event.changedTouches[0];
-            upLogic(eventData.target);
-        });
 
-        clickArea.on('mouseenter', function(e) {
-            e.preventDefault();
-            var eventTarget = $(e.target);
-            moveLogic(eventTarget);
-        });
+            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
+                var eventData = event.touches[0] || event.changedTouches[0];
+                clickLogic(eventData.target);
+            }
 
-        clickArea.on('touchmove', function(e) {
-            e.preventDefault();
-            var eventData = event.touches[0] || event.changedTouches[0];
-            moveLogic(eventData.target);
         });
-
-//        presenter.$view.on('mouseup', function (e){
-//            presenter.$view.find('.current').removeClass('current');
-//            presenter.configuration.mouseData.isMouseDown = false;
-//        });
 
         clickArea.css({
             'width' : presenter.configuration.stepWidth,
@@ -474,40 +267,22 @@ function AddonLine_Number_create() {
         moveYAxisClickArea();
     }
 
-    function downLogic(eventTarget) {
-        setMouseDown();
-        setClickedRanges(eventTarget);
-
-        if ( presenter.isMouseAboveExistingRange(eventTarget) ) {
-            getClickedRangePosition(eventTarget);
-
-        } else {
-            setClicks(eventTarget);
-
-        }
-
-
-        presenter.configuration.mouseData.lastElementValue = $(eventTarget).attr('value');
-        addEndRangeImage($(eventTarget).parent(), true);
-    }
-
     function clickLogic(eventTarget) {
         setClickedRanges(eventTarget);
 
         setClicks(eventTarget);
 
-
         if ( presenter.configuration.mouseData.clicks.length == 1
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE ) {
 
-            addEndRangeImage(presenter.configuration.mouseData.clicks[0].parent(), true);
+            addEndRangeImage(presenter.configuration.mouseData.clicks[0].element.parent(), true);
 
         } else if ( presenter.configuration.mouseData.clicks.length == 2
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE
             && presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.NONE ) {
 
-            var firstClick = presenter.configuration.mouseData.clicks[0];
-            var secondClick = presenter.configuration.mouseData.clicks[1];
+            var firstClick = presenter.configuration.mouseData.clicks[0].element;
+            var secondClick = presenter.configuration.mouseData.clicks[1].element;
             var range = null;
 
             if ( firstClick.attr('value') > secondClick.attr('value') ) {
@@ -545,26 +320,143 @@ function AddonLine_Number_create() {
 
             presenter.configuration.mouseData.clicks = [];
 
-        } else if ( presenter.configuration.mouseData.clicks.length == 1
-            && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE ){
+        } else if ( presenter.configuration.mouseData.clicks.length == 2
+            && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE
+            && presenter.configuration.mouseData.clicks[1].position != presenter.CLICKED_POSITION.NONE ) {
 
-            // highlight currentRange
+            var firstClick = presenter.configuration.mouseData.clicks[0].element;
+            var secondClick = presenter.configuration.mouseData.clicks[1].element;
+
+            if ( firstClick.attr('value') > secondClick.attr('value') ) {
+
+                range = {
+                    start: createRangeElement(secondClick.parent(), secondClick.attr('value'), true),
+                    end: createRangeElement(firstClick.parent(), firstClick.attr('value'), true)
+                };
+
+            } else if ( firstClick.attr('value') < secondClick.attr('value') ) {
+
+                range = {
+                    start: createRangeElement(firstClick.parent(), firstClick.attr('value'), true),
+                    end: createRangeElement(secondClick.parent(), secondClick.attr('value'), true)
+                };
+
+            }
+
+            var joinedRange = joinRanges([range, presenter.configuration.mouseData.clickedRanges[0]]);
+
+            removeRangesBetweenRange(joinedRange);
+
+            presenter.configuration.mouseData.clicks = [];
+
+        } else if ( presenter.configuration.mouseData.clickedRanges.length == 2 ) {
+
+            joinRanges( presenter.configuration.mouseData.clickedRanges );
+
+            presenter.configuration.mouseData.clicks = [];
+
+        } else if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.END
+            || presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START ){
+
+            if (presenter.configuration.mouseData.clicks.length == 1) {
+
+                var selectedRange = presenter.configuration.mouseData.clickedRanges[0].start.element.find('.selectedRange');
+                selectedRange.addClass('currentSelectedRange');
+
+            } else {
+
+                var firstClick = presenter.configuration.mouseData.clicks[0].element;
+                var secondClick = presenter.configuration.mouseData.clicks[1].element;
+                var newRange;
+
+                if ( presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.MIDDLE ) {
+                    var clickedRange = presenter.configuration.mouseData.clickedRanges[0];
+
+                    if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START ) {
+
+                        newRange = {
+                            start: createRangeElement( secondClick.parent(), secondClick.attr('value'), firstClick.parent().find('.rangeImage').hasClass('include') ),
+                            end: createRangeElement( clickedRange.end.element, clickedRange.end.value, clickedRange.end.include )
+                        };
+
+                    } else if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.END ) {
+
+                        newRange = {
+                            start: createRangeElement( secondClick.parent(), secondClick.attr('value'), firstClick.parent().find('.rangeImage').hasClass('include') ),
+                            end: createRangeElement( clickedRange.start.element, clickedRange.start.value, clickedRange.start.include )
+                        };
+
+                    }
+
+                    removeRange(clickedRange, true);
+                    drawRanges([newRange]);
+
+                } else if ( presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.NONE ) {
+
+                    var joinedRange;
+
+                    if ( firstClick.attr('value') > secondClick.attr('value') ) {
+
+                        newRange = {
+                            start: createRangeElement(secondClick.parent(), secondClick.attr('value'), true),
+                            end: createRangeElement(firstClick.parent(), firstClick.attr('value'), true)
+                        };
+
+                        joinedRange = joinRanges( [newRange, getRangeByValue( firstClick.attr('value') )] );
+
+                    } else if ( firstClick.attr('value') < secondClick.attr('value') ) {
+
+                        newRange = {
+                            start: createRangeElement(firstClick.parent(), firstClick.attr('value'), true ),
+                            end: createRangeElement(secondClick.parent(), secondClick.attr('value'), true )
+                        };
+
+                        joinedRange = joinRanges( [newRange, getRangeByValue( firstClick.attr('value') )] );
+
+                    }
+
+                    removeRangesBetweenRange(joinedRange);
+
+
+                } else if ( presenter.configuration.mouseData.clicks[0].position == presenter.configuration.mouseData.clicks[1].position
+                    && presenter.configuration.mouseData.clicks[0].element[0] == presenter.configuration.mouseData.clicks[1].element[0] ) {
+                    var imageWrapper = firstClick.parent().find('.rangeImage');
+                    var shouldInclude = !imageWrapper.hasClass('include');
+                    var index = presenter.configuration.drawnRangesData.ranges.indexOf(presenter.configuration.mouseData.clickedRanges[0]);
+
+                    if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START ) {
+                        presenter.configuration.drawnRangesData.ranges[index].start.include = shouldInclude;
+                    } else if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.END ) {
+                        presenter.configuration.drawnRangesData.ranges[index].end.include = shouldInclude;
+                    }
+
+                    toggleIncludeImage( imageWrapper, shouldInclude );
+
+                    presenter.$view.find('.currentSelectedRange').removeClass('currentSelectedRange');
+
+                } else if ( presenter.configuration.mouseData.clicks[0].element[0] != presenter.configuration.mouseData.clicks[1].element[0]
+                    && (presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.END
+                    || presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START)
+                    && (presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.END
+                    || presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.START) ) {
+
+                    var joinedRange = joinRanges([ getRangeByValue( firstClick.attr('value') ), getRangeByValue( secondClick.attr('value') ) ]);
+
+                    removeRangesBetweenRange(joinedRange);
+                }
+
+
+                presenter.configuration.mouseData.clicks = [];
+
+            }
+
 
         } else if ( presenter.configuration.mouseData.clicks.length == 1
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.MIDDLE ) {
 
             splitRange( presenter.configuration.mouseData.clickedRanges[0], eventTarget );
 
-        } else if ( presenter.configuration.mouseData.clickedRanges.length == 2 ) {
-
-            if ( presenter.configuration.mouseData.clickedRanges.length == 2 ) {
-
-                joinRanges( presenter.configuration.mouseData.clickedRanges );
-
-            } else {
-
-            }
-
+            presenter.configuration.mouseData.clicks = [];
         }
 
         presenter.configuration.mouseData.lastElementValue = $(eventTarget).attr('value');
@@ -583,133 +475,20 @@ function AddonLine_Number_create() {
 
     }
 
-    function upLogic(eventTarget) {
-        if ( presenter.configuration.mouseData.isMouseMoved ) {
+    function getRangeByValue(value) {
+        value = parseInt(value, 10);
+        var range = null;
 
-            $.each( presenter.configuration.mouseData.rangesToRemove, function() {
-                removeRange(this, true);
-            });
+        $.each(presenter.configuration.drawnRangesData.ranges, function() {
 
-            if ( presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.NONE ) {
-
-                if ( presenter.configuration.mouseData.rangesThatMouseWasAbove.length == 0 ) {
-                    drawRanges( [presenter.configuration.rangeToDraw] );
-                } else {
-                    var ranges = [];
-                    ranges = ranges.concat( presenter.configuration.mouseData.rangesThatMouseWasAbove );
-                    ranges.push( presenter.configuration.rangeToDraw );
-                    setDrawnRangeValues( presenter.configuration.rangeToDraw );
-                    joinRanges( ranges );
-                }
-
-            } else {
-
-                if ( presenter.configuration.mouseData.clickedRanges.length == 1 ) {
-
-                    var value = $(eventTarget).attr('value');
-                    if ( presenter.isValueInRange(value, presenter.configuration.mouseData.clickedRanges[0], false) ) {
-
-                        shortenRange(eventTarget);
-
-                    } else {
-
-                        lengthenRange(eventTarget);
-
-                    }
-
-                }
-
-            }
-            presenter.configuration.mouseData.rangesThatMouseWasAbove = [];
-            presenter.configuration.mouseData.rangesToRemove = [];
-            presenter.configuration.rangeToDraw = null;
-
-        } else {
-            var range = presenter.configuration.mouseData.clickedRanges[0];
-
-            if ( presenter.isMouseAboveExistingRange(eventTarget) ) {
-
-                if ( isIncludeImageClicked(eventTarget) ) {
-
-                    if ( isStartSameAsEnd(range) ) {
-                        removeRange(range, true);
-                    }
-
-                    else if ( presenter.configuration.mouseData.clickedRanges.length == 2 ) {
-                        joinRanges( presenter.configuration.mouseData.clickedRanges );
-                    }
-
-                    else {
-                        var shouldInclude = true;
-                        var imageWrapper = null;
-
-                        if ( presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.START) {
-                            shouldInclude = !range.start.include;
-                            imageWrapper = range.start.element.find('.rangeImage');
-                            presenter.configuration.mouseData.clickedRanges[0].start.include = shouldInclude;
-                        } else {
-                            shouldInclude = !range.end.include;
-                            imageWrapper = range.end.element.find('.rangeImage');
-                            presenter.configuration.mouseData.clickedRanges[0].end.include = shouldInclude;
-                        }
-
-                        toggleIncludeImage(imageWrapper, shouldInclude);
-                    }
-
-                } else {
-                    splitRange(range, eventTarget);
-                }
-
-            } else {
-                addEndRangeImage( $(eventTarget).parent(), true );
-                addRangeFromElement( presenter.configuration.mouseData.clickedElement );
+            if ( this.values.indexOf(value) >= 0 ) {
+                range = this;
+                return false;
             }
 
-        }
+        });
 
-        presenter.configuration.mouseData.isMouseDown = false;
-        presenter.configuration.mouseData.isMouseMoved = false;
-    }
-
-    function moveLogic(eventTarget) {
-        displayCurrentMousePosition(eventTarget);
-
-        if (presenter.configuration.mouseData.isMouseDown) {
-
-            presenter.configuration.mouseData.isMouseMoved = true;
-            setDirection(eventTarget);
-
-            if ( presenter.configuration.mouseData.clickedPosition == presenter.CLICKED_POSITION.NONE ) {
-
-                var start, end;
-
-                if (presenter.configuration.mouseData.direction == presenter.DIRECTION.LEFT) {
-                    end = createRangeElement($(presenter.configuration.mouseData.clickedElement).parent(), presenter.configuration.mouseData.clickedElement.attr('value'), true );
-                    start = createRangeElement( $(eventTarget).parent(), $(eventTarget).attr('value'), true );
-                } else {
-                    start = createRangeElement($(presenter.configuration.mouseData.clickedElement).parent(), presenter.configuration.mouseData.clickedElement.attr('value'), true );
-                    end = createRangeElement( $(eventTarget).parent(), $(eventTarget).attr('value'), true );
-                }
-
-                var range = {
-                    start: start,
-                    end: end
-                };
-
-                presenter.configuration.rangeToDraw = range;
-                var ranges = getRangesThatMouseIsAbove(eventTarget);
-                presenter.configuration.mouseData.rangesThatMouseWasAbove = presenter.configuration.mouseData.rangesThatMouseWasAbove.concat( ranges );
-
-                setRangesToRemove(eventTarget);
-
-            } else {
-
-                var ranges = getRangesThatMouseIsAbove(eventTarget);
-                presenter.configuration.mouseData.rangesThatMouseWasAbove = presenter.configuration.mouseData.rangesThatMouseWasAbove.concat( ranges );
-
-                setRangesToRemove(eventTarget);
-            }
-        }
+        return range;
     }
 
     function createRangeElement(element, value, include) {
@@ -1023,6 +802,9 @@ function AddonLine_Number_create() {
                 'isDrawn' : false,
                 'ranges' : [],
                 'values' : []
+            },
+            'touchData' : {
+                'lastEvent' : null
             }
 
         }
