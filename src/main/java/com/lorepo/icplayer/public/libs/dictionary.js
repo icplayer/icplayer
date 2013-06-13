@@ -207,6 +207,7 @@ var ice_dictionary = {
 	"page_exported": "Page copied",
 	"cant_import_page": "There is no page available to import",
 	"add_module_menu": "Add module",
+	"Viewer_3D_info": "3D object viewer that uses open OBJ format.",
 	"Advanced_Connector_info": "An advanced version of the Connector addon that allows to combine multiple addons and modules in fully interactive, responsive activities.",
 	"Animation_info": "Enables to insert a simple animation made from a single image. In order to make it work in a presentation, it is enough to upload an image and predefine certain parameters in the Properties section. To start the animation, simply click on a preview image, then click again to pause it. ",
 	"Audio_info": "With the Audio addon, it is possible to play various sound tracks in a presentation. To make the addon work  properly on all common browsers, it is necessary to upload an audio file in two formats: mp3 and ogg.",

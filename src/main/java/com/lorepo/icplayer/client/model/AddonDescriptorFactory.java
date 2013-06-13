@@ -29,6 +29,7 @@ public class AddonDescriptorFactory {
 	private void registerLocalDescriptors() {
 		
 		addonList = new HashMap<String, AddonEntry>();
+		addDescriptor("Viewer_3D", "3D Viewer", "Media");
 		addDescriptor("Advanced_Connector", "Advanced Connector", "Scripting");
 		addDescriptor("Animation", "Animation", "Media");
 		addDescriptor("Audio", "Audio", "Media");
