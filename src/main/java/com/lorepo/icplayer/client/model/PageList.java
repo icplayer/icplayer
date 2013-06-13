@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.model;
 
 import java.util.ArrayList;
 
+import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+
 
 
 @SuppressWarnings("serial")
@@ -87,7 +89,7 @@ public class PageList extends ArrayList<Page> {
 		String pageName = "New page";
 		
 		for(int i = 1; i < 30; i++){
-			pageName = "Page " + i;
+			pageName = DictionaryWrapper.get("page") + " " + i;
 			if(findPageIndexByName(pageName) == -1){
 				break;
 			}
