@@ -647,69 +647,22 @@ function AddonLine_Number_create() {
         return parsedMin < parsedMax;
     }
 
-    presenter.readConfiguration = function(model) {
-        var isMinEmpty = ModelValidationUtils.isStringEmpty(model['Min']);
-
-        if(isMinEmpty) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN01'
-            }
-        }
-
-        var isMaxEmpty = ModelValidationUtils.isStringEmpty(model['Max']);
-
-        if(isMaxEmpty) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MAX01'
-            }
-        }
-
-        var isMinLowerThanMax = checkIsMinLowerThanMax(model['Min'], model['Max']);
-
-        if(!isMinLowerThanMax) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN/MAX01'
-            }
-        }
-
-        var validatedMin = ModelValidationUtils.validateInteger(model['Min']);
-        var validatedMax = ModelValidationUtils.validateInteger(model['Max']);
-        var min, max;
-
-        if(validatedMin.isValid) {
-            min = validatedMin.value;
-        } else {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN02'
-            }
-        }
-
-        if(validatedMax.isValid) {
-            max = validatedMax.value;
-        } else {
-            return {
-                'isError' : true,
-                'errorCode' : 'MAX02'
-            }
-        }
-
+    presenter.validateRanges = function (model) {
         var rangesList = Helpers.splitLines(model['Ranges']);
         var rangesPattern = /(\(|<){1}[(?P \d)-]+,[(?P \d)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
         var validatedShouldDrawRanges = [];
         var validatedOtherRanges = [];
+        var isError = false,
+            errorCode;
 
-        $.each(rangesList, function(i) {
+        $.each(rangesList, function() {
             var rangeString = this.toString();
 
             if( !rangesPattern.test(rangeString) ) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'RAN01'
-                }
+                isError = true;
+                errorCode = 'RAN01';
+
+                return false; // Breaks jQuery.each loop
             }
 
             var regexResult = rangesPattern.exec(rangeString)[0];
@@ -723,10 +676,10 @@ function AddonLine_Number_create() {
             var shouldDrawRange = onlyNumbers[2] == '1';
 
             if(!checkIsMinLowerThanMax(min, max)) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'MIN/MAX01'
-                }
+                isError = true;
+                errorCode = 'MIN/MAX01';
+
+                return false; // Breaks jQuery.each loop
             }
 
             var validatedRange = {
@@ -740,7 +693,47 @@ function AddonLine_Number_create() {
                 validatedOtherRanges.push(validatedRange);
             }
 
+            return true; // jQuery.each continue statement
         });
+
+        return {
+            isError: isError,
+            errorCode: errorCode,
+            shouldDrawRanges : validatedShouldDrawRanges,
+            otherRanges : validatedOtherRanges
+        };
+    };
+
+    presenter.readConfiguration = function(model) {
+        if(ModelValidationUtils.isStringEmpty(model['Min'])) {
+            return { 'isError' : true, 'errorCode' : 'MIN01' };
+        }
+
+        if(ModelValidationUtils.isStringEmpty(model['Max'])) {
+            return { 'isError' : true, 'errorCode' : 'MAX01' };
+        }
+
+        if(!checkIsMinLowerThanMax(model['Min'], model['Max'])) {
+            return { 'isError' : true, 'errorCode' : 'MIN/MAX01' };
+        }
+
+        var validatedMin = ModelValidationUtils.validateInteger(model['Min']);
+        var validatedMax = ModelValidationUtils.validateInteger(model['Max']);
+        var min, max;
+
+        if (!validatedMin.isValid) {
+            return { 'isError': true, 'errorCode': 'MIN02' };
+        }
+
+        min = validatedMin.value;
+
+        if (!validatedMax.isValid) {
+            return { 'isError': true, 'errorCode': 'MAX02' };
+        }
+
+        max = validatedMax.value;
+
+        var ranges = presenter.validateRanges(model);
 
         var validatedIsActivity = ModelValidationUtils.validateBoolean(model['Is Activity']);
         var validatedStep = { value : 1 };
@@ -781,8 +774,8 @@ function AddonLine_Number_create() {
             'isError' : false,
             'min' : min,
             'max' : max,
-            'shouldDrawRanges' : validatedShouldDrawRanges,
-            'otherRanges' : validatedOtherRanges,
+            'shouldDrawRanges' : ranges.shouldDrawRanges,
+            'otherRanges' : ranges.otherRanges,
             'isActivity' : validatedIsActivity,
             'step' : validatedStep.value,
             'showAxisXValues' : validatedShowAxisXValues,
