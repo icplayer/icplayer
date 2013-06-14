@@ -461,11 +461,18 @@ function AddonLine_Number_create() {
                     && (presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.END
                     || presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.START) ) {
 
-                    var joinedRange = joinRanges([ getRangeByValue( firstClick.attr('value') ), getRangeByValue( secondClick.attr('value') ) ]);
+                    var firstClickRange = getRangeByValue( presenter.configuration.mouseData.clicks[0].element.attr('value') );
+                    var secondClickRange = getRangeByValue( presenter.configuration.mouseData.clicks[1].element.attr('value') );
 
-                    removeRangesBetweenRange(joinedRange);
+                    if ( compareRanges(firstClickRange, secondClickRange) ) {
+                        removeRange(firstClickRange, true);
+                    } else {
+                        var joinedRange = joinRanges([ getRangeByValue( firstClick.attr('value') ), getRangeByValue( secondClick.attr('value') ) ]);
+
+                        removeRangesBetweenRange(joinedRange);
+                    }
+
                 }
-
 
                 presenter.configuration.mouseData.clicks = [];
 
@@ -558,6 +565,15 @@ function AddonLine_Number_create() {
         $.each(ranges, function(i) {
             var startValue = Math.min(this.start.value, this.end.value);
             var endValue = Math.max(this.start.value, this.end.value);
+
+            if (startValue == -Infinity) {
+                startValue = presenter.configuration.min;
+            }
+
+            if (endValue == Infinity) {
+                endValue = presenter.configuration.max;
+            }
+
             var startElement = presenter.$view.find('.clickArea[value=' + startValue + ']').parent();
             var endElement = presenter.$view.find('.clickArea[value=' + endValue + ']').parent();
             var start = parseFloat($(startElement).css('left'));
@@ -571,6 +587,8 @@ function AddonLine_Number_create() {
             }
 
             range.addClass('selectedRange');
+            range.addClass(startValue == -Infinity ? 'infinity-left' : '');
+            range.addClass(endValue == Infinity ? 'infinity-right' : '');
             range.css('width', difference + 2 + 'px');
             startElement.append(range);
 
@@ -581,7 +599,8 @@ function AddonLine_Number_create() {
             presenter.configuration.drawnRangesData.ranges.push(this);
 
             setRangeValues(this, true);
-            addEndRangeImages(startElement, endElement, this.start.include, this.end.include);
+
+            addEndRangeImages(this, startElement, endElement, startValue == -Infinity, endValue == Infinity);
 
         });
     }
@@ -599,11 +618,13 @@ function AddonLine_Number_create() {
         }
     }
 
-    function addEndRangeImages(startElement, endElement, includeStart, includeEnd) {
-        addEndRangeImage(endElement, includeEnd);
+    function addEndRangeImages(range, startElement, endElement, isStartInfinity, isEndInfinity) {
+        if (!isEndInfinity) {
+            addEndRangeImage(endElement, range.end.include);
+        }
 
-        if (startElement[0] != endElement[0]) {
-            addEndRangeImage(startElement, includeStart);
+        if (startElement[0] != endElement[0] && !isStartInfinity) {
+            addEndRangeImage(startElement, range.start.include);
         }
     }
 
