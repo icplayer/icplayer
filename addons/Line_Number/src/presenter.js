@@ -735,7 +735,6 @@ function AddonLine_Number_create() {
 
     presenter.getScore = function() {
         var validated = validateDrawnRanges();
-//        log(validated)
         return validated.correct.length;
     };
 
@@ -745,8 +744,6 @@ function AddonLine_Number_create() {
 
     presenter.getErrorCount = function () {
         var validated = validateDrawnRanges();
-        log(validated.correct)
-        log(validated.wrong)
         return presenter.configuration.otherRanges.length - validated.correct.length;
     };
 
