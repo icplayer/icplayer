@@ -1,4 +1,4 @@
-TestCase("Model Validation Tests", {
+TestCase("Model validation", {
 
     setUp: function () {
         this.presenter = AddonLine_Number_create();
@@ -117,5 +117,157 @@ TestCase("Model Validation Tests", {
 
         assertTrue('', configuration.isError);
         assertEquals('', 'VAL01', configuration.errorCode);
+    }
+});
+
+TestCase("Model validation - ranges", {
+    setUp: function () {
+        this.presenter = AddonLine_Number_create();
+    },
+
+    'test proper ranges': function () {
+        var model = {
+            'Ranges' :
+                '<0, 1), 1\n' +
+                '(0, 5>, 0'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertFalse(validatedRanges.isError);
+
+        assertEquals(1, validatedRanges.shouldDrawRanges.length);
+        assertEquals(0, validatedRanges.shouldDrawRanges[0].start.value);
+        assertTrue(validatedRanges.shouldDrawRanges[0].start.include);
+        assertEquals(1, validatedRanges.shouldDrawRanges[0].end.value);
+        assertFalse(validatedRanges.shouldDrawRanges[0].end.include);
+
+        assertEquals(1, validatedRanges.otherRanges.length);
+        assertEquals(0, validatedRanges.otherRanges[0].start.value);
+        assertFalse(validatedRanges.otherRanges[0].start.include);
+        assertEquals(5, validatedRanges.otherRanges[0].end.value);
+        assertTrue(validatedRanges.otherRanges[0].end.include);
+    },
+
+    'test single range that should be drawn': function () {
+        var model = {
+            'Ranges' :
+                '<0, 1), 1'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertFalse('', validatedRanges.isError);
+
+        assertEquals(1, validatedRanges.shouldDrawRanges.length);
+        assertEquals(0, validatedRanges.shouldDrawRanges[0].start.value);
+        assertTrue(validatedRanges.shouldDrawRanges[0].start.include);
+        assertEquals(1, validatedRanges.shouldDrawRanges[0].end.value);
+        assertFalse(validatedRanges.shouldDrawRanges[0].end.include);
+
+        assertEquals(0, validatedRanges.otherRanges.length);
+    },
+
+    'test single range that should not be drawn': function () {
+        var model = {
+            'Ranges' :
+                '(0, 5>, 0'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertFalse('', validatedRanges.isError);
+
+        assertEquals(0, validatedRanges.shouldDrawRanges.length);
+
+        assertEquals(1, validatedRanges.otherRanges.length);
+        assertEquals(0, validatedRanges.otherRanges[0].start.value);
+        assertFalse(validatedRanges.otherRanges[0].start.include);
+        assertEquals(5, validatedRanges.otherRanges[0].end.value);
+        assertTrue(validatedRanges.otherRanges[0].end.include);
+    },
+
+    'test missing opening bracket': function () {
+        var model = {
+            'Ranges' :
+                '0, 5>, 0'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('RAN01', validatedRanges.errorCode);
+    },
+
+    'test missing closing bracket': function () {
+        var model = {
+            'Ranges' :
+                '(0, 5, 0'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('RAN01', validatedRanges.errorCode);
+    },
+
+    'test missing comma separator': function () {
+        var model = {
+            'Ranges' :
+                '(0 5>, 0'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('RAN01', validatedRanges.errorCode);
+    },
+
+    'test missing visibility': function () {
+        var model = {
+            'Ranges' :
+                '(0, 5>'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('RAN01', validatedRanges.errorCode);
+    },
+
+    'test invalid range start': function () {
+        var model = {
+            'Ranges' :
+                '(kaka, 5>,1'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('RAN01', validatedRanges.errorCode);
+    },
+
+    'test invalid range end': function () {
+        var model = {
+            'Ranges' :
+                '(5, kaka>,1'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('RAN01', validatedRanges.errorCode);
+    },
+
+    'test range start is bigger than end': function () {
+        var model = {
+            'Ranges' :
+                '(5, 3>,1'
+        };
+
+        var validatedRanges = this.presenter.validateRanges(model);
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('MIN/MAX01', validatedRanges.errorCode);
     }
 });
