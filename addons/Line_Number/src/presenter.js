@@ -22,15 +22,14 @@ function AddonLine_Number_create() {
         START: 1,
         MIDDLE: 2,
         END: 3,
-        NONE: 4,
-        INFINITY_LEFT: 5,
-        INFINITY_RIGHT: 6
+        NONE: 4
     };
 
     presenter.run = function(view, model) {
         presenter.$view = $(view);
         presenter.$view.disableSelection();
         presenter.configuration = presenter.readConfiguration(model);
+        presenter.configuration.isPreview = false;
 
         if (presenter.configuration.isError) {
             return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
@@ -89,6 +88,24 @@ function AddonLine_Number_create() {
         });
     };
 
+    presenter.createPreview = function (view, model) {
+        presenter.$view = $(view);
+        presenter.$view.disableSelection();
+        presenter.configuration = presenter.readConfiguration(model);
+        presenter.configuration.isPreview = true;
+
+        if (presenter.configuration.isError) {
+            return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
+        }
+
+        presenter.createSteps();
+        drawRanges(presenter.configuration.shouldDrawRanges);
+
+        if (!presenter.configuration.isVisibleByDefault) {
+            presenter.hide();
+        }
+    };
+
     function calculateStepWidth(xAxisValues) {
         var xAxisWidth = presenter.$view.find('.x-axis').width() - 1;
 
@@ -135,9 +152,6 @@ function AddonLine_Number_create() {
     }
 
     function removeRange(range, removeIncludeImages) {
-
-        log(range)
-        log(removeIncludeImages)
         var stepLine = range.start.element;
         $(stepLine).find('.selectedRange').remove();
         if (!range.values) { range.values = [] }
@@ -264,44 +278,49 @@ function AddonLine_Number_create() {
         $(element).append(clickArea);
         clickArea.attr('value', value);
 
-        clickArea.on('mouseleave', function () {
-            hideCurrentMousePosition();
-        });
+        if (!presenter.configuration.isPreview) {
+            clickArea.on('mouseleave', function () {
+                hideCurrentMousePosition();
+            });
 
-        clickArea.on('mouseenter', function (e) {
-            e.preventDefault();
-            displayCurrentMousePosition($(e.target));
-        });
+            clickArea.on('mouseenter', function (e) {
+                e.preventDefault();
+                displayCurrentMousePosition($(e.target));
+            });
 
-        clickArea.on('contextmenu', function (e) {
-            e.preventDefault();
-        });
+            clickArea.on('contextmenu', function (e) {
+                e.preventDefault();
+            });
 
-        clickArea.on('touchstart', function (e){
-            e.preventDefault();
-            presenter.configuration.touchData.lastEvent = e;
-        });
+            clickArea.on('touchstart', function (e){
+                e.preventDefault();
+                presenter.configuration.touchData.lastEvent = e;
+            });
 
-        clickArea.on('touchend', function (e){
-            e.preventDefault();
+            clickArea.on('touchend', function (e){
+                e.preventDefault();
 
-            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
-                var eventData = event.touches[0] || event.changedTouches[0];
-                clickLogic(eventData.target);
-            }
+                if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
+                    var eventData = event.touches[0] || event.changedTouches[0];
+                    clickLogic(eventData.target);
+                }
 
-        });
+            });
+
+        }
 
         clickArea.css({
             'width' : presenter.configuration.stepWidth,
             'left' : - (presenter.configuration.stepWidth / 2) + 'px'
         });
 
-        clickArea.on('click', function(e) {
-            e.preventDefault();
-            var eventTarget = $(e.target);
-            clickLogic(eventTarget);
-        });
+        if (!presenter.configuration.isPreview) {
+            clickArea.on('click', function (e) {
+                e.preventDefault();
+                var eventTarget = $(e.target);
+                clickLogic(eventTarget);
+            });
+        }
 
         moveYAxisClickArea();
     }
@@ -778,11 +797,10 @@ function AddonLine_Number_create() {
             this.end.element = null;
         });
 
-        var state = {
-            drawnRangesData: presenter.configuration.drawnRangesData
-        };
-
-        return JSON.stringify(state);
+        return JSON.stringify({
+            drawnRangesData: presenter.configuration.drawnRangesData,
+            isVisible: presenter.configuration.isVisible
+        });
     };
 
     presenter.setState = function (stateString) {
@@ -799,6 +817,9 @@ function AddonLine_Number_create() {
         });
 
         drawRanges(rangesToDraw);
+
+        presenter.configuration.isCurrentlyVisible = state.isVisible;
+        presenter.setVisibility(state.isVisible);
     };
 
     presenter.reset = function() {
@@ -812,6 +833,9 @@ function AddonLine_Number_create() {
         drawRanges(presenter.configuration.shouldDrawRanges);
 
         presenter.configuration.mouseData.clicks = [];
+
+        presenter.configuration.isCurrentlyVisible = presenter.configuration.isVisibleByDefault;
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.setShowErrorsMode = function() {
@@ -1029,6 +1053,7 @@ function AddonLine_Number_create() {
         }
 
         var validatedShowAxisXValues = ModelValidationUtils.validateBoolean(model['Show Axis X Values']);
+        var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
 
         return {
             'isError' : false,
@@ -1052,9 +1077,33 @@ function AddonLine_Number_create() {
             'touchData' : {
                 'lastEvent' : null
             },
-            'isShowErrorsMode' : false
-
+            'isShowErrorsMode' : false,
+            isCurrentlyVisible: isVisible,
+            isVisibleByDefault: isVisible
         }
+    };
+
+    presenter.executeCommand = function(name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.children('div').css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.show = function () {
+        presenter.configuration.isCurrentlyVisible = true;
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function () {
+        presenter.configuration.isCurrentlyVisible = false;
+        presenter.setVisibility(false);
     };
 
     return presenter;
