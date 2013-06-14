@@ -125,13 +125,7 @@ TestCase("Model validation - ranges", {
     },
 
     'test proper ranges': function () {
-        var model = {
-            'Ranges' :
-                '<0, 1), 1\n' +
-                '(0, 5>, 0'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('<0, 1), 1\n(0, 5>, 0');
 
         assertFalse(validatedRanges.isError);
 
@@ -149,12 +143,7 @@ TestCase("Model validation - ranges", {
     },
 
     'test single range that should be drawn': function () {
-        var model = {
-            'Ranges' :
-                '<0, 1), 1'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('<0, 1), 1');
 
         assertFalse('', validatedRanges.isError);
 
@@ -168,12 +157,7 @@ TestCase("Model validation - ranges", {
     },
 
     'test single range that should not be drawn': function () {
-        var model = {
-            'Ranges' :
-                '(0, 5>, 0'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('(0, 5>, 0');
 
         assertFalse('', validatedRanges.isError);
 
@@ -187,84 +171,126 @@ TestCase("Model validation - ranges", {
     },
 
     'test missing opening bracket': function () {
-        var model = {
-            'Ranges' :
-                '0, 5>, 0'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('0, 5>, 0');
 
         assertTrue(validatedRanges.isError);
         assertEquals('RAN01', validatedRanges.errorCode);
     },
 
     'test missing closing bracket': function () {
-        var model = {
-            'Ranges' :
-                '(0, 5, 0'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('(0, 5, 0');
 
         assertTrue(validatedRanges.isError);
         assertEquals('RAN01', validatedRanges.errorCode);
     },
 
     'test missing comma separator': function () {
-        var model = {
-            'Ranges' :
-                '(0 5>, 0'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('(0 5>, 0');
 
         assertTrue(validatedRanges.isError);
         assertEquals('RAN01', validatedRanges.errorCode);
     },
 
     'test missing visibility': function () {
-        var model = {
-            'Ranges' :
-                '(0, 5>'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('(0, 5>');
 
         assertTrue(validatedRanges.isError);
         assertEquals('RAN01', validatedRanges.errorCode);
     },
 
     'test invalid range start': function () {
-        var model = {
-            'Ranges' :
-                '(kaka, 5>,1'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('(kaka, 5>,1');
 
         assertTrue(validatedRanges.isError);
         assertEquals('RAN01', validatedRanges.errorCode);
     },
 
     'test invalid range end': function () {
-        var model = {
-            'Ranges' :
-                '(5, kaka>,1'
-        };
-
-        var validatedRanges = this.presenter.validateRanges(model);
+        var validatedRanges = this.presenter.validateRanges('(5, kaka>,1');
 
         assertTrue(validatedRanges.isError);
         assertEquals('RAN01', validatedRanges.errorCode);
     },
 
     'test range start is bigger than end': function () {
-        var model = {
-            'Ranges' :
-                '(5, 3>,1'
-        };
+        var validatedRanges = this.presenter.validateRanges('(5, 3>,1');
 
-        var validatedRanges = this.presenter.validateRanges(model);
+        assertTrue(validatedRanges.isError);
+        assertEquals('MIN/MAX01', validatedRanges.errorCode);
+    },
+
+    'test range start with infinity sign': function () {
+        var validatedRanges = this.presenter.validateRanges('<-INF, 5>, 0');
+
+        assertFalse(validatedRanges.isError);
+
+        assertEquals(0, validatedRanges.shouldDrawRanges.length);
+
+        assertEquals(1, validatedRanges.otherRanges.length);
+        assertEquals(-Infinity, validatedRanges.otherRanges[0].start.value);
+        assertTrue(validatedRanges.otherRanges[0].start.include);
+        assertEquals(5, validatedRanges.otherRanges[0].end.value);
+        assertTrue(validatedRanges.otherRanges[0].end.include);
+    },
+
+    'test range ends with infinity sign': function () {
+        var validatedRanges = this.presenter.validateRanges('<0, INF>, 0');
+
+        assertFalse(validatedRanges.isError);
+
+        assertEquals(0, validatedRanges.shouldDrawRanges.length);
+
+        assertEquals(1, validatedRanges.otherRanges.length);
+        assertEquals(0, validatedRanges.otherRanges[0].start.value);
+        assertTrue(validatedRanges.otherRanges[0].start.include);
+        assertEquals(Infinity, validatedRanges.otherRanges[0].end.value);
+        assertTrue(validatedRanges.otherRanges[0].end.include);
+    },
+
+    'test range starts and ends with infinity signs and have exclusions': function () {
+        var validatedRanges = this.presenter.validateRanges('(-INF, INF), 0');
+
+        assertFalse(validatedRanges.isError);
+
+        assertEquals(0, validatedRanges.shouldDrawRanges.length);
+
+        assertEquals(1, validatedRanges.otherRanges.length);
+        assertEquals(-Infinity, validatedRanges.otherRanges[0].start.value);
+        assertTrue(validatedRanges.otherRanges[0].start.include);
+        assertEquals(Infinity, validatedRanges.otherRanges[0].end.value);
+        assertTrue(validatedRanges.otherRanges[0].end.include);
+    },
+
+    'test invalid infinite range - positive infinity': function () {
+        var validatedRanges = this.presenter.validateRanges('(INF, INF), 0');
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('MIN/MAX01', validatedRanges.errorCode);
+    },
+
+    'test invalid infinite range - negative infinity': function () {
+        var validatedRanges = this.presenter.validateRanges('(-INF, -INF), 0');
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('MIN/MAX01', validatedRanges.errorCode);
+    },
+
+    'test invalid infinite range - positive infinity and number': function () {
+        var validatedRanges = this.presenter.validateRanges('(INF, 5), 0');
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('MIN/MAX01', validatedRanges.errorCode);
+    },
+
+    'test invalid infinite range - negative infinity and number': function () {
+        var validatedRanges = this.presenter.validateRanges('(5, -INF), 0');
+
+        assertTrue(validatedRanges.isError);
+        assertEquals('MIN/MAX01', validatedRanges.errorCode);
+    },
+
+    'test negative infinity should not be range end': function () {
+        var validatedRanges = this.presenter.validateRanges('(INF, -INF), 0');
 
         assertTrue(validatedRanges.isError);
         assertEquals('MIN/MAX01', validatedRanges.errorCode);
