@@ -22,7 +22,9 @@ function AddonLine_Number_create() {
         START: 1,
         MIDDLE: 2,
         END: 3,
-        NONE: 4
+        NONE: 4,
+        INFINITY_LEFT: 5,
+        INFINITY_RIGHT: 6
     };
 
     presenter.run = function(view, model) {
@@ -35,11 +37,60 @@ function AddonLine_Number_create() {
         }
 
         presenter.createSteps();
+        presenter.bindInfinityAreas();
+
         drawRanges(presenter.configuration.shouldDrawRanges);
     };
 
+    presenter.bindInfinityAreas = function() {
+        var infinityLeft = $('.infinity-left');
+        var infinityRight = $('.infinity-right');
+
+        infinityLeft.on('touchstart', function (e){
+            e.preventDefault();
+            presenter.configuration.touchData.lastEvent = e;
+        });
+
+        infinityLeft.on('touchend', function (e){
+            e.preventDefault();
+
+            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
+                var eventData = event.touches[0] || event.changedTouches[0];
+                clickLogic(eventData.target);
+            }
+
+        });
+
+        infinityLeft.on('click', function(e) {
+            e.preventDefault();
+            var eventTarget = $(e.target);
+            clickLogic(eventTarget);
+        });
+
+        infinityRight.on('touchstart', function (e){
+            e.preventDefault();
+            presenter.configuration.touchData.lastEvent = e;
+        });
+
+        infinityRight.on('touchend', function (e){
+            e.preventDefault();
+
+            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
+                var eventData = event.touches[0] || event.changedTouches[0];
+                clickLogic(eventData.target);
+            }
+
+        });
+
+        infinityRight.on('click', function(e) {
+            e.preventDefault();
+            var eventTarget = $(e.target);
+            clickLogic(eventTarget);
+        });
+    };
+
     function calculateStepWidth(xAxisValues) {
-        var xAxisWidth = presenter.$view.find('#x-axis').width() - 1;
+        var xAxisWidth = presenter.$view.find('.x-axis').width() - 1;
 
         return xAxisWidth / (xAxisValues.length - 1);
     }
@@ -67,20 +118,6 @@ function AddonLine_Number_create() {
 
     }
 
-    function getRangesThatMouseIsAbove(e) {
-        var drawnRanges = presenter.configuration.drawnRangesData.ranges;
-        var ranges = [];
-        var value = $(e).attr('value');
-
-        $.each(drawnRanges, function() {
-            if ( $.inArray(value, this.values) >= 0   ) {
-                ranges.push(this);
-            }
-        });
-
-        return ranges;
-    }
-
     function getClickedRangePosition(e) {
         var range = presenter.configuration.mouseData.clickedRanges[0];
 
@@ -98,6 +135,9 @@ function AddonLine_Number_create() {
     }
 
     function removeRange(range, removeIncludeImages) {
+
+        log(range)
+        log(removeIncludeImages)
         var stepLine = range.start.element;
         $(stepLine).find('.selectedRange').remove();
         if (!range.values) { range.values = [] }
@@ -186,6 +226,14 @@ function AddonLine_Number_create() {
             position = presenter.CLICKED_POSITION.NONE;
         }
 
+        if ( element.hasClass('infinity-left') ) {
+            element.attr('value', '-Infinity');
+        }
+
+        else if ( element.hasClass('infinity-right') ) {
+            element.attr('value', 'Infinity');
+        }
+
         var click = {
             element: element,
             position: position,
@@ -193,10 +241,6 @@ function AddonLine_Number_create() {
         };
 
         presenter.configuration.mouseData.clicks.push( click );
-    }
-
-    function isValueInDrawnRanges(value) {
-        return $.inArray(value, presenter.configuration.drawnRangesData.values) >= 0;
     }
 
     function displayCurrentMousePosition(e) {
@@ -272,7 +316,11 @@ function AddonLine_Number_create() {
         if ( presenter.configuration.mouseData.clicks.length == 1
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE ) {
 
-            addEndRangeImage(presenter.configuration.mouseData.clicks[0].element.parent(), true);
+            var value = presenter.configuration.mouseData.clicks[0].element.attr('value');
+
+            if ( !isValueInfinity(value) ) {
+                addEndRangeImage(presenter.configuration.mouseData.clicks[0].element.parent(), true);
+            }
 
         } else if ( presenter.configuration.mouseData.clicks.length == 2
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE
@@ -565,12 +613,14 @@ function AddonLine_Number_create() {
         $.each(ranges, function(i) {
             var startValue = Math.min(this.start.value, this.end.value);
             var endValue = Math.max(this.start.value, this.end.value);
+            var isEndInfinity = isValueInfinity(endValue);
+            var isStartInfinity = isValueInfinity(startValue);
 
-            if (startValue == -Infinity) {
+            if ( isStartInfinity ) {
                 startValue = presenter.configuration.min;
             }
 
-            if (endValue == Infinity) {
+            if ( isEndInfinity ) {
                 endValue = presenter.configuration.max;
             }
 
@@ -587,8 +637,13 @@ function AddonLine_Number_create() {
             }
 
             range.addClass('selectedRange');
-            range.addClass(startValue == -Infinity ? 'infinity-left' : '');
-            range.addClass(endValue == Infinity ? 'infinity-right' : '');
+
+            if ( isStartInfinity && isEndInfinity ) {
+                range.addClass(isStartInfinity ? 'infinityBoth' : '');
+            } else {
+                range.addClass(isStartInfinity ? 'infinityLeft' : '');
+                range.addClass(isEndInfinity ? 'infinityRight' : '');
+            }
             range.css('width', difference + 2 + 'px');
             startElement.append(range);
 
@@ -600,15 +655,28 @@ function AddonLine_Number_create() {
 
             setRangeValues(this, true);
 
-            addEndRangeImages(this, startElement, endElement, startValue == -Infinity, endValue == Infinity);
+            addEndRangeImages(this, startElement, endElement, isStartInfinity, isEndInfinity);
 
         });
+    }
+
+    function isValueInfinity(value) {
+        return ( value == -Infinity
+            || value == Infinity )
     }
 
     function setRangeValues(range, shouldAddToDrawn) {
         range.values = [];
         var startValue = Math.min(range.start.value, range.end.value);
         var endValue = Math.max(range.start.value, range.end.value);
+
+        if (startValue == -Infinity) {
+            startValue = presenter.configuration.min;
+        }
+
+        if (endValue == Infinity) {
+            endValue = presenter.configuration.max;
+        }
 
         for ( var i = startValue; i <= endValue; i++ ) {
             range.values.push(i);
@@ -619,13 +687,26 @@ function AddonLine_Number_create() {
     }
 
     function addEndRangeImages(range, startElement, endElement, isStartInfinity, isEndInfinity) {
-        if (!isEndInfinity) {
-            addEndRangeImage(endElement, range.end.include);
+
+        if ( !isEndInfinity ) {
+            addEndRangeImage( endElement, range.end.include );
+        } else {
+            addInfinityBox( startElement );
         }
 
-        if (startElement[0] != endElement[0] && !isStartInfinity) {
-            addEndRangeImage(startElement, range.start.include);
+        if ( startElement[0] != endElement[0] ) {
+
+            if ( !isStartInfinity ) {
+                addEndRangeImage( startElement, range.start.include );
+            } else {
+                addInfinityBox( startElement );
+            }
+
         }
+    }
+
+    function addInfinityBox( element ) {
+        // TODO
     }
 
     function addEndRangeImage(element, include) {
@@ -647,9 +728,9 @@ function AddonLine_Number_create() {
             stepLine.addClass('stepLine');
 
             if (xAxisValues[i] == 0) {
-                var innerHeight = presenter.$view.find('#inner').height();
-                var yAxis = presenter.$view.find('#y-axis');
-                var xAxis = presenter.$view.find('#x-axis');
+                var innerHeight = presenter.$view.find('.inner').height();
+                var yAxis = presenter.$view.find('.y-axis');
+                var xAxis = presenter.$view.find('.x-axis');
 
                 yAxis.height(innerHeight);
                 yAxis.css({
@@ -676,13 +757,13 @@ function AddonLine_Number_create() {
 
             stepLine.css('left', presenter.configuration.stepWidth * i);
             createClickArea(stepLine, xAxisValues[i]);
-            presenter.$view.find('#x-axis').append(stepLine);
+            presenter.$view.find('.x-axis').append(stepLine);
         }
     };
 
     function moveYAxisClickArea() {
-        var yAxisClickArea = $('#y-axis .clickArea');
-        yAxisClickArea.css('top', ($('#y-axis').height() / 2) - 50 + 'px');
+        var yAxisClickArea = $('.y-axis .clickArea');
+        yAxisClickArea.css('top', ($('.y-axis').height() / 2) - 50 + 'px');
     }
 
     function checkIsMinLowerThanMax(min, max) {
