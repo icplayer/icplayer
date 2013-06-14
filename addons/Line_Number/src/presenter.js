@@ -791,13 +791,24 @@ function AddonLine_Number_create() {
         return true;
     }
 
-    presenter.validateRanges = function (model) {
-        var rangesList = Helpers.splitLines(model['Ranges']);
-        var rangesPattern = /(\(|<){1}[(?P \d)-]+,[(?P \d)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
+    function parseRangeStartOrEnd (value) {
+        switch (value) {
+            case '-INF':
+                return -Infinity;
+            case 'INF':
+                return Infinity;
+            default:
+                return parseInt(value, 10);
+        }
+    }
+
+    presenter.validateRanges = function (ranges) {
+        var rangesList = Helpers.splitLines(ranges);
+        var rangesPattern = /(\(|<){1}[(?P \d|(-){1}INF)-]+,[(?P \d|(-){1}INF)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1, <-INF, 10)
         var validatedShouldDrawRanges = [];
         var validatedOtherRanges = [];
         var isError = false,
-            errorCode;
+            errorCode = '';
 
         $.each(rangesList, function() {
             var rangeString = this.toString();
@@ -813,13 +824,16 @@ function AddonLine_Number_create() {
             var brackets = regexResult.match(/[\(\)<>]+/g);
             var onlyNumbersAndCommas = regexResult.replace(/[ \(\)<>]*/g, '');
             var onlyNumbers = onlyNumbersAndCommas.split(',');
-            var min = onlyNumbers[0];
-            var max = onlyNumbers[1];
-            var minInclude = brackets[0] == '<';
-            var maxInclude = brackets[1] == '>';
+            var min = parseRangeStartOrEnd(onlyNumbers[0]);
+            var max = parseRangeStartOrEnd(onlyNumbers[1]);
+            var minInclude = brackets[0] == '<' || min == -Infinity;
+            var maxInclude = brackets[1] == '>' || max == Infinity;
             var shouldDrawRange = onlyNumbers[2] == '1';
 
-            if(!checkIsMinLowerThanMax(min, max)) {
+            if ((min > max) ||
+                (min == Infinity && max == Infinity) ||
+                (min == -Infinity && max == -Infinity)
+                ) {
                 isError = true;
                 errorCode = 'MIN/MAX01';
 
@@ -827,8 +841,8 @@ function AddonLine_Number_create() {
             }
 
             var validatedRange = {
-                start: { value : parseInt(min, 10), include: minInclude, element: null },
-                end: { value: parseInt(max, 10), include: maxInclude, element: null }
+                start: { value : min, include: minInclude, element: null },
+                end: { value: max, include: maxInclude, element: null }
             };
 
             if (shouldDrawRange) {
@@ -877,7 +891,7 @@ function AddonLine_Number_create() {
 
         max = validatedMax.value;
 
-        var ranges = presenter.validateRanges(model);
+        var ranges = presenter.validateRanges(model['Ranges']);
 
         var validatedIsActivity = ModelValidationUtils.validateBoolean(model['Is Activity']);
         var validatedStep = { value : 1 };
