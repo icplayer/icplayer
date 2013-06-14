@@ -1,5 +1,4 @@
 TestCase("Model validation", {
-
     setUp: function () {
         this.presenter = AddonLine_Number_create();
         this.model = {

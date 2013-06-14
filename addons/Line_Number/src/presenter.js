@@ -273,14 +273,6 @@ function AddonLine_Number_create() {
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE ) {
 
             addEndRangeImage(presenter.configuration.mouseData.clicks[0].element.parent(), true);
-            var element = presenter.configuration.mouseData.clicks[0].element;
-            var range = {
-                start: createRangeElement(element.parent(), element.attr('value'), true),
-                end: createRangeElement(element.parent(), element.attr('value'), true)
-            };
-            setRangeValues(range, true);
-            presenter.configuration.drawnRangesData.ranges.push(range);
-
 
         } else if ( presenter.configuration.mouseData.clicks.length == 2
             && presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE
@@ -332,6 +324,14 @@ function AddonLine_Number_create() {
             var timeDiff = presenter.configuration.mouseData.clicks[1].time - presenter.configuration.mouseData.clicks[0].time;
 
             if ( timeDiff < 250 && timeDiff > 0 ) {
+
+                var element = presenter.configuration.mouseData.clicks[0].element;
+                var range = {
+                    start: createRangeElement(element.parent(), element.attr('value'), true),
+                    end: createRangeElement(element.parent(), element.attr('value'), true)
+                };
+                setRangeValues(range, true);
+                presenter.configuration.drawnRangesData.ranges.push(range);
 
                 presenter.configuration.mouseData.clicks = [];
 
@@ -670,7 +670,6 @@ function AddonLine_Number_create() {
         return parsedMin < parsedMax;
     }
 
-    presenter.validateRanges = function (model) {
     presenter.getState = function () {
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
             this.start.element = null;
@@ -715,10 +714,14 @@ function AddonLine_Number_create() {
 
     presenter.setShowErrorsMode = function() {
         presenter.configuration.isShowErrorsMode = true;
-        var correctRanges = getCorrectSelectedRanges();
+        var validated = validateDrawnRanges();
 
-        $.each(correctRanges, function() {
+        $.each(validated.correct, function() {
             this.start.element.find('.selectedRange').addClass('correct');
+        });
+
+        $.each(validated.wrong, function() {
+            this.start.element.find('.selectedRange').addClass('wrong');
         });
 
     };
@@ -727,37 +730,48 @@ function AddonLine_Number_create() {
         presenter.configuration.isShowErrorsMode = false;
 
         presenter.$view.find('.correct').removeClass('correct');
-
+        presenter.$view.find('.wrong').removeClass('wrong');
     };
 
     presenter.getScore = function() {
-        var correctRanges = getCorrectSelectedRanges();
-        return correctRanges.length;
+        var validated = validateDrawnRanges();
+        return validated.correct.length;
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.otherRanges.length;
+        return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
     };
 
     presenter.getErrorCount = function () {
-        var correctRanges = getCorrectSelectedRanges();
-        return presenter.configuration.otherRanges.length - correctRanges.length;
+        var validated = validateDrawnRanges();
+        return presenter.configuration.otherRanges.length - validated.correct.length;
     };
 
-    function getCorrectSelectedRanges() {
+    function validateDrawnRanges() {
         var correctSelectedRanges = [];
+        var wrongSelectedRanges = [];
+        var ranges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
 
         $.each( presenter.configuration.drawnRangesData.ranges, function() {
             var drawnRange = this;
-            $.each( presenter.configuration.otherRanges, function() {
+
+            $.each( ranges, function() {
                 setRangeValues(this);
+
                 if (compareRanges(this, drawnRange)) {
                     correctSelectedRanges.push(drawnRange);
                 }
             });
+
+            if (correctSelectedRanges.indexOf(drawnRange) == -1) {
+                wrongSelectedRanges.push(drawnRange)
+            }
         });
 
-        return correctSelectedRanges;
+        return  {
+            correct: correctSelectedRanges,
+            wrong: wrongSelectedRanges
+        }
     }
 
     function compareRanges(rangeA, rangeB) {
@@ -777,56 +791,7 @@ function AddonLine_Number_create() {
         return true;
     }
 
-    presenter.readConfiguration = function(model) {
-        var isMinEmpty = ModelValidationUtils.isStringEmpty(model['Min']);
-
-        if(isMinEmpty) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN01'
-            }
-        }
-
-        var isMaxEmpty = ModelValidationUtils.isStringEmpty(model['Max']);
-
-        if(isMaxEmpty) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MAX01'
-            }
-        }
-
-        var isMinLowerThanMax = checkIsMinLowerThanMax(model['Min'], model['Max']);
-
-        if(!isMinLowerThanMax) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN/MAX01'
-            }
-        }
-
-        var validatedMin = ModelValidationUtils.validateInteger(model['Min']);
-        var validatedMax = ModelValidationUtils.validateInteger(model['Max']);
-        var min, max;
-
-        if(validatedMin.isValid) {
-            min = validatedMin.value;
-        } else {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN02'
-            }
-        }
-
-        if(validatedMax.isValid) {
-            max = validatedMax.value;
-        } else {
-            return {
-                'isError' : true,
-                'errorCode' : 'MAX02'
-            }
-        }
-
+    presenter.validateRanges = function (model) {
         var rangesList = Helpers.splitLines(model['Ranges']);
         var rangesPattern = /(\(|<){1}[(?P \d)-]+,[(?P \d)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
         var validatedShouldDrawRanges = [];
