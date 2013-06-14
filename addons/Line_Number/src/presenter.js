@@ -670,7 +670,6 @@ function AddonLine_Number_create() {
         return parsedMin < parsedMax;
     }
 
-    presenter.validateRanges = function (model) {
     presenter.getState = function () {
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
             this.start.element = null;
@@ -777,56 +776,7 @@ function AddonLine_Number_create() {
         return true;
     }
 
-    presenter.readConfiguration = function(model) {
-        var isMinEmpty = ModelValidationUtils.isStringEmpty(model['Min']);
-
-        if(isMinEmpty) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN01'
-            }
-        }
-
-        var isMaxEmpty = ModelValidationUtils.isStringEmpty(model['Max']);
-
-        if(isMaxEmpty) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MAX01'
-            }
-        }
-
-        var isMinLowerThanMax = checkIsMinLowerThanMax(model['Min'], model['Max']);
-
-        if(!isMinLowerThanMax) {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN/MAX01'
-            }
-        }
-
-        var validatedMin = ModelValidationUtils.validateInteger(model['Min']);
-        var validatedMax = ModelValidationUtils.validateInteger(model['Max']);
-        var min, max;
-
-        if(validatedMin.isValid) {
-            min = validatedMin.value;
-        } else {
-            return {
-                'isError' : true,
-                'errorCode' : 'MIN02'
-            }
-        }
-
-        if(validatedMax.isValid) {
-            max = validatedMax.value;
-        } else {
-            return {
-                'isError' : true,
-                'errorCode' : 'MAX02'
-            }
-        }
-
+    presenter.validateRanges = function (model) {
         var rangesList = Helpers.splitLines(model['Ranges']);
         var rangesPattern = /(\(|<){1}[(?P \d)-]+,[(?P \d)-]+(\)|>){1},[ ]*(0|1){1}/i; // matches i.e. (1, 0), 0 or <2, 15), 1
         var validatedShouldDrawRanges = [];

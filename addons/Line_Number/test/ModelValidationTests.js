@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-TestCase("Model Validation Tests", {
-=======
 TestCase("Model validation", {
->>>>>>> master
-
     setUp: function () {
         this.presenter = AddonLine_Number_create();
         this.model = {
