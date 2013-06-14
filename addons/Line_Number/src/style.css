@@ -111,6 +111,18 @@
     border-radius: 5px 5px 0px 0px;
 }
 
+.addon_Line_Number .correct {
+    background-color: #00ff44;
+}
+
+.addon_Line_Number .wrong {
+    background-color: #ff3344;
+}
+
+.addon_Line_Number .currentSelectedRange {
+    background-color: #00aaff;
+}
+
 .addon_Line_Number .currentMousePosition {
     background-image: url('resources/current_mouse_pos.svg');
 }
