@@ -7,7 +7,8 @@ TestCase("Model validation", {
             'Ranges' : '<0, 1), 1\n' +
                        '(0, 5>, 0',
             'Step' : 1,
-            'Axis X Values' : '1, 2, 3, 4, 5'
+            'Axis X Values' : '1, 2, 3, 4, 5',
+            'Is Visible': 'True'
         }
     },
 
@@ -74,6 +75,9 @@ TestCase("Model validation", {
         assertEquals('', 1, configuration.shouldDrawRanges[0].end.value);
         assertTrue('', configuration.shouldDrawRanges[0].start.include);
         assertFalse('', configuration.shouldDrawRanges[0].end.include);
+
+        assertTrue(configuration.isVisibleByDefault);
+        assertTrue(configuration.isCurrentlyVisible);
     },
 
     'test step value is proper': function() {
