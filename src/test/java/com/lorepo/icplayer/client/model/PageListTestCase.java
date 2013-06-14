@@ -1,13 +1,21 @@
 package com.lorepo.icplayer.client.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
 
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DictionaryWrapper.class)
 public class PageListTestCase {
 
 	@Test
@@ -63,7 +71,8 @@ public class PageListTestCase {
 	
 	@Test
 	public void generateUniquePageName() {
-		
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("page")).thenReturn("Page");
 		PageList pages = new PageList();
 		
 		pages.add(new Page("Page 1", ""));
