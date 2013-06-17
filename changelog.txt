@@ -1,7 +1,8 @@
+2013-06-17 Fixed displaying error messages in Slideshow module
 2013-06-13 Added localization to new page name
-2013-06-13 fixed problem with adding Paragraph module into presentation
-2013-06-12 fixed problem with restoring visibility in Table module after page change
-2013-06-12 fixed problem with fonts in multiple Paragraph editors on one page
-2013-06-12 added JSC3D library for viewing 3D models purposes
-2013-06-12 added 3D Viewer module. This module allow simple viewing 3D objects saved in OBJ format
-2013-06-12 added commands queue utility to Commons which allows postponing commands execution (while module is loading asynchronously)
+2013-06-13 Fixed problem with adding Paragraph module into presentation
+2013-06-12 Fixed problem with restoring visibility in Table module after page change
+2013-06-12 Fixed problem with fonts in multiple Paragraph editors on one page
+2013-06-12 Added JSC3D library for viewing 3D models purposes
+2013-06-12 Added 3D Viewer module. This module allow simple viewing 3D objects saved in OBJ format
+2013-06-12 Added commands queue utility to Commons which allows postponing commands execution (while module is loading asynchronously)

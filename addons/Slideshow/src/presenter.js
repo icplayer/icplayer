@@ -165,7 +165,13 @@ function AddonSlideshow_create() {
         if (!mediaLoaded)  return { isError:true, errorCode:"A_03" };
 
         presenter.configuration.buzzAudio.bind("error", function () {
-            DOMElements.viewContainer.html("Error occured while loading/playing audio: " + this.getErrorMessage());
+            var errorMessage = "Error occurred while loading/playing audio.";
+
+            if (this.getErrorMessage()) errorMessage += " Reason: " + this.getErrorMessage();
+
+            errorMessage += " Please try again.";
+
+            DOMElements.viewContainer.html(errorMessage);
         });
 
         presenter.configuration.buzzAudio.bind("loadedmetadata", function () {
