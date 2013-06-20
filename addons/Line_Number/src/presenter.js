@@ -14,6 +14,7 @@ function AddonLine_Number_create() {
         'MAX02' : 'Max value must be a number',
         'MIN/MAX01' : 'Min value cannot be lower than Max value.',
         'RAN01' : 'One or more ranges are invalid.',
+        'RAN02' : 'One or more ranges are invalid. Please make sure, that all ranges start/end can be displayed on X axis.',
         'STEP01' : 'The value in Step property is invalid.',
         'VAL01' : 'One or more X axis values are invalid.'
     };
@@ -116,10 +117,34 @@ function AddonLine_Number_create() {
         var configuration = presenter.configuration;
         var xAxisValues = [];
 
-        for (var i = configuration.min; i <= configuration.max; i += configuration.step) {
+        for (var i = 0; i >= configuration.min; i -= configuration.step) {
             xAxisValues.push(i);
         }
-        return xAxisValues;
+
+        for (var i = 0; i <= configuration.max; i += configuration.step) {
+            xAxisValues.push(i);
+        }
+
+        var sorted = xAxisValues.sort( function( a, b ){ return a - b });
+        sorted.splice( sorted.indexOf(0), 1 );
+
+        var allRanges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
+
+        $.each(allRanges, function() {
+
+            if ( (sorted.indexOf(this.start.value) == -1
+                || sorted.indexOf(this.end.value) == -1)
+                && ( !isValueInfinity(this.start.value)
+                && !isValueInfinity(this.end.value) )) {
+
+                presenter.configuration.isError = true;
+                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'RAN02');
+
+                return false;
+            }
+        });
+
+        return sorted;
     }
 
     function setClickedRanges(e) {
@@ -305,9 +330,23 @@ function AddonLine_Number_create() {
 
         }
 
+        var width = presenter.configuration.stepWidth, left = - (presenter.configuration.stepWidth / 2) + 'px';
+
+        if ( value == presenter.configuration.min || value == presenter.configuration.max ) {
+            width = width / 2;
+        }
+
+        if ( value == presenter.configuration.min ) {
+            left = 0;
+        }
+
+        if ( value == presenter.configuration.max ) {
+            left = - width;
+        }
+
         clickArea.css({
-            'width' : presenter.configuration.stepWidth,
-            'left' : - (presenter.configuration.stepWidth / 2) + 'px'
+            'width' : width,
+            'left' : left
         });
 
         if (!presenter.configuration.isPreview) {
@@ -1147,10 +1186,10 @@ function AddonLine_Number_create() {
             var maxInclude = brackets[1] == '>' || max == Infinity;
             var shouldDrawRange = onlyNumbers[2] == '1';
 
-            if ((min > max) ||
-                (min == Infinity && max == Infinity) ||
-                (min == -Infinity && max == -Infinity)
-                ) {
+            if ( (min > max)
+                || (min == Infinity && max == Infinity)
+                || (min == -Infinity && max == -Infinity) ) {
+
                 isError = true;
                 errorCode = 'MIN/MAX01';
 
@@ -1161,6 +1200,7 @@ function AddonLine_Number_create() {
                 start: { value : min, include: minInclude, element: null },
                 end: { value: max, include: maxInclude, element: null }
             };
+
 
             if (shouldDrawRange) {
                 validatedShouldDrawRanges.push(validatedRange);
