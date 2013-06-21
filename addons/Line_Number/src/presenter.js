@@ -5,6 +5,9 @@ function AddonLine_Number_create() {
 
     var presenter = function () {};
 
+    var eventBus; // Modules communication
+    var playerController;
+
     presenter.configuration = {};
 
     presenter.errorCodes = {
@@ -31,6 +34,7 @@ function AddonLine_Number_create() {
         presenter.$view.disableSelection();
         presenter.configuration = presenter.readConfiguration(model);
         presenter.configuration.isPreview = false;
+        eventBus = playerController.getEventBus();
 
         if (presenter.configuration.isError) {
             return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
@@ -463,6 +467,10 @@ function AddonLine_Number_create() {
     function clickLogic(eventTarget) {
         if (presenter.configuration.isShowErrorsMode) { return false; }
 
+        if (presenter.configuration.mouseData.twoClickedRangesCount > 3) {
+            presenter.configuration.mouseData.twoClickedRangesCount = 0;
+        }
+
         setClickedRanges(eventTarget);
 
         setClicks(eventTarget);
@@ -530,7 +538,7 @@ function AddonLine_Number_create() {
                         end: createRangeElement(firstClick.element, firstValue, true)
                     };
                     setRangeValues(newRange, true);
-                    presenter.configuration.drawnRangesData.ranges.push(newRange);
+                    addToDrawnRanges(newRange);
 
                 } else {
 
@@ -628,20 +636,7 @@ function AddonLine_Number_create() {
 
                 presenter.configuration.mouseData.twoClickedRangesCount++;
 
-                if ( isClickedStartOrEnd() ) {
-                    removeRange( getRangeByValue(firstValue), true );
-                    var range = getRangeByValue(secondValue);
-
-                    if ( firstValue > secondValue ) {
-                        addEndRangeImage(range.end.element, false);
-                    } else {
-                        addEndRangeImage(range.start.element, false);
-                    }
-
-                    resetClicks();
-                }
-
-                else if ( presenter.configuration.mouseData.twoClickedRangesCount == 2 ) {
+                if ( presenter.configuration.mouseData.twoClickedRangesCount == 2 ) {
 
                     var currentSelectedRange = presenter.configuration.mouseData.clickedRanges[0].start.element.find('.selectedRange')
                     var selectedRange = presenter.configuration.mouseData.clickedRanges[1].start.element.find('.selectedRange');
@@ -875,7 +870,7 @@ function AddonLine_Number_create() {
                 range.css('left', - (difference) + 'px');
             }
 
-            presenter.configuration.drawnRangesData.ranges.push(this);
+            addToDrawnRanges(this);
 
             setRangeValues(this, true);
 
@@ -940,6 +935,12 @@ function AddonLine_Number_create() {
 
     function addInfinityBox( element ) {
         // TODO
+    }
+
+    function convertRangeToString ( range ) {
+        var startInclude = range.start.include ? '<' : '(';
+        var endInclude = range.end.include ? '>' : ')';
+        return startInclude + range.start.value + ', ' + range.end.value + endInclude;
     }
 
     function addEndRangeImage(element, include) {
@@ -1117,18 +1118,44 @@ function AddonLine_Number_create() {
         }
     }
 
+    function checkIsRangeCorrect( range ) {
+        var ranges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
+        var isCorrect = false;
+
+        setRangeValues(range, false);
+
+        $.each( ranges, function() {
+            setRangeValues(this, false);
+            if ( compareRanges(this, range) ) {
+                isCorrect = true;
+                return false; // breaks each loop
+            }
+        });
+
+
+        return isCorrect;
+    }
+
+    function addToDrawnRanges ( range ) {
+        var rangeString = convertRangeToString(range);
+        var isRangeCorrect = checkIsRangeCorrect(range);
+        var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
+        eventBus.sendEvent('ValueChanged', eventData);
+        presenter.configuration.drawnRangesData.ranges.push( range );
+    }
+
     function compareRanges(rangeA, rangeB) {
         return (compareArray(rangeA.values, rangeB.values)
             && rangeA.start.include == rangeB.start.include
             && rangeA.end.include == rangeB.end.include)
     }
 
-    function compareArray(arrA, arrb) {
+    function compareArray(arrA, arrB) {
         var i = arrA.length;
-        if (i != arrb.length) return false;
+        if (i != arrB.length) return false;
 
         while ( i-- ) {
-            if (arrA[i] !== arrb[i]) return false;
+            if (arrA[i] !== arrB[i]) return false;
         }
 
         return true;
@@ -1312,7 +1339,8 @@ function AddonLine_Number_create() {
             'isShowErrorsMode' : false,
             isCurrentlyVisible: isVisible,
             isVisibleByDefault: isVisible,
-            'notCurrentSelectedRange' : null
+            'notCurrentSelectedRange' : null,
+            'addonID' : model['ID']
         }
     };
 
@@ -1351,6 +1379,29 @@ function AddonLine_Number_create() {
         drawRanges(validatedRanges.shouldDrawRanges);
 
     };
+
+    presenter.setPlayerController = function(controller) {
+        playerController = controller;
+    };
+
+    presenter.createEventData = function (rangeString, isRemove, isRangeCorrect) {
+        return {
+            'source': presenter.configuration.addonID,
+            'item': rangeString,
+            'value': isRemove ? '0' : '1',
+            'score': isRangeCorrect ? '1' : '0'
+        };
+    };
+
+    presenter.createAllOKEventData = function () {
+        return {
+            'source': presenter.configuration.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+    };
+
 
     return presenter;
 }       
