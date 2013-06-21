@@ -1,4 +1,4 @@
-TestCase("Helpers Tests", {
+TestCase("[Commons - Helpers] Split lines", {
     'test empty data': function() {
         var splittedLines = Helpers.splitLines("");
 

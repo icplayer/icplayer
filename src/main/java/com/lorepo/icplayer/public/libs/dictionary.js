@@ -214,6 +214,7 @@ var ice_dictionary = {
 	"Connection_info": "Allows to create an activity with two columns of items (texts or images) which match one another. The activity can work either in a single or a multiple connection mode where each item can be used in multiple links.",
 	"Connector_info": "A special type of addon that allows to combine multiple addons and modules in fully interactive, responsive activities.",
 	"crossword_info": "Enables to insert a ready-to-use Crossword game into a presentation. To make the activity work, it is enough to predefine a few specific parameters in the addon’s menu.",
+	"Custom_Scoring_info": "Allows users to bind multiple modules and create fully scored activities from them.",
 	"Double_State_Button_info": "Allows users to perform different actions in presentations, such as changing other addons' states when the button is selected/deselected.",
 	"Event_Listener_info": "Sends the properly prepared event to be retrieved by any module. This addon serves for checking the correctness of scripts in the Advanced Connector addon.",
 	"Event_Sender_info": "Sends the properly prepared event to be retrieved by any module. This addon serves for checking the correctness of scripts in the Advanced Connector addon.",

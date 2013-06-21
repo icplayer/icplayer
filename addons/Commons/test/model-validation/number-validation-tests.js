@@ -13,6 +13,20 @@ TestCase("Integer validation", {
         assertNaN(validationResult.value);
     },
 
+    'test zero value as string':function () {
+        var validationResult = ModelValidationUtils.validateInteger('0');
+
+        assertTrue(validationResult.isValid);
+        assertEquals(0, validationResult.value);
+    },
+
+    'test zero value as number':function () {
+        var validationResult = ModelValidationUtils.validateInteger(0);
+
+        assertTrue(validationResult.isValid);
+        assertEquals(0, validationResult.value);
+    },
+
     'test value is not a number':function () {
         var validationResult = ModelValidationUtils.validateInteger('value');
 

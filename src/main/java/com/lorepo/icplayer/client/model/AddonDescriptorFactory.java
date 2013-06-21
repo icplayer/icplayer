@@ -36,6 +36,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Connection", "Connection", "Activities");
 		addDescriptor("Connector", "Connector", "Scripting");
 		addDescriptor("crossword", "Crossword", "Activities");
+		addDescriptor("Custom_Scoring", "Custom Scoring", "Reporting");
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
 		addDescriptor("Event_Listener", "Event Listener", "Others");
 		addDescriptor("Event_Sender", "Event Sender", "Others");

@@ -2,7 +2,8 @@ TestCase("Events", {
     setUp: function() {
         this.presenter = AddonImage_Identification_create();
         this.presenter.configuration = {
-            addonID: 'ImageIdentification1'
+            addonID: 'ImageIdentification1',
+            isActivity: true
         };
     },
 
@@ -36,5 +37,16 @@ TestCase("Events", {
         assertEquals('', eventData.item);
         assertEquals('0', eventData.value);
         assertEquals('0', eventData.score);
+    },
+
+    'test module is not in activity mode': function() {
+        this.presenter.configuration.isActivity = false;
+
+        var eventData = this.presenter.createEventData(true, true);
+
+        assertEquals('ImageIdentification1', eventData.source);
+        assertEquals('', eventData.item);
+        assertEquals('1', eventData.value);
+        assertEquals('0', eventData.score); // if module was an activity score would be 1
     }
 });

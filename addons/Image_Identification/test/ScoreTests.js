@@ -6,7 +6,8 @@ TestCase("Score", {
     'test SelectionCorrect checked and item selected': function() {
         this.presenter.configuration = {
             shouldBeSelected: true,
-            isSelected: true
+            isSelected: true,
+            isActivity: true
         };
 
         var score = this.presenter.getScore();
@@ -19,7 +20,8 @@ TestCase("Score", {
     'test SelectionCorrect checked and item not selected': function() {
         this.presenter.configuration = {
             shouldBeSelected: true,
-            isSelected: false
+            isSelected: false,
+            isActivity: true
         };
 
         var score = this.presenter.getScore();
@@ -32,7 +34,8 @@ TestCase("Score", {
     'test SelectionCorrect not checked and item selected': function() {
         this.presenter.configuration = {
             shouldBeSelected: false,
-            isSelected: true
+            isSelected: true,
+            isActivity: true
         };
 
         var score = this.presenter.getScore();
@@ -45,7 +48,8 @@ TestCase("Score", {
     'test SelectionCorrect not checked and item not selected': function() {
         this.presenter.configuration = {
             shouldBeSelected: false,
-            isSelected: false
+            isSelected: false,
+            isActivity: true
         };
 
         var score = this.presenter.getScore();
@@ -57,7 +61,8 @@ TestCase("Score", {
 
     'test SelectionCorrect checked, max score should be 1': function() {
         this.presenter.configuration = {
-            shouldBeSelected: true
+            shouldBeSelected: true,
+            isActivity: true
         };
 
         var score = this.presenter.getMaxScore();
@@ -67,11 +72,28 @@ TestCase("Score", {
 
     'test SelectionCorrect not checked, max score should be 0': function() {
         this.presenter.configuration = {
-            shouldBeSelected: false
+            shouldBeSelected: false,
+            isActivity: true
         };
 
         var score = this.presenter.getMaxScore();
 
         assertEquals(0, score);
+    },
+
+    'test module is not in activity mode': function() {
+        this.presenter.configuration = {
+            shouldBeSelected: true,
+            isSelected: true,
+            isActivity: false
+        };
+
+        var maxScore = this.presenter.getMaxScore();
+        var score = this.presenter.getScore();
+        var errors = this.presenter.getErrorCount();
+
+        assertEquals(0, maxScore);
+        assertEquals(0, score);
+        assertEquals(0, errors);
     }
 });

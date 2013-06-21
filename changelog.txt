@@ -1,3 +1,8 @@
+2013-06-21 Added new command to Image Identification module - removeMark - which removes marks done by markAs.. commands
+2013-06-21 Added new property - "Is not an activity" to Image Identification module
+2013-06-21 Fixed integer validation for zero values in Commons (now in version 1.6.7)
+2013-06-21 Added helper method - displaying error messages - in Commons (now in version 1.6.6)
+2013-06-21 Added Custom Scoring module. This module allows users to bind multiple modules and create fully scored activities from them
 2013-06-17 Fixed displaying error messages in Slideshow module
 2013-06-13 Added localization to new page name
 2013-06-13 Fixed problem with adding Paragraph module into presentation
