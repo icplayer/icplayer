@@ -4,5 +4,6 @@
 	<model>
 		<property name='Image' type='image'/>
 		<property name="SelectionCorrect" type="boolean" />
+		<property name="Is not an activity" type="boolean" />
 	</model>
 </addon>

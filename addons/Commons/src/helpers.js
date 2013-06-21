@@ -18,6 +18,22 @@
         splitLines: function splitLines(text) {
 
             return text.split(/[\n\r]+/);
+        },
+
+        /**
+         Alerts error message using {window.alert} method with message properly formatted depending on error type.
+
+         @param {Error} error error object
+         @param {String} message custom module message
+         */
+        alertErrorMessage: function (error, message) {
+            var alertMessage = message + '\n\n';
+
+            if (error.name) alertMessage += '[' + error.name + '] ';
+
+            alertMessage += error.message ? error.message : error;
+
+            alert(alertMessage);
         }
     }
 })(window);

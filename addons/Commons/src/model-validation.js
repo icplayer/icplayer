@@ -34,7 +34,7 @@
             value:NaN
         };
 
-        if (!value) {
+        if (ModelValidationUtils.isStringEmpty(value)) {
             return validationResult;
         }
 

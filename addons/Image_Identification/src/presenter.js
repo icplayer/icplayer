@@ -1,7 +1,6 @@
 function AddonImage_Identification_create(){
     var presenter = function() {};
 
-    var isErrorCheckMode = false;
     var playerController;
 
     var CSS_CLASSES = {
@@ -13,6 +12,9 @@ function AddonImage_Identification_create(){
         MOUSE_HOVER : "image-identification-element-mouse-hover"
     };
 
+    /**
+     * @return {string}
+     */
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
             CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER;
@@ -23,13 +25,17 @@ function AddonImage_Identification_create(){
 
         element.hover(
             function() {
-                if (!isErrorCheckMode && presenter.configuration.isHoverEnabled) {
+                if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
+
+                if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
                     $(this).addClass('image-identification-element-mouse-hover');
                 }
             },
             function() {
-                if (!isErrorCheckMode && presenter.configuration.isHoverEnabled) {
+                if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
+
+                if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
                     $(this).addClass(presenter.configuration.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
                 }
@@ -37,10 +43,10 @@ function AddonImage_Identification_create(){
         );
 
         element.click(function() {
-            if (!isErrorCheckMode) {
-                toggleSelectionState();
-                applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
-            }
+            if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
+
+            toggleSelectionState();
+            applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
         });
     }
 
@@ -118,7 +124,9 @@ function AddonImage_Identification_create(){
             isSelected: false,
             imageSrc: model.Image,
             shouldBeSelected: ModelValidationUtils.validateBoolean(model.SelectionCorrect),
-            isHoverEnabled: true
+            isHoverEnabled: true,
+            isActivity: !ModelValidationUtils.validateBoolean(model["Is not an activity"]),
+            isErrorCheckMode: false
         };
     };
 
@@ -130,9 +138,7 @@ function AddonImage_Identification_create(){
     }
 
     presenter.executeCommand = function(name, params) {
-        if (isErrorCheckMode) {
-            return;
-        }
+        if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
 
         var commands = {
             'select': presenter.select,
@@ -143,7 +149,8 @@ function AddonImage_Identification_create(){
             'isSelected': presenter.isSelected,
             'markAsCorrect': presenter.markAsCorrect,
             'markAsWrong': presenter.markAsWrong,
-            'markAsEmpty': presenter.markAsEmpty
+            'markAsEmpty': presenter.markAsEmpty,
+            'removeMark': presenter.removeMark
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -173,8 +180,9 @@ function AddonImage_Identification_create(){
 
     presenter.reset = function() {
         presenter.configuration.isSelected = false;
-        isErrorCheckMode = false;
+        presenter.configuration.isErrorCheckMode = false;
         presenter.configuration.isHoverEnabled = false;
+
         applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
 
         if (presenter.configuration.isVisibleByDefault) {
@@ -185,12 +193,18 @@ function AddonImage_Identification_create(){
     };
 
     presenter.setWorkMode = function() {
-        isErrorCheckMode = false;
+        presenter.configuration.isErrorCheckMode = false;
+
+        if (!presenter.configuration.isActivity) return;
+
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
     presenter.setShowErrorsMode = function() {
-        isErrorCheckMode = true;
+        presenter.configuration.isErrorCheckMode = true;
+
+        if (!presenter.configuration.isActivity) return;
+
         if (presenter.configuration.isSelected) {
             applySelectionStyle(presenter.configuration.isSelected === presenter.configuration.shouldBeSelected, CSS_CLASSES.CORRECT, CSS_CLASSES.INCORRECT);
         } else if (presenter.configuration.shouldBeSelected) {
@@ -199,6 +213,8 @@ function AddonImage_Identification_create(){
     };
 
     presenter.getErrorCount = function() {
+        if (!presenter.configuration.isActivity) return 0;
+
         if (!presenter.configuration.shouldBeSelected) {
             return presenter.configuration.isSelected ? 1 : 0;
         }
@@ -206,6 +222,8 @@ function AddonImage_Identification_create(){
     };
 
     presenter.getMaxScore = function() {
+        if (!presenter.configuration.isActivity) return 0;
+
         if (!presenter.configuration.shouldBeSelected) {
             // SelectionCorrect is not checked, things are getting complicated
             if (presenter.configuration.isSelected) {
@@ -223,6 +241,8 @@ function AddonImage_Identification_create(){
     };
 
     presenter.getScore = function() {
+        if (!presenter.configuration.isActivity) return 0;
+
         if (presenter.configuration.shouldBeSelected) {
             return presenter.configuration.isSelected ? 1 : 0;
         }
@@ -259,11 +279,18 @@ function AddonImage_Identification_create(){
     };
 
     presenter.createEventData = function(isSelected, shouldBeSelected) {
+        var score;
+        if (presenter.configuration.isActivity){
+            score = shouldBeSelected ? '1' : '0';
+        } else {
+            score = 0;
+        }
+
         return {
             source : presenter.configuration.addonID,
             item : '',
             value : isSelected ? '1' : '0',
-            score : shouldBeSelected ? '1' : '0'
+            score : score
         }
     };
 
@@ -307,19 +334,50 @@ function AddonImage_Identification_create(){
 
     presenter.markAsCorrect = function() {
         presenter.configuration.isHoverEnabled = false;
-        presenter.configuration.isSelected = true;
+        presenter.configuration.isMarked = true;
+
+        // Selection can be changed only in activity mode.
+        // When module is not in activity mode we want to be able to restore selection after removing mark classes
+        if (presenter.configuration.isActivity) {
+            presenter.configuration.isSelected = true;
+        }
+
         applySelectionStyle(true, CSS_CLASSES.CORRECT, CSS_CLASSES.ELEMENT);
     };
 
     presenter.markAsWrong = function() {
         presenter.configuration.isHoverEnabled = false;
-        presenter.configuration.isSelected = true;
+        presenter.configuration.isMarked = true;
+
+        // Selection can be changed only in activity mode.
+        // When module is not in activity mode we want to be able to restore selection after removing mark classes
+        if (presenter.configuration.isActivity) {
+            presenter.configuration.isSelected = true;
+        }
+
         applySelectionStyle(true, CSS_CLASSES.INCORRECT, CSS_CLASSES.ELEMENT);
     };
 
     presenter.markAsEmpty = function() {
         presenter.configuration.isHoverEnabled = false;
+        presenter.configuration.isMarked = true;
+
         applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
+    };
+
+    presenter.removeMark = function() {
+        if (!presenter.configuration.isMarked) return;
+
+        presenter.configuration.isHoverEnabled = true;
+        presenter.configuration.isMarked = false;
+
+        // Selection can be changed only in activity mode.
+        // When module is not in activity mode we want to be able to restore selection after removing mark classes
+        if (presenter.configuration.isActivity) {
+            presenter.configuration.isSelected = true;
+        }
+
+        applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
     return presenter;

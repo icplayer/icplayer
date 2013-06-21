@@ -19,6 +19,9 @@ TestCase("Model validation", {
         assertFalse(validationResult.shouldBeSelected);
         assertFalse(validationResult.isSelected);
 
+        assertTrue(validationResult.isActivity);
+        assertFalse(validationResult.isErrorCheckMode);
+
         assertEquals("/file/serve/123456", validationResult.imageSrc);
         assertEquals('ImageIdentification1', validationResult.addonID);
     }
