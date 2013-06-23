@@ -30,20 +30,44 @@ function AddonLine_Number_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.presenterLogic(view, model, false);
+    };
+
+    presenter.createPreview = function (view, model) {
+        presenter.presenterLogic(view, model, true);
+    };
+
+    presenter.removeZIndexes = function () {
+        var selector = '.outer .infinity-left, .outer .infinity-right, .x-axis, .rangeImage, .addon_Line_Number .currentMousePosition, .clickArea, .selectedRange';
+        presenter.$view.find(selector).css('z-index', '0');
+    };
+
+    presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$view.disableSelection();
         presenter.configuration = presenter.readConfiguration(model);
-        presenter.configuration.isPreview = false;
-        eventBus = playerController.getEventBus();
+        presenter.configuration.isPreview = isPreview;
 
         if (presenter.configuration.isError) {
             return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
         }
 
         presenter.createSteps();
-        presenter.bindInfinityAreas();
+
+        if (!isPreview) {
+            presenter.bindInfinityAreas();
+        }
 
         drawRanges(presenter.configuration.shouldDrawRanges);
+
+        if (!presenter.configuration.isVisibleByDefault) {
+            presenter.hide();
+        }
+
+        if (isPreview) {
+            // z-index in Editor breaks down properties popups
+            presenter.removeZIndexes();
+        }
     };
 
     presenter.bindInfinityAreas = function() {
@@ -91,24 +115,6 @@ function AddonLine_Number_create() {
             var eventTarget = $(e.target);
             clickLogic(eventTarget);
         });
-    };
-
-    presenter.createPreview = function (view, model) {
-        presenter.$view = $(view);
-        presenter.$view.disableSelection();
-        presenter.configuration = presenter.readConfiguration(model);
-        presenter.configuration.isPreview = true;
-
-        if (presenter.configuration.isError) {
-            return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
-        }
-
-        presenter.createSteps();
-        drawRanges(presenter.configuration.shouldDrawRanges);
-
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
     };
 
     function calculateStepWidth(xAxisValues) {
@@ -331,7 +337,6 @@ function AddonLine_Number_create() {
                 }
 
             });
-
         }
 
         var width = presenter.configuration.stepWidth, left = - (presenter.configuration.stepWidth / 2) + 'px';
@@ -768,12 +773,12 @@ function AddonLine_Number_create() {
         var range = null;
 
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
-
             if ( this.values.indexOf(value) >= 0 ) {
                 range = this;
                 return false;
             }
 
+            return true;
         });
 
         return range;
@@ -1137,11 +1142,14 @@ function AddonLine_Number_create() {
     }
 
     function addToDrawnRanges ( range ) {
-        var rangeString = convertRangeToString(range);
-        var isRangeCorrect = checkIsRangeCorrect(range);
-        var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
-        eventBus.sendEvent('ValueChanged', eventData);
         presenter.configuration.drawnRangesData.ranges.push( range );
+
+        if (!presenter.configuration.isPreview) {
+            var rangeString = convertRangeToString(range);
+            var isRangeCorrect = checkIsRangeCorrect(range);
+            var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
+            eventBus.sendEvent('ValueChanged', eventData);
+        }
     }
 
     function compareRanges(rangeA, rangeB) {
@@ -1382,6 +1390,7 @@ function AddonLine_Number_create() {
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
+        eventBus = controller.getEventBus();
     };
 
     presenter.createEventData = function (rangeString, isRemove, isRangeCorrect) {
