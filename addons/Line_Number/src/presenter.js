@@ -1285,7 +1285,7 @@ function AddonLine_Number_create() {
 
         var ranges = presenter.validateRanges(model['Ranges']);
 
-        var validatedIsActivity = ModelValidationUtils.validateBoolean(model['Is Activity']);
+        var validatedIsActivity = !ModelValidationUtils.validateBoolean(model['Not Activity']);
         var validatedStep = { value : 1 };
 
         if ( model['Step'] ) {
