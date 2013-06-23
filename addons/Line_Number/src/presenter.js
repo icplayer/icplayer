@@ -1022,27 +1022,31 @@ function AddonLine_Number_create() {
 
         return JSON.stringify({
             drawnRangesData: presenter.configuration.drawnRangesData,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isCurrentlyVisible
         });
     };
 
-    presenter.setState = function (stateString) {
-        var state = JSON.parse(stateString);
-        var rangesToDraw = state['drawnRangesData'].ranges;
-
-        $.each(rangesToDraw, function() {
+    presenter.redrawRanges = function (rangesToDraw) {
+        $.each(rangesToDraw, function () {
             this.start.element = presenter.$view.find('.clickArea[value="' + this.start.value + '"]').parent();
             this.end.element = presenter.$view.find('.clickArea[value="' + this.end.value + '"]').parent();
         });
 
-        $.each(presenter.configuration.shouldDrawRanges, function() {
-           removeRange(this, true);
+        $.each(presenter.configuration.shouldDrawRanges, function () {
+            removeRange(this, true);
         });
 
         drawRanges(rangesToDraw);
+    };
 
-        presenter.configuration.isCurrentlyVisible = state.isVisible;
-        presenter.setVisibility(state.isVisible);
+    presenter.setState = function (state) {
+        if (ModelValidationUtils.isStringEmpty(state)) return;
+
+        var parsedState = JSON.parse(state);
+
+        presenter.redrawRanges(parsedState.drawnRangesData.ranges);
+        presenter.configuration.isCurrentlyVisible = parsedState.isVisible;
+        presenter.setVisibility(parsedState.isVisible);
     };
 
     presenter.reset = function() {
