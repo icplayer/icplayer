@@ -73,8 +73,8 @@ function AddonLine_Number_create() {
     };
 
     presenter.bindInfinityAreas = function() {
-        var infinityLeft = $('.infinity-left');
-        var infinityRight = $('.infinity-right');
+        var infinityLeft = presenter.$view.find('.infinity-left');
+        var infinityRight = presenter.$view.find('.infinity-right');
 
         infinityLeft.on('touchstart', function (e){
             e.preventDefault();
@@ -1026,8 +1026,9 @@ function AddonLine_Number_create() {
     };
 
     function moveYAxisClickArea() {
-        var yAxisClickArea = $('.y-axis .clickArea');
-        yAxisClickArea.css('top', ($('.y-axis').height() / 2) - 50 + 'px');
+        var yAxis = presenter.$view.find('.y-axis');
+        var yAxisClickArea = yAxis.find('.clickArea');
+        yAxisClickArea.css('top', (yAxis.height() / 2) - 50 + 'px');
     }
 
     function checkIsMinLowerThanMax(min, max) {
