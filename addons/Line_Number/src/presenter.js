@@ -58,7 +58,7 @@ function AddonLine_Number_create() {
             presenter.bindInfinityAreas();
         }
 
-        drawRanges(presenter.configuration.shouldDrawRanges);
+        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
 
         presenter.configuration.isInitialDraw = false;
 
@@ -195,7 +195,7 @@ function AddonLine_Number_create() {
         }
     }
 
-    function removeRange(range, removeIncludeImages) {
+    presenter.removeRange = function(range, removeIncludeImages) {
         var stepLine = range.start.element;
         $(stepLine).find('.selectedRange').remove();
         if (!range.values) { range.values = [] }
@@ -220,10 +220,10 @@ function AddonLine_Number_create() {
             presenter.configuration.drawnRangesData.values.splice(index, 1);
         });
 
-    }
+    };
 
     function splitRange(range, e) {
-        removeRange(range, false);
+        presenter.removeRange(range, false);
         var clickedArea = $(e);
 
         var firstRange = {
@@ -236,7 +236,7 @@ function AddonLine_Number_create() {
             'end' : range.end
         };
 
-        drawRanges([firstRange, secondRange]);
+        presenter.drawRanges([firstRange, secondRange]);
     }
 
     function joinRanges(ranges) {
@@ -256,7 +256,7 @@ function AddonLine_Number_create() {
         });
 
         $.each(ranges, function() {
-            removeRange(this, true);
+            presenter.removeRange(this, true);
         });
 
         var joinedRange = {
@@ -266,7 +266,7 @@ function AddonLine_Number_create() {
 
         removeRangesBetweenRange(joinedRange);
 
-        drawRanges([joinedRange]);
+        presenter.drawRanges([joinedRange]);
 
     }
 
@@ -567,7 +567,7 @@ function AddonLine_Number_create() {
                         };
 
                         removeRangesBetweenRange(newRange);
-                        drawRanges([newRange]);
+                        presenter.drawRanges([newRange]);
 
                     } else if ( firstValue < secondValue ) {
 
@@ -577,7 +577,7 @@ function AddonLine_Number_create() {
                         };
 
                         removeRangesBetweenRange(newRange);
-                        drawRanges([newRange]);
+                        presenter.drawRanges([newRange]);
 
                     } else {
 
@@ -641,8 +641,8 @@ function AddonLine_Number_create() {
 
                 }
 
-                removeRange(clickedRange, true);
-                drawRanges([newRange]);
+                presenter.removeRange(clickedRange, true);
+                presenter.drawRanges([newRange]);
 
                 resetClicks();
 
@@ -721,7 +721,7 @@ function AddonLine_Number_create() {
 
                 if ( presenter.configuration.drawnRangesData.ranges[index].values.length == 1 ) {
 
-                    removeRange( presenter.configuration.drawnRangesData.ranges[index], true );
+                    presenter.removeRange( presenter.configuration.drawnRangesData.ranges[index], true );
                     imageWrapper.remove();
 
                 }
@@ -739,7 +739,7 @@ function AddonLine_Number_create() {
                 var secondClickRange = getRangeByValue( secondValue );
 
                 if ( compareRanges(firstClickRange, secondClickRange) ) {
-                    removeRange(firstClickRange, true);
+                    presenter.removeRange(firstClickRange, true);
 
                     var rangeString = convertRangeToString(firstClickRange);
                     var eventData = presenter.createEventData(rangeString, true, !checkIsRangeCorrect(firstClickRange));
@@ -780,7 +780,7 @@ function AddonLine_Number_create() {
             }
 
             if ( range.start.value < drawnEndValue && range.end.value > drawnStartValue ) {
-                removeRange(drawnRange, true);
+                presenter.removeRange(drawnRange, true);
             }
         }
 
@@ -847,7 +847,7 @@ function AddonLine_Number_create() {
         }
     }
 
-    function drawRanges(ranges) {
+    presenter.drawRanges = function(ranges) {
 
         $.each(ranges, function(i) {
             var startValue = Math.min(this.start.value, this.end.value);
@@ -904,6 +904,7 @@ function AddonLine_Number_create() {
             addEndRangeImages(this, startElement, endElement, isStartInfinity, isEndInfinity);
 
         });
+
     }
 
     function isValueInfinity(value) {
@@ -1057,10 +1058,10 @@ function AddonLine_Number_create() {
         });
 
         $.each(presenter.configuration.shouldDrawRanges, function () {
-            removeRange(this, true);
+            presenter.removeRange(this, true);
         });
 
-        drawRanges(rangesToDraw);
+        presenter.drawRanges(rangesToDraw);
     };
 
     presenter.setState = function (state) {
@@ -1080,10 +1081,10 @@ function AddonLine_Number_create() {
         var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
 
         $.each(rangesToRemove, function() {
-            removeRange(this, true);
+            presenter.removeRange(this, true);
         });
 
-        drawRanges(presenter.configuration.shouldDrawRanges);
+        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
 
         presenter.configuration.mouseData.clicks = [];
 
@@ -1453,7 +1454,7 @@ function AddonLine_Number_create() {
             removeRangesBetweenRange(this);
         });
 
-        drawRanges(validatedRanges.shouldDrawRanges);
+        presenter.drawRanges(validatedRanges.shouldDrawRanges);
 
     };
 
