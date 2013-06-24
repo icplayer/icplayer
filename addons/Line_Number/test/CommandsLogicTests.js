@@ -22,6 +22,7 @@ TestCase("[Line Number] Commands logic - setState", {
     'test restore visible module': function () {
         var state = JSON.stringify({
             isVisible: true,
+            isDisabled: false,
             drawnRangesData: { ranges: {} }
         });
 
@@ -30,11 +31,14 @@ TestCase("[Line Number] Commands logic - setState", {
         assertTrue(this.presenter.redrawRanges.calledOnce);
         assertTrue(this.presenter.configuration.isCurrentlyVisible);
         assertTrue(this.presenter.setVisibility.calledWith(true));
+
+        assertFalse(this.presenter.configuration.isDisabled);
     },
 
     'test restore invisible module': function () {
         var state = JSON.stringify({
             isVisible: false,
+            isDisabled: false,
             drawnRangesData: { ranges: {} }
         });
 
@@ -43,5 +47,7 @@ TestCase("[Line Number] Commands logic - setState", {
         assertTrue(this.presenter.redrawRanges.calledOnce);
         assertFalse(this.presenter.configuration.isCurrentlyVisible);
         assertTrue(this.presenter.setVisibility.calledWith(false));
+
+        assertFalse(this.presenter.configuration.isDisabled);
     }
 });

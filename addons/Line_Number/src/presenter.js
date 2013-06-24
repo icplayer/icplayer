@@ -93,8 +93,7 @@ function AddonLine_Number_create() {
 
         infinityLeft.on('click', function(e) {
             e.preventDefault();
-            var eventTarget = $(e.target);
-            clickLogic(eventTarget);
+            clickLogic($(e.target));
         });
 
         infinityRight.on('touchstart', function (e){
@@ -109,13 +108,11 @@ function AddonLine_Number_create() {
                 var eventData = event.touches[0] || event.changedTouches[0];
                 clickLogic(eventData.target);
             }
-
         });
 
         infinityRight.on('click', function(e) {
             e.preventDefault();
-            var eventTarget = $(e.target);
-            clickLogic(eventTarget);
+            clickLogic($(e.target));
         });
     };
 
@@ -126,14 +123,14 @@ function AddonLine_Number_create() {
     }
 
     function getXAxisValues() {
-        var configuration = presenter.configuration;
-        var xAxisValues = [];
+        var configuration = presenter.configuration,
+            xAxisValues = [], i;
 
-        for (var i = 0; i >= configuration.min; i -= configuration.step) {
+        for (i = 0; i >= configuration.min; i -= configuration.step) {
             xAxisValues.push(i);
         }
 
-        for (var i = 0; i <= configuration.max; i += configuration.step) {
+        for (i = 0; i <= configuration.max; i += configuration.step) {
             xAxisValues.push(i);
         }
 
@@ -154,6 +151,8 @@ function AddonLine_Number_create() {
 
                 return false;
             }
+
+            return true;
         });
 
         return sorted;
@@ -481,7 +480,8 @@ function AddonLine_Number_create() {
     }
 
     function clickLogic(eventTarget) {
-        if (presenter.configuration.isShowErrorsMode) { return false; }
+        if (presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) return false;
+        if (presenter.configuration.isDisabled) return;
 
         if (presenter.configuration.mouseData.twoClickedRangesCount > 3) {
             presenter.configuration.mouseData.twoClickedRangesCount = 0;
@@ -1040,7 +1040,8 @@ function AddonLine_Number_create() {
 
         return JSON.stringify({
             drawnRangesData: presenter.configuration.drawnRangesData,
-            isVisible: presenter.configuration.isCurrentlyVisible
+            isVisible: presenter.configuration.isCurrentlyVisible,
+            isDisabled: presenter.configuration.isDisabled
         });
     };
 
@@ -1063,8 +1064,11 @@ function AddonLine_Number_create() {
         var parsedState = JSON.parse(state);
 
         presenter.redrawRanges(parsedState.drawnRangesData.ranges);
+
         presenter.configuration.isCurrentlyVisible = parsedState.isVisible;
         presenter.setVisibility(parsedState.isVisible);
+
+        presenter.configuration.isDisabled = parsedState.isDisabled;
     };
 
     presenter.reset = function() {
@@ -1082,6 +1086,7 @@ function AddonLine_Number_create() {
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
 
         presenter.configuration.isShowErrorsMode = false;
+        presenter.configuration.isDisabled = presenter.configuration.isDisabledByDefault;
     };
 
     presenter.setShowErrorsMode = function() {
@@ -1352,36 +1357,39 @@ function AddonLine_Number_create() {
 
         var validatedShowAxisXValues = ModelValidationUtils.validateBoolean(model['Show Axis X Values']);
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        var isDisabled = ModelValidationUtils.validateBoolean(model['Disable']);
 
         return {
-            'isError' : false,
-            'min' : min,
-            'max' : max,
-            'shouldDrawRanges' : ranges.shouldDrawRanges,
-            'otherRanges' : ranges.otherRanges,
-            'isActivity' : validatedIsActivity,
-            'step' : validatedStep.value,
-            'showAxisXValues' : validatedShowAxisXValues,
-            'axisXValues' : validatedAxisXValues,
-            'mouseData' : {
-                'clickedRanges' : [],
-                'clicks' : [],
-                'twoClickedRangesCount' : 0
+            isError : false,
+            min : min,
+            max : max,
+            shouldDrawRanges : ranges.shouldDrawRanges,
+            otherRanges : ranges.otherRanges,
+            isActivity : validatedIsActivity,
+            step : validatedStep.value,
+            showAxisXValues : validatedShowAxisXValues,
+            axisXValues : validatedAxisXValues,
+            mouseData : {
+                clickedRanges : [],
+                clicks : [],
+                twoClickedRangesCount : 0
             },
-            'drawnRangesData' : {
-                'isDrawn' : false,
-                'ranges' : [],
-                'values' : []
+            drawnRangesData : {
+                isDrawn : false,
+                ranges : [],
+                values : []
             },
-            'touchData' : {
-                'lastEvent' : null
+            touchData : {
+                lastEvent : null
             },
-            'isShowErrorsMode' : false,
+            isShowErrorsMode : false,
             isCurrentlyVisible: isVisible,
             isVisibleByDefault: isVisible,
-            'notCurrentSelectedRange' : null,
-            'addonID' : model['ID'],
-            'isInitialDraw' : true
+            notCurrentSelectedRange : null,
+            addonID : model['ID'],
+            isInitialDraw : true,
+            isDisabled: isDisabled,
+            isDisabledByDefault: isDisabled
         }
     };
 
@@ -1389,7 +1397,9 @@ function AddonLine_Number_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'drawRange' : presenter.drawRange
+            'drawRange' : presenter.drawRange,
+            'enable': presenter.enable,
+            'disable': presenter.disable
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1407,6 +1417,27 @@ function AddonLine_Number_create() {
     presenter.hide = function () {
         presenter.configuration.isCurrentlyVisible = false;
         presenter.setVisibility(false);
+    };
+
+    presenter.setDisableState = function(isDisabled) {
+        var element = presenter.$view.find('.outer');
+
+        if (isDisabled) {
+            element.addClass("disable");
+        } else {
+            element.removeClass("disable");
+        }
+
+        presenter.configuration.isDisabled = isDisabled;
+    };
+
+    presenter.enable = function() {
+        presenter.setDisableState(false);
+        resetClicks();
+    };
+
+    presenter.disable = function() {
+        presenter.setDisableState(true);
     };
 
     presenter.drawRange = function (rangeList) {

@@ -9,5 +9,6 @@
         <property name="Step" type="string" />
         <property name="Show Axis X Values" type="boolean" />
         <property name="Axis X Values" type="string" />
+        <property name="Disable" type="boolean" />
     </model>
 </addon>
