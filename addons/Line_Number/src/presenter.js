@@ -1050,8 +1050,7 @@ function AddonLine_Number_create() {
     };
 
     presenter.reset = function() {
-        var rangesToRemove = [];
-        rangesToRemove = rangesToRemove.concat(presenter.configuration.drawnRangesData.ranges);
+        var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
 
         $.each(rangesToRemove, function() {
             removeRange(this, true);
@@ -1063,6 +1062,8 @@ function AddonLine_Number_create() {
 
         presenter.configuration.isCurrentlyVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+
+        presenter.configuration.isShowErrorsMode = false;
     };
 
     presenter.setShowErrorsMode = function() {
