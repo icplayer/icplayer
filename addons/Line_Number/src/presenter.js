@@ -58,7 +58,7 @@ function AddonLine_Number_create() {
             presenter.bindInfinityAreas();
         }
 
-        drawRanges(presenter.configuration.shouldDrawRanges);
+        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
 
         presenter.configuration.isInitialDraw = false;
 
@@ -236,7 +236,7 @@ function AddonLine_Number_create() {
             'end' : range.end
         };
 
-        drawRanges([firstRange, secondRange]);
+        presenter.drawRanges([firstRange, secondRange]);
     }
 
     function joinRanges(ranges) {
@@ -266,7 +266,7 @@ function AddonLine_Number_create() {
 
         removeRangesBetweenRange(joinedRange);
 
-        drawRanges([joinedRange]);
+        presenter.drawRanges([joinedRange]);
 
     }
 
@@ -567,7 +567,7 @@ function AddonLine_Number_create() {
                         };
 
                         removeRangesBetweenRange(newRange);
-                        drawRanges([newRange]);
+                        presenter.drawRanges([newRange]);
 
                     } else if ( firstValue < secondValue ) {
 
@@ -577,7 +577,7 @@ function AddonLine_Number_create() {
                         };
 
                         removeRangesBetweenRange(newRange);
-                        drawRanges([newRange]);
+                        presenter.drawRanges([newRange]);
 
                     } else {
 
@@ -642,7 +642,7 @@ function AddonLine_Number_create() {
                 }
 
                 removeRange(clickedRange, true);
-                drawRanges([newRange]);
+                presenter.drawRanges([newRange]);
 
                 resetClicks();
 
@@ -847,7 +847,7 @@ function AddonLine_Number_create() {
         }
     }
 
-    function drawRanges(ranges) {
+    presenter.drawRanges = function(ranges) {
 
         $.each(ranges, function(i) {
             var startValue = Math.min(this.start.value, this.end.value);
@@ -904,6 +904,7 @@ function AddonLine_Number_create() {
             addEndRangeImages(this, startElement, endElement, isStartInfinity, isEndInfinity);
 
         });
+
     }
 
     function isValueInfinity(value) {
@@ -1060,7 +1061,7 @@ function AddonLine_Number_create() {
             removeRange(this, true);
         });
 
-        drawRanges(rangesToDraw);
+        presenter.drawRanges(rangesToDraw);
     };
 
     presenter.setState = function (state) {
@@ -1083,7 +1084,7 @@ function AddonLine_Number_create() {
             removeRange(this, true);
         });
 
-        drawRanges(presenter.configuration.shouldDrawRanges);
+        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
 
         presenter.configuration.mouseData.clicks = [];
 
@@ -1453,7 +1454,7 @@ function AddonLine_Number_create() {
             removeRangesBetweenRange(this);
         });
 
-        drawRanges(validatedRanges.shouldDrawRanges);
+        presenter.drawRanges(validatedRanges.shouldDrawRanges);
 
     };
 
