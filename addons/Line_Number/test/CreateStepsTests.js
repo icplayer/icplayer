@@ -7,23 +7,23 @@ TestCase("Create Steps Tests", {
             'min' : -5,
             'max' : 5,
             'step' : 1,
-            'showAxisXValues' : true
+            'showAxisXValues' : true,
+            'otherRanges' : [],
+            'shouldDrawRanges' : []
         };
-        this.presenter.$view = $('<div id="outer">' +
-                                    '<div id="inner">' +
-                                        '<div id="x-axis">' +
-                                            '<div id="x-arrow"></div>' +
+        this.presenter.$view = $('<div class="outer">' +
+                                    '<div class="inner">' +
+                                        '<div class="x-axis">' +
+                                            '<div class="x-arrow"></div>' +
                                         '</div>' +
-                                    '<div id="y-axis">' +
-                                        '<div id="y-arrow"></div>' +
+                                    '<div class="y-axis">' +
+                                        '<div class="y-arrow"></div>' +
                                     '</div>' +
                                     '</div>' +
                                 '</div>');
 
-    }
+    },
 
-    // Temporarily disabled those tests
-    /*
     'test create steps append correct amount of elements when axisXValues is set': function() {
         this.presenter.createSteps();
 
@@ -46,5 +46,4 @@ TestCase("Create Steps Tests", {
         assertEquals('', 11, this.presenter.$view.find('.stepLine').length);
         assertEquals('No texts if Show Axis X Values is set to false', 0, this.presenter.$view.find('.stepText').length);
     }
-    */
 });
