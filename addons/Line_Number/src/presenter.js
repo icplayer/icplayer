@@ -120,8 +120,8 @@ function AddonLine_Number_create() {
     };
 
     function calculateStepWidth(xAxisValues) {
-        var xAxisWidth = presenter.$view.find('.x-axis').width() - 1;
-
+        var xAxisWidth = presenter.$view.find('.x-axis').width();
+        xAxisWidth = xAxisWidth - (xAxisWidth * 0.05);
         return xAxisWidth / (xAxisValues.length - 1);
     }
 
@@ -870,7 +870,7 @@ function AddonLine_Number_create() {
 
             var start = parseFloat($(startElement).css('left'));
             var end = parseFloat(endElement.css('left'));
-            var difference = Math.abs(start - end);
+            var difference =  Math.abs(start - end);
             var range = $('<div></div>');
 
             if (!this.start.element || !this.end.element) {
@@ -886,7 +886,11 @@ function AddonLine_Number_create() {
                 range.addClass(isStartInfinity ? 'infinityLeft' : '');
                 range.addClass(isEndInfinity ? 'infinityRight' : '');
             }
-            range.css('width', difference + 2 + 'px');
+
+            // when range is ending in infinity then it should be wider because there is space between arrowhead and last step line
+            var width = isEndInfinity ? difference + 2 + presenter.configuration.stepWidth + 'px' : difference + 2 + 'px';
+
+            range.css('width', width);
             startElement.append(range);
 
             if (start > end) {
