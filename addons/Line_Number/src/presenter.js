@@ -30,20 +30,46 @@ function AddonLine_Number_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.presenterLogic(view, model, false);
+    };
+
+    presenter.createPreview = function (view, model) {
+        presenter.presenterLogic(view, model, true);
+    };
+
+    presenter.removeZIndexes = function () {
+        var selector = '.outer .infinity-left, .outer .infinity-right, .x-axis, .rangeImage, .addon_Line_Number .currentMousePosition, .clickArea, .selectedRange';
+        presenter.$view.find(selector).css('z-index', '0');
+    };
+
+    presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$view.disableSelection();
         presenter.configuration = presenter.readConfiguration(model);
-        presenter.configuration.isPreview = false;
-        eventBus = playerController.getEventBus();
+        presenter.configuration.isPreview = isPreview;
 
-        if (presenter.configuration.isError) {
+        if ( presenter.configuration.isError ) {
             return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
         }
 
         presenter.createSteps();
-        presenter.bindInfinityAreas();
+
+        if ( !isPreview ) {
+            presenter.bindInfinityAreas();
+        }
 
         drawRanges(presenter.configuration.shouldDrawRanges);
+
+        presenter.configuration.isInitialDraw = false;
+
+        if ( !presenter.configuration.isVisibleByDefault ) {
+            presenter.hide();
+        }
+
+        if ( isPreview ) {
+            // z-index in Editor breaks down properties popups
+            presenter.removeZIndexes();
+        }
     };
 
     presenter.bindInfinityAreas = function() {
@@ -91,24 +117,6 @@ function AddonLine_Number_create() {
             var eventTarget = $(e.target);
             clickLogic(eventTarget);
         });
-    };
-
-    presenter.createPreview = function (view, model) {
-        presenter.$view = $(view);
-        presenter.$view.disableSelection();
-        presenter.configuration = presenter.readConfiguration(model);
-        presenter.configuration.isPreview = true;
-
-        if (presenter.configuration.isError) {
-            return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
-        }
-
-        presenter.createSteps();
-        drawRanges(presenter.configuration.shouldDrawRanges);
-
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
     };
 
     function calculateStepWidth(xAxisValues) {
@@ -331,7 +339,6 @@ function AddonLine_Number_create() {
                 }
 
             });
-
         }
 
         var width = presenter.configuration.stepWidth, left = - (presenter.configuration.stepWidth / 2) + 'px';
@@ -397,7 +404,8 @@ function AddonLine_Number_create() {
 
     function isFirstStartOrEndAndSecondMiddleClicked() {
         return presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.MIDDLE
-            && isClickedStartOrEnd();
+            && isClickedStartOrEnd()
+            && isBothClicksTheSameRange()
     }
 
     function isFirstStartOrEndAndSecondNoneClicked() {
@@ -417,6 +425,12 @@ function AddonLine_Number_create() {
             || presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START)
             && (presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.END
             || presenter.configuration.mouseData.clicks[1].position == presenter.CLICKED_POSITION.START);
+    }
+
+    function isBothClicksTheSameRange() {
+        var firstClickRange = getRangeByValue( presenter.configuration.mouseData.clicks[0].element.attr('value') );
+        var secondClickRange = getRangeByValue( presenter.configuration.mouseData.clicks[1].element.attr('value') );
+        return compareRanges(firstClickRange, secondClickRange);
     }
 
     function setCurrentClickedRange() {
@@ -453,11 +467,13 @@ function AddonLine_Number_create() {
 
             if ( presenter.configuration.mouseData.twoClickedRangesCount == 1 ) {
                 addEndRangeImage( presenter.configuration.notCurrentSelectedRange.start.element, false );
-            } else {
+            } else if ( presenter.configuration.mouseData.twoClickedRangesCount == 2 ) {
                 addEndRangeImage( presenter.configuration.notCurrentSelectedRange.end.element, false );
             }
 
         }
+
+        presenter.$view.find('.currentSelectedRange').removeClass('currentSelectedRange');
 
         presenter.configuration.mouseData.clicks = [];
         presenter.configuration.mouseData.twoClickedRangesCount = 0;
@@ -537,6 +553,7 @@ function AddonLine_Number_create() {
                         start: createRangeElement(firstClick.element, firstValue, true),
                         end: createRangeElement(firstClick.element, firstValue, true)
                     };
+
                     setRangeValues(newRange, true);
                     addToDrawnRanges(newRange);
 
@@ -558,7 +575,6 @@ function AddonLine_Number_create() {
                             start: createRangeElement(firstClick.element, firstValue, true),
                             end: createRangeElement(secondClick.element, secondValue, true)
                         };
-
 
                         removeRangesBetweenRange(newRange);
                         drawRanges([newRange]);
@@ -663,8 +679,8 @@ function AddonLine_Number_create() {
                 if ( firstValue > secondValue ) {
 
                     newRange = {
-                        start: createRangeElement(secondClick.element, secondValue, true),
-                        end: createRangeElement(firstClick.element, firstValue, true)
+                        start: createRangeElement(secondClick.element, secondValue, firstClick.element.parent().find('.rangeImage').hasClass('include')),
+                        end: createRangeElement(firstClick.element, firstValue, firstClick.element.parent().find('.rangeImage').hasClass('include'))
                     };
 
                     joinRanges( [newRange, getRangeByValue( firstValue )] );
@@ -672,8 +688,8 @@ function AddonLine_Number_create() {
                 } else if ( firstValue < secondValue ) {
 
                     newRange = {
-                        start: createRangeElement(firstClick.element, firstValue, true ),
-                        end: createRangeElement(secondClick.element, secondValue, true )
+                        start: createRangeElement(firstClick.element, firstValue, firstClick.element.parent().find('.rangeImage').hasClass('include') ),
+                        end: createRangeElement(secondClick.element, secondValue, firstClick.element.parent().find('.rangeImage').hasClass('include') )
                     };
 
                     joinRanges( [newRange, getRangeByValue( firstValue )] );
@@ -689,7 +705,6 @@ function AddonLine_Number_create() {
                 var imageWrapper = firstClick.element.parent().find('.rangeImage');
                 var shouldInclude = !imageWrapper.hasClass('include');
                 var index = presenter.configuration.drawnRangesData.ranges.indexOf(presenter.configuration.mouseData.clickedRanges[0]);
-
 
                 if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START ) {
 
@@ -726,10 +741,18 @@ function AddonLine_Number_create() {
                 if ( compareRanges(firstClickRange, secondClickRange) ) {
                     removeRange(firstClickRange, true);
 
+                    var rangeString = convertRangeToString(firstClickRange);
+                    var eventData = presenter.createEventData(rangeString, true, !checkIsRangeCorrect(firstClickRange));
+                    eventBus.sendEvent('ValueChanged', eventData);
+
                 } else {
                     joinRanges([ getRangeByValue( firstValue ), getRangeByValue( secondValue ) ]);
 
                 }
+
+                resetClicks();
+
+            } else {
 
                 resetClicks();
 
@@ -768,12 +791,12 @@ function AddonLine_Number_create() {
         var range = null;
 
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
-
             if ( this.values.indexOf(value) >= 0 ) {
                 range = this;
                 return false;
             }
 
+            return true;
         });
 
         return range;
@@ -1017,27 +1040,31 @@ function AddonLine_Number_create() {
 
         return JSON.stringify({
             drawnRangesData: presenter.configuration.drawnRangesData,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isCurrentlyVisible
         });
     };
 
-    presenter.setState = function (stateString) {
-        var state = JSON.parse(stateString);
-        var rangesToDraw = state['drawnRangesData'].ranges;
-
-        $.each(rangesToDraw, function() {
+    presenter.redrawRanges = function (rangesToDraw) {
+        $.each(rangesToDraw, function () {
             this.start.element = presenter.$view.find('.clickArea[value="' + this.start.value + '"]').parent();
             this.end.element = presenter.$view.find('.clickArea[value="' + this.end.value + '"]').parent();
         });
 
-        $.each(presenter.configuration.shouldDrawRanges, function() {
-           removeRange(this, true);
+        $.each(presenter.configuration.shouldDrawRanges, function () {
+            removeRange(this, true);
         });
 
         drawRanges(rangesToDraw);
+    };
 
-        presenter.configuration.isCurrentlyVisible = state.isVisible;
-        presenter.setVisibility(state.isVisible);
+    presenter.setState = function (state) {
+        if (ModelValidationUtils.isStringEmpty(state)) return;
+
+        var parsedState = JSON.parse(state);
+
+        presenter.redrawRanges(parsedState.drawnRangesData.ranges);
+        presenter.configuration.isCurrentlyVisible = parsedState.isVisible;
+        presenter.setVisibility(parsedState.isVisible);
     };
 
     presenter.reset = function() {
@@ -1137,11 +1164,23 @@ function AddonLine_Number_create() {
     }
 
     function addToDrawnRanges ( range ) {
-        var rangeString = convertRangeToString(range);
-        var isRangeCorrect = checkIsRangeCorrect(range);
-        var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
-        eventBus.sendEvent('ValueChanged', eventData);
         presenter.configuration.drawnRangesData.ranges.push( range );
+
+        if ( !presenter.configuration.isPreview && !presenter.configuration.isInitialDraw ) {
+            var rangeString = convertRangeToString(range);
+            var isRangeCorrect = checkIsRangeCorrect(range);
+            var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
+            eventBus.sendEvent('ValueChanged', eventData);
+
+            if ( allRangesCorrect() ) {
+                var eventData = presenter.createAllOKEventData();
+                eventBus.sendEvent('ValueChanged', eventData);
+            }
+        }
+    }
+
+    function allRangesCorrect() {
+        return presenter.getScore() - presenter.getMaxScore() == 0;
     }
 
     function compareRanges(rangeA, rangeB) {
@@ -1277,7 +1316,7 @@ function AddonLine_Number_create() {
 
         var ranges = presenter.validateRanges(model['Ranges']);
 
-        var validatedIsActivity = ModelValidationUtils.validateBoolean(model['Is Activity']);
+        var validatedIsActivity = !ModelValidationUtils.validateBoolean(model['Not Activity']);
         var validatedStep = { value : 1 };
 
         if ( model['Step'] ) {
@@ -1340,7 +1379,8 @@ function AddonLine_Number_create() {
             isCurrentlyVisible: isVisible,
             isVisibleByDefault: isVisible,
             'notCurrentSelectedRange' : null,
-            'addonID' : model['ID']
+            'addonID' : model['ID'],
+            'isInitialDraw' : true
         }
     };
 
@@ -1382,6 +1422,7 @@ function AddonLine_Number_create() {
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
+        eventBus = controller.getEventBus();
     };
 
     presenter.createEventData = function (rangeString, isRemove, isRangeCorrect) {

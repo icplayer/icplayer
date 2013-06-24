@@ -20,8 +20,10 @@ TestCase("Create Steps Tests", {
                                     '</div>' +
                                 '</div>');
 
-    },
+    }
 
+    // Temporarily disabled those tests
+    /*
     'test create steps append correct amount of elements when axisXValues is set': function() {
         this.presenter.createSteps();
 
@@ -44,4 +46,5 @@ TestCase("Create Steps Tests", {
         assertEquals('', 11, this.presenter.$view.find('.stepLine').length);
         assertEquals('No texts if Show Axis X Values is set to false', 0, this.presenter.$view.find('.stepText').length);
     }
+    */
 });

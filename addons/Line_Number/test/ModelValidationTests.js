@@ -78,6 +78,17 @@ TestCase("Model validation", {
 
         assertTrue(configuration.isVisibleByDefault);
         assertTrue(configuration.isCurrentlyVisible);
+
+        assertTrue(configuration.isActivity);
+    },
+
+    'test module not in activity mode': function() {
+        this.model['Not Activity'] = 'True';
+
+        var configuration = this.presenter.readConfiguration(this.model);
+
+        assertFalse('', configuration.isError);
+        assertFalse(configuration.isActivity);
     },
 
     'test step value is proper': function() {
