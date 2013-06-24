@@ -195,7 +195,7 @@ function AddonLine_Number_create() {
         }
     }
 
-    function removeRange(range, removeIncludeImages) {
+    presenter.removeRange = function(range, removeIncludeImages) {
         var stepLine = range.start.element;
         $(stepLine).find('.selectedRange').remove();
         if (!range.values) { range.values = [] }
@@ -220,10 +220,10 @@ function AddonLine_Number_create() {
             presenter.configuration.drawnRangesData.values.splice(index, 1);
         });
 
-    }
+    };
 
     function splitRange(range, e) {
-        removeRange(range, false);
+        presenter.removeRange(range, false);
         var clickedArea = $(e);
 
         var firstRange = {
@@ -256,7 +256,7 @@ function AddonLine_Number_create() {
         });
 
         $.each(ranges, function() {
-            removeRange(this, true);
+            presenter.removeRange(this, true);
         });
 
         var joinedRange = {
@@ -641,7 +641,7 @@ function AddonLine_Number_create() {
 
                 }
 
-                removeRange(clickedRange, true);
+                presenter.removeRange(clickedRange, true);
                 presenter.drawRanges([newRange]);
 
                 resetClicks();
@@ -721,7 +721,7 @@ function AddonLine_Number_create() {
 
                 if ( presenter.configuration.drawnRangesData.ranges[index].values.length == 1 ) {
 
-                    removeRange( presenter.configuration.drawnRangesData.ranges[index], true );
+                    presenter.removeRange( presenter.configuration.drawnRangesData.ranges[index], true );
                     imageWrapper.remove();
 
                 }
@@ -739,7 +739,7 @@ function AddonLine_Number_create() {
                 var secondClickRange = getRangeByValue( secondValue );
 
                 if ( compareRanges(firstClickRange, secondClickRange) ) {
-                    removeRange(firstClickRange, true);
+                    presenter.removeRange(firstClickRange, true);
 
                     var rangeString = convertRangeToString(firstClickRange);
                     var eventData = presenter.createEventData(rangeString, true, !checkIsRangeCorrect(firstClickRange));
@@ -780,7 +780,7 @@ function AddonLine_Number_create() {
             }
 
             if ( range.start.value < drawnEndValue && range.end.value > drawnStartValue ) {
-                removeRange(drawnRange, true);
+                presenter.removeRange(drawnRange, true);
             }
         }
 
@@ -1058,7 +1058,7 @@ function AddonLine_Number_create() {
         });
 
         $.each(presenter.configuration.shouldDrawRanges, function () {
-            removeRange(this, true);
+            presenter.removeRange(this, true);
         });
 
         presenter.drawRanges(rangesToDraw);
@@ -1081,7 +1081,7 @@ function AddonLine_Number_create() {
         var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
 
         $.each(rangesToRemove, function() {
-            removeRange(this, true);
+            presenter.removeRange(this, true);
         });
 
         presenter.drawRanges(presenter.configuration.shouldDrawRanges);
