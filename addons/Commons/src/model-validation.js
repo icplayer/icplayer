@@ -111,7 +111,7 @@
             value:NaN
         };
 
-        if (!value) return validationResult;
+        if (ModelValidationUtils.isStringEmpty(value)) return validationResult;
 
         var parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) return validationResult;
