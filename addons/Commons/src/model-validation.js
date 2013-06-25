@@ -108,7 +108,8 @@
     ModelValidationUtils.validateFloat = function validateFloat(value, precision) {
         var validationResult = {
             isValid:false,
-            value:NaN
+            value:NaN,
+            parsedValue:NaN
         };
 
         if (ModelValidationUtils.isStringEmpty(value)) return validationResult;
@@ -122,6 +123,7 @@
 
         validationResult.isValid = true;
         validationResult.value = parsedValue.toFixed(precision);
+        validationResult.parsedValue = parseFloat(validationResult.value);
 
         return validationResult;
     };

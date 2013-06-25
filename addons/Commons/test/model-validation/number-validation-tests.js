@@ -203,5 +203,12 @@ TestCase("Float in range validation", {
 
         assertTrue(validationResult.isValid);
         assertEquals(0.17, validationResult.value);
+    },
+
+    'test float parsedValue has proper type': function () {
+        var validationResult = ModelValidationUtils.validateFloatInRange('0.17', 4.15, 0, 2);
+
+        assertTrue(validationResult.isValid);
+        assertTypeOf('number', validationResult.parsedValue);
     }
 });
