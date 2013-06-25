@@ -210,5 +210,11 @@ TestCase("Float in range validation", {
 
         assertTrue(validationResult.isValid);
         assertTypeOf('number', validationResult.parsedValue);
+    },
+
+    'test float in range when value is out of range': function () {
+        var validationResult = ModelValidationUtils.validateFloatInRange('-6', 5.00, -5.00, 2);
+
+        assertFalse(validationResult.isValid);
     }
 });

@@ -145,6 +145,7 @@
             precision = 2;
         }
 
+
         var validatedFloat = this.validateFloat(value, precision);
 
         if (!validatedFloat.isValid) {
@@ -152,8 +153,8 @@
         }
 
         if (!min) min = 0.0;
-        min = min.toFixed(precision);
-        max = max.toFixed(precision);
+        min = parseFloat(min.toFixed(precision));
+        max = parseFloat(max.toFixed(precision));
 
         if (validatedFloat.value < min || validatedFloat.value > max) {
             return {
