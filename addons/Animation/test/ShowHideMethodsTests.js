@@ -1,99 +1,74 @@
-ShowHideMethodsTests = TestCase("Show and Hide Methods Tests");
+TestCase("Show and hide methods", {
+    setUp: function () {
+        this.presenter = AddonAnimation_create();
+        this.presenter.configuration = {
+            isVisibleByDefault: true,
+            isVisible: false,
+            labels: []
+        };
 
-ShowHideMethodsTests.prototype.setUp = function() {
-    this.presenter = AddonAnimation_create();
-    this.presenter.configuration = {
-        defaultVisibility: true,
-        currentVisibility: false,
-        labels: []
-    };
-    this.presenter.DOMElements.viewContainer = $("<div>" +
-                                                    "<div class='animation-label' style='visibility: visible'>1</div>" +
-                                                    "<div class='animation-label' style='visibility: visible'>2</div>" +
-                                                "</div>");
-    this.presenter.configuration.animationState = 2; // STOPPED
-    this.presenter.configuration.currentFrame = 0;
-};
+        this.presenter.DOMElements.viewContainer = $("<div>" +
+                                                        "<div class='animation-label' style='visibility: visible'>1</div>" +
+                                                        "<div class='animation-label' style='visibility: visible'>2</div>" +
+                                                    "</div>");
 
-ShowHideMethodsTests.prototype.testShowMethod = function() {
-    // Given
-    var expectedVisibility = true;
+        this.presenter.configuration.animationState = this.presenter.ANIMATION_STATE.STOPPED;
+        this.presenter.configuration.currentFrame = 0;
+    },
 
-    // When
-    this.presenter.show();
+    'test show method': function () {
+        this.presenter.show();
 
-    // Then
-    assertEquals("", expectedVisibility, this.presenter.configuration.currentVisibility);
-    assertTrue("", this.presenter.configuration.defaultVisibility);
-};
+        assertTrue(this.presenter.configuration.isVisible);
+        assertTrue(this.presenter.configuration.isVisibleByDefault);
+    },
 
-ShowHideMethodsTests.prototype.testHideMethod = function() {
-    // Given
-    var expectedVisibility = false;
+    'test hide method': function () {
+        this.presenter.hide();
 
-    // When
-    this.presenter.hide();
+        assertFalse(this.presenter.configuration.isVisible);
+        assertTrue("defaultVisibility should NOT change !", this.presenter.configuration.isVisibleByDefault);
+    },
 
-    // Then
-    assertEquals("", expectedVisibility, this.presenter.configuration.currentVisibility);
-    assertTrue("defaultVisibility should NOT change !", this.presenter.configuration.defaultVisibility);
-};
+    'test labels are hiding properly': function () {
+        this.presenter.configuration.labels = [
+            {
+                content: [
+                    { text: '1' },
+                    { text: '2' }
+                ],
+                count: 2
+            }
+        ];
 
-ShowHideMethodsTests.prototype.testLabelsAreHidingProperly = function() {
-    // Given
-    var expectedVisibilityOfLabels = 'hidden';
+        this.presenter.hide();
 
-    this.presenter.configuration.labels = [
-        {
+        var labels = $(this.presenter.DOMElements.viewContainer).find('.animation-label');
+
+        assertEquals('hidden', $(labels[0]).css('visibility'));
+        assertEquals('hidden', $(labels[1]).css('visibility'));
+    },
+
+    'test labels are showing properly': function () {
+        var labelsBefore = $(this.presenter.DOMElements.viewContainer).find('.animation-label');
+
+        $.each(labelsBefore, function(){
+            $(this).css('visibility', 'hidden');
+        });
+
+        this.presenter.configuration.labels = {
             content: [
-                {
-                    text: '1'
-                },
-                {
-                    text: '2'
-                }
+                { text: '1', frames: [1, 2] },
+                { text: '2', frames: [1, 2] }
             ],
             count: 2
-        }
-    ];
+        };
 
-    // When
-    this.presenter.hide();
-    var labels = $(this.presenter.DOMElements.viewContainer).find('.animation-label');
+        this.presenter.show();
 
-    // Then
-    assertEquals("", expectedVisibilityOfLabels, $(labels[0]).css('visibility'));
-    assertEquals("", expectedVisibilityOfLabels, $(labels[1]).css('visibility'));
-};
+        var labelsAfter = $(this.presenter.DOMElements.viewContainer).find('.animation-label');
 
-ShowHideMethodsTests.prototype.testLabelsAreShowingProperly = function() {
-    // Given
-    var expectedVisibilityOfLabels = 'visible';
-    var labelsBefore = $(this.presenter.DOMElements.viewContainer).find('.animation-label');
-
-    $.each(labelsBefore, function(){
-        $(this).css('visibility', 'hidden');
-    });
-
-    this.presenter.configuration.labels = {
-        content: [
-            {
-                text: '1',
-                frames: [1, 2]
-            },
-            {
-                text: '2',
-                frames: [1, 2]
-            }
-        ],
-        count: 2
-    };
-
-    // When
-    this.presenter.show();
-    var labelsAfter = $(this.presenter.DOMElements.viewContainer).find('.animation-label');
-
-    // Then
-    assertEquals("", expectedVisibilityOfLabels, $(labelsAfter[0]).css('visibility'));
-    assertEquals("", expectedVisibilityOfLabels, $(labelsAfter[1]).css('visibility'));
-};
+        assertEquals('visible', $(labelsAfter[0]).css('visibility'));
+        assertEquals('visible', $(labelsAfter[1]).css('visibility'));
+    }
+});

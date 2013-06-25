@@ -64,8 +64,8 @@ TestCase("Model validation", {
         assertTrue(validationResult.resetOnEnd);
         assertFalse(validationResult.isClickDisabled);
 
-        assertTrue(validationResult.currentVisibility);
-        assertTrue(validationResult.defaultVisibility);
+        assertTrue(validationResult.isVisible);
+        assertTrue(validationResult.isVisibleByDefault);
 
         assertFalse(validationResult.watermarkOptions.show);
         assertFalse(validationResult.watermarkOptions.clicked);

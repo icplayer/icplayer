@@ -379,9 +379,9 @@ function AddonAnimation_create (){
             $(presenter.DOMElements.watermark).hide();
         }
 
-        presenter.configuration.currentVisibility = presenter.configuration.defaultVisibility;
-        presenter.setVisibility(presenter.configuration.defaultVisibility);
-        if (!presenter.configuration.defaultVisibility) {
+        presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        if (!presenter.configuration.isVisibleByDefault) {
             presenter.hideLabels();
         }
     };
@@ -392,10 +392,10 @@ function AddonAnimation_create (){
         }
 
         return JSON.stringify({
-            "currentFrame": presenter.configuration.currentFrame,
-            "animationState": presenter.configuration.animationState,
-            "currentVisibility" : presenter.configuration.currentVisibility,
-            "watermarkClicked" : presenter.configuration.watermarkOptions.clicked
+            currentFrame: presenter.configuration.currentFrame,
+            animationState: presenter.configuration.animationState,
+            isVisible : presenter.configuration.isVisible,
+            watermarkClicked : presenter.configuration.watermarkOptions.clicked
         });
     };
 
@@ -410,7 +410,7 @@ function AddonAnimation_create (){
             presenter.configuration.watermarkOptions.clicked = state.watermarkClicked;
             changeFrame();
 
-            if (state.currentVisibility) {
+            if (state.isVisible) {
                 presenter.show();
             } else {
                 presenter.hide();
@@ -420,6 +420,7 @@ function AddonAnimation_create (){
                 showLabelsForFrame(0);
             }
 
+            //noinspection FallthroughInSwitchStatementJS
             switch (presenter.configuration.animationState) {
                 case presenter.ANIMATION_STATE.PLAYING:
                     presenter.playAnimation();
@@ -452,8 +453,8 @@ function AddonAnimation_create (){
             $(presenter.DOMElements.watermark).hide();
         }
 
-        presenter.setVisibility(presenter.configuration.defaultVisibility);
-        if (!presenter.configuration.defaultVisibility) {
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        if (!presenter.configuration.isVisibleByDefault) {
             presenter.hideLabels();
         }
 
@@ -491,7 +492,7 @@ function AddonAnimation_create (){
     };
 
     presenter.hide = function() {
-        this.configuration.currentVisibility = false;
+        this.configuration.isVisible = false;
         if(presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
             this.pause();
         }
@@ -500,7 +501,7 @@ function AddonAnimation_create (){
     };
 
     presenter.show = function() {
-        this.configuration.currentVisibility = true;
+        this.configuration.isVisible = true;
         if(presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
             this.playAnimation();
         }
@@ -681,7 +682,7 @@ function AddonAnimation_create (){
         validatedOptions.show = ModelValidationUtils.validateBoolean(model["Show watermark"]);
         validatedOptions.clicked = false;
 
-        var defaultVisibility = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        var isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         return {
             isError: false,
             queueName: model.ID,
@@ -694,8 +695,8 @@ function AddonAnimation_create (){
             frameSize: presenter.validateFrameSize(model["Frame size"]),
             resetOnEnd: !ModelValidationUtils.validateBoolean(model["Don't reset on end"]),
             isClickDisabled: ModelValidationUtils.validateBoolean(model["Is click disabled"]),
-            defaultVisibility: defaultVisibility,
-            currentVisibility: defaultVisibility,
+            isVisibleByDefault: isVisibleByDefault,
+            isVisible: isVisibleByDefault,
             watermarkOptions: validatedOptions
         };
     };
@@ -715,9 +716,12 @@ function AddonAnimation_create (){
     };
 
     function showLabelsForFrame(frame) {
-        var labels = presenter.configuration.labels.content;
-        var indexes = presenter.getLabelIndexesForFrame(labels, frame);
+        var labels = presenter.configuration.labels.content,
+            indexes = presenter.getLabelIndexesForFrame(labels, frame);
+
         presenter.hideLabels();
+
+        if (!presenter.configuration.isVisible) return;
 
         for (var i = 0, length = indexes.length; i < length; i++) {
             $(presenter.DOMElements.viewContainer).find('.animation-label:eq(' + indexes[i] + ')').css('visibility', 'visible');
