@@ -1,3 +1,4 @@
+2013-06-25 Fixed min/max validation in float validation in Commons (now in version 1.6.10)
 2013-06-25 Added parsedValue property in float validation in Commons (now in version 1.6.9)
 2013-06-24 Fixed labels visibility in Animation module
 2013-06-24 Fixed float validation in Commons (now in version 1.6.8.)
