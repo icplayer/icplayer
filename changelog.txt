@@ -1,4 +1,5 @@
 2013-06-25 Added parsedValue property in float validation in Commons (now in version 1.6.9)
+2013-06-24 Fixed labels visibility in Animation module
 2013-06-24 Fixed float validation in Commons (now in version 1.6.8.)
 2013-06-21 Added new command to Image Identification module - removeMark - which removes marks done by markAs.. commands
 2013-06-21 Added new property - "Is not an activity" to Image Identification module

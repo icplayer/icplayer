@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.2';
+        this.VERSION = '1.1.3';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -657,6 +657,11 @@ function AddonPlot_create(){
                     d1 = values[j-3].rx - values[j-4].rx;
                 }
 
+                //detect discontinuous
+                if(this.isDiscontinuous(d1, d2, d3, dX)) {
+                    rx = Number.NaN;
+                }
+
                 //detect asymptote
                 asymptote=this.hasAsymptote(d1, d2, d3, dX);
 
@@ -707,6 +712,12 @@ function AddonPlot_create(){
 
             return path;
         }
+
+        this.isDiscontinuous = function(d1, d2, d3, dY) {
+            if(Math.abs(dY) > this.asymptoteMinimumDY && d1 == 0 && d2 == 0 && d3 == 0 && dY != 0) {
+                return true;
+            }
+        };
 
         //detect asymptote
         this.hasAsymptote = function(d1, d2, d3, dY) {
@@ -926,6 +937,10 @@ function AddonPlot_create(){
                     d1 = values[j-3].ry - values[j-4].ry;
                 }
 
+                //detect discontinuous
+                if(this.isDiscontinuous(d1, d2, d3, dY)) {
+                    ry = Number.NaN;
+                }
                 //detect asymptote
                 asymptote=this.hasAsymptote(d1, d2, d3, dY);
 
