@@ -709,11 +709,12 @@ function AddonImage_Viewer_Public_create() {
             'previous': presenter.previous,
             'moveToFrame': presenter.moveToFrameCommand,
             'moveToFrameName': presenter.moveToFrameNameCommand,
+            'getCurrentFrame': presenter.getCurrentFrame,
             'show': presenter.show,
             'hide': presenter.hide
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -732,6 +733,10 @@ function AddonImage_Viewer_Public_create() {
         presenter.setVisibility(false);
         presenter.hideLabels();
         presenter.configuration.currentVisibility = false;
+    };
+
+    presenter.getCurrentFrame = function () {
+        return presenter.configuration.currentFrame + 1;
     };
 
     presenter.createPreview = function(view, model){

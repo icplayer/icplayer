@@ -112,5 +112,19 @@ TestCase("Commands logic", {
 
         assertEquals(0, this.presenter.configuration.currentFrame);
         assertEquals(0, this.presenter.changeFrame.callCount)
+    },
+
+    'test get current frame': function () {
+        var currentFrame = this.presenter.getCurrentFrame();
+
+        assertEquals(1, currentFrame);
+    },
+
+    'test get current frame different than initial frame': function () {
+        this.presenter.configuration.currentFrame = 3;
+
+        var currentFrame = this.presenter.getCurrentFrame();
+
+        assertEquals(4, currentFrame);
     }
 });
