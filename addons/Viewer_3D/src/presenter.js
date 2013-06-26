@@ -152,7 +152,28 @@ function AddonViewer_3D_create(){
                 background1: parsedBackgroundColors.color1,
                 background2: parsedBackgroundColors.color2
             },
-            renderMode: renderMode
+            renderMode: renderMode,
+            quality: 'standard',
+            queues: {
+                X: {
+                    name: model.ID + "_X",
+                    isActive: false,
+                    delay: 0,
+                    angle: 0
+                },
+                Y: {
+                    name: model.ID + "_Y",
+                    isActive: false,
+                    delay: 0,
+                    angle: 0
+                },
+                Z: {
+                    name: model.ID + "_Z",
+                    isActive: false,
+                    delay: 0,
+                    angle: 0
+                }
+            }
         };
     };
 
@@ -223,10 +244,102 @@ function AddonViewer_3D_create(){
             'reset': presenter.reset,
             'show': presenter.show,
             'hide': presenter.hide,
-            'setState': presenter.setStateCommand
+            'rotateX': presenter.rotateXCommand,
+            'rotateY': presenter.rotateYCommand,
+            'rotateZ': presenter.rotateZCommand,
+            'setState': presenter.setStateCommand,
+            'setQuality': presenter.setQualityCommand,
+            'startRotationX': presenter.startRotationXCommand,
+            'stopRotationX': presenter.stopRotationX,
+            'startRotationY': presenter.startRotationYCommand,
+            'stopRotationY': presenter.stopRotationY,
+            'startRotationZ': presenter.startRotationZCommand,
+            'stopRotationZ': presenter.stopRotationZ,
+            'stopAllRotations': presenter.stopAllRotations
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.rotateObject = function (angleX, angleY, angleZ) {
+        presenter.viewer.rotate(angleX, angleY, angleZ);
+        presenter.viewer.update();
+    };
+
+    presenter.validateAngle = function (angle) {
+        var validatedAngle = ModelValidationUtils.validateFloat(angle);
+
+        if (!validatedAngle.isValid) return { isValid: false };
+        if (validatedAngle.value < 0) return { isValid: false };
+
+        return { isValid: true, value: validatedAngle.value };
+    };
+
+    presenter.rotateX = function (angle) {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('rotateX', [angle]);
+            return;
+        }
+
+        var validatedAngle = presenter.validateAngle(angle);
+        if (!validatedAngle.isValid) return;
+
+        presenter.rotateObject(validatedAngle.value, 0, 0);
+    };
+
+    presenter.rotateXCommand = function (params) {
+        presenter.rotateX(params[0]);
+    };
+
+    presenter.rotateY = function (angle) {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('rotateY', [angle]);
+            return;
+        }
+
+        var validatedAngle = presenter.validateAngle(angle);
+        if (!validatedAngle.isValid) return;
+
+        presenter.rotateObject(0, validatedAngle.value, 0);
+    };
+
+    presenter.rotateYCommand = function (params) {
+        presenter.rotateY(params[0]);
+    };
+
+    presenter.rotateZ = function (angle) {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('rotateZ', [angle]);
+            return;
+        }
+
+        var validatedAngle = presenter.validateAngle(angle);
+        if (!validatedAngle.isValid) return;
+
+        presenter.rotateObject(0, 0, validatedAngle.value);
+    };
+
+    presenter.rotateZCommand = function (params) {
+        presenter.rotateZ(params[0]);
+    };
+
+    presenter.setQuality = function (quality) {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('setQuality', [quality]);
+            return;
+        }
+
+        if (ModelValidationUtils.isStringEmpty(quality)) return;
+        if (quality !== 'low' && quality !== 'standard' && quality !== 'high') return;
+        if (presenter.configuration.quality === quality) return;
+
+        presenter.configuration.quality = quality;
+        presenter.viewer.setDefinition(quality);
+        presenter.viewer.update();
+    };
+
+    presenter.setQualityCommand = function (params) {
+        presenter.setQuality(params[0]);
     };
 
     presenter.reset = function () {
@@ -234,6 +347,9 @@ function AddonViewer_3D_create(){
             presenter.commandsQueue.addTask('reset', []);
             return;
         }
+
+        presenter.stopAllRotations();
+        presenter.setQuality('standard');
 
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.configuration.isCurrentlyVisible = presenter.configuration.isVisible;
@@ -290,14 +406,172 @@ function AddonViewer_3D_create(){
             return;
         }
 
-        var parsedState = JSON.parse(state),
-            shouldBeVisible = parsedState.isVisible;
+        var parsedState = JSON.parse(state);
 
-        if (shouldBeVisible) {
+        if (parsedState.isVisible) {
             presenter.show();
         } else {
             presenter.hide();
         }
+    };
+
+    presenter.validateDelay = function (delay) {
+        var validatedDelay = ModelValidationUtils.validateInteger(delay);
+
+        if (!validatedDelay.isValid) return { isValid: false };
+        if (validatedDelay.value < 0) return { isValid: false };
+
+        return { isValid: true, value: validatedDelay.value };
+    };
+
+    // Generic commands
+
+    presenter.startRotation = function (axis, angle, delay) {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('startRotation' + axis, [angle, delay]);
+            return;
+        }
+
+        var validatedAngle = presenter.validateAngle(angle);
+        if (!validatedAngle.isValid) return;
+
+        var validatedDelay = presenter.validateDelay(delay);
+        if (!validatedDelay.isValid) return;
+
+        if (presenter.configuration.queues[axis].isActive) {
+            if (validatedDelay.value == 0) {
+                presenter['stopRotation' + axis]();
+                return;
+            }
+
+            presenter.configuration.queues[axis].delay = validatedDelay.value;
+            presenter.configuration.queues[axis].angle = validatedAngle.value;
+        } else {
+            presenter.configuration.queues[axis].isActive = true;
+            presenter.configuration.queues[axis].delay = validatedDelay.value;
+            presenter.configuration.queues[axis].angle = validatedAngle.value;
+
+            presenter['startRotation' + axis + 'Queue']();
+        }
+    };
+
+    presenter.startRotationQueue = function (axis) {
+        var queue = presenter.configuration.queues[axis].name,
+            delay = presenter.configuration.queues[axis].delay;
+
+        $.doTimeout(queue, delay, function () {
+            var angle = presenter.configuration.queues[axis].angle,
+                angleX = 0, angleY = 0, angleZ = 0;
+
+            switch (axis) {
+                case 'X':
+                    angleX = angle;
+                    break;
+                case 'Y':
+                    angleY = angle;
+                    break;
+                case 'Z':
+                    angleZ = angle;
+                    break;
+            }
+
+            presenter.rotateObject(angleX, angleY, angleZ);
+
+            return true; // continue callback call
+        });
+    };
+
+    presenter.stopRotation = function (axis) {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('stopRotation' + axis, []);
+            return;
+        }
+
+        if (!presenter.configuration.queues[axis].isActive) return;
+
+        presenter.configuration.queues[axis].isActive = false;
+        presenter.configuration.queues[axis].angle = 0;
+        presenter.configuration.queues[axis].delay = 0;
+
+        presenter['stopRotation' + axis + 'Queue']();
+    };
+
+    presenter.stopRotationQueue = function (axis) {
+        var queue = presenter.configuration.queues[axis].name;
+
+        $.doTimeout(queue);
+    };
+
+    // X-axis specific rotation commands
+
+    presenter.startRotationX = function (angle, delay) {
+        presenter.startRotation('X', angle, delay);
+    };
+
+    presenter.startRotationXCommand = function (params) {
+        presenter.startRotationX(params[0], params[1]);
+    };
+
+    presenter.startRotationXQueue = function () {
+        presenter.startRotationQueue('X');
+    };
+
+    presenter.stopRotationX = function () {
+        presenter.stopRotation('X');
+    };
+
+    presenter.stopRotationXQueue = function () {
+        presenter.startRotationQueue('X');
+    };
+
+    // Y-axis specific rotation commands
+
+    presenter.startRotationY = function (angle, delay) {
+        presenter.startRotation('Y', angle, delay);
+    };
+
+    presenter.startRotationYCommand = function (params) {
+        presenter.startRotationY(params[0], params[1]);
+    };
+
+    presenter.startRotationYQueue = function () {
+        presenter.startRotationQueue('Y');
+    };
+
+    presenter.stopRotationY = function () {
+        presenter.stopRotation('Y');
+    };
+
+    presenter.stopRotationYQueue = function () {
+        presenter.startRotationQueue('Y');
+    };
+
+    // Z-axis specific rotation commands
+
+    presenter.startRotationZ = function (angle, delay) {
+        presenter.startRotation('Z', angle, delay);
+    };
+
+    presenter.startRotationZCommand = function (params) {
+        presenter.startRotationZ(params[0], params[1]);
+    };
+
+    presenter.startRotationZQueue = function () {
+        presenter.startRotationQueue('Z');
+    };
+
+    presenter.stopRotationZ = function () {
+        presenter.stopRotation('Z');
+    };
+
+    presenter.stopRotationZQueue = function () {
+        presenter.startRotationQueue('Z');
+    };
+
+    presenter.stopAllRotations = function () {
+        presenter.stopRotationX();
+        presenter.stopRotationY();
+        presenter.stopRotationZ();
     };
 
     return presenter;
