@@ -80,7 +80,7 @@ function AddonParagraph_create() {
         editorDOM = tinymce.activeEditor.dom;
 
         $(editorDOM.select('html')).click(function () {
-            editorDOM.select('html')[0].focus();
+            editorDOM.select('body')[0].focus();
         });
 
         presenter.setStyles();

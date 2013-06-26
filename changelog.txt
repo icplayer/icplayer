@@ -1,3 +1,4 @@
+2013-06-26 Fixed focus problem in Paragraph module on Firefox browser
 2013-06-26 Added command for obtaining current frame in Image Viewer module
 2013-06-26 Added rotation and quality change commands to 3D Viewer module
 2013-06-25 Fixed min/max validation in float validation in Commons (now in version 1.6.10)
