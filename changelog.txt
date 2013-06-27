@@ -1,3 +1,5 @@
+2013-06-27 Added decimal separator property to Graph module
+2013-06-27 Added jQuery CSV library
 2013-06-26 Fixed focus problem in Paragraph module on Firefox browser
 2013-06-26 Added command for obtaining current frame in Image Viewer module
 2013-06-26 Added rotation and quality change commands to 3D Viewer module

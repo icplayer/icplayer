@@ -24,5 +24,6 @@
 		<property name="Series colors" type="list">
 			<property name="Color" type="string" />
 		</property>
+		<property name="Decimal separator" type="string" />
 	</model>
 </addon>
