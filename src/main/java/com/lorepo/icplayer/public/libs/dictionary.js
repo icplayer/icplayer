@@ -53,6 +53,7 @@ var ice_dictionary = {
 	"cant_load_document" : "Can't load document: ",
 	"cant_add_page" : "Can't add page: ",
 	"outstretch_height" : "Outstretch height",
+	"split_page" : "Split page",
 	"amount" : "Amount",
 	"page_height_size_message" : "Page height must be greater then 0",
 	"cant_save_duplicate" : "Can't save duplicated page: ",

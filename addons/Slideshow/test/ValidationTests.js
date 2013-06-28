@@ -43,6 +43,7 @@ TestCase("Validation", {
         assertEquals("/files/serve/sound.mp3", validationResult.audio.MP3);
         assertEquals("/files/serve/sound.ogg", validationResult.audio.OGG);
         assertUndefined(validationResult.audio.AAC);
+        assertFalse(validationResult.audio.wasPlayed);
 
         assertFalse(validationResult.slideAnimation);
         assertFalse(validationResult.textAnimation);
