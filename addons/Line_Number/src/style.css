@@ -15,7 +15,7 @@
 }
 
 .addon_Line_Number .outer {
-    width: 105%;
+    width: 100%;
     height: 100%;
     background-color: #f3f3f3;
     position: relative;
@@ -75,6 +75,22 @@
 
 .addon_Line_Number .include {
     background-image: url('resources/range_include.svg');
+}
+
+.addon_Line_Number .correctRangeExclude {
+    background-image: url('resources/correct_range_exclude.svg');
+}
+
+.addon_Line_Number .correctRangeInclude {
+    background-image: url('resources/correct_range_include.svg');
+}
+
+.addon_Line_Number .wrongRangeExclude {
+    background-image: url('resources/wrong_range_exclude.svg');
+}
+
+.addon_Line_Number .wrongRangeInclude {
+    background-image: url('resources/wrong_range_include.svg');
 }
 
 .addon_Line_Number .clickArea {
