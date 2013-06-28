@@ -251,6 +251,17 @@ function AddonSlideshow_create() {
         }
     }
 
+    presenter.pauseAudioResource = function () {
+        if (presenter.configuration.audio.wasPlayed) {
+            presenter.configuration.buzzAudio.pause();
+        }
+    };
+
+    presenter.playAudioResource = function () {
+        presenter.configuration.audio.wasPlayed = true;
+        presenter.configuration.buzzAudio.play();
+    };
+
     function timeUpdateCallback() {
         if (presenter.configuration.audioState !== presenter.AUDIO_STATE.STOP) {
             updateProgressBar();
@@ -271,7 +282,7 @@ function AddonSlideshow_create() {
             changeButtonToPlay();
             updateProgressBar(0);
             presenter.configuration.currentTime = 0;
-            presenter.configuration.buzzAudio.pause();
+            presenter.pauseAudioResource();
             presenter.configuration.audioState = presenter.AUDIO_STATE.STOP;
             hideAllTexts();
             // This action will trigger time update callback, but it's the only way to assure that pressing play after end/stop will trigger playing audio
@@ -404,7 +415,7 @@ function AddonSlideshow_create() {
     presenter.stopPresentation = function() {
         updateProgressBar(0);
         presenter.configuration.audioState = presenter.AUDIO_STATE.STOP;
-        presenter.configuration.buzzAudio.pause();
+        presenter.pauseAudioResource();
         stopAllAnimations();
         hideAllTexts();
         executeTasks(0, true);
@@ -468,21 +479,23 @@ function AddonSlideshow_create() {
     function playButtonClickHandler() {
         switch (presenter.configuration.audioState) {
             case presenter.AUDIO_STATE.PLAY:
-                presenter.configuration.buzzAudio.pause();
+                presenter.pauseAudioResource();
                 presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
                 changeButtonToPlay();
                 break;
             case presenter.AUDIO_STATE.NONE:
             case presenter.AUDIO_STATE.PAUSE:
                 presenter.configuration.audioState = presenter.AUDIO_STATE.PLAY;
-                presenter.configuration.buzzAudio.play();
+                presenter.playAudioResource();
                 changeButtonToPause();
                 break;
             case presenter.AUDIO_STATE.STOP:
                 updateProgressBar(0);
                 presenter.configuration.currentTime = 0;
-                presenter.configuration.buzzAudio.set('currentTime', 0.1);
-                presenter.configuration.buzzAudio.play();
+                if (presenter.configuration.audio.wasPlayed) {
+                    presenter.configuration.buzzAudio.set('currentTime', 0.1);
+                }
+                presenter.playAudioResource();
                 presenter.configuration.audioState = presenter.AUDIO_STATE.PLAY;
                 changeButtonToPause();
                 break;
@@ -1118,7 +1131,7 @@ function AddonSlideshow_create() {
 
     presenter.show = function() {
         if(presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY) {
-            presenter.configuration.buzzAudio.play();
+            presenter.playAudioResource();
         }
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
@@ -1126,7 +1139,7 @@ function AddonSlideshow_create() {
 
     presenter.hide = function() {
         if(presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY) {
-            presenter.configuration.buzzAudio.pause();
+            presenter.pauseAudioResource();
         }
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
@@ -1134,14 +1147,15 @@ function AddonSlideshow_create() {
 
     presenter.getState = function() {
         if(presenter.configuration.isDomReferenceArrayComplete) {
-            presenter.configuration.buzzAudio.pause();
+            presenter.pauseAudioResource();
         }
     };
 
     presenter.validateAudio = function (audioArray) {
         var audio = {
             MP3:audioArray.MP3 !== "" ? audioArray.MP3 : null,
-            OGG:audioArray.OGG !== "" ? audioArray.OGG : null
+            OGG:audioArray.OGG !== "" ? audioArray.OGG : null,
+            wasPlayed: false
         };
 
         if (audio.MP3 === null && audio.OGG === null) {
