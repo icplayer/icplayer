@@ -1,3 +1,4 @@
+2013-06-28 Updated 3D Viewer module icon
 2013-06-28 Fixed problem with audio resources in Slideshow module on Safari Mobile
 2013-06-27 Added decimal separator property to Graph module
 2013-06-27 Added jQuery CSV library
