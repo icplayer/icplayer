@@ -1,12 +1,14 @@
 TestCase("Initial data retrieval tests", {
     setUp: function () {
         this.presenter = Addongraph_create();
-        this.presenter.data = [
-            ["-0.1", "-0.2"],
-            ["0.3", "0.4"],
-            ["-1", "-2"],
-            ["3", "4"]
-        ];
+        this.presenter.configuration = {
+            data: [
+                ["-0.1", "-0.2"],
+                ["0.3", "0.4"],
+                ["-1", "-2"],
+                ["3", "4"]
+            ]
+        };
     },
 
     'test get initial data': function () {

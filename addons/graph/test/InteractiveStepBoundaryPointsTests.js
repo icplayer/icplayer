@@ -1,14 +1,16 @@
 TestCase("Maximum interactive point", {
     setUp: function () {
         this.presenter = Addongraph_create();
-        this.presenter.axisYMaximumValue = 4;
-        this.presenter.interactiveStep = 1;
-        this.presenter.data = [
-            ["-0.1", "-0.2"],
-            ["0.3", "0.4"],
-            ["-1", "-2"],
-            ["3", "4"]
-        ];
+        this.presenter.configuration = {
+            axisYMaximumValue: 4,
+            interactiveStep: 1,
+            data: [
+                ["-0.1", "-0.2"],
+                ["0.3", "0.4"],
+                ["-1", "-2"],
+                ["3", "4"]
+            ]
+        };
     },
 
     'test get maximum interactive point': function () {
@@ -26,14 +28,16 @@ TestCase("Maximum interactive point", {
 TestCase("Minimum interactive point", {
     setUp: function () {
         this.presenter = Addongraph_create();
-        this.presenter.axisYMinimumValue = -4;
-        this.presenter.interactiveStep = 1;
-        this.presenter.data = [
-            ["-0.1", "-0.2"],
-            ["0.3", "0.4"],
-            ["-1", "-2"],
-            ["3", "4"]
-        ];
+        this.presenter.configuration = {
+            axisYMinimumValue: -4,
+            interactiveStep: 1,
+            data: [
+                ["-0.1", "-0.2"],
+                ["0.3", "0.4"],
+                ["-1", "-2"],
+                ["3", "4"]
+            ]
+        };
     },
 
     'test get maximum interactive point': function () {

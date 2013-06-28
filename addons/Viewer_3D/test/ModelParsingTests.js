@@ -76,8 +76,23 @@ TestCase("[3D Viewer] Model parsing", {
         assertEquals("#CCCCCC", parsedModel.colors.background1);
         assertEquals("#EEEEEE", parsedModel.colors.background2);
         assertEquals('SMOOTH', parsedModel.renderMode);
+        assertEquals('standard', parsedModel.quality);
         assertTrue(parsedModel.isVisible);
         assertTrue(parsedModel.isCurrentlyVisible);
+
+        assertEquals('3D_Viewer1', parsedModel.addonID);
+        assertFalse(parsedModel.queues.X.isActive);
+        assertEquals('3D_Viewer1_X', parsedModel.queues.X.name);
+        assertEquals(0, parsedModel.queues.X.delay);
+        assertEquals(0, parsedModel.queues.X.angle);
+        assertFalse(parsedModel.queues.Y.isActive);
+        assertEquals('3D_Viewer1_Y', parsedModel.queues.Y.name);
+        assertEquals(0, parsedModel.queues.Y.delay);
+        assertEquals(0, parsedModel.queues.Y.angle);
+        assertFalse(parsedModel.queues.Z.isActive);
+        assertEquals('3D_Viewer1_Y', parsedModel.queues.Y.name);
+        assertEquals(0, parsedModel.queues.Z.delay);
+        assertEquals(0, parsedModel.queues.Z.angle);
     },
 
     'test custom values': function () {
@@ -107,8 +122,23 @@ TestCase("[3D Viewer] Model parsing", {
         assertEquals("#AABBCC", parsedModel.colors.background1);
         assertEquals("#DDEEFF", parsedModel.colors.background2);
         assertEquals('WIREFRAME', parsedModel.renderMode);
+        assertEquals('standard', parsedModel.quality);
         assertFalse(parsedModel.isVisible);
         assertFalse(parsedModel.isCurrentlyVisible);
+
+        assertEquals('3D_Viewer1', parsedModel.addonID);
+        assertFalse(parsedModel.queues.X.isActive);
+        assertEquals('3D_Viewer1_X', parsedModel.queues.X.name);
+        assertEquals(0, parsedModel.queues.X.delay);
+        assertEquals(0, parsedModel.queues.X.angle);
+        assertFalse(parsedModel.queues.Y.isActive);
+        assertEquals('3D_Viewer1_Y', parsedModel.queues.Y.name);
+        assertEquals(0, parsedModel.queues.Y.delay);
+        assertEquals(0, parsedModel.queues.Y.angle);
+        assertFalse(parsedModel.queues.Z.isActive);
+        assertEquals('3D_Viewer1_Y', parsedModel.queues.Y.name);
+        assertEquals(0, parsedModel.queues.Z.delay);
+        assertEquals(0, parsedModel.queues.Z.angle);
     }
 });
 
