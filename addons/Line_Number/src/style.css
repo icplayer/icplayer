@@ -106,8 +106,9 @@
 
 .addon_Line_Number .stepText {
     position: absolute;
+    font-size: 12px;
     top: 10px;
-    font-size: small;
+    white-space: nowrap;
 }
 
 .addon_Line_Number .x-arrow {
