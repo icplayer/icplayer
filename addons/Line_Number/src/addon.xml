@@ -2,6 +2,7 @@
 
 <addon id='Line_Number'>
     <model>
+        <property name="Decimal Separator" type="string" />
         <property name="Min" type="string" />
         <property name="Max" type="string" />
         <property name="Ranges" type="text" />
