@@ -84,6 +84,7 @@ function AddonLine_Number_create() {
 
         infinityLeft.on('touchstart', function (e){
             e.preventDefault();
+
             presenter.configuration.touchData.lastEvent = e;
         });
 
@@ -333,6 +334,7 @@ function AddonLine_Number_create() {
 
             clickArea.on('touchstart', function (e){
                 e.preventDefault();
+
                 presenter.configuration.touchData.lastEvent = e;
             });
 
@@ -340,7 +342,7 @@ function AddonLine_Number_create() {
                 e.preventDefault();
 
                 if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
-                    var eventData = event.touches[0] || event.changedTouches[0];
+                    var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
                     clickLogic(eventData.target);
                 }
 
@@ -369,6 +371,7 @@ function AddonLine_Number_create() {
         if (!presenter.configuration.isPreview) {
             clickArea.on('click', function (e) {
                 e.preventDefault();
+
                 var eventTarget = $(e.target);
                 clickLogic(eventTarget);
             });
@@ -1069,8 +1072,7 @@ function AddonLine_Number_create() {
                 var text = $('<div></div>');
                 text.addClass('stepText');
                 text.html( transformValueToDisplayVersion( xAxisValues[i] ) );
-                text.css('left', - new String(xAxisValues[i]).length * (4) + 'px');
-
+                text.css('left', - (( xAxisValues[i] + '' )).length * (4) + 'px');
 
                 if (isDrawOnlyChosen && presenter.configuration.showAxisXValues) {
                     if ($.inArray(xAxisValues[i], presenter.configuration.axisXValues) !== -1) {
