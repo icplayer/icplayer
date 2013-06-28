@@ -21,19 +21,27 @@ TestCase("[3D Viewer] Commands logic - reset", {
         this.stubs = {
             update: sinon.stub(this.presenter.viewer, 'update'),
             replace: sinon.stub(this.presenter.viewer, 'replaceSceneFromUrl'),
+            quality: sinon.stub(this.presenter, 'setQuality'),
             setVisibility: sinon.stub(this.presenter, 'setVisibility'),
-            addTask: sinon.stub(this.presenter.commandsQueue, 'addTask')
+            addTask: sinon.stub(this.presenter.commandsQueue, 'addTask'),
+            stopRotations: sinon.stub(this.presenter, 'stopAllRotations')
         };
     },
 
     'test reset when addon is loaded': function () {
         this.presenter.configuration.isCurrentlyVisible = false;
+        this.presenter.configuration.quality = 'high';
 
         this.presenter.reset();
 
+        assertTrue(this.stubs.quality.calledWith('standard'));
+        assertTrue(this.stubs.stopRotations.calledOnce);
+
         assertTrue(this.stubs.replace.calledWith('/files/server/221122.obj'));
         assertTrue(this.stubs.update.calledOnce);
+
         assertFalse(this.stubs.addTask.called);
+
         assertTrue(this.stubs.setVisibility.calledWith(true));
         assertTrue(this.presenter.configuration.isCurrentlyVisible);
     },
@@ -44,6 +52,8 @@ TestCase("[3D Viewer] Commands logic - reset", {
         this.presenter.reset();
 
         assertTrue(this.stubs.addTask.calledWith('reset', []));
+        assertFalse(this.stubs.quality.called);
+        assertFalse(this.stubs.stopRotations.called);
         assertFalse(this.stubs.replace.called);
         assertFalse(this.stubs.update.called);
         assertFalse(this.stubs.setVisibility.called);
