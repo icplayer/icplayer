@@ -9,13 +9,12 @@ function Addonvideo_create() {
     presenter.metadadaLoaded = false;
     presenter.isPreview = false;
     presenter.captions = [];
-    presenter.showTime = { isCorrect: false, value: null };
     presenter.configuration = {};
 
     var height;
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeShowTime(presenter.upgradePoster(model));
+        return presenter.upgradePoster(model);
     };
 
     presenter.upgradePoster = function (model) {
@@ -28,15 +27,6 @@ function Addonvideo_create() {
             }
         }
 
-        return upgradedModel;
-    };
-
-    presenter.upgradeShowTime = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-        if(!upgradedModel["Show time"]) {
-            upgradedModel["Show time"] = "";
-        }
         return upgradedModel;
     };
 
@@ -229,13 +219,6 @@ function Addonvideo_create() {
         }, false);
     };
 
-    presenter.setShowTime = function(timeString) {
-        var validatedTime = this.validateShowTimeString(timeString);
-        if(validatedTime.isCorrect) {
-            this.showTime = this.convertTimeStringToNumber(validatedTime.value);
-        }
-    };
-
     presenter.convertTimeStringToNumber = function(timeString) {
         timeString = timeString.split(':');
         var minutes = parseInt(timeString[0] * 60, 10);
@@ -250,29 +233,14 @@ function Addonvideo_create() {
     };
 
     presenter.createPreview = function(view, model){
-        presenter.setShowTime(model['Show time']);
         var showVideo = presenter.validatePositiveInteger(model["Show video"], 1);
         this.files = model.Files;
         this.$view = $(view);
         this.videoContainer = $(view).find('.video-container:first');
         height = model.Height;
 
-        if(this.showTime.isCorrect && !showVideo.isError) {
-            this.isPreview = false;
-            presenter.jumpTo(showVideo.value);
-            this.setVideo();
-            $(this.video).bind('canplay', function() {
-                this.startTime = presenter.showTime.value;
-                this.currentTime = presenter.showTime.value;
-                this.play();
-                this.pause();
-                $(this).unbind('canplay');
-                presenter.showCaptions(presenter.showTime.value);
-            });
-        } else {
-            this.isPreview = true;
-            this.setVideo();
-        }
+        this.isPreview = true;
+        this.setVideo();
 
         this.setDimensions();
 
@@ -711,24 +679,6 @@ function Addonvideo_create() {
             isError: false,
             value: parsedValue
         };
-    };
-
-    presenter.validateShowTimeString = function(timeString) {
-        if(!timeString) {
-            return { isCorrect: false, value: null };
-        }
-
-        var splittedTime = timeString.split(':');
-
-        if(splittedTime[0] > 60 || splittedTime[1] > 60) {
-            return { isCorrect: false, value: null };
-        }
-
-        if(/\d{2}:\d{2}$/g.test(timeString)) { // matches i.e. '10:15', '12:20'
-            return { isCorrect: true, value: timeString };
-        }
-
-        return { isCorrect: false, value: null };
     };
 
     return presenter;

@@ -14,7 +14,6 @@ UpgradeModelTests.prototype.setUp = function() {
         "Show video": ""
     };
 
-
 };
 
 UpgradeModelTests.prototype.testUpgradePoster = function() {
@@ -34,25 +33,6 @@ UpgradeModelTests.prototype.testUpgradePoster = function() {
 };
 
 
-UpgradeModelTests.prototype.testUpgradeShowTime = function() {
-    var expectedModel = {
-        "Files": [{
-            "Ogg video": "",
-            "MP4 video": "",
-            "WebM video": "",
-            "Subtitles": "",
-            ID : ""
-        }],
-        "Show video" : "",
-        "Show time" : ""
-    };
-
-    var upgradedModel = this.presenter.upgradeShowTime(this.model);
-
-    assertEquals(expectedModel, upgradedModel);
-    assertNotEquals(this.model, upgradedModel);
-};
-
 UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
     var expectedModel = {
         "Files": [{
@@ -63,8 +43,7 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             "Poster": "",
             ID : ""
         }],
-        "Show video": "",
-        "Show time" : ""
+        "Show video": ""
     };
 
     var upgradedModel = this.presenter.upgradeModel(this.model);
