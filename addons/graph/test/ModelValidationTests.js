@@ -95,6 +95,49 @@ TestCase("Model validation", {
         assertEquals(',', validationResult.decimalSeparator);
     },
 
+    'test not in interactive mode': function () {
+        var model = {
+                'ID': 'graph1',
+                'Is Visible': "True",
+                'Y axis maximum value': '10.5',
+                'Y axis minimum value': '-10.5',
+                'Y axis grid step': '2.5',
+                'Interactive': 'False',
+                'Interactive step': '2.5',
+                'Data': '"1.5", "2", "3", "4"\n' +
+                    '"2", "0", "-6.5", "-8"\n' +
+                    '"20", "4.5", "6", "8"'
+            },
+            expectedData = [
+                [1.5, 2, 3, 4],
+                [2, 0, -6.5, -8],
+                [20, 4.5, 6, 8]
+            ];
+
+        var validationResult = this.presenter.validateModel(model);
+
+        assertTrue(validationResult.isValid);
+        assertUndefined(validationResult.errorCode);
+
+        assertEquals('graph1', validationResult.ID);
+
+        assertEquals(expectedData, validationResult.data);
+
+        assertEquals(-10.5, validationResult.axisYMinimumValue);
+        assertEquals(10.5, validationResult.axisYMaximumValue);
+        assertEquals(2.5, validationResult.axisYGridStep);
+
+        assertFalse(validationResult.isInteractive);
+        assertUndefined(validationResult.interactiveStep);
+
+        assertTrue(validationResult.isVisible);
+        assertTrue(validationResult.isVisibleByDefault);
+        assertFalse(validationResult.shouldCalcScore);
+
+        assertFalse(validationResult.isDecimalSeparatorSet);
+        assertUndefined(validationResult.decimalSeparator);
+    },
+
     'test Y axis maximum value invalid': function () {
         var model = {
             'ID': 'graph1',

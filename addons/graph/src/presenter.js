@@ -727,6 +727,8 @@ function Addongraph_create(){
             if(interactiveStep.parsedValue <= 0) {
                 return { isValid: false, errorCode: 'INTERACTIVE_STEP_NOT_POSITIVE' };
             }
+
+            interactiveStep = interactiveStep.parsedValue;
         }
 
         return {
@@ -742,7 +744,7 @@ function Addongraph_create(){
             axisYGridStep: axisYGridStep.parsedValue,
             data: data,
             isInteractive: isInteractive,
-            interactiveStep: interactiveStep.parsedValue,
+            interactiveStep: interactiveStep,
             mouseData: {
                 isMouseDown : false,
                 oldPosition : { y : 0 },
