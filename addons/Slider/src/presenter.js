@@ -49,9 +49,10 @@ function AddonSlider_create () {
         }
     };
 
-    function loadImageElement(addonContainer, model, isPreview) {
+    function loadImageElement(isPreview) {
+        var addonContainer = presenter.$addonContainer;
         var imageElement = document.createElement('img');
-        $(imageElement).attr('src', presenter.configuration.imageElement);
+        $(imageElement).attr('src', presenter.configuration.imageSrc);
         addonContainer.html(imageElement);
 
         $(imageElement).load(function() {
@@ -65,7 +66,7 @@ function AddonSlider_create () {
             var imageContainer = document.createElement('div');
             $(imageContainer).addClass(CLASSES_NAMES.ELEMENT_IMAGE.STANDARD_CLASS);
             $(imageContainer).css({
-                backgroundImage: "url('" + presenter.configuration.imageElement + "')",
+                backgroundImage: "url('" + presenter.configuration.imageSrc + "')",
                 backgroundSize : '100% 100%',
                 width: imageElementData.width + 'px',
                 height: imageElementData.height + 'px'
@@ -88,7 +89,7 @@ function AddonSlider_create () {
             }
             presenter.configuration.snapPoints.push(containerLength - elementLength / 2);
 
-            presenter.moveToStep(imageContainer, addonContainer, presenter.configuration.initialStep, presenter.configuration);
+            presenter.moveToStep(imageContainer, presenter.configuration.initialStep, presenter.configuration);
 
             if (!isPreview) {
                 handleMouseDrag(addonContainer);
@@ -100,10 +101,13 @@ function AddonSlider_create () {
             if(presenter.savedState){
                 presenter.$view.trigger('loadImagesEndCallback');
             }
+
+            presenter.imageElement = imageContainer;
         });
     }
 
-    presenter.moveToStep = function(element, elementContainer, step, configuration) {
+    presenter.moveToStep = function(element, step, configuration) {
+        var elementContainer = presenter.$addonContainer;
         var containerLength = configuration.orientation === presenter.ORIENTATION.LANDSCAPE ? $(elementContainer).width() : $(elementContainer).height();
         var elementLength = configuration.orientation === presenter.ORIENTATION.LANDSCAPE ? $(element).width() : $(element).height();
         var zoneLength = containerLength - elementLength;
@@ -146,6 +150,8 @@ function AddonSlider_create () {
     function mouseUpCallback () {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
+        $(presenter.imageElement).removeClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_CLICK);
+
         var addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
         var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
 
@@ -160,7 +166,7 @@ function AddonSlider_create () {
         }
 
         if (presenter.configuration.stepwise) {
-            presenter.moveToStep(imageElement, addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
         }
     }
 
@@ -176,12 +182,15 @@ function AddonSlider_create () {
         var addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
         var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
 
+        $(presenter.imageElement).addClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_CLICK);
+        $(presenter.imageElement).removeClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER);
+
         if (mouseData.isMouseDragged) {
             mouseData.isMouseDragged = false;
             return;
         }
 
-        var mousePositions = getMousePositions(eventData, addonContainer);
+        var mousePositions = getMousePositions(eventData);
         presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
 
         if (presenter.configuration.newStep !== presenter.configuration.currentStep) {
@@ -193,36 +202,42 @@ function AddonSlider_create () {
             presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
         }
 
-        presenter.moveToStep(imageElement, addonContainer, presenter.configuration.currentStep, presenter.configuration);
+        presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
     }
 
     function mouseMoveCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
-
-        var addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
-        var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
-
-        $(this).toggleClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER, !mouseData.isMouseDown);
-        $(this).toggleClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_CLICK, mouseData.isMouseDown);
+        var addonContainer = presenter.$addonContainer;
+        var imageElement = presenter.imageElement;
 
         if (mouseData.isMouseDown === true) {
             mouseData.isMouseDragged = true;
-            var relativeDistance = presenter.calculateRelativeDistance(imageElement, addonContainer, eventData, mouseData, presenter.configuration.orientation, imageElementData, false);
-            var left = relativeDistance.left;
-            var top = relativeDistance.top;
-            var distance = relativeDistance.distance;
+            var mousePositions = getMousePositions(eventData);
+            var relativeDistance;
 
-            var mousePositions = getMousePositions(eventData, addonContainer);
+            if ( presenter.configuration.orientation == presenter.ORIENTATION.LANDSCAPE ) {
+
+                relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, mouseData, imageElementData);
+                var left = relativeDistance.left;
+                mouseData.oldPosition.x = eventData.pageX;
+
+                $(imageElement).css({
+                    left: (left + relativeDistance.horizontal) + 'px'
+                });
+
+            } else {
+
+                relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, mouseData, imageElementData);
+                var top = relativeDistance.top;
+                mouseData.oldPosition.y = eventData.pageY;
+
+                $(imageElement).css({
+                    top: (top + relativeDistance.vertical) + 'px'
+                });
+
+            }
 
             presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
-
-            mouseData.oldPosition.x = eventData.pageX;
-            mouseData.oldPosition.y = eventData.pageY;
-
-            $(imageElement).css({
-                top:(top + distance.vertical) + 'px',
-                left:(left + distance.horizontal) + 'px'
-            });
         }
     }
 
@@ -255,13 +270,25 @@ function AddonSlider_create () {
 
         $(imageElement).mousemove(mouseMoveCallback);
         imageElement.ontouchmove = touchMoveCallback;
+
+        $(imageElement).hover(function() {
+            $(presenter.imageElement).addClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER);
+        }, function() {
+            $(presenter.imageElement).removeClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER);
+        });
     }
 
-    function getMousePositions(eventData, addonContainer) {
+    function getMousePositions(eventData) {
         return {
-            x:eventData.pageX - $(addonContainer).offset().left,
-            y:eventData.pageY - $(addonContainer).offset().top
+            x:eventData.pageX - presenter.configuration.offset.left,
+            y:eventData.pageY - presenter.configuration.offset.top
         };
+    }
+
+    function setAddonPosition() {
+        presenter.configuration.offset = {};
+        presenter.configuration.offset.left = presenter.$addonContainer.offset().left;
+        presenter.configuration.offset.top = presenter.$addonContainer.offset().top;
     }
 
     function presenterLogic(view, model, preview) {
@@ -269,8 +296,9 @@ function AddonSlider_create () {
         presenter.$view = $(view);
         onStepChangeEvent = model.onStepChange;
 
-        var $addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
-        DOMOperationsUtils.setReducedSize(presenter.$view, $addonContainer);
+        presenter.$addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
+
+        DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$addonContainer);
 
         presenter.configuration = presenter.convertModel(model);
         if (presenter.configuration.isError) {
@@ -278,12 +306,20 @@ function AddonSlider_create () {
             return;
         }
 
+        setAddonPosition();
+
         presenter.configuration.currentStep = presenter.configuration.initialStep;
         presenter.configuration.newStep = presenter.configuration.initialStep;
         presenter.configuration.snapPoints = [];
 
         presenter.$view.bind('loadImagesEndCallback', presenter.loadImagesCallback);
-        loadImageElement($addonContainer, model, preview);
+        loadImageElement(preview);
+
+        presenter.$view.disableSelection();
+
+        presenter.$view.on('mouseleave', function() {
+            mouseData.isMouseDown = false;
+        });
     }
 
     function drawBurret() {
@@ -380,7 +416,7 @@ function AddonSlider_create () {
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep = presenter.configuration.initialStep;
-            presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -400,7 +436,7 @@ function AddonSlider_create () {
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep = step;
-            presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -419,7 +455,7 @@ function AddonSlider_create () {
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep = presenter.configuration.stepsCount;
-            presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -438,7 +474,7 @@ function AddonSlider_create () {
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep = 1;
-            presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -457,7 +493,7 @@ function AddonSlider_create () {
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep++;
-            presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -476,7 +512,7 @@ function AddonSlider_create () {
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep--;
-            presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+            presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
             if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -563,7 +599,7 @@ function AddonSlider_create () {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
         return {
-            imageElement : model.ImageElement,
+            imageSrc : model.ImageElement,
             orientation : orientation,
             stepwise : stepwise,
             stepsCount : stepsCount,
@@ -598,46 +634,26 @@ function AddonSlider_create () {
         return closest + 1;
     };
 
-    presenter.calculateRelativeDistance = function(imageElement, container, eventData, pastEventData, orientation, imageElementData, isClick) {
+    presenter.calculateRelativeDistanceX = function(imageElement, container, eventData, pastEventData, imageElementData) {
         var left = parseInt($(imageElement).css('left'), 10);
-        var top = parseInt($(imageElement).css('top'), 10);
+        var horizontal = eventData.pageX - pastEventData.oldPosition.x;
 
-        var distance = {
-            horizontal: !isClick ? eventData.pageX - pastEventData.oldPosition.x : eventData.pageX - $(imageElement).offset().left - imageElementData.width / 2,
-            vertical: !isClick ? eventData.pageY - pastEventData.oldPosition.y : eventData.pageY - $(imageElement).offset().top - imageElementData.height / 2
-        };
-
-        if (presenter.ORIENTATION.LANDSCAPE === orientation) {
-            distance.vertical = 0;
-
-            if (!isClick) {
-                if (left + distance.horizontal < 0 || left + distance.horizontal > imageElementData.maxLeft) {
-                    distance.horizontal = 0;
-                }
-            } else {
-                if (eventData.pageX < $(container).offset().left + imageElementData.width / 2) {
-                    distance.horizontal = -left;
-                } else if (eventData.pageX > $(container).offset().left + $(container).width() - imageElementData.width / 2) {
-                    distance.horizontal = $(container).width() - imageElementData.width - left;
-                }
-            }
-
-        } else {
-            distance.horizontal = 0;
-            if (!isClick) {
-                if (top + distance.vertical < 0 || top + distance.vertical > imageElementData.maxTop) {
-                    distance.vertical = 0;
-                }
-            } else {
-                if (eventData.pageY < $(container).offset().top + imageElementData.height / 2) {
-                    distance.vertical = -top;
-                } else if (eventData.pageY > $(container).offset().top + $(container).height() - imageElementData.height / 2) {
-                    distance.vertical = $(container).height() - imageElementData.height - top;
-                }
-            }
+        if (left + horizontal < 0 || left + horizontal > imageElementData.maxLeft) {
+            horizontal = 0;
         }
 
-        return {left:left, top:top, distance:distance};
+        return { left: left, horizontal: horizontal };
+    };
+
+    presenter.calculateRelativeDistanceY = function(imageElement, container, eventData, pastEventData, imageElementData) {
+        var top = parseInt($(imageElement).css('top'), 10);
+        var vertical = eventData.pageY - pastEventData.oldPosition.y;
+
+        if (top + vertical < 0 || top + vertical > imageElementData.maxTop) {
+            vertical = 0;
+        }
+
+        return { top: top, vertical: vertical };
     };
 
     presenter.createEventData = function (step, moveIn) {
@@ -669,7 +685,7 @@ function AddonSlider_create () {
         presenter.removeDisabledClass();
         var elements = this.getContainerAndImageElements();
         presenter.configuration.currentStep = presenter.configuration.initialStep;
-        presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+        presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
@@ -708,7 +724,7 @@ function AddonSlider_create () {
         presenter.configuration.currentStep = state['currentStep'];
         presenter.configuration.isVisible = state['isVisible'];
 
-        presenter.moveToStep(elements.imageElement, elements.addonContainer, presenter.configuration.currentStep, presenter.configuration);
+        presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
