@@ -59,6 +59,7 @@ var ice_dictionary = {
 	"cant_save_duplicate" : "Can't save duplicated page: ",
 	"error_loading_addon" : "Error loading addon descriptor from: ",
 	"delete_page_confirmation" : "You are going to delete page:\n ",
+	"split_page_confirmation" : "Do you want to split this page?",
 	"delete_module_confirmation" : "Do you want to remove selected modules?",
 	"cant_remove_last_page" : "Can't remove page.\nYou need at least one page in presentation",
 	"rename_page" : "Rename page",
