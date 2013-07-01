@@ -652,7 +652,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = true;
 		if(view != null){
 			if(!module.isActivity()){
-				view.setHTML(module.getParsedText());
+				updateViewText();
 			}
 			view.show();
 		}
