@@ -499,5 +499,10 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 	public void setId(String pageId) {
 		this.id = pageId;
 	}
+
+
+	public void setHeight(int height) {
+		this.height = height; 
+	}
 	
 }
