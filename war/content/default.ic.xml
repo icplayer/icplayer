@@ -57,6 +57,7 @@ background-color:lightgreen;
 </style>
 
 <pages>
+	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="image source" href="pages/image-source.xml"/>
@@ -78,7 +79,6 @@ background-color:lightgreen;
 	<page name="vimeo" href="pages/vimeo.page.xml"/>
 	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
-	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="cloze" href="pages/cloze.page.xml"/>
 	<page name="images" href="pages/images.xml"/>
 	<page name="goto" href="pages/goto.page.xml"/>

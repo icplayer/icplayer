@@ -15,6 +15,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 	private static final String EMPTY_TEXT = "&nbsp;";
 	private GapInfo gapInfo;
 	private boolean disabled = false;
+	private boolean isWorkMode = true;
 	private String answerText = "";
 	
 	
@@ -32,7 +33,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 			
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					if(listener != null && !disabled){
+					if(listener != null && !disabled && isWorkMode){
 						listener.onGapClicked(gapInfo.getId());
 					}
 				}
@@ -60,8 +61,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 				addStyleDependentName("empty");
 			}
 		}
-		
-		disabled = true;
+		isWorkMode = false;
 	}
 
 	
@@ -70,7 +70,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
-		disabled = false;
+		isWorkMode = true;
 	}
 
 	
@@ -80,7 +80,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
-		disabled = false;
+		isWorkMode = true;
 	}
 
 	
