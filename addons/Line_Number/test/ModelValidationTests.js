@@ -6,7 +6,7 @@ TestCase("Model validation", {
             'Max' : '5',
             'Ranges' : '<0; 1); 1\n' +
                        '(0; 5>; 0',
-            'Step' : 1,
+            'Step' : '1',
             'Axis X Values' : '1; 2; 3; 4; 5',
             'Is Visible': 'True'
         }
@@ -108,11 +108,11 @@ TestCase("Model validation", {
         var configuration = this.presenter.readConfiguration(this.model);
 
         assertFalse('', configuration.isError);
-        assertEquals('', 1, configuration.step);
+        assertEquals('', 1, configuration.step.parsedValue);
     },
 
     'test step value is NOT valid': function() {
-        this.model['Step'] = -1;
+        this.model['Step'] = '-1';
         var configuration = this.presenter.readConfiguration(this.model);
 
         assertTrue('', configuration.isError);
@@ -321,5 +321,22 @@ TestCase("Model validation - ranges", {
 
         assertTrue(validatedRanges.isError);
         assertEquals('MIN/MAX01', validatedRanges.errorCode);
+    },
+
+    'test is multiplication return true' : function () {
+        var axisXValues = '2*';
+
+        var result = this.presenter.isMultiplication(axisXValues);
+
+        assertTrue(result);
+    },
+
+    'test is multiplication return false' : function () {
+        var axisXValues = 'p**';
+
+        var result = this.presenter.isMultiplication(axisXValues);
+
+        assertFalse(result);
     }
+
 });

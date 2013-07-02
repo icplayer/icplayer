@@ -6,19 +6,19 @@ TestCase("Create Steps Tests", {
             'axisXValues' : [1, 2, 3],
             'min' : -5,
             'max' : 5,
-            'step' : 1,
             'showAxisXValues' : true,
             'otherRanges' : [],
-            'shouldDrawRanges' : []
+            'shouldDrawRanges' : [],
+            'step' :  {
+                parsedValue: 1,
+                precision : 0
+            }
         };
         this.presenter.$view = $('<div class="outer">' +
                                     '<div class="inner">' +
                                         '<div class="x-axis">' +
                                             '<div class="x-arrow"></div>' +
                                         '</div>' +
-                                    '<div class="y-axis">' +
-                                        '<div class="y-arrow"></div>' +
-                                    '</div>' +
                                     '</div>' +
                                 '</div>');
 
@@ -32,7 +32,7 @@ TestCase("Create Steps Tests", {
     },
 
     'test create steps append correct amount of elements': function() {
-        this.presenter.configuration.axisXValues = [];
+        this.presenter.configuration.axisXValues = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4];
         this.presenter.createSteps();
 
         assertEquals('', 11, this.presenter.$view.find('.stepLine').length);

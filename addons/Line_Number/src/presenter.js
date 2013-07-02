@@ -13,10 +13,11 @@ function AddonLine_Number_create() {
     presenter.errorCodes = {
         'MIN01' : 'Min value cannot be empty.',
         'MIN02' : 'Min value must be a number.',
+        'MIN03' : 'Min value does not fit the separator.',
         'MAX01' : 'Max value cannot be empty.',
         'MAX02' : 'Max value must be a number',
-        'MIN03' : 'Min value does not fit the separator.',
         'MAX03' : 'Max value does not fit the separator.',
+        'MAX04' : 'Max value must be within xAxisValues. Suggested value: {{lastValue}} or {{lastValuePlusStep}}.',
         'MIN/MAX01' : 'Min value cannot be lower than Max value.',
         'RAN01' : 'One or more ranges are invalid.',
         'RAN02' : 'One or more ranges are invalid. Please make sure, that all ranges start/end can be displayed on X axis.',
@@ -60,7 +61,7 @@ function AddonLine_Number_create() {
 
         presenter.createSteps();
 
-        if ( !isPreview ) {
+        if ( !isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
             presenter.bindInfinityAreas();
         }
 
@@ -103,6 +104,12 @@ function AddonLine_Number_create() {
             clickLogic($(e.target));
         });
 
+        infinityLeft.hover(function() {
+            infinityLeft.addClass('infinity-hover');
+        }, function() {
+            infinityLeft.removeClass('infinity-hover');
+        });
+
         infinityRight.on('touchstart', function (e){
             e.preventDefault();
             presenter.configuration.touchData.lastEvent = e;
@@ -121,29 +128,40 @@ function AddonLine_Number_create() {
             e.preventDefault();
             clickLogic($(e.target));
         });
+
+        infinityRight.hover(function() {
+            infinityRight.addClass('infinity-hover');
+        }, function () {
+            infinityRight.removeClass('infinity-hover');
+        });
     };
 
     function calculateStepWidth(xAxisValues) {
         var xAxisWidth = presenter.$view.find('.x-axis').width();
-        return xAxisWidth / (xAxisValues.length);
+        return xAxisWidth / (xAxisValues.length + 1);
+    }
+
+    function parseValueWithStepPrecision(value) {
+        return parseFloat(value.toFixed(presenter.configuration.step.precision));
     }
 
     function getXAxisValues() {
         var configuration = presenter.configuration,
             xAxisValues = [], i;
         var sorted = [];
-        var step = configuration.step;
+        var stepValue = configuration.step.parsedValue || configuration.step.value;
 
-        for (i = 0; i >= configuration.min; i -= step) {
+        for (i = configuration.min; i <= configuration.max; i = parseValueWithStepPrecision(i + stepValue)) {
             xAxisValues.push(i);
         }
 
-        for (i = 0; i <= configuration.max; i += step) {
-            xAxisValues.push(i);
+        if ( xAxisValues.indexOf(0) == -1
+            && configuration.min < 0
+            && configuration.max > 0 ) {
+            xAxisValues.push(0);
         }
 
         var sorted = xAxisValues.sort( function( a, b ){ return a - b });
-        sorted.splice( sorted.indexOf(0), 1 );
 
         var allRanges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
 
@@ -162,6 +180,15 @@ function AddonLine_Number_create() {
 
             return true;
         });
+
+        if ( sorted.indexOf(configuration.max) == -1 ) {
+            presenter.configuration.isError = true;
+            var lastValue = sorted[sorted.length - 1];
+            var errorMessage = presenter.errorCodes['MAX04'].replace('{{lastValue}}', ('' + lastValue) );
+            errorMessage = errorMessage.replace('{{lastValuePlusStep}}', ('' + (lastValue + stepValue)) );
+            presenter.errorCodes['MAX04'] = errorMessage;
+            DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'MAX04');
+        }
 
         return sorted;
     }
@@ -204,8 +231,7 @@ function AddonLine_Number_create() {
     }
 
     presenter.removeRange = function(range, removeIncludeImages) {
-        var stepLine = range.start.element;
-        $(stepLine).find('.selectedRange').remove();
+        getSelectedRange(range).remove();
         if (!range.values) { range.values = [] }
 
         var index = presenter.configuration.drawnRangesData.ranges.indexOf(range);
@@ -318,7 +344,7 @@ function AddonLine_Number_create() {
         $(element).append(clickArea);
         clickArea.attr('value', value);
 
-        if (!presenter.configuration.isPreview) {
+        if (!presenter.configuration.isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
             clickArea.on('mouseleave', function () {
                 hideCurrentMousePosition();
             });
@@ -347,6 +373,13 @@ function AddonLine_Number_create() {
                 }
 
             });
+
+            clickArea.on('click', function (e) {
+                e.preventDefault();
+
+                var eventTarget = $(e.target);
+                clickLogic(eventTarget);
+            });
         }
 
         var width = presenter.configuration.stepWidth, left = - (presenter.configuration.stepWidth / 2) + 'px';
@@ -368,16 +401,6 @@ function AddonLine_Number_create() {
             'left' : left
         });
 
-        if (!presenter.configuration.isPreview) {
-            clickArea.on('click', function (e) {
-                e.preventDefault();
-
-                var eventTarget = $(e.target);
-                clickLogic(eventTarget);
-            });
-        }
-
-        moveYAxisClickArea();
     }
 
     function isFirstClick() {
@@ -490,6 +513,22 @@ function AddonLine_Number_create() {
         presenter.configuration.notCurrentSelectedRange = null;
     }
 
+    function getSelectedRange(range) {
+        var selectedRange;
+
+        if ( isValueInfinity(range.start.value) ) {
+
+            selectedRange = presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent().find('.selectedRange');
+
+        } else {
+
+            selectedRange = range.start.element.find('.selectedRange');
+
+        }
+
+        return selectedRange;
+    }
+
     function clickLogic(eventTarget) {
         if (presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) return false;
         if (presenter.configuration.isDisabled) return;
@@ -532,7 +571,10 @@ function AddonLine_Number_create() {
 
             else if ( isClickedStartOrEnd() ) {
 
-                var selectedRange = presenter.configuration.mouseData.clickedRanges[0].start.element.find('.selectedRange');
+                var selectedRange, clickedRange = presenter.configuration.mouseData.clickedRanges[0];
+
+                selectedRange = getSelectedRange(clickedRange);
+
                 selectedRange.addClass('currentSelectedRange');
 
             }
@@ -901,25 +943,55 @@ function AddonLine_Number_create() {
         }
     }
 
+    function getStartElement(isStartInfinity, startValue) {
+        var startElement;
+
+        if ( isStartInfinity ) {
+            startElement = presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent();
+        } else {
+            startElement = presenter.$view.find('.clickArea[value="' + startValue + '"]').parent();
+        }
+
+        return startElement;
+    }
+
+    function getEndElement(isEndInfinity, endValue) {
+        var endElement;
+
+        if ( isEndInfinity ) {
+            endElement = presenter.$view.find('.clickArea[value="' + presenter.configuration.max + '"]').parent();
+        } else {
+            endElement = presenter.$view.find('.clickArea[value="' + endValue + '"]').parent();
+        }
+
+        return endElement;
+    }
+
     presenter.drawRanges = function(ranges) {
 
         $.each(ranges, function() {
+
             var startValue = Math.min(this.start.value, this.end.value);
             var endValue = Math.max(this.start.value, this.end.value);
+
             var isEndInfinity = isValueInfinity(endValue);
             var isStartInfinity = isValueInfinity(startValue);
-            var startElement, endElement;
+            var startElement = getStartElement(isStartInfinity, startValue);
+            var endElement = getEndElement(isEndInfinity, endValue);
 
-            if ( isStartInfinity ) {
-                startElement = presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent();
-            } else {
-                startElement = presenter.$view.find('.clickArea[value="' + startValue + '"]').parent();
+            if (!this.start.element || !this.end.element) {
+                this.start.element = startElement;
+                this.end.element = endElement;
             }
 
-            if ( isEndInfinity ) {
-                endElement = presenter.$view.find('.clickArea[value="' + presenter.configuration.max + '"]').parent();
-            } else {
-                endElement = presenter.$view.find('.clickArea[value="' + endValue + '"]').parent();
+            if ( startValue == endValue ) {
+                setRangeValues(this, true);
+                addToDrawnRanges(this);
+                addEndRangeImage(endElement, true);
+
+                // if start and end values are the same, that means range is a single point, so it should not draw range
+
+                return false;
             }
 
             var start = parseFloat($(startElement).css('left'));
@@ -927,29 +999,24 @@ function AddonLine_Number_create() {
             var difference =  Math.abs(start - end);
             var range = $('<div></div>');
 
-            if (!this.start.element || !this.end.element) {
-                this.start.element = startElement;
-                this.end.element = endElement;
-            }
-
             range.addClass('selectedRange');
 
-            if ( isStartInfinity && isEndInfinity ) {
-                range.addClass(isStartInfinity ? 'infinityBoth' : '');
-            } else {
-                range.addClass(isStartInfinity ? 'infinityLeft' : '');
-                range.addClass(isEndInfinity ? 'infinityRight' : '');
-            }
+            addInfinityClass(isStartInfinity, isEndInfinity, range);
 
             // when range is ending in infinity then it should be wider because there is space between arrowhead and last step line
             // + 2 is because stepLine is 2 px width
-            var width = isEndInfinity ? difference + presenter.configuration.stepWidth + 'px' : difference + 2 + 'px';
+            var width = calculateRangeWidth(isEndInfinity, isStartInfinity, difference);
 
             range.css('width', width);
             startElement.append(range);
 
             if (start > end) {
                 range.css('left', - (difference) + 'px');
+            }
+
+            if (isStartInfinity) {
+                var currentLeft = parseInt( range.css('left'), 10 );
+                range.css('left', -( currentLeft + presenter.configuration.stepWidth ) + 'px');
             }
 
             addToDrawnRanges(this);
@@ -961,6 +1028,31 @@ function AddonLine_Number_create() {
         });
 
     };
+
+    function addInfinityClass(isStartInfinity, isEndInfinity, range) {
+        if ( isStartInfinity && isEndInfinity ) {
+            range.addClass(isStartInfinity ? 'infinityBoth' : '');
+        } else {
+            range.addClass(isStartInfinity ? 'infinityLeft' : '');
+            range.addClass(isEndInfinity ? 'infinityRight' : '');
+        }
+    }
+
+    function calculateRangeWidth(isEndInfinity, isStartInfinity, difference) {
+        var width;
+
+        if (isEndInfinity && isStartInfinity) {
+            width = difference + (presenter.configuration.stepWidth * 2) + 'px';
+        } else if (isEndInfinity) {
+            width = difference + presenter.configuration.stepWidth + 'px';
+        } else if (isStartInfinity) {
+            width = difference + presenter.configuration.stepWidth + 2 + 'px';
+        } else {
+            width = difference + 2 + 'px';
+        }
+
+        return width;
+    }
 
     function isValueInfinity(value) {
         return ( value == -Infinity
@@ -988,8 +1080,9 @@ function AddonLine_Number_create() {
             endValue = presenter.configuration.max;
         }
 
+        var stepValue = presenter.configuration.step.parsedValue || presenter.configuration.step.value;
 
-        for ( var i = startValue; i <= endValue; i = i + (presenter.configuration.step) ) {
+        for ( var i = startValue; i <= endValue; i = parseValueWithStepPrecision(i + stepValue) ) {
 
             range.values.push(i);
 
@@ -1056,35 +1149,20 @@ function AddonLine_Number_create() {
         for (var i = 0; i < xAxisValues.length; i++) {
             var stepLine = $('<div></div>');
             stepLine.addClass('stepLine');
+            var text = $('<div></div>');
+            text.addClass('stepText');
+            text.html( transformValueToDisplayVersion( xAxisValues[i] ) );
+            text.css('left', - (( xAxisValues[i] + '' )).length * (4) + 'px');
 
-            if (xAxisValues[i] == 0) {
-                var innerHeight = presenter.$view.find('.inner').height();
-                var yAxis = presenter.$view.find('.y-axis');
-                var xAxis = presenter.$view.find('.x-axis');
-
-                yAxis.height(innerHeight);
-                yAxis.css({
-                    'top' : - (innerHeight / 2),
-                    'left' : presenter.configuration.stepWidth * i
-                });
-                xAxis.append(yAxis);
-            } else {
-                var text = $('<div></div>');
-                text.addClass('stepText');
-                text.html( transformValueToDisplayVersion( xAxisValues[i] ) );
-                text.css('left', - (( xAxisValues[i] + '' )).length * (4) + 'px');
-
-                if (isDrawOnlyChosen && presenter.configuration.showAxisXValues) {
-                    if ($.inArray(xAxisValues[i], presenter.configuration.axisXValues) !== -1) {
-                        stepLine.append(text);
-                    }
-                } else if (presenter.configuration.showAxisXValues) {
+            if (isDrawOnlyChosen && presenter.configuration.showAxisXValues) {
+                if ($.inArray(xAxisValues[i], presenter.configuration.axisXValues) !== -1) {
                     stepLine.append(text);
                 }
-
+            } else if (presenter.configuration.showAxisXValues) {
+                stepLine.append(text);
             }
 
-            stepLine.css('left', presenter.configuration.stepWidth * i);
+            stepLine.css('left', presenter.configuration.stepWidth * (i + 1));
             createClickArea(stepLine, xAxisValues[i]);
             presenter.$view.find('.x-axis').append(stepLine);
         }
@@ -1092,12 +1170,6 @@ function AddonLine_Number_create() {
 
     function transformValueToDisplayVersion(value) {
         return ('' + value).replace('.', presenter.configuration.separator);
-    }
-
-    function moveYAxisClickArea() {
-        var yAxis = presenter.$view.find('.y-axis');
-        var yAxisClickArea = yAxis.find('.clickArea');
-        yAxisClickArea.css('top', (yAxis.height() / 2) - 50 + 'px');
     }
 
     function checkIsMinLowerThanMax(min, max) {
@@ -1164,22 +1236,26 @@ function AddonLine_Number_create() {
     };
 
     presenter.setShowErrorsMode = function() {
-        presenter.configuration.isShowErrorsMode = true;
-        var validated = validateDrawnRanges();
+        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
 
-        $.each(validated.correct, function() {
-            if ( isValueInfinity(this.start.value) ) {
-                presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent().find('.selectedRange').addClass('correct');
-            } else {
-                this.start.element.find('.selectedRange').addClass('correct');
-            }
-            addCorrectnessClassToRangeEnds(this, 'correct');
-        });
+            presenter.configuration.isShowErrorsMode = true;
+            var validated = validateDrawnRanges();
 
-        $.each(validated.wrong, function() {
-            this.start.element.find('.selectedRange').addClass('wrong');
-            addCorrectnessClassToRangeEnds(this, 'wrong');
-        });
+            $.each(validated.correct, function() {
+                if ( isValueInfinity(this.start.value) ) {
+                    presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent().find('.selectedRange').addClass('correct');
+                } else {
+                    this.start.element.find('.selectedRange').addClass('correct');
+                }
+                addCorrectnessClassToRangeEnds(this, 'correct');
+            });
+
+            $.each(validated.wrong, function() {
+                this.start.element.find('.selectedRange').addClass('wrong');
+                addCorrectnessClassToRangeEnds(this, 'wrong');
+            });
+
+        }
 
     };
 
@@ -1205,26 +1281,53 @@ function AddonLine_Number_create() {
     }
 
     presenter.setWorkMode = function() {
-        presenter.configuration.isShowErrorsMode = false;
+        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
+            presenter.configuration.isShowErrorsMode = false;
 
-        presenter.$view.find('.correct').removeClass('correct');
-        presenter.$view.find('.wrong').removeClass('wrong');
-        presenter.$view.find('.correctRangeExclude, .wrongRangeExclude').removeClass('correctRangeExclude wrongRangeExclude').addClass('exclude');
-        presenter.$view.find('.correctRangeInclude, .wrongRangeInclude').removeClass('correctRangeInclude wrongRangeInclude').addClass('include');
+            presenter.$view.find('.correct').removeClass('correct');
+            presenter.$view.find('.wrong').removeClass('wrong');
+            presenter.$view.find('.correctRangeExclude, .wrongRangeExclude').removeClass('correctRangeExclude wrongRangeExclude').addClass('exclude');
+            presenter.$view.find('.correctRangeInclude, .wrongRangeInclude').removeClass('correctRangeInclude wrongRangeInclude').addClass('include');
+        }
     };
 
     presenter.getScore = function() {
-        var validated = validateDrawnRanges();
-        return validated.correct.length;
+        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
+
+            var validated = validateDrawnRanges();
+
+            return validated.correct.length;
+
+        } else {
+
+            return 0;
+
+        }
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
+        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
+
+            return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
+
+        } else {
+
+            return 0;
+
+        }
     };
 
     presenter.getErrorCount = function () {
-        var validated = validateDrawnRanges();
-        return validated.wrong.length;
+        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
+
+            var validated = validateDrawnRanges();
+            return validated.wrong.length;
+
+        } else {
+
+            return 0;
+
+        }
     };
 
     function validateDrawnRanges() {
@@ -1434,7 +1537,8 @@ function AddonLine_Number_create() {
         if ( pattern.test(value) ) {
             return {
                 'isValid' : true,
-                'value' : presenter.parseValueWithSeparator(value, separator)
+                'value' : presenter.parseValueWithSeparator(value, separator),
+                'precision' : getPrecision(value, separator)
             }
         } else {
             return {
@@ -1443,6 +1547,15 @@ function AddonLine_Number_create() {
             }
         }
     };
+
+    function getPrecision(value, separator) {
+        var splitted = value.split(separator);
+        if ( splitted.length == 1 ) {
+            return 0;
+        } else {
+            return splitted[1].length;
+        }
+    }
 
     presenter.parseValueWithSeparator = function (value, separator) {
         return (value + '').replace(separator, '.');
@@ -1501,10 +1614,11 @@ function AddonLine_Number_create() {
         var ranges = presenter.validateRanges(model['Ranges'], separator.value);
 
         var validatedIsActivity = !ModelValidationUtils.validateBoolean(model['Not Activity']);
-        var validatedStep = { value : 1 };
+        var validatedStep = { value : 1, precision : 0 };
 
         if ( model['Step'] ) {
             validatedStep = presenter.validateValueWithSeparator( model['Step'], separator.value );
+            var precision = validatedStep.precision;
 
             if (!validatedStep.isValid) {
                 return {
@@ -1514,6 +1628,7 @@ function AddonLine_Number_create() {
             }
 
             validatedStep = ModelValidationUtils.validateFloatInRange(validatedStep.value, 50, 0);
+            validatedStep.precision = precision;
 
             if (!validatedStep.isValid) {
                 return {
@@ -1524,32 +1639,54 @@ function AddonLine_Number_create() {
         }
 
         var validatedAxisXValues = [];
+        var axisXValues = model['Axis X Values'];
 
-        if (model['Axis X Values'] !== '') {
-            var splittedValues = model['Axis X Values'].split(';');
-            for (var i = 0; i < splittedValues.length; i++) {
-                var value = splittedValues[i].replace(' ', '');
+        if (axisXValues !== '') {
 
-                var validatedValue = presenter.validateValueWithSeparator(value, separator.value);
+            if ( presenter.isMultiplication(axisXValues) ) {
 
-                if (!validatedValue.isValid) {
-                    return {
-                        'isError' : true,
-                        'errorCode' : 'VAL02'
+                var multi = parseInt(axisXValues.split('*')[0], 10);
+                var step = validatedStep.parsedValue || validatedStep.value;
+                var j = 0;
+
+                for (var i = min; i <= max; i = parseFloat((i + step).toFixed(validatedStep.precision)), j++) {
+
+                    if (j % multi == 0) {
+                        validatedAxisXValues.push(i);
                     }
+
                 }
 
-                validatedValue = ModelValidationUtils.validateFloatInRange(validatedValue.value, max, min);
+            } else {
 
-                if (!validatedValue.isValid) {
-                    return {
-                        'isError' : true,
-                        'errorCode' : 'VAL01'
+                var splittedValues = model['Axis X Values'].split(';');
+
+                for (var i = 0; i < splittedValues.length; i++) {
+                    var value = splittedValues[i].replace(' ', '');
+
+                    var validatedValue = presenter.validateValueWithSeparator(value, separator.value);
+
+                    if (!validatedValue.isValid) {
+                        return {
+                            'isError' : true,
+                            'errorCode' : 'VAL02'
+                        }
                     }
+
+                    validatedValue = ModelValidationUtils.validateFloatInRange(validatedValue.value, max, min);
+
+                    if (!validatedValue.isValid) {
+                        return {
+                            'isError' : true,
+                            'errorCode' : 'VAL01'
+                        }
+                    }
+
+                    validatedAxisXValues.push(validatedValue.parsedValue);
                 }
 
-                validatedAxisXValues.push(validatedValue.parsedValue);
             }
+
         }
 
         var validatedShowAxisXValues = ModelValidationUtils.validateBoolean(model['Show Axis X Values']);
@@ -1563,7 +1700,7 @@ function AddonLine_Number_create() {
             shouldDrawRanges : ranges.shouldDrawRanges,
             otherRanges : ranges.otherRanges,
             isActivity : validatedIsActivity,
-            step : validatedStep.parsedValue,
+            step : validatedStep,
             showAxisXValues : validatedShowAxisXValues,
             axisXValues : validatedAxisXValues,
             mouseData : {
@@ -1589,6 +1726,11 @@ function AddonLine_Number_create() {
             isDisabledByDefault: isDisabled,
             separator: separator.value
         }
+    };
+
+    presenter.isMultiplication = function (value) {
+        var pattern = new RegExp('^[\\d]+\\*{1}$', 'i');
+        return pattern.test(value);
     };
 
     presenter.executeCommand = function(name, params) {
