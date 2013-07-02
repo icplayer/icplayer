@@ -182,8 +182,8 @@ function Addonvideo_create() {
             }
         });
 
-        var eventBus = controller.getEventBus();
-        eventBus.addEventListener('PageLoaded', this);
+        presenter.eventBus = controller.getEventBus();
+        presenter.eventBus.addEventListener('PageLoaded', this);
 
         var pageLoadedDeferred = new jQuery.Deferred();
         presenter.pageLoadedDeferred = pageLoadedDeferred;
@@ -194,7 +194,22 @@ function Addonvideo_create() {
         presenter.pageLoadedDeferred.resolve();
     };
 
+    presenter.createEndedEventData = function (currentVideo) {
+        return {
+            source: presenter.addonID,
+            item: '' + (currentVideo + 1),
+            value: 'ended'
+        };
+    };
+
+    presenter.sendVideoEndedEvent = function () {
+        var eventData = presenter.createEndedEventData(presenter.currentMovie);
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
     presenter.run = function(view, model){
+        presenter.addonID = model.ID;
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isCurrentlyVisible = true;
         var upgradedModel = this.upgradeModel(model);
@@ -397,8 +412,17 @@ function Addonvideo_create() {
                 }
             }
             this.video.load();
-            $(this.video).bind("ended error", function() {
-                $(this).unbind("ended error");
+
+            $(this.video).bind("ended", function() {
+                $(this).unbind("ended");
+                presenter.sendVideoEndedEvent();
+                presenter.reload();
+                if (presenter.configuration.isFullScreen) {
+                    fullScreenChange();
+                }
+            });
+            $(this.video).bind("error", function() {
+                $(this).unbind("error");
                 presenter.reload();
                 if (presenter.configuration.isFullScreen) {
                     fullScreenChange();
