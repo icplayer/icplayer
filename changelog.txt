@@ -1,3 +1,4 @@
+2013-07-03 Added Line Number module - used to draw X-axis ranges
 2013-07-03 Updated Custom Scoring module icon
 2013-07-02 Added event sending on playback finish to Video module
 2013-07-01 Fixed problem with events from not activity gaps

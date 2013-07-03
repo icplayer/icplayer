@@ -228,6 +228,7 @@ var ice_dictionary = {
 	"Image_Viewer_Public_info": "Allows to insert simple animations in which new frames are shown on a mouse click. There is also the possibility of adding a sound notification on a changing frame, subtitles, a frame counter or a watermark indicating the \"Play\" button. Image viewer supports 3 video formats: mp3, ogg Vorbis and aac.",
 	"Image_Viewer_Button_Controlled_Public_info": "This addon is an extension of the Image Viewer addon. It has been additionally enriched with one feature that allows its integration with other modules, e.g. Double State Button.",
 	"Layered_Image_info": "Enables to embed multilayered images into a presentation, where each layer is represented by an image with transparent elements. By default, each image layer is hidden at the addon's start and it is possible to select the layer to be displayed at a given stage.",
+	"Line_Number_info": "Line Number module is used to draw X-axis ranges.",
 	"Logger_info": "Imitates the JavaScript console in a browser, which in this case can be compared to a message board.",
 	"Magic_Boxes_info": "Allows to add a ready-made word search game to a presentation. To make the activity work, it is enough to define all letters and possible answers in the addon’s Properties section.",
 	"Math_info": "Developed with a view to the needs of all math teachers. With this addon, it is possible to prepare both simple and complicated mathematical equations and formulae with text gaps used as inputs for the answers.",
