@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.3';
+        this.VERSION = '1.1.4';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1217,7 +1217,7 @@ function AddonPlot_create(){
             return state;
         };
         this.isPointOnPlot = function(pid, x, y) {
-            var rv, rc;
+            var rv, rc, domain;
             var isCorrect = false;
             $.each(this.expressions, function(idx, val) {
                 if (val.id == pid) {
@@ -1236,6 +1236,14 @@ function AddonPlot_create(){
                     }
 
                     isCorrect = rv == rc;
+
+                    //check if point is in range
+                    if(isCorrect) {
+                        domain = plot._getPlotDomain(idx);
+                        if(x < domain.xMin || x > domain.xMax || y < domain.yMin || y > domain.yMax) {
+                            isCorrect = false;
+                        }
+                    }
                     return false;
                 }
             });
