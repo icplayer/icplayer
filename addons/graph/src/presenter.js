@@ -156,9 +156,7 @@ function Addongraph_create(){
         }
     };
 
-    presenter.getScore = function() {
-        if (!presenter.configuration.shouldCalcScore) return 0;
-
+    presenter.calcScore = function () {
         var score = 0;
         presenter.$view.find('.graph_value_container').each(function(index, element) {
             if(presenter.configuration.answers[index] == parseFloat($(element).attr('current-value'))) {
@@ -169,11 +167,21 @@ function Addongraph_create(){
         return score;
     };
 
+    presenter.getScore = function() {
+        if (!presenter.configuration.isInteractive) return 0;
+        if (!presenter.configuration.shouldCalcScore) return 0;
+
+        return presenter.calcScore();
+    };
+
     presenter.getMaxScore = function() {
+        if (!presenter.configuration.isInteractive) return 0;
+
         return presenter.configuration.answers.length;
     };
 
     presenter.getErrorCount = function() {
+        if (!presenter.configuration.isInteractive) return 0;
         if (!presenter.configuration.shouldCalcScore) return 0;
 
         return presenter.getMaxScore() - presenter.getScore();
