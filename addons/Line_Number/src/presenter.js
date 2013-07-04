@@ -561,7 +561,7 @@ function AddonLine_Number_create() {
                 presenter.configuration.mouseData.twoClickedRangesCount++;
 
                 if ( presenter.configuration.mouseData.twoClickedRangesCount == 1 ) {
-                    var selectedRange = presenter.configuration.mouseData.clickedRanges[0].start.element.find('.selectedRange');
+                    var selectedRange = getSelectedRange(presenter.configuration.mouseData.clickedRanges[0]);
                     selectedRange.addClass('currentSelectedRange');
                 }
 
@@ -707,8 +707,8 @@ function AddonLine_Number_create() {
 
                 if ( presenter.configuration.mouseData.twoClickedRangesCount == 2 ) {
 
-                    var currentSelectedRange = presenter.configuration.mouseData.clickedRanges[0].start.element.find('.selectedRange')
-                    var selectedRange = presenter.configuration.mouseData.clickedRanges[1].start.element.find('.selectedRange');
+                    var currentSelectedRange = getSelectedRange(presenter.configuration.mouseData.clickedRanges[0]);
+                    var selectedRange = getSelectedRange(presenter.configuration.mouseData.clickedRanges[1]);
                     selectedRange.addClass('currentSelectedRange');
                     currentSelectedRange.removeClass('currentSelectedRange');
                     presenter.configuration.mouseData.clicks = presenter.configuration.mouseData.clicks.slice(0, 1);
@@ -1015,8 +1015,7 @@ function AddonLine_Number_create() {
             }
 
             if (isStartInfinity) {
-                var currentLeft = parseInt( range.css('left'), 10 );
-                range.css('left', -( currentLeft + presenter.configuration.stepWidth ) + 'px');
+                range.css('left', -presenter.configuration.stepWidth + 'px');
             }
 
             addToDrawnRanges(this);
@@ -1242,16 +1241,12 @@ function AddonLine_Number_create() {
             var validated = validateDrawnRanges();
 
             $.each(validated.correct, function() {
-                if ( isValueInfinity(this.start.value) ) {
-                    presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent().find('.selectedRange').addClass('correct');
-                } else {
-                    this.start.element.find('.selectedRange').addClass('correct');
-                }
+                getSelectedRange(this).addClass('correct');
                 addCorrectnessClassToRangeEnds(this, 'correct');
             });
 
             $.each(validated.wrong, function() {
-                this.start.element.find('.selectedRange').addClass('wrong');
+                getSelectedRange(this).addClass('wrong');
                 addCorrectnessClassToRangeEnds(this, 'wrong');
             });
 
