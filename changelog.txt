@@ -1,3 +1,4 @@
+2013-07-05 Fixed a bug when event AllOk was sent even when wrong ranges were drawn
 2013-07-05 Fixed problem when Check was not removing range end image in Line Number module
 2013-07-04 Fixed problem when changing pages in Graph module
 2013-07-04 Fixed drawing range bug in Line Number module

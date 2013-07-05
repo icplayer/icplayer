@@ -345,41 +345,7 @@ function AddonLine_Number_create() {
         clickArea.attr('value', value);
 
         if (!presenter.configuration.isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
-            clickArea.on('mouseleave', function () {
-                hideCurrentMousePosition();
-            });
-
-            clickArea.on('mouseenter', function (e) {
-                e.preventDefault();
-                displayCurrentMousePosition($(e.target));
-            });
-
-            clickArea.on('contextmenu', function (e) {
-                e.preventDefault();
-            });
-
-            clickArea.on('touchstart', function (e){
-                e.preventDefault();
-
-                presenter.configuration.touchData.lastEvent = e;
-            });
-
-            clickArea.on('touchend', function (e){
-                e.preventDefault();
-
-                if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
-                    var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
-                    clickLogic(eventData.target);
-                }
-
-            });
-
-            clickArea.on('click', function (e) {
-                e.preventDefault();
-
-                var eventTarget = $(e.target);
-                clickLogic(eventTarget);
-            });
+            bindClickAreaListeners(clickArea);
         }
 
         var width = presenter.configuration.stepWidth, left = - (presenter.configuration.stepWidth / 2) + 'px';
@@ -401,6 +367,57 @@ function AddonLine_Number_create() {
             'left' : left
         });
 
+    }
+
+    function bindClickAreaListeners(clickArea) {
+        removeAllClickListeners();
+
+        clickArea.on('mouseleave', function () {
+            hideCurrentMousePosition();
+        });
+
+        clickArea.on('mouseenter', function (e) {
+            e.preventDefault();
+            displayCurrentMousePosition($(e.target));
+        });
+
+        clickArea.on('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        clickArea.on('touchstart', function (e){
+            e.preventDefault();
+
+            presenter.configuration.touchData.lastEvent = e;
+        });
+
+        clickArea.on('touchend', function (e){
+            e.preventDefault();
+
+            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
+                var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+                clickLogic(eventData.target);
+            }
+
+        });
+
+        clickArea.on('click', function (e) {
+            e.preventDefault();
+
+            var eventTarget = $(e.target);
+            clickLogic(eventTarget);
+        });
+    }
+
+    function removeAllClickListeners() {
+        var clickArea = presenter.$view.find('.clickArea');
+        var infinityLeft = presenter.$view.find('.infinity-left');
+        var infinityRight = presenter.$view.find('.infinity-right');
+        var listeners = 'mouseleave mouseenter contextmenu touchstart touchend click';
+
+        clickArea.off(listeners);
+        infinityRight.off(listeners);
+        infinityLeft.off(listeners);
     }
 
     function isFirstClick() {
@@ -1383,7 +1400,7 @@ function AddonLine_Number_create() {
     }
 
     presenter.allRangesCorrect = function() {
-        return presenter.getScore() - presenter.getMaxScore() == 0;
+        return presenter.getScore() - presenter.getMaxScore() == 0 && presenter.getErrorCount() == 0;
     };
 
     function compareRanges(rangeA, rangeB) {
@@ -1764,11 +1781,17 @@ function AddonLine_Number_create() {
 
     presenter.enable = function() {
         presenter.setDisableState(false);
+
+        bindClickAreaListeners( presenter.$view.find('.clickArea') );
+        presenter.bindInfinityAreas();
         resetClicks();
     };
 
     presenter.disable = function() {
+
         presenter.setDisableState(true);
+
+        removeAllClickListeners();
     };
 
     presenter.drawRange = function (rangeList) {
