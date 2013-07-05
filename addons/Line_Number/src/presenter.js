@@ -1096,23 +1096,12 @@ function AddonLine_Number_create() {
 
         if ( !isEndInfinity ) {
             addEndRangeImage( endElement, range.end.include );
-        } else {
-            addInfinityBox( startElement );
         }
 
-        if ( startElement[0] != endElement[0] ) {
-
-            if ( !isStartInfinity ) {
-                addEndRangeImage( startElement, range.start.include );
-            } else {
-                addInfinityBox( startElement );
-            }
-
+        if ( !isStartInfinity ) {
+            addEndRangeImage( startElement, range.start.include );
         }
-    }
 
-    function addInfinityBox( element ) {
-        // TODO
     }
 
     presenter.convertRangeToString = function( range ) {
@@ -1249,6 +1238,13 @@ function AddonLine_Number_create() {
                 getSelectedRange(this).addClass('wrong');
                 addCorrectnessClassToRangeEnds(this, 'wrong');
             });
+
+            if ( presenter.configuration.mouseData.clicks.length > 0 ) {
+
+                presenter.configuration.mouseData.clicks[0].element.parent().find('.rangeImage').remove();
+            }
+
+            resetClicks();
 
         }
 
