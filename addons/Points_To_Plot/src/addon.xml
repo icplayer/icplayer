@@ -7,6 +7,7 @@
 			<property name='plot id' type='string' isLocalized='false'/>
 			<property name='points' type='int' isLocalized='false'/>
 			<property name='strict points' type='string' isLocalized='false'/>
-		</property>		
+		</property>
+		<property name="Decimal separator" type="string" isLocalized='false'/>
 	</model>
 </addon>

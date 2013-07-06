@@ -4,14 +4,16 @@ function AddonPoints_To_Plot_create() {
     };
     var eventBus; // Modules communication
     var addonID;
-
+    presenter.errorCodes = {
+        'DECIMAL_SEPARATOR_MISMATCH' : 'Plot and addon should have exactly the same decimal separator.'
+    };
     presenter.data = {
         pointsOnPlot: [],
         selectedPoints: []
     };
     presenter.STATE_CORRECT = 1;
     presenter.STATE_INCORRECT = 0;
-    presenter.VERSION = '1.0';
+    presenter.VERSION = '1.0.1';
     presenter.run = function(view, model) {
         presenter.view = view;
         presenter.model = model;
@@ -24,6 +26,10 @@ function AddonPoints_To_Plot_create() {
     };
     presenter.initialize = function(model) {
         this.source = model['Source'];
+        this.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
+        if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
+            presenter.decimalSeparator = '.';
+        };
         $.each(model['Points to plot'], function(idx, val) {
             if(val !== undefined) {
                 el = {
@@ -38,11 +44,16 @@ function AddonPoints_To_Plot_create() {
         this.data.selectedPoints = [];
     };
     presenter.parseStrictPoints = function(str) {
-        var pairs = str.match(/((-?[0-9]+(\.?[0-9]+)?){1},{1}(-?[0-9]+(\.?[0-9]+)?){1})/g);
+        var pairs;
+        if(this.decimalSeparator == ',') {
+            pairs = str.match(/((-?[0-9]+(,?[0-9]+)?){1};{1}(-?[0-9]+(,?[0-9]+)?){1})/g);
+        } else {
+            pairs = str.match(/((-?[0-9]+(\.?[0-9]+)?){1},{1}(-?[0-9]+(\.?[0-9]+)?){1})/g);
+        }
         var points = [];
         $.each(pairs, function(idx, val) {
-            var tmp = val.split(',');
-            points.push({x: tmp[0], y:tmp[1]});
+            var tmp = val.split(presenter.getSeparatorByDecimalSeparator());
+            points.push({x: presenter.toDotSeparator(tmp[0]), y: presenter.toDotSeparator(tmp[1])});
         });
 
         return points;
@@ -119,6 +130,11 @@ function AddonPoints_To_Plot_create() {
     presenter.createPreview = function(view, model) {
         presenter.view = view;
         presenter.model = model;
+
+        presenter.initialize(model);
+        if(this.getSourceModule().getDecimalSeparator() != this.getDecimalSeparator()) {
+            $(view).html(presenter.errorCodes['DECIMAL_SEPARATOR_MISMATCH']);
+        }
     };
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -134,8 +150,8 @@ function AddonPoints_To_Plot_create() {
     };
     presenter.processPointEvent = function(data) {
         var els = data.item.split('_');
-        var x = els[1];
-        var y = els[2];
+        var x = this.toDotSeparator(els[1]);
+        var y = this.toDotSeparator(els[2]);
         var state = data.value == 1 ? true : false;
         if(state) {
             presenter.selectPoint(x,y);
@@ -271,6 +287,9 @@ function AddonPoints_To_Plot_create() {
             for(var t=0;t<data.length;t++) {
                 data[t].source = addonID;
                 data[t].item = data[t].item.toString();
+                if(data[t].item.substring(0,6) == 'point_') {
+                    data[t].item = presenter.convertValueToDisplay(data[t].item);
+                }
                 data[t].value = data[t].value.toString();
                 data[t].score = data[t].score === null ? null : data[t].score.toString();
                 eventBus.sendEvent('ValueChanged', data[t]);
@@ -295,6 +314,18 @@ function AddonPoints_To_Plot_create() {
         };
 
         eventBus.sendEvent('ValueChanged', eventData);
+    };
+    presenter.toDotSeparator = function(value) {
+        return (value + '').replace(this.decimalSeparator, '.');
+    };
+    presenter.getSeparatorByDecimalSeparator = function() {
+        return this.decimalSeparator == '.' ? ',' : ';';
+    };
+    presenter.convertValueToDisplay = function(value) {
+        return (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
+    };
+    presenter.getDecimalSeparator = function() {
+        return presenter.decimalSeparator;
     };
 
     return presenter;
