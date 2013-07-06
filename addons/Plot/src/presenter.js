@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.4';
+        this.VERSION = '1.1.5';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -52,6 +52,7 @@ function AddonPlot_create(){
         this.yAxisCustomValues = [];
         this.maxSelectedPoints = 0;
         this.stateChanged = function(){};
+        this.convertValueToDisplay = function(val){ return val; };
         this.isActivity = true;
         this.freePoints = false;
 
@@ -138,7 +139,7 @@ function AddonPlot_create(){
                 if(this.xAxisVisible && this.yAxisVisible && coords.x == 0) {
                     return;
                 } else {
-                    this.svg.text(this.svgDoc.find('.axis'), x, 10, coords.x.toString(), {
+                    this.svg.text(this.svgDoc.find('.axis'), x, 10, this.convertValueToDisplay(coords.x.toString()), {
                         'class':'axisText axisThicksTextX',
                         transform:'scale(1,-1)'
                     });
@@ -149,7 +150,7 @@ function AddonPlot_create(){
             if(this.xAxisVisible && this.yAxisVisible && coords.y == 0) {
             ;
             } else {
-                this.svg.text(this.svgDoc.find('.axis'), 7, y, coords.y.toString(), {
+                this.svg.text(this.svgDoc.find('.axis'), 7, y, this.convertValueToDisplay(coords.y.toString()), {
                     'class':'axisText axisThicksTextY',
                     transform:'scale(1,-1)'
                 });
@@ -1566,65 +1567,69 @@ function AddonPlot_create(){
         this._model = model;
         presenter.isVisible = $(view).css('visibility') == 'hidden' || $(view).is(':hidden') ? false : true;
         presenter.initIsVisible = presenter.isVisible;
+        presenter.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
+        if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
+            presenter.decimalSeparator = '.';
+        };
         presenter.updateVisibility();
         plot.interactive = interactive;
         plot.width = parseInt(model['Width']);
         plot.height = parseInt(model['Height']);
-        plot.xMin = (model['xMin'] == '' && model['xMin'] != '0' ? -10 : parseFloat(model['xMin']));
-        plot.xMax = (model['xMax'] == '' && model['xMax'] != '0' ? 10 : parseFloat(model['xMax']));
-        plot.yMin = (model['yMin'] == '' && model['yMin'] != '0' ? -10 : parseFloat(model['yMin']));
-        plot.yMax = (model['yMax'] == '' && model['yMax'] != '0' ? 10 : parseFloat(model['yMax']));
+        plot.xMin = (model['xMin'] == '' && model['xMin'] != '0' ? -10 : parseFloat(this.toDotSeparator(model['xMin'])));
+        plot.xMax = (model['xMax'] == '' && model['xMax'] != '0' ? 10 : parseFloat(this.toDotSeparator(model['xMax'])));
+        plot.yMin = (model['yMin'] == '' && model['yMin'] != '0' ? -10 : parseFloat(this.toDotSeparator(model['yMin'])));
+        plot.yMax = (model['yMax'] == '' && model['yMax'] != '0' ? 10 : parseFloat(this.toDotSeparator(model['yMax'])));
         plot.initXMin = plot.xMin;
         plot.initXMax = plot.xMax;
         plot.initYMin = plot.yMin;
         plot.initYMax = plot.yMax;
         plot.grid = model['Grid'].toLowerCase() === 'true' ? true : false;
-        plot.gridStepX = Math.abs(parseFloat(model['GridStepX'])) || 1;
-        plot.gridStepY = Math.abs(parseFloat(model['GridStepY'])) || 1;
+        plot.gridStepX = Math.abs(parseFloat(this.toDotSeparator(model['GridStepX']))) || 1;
+        plot.gridStepY = Math.abs(parseFloat(this.toDotSeparator(model['GridStepY']))) || 1;
         plot.arrowheadSize = parseInt(model['Arrowhead size']) || 6;
-        plot.asymptoteMinimumDY = model['Asymptote DY'] || 5;
+        plot.asymptoteMinimumDY = this.toDotSeparator(model['Asymptote DY']) || 5;
         plot.axisValues = model['Axis values'].toLowerCase() === 'true' ? true : false;
         plot.xAxisDescription = model['X axis description'] || 'x';
         plot.yAxisDescription = model['Y axis description'] || 'y';
         plot.xAxisVisible = model['hide X axis'] === undefined || model['hide X axis'].toLowerCase() === 'false' || model['hide X axis'] == '' ? true : false;
         plot.yAxisVisible = model['hide Y axis'] === undefined || model['hide Y axis'].toLowerCase() === 'false' || model['hide Y axis'] == '' ? true : false;
-        var xAxisValues = model['Axis x values'] === undefined || model['Axis x values'] == '' || this._hasIllegalCharacters(model['Axis x values'].toString()) ? false : model['Axis x values'].toString().split(',');
-        var yAxisValues = model['Axis y values'] === undefined || model['Axis y values'] == '' || this._hasIllegalCharacters(model['Axis y values'].toString()) ? false : model['Axis y values'].toString().split(',');
+        var xAxisValues = model['Axis x values'] === undefined || model['Axis x values'] == '' || this._hasIllegalCharacters(model['Axis x values'].toString()) ? false : model['Axis x values'].toString().split(this.getSeparatorByDecimalSeparator());
+        var yAxisValues = model['Axis y values'] === undefined || model['Axis y values'] == '' || this._hasIllegalCharacters(model['Axis y values'].toString()) ? false : model['Axis y values'].toString().split(this.getSeparatorByDecimalSeparator());
         if(xAxisValues !== false && xAxisValues.length > 0) {
             for(v in xAxisValues) {
                 if(xAxisValues[v].toString().match(/\*/) !== null) {
-                    plot.xAxisCyclicValues.push(parseInt(xAxisValues[v]));
+                    plot.xAxisCyclicValues.push(parseInt(this.toDotSeparator(xAxisValues[v])));
                 } else {
-                    plot.xAxisCustomValues.push(parseFloat(xAxisValues[v]));
+                    plot.xAxisCustomValues.push(parseFloat(this.toDotSeparator(xAxisValues[v])));
                 }
             }
         }
         if(yAxisValues !== false && yAxisValues.length > 0) {
             for(v in yAxisValues) {
                 if(yAxisValues[v].toString().match(/\*/) !== null) {
-                    plot.yAxisCyclicValues.push(parseInt(yAxisValues[v]));
+                    plot.yAxisCyclicValues.push(this.toDotSeparator(parseInt(yAxisValues[v])));
                 } else {
-                    plot.yAxisCustomValues.push(parseFloat(yAxisValues[v]));
+                    plot.yAxisCustomValues.push(parseFloat(this.toDotSeparator(yAxisValues[v])));
                 }
             }
         }
         plot.expressions = new Array();
-        plot.pointActiveArea = parseInt(model['Point active area size']) || 10;
-        plot.pointRadius = parseInt(model['Point radius']) || 3;
-        plot.pointOutlineRadius = parseInt(model['Point outline radius']) || 7;
+        plot.pointActiveArea = parseInt(this.toDotSeparator(model['Point active area size'])) || 10;
+        plot.pointRadius = parseInt(this.toDotSeparator(model['Point radius'])) || 3;
+        plot.pointOutlineRadius = parseInt(this.toDotSeparator(model['Point outline radius'])) || 7;
 
         for (p in model['Expressions']) {
             if(model['Expressions'][p]['expression'] != '') {
                 el = {
                     id: model['Expressions'][p]['id'] === undefined || model['Expressions'][p]['id'] == '' ? p : model['Expressions'][p]['id'],
-                    expression: model['Expressions'][p]['expression'],
+                    expression: this.toDotSeparator(model['Expressions'][p]['expression']),
                     selectable: model['Expressions'][p]['selectable'].toLowerCase() === 'true' ? true : false,
                     selected: false,
                     correctAnswer: model['Expressions'][p]['correct'].toLowerCase() === 'true' ? true : false,
-                    xMin: model['Expressions'][p]['xMin'] === undefined || (model['Expressions'][p]['xMin'] == '' && model['Expressions'][p]['xMin'] != '0') ? false : model['Expressions'][p]['xMin'],
-                    xMax: model['Expressions'][p]['xMax'] === undefined || (model['Expressions'][p]['xMax'] == '' && model['Expressions'][p]['xMax'] != '0') ? false : model['Expressions'][p]['xMax'],
-                    yMin: model['Expressions'][p]['yMin'] === undefined || (model['Expressions'][p]['yMin'] == '' && model['Expressions'][p]['yMin'] != '0') ? false : model['Expressions'][p]['yMin'],
-                    yMax: model['Expressions'][p]['yMax'] === undefined || (model['Expressions'][p]['yMax'] == '' && model['Expressions'][p]['yMax'] != '0') ? false : model['Expressions'][p]['yMax'],
+                    xMin: model['Expressions'][p]['xMin'] === undefined || (model['Expressions'][p]['xMin'] == '' && model['Expressions'][p]['xMin'] != '0') ? false : this.toDotSeparator(model['Expressions'][p]['xMin']),
+                    xMax: model['Expressions'][p]['xMax'] === undefined || (model['Expressions'][p]['xMax'] == '' && model['Expressions'][p]['xMax'] != '0') ? false : this.toDotSeparator(model['Expressions'][p]['xMax']),
+                    yMin: model['Expressions'][p]['yMin'] === undefined || (model['Expressions'][p]['yMin'] == '' && model['Expressions'][p]['yMin'] != '0') ? false : this.toDotSeparator(model['Expressions'][p]['yMin']),
+                    yMax: model['Expressions'][p]['yMax'] === undefined || (model['Expressions'][p]['yMax'] == '' && model['Expressions'][p]['yMax'] != '0') ? false : this.toDotSeparator(model['Expressions'][p]['yMax']),
                     variables: {},
                     initVisible: model['Expressions'][p]['hidden'] !== undefined && model['Expressions'][p]['hidden'] != '' && model['Expressions'][p]['hidden'].toLowerCase() === 'true' ? false : true,
                     type: model['Expressions'][p]['y to x'] === undefined || model['Expressions'][p]['y to x'] == '' || model['Expressions'][p]['y to x'].toLowerCase() === 'false' ? plot.TYPE_X_TO_Y : plot.TYPE_Y_TO_X,
@@ -1639,8 +1644,8 @@ function AddonPlot_create(){
         for(v in model['Variables']) {
             var plotId = model['Variables'][v]['plot id'];
             var variable = model['Variables'][v]['variable'];
-            var variableValue = model['Variables'][v]['value'];
-            var expectedValue = model['Variables'][v]['expected'] === undefined || (model['Variables'][v]['expected'] == '' && model['Variables'][v]['expected'] != '0') ? null : model['Variables'][v]['expected'];
+            var variableValue = this.toDotSeparator(model['Variables'][v]['value']);
+            var expectedValue = model['Variables'][v]['expected'] === undefined || (model['Variables'][v]['expected'] == '' && model['Variables'][v]['expected'] != '0') ? null : this.toDotSeparator(model['Variables'][v]['expected']);
 
             if(plotId != '' && variable != '') {
                 for (var ex in plot.expressions) {
@@ -1663,8 +1668,8 @@ function AddonPlot_create(){
         for (p in model['Points']) {
             if((model['Points'][p]['x value'] == '0' || model['Points'][p]['y value'] == '0') || (model['Points'][p]['x value'] != '' && model['Points'][p]['y value'] != '')) {
                 var point = {
-                    x: model['Points'][p]['x value'],
-                    y: model['Points'][p]['y value'],
+                    x: this.toDotSeparator(model['Points'][p]['x value']),
+                    y: this.toDotSeparator(model['Points'][p]['y value']),
                     initiallySelected: model['Points'][p]['selected'] === undefined || model['Points'][p]['selected'].toLowerCase() === 'false' ? false : true,
                     correct: model['Points'][p]['correct'] === undefined || model['Points'][p]['correct'].toLowerCase() === 'true' ? true : false,
                     touched: false,
@@ -1678,10 +1683,10 @@ function AddonPlot_create(){
                 plot.points.push(point);
                 if(point.initiallySelected) {
                     plot.selectedPoints.push({
-                        x:model['Points'][p]['x value'],
-                        y:model['Points'][p]['y value'],
+                        x: point.x,
+                        y: point.y,
                         clickable: point.clickable
-                        });
+                    });
                 }
             }
         }
@@ -1698,6 +1703,7 @@ function AddonPlot_create(){
             });
         }
         plot.stateChanged = presenter.stateChanged;
+        plot.convertValueToDisplay = presenter.convertValueToDisplay;
 
         $(view).find('.canvas:first').svg({
             onLoad: presenter.onSvgCreate,
@@ -1708,8 +1714,21 @@ function AddonPlot_create(){
             }
         });
     };
+    presenter.toDotSeparator = function(value) {
+        return (value + '').replace(this.decimalSeparator, '.');
+    };
+    presenter.getSeparatorByDecimalSeparator = function() {
+        return this.decimalSeparator == '.' ? ',' : ';';
+    };
+    presenter.convertValueToDisplay = function(value) {
+        return (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
+    };
+    presenter.getDecimalSeparator = function() {
+        return presenter.decimalSeparator;
+    };
     presenter.valueToFloat = function(val) {
         var pv;
+        val = this.toDotSeparator(val);
         pv = val != '' ? parseFloat(val) : 0;
         if(isNaN(pv)) {
             pv = 0;
@@ -1717,7 +1736,14 @@ function AddonPlot_create(){
         return pv;
     }
     presenter._hasIllegalCharacters = function(word) {
-        var tmpWord = word.replace(/[^\*0-9,.-]/g, '');
+        var tmpWord;
+        if(this.decimalSeparator == ',') {
+            //use ';' for ',' seprator
+            tmpWord = word.replace(/[^\*0-9;,-]/g, '');
+        } else {
+            //use ',' for '.' separator
+            tmpWord = word.replace(/[^\*0-9,.-]/g, '');
+        }
         return tmpWord != word;
     };
     presenter.createPreview = function(view, model) {
@@ -1777,16 +1803,16 @@ function AddonPlot_create(){
                 plot.zoom(-1);
                 break;
             case 'moveLeft'.toLowerCase():
-                plot.move(parseInt(params),0);
+                plot.move(parseInt(this.toDotSeparator(params)),0);
                 break;
             case 'moveRight'.toLowerCase():
-                plot.move(parseInt(params)*(-1),0);
+                plot.move(parseInt(this.toDotSeparator(params))*(-1),0);
                 break;
             case 'moveDown'.toLowerCase():
-                plot.move(0, parseInt(params));
+                plot.move(0, parseInt(this.toDotSeparator(params)));
                 break;
             case 'moveUp'.toLowerCase():
-                plot.move(0, parseInt(params)*(-1));
+                plot.move(0, parseInt(this.toDotSeparator(params))*(-1));
                 break;
             case 'getState'.toLowerCase():
                 return this.getState();
@@ -1801,7 +1827,7 @@ function AddonPlot_create(){
                 plot.setVisible(params[0], parseInt(params[1]) == 1 ? true : false);
                 break;
             case 'setPointVisibility'.toLowerCase():
-                plot.setPointVisibility(params[0], params[1], parseInt(params[2]) == 1 ? true : false);
+                plot.setPointVisibility(this.toDotSeparator(params[0]), this.toDotSeparator(params[1]), parseInt(params[2]) == 1 ? true : false);
                 break;
             case 'setPlotStyle'.toLowerCase():
                 plot.setPlotStyle(params[0], params[1], params[2], params[3]);
@@ -1944,6 +1970,9 @@ function AddonPlot_create(){
             for(var t=0;t<data.length;t++) {
                 data[t].source = addonID;
                 data[t].item = data[t].item.toString();
+                if(data[t].item.substring(0,6) == 'point_') {
+                    data[t].item = presenter.convertValueToDisplay(data[t].item);
+                }
                 data[t].value = data[t].value.toString();
                 data[t].score = data[t].score === null ? null : data[t].score.toString();
                 //broadcast events or send event to bus

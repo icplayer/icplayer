@@ -51,5 +51,6 @@
 		<property name='Free points' type='boolean' isLocalized='false'/>
 		<property name='Asymptote DY' type='int' isLocalized='false'/>
 		<property name='Broadcast' type='string' isLocalized='false'/>
+		<property name="Decimal separator" type="string" isLocalized='false'/>
 	</model>
 </addon>
