@@ -344,10 +344,6 @@ function AddonLine_Number_create() {
         $(element).append(clickArea);
         clickArea.attr('value', value);
 
-        if (!presenter.configuration.isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
-            bindClickAreaListeners(clickArea);
-        }
-
         var width = presenter.configuration.stepWidth, left = - (presenter.configuration.stepWidth / 2) + 'px';
 
         if ( value == presenter.configuration.min || value == presenter.configuration.max ) {
@@ -407,6 +403,7 @@ function AddonLine_Number_create() {
             var eventTarget = $(e.target);
             clickLogic(eventTarget);
         });
+
     }
 
     function removeAllClickListeners() {
@@ -1170,6 +1167,10 @@ function AddonLine_Number_create() {
             stepLine.css('left', presenter.configuration.stepWidth * (i + 1));
             createClickArea(stepLine, xAxisValues[i]);
             presenter.$view.find('.x-axis').append(stepLine);
+        }
+
+        if (!presenter.configuration.isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
+            bindClickAreaListeners( presenter.$view.find('.clickArea') );
         }
     };
 
