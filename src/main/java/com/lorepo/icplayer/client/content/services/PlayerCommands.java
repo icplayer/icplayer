@@ -26,7 +26,7 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public void showPopup(String pageName) {
 
-		PlayerController popupController = new PlayerController(controller.getApp(), controller.getModel());
+		PlayerController popupController = new PlayerController(controller.getModel());
 		PagePopupPanel popupPanel = popupController.getPopup();
 		popupPanel.setCenterParent(controller.getView());
 		popupController.switchToPage(pageName);

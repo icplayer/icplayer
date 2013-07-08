@@ -5,7 +5,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.PlayerController;
-import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
@@ -20,10 +19,9 @@ import com.lorepo.icplayer.client.module.api.player.IScoreService;
  */
 public class PlayerServices implements IPlayerServices {
 
-	private PlayerApp			theApplication;
 	private PlayerCommands		playerCommands;
 	private ResettableEventBus	eventBus;
-	private PlayerController 		appController;
+	private PlayerController 	playerController;
 	private JavaScriptPlayerServices	jsServiceImpl;
 	private IJsonServices	jsonServices = new JsonServices();
 	
@@ -31,11 +29,10 @@ public class PlayerServices implements IPlayerServices {
 	/**
 	 * constructor
 	 */
-	public PlayerServices(PlayerController controller, PlayerApp playerApp) {
+	public PlayerServices(PlayerController controller) {
 	
-		this.appController = controller;
+		this.playerController = controller;
 		eventBus = new ResettableEventBus(new SimpleEventBus());
-		theApplication = playerApp;
 		playerCommands = new PlayerCommands(controller.getPageController(), controller);
 	}
 	
@@ -43,7 +40,7 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IScoreService getScoreService() {
 
-		return 	theApplication.getScoreService();
+		return 	playerController.getScoreService();
 	}
 
 	@Override
@@ -72,13 +69,13 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public IContent getModel() {
-		return appController.getModel();
+		return playerController.getModel();
 	}
 
 
 	@Override
 	public int getCurrentPageIndex() {
-		return appController.getCurrentPageIndex();
+		return playerController.getCurrentPageIndex();
 	}
 
 
@@ -96,7 +93,7 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IPresenter getModule(String moduleName) {
 		
-		return appController.getPageController().findModule(moduleName);
+		return playerController.getPageController().findModule(moduleName);
 	}
 
 

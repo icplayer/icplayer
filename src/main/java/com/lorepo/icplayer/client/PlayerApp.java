@@ -7,7 +7,6 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
-import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -28,9 +27,8 @@ public class PlayerApp {
 	/** Debug mode */
 	private boolean testMode = false;
 	private	Content				contentModel;
-	private PlayerController	appController;
+	private PlayerController	playerController;
 	/** Score service impl */
-	private ScoreService		scoreService;
 	private DOMInjector domInjector;
 	private PlayerEntryPoint	entryPoint;
 	private int startPageIndex;
@@ -41,8 +39,6 @@ public class PlayerApp {
 		
 		this.divId = id;
 		this.entryPoint = entryPoint;
-		
-		scoreService = new ScoreService();
 		domInjector = new DOMInjector();
 	 }
 
@@ -52,7 +48,7 @@ public class PlayerApp {
 	 * @return
 	 */
 	public IScoreService getScoreService() {
-		return scoreService;
+		return playerController.getScoreService();
 	}
 
 	/**
@@ -97,9 +93,16 @@ public class PlayerApp {
 	 */
 	private void initPlayer() {
 	
-		appController = new PlayerController(this, contentModel);
+		playerController = new PlayerController(contentModel);
+		playerController.addPageLoadListener(new ILoadListener() {
+			public void onFinishedLoading(Object obj) {
+				entryPoint.onPageLoaded();
+			}
+			public void onError(String error) {
+			}
+		});
 	
-		RootPanel.get(divId).add(appController.getView());
+		RootPanel.get(divId).add(playerController.getView());
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
 		domInjector.appendStyle(css);
 
@@ -119,7 +122,6 @@ public class PlayerApp {
 			public void onError(String error) {
 			}
 		});
-		
 	}
 
 
@@ -132,25 +134,20 @@ public class PlayerApp {
 		else{
 			page = contentModel.getPages().get(0);
 		}
-		appController.showHeaderAndFooter();
+		playerController.showHeaderAndFooter();
 		if(loadedState != null){
-			appController.getPageController().getPlayerState().loadFromString(loadedState.get("state"));
-			appController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
-			appController.getPageController().loadPageState();
+			playerController.getPageController().getPlayerState().loadFromString(loadedState.get("state"));
+			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
+			playerController.getPageController().loadPageState();
 		}
-		appController.switchToPage(page);
+		playerController.switchToPage(page);
 	}
 
 
 	public IPlayerServices getPlayerServices() {
-		return appController.getPlayerServices();
+		return playerController.getPlayerServices();
 	}
 
-
-	public void onPageLoaded() {
-
-		entryPoint.onPageLoaded();
-	}
 
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
@@ -160,8 +157,8 @@ public class PlayerApp {
 	}
 
 	public String getState() {
-		String state = appController.getPageController().getPlayerState().getAsString();
-		String score = appController.getPlayerServices().getScoreService().getAsString();
+		String state = playerController.getPageController().getPlayerState().getAsString();
+		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);

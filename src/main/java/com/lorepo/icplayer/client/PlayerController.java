@@ -6,10 +6,12 @@ import com.google.gwt.user.client.Window;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -18,7 +20,6 @@ import com.lorepo.icplayer.client.utils.XMLLoader;
 
 public class PlayerController{
 
-	private PlayerApp 			playerApp;
 	private	Content				contentModel;
 	private PageController		pageController;
 	private PageController		headerController;
@@ -29,18 +30,24 @@ public class PlayerController{
 	private PlayerServices		playerService;
 	private Page				currentPage;
 	private long				timeStart = 0;
+	private ScoreService		scoreService;
+	private ILoadListener		pageLoadListener;
 	
 	
-	public PlayerController(PlayerApp app, Content content){
+	public PlayerController(Content content){
 		
-		playerApp = app;
+		scoreService = new ScoreService();
 		contentModel = content;
 		playerView = new PlayerView();
 		pageController = new PageController();
-		playerService = new PlayerServices(this, playerApp);
+		playerService = new PlayerServices(this);
 		pageController.setPlayerServices(playerService);
 	}
 	
+	
+	public void addPageLoadListener(ILoadListener l){
+		pageLoadListener = l;
+	}
 	
 	/**
 	 * get current loaded page index
@@ -159,7 +166,9 @@ public class PlayerController{
 			public void onFinishedLoading(Object obj) {
 				Page page = (Page) obj;
 				createView(page);
-				playerApp.onPageLoaded();
+				if(pageLoadListener != null){
+					pageLoadListener.onFinishedLoading(obj);
+				}
 				playerView.hideWaitDialog();
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
@@ -219,12 +228,6 @@ public class PlayerController{
 	}
 
 	
-	public PlayerApp getApp() {
-		
-		return playerApp;
-	}
-
-	
 	/**
 	 * Zamknięcie strony. Zapisanie wyniku i zwolnienie zasobów
 	 * @param page
@@ -270,6 +273,11 @@ public class PlayerController{
 
 	public long getTimeElapsed() {
 		return (System.currentTimeMillis()-timeStart)/1000;
+	}
+
+
+	public IScoreService getScoreService() {
+		return scoreService;
 	}
 
 }
