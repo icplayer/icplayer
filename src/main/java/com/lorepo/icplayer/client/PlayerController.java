@@ -16,7 +16,7 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
 
-public class AppController{
+public class PlayerController{
 
 	private PlayerApp 			playerApp;
 	private	Content				contentModel;
@@ -31,7 +31,7 @@ public class AppController{
 	private long				timeStart = 0;
 	
 	
-	public AppController(PlayerApp app, Content content){
+	public PlayerController(PlayerApp app, Content content){
 		
 		playerApp = app;
 		contentModel = content;

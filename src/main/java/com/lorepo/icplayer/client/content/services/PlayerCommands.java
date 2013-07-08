@@ -1,6 +1,6 @@
 package com.lorepo.icplayer.client.content.services;
 
-import com.lorepo.icplayer.client.AppController;
+import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.PageController;
@@ -9,14 +9,14 @@ import com.lorepo.icplayer.client.page.PagePopupPanel;
 public class PlayerCommands implements IPlayerCommands {
 
 	private PageController	pageController;
-	private AppController	controller;
+	private PlayerController	controller;
 	
 	
 	/**
 	 * constructor
 	 * @param controller
 	 */
-	public PlayerCommands(PageController pageController, AppController controller){
+	public PlayerCommands(PageController pageController, PlayerController controller){
 	
 		this.pageController = pageController;
 		this.controller = controller;
@@ -26,7 +26,7 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public void showPopup(String pageName) {
 
-		AppController popupController = new AppController(controller.getApp(), controller.getModel());
+		PlayerController popupController = new PlayerController(controller.getApp(), controller.getModel());
 		PagePopupPanel popupPanel = popupController.getPopup();
 		popupPanel.setCenterParent(controller.getView());
 		popupController.switchToPage(pageName);

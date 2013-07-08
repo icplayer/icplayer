@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.lorepo.icplayer.client.AppController;
+import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -23,7 +23,7 @@ public class PlayerServices implements IPlayerServices {
 	private PlayerApp			theApplication;
 	private PlayerCommands		playerCommands;
 	private ResettableEventBus	eventBus;
-	private AppController 		appController;
+	private PlayerController 		appController;
 	private JavaScriptPlayerServices	jsServiceImpl;
 	private IJsonServices	jsonServices = new JsonServices();
 	
@@ -31,7 +31,7 @@ public class PlayerServices implements IPlayerServices {
 	/**
 	 * constructor
 	 */
-	public PlayerServices(AppController controller, PlayerApp playerApp) {
+	public PlayerServices(PlayerController controller, PlayerApp playerApp) {
 	
 		this.appController = controller;
 		eventBus = new ResettableEventBus(new SimpleEventBus());

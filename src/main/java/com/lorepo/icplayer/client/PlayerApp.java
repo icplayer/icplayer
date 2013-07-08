@@ -28,7 +28,7 @@ public class PlayerApp {
 	/** Debug mode */
 	private boolean testMode = false;
 	private	Content				contentModel;
-	private AppController	appController;
+	private PlayerController	appController;
 	/** Score service impl */
 	private ScoreService		scoreService;
 	private DOMInjector domInjector;
@@ -97,7 +97,7 @@ public class PlayerApp {
 	 */
 	private void initPlayer() {
 	
-		appController = new AppController(this, contentModel);
+		appController = new PlayerController(this, contentModel);
 	
 		RootPanel.get(divId).add(appController.getView());
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
