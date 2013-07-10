@@ -11,6 +11,7 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.module.api.player.IStateService;
 
 /**
  * Implementacja serwisów udostępnianych przez playera
@@ -100,6 +101,12 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IJsonServices getJsonServices() {
 		return jsonServices;
+	}
+
+
+	@Override
+	public IStateService getStateService() {
+		return 	playerController.getStateService();
 	}
 
 }

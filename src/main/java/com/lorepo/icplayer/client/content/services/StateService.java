@@ -3,8 +3,9 @@ package com.lorepo.icplayer.client.content.services;
 import java.util.HashMap;
 
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icplayer.client.module.api.player.IStateService;
 
-public class PlayerState {
+public class StateService implements IStateService{
 
 	private HashMap<String, String>	sessionState = new HashMap<String, String>();
 
@@ -26,5 +27,15 @@ public class PlayerState {
 	
 	public void loadFromString(String state){
 		sessionState = JSONUtils.decodeHashMap(state);
+	}
+
+
+	public void addState(HashMap<String, String> state) {
+		sessionState.putAll(state);
+	}
+
+
+	public HashMap<String, String> getStates() {
+		return sessionState;
 	}
 }

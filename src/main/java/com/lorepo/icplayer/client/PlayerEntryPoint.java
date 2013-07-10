@@ -8,7 +8,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class PlayerEntryPoint implements EntryPoint {
 
-	private PlayerApp	theApplication;
+	private IApplication	theApplication;
 	private JavaScriptObject pageLoadedListener;
 	private JavaScriptObject statusChangedListener;
 	
@@ -58,7 +58,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 		// Create book
 		$wnd.icCreateBook = function(id) {
-		  var book = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createAppPlayer(Ljava/lang/String;)(id);
+		  var book = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;)(id);
 		  book.load = function(url, index){
 		  	index = index || 0;
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
@@ -84,7 +84,13 @@ public class PlayerEntryPoint implements EntryPoint {
 	 *            wrap this node
 	 */
 	private JavaScriptObject createAppPlayer(String node_id) {
-		theApplication = new PlayerApp(node_id, this);
+		theApplication = new SinglePageApp(node_id, this);
+		return JavaScriptObject.createFunction();
+	}
+	
+	
+	private JavaScriptObject createBookPlayer(String node_id) {
+		theApplication = new SinglePageApp(node_id, this);
 		return JavaScriptObject.createFunction();
 	}
 	
@@ -99,8 +105,6 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	
 	private void setTestMode() {
-		
-		theApplication.setTestMode();
 	}
 
 	

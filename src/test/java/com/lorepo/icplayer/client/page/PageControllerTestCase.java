@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Page;
@@ -32,6 +33,7 @@ public class PageControllerTestCase {
 		IPlayerServices services = new PlayerServicesMockup();
 		pageController.setPlayerServices(services);
 		pageController.setModuleFactory(new ModuleFactoryMockup(services));
+		StateService stateService = new StateService();
 		
 		InputStream inputStream = getClass().getResourceAsStream(pageURL);
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -40,7 +42,7 @@ public class PageControllerTestCase {
 		Page page = new Page("Sizes", "");
 		page.load(element, "");
 		
-		pageController.setPage(page);
+		pageController.setPage(page, stateService.getStates());
 	}
 	
 	

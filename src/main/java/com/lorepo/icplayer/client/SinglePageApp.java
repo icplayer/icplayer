@@ -11,16 +11,14 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
 
 /**
- * Static class with JavaScript interface
- * 
- * @author Krzysztof Langner
- *
+ * Create single page application
  */
-public class PlayerApp {
+public class SinglePageApp  implements IApplication{
 
 	/** Div id */
 	private String divId;
@@ -35,7 +33,7 @@ public class PlayerApp {
 	private HashMap<String, String> loadedState;
 	
 	
-	public PlayerApp(String id, PlayerEntryPoint entryPoint){
+	public SinglePageApp(String id, PlayerEntryPoint entryPoint){
 		
 		this.divId = id;
 		this.entryPoint = entryPoint;
@@ -93,7 +91,7 @@ public class PlayerApp {
 	 */
 	private void initPlayer() {
 	
-		playerController = new PlayerController(contentModel);
+		playerController = new PlayerController(contentModel, new PlayerView());
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				entryPoint.onPageLoaded();
@@ -136,9 +134,8 @@ public class PlayerApp {
 		}
 		playerController.showHeaderAndFooter();
 		if(loadedState != null){
-			playerController.getPageController().getPlayerState().loadFromString(loadedState.get("state"));
+			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
-			playerController.getPageController().loadPageState();
 		}
 		playerController.switchToPage(page);
 	}
@@ -157,7 +154,7 @@ public class PlayerApp {
 	}
 
 	public String getState() {
-		String state = playerController.getPageController().getPlayerState().getAsString();
+		String state = playerController.getPlayerServices().getStateService().getAsString();
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);

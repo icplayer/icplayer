@@ -3,8 +3,11 @@ package com.lorepo.icplayer.client.page;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 
+import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -27,15 +30,16 @@ public class SaveStateTestCase {
 		pageController.setModuleFactory(new ModuleFactoryMockup(services));
 		Page page1 = createPageWithSingleChoice("Page 1", "/page1");
 		Page page2 = createPageWithSingleChoice("Page 2", "/page2");
+		StateService stateService = new StateService();
 		
-		pageController.setPage(page1);
+		pageController.setPage(page1, stateService.getStates());
 		ChoiceViewMockup choiceView1 = (ChoiceViewMockup) display.getViews().get(0);
 		choiceView1.getOptions().get(0).setDown(true);
 		
-		pageController.closeCurrentPage();
-		pageController.setPage(page2);
-		pageController.closeCurrentPage();
-		pageController.setPage(page1);
+		HashMap<String, String> state = pageController.getState();
+		stateService.addState(state);
+		pageController.setPage(page2, stateService.getStates());
+		pageController.setPage(page1, stateService.getStates());
 		
 		ChoiceViewMockup choiceView2 = (ChoiceViewMockup) display.getViews().get(0);
 		boolean isDown = choiceView2.getOptions().get(0).isDown();
@@ -54,12 +58,13 @@ public class SaveStateTestCase {
 		pageController.setModuleFactory(new ModuleFactoryMockup(services));
 		Page page1 = createPageWithSingleChoice("Page 1", "/page1");
 		Page page2 = createPageWithSingleChoice("Page 2", "/page2");
+		StateService stateService = new StateService();
 		
-		pageController.setPage(page1);
+		pageController.setPage(page1, stateService.getStates());
 		ChoiceViewMockup choiceView1 = (ChoiceViewMockup) display.getViews().get(0);
 		choiceView1.getOptions().get(0).setDown(true);
 		
-		pageController.setPage(page2);
+		pageController.setPage(page2, stateService.getStates());
 		ChoiceViewMockup choiceView2 = (ChoiceViewMockup) display.getViews().get(0);
 		boolean isDown = choiceView2.getOptions().get(0).isDown();
 		

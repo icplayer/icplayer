@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client;
 
+import java.util.HashMap;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.Window;
@@ -7,11 +9,13 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.ScoreService;
+import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -31,14 +35,16 @@ public class PlayerController{
 	private Page				currentPage;
 	private long				timeStart = 0;
 	private ScoreService		scoreService;
+	private StateService		stateService;
 	private ILoadListener		pageLoadListener;
 	
 	
-	public PlayerController(Content content){
+	public PlayerController(Content content, PlayerView view){
 		
 		scoreService = new ScoreService();
+		stateService = new StateService();
 		contentModel = content;
-		playerView = new PlayerView();
+		playerView = view;
 		pageController = new PageController();
 		playerService = new PlayerServices(this);
 		pageController.setPlayerServices(playerService);
@@ -195,7 +201,7 @@ public class PlayerController{
 		if(popupPanel != null){
 			popupPanel.show();
 			pageController.setView(popupPanel.getView());
-			pageController.setPage(page);
+			pageController.setPage(page, stateService.getStates());
 			popupPanel.center();
 		}
 		else{
@@ -207,13 +213,13 @@ public class PlayerController{
 			}
 			if(headerController != null){
 				headerController.setView(playerView.getHeaderView());
-				headerController.setPage(contentModel.getHeader());
+				headerController.setPage(contentModel.getHeader(), stateService.getStates());
 			}
 			if(footerController != null){
 				footerController.setView(playerView.getFooterView());
-				footerController.setPage(contentModel.getFooter());
+				footerController.setPage(contentModel.getFooter(), stateService.getStates());
 			}
-			pageController.setPage(page);
+			pageController.setPage(page, stateService.getStates());
 		}
 	}
 
@@ -237,7 +243,8 @@ public class PlayerController{
 		if(currentPage != null){ 
 		
 			pageController.updateScore();
-			pageController.closeCurrentPage();
+			HashMap<String, String> state = pageController.getState();
+			stateService.addState(state);
 			
 			currentPage.release();
 			currentPage = null;
@@ -278,6 +285,11 @@ public class PlayerController{
 
 	public IScoreService getScoreService() {
 		return scoreService;
+	}
+
+
+	public IStateService getStateService() {
+		return stateService;
 	}
 
 }

@@ -1,12 +1,12 @@
 package com.lorepo.icplayer.client.page;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
-import com.lorepo.icplayer.client.content.services.PlayerState;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
@@ -39,7 +39,6 @@ public class PageController {
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter>	presenters;
-	private PlayerState playerState = new PlayerState();
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
 	
 	
@@ -65,21 +64,13 @@ public class PageController {
 	}
 
 	
-	public void closeCurrentPage(){
-		
-		if(currentPage != null){
-			savePageState();
-		}
-	}
-
-
-	public void setPage(Page page){
+	public void setPage(Page page, HashMap<String, String> state){
 		
 		currentPage = page;
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
-		loadPageState();
+		setPageState(state);
 		pageView.refreshMathJax();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent());
 	}
@@ -183,33 +174,33 @@ public class PageController {
 	}
 
 
-	public void loadPageState() {
+	public void setPageState(HashMap<String, String> state) {
 		
 		for(IPresenter presenter : presenters){
-			
 			if(presenter instanceof IStateful){
 				IStateful statefulObj = (IStateful)presenter;
 				String key = currentPage.getHref() + statefulObj.getSerialId(); 
-				String state = playerState.getPageState(key);
-				if(state != null){
-					statefulObj.setState(state);
+				String moduleState = state.get(key);
+				if(moduleState != null){
+					statefulObj.setState(moduleState);
 				}				
 			}
 		}
 	}
 
 
-	private void savePageState() {
+	public HashMap<String, String> getState() {
 		
+		HashMap<String, String>	pageState = new HashMap<String, String>();
 		for(IPresenter presenter : presenters){
-			
 			if(presenter instanceof IStateful){
 				IStateful statefulObj = (IStateful)presenter;
 				String state = statefulObj.getState();
 				String key = currentPage.getHref() + statefulObj.getSerialId();
-				playerState.setPageState(key, state);
+				pageState.put(key, state);
 			}
 		}
+		return pageState;
 	}
 
 
@@ -233,11 +224,5 @@ public class PageController {
 		}
 		
 		return null;
-	}
-	
-	
-	public PlayerState getPlayerState(){
-		savePageState();
-		return playerState;
 	}
 }
