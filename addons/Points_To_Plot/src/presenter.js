@@ -4,16 +4,13 @@ function AddonPoints_To_Plot_create() {
     };
     var eventBus; // Modules communication
     var addonID;
-    presenter.errorCodes = {
-        'DECIMAL_SEPARATOR_MISMATCH' : 'Plot and addon should have exactly the same decimal separator.'
-    };
     presenter.data = {
         pointsOnPlot: [],
         selectedPoints: []
     };
     presenter.STATE_CORRECT = 1;
     presenter.STATE_INCORRECT = 0;
-    presenter.VERSION = '1.0.1';
+    presenter.VERSION = '1.0.2';
     presenter.run = function(view, model) {
         presenter.view = view;
         presenter.model = model;
@@ -130,11 +127,6 @@ function AddonPoints_To_Plot_create() {
     presenter.createPreview = function(view, model) {
         presenter.view = view;
         presenter.model = model;
-
-        presenter.initialize(model);
-        if(this.getSourceModule().getDecimalSeparator() != this.getDecimalSeparator()) {
-            $(view).html(presenter.errorCodes['DECIMAL_SEPARATOR_MISMATCH']);
-        }
     };
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
