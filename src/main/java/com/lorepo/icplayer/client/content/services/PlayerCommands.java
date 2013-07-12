@@ -1,16 +1,17 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icplayer.client.PlayerController;
+import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
-import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerCommands implements IPlayerCommands {
 
 	private PageController	pageController;
 	private PlayerController	controller;
+	private PagePopupPanel popupPanel = null;
 	
 	
 	/**
@@ -27,10 +28,11 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public void showPopup(String pageName) {
 
-		PlayerController popupController = new PlayerController(controller.getModel(), new PlayerView());
-		PagePopupPanel popupPanel = popupController.getPopup();
-		popupPanel.setCenterParent(controller.getView().getAsWidget());
-		popupController.switchToPage(pageName);
+		Page page  = controller.getModel().findPageByName(pageName);
+		PageController popupPageControler = new PageController();
+		popupPageControler.setPlayerServices(controller.getPlayerServices());
+		popupPanel = new PagePopupPanel(controller.getView().getAsWidget(), popupPageControler);
+		popupPanel.showPage(page, controller.getModel().getBaseUrl());
 	}
 
 	@Override
@@ -56,8 +58,9 @@ public class PlayerCommands implements IPlayerCommands {
 	
 	@Override
 	public void closePopup() {
-	
-		controller.getPopup().hide();
+		if(popupPanel != null){
+			popupPanel.hide();
+		}
 	}
 
 

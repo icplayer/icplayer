@@ -8,21 +8,59 @@ import com.google.gwt.user.client.Window.ScrollEvent;
 import com.google.gwt.user.client.Window.ScrollHandler;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.utils.ILoadListener;
+import com.lorepo.icplayer.client.utils.XMLLoader;
 
 public class PagePopupPanel extends DialogBox {
 
-	private Widget centerParent;
-	PageView playerWidget;
+	private Widget parentWidget;
+	private PageView pageWidget;
+	private PageController pageController;
 	
 
-	public PagePopupPanel(PageView pageView) {
+	public PagePopupPanel(Widget parent, PageController pageController) {
+		this.pageController = pageController;
+		this.parentWidget = parent;
+	}
+	
+	
+	public void showPage(Page page, String baseUrl) {
+		if(page.isLoaded()){
+			initPanel(page);
+		}
+		else{
+			loadPage(page, baseUrl);
+		}
+	}
 
-		this.playerWidget = pageView;
+
+	private void loadPage(Page page, String baseUrl) {
+		XMLLoader reader = new XMLLoader(page);
+		String url = URLUtils.resolveURL(baseUrl, page.getHref());
+		reader.load(url, new ILoadListener() {
+			public void onFinishedLoading(Object obj) {
+				initPanel((Page) obj);
+			}
+			public void onError(String error) {
+				JavaScriptUtils.log("Can't load page: " + error);
+			}
+		});
+	}
+
+
+	private void initPanel(Page page){
+		pageWidget = new PageView();
+		pageController.setView(pageWidget);
+		pageController.setPage(page);
 		setStyleName("ic_popup");
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
-
-		setWidget(pageView);
+		setWidget(pageWidget);
+		show();
+		center();
 	}
 
 	/**
@@ -31,14 +69,14 @@ public class PagePopupPanel extends DialogBox {
 	 */
 	public void center() {
 
-		if(centerParent != null){
-			int left = centerParent.getAbsoluteLeft();
-			int offsetX = centerParent.getOffsetWidth() - getOffsetWidth();
+		if(parentWidget != null){
+			int left = parentWidget.getAbsoluteLeft();
+			int offsetX = parentWidget.getOffsetWidth() - getOffsetWidth();
 			left = left+offsetX/2;
 			
 			int top;
-			if(centerParent.getAbsoluteTop() > Window.getScrollTop()){
-				top = centerParent.getAbsoluteTop();
+			if(parentWidget.getAbsoluteTop() > Window.getScrollTop()){
+				top = parentWidget.getAbsoluteTop();
 			}
 			else{
 				top = Window.getScrollTop();
@@ -83,15 +121,6 @@ public class PagePopupPanel extends DialogBox {
 	
 	
 	/**
-	 * 
-	 * @param widget
-	 */
-	public void setCenterParent(Widget widget) {
-
-		centerParent = widget;
-	}	
-	
-	/**
 	 * Obsługa zamykania klawiszem Esc
 	 */
 	@Override
@@ -108,6 +137,6 @@ public class PagePopupPanel extends DialogBox {
 
 	
 	public PageView getView(){
-		return playerWidget;
+		return pageWidget;
 	}
 }

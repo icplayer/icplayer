@@ -18,7 +18,6 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerView;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
@@ -30,8 +29,6 @@ public class PlayerController{
 	private PageController		headerController;
 	private PageController		footerController;
 	private	PlayerView			playerView;
-	/** If not popup then this is null */
-	private PagePopupPanel 		popupPanel;
 	private PlayerServices		playerService;
 	private Page				currentPage;
 	private long				timeStart = 0;
@@ -85,19 +82,6 @@ public class PlayerController{
 	
 	public IPlayerView getView(){
 		return playerView;
-	}
-	
-	
-	/**
-	 * @return popup panel
-	 */
-	public PagePopupPanel getPopup(){
-		
-		if(popupPanel == null){
-			popupPanel = new PagePopupPanel(playerView.getAbsolutePageView());
-		}
-		
-		return popupPanel;
 	}
 	
 	
@@ -180,9 +164,7 @@ public class PlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-				if(popupPanel == null){
-					scrollViewToBeggining();
-				}
+				scrollViewToBeggining();
 			}
 
 			@Override
@@ -199,29 +181,21 @@ public class PlayerController{
 
 		playerService.resetEventBus();
 		
-		if(popupPanel != null){
-			popupPanel.show();
-			pageController.setView(popupPanel.getView());
-			pageController.setPage(page, stateService.getStates());
-			popupPanel.center();
+		if(page.getLayout() == LayoutType.flow){
+			pageController.setView(playerView.getFlowPageView());
 		}
 		else{
-			if(page.getLayout() == LayoutType.flow){
-				pageController.setView(playerView.getFlowPageView());
-			}
-			else{
-				pageController.setView(playerView.getAbsolutePageView());
-			}
-			if(headerController != null){
-				headerController.setView(playerView.getHeaderView());
-				headerController.setPage(contentModel.getHeader(), stateService.getStates());
-			}
-			if(footerController != null){
-				footerController.setView(playerView.getFooterView());
-				footerController.setPage(contentModel.getFooter(), stateService.getStates());
-			}
-			pageController.setPage(page, stateService.getStates());
+			pageController.setView(playerView.getAbsolutePageView());
 		}
+		if(headerController != null){
+			headerController.setView(playerView.getHeaderView());
+			headerController.setPage(contentModel.getHeader(), stateService.getStates());
+		}
+		if(footerController != null){
+			footerController.setView(playerView.getFooterView());
+			footerController.setPage(contentModel.getFooter(), stateService.getStates());
+		}
+		pageController.setPage(page, stateService.getStates());
 	}
 
 	

@@ -59,18 +59,24 @@ public class PageController {
 
 	
 	protected void setModuleFactory(IModuleFactory factory) {
-
 		this.moduleFactory = factory;
 	}
 
 	
+	public void setPage(Page page){
+		setPage(page, null);
+	}
+
+
 	public void setPage(Page page, HashMap<String, String> state){
 		
 		currentPage = page;
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
-		setPageState(state);
+		if(state != null){
+			setPageState(state);
+		}
 		pageView.refreshMathJax();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent());
 	}
