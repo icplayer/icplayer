@@ -67,17 +67,12 @@ public class SinglePageApp  implements IApplication{
 		contentModel = new Content();
 		XMLLoader	reader = new XMLLoader(contentModel);
 		reader.load(url, new ILoadListener() {
-			
-			@Override
-			public void onError(String error) {
-				JavaScriptUtils.log("Can't load:" + error);
-			}
-			
-			@Override
 			public void onFinishedLoading(Object obj) {
 				initPlayer();
 			}
-
+			public void onError(String error) {
+				JavaScriptUtils.log("Can't load:" + error);
+			}
 		});		
 	}
 
@@ -91,7 +86,8 @@ public class SinglePageApp  implements IApplication{
 	 */
 	private void initPlayer() {
 	
-		playerController = new PlayerController(contentModel, new PlayerView());
+		PlayerView playerView = new PlayerView();
+		playerController = new PlayerController(contentModel, playerView);
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				entryPoint.onPageLoaded();
@@ -100,7 +96,7 @@ public class SinglePageApp  implements IApplication{
 			}
 		});
 	
-		RootPanel.get(divId).add(playerController.getView());
+		RootPanel.get(divId).add(playerView);
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
 		domInjector.appendStyle(css);
 

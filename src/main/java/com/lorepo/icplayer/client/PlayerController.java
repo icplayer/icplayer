@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.module.api.player.IPlayerView;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.page.PageController;
@@ -82,7 +83,7 @@ public class PlayerController{
 	}
 	
 	
-	public PlayerView getView(){
+	public IPlayerView getView(){
 		return playerView;
 	}
 	

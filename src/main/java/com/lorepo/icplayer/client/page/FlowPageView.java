@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.page.PageController.IDisplay;
+import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
@@ -16,7 +16,7 @@ import com.lorepo.icplayer.client.utils.MathJax;
  * @author Krzysztof Langner
  *
  */
-public class FlowPageView extends FlowPanel implements IDisplay{
+public class FlowPageView extends FlowPanel implements IPageDisplay{
 
 	private Page currentPage;
 

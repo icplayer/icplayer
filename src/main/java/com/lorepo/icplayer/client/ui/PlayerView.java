@@ -3,12 +3,14 @@ package com.lorepo.icplayer.client.ui;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icplayer.client.module.api.player.IPlayerView;
 import com.lorepo.icplayer.client.page.FlowPageView;
-import com.lorepo.icplayer.client.page.PageController.IDisplay;
+import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
-public class PlayerView extends VerticalPanel{
+public class PlayerView extends VerticalPanel implements IPlayerView{
 
 	private Panel pageView;
 	private PageView headerView;
@@ -52,9 +54,9 @@ public class PlayerView extends VerticalPanel{
 	}
 	
 	
-	public IDisplay getFlowPageView() {
+	public IPageDisplay getFlowPageView() {
 		replaceView(new FlowPageView());
-		return (IDisplay) pageView;
+		return (IPageDisplay) pageView;
 	}
 
 
@@ -95,5 +97,11 @@ public class PlayerView extends VerticalPanel{
 
 	public void hideWaitDialog() {
 		waitDlg.hide();
+	}
+
+
+	@Override
+	public Widget getAsWidget() {
+		return this;
 	}
 }

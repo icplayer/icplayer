@@ -24,7 +24,7 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 
 public class PageController {
 
-	public interface IDisplay{
+	public interface IPageDisplay{
 
 		void addModuleView(IModuleView view, IModuleModel module);
 		void setPage(Page page);
@@ -34,7 +34,7 @@ public class PageController {
 		void clear();
 	}
 	
-	private IDisplay pageView;
+	private IPageDisplay pageView;
 	private Page	currentPage;
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
@@ -53,7 +53,7 @@ public class PageController {
 	}
 	
 	
-	public void setView(IDisplay view){
+	public void setView(IPageDisplay view){
 		pageView = view;
 	}
 

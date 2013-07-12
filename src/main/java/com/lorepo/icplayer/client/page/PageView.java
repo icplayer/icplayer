@@ -7,7 +7,7 @@ import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.page.PageController.IDisplay;
+import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
@@ -18,7 +18,7 @@ import com.lorepo.icplayer.client.utils.MathJax;
  * @author Krzysztof Langner
  *
  */
-public class PageView extends AbsolutePanel implements IDisplay{
+public class PageView extends AbsolutePanel implements IPageDisplay{
 
 	private Page currentPage;
 

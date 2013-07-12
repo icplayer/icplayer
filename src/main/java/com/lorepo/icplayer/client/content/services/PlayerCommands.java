@@ -29,7 +29,7 @@ public class PlayerCommands implements IPlayerCommands {
 
 		PlayerController popupController = new PlayerController(controller.getModel(), new PlayerView());
 		PagePopupPanel popupPanel = popupController.getPopup();
-		popupPanel.setCenterParent(controller.getView());
+		popupPanel.setCenterParent(controller.getView().getAsWidget());
 		popupController.switchToPage(pageName);
 	}
 

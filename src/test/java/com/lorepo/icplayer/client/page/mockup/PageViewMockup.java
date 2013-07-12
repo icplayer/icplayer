@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.page.PageController.IDisplay;
+import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 
-public class PageViewMockup implements IDisplay {
+public class PageViewMockup implements IPageDisplay {
 
 	private Page page;
 	private ArrayList<IModuleView> views = new ArrayList<IModuleView>();

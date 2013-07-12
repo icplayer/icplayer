@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page>
+
+	<modules>
+	
+		<textModule left="10" top="2" width="80" height="45" 
+			style="background-color:#eeeeff; border: 1px solid gray">
+			<text>
+				When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+				$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+				&lt;br/&gt;
+				When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+				$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+			</text>
+		</textModule>
+		
+		<textModule left="10" top="50" width="80" height="40" 
+			style="background-color:#eeeeff; border: 1px solid gray">
+			<text>
+				This is \(\cfrac{1}{10^4}\) not a gap
+				&lt;br/&gt;
+				This is \(\cfrac{{1}}{10^4}\) not a gap
+			</text>
+		</textModule>
+		
+		<buttonModule  left="45" top="90" width="10" height="10" style="">
+			<button type="popup" text="" onclick="commons/popup1"/>
+		</buttonModule>
+		
+	</modules>
+
+</page>
