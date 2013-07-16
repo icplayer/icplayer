@@ -157,7 +157,7 @@ function AddonTable_create() {
     };
 
     presenter.attachGapsHandlers = function () {
-        presenter.$view.find('.ic_gap').change(presenter.valueChangedEventHandler);
+        presenter.$view.find('.ic_gap').blur(presenter.valueChangedEventHandler);
     };
 
     presenter.gapLogic = function (isPreview) {
