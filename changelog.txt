@@ -1,3 +1,4 @@
+2013-07-22 Added 'Hide toolbar' property which hides default options toolbar and makes more space for text
 2013-07-16 Fixed value change events in Table module gaps system
 2013-07-05 Fixed a bug when event AllOk was sent even when wrong ranges were drawn
 2013-07-05 Fixed problem when Check was not removing range end image in Line Number module

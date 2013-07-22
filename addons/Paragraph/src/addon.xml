@@ -4,5 +4,6 @@
 	<model>
 		<property name="Default font family" type="string" />
 		<property name="Default font size" type="string" />
+		<property name="Hide toolbar" type="boolean" />
 	</model>
 </addon>

@@ -25,7 +25,9 @@ function AddonParagraph_create() {
      */
     presenter.parseModel = function (model) {
         var fontFamily = model['Default font family'],
-            fontSize = model['Default font size'];
+            fontSize = model['Default font size'],
+            isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
+            height = model.Height;
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -35,18 +37,28 @@ function AddonParagraph_create() {
             fontSize = presenter.DEFAULTS.FONT_SIZE;
         }
 
-        return { fontFamily: fontFamily, fontSize: fontSize };
+        height -= !isToolbarHidden ? 37 : 2;
+
+        return {
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            isToolbarHidden: isToolbarHidden,
+            textAreaHeight: height
+        };
     };
 
     /**
      * Initialize the addon.
      * For now the height is set to addon height minus 37 which is TinyMCE toolbar height.
      * It was not possible to get that value in easy and dynamic way and it didn't make sense
-     * for prototype purpose. Also the set of controls is static and it coulde be moved to
+     * for prototype purpose. Also the set of controls is static and it could be be moved to
      * configuration.
      */
     presenter.initializeEditor = function(view, model) {
-        $(view).find('.paragraph-wrapper').attr('id', model.ID + '-wrapper');
+        presenter.$view = $(view);
+        presenter.model = model;
+
+        presenter.$view.find('.paragraph-wrapper').attr('id', model.ID + '-wrapper');
         var selector = '#' + model.ID + '-wrapper .paragraph_field';
 
         presenter.configuration = presenter.parseModel(model);
@@ -54,7 +66,7 @@ function AddonParagraph_create() {
         tinymce.init({
             selector : selector,
             width: model['Width'],
-            height: model['Height'] - 37,
+            height: presenter.configuration.textAreaHeight,
             statusbar: false,
             menubar: false,
             toolbar: presenter.DEFAULTS.TOOLBAR,
@@ -78,6 +90,11 @@ function AddonParagraph_create() {
     presenter.onInit = function() {
         editorID = tinymce.activeEditor.id;
         editorDOM = tinymce.activeEditor.dom;
+
+        if (presenter.configuration.isToolbarHidden) {
+            presenter.$view.find('.mce-container.mce-panel.mce-first').remove();
+            presenter.$view.find('.mce-edit-area').css('border-top-width', '0');
+        }
 
         $(editorDOM.select('html')).click(function () {
             editorDOM.select('body')[0].focus();

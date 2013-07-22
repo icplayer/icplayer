@@ -44,5 +44,28 @@ TestCase("[Paragraph] Model parsing", {
 
         assertEquals('cursive', validatedModel.fontFamily);
         assertEquals('14px', validatedModel.fontSize);
+    },
+
+    'test visible toolbar': function () {
+        var model = {
+            'Height': 168
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertFalse(validatedModel.isToolbarHidden);
+        assertEquals(131, validatedModel.textAreaHeight);
+    },
+
+    'test hide toolbar': function () {
+        var model = {
+            'Height': 168,
+            'Hide toolbar': 'True'
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertTrue(validatedModel.isToolbarHidden);
+        assertEquals(166, validatedModel.textAreaHeight);
     }
 });
