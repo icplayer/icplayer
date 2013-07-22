@@ -10,14 +10,13 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
-import com.lorepo.icplayer.client.content.services.StateService;
-import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
+import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
+import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
 public class PageControllerTestCase {
 
@@ -28,12 +27,10 @@ public class PageControllerTestCase {
 	public void init(String pageURL) throws SAXException, IOException {
 		
 		display = new PageViewMockup();
-		pageController = new PageController();
+		IPlayerController playerController = new PlayerControllerMockup();
+		pageController = new PageController(playerController);
 		pageController.setView(display);
-		IPlayerServices services = new PlayerServicesMockup();
-		pageController.setPlayerServices(services);
-		pageController.setModuleFactory(new ModuleFactoryMockup(services));
-		StateService stateService = new StateService();
+		pageController.setModuleFactory(new ModuleFactoryMockup(pageController.getPlayerServices()));
 		
 		InputStream inputStream = getClass().getResourceAsStream(pageURL);
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -42,7 +39,7 @@ public class PageControllerTestCase {
 		Page page = new Page("Sizes", "");
 		page.load(element, "");
 		
-		pageController.setPage(page, stateService.getStates());
+		pageController.setPage(page);
 	}
 	
 	

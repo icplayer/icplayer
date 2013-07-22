@@ -128,11 +128,11 @@ public class SinglePageApp  implements IApplication{
 		else{
 			page = contentModel.getPages().get(0);
 		}
-		playerController.showHeaderAndFooter();
 		if(loadedState != null){
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 		}
+		playerController.initHeaders();
 		playerController.switchToPage(page);
 	}
 

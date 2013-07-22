@@ -1,18 +1,13 @@
 package com.lorepo.icplayer.client.ui;
 
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icplayer.client.module.api.player.IPlayerView;
-import com.lorepo.icplayer.client.page.FlowPageView;
-import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
-public class PlayerView extends VerticalPanel implements IPlayerView{
+public class PlayerView extends VerticalPanel{
 
-	private Panel pageView;
+	private PageView pageView;
 	private PageView headerView;
 	private PageView footerView;
 	private WaitDialog	waitDlg;
@@ -48,29 +43,8 @@ public class PlayerView extends VerticalPanel implements IPlayerView{
 		add(footerView);
 	}
 	
-	public PageView getAbsolutePageView(){
-		replaceView(new PageView());
-		return (PageView) pageView;
-	}
-	
-	
-	public IPageDisplay getFlowPageView() {
-		replaceView(new FlowPageView());
-		return (IPageDisplay) pageView;
-	}
-
-
-	private void replaceView(Panel view) {
-		int index = getWidgetIndex(pageView);
-		if(index >= 0){
-			insert(view, index);
-			remove(pageView);
-		}
-		else{
-			add(view);
-		}
-		pageView = view;
-		pageView.addStyleName("ic_mainPage");
+	public PageView getPageView(){
+		return pageView;
 	}
 
 
@@ -97,11 +71,5 @@ public class PlayerView extends VerticalPanel implements IPlayerView{
 
 	public void hideWaitDialog() {
 		waitDlg.hide();
-	}
-
-
-	@Override
-	public Widget getAsWidget() {
-		return this;
 	}
 }

@@ -7,48 +7,67 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.model.PageList;
-import com.lorepo.icplayer.client.module.api.player.IPlayerView;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.utils.ILoadListener;
 import com.lorepo.icplayer.client.utils.XMLLoader;
 
-public class PlayerController{
+public class PlayerController implements IPlayerController{
 
 	private	Content				contentModel;
 	private PageController		pageController;
 	private PageController		headerController;
 	private PageController		footerController;
 	private	PlayerView			playerView;
-	private PlayerServices		playerService;
-	private Page				currentPage;
 	private long				timeStart = 0;
 	private ScoreService		scoreService;
 	private StateService		stateService;
 	private ILoadListener		pageLoadListener;
+	private PagePopupPanel		popupPanel;
 	
 	
 	public PlayerController(Content content, PlayerView view){
 		
-		scoreService = new ScoreService();
-		stateService = new StateService();
 		contentModel = content;
 		playerView = view;
-		pageController = new PageController();
-		playerService = new PlayerServices(this);
-		pageController.setPlayerServices(playerService);
+		scoreService = new ScoreService();
+		stateService = new StateService();
+		createPageControllers();
 	}
 	
 	
+	private void createPageControllers() {
+
+		pageController = new PageController(this);
+		pageController.setView(playerView.getPageView());
+	}
+
+	
+	public void initHeaders() {
+		if(contentModel.getHeader() != null){
+			playerView.showHeader();
+			headerController = new PageController(this);
+			headerController.setView(playerView.getHeaderView());
+			headerController.setPage(contentModel.getHeader());
+		}
+		if(contentModel.getFooter() != null){
+			playerView.showFooter();
+			footerController = new PageController(this);
+			footerController.setView(playerView.getFooterView());
+			footerController.setPage(contentModel.getFooter());
+		}
+	}
+
+
 	public void addPageLoadListener(ILoadListener l){
 		pageLoadListener = l;
 	}
@@ -61,12 +80,11 @@ public class PlayerController{
 		
 		int index = 0;
 		for(int i = 0; i < contentModel.getPageCount(); i++){
-			if(contentModel.getPage(i) == currentPage){
+			if(contentModel.getPage(i) == pageController.getPage()){
 				index = i;
 				break;
 			}
 		}
-		
 		return index;
 	}
 	
@@ -80,7 +98,7 @@ public class PlayerController{
 	}
 	
 	
-	public IPlayerView getView(){
+	public PlayerView getView(){
 		return playerView;
 	}
 	
@@ -106,7 +124,7 @@ public class PlayerController{
 
 		PageList pages = contentModel.getPages();
 		for(int i = 0; i < pages.size(); i++){
-			if(pages.get(i) == currentPage){
+			if(pages.get(i) == pageController.getPage()){
 				int index = i-1;
 				if(index >= 0){
 					Page prevPage = pages.get(index);
@@ -122,7 +140,7 @@ public class PlayerController{
 
 		PageList pages = contentModel.getPages();
 		for(int i = 0; i < pages.size(); i++){
-			if(pages.get(i) == currentPage){
+			if(pages.get(i) == pageController.getPage()){
 				int index = i+1;
 				if(index < pages.size()){
 					Page nextPage = pages.get(index);
@@ -140,14 +158,10 @@ public class PlayerController{
 	 */
 	public void switchToPage(Page page){
 
-		String baseUrl = contentModel.getBaseUrl();
-		
-		// Release current page
 		closeCurrentPage();
 		
 		// Load new page
-		currentPage = page;
-
+		String baseUrl = contentModel.getBaseUrl();
 		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		playerView.showWaitDialog();
@@ -156,7 +170,7 @@ public class PlayerController{
 			@Override
 			public void onFinishedLoading(Object obj) {
 				Page page = (Page) obj;
-				createView(page);
+				pageLoaded(page);
 				if(pageLoadListener != null){
 					pageLoadListener.onFinishedLoading(obj);
 				}
@@ -177,25 +191,14 @@ public class PlayerController{
 	}
 
 
-	private void createView(Page page) {
-
-		playerService.resetEventBus();
-		
-		if(page.getLayout() == LayoutType.flow){
-			pageController.setView(playerView.getFlowPageView());
-		}
-		else{
-			pageController.setView(playerView.getAbsolutePageView());
-		}
+	private void pageLoaded(Page page) {
+		pageController.setPage(page);
 		if(headerController != null){
-			headerController.setView(playerView.getHeaderView());
-			headerController.setPage(contentModel.getHeader(), stateService.getStates());
+			headerController.setPage(contentModel.getHeader());
 		}
 		if(footerController != null){
-			footerController.setView(playerView.getFooterView());
-			footerController.setPage(contentModel.getFooter(), stateService.getStates());
+			footerController.setPage(contentModel.getFooter());
 		}
-		pageController.setPage(page, stateService.getStates());
 	}
 
 	
@@ -209,47 +212,16 @@ public class PlayerController{
 	}
 
 	
-	/**
-	 * Zamknięcie strony. Zapisanie wyniku i zwolnienie zasobów
-	 * @param page
-	 */
 	private void closeCurrentPage() {
-
-		if(currentPage != null){ 
-		
-			pageController.updateScore();
-			HashMap<String, String> state = pageController.getState();
-			stateService.addState(state);
-			
-			currentPage.release();
-			currentPage = null;
-		}
+		pageController.updateScore();
+		HashMap<String, String> state = pageController.getState();
+		stateService.addState(state);
+		pageController.closePage();
 	}
 
 
-	public PageController getPageController() {
-		return pageController;
-	}
-
-
-	public void showHeaderAndFooter() {
-
-		if(contentModel.getHeader() != null){
-			playerView.showHeader();
-			headerController = new PageController();
-			headerController.setPlayerServices(playerService);
-		}
-
-		if(contentModel.getFooter() != null){
-			playerView.showFooter();
-			footerController = new PageController();
-			footerController.setPlayerServices(playerService);
-		}
-	}
-
-
-	public PlayerServices getPlayerServices() {
-		return playerService;
+	public IPlayerServices getPlayerServices() {
+		return pageController.getPlayerServices();
 	}
 
 
@@ -265,6 +237,23 @@ public class PlayerController{
 
 	public IStateService getStateService() {
 		return stateService;
+	}
+
+
+	@Override
+	public void showPopup(String pageName) {
+		Page page  = contentModel.findPageByName(pageName);
+		PageController popupPageControler = new PageController(this);
+		popupPanel = new PagePopupPanel(getView(), popupPageControler);
+		popupPanel.showPage(page, contentModel.getBaseUrl());
+	}
+
+
+	@Override
+	public void closePopup() {
+		if(popupPanel != null){
+			popupPanel.hide();
+		}
 	}
 
 }

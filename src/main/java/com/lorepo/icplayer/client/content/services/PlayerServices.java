@@ -4,7 +4,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.lorepo.icplayer.client.PlayerController;
+import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.mockup.services.JsonMockup;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
@@ -12,6 +13,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.page.PageController;
 
 /**
  * Implementacja serwisów udostępnianych przez playera
@@ -22,7 +24,8 @@ public class PlayerServices implements IPlayerServices {
 
 	private PlayerCommands		playerCommands;
 	private ResettableEventBus	eventBus;
-	private PlayerController 	playerController;
+	private IPlayerController 	playerController;
+	private PageController		pageController;
 	private JavaScriptPlayerServices	jsServiceImpl;
 	private IJsonServices	jsonServices = new JsonServices();
 	
@@ -30,14 +33,15 @@ public class PlayerServices implements IPlayerServices {
 	/**
 	 * constructor
 	 */
-	public PlayerServices(PlayerController controller) {
+	public PlayerServices(IPlayerController controller, PageController pageController) {
 	
 		this.playerController = controller;
+		this.pageController = pageController;
 		eventBus = new ResettableEventBus(new SimpleEventBus());
-		playerCommands = new PlayerCommands(controller.getPageController(), controller);
+		playerCommands = new PlayerCommands(pageController, playerController);
 	}
-	
-	
+
+
 	@Override
 	public IScoreService getScoreService() {
 
@@ -94,7 +98,7 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IPresenter getModule(String moduleName) {
 		
-		return playerController.getPageController().findModule(moduleName);
+		return pageController.findModule(moduleName);
 	}
 
 
@@ -107,6 +111,11 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IStateService getStateService() {
 		return 	playerController.getStateService();
+	}
+
+
+	public void setJsonService(JsonMockup services) {
+		jsonServices = services;
 	}
 
 }

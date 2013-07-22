@@ -7,6 +7,8 @@ import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
+import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
@@ -19,6 +21,7 @@ import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 
@@ -36,19 +39,15 @@ public class PageController {
 	
 	private IPageDisplay pageView;
 	private Page	currentPage;
-	private IPlayerServices playerService;
+	private PlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter>	presenters;
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
 	
 	
-	public PageController() {
+	public PageController(IPlayerController playerController) {
 		presenters = new ArrayList<IPresenter>();
-	}
-	
-	
-	public void setPlayerServices(IPlayerServices playerService) {
-		this.playerService = playerService;
+		playerService = new PlayerServices(playerController, this);
 		moduleFactory = new ModuleFactory(playerService);
 	}
 	
@@ -64,17 +63,14 @@ public class PageController {
 
 	
 	public void setPage(Page page){
-		setPage(page, null);
-	}
-
-
-	public void setPage(Page page, HashMap<String, String> state){
 		
+		playerService.resetEventBus();
 		currentPage = page;
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
-		if(state != null){
+		if(playerService.getStateService() != null){
+			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
@@ -131,24 +127,26 @@ public class PageController {
 
 
 	public void updateScore() {
-		float score = 0;
-		float maxScore = 0;
-		int errorCount = 0;
-		
-		for(IPresenter presenter : presenters){
-			if(presenter instanceof IActivity){
-				IActivity activity = (IActivity) presenter;
-				score += activity.getScore();
-				maxScore += activity.getMaxScore();
-				errorCount += activity.getErrorCount();
+		if(currentPage != null){
+			float score = 0;
+			float maxScore = 0;
+			int errorCount = 0;
+			
+			for(IPresenter presenter : presenters){
+				if(presenter instanceof IActivity){
+					IActivity activity = (IActivity) presenter;
+					score += activity.getScore();
+					maxScore += activity.getMaxScore();
+					errorCount += activity.getErrorCount();
+				}
 			}
-		}
-
-		if(currentPage.isReportable()){
-			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
-			pageScore.setScore(score);
-			pageScore.setMaxScore(maxScore);
-			pageScore.setErrorCount(errorCount);
+	
+			if(currentPage.isReportable()){
+				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
+				pageScore.setScore(score);
+				pageScore.setMaxScore(maxScore);
+				pageScore.setErrorCount(errorCount);
+			}
 		}
 	}
 
@@ -230,5 +228,23 @@ public class PageController {
 		}
 		
 		return null;
+	}
+
+
+	public IPage getPage() {
+		return currentPage;
+	}
+
+
+	public void closePage() {
+		if(currentPage != null){ 
+			currentPage.release();
+			currentPage = null;
+		}
+	}
+
+
+	public IPlayerServices getPlayerServices() {
+		return playerService;
 	}
 }
