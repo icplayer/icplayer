@@ -5,7 +5,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
-import com.lorepo.icplayer.client.mockup.services.JsonMockup;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
@@ -114,7 +113,7 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 
-	public void setJsonService(JsonMockup services) {
+	public void setJsonService(IJsonServices services) {
 		jsonServices = services;
 	}
 
