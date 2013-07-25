@@ -169,6 +169,9 @@ public class PlayerController implements IPlayerController{
 	public void switchToPage(int index){
 		closeCurrentPages();
 		Page page;
+		if(pageController2 != null && index%2 > 0){
+			index -= 1;
+		}
 		if(index < contentModel.getPages().size()){
 			page = contentModel.getPages().get(index);
 		}
