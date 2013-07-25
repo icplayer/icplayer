@@ -1149,6 +1149,16 @@ function AddonSlideshow_create() {
         if(presenter.configuration.isDomReferenceArrayComplete) {
             presenter.pauseAudioResource();
         }
+
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible
+        });
+    };
+
+    presenter.setState = function (state) {
+        var parsedState = JSON.parse(state);
+
+        presenter.setVisibility(parsedState.isVisible);
     };
 
     presenter.validateAudio = function (audioArray) {
