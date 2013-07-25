@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.5';
+        this.VERSION = '1.1.6';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1565,7 +1565,7 @@ function AddonPlot_create(){
     presenter.initialize = function(view, model, interactive) {
         var v, p, el;
         this._model = model;
-        presenter.isVisible = $(view).css('visibility') == 'hidden' || $(view).is(':hidden') ? false : true;
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.initIsVisible = presenter.isVisible;
         presenter.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
         if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
@@ -1850,13 +1850,16 @@ function AddonPlot_create(){
         plot.enableUI(state);
     };
     presenter.hide = function() {
-        $(presenter.view).css('visibility', 'hidden').hide();
         presenter.isVisible = false;
-    }
+        presenter.setVisibility(false);
+    };
     presenter.show = function() {
-        $(presenter.view).css('visibility', 'visible').show();
         presenter.isVisible = true;
-    }
+        presenter.setVisibility(true);
+    };
+    presenter.setVisibility = function(isVisible) {
+        $(presenter.view).css("visibility", isVisible ? "visible" : "hidden");
+    };
     presenter.getState = function() {
         var plotState = [];
         var variableState = [];
