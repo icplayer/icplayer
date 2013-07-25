@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.ui;
 
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.page.PageView;
@@ -7,7 +8,9 @@ import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
 public class PlayerView extends VerticalPanel{
 
-	private PageView pageView;
+	private HorizontalPanel contentPanel;
+	private PageView pageView1;
+	private PageView pageView2;
 	private PageView headerView;
 	private PageView footerView;
 	private WaitDialog	waitDlg;
@@ -23,9 +26,12 @@ public class PlayerView extends VerticalPanel{
 		setStyleName("ic_player");
 		
 		waitDlg = new WaitDialog();
-		pageView = new PageView();
-		pageView.addStyleName("ic_mainPage");
-		add(pageView);
+		pageView1 = new PageView();
+		pageView1.addStyleName("ic_mainPage");
+		contentPanel = new HorizontalPanel();
+		contentPanel.addStyleName("ic_content");
+		contentPanel.add(pageView1);
+		add(contentPanel);
 	}
 	
 	
@@ -43,8 +49,13 @@ public class PlayerView extends VerticalPanel{
 		add(footerView);
 	}
 	
-	public PageView getPageView(){
-		return pageView;
+	public PageView getPageView(int pageIndex){
+		if(pageIndex == 1 && pageView2 != null){
+			return pageView2;
+		}
+		else{
+			return pageView1;
+		}
 	}
 
 
@@ -71,5 +82,12 @@ public class PlayerView extends VerticalPanel{
 
 	public void hideWaitDialog() {
 		waitDlg.hide();
+	}
+
+
+	public void showTwoPages() {
+		pageView2 = new PageView();
+		pageView2.addStyleName("ic_mainPage");
+		contentPanel.add(pageView2);
 	}
 }

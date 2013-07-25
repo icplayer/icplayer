@@ -8,7 +8,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class PlayerEntryPoint implements EntryPoint {
 
-	private IApplication	theApplication;
+	private PlayerApp	theApplication;
 	private JavaScriptObject pageLoadedListener;
 	private JavaScriptObject statusChangedListener;
 	
@@ -84,13 +84,14 @@ public class PlayerEntryPoint implements EntryPoint {
 	 *            wrap this node
 	 */
 	private JavaScriptObject createAppPlayer(String node_id) {
-		theApplication = new SinglePageApp(node_id, this);
+		theApplication = new PlayerApp(node_id, this);
 		return JavaScriptObject.createFunction();
 	}
 	
 	
 	private JavaScriptObject createBookPlayer(String node_id) {
-		theApplication = new SinglePageApp(node_id, this);
+		theApplication = new PlayerApp(node_id, this);
+		theApplication.setBookMode();
 		return JavaScriptObject.createFunction();
 	}
 	

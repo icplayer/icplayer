@@ -31,6 +31,15 @@
 	height:	600px;
 }
 
+.ic_footer{
+	background-color: #e0e0ff;
+	width:	100%;
+}
+
+.ic_header{
+	background-color: #e0e0ff;
+}
+
 .myText{
 	background-color:yellow;
 	border:1px solid blue;
@@ -58,11 +67,12 @@ background-color:lightgreen;
 
 <pages>
 	<page name="schoice" href="pages/schoice.page.xml"/>
-	<page name="Show popup" href="pages/showpopup.page.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page name="image source" href="pages/image-source.xml"/>
-	<page name="report" href="pages/report.page.xml" reportable="false"/>
+	<page name="Show popup" href="pages/showpopup.page.xml"/>
+	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
+	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<folder name="commons">
 		<page name="popup1" href="pages/popup.page.xml"/>
 		<page name="header" href="pages/header.xml"/>
@@ -73,7 +83,6 @@ background-color:lightgreen;
 	<page name="problem" href="pages/problem.page.xml"/>
 	<page name="addon" href="pages/addon.page.xml"/>
 	<page name="links" href="pages/links.page.xml" reportable="false"/>
-	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
 	<page name="test" href="pages/connection.page.xml"/>
 	<page name="no addon" href="pages/no-addon.page.xml"/>

@@ -24,7 +24,8 @@ import com.lorepo.icplayer.client.utils.XMLLoader;
 public class PlayerController implements IPlayerController{
 
 	private	Content				contentModel;
-	private PageController		pageController;
+	private PageController		pageController1;
+	private PageController		pageController2;
 	private PageController		headerController;
 	private PageController		footerController;
 	private	PlayerView			playerView;
@@ -35,20 +36,25 @@ public class PlayerController implements IPlayerController{
 	private PagePopupPanel		popupPanel;
 	
 	
-	public PlayerController(Content content, PlayerView view){
+	public PlayerController(Content content, PlayerView view, boolean bookMode){
 		
 		contentModel = content;
 		playerView = view;
 		scoreService = new ScoreService();
 		stateService = new StateService();
-		createPageControllers();
+		createPageControllers(bookMode);
 	}
 	
 	
-	private void createPageControllers() {
+	private void createPageControllers(boolean bookMode) {
 
-		pageController = new PageController(this);
-		pageController.setView(playerView.getPageView());
+		pageController1 = new PageController(this);
+		pageController1.setView(playerView.getPageView(0));
+		if(bookMode){
+			playerView.showTwoPages();
+			pageController2 = new PageController(this);
+			pageController2.setView(playerView.getPageView(1));
+		}
 	}
 
 	
@@ -80,7 +86,7 @@ public class PlayerController implements IPlayerController{
 		
 		int index = 0;
 		for(int i = 0; i < contentModel.getPageCount(); i++){
-			if(contentModel.getPage(i) == pageController.getPage()){
+			if(contentModel.getPage(i) == pageController1.getPage()){
 				index = i;
 				break;
 			}
@@ -110,9 +116,9 @@ public class PlayerController implements IPlayerController{
 	 */
 	public void switchToPage(String pageName) {
 
-		Page page  = getModel().findPageByName(pageName);
-		if(page != null){
-			switchToPage(page);
+		int index = getModel().getPages().findPageIndexByName(pageName);
+		if(index > -1){
+			switchToPage(index);
 		}
 		else{
 			Window.alert("Missing page:\n<" + pageName + ">");
@@ -124,11 +130,13 @@ public class PlayerController implements IPlayerController{
 
 		PageList pages = contentModel.getPages();
 		for(int i = 0; i < pages.size(); i++){
-			if(pages.get(i) == pageController.getPage()){
+			if(pages.get(i) == pageController1.getPage()){
 				int index = i-1;
+				if(pageController2 != null){
+					index -= 1;
+				}
 				if(index >= 0){
-					Page prevPage = pages.get(index);
-					switchToPage(prevPage);
+					switchToPage(index);
 				}
 				break;
 			}
@@ -140,11 +148,13 @@ public class PlayerController implements IPlayerController{
 
 		PageList pages = contentModel.getPages();
 		for(int i = 0; i < pages.size(); i++){
-			if(pages.get(i) == pageController.getPage()){
+			if(pages.get(i) == pageController1.getPage()){
 				int index = i+1;
+				if(pageController2 != null){
+					index += 1;
+				}
 				if(index < pages.size()){
-					Page nextPage = pages.get(index);
-					switchToPage(nextPage);
+					switchToPage(index);
 				}
 				break;
 			}
@@ -156,10 +166,25 @@ public class PlayerController implements IPlayerController{
 	 * Switch to page at given index
 	 * @param index
 	 */
-	public void switchToPage(Page page){
+	public void switchToPage(int index){
+		closeCurrentPages();
+		Page page;
+		if(index < contentModel.getPages().size()){
+			page = contentModel.getPages().get(index);
+		}
+		else{
+			page = contentModel.getPages().get(0);
+		}
+		switchToPage(page, pageController1);
+		if(pageController2 != null && index+1 < contentModel.getPages().size()){
+			page = contentModel.getPages().get(index+1);
+			switchToPage(page, pageController2);
+		}
+	}
+	
+	
+	private void switchToPage(Page page, final PageController pageController){
 
-		closeCurrentPage();
-		
 		// Load new page
 		String baseUrl = contentModel.getBaseUrl();
 		XMLLoader reader = new XMLLoader(page);
@@ -170,7 +195,7 @@ public class PlayerController implements IPlayerController{
 			@Override
 			public void onFinishedLoading(Object obj) {
 				Page page = (Page) obj;
-				pageLoaded(page);
+				pageLoaded(page, pageController);
 				if(pageLoadListener != null){
 					pageLoadListener.onFinishedLoading(obj);
 				}
@@ -191,7 +216,7 @@ public class PlayerController implements IPlayerController{
 	}
 
 
-	private void pageLoaded(Page page) {
+	private void pageLoaded(Page page, PageController pageController) {
 		pageController.setPage(page);
 		if(headerController != null){
 			headerController.setPage(contentModel.getHeader());
@@ -212,16 +237,20 @@ public class PlayerController implements IPlayerController{
 	}
 
 	
-	private void closeCurrentPage() {
-		pageController.updateScore();
-		HashMap<String, String> state = pageController.getState();
+	private void closeCurrentPages() {
+		pageController1.updateScore();
+		HashMap<String, String> state = pageController1.getState();
 		stateService.addState(state);
-		pageController.closePage();
+		pageController1.closePage();
+		
+		if(pageController2 != null){
+			pageController2.closePage();
+		}
 	}
 
 
 	public IPlayerServices getPlayerServices() {
-		return pageController.getPlayerServices();
+		return pageController1.getPlayerServices();
 	}
 
 

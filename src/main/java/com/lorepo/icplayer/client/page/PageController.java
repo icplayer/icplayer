@@ -196,12 +196,14 @@ public class PageController {
 	public HashMap<String, String> getState() {
 		
 		HashMap<String, String>	pageState = new HashMap<String, String>();
-		for(IPresenter presenter : presenters){
-			if(presenter instanceof IStateful){
-				IStateful statefulObj = (IStateful)presenter;
-				String state = statefulObj.getState();
-				String key = currentPage.getHref() + statefulObj.getSerialId();
-				pageState.put(key, state);
+		if(currentPage != null){
+			for(IPresenter presenter : presenters){
+				if(presenter instanceof IStateful){
+					IStateful statefulObj = (IStateful)presenter;
+					String state = statefulObj.getState();
+					String key = currentPage.getHref() + statefulObj.getSerialId();
+					pageState.put(key, state);
+				}
 			}
 		}
 		return pageState;
@@ -241,6 +243,7 @@ public class PageController {
 			currentPage.release();
 			currentPage = null;
 		}
+		pageView.clear();
 	}
 
 

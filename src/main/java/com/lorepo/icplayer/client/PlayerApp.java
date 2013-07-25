@@ -8,7 +8,6 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
-import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -18,7 +17,7 @@ import com.lorepo.icplayer.client.utils.XMLLoader;
 /**
  * Create single page application
  */
-public class SinglePageApp  implements IApplication{
+public class PlayerApp{
 
 	/** Div id */
 	private String divId;
@@ -29,11 +28,12 @@ public class SinglePageApp  implements IApplication{
 	/** Score service impl */
 	private DOMInjector domInjector;
 	private PlayerEntryPoint	entryPoint;
-	private int startPageIndex;
+	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
+	private boolean bookMode = false;
 	
 	
-	public SinglePageApp(String id, PlayerEntryPoint entryPoint){
+	public PlayerApp(String id, PlayerEntryPoint entryPoint){
 		
 		this.divId = id;
 		this.entryPoint = entryPoint;
@@ -87,7 +87,7 @@ public class SinglePageApp  implements IApplication{
 	private void initPlayer() {
 	
 		PlayerView playerView = new PlayerView();
-		playerController = new PlayerController(contentModel, playerView);
+		playerController = new PlayerController(contentModel, playerView, bookMode);
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				entryPoint.onPageLoaded();
@@ -120,20 +120,12 @@ public class SinglePageApp  implements IApplication{
 
 
 	private void loadFirstPage() {
-		Page page;
-		
-		if(startPageIndex < contentModel.getPages().size()){
-			page = contentModel.getPages().get(startPageIndex);
-		}
-		else{
-			page = contentModel.getPages().get(0);
-		}
 		if(loadedState != null){
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 		}
 		playerController.initHeaders();
-		playerController.switchToPage(page);
+		playerController.switchToPage(startPageIndex);
 	}
 
 
@@ -156,5 +148,10 @@ public class SinglePageApp  implements IApplication{
 		data.put("state", state);
 		data.put("score", score);
 		return JSONUtils.toJSONString(data);
+	}
+
+
+	public void setBookMode() {
+		bookMode = true;
 	}
 }
