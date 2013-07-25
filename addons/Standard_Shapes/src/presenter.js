@@ -1,9 +1,6 @@
 function AddonStandard_Shapes_create(){
     var presenter = function() {};
 
-    var viewContainer;
-    presenter.configuration = {};
-
     presenter.SHAPES = {
         LINE: 'Line',
         SQUARE: 'Square',
@@ -21,67 +18,19 @@ function AddonStandard_Shapes_create(){
         CIRCLE_AND_ARROW: 'Circle - Arrow'
     };
 
-    presenter.ERROR_MESSAGES = {
-        ROTATION : {
-            OUT_OF_BOUNDS: "Rotation angle must be between 0 and 360 degrees!",
-            NAN: "Rotation angle is not a number!"
-        },
-        STROKE_WIDTH : {
-            OUT_OF_BOUNDS: "Stroke width must be a positive number",
-            NAN: "Stroke width is not a number!"
-        },
-        STROKE_COLOR : "Stroke color must be in RGB format (hexadecimal) and start with #",
-        FILL_COLOR : "Stroke color must be in RGB format (hexadecimal) and start with #",
-        STROKE_OPACITY : {
-            OUT_OF_BOUNDS: "Stroke opacity must be a positive number between 0 and 1",
-            NAN: "Stroke opacity is not a number!"
-        },
-        RUNTIME: {
-            DIMENSIONS_TOO_SMALL: "Addon dimensions are too small to draw line with endings (or stroke is too thick)!",
-            CIRCLE_ENDING: "Addon dimensions are too small to draw line with circle ending!",
-            ARROW_CIRCLE: "Addon dimensions are too small to draw line with circle-arrow ending!"
-        }
+    presenter.ERROR_CODES = {
+        'R01': "Rotation angle must be between 0 and 360 degrees!",
+        'R02': "Rotation angle is not a number!",
+        'ST1': "Stroke width must be a positive number",
+        'ST2': "Stroke width is not a number!",
+        'ST3': "Stroke color must be in RGB format (hexadecimal) and start with #",
+        'ST4': "Stroke opacity must be a positive number between 0 and 1",
+        'ST5': "Stroke opacity is not a number!",
+        'F01': "Stroke color must be in RGB format (hexadecimal) and start with #",
+        'RU1': "Addon dimensions are too small to draw line with endings (or stroke is too thick)!",
+        'RU2': "Addon dimensions are too small to draw line with circle ending!",
+        'RU3': "Addon dimensions are too small to draw line with circle-arrow ending!"
     };
-
-    function getElementDimensions(element) {
-        element = $(element);
-
-        return {
-            border:{
-                top:parseInt(element.css('border-top-width'), 10),
-                bottom:parseInt(element.css('border-bottom-width'), 10),
-                left:parseInt(element.css('border-left-width'), 10),
-                right:parseInt(element.css('border-right-width'), 10)
-            },
-            margin:{
-                top:parseInt(element.css('margin-top'), 10),
-                bottom:parseInt(element.css('margin-bottom'), 10),
-                left:parseInt(element.css('margin-left'), 10),
-                right:parseInt(element.css('margin-right'), 10)
-            },
-            padding:{
-                top:parseInt(element.css('padding-top'), 10),
-                bottom:parseInt(element.css('padding-bottom'), 10),
-                left:parseInt(element.css('padding-left'), 10),
-                right:parseInt(element.css('padding-right'), 10)
-            }
-        };
-    }
-
-    function calculateInnerDistance(elementDimensions) {
-        var vertical = elementDimensions.border.top + elementDimensions.border.bottom;
-        vertical += elementDimensions.margin.top + elementDimensions.margin.bottom;
-        vertical += elementDimensions.padding.top + elementDimensions.padding.top;
-
-        var horizontal = elementDimensions.border.left + elementDimensions.border.right;
-        horizontal += elementDimensions.margin.left + elementDimensions.margin.right;
-        horizontal += elementDimensions.padding.left + elementDimensions.padding.right;
-
-        return {
-            vertical : vertical,
-            horizontal : horizontal
-        };
-    }
 
     function rotatePoint(x, y, angle) {
         return {
@@ -172,12 +121,6 @@ function AddonStandard_Shapes_create(){
         return calculateScale(rotatedPoints, width, height);
     }
 
-    function displayErrorMessage(addonContainer, errorMessage) {
-        var errorElement = document.createElement('p');
-        $(errorElement).text(errorMessage);
-        addonContainer.html(errorElement);
-    }
-
     function drawShape(model, wrapper, width, height, angle) {
         var scale = getScale(width, height, angle);
         var length = Math.min(width, height);
@@ -203,43 +146,46 @@ function AddonStandard_Shapes_create(){
     }
 
     function presenterLogic(view, model) {
-        viewContainer = $(view);
-        var containerDimensions = getElementDimensions(viewContainer);
-        var containerDistances = calculateInnerDistance(containerDimensions);
+        presenter.$view = $(view);
+        var containerDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
+        var containerDistances = DOMOperationsUtils.calculateOuterDistances(containerDimensions);
 
-        viewContainer.css({
-            width : (viewContainer.width() - containerDistances.horizontal) + 'px',
-            height : (viewContainer.height() - containerDistances.vertical) + 'px'
+        presenter.$view.css({
+            width : (presenter.$view.width() - containerDistances.horizontal) + 'px',
+            height : (presenter.$view.height() - containerDistances.vertical) + 'px'
         });
 
-        presenter.configuration = presenter.readConfiguration(model);
+        presenter.configuration = presenter.validateModel(model);
         if (presenter.configuration.isError) {
-            displayErrorMessage(viewContainer, presenter.configuration.errorMessage);
+            DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
-        var canvasWrapper = viewContainer.find('.standardshapes-wrapper:first')[0];
-        var wrapperDimensions = getElementDimensions(canvasWrapper);
-        var wrapperDistances = calculateInnerDistance(wrapperDimensions);
+        var canvasWrapper = presenter.$view.find('.standardshapes-wrapper:first')[0];
+        var wrapperDimensions = DOMOperationsUtils.getOuterDimensions(canvasWrapper);
+        var wrapperDistances = DOMOperationsUtils.calculateOuterDistances(wrapperDimensions);
 
-        var canvasWrapperWidth = $(viewContainer).width() - wrapperDistances.horizontal;
-        var canvasWrapperHeight = $(viewContainer).height() - wrapperDistances.vertical;
+        var canvasWrapperWidth = presenter.$view.width() - wrapperDistances.horizontal;
+        var canvasWrapperHeight = presenter.$view.height() - wrapperDistances.vertical;
         $(canvasWrapper).css({
             width : (canvasWrapperWidth < 1 ? model.Width : canvasWrapperWidth) + 'px',
             height : (canvasWrapperHeight < 1 ? model.Height : canvasWrapperHeight) + 'px'
         });
 
-        var angle = parseInt(model["Rotation angle"]);
-
+        var angle = parseInt(presenter.configuration.rotation);
         drawShape(model, canvasWrapper, canvasWrapperWidth, canvasWrapperHeight, angle);
+
+        presenter.setVisibility(presenter.configuration.isVisible);
     }
 
     presenter.applyStyles = function(element) {
-        element.attr('stroke-width', presenter.configuration.strokeWidth);
-        element.attr('stroke', presenter.configuration.strokeColor);
-        element.attr('stroke-opacity', presenter.configuration.strokeOpacity);
-        element.attr('fill', presenter.configuration.fillColor);
-        element.attr('fill-rule', 'evenodd');
+        element.attr({
+            'stroke-width': presenter.configuration.strokeWidth,
+            'stroke': presenter.configuration.strokeColor,
+            'stroke-opacity': presenter.configuration.strokeOpacity,
+            'fill': presenter.configuration.fillColor,
+            'fill-rule': 'evenodd'
+        });
 
         if (presenter.configuration.cornersRoundings) {
             element.attr('stroke-linejoin', 'round');
@@ -268,24 +214,17 @@ function AddonStandard_Shapes_create(){
         var cx = parseInt(width / 2, 10);
         var cy = parseInt(height / 2, 10);
 
-        element.transform("r" + angle + "," + cx + "," + cy)
+        element.transform("r" + angle + "," + cx + "," + cy);
         element.transform("...s" + roundedScale + "," + roundedScale + "," + cx + "," + cy);
     }
 
     function calculateLinePoints(width, height) {
-        return [{
-            x: 0,
-            y: 0
-        }, {
-            x: width,
-            y: 0
-        }, {
-            x: width,
-            y: height
-        }, {
-            x: 0,
-            y: height
-        }];
+        return [
+            { x: 0, y: 0 },
+            { x: width, y: 0 },
+            { x: width, y: height },
+            { x: 0, y: height}
+        ];
     }
 
     function calculateArrowPoints(lineEnding, width, height, arrowHeight) {
@@ -465,7 +404,7 @@ function AddonStandard_Shapes_create(){
 
         if (presenter.configuration.lineEnding !== presenter.LINE_ENDING.NONE) {
             if (4 * presenter.configuration.strokeWidth + 2 > height) {
-                displayErrorMessage(viewContainer, presenter.ERROR_MESSAGES.RUNTIME.DIMENSIONS_TOO_SMALL);
+                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R01');
                 return;
             }
         }
@@ -501,7 +440,7 @@ function AddonStandard_Shapes_create(){
                 break;
             case presenter.LINE_ENDING.CIRCLES:
                 if (4 * radius > width - 1) {
-                    displayErrorMessage(viewContainer, presenter.ERROR_MESSAGES.RUNTIME.CIRCLE_ENDING);
+                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R02');
                     return;
                 }
 
@@ -518,7 +457,7 @@ function AddonStandard_Shapes_create(){
                 break;
             case presenter.LINE_ENDING.NONE_AND_CIRCLE:
                 if (2 * radius > width - 1) {
-                    displayErrorMessage(viewContainer, presenter.ERROR_MESSAGES.RUNTIME.CIRCLE_ENDING);
+                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R02');
                     return;
                 }
 
@@ -532,7 +471,7 @@ function AddonStandard_Shapes_create(){
                 break;
             case presenter.LINE_ENDING.CIRCLE_AND_ARROW:
                 if (2 * radius + arrowHeight > width - 1) {
-                    displayErrorMessage(viewContainer, presenter.ERROR_MESSAGES.RUNTIME.ARROW_CIRCLE);
+                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R03');
                     return;
                 }
 
@@ -563,7 +502,7 @@ function AddonStandard_Shapes_create(){
         presenterLogic(view, model);
     };
 
-    presenter.readConfiguration = function(model) {
+    presenter.validateModel = function(model) {
         var shape = model.Shape ? model.Shape : presenter.SHAPES.LINE;
 
         var rotation = model["Rotation angle"];
@@ -572,17 +511,11 @@ function AddonStandard_Shapes_create(){
         } else {
             rotation = parseFloat(rotation);
             if (isNaN(rotation)) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.ROTATION.NAN
-                };
+                return { isError: true, errorCode: 'R02' };
             }
 
             if (rotation < 0 || rotation > 360) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.ROTATION.OUT_OF_BOUNDS
-                };
+                return { isError: true, errorCode: 'R01' };
             }
         }
 
@@ -592,17 +525,11 @@ function AddonStandard_Shapes_create(){
         } else {
             strokeWidth = parseFloat(strokeWidth);
             if (isNaN(strokeWidth)) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_WIDTH.NAN
-                };
+                return { isError: true, errorCode: 'ST2' };
             }
 
             if (strokeWidth <= 0) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_WIDTH.OUT_OF_BOUNDS
-                };
+                return { isError: true, errorCode: 'ST1' };
             }
         }
 
@@ -614,24 +541,15 @@ function AddonStandard_Shapes_create(){
             strokeColor = "#000";
         } else {
             if (strokeColor.length < 4 || strokeColor.length > 7) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_COLOR
-                };
+                return { isError: true, errorCode: 'ST3' };
             }
 
             colorMatch = strokeColor.match(regExp);
             if (!colorMatch || colorMatch === null || colorMatch.length < 1) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_COLOR
-                };
+                return { isError: true, errorCode: 'ST3' };
             }
             if (colorMatch[0].length < strokeColor.length) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_COLOR
-                };
+                return { isError: true, errorCode: 'ST3' };
             }
         }
 
@@ -640,24 +558,15 @@ function AddonStandard_Shapes_create(){
             fillColor = "#FFF";
         } else {
             if (fillColor.length < 4 || fillColor.length > 7) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.FILL_COLOR
-                };
+                return { isError: true, errorCode: 'F01' };
             }
 
             colorMatch = fillColor.match(regExp);
             if (!colorMatch || colorMatch === null || colorMatch.length < 1) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.FILL_COLOR
-                };
+                return { isError: true, errorCode: 'F01' };
             }
             if (colorMatch[0].length < fillColor.length) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.FILL_COLOR
-                };
+                return { isError: true, errorCode: 'F01' };
             }
         }
 
@@ -674,17 +583,11 @@ function AddonStandard_Shapes_create(){
         } else {
             strokeOpacity = parseFloat(strokeOpacity);
             if (isNaN(strokeOpacity)) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_OPACITY.NAN
-                };
+                return { isError: true, errorCode: 'ST5' };
             }
 
             if (strokeOpacity < 0 || strokeOpacity > 1) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.STROKE_OPACITY.OUT_OF_BOUNDS
-                };
+                return { isError: true, errorCode: 'ST4' };
             }
         }
 
@@ -692,6 +595,8 @@ function AddonStandard_Shapes_create(){
         if (!lineEnding) {
             lineEnding = presenter.LINE_ENDING.NONE;
         }
+
+        var isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
         return {
             isError: false,
@@ -702,8 +607,51 @@ function AddonStandard_Shapes_create(){
             fillColor: fillColor,
             cornersRoundings: cornersRoundings,
             strokeOpacity: strokeOpacity,
-            lineEnding: lineEnding
+            lineEnding: lineEnding,
+            isVisibleByDefault: isVisibleByDefault,
+            isVisible: isVisibleByDefault
         };
+    };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.executeCommand = function(name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.show = function() {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
+    };
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
+    };
+
+    presenter.reset = function () {
+        presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
+        presenter.setVisibility(presenter.configuration.isVisible);
+    };
+
+    presenter.getState = function() {
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible
+        });
+    };
+
+    presenter.setState = function (state) {
+        var isVisible = JSON.parse(state).isVisible;
+
+        presenter.configuration.isVisible = isVisible;
+        presenter.setVisibility(isVisible);
     };
 
     return presenter;
