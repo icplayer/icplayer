@@ -1156,9 +1156,10 @@ function AddonSlideshow_create() {
     };
 
     presenter.setState = function (state) {
-        var parsedState = JSON.parse(state);
+        var isVisible = JSON.parse(state).isVisible;
 
-        presenter.setVisibility(parsedState.isVisible);
+        presenter.setVisibility(isVisible);
+        presenter.configuration.isVisible = isVisible;
     };
 
     presenter.validateAudio = function (audioArray) {
