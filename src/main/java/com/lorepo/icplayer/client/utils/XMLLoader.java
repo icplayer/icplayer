@@ -29,7 +29,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.xml.client.DOMException;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
@@ -64,9 +63,7 @@ public class XMLLoader {
 			resolvedURL = GWT.getHostPageBaseURL() + url;
 		}
 
-		
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(resolvedURL));
-
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, resolvedURL);
 		errorString = null;
 		try {
 			builder.sendRequest(null, new RequestCallback() {

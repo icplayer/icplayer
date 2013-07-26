@@ -1,3 +1,4 @@
+2013-07-26 Fixed problem with spaces in URL
 2013-07-25 Added visibility commands in Standard Shapes module
 2013-07-25 Added restoring visibility in Slideshow module
 2013-07-22 Added 'Hide toolbar' property which hides default options toolbar and makes more space for text
