@@ -233,7 +233,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			for(InlineChoiceInfo choice : module.getChoiceInfos()){
 				enteredValue = getElementText(choice.getId());
 				if(	!enteredValue.isEmpty() &&
-					choice.getAnswer().compareToIgnoreCase(enteredValue) != 0)
+					choice.getAnswer().compareToIgnoreCase(enteredValue) != 0 &&
+					!enteredValue.equals("---"))
 				{
 					errorCount++;
 				}

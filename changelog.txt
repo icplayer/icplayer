@@ -1,3 +1,4 @@
+2013-07-26 Fixed problem with inline choice when selecting default value '---'
 2013-07-26 Fixed problem with spaces in URL
 2013-07-25 Added visibility commands in Standard Shapes module
 2013-07-25 Added restoring visibility in Slideshow module
