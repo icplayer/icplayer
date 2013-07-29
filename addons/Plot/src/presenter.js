@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.6';
+        this.VERSION = '1.1.7';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1727,14 +1727,12 @@ function AddonPlot_create(){
         return presenter.decimalSeparator;
     };
     presenter.valueToFloat = function(val) {
-        var pv;
-        val = this.toDotSeparator(val);
-        pv = val != '' ? parseFloat(val) : 0;
-        if(isNaN(pv)) {
-            pv = 0;
+        if(val === '' || val === undefined || !this.isCorrectDecimal(val)) {
+            return Number.NaN;
         }
-        return pv;
-    }
+         val = this.toDotSeparator(val);
+         return parseFloat(val);
+    };
     presenter._hasIllegalCharacters = function(word) {
         var tmpWord;
         if(this.decimalSeparator == ',') {
@@ -1745,6 +1743,16 @@ function AddonPlot_create(){
             tmpWord = word.replace(/[^\*0-9,.-]/g, '');
         }
         return tmpWord != word;
+    };
+    presenter.isCorrectDecimal = function(nmb) {
+        if (nmb === null ||
+                ModelValidationUtils.isStringEmpty(nmb) ||
+                (this.getDecimalSeparator() === ',' && nmb.toString().indexOf('.') !== -1) ||
+                (this.getDecimalSeparator() === '.' && nmb.toString().indexOf(',') !== -1)) {
+            return false;
+        }
+
+        return true;
     };
     presenter.createPreview = function(view, model) {
         presenter.errorsMode = false;
