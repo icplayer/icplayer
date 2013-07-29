@@ -208,7 +208,10 @@ function Addonvideo_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.run = function(view, model){
+    presenter.run = function(view, model) {
+        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
+        presenter.isVideoLoaded = false;
+
         presenter.addonID = model.ID;
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isCurrentlyVisible = true;
@@ -225,7 +228,7 @@ function Addonvideo_create() {
 
         this.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
         this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
-        this.video.addEventListener('play', function() {presenter.videoState = presenter.VIDEO_STATE.PLAYING; }, false);
+        this.video.addEventListener('play', function() { presenter.videoState = presenter.VIDEO_STATE.PLAYING; }, false);
         this.video.addEventListener('pause', function() {
             if (!presenter.isHideExecuted) {
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
@@ -242,7 +245,7 @@ function Addonvideo_create() {
     };
 
     presenter.handleErrorCode = function(error) {
-        if(!error) return;
+        if (!error) return;
 
         presenter.$view.html(presenter.getVideoErrorMessage(error.code));
     };
@@ -341,6 +344,7 @@ function Addonvideo_create() {
     }
 
     presenter.reload = function() {
+        presenter.isVideoLoaded = false;
         $(this.videoContainer).find('.captions').remove();
         this.setVideo();
         this.loadSubtitles();
@@ -389,6 +393,10 @@ function Addonvideo_create() {
 
     presenter.setVideo = function() {
         if (this.video) {
+            $(this.video).unbind("ended");
+            $(this.video).unbind("error");
+            $(this.video).unbind("canplay");
+
             this.video.pause();
         }
         this.videoContainer.find('source').remove();
@@ -427,6 +435,16 @@ function Addonvideo_create() {
                 if (presenter.configuration.isFullScreen) {
                     fullScreenChange();
                 }
+            });
+
+            $(this.video).bind("canplay", function () {
+                presenter.isVideoLoaded = true;
+
+                if (!presenter.commandsQueue.isQueueEmpty()) {
+                    presenter.commandsQueue.executeAllTasks();
+                }
+
+                $(this).unbind("canplay");
             });
         }
     };
@@ -535,14 +553,6 @@ function Addonvideo_create() {
         };
     };
 
-    presenter.seek = function (seconds) {
-        this.video.currentTime = seconds;
-    };
-
-    presenter.seekCommand = function(params) {
-        presenter.seek(params[0]);
-    };
-
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
@@ -574,6 +584,19 @@ function Addonvideo_create() {
                 }
             });
         }
+    };
+
+    presenter.seek = function (seconds) {
+        if (!presenter.isVideoLoaded) {
+            presenter.commandsQueue.addTask('seek', [seconds]);
+            return;
+        }
+
+        this.video.currentTime = seconds;
+    };
+
+    presenter.seekCommand = function(params) {
+        presenter.seek(params[0]);
     };
 
     presenter.show = function() {
@@ -618,11 +641,25 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.jumpToIDCommand = function (params) {
+        presenter.jumpToID(params[0]);
+    };
+
     presenter.play = function () {
+        if (!presenter.isVideoLoaded) {
+            presenter.commandsQueue.addTask('play', []);
+            return;
+        }
+
         if (this.video.paused) this.video.play();
     };
 
     presenter.stop = function () {
+        if (!presenter.isVideoLoaded) {
+            presenter.commandsQueue.addTask('stop', []);
+            return;
+        }
+
         if (!this.video.paused) {
             presenter.seek(0); // sets the current time to 0
             this.video.pause();
@@ -630,13 +667,14 @@ function Addonvideo_create() {
     };
 
     presenter.pause = function () {
+        if (!presenter.isVideoLoaded) {
+            presenter.commandsQueue.addTask('pause', []);
+            return;
+        }
+
         if (!this.video.paused) {
             this.video.pause();
         }
-    };
-
-    presenter.jumpToIDCommand = function (params) {
-        presenter.jumpToID(params[0]);
     };
 
     presenter.previous = function() {
