@@ -531,15 +531,30 @@ function Addonvideo_create() {
         return data.split(/[\n\r]+/);
     };
 
+    presenter.calculateVideoContainerHeight = function ($container, moduleHeight) {
+        var borderBottom = $container.css('border-bottom-width'),
+            borderTop = $container.css('border-top-width'),
+            marginTop = $container.css('margin-top'),
+            marginBottom = $container.css('margin-bottom');
+
+        if (ModelValidationUtils.isStringEmpty(borderTop)) borderTop = "0px";
+        if (ModelValidationUtils.isStringEmpty(borderBottom)) borderBottom = "0px";
+        if (ModelValidationUtils.isStringEmpty(marginTop)) marginTop = "0px";
+        if (ModelValidationUtils.isStringEmpty(marginBottom)) marginBottom = "0px";
+
+        return moduleHeight - parseInt(borderBottom, 10) -
+            parseInt(borderTop, 10) -
+            parseInt(marginTop, 10) -
+            parseInt(marginBottom, 10);
+    };
+
     presenter.setDimensions = function() {
         var video = this.getVideo();
-        var a = (height - parseInt(this.videoContainer.css('border-bottom-width'), 10) -
-            parseInt(this.videoContainer.css('border-top-width'), 10) -
-            parseInt(this.videoContainer.css('margin-top'), 10) -
-            parseInt(this.videoContainer.css('margin-bottom'), 10));
-        this.videoContainer.css('height',  a + 'px');
-        video.css("width", "100%");
-        video.attr('height', this.videoContainer.height());
+
+        this.videoContainer.css('height',  presenter.calculateVideoContainerHeight(this.videoContainer, height) + 'px');
+
+        video.css("width", "100%")
+             .attr('height', this.videoContainer.height());
 
         presenter.configuration.dimensions = {
             video:{
