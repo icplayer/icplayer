@@ -4,19 +4,17 @@ import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
-import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
+import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 
-public class ButtonView extends Composite implements IModuleView{
-
+public class ButtonView extends Composite implements IDisplay {
 	private ButtonModule module;
 	
-	
-	public ButtonView(ButtonModule module, IPlayerServices services){
-	
+	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
+
 		initWidget(createInnerButton(services));
 		getElement().setId(module.getId());
 	}
@@ -70,5 +68,16 @@ public class ButtonView extends Composite implements IModuleView{
 		}
 		
 		return button;
+	}
+	
+	@Override
+	public void show() {
+		setVisible(true);		
+	}
+
+
+	@Override
+	public void hide() {
+		setVisible(false);
 	}
 }

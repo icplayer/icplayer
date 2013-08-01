@@ -22,6 +22,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
@@ -298,23 +299,25 @@ public class JavaScriptPlayerServices{
 
 	
 	private JavaScriptObject getModule(String name){
-
 		IPresenter presenter = playerServices.getModule(name);
 		
 		if(presenter instanceof AddonPresenter){
-			return ((AddonPresenter)presenter).getJavaScriptObject();
+			return ((AddonPresenter) presenter).getJavaScriptObject();
 		}
 		else if(presenter instanceof TextPresenter){
-			return ((TextPresenter)presenter).getAsJavaScript();
+			return ((TextPresenter) presenter).getAsJavaScript();
 		}
 		else if(presenter instanceof ImagePresenter){
-			return ((ImagePresenter)presenter).getAsJavaScript();
+			return ((ImagePresenter) presenter).getAsJavaScript();
 		}
 		else if(presenter instanceof ImageGapPresenter){
-			return ((ImageGapPresenter)presenter).getAsJavaScript();
+			return ((ImageGapPresenter) presenter).getAsJavaScript();
 		}
 		else if(presenter instanceof ChoicePresenter){
-			return ((ChoicePresenter)presenter).getAsJavaScript();
+			return ((ChoicePresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ButtonPresenter){
+			return ((ButtonPresenter) presenter).getAsJavaScript();
 		}
 		
 		return null;

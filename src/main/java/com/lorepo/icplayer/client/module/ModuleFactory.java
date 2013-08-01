@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule;
+import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 import com.lorepo.icplayer.client.module.button.ButtonView;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterModule;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter;
@@ -118,7 +119,6 @@ public class ModuleFactory implements IModuleFactory{
 	
 	@Override
 	public IModuleView createView(IModuleModel module){
-		
 		boolean isPreview = (services == null);
 		
 		if(module instanceof AddonModel){
@@ -170,9 +170,11 @@ public class ModuleFactory implements IModuleFactory{
 	
 	@Override
 	public IPresenter createPresenter(IModuleModel module){
-		
 		if(module instanceof AddonModel){
 			return new AddonPresenter((AddonModel) module, services);
+		}
+		else if (module instanceof ButtonModule) {
+			return new ButtonPresenter((ButtonModule) module, services);
 		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterPresenter((CheckCounterModule) module, services);
