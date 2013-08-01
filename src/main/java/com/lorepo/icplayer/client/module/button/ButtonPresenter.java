@@ -11,6 +11,8 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
@@ -19,6 +21,9 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	public interface IDisplay extends IModuleView {
 		public void show();
 		public void hide();
+		void setErrorCheckingMode(boolean isErrorCheckingMode);
+		boolean isErrorCheckingMode();
+		void setDisabled(boolean isDisabled);
 	}
 	
 	private ButtonModule model;
@@ -37,6 +42,18 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	
 	private void connectHandlers() {
 		EventBus eventBus = playerServices.getEventBus();
+		
+		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+			public void onShowErrors(ShowErrorsEvent event) {
+				setShowErrorsMode();
+			}
+		});
+		
+		eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
+			public void onWorkMode(WorkModeEvent event) {
+				setWorkMode();
+			}
+		});
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
@@ -128,6 +145,17 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 			view.hide();
 		}
 		
+	}
+	
+	private void setShowErrorsMode() {
+		view.setErrorCheckingMode(true);
+		view.setDisabled(true);
+	}
+
+
+	private void setWorkMode() {
+		view.setErrorCheckingMode(false);
+		view.setDisabled(false);
 	}
 	
 	public JavaScriptObject getAsJavaScript() {

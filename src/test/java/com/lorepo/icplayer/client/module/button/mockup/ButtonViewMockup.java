@@ -5,6 +5,8 @@ import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 
 public class ButtonViewMockup implements IDisplay {
 	private boolean isVisible = true;
+	private boolean isErrorCheckingMode = false;
+	private boolean isDisabled = false;
 	
 	public ButtonViewMockup(ButtonModule module) {
 	}
@@ -25,5 +27,25 @@ public class ButtonViewMockup implements IDisplay {
 	
 	public void setVisible (boolean isVisible) {
 		this.isVisible = isVisible;
+	}
+
+	@Override
+	public void setErrorCheckingMode(boolean isErrorCheckingMode) {
+		this.isErrorCheckingMode = isErrorCheckingMode;
+		
+	}
+
+	@Override
+	public boolean isErrorCheckingMode() {
+		return isErrorCheckingMode;
+	}
+
+	@Override
+	public void setDisabled(boolean isDisabled) {
+		this.isDisabled = isDisabled;
+	}
+
+	public boolean isDisabled() {
+		return isDisabled;
 	}
 }

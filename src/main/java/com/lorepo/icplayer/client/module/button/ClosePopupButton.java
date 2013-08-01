@@ -17,7 +17,6 @@ class ClosePopupButton extends PushButton{
 			
 			@Override
 			public void onClick(ClickEvent event) {
-
 				pageService.closePopup();
 			}
 		});

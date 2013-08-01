@@ -10,10 +10,14 @@ import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 
 public class ButtonView extends Composite implements IDisplay {
-	private ButtonModule module;
+	private static final String DISABLED_STYLE = "disabled";
 	
+	private ButtonModule module;
+	private boolean isErrorCheckingMode;
+
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
+		this.isErrorCheckingMode = false;
 
 		initWidget(createInnerButton(services));
 		getElement().setId(module.getId());
@@ -41,7 +45,7 @@ public class ButtonView extends Composite implements IDisplay {
 			button = new NextPageButton(playerServices);
 		}
 		else if(ButtonType.popup == type){
-			button = new PopupButton(module.getOnClick(), pageService);
+			button = new PopupButton(module.getOnClick(), this, pageService);
 		}
 		else if(ButtonType.prevPage == type){
 			button = new PrevPageButton(playerServices);
@@ -72,12 +76,37 @@ public class ButtonView extends Composite implements IDisplay {
 	
 	@Override
 	public void show() {
-		setVisible(true);		
+		setVisible(true);
 	}
 
 
 	@Override
 	public void hide() {
 		setVisible(false);
+	}
+	
+	@Override
+	public void setDisabled(boolean isDisabled) {
+		ButtonType type = module.getType();
+		if (ButtonType.popup != type) {
+			return;
+		}
+		
+		if (isDisabled) {
+			addStyleName(DISABLED_STYLE);
+		} else{
+			removeStyleName(DISABLED_STYLE);
+		}
+	}
+
+
+	@Override
+	public void setErrorCheckingMode(boolean isErrorCheckingMode) {
+		this.isErrorCheckingMode = isErrorCheckingMode;
+	}
+
+	@Override
+	public boolean isErrorCheckingMode() {
+		return isErrorCheckingMode;
 	}
 }

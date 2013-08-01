@@ -14,6 +14,8 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.button.mockup.ButtonViewMockup;
 
 public class ButtonPresenterTestCase {
@@ -71,5 +73,19 @@ public class ButtonPresenterTestCase {
 		
 		presenter.setState(stateObj);
 		assertFalse(display.isVisible());
+	}
+	
+	@Test
+	public void disable(){
+		assertFalse(display.isErrorCheckingMode());
+		assertFalse(display.isDisabled());
+		
+		services.getEventBus().fireEvent(new ShowErrorsEvent());
+		assertTrue(display.isErrorCheckingMode());
+		assertTrue(display.isDisabled());
+		
+		services.getEventBus().fireEvent(new WorkModeEvent());
+		assertFalse(display.isErrorCheckingMode());
+		assertFalse(display.isDisabled());
 	}
 }
