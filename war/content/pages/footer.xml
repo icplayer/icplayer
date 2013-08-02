@@ -7,6 +7,10 @@
 			<button type="prevPage" text=""/>
 		</buttonModule>
 		
+		<buttonModule  left="620" top="0" width="80" height="60" style="">
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+
 		<buttonModule  left="720" top="0" width="80" height="60" style="">
 			<button type="nextPage" text=""/>
 		</buttonModule>

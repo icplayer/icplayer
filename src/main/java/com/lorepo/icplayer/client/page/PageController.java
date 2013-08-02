@@ -39,19 +39,31 @@ public class PageController {
 	
 	private IPageDisplay pageView;
 	private Page	currentPage;
-	private PlayerServices playerService;
+	private PlayerServices playerServiceImpl;
+	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter>	presenters;
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
 	
 	
 	public PageController(IPlayerController playerController) {
-		presenters = new ArrayList<IPresenter>();
-		playerService = new PlayerServices(playerController, this);
-		moduleFactory = new ModuleFactory(playerService);
+		playerServiceImpl = new PlayerServices(playerController, this);
+		init(playerServiceImpl);
 	}
 	
 	
+	public PageController(IPlayerServices playerServices) {
+		init(playerServices);
+	}
+
+
+	private void init(IPlayerServices playerServices) {
+		presenters = new ArrayList<IPresenter>();
+		this.playerService = playerServices;
+		moduleFactory = new ModuleFactory(playerService);
+	}
+
+
 	public void setView(IPageDisplay view){
 		pageView = view;
 	}
@@ -64,7 +76,9 @@ public class PageController {
 	
 	public void setPage(Page page){
 		
-		playerService.resetEventBus();
+		if(playerServiceImpl != null){
+			playerServiceImpl.resetEventBus();
+		}
 		currentPage = page;
 		pageView.setPage(page);
 		setViewSize(page);
