@@ -167,7 +167,7 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		
 		xml += 	"</modules>" + "</page>";
 	
-		return xml;
+		return XMLUtils.removeIllegalCharacters(xml);
 	}
 
 

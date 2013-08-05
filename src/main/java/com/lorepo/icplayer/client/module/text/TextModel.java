@@ -141,7 +141,7 @@ public class TextModel extends BasicModuleModel{
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 		
-		return xml;
+		return XMLUtils.removeIllegalCharacters(xml);
 	}
 
 

@@ -151,6 +151,34 @@ public class TextModelTestCase {
 		assertTrue(module.isIgnorePunctuation());
 	}
 	
+	
+	@Test
+	public void nonUnicodeText() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("text_module_text")).thenReturn("Text");
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		TextModel module = new TextModel();
+		module.load(element, "");
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			IProperty property = module.getProperty(i);
+			if(property.getName().compareTo("Text") == 0){
+				property.setValue("In chapter 6");
+			}
+		}
+		
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new TextModel();
+		module.load(element, "");
+
+		assertEquals("In chapter 6", module.getParsedText());
+	}
+	
+	
 	@Test
 	public void changeDraggableProperty() throws SAXException, IOException {
 		PowerMockito.spy(DictionaryWrapper.class);

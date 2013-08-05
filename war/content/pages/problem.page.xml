@@ -1,35 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<page layout="pixels" width="0" height="500">
-    <modules>
-		<choiceModule id="Choice1" left="10" top="10" width="300" height="300" style="background-color:yellow">
-			<choice isMulti='true' isDisabled="true"/>
-			<options>
-				<option value="5">
-					<text>To jest opcja pierwsza za 5 punktów</text>
-				</option>
-				<option value="0">
-					<text>To jest opcja druga za 0 punktów</text>
-				</option>
-				<option value="1">To jest opcja trzecia za 1 punkt</option>
-			</options>
-		</choiceModule>
-		
-        <addonModule addonId="Single_State_Button" id="Single_State_Button1" left="400" top="100" width="100" height="100" isVisible="true">
-            <properties>
-                <property name="Title" type="string" value="Show"/>
-                <property name="Image" type="image" value=""/>
-                <property name="onClick" type="event">Choice1.enable()</property>
-                <property name="Disable" type="boolean" value=""/>
-            </properties>
-        </addonModule>
-        <addonModule addonId="Single_State_Button" id="Single_State_Button2" left="400" top="200" width="100" height="100" isVisible="true">
-            <properties>
-                <property name="Title" type="string" value="Hide"/>
-                <property name="Image" type="image" value=""/>
-                <property name="onClick" type="event">Choice1.disable()</property>
-                <property name="Disable" type="boolean" value=""/>
-            </properties>
-        </addonModule>
-    </modules>
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='0' height='800'>
+	<modules>
+		<textModule id='Text1' left='36' top='19' width='729' height='422' isVisible='true'>
+			<text draggable='false' gapWidth='0' isActivity='true' isIgnorePunctuation='false' isDisabled='false' isCaseSensitive='false'><![CDATA[In chapter 6, you reviewed the various types.]]></text>
+		</textModule>
+	</modules>
 </page>
-

@@ -1,3 +1,4 @@
+2013-08-05 Fixed problem with nonunicode characters pasted to text editor
 2013-08-02 Check can be used on footer and header
 2013-08-01 Fixed Open Popup Button in error checking mode
 2013-08-01 Added show and hide commands to all button modules
