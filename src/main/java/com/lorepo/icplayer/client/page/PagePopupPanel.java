@@ -52,7 +52,7 @@ public class PagePopupPanel extends DialogBox {
 
 
 	private void initPanel(Page page){
-		pageWidget = new PageView();
+		pageWidget = new PageView("ic_popup_page");
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
 		setStyleName("ic_popup");

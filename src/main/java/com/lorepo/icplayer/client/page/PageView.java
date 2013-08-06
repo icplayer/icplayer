@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.page;
 
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -17,25 +18,30 @@ import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 public class PageView extends SimplePanel implements IPageDisplay{
 
 	private IPageDisplay display;
+	private String styleName;
 
 	
-	public PageView(){
+	public PageView(String styleName){
+		this.styleName = styleName;
 		addStyleName("ic_page_panel");
 	}
 
 	@Override
 	public void setPage(Page page) {
 	
+		Widget innerPanel;
 		if(page.getLayout() == LayoutType.flow){
 			FlowPageView panel = new FlowPageView();
-			setWidget(panel);
+			innerPanel = panel;
 			display = panel;
 		}
 		else{
 			AbsolutePageView panel = new AbsolutePageView();
-			setWidget(panel);
+			innerPanel = panel;
 			display = panel;
 		}
+		innerPanel.addStyleName(styleName);
+		setWidget(innerPanel);
 		display.setPage(page);
 	}
 
