@@ -11,8 +11,9 @@
 
 	<stylesheet src="theme/player.css"/>
 	<stylesheet src="libs/jquery-ui.css"/>
-	
-	<script src="libs/buzz.js"/>
+
+    <script src="libs/player-utils.js"/>
+    <script src="libs/buzz.js"/>
 	<script src="libs/jcanvas.min.js"/>
 	<script src="libs/jquery-ui.js"/>
 	<script src="libs/jquery-csv.js"/>
