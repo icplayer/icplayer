@@ -4,9 +4,16 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
@@ -34,12 +41,15 @@ public class PlayerController implements IPlayerController{
 	private StateService		stateService;
 	private ILoadListener		pageLoadListener;
 	private PagePopupPanel		popupPanel;
+	private String sessionId;
+	private String analyticsId;
 	
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
 		
 		contentModel = content;
 		playerView = view;
+		sessionId = UUID.uuid();
 		scoreService = new ScoreService();
 		stateService = new StateService();
 		createPageControllers(bookMode);
@@ -188,6 +198,10 @@ public class PlayerController implements IPlayerController{
 	
 	private void switchToPage(Page page, final PageController pageController){
 
+		
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("page", page.getId());
+		sendAnalytics("switch to page", params );
 		// Load new page
 		String baseUrl = contentModel.getBaseUrl();
 		XMLLoader reader = new XMLLoader(page);
@@ -286,6 +300,38 @@ public class PlayerController implements IPlayerController{
 		if(popupPanel != null){
 			popupPanel.hide();
 		}
+	}
+
+
+	@Override
+	public void sendAnalytics(String event, HashMap<String, String> params) {
+		if(analyticsId == null){
+			return;
+		}
+		
+		String url = "http://www.bluenotepad.com/api/log?" + 
+				"notepad=" + analyticsId + "&session=" + sessionId + "&event=" + event;
+		if( params != null){
+			for(String key : params.keySet()){
+				url += "&" + key + "=" + params.get(key).replace("&nbsp;", " ");
+			}
+		}
+		String encodedUrl = URL.encode(url);
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, encodedUrl);
+		try {
+			builder.sendRequest(null, new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+				}
+				public void onResponseReceived(Request request, Response response){
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
+
+
+	public void setAnalytics(String id) {
+		this.analyticsId = id;
 	}
 
 }

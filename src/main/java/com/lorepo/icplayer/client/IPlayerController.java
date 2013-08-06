@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -18,5 +20,6 @@ public interface IPlayerController {
 	Widget getView();
 	void showPopup(String pageName);
 	void closePopup();
+	void sendAnalytics(String event, HashMap<String, String> params);
 
 }

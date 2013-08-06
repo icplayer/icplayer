@@ -21,8 +21,6 @@ public class PlayerApp{
 
 	/** Div id */
 	private String divId;
-	/** Debug mode */
-	private boolean testMode = false;
 	private	Content				contentModel;
 	private PlayerController	playerController;
 	/** Score service impl */
@@ -31,6 +29,7 @@ public class PlayerApp{
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
 	private boolean bookMode = false;
+	private String analyticsId = null;
 	
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
@@ -47,13 +46,6 @@ public class PlayerApp{
 	 */
 	public IScoreService getScoreService() {
 		return playerController.getScoreService();
-	}
-
-	/**
-	 * Check if app working in debug mode
-	 */
-	public boolean isDebugMode(){
-		return testMode;
 	}
 
 	/**
@@ -77,8 +69,8 @@ public class PlayerApp{
 	}
 
 	
-	public void setTestMode() {
-		testMode = true;
+	public void setAnalytics(String id) {
+		analyticsId = id;
 	}
 
 	/**
@@ -88,6 +80,7 @@ public class PlayerApp{
 	
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode);
+		playerController.setAnalytics(analyticsId);
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				entryPoint.onPageLoaded();

@@ -34,7 +34,7 @@ public class PageController {
 		void refreshMathJax();
 		void setWidth(int width);
 		void setHeight(int height);
-		void clear();
+		void removeAllModules();
 	}
 	
 	private IPageDisplay pageView;
@@ -106,7 +106,7 @@ public class PageController {
 	private void initModules() {
 		
 		presenters.clear();
-		pageView.clear();
+		pageView.removeAllModules();
 		scriptingEngine.reset();
 		
 		for(IModuleModel module : currentPage.getModules()){
@@ -257,7 +257,7 @@ public class PageController {
 			currentPage.release();
 			currentPage = null;
 		}
-		pageView.clear();
+		pageView.removeAllModules();
 	}
 
 

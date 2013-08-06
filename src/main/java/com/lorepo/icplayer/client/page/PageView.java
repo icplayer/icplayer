@@ -1,103 +1,73 @@
 package com.lorepo.icplayer.client.page;
 
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
-import com.lorepo.icplayer.client.utils.DOMUtils;
-import com.lorepo.icplayer.client.utils.MathJax;
 
 
 /**
- * This is X,Y laytout
+ * Base class for different page layouts
  * 
  * @author Krzysztof Langner
  *
  */
-public class PageView extends AbsolutePanel implements IPageDisplay{
+public class PageView extends SimplePanel implements IPageDisplay{
 
-	private Page currentPage;
+	private IPageDisplay display;
 
 	
 	public PageView(){
-
-		addStyleName("ic_page");
+		addStyleName("ic_page_panel");
 	}
-	
 
 	@Override
-	public void setPage(Page newPage) {
+	public void setPage(Page page) {
 	
-		currentPage = newPage;
-		String styles = "position:relative;overflow:hidden;";
-		if(currentPage.getInlineStyle() != null){
-			styles += currentPage.getInlineStyle(); 
-			
+		if(page.getLayout() == LayoutType.flow){
+			FlowPageView panel = new FlowPageView();
+			setWidget(panel);
+			display = panel;
 		}
-		DOMUtils.applyInlineStyle(getElement(), styles);
-		if(!currentPage.getStyleClass().isEmpty()){
-			addStyleName(currentPage.getStyleClass());
+		else{
+			AbsolutePageView panel = new AbsolutePageView();
+			setWidget(panel);
+			display = panel;
 		}
-		
-		clear();
+		display.setPage(page);
 	}
 
 
 	@Override
 	public void refreshMathJax() {
-		MathJax.refreshMathJax(getElement());
+		display.refreshMathJax();
 	}
 
 
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module){
-		
-		int left;
-		int top;
-		int width;
-		int height;
-	
-		float 	pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
-		float 	pageHeight = DOM.getElementPropertyInt(getElement(), "clientHeight");
-
-		if(view instanceof Widget){
-			Widget moduleView = (Widget) view;
-			
-			if(currentPage.getLayout() == LayoutType.percentage){
-			
-				left = (int) (module.getLeft()*pageWidth)/100;
-				top = (int) (module.getTop()*pageHeight)/100;
-				width = (int) (module.getWidth()*pageWidth)/100;
-				height = (int) (module.getHeight()*pageHeight)/100;
-			}
-			else{
-				
-				left = (int) module.getLeft();
-				top = (int) module.getTop();
-				width = (int) module.getWidth();
-				height = (int) module.getHeight();
-			}
-			
-			moduleView.setPixelSize(width, height);
-		    add(moduleView, left, top);
-			
-		}
+		display.addModuleView(view, module);
 	}
 
 
 	@Override
 	public void setWidth(int width) {
-		setWidth(width+"px");
+		display.setWidth(width);
 	}
 
 
 	@Override
 	public void setHeight(int height) {
-		setHeight(height+"px");
+		display.setHeight(height);
+	}
+
+	@Override
+	public void removeAllModules() {
+		if(display != null){
+			display.removeAllModules();
+		}
 	}
 
 }

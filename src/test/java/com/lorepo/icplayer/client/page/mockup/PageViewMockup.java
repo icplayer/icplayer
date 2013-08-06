@@ -67,7 +67,7 @@ public class PageViewMockup implements IPageDisplay {
 
 
 	@Override
-	public void clear() {
+	public void removeAllModules() {
 		views.clear();
 	}
 }

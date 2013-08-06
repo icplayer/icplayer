@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.api.player;
 
+import java.util.HashMap;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -23,4 +25,5 @@ public interface IPlayerServices {
 	public IJsonServices	getJsonServices();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
+	public void sendAnalytics(String event, HashMap<String,String> params);
 }

@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.page.mockup;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.ScoreService;
@@ -89,6 +91,13 @@ public class PlayerControllerMockup implements IPlayerController {
 
 	@Override
 	public void closePopup() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void sendAnalytics(String event, HashMap<String, String> params) {
 		// TODO Auto-generated method stub
 		
 	}

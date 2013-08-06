@@ -37,8 +37,8 @@ public class PlayerEntryPoint implements EntryPoint {
 		  player.onStatusChanged = function(listener){
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
 		  }
-		  player.setTestMode = function(){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setTestMode()();
+		  player.setAnalytics = function(id){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
 		  }
 		  player.getState = function(){
 		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
@@ -105,7 +105,8 @@ public class PlayerEntryPoint implements EntryPoint {
 	}
 
 	
-	private void setTestMode() {
+	private void setAnalytics(String id) {
+		theApplication.setAnalytics(id);
 	}
 
 	

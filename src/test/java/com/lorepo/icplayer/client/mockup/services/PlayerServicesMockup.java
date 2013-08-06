@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.mockup.services;
 
+import java.util.HashMap;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -100,5 +102,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public IStateService getStateService() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public void sendAnalytics(String event, HashMap<String, String> params) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -66,7 +66,6 @@ background-color:lightgreen;
 </style>
 
 <pages>
-	<page name="problem" href="pages/problem.page.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
@@ -81,6 +80,7 @@ background-color:lightgreen;
 		<page name="footer" href="pages/footer.xml"/>
 	</folder>
 	<!--
+	<page name="problem" href="pages/problem.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="problem" href="pages/problem.page.xml"/>
 	<page name="addon" href="pages/addon.page.xml"/>

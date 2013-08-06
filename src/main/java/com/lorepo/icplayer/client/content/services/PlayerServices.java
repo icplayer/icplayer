@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
+import java.util.HashMap;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
@@ -115,6 +117,12 @@ public class PlayerServices implements IPlayerServices {
 
 	public void setJsonService(IJsonServices services) {
 		jsonServices = services;
+	}
+
+
+	@Override
+	public void sendAnalytics(String event, HashMap<String, String> params) {
+		playerController.sendAnalytics(event, params);
 	}
 
 }
