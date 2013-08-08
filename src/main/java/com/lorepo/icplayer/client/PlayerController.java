@@ -179,8 +179,12 @@ public class PlayerController implements IPlayerController{
 	public void switchToPage(int index){
 		closeCurrentPages();
 		Page page;
-		if(pageController2 != null && index%2 > 0){
-			index -= 1;
+		if(pageController2 != null){
+			if( (contentModel.getCover() == null && index%2 > 0) || 
+				(contentModel.getCover() != null && index%2 == 0 && index > 0))
+			{
+				index -= 1;
+			}
 		}
 		if(index < contentModel.getPages().size()){
 			page = contentModel.getPages().get(index);
@@ -188,10 +192,18 @@ public class PlayerController implements IPlayerController{
 		else{
 			page = contentModel.getPages().get(0);
 		}
-		switchToPage(page, pageController1);
-		if(pageController2 != null && index+1 < contentModel.getPages().size()){
-			page = contentModel.getPages().get(index+1);
-			switchToPage(page, pageController2);
+		
+		if(contentModel.getCover() != null && index == 0){
+			playerView.showSinglePage();
+			switchToPage(page, pageController1);
+		}
+		else{
+			switchToPage(page, pageController1);
+			if(pageController2 != null && index+1 < contentModel.getPages().size()){
+				playerView.showTwoPages();
+				page = contentModel.getPages().get(index+1);
+				switchToPage(page, pageController2);
+			}
 		}
 	}
 	

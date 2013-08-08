@@ -83,7 +83,18 @@ public class PlayerView extends VerticalPanel{
 
 
 	public void showTwoPages() {
-		pageView2 = new PageView("ic_mainPage");
-		contentPanel.add(pageView2);
+		if(pageView2 == null){
+			pageView2 = new PageView("ic_mainPage");
+		}
+		if(contentPanel.getWidgetIndex(pageView2) == -1){
+			contentPanel.add(pageView2);
+		}
+	}
+
+
+	public void showSinglePage() {
+		if(pageView2 != null){
+			contentPanel.remove(pageView2);
+		}
 	}
 }

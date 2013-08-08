@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -439,5 +440,32 @@ public class ContentTestCase {
 		
 		IPage page = model.getPage(0);
 		assertEquals("123456", page.getId());
+	}
+
+	
+	@Test
+	public void noCover() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		Page cover = model.getCover();
+		
+		assertNull(cover);
+	}
+
+	
+	@Test
+	public void testCover() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content-cover.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		Page cover = model.getCover();
+		
+		assertNotNull(cover);
+		assertEquals("Cover", cover.getName());
 	}
 }

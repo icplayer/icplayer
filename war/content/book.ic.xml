@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interactiveContent name="">
+	<metadata>
+		<entry key="theme.href" value="/file/262294"/>
+	</metadata>
+	<addons>
+		<addon-descriptor addonId="Page_Counter" href="../addons/Page_Counter.xml"/>
+		<addon-descriptor addonId="Navigation_Bar" href="../addons/Navigation_Bar.xml"/>
+	</addons>
+	<style>
+.ic_page{
+width: 440px;
+height: 550px;
+background-color: #ffffff;
+background-image: none;
+}
+
+.ic_header{
+	border-bottom: 1px solid #b2b2b2;
+	background: #f8f8f8;
+}
+
+.ic_footer{
+	border-top: 1px solid #b2b2b2;
+	background: #f8f8f8;
+}
+
+.text_title{
+font-size: 27px;
+color: #fcfcfc;
+font-family: Verdana;
+}
+
+.text_number{
+font-size: 21px;
+color: #fcfcfc;
+font-family: Georgia;
+}
+
+.text_pageTitle{
+color: #4995C7;
+font-size: 22px;
+font-family: Verdana;
+}
+
+.text_paragraphTitle{
+font-size: 20px;
+font-family: Verdana;
+line-height: 24px;
+}
+
+.text_exerciseTitle{
+color: #0dacb2;
+font-size: 19px;
+font-family: Verdana;
+line-height: 25px;
+}
+
+.text_paragraphTxt{
+line-height: 24px;
+font-size: 18px;
+color: #717171;
+font-family: Verdana;
+}
+
+.shape_exerciseMark{
+background-color: #0dacb2;
+border-radius: 50px;
+}
+
+.shape_paragraphMark{
+background-color: #748080;
+border-radius: 50px;
+}
+
+.shape_blueLine{
+background-color: #0ca6ac;
+border-radius: 5px;
+}
+
+.shape_greenLine{
+background-color: #59d100;
+}
+
+.shape_orangeLine{
+background-color: #ff6600;
+}
+
+.shape_darkLine{
+background-color: #454c4c;
+border-radius: 5px;
+mark}
+
+.shape_upperFrame{
+background-color: #454c4c;
+border-radius: 5px;
+}
+
+.shape_optionsShape{
+background-color: #f2f2f2;
+border-radius: 5px;
+border: 2px solid #e5e5e5;
+}
+
+.choice_single{
+line-height: 24px;
+font-size: 18px;
+color: #717171;
+}
+
+.choice_multi{
+line-height: 19px;
+font-size: 18px;
+color: #717171;
+}
+
+.image_picture{
+border: 1px solid gray;
+box-shadow: 3px 4px 4px #cccccc;
+}
+
+.youtube_look{
+border: 1px solid gray;
+box-shadow: 3px 4px 4px #cccccc;
+}
+
+.text_myLink{
+}
+
+.text_myLink a{
+color: #3e3c40;
+padding-top: 0px;
+text-decoration: none;
+font-size: 40px;
+font-family: Georgia;
+font-weight: normal;
+}
+
+.text_myLink a:hover{
+color: #67aed9;
+padding-top: 0px;
+text-decoration: none;
+font-size: 40px;
+font-family: Georgia;
+font-weight: normal;
+}
+
+.ic_ordering{
+}
+
+.ic_ordering-item{
+margin: 5px;
+padding: 4px;
+border: 2px solid #67aed9;
+border-radius: 3px;
+background-color: #67aed9;
+font-size: 16px;
+color: #fcfcfc;
+font-family: Verdana;
+height: 20px;
+line-height: 100%;
+}
+
+.ic_drag-source{
+background-color: orange;
+border: 2px solid orange;
+}
+
+.ic_ordering-item-correct{
+border: 2px solid green;
+}
+
+.ic_ordering-item-wrong{
+border: 2px solid red;
+}
+
+.ic_button_check {
+background-image: url('resources/184239.png');
+}
+
+.ic_button_check-up-hovering{
+background-image: url('resources/177541.png');
+}
+
+.ic_button_check-down-hovering{
+background-image: url('resources/168498.png');
+}
+
+.ic_button_uncheck{
+background-image: url('resources/176540.png');
+}
+
+.ic_button_reset{
+background-image: url('resources/168496.png');
+}
+
+.ic_button_reset-up-hovering{
+background-image: url('resources/176539.png');
+}
+
+.ic_button_reset-down-hovering{
+background-image: url('resources/184242.png');
+}
+
+.ic_button_nextpage{
+background-image: url('resources/181510.png');
+background-repeat: no-repeat;
+background-position: center;
+}
+
+.ic_button_nextpage-up-hovering{
+background-image: url('resources/181511.png');
+}
+
+.ic_button_nextpage-down-hovering{
+background-image: url('resources/184241.png');
+}
+
+.ic_button_prevpage{
+background-image: url('resources/184240.png');
+background-repeat: no-repeat;
+background-position: center;
+}
+
+.ic_button_prevpage-up-hovering{
+background-image: url('resources/182495.png');
+}
+
+.ic_button_prevpage-down-hovering{
+background-image: url('resources/168497.png');
+}
+
+.ic_option-neutral {
+padding-left: 19px;
+}
+
+.ic_option-wrong {
+padding-left: 19px;
+background-image: url('resources/77022.png');
+background-repeat: no-repeat;
+}
+
+.ic_option-correct {
+background-image: url('resources/79016.png');
+background-repeat: no-repeat;
+padding-left: 19px;
+}
+
+.ic_gap-correct{
+padding-left: 19px;
+background-image: url('resources/79016.png');
+background-repeat: no-repeat;
+}
+
+.text_gap{
+}
+
+.text_gap input {
+height: 15px;
+width: 100px;
+}
+
+.errorcounter{
+line-height: 30px;
+font-family: Arial;
+font-size: 17px;
+padding: 2px;
+border-radius: 4px;
+border: 2px solid #3988be;
+background-color: #ffffff;
+}
+
+.checkcounter{
+line-height: 30px;
+font-family: Arial;
+font-size: 17px;
+padding: 2px;
+border-radius: 4px;
+border: 2px solid #3988be;
+background-color: #ffffff;
+}
+
+.ic_pageprogress{
+border-radius: 4px;
+border: 2px solid #3988be;
+padding: 2px;
+background-color: #ffffff;
+}
+
+.ic_pageprogress .ic_progress-text{
+line-height: 25px;
+font-family: Arial;
+font-size: 18px;
+}
+
+.ic_pageprogress .ic_progress-bar{
+background-color: #3cc5cc;
+border-radius: 4px;
+}
+
+.ic_report{
+padding: 0px;
+border-radius: 5px;
+border: 1px solid gray;
+background-color: white;
+color: gray;
+}
+
+.ic_report td{
+padding: 10px;
+}
+
+.ic_report-header{
+font-weight: bold;
+color: black;
+}
+
+.ic_report-odd{
+background-color: #f5f6f6;
+}
+
+.ic_report-even{
+background-color: #edefef;
+}
+
+.ic_report .ic_progress{
+border-radius: 4px;
+border: 2px solid #3988be;
+padding: 2px;
+height: 25px;
+}
+
+.ic_report .ic_progress-bar{
+background-color: #3cc5cc;
+border-radius: 4px;
+}
+
+.ic_report .ic_progress-text{
+line-height: 22px;
+font-family: Arial;
+font-size: 18px;
+}
+
+</style>
+
+	<pages>
+	<page href="book/front-cover.xml" name="Cover" preview="" reportable="false"/>
+	<page href="book/page1.xml" id="Qa3xU8" name="Introduction" preview="" reportable="false"/>
+	<page href="book/1946004.xml" id="KD7Xow" name="1. Labrador retriver" preview="" reportable="true"/>
+	<page href="book/1944006.xml" id="uz5mLX" name="2. Yorkshire terrier" preview="" reportable="true"/>
+	<page href="book/1940011.xml" id="WNlgAW" name="3. Miniature Schnauzer" preview="" reportable="true"/>
+	<page href="book/1950007.xml" id="iCEcVA" name="4. Golden retriever" preview="" reportable="true"/>
+	<page href="book/1949009.xml" id="3fhGrJ" name="5. Bernese Mountain" preview="" reportable="true"/>
+	<page href="book/1948006.xml" id="UbE6dM" name="6. German Shepherd" preview="" reportable="true"/>
+	<page href="book/1942008.xml" id="WRe6NF" name="7. Boxer" preview="" reportable="true"/>
+	<page href="book/summary.xml" id="4cM9Cy" name="Report" preview="" reportable="false"/>
+	<folder name="commons">
+		<page href="book/footer.xml" id="footer" name="footer" preview="" reportable="true"/>
+		<page href="book/header.xml" id="header" name="header" preview="" reportable="true"/>
+	</folder>
+	<front-cover ref="fcover"/>
+	<header ref="commons/header"/>
+	<footer ref="commons/footer"/>
+	
+	</pages>
+	
+	<assets/>
+</interactiveContent>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='0' height='0'>
+	<modules>
+		<reportModule id='Report1' left='5' top='10' width='430' height='400'></reportModule>
+	</modules>
+</page>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='0' height='0'>
+	<modules>
+		<textModule id='Xci2Eh' left='40' top='96' width='339' height='409' isVisible='true' style='font-size:18px;overflow: auto;'><text draggable='false' gapWidth='0' isActivity='true' isIgnorePunctuation='false' isDisabled='false' isCaseSensitive='false'><![CDATA[Dog breeds are groups of closely related and visibly similar domestic dogs, which are all of the subspecies Canis lupus familiaris, having characteristic traits that are selected and maintained by humans, bred from a known foundation stock.<br><br>Take this quiz to check if you can recognize dog breeds.<br>]]></text></textModule>
+	</modules>
+</page>

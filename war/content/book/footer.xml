@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='880' height='73'>
+	<modules>
+		<buttonModule id='Button4' left='20' top='13' width='50' height='49'><button type='prevPage' text='' onclick=''/></buttonModule>
+		<addonModule addonId='Navigation_Bar' id='Navigation_Bar1' left='100' top='14' width='680' height='45' style=' ' class='Navigation_Bar_text_decoration2'><properties><property name='ShowNextPrevArrows' type='boolean' value=''/><property name='HideHomeLastArrows' type='boolean' value=''/></properties></addonModule>
+		<buttonModule id='Button3' left='810' top='13' width='50' height='49'><button type='nextPage' text='' onclick=''/></buttonModule>
+	</modules>
+</page>

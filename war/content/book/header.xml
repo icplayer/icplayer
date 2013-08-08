@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='880' height='70'>
+	<modules>
+		<textModule id='Text1' left='5' top='20' width='400' height='68' isVisible='true' style='' class='text_pageTitle'><text draggable='false' gapWidth='0' isActivity='true' isIgnorePunctuation='false' isDisabled='false' isCaseSensitive='false'><![CDATA[<div style="text-align: center;">Popular dogs breeds<br></div>]]></text>
+		</textModule>
+		
+		<buttonModule id='Button6' left='651' top='11' width='50' height='49' isVisible='true'><button type='prevPage' text='' onclick=''/>
+		</buttonModule>
+		<addonModule addonId='Page_Counter' id='Page_Counter1' left='702' top='3' width='79' height='65' isVisible='true'><properties></properties>
+		</addonModule>
+		<buttonModule id='Button5' left='782' top='11' width='50' height='49' isVisible='true'>
+			<button type='nextPage' text='' onclick=''/>
+		</buttonModule>
+	</modules>
+</page>

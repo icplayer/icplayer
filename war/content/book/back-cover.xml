@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='0' height='0'>
+	<modules>
+		<imageModule id='fGj1jI' left='10' top='30' width='400' height='378' isVisible='true' style='padding:10px;background-color:white;frame: 1px solid black;;-webkit-box-shadow:#ccc 4px 0 10px,#ccc -4px 0 10px,#aaa 0 38px 36px -24px;-moz-box-shadow:#ccc 4px 0 10px,#ccc -4px 0 10px,#aaa 0 38px 36px -24px;box-shadow:#ccc 4px 0 10px,#ccc -4px 0 10px,#aaa 0 38px 36px -24px;'>
+			<image src='resources/14002.jpg' mode='stretch'/>
+		</imageModule>
+	</modules>
+</page>
