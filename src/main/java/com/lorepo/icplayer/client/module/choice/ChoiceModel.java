@@ -200,6 +200,7 @@ public class ChoiceModel extends BasicModuleModel{
 				
 			@Override
 			public void setValue(String newValue) {
+				sendPropertyChangedEvent(this);
 			}
 			
 			@Override

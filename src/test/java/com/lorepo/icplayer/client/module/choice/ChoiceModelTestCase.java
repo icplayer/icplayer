@@ -17,7 +17,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
-import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
@@ -60,14 +59,7 @@ public class ChoiceModelTestCase {
 			
 			if(module.getProperty(i) instanceof IListProperty){
 				IListProperty listProperty = (IListProperty) module.getProperty(i);
-				IPropertyProvider propertyProvider = listProperty.getChild(0);
-				for(int j = 0; j < propertyProvider.getPropertyCount(); j++){
-					IProperty property = propertyProvider.getProperty(j); 
-					if(propertyProvider.getProperty(j) instanceof IHtmlProperty){
-						property.setValue("test");
-						break;
-					}
-				}
+				listProperty.setValue("test");
 				break;
 			}
 		}

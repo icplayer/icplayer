@@ -69,7 +69,6 @@ public class ChoiceOption extends BasicPropertyProvider{
 			@Override
 			public void setValue(String newValue) {
 				text = newValue;
-				sendPropertyChangedEvent(this);
 			}
 			
 			@Override
@@ -93,7 +92,6 @@ public class ChoiceOption extends BasicPropertyProvider{
 			@Override
 			public void setValue(String newValue) {
 				value = Integer.parseInt(newValue);
-				sendPropertyChangedEvent(this);
 			}
 			
 			@Override
@@ -116,7 +114,6 @@ public class ChoiceOption extends BasicPropertyProvider{
 				
 			public void setValue(String newValue) {
 				feedback = newValue;
-				sendPropertyChangedEvent(this);
 			}
 			
 			public String getValue() {
