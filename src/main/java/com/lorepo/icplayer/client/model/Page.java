@@ -27,17 +27,16 @@ import com.lorepo.icplayer.client.utils.IXMLSerializable;
  */
 public class Page extends BasicPropertyProvider implements IXMLSerializable, IStyledModule, IPage{
 
-	/** Sposób pozycjonowania elementów na stronie */
 	public enum LayoutType{
 		percentage,
 		pixels,
-		flow
+		responsive
 	}
 	
 	private String id;
 	private String name;
 	private String href;
-	private LayoutType layout = LayoutType.percentage;
+	private LayoutType layout = LayoutType.pixels;
 	private String cssClass = "";
 	private String inlineStyles = "";
 	private ModuleList	modules = new ModuleList();
@@ -194,8 +193,8 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		if(positioning == null || positioning.isEmpty()){
 			setLayout(LayoutType.percentage);
 		}
-		else if(positioning.equals(LayoutType.flow.toString())){
-			setLayout(LayoutType.flow);
+		else if(positioning.equals(LayoutType.responsive.toString())){
+			setLayout(LayoutType.responsive);
 		}
 		else{
 			setLayout(LayoutType.pixels);

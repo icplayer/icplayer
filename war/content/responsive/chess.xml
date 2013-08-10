@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<page layout='flow'>
+<page layout='responsive'>
 	<modules>
 		<textModule id='Text2' left='20' top='9' width='700' height='37' class='text_Title'>
 			<text draggable='false'>&lt;div style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;text-align: left;&quot;&gt;Chessmen&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;text-align: left; &quot;&gt;&lt;/span&gt;&lt;/div&gt;</text>

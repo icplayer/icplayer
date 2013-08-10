@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page layout="flow"  width="100" height="200">
+<page layout="responsive"  width="100" height="200">
 
 	<modules>
 		

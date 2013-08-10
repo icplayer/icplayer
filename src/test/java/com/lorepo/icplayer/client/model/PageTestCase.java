@@ -434,7 +434,7 @@ public class PageTestCase {
 	}
 
 	@Test
-	public void getFlowLayout() throws SAXException, IOException {
+	public void getResponsiveLayout() throws SAXException, IOException {
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/page2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -443,7 +443,7 @@ public class PageTestCase {
 		Page page = new Page("Sizes", "");
 		page.load(element, "");
 		
-		assertTrue(page.getLayout() == LayoutType.flow);
+		assertTrue(page.getLayout() == LayoutType.responsive);
 	}
 
 	@Test

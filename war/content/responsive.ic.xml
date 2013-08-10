@@ -55,11 +55,11 @@ background-color:lightgreen;
 </style>
 
 <pages>
-	<page name="chess" href="flow/chess.xml"/>
-	<page name="flow" href="flow/flow.page.xml"/>
+	<page name="chess" href="responsive/chess.xml"/>
+	<page name="flow" href="responsive/flow.page.xml"/>
 	<folder name="commons">
-		<page name="header" href="flow/header.xml"/>
-		<page name="footer" href="flow/footer.xml"/>
+		<page name="header" href="responsive/header.xml"/>
+		<page name="footer" href="responsive/footer.xml"/>
 	</folder>
  	
 	<header ref="commons/header"/>

@@ -16,12 +16,12 @@ import com.lorepo.icplayer.client.utils.MathJax;
  * @author Krzysztof Langner
  *
  */
-public class FlowPageView extends FlowPanel implements IPageDisplay{
+public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 	private Page currentPage;
 
 	
-	public FlowPageView(){
+	public ResponsivePageView(){
 
 		addStyleName("ic_flowPage");
 	}

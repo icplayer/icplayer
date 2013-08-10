@@ -30,8 +30,8 @@ public class PageView extends SimplePanel implements IPageDisplay{
 	public void setPage(Page page) {
 	
 		Widget innerPanel;
-		if(page.getLayout() == LayoutType.flow){
-			FlowPageView panel = new FlowPageView();
+		if(page.getLayout() == LayoutType.responsive){
+			ResponsivePageView panel = new ResponsivePageView();
 			innerPanel = panel;
 			display = panel;
 		}
