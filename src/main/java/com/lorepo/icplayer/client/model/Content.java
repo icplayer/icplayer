@@ -33,7 +33,6 @@ public class Content implements IXMLSerializable, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	private String frontCoverPageName = "Cover";
 	
 	
 	public Content(){
@@ -486,11 +485,6 @@ public class Content implements IXMLSerializable, IContent {
 	
 	public Page getFooter(){
 		return findPageByName(footerPageName);
-	}
-
-
-	public Page getCover(){
-		return findPageByName(frontCoverPageName);
 	}
 
 

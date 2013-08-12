@@ -29,6 +29,7 @@ public class PlayerApp{
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
 	private boolean bookMode = false;
+	private boolean showCover = false;
 	private String analyticsId = null;
 	
 	
@@ -80,6 +81,7 @@ public class PlayerApp{
 	
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode);
+		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
@@ -146,5 +148,10 @@ public class PlayerApp{
 
 	public void setBookMode() {
 		bookMode = true;
+	}
+
+
+	public void showCover(boolean show) {
+		showCover = show;
 	}
 }

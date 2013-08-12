@@ -441,31 +441,4 @@ public class ContentTestCase {
 		IPage page = model.getPage(0);
 		assertEquals("123456", page.getId());
 	}
-
-	
-	@Test
-	public void noCover() throws SAXException, IOException {
-		
-		Content model = initContentFromFile("testdata/content.xml");
-		String xml = model.toXML();
-		model = initContentFromString(xml);
-		
-		Page cover = model.getCover();
-		
-		assertNull(cover);
-	}
-
-	
-	@Test
-	public void testCover() throws SAXException, IOException {
-		
-		Content model = initContentFromFile("testdata/content-cover.xml");
-		String xml = model.toXML();
-		model = initContentFromString(xml);
-		
-		Page cover = model.getCover();
-		
-		assertNotNull(cover);
-		assertEquals("Cover", cover.getName());
-	}
 }

@@ -57,8 +57,8 @@ public class PlayerEntryPoint implements EntryPoint {
 		}
 
 		// Create book
-		$wnd.icCreateBook = function(id) {
-		  var book = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;)(id);
+		$wnd.icCreateBook = function(id, useCover) {
+		  var book = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
 		  book.load = function(url, index){
 		  	index = index || 0;
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
@@ -89,9 +89,10 @@ public class PlayerEntryPoint implements EntryPoint {
 	}
 	
 	
-	private JavaScriptObject createBookPlayer(String node_id) {
+	private JavaScriptObject createBookPlayer(String node_id, boolean useCover) {
 		theApplication = new PlayerApp(node_id, this);
 		theApplication.setBookMode();
+		theApplication.showCover(useCover);
 		return JavaScriptObject.createFunction();
 	}
 	

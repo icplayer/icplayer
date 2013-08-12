@@ -43,6 +43,7 @@ public class PlayerController implements IPlayerController{
 	private PagePopupPanel		popupPanel;
 	private String sessionId;
 	private String analyticsId;
+	private boolean showCover = false;
 	
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
@@ -180,8 +181,8 @@ public class PlayerController implements IPlayerController{
 		closeCurrentPages();
 		Page page;
 		if(pageController2 != null){
-			if( (contentModel.getCover() == null && index%2 > 0) || 
-				(contentModel.getCover() != null && index%2 == 0 && index > 0))
+			if( (!showCover && index%2 > 0) || 
+				(showCover && index%2 == 0 && index > 0))
 			{
 				index -= 1;
 			}
@@ -193,7 +194,7 @@ public class PlayerController implements IPlayerController{
 			page = contentModel.getPages().get(0);
 		}
 		
-		if(contentModel.getCover() != null && index == 0){
+		if(showCover && index == 0){
 			playerView.showSinglePage();
 			switchToPage(page, pageController1);
 		}
@@ -344,6 +345,11 @@ public class PlayerController implements IPlayerController{
 
 	public void setAnalytics(String id) {
 		this.analyticsId = id;
+	}
+
+
+	public void setFirstPageAsCover(boolean showCover) {
+		this.showCover = showCover;
 	}
 
 }
