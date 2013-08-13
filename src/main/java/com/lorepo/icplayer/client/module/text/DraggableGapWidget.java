@@ -92,7 +92,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 			answerText = "";
 		}
 		else{
-			super.setHTML(text);
+			super.setHTML(StringUtils.escapeHTML(text));
 			answerText = StringUtils.removeAllFormatting(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			MathJax.refreshMathJax(getElement());
