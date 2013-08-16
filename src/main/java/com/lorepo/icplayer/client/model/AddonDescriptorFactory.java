@@ -76,6 +76,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("WritingCalculations", "Writing Calculations", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
+		addDescriptor("External_Link_Button", "External Link Button", "Navigation");
 	}
 
 

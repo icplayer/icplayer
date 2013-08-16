@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='External_Link_Button'>
+	<model>
+		<property name="Title" type="string" isLocalized="true" />
+		<property name="Image" type="image" />
+		<property name="URI" type="string" />
+	</model>
+</addon>

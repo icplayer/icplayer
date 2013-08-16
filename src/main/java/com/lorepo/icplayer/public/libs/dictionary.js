@@ -244,6 +244,7 @@ var ice_dictionary = {
 	"Points_To_Plot_info": "This addon is an extension of the Plot addon. It allows to create activities based on points to plot relations, e.g. define the points or the number of points to be selected in the Plot activity.",
 	"Puzzle_info": "Allows to insert a puzzle game into a presenttaion. It is enough to upload an image which is later automatically divided into separate items put in rows and columns. A user’s task is to arrange the elements in the right order and make the image whole again.",
 	"Single_State_Button_info": "Allows users to perform various actions in presentations, such as changing other addons' states when the button is selected.",
+	"External_Link_Button_info": "Allows users to create hyperlinks to external resources.",
 	"Slider_info": "Allows to add the slider functionality to an activity. It is possible to either slide an image from one position to another or mouse click on the position that a slider is to be moved to.",
 	"Slideshow_info": "Allows to prepare a slideshow presentation including captions and a corresponding soundtrack.",
 	"Standard_Shapes_info": "Allows to embed basic shapes into a presentation, including lines, squares, rectangles, circles, or ellipses.",
