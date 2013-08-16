@@ -106,10 +106,6 @@ public class PlayerController implements IPlayerController{
 	}
 	
 	
-	/**
-	 * 
-	 * @return model
-	 */
 	public Content	getModel(){
 		return contentModel;
 	}
@@ -269,13 +265,18 @@ public class PlayerController implements IPlayerController{
 	
 	private void closeCurrentPages() {
 		pageController1.updateScore();
-		HashMap<String, String> state = pageController1.getState();
-		stateService.addState(state);
+		updateState();
 		pageController1.closePage();
 		
 		if(pageController2 != null){
 			pageController2.closePage();
 		}
+	}
+
+
+	public void updateState() {
+		HashMap<String, String> state = pageController1.getState();
+		stateService.addState(state);
 	}
 
 

@@ -1,24 +1,30 @@
 package com.lorepo.icplayer.client.module;
 
-import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.BasicPropertyProvider;
+import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IRectangleItem;
 
 /**
- * Klasa implementuje bazowe functionalności potrzebne wszystkim modułom
+ * Function for positioning module on the page
  * 
  * @author Krzysztof Langner
  */
 class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem {
 
+	private LayoutDefinition layout;
 	private int	left;
+	private int	right;
 	private int	top;
+	private int	bottom;
 	private int	width;
 	private int	height;
 	
 	private IProperty leftProperty;
+	private IProperty rightProperty;
 	private IProperty topProperty;
+	private IProperty bottomProperty;
 	private IProperty widthProperty;
 	private IProperty heightProperty;
 	
@@ -26,6 +32,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	
 	public AbsolutePositioningModule(String name){
 		super(name);
+		layout = new LayoutDefinition();
 	}
 
 
@@ -38,13 +45,28 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	
 	
 	@Override
+	public ILayoutDefinition getLayout(){
+		return layout;
+	}
+	
+	@Override
 	public int getLeft() {
 		return left;
+	}
+	
+	@Override
+	public int getRight() {
+		return right;
 	}
 
 	@Override
 	public int getTop() {
 		return top;
+	}
+
+	@Override
+	public int getBottom() {
+		return bottom;
 	}
 
 	@Override
@@ -67,11 +89,29 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	}
 
 	@Override
+	public void setRight(int right) {
+
+		this.right = right;
+		if(!disableChangeEvent){
+			sendPropertyChangedEvent(rightProperty);
+		}
+	}
+
+	@Override
 	public void setTop(int top) {
 
 		this.top = top;
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(topProperty);
+		}
+	}
+
+	@Override
+	public void setBottom(int bottom) {
+
+		this.bottom = bottom;
+		if(!disableChangeEvent){
+			sendPropertyChangedEvent(bottomProperty);
 		}
 	}
 

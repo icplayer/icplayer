@@ -32,6 +32,7 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
+import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 
@@ -447,15 +448,43 @@ public class PageTestCase {
 	}
 
 	@Test
-	public void getPercentLayout() throws SAXException, IOException {
+	public void defaultModuleLayout() throws SAXException, IOException {
 		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page3.xml");
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		
 		Page page = new Page("Sizes", "");
 		page.load(element, "");
+		IModuleModel module = page.getModules().get(0);
+		ILayoutDefinition layout = module.getLayout();
 		
-		assertTrue(page.getLayout() == LayoutType.percentage);
+		assertTrue(layout.hasLeft());
+		assertTrue(layout.hasTop());
+		assertTrue(layout.hasWidth());
+		assertTrue(layout.hasHeight());
+		
+		assertFalse(layout.hasRight());
+		assertFalse(layout.hasBottom());
+	}
+
+	@Test
+	public void layoutLTRB() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Page page = new Page("Sizes", "");
+		page.load(element, "");
+		IModuleModel module = page.getModules().get(0);
+		ILayoutDefinition layout = module.getLayout();
+		
+		assertTrue(layout.hasLeft());
+		assertTrue(layout.hasTop());
+//		assertTrue(layout.hasRight());
+//		assertTrue(layout.hasBottom());
+//		assertFalse(layout.hasWidth());
+//		assertFalse(layout.hasHeight());
 	}
 }

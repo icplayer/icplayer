@@ -137,6 +137,7 @@ public class PlayerApp{
 	}
 
 	public String getState() {
+		playerController.updateState();
 		String state = playerController.getPlayerServices().getStateService().getAsString();
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		HashMap<String, String> data = new HashMap<String, String>();
