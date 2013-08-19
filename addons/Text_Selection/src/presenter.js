@@ -59,7 +59,12 @@ function AddonText_Selection_create() {
 			}
 
 			first = 0;
-			document.getSelection().empty();
+			//
+			if (window.getSelection) {
+				window.getSelection().removeAllRanges();
+			} else if (document.selection) {
+				document.selection.empty();
+			}
 		}
 	}
 
