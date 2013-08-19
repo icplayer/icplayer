@@ -33,6 +33,9 @@ public class TextPresenterTestCase {
 	private TextViewMockup display;
 	private TextPresenter presenter;
 	private boolean eventReceived;
+	private String id1;
+	private String id2;
+	private String id3;
 
 	
 	@Before
@@ -48,6 +51,9 @@ public class TextPresenterTestCase {
 		display = new TextViewMockup(module);
 		presenter = new TextPresenter(module, services);
 		presenter.addView(display);
+		id1 = module.choiceInfos.get(0).getId();
+		id2 = module.choiceInfos.get(1).getId();
+		id3 = module.gapInfos.get(0).getId();
 	}
 	
 	
@@ -75,24 +81,24 @@ public class TextPresenterTestCase {
 	@Test
 	public void score() throws SAXException, IOException {
 		
-		display.getListener().onValueChanged(module.getId()+"-1", "likes");
-		display.getListener().onValueChanged(module.getId()+"-3", "Volvo");
+		display.getListener().onValueChanged(id1, "likes");
+		display.getListener().onValueChanged(id3, "Volvo");
 		assertEquals(3, presenter.getScore());
 	}
 	
 	@Test
 	public void errorCount() throws SAXException, IOException {
 		
-		display.getListener().onValueChanged(module.getId()+"-1", "error1");
-		display.getListener().onValueChanged(module.getId()+"-3", "error2");
+		display.getListener().onValueChanged(id1, "error1");
+		display.getListener().onValueChanged(id3, "error2");
 		assertEquals(2, presenter.getErrorCount());
 	}
 	
 	@Test
 	public void moduleScore() throws SAXException, IOException {
 		
-		display.getListener().onValueChanged(module.getId()+"-1", "likes");
-		display.getListener().onValueChanged(module.getId()+"-3", "Volvo");
+		display.getListener().onValueChanged(id1, "likes");
+		display.getListener().onValueChanged(id3, "Volvo");
 		
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(3, moduleScore);
@@ -101,9 +107,9 @@ public class TextPresenterTestCase {
 	@Test
 	public void caseSensitive() throws SAXException, IOException {
 		
-		display.getListener().onValueChanged(module.getId()+"-1", "likes");
+		display.getListener().onValueChanged(id1, "likes");
 		// This is wrong. Should start from upper case
-		display.getListener().onValueChanged(module.getId()+"-3", "volvo");
+		display.getListener().onValueChanged(id3, "volvo");
 		
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(2, moduleScore);
@@ -182,7 +188,7 @@ public class TextPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		eventBus.fireEvent(event);
 		// consume
-		display.getListener().onGapClicked(module.getId()+"-2");
+		display.getListener().onGapClicked(id2);
 
 		assertEquals(2, presenter.getScore());
 	}
@@ -196,7 +202,7 @@ public class TextPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		eventBus.fireEvent(event);
 		// consume
-		display.getListener().onGapClicked(module.getId()+"-2");
+		display.getListener().onGapClicked(id2);
 
 		assertEquals(2, presenter.getScore());
 	}
@@ -292,7 +298,8 @@ public class TextPresenterTestCase {
 		presenter = new TextPresenter(module, services);
 		presenter.addView(display);
 
-		display.getListener().onValueChanged(module.getId()+"-1", "like's");
+		id1 = module.gapInfos.get(0).getId();
+		display.getListener().onValueChanged(id1, "like's");
 		
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(2, moduleScore);

@@ -40,7 +40,7 @@ public class ShapeModule extends BasicModuleModel {
 	public String toXML() {
 		
 		String xml = 
-				"<shapeModule " + getBaseXML() + ">" + 
+				"<shapeModule " + getBaseXML() + ">" + getLayoutXML() + 
 				"</shapeModule>";
 		
 		return xml;

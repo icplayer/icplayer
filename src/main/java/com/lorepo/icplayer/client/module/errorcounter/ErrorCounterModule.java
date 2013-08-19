@@ -31,7 +31,7 @@ public class ErrorCounterModule extends BasicModuleModel{
 	@Override
 	public String toXML() {
 		
-		String xml = "<errorCounterModule " + getBaseXML() + ">";
+		String xml = "<errorCounterModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<counter showErrorCounter='" + showErrorCounter + 
 				"' showMistakeCounter='" + showMistakeCounter + "'/>";
 		xml += "</errorCounterModule>";

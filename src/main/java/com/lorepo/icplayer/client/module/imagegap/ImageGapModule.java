@@ -100,7 +100,7 @@ public class ImageGapModule extends BasicModuleModel {
 	@Override
 	public String toXML() {
 		
-		String xml = "<imageGapModule " + getBaseXML() + ">";
+		String xml = "<imageGapModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<events>";
 		xml += eventToXML(EVENT_CORRECT);
 		xml += eventToXML(EVENT_WRONG);

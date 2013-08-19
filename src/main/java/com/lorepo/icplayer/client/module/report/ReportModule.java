@@ -79,7 +79,7 @@ public class ReportModule extends BasicModuleModel {
 		
 		String xml; 
 		
-		xml = "<reportModule " + getBaseXML() + ">";
+		xml = "<reportModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<labels showCounters='" + showCounters + "' pageNameWidth='" +
 				pageNameWidth + "'>";
 		
