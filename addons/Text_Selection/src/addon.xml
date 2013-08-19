@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Text_Selection'>
+	<model>
+		<property name='Mode' type='{Mark phrases to select, All selectable}'/>
+		<property name='Text' type='text'/>
+	</model>
+</addon>

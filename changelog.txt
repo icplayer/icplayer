@@ -1,3 +1,4 @@
+2013-08-19 Added Text Selection module - enable to select parts of texts
 2013-08-09 Fixed problem with too many change events from choice module
 2013-08-09 Added cover page to book mode
 2013-08-07 Updated modules descriptions

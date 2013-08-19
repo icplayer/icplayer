@@ -1,0 +1,20 @@
+.selectable {
+    border: 1px black solid;
+
+    -webkit-border-radius: 5px; /* Safari, Chrome */
+    -khtml-border-radius: 5px; /* Konqueror */
+    -moz-border-radius: 5px; /* Firefox */
+    border-radius: 5px;
+}
+
+.selected {
+    background-color: #FAFAD2;
+}
+
+.wrong {
+    background-color: #FF6347;
+}
+    
+.correct {
+    background-color: #7CFC00;
+}

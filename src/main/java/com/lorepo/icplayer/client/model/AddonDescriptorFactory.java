@@ -40,6 +40,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
 		addDescriptor("Event_Listener", "Event Listener", "Others");
 		addDescriptor("Event_Sender", "Event Sender", "Others");
+		addDescriptor("External_Link_Button", "External Link Button", "Navigation");
 		addDescriptor("feedback", "Feedback", "Scripting");
 		addDescriptor("Glossary", "Glossary", "Media");
 		addDescriptor("graph", "Graph", "Activities");
@@ -71,12 +72,12 @@ public class AddonDescriptorFactory {
 		addDescriptor("Table", "Table", "Activities");
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 		addDescriptor("text_identification", "Text Identification", "Activities");
+		addDescriptor("Text_Selection", "Text Selection", "Activities");
 		addDescriptor("TrueFalse", "True False", "Activities");
 		addDescriptor("video", "Video", "Media");
 		addDescriptor("WritingCalculations", "Writing Calculations", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
-		addDescriptor("External_Link_Button", "External Link Button", "Navigation");
 	}
 
 
