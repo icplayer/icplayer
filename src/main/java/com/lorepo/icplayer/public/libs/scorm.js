@@ -144,5 +144,20 @@ function getScorm() {
 		return false;
 	}
 
+	scorm.saveState = function(state) {
+		if (initialized == true) {
+			API.SetValue("cmi.exit", "suspend");
+			return API.SetValue("cmi.suspend_data", state);
+		}
+		return false;
+	}
+
+	scorm.loadState = function() {
+		if (initialized == true) {
+			return API.GetValue("cmi.suspend_data");
+		}
+		return false;
+	}
+
 	return scorm;
 }
