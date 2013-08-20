@@ -159,5 +159,19 @@ function getScorm() {
 		return false;
 	}
 
+	scorm.saveLocation = function(page) {
+		if (initialized == true) {
+			return API.SetValue("cmi.location", page);
+		}
+		return false;
+	}
+
+	scorm.loadLocation = function() {
+		if (initialized == true) {
+			return API.GetValue("cmi.location");
+		}
+		return false;
+	}
+
 	return scorm;
 }
