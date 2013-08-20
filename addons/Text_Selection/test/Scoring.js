@@ -7,8 +7,6 @@ TestCase('[Text Selection] scoring tests', {
         .find('.text_selection').append($('<span number="4" class="selected">a</span>'))
         .find('.text_selection').append($('<span number="5" class="selected">b</span>'))
         .find('.text_selection').append($('<span number="6" class="selected">c</span>'));
-
-        $('<div class="text_selection"><span number="4" class="selected">a</span><span number="5" class="selected">b</span><span number="6" class="selected">c</span></div>');
     },
 
     'test getErrorCount noerrors' : function() {

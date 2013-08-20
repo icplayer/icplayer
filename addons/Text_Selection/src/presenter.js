@@ -59,7 +59,7 @@ function AddonText_Selection_create() {
 			}
 
 			first = 0;
-			//
+
 			if (window.getSelection) {
 				window.getSelection().removeAllRanges();
 			} else if (document.selection) {
@@ -72,6 +72,7 @@ function AddonText_Selection_create() {
 		var $text_selection = presenter.$view.find('.text_selection');
 
 		$text_selection.on('mouseup', function(e) {
+			presenter.configuration.isExerciseStarted = true;
 			presenter.endSelection(e.target);
 		});
 
@@ -80,6 +81,7 @@ function AddonText_Selection_create() {
 		});
 
 		$text_selection.find('.selectable').on('click', function() {
+			presenter.configuration.isExerciseStarted = true;
 			$(this).toggleClass('selected');
 		});
 
@@ -89,6 +91,7 @@ function AddonText_Selection_create() {
 		});
 
 		$text_selection.on('touchend', function(e) {
+			presenter.configuration.isExerciseStarted = true;
 			e.preventDefault();
 			presenter.endSelection(lastMoveEvent);
 			lastMoveEvent = null;
@@ -252,7 +255,8 @@ function AddonText_Selection_create() {
 			isValid: true,
 			mode: mode,
 			words: parsedWords.words,
-			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"])
+			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+			isExerciseStarted: false
 		};
 	};
 
@@ -415,6 +419,8 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.setShowErrorsMode = function() {
+		if (!presenter.configuration.isExerciseStarted) return;
+
 		var i;
 
 		presenter.turnOffEventListeners();
