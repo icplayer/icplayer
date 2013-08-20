@@ -11,10 +11,10 @@
 			<choice isDisabled='false'/>
 			<options>
 				<option value="5">
-					<text>To jest opcja pierwsza za 5 punktów</text>
+					<text>To jest opcja pierwsza za 5 punktow</text>
 				</option>
 				<option value="0">
-					<text>To jest opcja druga za 0 punktów</text>
+					<text>To jest opcja druga za 0 punktow</text>
 				</option>
 				<option value="1">To jest opcja trzecia za 1 punkt</option>
 			</options>

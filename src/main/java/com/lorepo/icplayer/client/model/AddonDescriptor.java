@@ -6,10 +6,10 @@ import java.util.List;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.IXMLSerializable;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
-import com.lorepo.icplayer.client.utils.IXMLSerializable;
 
 
 /**

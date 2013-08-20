@@ -11,9 +11,11 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
+import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
@@ -25,8 +27,6 @@ import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
-import com.lorepo.icplayer.client.utils.ILoadListener;
-import com.lorepo.icplayer.client.utils.XMLLoader;
 
 public class PlayerController implements IPlayerController{
 

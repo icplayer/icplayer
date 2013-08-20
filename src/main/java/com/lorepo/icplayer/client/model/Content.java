@@ -5,13 +5,13 @@ import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.IXMLSerializable;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.utils.IXMLSerializable;
 
 /**
  * Model reprezentujący główny plik startowy.
