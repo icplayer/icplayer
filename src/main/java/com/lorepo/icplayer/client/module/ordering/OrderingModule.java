@@ -160,7 +160,7 @@ public class OrderingModule extends BasicModuleModel{
 	@Override
 	public String toXML() {
 		
-		String xml = "<orderingModule " + getBaseXML() + ">";
+		String xml = "<orderingModule " + getBaseXML() + ">" + getLayoutXML();
 		
 		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" + 
 				optionalOrder + "' isActivity='" + isActivity + "'/>";

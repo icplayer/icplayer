@@ -85,7 +85,7 @@ public class ButtonModule extends BasicModuleModel{
 		
 		String encodedText = StringUtils.escapeHTML(text);
 		String xml = 
-				"<buttonModule " + getBaseXML() + ">" + 
+				"<buttonModule " + getBaseXML() + ">" + getLayoutXML() + 
 				"<button type='" + type + "' text='" + encodedText + "'";
 		
 		xml += " onclick='" + StringUtils.escapeXML(onClick) + "'";

@@ -21,6 +21,7 @@
 		</choiceModule>
 		
 		<buttonModule  left="600" top="400" width="50" height="50" style="">
+			<layout type="RBWH" left="shape1" top="shape1" right="shape1" bottom="shape1"/>
 			<button type="checkAnswers" text=""/>
 		</buttonModule>
 		

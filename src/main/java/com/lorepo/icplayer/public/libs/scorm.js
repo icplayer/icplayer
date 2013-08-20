@@ -144,5 +144,34 @@ function getScorm() {
 		return false;
 	}
 
+	scorm.saveState = function(state) {
+		if (initialized == true) {
+			API.SetValue("cmi.exit", "suspend");
+			return API.SetValue("cmi.suspend_data", state);
+		}
+		return false;
+	}
+
+	scorm.loadState = function() {
+		if (initialized == true) {
+			return API.GetValue("cmi.suspend_data");
+		}
+		return false;
+	}
+
+	scorm.saveLocation = function(page) {
+		if (initialized == true) {
+			return API.SetValue("cmi.location", page);
+		}
+		return false;
+	}
+
+	scorm.loadLocation = function() {
+		if (initialized == true) {
+			return API.GetValue("cmi.location");
+		}
+		return false;
+	}
+
 	return scorm;
 }

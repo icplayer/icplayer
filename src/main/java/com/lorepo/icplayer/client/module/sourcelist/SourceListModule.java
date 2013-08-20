@@ -81,7 +81,7 @@ public class SourceListModule extends BasicModuleModel{
 	@Override
 	public String toXML() {
 		
-		String xml = "<sourceListModule " + getBaseXML() + ">";
+		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
 		xml += "<items ";
 		if(removable){

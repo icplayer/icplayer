@@ -78,7 +78,7 @@ public class TextModelTestCase {
 	@Test
 	public void draggableGaps() throws SAXException, IOException {
 		
-		final String EXPECTED = "<span id='text-3' class='ic_draggableGapEmpty'>";
+		final String EXPECTED = "<span id='-3' class='ic_draggableGapEmpty'>";
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -86,7 +86,8 @@ public class TextModelTestCase {
 		TextModel module = new TextModel();
 		module.load(element, "");
 
-		int foundIndex = module.getParsedText().indexOf(EXPECTED);
+		String text = module.getParsedText().replaceAll("id='[^-]+", "id='");
+		int foundIndex = text.indexOf(EXPECTED);
 		assertTrue(foundIndex > 0);
 	}
 	
@@ -111,6 +112,8 @@ public class TextModelTestCase {
 		assertEquals(100, module.getGapWidth());
 		assertFalse(module.isActivity());
 		assertTrue(module.isCaseSensitive());
+		oldText = oldText.replaceAll("id='[^-]+", "id='");
+		newText = newText.replaceAll("id='[^-]+", "id='");
 		assertEquals(oldText, newText);
 	}
 	
@@ -184,7 +187,7 @@ public class TextModelTestCase {
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("text_module_gap_type")).thenReturn("Gap type");
 
-		final String EXPECTED = "<input id='text-3' type='edit'";
+		final String EXPECTED = "<input id='-3' type='edit'";
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -200,7 +203,8 @@ public class TextModelTestCase {
 			}
 		}
 
-		int foundIndex = module.getParsedText().indexOf(EXPECTED);
+		String text = module.getParsedText().replaceAll("id='[^-]+", "id='");
+		int foundIndex = text.indexOf(EXPECTED);
 		assertTrue(foundIndex > 0);
 	}
 

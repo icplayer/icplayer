@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -89,6 +91,13 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		setInlineStyle(StringUtils.unescapeXML( element.getAttribute("style") ));
 		setStyleClass(StringUtils.unescapeXML( element.getAttribute("class") ));
 		
+		NodeList nodes = element.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node childNode = nodes.item(i);
+			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
+				layout.load((Element) childNode);
+			}
+		}
 	}
 
 	
@@ -110,6 +119,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		}
 		
 		return xml;
+	}
+	
+	
+	protected String getLayoutXML(){
+		return layout.toXML();
 	}
 	
 	
