@@ -13,7 +13,7 @@ import com.lorepo.icplayer.client.module.api.IRectangleItem;
  */
 class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem {
 
-	private LayoutDefinition layout;
+	protected LayoutDefinition layout;
 	private int	left;
 	private int	right;
 	private int	top;

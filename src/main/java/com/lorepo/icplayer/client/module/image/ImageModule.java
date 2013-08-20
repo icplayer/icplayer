@@ -93,7 +93,7 @@ public class ImageModule extends BasicModuleModel {
 	public String toXML() {
 		
 		String xml = 
-				"<imageModule " + getBaseXML() + ">" + 
+				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
 				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
 				"mode='"+ mode.toString() + "'/>" +
 				"</imageModule>";

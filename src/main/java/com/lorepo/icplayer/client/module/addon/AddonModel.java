@@ -88,7 +88,7 @@ public class AddonModel extends BasicModuleModel {
 		
 		String xml;
 		
-			xml = "<addonModule addonId='" + addonId + "' " + getBaseXML() + ">";
+			xml = "<addonModule addonId='" + addonId + "' " + getBaseXML() + ">" + getLayoutXML();
 			
 			xml +="<properties>";
 			for(IAddonParam property: addonParams){

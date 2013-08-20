@@ -477,14 +477,38 @@ public class PageTestCase {
 		
 		Page page = new Page("Sizes", "");
 		page.load(element, "");
-		IModuleModel module = page.getModules().get(0);
+		IModuleModel module = page.getModules().get(1);
 		ILayoutDefinition layout = module.getLayout();
 		
 		assertTrue(layout.hasLeft());
 		assertTrue(layout.hasTop());
-//		assertTrue(layout.hasRight());
-//		assertTrue(layout.hasBottom());
-//		assertFalse(layout.hasWidth());
-//		assertFalse(layout.hasHeight());
+		assertTrue(layout.hasRight());
+		assertTrue(layout.hasBottom());
+		assertFalse(layout.hasWidth());
+		assertFalse(layout.hasHeight());
+	}
+
+	@Test
+	public void layoutRBWH() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		Page page = new Page("Sizes", "");
+		page.load(element, "");
+		String xml = page.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		page = new Page("id", "path");
+		page.load(element, "");
+		
+		IModuleModel module = page.getModules().get(2);
+		ILayoutDefinition layout = module.getLayout();
+		
+		assertFalse(layout.hasLeft());
+		assertFalse(layout.hasTop());
+		assertTrue(layout.hasRight());
+		assertTrue(layout.hasBottom());
+		assertTrue(layout.hasWidth());
+		assertTrue(layout.hasHeight());
 	}
 }

@@ -26,7 +26,7 @@ public class CheckCounterModule extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = 
-				"<checkCounterModule " + getBaseXML() + ">" + 
+				"<checkCounterModule " + getBaseXML() + ">" + getLayoutXML() + 
 				"</checkCounterModule>";
 		
 		return xml;

@@ -11,6 +11,7 @@ import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
@@ -115,7 +116,7 @@ public class TextModel extends BasicModuleModel{
 
 		moduleText = text;
 		TextParser parser = new TextParser();
-		parser.setId(getId());
+		parser.setId(UUID.uuid(6));
 		parser.setUseDraggableGaps(useDraggableGaps);
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		parser.setIgnorePunctuationGaps(isIgnorePunctuation);
@@ -133,7 +134,7 @@ public class TextModel extends BasicModuleModel{
 	@Override
 	public String toXML() {
 		
-		String xml = "<textModule " + getBaseXML() + ">";
+		String xml = "<textModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<text draggable='" + useDraggableGaps + "' " +
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
 				"isIgnorePunctuation='" + isIgnorePunctuation + 

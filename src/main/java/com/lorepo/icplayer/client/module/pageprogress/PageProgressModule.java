@@ -33,7 +33,7 @@ public class PageProgressModule extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = 
-				"<pageProgressModule " + getBaseXML() + ">" + 
+				"<pageProgressModule " + getBaseXML() + ">" + getLayoutXML() + 
 				"</pageProgressModule>";
 		
 		return xml;

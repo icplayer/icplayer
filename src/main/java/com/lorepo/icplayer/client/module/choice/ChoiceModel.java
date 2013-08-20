@@ -140,7 +140,7 @@ public class ChoiceModel extends BasicModuleModel{
 	@Override
 	public String toXML() {
 		
-		String xml = "<choiceModule " + getBaseXML() + ">";
+		String xml = "<choiceModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<choice isMulti='" + isMulti + "' isDisabled='" + isDisabled + "'/>";
 		xml += "<options>";
 		for(ChoiceOption option : options){

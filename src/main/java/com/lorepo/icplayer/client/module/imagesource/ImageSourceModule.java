@@ -79,7 +79,7 @@ public class ImageSourceModule extends BasicModuleModel {
 		
 		String removableString = removable ? "True":"False";
 		String xml = 
-				"<imageSourceModule " + getBaseXML() + ">" + 
+				"<imageSourceModule " + getBaseXML() + ">" + getLayoutXML() + 
 				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "'/>" +
 				"</imageSourceModule>";
 		
