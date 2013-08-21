@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<shapeModule id="shape1" left="1" top="2" width="3" right="4" bottom="5" height="6" style="background-color:yellow">
+	<layout type="RBWH">
+		<left relative="" property="left"/>
+		<top relative="" property="top"/>
+		<right relative="" property="right"/>
+		<bottom relative="" property="bottom"/>
+	</layout>
+</shapeModule>

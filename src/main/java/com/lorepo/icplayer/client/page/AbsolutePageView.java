@@ -1,10 +1,13 @@
 package com.lorepo.icplayer.client.page;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
+import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
+import com.lorepo.icplayer.client.module.api.ILayoutDefinition.Property;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -21,6 +24,7 @@ import com.lorepo.icplayer.client.utils.MathJax;
 public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	private Page currentPage;
+	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
 
 	
 	public AbsolutePageView(){
@@ -55,36 +59,98 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module){
-		int left;
-		int top;
-		int width;
-		int height;
-	
-		float 	pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
-		float 	pageHeight = DOM.getElementPropertyInt(getElement(), "clientHeight");
 
+		int left, right, width, top, bottom, height;
+		
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
+			ILayoutDefinition layout = module.getLayout();
 			
-			if(currentPage.getLayout() == LayoutType.percentage){
-			
-				left = (int) (module.getLeft()*pageWidth)/100;
-				top = (int) (module.getTop()*pageHeight)/100;
-				width = (int) (module.getWidth()*pageWidth)/100;
-				height = (int) (module.getHeight()*pageHeight)/100;
+			if(layout.hasLeft()){
+				left = calculatePosition(layout.getLeftRelativeTo(), 
+						layout.getLeftRelativeToProperty(), module.getLeft());
+				if(layout.hasRight()){
+					right = calculatePosition(layout.getRightRelativeTo(), 
+							layout.getRightRelativeToProperty(), module.getRight());
+					width = right-left;
+				}
+				else{
+					width = module.getWidth();
+				}
 			}
 			else{
-				
-				left = (int) module.getLeft();
-				top = (int) module.getTop();
-				width = (int) module.getWidth();
-				height = (int) module.getHeight();
+				right = calculatePosition(layout.getRightRelativeTo(), 
+						layout.getRightRelativeToProperty(), module.getRight());
+				width = module.getWidth();
+				left = right-width;
+			}
+			
+			if(layout.hasTop()){
+				top = calculatePosition(layout.getTopRelativeTo(), 
+						layout.getTopRelativeToProperty(), module.getTop());
+				if(layout.hasBottom()){
+					bottom = calculatePosition(layout.getBottomRelativeTo(), 
+							layout.getBottomRelativeToProperty(), module.getBottom());
+					height = bottom-top;
+				}
+				else{
+					height = module.getHeight();
+				}
+			}
+			else{
+				bottom = calculatePosition(layout.getBottomRelativeTo(), 
+						layout.getBottomRelativeToProperty(), module.getBottom());
+				height = module.getHeight();
+				top = bottom-height;
 			}
 			
 			moduleView.setPixelSize(width, height);
 		    add(moduleView, left, top);
-			
+		    widgets.put(module.getId(), moduleView);
 		}
+	}
+
+
+	private int calculatePosition(String widgetName, Property property, int modulePos) {
+		int pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
+		int pageHeight = DOM.getElementPropertyInt(getElement(), "clientHeight");
+		int pos = 0;
+		Widget widget = widgets.get(widgetName);
+		
+		if(property == Property.left){
+			if(widget != null){
+				pos = widget.getAbsoluteLeft()-getAbsoluteLeft()+modulePos;
+			}
+			else{
+				pos = modulePos;
+			}
+		}
+		else if(property == Property.top){
+			if(widget != null){
+				pos = widget.getAbsoluteTop()-getAbsoluteTop()+modulePos;
+			}
+			else{
+				pos = modulePos;
+			}
+		}
+		else if(property == Property.right){
+			if(widget != null){
+				pos = widget.getAbsoluteLeft()+widget.getOffsetWidth()-getAbsoluteLeft()-modulePos;
+			}
+			else{
+				pos = pageWidth-modulePos;
+			}
+		}
+		else if(property == Property.bottom){
+			if(widget != null){
+				pos = widget.getAbsoluteTop()+widget.getOffsetHeight()-getAbsoluteTop()-modulePos;
+			}
+			else{
+				pos = pageHeight-modulePos;
+			}
+		}
+		
+		return pos;
 	}
 
 
@@ -101,6 +167,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	@Override
 	public void removeAllModules() {
+		widgets.clear();
 		clear();
 	}
 

@@ -6,8 +6,13 @@
 		<shapeModule id="shape1" left="100" top="100" width="600" height="240" style="background-color:#bbbbbb">
 		</shapeModule>
 		
-		<choiceModule id="2frg43d" left="120" top="120" width="560" height="200" style="background-color:yellow">
-			<layout type="LTRB" left="shape1" top="shape1" right="shape1" bottom="shape1"/>
+		<choiceModule id="2frg43d" left="120" top="120" width="560" right="10" bottom="10" height="200" style="background-color:yellow">
+			<layout type="LTRB">
+				<left relative="" property="left"/>
+				<top relative="" property="top"/>
+				<right relative="" property="right"/>
+				<bottom relative="" property="bottom"/>
+			</layout>
 			<choice isDisabled='false'/>
 			<options>
 				<option value="5">

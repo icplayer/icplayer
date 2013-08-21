@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 
 public class LayoutDefinition implements ILayoutDefinition{
@@ -11,6 +12,14 @@ public class LayoutDefinition implements ILayoutDefinition{
 	private boolean bottom = false;
 	private boolean width = true;
 	private boolean height = true;
+	private String leftRelativeTo = "";
+	private Property leftRelativeToProperty = Property.left;
+	private String topRelativeTo = "";
+	private Property topRelativeToProperty = Property.top;
+	private String rightRelativeTo = "";
+	private Property rightRelativeToProperty = Property.right;
+	private String bottomRelativeTo = "";
+	private Property bottomRelativeToProperty = Property.bottom;
 	
 	
 	@Override
@@ -43,12 +52,39 @@ public class LayoutDefinition implements ILayoutDefinition{
 		return height;
 	}
 
-	public void load(Element element) {
-		decodeType(element.getAttribute("type"));
+	public void load(Element rootElement) {
+		decodeType(rootElement.getAttribute("type"));
+		NodeList children = rootElement.getChildNodes();
+		String propertyName;
+		for(int i = 0; i < children.getLength(); i++){
+			if(children.item(i) instanceof Element){
+				Element node = (Element)children.item(i);
+				if(node.getNodeName().compareTo("left") == 0){
+					leftRelativeTo = node.getAttribute("relative");
+					propertyName = node.getAttribute("property");
+					leftRelativeToProperty = getPropertyFromString(propertyName);
+				}
+				else if(node.getNodeName().compareTo("top") == 0){
+					topRelativeTo = node.getAttribute("relative");
+					propertyName = node.getAttribute("property");
+					topRelativeToProperty = getPropertyFromString(propertyName);
+				}
+				else if(node.getNodeName().compareTo("right") == 0){
+					rightRelativeTo = node.getAttribute("relative");
+					propertyName = node.getAttribute("property");
+					rightRelativeToProperty = getPropertyFromString(propertyName);
+				}
+				else if(node.getNodeName().compareTo("bottom") == 0){
+					bottomRelativeTo = node.getAttribute("relative");
+					propertyName = node.getAttribute("property");
+					bottomRelativeToProperty = getPropertyFromString(propertyName);
+				}
+			}
+		}
 	}
 
 	private void decodeType(String type) {
-
+	
 		if(type.length() < 4){
 			return;
 		}
@@ -60,7 +96,7 @@ public class LayoutDefinition implements ILayoutDefinition{
 			left = false;
 			right = true;
 		}
-
+	
 		if(type.charAt(1) == 'T'){
 			top = true;
 		}
@@ -86,9 +122,22 @@ public class LayoutDefinition implements ILayoutDefinition{
 		}
 	}
 
+	private Property getPropertyFromString(String name) {
+		for(Property property : Property.values()){
+			if(property.toString().equals(name)){
+				return property;
+			}
+		}
+		return Property.left;
+	}
+
 	public String toXML() {
-		String xml = "<layout type='" + encodeType() + "'/>";
-		
+		String xml = "<layout type='" + encodeType() + "'>";
+		xml += "<left relative='" + leftRelativeTo + "' property='" + leftRelativeToProperty + "'/>";
+		xml += "<top relative='" + topRelativeTo + "' property='" + topRelativeToProperty + "'/>";
+		xml += "<right relative='" + rightRelativeTo + "' property='" + rightRelativeToProperty + "'/>";
+		xml += "<bottom relative='" + bottomRelativeTo + "' property='" + bottomRelativeToProperty + "'/>";
+		xml += "</layout>";
 		return xml;
 	}
 
@@ -124,6 +173,46 @@ public class LayoutDefinition implements ILayoutDefinition{
 		}
 		
 		return type;
+	}
+
+	@Override
+	public String getLeftRelativeTo() {
+		return leftRelativeTo;
+	}
+
+	@Override
+	public Property getLeftRelativeToProperty() {
+		return leftRelativeToProperty;
+	}
+
+	@Override
+	public String getTopRelativeTo() {
+		return topRelativeTo;
+	}
+
+	@Override
+	public Property getTopRelativeToProperty() {
+		return topRelativeToProperty;
+	}
+
+	@Override
+	public String getRightRelativeTo() {
+		return rightRelativeTo;
+	}
+
+	@Override
+	public Property getRightRelativeToProperty() {
+		return rightRelativeToProperty;
+	}
+
+	@Override
+	public String getBottomRelativeTo() {
+		return bottomRelativeTo;
+	}
+
+	@Override
+	public Property getBottomRelativeToProperty() {
+		return bottomRelativeToProperty;
 	}	
 	
 	

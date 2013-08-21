@@ -32,7 +32,6 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
-import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 
@@ -445,70 +444,5 @@ public class PageTestCase {
 		page.load(element, "");
 		
 		assertTrue(page.getLayout() == LayoutType.responsive);
-	}
-
-	@Test
-	public void defaultModuleLayout() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		Page page = new Page("Sizes", "");
-		page.load(element, "");
-		IModuleModel module = page.getModules().get(0);
-		ILayoutDefinition layout = module.getLayout();
-		
-		assertTrue(layout.hasLeft());
-		assertTrue(layout.hasTop());
-		assertTrue(layout.hasWidth());
-		assertTrue(layout.hasHeight());
-		
-		assertFalse(layout.hasRight());
-		assertFalse(layout.hasBottom());
-	}
-
-	@Test
-	public void layoutLTRB() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		Page page = new Page("Sizes", "");
-		page.load(element, "");
-		IModuleModel module = page.getModules().get(1);
-		ILayoutDefinition layout = module.getLayout();
-		
-		assertTrue(layout.hasLeft());
-		assertTrue(layout.hasTop());
-		assertTrue(layout.hasRight());
-		assertTrue(layout.hasBottom());
-		assertFalse(layout.hasWidth());
-		assertFalse(layout.hasHeight());
-	}
-
-	@Test
-	public void layoutRBWH() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		Page page = new Page("Sizes", "");
-		page.load(element, "");
-		String xml = page.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		page = new Page("id", "path");
-		page.load(element, "");
-		
-		IModuleModel module = page.getModules().get(2);
-		ILayoutDefinition layout = module.getLayout();
-		
-		assertFalse(layout.hasLeft());
-		assertFalse(layout.hasTop());
-		assertTrue(layout.hasRight());
-		assertTrue(layout.hasBottom());
-		assertTrue(layout.hasWidth());
-		assertTrue(layout.hasHeight());
 	}
 }
