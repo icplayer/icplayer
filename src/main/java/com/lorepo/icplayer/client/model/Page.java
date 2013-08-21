@@ -7,6 +7,7 @@ import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.IXMLSerializable;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -17,7 +18,6 @@ import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.utils.IXMLSerializable;
 
 /**
  * Model reprezentujący pojedyncza strone

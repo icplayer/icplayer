@@ -45,7 +45,9 @@
             if (page.isReportable()) {
                 score = this.scoreService.getPageScore(page.getName());
 
-                sumOfScaledScore += score.score / score.maxScore;
+                if (score.maxScore > 0) {
+                	sumOfScaledScore += score.score / score.maxScore;
+                }
                 sumOfScore += score.score;
                 sumOfErrors += score.mistakeCount;
                 sumOfChecks += score.checkCount;
