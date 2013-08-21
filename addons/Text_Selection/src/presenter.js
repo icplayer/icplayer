@@ -3,7 +3,7 @@ function AddonText_Selection_create() {
 	var presenter = function(){};
 
 	var first = 0,
-	lastMoveEvent = null;
+		lastMoveEvent = null;
 
 	function isLastSpecialSigh(word) {
 		return ['.', ',', '?', '!', ';', ':'].indexOf(word[word.length-1]) != -1;
@@ -47,7 +47,7 @@ function AddonText_Selection_create() {
 
 	presenter.endSelection = function(et) {
 		var last = parseInt($(et).attr('number'), 10),
-		tmp = 0;
+			tmp = 0;
 
 		if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
 		if (isNaN(last)) {
@@ -62,10 +62,21 @@ function AddonText_Selection_create() {
 				tmp = first; first = last; last = tmp;
 			}
 
-			for(var i=first; i<last+1; i++) {
-				var element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-				if(element.hasClass('selectable')) {
-					element.addClass('selected');
+			if(presenter.configuration.selection_type === 'SINGLESELECT') {
+				if (presenter.$view.find('.selected').length === 0) {
+					presenter.$view.find("span[number='" + first + "']").addClass('selected');
+				} else if (presenter.$view.find('.selected').attr("number") === presenter.$view.find("span[number='" + first + "']").attr("number")) {
+					$(this).removeClass('selected');
+				} else {
+					presenter.$view.find('.selected').removeClass('selected');
+					$(this).addClass('selected');
+				}
+			} else if(presenter.configuration.selection_type === 'MULTISELECT') {
+				for(var i=first; i<last+1; i++) {
+					var element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
+					if(element.hasClass('selectable')) {
+						element.addClass('selected');
+					}
 				}
 			}
 
@@ -131,7 +142,7 @@ function AddonText_Selection_create() {
 			function() {
 				$(this).removeClass("hover");
 			}
-			);
+		);
 	};
 
 	presenter.turnOffEventListeners = function() {
@@ -158,10 +169,10 @@ function AddonText_Selection_create() {
 		presenter.$view = $(view);
 		
 		var i,
-		markedCorrect = [],
-		markedWrong = [],
-		$res = $("<div class='text_selection'></div>"),
-		$span;
+			markedCorrect = [],
+			markedWrong = [],
+			$res = $("<div class='text_selection'></div>"),
+			$span;
 
 		presenter.configuration = presenter.validateModel(model);
 		if (!presenter.configuration.isValid) {
@@ -170,7 +181,7 @@ function AddonText_Selection_create() {
 		}
 
 		var mode  = presenter.configuration.mode,
-		words = presenter.configuration.words;
+			words = presenter.configuration.words;
 
 		if (mode === 'MARK_PHRASES') {
 			for (i=0; i<words.length; i++) {
@@ -234,12 +245,12 @@ function AddonText_Selection_create() {
 			}
 		}
 
-		presenter.$view.append($res);
-		presenter.setVisibility(presenter.configuration.isVisible);
-
 		if(!isPreview) {
 			presenter.markers = presenter.getMarked(markedWrong, markedCorrect);
 		}
+
+		presenter.$view.append($res);
+		presenter.setVisibility(presenter.configuration.isVisible);
 	}
 
 	presenter.ERROR_CODES = {
@@ -389,192 +400,200 @@ function AddonText_Selection_create() {
 
 	presenter.wrongMarkerInAllSelectable = function(words, mode) {
 
-		if (mode === 'ALL_SELECTABLE')
-			for (var i=0; i<words.length; i++)
-				if (presenter.isMarkedWrong(words[i]))
+		if (mode === 'ALL_SELECTABLE') {
+			for (var i=0; i<words.length; i++) {
+				if (presenter.isMarkedWrong(words[i])) {
 					return true;
-
-				return false;
-			};
-
-			presenter.emptyWordInMarker = function(words) {
-
-				for (var i=0; i<words.length; i++) {
-					if (presenter.isMarkedWrong(words[i]) && presenter.cutMarkedWrong(words[i]) === "") {
-						return true;
-					}
-					if (presenter.isMarkedCorrect(words[i]) && presenter.cutMarkedCorrect(words[i]) === "") {
-						return true;
-					}
 				}
-
-				return false;
-			};
-
-			presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(words, selection_type) {
-				var markedCorrect = 0,
-				markedWrong = 0;
-
-				for (var i=0; i<words.length; i++) {
-					if (presenter.isMarkedCorrect(words[i])) {
-						markedCorrect++;
-					} else if(presenter.isMarkedWrong(words[i])) {
-						markedWrong++;
-					}
-				}
-
-				return !((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT');
 			}
-
-			presenter.executeCommand = function(name, params) {
-				if (!presenter.configuration.isValid) return;
-
-				var commands = {
-					'show': presenter.show,
-					'hide': presenter.hide
-				};
-
-				Commands.dispatch(commands, name, params, presenter);
-			};
-
-			presenter.setVisibility = function(isVisible) {
-				presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
-			};
-
-			presenter.show = function() {
-				presenter.setVisibility(true);
-				presenter.configuration.isVisible = true;
-			};
-
-			presenter.hide = function() {
-				presenter.setVisibility(false);
-				presenter.configuration.isVisible = false;
-			};
-
-			presenter.reset = function() {
-				presenter.$view.find('.text_selection').find('.selected').removeClass("selected");
-				presenter.show();
-			};
-
-			presenter.getState = function() {
-				var numberSelected = [];
-
-				var allSelected = presenter.$view.find('.text_selection').find('.selected');
-
-				for(var i=0; i<allSelected.length; i++){
-					numberSelected.push($(allSelected[i]).attr('number'));
-				}
-
-				return JSON.stringify({
-					numbers: numberSelected,
-					isVisible: presenter.configuration.isVisible
-				});
-			};
-
-			presenter.setState = function(state) {
-				if (ModelValidationUtils.isStringEmpty(state)) return;
-
-				var nums      = JSON.parse(state).numbers,
-				isVisible = JSON.parse(state).isVisible;
-
-				for(var i=0; i<nums.length; i++){
-					presenter.$view.find('.text_selection').find("span[number='" + nums[i] + "']").addClass("selected");
-				}
-
-				if(isVisible) {
-					presenter.show();
-				} else {
-					presenter.hide();
-				}
-
-				presenter.configuration.isVisible = isVisible;
-			};
-
-			function intersection(a, b) {
-				return a.filter(function(i) {
-					return b.indexOf(parseInt(i, 10)) != -1;
-				});
-			}
-
-			function arr_diff(a1, a2){
-				var a=[], diff=[], i;
-
-				for(i=0; i<a1.length; i++) {
-					a[a1[i]]=true;
-				}
-
-				for(i=0; i<a2.length; i++) {
-					if(a[a2[i]]) {
-						delete a[a2[i]];
-					} else {
-						a[a2[i]]=true;
-					}
-				}
-
-				for(var k in a) {
-					diff.push(k);
-				}
-
-				return diff;
-			}
-
-			presenter.setShowErrorsMode = function() {
-				if (!presenter.configuration.isExerciseStarted) return;
-
-				var i;
-
-				presenter.turnOffEventListeners();
-
-				var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
-					return this.getAttribute('number');
-				}).get();
-				var numbersCorrect = presenter.markers.markedCorrect;
-				var numbersWrong = presenter.markers.markedWrong;
-
-				var correctSelected = intersection(numbersSelected, numbersCorrect);
-				var notSelectedWrong = arr_diff(numbersWrong, numbersSelected);
-				var green = correctSelected.concat(notSelectedWrong).sort();
-
-				for(i=0; i<green.length; i++) {
-					presenter.$view.find('.text_selection').find("span[number='" + green[i] + "']").addClass('correct');
-				}
-
-				var selectedWrong = intersection(numbersSelected, numbersWrong);
-				var notSelectedCorrect = arr_diff(numbersCorrect, numbersSelected);
-				var red = selectedWrong.concat(notSelectedCorrect).sort();
-
-				for(i=0; i<red.length; i++) {
-					presenter.$view.find('.text_selection').find("span[number='" + red[i] + "']").addClass('wrong');
-				}
-			};
-
-			presenter.setWorkMode = function() {
-				presenter.turnOnEventListeners();
-				presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
-				presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
-			};
-
-			function points(selector) {
-				var i, counter = 0;
-
-				var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
-					return parseInt(this.getAttribute('number'));
-				}).get();
-
-				return intersection(selector, numbersSelected).length;
-			}
-
-			presenter.getErrorCount = function() {
-				return points(presenter.markers.markedWrong);
-			};
-
-			presenter.getMaxScore = function() {
-				return presenter.markers.markedCorrect.length;
-			};
-
-			presenter.getScore = function() {
-				return points(presenter.markers.markedCorrect);
-			};
-
-			return presenter;
 		}
+
+		return false;
+	};
+			
+
+	presenter.emptyWordInMarker = function(words) {
+
+		for (var i=0; i<words.length; i++) {
+			if (presenter.isMarkedWrong(words[i]) && presenter.cutMarkedWrong(words[i]) === "") {
+				return true;
+			}
+			if (presenter.isMarkedCorrect(words[i]) && presenter.cutMarkedCorrect(words[i]) === "") {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(words, selection_type) {
+		var markedCorrect = 0,
+		markedWrong = 0;
+
+		for (var i=0; i<words.length; i++) {
+			if (presenter.isMarkedCorrect(words[i])) {
+				markedCorrect++;
+			} else if(presenter.isMarkedWrong(words[i])) {
+				markedWrong++;
+			}
+		}
+
+		if((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
+			return false
+		} else {
+			return true;
+		}
+	}
+
+	presenter.executeCommand = function(name, params) {
+		if (!presenter.configuration.isValid) return;
+
+		var commands = {
+			'show': presenter.show,
+			'hide': presenter.hide
+		};
+
+		Commands.dispatch(commands, name, params, presenter);
+	};
+
+	presenter.setVisibility = function(isVisible) {
+		presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+	};
+
+	presenter.show = function() {
+		presenter.setVisibility(true);
+		presenter.configuration.isVisible = true;
+	};
+
+	presenter.hide = function() {
+		presenter.setVisibility(false);
+		presenter.configuration.isVisible = false;
+	};
+
+	presenter.reset = function() {
+		presenter.$view.find('.text_selection').find('.selected').removeClass("selected");
+		presenter.show();
+	};
+
+	presenter.getState = function() {
+		var numberSelected = [];
+
+		var allSelected = presenter.$view.find('.text_selection').find('.selected');
+
+		for(var i=0; i<allSelected.length; i++){
+			numberSelected.push($(allSelected[i]).attr('number'));
+		}
+
+		return JSON.stringify({
+			numbers: numberSelected,
+			isVisible: presenter.configuration.isVisible
+		});
+	};
+
+	presenter.setState = function(state) {
+		if (ModelValidationUtils.isStringEmpty(state)) return;
+
+		var nums      = JSON.parse(state).numbers,
+		isVisible = JSON.parse(state).isVisible;
+
+		for(var i=0; i<nums.length; i++){
+			presenter.$view.find('.text_selection').find("span[number='" + nums[i] + "']").addClass("selected");
+		}
+
+		if(isVisible) {
+			presenter.show();
+		} else {
+			presenter.hide();
+		}
+
+		presenter.configuration.isVisible = isVisible;
+	};
+
+	function intersection(a, b) {
+		return a.filter(function(i) {
+			return b.indexOf(parseInt(i, 10)) != -1;
+		});
+	}
+
+	function arr_diff(a1, a2){
+		var a=[], diff=[], i;
+
+		for(i=0; i<a1.length; i++) {
+			a[a1[i]]=true;
+		}
+
+		for(i=0; i<a2.length; i++) {
+			if(a[a2[i]]) {
+				delete a[a2[i]];
+			} else {
+				a[a2[i]]=true;
+			}
+		}
+
+		for(var k in a) {
+			diff.push(k);
+		}
+
+		return diff;
+	}
+
+	presenter.setShowErrorsMode = function() {
+		if (!presenter.configuration.isExerciseStarted) return;
+
+		var i;
+
+		presenter.turnOffEventListeners();
+
+		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
+			return this.getAttribute('number');
+		}).get();
+		var numbersCorrect = presenter.markers.markedCorrect;
+		var numbersWrong = presenter.markers.markedWrong;
+
+		var correctSelected = intersection(numbersSelected, numbersCorrect);
+		var notSelectedWrong = arr_diff(numbersWrong, numbersSelected);
+		var green = correctSelected.concat(notSelectedWrong).sort();
+
+		for(i=0; i<green.length; i++) {
+			presenter.$view.find('.text_selection').find("span[number='" + green[i] + "']").addClass('correct');
+		}
+
+		var selectedWrong = intersection(numbersSelected, numbersWrong);
+		var notSelectedCorrect = arr_diff(numbersCorrect, numbersSelected);
+		var red = selectedWrong.concat(notSelectedCorrect).sort();
+
+		for(i=0; i<red.length; i++) {
+			presenter.$view.find('.text_selection').find("span[number='" + red[i] + "']").addClass('wrong');
+		}
+	};
+
+	presenter.setWorkMode = function() {
+		presenter.turnOnEventListeners();
+		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
+		presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
+	};
+
+	function points(selector) {
+		var i, counter = 0;
+
+		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
+			return parseInt(this.getAttribute('number'));
+		}).get();
+
+		return intersection(selector, numbersSelected).length;
+	}
+
+	presenter.getErrorCount = function() {
+		return points(presenter.markers.markedWrong);
+	};
+
+	presenter.getMaxScore = function() {
+		return presenter.markers.markedCorrect.length;
+	};
+
+	presenter.getScore = function() {
+		return points(presenter.markers.markedCorrect);
+	};
+
+	return presenter;
+}
