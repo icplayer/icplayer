@@ -1,6 +1,4 @@
 .selectable {
-    border: 1px black solid;
-
     -webkit-border-radius: 5px; /* Safari, Chrome */
     -khtml-border-radius: 5px; /* Konqueror */
     -moz-border-radius: 5px; /* Firefox */
@@ -17,4 +15,9 @@
     
 .correct {
     background-color: #7CFC00;
+}
+
+.hover {
+    background-color: orange;
+    cursor: pointer;
 }

@@ -46,5 +46,29 @@ TestCase("[Text Selection] Model validation", {
 
     	assertFalse(validatedModel.isValid);
     	assertEquals('M04', validatedModel.errorCode);
+    },
+
+    'test number of marked correct in single select type' : function() {
+        var model = {
+            Text: "qwe zxc \\wrong{zxcasd}",
+            'Selection type': 'SINGLESELECT'
+        }
+
+        var validatedModel = this.presenter.validateModel(model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals('M05', validatedModel.errorCode);
+    },
+
+    'test number of marked wrong in single select type' : function() {
+        var model = {
+            Text: "qwe zxc \\correct{zxcasd}",
+            'Selection type': 'SINGLESELECT'
+        }
+
+        var validatedModel = this.presenter.validateModel(model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals('M05', validatedModel.errorCode);
     }
 });
