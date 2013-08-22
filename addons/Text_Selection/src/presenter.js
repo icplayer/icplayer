@@ -168,10 +168,12 @@ function AddonText_Selection_create() {
 	presenter.presenterLogic = function(view, model, isPreview) {
 		presenter.$view = $(view);
 		
-		var i,
+		var i, l, number  = 0,
 			markedCorrect = [],
-			markedWrong = [],
-			$res = $("<div class='text_selection'></div>"),
+			markedWrong   = [],
+			words         = [],
+			$resLines     = $("<div class='text_selection'></div>"),
+			$res          = $("<div></div>"),
 			$span;
 
 		presenter.configuration = presenter.validateModel(model);
@@ -181,75 +183,94 @@ function AddonText_Selection_create() {
 		}
 
 		var mode  = presenter.configuration.mode,
-			words = presenter.configuration.words;
+			lines = presenter.configuration.lines;
 
-		if (mode === 'MARK_PHRASES') {
-			for (i=0; i<words.length; i++) {
-				if (presenter.isMarkedWrong(words[i])) {
-					if(isPreview) {
-						$span = $('<span></span>').attr('number', i).addClass('wrong').addClass('selectable').html(presenter.cutMarkedWrong(words[i]));
-					} else {
-						$span = getSelectableSpan(i, presenter.cutMarkedWrong(words[i]));
-					}
-					
-					$res.append($span);
-					$res.append(getBlock(i, words.length, getSpecialSign(words[i])));
-					
-					markedWrong.push(parseInt(i, 10));
-				} else if (presenter.isMarkedCorrect(words[i])) {
-					if(isPreview) {
-						$span = $('<span></span>').attr('number', i).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
-					} else {
-						$span = getSelectableSpan(i, presenter.cutMarkedCorrect(words[i]));
-					}
-					
-					$res.append($span);
-					$res.append(getBlock(i, words.length, getSpecialSign(words[i])));
-					
-					markedCorrect.push(parseInt(i, 10));
-				} else {
-					if(isPreview) {
-						$res.append(words[i] + getSpecialSign(words[i]) + ' ');
-					} else {
-						$span = $('<span></span>').attr('number', i).html(words[i]);
+		for (i=0; i<lines.length; i++) {
+			console.log(i + " lines: " + lines[i]);
+		}
+
+		for (l=0; l<lines.length; l++) {
+			words = lines[l];
+
+			if (mode === 'MARK_PHRASES') {
+				if (words.length === 1 && words[0] === ' ') {
+					$resLines.append($("<div></div>"));
+					$res = $("<div></div>");
+					words = [];
+					continue;
+				}
+
+				for (i=0; i<words.length; i++) {
+					if (presenter.isMarkedWrong(words[i])) {
+						if(isPreview) {
+							$span = $('<span></span>').attr('number', i + number).addClass('wrong').addClass('selectable').html(presenter.cutMarkedWrong(words[i]));
+						} else {
+							$span = getSelectableSpan(i + number, presenter.cutMarkedWrong(words[i]));
+						}
+
 						$res.append($span);
 						$res.append(getBlock(i, words.length, getSpecialSign(words[i])));
+
+						markedWrong.push(parseInt(i + number, 10));
+					} else if (presenter.isMarkedCorrect(words[i])) {
+						if(isPreview) {
+							$span = $('<span></span>').attr('number', i + number).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
+						} else {
+							$span = getSelectableSpan(i + number, presenter.cutMarkedCorrect(words[i]));
+						}
+
+						$res.append($span);
+						$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+
+						markedCorrect.push(parseInt(i + number, 10));
+					} else {
+						if(isPreview) {
+							$res.append(words[i] + getSpecialSign(words[i]) + ' ');
+						} else {
+							$span = $('<span></span>').attr('number', i + number).html(words[i]);
+							$res.append($span);
+							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+						}
+					}
+				}
+			} else if (mode === 'ALL_SELECTABLE') {
+				for (i=0; i<words.length; i++) {
+					if (presenter.isMarkedCorrect(words[i])) {
+						if(isPreview) {
+							$span = $('<span></span>').attr('number', i + number).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
+							$res.append($span);
+							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])) + ' ');
+						} else {
+							$span = getSelectableSpan(i + number, presenter.cutMarkedCorrect(words[i]));
+							$res.append($span);
+							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+						}
+						markedCorrect.push(parseInt(i + number, 10));
+					} else {
+						if(isPreview) {
+							$span = getSelectableSpan(i + number, words[i]);
+							$res.append($span);
+							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])) + ' ');
+						} else {
+							$span = getSelectableSpan(i + number, words[i]);
+							$res.append($span);
+							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+						}
+						markedWrong.push(parseInt(i + number, 10));
 					}
 				}
 			}
-		} else if (mode === 'ALL_SELECTABLE') {
-			for (i=0; i<words.length; i++) {
-				if (presenter.isMarkedCorrect(words[i])) {
-					if(isPreview) {
-						$span = $('<span></span>').attr('number', i).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
-						$res.append($span);
-						$res.append(getBlock(i, words.length, getSpecialSign(words[i])) + ' ');
-					} else {
-						$span = getSelectableSpan(i, presenter.cutMarkedCorrect(words[i]));
-						$res.append($span);
-						$res.append(getBlock(i, words.length, getSpecialSign(words[i])));
-					}
-					markedCorrect.push(parseInt(i, 10));
-				} else {
-					if(isPreview) {
-						$span = getSelectableSpan(i, words[i]);
-						$res.append($span);
-						$res.append(getBlock(i, words.length, getSpecialSign(words[i])) + ' ');
-					} else {
-						$span = getSelectableSpan(i, words[i]);
-						$res.append($span);
-						$res.append(getBlock(i, words.length, getSpecialSign(words[i])));
-					}
-
-				}
-			}
+			number += words.length;
+			$resLines.append($res);
+			$res = $("<div></div>");
+			words = [];
 		}
 
 		if(!isPreview) {
 			presenter.markers = presenter.getMarked(markedWrong, markedCorrect);
 		}
 
-		presenter.$view.append($res);
+		presenter.$view.append($resLines);
 		presenter.setVisibility(presenter.configuration.isVisible);
 	}
 
@@ -304,7 +325,7 @@ function AddonText_Selection_create() {
 			isValid: true,
 			mode: mode,
 			selection_type: selection_type,
-			words: parsedWords.words,
+			lines: parsedWords.lines,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
 			isExerciseStarted: false
 		};
@@ -358,29 +379,44 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.parseWords = function(text, mode, selection_type) {
-		words = text.split(' ');
+		var lines = text.split('\n'),
+			resultLines = [],
+			i;
+		
+		for(i=0; i<lines.length; i++) {
+			var words = lines[i].split(' ');
+			words = presenter.connectWords(words);
 
-		words = presenter.connectWords(words);
+			if (words.length === 1 && words[0] === '') {
+				words[0] = ' '; // &nbsp;
+				words[0].replace(/\s/g, 'nbsp;');
+			}
 
-		if (!presenter.hasCorrectOrWrongMarker(words)) {
-			return returnErrorObject('M02');
+			resultLines.push(words);
 		}
 
-		if (presenter.wrongMarkerInAllSelectable(words, mode)) {
-			return returnErrorObject('M03');
-		}
+		var tmpWords = text.split(' ');
+		for(i=0; i<tmpWords.length; i++) {
+			if (!presenter.hasCorrectOrWrongMarker(tmpWords)) {
+				return returnErrorObject('M02');
+			}
 
-		if (presenter.emptyWordInMarker(words)) {
-			return returnErrorObject('M04');
-		}
+			if (presenter.wrongMarkerInAllSelectable(tmpWords, mode)) {
+				return returnErrorObject('M03');
+			}
 
-		if (!presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection(words, selection_type)) {
-			return returnErrorObject('M05');
-		}
+			if (presenter.emptyWordInMarker(tmpWords)) {
+				return returnErrorObject('M04');
+			}
 
+			if (!presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection(tmpWords, selection_type)) {
+				return returnErrorObject('M05');
+			}
+		}
+		
 		return {
 			isValid: true,
-			words: words
+			lines: resultLines
 		};
 	};
 
@@ -486,15 +522,17 @@ function AddonText_Selection_create() {
 
 		return JSON.stringify({
 			numbers: numberSelected,
-			isVisible: presenter.configuration.isVisible
+			isVisible: presenter.configuration.isVisible,
+			isExerciseStarted: presenter.configuration.isExerciseStarted
 		});
 	};
 
 	presenter.setState = function(state) {
 		if (ModelValidationUtils.isStringEmpty(state)) return;
 
-		var nums      = JSON.parse(state).numbers,
-		isVisible = JSON.parse(state).isVisible;
+		var nums              = JSON.parse(state).numbers,
+			isVisible         = JSON.parse(state).isVisible,
+			isExerciseStarted = JSON.parse(state).isExerciseStarted;
 
 		for(var i=0; i<nums.length; i++){
 			presenter.$view.find('.text_selection').find("span[number='" + nums[i] + "']").addClass("selected");
@@ -507,6 +545,7 @@ function AddonText_Selection_create() {
 		}
 
 		presenter.configuration.isVisible = isVisible;
+		presenter.configuration.isExerciseStarted = isExerciseStarted;
 	};
 
 	function intersection(a, b) {
