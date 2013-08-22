@@ -79,15 +79,19 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			id = StringUtils.unescapeXML(id);
 		}
 		
-		int left = (int)Float.parseFloat(element.getAttribute("left"));
-		int top = (int)Float.parseFloat(element.getAttribute("top"));
-		int width = (int)Float.parseFloat(element.getAttribute("width"));
-		int height = (int)Float.parseFloat(element.getAttribute("height"));
+		int left = XMLUtils.getAttributeAsInt(element, "left");
+		int top = XMLUtils.getAttributeAsInt(element, "top");
+		int width = XMLUtils.getAttributeAsInt(element, "width");
+		int height = XMLUtils.getAttributeAsInt(element, "height");
+		int right = XMLUtils.getAttributeAsInt(element, "right");
+		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
 		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
 		setHeight(height);
+		setRight(right);
+		setBottom(bottom);
 		setInlineStyle(StringUtils.unescapeXML( element.getAttribute("style") ));
 		setStyleClass(StringUtils.unescapeXML( element.getAttribute("class") ));
 		
@@ -106,6 +110,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String escapedId = StringUtils.escapeXML(id);
 		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop()  +
 				"' width='" + getWidth() + "' height='" + getHeight() + "' " +
+				"right='" + getRight() + "' bottom='" + getBottom() + "' " +
 				"isVisible='" + isVisible + "'";
 		
 		if(!getInlineStyle().isEmpty()){
