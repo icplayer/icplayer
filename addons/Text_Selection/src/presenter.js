@@ -398,10 +398,12 @@ function AddonText_Selection_create() {
 	presenter.parseWords = function(text, mode, selection_type) {
 		var lines = text.split('\n'),
 			resultLines = [],
-			i;
+			i, tmpWords = [];
 		
 		for(i=0; i<lines.length; i++) {
 			var words = lines[i].split(' ');
+			tmpWords.push(words);
+			tmpWords.push(' ');
 			words = presenter.connectWords(words);
 
 			if (words.length === 1 && words[0] === '') {
@@ -412,7 +414,6 @@ function AddonText_Selection_create() {
 			resultLines.push(words);
 		}
 
-		var tmpWords = text.split(' ');
 		for(i=0; i<tmpWords.length; i++) {
 			if (!presenter.hasCorrectOrWrongMarker(tmpWords)) {
 				return returnErrorObject('M02');
@@ -490,6 +491,9 @@ function AddonText_Selection_create() {
 				markedWrong++;
 			}
 		}
+
+		console.log(markedCorrect);
+		console.log(markedWrong);
 
 		if((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
 			return false
