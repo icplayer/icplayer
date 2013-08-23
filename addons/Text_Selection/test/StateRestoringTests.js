@@ -49,13 +49,13 @@ TestCase('[Text Selection] States restoring', {
         assertFalse(isStarted);
     },
 
-    'test scoring available' :function() {
+    'test scoring available' : function() {
         this.presenter.$view = $('<div><div class="text_selection"></div></div>');
         this.presenter.$view.find('.text_selection').append($('<span number="4" class="selectable">a</span>'));
 
         this.presenter.turnOnEventListeners();
 
-        this.presenter.$view.find('.selectable').trigger('click');
+        this.presenter.$view.find('.selectable').trigger('mouseup');
 
         var isStarted = this.presenter.configuration.isExerciseStarted;
 

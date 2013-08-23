@@ -42,20 +42,20 @@ function AddonText_Selection_create() {
 	presenter.startSelection = function(et) {
 		first = parseInt($(et).attr('number'), 10);
 		if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
-		if (isNaN(first)) first = presenter.$view.find('.text_selection').find('span').last().attr('number');
+		if (isNaN(first)) first = parseInt(presenter.$view.find('.text_selection').find('span').last().attr('number'));
 	}
 
 	presenter.endSelection = function(et) {
 		var last = parseInt($(et).attr('number'), 10),
-			tmp = 0;
+			tmp = 0, i, $span = null, element = null;
 
 		if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
-		if (isNaN(last)) {
-			var span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
-			if(span.hasClass('selectable')) {
-				span.toggleClass('selected');
-			}
-		}
+		if (isNaN(last)) last = first;
+
+		var selected = presenter.$view.find('.text_selection').find('.selected');
+
+		console.log("1st: " + first);
+		console.log("last: " + last);
 
 		if(first !== last) {
 			if(first > last) {
@@ -63,30 +63,69 @@ function AddonText_Selection_create() {
 			}
 
 			if(presenter.configuration.selection_type === 'SINGLESELECT') {
-				if (presenter.$view.find('.selected').length === 0) {
-					presenter.$view.find("span[number='" + first + "']").addClass('selected');
-				} else if (presenter.$view.find('.selected').attr("number") === presenter.$view.find("span[number='" + first + "']").attr("number")) {
-					$(this).removeClass('selected');
+
+				if (selected.length === 0) {
+					for (i=first; i<last+1; i++) {
+						element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
+						if (element.hasClass('selectable')) {
+							element.toggleClass('selected');
+							break;
+						}
+					}
+				} else if (selected.length === 1) {
+					for (i=first; i<last+1; i++) {
+						element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
+						if (element.hasClass('selectable')) {
+							$(selected).removeClass('selected');
+							element.addClass('selected');
+							break;
+						}
+					}
 				} else {
-					presenter.$view.find('.selected').removeClass('selected');
-					$(this).addClass('selected');
+					$(selected).removeClass('selected');
 				}
-			} else if(presenter.configuration.selection_type === 'MULTISELECT') {
-				for(var i=first; i<last+1; i++) {
-					var element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-					if(element.hasClass('selectable')) {
-						element.addClass('selected');
+			} else if (presenter.configuration.selection_type === 'MULTISELECT') {
+
+				for (i=first; i<last+1; i++) {
+					element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
+					if (element.hasClass('selectable')) {
+						element.toggleClass('selected');
 					}
 				}
-			}
 
-			first = 0;
-
-			if (window.getSelection) {
-				window.getSelection().removeAllRanges();
-			} else if (document.selection) {
-				document.selection.empty();
 			}
+		} else if(first === last) {
+			$span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
+
+			if(presenter.configuration.selection_type === 'SINGLESELECT') {
+				if (selected.length == 0) {
+					if ($span.hasClass('selectable')) {
+						$span.addClass('selected');
+					}
+				} else if (selected.length == 1) {
+					console.log("selected number: " + selected.attr('number'));
+					console.log("first          : " + first);
+					if (parseInt(selected.attr('number')) === parseInt(first)) {
+						selected.removeClass('selected');
+					} else {
+						if ($span.hasClass('selectable')) {
+							selected.removeClass('selected');
+							$span.toggleClass('selected');
+						}
+					}
+				}
+			} else if (presenter.configuration.selection_type === 'MULTISELECT') {
+				if ($span.hasClass('selectable')) {
+					$span.toggleClass('selected');
+				}
+			}
+		}
+
+		first = 0;
+		if (window.getSelection) {
+			window.getSelection().removeAllRanges();
+		} else if (document.selection) {
+			document.selection.empty();
 		}
 	}
 
@@ -100,20 +139,6 @@ function AddonText_Selection_create() {
 
 		$text_selection.on('mousedown', function(e) {
 			presenter.startSelection(e.target);
-		});
-
-		$text_selection.find('.selectable').on('click', function() {
-			presenter.configuration.isExerciseStarted = true;
-			if(presenter.configuration.selection_type === 'SINGLESELECT') {
-				if($text_selection.find('.selected').attr("number") === $(this).attr("number")) {
-					$(this).removeClass('selected');
-				} else {
-					$text_selection.find('.selected').removeClass('selected');
-					$(this).addClass('selected');
-				}
-			} else if(presenter.configuration.selection_type === 'MULTISELECT') {
-				$(this).toggleClass('selected');
-			}
 		});
 
 		$text_selection.on('touchstart', function(e) {
@@ -146,11 +171,7 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.turnOffEventListeners = function() {
-		var $text_selection = presenter.$view.find('.text_selection');
-
-		$text_selection.off('mouseup, mousedown, touchstart, touchend, touchmove');
-		$text_selection.find('.selectable').off('click');
-		$text_selection.find('.selectable').off('mouseenter mouseleave');
+		presenter.$view.find('.text_selection').off();
 	};
 
 	function getSelectableSpan(i, word) {
@@ -184,10 +205,6 @@ function AddonText_Selection_create() {
 
 		var mode  = presenter.configuration.mode,
 			lines = presenter.configuration.lines;
-
-		for (i=0; i<lines.length; i++) {
-			console.log(i + " lines: " + lines[i]);
-		}
 
 		for (l=0; l<lines.length; l++) {
 			words = lines[l];
@@ -388,7 +405,7 @@ function AddonText_Selection_create() {
 			words = presenter.connectWords(words);
 
 			if (words.length === 1 && words[0] === '') {
-				words[0] = ' '; // &nbsp;
+				words[0] = ' ';
 				words[0].replace(/\s/g, 'nbsp;');
 			}
 
@@ -554,28 +571,6 @@ function AddonText_Selection_create() {
 		});
 	}
 
-	function arr_diff(a1, a2){
-		var a=[], diff=[], i;
-
-		for(i=0; i<a1.length; i++) {
-			a[a1[i]]=true;
-		}
-
-		for(i=0; i<a2.length; i++) {
-			if(a[a2[i]]) {
-				delete a[a2[i]];
-			} else {
-				a[a2[i]]=true;
-			}
-		}
-
-		for(var k in a) {
-			diff.push(k);
-		}
-
-		return diff;
-	}
-
 	presenter.setShowErrorsMode = function() {
 		if (!presenter.configuration.isExerciseStarted) return;
 
@@ -586,30 +581,27 @@ function AddonText_Selection_create() {
 		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
 			return this.getAttribute('number');
 		}).get();
+
 		var numbersCorrect = presenter.markers.markedCorrect;
-		var numbersWrong = presenter.markers.markedWrong;
+		var numbersWrong   = presenter.markers.markedWrong;
 
 		var correctSelected = intersection(numbersSelected, numbersCorrect);
-		var notSelectedWrong = arr_diff(numbersWrong, numbersSelected);
-		var green = correctSelected.concat(notSelectedWrong).sort();
 
-		for(i=0; i<green.length; i++) {
-			presenter.$view.find('.text_selection').find("span[number='" + green[i] + "']").addClass('correct');
+		for(i=0; i<correctSelected.length; i++) {
+			presenter.$view.find('.text_selection').find("span[number='" + correctSelected[i] + "']").addClass('correct');
 		}
 
 		var selectedWrong = intersection(numbersSelected, numbersWrong);
-		var notSelectedCorrect = arr_diff(numbersCorrect, numbersSelected);
-		var red = selectedWrong.concat(notSelectedCorrect).sort();
 
-		for(i=0; i<red.length; i++) {
-			presenter.$view.find('.text_selection').find("span[number='" + red[i] + "']").addClass('wrong');
+		for(i=0; i<selectedWrong.length; i++) {
+			presenter.$view.find('.text_selection').find("span[number='" + selectedWrong[i] + "']").addClass('wrong');
 		}
 	};
 
 	presenter.setWorkMode = function() {
-		presenter.turnOnEventListeners();
 		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
 		presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
+		presenter.turnOnEventListeners();
 	};
 
 	function points(selector) {
