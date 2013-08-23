@@ -54,9 +54,6 @@ function AddonText_Selection_create() {
 
 		var selected = presenter.$view.find('.text_selection').find('.selected');
 
-		console.log("1st: " + first);
-		console.log("last: " + last);
-
 		if(first !== last) {
 			if(first > last) {
 				tmp = first; first = last; last = tmp;
@@ -103,8 +100,6 @@ function AddonText_Selection_create() {
 						$span.addClass('selected');
 					}
 				} else if (selected.length == 1) {
-					console.log("selected number: " + selected.attr('number'));
-					console.log("first          : " + first);
 					if (parseInt(selected.attr('number')) === parseInt(first)) {
 						selected.removeClass('selected');
 					} else {
@@ -172,6 +167,7 @@ function AddonText_Selection_create() {
 
 	presenter.turnOffEventListeners = function() {
 		presenter.$view.find('.text_selection').off();
+		presenter.$view.find('.text_selection').find('.selectable').off();
 	};
 
 	function getSelectableSpan(i, word) {
@@ -334,7 +330,7 @@ function AddonText_Selection_create() {
 		var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
 
 		var parsedWords = presenter.parseWords(model.Text, mode, selection_type);
-		if (!parsedWords.isValid){
+		if (!parsedWords.isValid) {
 			return returnErrorObject(parsedWords.errorCode);
 		}
 
@@ -402,8 +398,6 @@ function AddonText_Selection_create() {
 		
 		for(i=0; i<lines.length; i++) {
 			var words = lines[i].split(' ');
-			tmpWords.push(words);
-			tmpWords.push(' ');
 			words = presenter.connectWords(words);
 
 			if (words.length === 1 && words[0] === '') {
@@ -414,22 +408,20 @@ function AddonText_Selection_create() {
 			resultLines.push(words);
 		}
 
-		for(i=0; i<tmpWords.length; i++) {
-			if (!presenter.hasCorrectOrWrongMarker(tmpWords)) {
-				return returnErrorObject('M02');
-			}
+		if (!presenter.hasCorrectOrWrongMarker(resultLines)) {
+			return returnErrorObject('M02');
+		}
 
-			if (presenter.wrongMarkerInAllSelectable(tmpWords, mode)) {
-				return returnErrorObject('M03');
-			}
+		if (presenter.wrongMarkerInAllSelectable(resultLines, mode)) {
+			return returnErrorObject('M03');
+		}
 
-			if (presenter.emptyWordInMarker(tmpWords)) {
-				return returnErrorObject('M04');
-			}
+		if (presenter.emptyWordInMarker(resultLines)) {
+			return returnErrorObject('M04');
+		}
 
-			if (!presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection(tmpWords, selection_type)) {
-				return returnErrorObject('M05');
-			}
+		if (!presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection(resultLines, selection_type)) {
+			return returnErrorObject('M05');
 		}
 		
 		return {
@@ -438,26 +430,32 @@ function AddonText_Selection_create() {
 		};
 	};
 
-	presenter.hasCorrectOrWrongMarker = function(words) {
+	presenter.hasCorrectOrWrongMarker = function(lines) {
 
-		for (var i=0; i<words.length; i++) {
-			if (presenter.isMarkedWrong(words[i])) {
-				return true;
-			}
-			if (presenter.isMarkedCorrect(words[i])) {
-				return true;
+		for (var j=0; j<lines.length; j++) {
+			var words = lines[j];
+			for (var i=0; i<words.length; i++) {
+				if (presenter.isMarkedWrong(words[i])) {
+					return true;
+				}
+				if (presenter.isMarkedCorrect(words[i])) {
+					return true;
+				}
 			}
 		}
 
 		return false;
 	};
 
-	presenter.wrongMarkerInAllSelectable = function(words, mode) {
+	presenter.wrongMarkerInAllSelectable = function(lines, mode) {
 
 		if (mode === 'ALL_SELECTABLE') {
-			for (var i=0; i<words.length; i++) {
-				if (presenter.isMarkedWrong(words[i])) {
-					return true;
+			for (var j=0; j<lines.length; j++) {
+				var words = lines[j];
+				for (var i=0; i<words.length; i++) {
+					if (presenter.isMarkedWrong(words[i])) {
+						return true;
+					}
 				}
 			}
 		}
@@ -466,34 +464,37 @@ function AddonText_Selection_create() {
 	};
 			
 
-	presenter.emptyWordInMarker = function(words) {
+	presenter.emptyWordInMarker = function(lines) {
 
-		for (var i=0; i<words.length; i++) {
-			if (presenter.isMarkedWrong(words[i]) && presenter.cutMarkedWrong(words[i]) === "") {
-				return true;
-			}
-			if (presenter.isMarkedCorrect(words[i]) && presenter.cutMarkedCorrect(words[i]) === "") {
-				return true;
+		for (var j=0; j<lines.length; j++) {
+			var words = lines[j];
+			for (var i=0; i<words.length; i++) {
+				if (presenter.isMarkedWrong(words[i]) && presenter.cutMarkedWrong(words[i]) === "") {
+					return true;
+				}
+				if (presenter.isMarkedCorrect(words[i]) && presenter.cutMarkedCorrect(words[i]) === "") {
+					return true;
+				}
 			}
 		}
 
 		return false;
 	};
 
-	presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(words, selection_type) {
+	presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(lines, selection_type) {
 		var markedCorrect = 0,
-		markedWrong = 0;
+			markedWrong = 0;
 
-		for (var i=0; i<words.length; i++) {
-			if (presenter.isMarkedCorrect(words[i])) {
-				markedCorrect++;
-			} else if(presenter.isMarkedWrong(words[i])) {
-				markedWrong++;
+		for (var j=0; j<lines.length; j++) {
+			var words = lines[j];
+			for (var i=0; i<words.length; i++) {
+				if (presenter.isMarkedCorrect(words[i])) {
+					markedCorrect++;
+				} else if(presenter.isMarkedWrong(words[i])) {
+					markedWrong++;
+				}
 			}
 		}
-
-		console.log(markedCorrect);
-		console.log(markedWrong);
 
 		if((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
 			return false
