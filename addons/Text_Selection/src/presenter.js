@@ -11,15 +11,15 @@ function AddonText_Selection_create() {
 
 	presenter.isStartedCorrect = function(word) {
 		return word.substr(0, 9) === "\\correct{";
-	}
+	};
 
 	presenter.isStartedWrong = function(word) {
 		return word.substr(0, 7) === "\\wrong{";
-	}
+	};
 
 	presenter.hasClosingBracket = function(word) {
 		return word[word.length-1] === '}' || word[word.length-2] === '}';
-	}
+	};
 
 	presenter.isMarkedCorrect = function(word) {
 		return (/^\\correct{.*}/).test(word);
@@ -42,8 +42,8 @@ function AddonText_Selection_create() {
 	presenter.startSelection = function(et) {
 		first = parseInt($(et).attr('number'), 10);
 		if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
-		if (isNaN(first)) first = parseInt(presenter.$view.find('.text_selection').find('span').last().attr('number'));
-	}
+		if (isNaN(first)) first = parseInt(presenter.$view.find('.text_selection').find('span').last().attr('number'), 10);
+	};
 
 	presenter.endSelection = function(et) {
 		var last = parseInt($(et).attr('number'), 10),
@@ -100,7 +100,7 @@ function AddonText_Selection_create() {
 						$span.addClass('selected');
 					}
 				} else if (selected.length == 1) {
-					if (parseInt(selected.attr('number')) === parseInt(first)) {
+					if (parseInt(selected.attr('number')) === parseInt(first, 10)) {
 						selected.removeClass('selected');
 					} else {
 						if ($span.hasClass('selectable')) {
@@ -122,7 +122,7 @@ function AddonText_Selection_create() {
 		} else if (document.selection) {
 			document.selection.empty();
 		}
-	}
+	};
 
 	presenter.turnOnEventListeners = function() {
 		var $text_selection = presenter.$view.find('.text_selection');
@@ -163,11 +163,15 @@ function AddonText_Selection_create() {
 				$(this).removeClass("hover");
 			}
 		);
+
+		presenter.configuration.areEventListenersOn = true;
 	};
 
 	presenter.turnOffEventListeners = function() {
 		presenter.$view.find('.text_selection').off();
 		presenter.$view.find('.text_selection').find('.selectable').off();
+
+		presenter.configuration.areEventListenersOn = false;
 	};
 
 	function getSelectableSpan(i, word) {
@@ -285,7 +289,7 @@ function AddonText_Selection_create() {
 
 		presenter.$view.append($resLines);
 		presenter.setVisibility(presenter.configuration.isVisible);
-	}
+	};
 
 	presenter.ERROR_CODES = {
 		M01: 'Text cannot be empty',
@@ -340,7 +344,8 @@ function AddonText_Selection_create() {
 			selection_type: selection_type,
 			lines: parsedWords.lines,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-			isExerciseStarted: false
+			isExerciseStarted: false,
+			areEventListenersOn: true
 		};
 	};
 
@@ -389,7 +394,7 @@ function AddonText_Selection_create() {
 		}
 
 		return result;
-	}
+	};
 
 	presenter.parseWords = function(text, mode, selection_type) {
 		var lines = text.split('\n'),
@@ -497,11 +502,11 @@ function AddonText_Selection_create() {
 		}
 
 		if((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
-			return false
+			return false;
 		} else {
 			return true;
 		}
-	}
+	};
 
 	presenter.executeCommand = function(name, params) {
 		if (!presenter.configuration.isValid) return;
@@ -529,7 +534,8 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.reset = function() {
-		presenter.$view.find('.text_selection').find('.selected').removeClass("selected");
+		presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
+		presenter.setWorkMode();
 		presenter.show();
 	};
 
@@ -606,7 +612,10 @@ function AddonText_Selection_create() {
 	presenter.setWorkMode = function() {
 		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
 		presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
-		presenter.turnOnEventListeners();
+
+		if (!presenter.configuration.areEventListenersOn) {
+			presenter.turnOnEventListeners();
+		}
 	};
 
 	function points(selector) {
