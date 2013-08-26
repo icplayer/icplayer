@@ -47,6 +47,8 @@
 
                 if (score.maxScore > 0) {
                 	sumOfScaledScore += score.score / score.maxScore;
+                } else {
+                	sumOfScaledScore += 1;
                 }
                 sumOfScore += score.score;
                 sumOfErrors += score.mistakeCount;
