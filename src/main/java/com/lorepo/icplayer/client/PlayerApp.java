@@ -3,16 +3,16 @@ package com.lorepo.icplayer.client;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
-import com.lorepo.icplayer.client.utils.ILoadListener;
-import com.lorepo.icplayer.client.utils.XMLLoader;
 
 /**
  * Create single page application

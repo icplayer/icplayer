@@ -7,6 +7,7 @@
 		</shapeModule>
 		
 		<choiceModule id="2frg43d" left="120" top="120" width="560" height="200" style="background-color:yellow">
+			<layout type="LTRB" left="shape1" top="shape1" right="shape1" bottom="shape1"/>
 			<choice isDisabled='false'/>
 			<options>
 				<option value="5">

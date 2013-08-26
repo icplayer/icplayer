@@ -47,7 +47,7 @@ public class ButtonModuleTestCase {
 		
 		
 		String expected = 
-				"<buttonModule id='" + module.getId() + "' left='1' top='2' width='3' height='4' isVisible='true'>";
+				"<buttonModule id='" + module.getId() + "'";
 		assertTrue(xml.startsWith(expected));
 	}
 

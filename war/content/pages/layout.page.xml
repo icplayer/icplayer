@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout='pixels'>
+
+	<modules>
+		<shapeModule id="shape1" left="10" top="10" width="600" height="240" style="background:AliceBlue">
+			<layout type="LTWH">
+				<left relative="" property="left"/>
+				<top relative="" property="top"/>
+				<right relative="" property="right"/>
+				<bottom relative="" property="bottom"/>
+			</layout>
+		</shapeModule>
+
+		<shapeModule id="shape2" left="10" top="10" right="10" bottom="10" width="300" height="200" style="background:Aquamarine">
+			<layout type="RBWH">
+				<left relative="shape1" property="left"/>
+				<top relative="shape1" property="top"/>
+				<right relative="shape1" property="right"/>
+				<bottom relative="shape1" property="bottom"/>
+			</layout>
+		</shapeModule>
+
+		<shapeModule id="shape3" left="10" top="10" right="10" bottom="10" width="600" height="240" style="background:Bisque">
+			<layout type="LTRB">
+				<left relative="shape2" property="left"/>
+				<top relative="shape2" property="top"/>
+				<right relative="shape2" property="right"/>
+				<bottom relative="shape2" property="bottom"/>
+			</layout>
+		</shapeModule>
+
+		<shapeModule id="shape4" left="100" top="100" width="80" height="40" style="background:Coral">
+			<layout type="LTWH">
+				<left relative="shape3" property="right"/>
+				<top relative="shape3" property="bottom"/>
+				<right relative="shape3" property="right"/>
+				<bottom relative="shape3" property="bottom"/>
+			</layout>
+		</shapeModule>
+	</modules>
+
+</page>

@@ -1,6 +1,7 @@
 var ice_dictionary = {
 	"editor_title" : "Multiplatform Interactive Content Editor",
 	"save" : "Save",
+	"saved" : "Saved",
 	"ok" : "OK",
 	"close_editor" : "Close editor",
 	"add" : "Add",
@@ -42,6 +43,7 @@ var ice_dictionary = {
 	"please_wait" : "Please wait till page is saved before closing editor.",
 	"presentation_saved" : "Presentation saved.",
 	"page_saved" : "Page saved.",
+	"saving_changes" : "Saving changes",
 	"cant_save_page" : "Can't save page: ",
 	"properties" : "Properties",
 	"module_title" : "Module: ",

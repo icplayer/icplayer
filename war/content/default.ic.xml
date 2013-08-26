@@ -66,7 +66,7 @@ background-color:lightgreen;
 </style>
 
 <pages>
-	<page name="inline choice" href="pages/inline-choice.page.xml"/>
+	<page name="layout" href="pages/layout.page.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
