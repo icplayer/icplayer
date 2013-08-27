@@ -71,7 +71,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 						layout.getLeftRelativeToProperty(), module.getLeft());
 				if(layout.hasRight()){
 					right = calculatePosition(layout.getRightRelativeTo(), 
-							layout.getRightRelativeToProperty(), module.getRight());
+							layout.getRightRelativeToProperty(), -module.getRight());
 					width = right-left;
 				}
 				else{
@@ -80,7 +80,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			}
 			else{
 				right = calculatePosition(layout.getRightRelativeTo(), 
-						layout.getRightRelativeToProperty(), module.getRight());
+						layout.getRightRelativeToProperty(), -module.getRight());
 				width = module.getWidth();
 				left = right-width;
 			}
@@ -90,7 +90,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 						layout.getTopRelativeToProperty(), module.getTop());
 				if(layout.hasBottom()){
 					bottom = calculatePosition(layout.getBottomRelativeTo(), 
-							layout.getBottomRelativeToProperty(), module.getBottom());
+							layout.getBottomRelativeToProperty(), -module.getBottom());
 					height = bottom-top;
 				}
 				else{
@@ -99,7 +99,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			}
 			else{
 				bottom = calculatePosition(layout.getBottomRelativeTo(), 
-						layout.getBottomRelativeToProperty(), module.getBottom());
+						layout.getBottomRelativeToProperty(), -module.getBottom());
 				height = module.getHeight();
 				top = bottom-height;
 			}
@@ -125,6 +125,14 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 				pos = modulePos;
 			}
 		}
+		else if(property == Property.right){
+			if(widget != null){
+				pos = widget.getAbsoluteLeft()+widget.getOffsetWidth()-getAbsoluteLeft()+modulePos;
+			}
+			else{
+				pos = pageWidth+modulePos;
+			}
+		}
 		else if(property == Property.top){
 			if(widget != null){
 				pos = widget.getAbsoluteTop()-getAbsoluteTop()+modulePos;
@@ -133,20 +141,12 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 				pos = modulePos;
 			}
 		}
-		else if(property == Property.right){
-			if(widget != null){
-				pos = widget.getAbsoluteLeft()+widget.getOffsetWidth()-getAbsoluteLeft()-modulePos;
-			}
-			else{
-				pos = pageWidth-modulePos;
-			}
-		}
 		else if(property == Property.bottom){
 			if(widget != null){
-				pos = widget.getAbsoluteTop()+widget.getOffsetHeight()-getAbsoluteTop()-modulePos;
+				pos = widget.getAbsoluteTop()+widget.getOffsetHeight()-getAbsoluteTop()+modulePos;
 			}
 			else{
-				pos = pageHeight-modulePos;
+				pos = pageHeight+modulePos;
 			}
 		}
 		

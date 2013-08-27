@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page layout='pixels' width='0' height='640' style='background:#efefef;'>
+	<modules>
+		
+		<textModule id='Text1' left='10' top='10' width='346' height='50' right='10' bottom='10' isVisible='true' style='background: red;'>
+			<layout type='LTWB'>
+				<left relative='Page 1' property='left'/>
+				<top relative='Page 1' property='top'/>
+				<right relative='Page 1' property='right'/>
+				<bottom relative='Page 1' property='bottom'/>
+			</layout>
+			<text draggable='true' gapWidth='100' isActivity='true' isIgnorePunctuation='false' isDisabled='false' isCaseSensitive='true'><![CDATA[Wzór \gap{aaa}]]></text>
+		</textModule>
+		
+		<textModule id='Text2' left='10' top='265' width='330' height='186' right='10' bottom='0' isVisible='true' style='background: yellow;'>
+			<layout type='LTRH'>
+				<left relative='Text1' property='right'/>
+				<top relative='-' property='top'/>
+				<right relative='-' property='right'/>
+				<bottom relative='-' property='bottom'/>
+			</layout>
+			<text draggable='true' gapWidth='100' isActivity='true' isIgnorePunctuation='false' isDisabled='false' isCaseSensitive='true'><![CDATA[Wzór \gap{aaa}]]></text>
+		</textModule>
+	</modules>
+</page>
