@@ -26,7 +26,7 @@ public class PlayerView extends VerticalPanel{
 		setStyleName("ic_player");
 		
 		waitDlg = new WaitDialog();
-		pageView1 = new PageView("ic_mainPage");
+		pageView1 = new PageView("ic_page");
 		contentPanel = new HorizontalPanel();
 		contentPanel.addStyleName("ic_content");
 		contentPanel.add(pageView1);

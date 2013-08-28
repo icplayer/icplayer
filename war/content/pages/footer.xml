@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page layout="pixels" height="60" style="background-color:lighgreen">
+<page layout="pixels" height="60" style="background-color:lightgreen">
 
 	<modules>
 		
@@ -11,7 +11,13 @@
 			<button type="checkAnswers" text=""/>
 		</buttonModule>
 
-		<buttonModule  left="720" top="0" width="80" height="60" style="">
+		<buttonModule  right="5" top="0" width="80" height="60" style="">
+			<layout type="RTWB">
+				<left relative="" property="left"/>
+				<top relative="" property="top"/>
+				<right relative="" property="right"/>
+				<bottom relative="" property="bottom"/>
+			</layout>
 			<button type="nextPage" text=""/>
 		</buttonModule>
 		
