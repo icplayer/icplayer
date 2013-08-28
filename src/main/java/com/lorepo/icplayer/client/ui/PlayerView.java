@@ -26,7 +26,7 @@ public class PlayerView extends VerticalPanel{
 		setStyleName("ic_player");
 		
 		waitDlg = new WaitDialog();
-		pageView1 = new PageView("ic_mainPage");
+		pageView1 = new PageView("ic_page");
 		contentPanel = new HorizontalPanel();
 		contentPanel.addStyleName("ic_content");
 		contentPanel.add(pageView1);
@@ -84,7 +84,7 @@ public class PlayerView extends VerticalPanel{
 
 	public void showTwoPages() {
 		if(pageView2 == null){
-			pageView2 = new PageView("ic_mainPage");
+			pageView2 = new PageView("ic_page");
 		}
 		if(contentPanel.getWidgetIndex(pageView2) == -1){
 			contentPanel.add(pageView2);
