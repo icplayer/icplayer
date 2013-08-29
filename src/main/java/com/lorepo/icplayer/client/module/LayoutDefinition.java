@@ -10,8 +10,6 @@ public class LayoutDefinition implements ILayoutDefinition{
 	private boolean top = true;
 	private boolean right = false;
 	private boolean bottom = false;
-	private boolean width = true;
-	private boolean height = true;
 	private String leftRelativeTo = "";
 	private Property leftRelativeToProperty = Property.left;
 	private String topRelativeTo = "";
@@ -33,11 +31,6 @@ public class LayoutDefinition implements ILayoutDefinition{
 	}
 
 	@Override
-	public boolean hasWidth() {
-		return width;
-	}
-
-	@Override
 	public boolean hasTop() {
 		return top;
 	}
@@ -45,11 +38,6 @@ public class LayoutDefinition implements ILayoutDefinition{
 	@Override
 	public boolean hasBottom() {
 		return bottom;
-	}
-
-	@Override
-	public boolean hasHeight() {
-		return height;
 	}
 
 	public void load(Element rootElement) {
@@ -105,19 +93,11 @@ public class LayoutDefinition implements ILayoutDefinition{
 			bottom = true;
 		}
 		
-		if(type.charAt(2) == 'W'){
-			width = true;
-		}
-		else if(type.charAt(2) == 'R'){
-			width = false;
+		if(type.charAt(2) == 'R'){
 			right = true;
 		}
 		
-		if(type.charAt(3) == 'H'){
-			height = true;
-		}
-		else if(type.charAt(3) == 'B'){
-			height = false;
+		if(type.charAt(3) == 'B'){
 			bottom = true;
 		}
 	}
@@ -158,18 +138,18 @@ public class LayoutDefinition implements ILayoutDefinition{
 			type += "B";
 		}
 		
-		if(width){
-			type += "W";
-		}
-		else{
+		if(right && left){
 			type += "R";
 		}
+		else{
+			type += "W";
+		}
 		
-		if(height){
-			type += "H";
+		if(top && bottom){
+			type += "B";
 		}
 		else{
-			type += "B";
+			type += "H";
 		}
 		
 		return type;
@@ -213,7 +193,67 @@ public class LayoutDefinition implements ILayoutDefinition{
 	@Override
 	public Property getBottomRelativeToProperty() {
 		return bottomRelativeToProperty;
+	}
+
+	public String getName() {
+		return encodeType();
+	}
+
+	public void setHasRight(boolean value) {
+		right = value;
+	}
+
+	public void setHasLeft(boolean value) {
+		left = value;
+	}
+
+	public void setHasBottom(boolean value) {
+		bottom = value;
+	}
+
+	public void setHasTop(boolean value) {
+		top = value;
+	}
+
+	public void setLeftRelativeTo(String moduleName) {
+		leftRelativeTo = moduleName;
 	}	
 	
+
+	public void setRightRelativeTo(String moduleName) {
+		rightRelativeTo = moduleName;
+	}	
+
+	public void setTopRelativeTo(String moduleName) {
+		topRelativeTo = moduleName;
+	}	
+
+	public void setBottomRelativeTo(String moduleName) {
+		bottomRelativeTo = moduleName;
+	}
+
+	public void setLeftRelativeToProperty(Property side) {
+		leftRelativeToProperty = side;
+	}	
+
+	public void setRightRelativeToProperty(Property side) {
+		rightRelativeToProperty = side;
+	}	
+
+	public void setTopRelativeToProperty(Property side) {
+		topRelativeToProperty = side;
+	}	
+
+	public void setBottomRelativeToProperty(Property side) {
+		bottomRelativeToProperty = side;
+	}
+
+	public boolean hasHeight() {
+		return !(top && bottom);
+	}
+
+	public boolean hasWidth() {
+		return !(left && right);
+	}	
 	
 }

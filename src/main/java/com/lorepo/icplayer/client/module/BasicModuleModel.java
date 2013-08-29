@@ -32,8 +32,8 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		this.moduleTypeName = typeName;
 		id = UUID.uuid(6);
 		addPropertyId();
-		addPropertyIsVisible();
 		registerPositionProperties();
+		addPropertyIsVisible();
 	}
 	
 	@Override

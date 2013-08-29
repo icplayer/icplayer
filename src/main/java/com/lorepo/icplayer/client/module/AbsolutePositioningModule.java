@@ -20,7 +20,8 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	private int	bottom;
 	private int	width;
 	private int	height;
-	
+
+	private ILayoutProperty layoutProperty;
 	private IProperty leftProperty;
 	private IProperty rightProperty;
 	private IProperty topProperty;
@@ -37,10 +38,13 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 
 	protected void registerPositionProperties() {
+		addPropertyLayout();
 		addPropertyLeft();
 		addPropertyTop();
 		addPropertyWidth();
 		addPropertyHeight();
+		addPropertyRight();
+		addPropertyBottom();
 	}
 	
 	
@@ -134,19 +138,55 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	}
 
 
+	private void addPropertyLayout() {
+
+		layoutProperty = new ILayoutProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return layout.getName();
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("layout");
+			}
+
+			@Override
+			public LayoutDefinition getLayout() {
+				return layout;
+			}
+		};
+		
+		addProperty(layoutProperty);
+	}
+
+
 	private void addPropertyLeft() {
 
 		leftProperty = new IProperty() {
 			
 			@Override
 			public void setValue(String newValue) {
-				left = Integer.parseInt(newValue);
-				sendPropertyChangedEvent(this);
+				if(newValue.length() > 0){
+					left = Integer.parseInt(newValue);
+					sendPropertyChangedEvent(this);
+				}
 			}
 			
 			@Override
 			public String getValue() {
-				return Integer.toString(left);
+				if(layout.hasLeft()){
+					return Integer.toString(left);
+				}
+				else{
+					return "";
+				}
 			}
 			
 			@Override
@@ -165,13 +205,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public void setValue(String newValue) {
-				top = Integer.parseInt(newValue);
-				sendPropertyChangedEvent(this);
+				if(newValue.length() > 0){
+					top = Integer.parseInt(newValue);
+					sendPropertyChangedEvent(this);
+				}
 			}
 			
 			@Override
 			public String getValue() {
-				return Integer.toString(top);
+				if(layout.hasTop()){
+					return Integer.toString(top);
+				}
+				else{
+					return "";
+				}
 			}
 			
 			@Override
@@ -189,13 +236,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public void setValue(String newValue) {
-				width = Integer.parseInt(newValue);
-				sendPropertyChangedEvent(this);
+				if(newValue.length() > 0){
+					width = Integer.parseInt(newValue);
+					sendPropertyChangedEvent(this);
+				}
 			}
 			
 			@Override
 			public String getValue() {
-				return Integer.toString(width);
+				if(layout.hasWidth()){
+					return Integer.toString(width);
+				}
+				else{
+					return "";
+				}
 			}
 			
 			@Override
@@ -213,13 +267,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public void setValue(String newValue) {
-				height = Integer.parseInt(newValue);
-				sendPropertyChangedEvent(this);
+				if(newValue.length() > 0){
+					height = Integer.parseInt(newValue);
+					sendPropertyChangedEvent(this);
+				}
 			}
 			
 			@Override
 			public String getValue() {
-				return Integer.toString(height);
+				if(layout.hasHeight()){
+					return Integer.toString(height);
+				}
+				else{
+					return "";
+				}
 			}
 			
 			@Override
@@ -236,6 +297,70 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	public void disableChangeEvent(boolean disable) {
 
 		disableChangeEvent = disable;
+	}
+
+
+	private void addPropertyRight() {
+
+		rightProperty = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				if(newValue.length() > 0){
+					right = Integer.parseInt(newValue);
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				if(layout.hasRight()){
+					return Integer.toString(right);
+				}
+				else{
+					return "";
+				}
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("right");
+			}
+		};
+		
+		addProperty(rightProperty);
+	}
+
+
+	private void addPropertyBottom() {
+
+		bottomProperty = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				if(newValue.length() > 0){
+					bottom = Integer.parseInt(newValue);
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				if(layout.hasBottom()){
+					return Integer.toString(bottom);
+				}
+				else{
+					return "";
+				}
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("bottom");
+			}
+		};
+		
+		addProperty(bottomProperty);
 	}
 
 }

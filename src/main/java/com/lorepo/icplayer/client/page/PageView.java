@@ -40,7 +40,7 @@ public class PageView extends SimplePanel implements IPageDisplay{
 			innerPanel = panel;
 			display = panel;
 		}
-		innerPanel.addStyleName(styleName);
+		innerPanel.setStyleName(styleName);
 		setWidget(innerPanel);
 		display.setPage(page);
 	}

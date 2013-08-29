@@ -153,6 +153,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public String getState() {
 
 		HashMap<String, String> state = new HashMap<String, String>();
+		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
 		if(enteredText != null){
 			state.put("enteredText", enteredText);
@@ -177,11 +178,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 
+	/**
+	 * Gap will have different id since it is randomly generated.
+	 */
 	@Override
 	public void setState(String stateObj) {
-		
+
 		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
-		values = JSONUtils.decodeHashMap(state.get("values"));
+		String oldGapId = state.get("gapUniqueId") + "-";
+		values.clear();
+		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
+		for( String key : oldValues.keySet()){
+			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
+			values.put(newKey, oldValues.get(key));
+		}
 		if(state.containsKey("enteredText")){
 			enteredText = state.get("enteredText");
 			view.setHTML(enteredText);

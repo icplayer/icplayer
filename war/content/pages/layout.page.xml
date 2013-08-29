@@ -2,8 +2,8 @@
 <page layout='pixels'>
 
 	<modules>
-		<shapeModule id="shape1" left="10" top="10" width="600" height="240" style="background:AliceBlue">
-			<layout type="LTWH">
+		<shapeModule id="shape1" left="10" top="10" width="600" height="240" bottom="10" style="background:AliceBlue">
+			<layout type="LTWB">
 				<left relative="" property="left"/>
 				<top relative="" property="top"/>
 				<right relative="" property="right"/>

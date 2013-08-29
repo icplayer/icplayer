@@ -304,5 +304,4 @@ public class TextPresenterTestCase {
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(2, moduleScore);
 	}
-	
 }

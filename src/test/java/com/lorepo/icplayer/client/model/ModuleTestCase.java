@@ -2,7 +2,9 @@ package com.lorepo.icplayer.client.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,15 +12,19 @@ import java.io.InputStream;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.module.ILayoutProperty;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition.Property;
+import com.lorepo.icplayer.client.module.image.ImageModule;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 
 @RunWith(PowerMockRunner.class)
@@ -115,5 +121,49 @@ public class ModuleTestCase {
 		assertEquals(4, module.getRight());
 		assertEquals(5, module.getBottom());
 		assertEquals(6, module.getHeight());
+	}
+	
+	
+	@Test
+	public void rightBottomProperty() {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("right")).thenReturn("Right");
+		when(DictionaryWrapper.get("bottom")).thenReturn("Bottom");
+
+		ImageModule module = new ImageModule();
+		boolean foundRightProperty = false;
+		boolean foundBottomProperty = false;
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			IProperty property = module.getProperty(i);
+			if(property.getName().equals("Right")){
+				foundRightProperty = true;
+			}
+			else if(property.getName().equals("Bottom")){
+				foundBottomProperty = true;
+			}
+		}
+
+		assertTrue(foundRightProperty);
+		assertTrue(foundBottomProperty);
+	}
+	
+	
+	@Test
+	public void layoutProperty() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("layout")).thenReturn("Layout");
+
+		ShapeModule module = initModule("testdata/module2.xml");
+		ILayoutProperty layoutProperty = null;
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			IProperty property = module.getProperty(i);
+			if(property.getName().equals("Layout")){
+				layoutProperty = (ILayoutProperty) property;
+				break;
+			}
+		}
+
+		assertNotNull(layoutProperty);
+		assertEquals("LTRB", layoutProperty.getValue());
 	}
 }

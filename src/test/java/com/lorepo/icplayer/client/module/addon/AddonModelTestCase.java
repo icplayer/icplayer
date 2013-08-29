@@ -485,7 +485,7 @@ public class AddonModelTestCase {
 		module = new AddonModel();
 		module.load(element, "");
 		
-		assertEquals(8, module.getPropertyCount());
+		assertEquals(11, module.getPropertyCount());
 	}
 	
 	
