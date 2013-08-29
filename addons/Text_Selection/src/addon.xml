@@ -4,6 +4,6 @@
 	<model>
 		<property name='Mode' type='{Mark phrases to select, All selectable}'/>
 		<property name='Selection type' type='{Single select, Multiselect}'/>
-		<property name='Text' type='text'/>
+		<property name='Text' type='html'/>
 	</model>
 </addon>

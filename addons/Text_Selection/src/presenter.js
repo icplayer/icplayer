@@ -10,38 +10,47 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.isStartedCorrect = function(word) {
-		return word.substr(0, 9) === "\\correct{";
+		return (/(>|^)\\correct{.*/).test(word);
 	};
 
 	presenter.isStartedWrong = function(word) {
-		return word.substr(0, 7) === "\\wrong{";
+		return (/(>|^)\\wrong{.*/).test(word);
 	};
 
 	presenter.hasClosingBracket = function(word) {
-		return word[word.length-1] === '}' || word[word.length-2] === '}';
+		return (/.*}(.|$|<)/).test(word);
 	};
 
 	presenter.isMarkedCorrect = function(word) {
-		return (/^\\correct{.*}/).test(word);
+		return (/(>|^)\\correct{.*}(<|.*)/).test(word);
 	};
 
 	presenter.isMarkedWrong = function(word) {
-		return (/^\\wrong{.*}/).test(word);
+		return (/(>|^)\\wrong{.*}(<|.*)/).test(word);
 	};
 
 	presenter.cutMarkedCorrect = function(word) {
-		if(isLastSpecialSigh(word)) return word.slice(9, -2);
-		return word.slice(9, -1);
+		if (isLastSpecialSigh(word)) {
+			word = word.replace(/\\correct{/, '').replace(/}/, '');
+			return word.substring(0, word.length-1);
+		} else {
+			return word.replace(/\\correct{/, '').replace(/}/, '');
+		}
 	};
 
 	presenter.cutMarkedWrong = function(word) {
-		if(isLastSpecialSigh(word)) return word.slice(7, -2);
-		return word.slice(7, -1);
+		if (isLastSpecialSigh(word)) {
+			word = word.replace(/\\wrong{/, '').replace(/}/, '');
+			return word.substring(0, word.length - 1);
+		} else {
+			return word.replace(/\\wrong{/, '').replace(/}/, '');
+		}
 	};
 
 	presenter.startSelection = function(et) {
 		first = parseInt($(et).attr('number'), 10);
 		if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
+		if (isNaN(first)) first = parseInt($(et).closest('.selectable').attr('number'));
 		if (isNaN(first)) first = parseInt(presenter.$view.find('.text_selection').find('span').last().attr('number'), 10);
 	};
 
@@ -50,6 +59,7 @@ function AddonText_Selection_create() {
 			tmp = 0, i, $span = null, element = null;
 
 		if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
+		if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'));
 		if (isNaN(last)) last = first;
 
 		var selected = presenter.$view.find('.text_selection').find('.selected');
@@ -91,10 +101,10 @@ function AddonText_Selection_create() {
 				}
 
 			}
-		} else if(first === last) {
+		} else if (first === last) {
 			$span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
 
-			if(presenter.configuration.selection_type === 'SINGLESELECT') {
+			if (presenter.configuration.selection_type === 'SINGLESELECT') {
 				if (selected.length == 0) {
 					if ($span.hasClass('selectable')) {
 						$span.addClass('selected');
@@ -194,7 +204,7 @@ function AddonText_Selection_create() {
 			markedWrong   = [],
 			words         = [],
 			$resLines     = $("<div class='text_selection'></div>"),
-			$res          = $("<div></div>"),
+			$res,
 			$span;
 
 		presenter.configuration = presenter.validateModel(model);
@@ -208,6 +218,7 @@ function AddonText_Selection_create() {
 
 		for (l=0; l<lines.length; l++) {
 			words = lines[l];
+			$res = $("<div></div>").attr('style', "text-align: " + presenter.configuration.divPosition[l] + ";");
 
 			if (mode === 'MARK_PHRASES') {
 				if (words.length === 1 && words[0] === ' ') {
@@ -226,7 +237,7 @@ function AddonText_Selection_create() {
 						}
 
 						$res.append($span);
-						$res.append(getBlock(i, words.length, getSpecialSign(words[i])));
+						$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
 
 						markedWrong.push(parseInt(i + number, 10));
 					} else if (presenter.isMarkedCorrect(words[i])) {
@@ -237,7 +248,7 @@ function AddonText_Selection_create() {
 						}
 
 						$res.append($span);
-						$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+						$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
 
 						markedCorrect.push(parseInt(i + number, 10));
 					} else {
@@ -246,7 +257,7 @@ function AddonText_Selection_create() {
 						} else {
 							$span = $('<span></span>').attr('number', i + number).html(words[i]);
 							$res.append($span);
-							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
 						}
 					}
 				}
@@ -256,22 +267,22 @@ function AddonText_Selection_create() {
 						if(isPreview) {
 							$span = $('<span></span>').attr('number', i + number).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
 							$res.append($span);
-							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])) + ' ');
+							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])) + ' ');
 						} else {
 							$span = getSelectableSpan(i + number, presenter.cutMarkedCorrect(words[i]));
 							$res.append($span);
-							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
 						}
 						markedCorrect.push(parseInt(i + number, 10));
 					} else {
 						if(isPreview) {
 							$span = getSelectableSpan(i + number, words[i]);
 							$res.append($span);
-							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])) + ' ');
+							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])) + ' ');
 						} else {
 							$span = getSelectableSpan(i + number, words[i]);
 							$res.append($span);
-							$res.append(getBlock(i + number, words.length, getSpecialSign(words[i])));
+							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
 						}
 						markedWrong.push(parseInt(i + number, 10));
 					}
@@ -279,11 +290,10 @@ function AddonText_Selection_create() {
 			}
 			number += words.length;
 			$resLines.append($res);
-			$res = $("<div></div>");
 			words = [];
 		}
 
-		if(!isPreview) {
+		if (!isPreview) {
 			presenter.markers = presenter.getMarked(markedWrong, markedCorrect);
 		}
 
@@ -296,7 +306,8 @@ function AddonText_Selection_create() {
 		M02: 'Text cannot be w/o \\correct{} or \\wrong{}',
 		M03: 'You cannot use \\wrong{} in "All selectable" mode',
 		M04: 'Markers cannot be empty',
-		M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong'
+		M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong',
+		M06: 'You cannot input text from another source, select text and press "Remove Formatting" button'
 	};
 
 	presenter.MODE = {
@@ -330,6 +341,10 @@ function AddonText_Selection_create() {
 			return returnErrorObject('M01');
 		}
 
+		if (presenter.copiedFromAnotherSource(model.Text)) {
+			return returnErrorObject('M06');
+		}
+
 		var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
 		var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
 
@@ -345,7 +360,8 @@ function AddonText_Selection_create() {
 			lines: parsedWords.lines,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
 			isExerciseStarted: false,
-			areEventListenersOn: true
+			areEventListenersOn: true,
+			divPosition: parsedWords.divPosition
 		};
 	};
 
@@ -397,20 +413,53 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.parseWords = function(text, mode, selection_type) {
-		var lines = text.split('\n'),
+		var divPosition = [],
+			lines = '',
 			resultLines = [],
-			i, tmpWords = [];
+			i, j = 0, tmpWords = [];
+
+		lines = text.replace(/&nbsp;/g, ' ').split(/<div|<br>|<\/div>/);
 		
 		for(i=0; i<lines.length; i++) {
+
+			if (lines[i].slice(-6) === '</div>') {
+				lines[i] = lines[i].substring(0, lines[i].length - 6);
+			}
+
+			if (lines[i].length !== 0) {
+				if (lines[i][0] === '>') {
+					lines[i] = lines[i].substr(1);
+					divPosition[j++] = 'left';
+				} else if (lines[i][0] === ' ') {
+					switch(lines[i][20]) {
+						case 'c':
+							divPosition[j++] = 'center';
+							lines[i] = lines[i].substr(29);
+							break;
+						case 'l':
+							divPosition[j++] = 'left';
+							lines[i] = lines[i].substr(27);
+							break;
+						case 'r':
+							divPosition[j++] = 'right';
+							lines[i] = lines[i].substr(28);
+							break;
+					}
+				} else {
+					divPosition[j++] = 'left';
+				}
+			}
+
 			var words = lines[i].split(' ');
 			words = presenter.connectWords(words);
 
-			if (words.length === 1 && words[0] === '') {
-				words[0] = ' ';
-				words[0].replace(/\s/g, 'nbsp;');
+			if (!(words.length === 1 && words[0] === '')) {
+				words = words.filter(function(e){
+					return e !== '';
+				});
+				resultLines.push(words);
 			}
 
-			resultLines.push(words);
 		}
 
 		if (!presenter.hasCorrectOrWrongMarker(resultLines)) {
@@ -431,7 +480,8 @@ function AddonText_Selection_create() {
 		
 		return {
 			isValid: true,
-			lines: resultLines
+			lines: resultLines,
+			divPosition: divPosition
 		};
 	};
 
@@ -488,11 +538,12 @@ function AddonText_Selection_create() {
 
 	presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(lines, selection_type) {
 		var markedCorrect = 0,
-			markedWrong = 0;
+			markedWrong = 0,
+			j, i;
 
-		for (var j=0; j<lines.length; j++) {
+		for (j=0; j<lines.length; j++) {
 			var words = lines[j];
-			for (var i=0; i<words.length; i++) {
+			for (i=0; i<words.length; i++) {
 				if (presenter.isMarkedCorrect(words[i])) {
 					markedCorrect++;
 				} else if(presenter.isMarkedWrong(words[i])) {
@@ -501,12 +552,22 @@ function AddonText_Selection_create() {
 			}
 		}
 
-		if((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
+		if ((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
 			return false;
 		} else {
 			return true;
 		}
 	};
+
+	presenter.copiedFromAnotherSource = function(text) {
+		var first2chars = text.substr(0, 2);
+
+		if (first2chars === '<s' || first2chars === '<p') {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	presenter.executeCommand = function(name, params) {
 		if (!presenter.configuration.isValid) return;
@@ -544,7 +605,7 @@ function AddonText_Selection_create() {
 
 		var allSelected = presenter.$view.find('.text_selection').find('.selected');
 
-		for(var i=0; i<allSelected.length; i++){
+		for (var i=0; i<allSelected.length; i++) {
 			numberSelected.push($(allSelected[i]).attr('number'));
 		}
 
@@ -562,11 +623,11 @@ function AddonText_Selection_create() {
 			isVisible         = JSON.parse(state).isVisible,
 			isExerciseStarted = JSON.parse(state).isExerciseStarted;
 
-		for(var i=0; i<nums.length; i++){
+		for (var i=0; i<nums.length; i++) {
 			presenter.$view.find('.text_selection').find("span[number='" + nums[i] + "']").addClass("selected");
 		}
 
-		if(isVisible) {
+		if (isVisible) {
 			presenter.show();
 		} else {
 			presenter.hide();
@@ -598,13 +659,13 @@ function AddonText_Selection_create() {
 
 		var correctSelected = intersection(numbersSelected, numbersCorrect);
 
-		for(i=0; i<correctSelected.length; i++) {
+		for (i=0; i<correctSelected.length; i++) {
 			presenter.$view.find('.text_selection').find("span[number='" + correctSelected[i] + "']").addClass('correct');
 		}
 
 		var selectedWrong = intersection(numbersSelected, numbersWrong);
 
-		for(i=0; i<selectedWrong.length; i++) {
+		for (i=0; i<selectedWrong.length; i++) {
 			presenter.$view.find('.text_selection').find("span[number='" + selectedWrong[i] + "']").addClass('wrong');
 		}
 	};
