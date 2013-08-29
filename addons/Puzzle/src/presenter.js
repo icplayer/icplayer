@@ -159,15 +159,13 @@ function AddonPuzzle_create() {
             indexBoard[row] = [];
 
             for (var col = 0; col < columns; col++) {
-                var randomId = Math.floor(Math.random() * 1000000 * 1000000) % 1000000;
-
                 mark = $(document.createElement('div'));
                 mark.addClass('mark');
                 mark.css({
                     top: ((puzzleHeight * row + markVerticalOffset) + "px"),
                     left: ((puzzleWidth * col + markHorizontalOffset) + "px")
                 });
-                mark.attr("id", randomId + "-" + row + "-" + col);
+                mark.attr("position", row + "-" + col);
                 indexBoard[row][col] = mark;
                 Container.append(mark);
 
@@ -188,7 +186,7 @@ function AddonPuzzle_create() {
                 });
 
                 puzzle.attr("href", "javascript:void( 0 );").click(clickHandler);
-                puzzle.attr("id", randomId + "-" + row + "-" + col);
+                puzzle.attr("position", row + "-" + col);
                 board[row][col] = puzzle;
                 Container.append(puzzle);
             }
@@ -203,19 +201,73 @@ function AddonPuzzle_create() {
         Shuffle();
     }
 
+    /**
+     * Fisher-Yates Shuffle algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+     * Original algorithm is based on flatt, one-dimension array. For our purposes (working on two-dimension arrays)
+     * firstly we have to flatten the structure.
+     *
+     * Additionally Knuth allows items to be shuffled multiple times - in our case each puzzle (array element) has to be
+     * shuffled once, but the whole procedure should be repeated at least twice.
+     */
+
+    presenter.getShuffleSequence = function (array) {
+        var flatArray = [],
+            shuffleSequence = [],
+            row, column, counter, index;
+
+        for (row = 0; row < array.length; row++) {
+            for (column = 0; column < array[row].length; column++) {
+                flatArray.push({ row: row, column: column });
+            }
+        }
+
+        counter = flatArray.length - 1;
+
+        // While there are at least two elements in the array we generate next shuffle sequence. If array has only one
+        // element we end the sequence (there is no sense in shuffling puzzle in place).
+        while (counter >= 2) {
+            index = (Math.random() * counter) | 0;
+
+            shuffleSequence.push({
+                row: { from: flatArray[counter].row, to: flatArray[index].row },
+                column: { from: flatArray[counter].column, to: flatArray[index].column }
+            });
+
+            flatArray.splice(index, 1);
+            flatArray.splice(-1, 1);
+
+            counter -= 2;
+        }
+
+        return shuffleSequence;
+    };
+
     function Shuffle() {
-        var rows = presenter.configuration.rows,
-            columns = presenter.configuration.columns,
-            i, somePiece;
+        var i, iteration,
+            shuffleSequence, shuffle,
+            $firstPiece, $secondPiece;
+
         animation = false; // Shuffling should be without animation
 
-        for (i = 0; i < (rows*columns*2); i++) {
-            somePiece = board[(Math.floor(Math.random() * rows * rows) % rows)]
-                [(Math.floor(Math.random() * columns * columns) % columns)];
-            somePiece.trigger({
-                type: "click",
-                triggered: true
-            });
+
+        for (iteration = 0; iteration < 3; iteration++) {
+            shuffleSequence = presenter.getShuffleSequence(board);
+
+            for (i = 0; i < shuffleSequence.length; i++) {
+                shuffle = shuffleSequence[i];
+
+                $firstPiece = board[shuffle.row.from][shuffle.column.from];
+                $firstPiece.trigger({
+                    type: "click",
+                    triggered: true
+                });
+
+                $secondPiece = board[shuffle.row.to][shuffle.column.to];
+                $secondPiece.trigger({
+                    type: "click",
+                    triggered: true
+                });
+            }
         }
 
         animation = true;
@@ -256,8 +308,8 @@ function AddonPuzzle_create() {
     }
 
     function isSamePiece(piece1, piece2) {
-        var piece1ID = $(piece1).attr('id'),
-            piece2ID = $(piece2).attr('id');
+        var piece1ID = $(piece1).attr('position'),
+            piece2ID = $(piece2).attr('position');
 
         return piece1ID == piece2ID;
     }
@@ -316,6 +368,7 @@ function AddonPuzzle_create() {
             }
 
             replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
+
             if (!event.triggered && presenter.isAllOK()) {
                 sendAllOKEvent();
             }
@@ -359,7 +412,7 @@ function AddonPuzzle_create() {
 
         for (row = 0; row < rows; row++) {
             for (col = 0; col < columns; col++) {
-                if( board[row][col].attr("id") !=  indexBoard[row][col].attr("id")) {
+                if( board[row][col].attr("position") !=  indexBoard[row][col].attr("position")) {
                     return 0;
                 }
             }
@@ -375,7 +428,7 @@ function AddonPuzzle_create() {
 
         for (var row = 0; row < rows; row++) {
             for (var col = 0; col < columns; col++) {
-                if( board[row][col].attr("id") !=  indexBoard[row][col].attr("id")) {
+                if( board[row][col].attr("position") !=  indexBoard[row][col].attr("position")) {
                     errors++;
                 }
             }
@@ -397,7 +450,7 @@ function AddonPuzzle_create() {
 
         for (row = 0; row < rows; row++) {
             for (col = 0; col < columns; col++) {
-                var isEqual = board[row][col].attr("id") != indexBoard[row][col].attr("id");
+                var isEqual = board[row][col].attr("position") != indexBoard[row][col].attr("position");
                 if(isEqual) { //wrong answer
                     indexBoard[row][col].addClass('wrong');
                 }else{

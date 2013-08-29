@@ -1,3 +1,4 @@
+2013-08-29 Fixed problem with shuffling in Puzzle module
 2013-08-29 Fixed problem with state in text module
 2013-08-27 Added relative layout
 2013-08-26 Page without tasks is calculated as 100% in score
