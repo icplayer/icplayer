@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.7';
+        this.VERSION = '1.1.8';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1721,7 +1721,11 @@ function AddonPlot_create(){
         return this.decimalSeparator == '.' ? ',' : ';';
     };
     presenter.convertValueToDisplay = function(value) {
-        return (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
+        //set correct decimal separator
+        value = (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
+        //change minus to en dash
+        value = value.replace(new RegExp('\-', 'g'), '\u2013');
+        return value;
     };
     presenter.getDecimalSeparator = function() {
         return presenter.decimalSeparator;
