@@ -39,10 +39,12 @@ public class TextModel extends BasicModuleModel{
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
 	public String rawText;
+	public String gapUniqueId = "";
 	
 	
 	public TextModel() {
 		super(DictionaryWrapper.get("text_module"));
+		gapUniqueId = UUID.uuid(6);
 		setText(DictionaryWrapper.get("text_module_default"));
 		addPropertyDraggable();
 		addPropertyGapWidth();
@@ -60,6 +62,11 @@ public class TextModel extends BasicModuleModel{
 		if(rawText != null){
 			setText(rawText);
 		}
+	}
+	
+	
+	public String getGapUniqueId(){
+		return gapUniqueId;
 	}
 	
 	
@@ -116,7 +123,7 @@ public class TextModel extends BasicModuleModel{
 
 		moduleText = text;
 		TextParser parser = new TextParser();
-		parser.setId(UUID.uuid(6));
+		parser.setId(gapUniqueId);
 		parser.setUseDraggableGaps(useDraggableGaps);
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		parser.setIgnorePunctuationGaps(isIgnorePunctuation);

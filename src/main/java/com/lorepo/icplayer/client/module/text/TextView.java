@@ -146,7 +146,6 @@ public class TextView extends HTML implements IDisplay{
 	
 	@Override
 	public void setHTML(String html){
-
 		super.setHTML(html);
 	}
 
