@@ -1,10 +1,6 @@
 TestCase("[Text Selection] Model validation", {
-<<<<<<< HEAD
-    setUp: function() {
-=======
 
-	setUp: function() {
->>>>>>> master
+    setUp: function() {
         this.presenter = AddonText_Selection_create();
     },
 
