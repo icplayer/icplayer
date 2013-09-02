@@ -1,5 +1,6 @@
 2013-09-02 Fixed problem with gaps on popups
-2013-09-01 Added StringUtils: replaceAll, startsWith, endsWith - in Commons (now in version 1.7)
+2013-09-02 Added thousand separator for Math module
+2013-09-02 Added StringUtils: replaceAll, startsWith, endsWith - in Commons (now in version 1.7)
 2013-08-29 Fixed problem with shuffling in Puzzle module
 2013-08-29 Fixed problem with state in text module
 2013-08-27 Added relative layout
