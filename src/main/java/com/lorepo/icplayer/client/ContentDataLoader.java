@@ -147,6 +147,8 @@ public class ContentDataLoader{
 		css = css.trim();
 		css = css.replace("url(\'resources/", 
 				"url(\'" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
+		css = css.replace("url(\"resources/", 
+				"url(\"" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
 		if(!css.isEmpty()){
 			DOMInjector.injectStyleAtStart(css);
 		}
