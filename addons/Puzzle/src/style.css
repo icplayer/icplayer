@@ -15,12 +15,12 @@
 }
 
 .mark.wrong {
-    background-image: url("resources/puzzle-mark-wrong.png");
+    background-image: url('resources/puzzle-mark-wrong.png');
     visibility: visible;
 }
 
 .mark.correct {
-    background-image: url("resources/puzzle-mark-correct.png");
+    background-image: url('resources/puzzle-mark-correct.png');
     visibility: visible;
 }
 

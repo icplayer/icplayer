@@ -25,7 +25,6 @@ public class ContentDataLoader{
 	private String baseUrl;
 	private ILoadListener listener;
 	private int		count;
-	private DOMInjector domInjector;
 	private Collection<AddonDescriptor> descriptors;
 	private List<Page> pages = new ArrayList<Page>();
 	private List<String> libs = new ArrayList<String>();
@@ -34,7 +33,6 @@ public class ContentDataLoader{
 	
 	public ContentDataLoader(String baseUrl) {
 		this.baseUrl = baseUrl;
-		domInjector = new DOMInjector();
 		localAddons = AddonDescriptorFactory.getInstance();
 	}
 
@@ -91,7 +89,7 @@ public class ContentDataLoader{
 			@Override
 			public void onFinishedLoading(Object obj) {
 
-				domInjector.injectJavaScript(descriptor.getCode());
+				DOMInjector.injectJavaScript(descriptor.getCode());
 				resourceLoaded();
 			}
 			
@@ -150,7 +148,7 @@ public class ContentDataLoader{
 		css = css.replace("url(\'resources/", 
 				"url(\'" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
 		if(!css.isEmpty()){
-			domInjector.injectStyleAtStart(css);
+			DOMInjector.injectStyleAtStart(css);
 		}
 	}
 	

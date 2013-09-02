@@ -24,7 +24,6 @@ public class PlayerApp{
 	private	Content				contentModel;
 	private PlayerController	playerController;
 	/** Score service impl */
-	private DOMInjector domInjector;
 	private PlayerEntryPoint	entryPoint;
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
@@ -37,7 +36,6 @@ public class PlayerApp{
 		
 		this.divId = id;
 		this.entryPoint = entryPoint;
-		domInjector = new DOMInjector();
 	 }
 
 	
@@ -93,7 +91,7 @@ public class PlayerApp{
 	
 		RootPanel.get(divId).add(playerView);
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
-		domInjector.appendStyle(css);
+		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 		loader.addAddons(contentModel.getAddonDescriptors().values());

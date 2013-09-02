@@ -1,3 +1,4 @@
+2013-09-02 Fixed problem with gaps on popups
 2013-08-29 Fixed problem with shuffling in Puzzle module
 2013-08-29 Fixed problem with state in text module
 2013-08-27 Added relative layout

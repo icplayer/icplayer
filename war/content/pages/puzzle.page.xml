@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<page>
+	<modules>
+		<addonModule addonId="Puzzle" id="Puzzle1" left="100" top="10" width="360" height="480" right="0" bottom="0" isVisible="true">
+			<layout type="LTWH">
+				<left relative="" property="left"/>
+				<top relative="" property="top"/>
+				<right relative="" property="right"/>
+				<bottom relative="" property="bottom"/>
+			</layout>
+			<properties>
+				<property name="Columns" type="string" value="4"/>
+				<property name="Rows" type="string" value="4"/>
+				<property name="Image" type="image" value="media/portret.jpeg"/>
+			</properties>
+		</addonModule>	
+	</modules>
+</page>
