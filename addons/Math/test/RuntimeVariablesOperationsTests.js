@@ -70,58 +70,73 @@ TestCase("Runtime variable conversion", {
     },
 
     'test convert variables from existing modules': function () {
-        assertNumber(this.presenter.convertVariable('Text1.1', false, undefined));
-        assertEquals(1, this.presenter.convertVariable('Text1.1', false, undefined));
 
-        assertNumber(this.presenter.convertVariable('Text1.2', false, undefined));
-        assertEquals('12', this.presenter.convertVariable('Text1.2', false, undefined));
+        var separators =  {
+            decimalSeparator: undefined,
+            isDecimalSeparatorSet: false,
+            thousandSeparator: undefined,
+            isThousandSeparatorSet: false
+        };
 
-        assertString(this.presenter.convertVariable('Text1.3', false, undefined));
-        assertEquals('2a', this.presenter.convertVariable('Text1.3', false, undefined));
+        assertNumber(this.presenter.convertVariable('Text1.1', separators));
+        assertEquals(1, this.presenter.convertVariable('Text1.1', separators));
 
-        assertString(this.presenter.convertVariable('Text1.4', false, undefined));
-        assertEquals('2,2', this.presenter.convertVariable('Text1.4', false, undefined));
+        assertNumber(this.presenter.convertVariable('Text1.2', separators));
+        assertEquals('12', this.presenter.convertVariable('Text1.2', separators));
 
-        assertNumber(this.presenter.convertVariable('Text2.1', false, undefined));
-        assertEquals('10', this.presenter.convertVariable('Text2.1', false, undefined));
+        assertString(this.presenter.convertVariable('Text1.3', separators));
+        assertEquals('2a', this.presenter.convertVariable('Text1.3', separators));
 
-        assertString(this.presenter.convertVariable('Text2.2', false, undefined));
-        assertEquals('3b', this.presenter.convertVariable('Text2.2', false, undefined));
+        assertString(this.presenter.convertVariable('Text1.4', false, separators));
+        assertEquals('2,2', this.presenter.convertVariable('Text1.4', separators));
 
-        assertNumber(this.presenter.convertVariable('Text2.3', false, undefined));
-        assertEquals(3.1, this.presenter.convertVariable('Text2.3', false, undefined));
+        assertNumber(this.presenter.convertVariable('Text2.1', separators));
+        assertEquals('10', this.presenter.convertVariable('Text2.1', separators));
 
-        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.1', false, undefined));
-        assertEquals('1', this.presenter.convertVariable('Text.with.multiple.dots.1', false, undefined));
+        assertString(this.presenter.convertVariable('Text2.2', separators));
+        assertEquals('3b', this.presenter.convertVariable('Text2.2', separators));
 
-        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.2', false, undefined));
-        assertEquals('12', this.presenter.convertVariable('Text.with.multiple.dots.2', false, undefined));
+        assertNumber(this.presenter.convertVariable('Text2.3', separators));
+        assertEquals(3.1, this.presenter.convertVariable('Text2.3', separators));
 
-        assertString(this.presenter.convertVariable('Text.with.multiple.dots.3', false, undefined));
-        assertEquals('2a', this.presenter.convertVariable('Text.with.multiple.dots.3', false, undefined));
+        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.1', separators));
+        assertEquals('1', this.presenter.convertVariable('Text.with.multiple.dots.1', separators));
+
+        assertNumber(this.presenter.convertVariable('Text.with.multiple.dots.2', separators));
+        assertEquals('12', this.presenter.convertVariable('Text.with.multiple.dots.2', separators));
+
+        assertString(this.presenter.convertVariable('Text.with.multiple.dots.3', separators));
+        assertEquals('2a', this.presenter.convertVariable('Text.with.multiple.dots.3', separators));
     },
 
     'test convert variables from existing modules with not standard decimal separator': function () {
-        assertNumber(this.presenter.convertVariable('Text1.1', true, ","));
-        assertEquals(1, this.presenter.convertVariable('Text1.1', true, ","));
+        var separators =  {
+            decimalSeparator: ",",
+            isDecimalSeparatorSet: true,
+            thousandSeparator: undefined,
+            isThousandSeparatorSet: false
+        };
 
-        assertNumber(this.presenter.convertVariable('Text1.2', true, ","));
-        assertEquals('12', this.presenter.convertVariable('Text1.2', true, ","));
+        assertNumber(this.presenter.convertVariable('Text1.1', separators));
+        assertEquals(1, this.presenter.convertVariable('Text1.1', separators));
 
-        assertString(this.presenter.convertVariable('Text1.3', true, ","));
-        assertEquals('2a', this.presenter.convertVariable('Text1.3', true, ","));
+        assertNumber(this.presenter.convertVariable('Text1.2', separators));
+        assertEquals('12', this.presenter.convertVariable('Text1.2', separators));
 
-        assertNumber(this.presenter.convertVariable('Text1.4', true, ","));
-        assertEquals(2.2, this.presenter.convertVariable('Text1.4', true, ","));
+        assertString(this.presenter.convertVariable('Text1.3', separators));
+        assertEquals('2a', this.presenter.convertVariable('Text1.3', separators));
 
-        assertNumber(this.presenter.convertVariable('Text2.1', true, ","));
-        assertEquals('10', this.presenter.convertVariable('Text2.1', true, ","));
+        assertNumber(this.presenter.convertVariable('Text1.4', separators));
+        assertEquals(2.2, this.presenter.convertVariable('Text1.4', separators));
 
-        assertString(this.presenter.convertVariable('Text2.2', true, ","));
-        assertEquals('3b', this.presenter.convertVariable('Text2.2', true, ","));
+        assertNumber(this.presenter.convertVariable('Text2.1', separators));
+        assertEquals('10', this.presenter.convertVariable('Text2.1', separators));
 
-        assertNumber(this.presenter.convertVariable('Text2.3', true, ","));
-        assertEquals(3.1, this.presenter.convertVariable('Text2.3', true, ","));
+        assertString(this.presenter.convertVariable('Text2.2', separators));
+        assertEquals('3b', this.presenter.convertVariable('Text2.2', separators));
+
+        assertNumber(this.presenter.convertVariable('Text2.3', separators));
+        assertEquals(3.1, this.presenter.convertVariable('Text2.3', separators));
     },
 
     'test convert variables for not existing modules': function () {
@@ -203,12 +218,23 @@ TestCase("Runtime variable emptiness checking", {
         };
 
         this.presenter = AddonMath_create();
+
+        this.presenter.configuration = {
+            separators : {
+            decimalSeparator: undefined,
+            isDecimalSeparatorSet: false,
+            thousandSeparator: undefined,
+            isThousandSeparatorSet: false
+            }
+        };
+
         sinon.stub(this.presenter, 'getModule');
         this.presenter.getModule.withArgs('Text1').returns(this.text1);
         this.variables = [
             { name: 'gap01', value: 'Text1.1' },
             { name: 'gap02', value: 'Text1.2' }
         ];
+
     },
 
     tearDown: function () {

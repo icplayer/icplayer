@@ -67,6 +67,12 @@ TestCase("Expressions evaluation", {
             { name: 'gap2', value: 'Text1.2' },
             { name: 'gap3', value: 'Text1.3' }
         ];
+        this.separators =  {
+            decimalSeparator: undefined,
+            isDecimalSeparatorSet: false,
+            thousandSeparator: undefined,
+            isThousandSeparatorSet: false
+        };
     },
 
     tearDown: function () {
@@ -80,7 +86,7 @@ TestCase("Expressions evaluation", {
             "gap3 > gap1 + gap2"
         ];
 
-        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables);
+        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables, this.separators);
 
         assertTrue(evaluationResult.overall);
     },
@@ -92,7 +98,7 @@ TestCase("Expressions evaluation", {
             "gap3 > gap1 + gap2"
         ];
 
-        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables);
+        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables, this.separators);
 
         assertFalse(evaluationResult.overall);
     },
@@ -107,7 +113,7 @@ TestCase("Expressions evaluation", {
 
         ];
 
-        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables);
+        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables, this.separators);
 
         assertFalse(evaluationResult.overall);
     },
@@ -120,7 +126,7 @@ TestCase("Expressions evaluation", {
             "gap3 > gap1 + gap2"
         ];
 
-        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables);
+        var evaluationResult = this.presenter.evaluateAllExpressions(expressions, this.variables, this.separators);
 
         assertFalse(evaluationResult.overall);
     }

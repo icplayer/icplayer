@@ -473,10 +473,6 @@ function Addonvideo_create() {
     }
 
     presenter.convertLinesToCaptions = function(lines) {
-        function endsWith(str, suffix) {
-            return str.indexOf(suffix, str.length - suffix.length) !== -1;
-        }
-
         this.captions = [];
 
         for (var i = 0; i < lines.length; i++) {
@@ -485,8 +481,8 @@ function Addonvideo_create() {
                 var caption = {
                     start:parts[0],
                     end:parts[1],
-                    top:(endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
-                    left:(endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
+                    top:(StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
+                    left:(StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
                     cssClass:parts[4],
                     text:parts[5]
                 };
@@ -500,14 +496,11 @@ function Addonvideo_create() {
     };
 
     presenter.loadSubtitles = function() {
-        function startsWith(baseString, startString) {
-            return (baseString.match("^"+startString)==startString);
-        }
         var subtitles = this.files[this.currentMovie].Subtitles;
         if (subtitles) {
             var lines = [];
             var captions = {};
-            if (startsWith(subtitles, "/file")) {
+            if (StringUtils.startsWith(subtitles, "/file")) {
                 $.get(subtitles, function(data) {
                     lines = presenter.splitLines(data);
                     presenter.convertLinesToCaptions(lines);

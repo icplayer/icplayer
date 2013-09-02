@@ -27,7 +27,8 @@ function AddonMath_create() {
     presenter.ERROR_CODES = {
         'CV_01': "Missing assignment operator!",
         'CV_02': "Missing gap ID!",
-        'CV_03': "Unused variable!"
+        'CV_03': "Unused variable!",
+        'CV_04': "Decimal separator and thousand separator are the same!"
     };
 
     presenter.convertVariables = function (variables, expressions) {
@@ -83,6 +84,20 @@ function AddonMath_create() {
         var decimalSeparator = model["Decimal separator"],
             isDecimalSeparatorSet = !ModelValidationUtils.isStringEmpty(decimalSeparator);
 
+        var thousandSeparator = model["Thousand separator"],
+            isThousandSeparatorSet = !ModelValidationUtils.isStringEmpty(thousandSeparator);
+
+        if (decimalSeparator == thousandSeparator && isDecimalSeparatorSet && isThousandSeparatorSet) {
+            return { isError: true, errorCode: 'CV_04' };
+        }
+
+        var separators =  {
+            decimalSeparator: isDecimalSeparatorSet ? decimalSeparator : undefined,
+            isDecimalSeparatorSet: isDecimalSeparatorSet,
+            thousandSeparator: isThousandSeparatorSet ? thousandSeparator : undefined,
+            isThousandSeparatorSet: isThousandSeparatorSet
+        };
+
         return {
             isError: false,
             variables: convertedVariables.variables,
@@ -90,12 +105,11 @@ function AddonMath_create() {
             onCorrectEvent: model.onCorrect,
             onIncorrectEvent: model.onIncorrect,
             onPartialEvent: model.onPartiallyCompleted,
-            isDecimalSeparatorSet: isDecimalSeparatorSet,
-            decimalSeparator: isDecimalSeparatorSet ? decimalSeparator : undefined
+            separators: separators
         };
     };
 
-    presenter.evaluateExpression = function (expression, variables, isDecimalSeparatorSet, decimalSeparator) {
+    presenter.evaluateExpression = function (expression, variables, separators) {
         var i, expressionRunner = {
             run: function (expression, variables) {
                 presenter.assignVariablesToObject(this, variables);
@@ -107,7 +121,7 @@ function AddonMath_create() {
         try {
             var convertedVariables = [];
             for (i = 0; i < variables.length; i++) {
-                var convertedVariable = presenter.convertVariable(variables[i].value, isDecimalSeparatorSet, decimalSeparator);
+                var convertedVariable = presenter.convertVariable(variables[i].value, separators);
                 if (convertedVariable === undefined) return { isValid: false, result: getAlertMessage(variables[i]) };
 
                 convertedVariables.push({
@@ -159,11 +173,12 @@ function AddonMath_create() {
         return presentVariables;
     };
 
-    presenter.evaluateAllExpressions = function (expressions, variables, isDecimalSeparatorSet, decimalSeparator) {
+    presenter.evaluateAllExpressions = function (expressions, variables, separators) {
+
         var results = [], i, overall = true, evaluationResult;
 
         for (i = 0; i < expressions.length; i++) {
-            evaluationResult = presenter.evaluateExpression(expressions[i], variables, isDecimalSeparatorSet, decimalSeparator);
+            evaluationResult = presenter.evaluateExpression(expressions[i], variables, separators);
             if (!evaluationResult.isValid) {
                 return { isError: true, errorMessage: evaluationResult.result };
             }
@@ -188,8 +203,9 @@ function AddonMath_create() {
         return !isNaN(parseFloat(number)) && isFinite(number);
     }
 
-    presenter.convertVariable = function (gapIdentifier, isDecimalSeparatorSet, separator) {
+    presenter.convertVariable = function (gapIdentifier, separators) {
         var decodedReference = presenter.decodeModuleReference(gapIdentifier);
+
         if (!decodedReference.isValid) return undefined;
 
         try {
@@ -199,7 +215,13 @@ function AddonMath_create() {
             var gapText = textModule.getGapValue(decodedReference.gapIndex);
             if (gapText == "[error]") return undefined;
 
-            if (isDecimalSeparatorSet) gapText = gapText.replace(separator, '.');
+            if (separators.isThousandSeparatorSet) {
+                gapText = StringUtils.replaceAll(gapText, separators.thousandSeparator, '');
+            }
+
+            if (separators.isDecimalSeparatorSet) {
+                gapText = gapText.replace(separators.decimalSeparator, '.');
+            }
 
             return isNumber(gapText) ? Number(gapText) : gapText;
         } catch (exception) {
@@ -208,7 +230,8 @@ function AddonMath_create() {
     };
 
     presenter.convertExpression = function (expression, variables) {
-        var convertedExpression = 'this.result = ' + expression, expressionVariables = presenter.selectVariablesFromExpression(expression, variables), i;
+        var convertedExpression = 'this.result = ' + expression,
+            expressionVariables = presenter.selectVariablesFromExpression(expression, variables), i;
 
         for (i = 0; i < expressionVariables.length; i++) {
             convertedExpression = presenter.replaceVariableNameWithReference(convertedExpression, expressionVariables[i]);
@@ -302,10 +325,9 @@ function AddonMath_create() {
 
         if (emptyGaps.gaps.length !== 0) return;
 
-        var isDecimalSeparatorSet = presenter.configuration.isDecimalSeparatorSet,
-            decimalSeparator = presenter.configuration.decimalSeparator,
+        var separators = presenter.configuration.separators,
             expressions = presenter.configuration.expressions,
-            evaluationResult = presenter.evaluateAllExpressions(expressions, variables, isDecimalSeparatorSet, decimalSeparator);
+            evaluationResult = presenter.evaluateAllExpressions(expressions, variables, separators);
 
         presenter.markGapsCorrectness(presenter.configuration.variables, evaluationResult.overall);
     };
@@ -342,11 +364,10 @@ function AddonMath_create() {
             presenter.executeEventCode(presenter.configuration.onPartialEvent);
             presenter.markGapsEmptiness(emptyGaps.gaps);
         } else {
-            var isDecimalSeparatorSet = presenter.configuration.isDecimalSeparatorSet,
-                decimalSeparator = presenter.configuration.decimalSeparator,
-                evaluationResult = presenter.evaluateAllExpressions(presenter.configuration.expressions, presenter.configuration.variables, isDecimalSeparatorSet, decimalSeparator),
+            var separators = presenter.configuration.separators,
+                evaluationResult = presenter.evaluateAllExpressions(presenter.configuration.expressions,
+                                                                    presenter.configuration.variables, separators),
                 eventCode = evaluationResult.overall ? presenter.configuration.onCorrectEvent : presenter.configuration.onIncorrectEvent;
-
             presenter.executeEventCode(eventCode);
         }
     };
@@ -354,14 +375,11 @@ function AddonMath_create() {
     presenter.getScore = function () {
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
-
         if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) return 0;
 
-        var isDecimalSeparatorSet = presenter.configuration.isDecimalSeparatorSet,
-            decimalSeparator = presenter.configuration.decimalSeparator,
+        var separators = presenter.configuration.separators,
             expressions = presenter.configuration.expressions,
-            evaluationResult = presenter.evaluateAllExpressions(expressions, variables, isDecimalSeparatorSet, decimalSeparator);
-
+            evaluationResult = presenter.evaluateAllExpressions(expressions, variables, separators);
         if (evaluationResult.isError) return;
 
         return evaluationResult.overall ? presenter.getMaxScore() : 0;
@@ -373,10 +391,9 @@ function AddonMath_create() {
 
         if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) return 0;
 
-        var isDecimalSeparatorSet = presenter.configuration.isDecimalSeparatorSet,
-            decimalSeparator = presenter.configuration.decimalSeparator,
+        var separators = presenter.configuration.separators,
             expressions = presenter.configuration.expressions,
-            evaluationResult = presenter.evaluateAllExpressions(expressions, variables, isDecimalSeparatorSet, decimalSeparator);
+            evaluationResult = presenter.evaluateAllExpressions(expressions, variables, separators);
 
         if (evaluationResult.isError) return;
 
@@ -412,8 +429,7 @@ function AddonMath_create() {
         var emptyGaps = [], i, convertedVariable;
 
         for (i = 0; i < variables.length; i++) {
-            convertedVariable = presenter.convertVariable(variables[i].value);
-
+            convertedVariable = presenter.convertVariable(variables[i].value, presenter.configuration.separators);
             if (convertedVariable === undefined) return { isValid: false, errorMessage: getAlertMessage(variables[i]) };
 
             if (convertedVariable === "") emptyGaps.push(variables[i].name);

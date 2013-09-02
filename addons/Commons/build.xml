@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <project name="Commons" basedir="." default="Addon.test">
-    <property name="version" value="1.6.10" />
+    <property name="version" value="1.7" />
     <property name="commons.lib.directory" value="lib" />
+    <property name="publish-directory" value="" />
     <import file="../tools/targets.xml" />
 
     <target name="compile" description="Compile and minimize source files into one, optimized one" depends="Addon.test">
@@ -18,11 +19,12 @@
             <arg line="--js src/helpers.js" />
             <arg line="--js src/commands.js" />
             <arg line="--js src/image-viewer.js" />
+            <arg line="--js src/string-utils.js" />
             <arg line="--js_output_file bin/commons-${version}/commons.js" />
         </java>
 
         <concat destfile="bin/commons-${version}/commons.js" append="true">/**
- * Lorepo Addons Commons library
+ * Player Addons Commons library
  * @version ${version}
  * Components:
  * - Model Validation Utils
@@ -33,11 +35,15 @@
  * - Commands
  * - Image Viewer (partial)
  * - Helpers
+ * - String Utils
  */</concat>
 
     </target>
 
     <target name="publish" depends="compile" description="Publish new version of commons to ICPlayer libs">
         <copy file="bin/commons-${version}/commons.js" tofile="../../src/main/java/com/lorepo/icplayer/public/libs/commons.js"/>
+    </target>
+    <target name="publish-to-dir" depends="compile" description="Publish new version of commons to given directory">
+        <copy file="bin/commons-${version}/commons.js" tofile="${publish-directory}/commons.js"/>
     </target>
 </project>

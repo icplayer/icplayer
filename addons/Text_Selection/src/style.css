@@ -1,25 +1,23 @@
+<<<<<<< HEAD
 .text_selection .selectable {
-    -webkit-border-radius: 5px; /* Safari, Chrome */
-    -khtml-border-radius: 5px; /* Konqueror */
-    -moz-border-radius: 5px; /* Firefox */
-    border-radius: 5px;
+	border-radius: 5px;
 }
 
 .text_selection .selected {
-    background-color: #FAFAD2;
+	background-color: #FAFAD2;
 }
 
 .text_selection .wrong {
-    background-color: #FF6347;
+	background-color: #FF6347;
 }
-    
+
 .text_selection .correct {
-    background-color: #7CFC00;
+	background-color: #7CFC00;
 }
 
 .text_selection .hover {
-    background-color: orange;
-    cursor: pointer;
+	background-color: orange;
+	cursor: pointer;
 }
 
 .text_selection div {

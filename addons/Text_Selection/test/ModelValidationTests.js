@@ -1,6 +1,10 @@
 TestCase("[Text Selection] Model validation", {
+<<<<<<< HEAD
+    setUp: function() {
+=======
 
 	setUp: function() {
+>>>>>>> master
         this.presenter = AddonText_Selection_create();
     },
 
@@ -94,4 +98,5 @@ TestCase("[Text Selection] Model validation", {
         assertFalse(validatedModel.isValid);
         assertEquals('M06', validatedModel.errorCode);
     }
+
 });

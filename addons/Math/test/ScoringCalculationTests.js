@@ -84,7 +84,13 @@ TestCase("Scoring calculation - score and errors count", {
                 { name:'gap1', value:'Text1.1' },
                 { name:'gap2', value:'Text1.2' },
                 { name:'gap3', value:'Text1.3' }
-            ]
+            ],
+            separators : {
+                decimalSeparator: undefined,
+                isDecimalSeparatorSet: false,
+                thousandSeparator: undefined,
+                isThousandSeparatorSet: false
+            }
         };
 
         sinon.stub(this.presenter, 'getEmptyGaps');
