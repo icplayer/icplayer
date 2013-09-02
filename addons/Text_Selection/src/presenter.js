@@ -56,7 +56,10 @@ function AddonText_Selection_create() {
 
 	presenter.endSelection = function(et) {
 		var last = parseInt($(et).attr('number'), 10),
-			tmp = 0, i, $span = null, element = null;
+			tmp = 0,
+			i,
+			$span = null,
+			element = null;
 
 		if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
 		if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'));
@@ -199,7 +202,9 @@ function AddonText_Selection_create() {
 	presenter.presenterLogic = function(view, model, isPreview) {
 		presenter.$view = $(view);
 		
-		var i, l, number  = 0,
+		var i,
+			l,
+			number  = 0,
 			markedCorrect = [],
 			markedWrong   = [],
 			words         = [],
@@ -373,7 +378,10 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.connectWords = function(words) {
-		var i, j, longWord = '', result = [];
+		var i,
+			j,
+			longWord = '',
+			result = [];
 
 		for (i=0; i<words.length; i++) {
 			if ((presenter.isStartedCorrect(words[i]) || presenter.isStartedWrong(words[i])) && !presenter.isMarkedCorrect(words[i]) && !presenter.isMarkedWrong(words[i])) {
@@ -412,15 +420,56 @@ function AddonText_Selection_create() {
 		return result;
 	};
 
+	function moveMargins(lines) {
+		var resultLines = lines,
+			i;
+
+		for (i=0; i<lines.length-1; i++) {
+			var len = lines[i].length;
+			if (lines[i][len - 1] === '>' && lines[i].substr(0, 11) === "<blockquote") {
+				lines[i + 1] = lines[i] + lines[i + 1];
+				lines[i] = '';
+			}
+		}
+
+		return resultLines;
+	}
+
+	function moveFormatting(words) {
+		var i;
+
+		for (i=0; i<words.length-1; i++) {
+			while (words[i][words[i].lastIndexOf('<')] === '<' && words[i][words[i].lastIndexOf('<') + 1] !== '/' && words[i][words[i].length] === '>') {
+				var s     = words[i].lastIndexOf('<');
+				var sufix = words[i].substring(s, words[i].length);
+				words[i] = words[i].substring(0, s);
+				words[i+1] = sufix + words[i+1];
+			}
+		}
+
+		return words;
+	};
+
 	presenter.parseWords = function(text, mode, selection_type) {
 		var divPosition = [],
 			lines = '',
 			resultLines = [],
-			i, j = 0, tmpWords = [];
+			i,
+			j = 0,
+			tmpWords = [];
 
-		lines = text.replace(/&nbsp;/g, ' ').split(/<div|<br>|<\/div>/);
+		lines = text.replace(/&nbsp;/g, ' ').replace(/<br><\/div>/g, '[br]<\/div>').split(/<div|<br>|<\/div>|<\/blockquote>/);
+
+		lines = moveMargins(lines);
 		
 		for(i=0; i<lines.length; i++) {
+
+			var notch = 0;
+
+			while (lines[i].substr(0, 11) === "<blockquote") {
+				notch += 1;
+				lines[i] = lines[i].slice(68);
+			}
 
 			if (lines[i].slice(-6) === '</div>') {
 				lines[i] = lines[i].substring(0, lines[i].length - 6);
@@ -451,12 +500,24 @@ function AddonText_Selection_create() {
 			}
 
 			var words = lines[i].split(' ');
+
 			words = presenter.connectWords(words);
 
 			if (!(words.length === 1 && words[0] === '')) {
+				if (words.length === 1 && words[0] === '[br]') {
+					words[0] = '&nbsp;';
+				}
+
 				words = words.filter(function(e){
 					return e !== '';
 				});
+				words = moveFormatting(words);
+				var spacebars = new Array((parseInt(notch * 7)) + 1).join('&nbsp;');
+
+				if (spacebars.length !== 0) {
+					words.unshift("<span style='color: white'>" + spacebars + '</span>');
+				};
+			
 				resultLines.push(words);
 			}
 
@@ -538,12 +599,11 @@ function AddonText_Selection_create() {
 
 	presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(lines, selection_type) {
 		var markedCorrect = 0,
-			markedWrong = 0,
-			j, i;
+			markedWrong = 0;
 
-		for (j=0; j<lines.length; j++) {
+		for (var j=0; j<lines.length; j++) {
 			var words = lines[j];
-			for (i=0; i<words.length; i++) {
+			for (var i=0; i<words.length; i++) {
 				if (presenter.isMarkedCorrect(words[i])) {
 					markedCorrect++;
 				} else if(presenter.isMarkedWrong(words[i])) {
@@ -680,7 +740,8 @@ function AddonText_Selection_create() {
 	};
 
 	function points(selector) {
-		var i, counter = 0;
+		var i,
+			counter = 0;
 
 		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
 			return parseInt(this.getAttribute('number'));
