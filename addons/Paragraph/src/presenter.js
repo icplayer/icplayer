@@ -108,7 +108,12 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function() {
-        return tinymce.get(editorID).getContent({format : 'raw'});
+       if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
+            return tinymce.get(editorID).getContent({format : 'raw'});
+        }
+        else {
+            return '';
+        }
     };
 
     presenter.setState = function(state) {
