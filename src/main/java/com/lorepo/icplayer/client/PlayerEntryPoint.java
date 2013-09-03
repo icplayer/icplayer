@@ -58,13 +58,31 @@ public class PlayerEntryPoint implements EntryPoint {
 
 		// Create book
 		$wnd.icCreateBook = function(id, useCover) {
-		  var book = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
-		  book.load = function(url, index){
+		  var player = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
+		  player.load = function(url, index){
 		  	index = index || 0;
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
 		  }
+		  player.onStatusChanged = function(listener){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
+		  }
+		  player.setAnalytics = function(id){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
+		  }
+		  player.getState = function(){
+		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
+		  }
+		  player.setState = function(state){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
+		  }
+		  player.getPlayerServices = function(){
+		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
+		  }
+		  player.onPageLoaded = function(listener){
+		  	x.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
+		  }
 
-		  return book;
+		  return player;
 		}
 
 		// Call App loaded function
