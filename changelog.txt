@@ -1,3 +1,4 @@
+2013-09-03 Added default sizes to ic_popup_page CSS class 
 2013-09-02 Fixed PlayerUtils for object with unavailable API
 2013-09-02 Fixed problem addon resources
 2013-09-02 Fixed problem with gaps on popups

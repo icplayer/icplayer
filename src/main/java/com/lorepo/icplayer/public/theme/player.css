@@ -514,6 +514,11 @@ hr, table, fieldset {
 /**
  * Stylizacja panelu popupa
  */
+ .ic_popup_page{
+ 	width:	480px;
+	height:	320px;
+ }
+ 
 .ic_popup .Caption {
   background: #F1F1F1;
   padding: 4px 8px 4px 4px;
