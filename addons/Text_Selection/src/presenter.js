@@ -10,23 +10,23 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.isStartedCorrect = function(word) {
-		return (/(>|^)\\correct{.*/).test(word);
+		return (/\\correct{/).test(word);
 	};
 
 	presenter.isStartedWrong = function(word) {
-		return (/(>|^)\\wrong{.*/).test(word);
+		return (/\\wrong{/).test(word);
 	};
 
 	presenter.hasClosingBracket = function(word) {
-		return (/.*}(.|$|<)/).test(word);
+		return (/}/).test(word);
 	};
 
 	presenter.isMarkedCorrect = function(word) {
-		return (/(>|^)\\correct{.*}(<|.*)/).test(word);
+		return (/\\correct{.*}/).test(word);
 	};
 
 	presenter.isMarkedWrong = function(word) {
-		return (/(>|^)\\wrong{.*}(<|.*)/).test(word);
+		return (/\\wrong{.*}/).test(word);
 	};
 
 	presenter.cutMarkedCorrect = function(word) {
@@ -46,6 +46,10 @@ function AddonText_Selection_create() {
 			return word.replace(/\\wrong{/, '').replace(/}/, '');
 		}
 	};
+
+	presenter.cutClosingBracket = function(word) {
+		return word.replace(/}/, '');
+	}
 
 	presenter.startSelection = function(et) {
 		first = parseInt($(et).attr('number'), 10);
@@ -191,8 +195,12 @@ function AddonText_Selection_create() {
 		return $('<span></span>').attr('number', i).addClass('selectable').html(word);
 	}
 
-	function getBlock(i, length, specialSign) {
-		return i === length-1 ? specialSign + "" : "<span left='" + i + "' right='" + (i+1) + "'>" + specialSign + " </span>";
+	function getBlock(i, specialSign) {
+		return "<span left='" + i + "' right='" + (i+1) + "'>" + specialSign + " </span>"
+	}
+
+	function getSpace(i) {
+		return "<span left='" + i + "' right='" + (i+1) + "'> </span>"
 	}
 
 	function getSpecialSign(word) {
@@ -201,16 +209,6 @@ function AddonText_Selection_create() {
 
 	presenter.presenterLogic = function(view, model, isPreview) {
 		presenter.$view = $(view);
-		
-		var i,
-			l,
-			number  = 0,
-			markedCorrect = [],
-			markedWrong   = [],
-			words         = [],
-			$resLines     = $("<div class='text_selection'></div>"),
-			$res,
-			$span;
 
 		presenter.configuration = presenter.validateModel(model);
 		if (!presenter.configuration.isValid) {
@@ -218,91 +216,12 @@ function AddonText_Selection_create() {
 			return;
 		}
 
-		var mode  = presenter.configuration.mode,
-			lines = presenter.configuration.lines;
-
-		for (l=0; l<lines.length; l++) {
-			words = lines[l];
-			$res = $("<div></div>").attr('style', "text-align: " + presenter.configuration.divPosition[l] + ";");
-
-			if (mode === 'MARK_PHRASES') {
-				if (words.length === 1 && words[0] === ' ') {
-					$resLines.append($("<div></div>"));
-					$res = $("<div></div>");
-					words = [];
-					continue;
-				}
-
-				for (i=0; i<words.length; i++) {
-					if (presenter.isMarkedWrong(words[i])) {
-						if(isPreview) {
-							$span = $('<span></span>').attr('number', i + number).addClass('wrong').addClass('selectable').html(presenter.cutMarkedWrong(words[i]));
-						} else {
-							$span = getSelectableSpan(i + number, presenter.cutMarkedWrong(words[i]));
-						}
-
-						$res.append($span);
-						$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
-
-						markedWrong.push(parseInt(i + number, 10));
-					} else if (presenter.isMarkedCorrect(words[i])) {
-						if(isPreview) {
-							$span = $('<span></span>').attr('number', i + number).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
-						} else {
-							$span = getSelectableSpan(i + number, presenter.cutMarkedCorrect(words[i]));
-						}
-
-						$res.append($span);
-						$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
-
-						markedCorrect.push(parseInt(i + number, 10));
-					} else {
-						if(isPreview) {
-							$res.append(words[i] + getSpecialSign(words[i]) + ' ');
-						} else {
-							$span = $('<span></span>').attr('number', i + number).html(words[i]);
-							$res.append($span);
-							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
-						}
-					}
-				}
-			} else if (mode === 'ALL_SELECTABLE') {
-				for (i=0; i<words.length; i++) {
-					if (presenter.isMarkedCorrect(words[i])) {
-						if(isPreview) {
-							$span = $('<span></span>').attr('number', i + number).addClass('correct').addClass('selectable').html(presenter.cutMarkedCorrect(words[i]));
-							$res.append($span);
-							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])) + ' ');
-						} else {
-							$span = getSelectableSpan(i + number, presenter.cutMarkedCorrect(words[i]));
-							$res.append($span);
-							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
-						}
-						markedCorrect.push(parseInt(i + number, 10));
-					} else {
-						if(isPreview) {
-							$span = getSelectableSpan(i + number, words[i]);
-							$res.append($span);
-							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])) + ' ');
-						} else {
-							$span = getSelectableSpan(i + number, words[i]);
-							$res.append($span);
-							$res.append(getBlock(i + number, words.length + number, getSpecialSign(words[i])));
-						}
-						markedWrong.push(parseInt(i + number, 10));
-					}
-				}
-			}
-			number += words.length;
-			$resLines.append($res);
-			words = [];
+		if (isPreview) {
+			presenter.$view.append($(presenter.configuration.renderedPreview));
+		} else {
+			presenter.$view.append($(presenter.configuration.renderedRun));
 		}
 
-		if (!isPreview) {
-			presenter.markers = presenter.getMarked(markedWrong, markedCorrect);
-		}
-
-		presenter.$view.append($resLines);
 		presenter.setVisibility(presenter.configuration.isVisible);
 	};
 
@@ -310,9 +229,8 @@ function AddonText_Selection_create() {
 		M01: 'Text cannot be empty',
 		M02: 'Text cannot be w/o \\correct{} or \\wrong{}',
 		M03: 'You cannot use \\wrong{} in "All selectable" mode',
-		M04: 'Markers cannot be empty',
-		M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong',
-		M06: 'You cannot input text from another source, select text and press "Remove Formatting" button'
+		M04: 'Empty word in marker',
+		M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong'
 	};
 
 	presenter.MODE = {
@@ -346,10 +264,6 @@ function AddonText_Selection_create() {
 			return returnErrorObject('M01');
 		}
 
-		if (presenter.copiedFromAnotherSource(model.Text)) {
-			return returnErrorObject('M06');
-		}
-
 		var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
 		var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
 
@@ -362,11 +276,11 @@ function AddonText_Selection_create() {
 			isValid: true,
 			mode: mode,
 			selection_type: selection_type,
-			lines: parsedWords.lines,
+			renderedRun: parsedWords.renderedRun,
+			renderedPreview: parsedWords.renderedPreview,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
 			isExerciseStarted: false,
-			areEventListenersOn: true,
-			divPosition: parsedWords.divPosition
+			areEventListenersOn: true
 		};
 	};
 
@@ -420,214 +334,156 @@ function AddonText_Selection_create() {
 		return result;
 	};
 
-	function moveMargins(lines) {
-		var resultLines = lines,
-			i;
-
-		for (i=0; i<lines.length-1; i++) {
-			var len = lines[i].length;
-			if (lines[i][len - 1] === '>' && lines[i].substr(0, 11) === "<blockquote") {
-				lines[i + 1] = lines[i] + lines[i + 1];
-				lines[i] = '';
-			}
-		}
-
-		return resultLines;
-	}
-
-	function moveFormatting(words) {
-		var i;
-
-		for (i=0; i<words.length-1; i++) {
-			while (words[i][words[i].lastIndexOf('<')] === '<' && words[i][words[i].lastIndexOf('<') + 1] !== '/' && words[i][words[i].length] === '>') {
-				var s     = words[i].lastIndexOf('<');
-				var sufix = words[i].substring(s, words[i].length);
-				words[i] = words[i].substring(0, s);
-				words[i+1] = sufix + words[i+1];
-			}
-		}
-
-		return words;
-	};
-
 	presenter.parseWords = function(text, mode, selection_type) {
-		var divPosition = [],
-			lines = '',
-			resultLines = [],
-			i,
-			j = 0,
-			tmpWords = [];
+		var i, j,
+			result = '',
+			words = [],
+			markedCorrect = [],
+			markedWrong = [],
+			renderedPreview = '',
+			renderedRun = '',
+			amountWrong = 0,
+			amountCorrect = 0,
+			isTagClosed = true,
+			spanNumber = 0,
+			tmpWord = '',
+			wrongMarkerInAllSelectable = false,
+			emptyWord = false;
 
-		lines = text.replace(/&nbsp;/g, ' ').replace(/<br><\/div>/g, '[br]<\/div>').split(/<div|<br>|<\/div>|<\/blockquote>/);
+		HTMLParser(text.replace(/&nbsp;/, ' '), {
+			start: function(tag, attrs, unary) {
+				renderedPreview += "<" + tag;
+				renderedRun     += "<" + tag;
 
-		lines = moveMargins(lines);
-		
-		for(i=0; i<lines.length; i++) {
+				for (i=0; i<attrs.length; i++) {
+					renderedPreview += " " + attrs[i].name + '="' + attrs[i].escaped + '"';
+					renderedRun     += " " + attrs[i].name + '="' + attrs[i].escaped + '"';
+				}
 
-			var notch = 0;
+				renderedPreview += (unary ? "/" : "") + ">";
+				renderedRun     += (unary ? "/" : "") + ">";
+			},
+			end: function(tag) {
+				renderedPreview += "</" + tag + ">";
+				renderedRun     += "</" + tag + ">";
+			},
+			chars: function(text) {
+				words = text.split(' ');
 
-			while (lines[i].substr(0, 11) === "<blockquote") {
-				notch += 1;
-				lines[i] = lines[i].slice(68);
-			}
+				for (i=0; i<words.length; i++) {
+					if (isTagClosed) {
+						if (words[i] === ' ') {
+							renderedPreview += ' ';
+							renderedRun += ' ';
+						} else if (presenter.isMarkedCorrect(words[i])) {
+							tmpWord = presenter.cutMarkedCorrect(words[i]);
+							if (isLastSpecialSigh(words[i])) {
+								renderedPreview += '<span class="correct selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+							} else {
+								renderedPreview += '<span class="correct selectable">' + tmpWord + '</span> ';
+								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getSpace(spanNumber);
+							}
+							
+							markedCorrect.push(spanNumber);
+							spanNumber++;
 
-			if (lines[i].slice(-6) === '</div>') {
-				lines[i] = lines[i].substring(0, lines[i].length - 6);
-			}
+							if (ModelValidationUtils.isStringEmpty(tmpWord)) {
+								emptyWord = true;
+							}
+						} else if (presenter.isMarkedWrong(words[i])) {
+							tmpWord = presenter.cutMarkedWrong(words[i]);
+							
+							if (isLastSpecialSigh(words[i])) {
+								renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+							} else {
+								renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span> ';
+								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getSpace(spanNumber);
+							}
 
-			if (lines[i].length !== 0) {
-				if (lines[i][0] === '>') {
-					lines[i] = lines[i].substr(1);
-					divPosition[j++] = 'left';
-				} else if (lines[i][0] === ' ') {
-					switch(lines[i][20]) {
-						case 'c':
-							divPosition[j++] = 'center';
-							lines[i] = lines[i].substr(29);
-							break;
-						case 'l':
-							divPosition[j++] = 'left';
-							lines[i] = lines[i].substr(27);
-							break;
-						case 'r':
-							divPosition[j++] = 'right';
-							lines[i] = lines[i].substr(28);
-							break;
+							markedWrong.push(spanNumber);
+							spanNumber++;
+
+							if (ModelValidationUtils.isStringEmpty(tmpWord)) {
+								emptyWord = true
+							}
+							if (mode === 'ALL_SELECTABLE') {
+								wrongMarkerInAllSelectable = true;
+							}
+						} else if (presenter.isStartedCorrect(words[i])) {
+							tmpWord = presenter.cutMarkedCorrect(words[i]);
+							renderedPreview += '<span class="correct selectable">' + tmpWord + ' ';
+							renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord;
+							markedCorrect.push(spanNumber);
+							spanNumber++;
+							isTagClosed = false;
+						} else if (presenter.isStartedWrong(words[i])) {
+							tmpWord = presenter.cutMarkedWrong(words[i]);
+							renderedPreview += '<span class="wrong selectable">' + tmpWord + ' ';
+							renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + ' ';
+							markedWrong.push(spanNumber);
+							spanNumber++;
+							isTagClosed = false
+						} else {
+							if (mode === 'ALL_SELECTABLE') {
+								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + words[i] + '</span>' + getSpace(spanNumber);
+								markedWrong.push(spanNumber);
+							} else if (mode === 'MARK_PHRASES') {
+								renderedRun += words[i] + ' ';
+							}
+							renderedPreview += words[i] + ' ';
+
+							spanNumber++;
+						}
+					} else {
+						if (presenter.hasClosingBracket(words[i])) {
+							tmpWord = presenter.cutClosingBracket(words[i]);
+							renderedPreview += tmpWord + '</span> ';
+							renderedRun += tmpWord + '</span> '
+							isTagClosed = true;
+						} else {
+							renderedPreview += words[i] + ' ';
+							renderedRun += words[i] + ' ';
+						}
 					}
-				} else {
-					divPosition[j++] = 'left';
-				}
-			}
-
-			var words = lines[i].split(' ');
-
-			words = presenter.connectWords(words);
-
-			if (!(words.length === 1 && words[0] === '')) {
-				if (words.length === 1 && words[0] === '[br]') {
-					words[0] = '&nbsp;';
 				}
 
-				words = words.filter(function(e){
-					return e !== '';
-				});
-				words = moveFormatting(words);
-				var spacebars = new Array((parseInt(notch * 7)) + 1).join('&nbsp;');
+				text = words.join(' ');
+				result += text;
+			},
+			comment: function(text) {}
+		});
 
-				if (spacebars.length !== 0) {
-					words.unshift("<span style='color: white'>" + spacebars + '</span>');
-				};
-			
-				resultLines.push(words);
-			}
+		amountCorrect = markedCorrect.length;
+		amountWrong   = markedWrong.length;
 
-		}
+		presenter.markers = presenter.getMarked(markedWrong, markedCorrect);
 
-		if (!presenter.hasCorrectOrWrongMarker(resultLines)) {
+		if (amountCorrect === 0 && amountWrong === 0) { // has Correct Or Wrong Marker
 			return returnErrorObject('M02');
 		}
 
-		if (presenter.wrongMarkerInAllSelectable(resultLines, mode)) {
+		if (wrongMarkerInAllSelectable) {
 			return returnErrorObject('M03');
 		}
 
-		if (presenter.emptyWordInMarker(resultLines)) {
+		if (emptyWord) {
 			return returnErrorObject('M04');
 		}
 
-		if (!presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection(resultLines, selection_type)) {
+		if ((amountCorrect !== 1 || amountWrong < 1) && selection_type === 'SINGLESELECT') { // HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection
 			return returnErrorObject('M05');
 		}
-		
+
 		return {
 			isValid: true,
-			lines: resultLines,
-			divPosition: divPosition
+			renderedPreview: '<div class="text_selection">' + renderedPreview + '</div>',
+			renderedRun: '<div class="text_selection">' + renderedRun + '</div>',
+			markedWrong: markedWrong,
+			markedCorrect: markedCorrect
 		};
 	};
-
-	presenter.hasCorrectOrWrongMarker = function(lines) {
-
-		for (var j=0; j<lines.length; j++) {
-			var words = lines[j];
-			for (var i=0; i<words.length; i++) {
-				if (presenter.isMarkedWrong(words[i])) {
-					return true;
-				}
-				if (presenter.isMarkedCorrect(words[i])) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	};
-
-	presenter.wrongMarkerInAllSelectable = function(lines, mode) {
-
-		if (mode === 'ALL_SELECTABLE') {
-			for (var j=0; j<lines.length; j++) {
-				var words = lines[j];
-				for (var i=0; i<words.length; i++) {
-					if (presenter.isMarkedWrong(words[i])) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	};
-			
-
-	presenter.emptyWordInMarker = function(lines) {
-
-		for (var j=0; j<lines.length; j++) {
-			var words = lines[j];
-			for (var i=0; i<words.length; i++) {
-				if (presenter.isMarkedWrong(words[i]) && presenter.cutMarkedWrong(words[i]) === "") {
-					return true;
-				}
-				if (presenter.isMarkedCorrect(words[i]) && presenter.cutMarkedCorrect(words[i]) === "") {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	};
-
-	presenter.HasOneCorrectAtLeastOneWrongInSingleSelectionTypeSelection = function(lines, selection_type) {
-		var markedCorrect = 0,
-			markedWrong = 0;
-
-		for (var j=0; j<lines.length; j++) {
-			var words = lines[j];
-			for (var i=0; i<words.length; i++) {
-				if (presenter.isMarkedCorrect(words[i])) {
-					markedCorrect++;
-				} else if(presenter.isMarkedWrong(words[i])) {
-					markedWrong++;
-				}
-			}
-		}
-
-		if ((markedCorrect !== 1 || markedWrong < 1) && selection_type === 'SINGLESELECT') {
-			return false;
-		} else {
-			return true;
-		}
-	};
-
-	presenter.copiedFromAnotherSource = function(text) {
-		var first2chars = text.substr(0, 2);
-
-		if (first2chars === '<s' || first2chars === '<p') {
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	presenter.executeCommand = function(name, params) {
 		if (!presenter.configuration.isValid) return;

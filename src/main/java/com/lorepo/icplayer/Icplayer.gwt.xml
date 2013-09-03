@@ -33,6 +33,7 @@
 	<script src="libs/scorm.js"/>
 	<script src="libs/tinymce.min.js"/>
 	<script src="libs/jsc3d.js" />
+	<script src="libs/htmlparser.js" />
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 

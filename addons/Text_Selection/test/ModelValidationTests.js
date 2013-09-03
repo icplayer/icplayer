@@ -71,28 +71,6 @@ TestCase("[Text Selection] Model validation", {
 
         assertFalse(validatedModel.isValid);
         assertEquals('M05', validatedModel.errorCode);
-    },
-
-    'test text from another source (website)' : function() {
-        var model = {
-            Text: "<span bla bla bla bla> text </span>"
-        }
-
-        var validatedModel = this.presenter.validateModel(model);
-
-        assertFalse(validatedModel.isValid);
-        assertEquals('M06', validatedModel.errorCode);
-    },
-
-    'test text from another source (MS office / libre)' : function() {
-        var model = {
-            Text: "<p bla bla bla bla> text </p>"
-        }
-
-        var validatedModel = this.presenter.validateModel(model);
-
-        assertFalse(validatedModel.isValid);
-        assertEquals('M06', validatedModel.errorCode);
     }
 
 });
