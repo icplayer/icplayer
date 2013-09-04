@@ -102,4 +102,18 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+
+	@Override
+	public boolean isBookMode() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean hasCover() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

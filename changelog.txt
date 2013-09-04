@@ -1,3 +1,4 @@
+2013-09-04 Added Book API
 2013-09-03 Fixed Paragraph for non existing tinymce editor
 2013-09-03 Added default sizes to ic_popup_page CSS class 
 2013-09-02 Fixed PlayerUtils for object with unavailable API

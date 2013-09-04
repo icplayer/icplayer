@@ -125,4 +125,16 @@ public class PlayerServices implements IPlayerServices {
 		playerController.sendAnalytics(event, params);
 	}
 
+
+	@Override
+	public boolean isBookMode() {
+		return playerController.isBookMode();
+	}
+
+
+	@Override
+	public boolean hasCover() {
+		return playerController.hasCover();
+	}
+
 }

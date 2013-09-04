@@ -353,4 +353,16 @@ public class PlayerController implements IPlayerController{
 		this.showCover = showCover;
 	}
 
+
+	@Override
+	public boolean isBookMode() {
+		return pageController2 != null;
+	}
+
+
+	@Override
+	public boolean hasCover() {
+		return showCover;
+	}
+
 }

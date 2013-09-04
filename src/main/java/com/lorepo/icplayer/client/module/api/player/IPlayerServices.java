@@ -8,11 +8,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 
 
 /**
- * Interface implementowany przez przez Player i podawany do modułów.
- * Zawiera dostęp do serwisów udostępnianych przez player modułom na stronie
- * 
- * @author Krzysztof Langner
- *
+ * This interface is accessible by modules and outside of the player
  */
 public interface IPlayerServices {
 
@@ -25,5 +21,7 @@ public interface IPlayerServices {
 	public IJsonServices	getJsonServices();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
+	public boolean isBookMode();
+	public boolean hasCover();
 	public void sendAnalytics(String event, HashMap<String,String> params);
 }

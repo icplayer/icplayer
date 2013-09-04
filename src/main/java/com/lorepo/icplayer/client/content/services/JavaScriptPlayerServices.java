@@ -235,6 +235,14 @@ public class JavaScriptPlayerServices{
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getStaticFilesPath()();
 		}
 		
+		playerServices.isBookMode = function(){ 
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isBookMode()();
+		}
+		
+		playerServices.hasCover = function(){ 
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hasCover()();
+		}
+		
 		return playerServices;
 	}-*/;
 	
@@ -407,4 +415,11 @@ public class JavaScriptPlayerServices{
 	}-*/;
 
 	
+	private boolean isBookMode(){
+		return playerServices.isBookMode();
+	}
+	
+	private boolean hasCover(){
+		return playerServices.hasCover();
+	}
 }

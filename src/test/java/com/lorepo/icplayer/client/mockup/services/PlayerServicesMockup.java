@@ -110,4 +110,18 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public boolean isBookMode() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean hasCover() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

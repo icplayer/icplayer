@@ -21,5 +21,7 @@ public interface IPlayerController {
 	void showPopup(String pageName);
 	void closePopup();
 	void sendAnalytics(String event, HashMap<String, String> params);
+	boolean isBookMode();
+	boolean hasCover();
 
 }
