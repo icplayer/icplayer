@@ -277,6 +277,10 @@ public class PlayerController implements IPlayerController{
 	public void updateState() {
 		HashMap<String, String> state = pageController1.getState();
 		stateService.addState(state);
+		if(pageController2 != null){
+			state = pageController2.getState();
+			stateService.addState(state);
+		}
 	}
 
 
