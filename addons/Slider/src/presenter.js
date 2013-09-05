@@ -3,6 +3,7 @@ function AddonSlider_create () {
 
     presenter.$view = null;
     presenter.savedState = null;
+    presenter.counter = 0;
 
     var playerController, onStepChangeEvent;
 
@@ -168,6 +169,7 @@ function AddonSlider_create () {
         if (presenter.configuration.stepwise) {
             presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
         }
+
     }
 
     function touchEndCallback (event) {
@@ -203,6 +205,7 @@ function AddonSlider_create () {
         }
 
         presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
+
     }
 
     function mouseMoveCallback (eventData) {
@@ -210,7 +213,7 @@ function AddonSlider_create () {
         var addonContainer = presenter.$addonContainer;
         var imageElement = presenter.imageElement;
 
-        if (mouseData.isMouseDown === true) {
+        if (mouseData.isMouseDown) {
             mouseData.isMouseDragged = true;
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
@@ -279,9 +282,18 @@ function AddonSlider_create () {
     }
 
     function getMousePositions(eventData) {
+        var popupTop = 0,
+            popupLeft = 0;
+
+        var $popup = presenter.$view.parent('.ic_popup_page').offset();
+        if ($popup !== null) {
+            var popupTop = $popup.top;
+            var popupLeft = $popup.left;
+        }
+
         return {
-            x:eventData.pageX - presenter.configuration.offset.left,
-            y:eventData.pageY - presenter.configuration.offset.top
+            x:(eventData.pageX - presenter.configuration.offset.left) - popupLeft,
+            y:(eventData.pageY - presenter.configuration.offset.top) - popupTop
         };
     }
 
@@ -320,6 +332,7 @@ function AddonSlider_create () {
         presenter.$view.on('mouseleave', function() {
             mouseData.isMouseDown = false;
         });
+
     }
 
     function drawBurret() {
