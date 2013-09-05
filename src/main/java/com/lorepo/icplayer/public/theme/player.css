@@ -517,6 +517,7 @@ hr, table, fieldset {
  .ic_popup_page{
  	width:	480px;
 	height:	320px;
+	z-index: 100;
  }
  
 .ic_popup .Caption {
