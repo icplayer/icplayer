@@ -245,12 +245,8 @@ public class TextParser {
 				Iterator<String> distractors = info.getDistractors();
 				while(distractors.hasNext()){
 					String dist = distractors.next();
-					if(dist.compareTo(info.getAnswer()) == 0){
-						replaceText += "<option value='" + value + "'>" + dist + "</option>";
-					}
-					else{
-						replaceText += "<option value=''>" + dist + "</option>";
-					}
+					String itemValue = StringUtils.escapeXML(dist);
+					replaceText += "<option value='" + itemValue + "'>" + dist + "</option>";
 				}
 				replaceText += "</select>";
 			}

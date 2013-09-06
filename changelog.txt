@@ -1,3 +1,4 @@
+2013-09-06 Fixed problem with draggable gaps and state
 2013-09-06 Fixed problem with going to first page in book mode
 2013-09-05 Popup z-index = 100
 2013-09-04 Added Book API

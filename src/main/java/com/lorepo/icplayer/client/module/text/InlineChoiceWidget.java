@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
@@ -30,7 +31,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 					int index = getSelectedIndex();
 					String value = "";
 					if(index > 0){
-						value = getItemText(index);
+						value = StringUtils.unescapeXML(getValue(index));
 					}
 					else{
 						value = "---";

@@ -62,13 +62,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void show();
 	}
 	
-	class State{
-		HashMap<String, String> values;
-		HashMap<String, DraggableItem> consumedItems;
-		ArrayList<Boolean>	disabled;
-		public String enteredText;
-	}
-	
 	private TextModel	module;
 	private IPlayerServices playerServices;
 	private IDisplay view;
@@ -201,7 +194,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		HashMap<String, String> itemsState = JSONUtils.decodeHashMap(state.get("consumed"));
 		for(String key: itemsState.keySet()){
 			String value = itemsState.get(key);
-			consumedItems.put(key,  DraggableItem.createFromString(value));
+			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
+			consumedItems.put(newKey,  DraggableItem.createFromString(value));
 		}
 		
 		for(String id : values.keySet()){
