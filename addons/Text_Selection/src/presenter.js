@@ -342,8 +342,8 @@ function AddonText_Selection_create() {
 			markedWrong = [],
 			renderedPreview = '',
 			renderedRun = '',
-			amountWrong = 0,
-			amountCorrect = 0,
+			amountWrong,
+			amountCorrect,
 			isTagClosed = true,
 			spanNumber = 0,
 			tmpWord = '',
@@ -414,7 +414,7 @@ function AddonText_Selection_create() {
 						} else if (presenter.isStartedCorrect(words[i])) {
 							tmpWord = presenter.cutMarkedCorrect(words[i]);
 							renderedPreview += '<span class="correct selectable">' + tmpWord + ' ';
-							renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord;
+							renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getBlock(spanNumber, getSpecialSign(words[i]));
 							markedCorrect.push(spanNumber);
 							spanNumber++;
 							isTagClosed = false;
@@ -444,7 +444,7 @@ function AddonText_Selection_create() {
 							isTagClosed = true;
 						} else {
 							renderedPreview += words[i] + ' ';
-							renderedRun += words[i] + ' ';
+							renderedRun += words[i] + getBlock(spanNumber, getSpecialSign(words[i]));
 						}
 					}
 				}
