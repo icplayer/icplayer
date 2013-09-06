@@ -134,12 +134,11 @@ public class PlayerController implements IPlayerController{
 
 
 	public void switchToPrevPage() {
-
 		PageList pages = contentModel.getPages();
 		for(int i = 0; i < pages.size(); i++){
 			if(pages.get(i) == pageController1.getPage()){
 				int index = i-1;
-				if(pageController2 != null){
+				if(pageController2 != null && index > 0){
 					index -= 1;
 				}
 				if(index >= 0){
