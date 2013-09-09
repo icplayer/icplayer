@@ -85,6 +85,16 @@ function Addongraph_create(){
     };
 
 
+    presenter.areAllOk = function(currentGridValues) {
+        for (var i = 0; i < currentGridValues.length; i++) {
+            if (currentGridValues[i].indexOf(false) !== -1) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     presenter.sendOverallScoreEvent = function(direction, valueId, newValue, wasAllValidBeforeChange, wasThisValidBeforeChange, willAllBeValidAfterChange, willThisBeValidAfterChange) {
         var score =
             (wasAllValidBeforeChange    ? 'BEFORE_ALL_VALID '  : 'BEFORE_ALL_INVALID ') +
@@ -103,6 +113,26 @@ function Addongraph_create(){
             'value' : parsedValue,
             'score' : score
         });
+
+        // Mój zajebisty kod
+        presenter.configuration.results[valueId.split(' ')[0]][valueId.split(' ')[1]] = willThisBeValidAfterChange;
+
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item': valueId,
+            'value': parsedValue,
+            'score': willThisBeValidAfterChange ? '1' : '0'
+        });
+
+        if (presenter.areAllOk(presenter.configuration.results)) {
+            presenter.eventBus.sendEvent('ValueChanged', {
+                'source': presenter.configuration.ID,
+                'item': 'all',
+                'value': '',
+                'score': ''
+            });
+        }
+
     };
 
 
@@ -751,6 +781,7 @@ function Addongraph_create(){
             axisYMinimumValue: axisYMinimumValue.parsedValue,
             axisYGridStep: axisYGridStep.parsedValue,
             data: data,
+            results: [],
             isInteractive: isInteractive,
             interactiveStep: interactiveStep,
             mouseData: {
@@ -959,6 +990,16 @@ function Addongraph_create(){
             }
 
             presenter.configuration.answers = validatedAnswers.answers;
+            presenter.configuration.results = [];
+
+            var k = 0;
+            for (i=0; i<presenter.configuration.data.length; i++) {
+                var a = [];
+                for (j=0; j<presenter.configuration.data[i].length; j++) {
+                    a.push(parseInt(presenter.configuration.answers[k++]) ===  parseInt(presenter.configuration.data[i][j]));
+                }
+                presenter.configuration.results.push(a);
+            }
 
         }
 
