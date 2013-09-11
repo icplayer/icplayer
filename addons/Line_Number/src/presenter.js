@@ -1,12 +1,9 @@
 function AddonLine_Number_create() {
-    function log(s) {
-        console.log(s);
-    }
 
     var presenter = function () {};
 
-    var eventBus; // Modules communication
-    var playerController;
+    var eventBus,
+        playerController;
 
     presenter.configuration = {};
 
@@ -61,7 +58,7 @@ function AddonLine_Number_create() {
 
         presenter.createSteps();
 
-        if ( !isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
+        if ( !isPreview && !presenter.configuration.isDisabled ) {
             presenter.bindInfinityAreas();
         }
 
@@ -147,21 +144,37 @@ function AddonLine_Number_create() {
 
     function getXAxisValues() {
         var configuration = presenter.configuration,
-            xAxisValues = [], i;
-        var sorted = [];
-        var stepValue = configuration.step.parsedValue || configuration.step.value;
+            xAxisValues = [], i,
+            sorted = [],
+            stepValue = configuration.step.parsedValue || configuration.step.value,
+            minClosestEven = 0,
+            maxClosestEven = 0;
 
-        for (i = configuration.min; i <= configuration.max; i = parseValueWithStepPrecision(i + stepValue)) {
-            xAxisValues.push(i);
+        if (stepValue === 2) {
+            minClosestEven = configuration.min > 0 && configuration.min%2 !== 0 ? (configuration.min - configuration.min%2) + 2 : configuration.min - configuration.min%2;
+            maxClosestEven = (configuration.max > 0 && configuration.max%2 !== 0 ? (configuration.max - configuration.max%2) + 2 : configuration.max - configuration.max%2) - stepValue;
+            for (i = minClosestEven; i <= maxClosestEven; i = parseValueWithStepPrecision(i + stepValue)) {
+                xAxisValues.push(i);
+            }
+        } else if (stepValue > 2) {
+            for (i = configuration.min; i <= configuration.max; i += stepValue) {
+                xAxisValues.push(i);
+                maxClosestEven = i;
+            }
+        } else {
+            for (i = configuration.min; i <= configuration.max; i = parseValueWithStepPrecision(i + stepValue)) {
+                xAxisValues.push(i);
+            }
         }
 
-        if ( xAxisValues.indexOf(0) == -1
-            && configuration.min < 0
-            && configuration.max > 0 ) {
+        if ( xAxisValues.indexOf(0) == -1 && configuration.min < 0 && configuration.max > 0 ) {
             xAxisValues.push(0);
         }
 
         var sorted = xAxisValues.sort( function( a, b ){ return a - b });
+
+        configuration.min = xAxisValues[0];
+        configuration.max = xAxisValues[xAxisValues.length - 1];
 
         var allRanges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
 
@@ -181,7 +194,8 @@ function AddonLine_Number_create() {
             return true;
         });
 
-        if ( sorted.indexOf(configuration.max) == -1 ) {
+        var lastElement = stepValue >= 2 ? maxClosestEven : configuration.max;
+        if ( sorted.indexOf(lastElement) == -1 ) {
             presenter.configuration.isError = true;
             var lastValue = sorted[sorted.length - 1];
             var errorMessage = presenter.errorCodes['MAX04'].replace('{{lastValue}}', ('' + lastValue) );
@@ -194,8 +208,9 @@ function AddonLine_Number_create() {
     }
 
     function setClickedRanges(e) {
-        var ranges = presenter.configuration.drawnRangesData.ranges;
-        var value = parseRangeStartOrEnd($(e).attr('value'));
+        var ranges = presenter.configuration.drawnRangesData.ranges,
+            value = parseRangeStartOrEnd($(e).attr('value'));
+
         presenter.configuration.mouseData.clickedRanges = [];
 
         $.each(ranges, function() {
@@ -257,6 +272,7 @@ function AddonLine_Number_create() {
     };
 
     function splitRange(range, e) {
+
         presenter.removeRange(range, false);
         var clickedArea = $(e);
 
@@ -275,7 +291,8 @@ function AddonLine_Number_create() {
 
     function joinRanges(ranges) {
         var firstRange, secondRange;
-        var min = 1000, max = -1000;
+        var min = 1000,
+            max = -1000;
 
         $.each(ranges, function() {
             if (this.end.value > max) {
@@ -381,27 +398,24 @@ function AddonLine_Number_create() {
             e.preventDefault();
         });
 
-        clickArea.on('touchstart', function (e){
+        clickArea.on('touchstart', function (e) {
             e.preventDefault();
 
             presenter.configuration.touchData.lastEvent = e;
         });
 
-        clickArea.on('touchend', function (e){
+        clickArea.on('touchend', function (e) {
             e.preventDefault();
 
             if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
                 var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
                 clickLogic(eventData.target);
             }
-
         });
 
         clickArea.on('click', function (e) {
             e.preventDefault();
-
-            var eventTarget = $(e.target);
-            clickLogic(eventTarget);
+            clickLogic($(e.target));
         });
 
     }
@@ -432,7 +446,7 @@ function AddonLine_Number_create() {
 
     function isFirstClickNoneAndSecondNotNone() {
         return presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.NONE
-        && presenter.configuration.mouseData.clicks[1].position != presenter.CLICKED_POSITION.NONE;
+            && presenter.configuration.mouseData.clicks[1].position != presenter.CLICKED_POSITION.NONE;
     }
 
     function areTwoClickedRanges() {
@@ -441,7 +455,7 @@ function AddonLine_Number_create() {
 
     function isClickedStartOrEnd() {
         return presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.END
-        || presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START;
+            || presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START;
     }
 
     function isClickedMiddle() {
@@ -462,7 +476,7 @@ function AddonLine_Number_create() {
     // toggle include image when this situation happens
     function isTheSameRangeEndOrStartClickedInBothClicks() {
         return presenter.configuration.mouseData.clicks[0].position == presenter.configuration.mouseData.clicks[1].position
-        && presenter.configuration.mouseData.clicks[0].element[0] == presenter.configuration.mouseData.clicks[1].element[0];
+            && presenter.configuration.mouseData.clicks[0].element[0] == presenter.configuration.mouseData.clicks[1].element[0];
     }
 
     // this is when range should be deleted when both clicks were on the same range or joined when 1st/2nd click is on different range
@@ -484,7 +498,6 @@ function AddonLine_Number_create() {
         var first, second;
 
         if ( presenter.configuration.mouseData.twoClickedRangesCount == 1 ) {
-
             if ( presenter.configuration.mouseData.clickedRanges[0].start.value > presenter.configuration.mouseData.clickedRanges[1].start.value ) {
                 first = presenter.configuration.mouseData.clickedRanges[1];
                 second = presenter.configuration.mouseData.clickedRanges[0];
@@ -492,9 +505,7 @@ function AddonLine_Number_create() {
                 first = presenter.configuration.mouseData.clickedRanges[0];
                 second = presenter.configuration.mouseData.clickedRanges[1];
             }
-
         } else {
-
             if ( presenter.configuration.mouseData.clickedRanges[0].start.value > presenter.configuration.mouseData.clickedRanges[1].start.value ) {
                 first = presenter.configuration.mouseData.clickedRanges[0];
                 second = presenter.configuration.mouseData.clickedRanges[1];
@@ -502,7 +513,6 @@ function AddonLine_Number_create() {
                 first = presenter.configuration.mouseData.clickedRanges[1];
                 second = presenter.configuration.mouseData.clickedRanges[0];
             }
-
         }
 
         presenter.configuration.mouseData.clickedRanges = [first, second];
@@ -511,13 +521,11 @@ function AddonLine_Number_create() {
     function resetClicks() {
 
         if ( presenter.configuration.notCurrentSelectedRange ) {
-
             if ( presenter.configuration.mouseData.twoClickedRangesCount == 1 ) {
                 addEndRangeImage( presenter.configuration.notCurrentSelectedRange.start.element, false );
             } else if ( presenter.configuration.mouseData.twoClickedRangesCount == 2 ) {
                 addEndRangeImage( presenter.configuration.notCurrentSelectedRange.end.element, false );
             }
-
         }
 
         presenter.$view.find('.currentSelectedRange').removeClass('currentSelectedRange');
@@ -531,19 +539,16 @@ function AddonLine_Number_create() {
         var selectedRange;
 
         if ( isValueInfinity(range.start.value) ) {
-
             selectedRange = presenter.$view.find('.clickArea[value="' + presenter.configuration.min + '"]').parent().find('.selectedRange');
-
         } else {
-
             selectedRange = range.start.element.find('.selectedRange');
-
         }
 
         return selectedRange;
     }
 
     function clickLogic(eventTarget) {
+
         if (presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) return false;
         if (presenter.configuration.isDisabled) return;
 
@@ -552,26 +557,18 @@ function AddonLine_Number_create() {
         }
 
         setClickedRanges(eventTarget);
-
         setClicks(eventTarget);
 
         var firstClick = presenter.configuration.mouseData.clicks[0];
 
         if ( isFirstClick() ) {
-
             if ( firstClick.position == presenter.CLICKED_POSITION.NONE ) {
-
                 var value = parseRangeStartOrEnd(presenter.configuration.mouseData.clicks[0].element.attr('value'));
 
                 if ( !isValueInfinity(value) ) {
                     addEndRangeImage(presenter.configuration.mouseData.clicks[0].element.parent(), true);
-
                 }
-
-            }
-
-            else if ( areTwoClickedRanges() ) {
-
+            } else if ( areTwoClickedRanges() ) {
                 presenter.configuration.mouseData.twoClickedRangesCount++;
 
                 if ( presenter.configuration.mouseData.twoClickedRangesCount == 1 ) {
@@ -580,27 +577,19 @@ function AddonLine_Number_create() {
                 }
 
                 presenter.configuration.notCurrentSelectedRange = presenter.configuration.mouseData.clickedRanges[1];
-
-            }
-
-            else if ( isClickedStartOrEnd() ) {
+            } else if ( isClickedStartOrEnd() ) {
 
                 var selectedRange, clickedRange = presenter.configuration.mouseData.clickedRanges[0];
 
                 selectedRange = getSelectedRange(clickedRange);
 
                 selectedRange.addClass('currentSelectedRange');
-
-            }
-
-            else if ( isClickedMiddle() ) {
+            } else if ( isClickedMiddle() ) {
 
                 splitRange( presenter.configuration.mouseData.clickedRanges[0], eventTarget );
 
                 resetClicks();
-
             }
-
         }
 
         else if ( isSecondClick() ) {
@@ -647,15 +636,15 @@ function AddonLine_Number_create() {
                         presenter.drawRanges([newRange]);
 
                     } else {
-
-                        var rangeImage = firstClick.element.parent().find('.rangeImage');
+                        // it's still here in case this piece of code is doing something. Its cause error in ticket 2861 p. 5
+                        /*var rangeImage = firstClick.element.parent().find('.rangeImage');
 
                         if ( rangeImage.hasClass('include') ) {
                             rangeImage.remove();
                         } else {
                             rangeImage.removeClass('exclude');
                             rangeImage.addClass('include');
-                        }
+                        }*/
 
                     }
                 }
@@ -743,7 +732,6 @@ function AddonLine_Number_create() {
                     resetClicks();
                 }
 
-
                 setCurrentClickedRange();
 
             }
@@ -790,7 +778,9 @@ function AddonLine_Number_create() {
 
                 }
 
-                toggleIncludeImage( imageWrapper, shouldInclude );
+                if (!(firstClick.element.hasClass('infinity-right') || firstClick.element.hasClass('infinity-left'))) {
+                    toggleIncludeImage( imageWrapper, shouldInclude );
+                }
 
                 if ( presenter.configuration.drawnRangesData.ranges[index].values.length == 1 ) {
 
@@ -1068,8 +1058,7 @@ function AddonLine_Number_create() {
     }
 
     function isValueInfinity(value) {
-        return ( value == -Infinity
-            || value == Infinity )
+        return ( value == -Infinity || value == Infinity )
     }
 
     function setRangeValues(range, shouldAddToDrawn) {
@@ -1095,7 +1084,8 @@ function AddonLine_Number_create() {
 
         var stepValue = presenter.configuration.step.parsedValue || presenter.configuration.step.value;
 
-        for ( var i = startValue; i <= endValue; i = parseValueWithStepPrecision(i + stepValue) ) {
+        //for ( var i = startValue; i <= endValue; i = parseValueWithStepPrecision(i + stepValue) ) {
+        for ( var i = startValue; i <= endValue; i += stepValue ) {
 
             range.values.push(i);
 
@@ -1169,13 +1159,13 @@ function AddonLine_Number_create() {
             presenter.$view.find('.x-axis').append(stepLine);
         }
 
-        if (!presenter.configuration.isPreview && presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
+        if (!presenter.configuration.isPreview && !presenter.configuration.isDisabled) { //  && presenter.configuration.isActivity
             bindClickAreaListeners( presenter.$view.find('.clickArea') );
         }
     };
 
     function transformValueToDisplayVersion(value) {
-        return ('' + value).replace('.', presenter.configuration.separator);
+        return ('' + value).replace('.', presenter.configuration.separator).replace('-', '&ndash;');
     }
 
     function checkIsMinLowerThanMax(min, max) {
@@ -1301,45 +1291,35 @@ function AddonLine_Number_create() {
     };
 
     presenter.getScore = function() {
+        resetClicks();
+
         if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
-
             var validated = validateDrawnRanges();
-
             return validated.correct.length;
-
         } else {
-
             return 0;
-
         }
     };
 
     presenter.getMaxScore = function () {
         if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
-
             return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
-
         } else {
-
             return 0;
-
         }
     };
 
     presenter.getErrorCount = function () {
         if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
-
             var validated = validateDrawnRanges();
             return validated.wrong.length;
-
         } else {
-
             return 0;
-
         }
     };
 
     function validateDrawnRanges() {
+
         var correctSelectedRanges = [];
         var wrongSelectedRanges = [];
         var ranges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
@@ -1379,7 +1359,6 @@ function AddonLine_Number_create() {
                 return false; // breaks each loop
             }
         });
-
 
         return isCorrect;
     }
@@ -1627,6 +1606,7 @@ function AddonLine_Number_create() {
 
         if ( model['Step'] ) {
             validatedStep = presenter.validateValueWithSeparator( model['Step'], separator.value );
+
             var precision = validatedStep.precision;
 
             if (!validatedStep.isValid) {
