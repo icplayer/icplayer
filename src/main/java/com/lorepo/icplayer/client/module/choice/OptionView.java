@@ -21,17 +21,9 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	private EventBus eventBus;
 	
 	
-	/**
-	 * constructor
-	 * @param id
-	 * @param option
-	 */
 	public OptionView(ChoiceOption option, boolean isMulti){
-		
 		super();
-		
 		this.choiceOption = option;
-		
 		initUI(isMulti);
 	}
 
