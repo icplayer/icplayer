@@ -21,8 +21,12 @@
 			</items>
 		</sourceListModule>
 		
-		<textModule id="cloze" left='40' top='200' width='640' height='240'>
+		<textModule id="cloze" left='40' top='200' width='640' height='100'>
 			<text draggable='true' gapWidth="200" isActivity="true"><![CDATA[A parabola defined by the function \(y=ax^2+bx+c\) opens upwards if \gap{\(a&gt;0\)} and opens downwards if \gap{\(a&lt;0\)}.<br>]]></text>
+		</textModule>
+		
+		<textModule id="cloze" left='40' top='300' width='640' height='100'>
+			<text draggable='true' gapWidth="200" isActivity="false"><![CDATA[Not activity: \(y=ax^2+bx+c\) opens upwards if \gap{\(a&gt;0\)} and opens downwards if \gap{\(a&lt;0\)}.<br>]]></text>
 		</textModule>
 		
 		<buttonModule  left="520" top="400" width="80" height="60" style="">

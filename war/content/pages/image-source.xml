@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page layout="pixels">
+<page>
 
 	<modules>
 	
@@ -13,8 +13,12 @@
 			<image src="media/flash.png"/>
 		</imageSourceModule>
 
-		<imageGapModule id="ig1" left="200" top="150" width="64" height="64">
+		<imageGapModule id="ig1" left="150" top="150" width="64" height="64">
 			<gap answerId="is2"/>
+		</imageGapModule>
+
+		<imageGapModule id="ig1" left="250" top="150" width="64" height="64">
+			<gap answerId="is2" isActivity="false"/>
 		</imageGapModule>
 
 		<addonModule id="addon10" addonId="EventMonitor" left='40' top='300' width='350' height='100'>

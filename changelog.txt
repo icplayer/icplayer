@@ -1,3 +1,4 @@
+2013-09-11 Fixed problem with image gap not activity under show errors mode
 2013-09-06 Fixed problem with Glossary and Popup
 2013-09-06 Fixed problem with draggable gaps and state
 2013-09-06 Fixed problem with going to first page in book mode

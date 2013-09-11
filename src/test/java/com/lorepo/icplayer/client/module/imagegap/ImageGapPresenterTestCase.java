@@ -298,4 +298,28 @@ public class ImageGapPresenterTestCase {
 		presenter.setState(stateObj);
 		assertFalse(display.isVisible());
 	}
+
+	/**
+	 * In show errors mode don't change image even if not activity
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	@Test
+	public void notActivityShowErrorsMode() throws SAXException, IOException{
+
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		module = new ImageGapModule();
+		module.load(element, "");
+
+		services = new PlayerServicesMockup();
+		display = new ImageGapViewMockup(module);
+		presenter = new ImageGapPresenter(module, services);
+		presenter.addView(display);
+		services.getEventBus().fireEvent(new ShowErrorsEvent());
+
+		assertTrue(display.isDisabled());
+		
+	}
 }

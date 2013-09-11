@@ -98,9 +98,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	
 	private void setShowErrorsMode() {
 		
+		view.setDisabled(true);
 		if(model.isActivity()){
-			
-			view.setDisabled(true);
 			if(getScore() > 0){
 				view.showAsCorrect();
 			}
