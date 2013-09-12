@@ -36,16 +36,16 @@ TestCase("Events Tests", {
 
         var rangeString = this.presenter.convertRangeToString(range);
 
-        assertEquals('(&ndash;INF; 5>', rangeString);
+        assertEquals('(-INF; 5>', rangeString);
     },
 
     'test createEventData works as expected': function() {
-        var rangeString = '(&ndash;INF; 5>';
+        var rangeString = '(-INF; 5>';
         var isDelete = false;
         var isCorrect = true;
         var expectedData = {
             'source' : 'LN1',
-            'item' : '(&ndash;INF; 5>',
+            'item' : '(-INF; 5>',
             'value' : 1,
             'score' : 1
         };

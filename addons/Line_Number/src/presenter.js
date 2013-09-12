@@ -1108,16 +1108,20 @@ function AddonLine_Number_create() {
 
     }
 
+    function convertNdashToMinus(value) {
+        return new String(value).replace('&ndash;', '-');
+    }
+
     presenter.convertRangeToString = function( range ) {
         var startInclude = range.start.include ? '<' : '(';
         var endInclude = range.end.include ? '>' : ')';
-        var startValue = isValueInfinity(range.start.value) ? '-INF' : range.start.value;
-        var endValue = isValueInfinity(range.end.value) ? 'INF' : range.end.value;
+        var startValue = isValueInfinity(range.start.value) ? '-INF' : convertNdashToMinus(range.start.value);
+        var endValue = isValueInfinity(range.end.value) ? 'INF' : convertNdashToMinus(range.end.value);
 
         return startInclude +
-            transformValueToDisplayVersion(startValue) +
+            transformValueToDisplayVersion(startValue, false) +
             '; ' +
-            transformValueToDisplayVersion(endValue) + endInclude;
+            transformValueToDisplayVersion(endValue, false) + endInclude;
     };
 
     function addEndRangeImage(element, include) {
@@ -1143,7 +1147,7 @@ function AddonLine_Number_create() {
             stepLine.addClass('stepLine');
             var text = $('<div></div>');
             text.addClass('stepText');
-            text.html( transformValueToDisplayVersion( xAxisValues[i] ) );
+            text.html( transformValueToDisplayVersion( xAxisValues[i], true ) );
             text.css('left', - (( xAxisValues[i] + '' )).length * (4) + 'px');
 
             if (isDrawOnlyChosen && presenter.configuration.showAxisXValues) {
@@ -1164,8 +1168,13 @@ function AddonLine_Number_create() {
         }
     };
 
-    function transformValueToDisplayVersion(value) {
-        return ('' + value).replace('.', presenter.configuration.separator).replace('-', '&ndash;');
+    function transformValueToDisplayVersion(value, shouldReplaceMinus) {
+        var transformed = ('' + value).replace('.', presenter.configuration.separator);
+        if (shouldReplaceMinus) {
+            transformed = transformed.replace('-', '&ndash;');
+        }
+
+        return transformed;
     }
 
     function checkIsMinLowerThanMax(min, max) {
