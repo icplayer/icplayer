@@ -235,6 +235,9 @@ function AddonGlossary_create(){
              $('#icplayer').after(dialog.dialog("widget"));
         }
         presenter.dialog = dialog;
+
+        // addon Glossar can not hide other addons
+        $('.addon_Glossary').parent().children().first().before($('.addon_Glossary'));
      };
 
     presenter.calculateReducedDialogHeight = function($dialog, pageHeight) {
