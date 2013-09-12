@@ -82,33 +82,52 @@ function AddonGlossary_create(){
         var presentationHeight = $(presenter.$ICPage).outerHeight();
         var dialogWidth = $dialog.outerWidth();
         var dialogHeight = $dialog.outerHeight();
-        var scrollTop = $(top.window).scrollTop();
+
         var windowHeight = $(top.window).height();
-        var visibleArea = presenter.estimateVisibleArea(presentationPosition.top, presentationHeight, scrollTop, windowHeight);
+        var scrollTop = $(top.window).scrollTop();
+        var previewFrame = 0;
         var popupTop = 0;
         var popupLeft = 0;
         var topPosition = 0;
         var dialogTop = 0;
 
+        var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
+        var isPopup =  $(presenter.$ICPage).is('.ic_popup_page');
+
+        if (isPreview)
+        {
+            scrollTop = $(presenter.$ICPage).scrollTop();
+            if (scrollTop > 0)
+                previewFrame = $(presenter.$ICPage).parent().parent().parent().offset().top - $(".gwt-DialogBox").offset().top;
+            windowHeight = ($(presenter.$ICPage).parent().parent().parent().height());
+            presentationPosition.top = 0;
+        }
+
+        if (isPopup)
+        {
+            scrollTop = $(presenter.$ICPage).scrollTop();
+            popupTop =  presentationPosition.top;
+            if ($(top.window).scrollTop() > 0) presentationPosition.top = 0;
+        }
+
+        var visibleArea = presenter.estimateVisibleArea(presentationPosition.top, presentationHeight, scrollTop, windowHeight);
         var availableHeight = visibleArea.bottom - visibleArea.top;
 
         if (dialogHeight >= availableHeight) {
-
             dialogHeight = presenter.calculateReducedDialogHeight($dialog, availableHeight);
             $dialog.css({
                 height: dialogHeight + 'px'
             });
         }
 
-        if ($(presenter.$ICPage).is('.ic_popup_page'))
+        if (isPopup || isPreview)
         {
             popupLeft = presentationPosition.left;
-            popupTop =  presentationPosition.top;
             topPosition = parseInt((availableHeight - dialogHeight) / 2, 10);
         }
         else
         {
-            topPosition = parseInt((windowHeight - dialogHeight) / 2, 10);
+            topPosition = parseInt((windowHeight - dialogHeight) / 2, 10) ;
         }
 
         var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) / 2, 10);
@@ -129,16 +148,13 @@ function AddonGlossary_create(){
                 topPosition = $(window).height() - iframeDialogHeight;
             }
         }
+        if ($(window).scrollTop() > popupTop && isPopup)
+        {
+            topPosition += ($(window).scrollTop() - popupTop);
+        }
+        dialogTop = (topPosition + scrollTop + previewFrame);
 
-        if  ( $(window).scrollTop() == 0)
-        {
-            dialogTop  =   topPosition;
-        }
-        else
-        {
-            dialogTop = (topPosition + $(window).scrollTop() - popupTop);
-        }
-       $dialog.css({
+        $dialog.css({
             left: (leftPosition - popupLeft) + 'px',
             top: (dialogTop) + 'px',
             'font-size': '18px',
@@ -148,11 +164,13 @@ function AddonGlossary_create(){
             color: 'black'
         });
 
-        if($(presenter.$ICPage).is('.ic_popup_page'))
-        {
+        if(isPopup || isPreview)
+        {   // For Preview and Popup dialog is moved to appropriate page
             var $overlay = $(".ui-widget-overlay");
             $(presenter.$view.closest(".ui-widget-overlay")).remove();
-            $(".ui-dialog").before($overlay);
+            if (isPreview) $(".ic_page_panel").children(".ic_page").children().last().after($overlay);
+            else $(".ui-dialog").before($overlay);
+            $overlay.css({ height: presentationHeight});
         }
 
         // due to the inability to close the dialog, when any video is under close button
@@ -202,14 +220,18 @@ function AddonGlossary_create(){
 
         });
 
-        // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
+
         var $popup = $('#icplayer').parent().find('.ic_popup');
         if ($popup.is('.ic_popup'))
-        {
+        {   // Dialog must be placed in popup page
             $popup.children().last().after(dialog.dialog("widget"));
         }
+        else if ($(".gwt-DialogBox").is('.gwt-DialogBox') )
+        {   // Dialog must be placed in preview page
+            $(".ic_page_panel").children(".ic_page").children().last().after(dialog.dialog("widget"));
+        }
         else
-        {
+        { // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
              $('#icplayer').after(dialog.dialog("widget"));
         }
         presenter.dialog = dialog;
