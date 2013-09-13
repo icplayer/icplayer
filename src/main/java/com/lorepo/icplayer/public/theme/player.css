@@ -514,10 +514,13 @@ hr, table, fieldset {
 /**
  * Stylizacja panelu popupa
  */
+ .ic_popup{
+ 	z-index: 100;
+ }
+ 
  .ic_popup_page{
  	width:	480px;
 	height:	320px;
-	z-index: 100;
  }
  
 .ic_popup .Caption {
