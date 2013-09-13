@@ -197,4 +197,57 @@ public class ChoiceModelTestCase {
 
 		assertTrue(foundProperty);
 	}
+
+	@Test
+	public void isActivity() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/choice2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ChoiceModel module = new ChoiceModel();
+		module.load(element, "");
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new ChoiceModel();
+		module.load(element, "");
+		
+		assertFalse(module.isActivity());
+	}
+	
+	@Test
+	public void notActivity() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/choice1.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ChoiceModel module = new ChoiceModel();
+		module.load(element, "");
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new ChoiceModel();
+		module.load(element, "");
+		
+		assertTrue(module.isActivity());
+	}
+	
+	@Test
+	public void propertyisActivity() {
+		
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("is_activity")).thenReturn("Is&nbsp;activity");
+
+		ChoiceModel module = new ChoiceModel();
+		boolean foundProperty = false;
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			
+			IProperty property = module.getProperty(i);
+			if(property.getName().compareTo("Is&nbsp;activity") == 0){
+				foundProperty = true;
+			}
+		}
+
+		assertTrue(foundProperty);
+	}
 }

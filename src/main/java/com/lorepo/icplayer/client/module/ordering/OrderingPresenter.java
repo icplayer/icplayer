@@ -101,7 +101,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity{
 	public int getErrorCount() {
 
 		int errors = 0;
-		if(view != null && isSolved && 	module.isActivity()){
+		if(view != null && isSolved && module.isActivity()){
 			errors = view.getErrorCount();
 		}
 		

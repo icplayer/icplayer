@@ -251,10 +251,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	public int getErrorCount() {
 
 		int errors = 0;
-		for(IOptionDisplay optionView : view.getOptions()){
-			
-			if(optionView.isDown() && optionView.getModel().getValue() == 0){
-				errors++;
+		if(module.isActivity()){
+			for(IOptionDisplay optionView : view.getOptions()){
+				if(optionView.isDown() && optionView.getModel().getValue() == 0){
+					errors++;
+				}
 			}
 		}
 		
@@ -264,19 +265,21 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	@Override
 	public int getMaxScore() {
-		return module.getMaxScore();
+		if(module.isActivity()) return module.getMaxScore();
+		else return 0;
 	}
 
 	@Override
 	public int getScore() {
 		
 		int score = 0;
-		for(IOptionDisplay optionView : view.getOptions()){
-			if(optionView.isDown()){
-				score += optionView.getModel().getValue();
+		if(module.isActivity()){
+			for(IOptionDisplay optionView : view.getOptions()){
+				if(optionView.isDown()){
+					score += optionView.getModel().getValue();
+				}
 			}
 		}
-
 		return score;
 	}
 	

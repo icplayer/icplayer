@@ -275,4 +275,25 @@ public class PresenterTestCase {
 		assertTrue(eventReceived);
 	}
 	
+	@Test
+	public void noActivity() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/choice2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ChoiceModel module = new ChoiceModel();
+		module.load(element, "");
+		
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		ChoiceViewMockup display = new ChoiceViewMockup(module);
+		ChoicePresenter presenter = new ChoicePresenter(module, services);
+		presenter.addView(display);
+
+		IOptionDisplay optionView1 = display.getOptions().get(0);
+		optionView1.setDown(true);
+		
+		assertEquals(0, presenter.getMaxScore());
+		assertEquals(0, presenter.getMaxScore());
+	}
 }

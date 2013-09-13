@@ -27,6 +27,7 @@ public class ChoiceModel extends BasicModuleModel{
 	private IListProperty optionsProperty;
 	private int maxScore = 0;
 	private boolean isDisabled = false;
+	private boolean isActivity = true;
 
 	
 	public ChoiceModel() {
@@ -38,6 +39,7 @@ public class ChoiceModel extends BasicModuleModel{
 		addPropertyIsMulti();
 		addPropertyOptions();
 		addPropertyIsDisabled();
+		addPropertyIsActivity();
 	}
 	
 	
@@ -97,6 +99,7 @@ public class ChoiceModel extends BasicModuleModel{
 			Element choice = (Element)nodeList.item(0);
 			isMulti = XMLUtils.getAttributeAsBoolean(choice, "isMulti");
 			isDisabled = XMLUtils.getAttributeAsBoolean(choice, "isDisabled", false);
+			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
 		}
 		
 		// Read options nodes
@@ -141,7 +144,8 @@ public class ChoiceModel extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = "<choiceModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<choice isMulti='" + isMulti + "' isDisabled='" + isDisabled + "'/>";
+		xml += "<choice isMulti='" + isMulti + "' isDisabled='" + isDisabled + 
+				"' isActivity='" + isActivity + "'/>";
 		xml += "<options>";
 		for(ChoiceOption option : options){
 			xml += option.toXML();
@@ -291,6 +295,45 @@ public class ChoiceModel extends BasicModuleModel{
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("is_disabled");
+			}
+
+		};
+		
+		addProperty(property);	
+	}
+
+
+	public boolean isActivity() {
+		return isActivity;
+	}
+
+	private void addPropertyIsActivity() {
+		
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value!= isActivity){
+					isActivity = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				if(isActivity){
+					return "True";
+				}
+				else{
+					return "False";
+				}
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("is_activity");
 			}
 
 		};
