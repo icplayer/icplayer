@@ -35,7 +35,7 @@ function AddonAudio_create(){
             item : '',
             value : '' + data.currentTime,
             score : ''
-        }
+        };
     };
 
     presenter.createOnEndEventData = function () {
@@ -44,7 +44,7 @@ function AddonAudio_create(){
             item : 'end',
             value : '',
             score : ''
-        }
+        };
     };
 
     presenter.getAudioCurrentTime = function () {
@@ -182,7 +182,10 @@ function AddonAudio_create(){
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         createView(view, upgradedModel, isPreview);
-        loadFiles();
+        
+        if (!isPreview) {
+        	loadFiles();	
+        }
 
     };
 
@@ -196,7 +199,7 @@ function AddonAudio_create(){
             enableLoop: ModelValidationUtils.validateBoolean(model.enableLoop),
             displayTime: ModelValidationUtils.validateBoolean(model.displayTime),
             defaultControls: ModelValidationUtils.validateBoolean(model.defaultControls)
-        }
+        };
     };
 
     presenter.executeCommand = function(name, params) {

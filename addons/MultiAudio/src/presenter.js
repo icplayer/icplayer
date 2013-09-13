@@ -23,7 +23,7 @@ function AddonMultiAudio_create(){
             item : '',
             value : '' + data.currentTime,
             score : ''
-        }
+        };
     };
 
     presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
@@ -145,20 +145,24 @@ function AddonMultiAudio_create(){
     };
 
     presenter.run = function(view, model){
-        this.initialize(view, model);
+        this.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
     };
 
     presenter.createPreview = function(view, model){
-        this.initialize(view, model);
+        this.initialize(view, model, true);
     };
 
-    presenter.initialize = function(view, model) {
+    presenter.initialize = function(view, model, isPreview) {
         this.globalModel = model;
         this.globalView = $(view);
         this.createView(view, model);
-        this.loadFiles(this.audio, model);
+        
+        if (!isPreview) {
+        	this.loadFiles(this.audio, model);	
+        }
+        
         this.visible = !!(model['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
     };
