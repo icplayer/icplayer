@@ -47,7 +47,7 @@ function AddonSlideshow_create() {
             if(isBackgroundSet) {
                 $(this).html("");
             }
-        })
+        });
     };
 
     function setElementsDimensions(width, height) {
@@ -1014,53 +1014,86 @@ function AddonSlideshow_create() {
 
         if (!preview) {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
-            if (loadingSrc) $(DOMElements.loading.image).attr('src', loadingSrc);
+            if (loadingSrc) {
+            	$(DOMElements.loading.image).attr('src', loadingSrc);
+            }
         }
 
-        presenter.configuration = presenter.validateModel(model);
+        presenter.configuration = presenter.validateModel(model, preview);
         if (presenter.configuration.isError) {
-            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode)
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
+        
+        if (!preview) {
+        	if (presenter.configuration.groupNextAndPrevious) {
+	            var $container = $(DOMElements.controls.container);
+	            var $next = $(getControlButtonsDOMElements().next);
+	            var $previous = $(getControlButtonsDOMElements().previous);
+	            presenter.groupNavigationElements($container, $next, $previous);
+	        }
+	
+	        setElementsDimensions(model.Width, model.Height);
+	        adjustProgressBar();
+	
+	        var loadingResult = loadAudio(preview);
+	        if (loadingResult.isError) {
+	            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, loadingResult.errorCode);
+	            return;
+	        }
+	
+	        prepareLoadingScreen(presenter.configuration.slideDimensions.width, presenter.configuration.slideDimensions.height);
+	        // Manual load is necessary for Apple iPad/iPhone
+	        presenter.configuration.buzzAudio.load();
+	        presenter.configuration.timeLine = presenter.buildTimeLine(presenter.configuration.slides.content, presenter.configuration.texts.content);
+	        loadTexts();
+	
+	        var buttons = getControlButtonsDOMElements();
+	        presenter.checkBackgroundImageOfButtonElements(buttons);
+	        
+	        loadSlides(presenter.configuration.slideDimensions.width, presenter.configuration.slideDimensions.height, preview);
+	        
+	        presenter.configuration.mouseData = {
+	            isMouseDown : false,
+	            oldPosition : {
+	                x : 0,
+	                y : 0
+	            },
+	            isMouseDragged : false
+	        };
+        } else {
+        	if (presenter.configuration.groupNextAndPrevious) {
+	            var $container = $(DOMElements.controls.container);
+	            var $next = $(getControlButtonsDOMElements().next);
+	            var $previous = $(getControlButtonsDOMElements().previous);
+	            presenter.groupNavigationElements($container, $next, $previous);
+	        }
+	
+	        setElementsDimensions(model.Width, model.Height);
+	        adjustProgressBar();
+	        
+	        prepareLoadingScreen(presenter.configuration.slideDimensions.width, presenter.configuration.slideDimensions.height);
+	        // Manual load is necessary for Apple iPad/iPhone
+	        presenter.configuration.timeLine = presenter.buildTimeLine(presenter.configuration.slides.content, presenter.configuration.texts.content);
+	        loadTexts();
+	
+	        var buttons = getControlButtonsDOMElements();
+	        presenter.checkBackgroundImageOfButtonElements(buttons);
+	        
+	        loadSlides(presenter.configuration.slideDimensions.width, presenter.configuration.slideDimensions.height, preview);
+	        
+	        presenter.configuration.mouseData = {
+	            isMouseDown : false,
+	            oldPosition : {
+	                x : 0,
+	                y : 0
+	            },
+	            isMouseDragged : false
+	        };
 
-        if (presenter.configuration.groupNextAndPrevious) {
-            var $container = $(DOMElements.controls.container);
-            var $next = $(getControlButtonsDOMElements().next);
-            var $previous = $(getControlButtonsDOMElements().previous);
-            presenter.groupNavigationElements($container, $next, $previous);
+        	presenter.setVisibility(presenter.configuration.isVisible);
         }
 
-        setElementsDimensions(model.Width, model.Height);
-        adjustProgressBar();
-
-        var loadingResult = loadAudio(preview);
-        if (loadingResult.isError) {
-            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, loadingResult.errorCode)
-            return;
-        }
-
-        prepareLoadingScreen(presenter.configuration.slideDimensions.width, presenter.configuration.slideDimensions.height);
-        // Manual load is necessary for Apple iPad/iPhone
-        presenter.configuration.buzzAudio.load();
-        presenter.configuration.timeLine = presenter.buildTimeLine(presenter.configuration.slides.content, presenter.configuration.texts.content);
-        loadTexts();
-
-        var buttons = getControlButtonsDOMElements();
-        presenter.checkBackgroundImageOfButtonElements(buttons);
-        loadSlides(presenter.configuration.slideDimensions.width, presenter.configuration.slideDimensions.height, preview);
-
-        presenter.configuration.mouseData = {
-            isMouseDown : false,
-            oldPosition : {
-                x : 0,
-                y : 0
-            },
-            isMouseDragged : false
-        };
-
-        if (preview) {
-            presenter.setVisibility(presenter.configuration.isVisible);
-        }
     }
 
     function prepareLoadingScreen(slidesContainerWidth, slidesContainerHeight) {
@@ -1216,7 +1249,7 @@ function AddonSlideshow_create() {
         return {
             isError:false,
             sinitizedTimer:buzzedTimer
-        }
+        };
     };
 
     // If validation error occurs then one of the following error codes are returned
@@ -1437,17 +1470,21 @@ function AddonSlideshow_create() {
         };
     };
 
-    presenter.validateModel = function (model) {
-        var audioValidationResult = presenter.validateAudio(model.Audio[0]);
+    presenter.validateModel = function (model, isPreview) {
+        
+        var audioValidationResult = null,
+        	animationValidationResult = null;
 
-        if (audioValidationResult.isError) {
-            return {
-                isError:true,
-                errorCode:audioValidationResult.errorCode
-            };
-        }
+		animationValidationResult = presenter.validateAnimation(model["Slide animation"], model["Text animation"]);
+		
+		audioValidationResult = presenter.validateAudio(model.Audio[0]);
 
-        var animationValidationResult = presenter.validateAnimation(model["Slide animation"], model["Text animation"]);
+		if (audioValidationResult.isError) {
+			return {
+				isError : true,
+				errorCode : audioValidationResult.errorCode
+			};
+		}
 
         var slidesValidationResult = presenter.validateSlides(model.Slides);
         if (slidesValidationResult.isError) {
@@ -1474,12 +1511,12 @@ function AddonSlideshow_create() {
         var isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
         return {
-            isError:false,
-            audio:audioValidationResult.audio,
-            textAnimation:animationValidationResult.textAnimation,
-            slideAnimation:animationValidationResult.slideAnimation,
-            slides:slidesValidationResult.slides,
-            texts:textsValidationResult.texts,
+            isError: false,
+            audio: audioValidationResult.audio,
+            textAnimation: animationValidationResult.textAnimation,
+            slideAnimation: animationValidationResult.slideAnimation,
+            slides: slidesValidationResult.slides,
+            texts: textsValidationResult.texts,
             hideProgressbar: ModelValidationUtils.validateBoolean(model["Hide progressbar"]),
             groupNextAndPrevious: ModelValidationUtils.validateBoolean(model["Group next and previous buttons"]),
             showSlide: showSlide,
