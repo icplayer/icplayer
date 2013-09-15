@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.8';
+        this.VERSION = '1.1.9';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1319,7 +1319,6 @@ function AddonPlot_create(){
     }
 
     var presenter = function(){};
-    var eventBus; // Modules communication
     var addonID;
     var plot = new Plot();
 
@@ -1545,7 +1544,6 @@ function AddonPlot_create(){
         presenter.model = model;
         presenter._allDoneState = false;
 
-        eventBus = presenter.playerController.getEventBus();
         addonID = model.ID;
 
         presenter.initialize(presenter.view, presenter.model, true);
@@ -1553,6 +1551,7 @@ function AddonPlot_create(){
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
+        presenter.eventBus = presenter.playerController.getEventBus();
     };
 
     presenter.updateVisibility = function() {
@@ -1722,10 +1721,13 @@ function AddonPlot_create(){
     };
     presenter.convertValueToDisplay = function(value) {
         //set correct decimal separator
-        value = (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
+        value = presenter.replaceDecimalSeparator(value);
         //change minus to en dash
         value = value.replace(new RegExp('\-', 'g'), '\u2013');
         return value;
+    };
+    presenter.replaceDecimalSeparator = function(value) {
+        return (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
     };
     presenter.getDecimalSeparator = function() {
         return presenter.decimalSeparator;
@@ -1986,7 +1988,7 @@ function AddonPlot_create(){
                 data[t].source = addonID;
                 data[t].item = data[t].item.toString();
                 if(data[t].item.substring(0,6) == 'point_') {
-                    data[t].item = presenter.convertValueToDisplay(data[t].item);
+                    data[t].item = presenter.replaceDecimalSeparator(data[t].item);
                 }
                 data[t].value = data[t].value.toString();
                 data[t].score = data[t].score === null ? null : data[t].score.toString();
@@ -1999,7 +2001,7 @@ function AddonPlot_create(){
                         }
                     });
                 } else {
-                    eventBus.sendEvent('ValueChanged', data[t]);
+                    presenter.eventBus.sendEvent('ValueChanged', data[t]);
                 }
             }
         }
@@ -2024,7 +2026,7 @@ function AddonPlot_create(){
             'score': ''
         };
 
-        eventBus.sendEvent('ValueChanged', eventData);
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
 
     presenter.getPlot = function() {

@@ -65,15 +65,15 @@ TestCase("Utils and helpers", {
         assertEquals(0, this.presenter.valueToFloat(0));
         assertEquals(0, this.presenter.valueToFloat('0'));
     },
-    'test display value with . to ,': function() {
+    'test replace decimal separator from . to ,': function() {
         this.presenter.decimalSeparator = ',';
-        assertEquals('2,5', this.presenter.convertValueToDisplay('2.5'));
-        assertEquals('2', this.presenter.convertValueToDisplay('2'));
+        assertEquals('2,5', this.presenter.replaceDecimalSeparator('2.5'));
+        assertEquals('2', this.presenter.replaceDecimalSeparator('2'));
     },
-    'test display value with . to .': function() {
+    'test replace decimal separator from . to .': function() {
         this.presenter.decimalSeparator = '.';
-        assertEquals('2.5', this.presenter.convertValueToDisplay('2.5'));
-        assertEquals('2', this.presenter.convertValueToDisplay('2'));
+        assertEquals('2.5', this.presenter.replaceDecimalSeparator('2.5'));
+        assertEquals('2', this.presenter.replaceDecimalSeparator('2'));
     },
     'test display value with minus conversion and . separator': function() {
         this.presenter.decimalSeparator = '.';
