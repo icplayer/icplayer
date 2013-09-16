@@ -1,3 +1,4 @@
+2013-09-16 goToPageIndex added to API
 2013-09-13 Choice can work in not activity mode
 2013-09-12 Addon Glossary can not hide other addons
 2013-09-12 Fixed problem with Glossary in Preview

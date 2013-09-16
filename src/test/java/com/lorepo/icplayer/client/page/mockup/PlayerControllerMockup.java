@@ -116,4 +116,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return false;
 	}
 
+
+	@Override
+	public void switchToPage(int index) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

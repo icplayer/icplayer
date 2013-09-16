@@ -14,6 +14,7 @@ public interface IPlayerController {
 	int getCurrentPageIndex();
 	IStateService getStateService();
 	void switchToPage(String pageName);
+	void switchToPage(int index);
 	void switchToPrevPage();
 	void switchToNextPage();
 	long getTimeElapsed();
