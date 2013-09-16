@@ -1,9 +1,11 @@
 function AddonPuzzle_create() {
-    var presenter = function() {};
+    var presenter = function () {
+    };
 
     /* Global variables */
     var board = []; // Array that will hold the 2-dimentional representation of the board.
     var indexBoard = [];
+    var savedBoard = [];
 
     var intPuzzleWidth = 0;
     var intPuzzleHeight = 0;
@@ -36,23 +38,23 @@ function AddonPuzzle_create() {
         element = $(element);
 
         return {
-            border:{
-                top:parseInt(element.css('border-top-width'), 10),
-                bottom:parseInt(element.css('border-bottom-width'), 10),
-                left:parseInt(element.css('border-left-width'), 10),
-                right:parseInt(element.css('border-right-width'), 10)
+            border: {
+                top: parseInt(element.css('border-top-width'), 10),
+                bottom: parseInt(element.css('border-bottom-width'), 10),
+                left: parseInt(element.css('border-left-width'), 10),
+                right: parseInt(element.css('border-right-width'), 10)
             },
-            margin:{
-                top:parseInt(element.css('margin-top'), 10),
-                bottom:parseInt(element.css('margin-bottom'), 10),
-                left:parseInt(element.css('margin-left'), 10),
-                right:parseInt(element.css('margin-right'), 10)
+            margin: {
+                top: parseInt(element.css('margin-top'), 10),
+                bottom: parseInt(element.css('margin-bottom'), 10),
+                left: parseInt(element.css('margin-left'), 10),
+                right: parseInt(element.css('margin-right'), 10)
             },
-            padding:{
-                top:parseInt(element.css('padding-top'), 10),
-                bottom:parseInt(element.css('padding-bottom'), 10),
-                left:parseInt(element.css('padding-left'), 10),
-                right:parseInt(element.css('padding-right'), 10)
+            padding: {
+                top: parseInt(element.css('padding-top'), 10),
+                bottom: parseInt(element.css('padding-bottom'), 10),
+                left: parseInt(element.css('padding-left'), 10),
+                right: parseInt(element.css('padding-right'), 10)
             }
         };
     }
@@ -75,8 +77,8 @@ function AddonPuzzle_create() {
         right += elementDimensions.padding.right;
 
         return {
-            vertical : top + bottom,
-            horizontal : left + right,
+            vertical: top + bottom,
+            horizontal: left + right,
             top: top,
             bottom: bottom,
             left: left,
@@ -143,7 +145,7 @@ function AddonPuzzle_create() {
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns;
 
-        puzzleWidth =  parseInt(containerWidth / columns - outerDistances.puzzle.horizontal, 10);
+        puzzleWidth = parseInt(containerWidth / columns - outerDistances.puzzle.horizontal, 10);
         puzzleOuterWidth = puzzleWidth + outerDistances.puzzle.horizontal;
         puzzleHeight = parseInt(containerHeight / rows - outerDistances.puzzle.vertical, 10);
         puzzleOuterHeight = puzzleHeight + outerDistances.puzzle.vertical;
@@ -173,7 +175,7 @@ function AddonPuzzle_create() {
                 puzzle.addClass('puzzle');
                 puzzle.css({
                     backgroundImage: "url( '" + jImg.attr("src") + "' )",
-                    backgroundSize: width + "px " + height + "px" ,
+                    backgroundSize: width + "px " + height + "px",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: (
                         (col * -puzzleWidth) + "px " +
@@ -238,7 +240,6 @@ function AddonPuzzle_create() {
 
             counter -= 2;
         }
-
         return shuffleSequence;
     };
 
@@ -261,6 +262,7 @@ function AddonPuzzle_create() {
                     type: "click",
                     triggered: true
                 });
+
 
                 $secondPiece = board[shuffle.row.to][shuffle.column.to];
                 $secondPiece.trigger({
@@ -389,7 +391,7 @@ function AddonPuzzle_create() {
         presenter.configuration.isErrorMode = false;
     }
 
-    presenter.reset = function() {
+    presenter.reset = function () {
         presenter.configuration.shouldCalcScore = true;
         setNormalMode();
         Shuffle();
@@ -401,18 +403,94 @@ function AddonPuzzle_create() {
         }
     };
 
-    presenter.getMaxScore = function() {
+
+    presenter.prepareBoardFromSavedState = function (savedBoard) {
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns,
+            index, rowIndex, colIndex,
+            newBoard = [],
+            puzzle, savedPuzzle;
+
+        animation = false;
+
+        for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+            newBoard[rowIndex] = [];
+        }
+
+        for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (colIndex = 0; colIndex < columns; colIndex++) {
+                puzzle = board[rowIndex][colIndex];
+                for (index = 0; index < savedBoard.length; index++) {
+                    if (puzzle.attr("position") == savedBoard[index].position) {
+                        savedPuzzle = savedBoard[index];
+                        newBoard[savedPuzzle.row][savedPuzzle.col] = puzzle;
+                        newBoard[savedPuzzle.row][savedPuzzle.col].css({
+                            left: ((puzzleOuterWidth * savedPuzzle.col + leftOffset) + "px"),
+                            top: ((puzzleOuterHeight * savedPuzzle.row + topOffset) + "px")
+                        });
+                        savedBoard.splice(index, 1);
+                    }
+                }
+            }
+        }
+
+        board = newBoard;
+        animation = true;
+    };
+
+    presenter.saveBoard = function () {
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns,
+            rowIndex, colIndex,
+            tmpBoard = [];
+
+
+        for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (colIndex = 0; colIndex < columns; colIndex++) {
+                var card = {};
+                card.row = rowIndex;
+                card.col = colIndex;
+                card.position = board[rowIndex][colIndex].attr("position");
+                tmpBoard.push(card);
+            }
+        }
+        savedBoard = tmpBoard;
+    };
+
+    presenter.getState = function () {
+        presenter.saveBoard();
+
+        return JSON.stringify({
+            visible: presenter.configuration.isVisibleByDefault,
+            board: savedBoard
+        });
+    };
+
+    presenter.setState = function (state) {
+        if (!state) return;
+
+        $.when(presenter.imageLoaded).then(function () {
+            var stateObj = JSON.parse(state);
+
+            presenter.prepareBoardFromSavedState(stateObj.board);
+            if (!stateObj.visible) {
+                presenter.hide();
+            }
+        });
+    };
+
+    presenter.getMaxScore = function () {
         return 1;
     };
 
-    presenter.getScore = function() {
+    presenter.getScore = function () {
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             row, col;
 
         for (row = 0; row < rows; row++) {
             for (col = 0; col < columns; col++) {
-                if( board[row][col].attr("position") !=  indexBoard[row][col].attr("position")) {
+                if (board[row][col].attr("position") != indexBoard[row][col].attr("position")) {
                     return 0;
                 }
             }
@@ -421,14 +499,14 @@ function AddonPuzzle_create() {
         return presenter.configuration.shouldCalcScore ? 1 : 0;
     };
 
-    presenter.getErrorCount = function() {
+    presenter.getErrorCount = function () {
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             errors = 0;
 
         for (var row = 0; row < rows; row++) {
             for (var col = 0; col < columns; col++) {
-                if( board[row][col].attr("position") !=  indexBoard[row][col].attr("position")) {
+                if (board[row][col].attr("position") != indexBoard[row][col].attr("position")) {
                     errors++;
                 }
             }
@@ -437,11 +515,11 @@ function AddonPuzzle_create() {
         return presenter.configuration.shouldCalcScore ? errors : 0;
     };
 
-    presenter.setWorkMode = function() {
+    presenter.setWorkMode = function () {
         setNormalMode();
     };
 
-    presenter.setShowErrorsMode = function() {
+    presenter.setShowErrorsMode = function () {
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             row, col;
@@ -451,9 +529,9 @@ function AddonPuzzle_create() {
         for (row = 0; row < rows; row++) {
             for (col = 0; col < columns; col++) {
                 var isEqual = board[row][col].attr("position") != indexBoard[row][col].attr("position");
-                if(isEqual) { //wrong answer
+                if (isEqual) { //wrong answer
                     indexBoard[row][col].addClass('wrong');
-                }else{
+                } else {
                     indexBoard[row][col].addClass('correct');
                 }
             }
@@ -462,37 +540,38 @@ function AddonPuzzle_create() {
         presenter.configuration.isErrorMode = true;
     };
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         playerController = controller;
     };
 
-    presenter.run = function(view, model) {
+    presenter.run = function (view, model) {
         Container = $($(view).find('.puzzle-container:first')[0]);
         intPuzzleWidth = model.Width;
         intPuzzleHeight = model.Height;
         var width = model.Width;
         var height = model.Height;
-
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         presenter.configuration = presenter.validateModel(model);
+        presenter.imageLoadedDfd = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDfd.promise();
 
-        jImg = Container.find( "img:first" );
+        jImg = Container.find("img:first");
         jImg.attr('src', model.Image);
         jImg.attr('height', height);
         jImg.attr('width', width);
-
         if (jImg.complete) { // The image has loaded so call Init.
             InitPuzzle(width, height);
         } else { // The image has not loaded so set an onload event handler to call Init.
-            jImg.load(function() {
+            jImg.load(function () {
                 InitPuzzle(width, height);
+                presenter.imageLoadedDfd.resolve();
             });
         }
-
         if (!presenter.configuration.isVisibleByDefault) {
             presenter.hide();
         }
+
     };
 
     presenter.validateModel = function (model) {
@@ -516,7 +595,7 @@ function AddonPuzzle_create() {
         return validatedRange.isValid ? validatedRange.value : 4;
     };
 
-    presenter.createPreview = function(view, model) {
+    presenter.createPreview = function (view, model) {
         var element = view.getElementsByTagName('img')[0];
         element.setAttribute('src', model.Image);
 
@@ -539,17 +618,17 @@ function AddonPuzzle_create() {
         return Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
@@ -560,7 +639,7 @@ function AddonPuzzle_create() {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
-    function sendAllOKEvent () {
+    function sendAllOKEvent() {
         var eventData = {
             'source': presenter.configuration.addonID,
             'item': 'all',
