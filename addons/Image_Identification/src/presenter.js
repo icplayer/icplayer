@@ -20,12 +20,12 @@ function AddonImage_Identification_create(){
             CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER;
     }
 
-    function handleMouseActions() {
+    presenter.handleMouseActions = function() {
         var element = presenter.$view.find('div:first');
 
         element.hover(
             function() {
-                if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
+                if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
 
                 if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
@@ -33,7 +33,7 @@ function AddonImage_Identification_create(){
                 }
             },
             function() {
-                if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
+                if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
 
                 if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
@@ -43,12 +43,13 @@ function AddonImage_Identification_create(){
         );
 
         element.click(function() {
-            if (presenter.configuration.isActivity && presenter.configuration.isErrorCheckMode) return;
+            if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
 
-            toggleSelectionState();
+            presenter.toggleSelectionState();
             applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
         });
-    }
+
+    };
 
     function setViewDimensions(model) {
         var viewDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
@@ -93,7 +94,7 @@ function AddonImage_Identification_create(){
             presenter.setVisibility(presenter.configuration.isVisibleByDefault);
 
             if (!isPreview) {
-                handleMouseActions();
+                presenter.handleMouseActions();
             }
 
             presenter.$view.trigger("onLoadImageCallbackEnd", []);
@@ -126,6 +127,7 @@ function AddonImage_Identification_create(){
             shouldBeSelected: ModelValidationUtils.validateBoolean(model.SelectionCorrect),
             isHoverEnabled: true,
             isActivity: !ModelValidationUtils.validateBoolean(model["Is not an activity"]),
+            isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
             isErrorCheckMode: false
         };
     };
@@ -208,7 +210,7 @@ function AddonImage_Identification_create(){
         if (presenter.configuration.isSelected) {
             applySelectionStyle(presenter.configuration.isSelected === presenter.configuration.shouldBeSelected, CSS_CLASSES.CORRECT, CSS_CLASSES.INCORRECT);
         } else if (presenter.configuration.shouldBeSelected) {
-            applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT)
+            applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
         }
     };
 
@@ -291,7 +293,7 @@ function AddonImage_Identification_create(){
             item : '',
             value : isSelected ? '1' : '0',
             score : score
-        }
+        };
     };
 
     presenter.triggerSelectionEvent = function(isSelected, shouldBeSelected) {
@@ -318,11 +320,11 @@ function AddonImage_Identification_create(){
         applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
-    function toggleSelectionState() {
+    presenter.toggleSelectionState = function() {
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
 
         presenter.triggerSelectionEvent(presenter.configuration.isSelected, presenter.configuration.shouldBeSelected);
-    }
+    };
 
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
