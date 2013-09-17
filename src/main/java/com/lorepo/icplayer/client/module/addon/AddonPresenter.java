@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.addon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -13,6 +14,7 @@ import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -345,9 +347,13 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 
 	@Override
-	public String executeCommand(String commandName, List<String> params) {
+	public String executeCommand(String commandName, List<IType> params) {
 
-		return executeCommand(jsObject, commandName, params);
+		List<String> values = new ArrayList<String>();
+		for(IType param : params){
+			values.add(param.asString());
+		}
+		return executeCommand(jsObject, commandName, values);
 	}
 
 

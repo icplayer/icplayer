@@ -8,6 +8,8 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IStringType;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -463,21 +465,32 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 
 	@Override
-	public String executeCommand(String commandName, List<String> params) {
+	public String executeCommand(String commandName, List<IType> params) {
+		
+		IStringType param = null;
 		
 		if(commandName.compareTo("settext") == 0 && params.size() > 0){
-			setText(params.get(0));
+			if(params.size() > 0 && params.get(0) instanceof IStringType){
+				param = (IStringType) params.get(0);
+				setText(param.getValue());
+			}
 		}
 		else if(commandName.compareTo("gettext") == 0 && params.size() > 0){
 			return view.getHTML();
 		}
 		else if(commandName.compareTo("enablegap") == 0 && params.size() == 1){
-			int gapIndex = Integer.parseInt(params.get(0));
-			enableGap(gapIndex);
+			if(params.size() > 0 && params.get(0) instanceof IStringType){
+				param = (IStringType) params.get(0);
+				int gapIndex = Integer.parseInt(param.getValue());
+				enableGap(gapIndex);
+			}
 		}
 		else if(commandName.compareTo("disablegap") == 0 && params.size() == 1){
-			int gapIndex = Integer.parseInt(params.get(0));
-			disableGap(gapIndex);
+			if(params.size() > 0 && params.get(0) instanceof IStringType){
+				param = (IStringType) params.get(0);
+				int gapIndex = Integer.parseInt(param.getValue());
+				disableGap(gapIndex);
+			}
 		}
 		else if(commandName.compareTo("show") == 0){
 			show();

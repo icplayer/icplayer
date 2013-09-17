@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -128,7 +129,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 
 
 	@Override
-	public String executeCommand(String commandName, List<String> params) {
+	public String executeCommand(String commandName, List<IType> _) {
 		
 		if(commandName.compareTo("show") == 0){
 			show();

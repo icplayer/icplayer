@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
@@ -282,7 +283,7 @@ public class ImageGapPresenterTestCase {
 		eventBus.fireEventFromSource(event, this);
 		display.getListener().onClicked();
 
-		String imageID = presenter.executeCommand("getimageid", new ArrayList<String>());
+		String imageID = presenter.executeCommand("getimageid", new ArrayList<IType>());
 		
 		assertEquals("1", imageID);
 	}

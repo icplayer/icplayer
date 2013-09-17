@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -295,7 +296,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 
 	@Override
-	public String executeCommand(String commandName, List<String> params) {
+	public String executeCommand(String commandName, List<IType> _) {
 		
 		String value = "";
 		
