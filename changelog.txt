@@ -1,3 +1,4 @@
+2013-09-18 Fixed Glossary issue
 2013-09-17 Script allows True and False values
 2013-09-16 Added getState and setState for Puzzle
 2013-09-16 goToPageIndex added to API

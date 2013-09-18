@@ -222,22 +222,22 @@ function AddonGlossary_create(){
 
 
         var $popup = $('#icplayer').parent().find('.ic_popup');
+        var dialogWidget = dialog.dialog("widget");
         if ($popup.is('.ic_popup'))
         {   // Dialog must be placed in popup page
-            $popup.children().last().after(dialog.dialog("widget"));
+            $popup.children().last().after(dialogWidget);
         }
         else if ($(".gwt-DialogBox").is('.gwt-DialogBox') )
         {   // Dialog must be placed in preview page
-            $(".ic_page_panel").children(".ic_page").children().last().after(dialog.dialog("widget"));
+            $(".ic_page_panel").children(".ic_page").children().last().after(dialogWidget);
         }
         else
         { // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
-             $('#icplayer').after(dialog.dialog("widget"));
+             $('#icplayer').after(dialogWidget);
         }
         presenter.dialog = dialog;
 
-        // addon Glossar can not hide other addons
-        $('.addon_Glossary').parent().children().first().before($('.addon_Glossary'));
+        presenter.$view.css('display', 'none');
      };
 
     presenter.calculateReducedDialogHeight = function($dialog, pageHeight) {
