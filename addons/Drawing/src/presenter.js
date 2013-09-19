@@ -22,13 +22,18 @@ function AddonDrawing_create() {
 			}
 
             function draw(ctx, x, y) {
-                ctx.moveTo(x, y);
                 ctx.beginPath();
-                ctx.stroke();
-                ctx.arc(x, y, presenter.configuration.thickness, 0, 2 * Math.PI, false);
-                ctx.fillStyle = presenter.configuration.color;
+                ctx.lineJoin = "round";
+                ctx.moveTo(presenter.configuration.lastX, presenter.configuration.lastY);
+                ctx.lineTo(x, y);
+                ctx.lineWidth = presenter.configuration.thickness;
+                ctx.strokeStyle = presenter.configuration.color;
                 ctx.fill();
                 ctx.closePath();
+                ctx.stroke();
+
+                presenter.configuration.lastX = x;
+                presenter.configuration.lastY = y;
             }
 			
 			presenter.turnOnEventListeners = function() {
@@ -40,6 +45,8 @@ function AddonDrawing_create() {
 				$canvas.on('mousedown', function(e) {
 					isPainting = true;
                     var pos = getPosition(e, $canvas);
+                    presenter.configuration.lastX = pos.X;
+                    presenter.configuration.lastY = pos.Y;
                     draw(ctx, pos.X, pos.Y);
 				});
 				
@@ -89,7 +96,7 @@ function AddonDrawing_create() {
 				
 				T01: 'Property thickness cannot be empty',
 				T02: 'Property thickness cannot be smaller than 1',
-				T03: 'Property thickness cannot be bigger than 20',
+				T03: 'Property thickness cannot be bigger than 40',
 				
 				B01: 'Property border cannot be empty',
 				B02: 'Property border cannot be smaller than 0',
@@ -218,8 +225,8 @@ function AddonDrawing_create() {
 				if (thickness < 1) {
 					return returnErrorObject('T02');
 				}
-				
-				if (thickness > 20) {
+
+				if (thickness > 40) {
 					return returnErrorObject('T03');
 				}
 				

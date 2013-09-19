@@ -69,11 +69,11 @@ TestCase("[Drawing] Model validation", {
         assertFalse(validatedModel.isValid);
         assertEquals('T02', validatedModel.errorCode);
     },
-    
-    'test thickness bigger than 20' : function() {
+
+    'test thickness bigger than 40' : function() {
     	var model = {
             Color: "Pink",
-            Thickness: "21",
+            Thickness: "41",
             Border: "1"
         };
         
