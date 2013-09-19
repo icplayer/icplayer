@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <project name="Commons" basedir="." default="Addon.test">
-    <property name="version" value="1.7" />
+    <property name="version" value="1.8" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="" />
     <import file="../tools/targets.xml" />
@@ -20,6 +20,7 @@
             <arg line="--js src/commands.js" />
             <arg line="--js src/image-viewer.js" />
             <arg line="--js src/string-utils.js" />
+            <arg line="--js src/text-parser.js" />
             <arg line="--js_output_file bin/commons-${version}/commons.js" />
         </java>
 

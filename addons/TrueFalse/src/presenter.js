@@ -266,7 +266,7 @@ function AddonTrueFalse_create() {
     presenter.run = function (view, model) {
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
-        textParser = playerController.getTextParser();
+        textParser = new TextParserProxy(playerController.getTextParser());
         presenter.addonID = model.ID;
         makeView(view, model, false);
     };

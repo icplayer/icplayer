@@ -191,7 +191,7 @@ function AddonTable_create() {
     presenter.setPlayerController = function(controller){
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
-        presenter.textParser = presenter.playerController.getTextParser();
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.createPreview = function (view, model) {

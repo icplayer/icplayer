@@ -24,7 +24,7 @@ function Addonfeedback_create(){
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
-        textParser = playerController.getTextParser();
+        textParser = new TextParserProxy(playerController.getTextParser());
     };
 
     presenter.showErrorMessage = function(message, substitutions) {
@@ -117,9 +117,8 @@ function Addonfeedback_create(){
 
             var responseText = model['Responses'][i]['Text'];
             if (textParser !== null && !preview) {
-                responseText = textParser.parse(responseText);
+                  responseText = textParser.parse(responseText);
             }
-
             presenter.responses[model['Responses'][i]['Unique response ID']] = { status: model['Responses'][i]['Status'].toUpperCase(), text: responseText };
 
             text = $('<div class="response"></div>');
