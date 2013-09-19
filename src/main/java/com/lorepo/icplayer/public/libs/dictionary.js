@@ -284,5 +284,6 @@ var ice_dictionary = {
 	"next_page_button_info": "Allows to add a button that navigates to the next page in a presentation.",
 	"previous_page_button_info": "Allows to add a button that navigates to the previous page in a presentation.",
 	"go_to_page_button_info": "Allows to add a button that navigates to the specific page in a presentation.",
-	"Text_Selection_info": "Allows to mark parts of text. Two modes - 'Mark phrases to select' the one, where you can mark wrong and correct answers or mode 'All selectable', where all phrases are selectable and you can mark only correct answers."
-}
+	"Text_Selection_info": "Allows to mark parts of text. Two modes - 'Mark phrases to select' the one, where you can mark wrong and correct answers or mode 'All selectable', where all phrases are selectable and you can mark only correct answers.",
+	"Drawing_info": "Allows to draw on canvas, you can choose color and girth"
+};

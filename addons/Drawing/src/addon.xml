@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Drawing'>
+	<model>
+		<property name='Color' type='string'/>
+		<property name='Thickness' type='string'/>
+		<property name='Border' type='string'/>
+	</model>
+</addon>

@@ -1,3 +1,4 @@
+2013-09-19 Added Drawing module. This module allows to draw on digital canvas.
 2013-09-18 Fixed Glossary issue
 2013-09-17 Script allows True and False values
 2013-09-16 Added getState and setState for Puzzle
