@@ -45,15 +45,15 @@ function Addonfeedback_create(){
     };
 
     presenter.setDefaultResponse = function() {
+        presenter.feedbackContainer.find('.response').removeClass('visible');
+        $(this).addClass('visible');
         if(presenter.preview || !presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').css('opacity', 0);
             presenter.feedbackContainer.find('.default_response').css('opacity', 1);
         } else if(presenter.configuration.fadeTransitions) {
-            presenter.feedbackContainer.find('.response').removeClass('visible');
+
             presenter.feedbackContainer.find('.response:not(.default_response)').animate({opacity: 0.0}, {queue : false});
-            presenter.feedbackContainer.find('.default_response').animate({opacity: 1.0}, {queue : false, complete: function () {
-                $(this).addClass('visible');
-            }});
+            presenter.feedbackContainer.find('.default_response').animate({opacity: 1.0}, {queue : false});
         }
 
         presenter.currentStateDefault = true;
@@ -61,15 +61,14 @@ function Addonfeedback_create(){
     };
 
     presenter.setResponse = function(id) {
+        presenter.feedbackContainer.find('.response').removeClass('visible');
+        $(this).addClass('visible');
         if(presenter.preview || !presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').css('opacity', 0);
             presenter.feedbackContainer.find('.response_' + id).css('opacity', 1);
         } else if (presenter.configuration.fadeTransitions) {
-            presenter.feedbackContainer.find('.response').removeClass('visible');
             presenter.feedbackContainer.find('.response').animate({opacity: 0.0}, {queue : false});
-            presenter.feedbackContainer.find('.response_' + id).animate({opacity: 1.0}, {queue : false, complete: function () {
-                $(this).addClass('visible');
-            }});
+            presenter.feedbackContainer.find('.response_' + id).animate({opacity: 1.0}, {queue : false});
         }
 
         presenter.currentStateDefault = false;

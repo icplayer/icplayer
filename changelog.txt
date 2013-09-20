@@ -1,3 +1,4 @@
+2013-09-20 Fixed addon on Feedback issue
 2013-09-19 Fixed Glossary links on feedback
 2013-09-19 Added TextParserProxy: parse, connectLinks - in Commons (now in version 1.8)
 2013-09-19 Added Drawing module. This module allows to draw on digital canvas.
