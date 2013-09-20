@@ -21,15 +21,40 @@ function AddonDrawing_create() {
 				};
 			}
 
-            function draw(ctx, x, y) {
+            function pencil(ctx, x, y) {
+
+                ctx.beginPath();
+                ctx.lineJoin = "round";
+                ctx.lineWidth = presenter.configuration.thickness;
+                ctx.strokeStyle = presenter.configuration.color;
+                ctx.fillStyle = presenter.configuration.color;
+                ctx.moveTo(x, y+1);
+                ctx.lineTo(x, y);
+
+                ctx.fill();
+                ctx.closePath();
+                ctx.stroke();
+
                 ctx.beginPath();
                 ctx.lineJoin = "round";
                 ctx.lineWidth = presenter.configuration.thickness;
                 ctx.strokeStyle = presenter.configuration.color;
                 ctx.fillStyle = presenter.configuration.color;
                 ctx.moveTo(x, y);
-                ctx.arc(x, y, presenter.configuration.thickness / 6, 0, 2*Math.PI, false);
                 ctx.lineTo(presenter.configuration.lastX, presenter.configuration.lastY);
+
+                ctx.fill();
+                ctx.closePath();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.lineJoin = "round";
+                ctx.lineWidth = presenter.configuration.thickness;
+                ctx.strokeStyle = presenter.configuration.color;
+                ctx.fillStyle = presenter.configuration.color;
+                ctx.moveTo(x, y-1);
+                ctx.lineTo(x, y);
+
                 ctx.fill();
                 ctx.closePath();
                 ctx.stroke();
@@ -55,13 +80,17 @@ function AddonDrawing_create() {
                     var pos = getPosition(e, $canvas);
 
 					if (isPainting) {
-                        draw(ctx, pos.X, pos.Y);
+                        pencil(ctx, pos.X, pos.Y);
 					}
 				});
 				
 				$canvas.on('mouseup', function() {
 					isPainting = false;
 				});
+
+                $canvas.on('mouseleave', function() {
+                    isPainting = false;
+                });
 
                 // TOUCH events
                 $canvas.on('touchstart', function(e) {
@@ -70,6 +99,7 @@ function AddonDrawing_create() {
                     var pos = getPosition(e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0], $canvas);
                     presenter.configuration.lastX = pos.X;
                     presenter.configuration.lastY = pos.Y;
+                    pencil(ctx, pos.X, pos.Y);
                 });
 
                 $canvas.on('touchmove', function(e) {
@@ -77,7 +107,7 @@ function AddonDrawing_create() {
                     var pos = getPosition(e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0], $canvas);
 
                     if (isPainting) {
-                        draw(ctx, pos.X, pos.Y);
+                        pencil(ctx, pos.X, pos.Y);
                     }
                 });
 
@@ -119,7 +149,7 @@ function AddonDrawing_create() {
                     //aspect = canvas.height / canvas.width;
 
                 canvas.width = con.width();
-                canvas.height = con.height(); //Math.round(canvas.width * aspect);
+                canvas.height = con.height();
             }
 			
 			presenter.presenterLogic = function(view, model, isPreview) {
@@ -312,6 +342,7 @@ function AddonDrawing_create() {
 
                 return JSON.stringify({
                     pixels: img.data,
+                    //png: png,
                     isVisible: presenter.configuration.isVisible
                 });
 			};
