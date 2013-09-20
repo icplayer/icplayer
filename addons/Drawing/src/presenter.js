@@ -24,10 +24,12 @@ function AddonDrawing_create() {
             function draw(ctx, x, y) {
                 ctx.beginPath();
                 ctx.lineJoin = "round";
-                ctx.moveTo(presenter.configuration.lastX, presenter.configuration.lastY);
-                ctx.lineTo(x, y);
                 ctx.lineWidth = presenter.configuration.thickness;
                 ctx.strokeStyle = presenter.configuration.color;
+                ctx.fillStyle = presenter.configuration.color;
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, presenter.configuration.thickness / 6, 0, 2*Math.PI, false);
+                ctx.lineTo(presenter.configuration.lastX, presenter.configuration.lastY);
                 ctx.fill();
                 ctx.closePath();
                 ctx.stroke();
@@ -47,7 +49,6 @@ function AddonDrawing_create() {
                     var pos = getPosition(e, $canvas);
                     presenter.configuration.lastX = pos.X;
                     presenter.configuration.lastY = pos.Y;
-                    draw(ctx, pos.X, pos.Y);
 				});
 				
 				$canvas.on('mousemove', function(e) {
@@ -67,7 +68,8 @@ function AddonDrawing_create() {
                     isPainting = true;
                     e.preventDefault();
                     var pos = getPosition(e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0], $canvas);
-                    draw(ctx, pos.X, pos.Y);
+                    presenter.configuration.lastX = pos.X;
+                    presenter.configuration.lastY = pos.Y;
                 });
 
                 $canvas.on('touchmove', function(e) {
