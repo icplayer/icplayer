@@ -143,7 +143,8 @@ function AddonSlider_create () {
 
     function touchStartCallback (event) {
         event.preventDefault();
-
+        event.stopPropagation();
+        
         var touch = event.touches[0] || event.changedTouches[0];
         mouseDownCallback(touch);
     }
@@ -174,6 +175,7 @@ function AddonSlider_create () {
 
     function touchEndCallback (event) {
         event.preventDefault();
+        event.stopPropagation();
 
         mouseUpCallback();
     }
@@ -246,6 +248,7 @@ function AddonSlider_create () {
 
     function touchMoveCallback (event) {
         event.preventDefault();
+        event.stopPropagation();
 
         var touch = event.touches[0] || event.changedTouches[0];
         mouseMoveCallback(touch);
