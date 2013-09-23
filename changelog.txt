@@ -1,3 +1,4 @@
+2013-09-23 Fixed TextParserProxy issue
 2013-09-23 Added simulate Tap event listeners to 4 addons (True/False, Connection, Image Identification, Text Identification)
 2013-09-20 Fixed addon on Feedback issue
 2013-09-19 Fixed Glossary links on feedback
