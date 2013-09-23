@@ -3,6 +3,8 @@ function AddonImage_Identification_create(){
 
     var playerController;
 
+    presenter.lastEvent = null;
+
     var CSS_CLASSES = {
         ELEMENT : "image-identification-element",
         SELECTED : "image-identification-element-selected",
@@ -18,6 +20,12 @@ function AddonImage_Identification_create(){
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
             CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER;
+    }
+
+    function clickLogic() {
+        if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
+        presenter.toggleSelectionState();
+        applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     }
 
     presenter.handleMouseActions = function() {
@@ -42,11 +50,22 @@ function AddonImage_Identification_create(){
             }
         );
 
-        element.click(function() {
-            if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
+        element.on('touchstart', function (e) {
+            e.preventDefault();
 
-            presenter.toggleSelectionState();
-            applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+            presenter.lastEvent = e;
+        });
+
+        element.on('touchend', function (e) {
+            e.preventDefault();
+
+            if ( presenter.lastEvent.type != e.type ) {
+                clickLogic();
+            }
+        });
+
+        element.click(function() {
+            clickLogic();
         });
 
     };

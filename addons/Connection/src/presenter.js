@@ -14,6 +14,7 @@ function AddonConnection_create(){
     presenter.uniqueIDs = [];
     presenter.elements = [];
     presenter.lastClickTime = 0;
+    presenter.lastEvent = null;
 
     var connections;
     var singleMode = false;
@@ -333,72 +334,91 @@ function AddonConnection_create(){
         eventBus.sendEvent('ValueChanged', eventData);
     }
 
+    function clickLogic(element) {
+        // workaround for android webView
+        // http://code.google.com/p/android/issues/detail?id=38808
+        var current = new Date().getTime();
+        var delta = current - presenter.lastClickTime;
+        if (!isSelectionPossible || delta < 500) return;
+        presenter.lastClickTime = current;
+        if (!$(element).hasClass('selected') && selectedItem == null) {
+            // zaznaczony pierwszy element
+            $(element).parent().find('.connectionItem').removeClass('selected');
+            $(element).addClass('selected');
+            selectedItem = $(element);
+            return;
+        }
+        if (selectedItem != null && $(element).get(0) == selectedItem.get(0)) {
+            // ponownie kliknięty już zaznaczony element
+            $(element).removeClass('selected');
+            selectedItem = null;
+            return;
+        }
+        if (selectedItem != null &&
+            ($(element).parents('.connectionLeftColumn').get(0) == selectedItem.parents('.connectionLeftColumn').get(0) ||
+                $(element).parents('.connectionRightColumn').get(0) == selectedItem.parents('.connectionRightColumn').get(0))) {
+            // kliknięty element w tej samej kolumnie
+            var linesToSwitch = [];
+            if (singleMode) {
+                for (var i = 0; i < presenter.lineStack.length(); i++) {
+                    if (presenter.lineStack.get(i).connects(selectedItem)) {
+                        linesToSwitch.push(presenter.lineStack.get(i))
+                    }
+                }
+            }
+
+            selectedItem.removeClass('selected');
+            if (linesToSwitch.length == 0) {
+                $(element).addClass('selected');
+                selectedItem = $(element);
+                return;
+            } else {
+                for (i in linesToSwitch) {
+                    presenter.lineStack.remove(linesToSwitch[i]);
+                    pushConnection(new Line($(element), linesToSwitch[i].otherSide(selectedItem)), false);
+                }
+            }
+        } else {
+            var line = new Line($(element), selectedItem);
+            var shouldDraw = true;
+
+            if (singleMode) {
+                var usedInLines = presenter.lineStack.isItemUsed(line);
+                if (usedInLines.length == 2) {
+                    shouldDraw = false
+                }
+            }
+            if (shouldDraw) {
+                pushConnection(line, false);
+            }
+        }
+
+        redraw();
+        selectedItem.removeClass('selected');
+        selectedItem = null;
+    }
+
     presenter.registerListeners = function(view) {
 
         presenter.$connectionContainer = $(view).find('.connectionContainer');
-        $(view).find('.connectionItem').click(function () {
-            // workaround for android webView
-            // http://code.google.com/p/android/issues/detail?id=38808
-            var current = new Date().getTime();
-            var delta = current - presenter.lastClickTime;
-            if (!isSelectionPossible || delta < 500) return;
-            presenter.lastClickTime = current;
-            if (!$(this).hasClass('selected') && selectedItem == null) {
-                // zaznaczony pierwszy element
-                $(this).parent().find('.connectionItem').removeClass('selected');
-                $(this).addClass('selected');
-                selectedItem = $(this);
-                return;
+
+        var element = $(view).find('.connectionItem');
+
+        element.on('touchstart', function (e) {
+            e.preventDefault();
+
+            presenter.lastEvent = e;
+        });
+
+        element.on('touchend', function (e) {
+            e.preventDefault();
+            if ( presenter.lastEvent.type != e.type ) {
+                clickLogic(this);
             }
-            if (selectedItem != null && $(this).get(0) == selectedItem.get(0)) {
-                // ponownie kliknięty już zaznaczony element
-                $(this).removeClass('selected');
-                selectedItem = null;
-                return;
-            }
-            if (selectedItem != null &&
-                ($(this).parents('.connectionLeftColumn').get(0) == selectedItem.parents('.connectionLeftColumn').get(0) ||
-                    $(this).parents('.connectionRightColumn').get(0) == selectedItem.parents('.connectionRightColumn').get(0))) {
-                // kliknięty element w tej samej kolumnie
-                var linesToSwitch = [];
-                if (singleMode) {
-                    for (var i = 0; i < presenter.lineStack.length(); i++) {
-                        if (presenter.lineStack.get(i).connects(selectedItem)) {
-                            linesToSwitch.push(presenter.lineStack.get(i))
-                        }
-                    }
-                }
+        });
 
-                selectedItem.removeClass('selected');
-                if (linesToSwitch.length == 0) {
-                    $(this).addClass('selected');
-                    selectedItem = $(this);
-                    return;
-                } else {
-                    for (i in linesToSwitch) {
-                        presenter.lineStack.remove(linesToSwitch[i]);
-                        pushConnection(new Line($(this), linesToSwitch[i].otherSide(selectedItem)), false);
-                    }
-                }
-            } else {
-                var line = new Line($(this), selectedItem);
-                var shouldDraw = true;
-
-                if (singleMode) {
-                    var usedInLines = presenter.lineStack.isItemUsed(line);
-                    if (usedInLines.length == 2) {
-                        shouldDraw = false
-                    }
-                }
-                if (shouldDraw) {
-                    pushConnection(line, false);
-                }
-            }
-
-            redraw();
-            selectedItem.removeClass('selected');
-            selectedItem = null;
-
+        element.click(function () {
+            clickLogic(this);
         });
     };
 

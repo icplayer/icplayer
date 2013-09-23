@@ -3,6 +3,7 @@ function AddonTrueFalse_create() {
 
     presenter.type = "";
     presenter.$view;
+    presenter.lastEvent = null;
 
     var possibleChoices = [];
     var multi = false;
@@ -131,50 +132,71 @@ function AddonTrueFalse_create() {
         }
     };
 
-    function handleClickActions(view) {
-        $(view).find(".tf_" + presenter.type + "_image").click(function () {
-            var sendEvent = true;
-            var wasSelected = false;
+    function clickLogic(element) {
+        var sendEvent = true;
+        var wasSelected = false;
 
-            if (!$(this).hasClass("disabled")) {
-                if (multi) {
-                    if ($(this).hasClass("down")) {
-                        wasSelected = true;
-                        $(this).removeClass("down").addClass("up");
-                    } else {
-                        $(this).removeClass("up").addClass("down");
-                    }
+        if (!$(element).hasClass("disabled")) {
+            if (multi) {
+                if ($(element).hasClass("down")) {
+                    wasSelected = true;
+                    $(element).removeClass("down").addClass("up");
                 } else {
-                    sendEvent = !$(this).hasClass("down");
+                    $(element).removeClass("up").addClass("down");
+                }
+            } else {
+                sendEvent = !$(element).hasClass("down");
 
-                    $(this).parent().find(".tf_" + presenter.type + "_image").each(function () {
-                        $(this).removeClass("down").addClass("up");
-                    });
+                $(element).parent().children(".tf_" + presenter.type + "_image").each(function () {
+                    $(this).removeClass("down").addClass("up");
+                });
 
-                    $(this).removeClass("up").addClass("down");
+                $(element).removeClass("up").addClass("down");
+            }
+
+            if (sendEvent) {
+                var selectedQuestion = whichQuestion($(element).parent(), $(element).parent().parent());
+                var selectedAnswer = whichAnswer($(element), $(element).parent());
+                var itemStr = selectedQuestion.toString() + '-' + selectedAnswer.toString();
+                var isSelectionCorrect = presenter.isSelectionCorrect(questions[selectedQuestion - 1], parseInt(selectedAnswer, 10));
+
+                var eventData = presenter.createEventData(itemStr, wasSelected, isSelectionCorrect);
+                eventBus.sendEvent('ValueChanged', eventData);
+
+                if (multi && presenter.isRowOK(selectedQuestion)) {
+                    var rowOKEventData = presenter.createRowOKEventData(selectedQuestion);
+                    eventBus.sendEvent('ValueChanged', rowOKEventData);
+
                 }
 
-                if (sendEvent) {
-                    var selectedQuestion = whichQuestion($(this).parent(), $(this).parent().parent());
-                    var selectedAnswer = whichAnswer($(this), $(this).parent());
-                    var itemStr = selectedQuestion.toString() + '-' + selectedAnswer.toString();
-                    var isSelectionCorrect = presenter.isSelectionCorrect(questions[selectedQuestion - 1], parseInt(selectedAnswer, 10));
-
-                    var eventData = presenter.createEventData(itemStr, wasSelected, isSelectionCorrect);
-                    eventBus.sendEvent('ValueChanged', eventData);
-
-                    if (multi && presenter.isRowOK(selectedQuestion)) {
-                        var rowOKEventData = presenter.createRowOKEventData(selectedQuestion);
-                        eventBus.sendEvent('ValueChanged', rowOKEventData);
-
-                    }
-
-                    if (presenter.isAllOK()) {
-                        var allOKEventData = presenter.createAllOKEventData();
-                        eventBus.sendEvent('ValueChanged', allOKEventData);
-                    }
+                if (presenter.isAllOK()) {
+                    var allOKEventData = presenter.createAllOKEventData();
+                    eventBus.sendEvent('ValueChanged', allOKEventData);
                 }
             }
+        }
+    }
+
+    function handleClickActions(view) {
+        var $elements = $(view).find(".tf_" + presenter.type + "_image");
+
+        $elements.on('touchstart', function (e) {
+            e.preventDefault();
+
+            presenter.lastEvent = e;
+        });
+
+        $elements.on('touchend', function (e) {
+            e.preventDefault();
+            if ( presenter.lastEvent.type != e.type ) {
+                var eventData = event.touches[0] || event.changedTouches[0];
+
+                clickLogic($(eventData.target).parent());
+            }
+        });
+
+        $elements.click(function () {
+            clickLogic(this);
         });
     }
 

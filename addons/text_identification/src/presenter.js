@@ -6,6 +6,7 @@ function Addontext_identification_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
+    presenter.lastEvent = null;
 
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -67,6 +68,19 @@ function Addontext_identification_create(){
                 }
             }
         );
+
+        $element.on('touchstart', function (e) {
+            e.preventDefault();
+
+            presenter.lastEvent = e;
+        });
+
+        $element.on('touchend', function (e) {
+            e.preventDefault();
+            if ( presenter.lastEvent.type != e.type ) {
+                presenter.clickHandler();
+            }
+        });
 
         $element.click(presenter.clickHandler);
     }
