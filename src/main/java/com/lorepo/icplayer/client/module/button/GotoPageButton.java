@@ -19,6 +19,8 @@ class GotoPageButton extends PushButton{
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 	
+					event.stopPropagation();
+					event.preventDefault();
 					playerCommands.gotoPage(pageName);
 				}
 			});

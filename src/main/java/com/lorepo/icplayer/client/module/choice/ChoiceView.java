@@ -58,7 +58,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			setEnabled(false);
 		}
 	}
-
+	    
 	@Override
 	public List<IOptionDisplay> getOptions() {
 		return optionWidgets;

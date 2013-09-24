@@ -47,6 +47,8 @@ public class ImageGapView extends Image implements IDisplay {
 		
 		addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 				if(listener != null && !disabled){
 					listener.onClicked();
 				}

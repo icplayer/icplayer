@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.text;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
@@ -40,6 +42,12 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 				}
 			});
 		}
+		
+		addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+			}
+		});
 	}
 
 	public boolean hasId(String id){

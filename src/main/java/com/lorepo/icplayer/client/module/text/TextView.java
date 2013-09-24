@@ -102,6 +102,8 @@ public class TextView extends HTML implements IDisplay{
 					
 					@Override
 					public void onClick(ClickEvent event) {
+						event.stopPropagation();
+						event.preventDefault();
 						if(listener != null){
 							listener.onLinkClicked(info.getType(), info.getHref());
 						}

@@ -33,6 +33,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 			
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
+					event.stopPropagation();
 					if(listener != null && !disabled && isWorkMode){
 						listener.onGapClicked(gapInfo.getId());
 					}

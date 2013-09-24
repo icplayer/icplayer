@@ -77,6 +77,8 @@ public class OrderingView extends Composite implements IDisplay{
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 				onWidgetClicked(widget);
 			}
 		});

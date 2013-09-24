@@ -88,6 +88,8 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 				fireClickEvent(id);
 			}
 		});

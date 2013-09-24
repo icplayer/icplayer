@@ -16,6 +16,8 @@ class PopupButton extends PushButton{
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 				if (!view.isErrorCheckingMode()) {
 					pageService.showPopup(popupName);
 				}

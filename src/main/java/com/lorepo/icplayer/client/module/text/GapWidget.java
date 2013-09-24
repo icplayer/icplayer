@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.text;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -22,13 +24,17 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		onAttach();
 		
 		if(listener != null){
-			
 			addBlurHandler(new BlurHandler() {
 				public void onBlur(BlurEvent event) {
 					listener.onValueChanged(gapInfo.getId(), getText());
 				}
 			});
 		}
+		addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+			}
+		});
 	}
 	
 	public boolean hasId(String id){

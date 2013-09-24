@@ -20,6 +20,8 @@ class StandardButton extends PushButton{
 
 		addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 				sendEvent();
 			}
 		});
@@ -27,9 +29,7 @@ class StandardButton extends PushButton{
 	}
 
 	protected void sendEvent() {
-
 		String code = module.getOnClick().trim();
-		
 		if(!code.isEmpty() && services != null){
 			services.getCommands().executeEventCode(code);
 		}

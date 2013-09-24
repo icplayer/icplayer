@@ -1,8 +1,11 @@
 package com.lorepo.icplayer.client.ui;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
@@ -18,6 +21,7 @@ public class PlayerView extends VerticalPanel{
 	
 	public PlayerView(){
 		initUI();
+		DOM.sinkEvents(this.getElement(), Event.ONCLICK);
 	}
 
 
@@ -34,6 +38,24 @@ public class PlayerView extends VerticalPanel{
 	}
 	
 	
+	@Override
+	public void onBrowserEvent(Event event) {
+
+		final int eventType = DOM.eventGetType(event);
+		event.preventDefault();
+		event.stopPropagation();
+
+		if (Event.ONCLICK == eventType) {
+			toggleNavigationPanels();
+		}
+	}
+	
+	
+	private void toggleNavigationPanels() {
+		JavaScriptUtils.log("toggle panels");
+	}
+
+
 	public void showHeader(){
 		
 		headerView = new PageView("ic_header");

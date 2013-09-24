@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
@@ -42,7 +43,14 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		}
 	}
 
-
+	@Override
+	public void onBrowserEvent(Event event) {
+	    if( DOM.eventGetType(event) == Event.ONCLICK){
+	    	event.stopPropagation();
+	    }
+	    super.onBrowserEvent(event);
+	}
+	
 	protected void onAttach() {
 		
 		super.onAttach();

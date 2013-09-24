@@ -20,10 +20,9 @@ class PrevPageButton extends PushButton{
 			}
 	
 			addClickHandler(new ClickHandler() {
-				
-				@Override
 				public void onClick(ClickEvent event) {
-	
+					event.stopPropagation();
+					event.preventDefault();
 					playerCommands.prevPage();
 				}
 			});
