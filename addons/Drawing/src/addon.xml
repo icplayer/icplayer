@@ -5,5 +5,6 @@
 		<property name='Color' type='string'/>
 		<property name='Thickness' type='string'/>
 		<property name='Border' type='string'/>
+		<property name='Opacity' type='string'/>
 	</model>
 </addon>
