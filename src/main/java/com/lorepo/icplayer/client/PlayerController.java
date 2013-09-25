@@ -50,6 +50,7 @@ public class PlayerController implements IPlayerController{
 		
 		contentModel = content;
 		playerView = view;
+		playerView.setPlayerController(this);
 		sessionId = UUID.uuid();
 		scoreService = new ScoreService();
 		stateService = new StateService();

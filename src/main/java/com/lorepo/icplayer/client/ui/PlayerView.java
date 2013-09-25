@@ -3,20 +3,24 @@ package com.lorepo.icplayer.client.ui;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
 public class PlayerView extends VerticalPanel{
 
+	private IPlayerController playerController;
 	private HorizontalPanel contentPanel;
 	private PageView pageView1;
 	private PageView pageView2;
 	private PageView headerView;
 	private PageView footerView;
 	private WaitDialog	waitDlg;
+	private NavigationButton nextPageButton = new NavigationButton("ic_navi_panel_next");
+	private NavigationButton prevPageButton = new NavigationButton("ic_navi_panel_prev");
 	
 	
 	public PlayerView(){
@@ -35,6 +39,8 @@ public class PlayerView extends VerticalPanel{
 		contentPanel.addStyleName("ic_content");
 		contentPanel.add(pageView1);
 		add(contentPanel);
+		prevPageButton.setAutoHideEnabled(false);
+		nextPageButton.setAutoHideEnabled(false);
 	}
 	
 	
@@ -42,17 +48,35 @@ public class PlayerView extends VerticalPanel{
 	public void onBrowserEvent(Event event) {
 
 		final int eventType = DOM.eventGetType(event);
-		event.preventDefault();
+//		event.preventDefault();
 		event.stopPropagation();
 
 		if (Event.ONCLICK == eventType) {
-			toggleNavigationPanels();
+			//toggleNavigationPanels();
 		}
 	}
 	
 	
 	private void toggleNavigationPanels() {
-		JavaScriptUtils.log("toggle panels");
+		if(prevPageButton.isShowing()){
+			prevPageButton.hide();
+			nextPageButton.hide();
+		}
+		else{
+			final int left = getAbsoluteLeft();
+			final int top = getAbsoluteLeft();
+			final int right = left + getOffsetWidth();
+			prevPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+				public void setPosition(int offsetWidth, int offsetHeight) {
+					prevPageButton.setPopupPosition(left, top);
+				}
+	        });
+			nextPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+				public void setPosition(int offsetWidth, int offsetHeight) {
+					nextPageButton.setPopupPosition(right-offsetWidth, top);
+				}
+	        });
+		}
 	}
 
 
@@ -118,5 +142,10 @@ public class PlayerView extends VerticalPanel{
 		if(pageView2 != null){
 			contentPanel.remove(pageView2);
 		}
+	}
+
+
+	public void setPlayerController(IPlayerController playerController) {
+		this.playerController = playerController;
 	}
 }

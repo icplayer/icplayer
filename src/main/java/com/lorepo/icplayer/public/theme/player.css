@@ -28,6 +28,30 @@ hr, table, fieldset {
 	opacity:0.75;
 }
 
+.ic_navi_panel_next{
+	width:	100px;
+	height:	100px;
+	background-color: white;
+	background-image	:url('images/next_page.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+	opacity:0.75;
+	border-radius: 50px;
+}
+
+.ic_navi_panel_prev{
+	width:	100px;
+	height:	100px;
+	background-color: white;
+	background-image	:url('images/prev_page.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+	opacity:0.75;
+	border-radius: 50px;
+}
+
 .ic_audio-load{
 	background-image	:url('images/wait_animation.gif');
 	background-repeat	:no-repeat;
