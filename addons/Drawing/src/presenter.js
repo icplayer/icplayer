@@ -115,18 +115,34 @@ function AddonDrawing_create() {
         // TOUCH
         tmp_canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
+            presenter.zoom = $('#_icplayer').css('zoom');
             presenter.isStarted = true;
             tmp_canvas.addEventListener('touchmove', presenter.onPaint);
             presenter.mouse.x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
             presenter.mouse.y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+            if (presenter.zoom !== 1) {
+                presenter.mouse.x = presenter.mouse.x * (1 / presenter.zoom);
+                presenter.mouse.y = presenter.mouse.y * (1 / presenter.zoom);
+            }
+
             presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
             presenter.onPaint(e);
         }, false);
 
         tmp_canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
-            presenter.mouse.x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
-            presenter.mouse.y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+            presenter.zoom = $('#_icplayer').css('zoom');
+            var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+            var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+            if (presenter.zoom !== 1) {
+                x = x * (1 / presenter.zoom);
+                y = y * (1 / presenter.zoom);
+            }
+
+            presenter.mouse.x = x;
+            presenter.mouse.y = y;
         }, false);
 
         tmp_canvas.addEventListener('touchend', function(e) {
@@ -139,18 +155,36 @@ function AddonDrawing_create() {
 
         // MOUSE
         tmp_canvas.addEventListener('mousemove', function(e) {
-            presenter.mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            presenter.mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+            presenter.zoom = $('#_icplayer').css('zoom');
+
+            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+            if (presenter.zoom !== 1) {
+                x = x * (1 / presenter.zoom);
+                y = y * (1 / presenter.zoom);
+            }
+
+            presenter.mouse.x = x;
+            presenter.mouse.y = y;
+
         }, false);
 
         tmp_canvas.addEventListener('mousedown', function(e) {
+            presenter.zoom = $('#_icplayer').css('zoom');
+
             tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
             presenter.isStarted = true;
 
-            presenter.mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            presenter.mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
 
-            presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+            if (presenter.zoom !== 1) {
+                x = x * (1 / presenter.zoom);
+                y = y * (1 / presenter.zoom);
+            }
+
+            presenter.points.push({x: x, y: y});
 
             presenter.onPaint(e);
         }, false);
