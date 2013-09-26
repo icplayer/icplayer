@@ -5,6 +5,6 @@
     cursor: crosshair;
 }
 
-.drawing {
-
+.drawing:active {
+    cursor: crosshair;
 }

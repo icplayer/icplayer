@@ -458,10 +458,12 @@ function AddonDrawing_create() {
             return;
         }
 
-        var img = presenter.configuration.context.getImageData(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
+        var c = presenter.$view.find("canvas")[0];
+        var data = c.toDataURL("image/png");
 
         return JSON.stringify({
-            pixels: img.data,
+            isStarted: presenter.isStarted,
+            data: data,
             isVisible: presenter.configuration.isVisible
         });
     };
@@ -471,19 +473,17 @@ function AddonDrawing_create() {
             return;
         }
 
-        var pixels = JSON.parse(state).pixels,
-            isVisible = JSON.parse(state).isVisible;
+        var data = JSON.parse(state).data;
 
-        var img = presenter.configuration.context.getImageData(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
-        var pix = img.data;
+        var savedImg = new Image();
 
-        for (var p in pixels) {
-            pix[p] = pixels[p];
+        savedImg.onload = function() {
+            presenter.configuration.context.drawImage(savedImg, 0, 0);
         }
+        savedImg.src = data;
 
-        presenter.configuration.context.putImageData(img, 0, 0);
-
-        presenter.configuration.isVisible = isVisible;
+        presenter.isStarted = JSON.parse(state).isStarted;
+        presenter.configuration.isVisible = JSON.parse(state).isVisible;
     };
 
     return presenter;
