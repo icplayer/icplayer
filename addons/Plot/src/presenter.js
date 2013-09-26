@@ -1,9 +1,12 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.9';
+        this.VERSION = '1.1.10';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
+        this.STATE_NULL = 0;
+        this.STATE_SELECT_POINT = 1;
+        this.STATE_DESELECT_POINT = 0;
         this.INFINITY_NEGATIVE_VALUE = -2147483647;
         this.INFINITY_POSITIVE_VALUE = 2147483647;
         this.ASYMPTOTE_MINIMUM_TRIAL = 3;
@@ -373,7 +376,7 @@ function AddonPlot_create(){
                     plot.stateChanged({
                         item:'point_'+pvx+'_'+pvy,
                         value:0,
-                        score:plot.isCorrectPoint(pvx, pvy, 0)
+                        score:plot.getPointEventScore(pvx, pvy, plot.STATE_DESELECT_POINT)
                     });
                     return false;
                 }
@@ -405,7 +408,7 @@ function AddonPlot_create(){
                     plot.stateChanged({
                         item:'point_'+pvx+'_'+pvy,
                         value:1,
-                        score:plot.isCorrectPoint(pvx, pvy, 1)
+                        score:plot.getPointEventScore(pvx, pvy, plot.STATE_SELECT_POINT)
                     });
                 }
             }
@@ -482,7 +485,7 @@ function AddonPlot_create(){
                         plot.stateChanged({
                             item:'plot_'+plot.expressions[id].id,
                             value:0,
-                            score: plot.isCorrectPlot(plot.expressions[id].id)
+                            score: plot.getPlotEventScore(plot.expressions[id].id)
                         });
                     } else {
                         refObj.attr('isselected', 1);
@@ -493,7 +496,7 @@ function AddonPlot_create(){
                         plot.stateChanged({
                             item:'plot_'+plot.expressions[id].id,
                             value:1,
-                            score: plot.isCorrectPlot(plot.expressions[id].id)
+                            score: plot.getPlotEventScore(plot.expressions[id].id)
                         });
                     }
                 });
@@ -1204,14 +1207,20 @@ function AddonPlot_create(){
             };
         };
 
-        this.isCorrectPlot = function(pid) {
+        this.getPlotEventScore = function(pid) {
             if(!this.isActivity) {
                 return this.STATE_NOT_ACTIVITY;
             }
             var state = this.STATE_INCORRECT;
             $.each(this.expressions, function(idx, val) {
                 if(val.id == pid) {
-                    state = val.selected == val.correctAnswer ? plot.STATE_CORRECT : plot.STATE_INCORRECT;
+                    if(val.selected == val.correctAnswer && val.correctAnswer == true) {
+                        state = plot.STATE_CORRECT;
+                    } else if((val.correctAnswer == true && val.selected == false) || (val.correctAnswer == false && val.selected == false)) {
+                        state = plot.STATE_NULL;
+                    } else if(val.correctAnswer == false && val.selected == true) {
+                        state = plot.STATE_INCORRECT;
+                    }
                     return false;
                 }
             });
@@ -1251,9 +1260,9 @@ function AddonPlot_create(){
 
             return isCorrect;
         };
-        //state 1 - point was selected, 0 - deselected
-        this.isCorrectPoint = function(vx, vy, state) {
-            var currentState = false;
+        this.getPointEventScore = function(vx, vy, state) {
+            var currentState = this.STATE_NULL;
+            var pointInDefinedPoints = false;
             if(!this.isActivity || (this.points.length == 0 && this.freePoints)) {
                 return this.STATE_NOT_ACTIVITY;
             }
@@ -1263,23 +1272,24 @@ function AddonPlot_create(){
                 //we have this point
                 if(val.x == vx && val.y == vy) {
                     //check if should be selected or not
-                    if((val.correct && state == 1) || (!val.correct && state == 0)) {
+                    if((val.correct && state == plot.STATE_SELECT_POINT) || (!val.correct && state == plot.STATE_DESELECT_POINT)) {
                         currentState = plot.STATE_CORRECT;
-                    } else {
+                    } else if(state == plot.STATE_SELECT_POINT) {
                         currentState = plot.STATE_INCORRECT;
+                    } else {
+                        currentState = plot.STATE_NULL;
                     }
-
+                    pointInDefinedPoints = true;
                     return false;
                 }
-            })
+            });
 
-            if(currentState !== false) {
+            if(pointInDefinedPoints) {
                 return currentState;
+            } else {
+                return state == this.STATE_SELECT_POINT ? this.STATE_INCORRECT : this.STATE_NULL;
             }
-
-            //when point not in model is selected than result is always incorrect. When deselected the result is correct
-            return state == 1 ? this.STATE_INCORRECT : this.STATE_CORRECT;
-        }
+        };
 
         this.isCorrectVariable = function(pid, variable) {
             var state = this.STATE_INCORRECT;
@@ -1364,14 +1374,16 @@ function AddonPlot_create(){
         plot.enableUI(false);
 
         $.each(plot.expressions, function(idx, val) {
-            if(val.selectable && val.correctAnswer != val.selected && val.touched) {
-                //mark error
-                plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
-                plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
-            } else if(val.selectable && val.correctAnswer == true && val.touched) {
-                //mark as correct only plots which are selectable, touched and it\'s correct answer is true (selected)
-                plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
-                plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
+            if(val.selectable && val.touched) {
+                if(val.correctAnswer == false && val.selected == true) {
+                    //mark error
+                    plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
+                    plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
+                } else if(val.correctAnswer == true && val.selected == true) {
+                    //mark as correct only plots which are selectable, selected, touched and it\'s correct answer is true (selected)
+                    plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
+                    plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
+                }
             }
             res = plot.plotVariablesResult(idx);
             if(res.todo != res.done && res.todo > 0 && res.touched) {
@@ -1485,7 +1497,7 @@ function AddonPlot_create(){
         var errors = 0;
         var res;
         $.each(plot.expressions, function(idx, val) {
-            if(val.selectable && val.correctAnswer != val.selected && val.touched) {
+            if(val.selectable && val.correctAnswer == false && val.selected == true && val.touched) {
                 errors++;
             }
             //check variables

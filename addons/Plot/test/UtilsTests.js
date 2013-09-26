@@ -1,4 +1,4 @@
-TestCase("Utils and helpers", {
+TestCase("[Plot] Utils and helpers", {
     setUp: function() {
         this.presenter = AddonPlot_create();
     },

@@ -1,4 +1,4 @@
-TestCase("Event sending", {
+TestCase("[Plot] Event sending", {
     setUp: function() {
         this.presenter = AddonPlot_create();
         this.presenter.eventBus = {
