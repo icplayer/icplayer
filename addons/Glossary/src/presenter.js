@@ -169,8 +169,8 @@ function AddonGlossary_create(){
             var $overlay = $(".ui-widget-overlay");
             $(presenter.$view.closest(".ui-widget-overlay")).remove();
             if (isPreview) $(".ic_page_panel").children(".ic_page").children().last().after($overlay);
-            else $(".ui-dialog").before($overlay);
-            $overlay.css({ height: presentationHeight});
+            else $dialog.before($overlay);
+       //     $overlay.css({ height: (presentationHeight+43)});
         }
 
         // due to the inability to close the dialog, when any video is under close button
@@ -191,6 +191,11 @@ function AddonGlossary_create(){
     };
 
     presenter.show = function(id) {
+        // Check if
+        var pageClass = "." + $(presenter.$ICPage).attr('class');
+        if (!$(pageClass).length > 0) {
+            return
+        }
         var dialog = presenter.dialog;
         var dialogData = presenter.getDialogDataById(id);
         dialog.dialog("option", "title", dialogData.title);

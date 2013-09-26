@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <project name="Commons" basedir="." default="Addon.test">
-    <property name="version" value="1.8" />
+    <property name="version" value="1.8.1" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="" />
     <import file="../tools/targets.xml" />
@@ -37,6 +37,7 @@
  * - Image Viewer (partial)
  * - Helpers
  * - String Utils
+ * - Text Parser Proxy
  */</concat>
 
     </target>

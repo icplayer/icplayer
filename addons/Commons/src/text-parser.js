@@ -31,6 +31,7 @@
         var responseText = this.parser.parse(text),
             replacement = 'href=\"javascript:void(0)\"';
 
+      //  return responseText;
         return StringUtils.replaceAll(responseText, "href='#'", replacement);
     };
 
