@@ -15,7 +15,7 @@ errorCode:"FL04"};if(-1!==a[e].search("-")){var g=a[e].split("-")[1],h=ModelVali
 ModelValidationUtils.removeDuplicatesFromArray(d);return{isError:!1,list:d}}}})(window);(function(e){e.StringUtils={replaceAll:function(a,b,c){b=b.replace(/([.?*+^$[\]\\(){}|-])/g,"\\$1");return a.replace(RegExp(b,"g"),c)},startsWith:function(a,b){return a.match("^"+b)==b},endsWith:function(a,b){return-1!==a.indexOf(b,a.length-b.length)}}})(window);(function(e){e.TextParserProxy=function(a){if(null==a)return null;this.parser=a};e.TextParserProxy.prototype.parse=function(a){a=this.parser.parse(a);return StringUtils.replaceAll(a,"href='#'",'href="javascript:void(0)"')};e.TextParserProxy.prototype.connectLinks=function(a){return this.parser.connectLinks(a)}})(window);
 /**
  * Player Addons Commons library
- * @version 1.8
+ * @version 1.8.1
  * Components:
  * - Model Validation Utils
  * - Loading Screen
@@ -26,4 +26,5 @@ ModelValidationUtils.removeDuplicatesFromArray(d);return{isError:!1,list:d}}}})(
  * - Image Viewer (partial)
  * - Helpers
  * - String Utils
+ * - Text Parser Proxy
  */

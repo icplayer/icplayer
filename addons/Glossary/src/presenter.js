@@ -94,8 +94,7 @@ function AddonGlossary_create(){
         var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
         var isPopup =  $(presenter.$ICPage).is('.ic_popup_page');
 
-        if (isPreview)
-        {
+        if (isPreview) {
             scrollTop = $(presenter.$ICPage).scrollTop();
             if (scrollTop > 0)
                 previewFrame = $(presenter.$ICPage).parent().parent().parent().offset().top - $(".gwt-DialogBox").offset().top;
@@ -103,8 +102,7 @@ function AddonGlossary_create(){
             presentationPosition.top = 0;
         }
 
-        if (isPopup)
-        {
+        if (isPopup) {
             scrollTop = $(presenter.$ICPage).scrollTop();
             popupTop =  presentationPosition.top;
             if ($(top.window).scrollTop() > 0) presentationPosition.top = 0;
@@ -120,13 +118,11 @@ function AddonGlossary_create(){
             });
         }
 
-        if (isPopup || isPreview)
-        {
+        if (isPopup || isPreview) {
             popupLeft = presentationPosition.left;
             topPosition = parseInt((availableHeight - dialogHeight) / 2, 10);
         }
-        else
-        {
+        else {
             topPosition = parseInt((windowHeight - dialogHeight) / 2, 10) ;
         }
 
@@ -148,8 +144,7 @@ function AddonGlossary_create(){
                 topPosition = $(window).height() - iframeDialogHeight;
             }
         }
-        if ($(window).scrollTop() > popupTop && isPopup)
-        {
+        if ($(window).scrollTop() > popupTop && isPopup) {
             topPosition += ($(window).scrollTop() - popupTop);
         }
         dialogTop = (topPosition + scrollTop + previewFrame);
@@ -164,13 +159,16 @@ function AddonGlossary_create(){
             color: 'black'
         });
 
-        if(isPopup || isPreview)
-        {   // For Preview and Popup dialog is moved to appropriate page
+        if(isPopup || isPreview) {
+            // For Preview and Popup dialog is moved to appropriate page
             var $overlay = $(".ui-widget-overlay");
             $(presenter.$view.closest(".ui-widget-overlay")).remove();
-            if (isPreview) $(".ic_page_panel").children(".ic_page").children().last().after($overlay);
-            else $dialog.before($overlay);
-       //     $overlay.css({ height: (presentationHeight+43)});
+            if (isPreview) {
+                $(".ic_page_panel").children(".ic_page").children().last().after($overlay);
+            }
+            else {
+                $dialog.before($overlay);
+            }
         }
 
         // due to the inability to close the dialog, when any video is under close button
@@ -191,7 +189,7 @@ function AddonGlossary_create(){
     };
 
     presenter.show = function(id) {
-        // Check if
+        // due to event propagation player issue, it's necessary to make sure page with glossary still exist.
         var pageClass = "." + $(presenter.$ICPage).attr('class');
         if (!$(pageClass).length > 0) {
             return
@@ -228,16 +226,16 @@ function AddonGlossary_create(){
 
         var $popup = $('#icplayer').parent().find('.ic_popup');
         var dialogWidget = dialog.dialog("widget");
-        if ($popup.is('.ic_popup'))
-        {   // Dialog must be placed in popup page
+        if ($popup.is('.ic_popup')){
+            // Dialog must be placed in popup page
             $popup.children().last().after(dialogWidget);
         }
-        else if ($(".gwt-DialogBox").is('.gwt-DialogBox') )
-        {   // Dialog must be placed in preview page
+        else if ($(".gwt-DialogBox").is('.gwt-DialogBox') ) {
+            // Dialog must be placed in preview page
             $(".ic_page_panel").children(".ic_page").children().last().after(dialogWidget);
         }
-        else
-        { // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
+        else {
+             // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
              $('#icplayer').after(dialogWidget);
         }
         presenter.dialog = dialog;

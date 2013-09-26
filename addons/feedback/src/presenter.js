@@ -46,10 +46,10 @@ function Addonfeedback_create() {
     };
 
     presenter.setDefaultResponse = function () {
-   //     if (!presenter.preview) {
-     //       presenter.feedbackContainer.find('.response').removeClass('visible');
-     //       presenter.feedbackContainer.find('.default_response').addClass('visible');
-  //      }
+        if (!presenter.preview) {
+            presenter.feedbackContainer.find('.response').removeClass('visible');
+            presenter.feedbackContainer.find('.default_response').addClass('visible');
+        }
         if (presenter.preview || !presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').css('opacity', 0);
             presenter.feedbackContainer.find('.default_response').css('opacity', 1);
@@ -57,28 +57,20 @@ function Addonfeedback_create() {
             presenter.feedbackContainer.find('.response:not(.default_response)').animate({opacity: 0.0}, {queue: false});
             presenter.feedbackContainer.find('.default_response').animate({opacity: 1.0}, {queue: false});
         }
-
         presenter.currentStateDefault = true;
         presenter.currentStateId = null;
     };
 
     presenter.setResponse = function (id) {
-  //      var $feedbackEnable = presenter.feedbackContainer.find('.response_' + id);
-
-  //      if (!presenter.preview) {
-//            presenter.feedbackContainer.find('.response').removeClass('visible');
-//            presenter.feedbackContainer.find('.response_' + id).addClass('visible');
- //       }
+        if (!presenter.preview) {
+            presenter.feedbackContainer.find('.response').removeClass('visible');
+            presenter.feedbackContainer.find('.response_' + id).addClass('visible');
+        }
         if (presenter.preview || !presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').css('opacity', 0);
-   //         presenter.feedbackContainer.find('.clone').remove();
-   //         presenter.feedbackContainer.find('.response_' + id).css('opacity', 1);
             presenter.feedbackContainer.find('.response_' + id).appendTo(presenter.feedbackContainer).css('opacity', 1);
         } else if (presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').animate({opacity: 0.0}, {queue: false});
-  //          presenter.feedbackContainer.find('.clone').remove();
- //           presenter.feedbackContainer.find('.response_' + id).animate({opacity: 1.0}, {queue: false});
-//            presenter.feedbackContainer.find('.response_' + id).clone(true).appendTo(presenter.feedbackContainer).animate({opacity: 1.0}, {queue: false}).addClass('clone');
             presenter.feedbackContainer.find('.response_' + id).appendTo(presenter.feedbackContainer).animate({opacity: 1.0}, {queue: false});
         }
 
