@@ -226,6 +226,7 @@ function Addonvideo_create() {
 
         if (!presenter.isVisibleByDefault) presenter.hide();
 
+        this.video.addEventListener('click', function(e){ e.stopPropagation(); });
         this.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
         this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
         this.video.addEventListener('play', function() { presenter.videoState = presenter.VIDEO_STATE.PLAYING; }, false);
