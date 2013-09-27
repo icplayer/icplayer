@@ -14,7 +14,7 @@ function AddonDrawing_create() {
         var g = parseInt(hex.substring(2,4), 16);
         var b = parseInt(hex.substring(4,6), 16);
 
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')';
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
     };
 
     presenter.colourNameToHex = function(colour) {
@@ -116,6 +116,9 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
             presenter.zoom = $('#_icplayer').css('zoom');
+            if (presenter.zoom == "" || presenter.zoom == undefined) {
+                presenter.zoom = 1;
+            }
             presenter.isStarted = true;
             tmp_canvas.addEventListener('touchmove', presenter.onPaint);
             presenter.mouse.x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
@@ -133,6 +136,9 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
             presenter.zoom = $('#_icplayer').css('zoom');
+            if (presenter.zoom == "" || presenter.zoom == undefined) {
+                presenter.zoom = 1;
+            }
             var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
             var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
 
@@ -156,6 +162,9 @@ function AddonDrawing_create() {
         // MOUSE
         tmp_canvas.addEventListener('mousemove', function(e) {
             presenter.zoom = $('#_icplayer').css('zoom');
+            if (presenter.zoom == "" || presenter.zoom == undefined) {
+                presenter.zoom = 1;
+            }
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
             var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
@@ -172,6 +181,9 @@ function AddonDrawing_create() {
 
         tmp_canvas.addEventListener('mousedown', function(e) {
             presenter.zoom = $('#_icplayer').css('zoom');
+            if (presenter.zoom == "" || presenter.zoom == undefined) {
+                presenter.zoom = 1;
+            }
 
             tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
             presenter.isStarted = true;
@@ -217,7 +229,7 @@ function AddonDrawing_create() {
 
         O01: 'Property opacity cannot be empty',
         O02: 'Property opacity cannot be smaller than 0',
-        O03: 'Property opacity cannot be bigger than 100'
+        O03: 'Property opacity cannot be bigger than 1'
     };
 
     presenter.run = function(view, model) {
@@ -238,6 +250,9 @@ function AddonDrawing_create() {
 
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
+        presenter.model = model;
+
+        presenter.$view.onselectstart = function(){ return false; }
 
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
@@ -425,12 +440,12 @@ function AddonDrawing_create() {
             return returnErrorObject('O02');
         }
 
-        if (opacity > 100) {
+        if (opacity > 1) {
             return returnErrorObject('O03');
         }
 
         return {
-            opacity: opacity / 100,
+            opacity: opacity,
             isValid: true
         };
     };
@@ -473,6 +488,9 @@ function AddonDrawing_create() {
     presenter.reset = function() {
         presenter.configuration.context.clearRect(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
         presenter.isStarted = false;
+
+        presenter.setColor(presenter.model.Color);
+        presenter.setThickness(presenter.model.Thickness);
     };
 
     /*presenter.getErrorCount = function() {
@@ -492,10 +510,18 @@ function AddonDrawing_create() {
             return;
         }
 
-        var c = presenter.$view.find("canvas")[0];
-        var data = c.toDataURL("image/png");
+        var isPencil = presenter.configuration.isPencil,
+            color = presenter.configuration.color,
+            pencilThickness = presenter.configuration.pencilThickness,
+            eraserThickness = presenter.configuration.eraserThickness,
+            c = presenter.$view.find("canvas")[0],
+            data = c.toDataURL("image/png");
 
         return JSON.stringify({
+            isPencil: isPencil,
+            color: color,
+            pencilThickness: pencilThickness,
+            eraserThickness: eraserThickness,
             isStarted: presenter.isStarted,
             data: data,
             isVisible: presenter.configuration.isVisible
@@ -507,14 +533,27 @@ function AddonDrawing_create() {
             return;
         }
 
-        var data = JSON.parse(state).data;
-
-        var savedImg = new Image();
+        var data = JSON.parse(state).data,
+            isPencil = JSON.parse(state).isPencil,
+            color = JSON.parse(state).color,
+            pencilThickness = JSON.parse(state).pencilThickness,
+            eraserThickness = JSON.parse(state).eraserThickness,
+            savedImg = new Image();
 
         savedImg.onload = function() {
             presenter.configuration.context.drawImage(savedImg, 0, 0);
         }
         savedImg.src = data;
+
+        presenter.configuration.pencilThickness = pencilThickness;
+        presenter.configuration.eraserThickness = eraserThickness;
+
+        if (isPencil) {
+            presenter.setColor(color);
+        } else {
+            presenter.configuration.color = color;
+            presenter.setEraserOn();
+        }
 
         presenter.isStarted = JSON.parse(state).isStarted;
         presenter.configuration.isVisible = JSON.parse(state).isVisible;

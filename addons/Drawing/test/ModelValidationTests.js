@@ -9,7 +9,7 @@ TestCase("[Drawing] Model validation", {
             Color: "",
             Thickness: "2",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -38,7 +38,7 @@ TestCase("[Drawing] Model validation", {
             Color: "#12345",
             Thickness: "2",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
         
         validatedModel = this.presenter.validateModel(model);
@@ -55,7 +55,7 @@ TestCase("[Drawing] Model validation", {
             Color: "ugabuga_color",
             Thickness: "2",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
 
         validatedModel = this.presenter.validateModel(model);
@@ -69,7 +69,7 @@ TestCase("[Drawing] Model validation", {
             Color: "Pink",
             Thickness: "",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -83,7 +83,7 @@ TestCase("[Drawing] Model validation", {
             Color: "Pink",
             Thickness: "-3",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
         
         var validatedModel = this.presenter.validateModel(model);
@@ -97,7 +97,7 @@ TestCase("[Drawing] Model validation", {
             Color: "Pink",
             Thickness: "41",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
         
         var validatedModel = this.presenter.validateModel(model);
@@ -111,7 +111,7 @@ TestCase("[Drawing] Model validation", {
             Color: "Pink",
             Thickness: "2",
             Border: "",
-            Opacity: 100
+            Opacity: 1
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -125,7 +125,7 @@ TestCase("[Drawing] Model validation", {
             Color: "Pink",
             Thickness: "2",
             Border: "-1",
-            Opacity: 100
+            Opacity: 1
         };
         
         var validatedModel = this.presenter.validateModel(model);
@@ -139,7 +139,7 @@ TestCase("[Drawing] Model validation", {
             Color: "Pink",
             Thickness: "2",
             Border: "6",
-            Opacity: 100
+            Opacity: 1
         };
         
         var validatedModel = this.presenter.validateModel(model);
