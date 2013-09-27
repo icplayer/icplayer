@@ -50,22 +50,17 @@ function AddonGlossary_create(){
         }
     };
 
-    presenter.getDialogDataById = function(id) {
-        var model = this.model;
-        var listOfWords = model["List of words"];
-        var dialogData = {
-            "title" : "",
-            "description" : ""
-        };
-        for(var i = 0; i < listOfWords.length; i++) {
-            var elementID = listOfWords[i].ID;
-            if(elementID == id) {
-                dialogData.title = listOfWords[i].Text;
-                dialogData.description = listOfWords[i].Description;
-                return dialogData;
+    presenter.getDialogDataById = function(words, wordID) {
+        for(var i = 0; i < words.length; i++) {
+            if(words[i].ID == wordID) {
+                return {
+                    title: words[i].Text,
+                    description: words[i].Description
+                };
             }
         }
-        return dialogData;
+
+        return undefined;
     };
 
     presenter.findICPage = function () {
@@ -195,7 +190,11 @@ function AddonGlossary_create(){
             return
         }
         var dialog = presenter.dialog;
-        var dialogData = presenter.getDialogDataById(id);
+        var dialogData = presenter.getDialogDataById(presenter.model["List of words"], id);
+
+        // don't display dialog if glossary hasn't needed ID
+        if (!dialogData) return;
+
         dialog.dialog("option", "title", dialogData.title);
         presenter.addDescription(dialog, dialogData.description);
         dialog.dialog("open");
