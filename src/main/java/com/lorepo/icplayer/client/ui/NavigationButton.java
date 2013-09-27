@@ -1,13 +1,15 @@
 package com.lorepo.icplayer.client.ui;
 
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class NavigationButton extends PopupPanel{
 
+	private ClickHandler clickHandler = null;
+	
 	public NavigationButton(String styleName) {
 		super(true);
 		setStyleName(styleName);
@@ -22,8 +24,12 @@ public class NavigationButton extends PopupPanel{
 		event.preventDefault();
 		event.stopPropagation();
 
-		if (Event.ONCLICK == eventType) {
-			JavaScriptUtils.log("clicked");
+		if (Event.ONCLICK == eventType && clickHandler != null) {
+			clickHandler.onClick(null);
 		}
+	}
+	
+	public void addClickHandler(ClickHandler handler){ 
+		this.clickHandler = handler;
 	}
 }

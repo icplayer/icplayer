@@ -1,7 +1,10 @@
 package com.lorepo.icplayer.client.ui;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
@@ -40,14 +43,40 @@ public class PlayerView extends VerticalPanel{
 		contentPanel.add(pageView1);
 		add(contentPanel);
 		prevPageButton.setAutoHideEnabled(false);
+		prevPageButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				prevPage();
+			}
+		});
 		nextPageButton.setAutoHideEnabled(false);
+		nextPageButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				nextPage();
+			}
+		});
 	}
 	
 	
+	protected void nextPage() {
+		if(playerController != null){
+			playerController.switchToNextPage();
+			hideNavigationPanels();
+		}
+	}
+
+	protected void prevPage() {
+		if(playerController != null){
+			playerController.switchToPrevPage();
+			hideNavigationPanels();
+		}
+	}
+
+
 	@Override
 	public void onBrowserEvent(Event event) {
 
 		final int eventType = DOM.eventGetType(event);
+		// Can use prevent default because video stops working then
 //		event.preventDefault();
 		event.stopPropagation();
 
@@ -59,24 +88,32 @@ public class PlayerView extends VerticalPanel{
 	
 	private void toggleNavigationPanels() {
 		if(prevPageButton.isShowing()){
-			prevPageButton.hide();
-			nextPageButton.hide();
+			hideNavigationPanels();
 		}
 		else{
 			final int left = getAbsoluteLeft();
-			final int top = getAbsoluteLeft();
 			final int right = left + getOffsetWidth();
+			final int height = Math.min(getOffsetHeight(), Window.getClientHeight());
+			final int scrollPos = Window.getScrollTop();
 			prevPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
+					int top = (height-offsetHeight)/2 + scrollPos;
 					prevPageButton.setPopupPosition(left, top);
 				}
 	        });
 			nextPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
+					int top = (height-offsetHeight)/2 + scrollPos;
 					nextPageButton.setPopupPosition(right-offsetWidth, top);
 				}
 	        });
 		}
+	}
+
+
+	private void hideNavigationPanels() {
+		prevPageButton.hide();
+		nextPageButton.hide();
 	}
 
 
