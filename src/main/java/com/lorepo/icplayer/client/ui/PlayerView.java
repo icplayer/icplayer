@@ -81,7 +81,7 @@ public class PlayerView extends VerticalPanel{
 		event.stopPropagation();
 
 		if (Event.ONCLICK == eventType) {
-			//toggleNavigationPanels();
+//			toggleNavigationPanels();
 		}
 	}
 	
@@ -92,19 +92,19 @@ public class PlayerView extends VerticalPanel{
 		}
 		else{
 			final int left = getAbsoluteLeft();
+			final int top = Window.getScrollTop() + getAbsoluteTop();
 			final int right = left + getOffsetWidth();
-			final int height = Math.min(getOffsetHeight(), Window.getClientHeight());
-			final int scrollPos = Window.getScrollTop();
+			final int height = Math.min(getOffsetHeight()-top, Window.getClientHeight());
 			prevPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
-					int top = (height-offsetHeight)/2 + scrollPos;
-					prevPageButton.setPopupPosition(left, top);
+					prevPageButton.setPopupPosition(left, (height-offsetHeight)/2 + top);
+					new ShowAnimation(prevPageButton);
 				}
 	        });
 			nextPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
-					int top = (height-offsetHeight)/2 + scrollPos;
-					nextPageButton.setPopupPosition(right-offsetWidth, top);
+					nextPageButton.setPopupPosition(right-offsetWidth, (height-offsetHeight)/2 + top);
+					new ShowAnimation(nextPageButton);
 				}
 	        });
 		}
@@ -112,8 +112,8 @@ public class PlayerView extends VerticalPanel{
 
 
 	private void hideNavigationPanels() {
-		prevPageButton.hide();
-		nextPageButton.hide();
+		new HideAnimation(prevPageButton);
+		new HideAnimation(nextPageButton);
 	}
 
 

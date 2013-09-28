@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <interactiveContent>
 
-
 <addons>
 	<addon-descriptor addonId="YouTube_Addon"/>
 	<addon-descriptor addonId="Vimeo"/>
@@ -16,44 +15,19 @@
 	<addon-descriptor addonId="Puzzle" href="addons/Puzzle.xml"/>
 </addons>
 
-
-
-
 <style>
-
-.ic_player{
-	background-color: red;
-}
-
+.ic_player{background-color: red;}
 .ic_page{
 	background-color: #efefef;
 	font-size:18px;
 	width:	800px;
 	height:	600px;
 }
-
-.ic_footer{
-	background-color: #e0e0ff;
-	width:	100%;
-}
-
-.ic_header{
-	background-color: #e0e0ff;
-}
-
-.myText{
-	background-color:yellow;
-	border:1px solid blue;
-}
-
-.silver{
-	background-color:silver;
-}
-
-.lightgreen{
-background-color:lightgreen;
-}
-
+.ic_footer{background-color: #e0e0ff; width:	100%;}
+.ic_header{background-color: #e0e0ff;}
+.myText{background-color:yellow; border:1px solid blue;}
+.silver{background-color:silver;}
+.lightgreen{background-color:lightgreen;}
 .text_paragraph_withEditableGaps input{
 	border: 1px solid #B0BDD2;
 	border-radius: 5px 5px 5px 5px;
@@ -63,7 +37,6 @@ background-color:lightgreen;
 	width: 100%;
 	overflow: hidden;
 }
-
 </style>
 
 <pages>
