@@ -1,10 +1,20 @@
-.tmp_canvas {
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.drawing .tmp_canvas {
     position: absolute;
     left: 0; right: 0;
     bottom: 0; top: 0;
+
     cursor: crosshair;
 }
 
-.drawing:active {
+.drawing .tmp_canvas:active {
     cursor: crosshair;
 }

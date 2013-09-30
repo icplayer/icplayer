@@ -26,7 +26,7 @@ TestCase("[Drawing] Model validation", {
             Color: "#1234567",
             Thickness: "2",
             Border: "1",
-            Opacity: 100
+            Opacity: 1
         };
         
         validatedModel = this.presenter.validateModel(model);

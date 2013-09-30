@@ -115,6 +115,11 @@ function AddonDrawing_create() {
         // TOUCH
         tmp_canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
+
+            if (!presenter.configuration.isPencil) {
+                presenter.configuration.context.globalCompositeOperation = "destination-out";
+            }
+
             presenter.zoom = $('#_icplayer').css('zoom');
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
@@ -135,6 +140,7 @@ function AddonDrawing_create() {
 
         tmp_canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
+
             presenter.zoom = $('#_icplayer').css('zoom');
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
@@ -161,6 +167,7 @@ function AddonDrawing_create() {
 
         // MOUSE
         tmp_canvas.addEventListener('mousemove', function(e) {
+
             presenter.zoom = $('#_icplayer').css('zoom');
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
@@ -180,6 +187,11 @@ function AddonDrawing_create() {
         }, false);
 
         tmp_canvas.addEventListener('mousedown', function(e) {
+
+            if (!presenter.configuration.isPencil) {
+                presenter.configuration.context.globalCompositeOperation = "destination-out";
+            }
+
             presenter.zoom = $('#_icplayer').css('zoom');
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
@@ -251,8 +263,6 @@ function AddonDrawing_create() {
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.model = model;
-
-        presenter.$view.onselectstart = function(){ return false; }
 
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
@@ -536,27 +546,25 @@ function AddonDrawing_create() {
         var data = JSON.parse(state).data,
             isPencil = JSON.parse(state).isPencil,
             color = JSON.parse(state).color,
-            pencilThickness = JSON.parse(state).pencilThickness,
-            eraserThickness = JSON.parse(state).eraserThickness,
             savedImg = new Image();
 
         savedImg.onload = function() {
             presenter.configuration.context.drawImage(savedImg, 0, 0);
-        }
+        };
         savedImg.src = data;
 
-        presenter.configuration.pencilThickness = pencilThickness;
-        presenter.configuration.eraserThickness = eraserThickness;
+        presenter.configuration.pencilThickness = JSON.parse(state).pencilThickness;
+        presenter.configuration.eraserThickness = JSON.parse(state).eraserThickness;
+        presenter.isStarted = JSON.parse(state).isStarted;
+        presenter.configuration.isVisible = JSON.parse(state).isVisible;
+        presenter.configuration.isPencil = isPencil;
 
         if (isPencil) {
             presenter.setColor(color);
         } else {
-            presenter.configuration.color = color;
-            presenter.setEraserOn();
+            presenter.configuration.thickness = presenter.configuration.eraserThickness;
+            presenter.configuration.color = "rgba(0, 0, 0, 1)";
         }
-
-        presenter.isStarted = JSON.parse(state).isStarted;
-        presenter.configuration.isVisible = JSON.parse(state).isVisible;
     };
 
     return presenter;
