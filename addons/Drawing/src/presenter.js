@@ -186,6 +186,14 @@ function AddonDrawing_create() {
 
         }, false);
 
+        $(tmp_canvas).on('mouseleave', function() {
+            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+            ctx.drawImage(tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            presenter.points = [];
+        });
+
         tmp_canvas.addEventListener('mousedown', function(e) {
 
             if (!presenter.configuration.isPencil) {

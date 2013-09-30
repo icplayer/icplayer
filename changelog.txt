@@ -1,3 +1,4 @@
+2013-09-30 Fixed problem with mouseleave.
 2013-09-30 Fixed problem with Drawing addon. Loading state and eraser.
 2013-09-27 Fixed problem with displaying Glossary on book view
 2013-09-26 Fixed displaying Glossary and other addons (Video, Image etc) on the following addons: Feedback, True/False, Table
