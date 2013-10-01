@@ -245,19 +245,10 @@ function AddonImage_Identification_create(){
     presenter.getMaxScore = function() {
         if (!presenter.configuration.isActivity) return 0;
 
-        if (!presenter.configuration.shouldBeSelected) {
-            // SelectionCorrect is not checked, things are getting complicated
-            if (presenter.configuration.isSelected) {
-                // Someone clicked the image, so we must rise the maxScore, so the error count is reported.
-                // (with max score 0 error count is not reported)
-                return 1;
-            } else {
-                // Image was not clicked, we're good
-                return 0;
-            }
-        } else {
-            // SelectionCorrect is checked. Max score should be 1
+        if (presenter.configuration.shouldBeSelected) {
             return 1;
+        } else {
+            return 0;
         }
     };
 
