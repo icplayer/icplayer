@@ -88,7 +88,7 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-		playerService.getEventBus().fireEvent(new PageLoadedEvent());
+		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
 

@@ -14,11 +14,17 @@ import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent.Handler;
  */
 public class PageLoadedEvent extends GwtEvent<Handler> {
 
+	public final String pageName;
+	
 	public interface Handler extends EventHandler {
 		void onPageLoaded(PageLoadedEvent event);
 	}
 	
 	public static Type<Handler> TYPE = new Type<Handler>();
+
+	public PageLoadedEvent(String name) {
+		pageName = name;
+	}
 
 	@Override
 	public Type<Handler> getAssociatedType() {
@@ -32,6 +38,7 @@ public class PageLoadedEvent extends GwtEvent<Handler> {
 	
 	public HashMap<String, String> getData() {
 		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("name", pageName);
 		return data;
 	}
 }
