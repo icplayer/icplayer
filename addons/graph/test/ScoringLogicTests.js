@@ -15,6 +15,8 @@ TestCase("[Graph] Scoring logic", {
     },
 
     'test module not touched by user': function () {
+        this.presenter.isStarted = true;
+
         assertEquals(5, this.presenter.getMaxScore());
         assertEquals(0, this.presenter.getScore());
         assertEquals(0, this.presenter.getErrorCount());
@@ -22,6 +24,7 @@ TestCase("[Graph] Scoring logic", {
 
     'test user made interactions': function () {
         this.presenter.configuration.shouldCalcScore = true;
+        this.presenter.isStarted = true;
 
         assertEquals(5, this.presenter.getMaxScore());
         assertEquals(3, this.presenter.getScore());

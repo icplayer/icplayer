@@ -9,6 +9,7 @@ function Addongraph_create(){
     presenter.eventBus          = null;
     presenter.playerController  = null;
     presenter.errorMode         = false;
+    presenter.isStarted         = false;
 
     presenter.$view             = null;
     presenter.configuration     = {};
@@ -149,6 +150,10 @@ function Addongraph_create(){
 
 
     presenter.setShowErrorsMode = function() {
+        if (!presenter.isStarted) {
+            return 0;
+        }
+
         presenter.errorMode = true;
         presenter.configuration.shouldCalcScore = true;
 
@@ -198,21 +203,25 @@ function Addongraph_create(){
     };
 
     presenter.getScore = function() {
-        if (!presenter.configuration.isInteractive) return 0;
-        if (!presenter.configuration.shouldCalcScore) return 0;
+        if (!presenter.configuration.isInteractive || !presenter.configuration.shouldCalcScore || !presenter.isStarted) {
+            return 0;
+        }
 
         return presenter.calcScore();
     };
 
     presenter.getMaxScore = function() {
-        if (!presenter.configuration.isInteractive) return 0;
+        if (!presenter.configuration.isInteractive || !presenter.isStarted) {
+            return 0;
+        }
 
         return presenter.configuration.answers.length;
     };
 
     presenter.getErrorCount = function() {
-        if (!presenter.configuration.isInteractive) return 0;
-        if (!presenter.configuration.shouldCalcScore) return 0;
+        if (!presenter.configuration.isInteractive || !presenter.configuration.shouldCalcScore || !presenter.isStarted) {
+            return 0;
+        }
 
         return presenter.getMaxScore() - presenter.getScore();
     };
@@ -232,6 +241,7 @@ function Addongraph_create(){
     };
 
     presenter.reset = function() {
+        presenter.isStarted = false;
         presenter.configuration.shouldCalcScore = true;
 
         presenter.redrawValueContainers();
@@ -564,6 +574,7 @@ function Addongraph_create(){
     function mouseUpCallback () {
         if(presenter.errorMode) return;
 
+        presenter.isStarted = true;
         presenter.configuration.shouldCalcScore = true;
 
         if (!presenter.configuration.mouseData.isMouseDown) {
@@ -882,7 +893,6 @@ function Addongraph_create(){
         var validRows = 0;
         var columnsCount = null;
         var barsCount = 0;
-
 
         // Validate data and find maximum value
         for (i = 0; i < presenter.configuration.data.length; i++) {
@@ -1222,7 +1232,6 @@ function Addongraph_create(){
         // Move axis X description & arrow to right place
         axisXDescription.css('bottom', (presenter.drawingXPosition - Math.round(axisXDescription.height() / 2) + xAxisDescriptionMargin) + 'px');
         axisXArrow.css('bottom', (presenter.drawingXPosition - parseInt(axisXArrow.css('borderLeftWidth'))) + 'px');
-
 
         // Draw axis Y
         var axisYLine = $('<div class="graph_axis_y_line graph_axis_line"></div>');
