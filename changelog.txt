@@ -1,4 +1,5 @@
-2013-09-30 Fixed problem with scoring in graph
+2013-10-01 Fixed problem with definition of disable and not activity properties
+2013-10-01 Fixed problem with scoring in graph
 2013-09-30 Fixed problem with points in Image Indentification addon
 2013-09-30 Fixed problem with mouseleave.
 2013-09-30 Fixed problem with Drawing addon. Loading state and eraser.

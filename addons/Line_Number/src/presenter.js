@@ -145,7 +145,6 @@ function AddonLine_Number_create() {
     function getXAxisValues() {
         var configuration = presenter.configuration,
             xAxisValues = [], i,
-            sorted = [],
             stepValue = configuration.step.parsedValue || configuration.step.value,
             minClosestEven = 0,
             maxClosestEven = 0;
@@ -549,8 +548,12 @@ function AddonLine_Number_create() {
 
     function clickLogic(eventTarget) {
 
-        if (presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) return false;
-        if (presenter.configuration.isDisabled) return;
+        if (presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) {
+            return false;
+        }
+        if (presenter.configuration.isDisabled) {
+            return;
+        }
 
         if (presenter.configuration.mouseData.twoClickedRangesCount > 3) {
             presenter.configuration.mouseData.twoClickedRangesCount = 0;
@@ -590,9 +593,7 @@ function AddonLine_Number_create() {
 
                 resetClicks();
             }
-        }
-
-        else if ( isSecondClick() ) {
+        } else if ( isSecondClick() ) {
 
             var secondClick = presenter.configuration.mouseData.clicks[1];
             var newRange;
@@ -645,15 +646,13 @@ function AddonLine_Number_create() {
                             rangeImage.removeClass('exclude');
                             rangeImage.addClass('include');
                         }*/
-
+                        return;
                     }
                 }
 
                 resetClicks();
 
-            }
-
-            else if ( isFirstClickNoneAndSecondNotNone() ) {
+            } else if ( isFirstClickNoneAndSecondNotNone() ) {
 
                 if ( firstValue >  secondValue) {
 
@@ -675,9 +674,7 @@ function AddonLine_Number_create() {
 
                 resetClicks();
 
-            }
-
-            else if ( isFirstStartOrEndAndSecondMiddleClicked() ) {
+            } else if ( isFirstStartOrEndAndSecondMiddleClicked() ) {
 
                 var clickedRange = presenter.configuration.mouseData.clickedRanges[0];
 
@@ -702,9 +699,7 @@ function AddonLine_Number_create() {
 
                 resetClicks();
 
-            }
-
-            else if ( areTwoClickedRanges() ) {
+            } else if ( areTwoClickedRanges() ) {
 
                 presenter.configuration.mouseData.twoClickedRangesCount++;
 
@@ -734,9 +729,7 @@ function AddonLine_Number_create() {
 
                 setCurrentClickedRange();
 
-            }
-
-            else if ( isFirstStartOrEndAndSecondNoneClicked() ) {
+            } else if ( isFirstStartOrEndAndSecondNoneClicked() ) {
 
                 if ( firstValue > secondValue ) {
 
@@ -760,9 +753,7 @@ function AddonLine_Number_create() {
 
                 resetClicks();
 
-            }
-
-            else if ( isTheSameRangeEndOrStartClickedInBothClicks() ) {
+            } else if ( isTheSameRangeEndOrStartClickedInBothClicks() ) {
 
                 var imageWrapper = firstClick.element.parent().find('.rangeImage');
                 var shouldInclude = !imageWrapper.hasClass('include');
@@ -803,9 +794,7 @@ function AddonLine_Number_create() {
 
                 resetClicks();
 
-            }
-
-            else if ( isBothClicksTheSameRangeStartOrEnd() ) {
+            } else if ( isBothClicksTheSameRangeStartOrEnd() ) {
 
                 var firstClickRange = getRangeByValue( firstValue );
                 var secondClickRange = getRangeByValue( secondValue );
@@ -1302,29 +1291,29 @@ function AddonLine_Number_create() {
     presenter.getScore = function() {
         resetClicks();
 
-        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
-            var validated = validateDrawnRanges();
-            return validated.correct.length;
-        } else {
-            return 0;
+        if (!presenter.configuration.isActivity) {
+            return;
         }
+
+        var validated = validateDrawnRanges();
+        return validated.correct.length;
     };
 
     presenter.getMaxScore = function () {
-        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
-            return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
-        } else {
-            return 0;
+        if (!presenter.configuration.isActivity) {
+            return;
         }
+
+        return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
     };
 
     presenter.getErrorCount = function () {
-        if ( presenter.configuration.isActivity && !presenter.configuration.isDisabled ) {
-            var validated = validateDrawnRanges();
-            return validated.wrong.length;
-        } else {
-            return 0;
+        if (!presenter.configuration.isActivity) {
+            return;
         }
+
+        var validated = validateDrawnRanges();
+        return validated.wrong.length;
     };
 
     function validateDrawnRanges() {
