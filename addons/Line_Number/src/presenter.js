@@ -179,10 +179,8 @@ function AddonLine_Number_create() {
 
         $.each(allRanges, function() {
 
-            if ( (sorted.indexOf(this.start.value) == -1
-                || sorted.indexOf(this.end.value) == -1)
-                && ( !isValueInfinity(this.start.value)
-                && !isValueInfinity(this.end.value) )) {
+            if ( (sorted.indexOf(this.start.value) == -1 || sorted.indexOf(this.end.value) == -1)
+                && (!isValueInfinity(this.start.value) && !isValueInfinity(this.end.value) )) {
 
                 presenter.configuration.isError = true;
                 DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'RAN02');
@@ -225,21 +223,13 @@ function AddonLine_Number_create() {
 
         if ( $(e).attr('value') == '-INF' ) {
             return presenter.CLICKED_POSITION.START;
-        }
-
-        else if ( $(e).attr('value') == 'INF' ) {
+        } else if ( $(e).attr('value') == 'INF' ) {
             return presenter.CLICKED_POSITION.END;
-        }
-
-        else if (range.start.element[0] == $(e).parent()[0]) {
+        } else if (range.start.element[0] == $(e).parent()[0]) {
             return presenter.CLICKED_POSITION.START;
-        }
-
-        else if (range.end.element[0] == $(e).parent()[0]) {
+        } else if (range.end.element[0] == $(e).parent()[0]) {
             return presenter.CLICKED_POSITION.END;
-        }
-
-        else {
+        } else {
             return presenter.CLICKED_POSITION.MIDDLE;
         }
     }
@@ -497,6 +487,7 @@ function AddonLine_Number_create() {
         var first, second;
 
         if ( presenter.configuration.mouseData.twoClickedRangesCount == 1 ) {
+
             if ( presenter.configuration.mouseData.clickedRanges[0].start.value > presenter.configuration.mouseData.clickedRanges[1].start.value ) {
                 first = presenter.configuration.mouseData.clickedRanges[1];
                 second = presenter.configuration.mouseData.clickedRanges[0];
@@ -637,7 +628,7 @@ function AddonLine_Number_create() {
                         presenter.drawRanges([newRange]);
 
                     } else {
-                        // it's still here in case this piece of code is doing something. Its cause error in ticket 2861 p. 5
+                        // it's still here in case this piece of code is doing something useful. I was forced to remove this (ticket 2861 p. 5)
                         /*var rangeImage = firstClick.element.parent().find('.rangeImage');
 
                         if ( rangeImage.hasClass('include') ) {
@@ -774,18 +765,17 @@ function AddonLine_Number_create() {
                 }
 
                 if ( presenter.configuration.drawnRangesData.ranges[index].values.length == 1 ) {
-
                     presenter.removeRange( presenter.configuration.drawnRangesData.ranges[index], true );
                     imageWrapper.remove();
-
                 }
 
                 presenter.$view.find('.currentSelectedRange').removeClass('currentSelectedRange');
+                if (!(presenter.configuration.drawnRangesData.ranges[index] === undefined)) {
+                    var rangeString = presenter.convertRangeToString(presenter.configuration.drawnRangesData.ranges[index]);
+                    var eventData = presenter.createEventData(rangeString, false, checkIsRangeCorrect(presenter.configuration.drawnRangesData.ranges[index]));
 
-                var rangeString = presenter.convertRangeToString(presenter.configuration.drawnRangesData.ranges[index]);
-                var eventData = presenter.createEventData(rangeString, false, checkIsRangeCorrect(presenter.configuration.drawnRangesData.ranges[index]));
-
-                eventBus.sendEvent('ValueChanged', eventData);
+                    eventBus.sendEvent('ValueChanged', eventData);
+                }
 
                 if ( presenter.allRangesCorrect() ) {
                     var eventData = presenter.createAllOKEventData();
@@ -1052,6 +1042,7 @@ function AddonLine_Number_create() {
 
     function setRangeValues(range, shouldAddToDrawn) {
         range.values = [];
+
         var startValue = Math.min(range.start.value, range.end.value);
         var endValue = Math.max(range.start.value, range.end.value);
 
@@ -1382,9 +1373,7 @@ function AddonLine_Number_create() {
     };
 
     function compareRanges(rangeA, rangeB) {
-        return (compareArray(rangeA.values, rangeB.values)
-            && rangeA.start.include == rangeB.start.include
-            && rangeA.end.include == rangeB.end.include)
+        return (compareArray(rangeA.values, rangeB.values) && rangeA.start.include == rangeB.start.include && rangeA.end.include == rangeB.end.include)
     }
 
     function compareArray(arrA, arrB) {
@@ -1679,6 +1668,10 @@ function AddonLine_Number_create() {
         var validatedShowAxisXValues = ModelValidationUtils.validateBoolean(model['Show Axis X Values']);
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         var isDisabled = ModelValidationUtils.validateBoolean(model['Disable']);
+
+        if (isDisabled) {
+            presenter.$view.find('.outer').addClass('disable');
+        }
 
         return {
             isError : false,

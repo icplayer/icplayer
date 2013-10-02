@@ -94,6 +94,7 @@ TestCase("Model validation", {
     },
 
     'test module is disabled by default': function() {
+        this.presenter.$view = $('');
         this.model['Disable'] = 'True';
 
         var configuration = this.presenter.readConfiguration(this.model);

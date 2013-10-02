@@ -1,3 +1,4 @@
+2013-10-02 Fixed problem with blocking Line Number addon and added new class 'disable' to '.outer' div when property 'Disable' is on true
 2013-10-01 Added page name to page loaded event
 2013-10-01 Fixed problem with definition of disable and not activity properties
 2013-10-01 Fixed problem with scoring in graph
