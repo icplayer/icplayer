@@ -27,7 +27,7 @@ function AddonNavigation_Bar_create() {
 
     function goToPage(whereTo, index) {
         var currentIndex = presenter.playerController.getCurrentPageIndex(),
-            goToIndex;
+            goToIndex = 0;
 
         switch (whereTo) {
             case NAVIGATION_PAGE.FIRST:
@@ -57,7 +57,7 @@ function AddonNavigation_Bar_create() {
                 break;
         }
 
-        presenter.commander.gotoPage(presenter.presentation.getPage(goToIndex).getName());
+        presenter.commander.gotoPageIndex(goToIndex);
     }
 
     function handleMouseActions(dotsLeftIndex, dotsRightIndex, elementWidth, elementHeight, preview, horizontalGap) {
@@ -70,33 +70,29 @@ function AddonNavigation_Bar_create() {
     function handleArrowClickActions() {
         presenter.$view.find('[class*="navigationbar-element-first"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.FIRST);
-
             return false;
         });
 
         presenter.$view.find('[class*="navigationbar-element-previous"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.PREVIOUS);
-
             return false;
         });
 
         presenter.$view.find('[class*="navigationbar-element-next"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.NEXT);
-
             return false;
         });
 
         presenter.$view.find('[class*="navigationbar-element-last"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.LAST);
-
             return false;
         });
     }
 
     function handleIndexClickActions() {
         presenter.$view.find('[class*="navigationbar-indexed-element"]').each(function () {
-            var pageIndex = parseInt($(this).html(), 10) - 1;
             var isCurrentPage = $(this).hasClass("navigationbar-element-current");
+            var pageIndex = parseInt($(this).html(), 10) - 1;
 
             $(this).parent().click(function (event) {
                 event.preventDefault();
@@ -113,7 +109,6 @@ function AddonNavigation_Bar_create() {
             if (dotsLeftIndex === undefined || dotsLeftIndex < 0) {
                 dotsLeftIndex = 0;
             }
-
             removeAllElements();
             if (movedFromIndex == undefined) {
                 movedFromIndex = presenter.currentIndex;
@@ -158,7 +153,6 @@ function AddonNavigation_Bar_create() {
     function handleSpecificElementHoverAndMouseDown(selector, inactive) {
         var removeClassNames = selector + ' ' + selector + '-mouse-hover' +
             ' ' + selector + '-mouse-click' + ' ' + selector + '-inactive';
-
 
         presenter.$wrapper.find("span[class^=" + selector + "]").each(function() {
             var addClassName = inactive ? selector + '-inactive' : selector;
@@ -425,8 +419,8 @@ function AddonNavigation_Bar_create() {
         }
 
         return {
-            leftIndex:dotsLeftTargetIndex,
-            rightIndex:dotsRightTargetIndex
+            leftIndex: dotsLeftTargetIndex,
+            rightIndex: dotsRightTargetIndex
         };
     }
 
@@ -435,6 +429,7 @@ function AddonNavigation_Bar_create() {
 
         generateHomeAndPreviousArrowsElements();
         generateRaportAndNextArrowsElements();
+
         var dotsIndexes = generateIndexedElements(navigationBarMoved);
 
         if (!preview) {
