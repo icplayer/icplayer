@@ -38,7 +38,7 @@ public class PageLoadedEvent extends GwtEvent<Handler> {
 	
 	public HashMap<String, String> getData() {
 		HashMap<String, String> data = new HashMap<String, String>();
-		data.put("name", pageName);
+		data.put("source", pageName);
 		return data;
 	}
 }
