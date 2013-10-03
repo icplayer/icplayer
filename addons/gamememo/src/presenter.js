@@ -310,6 +310,8 @@ function Addongamememo_create(){
     };
 
     presenter.onCardClicked = function(e) {
+        e.stopPropagation();
+
         if(presenter.useTwoStyles) {
             var clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
             if(clickedStyle == presenter.cardClickedStyle)

@@ -147,7 +147,8 @@ function AddonMagic_Boxes_create() {
 
             applySelectionStyle(selectedRow, selectedColumn);
             if (!preview) {
-                selectableElement.click(function(){
+                selectableElement.click(function(e){
+                    e.stopPropagation();
                     selectionHandler(selectedRow, selectedColumn);
                 });
             }

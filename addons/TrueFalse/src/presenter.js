@@ -181,13 +181,16 @@ function AddonTrueFalse_create() {
         var $elements = $(view).find(".tf_" + presenter.type + "_image");
 
         $elements.on('touchstart', function (e) {
+            e.stopPropagation();
             e.preventDefault();
 
             presenter.lastEvent = e;
         });
 
         $elements.on('touchend', function (e) {
+            e.stopPropagation();
             e.preventDefault();
+
             if ( presenter.lastEvent.type != e.type ) {
                 var eventData = event.touches[0] || event.changedTouches[0];
 
@@ -195,7 +198,8 @@ function AddonTrueFalse_create() {
             }
         });
 
-        $elements.click(function () {
+        $elements.click(function (e) {
+            e.stopPropagation();
             clickLogic(this);
         });
     }

@@ -476,7 +476,9 @@ function AddonSlideshow_create() {
         }
     }
 
-    function playButtonClickHandler() {
+    function playButtonClickHandler(e) {
+        e.stopPropagation();
+
         switch (presenter.configuration.audioState) {
             case presenter.AUDIO_STATE.PLAY:
                 presenter.pauseAudioResource();
@@ -506,11 +508,14 @@ function AddonSlideshow_create() {
         }
     }
 
-    function stopButtonClickHandler() {
+    function stopButtonClickHandler(e) {
+        e.stopPropagation();
         presenter.stopPresentation();
     }
 
-    function previousButtonClickHandler() {
+    function previousButtonClickHandler(e) {
+        e.stopPropagation();
+
         var isActive = $(this).hasClass('slideshow-controls-previous') || $(this).hasClass('slideshow-controls-previous-mouse-hover');
         if (isActive) {
             gotoPreviousSlide(false);
@@ -518,7 +523,9 @@ function AddonSlideshow_create() {
         }
     }
 
-    function nextButtonClickHandler() {
+    function nextButtonClickHandler(e) {
+        e.stopPropagation();
+
         var isActive = $(this).hasClass('slideshow-controls-next') || $(this).hasClass('slideshow-controls-next-mouse-hover');
         if (isActive) {
             gotoNextSlide(false);
@@ -560,6 +567,7 @@ function AddonSlideshow_create() {
 
     function touchStartCallback (event) {
         event.preventDefault();
+        event.stopPropagation();
 
         var touch = event.touches[0] || event.changedTouches[0];
         mouseDownCallback(touch);
@@ -685,6 +693,7 @@ function AddonSlideshow_create() {
 
     function touchEndCallback (event) {
         event.preventDefault();
+        event.stopPropagation();
 
         mouseUpCallback();
     }
@@ -720,6 +729,7 @@ function AddonSlideshow_create() {
 
     function touchMoveCallback (event) {
         event.preventDefault();
+        event.stopPropagation();
 
         var touch = event.touches[0] || event.changedTouches[0];
         mouseMoveCallback(touch);

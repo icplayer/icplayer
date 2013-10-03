@@ -309,7 +309,9 @@ function AddonAnimation_create (){
         $.doTimeout(presenter.configuration.queueName, false);
     };
 
-    function elementClickHandler() {
+    function elementClickHandler(e) {
+        e.stopPropagation();
+
         switch (presenter.configuration.animationState) {
             case presenter.ANIMATION_STATE.PAUSED:
             case presenter.ANIMATION_STATE.STOPPED:

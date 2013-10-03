@@ -254,7 +254,8 @@ function AddonHangman_create() {
         presenter.unbindAttachedHandlers($(this));
     };
 
-    function letterClickHandler() {
+    function letterClickHandler(e) {
+        e.stopPropagation();
         $(this).addClass('selected');
         var letter = $(this).text();
 

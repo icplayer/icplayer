@@ -185,6 +185,8 @@ function Addonmultiplegap_create(){
     };
 
     presenter.acceptDraggable = function(e) {
+        e.stopPropagation();
+
         if(presenter.showErrorsMode) return;
 
         presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false);
@@ -354,6 +356,8 @@ function Addonmultiplegap_create(){
     };
 
     presenter.removeDraggable = function(e) {
+        e.stopPropagation();
+
         if(presenter.showErrorsMode)
             return;
 

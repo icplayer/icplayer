@@ -144,21 +144,14 @@ function AddonText_Selection_create() {
 	presenter.turnOnEventListeners = function() {
 		var $text_selection = presenter.$view.find('.text_selection');
 
-		$text_selection.on('mouseup', function(e) {
-			presenter.configuration.isExerciseStarted = true;
-			presenter.endSelection(e.target);
-		});
-
-		$text_selection.on('mousedown', function(e) {
-			presenter.startSelection(e.target);
-		});
-
 		$text_selection.on('touchstart', function(e) {
+            e.stopPropagation();
 			e.preventDefault();
 			presenter.startSelection(e.target);
 		});
 
 		$text_selection.on('touchend', function(e) {
+            e.stopPropagation();
 			presenter.configuration.isExerciseStarted = true;
 			e.preventDefault();
 			presenter.endSelection(lastMoveEvent);
@@ -166,11 +159,27 @@ function AddonText_Selection_create() {
 		});
 
 		$text_selection.on('touchmove', function(e) {
+            e.stopPropagation();
 			e.preventDefault();
 			var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
 
 			lastMoveEvent = $(document.elementFromPoint(temp.pageX - $(document).scrollLeft(), temp.pageY - $(document).scrollTop()));
 		});
+
+        $text_selection.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        $text_selection.on('mouseup', function(e) {
+            e.stopPropagation();
+            presenter.configuration.isExerciseStarted = true;
+            presenter.endSelection(e.target);
+        });
+
+        $text_selection.on('mousedown', function(e) {
+            e.stopPropagation();
+            presenter.startSelection(e.target);
+        });
 
 		$text_selection.find('.selectable').hover(
 			function() {

@@ -95,6 +95,7 @@ function AddonNavigation_Bar_create() {
             var pageIndex = parseInt($(this).html(), 10) - 1;
 
             $(this).parent().click(function (event) {
+                event.stopPropagation();
                 event.preventDefault();
 
                 if (!isCurrentPage) {

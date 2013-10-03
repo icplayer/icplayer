@@ -52,19 +52,22 @@ function AddonImage_Identification_create(){
 
         element.on('touchstart', function (e) {
             e.preventDefault();
+            e.stopPropagation();
 
             presenter.lastEvent = e;
         });
 
         element.on('touchend', function (e) {
             e.preventDefault();
+            e.stopPropagation();
 
             if ( presenter.lastEvent.type != e.type ) {
                 clickLogic();
             }
         });
 
-        element.click(function() {
+        element.click(function(e) {
+            e.stopPropagation();
             clickLogic();
         });
 

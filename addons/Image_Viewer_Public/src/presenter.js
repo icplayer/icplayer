@@ -146,7 +146,9 @@ function AddonImage_Viewer_Public_create() {
         }
     }
 
-    function clickHandler() {
+    function clickHandler(e) {
+        e.stopPropagation();
+
         if (presenter.configuration.isClickDisabled) return;
         if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
 
@@ -470,7 +472,9 @@ function AddonImage_Viewer_Public_create() {
         presenter.$element[0].ontouchmove = touchMoveCallback;
         presenter.$element.click(clickHandler);
 
-        $(watermarkElement).click(function() {
+        $(watermarkElement).click(function(e) {
+            e.stopPropagation();
+
             $(watermarkElement).hide();
             clickHandler();
         });
@@ -479,7 +483,9 @@ function AddonImage_Viewer_Public_create() {
             var $frameCounter = presenter.$view.find('.frame-counter:first');
 
             $frameCounter.find('.dot').each(function (index) {
-                $(this).click(function () {
+                $(this).click(function (e) {
+                    e.stopPropagation();
+
                     if (presenter.configuration.isClickDisabled) return;
                     if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
                     if (index === presenter.configuration.currentFrame) return;

@@ -317,6 +317,8 @@ function AddonPuzzle_create() {
     }
 
     function clickHandler(event) {
+        event.stopPropagation();
+
         if (presenter.configuration.isErrorMode) return;
 
         var Piece = $(this);

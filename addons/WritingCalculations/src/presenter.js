@@ -92,7 +92,13 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.bindValueChangeEvent = function() {
+        presenter.$view.find(".writing-calculations-input").on('click', function(event) {
+            event.stopPropagation();
+        });
+
         presenter.$view.find(".writing-calculations-input").on("change", function(event){
+            event.stopPropagation();
+
             var value = event.target.value;
             var rowIndex = $(event.target).attr("row");
             var cellIndex = $(event.target).attr("cell");

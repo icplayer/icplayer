@@ -1,12 +1,6 @@
-/**
- * Model version: 2
- * Last modified: 2012-06-22 10:55
- *
- */
 function AddonConnection_create(){
     var presenter = function() {};
 
-    var isAlreadyInitialized = false;
     var playerController;
     var eventBus; // Modules communication
     var addonID;
@@ -205,7 +199,6 @@ function AddonConnection_create(){
         $(rightColumn).css('width', rightWidth);
     };
 
-
     presenter.run = function(view, model){
         presenter.view = view;
         presenter.model = model;
@@ -221,7 +214,6 @@ function AddonConnection_create(){
         presenter.model = model;
         presenter.initialize(presenter.view, presenter.model, true);
     };
-
 
     presenter.initialize = function(view, model, isPreview) {
         if (isPreview) {
@@ -406,18 +398,20 @@ function AddonConnection_create(){
 
         element.on('touchstart', function (e) {
             e.preventDefault();
-
+            e.stopPropagation();
             presenter.lastEvent = e;
         });
 
         element.on('touchend', function (e) {
             e.preventDefault();
+            e.stopPropagation();
             if ( presenter.lastEvent.type != e.type ) {
                 clickLogic(this);
             }
         });
 
-        element.click(function () {
+        element.click(function (e) {
+            e.stopPropagation();
             clickLogic(this);
         });
     };
