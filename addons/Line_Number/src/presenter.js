@@ -81,12 +81,14 @@ function AddonLine_Number_create() {
         var infinityRight = presenter.$view.find('.infinity-right');
 
         infinityLeft.on('touchstart', function (e){
+            e.stopPropagation();
             e.preventDefault();
 
             presenter.configuration.touchData.lastEvent = e;
         });
 
         infinityLeft.on('touchend', function (e){
+            e.stopPropagation();
             e.preventDefault();
 
             if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
@@ -97,6 +99,7 @@ function AddonLine_Number_create() {
         });
 
         infinityLeft.on('click', function(e) {
+            e.stopPropagation();
             e.preventDefault();
             clickLogic($(e.target));
         });
@@ -108,11 +111,13 @@ function AddonLine_Number_create() {
         });
 
         infinityRight.on('touchstart', function (e){
+            e.stopPropagation();
             e.preventDefault();
             presenter.configuration.touchData.lastEvent = e;
         });
 
         infinityRight.on('touchend', function (e){
+            e.stopPropagation();
             e.preventDefault();
 
             if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
@@ -122,6 +127,7 @@ function AddonLine_Number_create() {
         });
 
         infinityRight.on('click', function(e) {
+            e.stopPropagation();
             e.preventDefault();
             clickLogic($(e.target));
         });
@@ -374,26 +380,31 @@ function AddonLine_Number_create() {
     function bindClickAreaListeners(clickArea) {
         removeAllClickListeners();
 
-        clickArea.on('mouseleave', function () {
+        clickArea.on('mouseleave', function (e) {
+            e.stopPropagation();
             hideCurrentMousePosition();
         });
 
         clickArea.on('mouseenter', function (e) {
+            e.stopPropagation();
             e.preventDefault();
             displayCurrentMousePosition($(e.target));
         });
 
         clickArea.on('contextmenu', function (e) {
+            e.stopPropagation();
             e.preventDefault();
         });
 
         clickArea.on('touchstart', function (e) {
+            e.stopPropagation();
             e.preventDefault();
 
             presenter.configuration.touchData.lastEvent = e;
         });
 
         clickArea.on('touchend', function (e) {
+            e.stopPropagation();
             e.preventDefault();
 
             if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
@@ -403,6 +414,7 @@ function AddonLine_Number_create() {
         });
 
         clickArea.on('click', function (e) {
+            e.stopPropagation();
             e.preventDefault();
             clickLogic($(e.target));
         });

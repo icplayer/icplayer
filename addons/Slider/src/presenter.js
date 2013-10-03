@@ -181,6 +181,8 @@ function AddonSlider_create () {
     }
 
     function mouseClickCallback (eventData) {
+        event.stopPropagation();
+
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
         var addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);

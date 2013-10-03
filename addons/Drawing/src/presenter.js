@@ -115,6 +115,7 @@ function AddonDrawing_create() {
         // TOUCH
         tmp_canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
+            e.stopPropagation();
 
             if (!presenter.configuration.isPencil) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
@@ -140,6 +141,7 @@ function AddonDrawing_create() {
 
         tmp_canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
+            e.stopPropagation();
 
             presenter.zoom = $('#_icplayer').css('zoom');
             if (presenter.zoom == "" || presenter.zoom == undefined) {
@@ -158,6 +160,8 @@ function AddonDrawing_create() {
         }, false);
 
         tmp_canvas.addEventListener('touchend', function(e) {
+            e.stopPropagation();
+
             tmp_canvas.removeEventListener('touchmove', presenter.onPaint(e), false);
             ctx.drawImage(tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
@@ -167,6 +171,7 @@ function AddonDrawing_create() {
 
         // MOUSE
         tmp_canvas.addEventListener('mousemove', function(e) {
+            e.stopPropagation();
 
             presenter.zoom = $('#_icplayer').css('zoom');
             if (presenter.zoom == "" || presenter.zoom == undefined) {
@@ -186,7 +191,9 @@ function AddonDrawing_create() {
 
         }, false);
 
-        $(tmp_canvas).on('mouseleave', function() {
+        $(tmp_canvas).on('mouseleave', function(e) {
+            e.stopPropagation();
+
             tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
             ctx.drawImage(tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
@@ -195,6 +202,7 @@ function AddonDrawing_create() {
         });
 
         tmp_canvas.addEventListener('mousedown', function(e) {
+            e.stopPropagation();
 
             if (!presenter.configuration.isPencil) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
@@ -221,12 +229,18 @@ function AddonDrawing_create() {
             presenter.onPaint(e);
         }, false);
 
-        tmp_canvas.addEventListener('mouseup', function() {
+        tmp_canvas.addEventListener('mouseup', function(e) {
+            e.stopPropagation();
+
             tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
             ctx.drawImage(tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
             presenter.points = [];
+        }, false);
+
+        tmp_canvas.addEventListener('click', function(e) {
+            e.stopPropagation();
         }, false);
     };
 

@@ -44,7 +44,7 @@ function AddonMultiAudio_create(){
     };
 
     presenter.addAttributeLoop = function(audio) {
-        $(audio).on("ended", function(){
+        $(audio).on("ended", function() {
             this.currentTime = 0;
             this.play();
         });
@@ -62,6 +62,10 @@ function AddonMultiAudio_create(){
         var interfaceType = model["Interface"];
         var audioWrapper = this.prepareAudio();
         this.audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+        this.audio.addEventListener('click', function(e) {
+            e.stopPropagation();
+        }, false);
+
         switch(interfaceType) {
             case "Default controls":
                 $(this.audio).attr("controls", "controls").attr("preload", "auto");
@@ -139,7 +143,6 @@ function AddonMultiAudio_create(){
         } else {
             $(audio).append("Your browser doesn't support audio.");
         }
-
 
         audio.load();
     };

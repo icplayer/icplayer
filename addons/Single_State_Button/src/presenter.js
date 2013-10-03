@@ -16,6 +16,8 @@ function AddonSingle_State_Button_create() {
     };
 
     presenter.clickHandler = function () {
+        event.stopPropagation();
+
         if (presenter.configuration.isDisabled) return;
         if (presenter.configuration.isErrorMode) return;
 

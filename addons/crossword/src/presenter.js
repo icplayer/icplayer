@@ -170,7 +170,10 @@ function Addoncrossword_create(){
                         .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++)
                         .keyup(presenter.onCellInputKeyUp)
                         .focus(presenter.onCellInputFocus)
-                        .mouseup(presenter.onCellInputMouseUp);
+                        .mouseup(presenter.onCellInputMouseUp)
+                        .click(function(e) {
+                            e.stopPropagation();
+                        });
 
                     if(presenter.preview)
                         input.attr({ value    : presenter.crossword[i][j].toUpperCase(),

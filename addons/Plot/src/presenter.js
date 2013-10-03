@@ -338,7 +338,9 @@ function AddonPlot_create(){
                     var vy = $(this).attr('vy');
                     plot.svgDoc.find('.point[vx="'+vx+'"][vy="'+vy+'"]').removeClass('point_over');
                 });
-                obj.click(function() {
+                obj.click(function(e) {
+                    e.stopPropagation();
+
                     var vx = $(this).attr('vx');
                     var vy = $(this).attr('vy');
                     var refObj = plot.svgDoc.find('.point[vx="'+vx+'"][vy="'+vy+'"]');
@@ -470,7 +472,9 @@ function AddonPlot_create(){
                         p.attr('style', p.data().cssStyle);
                     }
                 });
-                obj.click(function() {
+                obj.click(function(e) {
+                    e.stopPropagation();
+
                     var id = parseInt($(this).attr('refuid'));
                     var refObj = plot.svgDoc.find('.is_plot[uid="'+id+'"]');
                     var refObjOutline = plot.svgDoc.find('.draw_outline_base[ouid="'+id+'"]');

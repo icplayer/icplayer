@@ -354,6 +354,8 @@ function Addongraph_create(){
     };
 
     presenter.increaseGraphValue = function(eventData) {
+        event.stopPropagation();
+
         if(presenter.errorMode) return;
 
         presenter.configuration.shouldCalcScore = true;
@@ -389,6 +391,8 @@ function Addongraph_create(){
     };
 
     presenter.decreaseGraphValue = function(eventData) {
+        event.stopPropagation();
+
         if(presenter.errorMode) return;
 
         presenter.configuration.shouldCalcScore = true;
@@ -1183,7 +1187,6 @@ function Addongraph_create(){
 
                     columnContainerAbove.click(presenter.increaseGraphValue);
                     columnContainerBelow.click(presenter.decreaseGraphValue);
-
                 }
 
                 valueContainer = $('<div class="graph_value_container"></div>');

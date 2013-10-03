@@ -129,7 +129,7 @@ function AddonAudio_create(){
     }
 
     function attachEventListeners(audio) {
-        audio.addEventListener('ended', function () {
+        audio.addEventListener('ended', function() {
             if (presenter.configuration.enableLoop) {
                 this.currentTime = 0;
                 this.play();
@@ -138,6 +138,10 @@ function AddonAudio_create(){
                 presenter.sendOnEndEvent();
                 presenter.stop();
             }
+        }, false);
+
+        audio.addEventListener('click', function(e) {
+            e.stopPropagation();
         }, false);
     }
 

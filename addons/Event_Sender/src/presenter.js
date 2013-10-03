@@ -19,6 +19,10 @@ function AddonEvent_Sender_create() {
 
             presenter.eventBus.sendEvent(type, eventData);
         });
+
+        $(view).find("input, select, button").click(function(e) {
+            e.stopPropagation();
+        });
     };
 
     return presenter;

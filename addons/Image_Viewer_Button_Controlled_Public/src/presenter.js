@@ -183,7 +183,9 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
     }
 
     function handleClickAction() {
-        viewerElement.click(function() {
+        viewerElement.click(function(e) {
+            e.stopPropagation();
+
             presenter.configuration.currentFrame = presenter.configuration.currentFrame === presenter.configuration.frames - 1 ? 0 : presenter.configuration.currentFrame + 1;
 
             presenter.changeFrame(this, presenter.configuration, true);
@@ -227,6 +229,7 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
 
         viewerElement.on('touchstart touchmove touchend', function(evt){
             evt.preventDefault();
+            evt.stopPropagation();
 
             if(isTap(evt)) {
                 presenter.lastReceivedEvent = null;
