@@ -1,3 +1,4 @@
+2013-10-03 MP4 sources are now prefered in video addon
 2013-10-02 Fixed problem with Navigation Bar with page indexes.
 2013-10-02 Fixed problem with blocking Line Number addon and added new class 'disable' to '.outer' div when property 'Disable' is on true
 2013-10-01 Added page name to page loaded event

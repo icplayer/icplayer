@@ -62,11 +62,11 @@ function Addonvideo_create() {
         return errorMessage += ' Please refresh page.';
     };
 
-    presenter.videoTypes = {
-        'Ogg video' : 'video/ogg',
-        'WebM video' : 'video/webm',
-        'MP4 video' : 'video/mp4'
-    };
+    presenter.videoTypes = [
+        	{ name : 'MP4 video', type : 'video/mp4'},
+        	{ name : 'Ogg video', type : 'video/ogg'},
+        	{ name : 'WebM video', type : 'video/webm'}
+    ];
 
     presenter.VIDEO_STATE = {
         STOPPED: 0,
@@ -411,12 +411,10 @@ function Addonvideo_create() {
         } else {
             $video.attr('preload', 'auto');
             for (var vtype in this.videoTypes) {
-                if (!this.videoTypes.hasOwnProperty(vtype)) continue;
-
-                if (files[this.currentMovie][vtype] && this.video.canPlayType(this.videoTypes[vtype])) {
+                if (files[this.currentMovie][this.videoTypes[vtype].name] && this.video.canPlayType(this.videoTypes[vtype].type)) {
                     var source = $('<source>');
-                    source.attr('type', this.videoTypes[vtype]);
-                    source.attr('src', files[this.currentMovie][vtype]);
+                    source.attr('type', this.videoTypes[vtype].type);
+                    source.attr('src', files[this.currentMovie][this.videoTypes[vtype].name]);
                     $video.append(source);
                 }
             }
