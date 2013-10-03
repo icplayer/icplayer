@@ -39,6 +39,7 @@ hr, table, fieldset {
 	opacity:0.75;
 	border-radius: 50px;
 	visibility: hidden;
+    display: none;
 }
 
 .ic_navi_panel_prev{
@@ -52,6 +53,7 @@ hr, table, fieldset {
 	opacity:0.75;
 	border-radius: 50px;
 	visibility: hidden;
+    display: none;
 }
 
 .ic_audio-load{
