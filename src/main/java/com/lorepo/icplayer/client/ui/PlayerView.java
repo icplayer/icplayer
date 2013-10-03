@@ -81,7 +81,7 @@ public class PlayerView extends VerticalPanel{
 		event.stopPropagation();
 
 		if (Event.ONCLICK == eventType) {
-//			toggleNavigationPanels();
+			toggleNavigationPanels();
 		}
 	}
 	

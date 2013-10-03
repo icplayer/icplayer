@@ -38,6 +38,7 @@ hr, table, fieldset {
 	cursor: pointer;
 	opacity:0.75;
 	border-radius: 50px;
+	visibility: hidden;
 }
 
 .ic_navi_panel_prev{
@@ -50,6 +51,7 @@ hr, table, fieldset {
 	cursor: pointer;
 	opacity:0.75;
 	border-radius: 50px;
+	visibility: hidden;
 }
 
 .ic_audio-load{
