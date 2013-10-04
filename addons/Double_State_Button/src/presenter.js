@@ -43,7 +43,7 @@ function AddonDouble_State_Button_create(){
         playerController.getCommands().executeEventCode(eventCode);
     };
 
-    presenter.clickHandler = function() {
+    presenter.clickHandler = function(event) {
         event.stopPropagation();
 
         if (presenter.configuration.isErrorMode) {
