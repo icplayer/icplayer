@@ -1,3 +1,4 @@
+2013-10-04 Removed user-select property from Drawing module styles, which was causing inability to select property value in Editor
 2013-10-03 Added stop propagation to addons: Crossword, Graph, Line Number, Plot, Audio, Drawing, IMageViewer Button Controller, Multi audio, DOuble State Button, Single State Button, Slider, Event Sender
 2013-10-03 Navigation arrows restored
 2013-10-03 Added stop propagation to addons: Connection, Hangman, Image Identification, Magic boxes, Gamememo, Multiplegap, Puzzle, Text selection, True False, Writing Calculations, Navigation Bar, Slide show, Image viewer, Animation
