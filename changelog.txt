@@ -1,3 +1,4 @@
+2013-10-07 Fixed problem with next page in book mode while presentation contains 2 pages only
 2013-10-07 event bug in addons Graph and Single State Button fixed
 2013-10-07 Added getView function for modules
 2013-10-06 Changed navigation arrows default styling.

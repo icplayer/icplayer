@@ -157,7 +157,7 @@ public class PlayerController implements IPlayerController{
 		for(int i = 0; i < pages.size(); i++){
 			if(pages.get(i) == pageController1.getPage()){
 				int index = i+1;
-				if(pageController2 != null){
+				if(pageController2 != null && index+1 < pages.size()){
 					index += 1;
 				}
 				if(index < pages.size()){
@@ -174,6 +174,7 @@ public class PlayerController implements IPlayerController{
 	 * @param index
 	 */
 	public void switchToPage(int index){
+		
 		closeCurrentPages();
 		Page page;
 		if(pageController2 != null){
