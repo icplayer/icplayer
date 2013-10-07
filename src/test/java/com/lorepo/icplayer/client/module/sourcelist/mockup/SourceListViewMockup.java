@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.sourcelist.mockup;
 
 import java.util.HashMap;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.sourcelist.IViewListener;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
@@ -65,6 +66,12 @@ public class SourceListViewMockup implements IDisplay {
 	
 	public HashMap<String, String> getItems(){
 		return items;
+	}
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

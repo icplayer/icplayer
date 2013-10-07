@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.text.mockup;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.text.GapInfo;
 import com.lorepo.icplayer.client.module.text.ITextViewListener;
 import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
@@ -103,5 +104,11 @@ public class TextViewMockup implements IDisplay {
 	public void show() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

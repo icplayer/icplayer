@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.imagegap.mockup;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.imagegap.IViewListener;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapModule;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter.IDisplay;
@@ -88,5 +89,11 @@ public class ImageGapViewMockup implements IDisplay {
 	public void markGapAsWrong() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.choice.mockup;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.choice.ChoiceModel;
 import com.lorepo.icplayer.client.module.choice.ChoiceOption;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IDisplay;
@@ -57,6 +58,13 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		if(listener != null){
 			listener.onValueChange(option, down);
 		}
+	}
+
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

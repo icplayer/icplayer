@@ -277,6 +277,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native void run(JavaScriptObject obj, Element element, JavaScriptObject model, String addonId ) /*-{
 
 		try{
+			obj.getView = function(){return element};
 			obj.run(element, model);
 		}
 		catch(err){

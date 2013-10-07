@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.imagesource;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -22,6 +24,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful{
 		public void showImage();
 		public void hideImage();
 		public void addListener(IViewListener l);
+		public Element getElement();
 	}
 	
 	private ImageSourceModule model;
@@ -29,6 +32,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful{
 	private IPlayerServices playerServices;
 	boolean selected = false;
 	boolean visible = true;
+	private JavaScriptObject	jsObject;
 	
 	
 	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services){
@@ -165,4 +169,29 @@ public class ImageSourcePresenter implements IPresenter, IStateful{
 	public IModuleModel getModel() {
 		return model;
 	}
+	
+	public JavaScriptObject getAsJavaScript(){
+		if(jsObject == null){
+			jsObject = initJSObject(this);
+		}
+		return jsObject;
+	}
+
+	
+	private native JavaScriptObject initJSObject(ImageSourcePresenter x) /*-{
+	
+		var presenter = function(){}
+			
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getView()();
+		}
+		
+		return presenter;
+	}-*/;
+	
+	
+	private Element getView(){
+		return view.getElement();
+	}
+	
 }

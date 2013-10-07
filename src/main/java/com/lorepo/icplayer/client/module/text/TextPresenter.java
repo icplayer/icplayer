@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
@@ -62,6 +63,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void refreshMath();
 		void hide();
 		void show();
+		Element getElement();
 	}
 	
 	private TextModel	module;
@@ -604,9 +606,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		presenter.reset = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset()();
 		}
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getView()();
+		}
 		
 		return presenter;
 	}-*/;
+	
+	private Element getView(){
+		return view.getElement();
+	}
 	
 	
 	private String getGapText(int index){

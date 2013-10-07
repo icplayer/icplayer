@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.imagesource.mockup;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.imagesource.IViewListener;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourceModule;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter.IDisplay;
@@ -51,5 +52,11 @@ public class ImageSourceViewMockup implements IDisplay {
 	@Override
 	public void hideImage() {
 		isVisible = false;
+	}
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

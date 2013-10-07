@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page height="2000">
+<page>
 
 	<modules>
 	
@@ -34,7 +34,7 @@
 			</properties>
 		</addonModule>
 		 
-		<buttonModule  left="520" top="400" width="80" height="60" style="">
+		<buttonModule id="check" left="520" top="400" width="80" height="60" style="">
 			<button type="checkAnswers" text=""/>
 		</buttonModule>
 		

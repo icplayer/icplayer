@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
@@ -25,6 +26,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		void setErrorCheckingMode(boolean isErrorCheckingMode);
 		boolean isErrorCheckingMode();
 		void setDisabled(boolean isDisabled);
+		public Element getElement();
 	}
 	
 	private ButtonModule model;
@@ -178,6 +180,14 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 			x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::hide()();
 		}
 		
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::getView()();
+		}
+		
 		return presenter;
 	}-*/;
+	
+	private Element getView(){
+		return view.getElement();
+	}
 }

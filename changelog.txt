@@ -1,3 +1,4 @@
+2013-10-08 Added getView function for modules
 2013-10-06 Changed navigation arrows default styling.
 2013-10-04 Fixed bug in event propagation in Double State Button
 2013-10-04 Removed user-select property from Drawing module styles, which was causing inability to select property value in Editor

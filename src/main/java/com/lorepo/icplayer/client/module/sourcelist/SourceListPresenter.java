@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -26,6 +28,7 @@ public class SourceListPresenter implements IPresenter, IStateful{
 		public void selectItem(String id);
 		public void deselectItem(String id);
 		public void addListener(IViewListener l);
+		public Element getElement();
 	}
 	
 	private IDisplay view;
@@ -33,6 +36,7 @@ public class SourceListPresenter implements IPresenter, IStateful{
 	private IPlayerServices playerServices;
 	private String selectedId;
 	private HashMap<String, String> items = new HashMap<String, String>();
+	private JavaScriptObject jsObject;
 	
 	
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
@@ -201,5 +205,27 @@ public class SourceListPresenter implements IPresenter, IStateful{
 	@Override
 	public IModuleModel getModel() {
 		return model;
+	}
+
+	public JavaScriptObject getAsJavaScript() {
+		if (jsObject == null) {
+			jsObject = initJSObject(this);
+		}
+
+		return jsObject;
+	}
+
+	private native JavaScriptObject initJSObject(SourceListPresenter x) /*-{
+		var presenter = function() {}
+		
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getView()();
+		}
+		
+		return presenter;
+	}-*/;
+	
+	private Element getView(){
+		return view.getElement();
 	}
 }

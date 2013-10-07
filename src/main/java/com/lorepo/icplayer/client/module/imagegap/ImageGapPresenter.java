@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
@@ -38,6 +39,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public void hide();
 		public void markGapAsEmpty();
 		public void markGapAsWrong();
+		public Element getElement();
 	}
 	
 	private ImageGapModule model;
@@ -369,9 +371,16 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.markGapAsEmpty = function(){ 
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::markGapAsEmpty()();
 		}
-			
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getView()();
+		}
+		
 		return presenter;
 	}-*/;
+	
+	private Element getView(){
+		return view.getElement();
+	}
 	
 	
 	protected void show(){

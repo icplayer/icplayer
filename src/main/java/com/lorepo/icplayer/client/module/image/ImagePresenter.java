@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.image;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
@@ -19,6 +20,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 	public interface IDisplay extends IModuleView{
 		public void show();
 		public void hide();
+		public Element getElement();
 	}
 	
 	private IDisplay view;
@@ -99,9 +101,16 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		presenter.hide = function(){ 
 			x.@com.lorepo.icplayer.client.module.image.ImagePresenter::hide()();
 		}
-			
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.image.ImagePresenter::getView()();
+		}
+		
 		return presenter;
 	}-*/;
+	
+	private Element getView(){
+		return view.getElement();
+	}
 	
 	
 	private void show(){
