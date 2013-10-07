@@ -15,7 +15,7 @@ function AddonSingle_State_Button_create() {
         presenter.playerController.getCommands().executeEventCode(presenter.configuration.onClickEvent.value);
     };
 
-    presenter.clickHandler = function () {
+    presenter.clickHandler = function (event) {
         event.stopPropagation();
 
         if (presenter.configuration.isDisabled) return;

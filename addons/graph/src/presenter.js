@@ -354,7 +354,7 @@ function Addongraph_create(){
     };
 
     presenter.increaseGraphValue = function(eventData) {
-        event.stopPropagation();
+        eventData.stopPropagation();
 
         if(presenter.errorMode) return;
 
@@ -391,7 +391,7 @@ function Addongraph_create(){
     };
 
     presenter.decreaseGraphValue = function(eventData) {
-        event.stopPropagation();
+        eventData.stopPropagation();
 
         if(presenter.errorMode) return;
 
@@ -928,6 +928,7 @@ function Addongraph_create(){
             // Save min/max value and ensure that data is numeric
             for (j = 0; j < presenter.configuration.data[i].length; j++) {
                 currentValue = parseFloat(presenter.configuration.data[i][j]);
+
                 if (isNaN(currentValue)) {
                     presenter.showErrorMessage(presenter.ERROR_MESSAGES.DATA_ROW_VALUE_NOT_NUMERIC, { row: i + 1, column: j, value: presenter.configuration.data[i][j] });
                     return;

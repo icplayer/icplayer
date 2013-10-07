@@ -38,10 +38,16 @@ TestCase("Events sending", {
             deselected: { event: "" }
         };
 
+        this.eventData = {
+            stopPropagation: function () {}
+        };
+
         sinon.stub(this.presenter, 'executeUserEventCode');
         sinon.stub(this.presenter, 'setElementSelection');
         sinon.stub(this.presenter, 'updateLaTeX');
         sinon.stub(this.presenter, 'sendEventData');
+
+        sinon.stub(this.eventData, 'stopPropagation');
     },
 
     tearDown: function () {
@@ -54,16 +60,18 @@ TestCase("Events sending", {
     'test user selects element': function () {
         this.presenter.configuration.isSelected = false;
 
-        this.presenter.clickHandler();
+        this.presenter.clickHandler(this.eventData);
 
+        assertTrue(this.eventData.stopPropagation.calledOnce);
         assertTrue(this.presenter.sendEventData.calledOnce);
     },
 
     'test user deselects element': function () {
         this.presenter.configuration.isSelected = false;
 
-        this.presenter.clickHandler();
+        this.presenter.clickHandler(this.eventData);
 
+        assertTrue(this.eventData.stopPropagation.calledOnce);
         assertTrue(this.presenter.sendEventData.calledOnce);
     }
 });
