@@ -1,3 +1,4 @@
+2013-10-08 event bug on safari in Video addon fixed
 2013-10-07 Fixed problem with next page in book mode while presentation contains 2 pages only
 2013-10-07 event bug in addons Graph and Single State Button fixed
 2013-10-07 Added getView function for modules

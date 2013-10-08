@@ -204,7 +204,6 @@ function Addonvideo_create() {
 
     presenter.sendVideoEndedEvent = function () {
         var eventData = presenter.createEndedEventData(presenter.currentMovie);
-
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
@@ -420,14 +419,17 @@ function Addonvideo_create() {
             }
             this.video.load();
 
-            $(this.video).bind("ended", function() {
-                $(this).unbind("ended");
-                presenter.sendVideoEndedEvent();
-                presenter.reload();
-                if (presenter.configuration.isFullScreen) {
-                    fullScreenChange();
+            // "ended" event doesn't work on Safari
+            $(this.video).bind("timeupdate", function () {
+                if (this.currentTime == this.duration) {
+                    presenter.sendVideoEndedEvent();
+                    presenter.reload();
+                    if (presenter.configuration.isFullScreen) {
+                        fullScreenChange();
+                    }
                 }
             });
+
             $(this.video).bind("error", function() {
                 $(this).unbind("error");
                 presenter.reload();
