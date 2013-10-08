@@ -202,13 +202,11 @@ public class JavaScriptPlayerServices{
 			}
 
 			commands.connectLinks = function(node){
-				
-				$wnd.$(".ic_definitionLink").click(function(){
+				node.find('.ic_definitionLink').click(function(){
 					var name = 'Definition'
 					var data = {'word': $wnd.$(this).html()}
 					x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
 				});
-				
 			}
 
 			return commands;

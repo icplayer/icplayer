@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page>
+<page layout="pixels">
 
 	<modules>
 	
-		<textModule left="10" top="10" width="80" height="80"> 
+		<textModule left="10" top="10" width="300" height="80"> 
 			<text><![CDATA[
 			Przykłady linków:
 			<ul>
+				<li>\def{Definition}</li>
 				<li>[[Converging Lens, f &gt; x &lt; 2f|Converging Lens, f > x < 2f]]</li>
 				<li>[[ordering|Przejście na stronę z ordering]]</li>
 				<li><a href='http://onet.pl'>onet.pl</a></li>
 			</ul>
 			]]></text>
 		</textModule>
+		
+		<addonModule addonId="Event_Listener" id="Event_Listener1" left="16" top="206" width="851" height="382" right="0" bottom="0" isVisible="true">
+			<layout type="LTWH">
+				<left relative="" property="left"/>
+				<top relative="" property="top"/>
+				<right relative="" property="right"/>
+				<bottom relative="" property="bottom"/>
+			</layout>
+			<properties/>
+		</addonModule>
 		
 	</modules>
 
