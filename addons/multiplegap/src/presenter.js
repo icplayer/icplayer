@@ -173,6 +173,8 @@ function Addonmultiplegap_create(){
         $(presenter.selectorRootClass() + ' .handler_disabled')
             .click(presenter.removeDraggable)
             .removeClass('handler_disabled');
+
+        presenter.$view.find('.handler').css('background-color', '');
     };
 
     presenter.saveSelected = function(eventData) {
