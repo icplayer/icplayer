@@ -281,7 +281,7 @@ function AddonTrueFalse_create() {
         }
 
         if (textParser !== null) { // Actions performed only in Player mode
-            textParser.connectLinks(view);
+            textParser.connectLinks($(view));
         }
     };
 

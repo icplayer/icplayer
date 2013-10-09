@@ -301,7 +301,7 @@ function AddonTable_create() {
             $(element).html(presenter.textParser.parse($(element).html()));
         });
 
-        presenter.textParser.connectLinks(presenter.$view[0]);
+        presenter.textParser.connectLinks(presenter.$view);
     };
 
     /**
@@ -336,7 +336,6 @@ function AddonTable_create() {
 
     presenter.setRowHeight = function ($table, rowHeight) {
         var i;
-
         for (i = 0; i < rowHeight.length; i++) {
             $table.find('.row_' + (i + 1)).each(function () {
                 $(this).css('height', rowHeight[i]);
