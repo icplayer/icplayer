@@ -185,13 +185,13 @@ function AddonGlossary_create(){
 
     presenter.show = function(id) {
         // due to event propagation player issue, it's necessary to make sure page with glossary still exist.
-        var pageClass = "." + $(presenter.$ICPage).attr('class');
+        var pageClass = "." + $(presenter.$ICPage).attr('class').split(' ').join('.');
         if (!$(pageClass).length > 0) {
             return
         }
+
         var dialog = presenter.dialog;
         var dialogData = presenter.getDialogDataById(presenter.model["List of words"], id);
-
         // don't display dialog if glossary hasn't needed ID
         if (!dialogData) return;
 
