@@ -3,6 +3,8 @@ function AddonDouble_State_Button_create(){
 
     var playerController;
 
+    presenter.lastEvent = null;
+
     var CSS_CLASSES = {
         ELEMENT : "doublestate-button-element",
         MOUSE_HOVER : "doublestate-button-element-mouse-hover",
@@ -62,8 +64,27 @@ function AddonDouble_State_Button_create(){
         }
     };
 
+    function handleTouchActions() {
+        var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+
+        element.on('touchstart', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            presenter.lastEvent = e;
+        });
+
+        element.on('touchend', function (e) {
+            e.preventDefault();
+            if ( presenter.lastEvent.type != e.type ) {
+                presenter.clickHandler(e);
+            }
+        });
+    }
+
     function handleMouseActions() {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+
+        element.click(presenter.clickHandler);
 
         element.hover(
             function() {
@@ -75,8 +96,6 @@ function AddonDouble_State_Button_create(){
                 $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
             }
         );
-
-        element.click(presenter.clickHandler);
     }
 
     function setElementsDimensions(model, wrapper, element) {
@@ -130,6 +149,7 @@ function AddonDouble_State_Button_create(){
         presenter.setVisibility(presenter.configuration.isVisible);
 
         if (!preview) {
+            handleTouchActions();
             handleMouseActions();
         }
     }
