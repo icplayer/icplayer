@@ -1,3 +1,4 @@
+2013-10-09 Fixed bug with calculating graph max score when activity was not started
 2013-10-09 Fixed bug with hover effect on mobile devices in DOuble State Button
 2013-10-09 Fixed bug with black background on IE 10 in Multiplegap addon
 2013-10-08 Fixed problem with definition event in book mode

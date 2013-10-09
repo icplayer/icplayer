@@ -211,7 +211,7 @@ function Addongraph_create(){
     };
 
     presenter.getMaxScore = function() {
-        if (!presenter.configuration.isInteractive || !presenter.isStarted) {
+        if (!presenter.configuration.isInteractive) {
             return 0;
         }
 
