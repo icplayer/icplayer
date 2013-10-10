@@ -26,6 +26,7 @@ hr, table, fieldset {
 	background-color:white;
 	padding:20px;
 	opacity:0.75;
+	z-index: 100;
 }
 
 .ic_navi_panel_prev,

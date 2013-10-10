@@ -16,11 +16,9 @@ public class WaitDialog extends DialogBox {
  
 
     public WaitDialog(){
-
     	setStyleName("ic_waitdlg");
 		setModal(true);
-		setAnimationEnabled(true);
-
+		setAnimationEnabled(false);
 		Image image = new Image(RES_INSTANCE.wait_animation());
 		image.setStyleName("ic_waitImage");
 		setWidget(image);
