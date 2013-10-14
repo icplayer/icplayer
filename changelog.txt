@@ -1,3 +1,4 @@
+2013-10-14 Fixed bug with hover effect on mobile devices in Choice and Image Source modules
 2013-10-14 Fixed problem with multiple parentheses in latex code
 2013-10-14 Fixed bug with limited errors in Custom Scoring
 2013-10-09 Fixed True/False and Table not loading properly due to bug 'c.find is undefined'

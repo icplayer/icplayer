@@ -4,6 +4,14 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.TouchCancelEvent;
+import com.google.gwt.event.dom.client.TouchCancelHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.event.dom.client.TouchMoveEvent;
+import com.google.gwt.event.dom.client.TouchMoveHandler;
+import com.google.gwt.event.dom.client.TouchStartEvent;
+import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -21,6 +29,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	private ParserResult parserResult;
 	private EventBus eventBus;
 	
+	private boolean isTouched = false;
 	
 	public OptionView(ChoiceOption option, boolean isMulti){
 		super();
@@ -136,20 +145,58 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	
 	public void connectLinks(Iterator<LinkInfo> it) {
 		
-		if(eventBus != null){
-			while(it.hasNext()){
+		if(eventBus != null) {
+			while(it.hasNext()) {
 				final LinkInfo info = it.next();
-				if(DOM.getElementById(info.getId()) != null){
+				if(DOM.getElementById(info.getId()) != null) {
 					LinkWidget widget = new LinkWidget(info);
+					
+					widget.addTouchStartHandler(new TouchStartHandler() {
+						public void onTouchStart(TouchStartEvent event) {
+							event.stopPropagation();
+							event.preventDefault();
+							
+							isTouched = true;
+						}
+					});
+					
+					widget.addTouchMoveHandler(new TouchMoveHandler() {
+						public void onTouchMove(TouchMoveEvent event) {
+							event.stopPropagation();
+							event.preventDefault();
+							
+							isTouched = false;
+						}
+					});
+					
+					widget.addTouchCancelHandler(new TouchCancelHandler() {
+						public void onTouchCancel(TouchCancelEvent event) {
+							event.stopPropagation();
+							event.preventDefault();
+							
+							isTouched = false;
+						}
+					});
+					
+					widget.addTouchEndHandler(new TouchEndHandler() {
+						public void onTouchEnd(TouchEndEvent event) {
+							event.stopPropagation();
+							event.preventDefault();
+							
+							if (isTouched) {
+								DefinitionEvent defEvent = new DefinitionEvent(info.getHref());
+								eventBus.fireEvent(defEvent);
+							}
+						}
+					});
+					
 					widget.addClickHandler(new ClickHandler() {
-						
-						@Override
 						public void onClick(ClickEvent event) {
 							event.preventDefault();
 							event.stopPropagation();
 							DefinitionEvent defEvent = new DefinitionEvent(info.getHref());
 							eventBus.fireEvent(defEvent);
-					}
+						}
 					});
 				}
 			}
