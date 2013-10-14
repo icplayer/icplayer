@@ -1,7 +1,8 @@
+2013-10-14 Fixed bug with limited errors in Custom Scoring
 2013-10-09 Fixed True/False and Table not loading properly due to bug 'c.find is undefined'
 2013-10-09 Fixed Glossary links on feedback when div.ic_page had more then one class
 2013-10-09 Fixed bug with calculating graph max score when activity was not started
-2013-10-09 Fixed bug with hover effect on mobile devices in DOuble State Button
+2013-10-09 Fixed bug with hover effect on mobile devices in Double State Button
 2013-10-09 Fixed bug with black background on IE 10 in Multiplegap addon
 2013-10-08 Fixed problem with definition event in book mode
 2013-10-08 event bug on safari in Video addon fixed

@@ -57,13 +57,6 @@ TestCase("[Custom Scoring] Commands logic - setters", {
 
         assertEquals(0, this.presenter.configuration.scoring.errors);
         assertEquals(0, this.presenter.configuration.scoring.score);
-    },
-
-    'test errors value is bigger than max score': function () {
-        this.presenter.setErrors(7);
-
-        assertEquals(0, this.presenter.configuration.scoring.score);
-        assertEquals(0, this.presenter.configuration.scoring.errors);
     }
 });
 

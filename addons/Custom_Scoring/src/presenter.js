@@ -71,20 +71,20 @@ function AddonCustom_Scoring_create(){
         };
     };
 
-    presenter.setScoringValue = function (score, field) {
+    presenter.setScore = function (score) {
         var validatedScore = ModelValidationUtils.validateIntegerInRange(score, presenter.configuration.scoring.maxScore);
 
         if (validatedScore.isValid) {
-            presenter.configuration.scoring[field] = validatedScore.value;
+            presenter.configuration.scoring.score = validatedScore.value;
         }
     };
 
-    presenter.setScore = function (score) {
-        presenter.setScoringValue(score, 'score');
-    };
+    presenter.setErrors = function (errors) {
+        var validatedErrors = ModelValidationUtils.validatePositiveInteger(errors);
 
-    presenter.setErrors = function (score) {
-        presenter.setScoringValue(score, 'errors');
+        if (validatedErrors.isValid) {
+            presenter.configuration.scoring.errors = validatedErrors.value;
+        }
     };
 
     presenter.getMaxScore = function () {
