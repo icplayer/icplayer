@@ -448,9 +448,21 @@ public class TextParserTestCase {
 		assertEquals("#ERROR#", parsed.parsedText);
 	}
 
-	
 	@Test
 	public void skipGapInMath() {
+		
+		TextParser parser = new TextParser();
+		parser.setUseDraggableGaps(true);
+		String srcText ="\\(\\sqrt {{x^{10}}{y^8}} = \\sqrt {{x^{10}}}\\)";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+
+		assertEquals("\\(\\sqrt {{x^{10}}{y^8}} = \\sqrt {{x^{10}}}\\)", parsed.parsedText);
+	}
+
+	@Test
+	public void skipGapInMath2() {
 		
 		TextParser parser = new TextParser();
 		parser.setUseDraggableGaps(true);
@@ -464,7 +476,6 @@ public class TextParserTestCase {
 
 	@Test
 	public void skipGaps() {
-		
 		TextParser parser = new TextParser();
 		parser.skipGaps();
 		String srcText ="This is {{2:ala}} and \\def{słówko1}";

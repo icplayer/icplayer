@@ -1,3 +1,4 @@
+2013-10-14 Fixed problem with multiple parentheses in latex code
 2013-10-14 Fixed bug with limited errors in Custom Scoring
 2013-10-09 Fixed True/False and Table not loading properly due to bug 'c.find is undefined'
 2013-10-09 Fixed Glossary links on feedback when div.ic_page had more then one class

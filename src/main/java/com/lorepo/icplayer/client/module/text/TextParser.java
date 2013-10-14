@@ -99,7 +99,7 @@ public class TextParser {
 		while((index = input.indexOf("{{")) >= 0){
 			
 			output += input.substring(0, index);
-			if(!isInMath(input.substring(0, index))){
+			if(!isInMath(input.substring(index))){
 				input = input.substring(index+2);
 				index = input.indexOf("}}");
 				if(index < 0){
@@ -140,14 +140,11 @@ public class TextParser {
 
 
 	private boolean isInMath(String text) {
-		int last = text.lastIndexOf("\\)");
-		if(last > 0){
-			text = text.substring(last);
+		int endIndex = text.indexOf("\\)");
+		if(endIndex > 0){
+			int startIndex = text.indexOf("\\(");
+			return startIndex < 0 || startIndex > endIndex;
 		}
-		if(text.indexOf("\\(") >= 0){
-			return true;
-		}
-		
 		return false;
 	}
 
