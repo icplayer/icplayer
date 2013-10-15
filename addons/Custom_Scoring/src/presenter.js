@@ -76,6 +76,8 @@ function AddonCustom_Scoring_create(){
 
         if (validatedScore.isValid) {
             presenter.configuration.scoring.score = validatedScore.value;
+        } else {
+            presenter.configuration.scoring.score = 0;
         }
     };
 
@@ -84,6 +86,8 @@ function AddonCustom_Scoring_create(){
 
         if (validatedErrors.isValid) {
             presenter.configuration.scoring.errors = validatedErrors.value;
+        } else {
+            presenter.configuration.scoring.errors = 0;
         }
     };
 
