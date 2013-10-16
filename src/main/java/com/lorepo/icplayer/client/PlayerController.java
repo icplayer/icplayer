@@ -317,7 +317,7 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public void closePopup() {
 		if(popupPanel != null){
-			popupPanel.hide();
+			popupPanel.close();
 		}
 	}
 

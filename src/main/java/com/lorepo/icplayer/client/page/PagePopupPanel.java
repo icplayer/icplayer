@@ -129,7 +129,7 @@ public class PagePopupPanel extends DialogBox {
         switch (event.getTypeInt()) {
             case Event.ONKEYDOWN:
                 if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ESCAPE) {
-                    hide();
+                    close();
                 }
                 break;
         }
@@ -138,5 +138,11 @@ public class PagePopupPanel extends DialogBox {
 	
 	public PageView getView(){
 		return pageWidget;
+	}
+
+
+	public void close() {
+		hide();
+		pageController.closePage();
 	}
 }

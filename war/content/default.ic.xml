@@ -41,6 +41,8 @@
 </style>
 
 <pages>
+	<page name="open-popup" href="pages/open-popup.xml"/>
+	<page name="Show popup" href="pages/showpopup.page.xml"/>
 	<page name="image source" href="pages/image-source.xml"/>
 	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="links" href="pages/links.page.xml" reportable="false"/>

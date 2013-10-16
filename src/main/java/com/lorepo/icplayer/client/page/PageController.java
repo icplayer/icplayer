@@ -253,6 +253,9 @@ public class PageController {
 
 
 	public void closePage() {
+		if(playerServiceImpl != null){
+			playerServiceImpl.resetEventBus();
+		}
 		if(currentPage != null){ 
 			currentPage.release();
 			currentPage = null;
