@@ -40,7 +40,14 @@ hr, table, fieldset {
     opacity: 0.75;
     visibility: hidden;
     display: none;
+ 	opacity: 0;
+	transition: opacity .5s ease-in-out;
+	-moz-transition: opacity .5s ease-in-out;
+	-webkit-transition: opacity .5s ease-in-out;
+}
 
+.ic_navi_panel_animation {
+	opacity: 1;
 }
 
 .ic_navi_panel_prev {

@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -87,38 +88,48 @@ public class PlayerView extends VerticalPanel{
 	
 	
 	private void toggleNavigationPanels() {
-		if(prevPageButton.isShowing()){
+		if(prevPageButton.isShowing()) {
 			hideNavigationPanels();
-		}
-		else{
+		} else {
 			final int left = getAbsoluteLeft();
 			final int top = Window.getScrollTop() + getAbsoluteTop();
 			final int right = left + getOffsetWidth();
 			final int height = Math.min(getOffsetHeight()-top, Window.getClientHeight());
+			
 			prevPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
 					prevPageButton.setPopupPosition(left, (height-offsetHeight)/2 + top);
-					new ShowAnimation(prevPageButton);
+					prevPageButton.show();
 				}
 	        });
+			
 			nextPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
 					nextPageButton.setPopupPosition(right-offsetWidth, (height-offsetHeight)/2 + top);
-					new ShowAnimation(nextPageButton);
+					nextPageButton.show();
 				}
 	        });
+			
+			prevPageButton.getElement().addClassName("ic_navi_panel_animation");
+			nextPageButton.getElement().addClassName("ic_navi_panel_animation");
 		}
 	}
 
-
 	private void hideNavigationPanels() {
-		new HideAnimation(prevPageButton);
-		new HideAnimation(nextPageButton);
+		prevPageButton.getElement().removeClassName("ic_navi_panel_animation");
+		nextPageButton.getElement().removeClassName("ic_navi_panel_animation");
+		
+		Timer t = new Timer() {
+			@Override
+			public void run() {
+				prevPageButton.hide();
+				nextPageButton.hide();
+			}
+		};
+		t.schedule(500);
 	}
 
-
 	public void showHeader(){
-		
 		headerView = new PageView("ic_header");
 		insert(headerView, 0);
 	}
