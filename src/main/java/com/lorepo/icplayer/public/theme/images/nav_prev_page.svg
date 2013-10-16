@@ -5,19 +5,10 @@
 ]>
 <svg version="1.1"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
-	 x="0px" y="0px" width="35px" height="35px" viewBox="-0.195 -0.041 35 35"
-	 overflow="visible" enable-background="new -0.195 -0.041 35 35" xml:space="preserve">
+	 x="0px" y="0px" width="50px" height="35px" viewBox="-2.148 -1.489 50 35"
+	 overflow="visible" enable-background="new -2.148 -1.489 50 35" xml:space="preserve">
 <defs>
 </defs>
-<path fill="#FFFFFF" d="M28.941,7.13h-7.026c-0.877-0.123-1.345-0.605-1.426-1.426V0L0,16.584l20.384,17.958v-6.76
-	c0.198-1.527,0.912-1.244,1.48-1.478h7.077V7.291V7.13z"/>
-<rect x="31.814" y="6.982" fill="#FFFFFF" width="2.508" height="19.497"/>
-<path fill="#005A8C" d="M21.916,8.311h7.026V7.291V7.132h-7.026c-0.877-0.124-1.345-0.604-1.426-1.426v1.18
-	C20.571,7.707,21.039,8.188,21.916,8.311z"/>
-<polygon fill="#005A8C" points="0.697,17.2 20.49,1.181 20.49,0 0,16.584 "/>
-<rect x="31.814" y="6.982" fill="#005A8C" width="2.508" height="1.179"/>
-<path fill="#9DB6C4" d="M21.916,9.284h7.026V8.472v-0.16h-7.026c-0.877-0.123-1.345-0.604-1.426-1.425v0.97
-	C20.571,8.677,21.039,9.158,21.916,9.284z"/>
-<polygon fill="#9DB6C4" points="1.271,17.707 20.49,2.152 20.49,1.181 0.697,17.2 "/>
-<rect x="31.814" y="8.162" fill="#9DB6C4" width="2.508" height="0.97"/>
+<polygon fill="#FFFFFF" points="15.871,31.737 29.331,31.737 18.222,20.629 45.703,20.629 45.703,11.109 18.222,11.109 29.331,0 
+	15.871,0 0,15.867 "/>
 </svg>
