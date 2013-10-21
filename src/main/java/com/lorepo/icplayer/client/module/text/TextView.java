@@ -18,8 +18,7 @@ public class TextView extends HTML implements IDisplay{
 	private TextModel	module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay>	textElements = new ArrayList<TextElementDisplay>();
-	
-	
+
 	public TextView(TextModel module, boolean isPreview){
 		this.module = module;
 		createUI(isPreview);
@@ -66,19 +65,18 @@ public class TextView extends HTML implements IDisplay{
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
-		
 	}
 
 
 	@Override
 	public void connectGaps(Iterator<GapInfo> giIterator) {
-		
-		int gapWidth = module.getGapWidth(); 
-		while(giIterator.hasNext()){
+
+		int gapWidth = module.getGapWidth();
+		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
-			try{
+			try {
 				GapWidget gap = new GapWidget(gi, listener);
-				if(gapWidth > 0){
+				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
 				gap.setDisabled(module.isDisabled());
@@ -87,9 +85,8 @@ public class TextView extends HTML implements IDisplay{
 				Window.alert("Can't create module: " + gi.getId());
 			}
 		}
-		
-	}
 
+	}
 
 	@Override
 	public void connectLinks(Iterator<LinkInfo> it) {
@@ -157,10 +154,15 @@ public class TextView extends HTML implements IDisplay{
 		MathJax.refreshMathJax(getElement());
 	}
 
+	@Override
+	public void clearTextElements() {
+		textElements.clear();
+	}
 
 	@Override
 	public void hide() {
 		setVisible(false);
+		clearTextElements();
 	}
 
 
