@@ -261,7 +261,8 @@ function Addongraph_create(){
         var state = {
             'r' : r,
             'isVisible' : presenter.configuration.isVisible,
-            shouldCalcScore: presenter.configuration.shouldCalcScore
+            shouldCalcScore: presenter.configuration.shouldCalcScore,
+            isStarted: presenter.isStarted
         };
         return JSON.stringify(state);
     };
@@ -283,6 +284,7 @@ function Addongraph_create(){
         presenter.setVisibility(state.isVisible);
         presenter.configuration.isVisible = state.isVisible;
         presenter.configuration.shouldCalcScore = shouldCalcScore;
+        presenter.isStarted = state.isStarted;
     };
 
     presenter.setVisibility = function(isVisible) {
