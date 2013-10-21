@@ -1,3 +1,4 @@
+2013-10-21 Added displayName for addons' properties
 2013-10-21 Added saving in state if addon Graph is started
 2013-10-21 Fixed problem with gaps in Text module
 2013-10-16 Clear event bus when closing popup

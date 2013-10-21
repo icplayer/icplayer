@@ -154,6 +154,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			public String getName() {
 				return "ID";
 			}
+			
+			public String getDisplayName() {
+				return "ID";
+			}
 		};
 		
 		addProperty(property);
@@ -185,6 +189,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("is_visible");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("is_visible");
 			}
 

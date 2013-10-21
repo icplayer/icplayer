@@ -90,7 +90,7 @@ public class AddonDescriptorTestCase {
 		
 		AddonDescriptor descriptor = new AddonDescriptor("1", "/file/15");
 		descriptor.setId("45");
-		descriptor.addProperty(new AddonProperty("my name", "string"));
+		descriptor.addProperty(new AddonProperty("my name", "My name", "string"));
 
 		String xml = descriptor.toXML();
 		int index = xml.indexOf("<property");

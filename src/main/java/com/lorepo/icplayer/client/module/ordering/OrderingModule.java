@@ -209,6 +209,11 @@ public class OrderingModule extends BasicModuleModel{
 				return DictionaryWrapper.get("ordering_is_vertical");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("ordering_is_vertical");
+			}
+
 		};
 		
 		addProperty(property);
@@ -247,6 +252,11 @@ public class OrderingModule extends BasicModuleModel{
 			public void setChildrenCount(int count) {
 				resizeItemsArray(count);
 				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return "Item";
 			}
 		};
 		
@@ -297,6 +307,11 @@ public class OrderingModule extends BasicModuleModel{
 			public String getName() {
 				return DictionaryWrapper.get("optional_order");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("optional_order");
+			}
 		};
 		
 		addProperty(property);
@@ -333,6 +348,11 @@ public class OrderingModule extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("is_activity");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("is_activity");
 			}
 

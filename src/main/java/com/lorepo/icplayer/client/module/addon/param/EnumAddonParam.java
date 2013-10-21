@@ -64,6 +64,11 @@ public class EnumAddonParam extends StringAddonParam{
 			}
 
 			@Override
+			public String getDisplayName() {
+				return displayName;
+			}
+			
+			@Override
 			public int getAllowedValueCount() {
 				return allowedValues.size();
 			}
@@ -83,6 +88,7 @@ public class EnumAddonParam extends StringAddonParam{
 	public IAddonParam makeCopy() {
 		IAddonParam param = new EnumAddonParam(getAddonModel(), type);
 		param.setName(name);
+		param.setDisplayName(displayName);
 		return param;
 	}
 }

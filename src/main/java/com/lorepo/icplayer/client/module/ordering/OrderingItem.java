@@ -60,6 +60,11 @@ public class OrderingItem extends BasicPropertyProvider{
 			public String getName() {
 				return DictionaryWrapper.get("ordering_item_text");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("ordering_item_text");
+			}
 		};
 		
 		addProperty(property);

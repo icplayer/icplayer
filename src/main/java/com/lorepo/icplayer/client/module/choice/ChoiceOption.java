@@ -80,6 +80,11 @@ public class ChoiceOption extends BasicPropertyProvider{
 			public String getName() {
 				return DictionaryWrapper.get("choice_item_text");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_item_text");
+			}
 		};
 		
 		addProperty(property);
@@ -103,6 +108,11 @@ public class ChoiceOption extends BasicPropertyProvider{
 			public String getName() {
 				return DictionaryWrapper.get("choice_item_value");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_item_value");
+			}
 		};
 		
 		addProperty(property);
@@ -121,6 +131,11 @@ public class ChoiceOption extends BasicPropertyProvider{
 			}
 			
 			public String getName() {
+				return DictionaryWrapper.get("choice_item_event");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("choice_item_event");
 			}
 		};

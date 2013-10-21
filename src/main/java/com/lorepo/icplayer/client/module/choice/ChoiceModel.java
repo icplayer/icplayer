@@ -192,6 +192,11 @@ public class ChoiceModel extends BasicModuleModel{
 				return DictionaryWrapper.get("is_multi");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("is_multi");
+			}
+
 		};
 		
 		addProperty(property);
@@ -231,6 +236,11 @@ public class ChoiceModel extends BasicModuleModel{
 			public void setChildrenCount(int count) {
 				resizeItemsArray(count);
 				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_item");
 			}
 		};
 		
@@ -297,6 +307,11 @@ public class ChoiceModel extends BasicModuleModel{
 				return DictionaryWrapper.get("is_disabled");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("is_disabled");
+			}
+
 		};
 		
 		addProperty(property);	
@@ -333,6 +348,11 @@ public class ChoiceModel extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("is_activity");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("is_activity");
 			}
 

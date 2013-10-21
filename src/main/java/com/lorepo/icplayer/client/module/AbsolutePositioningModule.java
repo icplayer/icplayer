@@ -161,6 +161,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public LayoutDefinition getLayout() {
 				return layout;
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("layout");
+			}
 		};
 		
 		addProperty(layoutProperty);
@@ -191,6 +196,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("left");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("left");
 			}
 		};
@@ -225,6 +235,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getName() {
 				return DictionaryWrapper.get("top");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("top");
+			}
 		};
 		
 		addProperty(topProperty);
@@ -256,6 +271,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getName() {
 				return DictionaryWrapper.get("width");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("width");
+			}
 		};
 		
 		addProperty(widthProperty);
@@ -285,6 +305,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("height");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("height");
 			}
 		};
@@ -326,6 +351,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getName() {
 				return DictionaryWrapper.get("right");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("right");
+			}
 		};
 		
 		addProperty(rightProperty);
@@ -356,6 +386,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("bottom");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("bottom");
 			}
 		};

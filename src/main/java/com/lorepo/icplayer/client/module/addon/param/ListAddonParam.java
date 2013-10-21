@@ -33,6 +33,7 @@ public class ListAddonParam extends StringAddonParam{
 		
 		xml = "<property";
 		xml += " name='" + StringUtils.escapeXML(name) + "'";
+		xml += " displayName='" + StringUtils.escapeXML(displayName) + "'";
 		xml += " type='" + StringUtils.escapeXML(type) + "'";
 		xml += ">";
 		
@@ -75,6 +76,7 @@ public class ListAddonParam extends StringAddonParam{
 		this.baseUrl = baseUrl;
 		propertyProviders.clear();
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
+		displayName = XMLUtils.getAttributeAsString(rootElement, "displayName");
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
 
 		loadTemplate(rootElement);
@@ -130,6 +132,10 @@ public class ListAddonParam extends StringAddonParam{
 			public String getName() {
 				return name;
 			}
+			
+			public String getDisplayName() {
+				return displayName;
+			}
 
 			@Override
 			public int getChildrenCount() {
@@ -179,10 +185,21 @@ public class ListAddonParam extends StringAddonParam{
 	}
 	
 	
-	public void addToTemplate(IAddonParam param){
+		public void addToTemplate(IAddonParam param){
 		template.add(param);
 	}
 
+		@Override
+		public void setDisplayName(String displayName) {
+			this.displayName = displayName;
+		}
+
+
+		@Override
+		public String getDisplayName() {
+			return this.displayName;
+		}
+	
 
 	public void addSubPropertyIfNotExists(AddonProperty child, AddonParamFactory addonParamFactory) {
 
@@ -197,6 +214,7 @@ public class ListAddonParam extends StringAddonParam{
 		if(!found){
 			IAddonParam param = addonParamFactory.createAddonParam(getAddonModel(), child.getType());
 			param.setName(child.getName());
+			param.setDisplayName(child.getDisplayName());
 			template.add(param);
 			
 			for(AddonParamProvider provider : propertyProviders){

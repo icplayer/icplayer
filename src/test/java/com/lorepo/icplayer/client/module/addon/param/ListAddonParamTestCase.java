@@ -69,7 +69,7 @@ public class ListAddonParamTestCase {
 	public void addField() throws SAXException, IOException {
 		
 		ListAddonParam param = loadList();
-		param.addSubPropertyIfNotExists(new AddonProperty("test", "string"), factory);
+		param.addSubPropertyIfNotExists(new AddonProperty("test", "Test", "string"), factory);
 		IListProperty property = (IListProperty) param.getAsProperty();
 		IPropertyProvider provider = property.getChild(0);
 
@@ -81,8 +81,8 @@ public class ListAddonParamTestCase {
 	public void addTheSameField() throws SAXException, IOException {
 		
 		ListAddonParam param = loadList();
-		param.addSubPropertyIfNotExists(new AddonProperty("test", "string"), factory);
-		param.addSubPropertyIfNotExists(new AddonProperty("test", "html"), factory);
+		param.addSubPropertyIfNotExists(new AddonProperty("test", "Test", "string"), factory);
+		param.addSubPropertyIfNotExists(new AddonProperty("test", "Test", "html"), factory);
 		IListProperty property = (IListProperty) param.getAsProperty();
 		IPropertyProvider provider = property.getChild(0);
 

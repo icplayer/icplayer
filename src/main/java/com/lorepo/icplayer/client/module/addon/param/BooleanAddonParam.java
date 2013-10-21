@@ -6,7 +6,7 @@ import com.lorepo.icplayer.client.module.addon.AddonModel;
 
 public class BooleanAddonParam extends StringAddonParam{
 
-
+	
 	public BooleanAddonParam(AddonModel parent, String type) {
 		super(parent, type);
 	}
@@ -29,6 +29,10 @@ public class BooleanAddonParam extends StringAddonParam{
 			public String getName() {
 				return name;
 			}
+			
+			public String getDisplayName() {
+				return displayName;
+			}
 		};
 		
 		return property;
@@ -39,6 +43,7 @@ public class BooleanAddonParam extends StringAddonParam{
 	public IAddonParam makeCopy() {
 		IAddonParam param = new BooleanAddonParam(getAddonModel(), type);
 		param.setName(name);
+		param.setDisplayName(displayName);
 		return param;
 	}
 }

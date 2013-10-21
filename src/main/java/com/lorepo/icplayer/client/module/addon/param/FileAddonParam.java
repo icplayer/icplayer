@@ -29,6 +29,10 @@ public class FileAddonParam extends StringAddonParam{
 			public String getName() {
 				return name;
 			}
+			
+			public String getDisplayName() {
+				return displayName;
+			}
 		};
 		
 		return property;
@@ -39,6 +43,7 @@ public class FileAddonParam extends StringAddonParam{
 	public IAddonParam makeCopy() {
 		IAddonParam param = new FileAddonParam(getAddonModel(), type);
 		param.setName(name);
+		param.setDisplayName(displayName);
 		return param;
 	}
 }

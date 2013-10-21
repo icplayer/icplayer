@@ -93,6 +93,11 @@ public class ErrorCounterModule extends BasicModuleModel{
 				return DictionaryWrapper.get("errors_property");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("errors_property");
+			}
+
 		};
 		
 		addProperty(property);	
@@ -125,6 +130,11 @@ public class ErrorCounterModule extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("mistakes_property");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("mistakes_property");
 			}
 

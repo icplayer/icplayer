@@ -106,6 +106,11 @@ public class ImageSourceModule extends BasicModuleModel {
 			public String getName() {
 				return DictionaryWrapper.get("image_source_image");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_source_image");
+			}
 		};
 		
 		addProperty(property);
@@ -141,6 +146,11 @@ public class ImageSourceModule extends BasicModuleModel {
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("image_source_removable");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("image_source_removable");
 			}
 

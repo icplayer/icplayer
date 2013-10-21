@@ -121,6 +121,11 @@ public class ImageModule extends BasicModuleModel {
 			public String getName() {
 				return DictionaryWrapper.get("image_property");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_property");
+			}
 		};
 		
 		addProperty(property);
@@ -155,6 +160,11 @@ public class ImageModule extends BasicModuleModel {
 			@Override
 			public String getAllowedValue(int index) {
 				return DisplayMode.values()[index].toString();
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("mode_property");
 			}
 		};
 		

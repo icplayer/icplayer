@@ -133,6 +133,11 @@ public class SourceListModule extends BasicModuleModel{
 			public String getName() {
 				return DictionaryWrapper.get("source_list_items");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("source_list_items");
+			}
 		};
 		
 		addProperty(property);
@@ -197,6 +202,11 @@ public class SourceListModule extends BasicModuleModel{
 				return DictionaryWrapper.get("source_list_removable");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("source_list_removable");
+			}
+
 		};
 		
 		addProperty(property);
@@ -229,6 +239,11 @@ public class SourceListModule extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("source_list_vertical");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("source_list_vertical");
 			}
 

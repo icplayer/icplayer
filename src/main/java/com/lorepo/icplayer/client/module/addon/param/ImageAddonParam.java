@@ -29,6 +29,10 @@ public class ImageAddonParam extends StringAddonParam{
 			public String getName() {
 				return name;
 			}
+			
+			public String getDisplayName() {
+				return displayName;
+			}
 		};
 		
 		return property;
@@ -40,6 +44,7 @@ public class ImageAddonParam extends StringAddonParam{
 		
 		IAddonParam param = new ImageAddonParam(getAddonModel(), type);
 		param.setName(name);
+		param.setDisplayName(displayName);
 		return param;
 	}
 }

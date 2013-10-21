@@ -112,11 +112,12 @@ public class AddonModel extends BasicModuleModel {
 	}
 
 
-	public void addAddonParam(String name, String type) {
-
+	public void addAddonParam(String name, String displayName, String type) {
+		
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		IAddonParam addonParam = paramFactory.createAddonParam(this, type);
 		addonParam.setName(name);
+		addonParam.setDisplayName(displayName);
 		
 		addAddonParam(addonParam);
 	}

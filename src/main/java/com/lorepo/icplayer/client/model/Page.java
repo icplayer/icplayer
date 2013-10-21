@@ -242,6 +242,11 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 			public String getName() {
 				return DictionaryWrapper.get("name");
 			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("name");
+			}
 		};
 		
 		addProperty(propertyName);
@@ -274,6 +279,11 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("width");
+			}
+			
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("width");
 			}
 		};
@@ -310,6 +320,11 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 			public String getName() {
 				return DictionaryWrapper.get("height");
 			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("height");
+			}
 		};
 		
 		addProperty(property);
@@ -344,6 +359,11 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 			public String getName() {
 				return DictionaryWrapper.get("is_reportable");
 			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("is_reportable");
+			}
 		};
 		
 		addProperty(property);
@@ -367,6 +387,11 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("Preview");
+			}
+			
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("Preview");
 			}
 		};

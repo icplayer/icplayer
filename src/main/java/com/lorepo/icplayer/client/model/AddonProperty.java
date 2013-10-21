@@ -12,6 +12,7 @@ import com.lorepo.icf.utils.XMLUtils;
 public class AddonProperty {
 
 	private String name;
+	private String displayName;
 	private String type;
 	private boolean isLocalized = false;
 	private List<AddonProperty> childProperties = new ArrayList<AddonProperty>();
@@ -21,8 +22,9 @@ public class AddonProperty {
 	}
 	
 
-	public AddonProperty(String name, String type){
+	public AddonProperty(String name, String displayName, String type){
 		this.name = name;
+		this.displayName = displayName;
 		this.type = type;
 	}
 	
@@ -30,6 +32,11 @@ public class AddonProperty {
 	public String getName(){
 		return name;
 	}
+	
+	public String getDisplayName(){
+		return displayName;
+	}
+	
 	
 	public String getType(){
 		return type;
@@ -50,6 +57,7 @@ public class AddonProperty {
 		
 		childProperties.clear();
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
+		displayName = XMLUtils.getAttributeAsString(rootElement, "displayName");
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
 		isLocalized = XMLUtils.getAttributeAsBoolean(rootElement, "isLocalized", false);
 
@@ -74,17 +82,18 @@ public class AddonProperty {
 		
 		String xml;
 		String encodedName = StringUtils.escapeXML(name.trim());
+		String encodedDisplayName = StringUtils.escapeXML(displayName.trim());
 		String encodedtype = StringUtils.escapeXML(type.trim());
 		
 		if(childProperties.size() > 0){
-			xml = "<property name='" + encodedName + "' type='" + encodedtype + "'>";
+			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedtype + "'>";
 			for(AddonProperty property : childProperties){
 				xml += property.toXML();
 			}
 			xml += "</property>";
 		}
 		else{
-			xml = "<property name='" + encodedName + "' type='" + encodedtype + 
+			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedtype + 
 					"' isLocalized='" + isLocalized + "'/>";
 		}
 		

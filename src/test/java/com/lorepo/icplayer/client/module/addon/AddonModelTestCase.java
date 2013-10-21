@@ -148,10 +148,12 @@ public class AddonModelTestCase {
 		
 		boolean foundPropertyFile = false;
 		String value = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			if(module.getProperty(i).getName().compareTo("Title") == 0){
 				value = module.getProperty(i).getValue();
+				displayName = module.getProperty(i).getDisplayName();
 				foundPropertyFile = true;
 				break;
 			}
@@ -159,6 +161,7 @@ public class AddonModelTestCase {
 		
 		assertTrue(foundPropertyFile);
 		assertEquals("This is title", value);
+		assertEquals("Addon title", displayName);
 	}
 	
 	@Test
@@ -172,10 +175,10 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		String xml = module.toXML();
 		
-
-		int indexStringProperty = xml.indexOf("<property name='Title' type='string' value='This is title'/>");
-		int indexImageProperty = xml.indexOf("<property name='Image' type='image' value='myfile.jpg'/>");
-		int indexFileProperty = xml.indexOf("<property name='File' type='file' value='testfile.abc'/>");
+		
+		int indexStringProperty = xml.indexOf("<property name='Title' displayName='Addon title' type='string' value='This is title'/>");
+		int indexImageProperty = xml.indexOf("<property name='Image' displayName='Image file' type='image' value='myfile.jpg'/>");
+		int indexFileProperty = xml.indexOf("<property name='File' displayName='Test file' type='file' value='testfile.abc'/>");
 		assertTrue(indexStringProperty > 0);
 		assertTrue(indexImageProperty > 0);
 		assertTrue(indexFileProperty > 0);
@@ -192,18 +195,21 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		
 		String value = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			IProperty property = module.getProperty(i); 
 			if(property.getName().compareTo("Boolean") == 0){
 				if(property instanceof IBooleanProperty){
 					value = module.getProperty(i).getValue();
+					displayName = module.getProperty(i).getDisplayName();
 					break;
 				}
 			}
 		}
 		
 		assertEquals("true", value);
+		assertEquals("Boolean property", displayName);
 	}
 	
 	@Test
@@ -217,18 +223,22 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		
 		String value = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			IProperty property = module.getProperty(i); 
 			if(property.getName().compareTo("Image") == 0){
 				if(property instanceof IImageProperty){
 					value = module.getProperty(i).getValue();
+					displayName = module.getProperty(i).getDisplayName();
 					break;
 				}
 			}
 		}
 		
 		assertEquals("myfile.jpg", value);
+		assertEquals("", displayName);
+		
 	}
 	
 	@Test
@@ -242,18 +252,21 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		
 		String value = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			IProperty property = module.getProperty(i); 
 			if(property.getName().compareTo("File") == 0){
 				if(property instanceof IFileProperty){
 					value = module.getProperty(i).getValue();
+					displayName = module.getProperty(i).getDisplayName();
 					break;
 				}
 			}
 		}
 		
 		assertEquals("testfile.abc", value);
+		assertEquals("", displayName);
 	}
 	
 	@Test
@@ -267,10 +280,12 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		
 		IEnumSetProperty foundProperty = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			IProperty property = module.getProperty(i); 
 			if(property.getName().compareTo("Enum") == 0){
+				displayName = module.getProperty(i).getDisplayName();
 				if(property instanceof IEnumSetProperty){
 					foundProperty = (IEnumSetProperty) property;
 					break;
@@ -284,6 +299,7 @@ public class AddonModelTestCase {
 		assertEquals("ala", foundProperty.getAllowedValue(0));
 		assertEquals("ma", foundProperty.getAllowedValue(1));
 		assertEquals("kota", foundProperty.getAllowedValue(2));
+		assertEquals("Enum property", displayName);
 	}
 	
 	@Test
@@ -297,10 +313,12 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		
 		ITextProperty foundProperty = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			IProperty property = module.getProperty(i); 
 			if(property.getName().compareTo("Text") == 0){
+				displayName = module.getProperty(i).getDisplayName();
 				if(property instanceof ITextProperty){
 					foundProperty = (ITextProperty) property;
 					break;
@@ -310,6 +328,7 @@ public class AddonModelTestCase {
 		
 		assertNotNull(foundProperty);
 		assertEquals("ala", foundProperty.getValue());
+		assertEquals("Text property", displayName);
 	}
 
 	
@@ -351,10 +370,12 @@ public class AddonModelTestCase {
 		module.load(element, "");
 		
 		IListProperty foundProperty = null;
+		String displayName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
 			IProperty property = module.getProperty(i); 
 			if(property.getName().compareTo("Options") == 0){
+				displayName = module.getProperty(i).getDisplayName();
 				if(property instanceof IListProperty){
 					foundProperty = (IListProperty) property;
 					break;
@@ -367,6 +388,7 @@ public class AddonModelTestCase {
 		
 		IPropertyProvider provider = foundProperty.getChild(0);
 		assertEquals(2, provider.getPropertyCount());
+		assertEquals("Options property", displayName);
 	}
 	
 
@@ -401,6 +423,7 @@ public class AddonModelTestCase {
 		
 		IPropertyProvider provider = foundProperty.getChild(0);
 		assertEquals(2, provider.getPropertyCount());
+		
 	}
 	
 

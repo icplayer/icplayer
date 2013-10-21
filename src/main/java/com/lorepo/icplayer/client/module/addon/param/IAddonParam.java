@@ -10,5 +10,7 @@ public interface IAddonParam {
 	String toXML();
 	void setName(String name);
 	String getName();
+	void setDisplayName(String displayName);
+	String getDisplayName();
 	IAddonParam makeCopy();
 }

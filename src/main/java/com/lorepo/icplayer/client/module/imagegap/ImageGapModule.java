@@ -140,6 +140,11 @@ public class ImageGapModule extends BasicModuleModel {
 			public String getName() {
 				return DictionaryWrapper.get("image_gap_answer");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_gap_answer");
+			}
 		};
 		
 		addProperty(property);
@@ -175,6 +180,11 @@ public class ImageGapModule extends BasicModuleModel {
 				return DictionaryWrapper.get("is_activity");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("is_activity");
+			}
+
 		};
 		
 		addProperty(property);	
@@ -203,6 +213,11 @@ public class ImageGapModule extends BasicModuleModel {
 			
 			@Override
 			public String getName() {
+				return eventName;
+			}
+
+			@Override
+			public String getDisplayName() {
 				return eventName;
 			}
 		};

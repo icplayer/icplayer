@@ -22,6 +22,7 @@ public class TextAddonParam extends StringAddonParam{
 		
 		xml = "<property";
 		xml += " name='" + StringUtils.escapeXML(name) + "'";
+		xml += " displayName='" + StringUtils.escapeXML(displayName) + "'";
 		xml += " type='" + StringUtils.escapeXML(type) + "'";
 		xml += ">";
 		
@@ -36,6 +37,7 @@ public class TextAddonParam extends StringAddonParam{
 	@Override
 	public void load(Element element, String baseUrl) {
 		name = XMLUtils.getAttributeAsString(element, "name");
+		displayName = XMLUtils.getAttributeAsString(element, "displayName");
 		type = XMLUtils.getAttributeAsString(element, "type");
 		String rawText = XMLUtils.getText(element);
 		rawText = rawText.replace("\\n", "\n");
@@ -61,6 +63,10 @@ public class TextAddonParam extends StringAddonParam{
 			public String getName() {
 				return name;
 			}
+			
+			public String getDisplayName() {
+				return displayName;
+			}
 		};
 		
 		return property;
@@ -72,6 +78,7 @@ public class TextAddonParam extends StringAddonParam{
 		
 		IAddonParam param = new TextAddonParam(getAddonModel(), type);
 		param.setName(name);
+		param.setDisplayName(displayName);
 		return param;
 	}
 }

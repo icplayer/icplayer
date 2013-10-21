@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.module.addon.AddonModel;
 public class StringAddonParam implements IAddonParam{
 
 	protected String name;
+	protected String displayName;
 	protected String type;
 	protected String value = "";
 	private AddonModel parent;
@@ -24,7 +25,7 @@ public class StringAddonParam implements IAddonParam{
 	public String getName(){
 		return name;
 	}
-
+	
 	@Override
 	public String toXML(){
 		
@@ -32,6 +33,7 @@ public class StringAddonParam implements IAddonParam{
 		
 		xml = "<property";
 		xml += " name='" + StringUtils.escapeXML(name) + "'";
+		xml += " displayName='" + StringUtils.escapeXML(displayName) + "'";
 		xml += " type='" + StringUtils.escapeXML(type) + "'";
 		xml += " value='" + StringUtils.escapeXML(value) + "'";
 		xml += "/>";
@@ -43,6 +45,7 @@ public class StringAddonParam implements IAddonParam{
 	@Override
 	public void load(Element element, String baseUrl) {
 		name = XMLUtils.getAttributeAsString(element, "name");
+		displayName = XMLUtils.getAttributeAsString(element, "displayName");
 		type = XMLUtils.getAttributeAsString(element, "type");
 		String rawPropertyValue = XMLUtils.getAttributeAsString(element, "value");
 		value = StringUtils.unescapeXML(rawPropertyValue);
@@ -66,6 +69,11 @@ public class StringAddonParam implements IAddonParam{
 			public String getName() {
 				return name;
 			}
+			
+			public String getDisplayName() {
+				return displayName;
+			}
+			
 		};
 		
 		return property;
@@ -95,6 +103,19 @@ public class StringAddonParam implements IAddonParam{
 		
 		IAddonParam param = new StringAddonParam(getAddonModel(), type);
 		param.setName(name);
+		param.setDisplayName(displayName);
 		return param;
+	}
+
+
+	@Override
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+
+	@Override
+	public String getDisplayName() {
+		return this.displayName;
 	}
 }

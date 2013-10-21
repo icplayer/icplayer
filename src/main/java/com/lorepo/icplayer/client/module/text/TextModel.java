@@ -172,6 +172,11 @@ public class TextModel extends BasicModuleModel{
 			public String getName() {
 				return DictionaryWrapper.get("text_module_text");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_text");
+			}
 		};
 		
 		addProperty(property);
@@ -218,6 +223,11 @@ public class TextModel extends BasicModuleModel{
 					return "Draggable";
 				}
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_gap_type");
+			}
 		};
 		
 		addProperty(property);
@@ -241,6 +251,11 @@ public class TextModel extends BasicModuleModel{
 
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("text_module_gap_width");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_gap_width");
 			}
 		};
@@ -298,6 +313,11 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("is_activity");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("is_activity");
+			}
+
 		};
 		
 		addProperty(property);	
@@ -330,6 +350,11 @@ public class TextModel extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("is_disabled");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("is_disabled");
 			}
 
@@ -368,6 +393,11 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("case_sensitive");
 			}
 
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("case_sensitive");
+			}
+
 		};
 		
 		addProperty(property);	
@@ -402,6 +432,12 @@ public class TextModel extends BasicModuleModel{
 			public String getName() {
 				return DictionaryWrapper.get("Ignore_punctuation");
 			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Ignore_punctuation");
+			}
+
 
 		};
 		

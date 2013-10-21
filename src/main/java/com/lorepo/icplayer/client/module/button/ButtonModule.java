@@ -174,6 +174,11 @@ public class ButtonModule extends BasicModuleModel{
 			public String getName() {
 				return DictionaryWrapper.get("title");
 			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("title");
+			}
 		};
 		
 		addProperty(property);
@@ -196,6 +201,11 @@ public class ButtonModule extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("page");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("page");
 			}
 		};
@@ -225,6 +235,11 @@ public class ButtonModule extends BasicModuleModel{
 			
 			@Override
 			public String getName() {
+				return DictionaryWrapper.get("on_click");
+			}
+
+			@Override
+			public String getDisplayName() {
 				return DictionaryWrapper.get("on_click");
 			}
 		};
