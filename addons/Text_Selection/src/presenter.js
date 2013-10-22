@@ -17,6 +17,10 @@ function AddonText_Selection_create() {
 		return (/\\wrong{/).test(word);
 	};
 
+    presenter.hasOpeningBracket = function(word) {
+        return (/{/).test(word);
+    };
+
 	presenter.hasClosingBracket = function(word) {
 		return (/}/).test(word);
 	};
@@ -31,25 +35,32 @@ function AddonText_Selection_create() {
 
 	presenter.cutMarkedCorrect = function(word) {
 		if (isLastSpecialSigh(word)) {
-			word = word.replace(/\\correct{/, '').replace(/}/, '');
+			word = word.replace(/\\correct{/, '').replace(/}([^}]*)$/,'$1');
 			return word.substring(0, word.length-1);
 		} else {
-			return word.replace(/\\correct{/, '').replace(/}/, '');
+			return word.replace(/\\correct{/, '').replace(/}([^}]*)$/,'$1');
 		}
 	};
 
 	presenter.cutMarkedWrong = function(word) {
 		if (isLastSpecialSigh(word)) {
-			word = word.replace(/\\wrong{/, '').replace(/}/, '');
+			word = word.replace(/\\wrong{/, '').replace(/}([^}]*)$/,'$1');
 			return word.substring(0, word.length - 1);
 		} else {
-			return word.replace(/\\wrong{/, '').replace(/}/, '');
+			return word.replace(/\\wrong{/, '').replace(/}([^}]*)$/,'$1');
 		}
 	};
 
-	presenter.cutClosingBracket = function(word) {
-		return word.replace(/}/, '');
+	presenter.cutLastClosingBracket = function(word) {
+		return word.replace(/}([^}]*)$/,'$1');
 	};
+
+    presenter.countBrackets = function(word) {
+        return {
+            open : word.split("{").length - 1,
+            close : word.split("}").length - 1
+        }
+    };
 
 	presenter.startSelection = function(et) {
 		first = parseInt($(et).attr('number'), 10);
@@ -348,7 +359,7 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.parseWords = function(text, mode, selection_type) {
-		var i, j,
+		var i,
 			result = '',
 			words = [],
 			markedCorrect = [],
@@ -361,7 +372,9 @@ function AddonText_Selection_create() {
 			spanNumber = 0,
 			tmpWord = '',
 			wrongMarkerInAllSelectable = false,
-			emptyWord = false;
+			emptyWord = false,
+            stack = 0,
+            counted = null;
 
 		HTMLParser(text.replace(/&nbsp;/, ' '), {
 			start: function(tag, attrs, unary) {
@@ -390,14 +403,23 @@ function AddonText_Selection_create() {
 							renderedRun += ' ';
 						} else if (presenter.isMarkedCorrect(words[i])) {
 							tmpWord = presenter.cutMarkedCorrect(words[i]);
-							if (isLastSpecialSigh(words[i])) {
-								renderedPreview += '<span class="correct selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
-								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
-							} else {
-								renderedPreview += '<span class="correct selectable">' + tmpWord + '</span> ';
-								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getSpace(spanNumber);
-							}
-							
+
+                            counted = presenter.countBrackets(tmpWord);
+                            if (counted.open > counted.close) {
+                                tmpWord += '}';
+                                renderedPreview += '<span class="correct selectable">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
+                                renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
+                                isTagClosed = false;
+                            } else {
+                                if (isLastSpecialSigh(words[i])) {
+                                    renderedPreview += '<span class="correct selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+                                    renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+                                } else {
+                                    renderedPreview += '<span class="correct selectable">' + tmpWord + '</span> ';
+                                    renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getSpace(spanNumber);
+                                }
+                            }
+
 							markedCorrect.push(spanNumber);
 							spanNumber++;
 
@@ -406,14 +428,22 @@ function AddonText_Selection_create() {
 							}
 						} else if (presenter.isMarkedWrong(words[i])) {
 							tmpWord = presenter.cutMarkedWrong(words[i]);
-							
-							if (isLastSpecialSigh(words[i])) {
-								renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
-								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
-							} else {
-								renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span> ';
-								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getSpace(spanNumber);
-							}
+
+                            counted = presenter.countBrackets(tmpWord);
+                            if (counted.open > counted.close) {
+                                tmpWord += '}';
+                                renderedPreview += '<span class="wrong selectable">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
+                                renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
+                                isTagClosed = false;
+                            } else {
+                                if (isLastSpecialSigh(words[i])) {
+                                    renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+                                    renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
+                                } else {
+                                    renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span> ';
+                                    renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getSpace(spanNumber);
+                                }
+                            }
 
 							markedWrong.push(spanNumber);
 							spanNumber++;
@@ -426,7 +456,11 @@ function AddonText_Selection_create() {
 							}
 						} else if (presenter.isStartedCorrect(words[i])) {
 							tmpWord = presenter.cutMarkedCorrect(words[i]);
-							console.log(tmpWord);
+
+                            counted = presenter.countBrackets(tmpWord);
+                            stack += counted.open;
+                            stack -= counted.close;
+
 							renderedPreview += '<span class="correct selectable">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
 							renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
 							markedCorrect.push(spanNumber);
@@ -434,14 +468,21 @@ function AddonText_Selection_create() {
 							isTagClosed = false;
 						} else if (presenter.isStartedWrong(words[i])) {
 							tmpWord = presenter.cutMarkedWrong(words[i]);
-							console.log(tmpWord);
-							console.log(getSpecialIfStarted(words[i]));
+
+                            counted = presenter.countBrackets(tmpWord);
+                            stack += counted.open;
+                            stack -= counted.close;
+
 							renderedPreview += '<span class="wrong selectable">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
 							renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
 							markedWrong.push(spanNumber);
 							spanNumber++;
 							isTagClosed = false;
-						} else {
+                        } else {
+                            counted = presenter.countBrackets(words[i]);
+                            stack += counted.open;
+                            stack -= counted.close;
+
 							if (mode === 'ALL_SELECTABLE') {
 								renderedRun += '<span class="selectable" number="' + spanNumber + '">' + words[i] + '</span>' + getSpace(spanNumber);
 								markedWrong.push(spanNumber);
@@ -453,17 +494,26 @@ function AddonText_Selection_create() {
 							spanNumber++;
 						}
 					} else {
-						if (presenter.hasClosingBracket(words[i])) {
-							tmpWord = presenter.cutClosingBracket(words[i]);
-							renderedPreview += tmpWord + '</span> ';
-							renderedRun += tmpWord + '</span> ';
-							isTagClosed = true;
-						} else {
-							renderedPreview += words[i] + ' ';
-							renderedRun += words[i] + ' ';
-						}
+                        counted = presenter.countBrackets(words[i]);
+                        if (counted.open === counted.close) {
+                            renderedPreview += words[i] + ' ';
+                            renderedRun += words[i] + ' ';
+                        } else {
+                            if (stack === 0) {
+                                tmpWord = presenter.cutLastClosingBracket(words[i]);
+                                renderedPreview += tmpWord + '</span> ';
+                                renderedRun += tmpWord + '</span> ';
+                                isTagClosed = true;
+                            } else {
+                                tmpWord = presenter.cutLastClosingBracket(words[i]);
+                                renderedPreview += tmpWord + ' ';
+                                renderedRun += tmpWord + ' ';
+                                stack--;
+                                isTagClosed = true;
+                            }
+                        }
 					}
-				}
+                }
 
 				text = words.join(' ');
 				result += text;
@@ -612,9 +662,6 @@ function AddonText_Selection_create() {
 	};
 
 	function points(selector) {
-		var i,
-			counter = 0;
-
 		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
 			return parseInt(this.getAttribute('number'));
 		}).get();
