@@ -370,7 +370,7 @@ function AddonImage_Viewer_Public_create() {
             });
             presenter.$elementHelper.css({
                 width: elementWidth + 'px',
-                height: elementHeight + 'px',
+                height: elementHeight + 'px'
             });
 
             if (backgroundSize) {
@@ -717,7 +717,9 @@ function AddonImage_Viewer_Public_create() {
             'moveToFrameName': presenter.moveToFrameNameCommand,
             'getCurrentFrame': presenter.getCurrentFrame,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'markAsCorrect': presenter.markAsCorrect,
+            'markAsWrong': presenter.markAsWrong
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -739,6 +741,16 @@ function AddonImage_Viewer_Public_create() {
         presenter.setVisibility(false);
         presenter.hideLabels();
         presenter.configuration.currentVisibility = false;
+    };
+
+    presenter.markAsCorrect = function() {
+        presenter.$element.addClass('correct');
+        presenter.$element.removeClass('wrong');
+    };
+
+    presenter.markAsWrong = function() {
+        presenter.$element.addClass('wrong');
+        presenter.$element.removeClass('correct');
     };
 
     presenter.getCurrentFrame = function () {
