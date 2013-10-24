@@ -5,7 +5,7 @@ function AddonText_Selection_create() {
 	var first = 0,
 		lastMoveEvent = null;
 
-	function isLastSpecialSigh(word) {
+	function isLastSpecialSign(word) {
 		return ['.', ',', '?', '!', ';', ':'].indexOf(word[word.length-1]) != -1;
 	}
 
@@ -26,28 +26,46 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.isMarkedCorrect = function(word) {
-		return (/\\correct{.*}/).test(word);
+		var counted = this.countBrackets(word);
+		return (/\\correct{.*}/).test(word) && (counted.open === counted.close);
 	};
 
 	presenter.isMarkedWrong = function(word) {
-		return (/\\wrong{.*}/).test(word);
+		var counted = this.countBrackets(word);
+		return (/\\wrong{.*}/).test(word) && (counted.open === counted.close);
 	};
 
 	presenter.cutMarkedCorrect = function(word) {
-		if (isLastSpecialSigh(word)) {
-			word = word.replace(/\\correct{/, '').replace(/}([^}]*)$/,'$1');
+		var countedBrackets = this.countBrackets(word);
+		if (isLastSpecialSign(word)) {
+			word = word.replace(/\\correct{/, '');
+			if (countedBrackets.open === countedBrackets.close) {
+				word = word.replace(/}([^}]*)$/,'$1');
+			}
 			return word.substring(0, word.length-1);
 		} else {
-			return word.replace(/\\correct{/, '').replace(/}([^}]*)$/,'$1');
+			word = word.replace(/\\correct{/, '')
+			if (countedBrackets.open === countedBrackets.close) {
+				word = word.replace(/}([^}]*)$/,'$1');
+			}
+			return word;
 		}
 	};
 
 	presenter.cutMarkedWrong = function(word) {
-		if (isLastSpecialSigh(word)) {
-			word = word.replace(/\\wrong{/, '').replace(/}([^}]*)$/,'$1');
+		var countedBrackets = this.countBrackets(word);
+		if (isLastSpecialSign(word)) {
+			word = word.replace(/\\wrong{/, '');
+			if (countedBrackets.open === countedBrackets.close) {
+				word = word.replace(/}([^}]*)$/,'$1');
+			}
 			return word.substring(0, word.length - 1);
 		} else {
-			return word.replace(/\\wrong{/, '').replace(/}([^}]*)$/,'$1');
+			word = word.replace(/\\wrong{/, '');
+			if (countedBrackets.open === countedBrackets.close) {
+				word = word.replace(/}([^}]*)$/,'$1'); 
+			}
+			return word;
 		}
 	};
 
@@ -224,11 +242,11 @@ function AddonText_Selection_create() {
 	}
 
 	function getSpecialSign(word) {
-		return isLastSpecialSigh(word) && (presenter.isMarkedWrong(word) || presenter.isMarkedCorrect(word)) ? word[word.length - 1] : "";
+		return isLastSpecialSign(word) && (presenter.isMarkedWrong(word) || presenter.isMarkedCorrect(word)) ? word[word.length - 1] : "";
 	}
 	
 	function getSpecialIfStarted(word) {
-		return isLastSpecialSigh(word) && (presenter.isStartedWrong(word) || presenter.isStartedCorrect(word)) ? word[word.length - 1] : "";
+		return isLastSpecialSign(word) && (presenter.isStartedWrong(word) || presenter.isStartedCorrect(word)) ? word[word.length - 1] : "";
 	}
 
 	presenter.presenterLogic = function(view, model, isPreview) {
@@ -397,21 +415,20 @@ function AddonText_Selection_create() {
 				words = text.split(' ');
 
 				for (i=0; i<words.length; i++) {
-					if (isTagClosed) {
+					if (isTagClosed === true) {
 						if (words[i] === ' ') {
 							renderedPreview += ' ';
 							renderedRun += ' ';
 						} else if (presenter.isMarkedCorrect(words[i])) {
 							tmpWord = presenter.cutMarkedCorrect(words[i]);
 
-                            counted = presenter.countBrackets(tmpWord);
+                            counted = presenter.countBrackets(words[i]);
                             if (counted.open > counted.close) {
-                                tmpWord += '}';
                                 renderedPreview += '<span class="correct selectable">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
                                 renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
                                 isTagClosed = false;
                             } else {
-                                if (isLastSpecialSigh(words[i])) {
+                                if (isLastSpecialSign(words[i])) {
                                     renderedPreview += '<span class="correct selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
                                     renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
                                 } else {
@@ -429,14 +446,13 @@ function AddonText_Selection_create() {
 						} else if (presenter.isMarkedWrong(words[i])) {
 							tmpWord = presenter.cutMarkedWrong(words[i]);
 
-                            counted = presenter.countBrackets(tmpWord);
+                            counted = presenter.countBrackets(words[i]);
                             if (counted.open > counted.close) {
-                                tmpWord += '}';
                                 renderedPreview += '<span class="wrong selectable">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
                                 renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + getSpecialIfStarted(words[i]) + ' ';
                                 isTagClosed = false;
                             } else {
-                                if (isLastSpecialSigh(words[i])) {
+                                if (isLastSpecialSign(words[i])) {
                                     renderedPreview += '<span class="wrong selectable">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
                                     renderedRun += '<span class="selectable" number="' + spanNumber + '">' + tmpWord + '</span>' + getBlock(spanNumber, getSpecialSign(words[i]));
                                 } else {
@@ -456,8 +472,8 @@ function AddonText_Selection_create() {
 							}
 						} else if (presenter.isStartedCorrect(words[i])) {
 							tmpWord = presenter.cutMarkedCorrect(words[i]);
-
-                            counted = presenter.countBrackets(tmpWord);
+							
+                            counted = presenter.countBrackets(words[i]);
                             stack += counted.open;
                             stack -= counted.close;
 
@@ -468,8 +484,8 @@ function AddonText_Selection_create() {
 							isTagClosed = false;
 						} else if (presenter.isStartedWrong(words[i])) {
 							tmpWord = presenter.cutMarkedWrong(words[i]);
-
-                            counted = presenter.countBrackets(tmpWord);
+							
+                            counted = presenter.countBrackets(words[i]);
                             stack += counted.open;
                             stack -= counted.close;
 
@@ -493,23 +509,26 @@ function AddonText_Selection_create() {
 
 							spanNumber++;
 						}
-					} else {
+					} else { // isTagClosed === false
                         counted = presenter.countBrackets(words[i]);
                         if (counted.open === counted.close) {
                             renderedPreview += words[i] + ' ';
                             renderedRun += words[i] + ' ';
                         } else {
+                        	if (counted.close >= (stack + counted.open)) {
+                        		tmpWord = presenter.cutLastClosingBracket(words[i]);
+                        	} else {
+                        		tmpWord = words[i];
+                        	}
+                            stack += counted.open;
+                            stack -= counted.close;
                             if (stack === 0) {
-                                tmpWord = presenter.cutLastClosingBracket(words[i]);
                                 renderedPreview += tmpWord + '</span> ';
                                 renderedRun += tmpWord + '</span> ';
                                 isTagClosed = true;
                             } else {
-                                tmpWord = presenter.cutLastClosingBracket(words[i]);
                                 renderedPreview += tmpWord + ' ';
                                 renderedRun += tmpWord + ' ';
-                                stack--;
-                                isTagClosed = true;
                             }
                         }
 					}
