@@ -100,11 +100,6 @@ public class TextViewMockup implements IDisplay {
 		
 	}
 	
-	public void clearTextElements() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub

@@ -155,14 +155,8 @@ public class TextView extends HTML implements IDisplay{
 	}
 
 	@Override
-	public void clearTextElements() {
-		textElements.clear();
-	}
-
-	@Override
 	public void hide() {
 		setVisible(false);
-		clearTextElements();
 	}
 
 

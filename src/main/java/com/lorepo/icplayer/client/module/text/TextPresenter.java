@@ -12,7 +12,6 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -35,8 +34,6 @@ import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 
 public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver{
-	
-	private boolean areGapsConnected = false;
 
 	public interface TextElementDisplay{
 		boolean hasId(String id);
@@ -67,7 +64,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void hide();
 		void show();
 		Element getElement();
-		void clearTextElements();
 	}
 	
 	private TextModel	module;
@@ -184,17 +180,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	 */
 	@Override
 	public void setState(String stateObj) {
-		view.clearTextElements();
-		
+
 		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
-		
-		isVisible = Boolean.parseBoolean(state.get("isVisible"));
-		if(!isVisible){
-			hide();
-		} else {
-			show();
-		}
-		
 		String oldGapId = state.get("gapUniqueId") + "-";
 		values.clear();
 		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
@@ -202,28 +189,35 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
 			values.put(newKey, oldValues.get(key));
 		}
-		
-		if(state.containsKey("enteredText")) {
+		if(state.containsKey("enteredText")){
 			enteredText = state.get("enteredText");
 			view.setHTML(enteredText);
 		}
 
 		consumedItems = new HashMap<String, DraggableItem>();
 		HashMap<String, String> itemsState = JSONUtils.decodeHashMap(state.get("consumed"));
-		for(String key: itemsState.keySet()) {
+		for(String key: itemsState.keySet()){
 			String value = itemsState.get(key);
 			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
 			consumedItems.put(newKey,  DraggableItem.createFromString(value));
 		}
 		
-		for(String id : values.keySet()) {
+		for(String id : values.keySet()){
 			String value = values.get(id);
 			view.setValue(id, value);
 		}
 		
 		ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
-		for(int i = 0; i < view.getChildrenCount() && i < stateDisabled.size(); i++) {
+		for(int i = 0; i < view.getChildrenCount() && i < stateDisabled.size(); i++){
 			view.getChild(i).setDisabled(stateDisabled.get(i));
+		}
+		
+		isVisible = Boolean.parseBoolean(state.get("isVisible"));
+		if(!isVisible){
+			view.hide();
+		}
+		else{
+			view.show();
 		}
 	}
 	
@@ -358,12 +352,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private void updateViewText() {
 		view.setHTML(module.getParsedText());
-		if (isVisible) {
-			if (module.hasDraggableGaps()) {
-				view.connectDraggableGaps(module.getGapInfos().iterator());
-			} else {
-				view.connectGaps(module.getGapInfos().iterator());
-			}
+		if(module.hasDraggableGaps()){
+			view.connectDraggableGaps(module.getGapInfos().iterator());
+		}
+		else{
+			view.connectGaps(module.getGapInfos().iterator());
 		}
 		view.connectInlineChoices(module.getChoiceInfos().iterator());
 		view.connectLinks(module.getLinkInfos().iterator());
@@ -681,20 +674,19 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.setHTML(text);
 	}
 
-	private void show() {
+	private void show(){
+		
 		isVisible = true;
-		if(view != null) {
-			if(!module.isActivity()) {
-				updateViewText();
-			}
+		if(view != null){
 			view.show();
 		}
 	}
 	
-	private void hide() {
+	
+	private void hide(){
 		
 		isVisible = false;
-		if(view != null) {
+		if(view != null){
 			view.hide();
 		}
 	}
