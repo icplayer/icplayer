@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.addon;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -539,4 +540,41 @@ public class AddonModelTestCase {
 		assertTrue(index > 0);
 	}
 
+
+	@Test
+	public void noLocked() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/addon2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		AddonModel module = new AddonModel();
+		module.load(element, "");
+
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new AddonModel();
+		module.load(element, "");
+		
+		assertFalse(module.isLocked());
+	}
+
+
+	@Test
+	public void locked() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/addonLocked.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		AddonModel module = new AddonModel();
+		module.load(element, "");
+
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new AddonModel();
+		module.load(element, "");
+		
+		assertTrue(module.isLocked());
+	}
 }

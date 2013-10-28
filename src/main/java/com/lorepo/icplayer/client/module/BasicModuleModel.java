@@ -22,6 +22,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String  moduleTypeName;
 	private String	id;
 	private boolean isVisible = true;
+	private boolean isLocked = false;
 	private String baseURL;
 	private INameValidator nameValidator;
 
@@ -86,6 +87,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		int right = XMLUtils.getAttributeAsInt(element, "right");
 		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
 		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
+		isLocked = XMLUtils.getAttributeAsBoolean(element, "isLocked", false);
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
@@ -111,7 +113,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop()  +
 				"' width='" + getWidth() + "' height='" + getHeight() + "' " +
 				"right='" + getRight() + "' bottom='" + getBottom() + "' " +
-				"isVisible='" + isVisible + "'";
+				"isVisible='" + isVisible + "' isLocked='" + isLocked +"'";
 		
 		if(!getInlineStyle().isEmpty()){
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
@@ -205,6 +207,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	public boolean isVisible(){
 		return isVisible;
+	}
+
+	public boolean isLocked(){
+		return isLocked;
 	}
 	
 	public String getBaseURL(){
