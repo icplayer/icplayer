@@ -209,6 +209,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		return isVisible;
 	}
 
+	public void lock(boolean state){
+		isLocked = state;
+	}
+	
 	public boolean isLocked(){
 		return isLocked;
 	}

@@ -32,6 +32,8 @@ var ice_dictionary = {
 	"select_page" : "Select page",
 	"select_page_strong" : "<b>Add page</b>",
 	"select_module_strong" : "<b>Add module</b>",
+	"lock_module_menu" : "Lock modules",
+	"unlock_module_menu" : "Unlock modules",
 	"pages" : "Pages",
 	"modules" : "Modules",
 	"create_page" : "Create new page",
