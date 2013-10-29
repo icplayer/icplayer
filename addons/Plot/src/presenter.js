@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.10';
+        this.VERSION = '1.1.11';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -58,6 +58,7 @@ function AddonPlot_create(){
         this.convertValueToDisplay = function(val){ return val; };
         this.isActivity = true;
         this.freePoints = false;
+        this.precision = {x: 100, y:100};
 
         this.setScale = function () {
             this.svgDoc.find('.scale').attr('transform', 'scale(1, -1)');
@@ -1040,9 +1041,9 @@ function AddonPlot_create(){
             var yRange = Math.max(this.yMin, this.yMax) - Math.min(this.yMin, this.yMax);
 
             var x = px*xRange/this.width+this.xMin;
-            x = Math.round(100*x)/100;
+            x = Math.round(this.precision.x*x)/this.precision.x;
             var y = (py*yRange/this.height)*(-1)+this.yMax;
-            y = Math.round(100*y)/100;
+            y = Math.round(this.precision.y*y)/this.precision.y;
 
             return {
                 x: x,
@@ -1065,6 +1066,13 @@ function AddonPlot_create(){
             this.yMax -= offsetY;
 
             this.setStep();
+        };
+
+        this.calculatePrecision = function() {
+            var idx = this.gridStepX.toString().indexOf('.');
+            var idy = this.gridStepY.toString().indexOf('.');
+            this.precision.x = idx !== -1 ? Math.pow(10, this.gridStepX.toString().length - idx - 1) : 100;
+            this.precision.y = idy !== -1 ? Math.pow(10, this.gridStepY.toString().length - idx - 1) : 100;
         };
 
         /**
@@ -1719,6 +1727,7 @@ function AddonPlot_create(){
         }
         plot.stateChanged = presenter.stateChanged;
         plot.convertValueToDisplay = presenter.convertValueToDisplay;
+        plot.calculatePrecision();
 
         $(view).find('.canvas:first').svg({
             onLoad: presenter.onSvgCreate,
