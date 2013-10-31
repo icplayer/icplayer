@@ -521,7 +521,10 @@ function AddonImage_Viewer_Public_create() {
         configuration.currentFrame = state.currentFrame;
         configuration.currentVisibility = state.currentVisibility;
         configuration.showWatermark = state.showWatermark;
+        configuration.showWatermarkbyDefault = state.showWatermarkbyDefault;
         configuration.shouldCalcScore = state.shouldCalcScore;
+        configuration.isClickDisabled = state.isClickDisabled;
+        configuration.isClickDisabledbyDefault = state.isClickDisabledbyDefault;
 
         if(!configuration.showWatermark) {
             $(watermarkElement).remove();
@@ -707,6 +710,17 @@ function AddonImage_Viewer_Public_create() {
         return Math.floor( Math.random() * frames );
     };
 
+    presenter.setClickDisabled = function() {
+    	presenter.configuration.isClickDisabled = true;
+    	hideWatermarkIfVisible();
+    };
+    presenter.setClickEnabled = function() {
+    	presenter.configuration.isClickDisabled = false;
+    	if (presenter.configuration.showWatermarkbyDefault) {
+    		showWatermarkIfNotVisible();
+    	}
+    };
+
     presenter.executeCommand = function(name, params) {
         if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
 
@@ -719,7 +733,9 @@ function AddonImage_Viewer_Public_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'markAsCorrect': presenter.markAsCorrect,
-            'markAsWrong': presenter.markAsWrong
+            'markAsWrong': presenter.markAsWrong,
+            'setClickDisabled': presenter.setClickDisabled,
+            'setClickEnabled': presenter.setClickEnabled
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -1122,9 +1138,11 @@ function AddonImage_Viewer_Public_create() {
             frameNames: validatedFrameNames.frameNames,
             frameNamesEmpty: validatedFrameNames.frameNamesEmpty,
             isClickDisabled: isClickDisabled,
+            isClickDisabledbyDefault: isClickDisabled,
             frameSize: frameSize,
             labels: validatedLabels.labels,
             showWatermark: ModelValidationUtils.validateBoolean(model["Show watermark"]),
+            showWatermarkbyDefault: ModelValidationUtils.validateBoolean(model["Show watermark"]),
             showFrame: showFrame,
             animation: animation,
             correctFrames: validatedCorrectFrames,
@@ -1301,7 +1319,10 @@ function AddonImage_Viewer_Public_create() {
         return JSON.stringify({
             currentFrame : this.configuration.currentFrame,
             currentVisibility : this.configuration.currentVisibility,
-            showWatermark : this.configuration.showWatermark,
+            showWatermark : ($(watermarkElement).is(':visible')) ? true : false,
+            showWatermarkbyDefault : this.configuration.showWatermarkbyDefault, 
+            isClickDisabled: presenter.configuration.isClickDisabled,
+            isClickDisabledbyDefault : presenter.configuration.isClickDisabledbyDefault,
             shouldCalcScore: presenter.configuration.shouldCalcScore
         });
     };
@@ -1325,6 +1346,8 @@ function AddonImage_Viewer_Public_create() {
         if (shouldShowWatermark()) {
             showWatermarkIfNotVisible();
         }
+        
+        presenter.configuration.isClickDisabled = presenter.configuration.isClickDisabledbyDefault;
 
         var isVisible = presenter.configuration.currentVisibility = presenter.configuration.defaultVisibility;
         presenter.setVisibility(isVisible);
