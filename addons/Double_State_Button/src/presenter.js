@@ -2,6 +2,9 @@ function AddonDouble_State_Button_create(){
     var presenter = function() {};
 
     var playerController;
+    var isMouseDown = false;
+    var isTouchDown = false;
+    var isMouseBlocked = false;
 
     presenter.lastEvent = null;
 
@@ -68,23 +71,51 @@ function AddonDouble_State_Button_create(){
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
 
         element.on('touchstart', function (e) {
+            isMouseBlocked = true;
+            console.log('touchstart');
             e.preventDefault();
             e.stopPropagation();
             presenter.lastEvent = e;
+            isTouchDown = true;
         });
 
         element.on('touchend', function (e) {
+            console.log('touchend');
             e.preventDefault();
-            if ( presenter.lastEvent.type != e.type ) {
-                presenter.clickHandler(e);
+            if (isTouchDown) {
+                if ( presenter.lastEvent.type != e.type ) {
+                    presenter.clickHandler(e);
+                }
+                isTouchDown = false;
             }
         });
     }
 
     function handleMouseActions() {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+		        
+        element.on('mousedown', function(e) {
+            if (!isMouseBlocked) {
+                console.log('mousedown');
+                e.preventDefault();
+                e.stopPropagation();
+                presenter.lastEvent = e;
+                isMouseDown = true;
+            }
+		});
 
-        element.click(presenter.clickHandler);
+		element.on('mouseup', function(e) {
+            if (!isMouseBlocked) {
+                console.log('mouseup');
+                e.preventDefault();
+                if (isMouseDown) {
+                    if (presenter.lastEvent.type != e.type) {
+                        presenter.clickHandler(e);
+                    }
+                    isMouseDown = false;
+                }
+            }
+		});
 
         element.hover(
             function() {
