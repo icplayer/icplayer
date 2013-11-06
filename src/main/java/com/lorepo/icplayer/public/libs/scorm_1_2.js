@@ -1,4 +1,4 @@
-function getScorm() {
+function getScorm_1_2() {
 	var scorm = function() {}
 
 	var nFindAPITries = 0;
@@ -7,7 +7,7 @@ function getScorm() {
 	var initialized = false;
 
 	function scanForAPI(win) {
-		while ((win.API_1484_11 == null) && (win.parent != null) &&	(win.parent != win)) {
+		while ((win.API == null) && (win.parent != null) &&	(win.parent != win)) {
 			nFindAPITries ++;
 			if (nFindAPITries > maxTries) {
 				alert("Error in finding API instance -- too deeply nested.");
@@ -15,7 +15,7 @@ function getScorm() {
 			}
 			win = win.parent;
 		}
-		return win.API_1484_11;
+		return win.API;
 	}
 
 	scorm.getAPI = function(win) {
@@ -35,7 +35,7 @@ function getScorm() {
 	scorm.initializeScormCommunication = function(win) {
 		this.getAPI(win);
 		if (initialized == false && API != null) {
-			var result = API.Initialize("");
+			var result = API.LMSInitialize("");
 			if (result == "true") {
 				initialized = true;
 				return true;
@@ -51,129 +51,117 @@ function getScorm() {
 
 	scorm.commitScormCommunication = function() {
 		if (initialized == true) {
-			return API.Commit("");
+			return API.LMSCommit("");
 		}
 		return false;
 	}
 
 	scorm.terminateScormCommunication = function() {
 		if (initialized == true) {
-			return API.Terminate("");
+			return API.LMSFinish("");
 		}
 		return false;
 	}
 
 	scorm.setMinScore = function(score) {
 		if (initialized == true) {
-			return API.SetValue("cmi.score.min", score);
+			return API.LMSSetValue("cmi.core.score.min", score);
 		}
 		return false;
 	}
 
 	scorm.setMaxScore = function(score) {
 		if (initialized == true) {
-			return API.SetValue("cmi.score.max", score);
+			return API.LMSSetValue("cmi.core.score.max", score);
 		}
 		return false;
 	}
 
 	scorm.setRawScore = function(score) {
 		if (initialized == true) {
-			return API.SetValue("cmi.score.raw", score);
+			return API.LMSSetValue("cmi.core.score.raw", score);
 		}
 		return false;
 	}
 
 	scorm.setScaledScore = function(score) {
-		if (initialized == true) {
-			return API.SetValue("cmi.score.scaled", score);
-		}
-		return false;
+		return true; // not supported in SCORM 1.2
 	}
 
 	scorm.setPageName = function(page, name) {
 		if (initialized == true) {
-			return API.SetValue("cmi.objectives." + page + ".id", name);
+			return API.LMSSetValue("cmi.objectives." + page + ".id", name);
 		}
 		return false;
 	}
 	
 	scorm.setPageMinScore = function(page, score) {
 		if (initialized == true) {
-			return API.SetValue("cmi.objectives." + page + ".score.min", score);
+			return API.LMSSetValue("cmi.objectives." + page + ".score.min", score);
 		}
 		return false;
 	}
 
 	scorm.setPageMaxScore = function(page, score) {
 		if (initialized == true) {
-			return API.SetValue("cmi.objectives." + page + ".score.max", score);
+			return API.LMSSetValue("cmi.objectives." + page + ".score.max", score);
 		}
 		return false;
 	}
 
 	scorm.setPageRawScore = function(page, score) {
 		if (initialized == true) {
-			return API.SetValue("cmi.objectives." + page + ".score.raw", score);
+			return API.LMSSetValue("cmi.objectives." + page + ".score.raw", score);
 		}
 		return false;
 	}
 
 	scorm.setPageScaledScore = function(page, score) {
-		if (initialized == true) {
-			return API.SetValue("cmi.objectives." + page + ".score.scaled", score);
-		}
-		return false;
+		return false; // not supported 
 	}
 	
 	scorm.setCompleted = function() {
 		if (initialized == true) {
-			return API.SetValue("cmi.completion_status", "completed");
+			return API.LMSSetValue("cmi.core.lesson_status", "completed");
 		}
 		return false;
 	}
 
 	scorm.setIncomplete = function() {
 		if (initialized == true) {
-			return API.SetValue("cmi.completion_status", "incomplete");
+			return API.LMSSetValue("cmi.core.lesson_status", "incomplete");
 		}
 		return false;
 	}
 
 	scorm.setNotAttempted = function() {
 		if (initialized == true) {
-			return API.SetValue("cmi.completion_status", "not attempted");
+			return API.LMSSetValue("cmi.core.lesson_status", "not attempted");
 		}
 		return false;
 	}
 
 	scorm.saveState = function(state) {
 		if (initialized == true) {
-			API.SetValue("cmi.exit", "suspend");
-			return API.SetValue("cmi.suspend_data", state);
+			API.SetValue("cmi.core.exit", "suspend");
+			return API.LMSSetValue("cmi.suspend_data", state);
 		}
 		return false;
 	}
 
 	scorm.loadState = function() {
 		if (initialized == true) {
-			return API.GetValue("cmi.suspend_data");
+			return API.LMSGetValue("cmi.suspend_data");
 		}
 		return false;
 	}
 
 	scorm.saveLocation = function(page) {
-		if (initialized == true) {
-			return API.SetValue("cmi.location", page);
-		}
-		return false;
+		return false; // not supported 
 	}
 
 	scorm.loadLocation = function() {
-		if (initialized == true) {
-			return API.GetValue("cmi.location");
-		}
-		return false;
+		return false; // not supported 
 	}
 
 	return scorm;

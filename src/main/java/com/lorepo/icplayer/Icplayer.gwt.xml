@@ -31,6 +31,7 @@
 	<script src="libs/dictionary.js"/>
 	<script src="libs/aop.min.js"/>
 	<script src="libs/scorm.js"/>
+	<script src="libs/scorm_1_2.js"/>
 	<script src="libs/tinymce.min.js"/>
 	<script src="libs/jsc3d.js" />
 	<script src="libs/htmlparser.js" />
