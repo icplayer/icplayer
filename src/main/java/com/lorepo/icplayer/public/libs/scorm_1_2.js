@@ -143,7 +143,7 @@ function getScorm_1_2() {
 
 	scorm.saveState = function(state) {
 		if (initialized == true) {
-			API.SetValue("cmi.core.exit", "suspend");
+			API.LMSSetValue("cmi.core.exit", "suspend");
 			return API.LMSSetValue("cmi.suspend_data", state);
 		}
 		return false;
