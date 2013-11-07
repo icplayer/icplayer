@@ -155,19 +155,23 @@ function AddonNavigation_Bar_create() {
         var removeClassNames = selector + ' ' + selector + '-mouse-hover' +
             ' ' + selector + '-mouse-click' + ' ' + selector + '-inactive';
 
+        var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
+
         presenter.$wrapper.find("span[class^=" + selector + "]").each(function() {
             var addClassName = inactive ? selector + '-inactive' : selector;
 
-            $(this).hover(
-                function() {
-                    $(this).removeClass(removeClassNames);
-                    $(this).addClass(selector + '-mouse-hover');
-                },
-                function() {
-                    $(this).removeClass(removeClassNames);
-                    $(this).addClass(addClassName);
-                }
-            );
+            if (!iOS) {
+            	$(this).hover(
+            		function() {
+                    	$(this).removeClass(removeClassNames);
+                    	$(this).addClass(selector + '-mouse-hover');
+                	},
+                	function() {
+                    	$(this).removeClass(removeClassNames);
+                    	$(this).addClass(addClassName);
+                	}
+            	);
+            }
 
             $(this).mousedown(
                 function() {
@@ -189,17 +193,21 @@ function AddonNavigation_Bar_create() {
         var notSelectorsList = '.navigationbar-element-first,.navigationbar-element-last,' +
             '.navigationbar-element-next,.navigationbar-element-previous,.navigationbar-element-current';
 
+        var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
+
         presenter.$wrapper.find('.navigationbar-element').not(notSelectorsList).each(function() {
-            $(this).hover(
-                function() {
-                    $(this).removeClass('navigationbar-element');
-                    $(this).addClass('navigationbar-element-mouse-hover');
-                },
-                function() {
-                    $(this).removeClass('navigationbar-element-mouse-hover');
-                    $(this).addClass('navigationbar-element');
-                }
-            );
+            if (!iOS) {
+            	$(this).hover(
+            		function() {
+                    	$(this).removeClass('navigationbar-element');
+                    	$(this).addClass('navigationbar-element-mouse-hover');
+                	},
+                	function() {
+                    	$(this).removeClass('navigationbar-element-mouse-hover');
+                    	$(this).addClass('navigationbar-element');
+                	}
+            	);
+            }
 
             $(this).mousedown(
                 function() {
