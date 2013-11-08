@@ -146,13 +146,15 @@ function AddonAnimation_create (){
         var animationHeight = presenter.configuration.dimensions.animation.height;
         var animationDimensions = presenter.calculateContainerDimensions($(animationImage).width() / presenter.configuration.framesCount, $(animationImage).height(), animationWidth, animationHeight);
         var animationBackgroundSize = calculateBackgroundSize(presenter.configuration.frameSize, presenter.configuration.framesCount, presenter.IMAGE_TYPE.ANIMATION);
+        var source_width = (presenter.configuration.oryginal_width !== undefined ? presenter.configuration.oryginal_width : $(animationImage).width()) / presenter.configuration.framesCount;
+        var source_height = presenter.configuration.oryginal_height !== undefined ? presenter.configuration.oryginal_height : $(animationImage).height();
         var elementWidth;
         var elementHeight;
-
+        
         switch (presenter.configuration.frameSize) {
             case presenter.FRAME_SIZE.ORIGINAL:
-                elementWidth = $(animationImage).width() / presenter.configuration.framesCount;
-                elementHeight = $(animationImage).height();
+                elementWidth = source_width;
+                elementHeight = source_height;
                 break;
             case presenter.FRAME_SIZE.SCALED:
                 elementWidth = animationDimensions.horizontal;
@@ -163,9 +165,25 @@ function AddonAnimation_create (){
                 elementHeight = animationHeight;
                 break;
         }
+        elementWidth = Math.round(elementWidth);
+        elementHeight = Math.round(elementHeight);
 
+        presenter.frames = new Array();
+        for (i=0; i < presenter.configuration.framesCount; i++) {
+            var canvas = document.createElement('canvas');
+            canvas.setAttribute('width', elementWidth);
+            canvas.setAttribute('height', elementHeight);
+            ctx = canvas.getContext('2d');
+            ctx.drawImage(animationImage, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
+            presenter.frames[i] = canvas;
+            $(canvas).remove();
+            }
+
+        var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
+        $(presenter.DOMElements.animation).append(clickhandler);
+        $(presenter.DOMElements.animation).append(presenter.frames[0]);
+        
         $(presenter.DOMElements.animation).css({
-            'background-image': 'url(' + presenter.configuration.animation + ')',
             width: elementWidth + 'px',
             height: elementHeight + 'px'
         });
@@ -180,6 +198,12 @@ function AddonAnimation_create (){
     function loadImages() {
         showLoadingScreen();
 
+        var img = $('<img src="'+ presenter.configuration.animation +'"/>').load(function(){
+        	presenter.configuration.oryginal_width = this.width;
+        	presenter.configuration.oryginal_height = this.height;
+        	$(this).remove();
+        });
+        
         $.imgpreload([presenter.configuration.image, presenter.configuration.animation], {
             all: function() {
                 var isFirstPreview = $(this[0]).attr('src') == presenter.configuration.image;
@@ -216,11 +240,8 @@ function AddonAnimation_create (){
     }
 
     function changeFrame() {
-        var pixels = $(presenter.DOMElements.animation).width() * (presenter.configuration.currentFrame);
-
-        $(presenter.DOMElements.animation).css({
-            'background-position': '-' + pixels + 'px 0px'
-        });
+    	$(presenter.DOMElements.animation).find('canvas').remove();
+    	$(presenter.DOMElements.animation).append(presenter.frames[presenter.configuration.currentFrame]);
 
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.STOPPED) {
             showLabelsForFrame(0);

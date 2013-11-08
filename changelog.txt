@@ -1,3 +1,4 @@
+3013-11-08 Fixed problem with leaping frames in Animation addon
 2013-11-06 New JS library to handle SCORM 1.2
 2013-11-05 Fixed issue with Double State Button on mLibro Android application
 2013-10-31 Added 2 commands setClickDisabled and setClickEnabled to Image Viewer addon
