@@ -147,6 +147,13 @@ function getScorm() {
 		return false;
 	}
 
+	scorm.setSessionTime = function(time) {
+		if (initialized == true) {
+			return API.SetValue("cmi.session_time", time);
+		}
+		return false;
+	}
+
 	scorm.saveState = function(state) {
 		if (initialized == true) {
 			API.SetValue("cmi.exit", "suspend");

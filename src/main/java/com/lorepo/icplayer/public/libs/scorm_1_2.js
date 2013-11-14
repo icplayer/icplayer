@@ -141,6 +141,18 @@ function getScorm_1_2() {
 		return false;
 	}
 
+	scorm.setSessionTime = function(time) {
+		time = time / 1000;
+		var h = Math.floor(time/3600);
+		var m = Math.floor((time-h*3600)/60);
+		var s = time % 60;
+		var formatted = (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+		if (initialized == true) {
+			return API.LMSSetValue("cmi.core.session_time", formatted);
+		}
+		return false;
+	}
+
 	scorm.saveState = function(state) {
 		if (initialized == true) {
 			API.LMSSetValue("cmi.core.exit", "suspend");
