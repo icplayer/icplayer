@@ -1,3 +1,4 @@
+2013-11-15 Fixed bug in selection with selecting last phrase
 2013-11-14 Scorm libraries updated to handle storing session time
 2013-11-08 Fixed problem with leaping frames in Animation addon
 2013-11-06 New JS library to handle SCORM 1.2

@@ -3,6 +3,7 @@ function AddonText_Selection_create() {
 	var presenter = function(){};
 
 	var first = 0,
+		beforeActive = false,
 		lastMoveEvent = null;
 
 	function isLastSpecialSign(word) {
@@ -84,7 +85,19 @@ function AddonText_Selection_create() {
 		first = parseInt($(et).attr('number'), 10);
 		if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
 		if (isNaN(first)) first = parseInt($(et).closest('.selectable').attr('number'));
-		if (isNaN(first)) first = parseInt(presenter.$view.find('.text_selection').find('span').last().attr('number'), 10);
+		if (isNaN(first)) {
+			$(et).nextAll('div').each(function() {
+				first = parseInt($(this).children('span.selectable').attr('number'));
+				if (!isNaN(first)) {
+					beforeActive = true;
+					return false;
+				}
+			});
+		}
+		if ($(et).hasClass('text_selection')  && isNaN(first)) {
+			beforeActive = true;
+			first = parseInt(presenter.$view.find('.text_selection').find('span.selectable').first().attr('number'), 10);
+		}
 	};
 
 	presenter.endSelection = function(et) {
@@ -96,7 +109,18 @@ function AddonText_Selection_create() {
 
 		if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
 		if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'));
-		if (isNaN(last)) last = first;
+		if (isNaN(last)) {
+			$(et).nextAll('div').each(function() {
+				last = parseInt($(this).children('span.selectable').attr('number'));
+				if (!isNaN(last)) {
+					return false;
+				}
+			});
+		}
+		if (isNaN(last)) last = parseInt(presenter.$view.find('.text_selection').find('.selectable').last().attr('number')) + 1;
+		if ($(et).hasClass('text_selection')) {
+			last = first;
+		}
 
 		var selected = presenter.$view.find('.text_selection').find('.selected');
 
@@ -105,7 +129,7 @@ function AddonText_Selection_create() {
 				tmp = first; first = last; last = tmp;
 			}
 
-			if(presenter.configuration.selection_type === 'SINGLESELECT') {
+			if (presenter.configuration.selection_type === 'SINGLESELECT') {
 
 				if (selected.length === 0) {
 					for (i=first; i<last+1; i++) {
@@ -129,7 +153,7 @@ function AddonText_Selection_create() {
 				}
 			} else if (presenter.configuration.selection_type === 'MULTISELECT') {
 
-				for (i=first; i<last+1; i++) {
+				for (i=first; i<last; i++) {
 					element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
 					if (element.hasClass('selectable')) {
 						element.toggleClass('selected');
@@ -137,7 +161,7 @@ function AddonText_Selection_create() {
 				}
 
 			}
-		} else if (first === last) {
+		} else if (first === last && !beforeActive) {
 			$span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
 
 			if (presenter.configuration.selection_type === 'SINGLESELECT') {
@@ -163,6 +187,7 @@ function AddonText_Selection_create() {
 		}
 
 		first = 0;
+		beforeActive = false;
 		if (window.getSelection) {
 			window.getSelection().removeAllRanges();
 		} else if (document.selection) {
