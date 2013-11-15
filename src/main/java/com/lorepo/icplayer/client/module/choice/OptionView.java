@@ -208,4 +208,24 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
+
+
+	@Override
+	public void markAsCorrect() {
+		resetStyles();
+		setCorrectStyle();
+	}
+
+
+	@Override
+	public void markAsEmpty() {
+		resetStyles();
+	}
+
+
+	@Override
+	public void markAsWrong() {
+		resetStyles();
+		setCorrectStyle();
+	}
 }
