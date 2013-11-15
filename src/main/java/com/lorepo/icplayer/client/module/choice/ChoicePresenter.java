@@ -31,6 +31,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		void setCorrectStyle();
 		void resetStyles();
 		void setEventBus(EventBus eventBus);
+		public void markAsCorrect();
+		public void markAsEmpty();
+		public void markAsWrong();
 	}
 	
 	public interface IDisplay extends IModuleView{
@@ -373,10 +376,51 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getView()();
 		}
 		
+		presenter.markOptionAsCorrect = function(index){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::markOptionAsCorrect(I)(index);
+		}
+			
+		presenter.markOptionAsWrong = function(index){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::markOptionAsWrong(I)(index);
+		}
+			
+		presenter.markOptionAsEmpty = function(index){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::markOptionAsEmpty(I)(index);
+		}
+			
+		presenter.isOptionSelected = function(index){ 
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isOptionSelected(I)(index);
+		}
+		
 		return presenter;
 	}-*/;
 	
 	private Element getView(){
 		return view.getElement();
+	}
+	
+	private void markOptionAsCorrect(int index){
+		if(index <= view.getOptions().size()){
+			view.getOptions().get(index-1).markAsCorrect();
+		}
+	}
+	
+	private void markOptionAsWrong(int index){ 
+		if(index <= view.getOptions().size()){
+			view.getOptions().get(index-1).markAsWrong();
+		}
+	}
+	
+	private void markOptionAsEmpty(int index){ 
+		if(index <= view.getOptions().size()){
+			view.getOptions().get(index-1).markAsEmpty();
+		}
+	}
+	
+	private boolean isOptionSelected(int index){
+		if(index < view.getOptions().size()){
+			return view.getOptions().get(index-1).isDown();
+		}
+		return false;
 	}
 }
