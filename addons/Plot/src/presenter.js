@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.11';
+        this.VERSION = '1.1.12';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1619,22 +1619,22 @@ function AddonPlot_create(){
         var xAxisValues = model['Axis x values'] === undefined || model['Axis x values'] == '' || this._hasIllegalCharacters(model['Axis x values'].toString()) ? false : model['Axis x values'].toString().split(this.getSeparatorByDecimalSeparator());
         var yAxisValues = model['Axis y values'] === undefined || model['Axis y values'] == '' || this._hasIllegalCharacters(model['Axis y values'].toString()) ? false : model['Axis y values'].toString().split(this.getSeparatorByDecimalSeparator());
         if(xAxisValues !== false && xAxisValues.length > 0) {
-            for(v in xAxisValues) {
-                if(xAxisValues[v].toString().match(/\*/) !== null) {
-                    plot.xAxisCyclicValues.push(parseInt(this.toDotSeparator(xAxisValues[v])));
+            $.each(xAxisValues, function(idx, val) {
+                if(val.toString().match(/\*/) !== null) {
+                    plot.xAxisCyclicValues.push(presenter.toDotSeparator(parseInt(val)));
                 } else {
-                    plot.xAxisCustomValues.push(parseFloat(this.toDotSeparator(xAxisValues[v])));
+                    plot.xAxisCustomValues.push(parseFloat(presenter.toDotSeparator(val)));
                 }
-            }
+            });
         }
         if(yAxisValues !== false && yAxisValues.length > 0) {
-            for(v in yAxisValues) {
-                if(yAxisValues[v].toString().match(/\*/) !== null) {
-                    plot.yAxisCyclicValues.push(this.toDotSeparator(parseInt(yAxisValues[v])));
+            $.each(yAxisValues, function(idx, val) {
+                if(val.toString().match(/\*/) !== null) {
+                    plot.yAxisCyclicValues.push(presenter.toDotSeparator(parseInt(val)));
                 } else {
-                    plot.yAxisCustomValues.push(parseFloat(this.toDotSeparator(yAxisValues[v])));
+                    plot.yAxisCustomValues.push(parseFloat(presenter.toDotSeparator(val)));
                 }
-            }
+            });
         }
         plot.expressions = new Array();
         plot.pointActiveArea = parseInt(this.toDotSeparator(model['Point active area size'])) || 10;
