@@ -2,6 +2,6 @@
 
 <addon id='Page_Counter'>
 	<model>
-		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}"/>
+		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" />
 	</model>
 </addon>

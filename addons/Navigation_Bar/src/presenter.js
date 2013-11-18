@@ -17,6 +17,16 @@ function AddonNavigation_Bar_create() {
     var movedFromIndex,
         maxElementCount;
 
+    function getLanguage(model) {
+    	if (model['Numericals'] == 'Eastern Arabic') {
+    		return Internationalization.EASTERN_ARABIC;
+    	}
+    	if (model['Numericals'] == 'Perso-Arabic') {
+    		return Internationalization.PERSO_ARABIC;
+    	}
+    	return Internationalization.WESTERN_ARABIC;
+    }
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.presentation = controller.getPresentation();
@@ -317,10 +327,10 @@ function AddonNavigation_Bar_create() {
         var isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
 
         var currentElementStyle = isCurrentElement ? "navigationbar-element-current" : "navigationbar-element";
-        var elementTitle = isCurrentElement ? "Current page" : "Page " + index;
+        var elementTitle = isCurrentElement ? "Current page" : "Page " + Internationalization.translate(index, presenter.configuration.language);
 
         return '<a title="' + elementTitle + '" href="#">' +
-            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'">' + index + '</span>' +
+            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
             '</a>';
     }
 
@@ -479,7 +489,8 @@ function AddonNavigation_Bar_create() {
     presenter.validateModel = function (model) {
         return {
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
-            hideHomeLastArrows: model.HideHomeLastArrows === 'True'
+            hideHomeLastArrows: model.HideHomeLastArrows === 'True',
+            language: getLanguage(model)
         };
     };
 

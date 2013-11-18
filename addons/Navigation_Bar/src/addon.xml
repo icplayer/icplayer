@@ -4,5 +4,6 @@
 	<model>
 		<property name='ShowNextPrevArrows' type='boolean' />
 		<property name="HideHomeLastArrows" type="boolean" />
+		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" />
 	</model>
 </addon>
