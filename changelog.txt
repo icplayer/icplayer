@@ -1,3 +1,4 @@
+2013-11-18 Added stop propagation on event click in Double State Button module.
 2013-11-18 Added support for Eastern Arabic and Perso-Arabic numericals in Navigation Bar
 2013-11-18 Added support for Eastern Arabic and Perso-Arabic numericals in Page Counter
 2013-11-15 Fixed bug in selection with selecting last phrase

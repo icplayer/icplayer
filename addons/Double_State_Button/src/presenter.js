@@ -104,10 +104,15 @@ function AddonDouble_State_Button_create(){
             }
 		});
 
+        element.on('click', function(e){
+            e.stopPropagation();
+        });
+
 		element.on('mouseup', function(e) {
             if (!isMouseBlocked) {
-                console.log('mouseup');
+                console.log('mouseup 2');
                 e.preventDefault();
+                e.stopPropagation();
                 if (isMouseDown) {
                     if (presenter.lastEvent.type != e.type) {
                         presenter.clickHandler(e);
