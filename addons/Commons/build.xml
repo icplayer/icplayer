@@ -21,6 +21,7 @@
             <arg line="--js src/image-viewer.js" />
             <arg line="--js src/string-utils.js" />
             <arg line="--js src/text-parser.js" />
+        	<arg line="--js src/internationalization.js" />
             <arg line="--js_output_file bin/commons-${version}/commons.js" />
         </java>
 
