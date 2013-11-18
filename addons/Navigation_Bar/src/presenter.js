@@ -102,7 +102,7 @@ function AddonNavigation_Bar_create() {
     function handleIndexClickActions() {
         presenter.$view.find('[class*="navigationbar-indexed-element"]').each(function () {
             var isCurrentPage = $(this).hasClass("navigationbar-element-current");
-            var pageIndex = parseInt($(this).html(), 10) - 1;
+            var pageIndex = parseInt($(this).attr("data-page-number"), 10) - 1;
 
             $(this).parent().click(function (event) {
                 event.stopPropagation();
@@ -330,7 +330,7 @@ function AddonNavigation_Bar_create() {
         var elementTitle = isCurrentElement ? "Current page" : "Page " + Internationalization.translate(index, presenter.configuration.language);
 
         return '<a title="' + elementTitle + '" href="#">' +
-            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
+            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + index + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
             '</a>';
     }
 
