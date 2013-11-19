@@ -76,6 +76,25 @@ public class SourceListModelTestCase {
 	}
 
 	@Test
+	public void cdataItems() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module.ver2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		SourceListModule module = new SourceListModule();
+		module.load(element, "");
+		String xml = module.toXML();
+		
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new SourceListModule();
+		module.load(element, "");
+		
+		assertEquals(4, module.getItemCount());
+		assertEquals("A", module.getItem(0));
+	}
+
+	@Test
 	public void propertyItems() {
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("source_list_items")).thenReturn("Items");
@@ -87,7 +106,7 @@ public class SourceListModelTestCase {
 			
 			if(module.getProperty(i) instanceof IStringListProperty){
 				IStringListProperty listProperty = (IStringListProperty) module.getProperty(i);
-				foundItemsProperty = (listProperty.getName().compareTo("Items") == 0);
+				foundItemsProperty = (listProperty.getName().equals("Items"));
 			}
 		}
 		

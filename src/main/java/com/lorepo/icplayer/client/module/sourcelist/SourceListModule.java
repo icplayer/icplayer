@@ -7,7 +7,6 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
-import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
@@ -67,11 +66,13 @@ public class SourceListModule extends BasicModuleModel{
 
 		items.clear();
 		NodeList itemNodes = rootElement.getElementsByTagName("item");
-		
 		for(int i = 0; i < itemNodes.getLength(); i++){
 
 			Element element = (Element)itemNodes.item(i);
-			String itemText = XMLUtils.getAttributeAsString(element, "text");
+			String itemText = XMLUtils.getCharacterDataFromElement(element);
+		    if(itemText == null){
+		    	itemText = XMLUtils.getAttributeAsString(element, "text");
+		    }
 			items.add(itemText);
 		}
 		
@@ -83,23 +84,10 @@ public class SourceListModule extends BasicModuleModel{
 		
 		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
-		xml += "<items ";
-		if(removable){
-			xml += "removable='True' ";
-		}
-		else{
-			xml += "removable='False' ";
-		}
-		if(vertical){
-			xml += "vertical='True' ";
-		}
-		else{
-			xml += "vertical='False' ";
-		}
-		xml += ">";
+		xml += "<items removable='" + removable + "' vertical='" + vertical + "'>";
 		
 		for(String item : items){
-			xml += "<item text='" + StringUtils.escapeXML(item) + "'/>";
+			xml += "<item><![CDATA[" + item + "]]></item>";
 		}
 		xml += "</items>";
 		
