@@ -117,7 +117,6 @@ function AddonText_Selection_create() {
 				}
 			});
 		}
-		if (isNaN(last)) last = parseInt(presenter.$view.find('.text_selection').find('.selectable').last().attr('number')) + 1;
 		if ($(et).hasClass('text_selection')) {
 			last = first;
 		}
@@ -207,7 +206,11 @@ function AddonText_Selection_create() {
             e.stopPropagation();
 			presenter.configuration.isExerciseStarted = true;
 			e.preventDefault();
-			presenter.endSelection(lastMoveEvent);
+			if (lastMoveEvent != null) {
+				presenter.endSelection(lastMoveEvent);
+			} else {
+				presenter.endSelection(e.target);
+			}
 			lastMoveEvent = null;
 		});
 
