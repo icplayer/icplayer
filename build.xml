@@ -59,8 +59,6 @@
       </classpath>
       <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
       <jvmarg value="-Xmx256M"/>
-      <arg line="-localWorkers"/>
-      <arg value="2"/>
       <arg line="-war"/>
       <arg value="war"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
