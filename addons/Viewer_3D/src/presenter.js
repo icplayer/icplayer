@@ -237,6 +237,10 @@ function AddonViewer_3D_create(){
 
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.renderObject();
+
+        presenter.$view.click(function(e){
+            e.stopPropagation();
+        });
     };
 
     presenter.executeCommand = function(name, params) {
