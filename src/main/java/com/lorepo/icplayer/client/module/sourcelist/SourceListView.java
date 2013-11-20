@@ -5,7 +5,9 @@ import java.util.HashMap;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
@@ -70,7 +72,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	@Override
 	public void addItem(final String id, String item, boolean callMathJax) {
 
-		final Label label = new Label(item);
+		final HTML label = new HTML(StringUtils.markup2html(item));
 		label.setStyleName("ic_sourceListItem");
 		if(module.isVertical()){
 			DOMUtils.applyInlineStyle(label.getElement(), "display: block;");

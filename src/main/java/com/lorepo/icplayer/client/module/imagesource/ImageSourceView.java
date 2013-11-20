@@ -13,7 +13,6 @@ import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter.IDisplay;
-import com.google.gwt.dom.client.Touch;
 
 public class ImageSourceView extends Image implements IDisplay {
 

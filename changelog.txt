@@ -1,3 +1,4 @@
+2013-11-20 Source list can contain formatted text
 2013-11-19 Fixed issue with Text Selection addon
 2013-11-18 Fixed issue with axis custom values in Plot addon
 2013-11-18 Added stop propagation on event click in Double State Button module.
