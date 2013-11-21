@@ -90,35 +90,39 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	private void setShowErrorsMode() {
 
-		for(IOptionDisplay optionView : view.getOptions()){
-			ChoiceOption option = optionView.getModel();
-			if(optionView.isDown()){
-				if(option.getValue() > 0){
-					optionView.setCorrectStyle();
+		if(module.isActivity()){
+			for(IOptionDisplay optionView : view.getOptions()){
+				ChoiceOption option = optionView.getModel();
+				if(optionView.isDown()){
+					if(option.getValue() > 0){
+						optionView.setCorrectStyle();
+					}
+					else{
+						optionView.setWrongStyle();
+					}
 				}
 				else{
-					optionView.setWrongStyle();
-				}
-			}
-			else{
-				if(option.getValue() > 0){
-					optionView.setWrongStyle();
-				}
-				else{
-					optionView.setCorrectStyle();
+					if(option.getValue() > 0){
+						optionView.setWrongStyle();
+					}
+					else{
+						optionView.setCorrectStyle();
+					}
 				}
 			}
 		}
-
+	
 		view.setEnabled(false);
 	}	
 	
 	private void setWorkMode() {
 
-		for(IOptionDisplay optionView : view.getOptions()){
-			optionView.resetStyles();
+		if(module.isActivity()){
+			for(IOptionDisplay optionView : view.getOptions()){
+				optionView.resetStyles();
+			}
 		}
-		
+			
 		view.setEnabled(!isDisabled);
 	}	
 	
@@ -132,7 +136,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		isDisabled = module.isDisabled();
 		view.setEnabled(!isDisabled);
-		saveScore();
+		if(module.isActivity()){
+			saveScore();
+		}
 	}
 
 
@@ -418,7 +424,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 	
 	private boolean isOptionSelected(int index){
-		if(index < view.getOptions().size()){
+		if(index <= view.getOptions().size()){
 			return view.getOptions().get(index-1).isDown();
 		}
 		return false;
