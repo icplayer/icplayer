@@ -101,6 +101,10 @@ function AddonParagraph_create() {
         });
 
         presenter.setStyles();
+        
+        if (presenter.configuration.state !== undefined) {
+        	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
+        }
     };
 
     presenter.onNodeChange = function () {
@@ -117,7 +121,12 @@ function AddonParagraph_create() {
     };
 
     presenter.setState = function(state) {
-        tinymce.get(editorID).setContent(state, {format : 'raw'});
+    	if (editorID !== undefined) {
+    		tinymce.get(editorID).setContent(state, {format : 'raw'});
+    	}
+    	else {
+    		presenter.configuration.state = state;
+    	}
     };
 
     presenter.reset = function() {
