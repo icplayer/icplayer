@@ -226,6 +226,6 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	@Override
 	public void markAsWrong() {
 		resetStyles();
-		setCorrectStyle();
+		setWrongStyle();
 	}
 }
