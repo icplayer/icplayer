@@ -15,6 +15,7 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 	private ChoiceModel module;
 	private ArrayList<IOptionDisplay>	options = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
+	boolean isVisible = true;
 	
 	
 	public ChoiceViewMockup(ChoiceModel model){
@@ -32,6 +33,8 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 			options.add(optionView);
 			optionView.addListener(this);
 		}
+		if(module.isVisible()) show();
+		else hide();
 	}
 
 
@@ -70,15 +73,18 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 
 	@Override
 	public void show() {
-		// TODO Auto-generated method stub
-		
+		isVisible = true;
 	}
 
 
 	@Override
 	public void hide() {
-		// TODO Auto-generated method stub
-		
+		isVisible = false;
+	}
+
+
+	public boolean isVisible() {
+		return isVisible;
 	}
 
 

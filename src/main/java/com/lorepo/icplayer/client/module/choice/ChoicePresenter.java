@@ -133,7 +133,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	private void reset() {
 
-		if(isVisible) view.show();
+		if(module.isVisible()) show();
 		else view.hide();
 
 		for(IOptionDisplay optionView : view.getOptions()){
