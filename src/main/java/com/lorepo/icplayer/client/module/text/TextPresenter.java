@@ -256,12 +256,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void reset() {
 
 		isVisible = module.isVisible();
-		if(isVisible){
-			view.show();
-		}
-		else{
-			view.hide();
-		}
+		if(isVisible) view.show();
+		else view.hide();
 		for(int i = 0; i < view.getChildrenCount(); i++){
 			view.getChild(i).reset();
 			view.getChild(i).setDisabled(module.isDisabled());
@@ -690,6 +686,5 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.hide();
 		}
 	}
-
 
 }

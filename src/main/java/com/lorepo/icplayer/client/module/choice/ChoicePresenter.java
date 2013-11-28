@@ -41,6 +41,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public void setEnabled(boolean b);
 		public void addListener(IOptionListener listener);
 		public Element getElement();
+		public void show();
+		public void hide();
 	}
 	
 	private IDisplay view;
@@ -48,6 +50,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	private IPlayerServices playerServices;
 	private boolean isDisabled;
 	private JavaScriptObject	jsObject;
+	private boolean isVisible;
 	
 	
 	public ChoicePresenter(ChoiceModel module, IPlayerServices services){
@@ -55,6 +58,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.module = module;
 		this.playerServices = services;
 		isDisabled = module.isDisabled();
+		isVisible = module.isVisible();
 
 		connectHandlers();
 	}
@@ -129,6 +133,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	private void reset() {
 
+		if(module.isVisible()) show();
+		else view.hide();
+
 		for(IOptionDisplay optionView : view.getOptions()){
 			optionView.resetStyles();
 			optionView.setDown(false);
@@ -165,6 +172,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		state.put("options", optionState);
 		state.put("isDisabled", Boolean.toString(isDisabled));
+		state.put("isVisible", Boolean.toString(isVisible));
 		return json.toJSONString(state);
 	}
 
@@ -203,6 +211,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			else{
 				enable();
 			}
+		}
+		if(state.containsKey("isVisible")){
+			isVisible = Boolean.parseBoolean(state.get("isVisible"));
+			if(isVisible) view.show();
+			else view.hide();
 		}
 		
 	}
@@ -346,6 +359,15 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		else if(commandName.compareTo("disable") == 0){
 			disable();
 		}
+		else if(commandName.compareTo("show") == 0){
+			show();
+		}
+		else if(commandName.compareTo("hide") == 0){
+			hide();
+		}
+		else if(commandName.compareTo("reset") == 0){
+			reset();
+		}
 		
 		return "";
 	}
@@ -378,6 +400,19 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		presenter.enable = function(){ 
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::enable()();
 		}
+		
+		presenter.show = function(){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::show()();
+		}
+		
+		presenter.hide = function(){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::hide()();
+		}
+		
+		presenter.reset = function(){ 
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::reset()();
+		}
+		
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getView()();
 		}
@@ -428,5 +463,23 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			return view.getOptions().get(index-1).isDown();
 		}
 		return false;
+	}
+
+
+	private void show(){
+		
+		isVisible = true;
+		if(view != null){
+			view.show();
+		}
+	}
+	
+	
+	private void hide(){
+		
+		isVisible = false;
+		if(view != null){
+			view.hide();
+		}
 	}
 }

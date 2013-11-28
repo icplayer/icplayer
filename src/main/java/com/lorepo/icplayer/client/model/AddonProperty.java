@@ -82,18 +82,18 @@ public class AddonProperty {
 		
 		String xml;
 		String encodedName = StringUtils.escapeXML(name.trim());
-		String encodedDisplayName = StringUtils.escapeXML(displayName.trim());
-		String encodedtype = StringUtils.escapeXML(type.trim());
+		String encodedDisplayName = StringUtils.escapeXML(displayName != null ? displayName.trim() : "");
+		String encodedType = StringUtils.escapeXML(type.trim());
 		
 		if(childProperties.size() > 0){
-			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedtype + "'>";
+			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + "'>";
 			for(AddonProperty property : childProperties){
 				xml += property.toXML();
 			}
 			xml += "</property>";
 		}
 		else{
-			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedtype + 
+			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + 
 					"' isLocalized='" + isLocalized + "'/>";
 		}
 		

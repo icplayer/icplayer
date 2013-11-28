@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.utils.MathJax;
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
 
@@ -87,4 +88,21 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 
+
+
+	@Override
+	public void hide() {
+		setVisible(false);
+	}
+
+
+	@Override
+	public void show() {
+		setVisible(true);
+		refreshMath();
+	}
+
+	private void refreshMath() {
+		MathJax.refreshMathJax(getElement());
+	}
 }

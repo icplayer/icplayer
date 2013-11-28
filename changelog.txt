@@ -1,3 +1,5 @@
+2013-11-27 Fixed problem with showing choice after reset
+2013-11-22 New commands in module choice: show, hide, reset
 2013-11-22 Fixed problem with initial setState in Paragraph addon
 2013-11-20 Fixed problem with Source list not activity mode 
 2013-11-20 Source list can contain formatted text
