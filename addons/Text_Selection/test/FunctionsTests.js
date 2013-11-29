@@ -63,7 +63,7 @@ TestCase("[Text Selection] Support Functions", {
     	var text = "some text";
     	var result = this.presenter.parseWords(text, 'ALL_SELECTABLE', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection">some text </div>', result.renderedPreview);
+    	assertEquals('<div class="text_selection"><span number="0">some</span><span left="0" right="1"> </span><span number="1">text</span><span left="1" right="2"> </span></div>', result.renderedPreview);
     },
 
     'test parse Words with markers': function() {
@@ -84,21 +84,21 @@ TestCase("[Text Selection] Support Functions", {
     	var text = "\\wrong{\\(\\sqrt{x^{10}}\\) }";
     	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\) </span> </div>', result.renderedPreview);
+    	assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)<span left=\"0\" right=\"1\"> </span></span><span left=\"1\" right=\"2\"> </span></div>', result.renderedPreview);
     },
 
     'test parse Words with markers with latex - spaces all over the place': function() {
     	var text = "\\wrong{ \\(\\sqrt{ {x ^{ 10 } } } \\) }";
     	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="wrong selectable"> \\(\\sqrt{ {x ^{ 10 } } } \\) </span> </div>', result.renderedPreview);
+    	assertEquals('<div class="text_selection"><span class=\"wrong selectable\"><span left=\"0\" right=\"1\"> </span>\\(\\sqrt{ {x ^{ 10 } } } \\) </span><span left=\"1\" right=\"2\"> </span></div>', result.renderedPreview);
     },
 
     'test parse Words with markers with latex - spaces all over the place another example': function() {
     	var text = "\\correct{\\(\\frac{ 2 } { \\sqrt{3}}\\)}";
     	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="correct selectable">\\(\\frac{ 2 } { \\sqrt{3}}\\)</span> </div>', result.renderedPreview);
+    	assertEquals('<div class="text_selection"><span class=\"correct selectable\">\\(\\frac{<span left=\"0\" right=\"1\"> </span>2 } { \\sqrt{3}}\\)</span><span left=\"1\" right=\"2\"> </span></div>', result.renderedPreview);
     },
 
     'test count brackets' : function() {

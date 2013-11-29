@@ -261,11 +261,11 @@ function AddonText_Selection_create() {
 	}
 
 	function getBlock(i, specialSign) {
-		return "<span left='" + i + "' right='" + (i+1) + "'>" + specialSign + " </span>";
+		return "<span left=\"" + i + "\" right=\"" + (i+1) + "\">" + specialSign + " </span>";
 	}
 
 	function getSpace(i) {
-		return "<span left='" + i + "' right='" + (i+1) + "'> </span>";
+		return "<span left=\"" + i + "\" right=\"" + (i+1) + "\"> </span>";
 	}
 
 	function getSpecialSign(word) {
