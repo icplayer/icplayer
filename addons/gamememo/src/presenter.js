@@ -522,7 +522,9 @@ function Addongamememo_create(){
     };
 
     presenter.getErrorCount = function() {
-        return presenter.errorCount;
+        var lastErrorCount = presenter.errorCount;
+        presenter.errorCount = 0;
+        return lastErrorCount;
     };
 
     presenter.getMaxScore = function() {
