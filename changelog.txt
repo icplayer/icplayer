@@ -1,3 +1,4 @@
+2013-12-02 Added drop event handler for gaps in Text module
 2013-11-29 Fixed problem with errors counting in Memo Game addon
 2013-11-27 Fixed problem with showing choice after reset
 2013-11-22 New commands in module choice: show, hide, reset

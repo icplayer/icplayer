@@ -1,9 +1,13 @@
 package com.lorepo.icplayer.client.module.text;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DropEvent;
+import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -29,12 +33,30 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 					listener.onValueChanged(gapInfo.getId(), getText());
 				}
 			});
+
+			addDropHandler(new DropHandler() {
+				
+				@Override
+				public void onDrop(DropEvent event) {
+					if(!event.getDataTransfer().getData("text/plain").isEmpty()) {
+						Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+							
+							@Override
+							public void execute() {
+								listener.onValueChanged(gapInfo.getId(), getText());
+							}
+						});
+					}
+					
+				}
+			});
 		}
 		addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 			}
 		});
+		
 	}
 	
 	public boolean hasId(String id){
