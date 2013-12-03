@@ -48,6 +48,9 @@ function AddonExternal_Link_Button_create() {
         var $ahref = $(document.createElement('a'));
         $ahref.attr('href',presenter.configuration.URI);
         $ahref.attr('target','_blank');
+        $ahref.click(function (event) {
+        event.stopPropagation();
+        });
 
         var $element = $(document.createElement('div'));
         $element.addClass('external-link-button-element');
