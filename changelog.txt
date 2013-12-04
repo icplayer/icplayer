@@ -1,10 +1,11 @@
+2013-12-04 Fixed issue with points on axis after 'check' in LineNumber addon
 2013-12-03 Blockage displaying page navigation's arrows after clicking on the ExternalLinkButton
 2013-12-02 Added drop event handler for gaps in Text module
 2013-11-29 Fixed problem with errors counting in Memo Game addon
 2013-11-27 Fixed problem with showing choice after reset
 2013-11-22 New commands in module choice: show, hide, reset
 2013-11-22 Fixed problem with initial setState in Paragraph addon
-2013-11-20 Fixed problem with Source list not activity mode 
+2013-11-20 Fixed problem with Source list not activity mode
 2013-11-20 Source list can contain formatted text
 2013-11-19 Fixed issue with Text Selection addon
 2013-11-18 Fixed issue with axis custom values in Plot addon
