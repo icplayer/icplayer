@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.12';
+        this.VERSION = '1.1.13';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1409,29 +1409,30 @@ function AddonPlot_create(){
             }
         });
 
-        $.each(plot.points, function(idx, val) {
-            //var res = $.grep(plot.selectedPoints, function(e){ return e.x == plot.points[p].x && e.y == plot.points[p].y; });
-            res = presenter.grepPoints(plot.selectedPoints, val);
-            if(val.notScored === false) {
-                if(!val.correct && res && val.touched) {
-                    //mark wrong
-                    presenter.markPointAsError(val.x, val.y);
-                } else if(val.correct && res && val.touched) {
-                    //mark correct
-                    presenter.markPointAsCorrect(val.x, val.y);
+        if(plot.points.length > 0) {
+            $.each(plot.points, function(idx, val) {
+                res = presenter.grepPoints(plot.selectedPoints, val);
+                if(val.notScored === false) {
+                    if(!val.correct && res && val.touched) {
+                        //mark wrong
+                        presenter.markPointAsError(val.x, val.y);
+                    } else if(val.correct && res && val.touched) {
+                        //mark correct
+                        presenter.markPointAsCorrect(val.x, val.y);
+                    }
                 }
-            }
+            });
 
-        });
+            //check excess points
+            $.each(plot.selectedPoints, function(idx, val) {
+                res = presenter.grepPoints(plot.points, val);
+                if(!res) {
+                    presenter.markPointAsError(val.x, val.y);
+                }
+            });
+        }
+    };
 
-        //check excess points
-        $.each(plot.selectedPoints, function(idx, val) {
-            res = presenter.grepPoints(plot.points, val);
-            if(!res) {
-                presenter.markPointAsError(val.x, val.y);
-            }
-        });
-    }
     presenter.getMaxScore = function(){
         if(!presenter.isActivity) {
             return 0;
