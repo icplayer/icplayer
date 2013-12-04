@@ -27,14 +27,18 @@ function AddonParagraph_create() {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
-            height = model.Height;
+            height = model.Height,
+            hasDefaultFontFamily = false,
+            hasDefaultFontSize = false;
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
+            hasDefaultFontFamily = true;
         }
 
         if (ModelValidationUtils.isStringEmpty(fontSize)) {
             fontSize = presenter.DEFAULTS.FONT_SIZE;
+            hasDefaultFontSize = true;
         }
 
         height -= !isToolbarHidden ? 37 : 2;
@@ -43,7 +47,10 @@ function AddonParagraph_create() {
             fontFamily: fontFamily,
             fontSize: fontSize,
             isToolbarHidden: isToolbarHidden,
-            textAreaHeight: height
+            textAreaHeight: height,
+            hasDefaultFontFamily: hasDefaultFontFamily,
+            hasDefaultFontSize: hasDefaultFontSize,
+            content_css: model['Custom CSS']
         };
     };
 
@@ -71,6 +78,7 @@ function AddonParagraph_create() {
             menubar: false,
             toolbar: presenter.DEFAULTS.TOOLBAR,
             oninit: presenter.onInit,
+            content_css: presenter.configuration.content_css,
             setup : function(editor) {
                 editor.on("NodeChange", presenter.onNodeChange);
             }
@@ -79,14 +87,26 @@ function AddonParagraph_create() {
 
     presenter.setStyles = function () {
         if (!editorDOM) return;
+        
+        var hasDefaultFontFamily = presenter.configuration.hasDefaultFontFamily,
+            hasDefaultFontSize = presenter.configuration.hasDefaultFontSize,
+            hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
 
-        var elements = [ editorDOM.select('p'), editorDOM.select('ol'), editorDOM.select('ul') ], i;
-
-        for (i = 0; i < elements.length; i++) {
-            editorDOM.setStyle(elements[i], 'font-family', presenter.configuration.fontFamily);
-            editorDOM.setStyle(elements[i], 'font-size', presenter.configuration.fontSize);
-        }
+        if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss)
+            {
+            var elements = [ editorDOM.select('p'), editorDOM.select('ol'), editorDOM.select('ul') ], i;
+    
+            for (i = 0; i < elements.length; i++) {
+                if (!hasDefaultFontFamily || !hasContentCss) {
+                    editorDOM.setStyle(elements[i], 'font-family', presenter.configuration.fontFamily);
+                    }
+                if (!hasDefaultFontSize || !hasContentCss) {
+                    editorDOM.setStyle(elements[i], 'font-size', presenter.configuration.fontSize);
+                    }
+                }
+            }
     };
+
     presenter.onInit = function() {
         editorID = tinymce.activeEditor.id;
         editorDOM = tinymce.activeEditor.dom;

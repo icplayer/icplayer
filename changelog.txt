@@ -1,3 +1,4 @@
+2013-12-04 Added Custom CSS property to Paragraph addon
 2013-12-04 Fixed issue with points on axis after 'check' in LineNumber addon
 2013-12-03 Blockage displaying page navigation's arrows after clicking on the ExternalLinkButton
 2013-12-02 Added drop event handler for gaps in Text module

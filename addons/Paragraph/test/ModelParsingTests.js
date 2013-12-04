@@ -46,6 +46,16 @@ TestCase("[Paragraph] Model parsing", {
         assertEquals('14px', validatedModel.fontSize);
     },
 
+    'test user custom CSS file': function () {
+        var model = {
+            'Custom CSS': '/file/serve/123'
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertEquals('/file/serve/123', validatedModel.content_css);
+    },
+
     'test visible toolbar': function () {
         var model = {
             'Height': 168
