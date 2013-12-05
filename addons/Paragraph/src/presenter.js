@@ -11,6 +11,8 @@ function AddonParagraph_create() {
 
     presenter.createPreview = function(view, model) {
         presenter.initializeEditor(view, model);
+        var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
+        presenter.$view.append(clickhandler);
     };
 
     presenter.run = function(view, model) {
