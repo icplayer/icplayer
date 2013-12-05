@@ -1,7 +1,9 @@
 div.paragraph-wrapper {
 	width: 100%;
 	height: 100%;
-	overflow: hidden;
+	overflow: auto;
+	border: solid 1px #9E9E9E;
+	border-radius: 2px;
 }
 
 div.paragraph-wrapper textarea {

@@ -125,6 +125,8 @@ function AddonParagraph_create() {
         if (presenter.configuration.state !== undefined) {
         	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
         }
+        $('#' + editorID + '_ifr').height(presenter.configuration.textAreaHeight);
+        presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
     };
 
     presenter.onNodeChange = function () {
