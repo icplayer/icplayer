@@ -23,14 +23,14 @@
     	    player = icCreatePlayer('_icplayer');
     	    //player = icCreateBook('_icplayer', false);
 	       	//player.load('content/book.ic.xml');
-    	    //setPlayerState();
+    	    loadPlayerState();
 	        //player.setAnalytics('5n2WsdElQZqnDqT3-amHrw');
-	        //player.load('test/pages/main.xml');
-	       	player.load('content/default.ic.xml');
+	        player.load('test/pages/main.xml');
+	       	//player.load('content/default.ic.xml');
 	       	//player.load('content/responsive.ic.xml');
         	//player.onStatusChanged(function(type, source, value){
-        		//console.log("type:" + type + ", source: " + source, ", value:" + value);
-        		//savePlayerState();
+        	//	console.log("type:" + type + ", source: " + source, ", value:" + value);
+        	//	savePlayerState();
         	//});
       	}
       	
@@ -62,15 +62,18 @@
 			}
       		else{
       			localStorage.state = player.getState();
-	      		console.log(state);
+	      		console.log(localStorage.state);
       		}
       	}
-      
       	
-      	function setPlayerState(){
+      	function loadPlayerState(){
       		if(localStorage.state){
       			player.setState(localStorage.state);
       		}
+      	}
+      	
+      	function resetPlayerState(){
+      		localStorage.state = null;
       	}
     </script>
     
@@ -83,8 +86,9 @@
   <body>
 	<div id="_icplayer"></div>
 	<button onClick="testPlayerService()">Test Service</button>
-	<button onClick="getPlayerState()">Save player state</button>
-	<button onClick="setPlayerState()">Load player state</button>
+	<button onClick="savePlayerState()">Save player state</button>
+	<button onClick="loadPlayerState()">Load player state</button>
+	<button onClick="resetPlayerState()">Reset player state</button>
 
   </body>
 </html>

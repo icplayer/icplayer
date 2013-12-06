@@ -162,7 +162,9 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void show() {
-		setVisible(true);
-		refreshMath();
+		if(!isVisible()){
+			setVisible(true);
+			refreshMath();
+		}
 	}
 }
