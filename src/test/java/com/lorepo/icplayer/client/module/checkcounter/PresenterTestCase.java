@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter.IDisplay;
 
@@ -52,23 +51,6 @@ public class PresenterTestCase {
 		services.getEventBus().fireEvent(new ShowErrorsEvent());
 		
 		assertEquals(1, display.value);
-	}
-
-
-	@Test
-	public void resetEvent() {
-		
-		PlayerServicesMockup services = new PlayerServicesMockup();
-		CheckCounterModule model = new CheckCounterModule();
-		TestDisplay display = new TestDisplay(model);
-		CheckCounterPresenter presenter = new CheckCounterPresenter(model, services);
-		presenter.addView(display);
-		
-		services.getEventBus().fireEvent(new ShowErrorsEvent());
-		assertEquals(1, display.value);
-		
-		services.getEventBus().fireEvent(new ResetPageEvent());
-		assertEquals(0, display.value);
 	}
 
 }

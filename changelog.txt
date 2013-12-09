@@ -1,3 +1,4 @@
+2013-12-09 Removed reaction on Reset in Check Counter module
 2013-12-09 Removed console.logs in Double State Button
 2013-12-09 Fixed problem with drawRange function in Line Number addon
 2013-12-09 Fixed problem with Audio addon on iPads with getState function and AC scripts
