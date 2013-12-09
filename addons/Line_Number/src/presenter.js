@@ -1739,6 +1739,7 @@ function AddonLine_Number_create() {
     };
 
     presenter.drawRange = function (rangeList) {
+        rangeList = [].concat(rangeList);
         var rangeString = rangeList.join('\n\r');
         var validatedRanges = presenter.validateRanges(rangeString);
 
