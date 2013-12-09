@@ -103,7 +103,7 @@ function AddonAudio_create(){
             $(view).html(AUDIO_FILES_MISSING);
         }
 
-        var audio = document.createElement("audio");
+        var audio = new Audio(); //document.createElement("audio");
 
         if (presenter.configuration.defaultControls){
             $(audio).attr("controls", "controls").attr("preload", "auto");
@@ -229,7 +229,7 @@ function AddonAudio_create(){
     };
 
     presenter.stop = function() {
-        if(!this.audio.paused){
+        if(!this.audio.paused) {
             this.audio.pause();
             this.audio.currentTime = 0;
         }
@@ -262,7 +262,8 @@ function AddonAudio_create(){
     };
 
     presenter.getState = function() {
-        presenter.stop();
+
+        //presenter.stop();
 
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
@@ -270,13 +271,17 @@ function AddonAudio_create(){
     };
 
     presenter.setState = function(stateString) {
-        if (ModelValidationUtils.isStringEmpty(stateString)) return;
+        if (ModelValidationUtils.isStringEmpty(stateString)) return false;
+
+        presenter.stop();
 
         if (JSON.parse(stateString).isVisible) {
             this.show();
         } else {
             this.hideAddon();
         }
+
+        return false;
     };
 
     presenter.executeOnEndEvent = function () {

@@ -1,3 +1,4 @@
+2013-12-09 Fixed problem with Audio addon on iPads with getState function and AC scripts
 2013-12-06 Fixed problem with rendering mathjax in text module while loading state
 2013-12-05 Fixed problem with selecting Paragraph addon in the editor
 2013-12-05 Fixed problem with low height Paragraph addon
