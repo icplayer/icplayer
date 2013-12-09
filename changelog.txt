@@ -1,3 +1,4 @@
+2013-12-09 Removed console.logs in Double State Button
 2013-12-09 Fixed problem with drawRange function in Line Number addon
 2013-12-09 Fixed problem with Audio addon on iPads with getState function and AC scripts
 2013-12-06 Fixed problem with rendering mathjax in text module while loading state

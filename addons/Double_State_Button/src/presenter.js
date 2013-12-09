@@ -72,7 +72,6 @@ function AddonDouble_State_Button_create(){
 
         element.on('touchstart', function (e) {
             isMouseBlocked = true;
-            console.log('touchstart');
             e.preventDefault();
             e.stopPropagation();
             presenter.lastEvent = e;
@@ -80,7 +79,6 @@ function AddonDouble_State_Button_create(){
         });
 
         element.on('touchend', function (e) {
-            console.log('touchend');
             e.preventDefault();
             if (isTouchDown) {
                 if ( presenter.lastEvent.type != e.type ) {
@@ -96,7 +94,6 @@ function AddonDouble_State_Button_create(){
 		        
         element.on('mousedown', function(e) {
             if (!isMouseBlocked) {
-                console.log('mousedown');
                 e.preventDefault();
                 e.stopPropagation();
                 presenter.lastEvent = e;
@@ -110,7 +107,6 @@ function AddonDouble_State_Button_create(){
 
 		element.on('mouseup', function(e) {
             if (!isMouseBlocked) {
-                console.log('mouseup 2');
                 e.preventDefault();
                 e.stopPropagation();
                 if (isMouseDown) {
