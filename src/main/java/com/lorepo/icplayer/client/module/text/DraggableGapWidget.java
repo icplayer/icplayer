@@ -6,7 +6,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
-import com.lorepo.icplayer.client.utils.MathJax;
 
 public class DraggableGapWidget extends HTML implements TextElementDisplay{
 
@@ -97,7 +96,6 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 			super.setHTML(markup);
 			answerText = StringUtils.removeAllFormatting(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
-			MathJax.refreshMathJax(getElement());
 		}
 	}
 

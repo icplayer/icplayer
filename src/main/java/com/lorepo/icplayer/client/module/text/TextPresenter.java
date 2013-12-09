@@ -201,12 +201,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
 			consumedItems.put(newKey,  DraggableItem.createFromString(value));
 		}
-		
+
 		for(String id : values.keySet()){
 			String value = values.get(id);
 			view.setValue(id, value);
 		}
-		
+
 		ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
 		for(int i = 0; i < view.getChildrenCount() && i < stateDisabled.size(); i++){
 			view.getChild(i).setDisabled(stateDisabled.get(i));
@@ -426,6 +426,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		else if(draggableItem != null){
 			value = StringUtils.removeAllFormatting(draggableItem.getValue());
 			view.setValue(gapId, draggableItem.getValue());
+			view.refreshMath();
 			consumedItems.put(gapId, draggableItem);
 			values.put(gapId, value);
 			fireItemConsumedEvent();
