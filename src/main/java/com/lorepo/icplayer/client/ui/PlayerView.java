@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.ui;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
@@ -53,6 +55,13 @@ public class PlayerView extends VerticalPanel{
 		nextPageButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				nextPage();
+			}
+		});
+		Window.addResizeHandler(new ResizeHandler() {
+			@Override
+			public void onResize(ResizeEvent event) {
+				prevPageButton.hide();
+				nextPageButton.hide();
 			}
 		});
 	}

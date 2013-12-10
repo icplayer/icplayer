@@ -17,7 +17,7 @@
 </addons>
 
 <style>
-.ic_player{background-color: red;}
+.ic_player{background-color: red; margin-left:10%;}
 .ic_page{
 	background-color: #efefef;
 	font-size:18px;
@@ -38,6 +38,17 @@
 	width: 100%;
 	overflow: hidden;
 }
+.ic_navi_panel_prev, .ic_navi_panel_next {
+    background-color: rgba(187, 187, 187, 0.72);
+    background-image: url("/file/serve/6676260642095104");
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+    display: block;
+    height: 80px;
+    width: 80px;
+}
 </style>
 
 <pages>
@@ -48,13 +59,13 @@
 	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
+	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<!-- 
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
 	<page name="cloze" href="pages/cloze.page.xml"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
-	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	 -->
 	<folder name="commons">
 		<page name="popup1" href="pages/popup.page.xml"/>

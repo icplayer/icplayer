@@ -58,6 +58,8 @@ public class ReportView extends Composite implements IDisplay{
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 				Cell cell = grid.getCellForEvent(event);
 				if(cell != null){
 					fireEvent(cell);
