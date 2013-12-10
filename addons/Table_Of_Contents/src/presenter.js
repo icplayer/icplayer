@@ -69,7 +69,7 @@ function AddonTable_Of_Contents_create(){
     function displayPage(page) {
         var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol'),
             pages = presenter.pagination.pages[page], i,
-            startIndex = page == 0 ? 1 : presenter.pagination.pages[page - 1].length + 1;
+            startIndex = page == 0 ? 1 : (presenter.pagination.pages[page - 1].length * page) + 1;
 
         $list.find('li').hide();
         $list.attr('start', '' + startIndex);
