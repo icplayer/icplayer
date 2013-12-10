@@ -78,22 +78,27 @@ TestCase("Events triggering", {
     },
 
     'test user selected correct letter' : function() {
-        this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1]);
+        this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1], true);
 
         assertTrue(this.presenter.sendEventData.calledWith({source: 'Hangman1', item: '2', value: 'A', score: '1'}));
     },
 
     'test user selected incorrect letter' : function() {
-        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1]);
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);
 
         assertTrue(this.presenter.sendEventData.calledWith({source: 'Hangman1', item: '2', value: 'B', score: '0'}));
     },
 
     'test user selected incorrect letter and he runs of trials' : function() {
         this.presenter.configuration.phrases[1].errorCount = 2;
-        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1]);
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);
 
         assertEquals({source: 'Hangman1', item: '2', value: 'B', score: '0'}, this.presenter.sendEventData.getCall(0).args[0]);
         assertEquals({source: 'Hangman1', item: '2', value: 'EOT', score: ''}, this.presenter.sendEventData.getCall(1).args[0]);
+    },
+    
+    'test automatically selected letter' : function() {
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], false);
+        assertFalse(this.presenter.sendEventData.called);
     }
 });

@@ -1,3 +1,4 @@
+2013-12-10 Fixed problem with counting errors and sending events on setState, setShowErrorsMode and setWorkMode in Hangman addon
 2013-12-10 Fixed problem with navigation toolbars and report module
 2013-12-09 Removed reaction on Reset in Check Counter module
 2013-12-09 Removed console.logs in Double State Button
