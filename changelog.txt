@@ -1,3 +1,4 @@
+2013-12-11 Close popup while changing page
 2013-12-11 Fixed problem with navigation toolbars position
 2013-12-10 Fixed problem with page numbers in Table Of Contents addon
 2013-12-10 Fixed problem with counting errors and sending events on setState, setShowErrorsMode and setWorkMode in Hangman addon
