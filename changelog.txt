@@ -1,3 +1,4 @@
+2013-12-11 Fixed problem with restoring state from same lesson but other source
 2013-12-11 Close popup while changing page
 2013-12-11 Fixed problem with navigation toolbars position
 2013-12-10 Fixed problem with page numbers in Table Of Contents addon

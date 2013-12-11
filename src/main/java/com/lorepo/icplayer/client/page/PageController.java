@@ -197,7 +197,7 @@ public class PageController {
 		for(IPresenter presenter : presenters){
 			if(presenter instanceof IStateful){
 				IStateful statefulObj = (IStateful)presenter;
-				String key = currentPage.getHref() + statefulObj.getSerialId(); 
+				String key = currentPage.getId() + statefulObj.getSerialId(); 
 				String moduleState = state.get(key);
 				if(moduleState != null){
 					statefulObj.setState(moduleState);
@@ -215,7 +215,7 @@ public class PageController {
 				if(presenter instanceof IStateful){
 					IStateful statefulObj = (IStateful)presenter;
 					String state = statefulObj.getState();
-					String key = currentPage.getHref() + statefulObj.getSerialId();
+					String key = currentPage.getId() + statefulObj.getSerialId();
 					pageState.put(key, state);
 				}
 			}
