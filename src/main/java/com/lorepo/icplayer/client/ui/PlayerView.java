@@ -101,20 +101,23 @@ public class PlayerView extends VerticalPanel{
 			hideNavigationPanels();
 		} else {
 			final int left = getAbsoluteLeft();
-			final int top = Window.getScrollTop() + getAbsoluteTop();
+			final int top = Math.max(getAbsoluteTop(), Window.getScrollTop());
 			final int right = left + getOffsetWidth();
-			final int height = Math.min(getOffsetHeight()-top, Window.getClientHeight());
+			int presentationBottom = getAbsoluteTop() + getOffsetHeight();
+			int windowBottom = Window.getScrollTop() + Window.getClientHeight();
+			int bottom = Math.min(presentationBottom, windowBottom);
+			final int height = bottom-top;
 			
 			prevPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
-					prevPageButton.setPopupPosition(left, (height-offsetHeight)/2 + top);
+					prevPageButton.setPopupPosition(left, top +(height-offsetHeight)/2);
 					prevPageButton.show();
 				}
 	        });
 			
 			nextPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
-					nextPageButton.setPopupPosition(right-offsetWidth, (height-offsetHeight)/2 + top);
+					nextPageButton.setPopupPosition(right-offsetWidth, top +(height-offsetHeight)/2);
 					nextPageButton.show();
 				}
 	        });
