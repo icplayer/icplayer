@@ -229,7 +229,6 @@ function Addongamememo_create(){
         });
         cell.parent().append(mark);
 
-        mark.css('top', Math.round(parseInt(mark.css('height')) * -0.08) + 'px');
         mark.fadeOut(1300, function() {
             mark.remove();
         });
