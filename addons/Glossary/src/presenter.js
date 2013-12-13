@@ -228,21 +228,30 @@ function AddonGlossary_create(){
     };
     
     presenter.putWidget = function() {
-    	dialog = presenter.dialog;
+        dialog = presenter.dialog;
         var $popup = $('#icplayer').parent().find('.ic_popup');
         var dialogWidget = dialog.dialog("widget");
+        outsideView = presenter.$view.clone(true);
+        outsideView.css({'display': 'block',
+                        'width': 0,
+                        'height': 0,
+                        'position': 'static'
+                        });
+        outsideView.append(dialogWidget);
         if ($popup.is('.ic_popup')){
             // Dialog must be placed in popup page
-            $popup.children().last().after(dialogWidget);
+            $popup.children().last().after(outsideView);
         }
         else if ($(".gwt-DialogBox").is('.gwt-DialogBox') ) {
             // Dialog must be placed in preview page
-            $(".ic_page_panel").children(".ic_page").children().last().after(dialogWidget);
+            $(".ic_page_panel").children(".ic_page").children().last().after(outsideView);
         }
         else {
             // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
-            $('#icplayer').after(dialogWidget);
+            $('#icplayer').after(outsideView);
         }
+        presenter.$view.remove();
+        presenter.$view = outsideView;
     };
 
     presenter.calculateReducedDialogHeight = function($dialog, pageHeight) {

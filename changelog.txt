@@ -1,3 +1,4 @@
+2013-12-13 Fixed problem with custom styles in Glossary addon
 2013-12-13 Fixed problem with placing Glossary widget into closing popup
 2013-12-13 Fixed problem with centering the mismatch mark in memo game
 2013-12-11 Fixed problem with restoring state from same lesson but other source
