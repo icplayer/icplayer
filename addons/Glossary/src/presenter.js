@@ -221,8 +221,14 @@ function AddonGlossary_create(){
             close: presenter.closeDialogEventHandler
 
         });
-
-
+        presenter.dialog = dialog;
+        presenter.$view.css('display', 'none');
+        // Wait with the decision of where to place the widget until the time of closing popups
+        setTimeout(presenter.putWidget, 500);
+    };
+    
+    presenter.putWidget = function() {
+    	dialog = presenter.dialog;
         var $popup = $('#icplayer').parent().find('.ic_popup');
         var dialogWidget = dialog.dialog("widget");
         if ($popup.is('.ic_popup')){
@@ -237,9 +243,6 @@ function AddonGlossary_create(){
             // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
             $('#icplayer').after(dialogWidget);
         }
-        presenter.dialog = dialog;
-
-        presenter.$view.css('display', 'none');
     };
 
     presenter.calculateReducedDialogHeight = function($dialog, pageHeight) {
