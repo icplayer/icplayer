@@ -174,6 +174,10 @@ function AddonTable_Of_Contents_create(){
         }
 
         if (!isPreview) handleMouseClickActions();
+
+        if (!ModelValidationUtils.isStringEmpty(model['Header'])) {
+        	presenter.$view.find('.table-of-contents .table-of-contents-title').text(model['Header'])
+        }
     }
 
     presenter.getPresentationPages = function() {

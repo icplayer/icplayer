@@ -2,5 +2,6 @@
 
 <addon id='Table_Of_Contents'>
 	<model>
+		<property name="Header" type="string" isLocalized="true" />
 	</model>
 </addon>
