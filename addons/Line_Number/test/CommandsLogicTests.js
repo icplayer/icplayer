@@ -15,6 +15,7 @@ TestCase("Commands logic", {
             isDisabled : true,
             isDisabledByDefault : false
         };
+        this.presenter.$view = $('<div></div>');
 
         sinon.stub(this.presenter, 'setVisibility');
         sinon.stub(this.presenter, 'redrawRanges');

@@ -2,6 +2,7 @@ TestCase('State restoring', {
     setUp : function() {
         this.presenter = AddonAudio_create();
         this.presenter.$view = $('<div></div>');
+        this.presenter.audio = new Audio();
 
         sinon.stub(this.presenter, 'show');
         sinon.stub(this.presenter, 'hideAddon');
