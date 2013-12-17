@@ -46,7 +46,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		if(!currentPage.getStyleClass().isEmpty()){
 			addStyleName(currentPage.getStyleClass());
 		}
-		
+		getElement().setId(currentPage.getId());
 		removeAllModules();
 	}
 

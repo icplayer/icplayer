@@ -9,25 +9,28 @@
     <script type="text/javascript" language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" language="javascript" src="icplayer/icplayer.nocache.js"></script>
     
-<script type="text/x-mathjax-config">
+	<script type="text/x-mathjax-config">
      MathJax.Hub.Config({
-        TeX: {
-            imageFont: null,
-            extensions: ["mhchem.js"],
-			showProcessingMessages: true
-        }
+		TeX: {extensions: ["mhchem.js"]},
+		extensions: ["tex2jax.js"],
+		skipStartupTypeset: true,
+		showProcessingMessages: false,
+		jax: ["input/TeX","output/HTML-CSS"]
     });
-    </script>    
+
+	</script>    
+    <script type="text/javascript" src="mathjax/MathJax.js"></script>
     <script language="javascript">
 		var player;
       	function icOnAppLoaded(){
-    	    player = icCreatePlayer('_icplayer');
-    	    //player = icCreateBook('_icplayer', false);
+    	    player = icCreateBook('_icplayer', false);
 	       	//player.load('content/book.ic.xml');
+
+	       	//player = icCreatePlayer('_icplayer');
     	    //loadPlayerState();
 	        //player.setAnalytics('5n2WsdElQZqnDqT3-amHrw');
-	        player.load('test/pages/main.xml');
-	       	//player.load('content/default.ic.xml');
+	        //player.load('test/pages/main.xml');
+	       	player.load('content/default.ic.xml');
 	       	//player.load('content/responsive.ic.xml');
         	//player.onStatusChanged(function(type, source, value){
         	//	console.log("type:" + type + ", source: " + source, ", value:" + value);
@@ -77,9 +80,14 @@
       	}
     </script>
     
-    <script type="text/javascript"
-  		src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-	</script>
+<style>
+  .output {
+    background-color: #F0F0F0;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    padding: 3px 1em;
+  }
+</style>	
     
   </head>
 

@@ -9,12 +9,13 @@ public class MathJax {
 	 */
 	public static native void refreshMathJax(Element e) /*-{
 
-		if (typeof $wnd.MathJax !== 'undefined'  &&  $wnd.MathJax != null ){
-	  		if (typeof $wnd.MathJax.Hub !== 'undefined'  &&  $wnd.MathJax.Hub != null ){
-	  			if (typeof $wnd.MathJax.Hub.Typeset == 'function' ){
-					$wnd.MathJax.CallBack.Queue().Push(function () {$wnd.MathJax.Hub.Typeset(e)});
-	  			}
-	  		}
-	  	}
+		try{
+			$wnd.MathJax.CallBack.Queue().Push(function () {
+				$wnd.MathJax.Hub.Typeset(e);
+			});
+	  	}catch(err){
+	  		console.log("Error : " + err);
+		}
 	}-*/;
 }
+

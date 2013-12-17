@@ -3,7 +3,7 @@
 
 	<modules>
 	
-		<textModule left="10" top="2" width="80" height="45" 
+		<textModule left="10" top="20" width="600" height="300" 
 			style="background-color:#eeeeff; border: 1px solid gray">
 			<text>
 				When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
@@ -14,16 +14,16 @@
 			</text>
 		</textModule>
 		
-		<textModule left="10" top="50" width="80" height="40" 
+		<textModule left="10" top="350" width="600" height="200" 
 			style="background-color:#eeeeff; border: 1px solid gray">
 			<text>
-				This is \(\cfrac{1}{10^4}\) not a gap
+				This is \(\frac{1}{10^4}\) not a gap
 				&lt;br/&gt;
-				This is \(\cfrac{{1}}{10^4}\) not a gap
+				This is \(\frac{{1}}{10^4}\) not a gap
 			</text>
 		</textModule>
 		
-		<buttonModule  left="45" top="90" width="10" height="10" style="">
+		<buttonModule  left="50" top="500" width="50" height="50" style="">
 			<button type="popup" text="" onclick="commons/popup1"/>
 		</buttonModule>
 		
