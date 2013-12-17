@@ -1,3 +1,4 @@
+2013-12-17 Fixed problem with popup's custom closing time and initialization of Glossary addon
 2013-12-16 Header for Table of Contents is now editable
 2013-12-16 Fixed tests in Line Number and Audio addons
 2013-12-13 Fixed problem with custom styles in Glossary addon

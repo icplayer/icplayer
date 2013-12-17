@@ -219,26 +219,18 @@ function AddonGlossary_create(){
             resizable: false,
             open: presenter.openDialogEventHandler,
             close: presenter.closeDialogEventHandler
-
         });
-        presenter.dialog = dialog;
-        presenter.$view.css('display', 'none');
-        // Wait with the decision of where to place the widget until the time of closing popups
-        setTimeout(presenter.putWidget, 500);
-    };
-    
-    presenter.putWidget = function() {
-        dialog = presenter.dialog;
+
         var $popup = $('#icplayer').parent().find('.ic_popup');
         var dialogWidget = dialog.dialog("widget");
-        outsideView = presenter.$view.clone(true);
+        outsideView = presenter.$view;
         outsideView.css({'display': 'block',
                         'width': 0,
                         'height': 0,
                         'position': 'static'
                         });
         outsideView.append(dialogWidget);
-        if ($popup.is('.ic_popup')){
+        if ($popup.is('.ic_popup') && presenter.$view.parent().is('.ic_popup_page')) {
             // Dialog must be placed in popup page
             $popup.children().last().after(outsideView);
         }
@@ -250,7 +242,7 @@ function AddonGlossary_create(){
             // Dialog must be placed outside Player so that position:absolute wouldn't be suppressed by Player's overflow:hidden
             $('#icplayer').after(outsideView);
         }
-        presenter.$view.remove();
+        presenter.dialog = dialog;
         presenter.$view = outsideView;
     };
 
