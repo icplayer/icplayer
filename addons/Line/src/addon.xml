@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Line'>
+	<model>
+		<property name="Rotation angle" type="string" />
+		<property name="Line width" type="string" />
+		<property name="Line color" type="string" />
+        <property name="Line opacity" type="string" />
+		<property name="Left line ending" type="{None, Round, Circle, Square}" />
+        <property name="Right line ending" type="{None, Round, Circle, Square}" />
+	</model>
+</addon>
