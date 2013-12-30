@@ -1,3 +1,4 @@
+2013-12-30 Fixed problem with Animation addon on Firefox
 2013-12-18 Added new addon: Line
 2013-12-17 Fixed problem with popup's custom closing time and initialization of Glossary addon
 2013-12-16 Header for Table of Contents is now editable

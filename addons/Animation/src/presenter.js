@@ -169,15 +169,28 @@ function AddonAnimation_create (){
         elementHeight = Math.round(elementHeight);
 
         presenter.frames = new Array();
-        for (i=0; i < presenter.configuration.framesCount; i++) {
-            var canvas = document.createElement('canvas');
-            canvas.setAttribute('width', elementWidth);
-            canvas.setAttribute('height', elementHeight);
-            ctx = canvas.getContext('2d');
-            ctx.drawImage(animationImage, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
-            presenter.frames[i] = canvas;
-            $(canvas).remove();
+        makeFrames = function() {
+            var ctx, i;
+            try {
+                for (i=0; i < presenter.configuration.framesCount; i++) {
+                    var canvas = document.createElement('canvas');
+                    canvas.setAttribute('width', elementWidth);
+                    canvas.setAttribute('height', elementHeight);
+                    ctx = canvas.getContext('2d');
+                    ctx.drawImage(animationImage, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
+                    presenter.frames[i] = canvas;
+                    $(canvas).remove();
+                    }
             }
+            catch (e) {
+                if (e.name == "NS_ERROR_NOT_AVAILABLE") {
+                  makeFrames();
+                } else {
+                  throw e;
+                }
+            }
+        }
+        makeFrames();
 
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
         $(presenter.DOMElements.animation).append(clickhandler);
