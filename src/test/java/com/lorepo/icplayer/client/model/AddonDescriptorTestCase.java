@@ -142,16 +142,6 @@ public class AddonDescriptorTestCase {
 
 
 	@Test
-	public void libs() throws SAXException, IOException{
-		
-		AddonDescriptor descriptor = initDescriptor();
-		
-		List<String> libs = descriptor.getLibraries();
-		assertEquals(2, libs.size());
-		assertEquals("mylib1/script.js", libs.get(0));
-	}
-
-	@Test
 	public void isLocalized() throws SAXException, IOException{
 		
 		AddonDescriptor descriptor = initDescriptor();

@@ -7,11 +7,6 @@
 		<image src="/file/13"/>
 	</resources>
 	
-	<libs>
-		<js src="mylib1/script.js"/>
-		<js src="ala/kota.js"/>
-	</libs>
-	
 	<model>
 		<property name="Filename" type="file"/>
 		<property name="Title" type="string" isLocalized="true"/>

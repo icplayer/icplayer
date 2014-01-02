@@ -24,7 +24,6 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 	private String id;
 	private ArrayList<AddonProperty>	propertyNames = new ArrayList<AddonProperty>();
 	private ArrayList<String>	resources = new ArrayList<String>();
-	private ArrayList<String>	libs = new ArrayList<String>();
 	private String viewHtml = "";
 	private String previewHtml = "";
 	private String code = "";
@@ -78,7 +77,6 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 		id = rootElement.getAttribute("id");
 		
 		loadModel(rootElement);
-		loadLibs(rootElement);
 		loadResources(rootElement);
 		loadCSS(rootElement);
 		loadView(rootElement);
@@ -105,19 +103,6 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 					propertyNames.add(property);
 				}
 			}
-		}
-	}
-
-
-	private void loadLibs(Element rootElement) {
-		
-		resources.clear();
-		NodeList optionNodes = rootElement.getElementsByTagName("js");
-		for(int i = 0; i < optionNodes.getLength(); i++){
-	
-			Element element = (Element)optionNodes.item(i);
-			String src = XMLUtils.getAttributeAsString(element, "src");
-			libs.add(src);
 		}
 	}
 
@@ -199,12 +184,6 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 		}
 		xml += "</model>";
 
-		xml += "<libs>";
-		for(String libId : libs){
-			xml += "<js src='" + StringUtils.escapeXML(libId) + "'/>";
-		}
-		xml += "</libs>";
-
 		xml += "<resources>";
 		for(String resource : resources){
 			xml += "<image src='" + StringUtils.escapeXML(resource) + "'/>";
@@ -271,11 +250,6 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 	public List<String> getResources() {
 		return resources;
-	}
-
-	
-	public List<String> getLibraries() {
-		return libs;
 	}
 
 	
