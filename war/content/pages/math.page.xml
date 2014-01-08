@@ -17,9 +17,9 @@
 		<textModule left="10" top="350" width="600" height="200" 
 			style="background-color:#eeeeff; border: 1px solid gray">
 			<text>
-				This is \(\frac{1}{10^4}\) not a gap
+				This is \(\cfrac{1}{10^4}\) not a gap
 				&lt;br/&gt;
-				This is \(\frac{{1}}{10^4}\) not a gap
+				This is \(\cfrac{{1}}{10^4}\) not a gap
 			</text>
 		</textModule>
 		

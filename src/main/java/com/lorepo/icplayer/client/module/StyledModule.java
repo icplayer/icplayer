@@ -1,9 +1,7 @@
 package com.lorepo.icplayer.client.module;
 
-import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
-import com.lorepo.icplayer.client.utils.DOMUtils;
 
 /**
  * Klasa implementuje bazowe functionalności potrzebne wszystkim modułom
@@ -65,21 +63,6 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 	}
 
 	
-	/**
-	 * Wstawienie stylu inline do elementu DOM
-	 * @param element
-	 * @param style
-	 */
-	protected void applyInlineStyle(Widget widget){
-		
-		DOMUtils.applyInlineStyle(widget.getElement(), getInlineStyle());
-		
-		if(getStyleClass() != null && getStyleClass().length() > 0){
-			widget.addStyleName(getStyleClass());
-		}
-		
-	}
-
 	@Override
 	public String getClassNamePrefix() {
 		return "";

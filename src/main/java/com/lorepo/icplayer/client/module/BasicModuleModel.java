@@ -6,6 +6,7 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -94,7 +95,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		setHeight(height);
 		setRight(right);
 		setBottom(bottom);
-		setInlineStyle(StringUtils.unescapeXML( element.getAttribute("style") ));
+		String style = StringUtils.unescapeXML(element.getAttribute("style"));
+		String css = URLUtils.resolveCSSURL(baseURL, style);
+		setInlineStyle(css);
 		setStyleClass(StringUtils.unescapeXML( element.getAttribute("class") ));
 		
 		NodeList nodes = element.getChildNodes();
