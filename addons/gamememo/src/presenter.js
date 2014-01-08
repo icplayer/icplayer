@@ -78,6 +78,8 @@ function Addongamememo_create(){
     presenter.styleAImage = null;
     presenter.styleBImage = null;
 
+    presenter.model = null;
+
     presenter.requestedRowHeight = null;
     presenter.requestedColumnWidth = null;
 
@@ -229,6 +231,7 @@ function Addongamememo_create(){
         });
         cell.parent().append(mark);
 
+        mark.css('top', Math.round(parseInt(mark.css('height')) * -0.08) + 'px');
         mark.fadeOut(1300, function() {
             mark.remove();
         });
@@ -270,7 +273,7 @@ function Addongamememo_create(){
         presenter.shuffleCards();
     };
 
-    presenter.shuffleCards = function(cards, serializedCards) {
+    presenter.shuffleCards = function() {
         var shuffled = presenter.shuffleTwoArrays(presenter.cards, presenter.serializedCards);
 
         presenter.cards = shuffled[0];
@@ -278,13 +281,15 @@ function Addongamememo_create(){
     };
 
     presenter.prepareGridFromSavedState = function(savedCards) {
-        var cards = [], card;
+        var cards = [], card,
+            pairs = presenter.model['Pairs'], src;
 
         for(var i = 0; i < savedCards.length; i++) {
             if(savedCards[i].type == "text") {
                 card = $('<p></p>').text(savedCards[i].content);
             } else {
-                card = $('<img/>').attr({ src: savedCards[i].content });
+                src = pairs[savedCards[i].cardId][presenter.numberToCardType(savedCards[i].cardStyle) + ' (image)'];
+                card = $('<img/>').attr({ src: src });
             }
             card.addClass('card').attr({'card_id' : savedCards[i].cardId, 'card_style' : savedCards[i].cardStyle });
             cards.push(card);
@@ -293,6 +298,8 @@ function Addongamememo_create(){
         presenter.cards = cards;
         presenter.serializedCards = savedCards;
     };
+
+
 
 
 
@@ -453,6 +460,7 @@ function Addongamememo_create(){
 
     presenter.initializeLogic = function(view, model) {
         presenter.viewContainer = $(view);
+        presenter.model = model;
 
         var configuration = presenter.readConfiguration(model);
         if(configuration.isError) {
