@@ -4,11 +4,11 @@
 	<model>
 		<property name="Multi" type="boolean" />
 		<property name="Questions" type="list">
-			<property name="Question" type="string" isLocalized="true" />
+			<property name="Question" type="html" isLocalized="true" />
 			<property name="Answer" type="string" />
 		</property>
 		<property name="Choices" type="list">
-			<property name="Choice" type="string" isLocalized="true" />
+			<property name="Choice" type="html" isLocalized="true" />
 		</property>
 	</model>
 </addon>
