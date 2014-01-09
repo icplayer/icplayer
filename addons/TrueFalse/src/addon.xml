@@ -2,6 +2,7 @@
 
 <addon id='TrueFalse'>
 	<model>
+        <property name="isNotActivity" displayName="Is not an activity" type="boolean" />
 		<property name="Multi" type="boolean" />
 		<property name="Questions" type="list">
 			<property name="Question" type="html" isLocalized="true" />

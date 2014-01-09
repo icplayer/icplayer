@@ -1,5 +1,6 @@
 function AddonTrueFalse_create() {
-    var presenter = function () {};
+    var presenter = function () {
+    };
 
     presenter.type = "";
     presenter.$view;
@@ -7,6 +8,7 @@ function AddonTrueFalse_create() {
 
     var possibleChoices = [];
     var multi = false;
+    var isNotActivity = false;
     var questions = [];
     var playerController;
     var eventBus; // Modules communication
@@ -28,7 +30,7 @@ function AddonTrueFalse_create() {
     };
 
     var score = function () {
-        var score = { 'score':0, 'maxScore':0, 'errorCount':0 };
+        var score = { 'score': 0, 'maxScore': 0, 'errorCount': 0 };
         for (var i = 0; i < questions.length + 1; i++) {
             var j = 0;
             var row = presenter.$view.find('#' + i);
@@ -65,6 +67,7 @@ function AddonTrueFalse_create() {
             if (i > 0) {
                 var values = (questions[i - 1].Answer).split(',');
                 row.children().each(function () {
+                    if ($(this).hasClass("disabled")) return;
                     $(this).addClass("disabled");
                     if (isCorrectAnswer($(this), values, j)) {
                         $(this).addClass("correct");
@@ -80,8 +83,8 @@ function AddonTrueFalse_create() {
     function whichQuestion(row, table) {
         var questionNumber = 0;
 
-        $(table).find('tr').each(function(index) {
-            if($(this)[0] == $(row)[0]) {
+        $(table).find('tr').each(function (index) {
+            if ($(this)[0] == $(row)[0]) {
                 questionNumber = index;
 
                 return false;
@@ -93,9 +96,8 @@ function AddonTrueFalse_create() {
 
     function whichAnswer(element, row) {
         var answerNumber = 0;
-
-        $(row).find('.tf_' + presenter.type + '_image').each(function(index) {
-            if($(this)[0] == $(element)[0]) {
+        $(row).find('.tf_' + presenter.type + '_image').each(function (index) {
+            if ($(this)[0] == $(element)[0]) {
                 answerNumber = index + 1; // Answers are counted from 1 to n
 
                 return false;
@@ -123,12 +125,12 @@ function AddonTrueFalse_create() {
         };
     };
 
-    presenter.createRowOKEventData = function(row) {
+    presenter.createRowOKEventData = function (row) {
         return {
-            'source' : presenter.addonID,
-            'item' : row + '-all',
-            'value' : '',
-            'score' : ''
+            'source': presenter.addonID,
+            'item': row + '-all',
+            'value': '',
+            'score': ''
         }
     };
 
@@ -191,7 +193,7 @@ function AddonTrueFalse_create() {
             e.stopPropagation();
             e.preventDefault();
 
-            if ( presenter.lastEvent.type != e.type ) {
+            if (presenter.lastEvent.type != e.type) {
                 var eventData = event.touches[0] || event.changedTouches[0];
 
                 clickLogic($(eventData.target).parent());
@@ -267,6 +269,7 @@ function AddonTrueFalse_create() {
         }
 
         multi = model['Multi'] === 'True';
+        isNotActivity = model['isNotActivity'] === 'True';
         presenter.type = multi ? "checkbox" : "radio";
         var table = document.createElement('table');
 
@@ -285,7 +288,7 @@ function AddonTrueFalse_create() {
         }
     };
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         playerController = controller;
     };
 
@@ -355,24 +358,32 @@ function AddonTrueFalse_create() {
     };
 
     presenter.getErrorCount = function () {
+        if (isNotActivity) return 0;
         return score().errorCount;
     };
 
     presenter.getMaxScore = function () {
+        if (isNotActivity) return 0;
         return score().maxScore;
     };
 
     presenter.getScore = function () {
+        if (isNotActivity) return 0;
         return score().score;
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         if (presenter.isErrorMode) {
             return;
         }
 
         var commands = {
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'isSelected': presenter.isSelectedCommand,
+            'markAsCorrect': presenter.markAsCorrectCommand,
+            'markAsWrong': presenter.markAsWrongCommand,
+            'markAsEmpty': presenter.markAsEmptyCommand,
+            'removeMark': presenter.removeMarkCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -382,18 +393,81 @@ function AddonTrueFalse_create() {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
-    presenter.isRowOK = function(selectedQuestion) {
+    presenter.isRowOK = function (selectedQuestion) {
         var correctAnswersLength = 0;
         var rowAnswers = questions[selectedQuestion - 1].Answer.split(',');
         var row = presenter.$view.find('#' + selectedQuestion);
-        for(var i = 0; i < row.children('.down').length; i++) {
+        for (var i = 0; i < row.children('.down').length; i++) {
             var selectedAnswer = $(row.children('.down')[i]).index();
             var isSelectionCorrect = presenter.isSelectionCorrect(questions[selectedQuestion - 1], parseInt(selectedAnswer, 10));
-            if(isSelectionCorrect) {
+            if (isSelectionCorrect) {
                 correctAnswersLength++;
             }
-        };
+        }
+        ;
         return rowAnswers.length === correctAnswersLength;
+    };
+
+    presenter.isSelected = function (rowIndex, answerIndex) {
+        if (answerIndex < 1) return false;
+        var row = presenter.$view.find('#' + rowIndex);
+        var el = row.children()[answerIndex];
+        return $(el).hasClass("down");
+    }
+
+
+    presenter.markAsCorrect = function (rowIndex, answerIndex) {
+        var row = presenter.$view.find('#' + rowIndex);
+        if (rowIndex > 0) {
+            var el = row.children()[answerIndex];
+            $(el).addClass("disabled");
+            $(el).addClass("correct");
+         }
+    };
+
+    presenter.markAsWrong = function (rowIndex, answerIndex) {
+        var row = presenter.$view.find('#' + rowIndex);
+        if (rowIndex > 0) {
+            var el = row.children()[answerIndex];
+            $(el).addClass("disabled");
+            $(el).addClass("wrong");
+        }
+    };
+
+    presenter.markAsEmpty = function (rowIndex, answerIndex) {
+        var row = presenter.$view.find('#' + rowIndex);
+        if (rowIndex > 0) {
+            var el = row.children()[answerIndex];
+            $(el).addClass("disabled");
+        }
+    };
+
+    presenter.removeMark = function (rowIndex, answerIndex) {
+        var row = presenter.$view.find('#' + rowIndex);
+        if (rowIndex > 0) {
+            var el = row.children()[answerIndex];
+            $(el).removeClass("wrong").removeClass("correct");
+        }
+    };
+
+    presenter.isSelectedCommand = function (params) {
+        presenter.isSelected(parseInt(params[0], 10), parseInt(params[1], 10));
+    };
+
+    presenter.markAsEmptyCommand = function (params) {
+        presenter.markAsEmpty(parseInt(params[0], 10), parseInt(params[1], 10));
+    };
+
+    presenter.markAsWrongCommand = function (params) {
+        presenter.markAsWrong(parseInt(params[0], 10), parseInt(params[1], 10));
+    };
+
+    presenter.removeMarkCommand = function (params) {
+        presenter.removeMark(parseInt(params[0], 10), parseInt(params[1], 10));
+    };
+
+    presenter.markAsCorrectCommand = function (params) {
+        presenter.markAsCorrect(parseInt(params[0], 10), parseInt(params[1], 10));
     };
 
 
