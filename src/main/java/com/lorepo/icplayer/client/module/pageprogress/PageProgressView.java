@@ -1,13 +1,18 @@
 package com.lorepo.icplayer.client.module.pageprogress;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.DOM;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.utils.widget.ProgressBar;
 
-public class PageProgressView extends ProgressBar implements PageProgressPresenter.IDisplay{
+public class PageProgressView extends ProgressBar implements PageProgressPresenter.IDisplay {
 
 //	private ProgressBar progress;
 	private PageProgressModule module;
+	private ArrayList<IOptionDisplay> optionWidgets = new ArrayList<IOptionDisplay>();
 	
 	public PageProgressView(PageProgressModule module, boolean isPreview){
 		
@@ -27,17 +32,32 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 		getElement().setId(module.getId());
 	}
 
-	
 	@Override
 	public void setData(int value) {
 		
 		setProgress(value);
 	}
 
-	  @Override
-	  protected void onLoad() {
-		  super.onLoad();
-		  DOM.setStyleAttribute(getElement(), "position", "absolute");
-	  }
+	@Override
+	protected void onLoad() {
+		super.onLoad();
+		DOM.setStyleAttribute(getElement(), "position", "absolute");
+	}
+	
+	@Override
+	public void hide() {
+		setVisible(false);
+	}
+
+
+	@Override
+	public void show() {
+		setVisible(true);
+	}
+	
+	@Override
+	public List<IOptionDisplay> getOptions() {
+		return optionWidgets;
+	}
 
 }

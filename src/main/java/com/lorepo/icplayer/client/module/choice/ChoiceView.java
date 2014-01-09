@@ -88,13 +88,10 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 
-
-
 	@Override
 	public void hide() {
 		setVisible(false);
 	}
-
 
 	@Override
 	public void show() {

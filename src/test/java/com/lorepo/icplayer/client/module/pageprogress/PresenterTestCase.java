@@ -2,18 +2,25 @@ package com.lorepo.icplayer.client.module.pageprogress;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter.IDisplay;
 
 public class PresenterTestCase {
 
-	private class TestDisplay implements IDisplay{
+	private class TestDisplay implements IDisplay {
 
 		public int value = 5;
+		public boolean isVisible = false;
+		private ArrayList<IOptionDisplay> options = new ArrayList<IOptionDisplay>();
 		
 		public TestDisplay(PageProgressModule model) {
 		}
@@ -22,9 +29,48 @@ public class PresenterTestCase {
 		public void setData(int value) {
 			this.value = value;
 		}
+		
+		@Override
+		public void show() {
+			this.isVisible = true;
+		}
 
+		@Override
+		public void hide() {
+			this.isVisible = false;
+		}
+
+		@Override
+		public List<IOptionDisplay> getOptions() {
+			return options;
+		}
+		
+		@Override
+		public Element getElement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
+	@Test
+	public void showMethodSetVisibilityToTrue() {
+		PageProgressModule model = new PageProgressModule();
+		TestDisplay display = new TestDisplay(model);
+		
+		display.show();
+		
+		assertEquals(true, display.isVisible);
+	}
+	
+	@Test
+	public void hideMethodSetVisiblityToFalse() {
+		PageProgressModule model = new PageProgressModule();
+		TestDisplay display = new TestDisplay(model);
+		
+		display.hide();
+		
+		assertEquals(false, display.isVisible);
+	}
 	
 	@Test
 	public void resetValueOnStart() {

@@ -1,3 +1,4 @@
+2014-01-09 Added show and hide methods to Page Progress module.
 2014-01-08 Fixed problem with Memo Game when trying to read state saved in different platform
 2014-01-08 Fixed problem with relative URLs in inline styles.
 2014-01-08 Changed True/False property type to accept HTML formatting.
