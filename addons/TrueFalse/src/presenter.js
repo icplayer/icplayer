@@ -67,7 +67,7 @@ function AddonTrueFalse_create() {
             if (i > 0) {
                 var values = (questions[i - 1].Answer).split(',');
                 row.children().each(function () {
-                    if ($(this).hasClass("disabled")) return;
+                    if ($(this).hasClass("disabled") && j>0) return;
                     $(this).addClass("disabled");
                     if (isCorrectAnswer($(this), values, j)) {
                         $(this).addClass("correct");
@@ -269,7 +269,7 @@ function AddonTrueFalse_create() {
         }
 
         multi = model['Multi'] === 'True';
-        isNotActivity = model['isNotActivity'] === 'True';
+        isNotActivity = (model['isNotActivity'] === 'True');
         presenter.type = multi ? "checkbox" : "radio";
         var table = document.createElement('table');
 
