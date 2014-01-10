@@ -12,7 +12,6 @@ import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
-import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -142,24 +141,14 @@ public class PageController {
 
 	public void updateScore() {
 		if(currentPage != null){
-			float score = 0;
-			float maxScore = 0;
-			int errorCount = 0;
-			
-			for(IPresenter presenter : presenters){
-				if(presenter instanceof IActivity){
-					IActivity activity = (IActivity) presenter;
-					score += activity.getScore();
-					maxScore += activity.getMaxScore();
-					errorCount += activity.getErrorCount();
-				}
-			}
+
+			Score.Result result = Score.calculateStadardScore(presenters);
 	
 			if(currentPage.isReportable()){
 				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
-				pageScore.setScore(score);
-				pageScore.setMaxScore(maxScore);
-				pageScore.setErrorCount(errorCount);
+				pageScore.setScore(result.score);
+				pageScore.setMaxScore(result.maxScore);
+				pageScore.setErrorCount(result.errorCount);
 			}
 		}
 	}
