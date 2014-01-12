@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.13';
+        this.VERSION = '1.1.14';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1087,6 +1087,14 @@ function AddonPlot_create(){
             this.draw();
         };
 
+        this.zoomIn = function(direction) {
+            this.zoom(1);
+        }
+
+        this.zoomOut = function(direction) {
+            this.zoom(-1);
+        }
+
         this.move = function(dx, dy) {
             this.offsetX += dx;
             this.offsetY += dy;
@@ -1096,6 +1104,23 @@ function AddonPlot_create(){
             this.calculateRange();
             this.draw();
         };
+
+        this.moveLeft = function(dx) {
+            this.move(parseInt(dx),0);
+        }
+
+        this.moveRight = function(dx) {
+            this.move(parseInt(dx)*(-1),0);
+        }
+
+        this.moveUp = function(dy) {
+            this.move(0, parseInt(dy)*(-1));
+        }
+
+        this.moveDown = function(dy) {
+            this.move(0, parseInt(dy));
+        }
+
         this._composeStyle = function(style) {
             var formattedStyle = '';
             $.each(style, function(o, v) {
