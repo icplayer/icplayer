@@ -68,6 +68,12 @@ function AddonGlossary_create(){
         if (presenter.$ICPage.offset() == null){
             presenter.$ICPage = $(presenter.$view.parent('.ic_popup_page:first')[0]);
         }
+        if (presenter.$ICPage.offset() == null){
+            presenter.$ICPage = $(presenter.$view.parent('.ic_header:first')[0]);
+        }
+        if (presenter.$ICPage.offset() == null){
+            presenter.$ICPage = $(presenter.$view.parent('.ic_footer:first')[0]);
+        }
     };
 
     presenter.openDialogEventHandler = function(event, ui) {
