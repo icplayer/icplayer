@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Test;
@@ -13,8 +12,6 @@ import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
-import com.lorepo.icplayer.client.model.AddonProperty;
 
 
 public class AddonDescriptorTestCase {

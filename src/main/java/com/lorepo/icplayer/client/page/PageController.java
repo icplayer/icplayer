@@ -10,6 +10,7 @@ import com.lorepo.icf.scripting.ScriptingEngine;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.Page.ScoringType;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -142,7 +143,13 @@ public class PageController {
 	public void updateScore() {
 		if(currentPage != null){
 
-			Score.Result result = Score.calculateStadardScore(presenters);
+			Score.Result result;
+			if(currentPage.getScoringType() == ScoringType.zeroOne){
+				result = Score.calculateZeroOneScore(presenters);
+			}
+			else{
+				result = Score.calculatePercentageScore(presenters);
+			}
 	
 			if(currentPage.isReportable()){
 				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());

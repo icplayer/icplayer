@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<page layout='pixels'>
+<page layout='pixels' scoring="zeroOne">
 
 	<modules>
 		
-		<shapeModule id="2rrg43d" left="100" top="100" width="600" height="240" style="background-color:#bbbbbb">
+		<shapeModule id="2rrg43d" left="20" top="20" width="600" height="240" style="background-color:#bbbbbb">
 		</shapeModule>
 		
-		<choiceModule id="2frg43d" left="120" top="120" width="560" height="200" style="background-color:yellow">
-			<layout type="LTRB" left="shape1" top="shape1" right="shape1" bottom="shape1"/>
+		<choiceModule id="2frg43d" left="10" top="10" width="400" height="200" style="background-color:yellow">
+			<layout type="LTWH" left="shape1" top="shape1" right="shape1" bottom="shape1"/>
 			<choice isDisabled='false'/>
 			<options>
 				<option value="5">

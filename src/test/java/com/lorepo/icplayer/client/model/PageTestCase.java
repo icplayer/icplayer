@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IBooleanProperty;
+import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
@@ -444,5 +445,62 @@ public class PageTestCase {
 		page.load(element, "");
 		
 		assertTrue(page.getLayout() == LayoutType.responsive);
+	}
+	
+
+	@Test
+	public void defaultScoringType() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Page page = new Page("Page 1", "");
+		page.load(element, "");
+		
+		assertTrue(page.getScoringType() == Page.ScoringType.percentage);
+	}
+	
+
+	@Test
+	public void saveScoringType() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		Page page = new Page("Page 1", "");
+		page.load(element, "");
+		String xml = page.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		
+		page = new Page("Page 2", "");
+		page.load(element, "");
+		
+		assertTrue(page.getScoringType() == Page.ScoringType.zeroOne);
+	}
+
+
+
+	@Test
+	public void scoreTypeProperty(){
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("score_type")).thenReturn("Score Type");
+
+		Page page = new Page("Page 1", "");
+		page.setPreview("/file/1");
+		String foundValue = null;
+
+		for(int i = 0; i < page.getPropertyCount(); i++){
+			IProperty property = page.getProperty(i);
+			if( property instanceof IEnumSetProperty && 
+				property.getName().equalsIgnoreCase("Score Type"))
+			{
+				foundValue = property.getValue();
+				break;
+			}
+		}
+
+		assertEquals("percentage", foundValue);
 	}
 }

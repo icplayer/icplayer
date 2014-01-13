@@ -211,6 +211,7 @@ var ice_dictionary = {
 	"move_module_up_menu": "Move module up",
 	"move_module_down_menu": "Move module down",
 	"page_preview": "Preview",
+	"score_type": "Score Type",
 	"Preview": "Preview",
 	"layout_editor": "Layout Editor",
 	"relative_to": "Relative to",

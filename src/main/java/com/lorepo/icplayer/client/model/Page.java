@@ -5,6 +5,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IBooleanProperty;
+import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.IXMLSerializable;
@@ -33,10 +34,16 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		responsive
 	}
 	
+	public enum ScoringType{
+		percentage,
+		zeroOne
+	}
+	
 	private String id;
 	private String name;
 	private String href;
 	private LayoutType layout = LayoutType.pixels;
+	private ScoringType scoringType = ScoringType.percentage;
 	private String cssClass = "";
 	private String inlineStyles = "";
 	private ModuleList	modules = new ModuleList();
@@ -63,6 +70,7 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		addPropertyHeight();
 		addPropertyReportable();
 		addPropertyPreview();
+		addPropertyScoreType();
 	}
 	
 	
@@ -85,11 +93,13 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 	}
 
 
-	/**
-	 * @return layout type
-	 */
 	public LayoutType getLayout(){
 		return layout;
+	}
+
+
+	public ScoringType getScoringType(){
+		return scoringType;
 	}
 	
 
@@ -145,6 +155,7 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		
 		xml += "<page layout='" + layout.toString() + "'";
+		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
 		if(!cssClass.isEmpty()){
@@ -199,6 +210,9 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 		else{
 			setLayout(LayoutType.pixels);
 		}
+		
+		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
+		setScoreFromString(scoring);
 	}
 
 
@@ -528,5 +542,58 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 	public void setHeight(int height) {
 		this.height = height; 
 	}
+
+	
+	private void addPropertyScoreType() {
+
+		IProperty property = new IEnumSetProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				setScoreFromString(newValue);
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return scoringType.toString();
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("score_type");
+			}
+			
+			@Override
+			public int getAllowedValueCount() {
+				return ScoringType.values().length;
+			}
+			
+			@Override
+			public String getAllowedValue(int index) {
+				return ScoringType.values()[index].toString();
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("score_type");
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void setScoreFromString(String scoreName) {
+		
+		if(scoreName != null){
+			for(ScoringType st : ScoringType.values()){
+				if(st.toString().equals(scoreName)){
+					scoringType = st;
+				}
+			}
+		}
+	}	
+
+
 	
 }

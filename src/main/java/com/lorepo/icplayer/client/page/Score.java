@@ -14,9 +14,9 @@ public class Score {
 	}
 
 	/**
-	 * Standard score method
+	 * Standard percentage score method
 	 */
-	public static Result calculateStadardScore(List<IPresenter> presenters) {
+	public static Result calculatePercentageScore(List<IPresenter> presenters) {
 
 		Result result = new Result();
 		
@@ -24,6 +24,28 @@ public class Score {
 			if(presenter instanceof IActivity){
 				IActivity activity = (IActivity) presenter;
 				result.score += activity.getScore();
+				result.maxScore += activity.getMaxScore();
+				result.errorCount += activity.getErrorCount();
+			}
+		}
+		
+		return result;
+	}
+
+	
+	/**
+	 * Zero - One score method. Activit has 0 or 100%
+	 */
+	public static Result calculateZeroOneScore(List<IPresenter> presenters) {
+
+		Result result = new Result();
+		
+		for(IPresenter presenter : presenters){
+			if(presenter instanceof IActivity){
+				IActivity activity = (IActivity) presenter;
+				if(activity.getScore() == activity.getMaxScore()){
+					result.score += activity.getScore();
+				}
 				result.maxScore += activity.getMaxScore();
 				result.errorCount += activity.getErrorCount();
 			}
