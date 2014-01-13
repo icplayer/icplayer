@@ -35,6 +35,7 @@ function AddonConnection_create() {
         RIGHT: 1
     };
 
+
     presenter.upgradeModel = function (model) {
         return presenter.upgradeFrom_01(model);
     };
@@ -253,7 +254,13 @@ function AddonConnection_create() {
         if (model['Incorrect connection color'] != '') {
             incorrectConnection = model['Incorrect connection color'];
         }
-        isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
+
+        if (model['isNotActivity'] != undefined){
+            isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
+        }
+        else {
+            isNotActivity = false;
+        }
 
         if (isPreview) {
             presenter.initializeView(view, model);
@@ -594,7 +601,6 @@ function AddonConnection_create() {
     }
 
     presenter.setShowErrorsMode = function () {
-     //   if (isNotActivity) return;
         connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {

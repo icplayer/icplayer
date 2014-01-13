@@ -269,7 +269,14 @@ function AddonTrueFalse_create() {
         }
 
         multi = model['Multi'] === 'True';
-        isNotActivity = (model['isNotActivity'] === 'True');
+
+        if (model['isNotActivity'] != undefined){
+            isNotActivity = (model['isNotActivity'] === 'True');
+        }
+        else {
+            isNotActivity = false;
+        }
+
         presenter.type = multi ? "checkbox" : "radio";
         var table = document.createElement('table');
 
