@@ -21,7 +21,7 @@ TestCase("[Text Identification] click handler", {
     'test addon in error checking mode': function () {
         this.presenter.configuration.isErrorCheckMode = true;
 
-        this.presenter.clickHandler();
+        this.presenter.clickHandler(jQuery.Event( "click" ));
 
         assertFalse(this.presenter.executeUserEventCode.called);
         assertFalse(this.presenter.triggerSelectionChangeEvent.called);
@@ -29,10 +29,17 @@ TestCase("[Text Identification] click handler", {
     },
 
     'test addon in work mode': function () {
-        this.presenter.clickHandler();
+        this.presenter.clickHandler(jQuery.Event( "click" ));
 
         assertTrue(this.presenter.executeUserEventCode.calledOnce);
         assertTrue(this.presenter.triggerSelectionChangeEvent.calledOnce);
         assertTrue(this.presenter.applySelectionStyle.calledOnce);
+    },
+
+    'test click handler stopped event propagation' : function() {
+        var e = jQuery.Event( "click" );
+        this.presenter.clickHandler(e);
+
+        assertTrue(e.isPropagationStopped());
     }
 });

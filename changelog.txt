@@ -1,3 +1,4 @@
+2014-01-13 Fixed bug in Text Identification, when clicking on the module was showing navigation arrows
 2014-01-13 Added new score type Zero-One
 2014-01-13 Allow putting glossary module in header and footer.
 2014-01-13 Fixed Text Selection module when marked word has signs before/after.

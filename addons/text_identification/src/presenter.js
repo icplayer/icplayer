@@ -44,7 +44,8 @@ function Addontext_identification_create(){
         presenter.playerController.getEventBus().sendEvent('ValueChanged', this.createEventData());
     };
 
-    presenter.clickHandler = function () {
+    presenter.clickHandler = function (e) {
+        e.stopPropagation();
         if (presenter.configuration.isErrorCheckMode) return;
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
         presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
@@ -78,7 +79,7 @@ function Addontext_identification_create(){
         $element.on('touchend', function (e) {
             e.preventDefault();
             if ( presenter.lastEvent.type != e.type ) {
-                presenter.clickHandler();
+                presenter.clickHandler(e);
             }
         });
 
