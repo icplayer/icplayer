@@ -107,5 +107,19 @@ TestCase("[Text Selection] Support Functions", {
 
     	assertEquals(3, result.open);
     	assertEquals(2, result.close);
+    },
+
+    'test multi word but marked only one' : function() {
+        var text = "\\correct{affection}full";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class="text_selection"><span class="correct selectable">affection</span> <span class=" ">full</span> </div>', result.renderedPreview);
+    },
+
+    'test word with special sign after marker' : function() {
+        var text = "\\wrong{super}.";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class="text_selection"><span class="wrong selectable">super</span> <span class=" ">.</span> </div>', result.renderedPreview);
     }
 });

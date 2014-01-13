@@ -1,3 +1,4 @@
+2014-01-13 Fixed Text Selection module when marked word has signs before/after.
 2014-01-12 Unified command names for presenter and plot addon
 2014-01-10 Added CustomScoring methods to Connection module.
 2014-01-09 Added CustomScoring methods to True/False module.
