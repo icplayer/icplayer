@@ -53,4 +53,25 @@ public class Score {
 		
 		return result;
 	}
+	
+
+	/**
+	 * Standard percentage minus errors
+	 */
+	public static Result calculateMinusScore(List<IPresenter> presenters) {
+
+		Result result = new Result();
+		
+		for(IPresenter presenter : presenters){
+			if(presenter instanceof IActivity){
+				IActivity activity = (IActivity) presenter;
+				result.score += Math.max(activity.getScore()-activity.getErrorCount(), 0);
+				result.maxScore += activity.getMaxScore();
+				result.errorCount += activity.getErrorCount();
+			}
+		}
+		
+		return result;
+	}
+	
 }

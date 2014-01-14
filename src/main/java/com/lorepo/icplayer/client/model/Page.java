@@ -36,7 +36,8 @@ public class Page extends BasicPropertyProvider implements IXMLSerializable, ISt
 	
 	public enum ScoringType{
 		percentage,
-		zeroOne
+		zeroOne,
+		minusErrors
 	}
 	
 	private String id;

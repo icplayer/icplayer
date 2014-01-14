@@ -146,8 +146,9 @@ public class PageController {
 			Score.Result result;
 			if(currentPage.getScoringType() == ScoringType.zeroOne){
 				result = Score.calculateZeroOneScore(presenters);
-			}
-			else{
+			}else if(currentPage.getScoringType() == ScoringType.minusErrors){
+				result = Score.calculateMinusScore(presenters);
+			}else{
 				result = Score.calculatePercentageScore(presenters);
 			}
 	
