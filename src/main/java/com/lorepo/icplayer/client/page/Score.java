@@ -43,7 +43,7 @@ public class Score {
 		for(IPresenter presenter : presenters){
 			if(presenter instanceof IActivity){
 				IActivity activity = (IActivity) presenter;
-				if(activity.getScore() == activity.getMaxScore()){
+				if(activity.getScore() == activity.getMaxScore() && activity.getErrorCount() == 0){
 					result.score += activity.getScore();
 				}
 				result.maxScore += activity.getMaxScore();
