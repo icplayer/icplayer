@@ -20,7 +20,7 @@ function AddonMagic_Boxes_create() {
     var isSelectionPossible = true;
 
     presenter.ERROR_MESSAGES = {
-        COLUMNS : "Inconsistent culumn size. Each row has to have same number of elements!",
+        COLUMNS : "Inconsistent column size. Each row has to have same number of elements!",
         ROWS : "Inconsistent row definition. Whitespaces, semicolons and commas aren't alowed in grid!",
         ANSWERS_NOT_PROVIDED : "Answers section is missing or empty!",
         GRID_NOT_PROVIDED : "Grid definition missing or empty!"
