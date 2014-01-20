@@ -589,6 +589,7 @@ function Addongraph_create(){
             }
             return;
         }
+
         presenter.configuration.mouseData.isMouseDown = false;
         if (!presenter.configuration.mouseData.wasDragged) {
             if (presenter.configuration.mouseData.isColumnContainerTouchTriggered) {
@@ -597,7 +598,8 @@ function Addongraph_create(){
             return;
         }
 
-        var $element = getValueElement(), $container = $element.parent(), height = $container.height();
+        var $element = getValueElement();
+        var $container = $element.parent(), height = $container.height();
 
         var valueContainer = presenter.configuration.mouseData.$element.parent(),
             columnContainer = getColumnContainer($element),
@@ -622,8 +624,6 @@ function Addongraph_create(){
                 newValue = -1 * newValue;
             }
 
-            var initialValue = presenter.getInitialData($container.attr('value-id'));
-            newValue = initialValue + newValue;
         }
 
         $container.attr('current-value', newValue);

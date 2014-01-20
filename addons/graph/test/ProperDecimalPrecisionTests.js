@@ -3,7 +3,7 @@ TestCase("Numbers sum with precision", {
         this.presenter = Addongraph_create();
     },
 
-    'test get initial data': function () {
+    'test get proper precision': function () {
         assertEquals(0, this.presenter.getProperPrecision(9, 1));
         assertEquals(1, this.presenter.getProperPrecision(1.9, 1));
         assertEquals(2, this.presenter.getProperPrecision(1.9, 1.01));
