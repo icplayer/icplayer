@@ -25,6 +25,7 @@
   	<target name="clean" description="Cleans this project">
     	<delete dir="war/WEB-INF/classes" failonerror="false" />
     	<delete dir="war/icplayer" failonerror="false" />
+  		<delete dir="gwt-unitCache" failonerror="false" />
   	</target>
 
   	<target name="addons" description="Copy addon descriptors">
