@@ -275,9 +275,6 @@ function Addonvideo_create() {
             if (caption.start <= time && caption.end >= time) {
                 $(caption.element).attr('visibility', 'visible');
                 $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
-                $.when(presenter.pageLoaded, presenter.mathJaxProcessEnded).then(function () {
-                    updateLaTeX(caption.element);
-                });
 
                 if (presenter.configuration.isFullScreen && !$(caption.element).attr('oldTop')) {
                     var top = parseInt($(caption.element).css('top'), 10),
@@ -338,10 +335,6 @@ function Addonvideo_create() {
             }
         }
     };
-
-    function updateLaTeX(text) {
-        MathJax.CallBack.Queue().Push(function () { MathJax.Hub.Typeset(text); });
-    }
 
     presenter.reload = function() {
         presenter.isVideoLoaded = false;
@@ -466,6 +459,7 @@ function Addonvideo_create() {
             top: caption.top,
             left: caption.left
         });
+
         $(captionElement).css('visibility', 'hidden');
         $(captionElement).attr('visibility', 'hidden');
         presenter.videoContainer.append(captionElement);
@@ -497,27 +491,29 @@ function Addonvideo_create() {
     };
 
     presenter.loadSubtitles = function() {
-        var subtitles = this.files[this.currentMovie].Subtitles;
+        var allReadyDfd = new $.Deferred(),
+            subtitles = this.files[this.currentMovie].Subtitles;
+
         if (subtitles) {
-            var lines = [];
-            var captions = {};
+            var lines = [],
+                captions = {};
+
             if (StringUtils.startsWith(subtitles, "/file")) {
                 $.get(subtitles, function(data) {
-                    lines = presenter.splitLines(data);
-                    presenter.convertLinesToCaptions(lines);
-                    captions = $(presenter.videoContainer[0]).find(".captions").html();
-                    $.when(presenter.pageLoaded, presenter.mathJaxProcessEnded).then(function () {
-                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, captions])();
-                    });
+                    allReadyDfd.resolve(data);
                 });
             } else {
-                lines = presenter.splitLines(subtitles);
-                presenter.convertLinesToCaptions(lines);
-                captions = $(presenter.videoContainer[0]).find(".captions").html();
-                $.when(presenter.pageLoaded, presenter.mathJaxProcessEnded).then(function () {
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, captions])();
-                });
+                allReadyDfd.resolve(subtitles);
             }
+
+            $.when(allReadyDfd.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
+                lines = presenter.splitLines(data);
+                presenter.convertLinesToCaptions(lines);
+                captions = $(presenter.videoContainer[0]).find(".captions");
+                $.each(captions, function() {
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, this])();
+                });
+            });
         }
     };
 
