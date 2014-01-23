@@ -99,15 +99,8 @@ function Addontext_identification_create(){
 
     presenter.centerElements = function ($text, $container) {
         $.when(presenter.mathJaxProcessEnded).then(function () {
-            var contentWidth = parseInt($text.css('width'), 10),
-                contentHeight = parseInt($text.css('height'), 10),
-                containerWidth = parseInt(viewContainer.css('width'), 10),
+             var containerWidth = parseInt(viewContainer.css('width'), 10),
                 containerHeight = parseInt(viewContainer.css('height'), 10);
-
-            $text.css({
-                left: Math.round((containerWidth - contentWidth) / 2) + 'px',
-                top: Math.round((containerHeight - contentHeight) / 2) + 'px'
-            });
 
             $container.css({
                 width: containerWidth + 'px',

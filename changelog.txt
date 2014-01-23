@@ -1,3 +1,4 @@
+2014-01-23 Fixed problem with positioning LaTeX in Text Identification module in book view mode
 2014-01-22 Fixed problem with MathJax rendering in Video module
 2014-01-16 Fixed problem with drag & drop in Graph module
 2014-01-16 Glossary definition click events are not propagated any more to stop navigation buttons display.
