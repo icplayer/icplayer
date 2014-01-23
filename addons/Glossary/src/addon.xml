@@ -5,7 +5,7 @@
 		<property name='List of words' type='list'>
             <property name="ID" type="string" />
             <property name="Text" type="string" isLocalized="true" />
-            <property name="Description" type="text" isLocalized="true" />
+            <property name="Description" type="html" isLocalized="true" />
         </property>
         <property name="Visible" type="boolean" />
 	</model>
