@@ -491,7 +491,7 @@ function Addonvideo_create() {
     };
 
     presenter.loadSubtitles = function() {
-        var allReadyDfd = new $.Deferred(),
+        var subtitlesLoadedDeferred = new $.Deferred(),
             subtitles = this.files[this.currentMovie].Subtitles;
 
         if (subtitles) {
@@ -500,13 +500,13 @@ function Addonvideo_create() {
 
             if (StringUtils.startsWith(subtitles, "/file")) {
                 $.get(subtitles, function(data) {
-                    allReadyDfd.resolve(data);
+                    subtitlesLoadedDeferred.resolve(data);
                 });
             } else {
-                allReadyDfd.resolve(subtitles);
+                subtitlesLoadedDeferred.resolve(subtitles);
             }
 
-            $.when(allReadyDfd.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
+            $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
                 lines = presenter.splitLines(data);
                 presenter.convertLinesToCaptions(lines);
                 captions = $(presenter.videoContainer[0]).find(".captions");
