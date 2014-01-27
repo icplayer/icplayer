@@ -115,7 +115,6 @@ function Addongraph_create(){
             'score' : score
         });
 
-        // Mój zajebisty kod
         presenter.configuration.results[valueId.split(' ')[0]][valueId.split(' ')[1]] = willThisBeValidAfterChange;
 
         presenter.eventBus.sendEvent('ValueChanged', {
@@ -135,7 +134,6 @@ function Addongraph_create(){
         }
 
     };
-
 
     presenter.areAllBarsValid = function() {
         var r = true;
