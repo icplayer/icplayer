@@ -1,7 +1,11 @@
 package com.lorepo.icplayer.client.ui;
 
+import com.gargoylesoftware.htmlunit.javascript.host.Screen;
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.DOM;
@@ -14,6 +18,7 @@ import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
+import com.lorepo.icplayer.client.ui.NavigationBar;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
 public class PlayerView extends VerticalPanel{
@@ -27,6 +32,7 @@ public class PlayerView extends VerticalPanel{
 	private WaitDialog	waitDlg;
 	private NavigationButton nextPageButton = new NavigationButton("ic_navi_panel_next");
 	private NavigationButton prevPageButton = new NavigationButton("ic_navi_panel_prev");
+	private NavigationBar pageBar;
 	
 	
 	public PlayerView(){
@@ -57,11 +63,16 @@ public class PlayerView extends VerticalPanel{
 				nextPage();
 			}
 		});
+		if(playerController != null){
+			pageBar = new NavigationBar(playerController.getModel(), playerController);
+		}
+		
 		Window.addResizeHandler(new ResizeHandler() {
 			@Override
 			public void onResize(ResizeEvent event) {
 				prevPageButton.hide();
 				nextPageButton.hide();
+				pageBar.hide();
 			}
 		});
 	}
@@ -89,24 +100,52 @@ public class PlayerView extends VerticalPanel{
 		// Can use prevent default because video stops working then
 //		event.preventDefault();
 		event.stopPropagation();
-
+		
 		if (Event.ONCLICK == eventType) {
+			if(pageBar == null){
+				pageBar = new NavigationBar(playerController.getModel(), playerController);
+			}
 			toggleNavigationPanels();
+			event.stopPropagation();
+			event.preventDefault();
 		}
+		if ( Event.ONKEYDOWN == eventType) {
+        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+        	toggleNavigationPanels();
+			event.stopPropagation();
+			event.preventDefault();
+        }
+		}
+		
 	}
+	
+	public static native int getScreenHeight() /*-{
+	return $wnd.innerHeight;
+	}-*/;
 	
 	
 	private void toggleNavigationPanels() {
-		if(prevPageButton.isShowing()) {
+		if(pageBar.isShowing()) {
 			hideNavigationPanels();
 		} else {
+			boolean isMobile = false;
+			if (Window.Navigator.getUserAgent().matches("(.*)Android(.*)") || Window.Navigator.getUserAgent().matches("(.*)iPad(.*)") || Window.Navigator.getUserAgent().matches("(.*)iPhone(.*)")) {
+				isMobile = true;
+			}
 			final int left = getAbsoluteLeft();
 			final int top = Math.max(getAbsoluteTop(), Window.getScrollTop());
 			final int right = left + getOffsetWidth();
-			int presentationBottom = getAbsoluteTop() + getOffsetHeight();
-			int windowBottom = Window.getScrollTop() + Window.getClientHeight();
-			int bottom = Math.min(presentationBottom, windowBottom);
-			final int height = bottom-top;
+			final int height = Math.min(getOffsetHeight()-top, Window.getClientHeight());
+			int panelTop_tmp;
+			int mobileTop = 17;
+			if (isMobile) mobileTop = 0;
+			if (Window.Navigator.getUserAgent().matches("(.*)iPhone(.*)")) mobileTop = -(getScreenHeight() - Window.getClientHeight()); 
+			if ((getOffsetHeight() + getAbsoluteTop() - Window.getScrollTop() ) < Window.getClientHeight()){
+				panelTop_tmp = getOffsetHeight() +getAbsoluteTop()- mobileTop;
+			} else{
+				panelTop_tmp = Window.getClientHeight()+ Window.getScrollTop() - mobileTop;
+			}
+			final int panelTop	= panelTop_tmp;
 			
 			prevPageButton.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
@@ -122,12 +161,23 @@ public class PlayerView extends VerticalPanel{
 				}
 	        });
 			
+			pageBar.setWidth((getOffsetWidth())+"px");
+			pageBar.getWidget().setWidth((getOffsetWidth()-41)+"px");
+			pageBar.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+				public void setPosition(int offsetWidth, int offsetHeight) {
+					pageBar.setPopupPosition(left, (panelTop - offsetHeight));
+					pageBar.setGlassEnabled(false);
+				}
+	        });
+			
 			prevPageButton.getElement().addClassName("ic_navi_panel_animation");
 			nextPageButton.getElement().addClassName("ic_navi_panel_animation");
+			
+			
 		}
 	}
 
-	private void hideNavigationPanels() {
+	public void hideNavigationPanels() {
 		prevPageButton.getElement().removeClassName("ic_navi_panel_animation");
 		nextPageButton.getElement().removeClassName("ic_navi_panel_animation");
 		
@@ -136,9 +186,10 @@ public class PlayerView extends VerticalPanel{
 			public void run() {
 				prevPageButton.hide();
 				nextPageButton.hide();
+				pageBar.hide();
 			}
 		};
-		t.schedule(500);
+		t.schedule(1);
 	}
 
 	public void showHeader(){

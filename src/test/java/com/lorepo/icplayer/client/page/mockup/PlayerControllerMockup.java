@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerControllerMockup implements IPlayerController {
 
@@ -68,7 +69,7 @@ public class PlayerControllerMockup implements IPlayerController {
 	}
 
 	@Override
-	public Widget getView() {
+	public PlayerView getView() {
 		// TODO Auto-generated method stub
 		return null;
 	}

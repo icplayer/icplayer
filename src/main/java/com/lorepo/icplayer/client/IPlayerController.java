@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.ui.PlayerView;
 
 public interface IPlayerController {
 
@@ -18,7 +19,7 @@ public interface IPlayerController {
 	void switchToPrevPage();
 	void switchToNextPage();
 	long getTimeElapsed();
-	Widget getView();
+	PlayerView getView();
 	void showPopup(String pageName);
 	void closePopup();
 	void sendAnalytics(String event, HashMap<String, String> params);
