@@ -13,10 +13,10 @@ this.queue.length}})(window);(function(e){e.ImageViewer={validateSound:function(
 !a||!b)return c;for(var d=0;d<b;d++)d>a.length-1||a[d].isEmpty?c[d]=null:(c[d]=""!==a[d].MP3&&buzz.isMP3Supported()?new buzz.sound(a[d].MP3):""!==a[d].OGG&&buzz.isOGGSupported()?new buzz.sound(a[d].OGG):new buzz.sound(a[d].AAC),c[d].load());return c},convertFramesList:function(a,b,c){if(ModelValidationUtils.isStringEmpty(a))return{isError:!0,errorCode:"FL01"};var d=a.match(/[0-9a-zA-Z,-]+/);if(null===d||a.length!==d[0].length)return{isError:!0,errorCode:"FL02"};for(var d=[],a=a.split(","),e=0;e<a.length;e++){if(ModelValidationUtils.isStringEmpty(a[e]))return{isError:!0,
 errorCode:"FL04"};if(-1!==a[e].search("-")){var f=a[e].split("-")[1],g=ModelValidationUtils.validateIntegerInRange(f,c,b);if(!g.isValid)return{isError:!0,errorCode:"FL05"};var i=a[e].split("-")[0],f=ModelValidationUtils.validateIntegerInRange(i,f.value,b);if(!f.isValid||f.value>g.value)return{isError:!0,errorCode:"FL05"};for(f=f.value;f<=g.value;f++)d.push(f)}else{g=ModelValidationUtils.validateIntegerInRange(a[e],c,b);if(!g.isValid)return{isError:!0,errorCode:"FL03"};d.push(g.value)}}d.sort();d=
 ModelValidationUtils.removeDuplicatesFromArray(d);return{isError:!1,list:d}}}})(window);(function(e){e.StringUtils={replaceAll:function(a,b,c){b=b.replace(/([.?*+^$[\]\\(){}|-])/g,"\\$1");return a.replace(RegExp(b,"g"),c)},startsWith:function(a,b){return a.match("^"+b)==b},endsWith:function(a,b){return-1!==a.indexOf(b,a.length-b.length)}}})(window);(function(e){e.TextParserProxy=function(a){if(null==a)return null;this.parser=a};e.TextParserProxy.prototype.parse=function(a){a=this.parser.parse(a);return StringUtils.replaceAll(a,"href='#'",'href="javascript:void(0)"')};e.TextParserProxy.prototype.connectLinks=function(a){return this.parser.connectLinks(a)}})(window);(function(e){e.Internationalization={EASTERN_ARABIC:"ea",WESTERN_ARABIC:"wa",PERSO_ARABIC:"pa",getNumericals:function(a){var b={};b[e.Internationalization.WESTERN_ARABIC]={"0":"0",1:"1",2:"2",3:"3",4:"4",5:"5",6:"6",7:"7",8:"8",9:"9"};b[e.Internationalization.EASTERN_ARABIC]={"0":"&#x0660",1:"&#x0661",2:"&#x0662",3:"&#x0663",4:"&#x0664",5:"&#x0665",6:"&#x0666",7:"&#x0667",8:"&#x0668",9:"&#x0669"};b[e.Internationalization.PERSO_ARABIC]={"0":"&#x06F0",1:"&#x06F1",2:"&#x06F2",3:"&#x06F3",4:"&#x06F4",
-5:"&#x06F5",6:"&#x06F6",7:"&#x06F7",8:"&#x06F8",9:"&#x06F9"};return a in b?b[a]:b[e.Internationalization.WESTERN_ARABIC]},translate:function(a,b){for(var c=a.toString(),d="",h=e.Internationalization.getNumericals(b),f=0;f<c.length;f++)d+=h[+c.charAt(f)];return d}}})(window);
+5:"&#x06F5",6:"&#x06F6",7:"&#x06F7",8:"&#x06F8",9:"&#x06F9"};return a in b?b[a]:b[e.Internationalization.WESTERN_ARABIC]},translate:function(a,b){for(var c=a.toString(),d="",h=e.Internationalization.getNumericals(b),f=0;f<c.length;f++)d+=h[+c.charAt(f)];return d}}})(window);(function(e){e.LoadedPromise=function(a,b){var c=[];console.log(b);$.each(b,function(b){var e=new $.Deferred,f=e.promise();a[b+"LoadedDeferred"]=e;a[b+"Loaded"]=f;c.push(f);console.log(c);a.getLoadedPromise=function(){var a=new $.Deferred,b=function(c,d){a.resolve();d!=c.length&&(console.log(c[d]),$.when(c[d]).then(function(){console.log("promise resolved in util");b(c,d+1)}))};console.log(a);b(c,0);return a.promise()}})}})(window);
 /**
  * Player Addons Commons library
- * @version 1.8.2
+ * @version 1.9.3
  * Components:
  * - Model Validation Utils
  * - Loading Screen
@@ -29,4 +29,5 @@ ModelValidationUtils.removeDuplicatesFromArray(d);return{isError:!1,list:d}}}})(
  * - String Utils
  * - Internationalization
  * - Text Parser Proxy
+ * - Loaded Promise
  */

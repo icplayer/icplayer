@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <project name="Commons" basedir="." default="Addon.test">
-    <property name="version" value="1.8.2" />
+    <property file="build.properties" />
+    <property name="version" value="1.9.3" />
     <property name="commons.lib.directory" value="lib" />
-    <property name="publish-directory" value="" />
+    <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
 
     <target name="compile" description="Compile and minimize source files into one, optimized one" depends="Addon.test">
@@ -22,6 +23,7 @@
             <arg line="--js src/string-utils.js" />
             <arg line="--js src/text-parser.js" />
         	<arg line="--js src/internationalization.js" />
+            <arg line="--js src/loadedPromise.js" />
             <arg line="--js_output_file bin/commons-${version}/commons.js" />
         </java>
 
@@ -40,6 +42,7 @@
  * - String Utils
  * - Internationalization
  * - Text Parser Proxy
+ * - Loaded Promise
  */</concat>
 
     </target>

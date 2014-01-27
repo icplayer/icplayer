@@ -555,30 +555,25 @@ function AddonPuzzle_create() {
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         presenter.configuration = presenter.validateModel(model);
-        presenter.imageLoadedDfd = new jQuery.Deferred();
-        presenter.imageLoaded = presenter.imageLoadedDfd.promise();
 
         jImg = Container.find("img:first");
         jImg.attr('src', model.Image);
         jImg.attr('height', height);
         jImg.attr('width', width);
-        if (jImg.complete) { // The image has loaded so call Init.
+        jImg.load(function () {
             InitPuzzle(width, height);
-        } else { // The image has not loaded so set an onload event handler to call Init.
-            jImg.load(function () {
-                InitPuzzle(width, height);
-                presenter.imageLoadedDfd.resolve();
-            });
-        }
+            presenter['imageLoadedDeferred'].resolve();
+        });
         if (!presenter.configuration.isVisibleByDefault) {
             presenter.hide();
         }
-
     };
 
     presenter.validateModel = function (model) {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-
+        LoadedPromise(this, {
+            'image' : true
+        });
         return {
             isValid: true,
             isErrorMode: false,
@@ -614,7 +609,8 @@ function AddonPuzzle_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'getLoadedPromise': presenter.getLoadedPromise
         };
 
         return Commands.dispatch(commands, name, params, presenter);
