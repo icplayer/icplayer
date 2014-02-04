@@ -299,10 +299,6 @@ function Addongamememo_create(){
         presenter.serializedCards = savedCards;
     };
 
-
-
-
-
     presenter.handleCardClickedFirst = function(card) {
         presenter.state = presenter.STATES.CLICKED_FIRST;
 
@@ -513,6 +509,13 @@ function Addongamememo_create(){
         }
     };
 
+    presenter.concealAllCards = function () {
+        $.each(presenter.serializedCards, function (index, value) {
+            value.revealed = false;
+        });
+    };
+
+
     presenter.reset = function(){
         presenter.viewContainer.html('<div></div>');
         presenter.score = 0;
@@ -525,6 +528,7 @@ function Addongamememo_create(){
         presenter.cardClickedSecondId = null;
 
         presenter.shuffleCards();
+        presenter.concealAllCards();
         presenter.createGrid();
     };
 

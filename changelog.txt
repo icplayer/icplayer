@@ -1,3 +1,4 @@
+2014-02-04 Fixed state restoring after clicking Reset button in Memo Game module
 2014-01-27 Added new command to Puzzle module: getLoadedPromise
 2014-01-23 Add Navigation Panel feature.
 2014-01-23 Changed type of property Description (from text to html) in Glossary module
