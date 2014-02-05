@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.14';
+        this.VERSION = '1.1.15';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -440,12 +440,12 @@ function AddonPlot_create(){
                 isselected: this.expressions[p].selected ? 1 : 0,
                 'class': 'is_plot draw draw_'+(parseInt(p)+1)
             });
-            //store style
+            //restore style
             cp = plot.svgDoc.find('.drawings [uid="'+p+'"]');
+            var props = this.expressions[p].cssProperties;
+            props['stroke'] = this.expressions[p].cssColor;
             cp.data({
-                cssStyle: this._composeStyle({
-                    'stroke': this.expressions[p].cssColor
-                })
+                cssStyle: this._composeStyle(props)
             });
             cp.attr('style', cp.data().cssStyle);
             if(this.interactive) {
@@ -1205,10 +1205,14 @@ function AddonPlot_create(){
         }
         this.setPlotStyle = function(id, type, prop, value) {
             if(id != '') {
-                $.each(this.expressions, function(idx, val) {
-                    if(val.id == id) {
-                        if(type == 'plot' && (prop == 'color' || prop == 'stroke')) {
-                            val.cssColor = value;
+                if(type == 'plot') {
+                    $.each(this.expressions, function(idx, val) {
+                        if(val.id == id) {
+                            if(prop == 'color' || prop == 'stroke') {
+                                val.cssColor = value;
+                            } else {
+                                val.cssProperties[prop] = value;
+                            }
                             //remove existing plot
                             plot.removePlot(idx);
                             //show plot
@@ -1216,8 +1220,8 @@ function AddonPlot_create(){
                                 plot.drawPlot(idx);
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
         this.plotVariablesResult = function(plotId) {
@@ -1573,6 +1577,7 @@ function AddonPlot_create(){
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
             val.cssColor = val.cssColorInitialValue;
+            val.cssProperties = {};
             val.visible = val.initVisible;
             $.each(val.variables, function(vidx, variableObj) {
                 variableObj.touched = false;
@@ -1683,7 +1688,8 @@ function AddonPlot_create(){
                     initVisible: model['Expressions'][p]['hidden'] !== undefined && model['Expressions'][p]['hidden'] != '' && model['Expressions'][p]['hidden'].toLowerCase() === 'true' ? false : true,
                     type: model['Expressions'][p]['y to x'] === undefined || model['Expressions'][p]['y to x'] == '' || model['Expressions'][p]['y to x'].toLowerCase() === 'false' ? plot.TYPE_X_TO_Y : plot.TYPE_Y_TO_X,
                     touched: false,
-                    cssColorInitialValue: model['Expressions'][p]['color'] === undefined || model['Expressions'][p]['color'] == '' ? '' : model['Expressions'][p]['color']
+                    cssColorInitialValue: model['Expressions'][p]['color'] === undefined || model['Expressions'][p]['color'] == '' ? '' : model['Expressions'][p]['color'],
+                    cssProperties: {}
                 };
                 el.cssColor = el.cssColorInitialValue;
                 el.visible = el.initVisible;
