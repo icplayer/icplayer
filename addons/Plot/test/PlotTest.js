@@ -63,5 +63,13 @@ TestCase("[Plot] PlotTests", {
         assertEquals(this.plot.px2coords(45, 50), {x: -0.01, y: 0});
         assertEquals(this.plot.px2coords(50, 55), {x: 0, y: -0.01});
         assertEquals(this.plot.px2coords(50, 45), {x: 0, y: 0.01});
+    },
+    'test compose style': function() {
+        var props = {
+            'color': '#ff0000',
+            'stroke-dasharray': 5
+        };
+
+        assertEquals('color:#ff0000;stroke-dasharray:5;', this.plot._composeStyle(props));
     }
 });
