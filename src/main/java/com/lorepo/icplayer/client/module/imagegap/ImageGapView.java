@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter.IDisplay;
 
@@ -40,6 +41,7 @@ public class ImageGapView extends Image implements IDisplay {
 		}
 		setImageUrl("");
 		getElement().setId(module.getId());
+		JavaScriptUtils.makeDropable(getElement(), ".ic_sourceImage");
 	}
 	
 	

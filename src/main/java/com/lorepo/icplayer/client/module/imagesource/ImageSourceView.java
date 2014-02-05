@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.TouchMoveHandler;
 import com.google.gwt.event.dom.client.TouchStartEvent;
 import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.user.client.ui.Image;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter.IDisplay;
 
@@ -45,6 +46,7 @@ public class ImageSourceView extends Image implements IDisplay {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		JavaScriptUtils.makeDraggable(getElement());
 	}
 	
 	
