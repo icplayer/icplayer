@@ -29,7 +29,6 @@ public class OrderingView extends Composite implements IDisplay{
 		
 		this.module = module;
 		this.playerServices = services;
-		
 		createUI(module);
 	}
 
@@ -53,8 +52,8 @@ public class OrderingView extends Composite implements IDisplay{
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+
 	}
-	
 	
 	private void createWidgetPanel() {
 
@@ -82,6 +81,7 @@ public class OrderingView extends Composite implements IDisplay{
 				onWidgetClicked(widget);
 			}
 		});
+
 	}
 
 	
@@ -348,4 +348,6 @@ public class OrderingView extends Composite implements IDisplay{
 	public void addReorderListener(IReorderListener listener) {
 		this.listener = listener;
 	}
+	
+	
 }

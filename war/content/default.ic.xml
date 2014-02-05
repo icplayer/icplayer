@@ -52,12 +52,12 @@
 </style>
 
 <pages>
+	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
+	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="mchoice" href="pages/mchoice.page.xml"/>
-	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
 	<page name="image source" href="pages/image-source.xml"/>
-	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
@@ -66,7 +66,6 @@
 	<!-- 
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
 	<page name="cloze" href="pages/cloze.page.xml"/>
-	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	 -->
 	<folder name="commons">
 		<page name="popup1" href="pages/popup.page.xml"/>

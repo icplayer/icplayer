@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -39,6 +40,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 				}
 			});
 		}
+		
+		JavaScriptUtils.makeDropable(getElement(), ".ic_sourceListItem");
 	}
 	
 	public boolean hasId(String id){

@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
@@ -96,6 +97,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			}
 		});
 		
+		JavaScriptUtils.makeDraggable(label.getElement());
 	}
 
 
