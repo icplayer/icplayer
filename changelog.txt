@@ -1,3 +1,4 @@
+2014-02-06 Fixed problem with page progress on not reportable page
 2014-02-05 Added drag and drop support to image source and image gap
 2014-02-05 Added drag and drop support to source list and text modules
 2014-02-05 Added custom css support for plots in Plot module

@@ -82,8 +82,10 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	private void updateScore() {
 
 		PageScore pageScore = playerServices.getCommands().getCurrentPageScore();
-		score = pageScore.getPercentageScore();
-		updateDisplay();
+		if(pageScore != null){
+			score = pageScore.getPercentageScore();
+			updateDisplay();
+		}
 	}
 	
 
