@@ -34,6 +34,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
+					event.preventDefault();
 					if(listener != null && !disabled && isWorkMode){
 						listener.onGapClicked(gapInfo.getId());
 					}
@@ -41,7 +42,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 			});
 		}
 		
-		JavaScriptUtils.makeDropable(getElement(), ".ic_sourceListItem");
+		JavaScriptUtils.makeDropable(getElement());
 	}
 	
 	public boolean hasId(String id){

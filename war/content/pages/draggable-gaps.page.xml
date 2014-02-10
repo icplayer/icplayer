@@ -8,7 +8,7 @@
 				<item text="didn&apos;t" type="string"/>
 				<item text="\(a&gt;0\)" type="string"/>
 				<item text="\(a&lt;0\)" type="string"/>
-				<item text="Pozostałe" type="string"/>
+				<item text="\(\frac{1}{2}\)" type="string"/>
 			</items>
 		</sourceListModule>
 		

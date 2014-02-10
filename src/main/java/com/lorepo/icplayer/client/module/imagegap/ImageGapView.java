@@ -41,7 +41,7 @@ public class ImageGapView extends Image implements IDisplay {
 		}
 		setImageUrl("");
 		getElement().setId(module.getId());
-		JavaScriptUtils.makeDropable(getElement(), ".ic_sourceImage");
+		JavaScriptUtils.makeDropable(getElement());
 	}
 	
 	
