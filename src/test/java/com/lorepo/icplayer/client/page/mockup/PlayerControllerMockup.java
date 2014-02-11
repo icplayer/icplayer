@@ -2,7 +2,6 @@ package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.HashMap;
 
-import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
