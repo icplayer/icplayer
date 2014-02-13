@@ -44,9 +44,11 @@ public class PageController {
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter>	presenters;
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
+	private IPlayerController playerController;
 	
 	
 	public PageController(IPlayerController playerController) {
+		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
 		init(playerServiceImpl);
 	}
@@ -263,5 +265,9 @@ public class PageController {
 
 	public IPlayerServices getPlayerServices() {
 		return playerService;
+	}
+	
+	public IPlayerController getPlayerController() {
+		return playerController;
 	}
 }

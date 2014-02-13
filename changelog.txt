@@ -1,3 +1,4 @@
+2014-02-13 Don't allow opening the popup twice
 2014-02-11 Different handling for d&d on mobile devices and PC
 2014-02-10 Fixed problem with d&d
 2014-02-06 Fixed problem with page progress on not reportable page

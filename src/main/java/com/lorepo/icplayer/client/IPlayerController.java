@@ -25,5 +25,6 @@ public interface IPlayerController {
 	void sendAnalytics(String event, HashMap<String, String> params);
 	boolean isBookMode();
 	boolean hasCover();
-
+	boolean isPopupEnabled();
+	void setPopupEnabled(boolean enabled);
 }
