@@ -136,5 +136,4 @@ public class PlayerServices implements IPlayerServices {
 	public boolean hasCover() {
 		return playerController.hasCover();
 	}
-
 }

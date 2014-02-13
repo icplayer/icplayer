@@ -7,11 +7,10 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 
 class PopupButton extends PushButton{
-
+	
 	public PopupButton(final String popupName, final IDisplay view, final IPlayerCommands pageService){
 		
 		setStyleName("ic_button_popup");
-
 		addClickHandler(new ClickHandler() {
 			
 			@Override

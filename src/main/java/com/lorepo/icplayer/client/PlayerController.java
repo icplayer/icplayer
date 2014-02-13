@@ -46,6 +46,7 @@ public class PlayerController implements IPlayerController{
 	private String sessionId;
 	private String analyticsId;
 	private boolean showCover = false;
+	private boolean isPopupEnabled = false;
 	
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
@@ -310,6 +311,10 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void showPopup(String pageName) {
+		if (isPopupEnabled()) {
+			return;
+		}
+		setPopupEnabled(true);
 		Page page  = contentModel.findPageByName(pageName);
 		PageController popupPageControler = new PageController(this);
 		popupPanel = new PagePopupPanel(getView(), popupPageControler);
@@ -321,6 +326,7 @@ public class PlayerController implements IPlayerController{
 	public void closePopup() {
 		if(popupPanel != null){
 			popupPanel.close();
+			setPopupEnabled(false);
 		}
 	}
 
@@ -371,6 +377,18 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public boolean hasCover() {
 		return showCover;
+	}
+
+
+	@Override
+	public boolean isPopupEnabled() {
+		return isPopupEnabled;
+	}
+
+
+	@Override
+	public void setPopupEnabled(boolean enabled) {
+		isPopupEnabled = enabled;
 	}
 
 }

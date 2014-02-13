@@ -143,6 +143,7 @@ public class PagePopupPanel extends DialogBox {
 
 	public void close() {
 		hide();
+		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
 	}
 }
