@@ -57,9 +57,13 @@ public class ButtonPresenterTestCase {
 	@Test
 	public void reset(){
 		display.setVisible(false);
+		display.setErrorCheckingMode(true);
+		display.setDisabled(true);
 		services.getEventBus().fireEvent(new ResetPageEvent());
 		
 		assertTrue(display.isVisible());
+		assertFalse(display.isErrorCheckingMode());
+		assertFalse(display.isDisabled());
 	}
 	
 	@Test
