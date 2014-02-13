@@ -12,6 +12,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.utils.ILoadListener;
+import com.lorepo.icf.utils.IXMLSerializable;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -21,6 +22,7 @@ import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -136,8 +138,8 @@ public class PlayerController implements IPlayerController{
 
 	public void switchToPrevPage() {
 		PageList pages = contentModel.getPages();
-		for(int i = 0; i < pages.size(); i++){
-			if(pages.get(i) == pageController1.getPage()){
+		for(int i = 0; i < pages.getTotalPageCount(); i++){
+			if(pages.getAllPages().get(i) == pageController1.getPage()){
 				int index = i-1;
 				if(pageController2 != null && index > 0){
 					index -= 1;
@@ -154,13 +156,13 @@ public class PlayerController implements IPlayerController{
 	public void switchToNextPage() {
 
 		PageList pages = contentModel.getPages();
-		for(int i = 0; i < pages.size(); i++){
-			if(pages.get(i) == pageController1.getPage()){
+		for(int i = 0; i < pages.getTotalPageCount(); i++){
+			if(pages.getAllPages().get(i) == pageController1.getPage()){
 				int index = i+1;
-				if(pageController2 != null && index+1 < pages.size()){
+				if(pageController2 != null && index+1 < pages.getTotalPageCount()){
 					index += 1;
 				}
-				if(index < pages.size()){
+				if(index < pages.getTotalPageCount()){
 					switchToPage(index);
 				}
 				break;
@@ -176,7 +178,7 @@ public class PlayerController implements IPlayerController{
 	public void switchToPage(int index){
 		
 		closeCurrentPages();
-		Page page;
+		IPage page;
 		if(pageController2 != null){
 			if( (!showCover && index%2 > 0) || 
 				(showCover && index%2 == 0 && index > 0))
@@ -184,11 +186,11 @@ public class PlayerController implements IPlayerController{
 				index -= 1;
 			}
 		}
-		if(index < contentModel.getPages().size()){
-			page = contentModel.getPages().get(index);
+		if(index < contentModel.getPages().getTotalPageCount()){
+			page = contentModel.getPage(index);
 		}
 		else{
-			page = contentModel.getPages().get(0);
+			page = contentModel.getPage(0);
 		}
 		
 		if(showCover && index == 0){
@@ -197,16 +199,16 @@ public class PlayerController implements IPlayerController{
 		}
 		else{
 			switchToPage(page, pageController1);
-			if(pageController2 != null && index+1 < contentModel.getPages().size()){
+			if(pageController2 != null && index+1 < contentModel.getPages().getTotalPageCount()){
 				playerView.showTwoPages();
-				page = contentModel.getPages().get(index+1);
+				page = contentModel.getPage(index+1);
 				switchToPage(page, pageController2);
 			}
 		}
 	}
 	
 	
-	private void switchToPage(Page page, final PageController pageController){
+	private void switchToPage(IPage page, final PageController pageController){
 
 		
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -214,7 +216,7 @@ public class PlayerController implements IPlayerController{
 		sendAnalytics("switch to page", params );
 		// Load new page
 		String baseUrl = contentModel.getBaseUrl();
-		XMLLoader reader = new XMLLoader(page);
+		XMLLoader reader = new XMLLoader((IXMLSerializable) page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		playerView.showWaitDialog();
 		reader.load(url, new ILoadListener() {

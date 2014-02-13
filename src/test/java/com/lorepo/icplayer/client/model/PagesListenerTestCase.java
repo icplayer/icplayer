@@ -66,7 +66,7 @@ public class PagesListenerTestCase {
 		pages.add(page);
 		pages.add(new Page("Page 3", ""));
 		
-		pages.remove(2);
+		pages.removePage(2);
 		assertTrue("Listener not called", listener.pageRemovedCalled);
 	}
 
@@ -103,7 +103,7 @@ public class PagesListenerTestCase {
 		pages.add(new Page("Page 3", ""));
 		
 		try{
-			pages.remove(12);
+			pages.removePage(12);
 		}
 		catch(IndexOutOfBoundsException e){
 			

@@ -157,14 +157,14 @@ public class Content implements IXMLSerializable, IContent {
 		return styles;
 	}
 	
-	
+	/*
 	public void movePage(int from, int to, boolean rootPages){
 		
 		if(rootPages){
 			
 			if(from < pages.size() && to < pages.size()){
 				
-				Page page = pages.remove(from);
+				Page page = pages.removePage(from);
 				pages.add(to, page);
 				if(listener != null){
 					listener.onPageMove(from, to);
@@ -175,7 +175,7 @@ public class Content implements IXMLSerializable, IContent {
 
 			if(from < commonPages.size() && to < commonPages.size()){
 				
-				Page page = commonPages.remove(from);
+				Page page = commonPages.removePage(from);
 				commonPages.add(to, page);
 				if(listener != null){
 					listener.onPageMove(from, to);
@@ -183,7 +183,7 @@ public class Content implements IXMLSerializable, IContent {
 			}
 		}
 	}
-
+*/
 
 	public void setMetadataValue(String key, String value){
 		
@@ -224,7 +224,7 @@ public class Content implements IXMLSerializable, IContent {
 					loadStyles(child);
 				}
 				else if(name.compareTo("pages") == 0){
-					loadPages(child, pages);
+					loadPages(child, url);
 				}
 				else if(name.compareTo("assets") == 0){
 					loadAssets(child);
@@ -271,20 +271,17 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 
-	private void loadPages(Element rootElement, PageList pageList) {
+	private void loadPages(Element rootElement, String baseUrl) {
 		
 		NodeList children = rootElement.getChildNodes();
 		
+		pages.load(rootElement, baseUrl);
 		for(int i = 0; i < children.getLength(); i++){
 	
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
-				if(node.getNodeName().compareTo("page") == 0){
-					Page page = loadPage(node);
-					pageList.add(page);
-				}
-				else if(node.getNodeName().compareTo("folder") == 0){
-					loadCommons(node);
+				if(node.getNodeName().compareTo("folder") == 0){
+					commonPages.load(node, baseUrl);
 				}
 				else if(node.getNodeName().compareTo("header") == 0){
 					headerPageName = node.getAttribute("ref");
@@ -294,28 +291,6 @@ public class Content implements IXMLSerializable, IContent {
 				}
 			}
 		}
-	}
-
-
-	private Page loadPage(Element node) {
-
-		String name = StringUtils.unescapeXML(node.getAttribute("name"));
-		String href = node.getAttribute("href");
-		String pageId = node.getAttribute("id");
-		String preview = XMLUtils.getAttributeAsString(node, "preview");
-		boolean reportable = XMLUtils.getAttributeAsBoolean(node, "reportable", true);
-		Page page = new Page(name, href);
-		if(pageId != null && pageId.length() > 0 && !pageId.equals("null")){
-			page.setId(pageId);
-		}
-		page.setReportable(reportable);
-		page.setPreview(preview);
-		return page;
-	}
-
-
-	private void loadCommons(Element element) {
-		loadPages(element, commonPages);
 	}
 
 
@@ -389,17 +364,12 @@ public class Content implements IXMLSerializable, IContent {
 	private String toXMLPages() {
 		
 		String xml = "<pages>";
-		for(Page page : pages){
-			xml += toXMLPage(page);
-		}
+		xml += pages.toXML();
 		
-		if(commonPages.size() > 0){
+		if(commonPages.getTotalPageCount() > 0){
 			
 			xml += "<folder name='commons'>";
-			for(Page page : commonPages){
-				xml += toXMLPage(page);
-			}
-			
+			xml += commonPages.toXML();
 			xml += 	"</folder>";
 		}
 		
@@ -417,32 +387,15 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 
-	private String toXMLPage(Page page) {
-		
-		String name = StringUtils.escapeXML(page.getName());
-		String href = StringUtils.escapeXML(page.getHref());
-		String preview = StringUtils.escapeXML(page.getPreview());
-		String xml = "<page id='" + page.getId() + "' name='" + name + "'" + 
-				" href='" + href + "' preview='" + preview + "'";
-		if(page.isReportable()){
-			xml += " reportable='true'/>";
-		}
-		else{
-			xml += " reportable='false'/>";
-		}
-		return xml;
-	}
-
-
 	@Override
 	public int getPageCount() {
-		return pages.size();
+		return pages.getTotalPageCount();
 	}
 
 
 	@Override
 	public IPage getPage(int index) {
-		return pages.get(index);
+		return pages.getAllPages().get(index);
 	}
 
 
@@ -463,13 +416,13 @@ public class Content implements IXMLSerializable, IContent {
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
 			index = commonPages.findPageIndexByName(commonPageName);
 			if(index >= 0){
-				page = commonPages.get(index);
+				page = commonPages.getAllPages().get(index);
 			}
 		}
 		else{
 			index = pages.findPageIndexByName(pageName);
 			if(index >= 0){
-				page = pages.get(index);
+				page = pages.getAllPages().get(index);
 			}
 		}
 		

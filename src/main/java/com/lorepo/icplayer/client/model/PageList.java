@@ -1,15 +1,36 @@
 package com.lorepo.icplayer.client.model;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
 
 
 
-@SuppressWarnings("serial")
-public class PageList extends ArrayList<Page> {
+public class PageList implements IChapter{
 
+	private List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
+	public String name;
+	
+	public PageList(){
+		this.name = "";
+	}
+	
+	public PageList(String name){
+		this.name = name;
+	}
+	
+	public String getName(){
+		return name;
+	}
 	
 	
 	public void addListener(IPageListListener l){
@@ -17,51 +38,89 @@ public class PageList extends ArrayList<Page> {
 	}
 	
 	
-	@Override
-	public boolean add(Page page){
+	public boolean add(IContentNode node){
 		
-		boolean result = super.add(page);
+		boolean result = nodes.add(node);
+		
+		if(listener != null && node instanceof Page){
+			listener.onPageAdded((Page) node);
+		}
+		
+		return result;
+	}
+	
+	
+	public List<Page> getAllPages(){
+		List<Page> pages = new Vector<Page>(); 
+		for(IContentNode node : nodes){
+			if(node instanceof Page){
+				pages.add((Page) node);
+			}
+			else if(node instanceof PageList){
+				PageList chapter = (PageList) node;
+				pages.addAll(chapter.getAllPages());
+			}
+		}
+		
+		return pages;
+	}
+
+	
+	public void insertBefore(int index, Page page){
+		
+		nodes.add(index, page);
 		
 		if(listener != null){
 			listener.onPageAdded(page);
+		}
+	}
+
+	
+	public IContentNode removePage(int index){
+		
+		IContentNode node = nodes.remove(index);
+		
+		if(listener != null && node instanceof Page){
+			listener.onPageRemoved((Page) node);
+		}
+		
+		return node;
+	}
+
+	
+	public boolean remove(Page page){
+		
+		boolean result = nodes.remove(page);
+		
+		if(listener != null && result){
+			listener.onPageRemoved(page);
 		}
 		
 		return result;
 	}
 
 	
-	public void insertBefore(int index, Page page){
+	public boolean remove(String name){
 		
-		add(index, page);
-		
-		if(listener != null){
-			listener.onPageAdded(page);
+		for(IContentNode node : nodes){
+			if(node instanceof Page){
+				Page page = (Page) node;
+				if(page.getName().equals(name)){
+					nodes.remove(node);
+					if(listener != null){
+						listener.onPageRemoved(page);
+					}
+					return true;
+				}
+			}
+			else if(node instanceof PageList){
+				PageList chapter = (PageList) node;
+				if(chapter.remove(name)){
+					return true;
+				}
+			}
 		}
-	}
-
-	
-	@Override
-	public Page remove(int index){
 		
-		Page page = super.remove(index);
-		
-		if(listener != null){
-			listener.onPageRemoved(page);
-		}
-		
-		return page;
-	}
-
-	
-	@Override
-	public boolean remove(Object page){
-		
-		int index = indexOf(page);
-		
-		if(index >= 0){
-			remove(index);
-			return true;
-		}
 		
 		return false;
 	}
@@ -71,7 +130,8 @@ public class PageList extends ArrayList<Page> {
 
 		int index = 0;
 		String strippedSourceName = pageName.replaceAll("\\s+", "");
-		for(Page page : this){
+		List<Page> pages = getAllPages();
+		for(Page page : pages){
 		
 			String strippedName = page.getName().replaceAll("\\s+", "");
 			if(strippedName.compareToIgnoreCase(strippedSourceName) == 0){
@@ -88,7 +148,7 @@ public class PageList extends ArrayList<Page> {
 
 		String pageName = "New page";
 		
-		for(int i = 1; i < 30; i++){
+		for(int i = 1; i < 200; i++){
 			pageName = DictionaryWrapper.get("page") + " " + i;
 			if(findPageIndexByName(pageName) == -1){
 				break;
@@ -98,4 +158,122 @@ public class PageList extends ArrayList<Page> {
 		return pageName;
 	}
 	
+	
+	public int getTotalPageCount(){
+		int counter = 0;
+		for(IContentNode node : nodes){
+			if(node instanceof Page){
+				counter += 1;
+			}
+			else if(node instanceof PageList){
+				PageList chapter = (PageList) node;
+				counter += chapter.getTotalPageCount();
+			}
+		}
+		return counter;
+	}
+
+
+	@Override
+	public void load(Element rootElement, String url) {
+		
+		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
+		name = StringUtils.unescapeXML(nodeName);
+		NodeList children = rootElement.getChildNodes();
+		
+		for(int i = 0; i < children.getLength(); i++){
+	
+			if(children.item(i) instanceof Element){
+				Element node = (Element)children.item(i);
+				if(node.getNodeName().compareTo("page") == 0){
+					Page page = loadPage(node);
+					add(page);
+				}
+				else if(node.getNodeName().compareTo("chapter") == 0){
+					PageList chapter = new PageList();
+					chapter.load(node, url);
+					nodes.add(chapter);
+				}
+			}
+		}
+	}
+
+	private Page loadPage(Element node) {
+
+		String name = StringUtils.unescapeXML(node.getAttribute("name"));
+		String href = node.getAttribute("href");
+		String pageId = node.getAttribute("id");
+		String preview = XMLUtils.getAttributeAsString(node, "preview");
+		boolean reportable = XMLUtils.getAttributeAsBoolean(node, "reportable", true);
+		Page page = new Page(name, href);
+		if(pageId != null && pageId.length() > 0 && !pageId.equals("null")){
+			page.setId(pageId);
+		}
+		page.setReportable(reportable);
+		page.setPreview(preview);
+		return page;
+	}
+
+	@Override
+	public String toXML() {
+		String xml = "";
+		for(IContentNode node : nodes){
+			if(node instanceof Page){
+				xml += toXMLPage((Page) node);
+			}
+			else if(node instanceof PageList){
+				PageList chapter = (PageList) node;
+				String name = StringUtils.escapeXML(chapter.getName());
+				xml += "<chapter name='" + name + "'>";
+				xml += chapter.toXML();
+				xml += "</chapter>";
+			}
+		}
+		
+		return xml;
+	}
+	
+	private String toXMLPage(Page page) {
+		
+		String name = StringUtils.escapeXML(page.getName());
+		String href = StringUtils.escapeXML(page.getHref());
+		String preview = StringUtils.escapeXML(page.getPreview());
+		String xml = "<page id='" + page.getId() + "' name='" + name + "'" + 
+				" href='" + href + "' preview='" + preview + "'";
+		if(page.isReportable()){
+			xml += " reportable='true'/>";
+		}
+		else{
+			xml += " reportable='false'/>";
+		}
+		return xml;
+	}
+
+	public boolean contains(IContentNode node){
+		return nodes.contains(node);
+	}
+
+	public int indexOf(IContentNode node){
+		return nodes.indexOf(node);
+	}
+	
+	public void movePage(int from, int to){
+
+		if(from < nodes.size() && to < nodes.size()){
+			
+			IContentNode node = nodes.remove(from);
+			nodes.add(to, node);
+			if(listener != null && node instanceof Page){
+				listener.onPageMoved(from, to);
+			}
+		}
+	}
+
+	public int size(){
+		return nodes.size();
+	}
+	
+	public IContentNode get(int index){
+		return nodes.get(index);
+	}
 }

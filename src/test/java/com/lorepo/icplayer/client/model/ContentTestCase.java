@@ -22,6 +22,7 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
 public class ContentTestCase {
@@ -120,7 +121,7 @@ public class ContentTestCase {
 		
 		Content model = initContentFromFile("testdata/content.xml");
 		
-		assertEquals(17, model.getPages().size());
+		assertEquals(17, model.getPages().getTotalPageCount());
 	}
 
 	@Test
@@ -150,12 +151,12 @@ public class ContentTestCase {
 		
 		Content model = initContentFromFile("testdata/content.xml");
 
-		assertEquals(2, model.getCommonPages().size());
+		assertEquals(2, model.getCommonPages().getTotalPageCount());
 
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 		
-		assertEquals(2, model.getCommonPages().size());
+		assertEquals(2, model.getCommonPages().getTotalPageCount());
 
 	}
 
@@ -164,11 +165,11 @@ public class ContentTestCase {
 		
 		Content model = initContentFromFile("testdata/content3.xml");
 		
-		assertEquals(3, model.getPages().size());
+		assertEquals(3, model.getPages().getTotalPageCount());
 		
-		assertTrue(model.getPages().get(0).isReportable());
-		assertFalse(model.getPages().get(1).isReportable());
-		assertTrue(model.getPages().get(0).isReportable());
+		assertTrue(model.getPage(0).isReportable());
+		assertFalse(model.getPage(1).isReportable());
+		assertTrue(model.getPage(2).isReportable());
 	}
 
 	@Test
@@ -178,11 +179,11 @@ public class ContentTestCase {
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 		
-		assertEquals(3, model.getPages().size());
+		assertEquals(3, model.getPages().getTotalPageCount());
 		
-		assertTrue(model.getPages().get(0).isReportable());
-		assertFalse(model.getPages().get(1).isReportable());
-		assertTrue(model.getPages().get(0).isReportable());
+		assertTrue(model.getPage(0).isReportable());
+		assertFalse(model.getPage(1).isReportable());
+		assertTrue(model.getPage(2).isReportable());
 	}
 
 	@Test
@@ -349,25 +350,6 @@ public class ContentTestCase {
 	}
 	
 	@Test
-	public void movePage() throws SAXException, IOException {
-		
-		Content model = initContentFromFile("testdata/content.xml");
-		IPage page;
-		
-		page = model.getPage(0);
-		assertEquals("style-audio", page.getName());
-
-		model.movePage(0, 1, true);
-		page = model.getPage(0);
-		assertEquals("schoice", page.getName());
-
-		model.movePage(1, 0, true);
-		page = model.getPage(0);
-		assertEquals("style-audio", page.getName());
-	}
-
-	
-	@Test
 	public void soundAsset() throws SAXException, IOException {
 		
 		Content model = new Content();
@@ -429,7 +411,6 @@ public class ContentTestCase {
 		assertTrue(page.getId().length() > 0);
 	}
 
-
 	@Test
 	public void loadSavePageId() throws SAXException, IOException {
 		
@@ -440,4 +421,36 @@ public class ContentTestCase {
 		IPage page = model.getPage(0);
 		assertEquals("123456", page.getId());
 	}
+
+	@Test
+	public void chapterPages() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content4.xml");
+		
+		assertEquals(5, model.getPages().getTotalPageCount());
+	}
+	
+	@Test
+	public void loadSaveChapter() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content4.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+		
+		assertEquals(5, model.getPages().getTotalPageCount());
+	}
+	
+	@Test
+	public void chapterName() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content4.xml");
+		String xml = model.toXML();
+		model = initContentFromString(xml);
+
+		IContentNode node = model.getPages().get(3);
+		assertTrue(node instanceof PageList);
+		PageList chapter = (PageList) node;
+		assertEquals("Chapter 1", chapter.getName());
+	}
+
 }

@@ -8,7 +8,6 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.IXMLSerializable;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -26,7 +25,7 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
  * @author Krzysztof Langner
  *
  */
-public class Page extends BasicPropertyProvider implements IXMLSerializable, IStyledModule, IPage{
+public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 
 	public enum LayoutType{
 		percentage,
