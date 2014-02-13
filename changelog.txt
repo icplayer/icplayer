@@ -1,3 +1,4 @@
+2014-02-13 Fixed problem with exception thrown to JavaScript console at presentation start
 2014-02-13 Fixed problem with blocking popup button after check+reset combination
 2014-02-13 Don't allow opening the popup twice
 2014-02-11 Different handling for d&d on mobile devices and PC

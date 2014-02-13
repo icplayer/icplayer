@@ -32,7 +32,7 @@ public class PlayerView extends VerticalPanel{
 	private WaitDialog	waitDlg;
 	private NavigationButton nextPageButton = new NavigationButton("ic_navi_panel_next");
 	private NavigationButton prevPageButton = new NavigationButton("ic_navi_panel_prev");
-	private NavigationBar pageBar;
+	private NavigationBar navigationBar;
 	
 	
 	public PlayerView(){
@@ -64,7 +64,7 @@ public class PlayerView extends VerticalPanel{
 			}
 		});
 		if(playerController != null){
-			pageBar = new NavigationBar(playerController.getModel(), playerController);
+			navigationBar = new NavigationBar(playerController.getModel(), playerController);
 		}
 		
 		Window.addResizeHandler(new ResizeHandler() {
@@ -72,7 +72,10 @@ public class PlayerView extends VerticalPanel{
 			public void onResize(ResizeEvent event) {
 				prevPageButton.hide();
 				nextPageButton.hide();
-				pageBar.hide();
+                if (navigationBar != null){
+				    navigationBar.hide();
+
+                }
 			}
 		});
 	}
@@ -102,8 +105,8 @@ public class PlayerView extends VerticalPanel{
 		event.stopPropagation();
 		
 		if (Event.ONCLICK == eventType) {
-			if(pageBar == null){
-				pageBar = new NavigationBar(playerController.getModel(), playerController);
+			if(navigationBar == null){
+				navigationBar = new NavigationBar(playerController.getModel(), playerController);
 			}
 			toggleNavigationPanels();
 			event.stopPropagation();
@@ -125,7 +128,7 @@ public class PlayerView extends VerticalPanel{
 	
 	
 	private void toggleNavigationPanels() {
-		if(pageBar.isShowing()) {
+		if(navigationBar.isShowing()) {
 			hideNavigationPanels();
 		} else {
 			boolean isMobile = false;
@@ -161,12 +164,12 @@ public class PlayerView extends VerticalPanel{
 				}
 	        });
 			
-			pageBar.setWidth((getOffsetWidth())+"px");
-			pageBar.getWidget().setWidth((getOffsetWidth()-41)+"px");
-			pageBar.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+			navigationBar.setWidth((getOffsetWidth())+"px");
+			navigationBar.getWidget().setWidth((getOffsetWidth()-41)+"px");
+			navigationBar.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 				public void setPosition(int offsetWidth, int offsetHeight) {
-					pageBar.setPopupPosition(left, (panelTop - offsetHeight));
-					pageBar.setGlassEnabled(false);
+					navigationBar.setPopupPosition(left, (panelTop - offsetHeight));
+					navigationBar.setGlassEnabled(false);
 				}
 	        });
 			
@@ -186,7 +189,7 @@ public class PlayerView extends VerticalPanel{
 			public void run() {
 				prevPageButton.hide();
 				nextPageButton.hide();
-				pageBar.hide();
+				navigationBar.hide();
 			}
 		};
 		t.schedule(1);
