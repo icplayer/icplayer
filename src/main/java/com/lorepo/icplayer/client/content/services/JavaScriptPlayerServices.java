@@ -20,6 +20,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter;
@@ -154,6 +155,10 @@ public class JavaScriptPlayerServices{
 				}
 				
 				return page;
+			}
+				
+			model.getTableOfContents = function(){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTableOfContents()();
 			}
 				
 			return model;
@@ -442,4 +447,11 @@ public class JavaScriptPlayerServices{
 	private boolean hasCover(){
 		return playerServices.hasCover();
 	}
+	
+	private JavaScriptObject getTableOfContents(){
+
+		IChapter toc = playerServices.getModel().getTableOfContents();
+		return toc.toJavaScript();
+	}
+	
 }

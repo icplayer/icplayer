@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.model;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -592,8 +593,34 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 				}
 			}
 		}
+	}
+
+
+	@Override
+	public JavaScriptObject toJavaScript() {
+		return javaScriptInterface(this);
 	}	
 
-
+	/**
+	 * Get JavaScript interface to the page
+	 * @param x
+	 * @return
+	 */
+	private native static JavaScriptObject javaScriptInterface(Page x) /*-{
+	
+		var page = function(){}
+		page.type = "page";
+		page.getName = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::getName()();
+		}
+		page.getBaseURL = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::getBaseURL()();
+		}
+		page.isReportable = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
+		}
+		
+		return page;
+	}-*/;
 	
 }

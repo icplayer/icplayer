@@ -60,7 +60,6 @@
 		<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
 		<page name="image source" href="pages/image-source.xml"/>
 		<page name="links" href="pages/links.page.xml" reportable="false"/>
-		<page name="eventbus" href="pages/eventbus.page.xml"/>
 	</chapter>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<folder name="commons">
@@ -69,6 +68,7 @@
 		<page name="footer" href="pages/footer.xml"/>
 	</folder>
 	<!--
+	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page name="test" href="pages/test.xml"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>

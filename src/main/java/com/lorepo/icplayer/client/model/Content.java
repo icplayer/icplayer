@@ -10,6 +10,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
@@ -443,6 +444,12 @@ public class Content implements IXMLSerializable, IContent {
 
 	public String getName() {
 		return name;
+	}
+
+
+	@Override
+	public IChapter getTableOfContents() {
+		return pages;
 	}
 	
 }

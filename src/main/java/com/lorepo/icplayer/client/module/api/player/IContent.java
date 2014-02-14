@@ -9,5 +9,5 @@ public interface IContent {
 	public IAddonDescriptor getAddonDescriptor(String addonId);
 	public Page findPageByName(String pageName);
 	public String getBaseUrl();
-	
+	public IChapter getTableOfContents();
 }

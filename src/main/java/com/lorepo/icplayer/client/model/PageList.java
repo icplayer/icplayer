@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.StringUtils;
@@ -276,4 +277,36 @@ public class PageList implements IChapter{
 	public IContentNode get(int index){
 		return nodes.get(index);
 	}
+
+	@Override
+	public JavaScriptObject toJavaScript() {
+		return javaScriptInterface(this);
+	}	
+
+	/**
+	 * Get JavaScript interface to the page
+	 * @param x
+	 * @return
+	 */
+	private native static JavaScriptObject javaScriptInterface(PageList x) /*-{
+	
+		var chapter = function(){}
+		chapter.type = "chapter";
+		chapter.getName = function(){
+			return x.@com.lorepo.icplayer.client.model.PageList::getName()();
+		}
+		chapter.size = function(){
+			return x.@com.lorepo.icplayer.client.model.PageList::size()();
+		}
+		chapter.get = function(index){
+			return x.@com.lorepo.icplayer.client.model.PageList::getPageAsJavaScript(I)(index);
+		}
+		
+		return chapter;
+	}-*/;
+	
+	private JavaScriptObject getPageAsJavaScript(int index) {
+		return get(index).toJavaScript();
+	}	
+	
 }
