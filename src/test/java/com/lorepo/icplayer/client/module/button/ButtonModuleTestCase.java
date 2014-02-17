@@ -76,6 +76,28 @@ public class ButtonModuleTestCase {
 		assertEquals("math", pageName);
 	}
 
+	@Test
+	public void additionalClassesProperty() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("additional_classes")).thenReturn("Additional classes");
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/presenter.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		ButtonModule module = new ButtonModule();
+		module.load(element, "");
+		
+		String additionalClassesText = null;
+		for (int i=0; i<module.getPropertyCount(); i++) {
+			IProperty property = module.getProperty(i);
+			if (property.getName().compareTo("Additional classes") == 0) {
+				additionalClassesText = property.getValue();
+			}
+		}
+
+		assertEquals("new_class", additionalClassesText);
+	}
 	
 	@Test
 	public void onClickProperty() throws SAXException, IOException {

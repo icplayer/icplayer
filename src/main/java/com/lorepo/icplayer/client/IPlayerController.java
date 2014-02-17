@@ -19,7 +19,7 @@ public interface IPlayerController {
 	void switchToNextPage();
 	long getTimeElapsed();
 	PlayerView getView();
-	void showPopup(String pageName);
+	void showPopup(String pageName, String additionalClasses);
 	void closePopup();
 	void sendAnalytics(String event, HashMap<String, String> params);
 	boolean isBookMode();

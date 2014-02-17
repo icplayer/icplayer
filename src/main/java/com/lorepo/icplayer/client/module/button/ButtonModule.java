@@ -5,10 +5,10 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IEventProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.ITextProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-
 
 /**
  * Prostokątny obszar o podanym kolorze i rodzaju ramki
@@ -16,9 +16,10 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
  * @author Krzysztof Langner
  *
  */
-public class ButtonModule extends BasicModuleModel{
 
-	public enum ButtonType{
+public class ButtonModule extends BasicModuleModel {
+
+	public enum ButtonType {
 		standard,
 		nextPage,
 		prevPage,
@@ -30,17 +31,19 @@ public class ButtonModule extends BasicModuleModel{
 		gotoPage,
 	}
 	
-	private ButtonType	type = ButtonType.nextPage;
+	private ButtonType type = ButtonType.nextPage;
 	private String text = "";
 	private String onClick;
-	
+	private String additionalClasses = "";
 	
 	public ButtonModule() {
 		super(DictionaryWrapper.get("button_module"));
-
 		addPropertyTitle();
 	}
 
+	String getAdditionalClasses() {
+		return additionalClasses;
+	}
 	
 	@Override
 	public void load(Element node, String baseUrl) {
@@ -48,16 +51,16 @@ public class ButtonModule extends BasicModuleModel{
 		super.load(node, baseUrl);
 		
 		NodeList nodes = node.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
+		for(int i = 0; i < nodes.getLength(); i++) {
 			
 			Node childNode = nodes.item(i);
-			if(childNode instanceof Element){
-				
-				if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
+			if(childNode instanceof Element) {
+				if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element) {
 					Element childElement = (Element) childNode;
 					text = childElement.getAttribute("text");
 					setType(childElement.getAttribute("type"));
 					onClick = childElement.getAttribute("onclick");
+					additionalClasses = childElement.getAttribute("additionalClasses");
 				}
 			}
 		}
@@ -65,37 +68,31 @@ public class ButtonModule extends BasicModuleModel{
 		addPropertiesFromType();
 	}
 
-	
 	/**
 	 * Get on click event code
 	 * @return
 	 */
 	public String getOnClick() {
-		
-		if(onClick != null){
-			return onClick;
-		}
-		
-		return "";
+		return onClick == null ? "" : onClick;
 	}
-
 
 	@Override
 	public String toXML() {
-		
 		String encodedText = StringUtils.escapeHTML(text);
 		String xml = 
 				"<buttonModule " + getBaseXML() + ">" + getLayoutXML() + 
 				"<button type='" + type + "' text='" + encodedText + "'";
 		
 		xml += " onclick='" + StringUtils.escapeXML(onClick) + "'";
+
+		if (type == ButtonType.popup) {
+			xml += " additionalClasses='" + StringUtils.escapeXML(additionalClasses) + "'";
+		}
 		
 		xml += "/></buttonModule>";
-		
+
 		return xml;
 	}
-
-
 
 	/**
 	 * Set button type based on given string
@@ -103,7 +100,6 @@ public class ButtonModule extends BasicModuleModel{
 	 * @param typeName
 	 */
 	protected void setType(String typeName) {
-	
 		for(ButtonType bt : ButtonType.values()){
 			if(bt.toString().compareTo(typeName) == 0){
 				type = bt;
@@ -111,45 +107,36 @@ public class ButtonModule extends BasicModuleModel{
 		}
 	}
 
-
 	public String getText() {
-		
 		return text;
 	}
-
-
 
 	public ButtonType getType() {
 		return type;
 	}
 
-
 	public void setText(String html) {
-
 		text = html;
 	}
 
-
 	public void setType(ButtonType newType) {
-		
 		type = newType;
 		addPropertiesFromType();
 	}
-
 
 	/**
 	 * Nie wszystkie typy przycisków mają te same property.
 	 * Funkcja ta dokłada odpowiednie property na podstawie typy przycisku
 	 */
 	private void addPropertiesFromType() {
-		
-		if(type == ButtonType.popup){
+		if(type == ButtonType.popup) {
 			addPropertyPage();
+			addPropertyAdditionalClasses();
 		}
-		else if(type == ButtonType.gotoPage){
+		else if(type == ButtonType.gotoPage) {
 			addPropertyPage();
 		} 
-		else if(type == ButtonType.standard){
+		else if(type == ButtonType.standard) {
 			addPropertyOnClick();
 		} 
 	}
@@ -213,6 +200,35 @@ public class ButtonModule extends BasicModuleModel{
 		addProperty(property);
 	}
 	
+	private void addPropertyAdditionalClasses() {
+		
+		ITextProperty property = new ITextProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				additionalClasses = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return additionalClasses;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("additional_classes");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("additional_classes");
+			}
+		};
+		
+		addProperty(property);
+	}
+	
 	private void addPropertyOnClick() {
 
 		IProperty property = new IEventProperty() {
@@ -225,12 +241,7 @@ public class ButtonModule extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(onClick == null){
-					return "";
-				}
-				else{
-					return onClick;
-				}
+				return onClick == null ? "" : onClick;
 			}
 			
 			@Override

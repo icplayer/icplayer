@@ -1,3 +1,4 @@
+2014-02-17 Added new property for additional classes in popup
 2014-02-13 Added API interface to get table of contents
 2014-02-13 Fixed problem with exception thrown to JavaScript console at presentation start
 2014-02-13 Fixed problem with blocking popup button after check+reset combination

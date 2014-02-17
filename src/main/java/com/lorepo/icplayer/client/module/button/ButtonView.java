@@ -45,7 +45,7 @@ public class ButtonView extends Composite implements IDisplay {
 			button = new NextPageButton(playerServices);
 		}
 		else if(ButtonType.popup == type){
-			button = new PopupButton(module.getOnClick(), this, pageService);
+			button = new PopupButton(module.getOnClick(), this, pageService, module.getAdditionalClasses());
 		}
 		else if(ButtonType.prevPage == type){
 			button = new PrevPageButton(playerServices);

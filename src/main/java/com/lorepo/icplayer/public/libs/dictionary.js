@@ -147,6 +147,7 @@ var ice_dictionary = {
 	"title" : "Title",
 	"page" : "Page",
 	"on_click" : "onClick",
+	"additional_classes" : "Additional classes",
 	"button_module": "Button",
 	"standard_button" : "Standard",
 	"next_page_button" : "Next Page",

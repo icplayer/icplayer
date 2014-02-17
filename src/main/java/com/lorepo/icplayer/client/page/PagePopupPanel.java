@@ -19,11 +19,12 @@ public class PagePopupPanel extends DialogBox {
 	private Widget parentWidget;
 	private PageView pageWidget;
 	private PageController pageController;
-	
+	private String additionalClasses;
 
-	public PagePopupPanel(Widget parent, PageController pageController) {
+	public PagePopupPanel(Widget parent, PageController pageController, String additionalClasses) {
 		this.pageController = pageController;
 		this.parentWidget = parent;
+		this.additionalClasses = additionalClasses;
 	}
 	
 	
@@ -53,7 +54,8 @@ public class PagePopupPanel extends DialogBox {
 
 	private void initPanel(Page page){
 		pageWidget = new PageView("ic_popup_page");
-		setStyleName("ic_popup");
+		String classes = additionalClasses == "" ? "ic_popup" : "ic_popup " + additionalClasses;
+		setStyleName(classes);
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setWidget(pageWidget);

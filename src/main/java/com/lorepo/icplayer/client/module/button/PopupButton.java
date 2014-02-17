@@ -7,8 +7,8 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 
 class PopupButton extends PushButton{
-	
-	public PopupButton(final String popupName, final IDisplay view, final IPlayerCommands pageService){
+
+	public PopupButton(final String popupName, final IDisplay view, final IPlayerCommands pageService, final String additionalClasses){
 		
 		setStyleName("ic_button_popup");
 		addClickHandler(new ClickHandler() {
@@ -18,7 +18,7 @@ class PopupButton extends PushButton{
 				event.stopPropagation();
 				event.preventDefault();
 				if (!view.isErrorCheckingMode()) {
-					pageService.showPopup(popupName);
+					pageService.showPopup(popupName, additionalClasses);
 				}
 			}
 		});

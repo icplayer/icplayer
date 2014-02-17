@@ -310,14 +310,14 @@ public class PlayerController implements IPlayerController{
 
 
 	@Override
-	public void showPopup(String pageName) {
+	public void showPopup(String pageName, String additionalClasses) {
 		if (isPopupEnabled()) {
 			return;
 		}
 		setPopupEnabled(true);
 		Page page  = contentModel.findPageByName(pageName);
 		PageController popupPageControler = new PageController(this);
-		popupPanel = new PagePopupPanel(getView(), popupPageControler);
+		popupPanel = new PagePopupPanel(getView(), popupPageControler, additionalClasses);
 		popupPanel.showPage(page, contentModel.getBaseUrl());
 	}
 
