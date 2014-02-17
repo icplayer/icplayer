@@ -154,7 +154,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("layout");
+				return "Layout";
 			}
 
 			@Override
@@ -196,7 +196,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("left");
+				return "Left";
 			}
 
 			@Override
@@ -233,7 +233,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("top");
+				return "Top";
 			}
 
 			@Override
@@ -269,7 +269,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("width");
+				return "Width";
 			}
 
 			@Override
@@ -305,7 +305,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("height");
+				return "Height";
 			}
 
 			@Override
@@ -349,7 +349,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("right");
+				return "Right";
 			}
 
 			@Override
@@ -386,7 +386,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("bottom");
+				return "Bottom";
 			}
 
 			@Override

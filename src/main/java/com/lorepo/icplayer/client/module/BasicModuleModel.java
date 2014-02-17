@@ -194,7 +194,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("is_visible");
+				return "Is Visible";
 			}
 
 			@Override

@@ -52,6 +52,7 @@
 </style>
 
 <pages>
+	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
@@ -84,7 +85,6 @@
 	<page name="test" href="pages/connection.page.xml"/>
 	<page name="no addon" href="pages/no-addon.page.xml"/>
 	<page name="vimeo" href="pages/vimeo.page.xml"/>
-	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="images" href="pages/images.xml"/>
 	<page name="goto" href="pages/goto.page.xml"/>
 	<page name="feedback addon" href="pages/feedback-addon.page.xml"/>
