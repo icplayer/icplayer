@@ -1,8 +1,5 @@
 package com.lorepo.icplayer.client.ui;
 
-import com.gargoylesoftware.htmlunit.javascript.host.Screen;
-import com.google.gwt.core.shared.GWT;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -18,7 +15,6 @@ import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
-import com.lorepo.icplayer.client.ui.NavigationBar;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 
 public class PlayerView extends VerticalPanel{
