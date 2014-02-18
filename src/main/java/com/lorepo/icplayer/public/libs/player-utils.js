@@ -46,23 +46,25 @@
             var sumOfScore = 0.0, sumOfErrors = 0, sumOfChecks = 0,
                 sumOfMaxScore = 0.0,
                 sumOfScaledScore = 0.0,
-                count = 0, i, page, score;
+                count = 0, i, page, score,
+                paginatedResults = new Array();
 
             for (i = 0; i < presentation.getPageCount(); i++) {
                 page = presentation.getPage(i);
 
                 if (page.isReportable()) {
                     score = this.scoreService.getPageScore(page.getName());
-
-                    if (score.maxScore > 0) {
-                        sumOfScaledScore += score.score / score.maxScore;
-                    } else {
-                        sumOfScaledScore += 1;
-                    }
+                    sumOfScaledScore += score['maxScore'] ? score['score']/score['maxScore'] : 0;
                     sumOfScore += score.score;
                     sumOfErrors += score.mistakeCount;
                     sumOfChecks += score.checkCount;
                     sumOfMaxScore += score.maxScore;
+  					paginatedResults[count] = { "page_number": (i+1),
+								"page_name" : page.getName(),
+								"score" : score['maxScore'] ? (score['score']/score['maxScore']) : 0,
+								"errors_count": score['mistakeCount'] ? score['mistakeCount'] : 0,
+								"checks_count" : score['checkCount'] ? score['checkCount'] : 0
+							  };
 
                     count += 1;
                 }
@@ -70,11 +72,12 @@
 
             return {
                 minScore: 0,
-                maxScore: sumOfMaxScore,
-                rawScore: sumOfScore,
-                scaledScore: count ? sumOfScaledScore / count : 0,
+                maxScore: count,
+                rawScore: sumOfScaledScore,
+                scaledScore: count > 0 ? sumOfScaledScore / count : 0,
                 errorsCount: sumOfErrors,
-                checksCount: sumOfChecks
+                checksCount: sumOfChecks,
+                paginatedResult: paginatedResults
             }
         }
         else {
