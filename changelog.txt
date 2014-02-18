@@ -1,3 +1,4 @@
+2014-02-18 Fixed problem with scoring method when module LineNumber was not activity
 2014-02-18 PlayerUtils extended to return score for individual pages
 2014-02-18 Fixed problem with empty text on chrome browser
 2014-02-17 Fixed problem with localized property names

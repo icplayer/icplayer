@@ -1255,7 +1255,7 @@ function AddonLine_Number_create() {
         resetClicks();
 
         if (!presenter.configuration.isActivity) {
-            return;
+            return 0;
         }
 
         var validated = validateDrawnRanges();
@@ -1264,7 +1264,7 @@ function AddonLine_Number_create() {
 
     presenter.getMaxScore = function () {
         if (!presenter.configuration.isActivity) {
-            return;
+            return 0;
         }
 
         return presenter.configuration.otherRanges.length + presenter.configuration.shouldDrawRanges.length;
@@ -1272,7 +1272,7 @@ function AddonLine_Number_create() {
 
     presenter.getErrorCount = function () {
         if (!presenter.configuration.isActivity) {
-            return;
+            return 0;
         }
 
         var validated = validateDrawnRanges();
