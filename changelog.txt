@@ -1,3 +1,4 @@
+2014-02-18 Fixed problem with empty text on chrome browser
 2014-02-17 Fixed problem with localized property names
 2014-02-17 Added new property for additional classes in popup
 2014-02-13 Added API interface to get table of contents

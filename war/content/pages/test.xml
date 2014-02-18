@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<page layout='pixels' height='200'>
+<page layout='pixels'>
 <modules>
+	<textModule id="cloze" left='40' top='20' width='640' height='100'>
+		<text draggable='true' gapWidth="200" isActivity="true"><![CDATA[]]></text>
+	</textModule>
 </modules>
 </page>

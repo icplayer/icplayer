@@ -110,9 +110,7 @@ public class TextModel extends BasicModuleModel{
 						rawText = XMLUtils.getText(textElement);
 						rawText = StringUtils.unescapeXML(rawText);
 					}
-					if(rawText.length() > 0){
-						setText(rawText);
-					}
+					setText(rawText);
 				}
 			}
 		}
