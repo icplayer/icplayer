@@ -280,7 +280,7 @@ public class ContentTestCase {
 			}
 			
 			@Override
-			public void onPageMove(int from, int to) {
+			public void onPageMoved(int from, int to) {
 			}
 			
 			@Override
@@ -305,7 +305,7 @@ public class ContentTestCase {
 			}
 			
 			@Override
-			public void onPageMove(int from, int to) {
+			public void onPageMoved(int from, int to) {
 			}
 			
 			@Override

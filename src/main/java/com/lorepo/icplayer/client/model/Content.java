@@ -52,8 +52,13 @@ public class Content implements IXMLSerializable, IContent {
 					listener.onRemovePage(page);
 				}
 			}
+			
 			public void onPageMoved(int from, int to) {
+				if(listener != null){
+					listener.onPageMoved(from, to);
+				}
 			}
+			
 			public void onPageAdded(Page page) {
 				if(listener != null){
 					listener.onAddPage(page);

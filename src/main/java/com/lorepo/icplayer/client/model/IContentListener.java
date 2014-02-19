@@ -11,5 +11,5 @@ public interface IContentListener {
 
 	void onAddPage(Page page);
 	void onRemovePage(Page page);
-	void onPageMove(int from, int to);
+	void onPageMoved(int from, int to);
 }
