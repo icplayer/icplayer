@@ -130,6 +130,8 @@ function Addonmultiplegap_create(){
         handler.click(presenter.acceptDraggable);
         container.append(handler);
         handler.hide();
+        
+        handler.droppable({drop: function(event, ui) { handler.click() }});
 
         for(var i = 0; i < model['Items'].length; i++) {
             presenter.items.push(model['Items'][i]['Answer ID']);
