@@ -43,7 +43,6 @@ public class Content implements IXMLSerializable, IContent {
 		connectHandlers();
 	}
 
-
 	private void connectHandlers() {
 		
 		pages.addListener(new IPageListListener() {
@@ -206,6 +205,9 @@ public class Content implements IXMLSerializable, IContent {
 		styles = text;
 	}
 
+	public void setPages(ArrayList<Integer> a){
+		pages.setSubsetPages(a);
+	}
 
 	
 	public void load(Element rootElement, String url) {
@@ -237,6 +239,7 @@ public class Content implements IXMLSerializable, IContent {
 				}
 			}
 		}
+		
 	}
 
 
@@ -280,8 +283,8 @@ public class Content implements IXMLSerializable, IContent {
 	private void loadPages(Element rootElement, String baseUrl) {
 		
 		NodeList children = rootElement.getChildNodes();
-		
 		pages.load(rootElement, baseUrl);
+		
 		for(int i = 0; i < children.getLength(); i++){
 	
 			if(children.item(i) instanceof Element){
