@@ -21,6 +21,7 @@ public class PageList implements IChapter{
 	private IPageListListener listener;
 	public String name;
 	
+
 	public PageList(){
 		this.name = "";
 	}
@@ -64,6 +65,23 @@ public class PageList implements IChapter{
 		}
 		
 		return pages;
+	}
+	
+	public void setSubsetPages(ArrayList<Integer> subsetArray) {
+		List<IContentNode> pages = new Vector<IContentNode>();
+		for (IContentNode node : nodes) {
+			if (node instanceof Page) {
+				if (subsetArray.contains(indexOf(node))) {
+					pages.add(node);
+					subsetArray.remove(subsetArray.indexOf(indexOf(node)));
+				}
+			}
+		}
+		if (subsetArray.size() > 0)
+			throw new IllegalArgumentException("Page index "
+					+ subsetArray.get(0) + " is out of range");
+		if (pages.size() > 0)
+			nodes = pages;
 	}
 
 	
@@ -175,9 +193,9 @@ public class PageList implements IChapter{
 	}
 
 
+
 	@Override
 	public void load(Element rootElement, String url) {
-		
 		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
 		name = StringUtils.unescapeXML(nodeName);
 		NodeList children = rootElement.getChildNodes();

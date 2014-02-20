@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.RootPanel;
@@ -30,7 +31,7 @@ public class PlayerApp{
 	private boolean bookMode = false;
 	private boolean showCover = false;
 	private String analyticsId = null;
-	
+	private ArrayList<Integer> pagesSubset = null;
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
 		
@@ -53,7 +54,6 @@ public class PlayerApp{
 	 * @param pageIndex 
 	 */
 	public void load(String url, int pageIndex) {
-		
 		startPageIndex = pageIndex;
 		contentModel = new Content();
 		XMLLoader	reader = new XMLLoader(contentModel);
@@ -64,9 +64,21 @@ public class PlayerApp{
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load:" + error);
 			}
-		});		
+		});
 	}
 
+	public void setPages(String pagesSub) {
+		ArrayList<Integer> selectedPages = new ArrayList<Integer>();
+		String[] parts = null;
+		if (pagesSub == null || pagesSub.isEmpty())
+			throw new IllegalArgumentException();
+		parts = pagesSub.split(",");
+		for (int i = 0; i < parts.length; i++) {
+			selectedPages.add(Integer.valueOf(parts[i]));
+		}
+		if (selectedPages.size() > 0)
+			pagesSubset = selectedPages;
+	}
 	
 	public void setAnalytics(String id) {
 		analyticsId = id;
@@ -76,7 +88,7 @@ public class PlayerApp{
 	 * Init player after content is loaded
 	 */
 	private void initPlayer() {
-	
+		if (pagesSubset != null) contentModel.setPages(pagesSubset);
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode);
 		playerController.setFirstPageAsCover(showCover);

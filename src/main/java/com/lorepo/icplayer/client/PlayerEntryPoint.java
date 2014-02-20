@@ -46,6 +46,9 @@ public class PlayerEntryPoint implements EntryPoint {
 		  player.setState = function(state){
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
 		  }
+		   player.setPages = function(pages){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
+		  }
 		  player.getPlayerServices = function(){
 		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
 		  }
@@ -74,6 +77,9 @@ public class PlayerEntryPoint implements EntryPoint {
 		  }
 		  player.setState = function(state){
 		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
+		  }
+		  player.setPages = function(pages){
+		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
 		  }
 		  player.getPlayerServices = function(){
 		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
@@ -131,6 +137,10 @@ public class PlayerEntryPoint implements EntryPoint {
 	
 	private void setState(String state) {
 		theApplication.setState(state);
+	}
+
+	private void setPages(String pagesSub) {
+		theApplication.setPages(pagesSub);
 	}
 
 	
