@@ -46,6 +46,7 @@
             var sumOfScore = 0.0, sumOfErrors = 0, sumOfChecks = 0,
                 sumOfMaxScore = 0.0,
                 sumOfScaledScore = 0.0,
+                sumOfMistakes = 0,
                 count = 0, i, page, score,
                 paginatedResults = new Array();
 
@@ -56,14 +57,16 @@
                     score = this.scoreService.getPageScore(page.getName());
                     sumOfScaledScore += score['maxScore'] ? score['score']/score['maxScore'] : 0;
                     sumOfScore += score.score;
-                    sumOfErrors += score.mistakeCount;
+                    sumOfErrors += score.errorCount;
                     sumOfChecks += score.checkCount;
                     sumOfMaxScore += score.maxScore;
+                    sumOfMistakes += score.mistakeCount;
   					paginatedResults[count] = { "page_number": (i+1),
 								"page_name" : page.getName(),
 								"score" : score['maxScore'] ? (score['score']/score['maxScore']) : 0,
-								"errors_count": score['mistakeCount'] ? score['mistakeCount'] : 0,
-								"checks_count" : score['checkCount'] ? score['checkCount'] : 0
+								"errors_count": score['errorCount'] ? score['errorCount'] : 0,
+								"checks_count" : score['checkCount'] ? score['checkCount'] : 0,
+								"mistake_count" : score['mistakeCount'] ? score['mistakeCount'] : 0
 							  };
 
                     count += 1;
@@ -77,6 +80,7 @@
                 scaledScore: count > 0 ? sumOfScaledScore / count : 0,
                 errorsCount: sumOfErrors,
                 checksCount: sumOfChecks,
+                mistakeCount: sumOfMistakes,
                 paginatedResult: paginatedResults
             }
         }
