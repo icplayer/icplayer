@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="Input_Number">
+	<model>
+        <property name="decimalSeparator" displayName="Decimal Separator" type="string" />
+		<property name="checkingType" displayName="Checking Type" type="{Every gap separately, All gaps together}" />
+        <property name="activities" displayName="Activity" type="text" />
+        <property name="answers" displayName="Answers" type="text" />
+        <property name="isNotActivity" displayName="Is Not Activity" type="boolean" />
+        <property name="isDisabled" displayName="Is Disabled" type="boolean" />
+	</model>
+</addon>

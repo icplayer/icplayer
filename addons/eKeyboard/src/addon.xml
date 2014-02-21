@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='eKeyboard'>
+	<model>
+        <property name="workWith" displayName="Work With" type="text" />
+        <property name="layoutType" displayName="Layout Type" type="{Numeric, QWERTY, Custom}" />
+        <property name="customLayout" displayName="Custom Layout" type="text" />
+        <property name="positionMy" displayName="Position My" type="string" />
+        <property name="positionAt" displayName="Position At" type="string" />
+        <property name="maxCharacters" displayName="Max Characters" type="string" />
+	</model>
+</addon>

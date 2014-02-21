@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="Drawing_Fill">
+	<model>
+        <property name="Image" displayName="Image" type="file" />
+        <property name="ColorToFill" displayName="Color To Fill" type="string" />
+        <property name="ColorToBeFilled" displayName="Color To Be Filled" type="string" />
+        <property name="Tolerance" displayName="Tolerance" type="string" />
+	</model>
+</addon>

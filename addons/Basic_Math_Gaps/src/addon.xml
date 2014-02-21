@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="Basic_Math_Gaps">
+	<model>
+        <property name="decimalSeparator" displayName="Decimal Separator" type="string" />
+        <property name="gapsDefinition" displayName="Gaps Definition" type="text" />
+        <property name="isEquation" displayName="Is Equation" type="boolean" />
+        <property name="isNotActivity" displayName="Is Not Activity" type="boolean" />
+        <property name="isDisabled" displayName="Is Disabled" type="boolean" />
+	</model>
+</addon>

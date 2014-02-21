@@ -33,12 +33,14 @@ public class AddonDescriptorFactory {
 		addDescriptor("Advanced_Connector", "Advanced Connector", "Scripting");
 		addDescriptor("Animation", "Animation", "Media");
 		addDescriptor("Audio", "Audio", "Media");
+		addDescriptor("Basic_Math_Gaps", "Basic Math Gaps", "Activities");
 		addDescriptor("Connection", "Connection", "Activities");
 		addDescriptor("Connector", "Connector", "Scripting");
 		addDescriptor("crossword", "Crossword", "Activities");
 		addDescriptor("Custom_Scoring", "Custom Scoring", "Reporting");
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
 		addDescriptor("Drawing", "Drawing", "Media");
+		addDescriptor("eKeyboard", "eKeyboard", "Scripting");
 		addDescriptor("Event_Listener", "Event Listener", "Others");
 		addDescriptor("Event_Sender", "Event Sender", "Others");
 		addDescriptor("External_Link_Button", "External Link Button", "Navigation");

@@ -1,0 +1,68 @@
+
+.basic-math-gaps-wrapper .basic-math-gaps-container {
+    padding: 10px 0px;
+    border: 1px solid transparent;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container input,
+.basic-math-gaps-wrapper .basic-math-gaps-container .element {
+    width: 30px;
+    text-align: center;
+    margin: 0 2px;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container > input,
+.basic-math-gaps-wrapper .basic-math-gaps-container > .element,
+.basic-math-gaps-wrapper .basic-math-gaps-container > .fraction-container {
+    float: left;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container.hasFractions > input,
+.basic-math-gaps-wrapper .basic-math-gaps-container.hasFractions > .element {
+    margin-top: 15px;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .element {
+    display: inline-block;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .fraction-container {
+    display: inline-block;
+    text-align: center;
+    padding: 0 5px;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .fraction-container .numerator {
+    padding: 0 5px;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .fraction-container .denominator {
+    border-top: 1px solid #000;
+    display: block;
+    padding: 2px 5px 0px 5px;
+    margin-top: 2px;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .hidden-addition {
+    width: 0px;
+    height: 0px;
+    visibility: hidden;
+    display: inline-block;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .correct {
+    border-color: #00bb00;
+    background-color: #bbffbb;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container .wrong {
+    border-color: #ff1111;
+    background-color: #ffbbbb;
+}
+.basic-math-gaps-wrapper .basic-math-gaps-container.wrong {
+    border: 1px solid #ff1111;
+}
+
+.basic-math-gaps-wrapper .basic-math-gaps-container.correct {
+    border: 1px solid #00bb00;
+}
