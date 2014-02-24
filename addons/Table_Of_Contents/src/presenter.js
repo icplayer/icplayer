@@ -66,10 +66,18 @@ function AddonTable_Of_Contents_create(){
         return $list.outerHeight();
     }
 
+    presenter.pageStartIndex = function(page) {
+        var index = 0;
+        for (var i = 0; i < page; i++) {
+            index += presenter.pagination.pages[i].length;
+        }
+        return index+1;
+    }
+
     function displayPage(page) {
         var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol'),
             pages = presenter.pagination.pages[page], i,
-            startIndex = page == 0 ? 1 : (presenter.pagination.pages[page - 1].length * page) + 1;
+            startIndex = presenter.pageStartIndex(page);
 
         $list.find('li').hide();
         $list.attr('start', '' + startIndex);
@@ -172,9 +180,7 @@ function AddonTable_Of_Contents_create(){
         } else {
             presenter.$view.find('.table-of-contents-pagination').hide();
         }
-
         if (!isPreview) handleMouseClickActions();
-
         if (!ModelValidationUtils.isStringEmpty(model['Header'])) {
         	presenter.$view.find('.table-of-contents .table-of-contents-title').text(model['Header'])
         }
