@@ -231,14 +231,14 @@ function AddonHangman_create() {
             presenter.disableRemainingLetters();
         }
     };
-    presenter.onLetterSelectedAction = function (letter, currentPhrase, sendEvent, countError) {
+    presenter.onLetterSelectedAction = function (letter, currentPhrase, sendEventAndCountError) {
         var findResult = presenter.findLetterInPhrase(letter, currentPhrase.phrase);
         var selectionEventData;
 
         if (findResult.length === 0) {
             selectionEventData = presenter.createLetterSelectedEventData(letter, false);
 
-            if (countError) {
+            if (sendEventAndCountError) {
                 currentPhrase.errorCount++;
             }
             if (currentPhrase.errorCount > presenter.configuration.trialsCount) {
@@ -249,7 +249,7 @@ function AddonHangman_create() {
             selectionEventData = presenter.createLetterSelectedEventData(letter, true);
         }
 
-        if (sendEvent) {
+        if (sendEventAndCountError) {
             presenter.sendEventData(selectionEventData);
         }
         if (currentPhrase.errorCount === presenter.configuration.trialsCount) {
@@ -341,7 +341,7 @@ function AddonHangman_create() {
                     $letter.addClass('incorrect');
                 }
                 presenter.addLetterSelectionToPhrase(currentPhrase, $letter.text());
-                presenter.onLetterSelectedAction(neededLetters[i], currentPhrase, false, false);
+                presenter.onLetterSelectedAction(neededLetters[i], currentPhrase, false);
             } else if (presenter.isErrorCheckingMode) {
                 $letter.addClass('correct');
             }
@@ -407,7 +407,7 @@ function AddonHangman_create() {
         for (var i = 0; i < currentPhrase.selectedLetters.length; i++) {
             var $letter = presenter.$lettersContainer.find('.hangman-letter:eq(' + currentPhrase.selectedLetters[i] + ')');
             $letter.addClass('selected');
-            presenter.onLetterSelectedAction($letter.text(), currentPhrase, false, false);
+            presenter.onLetterSelectedAction($letter.text(), currentPhrase, false);
         }
     };
 
