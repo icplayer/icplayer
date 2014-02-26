@@ -231,14 +231,14 @@ function AddonHangman_create() {
             presenter.disableRemainingLetters();
         }
     };
-    presenter.onLetterSelectedAction = function (letter, currentPhrase, sendEventAndCountError) {
+    presenter.onLetterSelectedAction = function (letter, currentPhrase, sendEvent, countError) {
         var findResult = presenter.findLetterInPhrase(letter, currentPhrase.phrase);
         var selectionEventData;
 
         if (findResult.length === 0) {
             selectionEventData = presenter.createLetterSelectedEventData(letter, false);
 
-            if (sendEventAndCountError) {
+            if (countError) {
                 currentPhrase.errorCount++;
             }
             if (currentPhrase.errorCount > presenter.configuration.trialsCount) {
@@ -249,7 +249,7 @@ function AddonHangman_create() {
             selectionEventData = presenter.createLetterSelectedEventData(letter, true);
         }
 
-        if (sendEventAndCountError) {
+        if (sendEvent) {
             presenter.sendEventData(selectionEventData);
         }
         if (currentPhrase.errorCount === presenter.configuration.trialsCount) {
@@ -260,12 +260,13 @@ function AddonHangman_create() {
 
     function letterClickHandler(e) {
         e.stopPropagation();
+        var sendEvent = !$(this).hasClass('selected');
         $(this).addClass('selected');
         var letter = $(this).text();
 
         var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
         presenter.addLetterSelectionToPhrase(currentPhrase, letter);
-        presenter.onLetterSelectedAction(letter, currentPhrase, true);
+        presenter.onLetterSelectedAction(letter, currentPhrase, sendEvent, true );
     }
 
     presenter.handleMouseActions = function () {
@@ -340,7 +341,7 @@ function AddonHangman_create() {
                     $letter.addClass('incorrect');
                 }
                 presenter.addLetterSelectionToPhrase(currentPhrase, $letter.text());
-                presenter.onLetterSelectedAction(neededLetters[i], currentPhrase, false);
+                presenter.onLetterSelectedAction(neededLetters[i], currentPhrase, false, false);
             } else if (presenter.isErrorCheckingMode) {
                 $letter.addClass('correct');
             }
@@ -406,7 +407,7 @@ function AddonHangman_create() {
         for (var i = 0; i < currentPhrase.selectedLetters.length; i++) {
             var $letter = presenter.$lettersContainer.find('.hangman-letter:eq(' + currentPhrase.selectedLetters[i] + ')');
             $letter.addClass('selected');
-            presenter.onLetterSelectedAction($letter.text(), currentPhrase, false);
+            presenter.onLetterSelectedAction($letter.text(), currentPhrase, false, false);
         }
     };
 
@@ -531,7 +532,7 @@ function AddonHangman_create() {
         return presenter.getScoring(phrases).score;
     };
 
-    presenter.getErrorsCount = function () {
+    presenter.getErrorCount = function () {
         var phrases = presenter.getPhraseForScoring();
         return presenter.getScoring(phrases).errors;
     };
