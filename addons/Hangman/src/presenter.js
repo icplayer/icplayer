@@ -260,13 +260,13 @@ function AddonHangman_create() {
 
     function letterClickHandler(e) {
         e.stopPropagation();
-        var sendEvent = !$(this).hasClass('selected');
+        var sendEventAndCountError = !$(this).hasClass('selected');
         $(this).addClass('selected');
         var letter = $(this).text();
 
         var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
         presenter.addLetterSelectionToPhrase(currentPhrase, letter);
-        presenter.onLetterSelectedAction(letter, currentPhrase, sendEvent, true );
+        presenter.onLetterSelectedAction(letter, currentPhrase, sendEventAndCountError);
     }
 
     presenter.handleMouseActions = function () {
