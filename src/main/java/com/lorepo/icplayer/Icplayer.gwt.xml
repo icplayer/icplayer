@@ -12,8 +12,8 @@
 	<stylesheet src="theme/player.css"/>
 	<stylesheet src="libs/jquery-ui.css"/>
 
-    <script src="libs/player-utils.js"/>
-    <script src="libs/buzz.js"/>
+  <script src="libs/player-utils.js"/>
+  <script src="libs/buzz.js"/>
 	<script src="libs/jcanvas.min.js"/>
 	<script src="libs/jquery-ui.js"/>
 	<script src="libs/jquery-csv.js"/>
@@ -38,7 +38,12 @@
 	<script src="libs/canvasfloodfill.js" />
 	<script src="libs/jquery.ui.touch-punch.min.js" />
 	<script src="libs/jquery.keyboard.min.js" />
-	
+
+  <script src="libs/jqplot/jquery.jqplot.min.js"/>
+	<script src="libs/jqplot/jqplot.barRenderer.min.js"/>
+  <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+  <script src="libs/jqplot/jqplot.cursor.min.js"/>
+  <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 

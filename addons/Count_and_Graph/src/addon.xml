@@ -1,22 +1,20 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
 <addon id='Count_and_Graph'>
-	<model>
-		<property name="X axis description" type="string" isLocalized="true" />
-		<property name="Show X axis series descriptions" type="boolean" />
-		<property name="X axis series descriptions" type="list">
-			<property name="Description" type="string" isLocalized="true" />
-            <property name="Description image" type="image" isLocalized="true" />
-		</property>
-		<property name="Y axis description" type="string" isLocalized="true" />
-		<property name="Y axis maximum value" type="string" />
-		<property name="Number of columns" type="string" />
-		<property name="Answers" type="list">
-			<property name="Answer" type="string" />
-		</property>
-		<property name="Series colors" type="list">
-			<property name="Color" type="string" />
-		</property>
+    <model>
+        <property name="X axis description" type="string" isLocalized="true" />
+        <property name="X axis data" type="list" isLocalized="true">
+            <property name="Answer" type="string" />
+            <property name="Color" type="string" />
+            <property name="Description" type="string" />
+            <property name="Description image" type="image" />
+        </property>
+        <property name="Y axis description" type="string" isLocalized="true" />
+        <property name="Y axis maximum value" type="string" />
+        <property name="Y axis values" type="string" />
         <property name="Bars width" type="string" isLocalized="true" />
-		</model>
+        <property name="Background color" type="string" isLocalized="true" />
+        <property name="Grid line color" type="string" isLocalized="true" />
+        <property name="Border" type="string" isLocalized="true" />
+    </model>
 </addon>
