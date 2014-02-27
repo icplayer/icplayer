@@ -45,6 +45,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Event_Sender", "Event Sender", "Others");
 		addDescriptor("External_Link_Button", "External Link Button", "Navigation");
 		addDescriptor("feedback", "Feedback", "Scripting");
+		addDescriptor("Fractions", "Fractions", "Activities");
 		addDescriptor("Glossary", "Glossary", "Media");
 		addDescriptor("graph", "Graph", "Activities");
 		addDescriptor("Hangman", "Hangman", "Activities");

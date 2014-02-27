@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="Fractions" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Figure" type="{---,Rectangular,Circle}"/>
+		<property name="RectHorizontal" type="string" />
+		<property name="RectVertical" type="string" />
+		<property name="CircleParts" type="string" />
+		<property name="Correct" type="string" />
+		<property name="selectedParts" type="string" />
+		<property name="selectionColor" type="string" />
+		<property name="emptyColor" type="string" />
+		<property name="strokeColor" type="string" />
+		<property name="strokeWidth" type="string" />
+		<property name="isNotActivity" type="boolean" isLocalized="True"/>
+	</model>
+</addon>

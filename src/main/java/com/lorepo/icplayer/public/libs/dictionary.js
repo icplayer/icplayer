@@ -297,5 +297,6 @@ var ice_dictionary = {
 	"Text_Selection_info": "Allows to mark parts of text. Two modes - 'Mark phrases to select' the one, where you can mark wrong and correct answers or mode 'All selectable', where all phrases are selectable and you can mark only correct answers.",
 	"Drawing_info": "Allows to draw on canvas, you can choose color and girth",
 	"abandon_all_changes": "Abandon All Changes",
-	"confirm_abandon_all_changes": "All changes done in this editor session will be removed. Are you sure you want to continue?"
+	"confirm_abandon_all_changes": "All changes done in this editor session will be removed. Are you sure you want to continue?",
+	"Fractions_info": "Allows to select a fraction of figure"
 };
