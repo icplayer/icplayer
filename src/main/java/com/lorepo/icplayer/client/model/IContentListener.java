@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.model;
 
+import com.lorepo.icplayer.client.module.api.player.IChapter;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
+
 
 /**
  * Interface implemented by view to listen to changes in content model
@@ -9,7 +12,8 @@ package com.lorepo.icplayer.client.model;
  */
 public interface IContentListener {
 
-	void onAddPage(Page page);
-	void onRemovePage(Page page);
-	void onPageMoved(int from, int to);
+	void onAddPage(IContentNode node);
+	void onRemovePage(IContentNode node);
+	void onPageMoved(IChapter source, int from, int to);
+	void onChanged(IContentNode source);
 }

@@ -5,9 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.lorepo.icplayer.client.model.IPageListListener;
-import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
 
 
 public class PagesListenerTestCase {
@@ -23,18 +22,22 @@ public class PagesListenerTestCase {
 		
 		
 		@Override
-		public void onPageAdded(Page source) {
+		public void onNodeAdded(IContentNode source) {
 			pageAddedCalled = true;
 		}
 
 		@Override
-		public void onPageRemoved(Page page) {
+		public void onNodeRemoved(IContentNode page) {
 			pageRemovedCalled = true;
 		}
 
 		@Override
-		public void onPageMoved(int from, int to) {
+		public void onNodeMoved(IChapter source, int from, int to) {
 			pageMovedCalled = true;
+		}
+
+		@Override
+		public void onChanged(IContentNode source) {
 		}
 		
 	}
