@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,15 +13,19 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
 
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DictionaryWrapper.class)
 public class PageListTestCase {
 
+	private IContentNode eventSource = null;
+	
+	
 	@Test
 	public void indexByName() {
 		
@@ -266,5 +271,70 @@ public class PageListTestCase {
 		    catch (Exception e) {
 		        assertEquals("Page index -1 is out of range", e.getMessage());
 		    }        
+	}
+
+	@Test
+	public void nameProperty(){
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("name")).thenReturn("Name");
+
+		PageList pages = new PageList();
+
+		for(int i = 0; i < pages.getPropertyCount(); i++){
+			IProperty property = pages.getProperty(i);
+			if(property.getName().compareToIgnoreCase("name") == 0){
+				property.setValue("New name");
+			}
+		}
+
+		assertEquals("New name", pages.getName());
+	}
+
+	@Test
+	public void namePropertyEvent(){
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("name")).thenReturn("Name");
+
+		PageList pages = new PageList();
+		pages.addListener(new IPageListListener() {
+			public void onNodeRemoved(IContentNode node) {
+			}
+			public void onNodeMoved(IChapter source, int from, int to) {
+			}
+			public void onNodeAdded(IContentNode node) {
+			}
+			public void onChanged(IContentNode source) {
+				eventSource = source;
+			}
+		});
+
+		for(int i = 0; i < pages.getPropertyCount(); i++){
+			IProperty property = pages.getProperty(i);
+			if(property.getName().compareToIgnoreCase("name") == 0){
+				property.setValue("New name");
+			}
+		}
+
+		assertEquals(pages, eventSource);
+	}
+	
+	@Test
+	public void removeFromTree() {
+		PageList pages = new PageList();
+		
+		
+		pages.add(new Page("Page 1", ""));
+		pages.add(new Page("Page 2", ""));
+		pages.add(new Page("Page 7", ""));
+		PageList chapter = new PageList("chapter");
+		chapter.add(new Page("Page 12", ""));
+		chapter.add(new Page("Page 17", ""));
+		PageList chapter2 = new PageList("chapter2");
+		chapter.add(chapter2);
+		pages.add(chapter);
+		assertEquals(3, chapter.size());
+
+		pages.removeFromTree(chapter2);
+		assertEquals(2, chapter.size());
 	}
 }

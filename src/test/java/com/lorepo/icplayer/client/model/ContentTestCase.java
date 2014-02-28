@@ -22,6 +22,7 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
@@ -276,16 +277,20 @@ public class ContentTestCase {
 		content.addChangeListener(new IContentListener() {
 			
 			@Override
-			public void onRemovePage(Page page) {
+			public void onRemovePage(IContentNode node) {
 			}
 			
 			@Override
-			public void onPageMoved(int from, int to) {
+			public void onPageMoved(IChapter source, int from, int to) {
 			}
 			
 			@Override
-			public void onAddPage(Page page) {
+			public void onAddPage(IContentNode node) {
 				receivedEvent = true;
+			}
+
+			@Override
+			public void onChanged(IContentNode source) {
 			}
 		});
 
@@ -301,16 +306,20 @@ public class ContentTestCase {
 		content.addChangeListener(new IContentListener() {
 			
 			@Override
-			public void onRemovePage(Page page) {
+			public void onRemovePage(IContentNode node) {
 			}
 			
 			@Override
-			public void onPageMoved(int from, int to) {
+			public void onPageMoved(IChapter source, int from, int to) {
 			}
 			
 			@Override
-			public void onAddPage(Page page) {
+			public void onAddPage(IContentNode node) {
 				receivedEvent = true;
+			}
+
+			@Override
+			public void onChanged(IContentNode source) {
 			}
 		});
 
@@ -453,4 +462,74 @@ public class ContentTestCase {
 		assertEquals("Chapter 1", chapter.getName());
 	}
 
+	@Test
+	public void chapterNameEvent() throws SAXException, IOException {
+		
+		Content model = initContentFromFile("testdata/content4.xml");
+
+		receivedEvent = false;
+		model.addChangeListener(new IContentListener() {
+			
+			@Override
+			public void onRemovePage(IContentNode node) {
+			}
+			
+			@Override
+			public void onPageMoved(IChapter source, int from, int to) {
+			}
+			
+			@Override
+			public void onAddPage(IContentNode node) {
+			}
+
+			@Override
+			public void onChanged(IContentNode source) {
+				receivedEvent = true;
+			}
+		});
+
+		IContentNode node = model.getPages().get(3);
+		assertTrue(node instanceof PageList);
+		PageList chapter = (PageList) node;
+		chapter.getProperty(0).setValue("new name");
+
+		assertTrue(receivedEvent);
+	}
+
+	
+	@Test
+	public void currentChapterRoot() throws SAXException, IOException {
+		
+		Content content = initContentFromFile("testdata/content4.xml");
+		String xml = content.toXML();
+		content = initContentFromString(xml);
+
+		IContentNode root = content.getTableOfContents();
+		IContentNode node = content.getPages().get(0);
+		assertEquals(root, content.getParentChapter(node));
+	}
+	
+	@Test
+	public void currentChapterCommons() throws SAXException, IOException {
+		
+		Content content = initContentFromFile("testdata/content4.xml");
+		String xml = content.toXML();
+		content = initContentFromString(xml);
+
+		PageList root = content.getCommonPages();
+		IContentNode node = root.get(0);
+		assertEquals(root, content.getParentChapter(node));
+	}
+	
+	@Test
+	public void currentChapterSecondLevel() throws SAXException, IOException {
+		
+		Content content = initContentFromFile("testdata/content4.xml");
+		String xml = content.toXML();
+		content = initContentFromString(xml);
+
+		IChapter parent = (IChapter) content.getPages().get(3);
+		IContentNode node = parent.get(0);
+		assertEquals(parent, content.getParentChapter(node));
+	}
 }

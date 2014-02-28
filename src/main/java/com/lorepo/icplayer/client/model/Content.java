@@ -12,6 +12,7 @@ import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
 /**
@@ -38,45 +39,55 @@ public class Content implements IXMLSerializable, IContent {
 	
 	public Content(){
 		
-		pages = new PageList();
-		commonPages = new PageList();
+		pages = new PageList("root");
+		commonPages = new PageList("commons");
 		connectHandlers();
 	}
 
 	private void connectHandlers() {
 		
 		pages.addListener(new IPageListListener() {
-			public void onPageRemoved(Page page) {
+			public void onNodeRemoved(IContentNode node) {
 				if(listener != null){
-					listener.onRemovePage(page);
+					listener.onRemovePage(node);
 				}
 			}
 			
-			public void onPageMoved(int from, int to) {
+			public void onNodeMoved(IChapter source, int from, int to) {
 				if(listener != null){
-					listener.onPageMoved(from, to);
+					listener.onPageMoved(source, from, to);
 				}
 			}
 			
-			public void onPageAdded(Page page) {
+			public void onNodeAdded(IContentNode node) {
 				if(listener != null){
-					listener.onAddPage(page);
+					listener.onAddPage(node);
 				}
+			}
+
+			@Override
+			public void onChanged(IContentNode source) {
+				if(listener != null){
+					listener.onChanged(source);
+				}
+				
 			}
 		});
 		
 		commonPages.addListener(new IPageListListener() {
-			public void onPageRemoved(Page page) {
+			public void onNodeRemoved(IContentNode node) {
 				if(listener != null){
-					listener.onRemovePage(page);
+					listener.onRemovePage(node);
 				}
 			}
-			public void onPageMoved(int from, int to) {
+			public void onNodeMoved(IChapter source, int from, int to) {
 			}
-			public void onPageAdded(Page page) {
+			public void onNodeAdded(IContentNode node) {
 				if(listener != null){
-					listener.onAddPage(page);
+					listener.onAddPage(node);
 				}
+			}
+			public void onChanged(IContentNode source) {
 			}
 		});
 		
@@ -162,34 +173,6 @@ public class Content implements IXMLSerializable, IContent {
 		return styles;
 	}
 	
-	/*
-	public void movePage(int from, int to, boolean rootPages){
-		
-		if(rootPages){
-			
-			if(from < pages.size() && to < pages.size()){
-				
-				Page page = pages.removePage(from);
-				pages.add(to, page);
-				if(listener != null){
-					listener.onPageMove(from, to);
-				}
-			}
-		}
-		else{
-
-			if(from < commonPages.size() && to < commonPages.size()){
-				
-				Page page = commonPages.removePage(from);
-				commonPages.add(to, page);
-				if(listener != null){
-					listener.onPageMove(from, to);
-				}
-			}
-		}
-	}
-*/
-
 	public void setMetadataValue(String key, String value){
 		
 		if(value == null || value.length() == 0){
@@ -454,10 +437,17 @@ public class Content implements IXMLSerializable, IContent {
 		return name;
 	}
 
-
 	@Override
 	public IChapter getTableOfContents() {
 		return pages;
+	}
+
+	public IChapter getParentChapter(IContentNode node){
+		IChapter parent = pages.getParentChapter(node);
+		if(parent == null){
+			parent = commonPages.getParentChapter(node);
+		}
+		return parent;
 	}
 	
 }

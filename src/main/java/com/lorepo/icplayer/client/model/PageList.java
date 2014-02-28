@@ -7,6 +7,8 @@ import java.util.Vector;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.BasicPropertyProvider;
+import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -15,7 +17,7 @@ import com.lorepo.icplayer.client.module.api.player.IContentNode;
 
 
 
-public class PageList implements IChapter{
+public class PageList extends BasicPropertyProvider implements IChapter{
 
 	private List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
@@ -23,11 +25,13 @@ public class PageList implements IChapter{
 	
 
 	public PageList(){
-		this.name = "";
+		this("Chapter");
 	}
 	
 	public PageList(String name){
+		super("Chapter");
 		this.name = name;
+		addPropertyName();
 	}
 	
 	public String getName(){
@@ -43,9 +47,12 @@ public class PageList implements IChapter{
 	public boolean add(IContentNode node){
 		
 		boolean result = nodes.add(node);
-		
-		if(listener != null && node instanceof Page){
-			listener.onPageAdded((Page) node);
+		if(listener != null){
+			listener.onNodeAdded(node);
+			if(node instanceof PageList){
+				PageList pages = (PageList) node;
+				pages.addListener(listener);
+			}
 		}
 		
 		return result;
@@ -85,12 +92,12 @@ public class PageList implements IChapter{
 	}
 
 	
-	public void insertBefore(int index, Page page){
+	public void insertBefore(int index, IContentNode node){
 		
-		nodes.add(index, page);
+		nodes.add(index, node);
 		
 		if(listener != null){
-			listener.onPageAdded(page);
+			listener.onNodeAdded(node);
 		}
 	}
 
@@ -99,20 +106,44 @@ public class PageList implements IChapter{
 		
 		IContentNode node = nodes.remove(index);
 		
-		if(listener != null && node instanceof Page){
-			listener.onPageRemoved((Page) node);
+		if(listener != null){
+			listener.onNodeRemoved(node);
 		}
 		
 		return node;
 	}
 
 	
-	public boolean remove(Page page){
+	public boolean remove(IContentNode node){
 		
-		boolean result = nodes.remove(page);
+		boolean result = nodes.remove(node);
 		
 		if(listener != null && result){
-			listener.onPageRemoved(page);
+			listener.onNodeRemoved(node);
+		}
+		
+		return result;
+	}
+
+	
+	public boolean removeFromTree(IContentNode node){
+		
+		boolean result = nodes.remove(node);
+		
+		if(result){
+			if(listener != null){
+				listener.onNodeRemoved(node);
+			}
+		}
+		else{
+			for(IContentNode item : nodes){
+				if(item instanceof PageList){
+					PageList chapter = (PageList) item;
+					if(chapter.removeFromTree(node)){
+						break;
+					}
+				}
+			}
 		}
 		
 		return result;
@@ -127,7 +158,7 @@ public class PageList implements IChapter{
 				if(page.getName().equals(name)){
 					nodes.remove(node);
 					if(listener != null){
-						listener.onPageRemoved(page);
+						listener.onNodeRemoved(page);
 					}
 					return true;
 				}
@@ -199,7 +230,6 @@ public class PageList implements IChapter{
 		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
 		name = StringUtils.unescapeXML(nodeName);
 		NodeList children = rootElement.getChildNodes();
-		
 		for(int i = 0; i < children.getLength(); i++){
 	
 			if(children.item(i) instanceof Element){
@@ -210,6 +240,7 @@ public class PageList implements IChapter{
 				}
 				else if(node.getNodeName().compareTo("chapter") == 0){
 					PageList chapter = new PageList();
+					chapter.addListener(listener);
 					chapter.load(node, url);
 					nodes.add(chapter);
 				}
@@ -283,7 +314,7 @@ public class PageList implements IChapter{
 			IContentNode node = nodes.remove(from);
 			nodes.add(to, node);
 			if(listener != null && node instanceof Page){
-				listener.onPageMoved(from, to);
+				listener.onNodeMoved(this, from, to);
 			}
 		}
 	}
@@ -327,4 +358,56 @@ public class PageList implements IChapter{
 		return get(index).toJavaScript();
 	}	
 	
+	private void addPropertyName() {
+
+		IProperty propertyName = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				name = newValue;
+				fireChangedEvent();
+			}
+			
+			@Override
+			public String getValue() {
+				return name;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("name");
+			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("name");
+			}
+		};
+		
+		addProperty(propertyName);
+	}
+
+	protected void fireChangedEvent() {
+		if(listener != null){
+			listener.onChanged(this);
+		}
+	}
+
+	public IChapter getParentChapter(IContentNode node) {
+		IChapter parent = null;
+		for(IContentNode item : nodes){
+			if(item == node){
+				parent = this;
+				break;
+			}
+			else if(item instanceof PageList){
+				parent = ((PageList)item).getParentChapter(node);
+				if(parent != null){
+					break;
+				}
+			}
+		}
+		return parent;
+	}
+
 }
