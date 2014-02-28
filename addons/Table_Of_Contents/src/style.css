@@ -30,6 +30,10 @@
     margin-right: 5px;
 }
 
+.table-of-contents-pagination .selected {
+    text-decoration: underline;
+}
+
 .table-of-contents-list {
     overflow: hidden;
 }

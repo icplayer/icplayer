@@ -77,14 +77,18 @@ function AddonTable_Of_Contents_create(){
     function displayPage(page) {
         var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol'),
             pages = presenter.pagination.pages[page], i,
-            startIndex = presenter.pageStartIndex(page);
+            startIndex = presenter.pageStartIndex(page),
+            $pageList = presenter.$view.find('.table-of-contents-pagination');
 
         $list.find('li').hide();
         $list.attr('start', '' + startIndex);
         for (i = 0; i < pages.length; i++) {
             $list.find('li:eq(' + pages[i] + ')').show();
         }
-    }
+
+        $pageList.children().removeClass('selected');
+        $pageList.find('a:contains('+ (page+1) + ')').addClass('selected');
+   }
 
     function isSpaceSufficient($list, spareHeight) {
         return $list.find('li:first').outerHeight() < spareHeight;

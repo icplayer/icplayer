@@ -1,3 +1,4 @@
+2014-02-28 Add CSS class for selected page number in Table of Contents addon.
 2014-02-26 Fixed problem with scoring and events in Hangman addon.
 2014-02-21 Fixed problem with numeration of pages in Table Of Contents addon.
 2014-02-21 New modules: Basic Math Gaps and eKeyboard
