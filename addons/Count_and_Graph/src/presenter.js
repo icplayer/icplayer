@@ -10,6 +10,7 @@ function AddonCount_and_Graph_create() {
 
     var isActive = false;
     var isStarted = false;
+    var isActiveColumns = [];
 
     function returnErrorObject(errorCode) {
         return { isValid: false, errorCode: errorCode };
@@ -17,8 +18,9 @@ function AddonCount_and_Graph_create() {
 
     presenter.ERROR_MESSAGES = {
         AXIS_Y_MAXIMUM_VALUE_NOT_NUMERIC: "Y axis maximum value is not numeric",
-        ANSWER_NOT_NUMERIC: "Answer \"%answer%\" is not numeric",
-        C01: "Wrong color format"
+        ANSWER_NOT_NUMERIC: "Answers cannot be empty or not numeric",
+        C01: "Wrong color format",
+        YV01: "Wrong value in property Y axis values"
     };
 
     presenter.showErrorMessage = function (message, substitutions) {
@@ -42,7 +44,7 @@ function AddonCount_and_Graph_create() {
     presenter.sendEvent = function (isCorrect, column, change) {
         presenter.eventBus.sendEvent('ValueChanged', {
             'source': presenter.configuration.ID,
-            'item': column + (change === "noChange" ? "" : " " + change),
+            'item': (column + 1) + (change === "noChange" ? "" : " " + change),
             'value': '',
             'score': isCorrect ? '1' : '0'
         });
@@ -63,40 +65,24 @@ function AddonCount_and_Graph_create() {
         turnOffEventListeners();
         presenter.errorMode = true;
 
-//        var goodColor = "#78AB46";
-//        var badColor = "red";
-//
-//        var row, column;
-//        for (row=0; row<presenter.configuration.axisYMaximumValue; row++) {
-//            for (column=0; column<presenter.configuration.columnsCount; column++) {
-//                if (row < presenter.selected[column]) {                  // if (current <= selected)
-//                    if (row < presenter.configuration.answers[column]) { // if (current <= answer)
-//                        presenter.plotCountGraph.series[row].seriesColors[column] = goodColor;
-//                    } else {
-//                        presenter.plotCountGraph.series[row].seriesColors[column] = badColor;
-//                    }
-//                }
-//            }
-//        }
-//        presenter.plotCountGraph.replot();
-
         var column;
         for (column=0; column<presenter.configuration.columnsCount; column++) {
-            var className = "";
+            if (isActiveColumns[column]) {
+                var className = "";
+                if (presenter.selected[column] === presenter.configuration.answers[column]) {
+                    className = "ok";
+                } else if (presenter.selected[column] > presenter.configuration.answers[column]) {
+                    className = "down";
+                } else {
+                    className = "up";
+                }
 
-            if (presenter.selected[column] === parseInt(presenter.configuration.answers[column], 10)) {
-                className = "ok";
-            } else if (presenter.selected[column] > parseInt(presenter.configuration.answers[column], 10)) {
-                className = "down";
-            } else {
-                className = "up";
+                var columnClass = ".jqplot-point-" + column;
+                var index = presenter.selected[column] - 1;
+                var rowClass = ".jqplot-series-" + index;
+                var selector = "div" + columnClass + rowClass;
+                presenter.$view.find(selector).addClass(className);
             }
-
-            var columnClass = ".jqplot-point-" + column;
-            var number = presenter.selected[column] > 0 ? presenter.selected[column] - 1 : presenter.selected[column];
-            var rowClass = ".jqplot-series-" + number;
-            var selector = "div" + columnClass + rowClass;
-            $(selector).addClass(className);
         }
 
         return false;
@@ -138,29 +124,45 @@ function AddonCount_and_Graph_create() {
     }
 
     presenter.reset = function () {
-        isStarted = false;
-        cleanGraph(true);
-        if (!isActive) turnOnEventListeners();
+        if (presenter.configuration.isValid) {
+            isStarted = false;
+            cleanGraph(true);
+            if (!isActive) turnOnEventListeners();
+        }
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.columnsCount;
+        if (presenter.configuration.isValid) {
+            var amountOfAnswersZero = presenter.configuration.answers.filter(function(a) { return a === 0; }).length;
+            return presenter.configuration.columnsCount - amountOfAnswersZero;
+        } else {
+            return 0;
+        }
     };
 
     presenter.getScore = function () {
-        var score = 0;
-        for (var i=0; i<presenter.configuration.columnsCount; i++) {
-            if (parseInt(presenter.configuration.answers[i],10) === presenter.selected[i]) score++;
+        if (presenter.configuration.isValid) {
+            var score = 0;
+            for (var column=0; column<presenter.configuration.columnsCount; column++) {
+                if (presenter.configuration.answers[column] === presenter.selected[column] && isActiveColumns[column]) score++;
+            }
+            return score;
+        } else {
+            return 0;
         }
-        return score;
+
     };
 
     presenter.getErrorCount = function () {
-        var errorCount = 0;
-        for (var i=0; i<presenter.configuration.columnsCount; i++) {
-            if (parseInt(presenter.configuration.answers[i],10) !== presenter.selected[i]) errorCount++;
+        if (presenter.configuration.isValid) {
+            var errorCount = 0;
+            for (var column=0; column<presenter.configuration.columnsCount; column++) {
+                if (presenter.configuration.answers[column] !== presenter.selected[column] && isActiveColumns[column]) errorCount++;
+            }
+            return errorCount;
+        } else {
+            return 0;
         }
-        return errorCount;
     };
 
     presenter.getState = function() {
@@ -176,6 +178,7 @@ function AddonCount_and_Graph_create() {
         return JSON.stringify({
             selected: presenter.selected,
             isVisible: presenter.configuration.isVisible,
+            isActiveColumns: isActiveColumns,
             colors: cols
         });
     };
@@ -189,6 +192,7 @@ function AddonCount_and_Graph_create() {
         presenter.selected = state.selected;
         presenter.configuration.isVisible = state.isVisible;
         isStarted = true;
+        isActiveColumns = state.isActiveColumns;
 
         for (var i=0; i<presenter.configuration.axisYMaximumValue; i++) {
             for (var j=0; j<presenter.configuration.columnsCount; j++) {
@@ -286,6 +290,8 @@ function AddonCount_and_Graph_create() {
         }
 
         if (presenter.getScore() === presenter.getMaxScore()) presenter.sendEventAllOk();
+
+        isActiveColumns[column] = to !== 0;
     }
 
     function getStringTicks(from, to, step) {
@@ -389,12 +395,12 @@ function AddonCount_and_Graph_create() {
     }
 
     function parseYTicks(ticks) {
+        var i;
         if (ticks[ticks.length-1] === "*") {
-            //console.log("nie ma", presenter.configuration.axisYMaximumValue);
             var len = presenter.tmpMaxYValue == undefined ? 10 : presenter.tmpMaxYValue;
             var inc = parseInt(ticks.split('*')[0], 10);
             ticks = "";
-            for (var i=0; i<=len; i += inc) {
+            for (i=0; i<=len; i += inc) {
                 ticks += i + ';';
             }
             // remove last character
@@ -404,6 +410,15 @@ function AddonCount_and_Graph_create() {
         ticks = ticks.split(';').map(function(n) {
             return n.toString();
         });
+
+        for (i=0; i<ticks.length; i++) {
+            if (isNaN(ticks[i])) {
+                return {
+                    isValid: false,
+                    errorCode: "YV01"
+                }
+            }
+        }
 
         return {
             value: ticks,
@@ -420,22 +435,20 @@ function AddonCount_and_Graph_create() {
         var imgString = "<img class='countGraph_image' src='[SRC]'>";
 
         for (var i=0; i<len; i++) {
-            if (isNaN(data[i]["Answer"])) {
+            if (isNaN(data[i]["Answer"]) || data[i]["Answer"] === "") {
                 return {
                     isValid: false,
                     errorCode: "ANSWER_NOT_NUMERIC"
                 }
             }
-            answers.push(data[i]["Answer"]);
+            answers.push(parseInt(data[i]["Answer"], 10));
 
             colors.push(data[i]["Color"]);
 
-            // TODO zwrucić w configuracji
             presenter.seriesColors.push(data[i]["Color"]);
             desc.push(data[i]["Description"]);
             descImg.push(data[i]["Description image"]);
 
-            // TODO zwrucić w configuracji
             if (data[i]["Description"] === "" && data[i]["Description image"] !== "") {
                 presenter.xAxisSeriesDescriptions.push(imgString.replace("[SRC]", data[i]["Description image"]));
             } else {
@@ -458,7 +471,6 @@ function AddonCount_and_Graph_create() {
     }
 
     presenter.validateModel = function(model) {
-        //console.log(model);
 
         var parsedXAxisData = parseXAxisData(model["X axis data"]);
         if (!parsedXAxisData.isValid) {
@@ -472,11 +484,10 @@ function AddonCount_and_Graph_create() {
         }
 
         presenter.tmpMaxYValue = axisYMaximumValue.value;
-        //console.log("presenter.tmpMaxYValue", presenter.tmpMaxYValue);
 
         var parsedYTicks = parseYTicks(model["Y axis values"]);
         if (!parsedYTicks.isValid) {
-            return returnErrorObject("AXIS_Y_MAXIMUM_VALUE_NOT_NUMERIC");
+            return returnErrorObject(parsedYTicks.errorCode);
         }
 
         var parsedBGColor = parseColor(model["Background color"]);
@@ -515,11 +526,16 @@ function AddonCount_and_Graph_create() {
     function initializeSelectedArray() {
         for (var i = 0; i < presenter.configuration.columnsCount; i++) {
             presenter.selected[i] = 0;
+            isActiveColumns[i] = false;
         }
     }
 
     function turnOnEventListeners() {
         var $graph = presenter.$view.find('#' + presenter.plotID);
+        $graph.on("click", function(e) {
+            e.stopPropagation();
+        });
+
         $graph.on('jqplotDataClick', function(e, seriesIndex, pointIndex, data) {
             e.stopPropagation();
             updateGraphColors(pointIndex, seriesIndex + 1);
@@ -549,18 +565,15 @@ function AddonCount_and_Graph_create() {
         initializeSelectedArray();
         presenter.seriesColorsArray = createSeriesColors();
 
-        presenter.plotID = presenter.configuration.ID + "plot";
+        if (isPreview) {
+            presenter.plotID = presenter.configuration.ID + "plotPreview";
+        } else {
+            presenter.plotID = presenter.configuration.ID + "plot";
+        }
+
         presenter.$view.find("div").attr('id', presenter.plotID);
         presenter.plotCountGraph = $.jqplot(presenter.plotID, createChartArray(), getChartOptions());
-
-        presenter.$view.on("click", function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-        });
-
-        if (!isPreview) {
-            turnOnEventListeners();
-        }
+        turnOnEventListeners();
     };
 
     return presenter;

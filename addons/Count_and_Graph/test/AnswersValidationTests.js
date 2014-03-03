@@ -12,10 +12,10 @@ TestCase("Answers validation", {
             "Grid line color": "",
             "ID": "Count_and_Graph1",
             "X axis data": [
-                { "Answer": "1", "Color": "pink", "Description": "", "Description image": "" },
-                { "Answer": "2", "Color": "pink", "Description": "", "Description image": "" },
-                { "Answer": "3", "Color": "pink", "Description": "", "Description image": "" },
-                { "Answer": "4", "Color": "pink", "Description": "", "Description image": "" }
+                { "Answer": "1", "Color": "pink", "Description": "a", "Description image": "" },
+                { "Answer": "2", "Color": "pink", "Description": "a", "Description image": "" },
+                { "Answer": "3", "Color": "pink", "Description": "a", "Description image": "" },
+                { "Answer": "4", "Color": "pink", "Description": "a", "Description image": "" }
             ],
             "X axis description": "",
             "Y axis description": "",
@@ -24,13 +24,21 @@ TestCase("Answers validation", {
         }
     },
 
-    'test invalid one of the answers': function () {
+    'test invalid one of the answers' : function () {
         this.model["X axis data"][1]["Answer"] = "nan";
 
         var validatedAnswers = this.presenter.validateModel(this.model);
 
         assertFalse(validatedAnswers.isValid);
         assertEquals('ANSWER_NOT_NUMERIC', validatedAnswers.errorCode);
-        //assertEquals({ answer: 4 }, validatedAnswers.errorMessageSubstitutions);
+    },
+
+    'test non empty answer' : function () {
+        this.model["X axis data"][1]["Answer"] = "";
+
+        var validatedAnswers = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedAnswers.isValid);
+        assertEquals('ANSWER_NOT_NUMERIC', validatedAnswers.errorCode);
     }
 });

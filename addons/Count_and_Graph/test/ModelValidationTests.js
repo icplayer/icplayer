@@ -22,7 +22,7 @@ TestCase("Model validation", {
         }
     },
 
-    'test proper model': function () {
+    'test proper model' : function () {
         var validationResult = this.presenter.validateModel(this.model);
 
         assertTrue(validationResult.isValid);
@@ -32,12 +32,21 @@ TestCase("Model validation", {
         assertTrue(validationResult.isVisible);
     },
 
-    'test Y axis maximum value invalid': function () {
+    'test Y axis maximum value invalid' : function () {
         this.model["Y axis maximum value"] = "nan";
 
         var validationResult = this.presenter.validateModel(this.model);
 
         assertFalse(validationResult.isValid);
         assertEquals('AXIS_Y_MAXIMUM_VALUE_NOT_NUMERIC', validationResult.errorCode);
+    },
+
+    'test Y axis values and NaN value' : function () {
+        this.model["Y axis values"] = "1;2;troll;4;5";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals('YV01', validationResult.errorCode);
     }
 });

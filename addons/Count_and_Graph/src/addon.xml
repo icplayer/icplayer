@@ -3,18 +3,18 @@
 <addon id='Count_and_Graph'>
     <model>
         <property name="X axis description" type="string" isLocalized="true" />
-        <property name="X axis data" type="list" isLocalized="true">
+        <property name="X axis data" type="list">
             <property name="Answer" type="string" />
             <property name="Color" type="string" />
-            <property name="Description" type="string" />
+            <property name="Description" type="string" isLocalized="true" />
             <property name="Description image" type="image" />
         </property>
         <property name="Y axis description" type="string" isLocalized="true" />
         <property name="Y axis maximum value" type="string" />
         <property name="Y axis values" type="string" />
-        <property name="Bars width" type="string" isLocalized="true" />
-        <property name="Background color" type="string" isLocalized="true" />
-        <property name="Grid line color" type="string" isLocalized="true" />
-        <property name="Border" type="string" isLocalized="true" />
+        <property name="Bars width" type="string" />
+        <property name="Background color" type="string" />
+        <property name="Grid line color" type="string" />
+        <property name="Border" type="string" />
     </model>
 </addon>
