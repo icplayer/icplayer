@@ -37,13 +37,13 @@
 	<script src="libs/htmlparser.js" />
 	<script src="libs/canvasfloodfill.js" />
 	<script src="libs/jquery.ui.touch-punch.min.js" />
-	<script src="libs/jquery.keyboard.min.js" />
+    <script src="libs/jquery.keyboard.min.js" />
 
-  <script src="libs/jqplot/jquery.jqplot.min.js"/>
-	<script src="libs/jqplot/jqplot.barRenderer.min.js"/>
-  <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
-  <script src="libs/jqplot/jqplot.cursor.min.js"/>
-  <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
+    <script src="libs/jqplot/jquery.jqplot.min.js"/>
+    <script src="libs/jqplot/jqplot.barRenderer.min.js"/>
+    <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+    <script src="libs/jqplot/jqplot.cursor.min.js"/>
+    <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 

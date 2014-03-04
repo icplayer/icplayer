@@ -1,3 +1,4 @@
+2014-03-04 Fixed few bugs in eKeyboard i.a. on mobile devices system keyboard will not display anymore, added draggable
 2014-03-04 Drag'n'drop with multiple gap fixed, no more doubled images.
 2014-03-03 New addon: Count and Graph
 2014-02-28 Add CSS class for selected page number in Table of Contents addon.
