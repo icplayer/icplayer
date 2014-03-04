@@ -9,7 +9,8 @@ public class LinkInfo {
 
 	public enum LinkType{
 		PAGE,
-		DEFINITION
+		DEFINITION,
+		EXTERNAL
 	}
 	
 	private String 	id;

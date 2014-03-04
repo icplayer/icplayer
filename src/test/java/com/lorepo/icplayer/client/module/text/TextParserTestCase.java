@@ -365,6 +365,25 @@ public class TextParserTestCase {
 	}
 
 	@Test
+	public void testExternalLinks() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="This is [[page1|pageLink1]] and <a href='http://www.google.com'>externalLink1</a>. This is  [[page2|pageLink2]] and <a href='http://www.gwtproject.org/'>externalLink2</a>";
+		String expectedText ="This is <a id='xcf-1' class='ic_definitionLink' href='#'>pageLink1</a> and <a id='xcf-3' href='http://www.google.com'>externalLink1</a>. This is <a id='xcf-2' class='ic_definitionLink' href='#'>pageLink2</a> and <a id='xcf-4' href='http://www.gwtproject.org/'>externalLink2</a>";
+		
+		parser.setId("xcf");
+		ParserResult parsedText = parser.parse(srcText);
+		Iterator<LinkInfo> it = parsedText.linkInfos.iterator();
+		expectedText = expectedText.replace("'xcf-3'", "'" + it.next().getId() + "'");
+		expectedText = expectedText.replace("'xcf-4'", "'" + it.next().getId() + "'");
+		expectedText = expectedText.replace("'xcf-1'", "'" + it.next().getId() + "'");
+		expectedText = expectedText.replace("'xcf-2'", "'" + it.next().getId() + "'");
+		
+
+		assertEquals(expectedText, parsedText.parsedText);
+	}
+	
+	@Test
 	public void testGap1() {
 		
 		TextParser parser = new TextParser();

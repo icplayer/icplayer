@@ -1,3 +1,4 @@
+2014-03-04 Fixed issue with external links in Text module.
 2014-03-04 Fixed few bugs in eKeyboard i.a. on mobile devices system keyboard will not display anymore, added draggable
 2014-03-04 Drag'n'drop with multiple gap fixed, no more doubled images.
 2014-03-03 New addon: Count and Graph
