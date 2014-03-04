@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DragStartEvent;
+import com.google.gwt.event.dom.client.DragStartHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -20,7 +22,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private SourceListModule module;
 	private HashMap<String, Label>	labels = new HashMap<String, Label>();
 	private IViewListener listener;
-	
+	private boolean isDragged = false;
 	
 	public SourceListView(SourceListModule module, boolean isPreview){
 
@@ -93,6 +95,17 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 				event.preventDefault();
+				if (!isDragged) {
+					fireClickEvent(id);
+				}
+				isDragged = false;
+			}
+		});
+		label.addDragStartHandler(new DragStartHandler() {
+			
+			@Override
+			public void onDragStart(DragStartEvent event) {
+				isDragged = true;
 				fireClickEvent(id);
 			}
 		});

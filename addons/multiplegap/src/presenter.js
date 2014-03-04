@@ -67,6 +67,10 @@ function Addonmultiplegap_create(){
         presenter.addonID = model.ID;
 
         var container = $('<div class="multiplegap_container"></div>');
+        container.click(function(event) {
+			event.stopPropagation();
+			event.preventDefault();
+        });
         var placeholders = $('<div class="multiplegap_placeholders"></div>');
 
         container.append(placeholders);
@@ -131,7 +135,11 @@ function Addonmultiplegap_create(){
         container.append(handler);
         handler.hide();
         
-        handler.droppable({drop: function(event, ui) { handler.click() }});
+        handler.droppable({drop: function(event, ui) { 
+			event.stopPropagation();
+			event.preventDefault();
+        	handler.click() 
+        }});
 
         for(var i = 0; i < model['Items'].length; i++) {
             presenter.items.push(model['Items'][i]['Answer ID']);
@@ -190,6 +198,7 @@ function Addonmultiplegap_create(){
 
     presenter.acceptDraggable = function(e) {
         e.stopPropagation();
+        e.preventDefault();
 
         if(presenter.showErrorsMode) return;
 
@@ -361,6 +370,7 @@ function Addonmultiplegap_create(){
 
     presenter.removeDraggable = function(e) {
         e.stopPropagation();
+        e.preventDefault();
 
         if(presenter.showErrorsMode)
             return;
