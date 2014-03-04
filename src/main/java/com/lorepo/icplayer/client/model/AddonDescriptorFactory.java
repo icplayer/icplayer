@@ -36,6 +36,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Basic_Math_Gaps", "Basic Math Gaps", "Activities");
 		addDescriptor("Connection", "Connection", "Activities");
 		addDescriptor("Connector", "Connector", "Scripting");
+		addDescriptor("Count_and_Graph", "Count and Graph", "Activities");
 		addDescriptor("crossword", "Crossword", "Activities");
 		addDescriptor("Custom_Scoring", "Custom Scoring", "Reporting");
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
