@@ -40,6 +40,10 @@ function AddonAdvanced_Connector_create() {
             return;
         }
 
+        if (ModelValidationUtils.validateBoolean(model["Is disabled"])) {
+            return;
+        }
+
         eventBus = presenter.playerController.getEventBus();
         presenter.events = validatedScript.events;
 

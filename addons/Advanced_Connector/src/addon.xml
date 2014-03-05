@@ -3,5 +3,6 @@
 <addon id='Advanced_Connector'>
 	<model>
 		<property name='Scripts' type='text'/>
+        <property name="Is disabled" type="boolean" />
 	</model>
 </addon>
