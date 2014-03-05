@@ -8,6 +8,7 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
@@ -369,8 +370,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				if(type == LinkType.PAGE){
 					gotoPage(link);
 				}
-				else{
+				else if(type == LinkType.DEFINITION){
 					showDefinition(link);
+				}
+				else { //for external links
+					Window.open(link, "_self", null);
 				}
 			}
 			
