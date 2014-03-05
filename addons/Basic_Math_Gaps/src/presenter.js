@@ -56,7 +56,8 @@ function AddonBasic_Math_Gaps_create(){
         presenter.configuration = presenter.validateModel(model);
 
         if (presenter.configuration.isError) {
-            DOMOperationsUtils.showErrorMessage($(view), presenter.errorCodes, presenter.configuration.errorCode);
+            DOMOperationsUtils.showErrorMessage($(view).find('.basic-math-gaps-container'), presenter.errorCodes, presenter.configuration.errorCode);
+            return;
         }
 
         presenter.$view = $(view);
@@ -65,8 +66,11 @@ function AddonBasic_Math_Gaps_create(){
             displayGaps(model);
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.$view.find('input').click(function(e) {
+            e.stopPropagation();
+        });
 
+        presenter.setVisibility(presenter.configuration.isVisible);
 
     }
 
@@ -137,7 +141,8 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.errorCodes = {
         'E01' : 'Left side is not equal to Right side.',
-        'E02' : 'A space can NOT be a decimal separator.'
+        'E02' : 'A space can NOT be a decimal separator.',
+        'E03' : 'Gaps Definition can NOT be blank'
     };
 
     function getValueOfSingleElement(element, isGap, shouldParse) {
@@ -169,6 +174,13 @@ function AddonBasic_Math_Gaps_create(){
     }
 
     presenter.validateGapsDefinition = function(model, isEquation, separator) {
+        if (model['gapsDefinition'].length === 0) {
+            return {
+                isError: true,
+                errorCode: 'E03'
+            }
+        }
+
         var validatedGapsDefinition = [],
             isGapPattern = /^\[.+\]$/,
             splittedGapsBySpace = model['gapsDefinition'].split(' '),
@@ -273,8 +285,8 @@ function AddonBasic_Math_Gaps_create(){
             'isError' : false,
             'allElements' : validatedGapsDefinition,
             'gapsValues' : gapsValues,
-            'leftSide' : isEquation ? leftSideEvaluated : leftSide,
-            'rightSide' : isEquation ? rightSideEvaluated : rightSide
+            'leftSide' : isEquation && splittedGapsBySpace.length > 0 ? leftSideEvaluated : leftSide,
+            'rightSide' : isEquation && splittedGapsBySpace.length > 0 ? rightSideEvaluated : rightSide
         }
 
     };
