@@ -33,6 +33,7 @@ public class TextModel extends BasicModuleModel{
 
 	private String moduleText = "";
 	private boolean useDraggableGaps;
+	private boolean openLinksinNewTab = true;
 	private int gapWidth = 0;
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
@@ -52,7 +53,9 @@ public class TextModel extends BasicModuleModel{
 		addPropertyIsDisabled();
 		addPropertyIsCaseSensitive();
 		addPropertyIsIgnorePunctuation();
+		addPropertyOpenLinksinNewTab();
 		addPropertyText();
+		
 	}
 	
 	
@@ -105,12 +108,14 @@ public class TextModel extends BasicModuleModel{
 					isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
 					isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
 					isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
+					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
 					if(rawText == null){
 						rawText = XMLUtils.getText(textElement);
 						rawText = StringUtils.unescapeXML(rawText);
 					}
 					setText(rawText);
+					
 				}
 			}
 		}
@@ -125,6 +130,7 @@ public class TextModel extends BasicModuleModel{
 		parser.setUseDraggableGaps(useDraggableGaps);
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		parser.setIgnorePunctuationGaps(isIgnorePunctuation);
+		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 		gapInfos = parsedTextInfo.gapInfos;
@@ -144,6 +150,7 @@ public class TextModel extends BasicModuleModel{
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
 				"isIgnorePunctuation='" + isIgnorePunctuation + 
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive + 
+				"' openLinksinNewTab='" + openLinksinNewTab + 
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 		
@@ -225,6 +232,56 @@ public class TextModel extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_gap_type");
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyOpenLinksinNewTab() {
+
+		IProperty property = new IEnumSetProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				openLinksinNewTab = newValue.compareTo("New Tab") == 0;
+				setText(moduleText);
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				if(openLinksinNewTab){
+					return "New Tab";
+				}
+				else{
+					return "Same Tab";
+				}
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("open_links_in_new_tab");
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 2;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				if(index == 0){
+					return "New Tab";
+				}
+				else{
+					return "Same Tab";
+				}
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("open_links_in_new_tab");
 			}
 		};
 		
@@ -455,6 +512,10 @@ public class TextModel extends BasicModuleModel{
 
 	public boolean isIgnorePunctuation() {
 		return isIgnorePunctuation;
+	}
+	
+	public boolean openLinksinNewTab() {
+		return openLinksinNewTab;
 	}
 
 }

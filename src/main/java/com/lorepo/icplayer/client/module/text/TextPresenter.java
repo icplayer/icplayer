@@ -366,7 +366,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				valueChanged(id, newValue);
 			}
 			
-			public void onLinkClicked(LinkType type, String link) {
+			public void onLinkClicked(LinkType type, String link, String target) {
 				if(type == LinkType.PAGE){
 					gotoPage(link);
 				}
@@ -374,7 +374,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 					showDefinition(link);
 				}
 				else { //for external links
-					Window.open(link, "_self", null);
+					Window.open(link, target, null);
 				}
 			}
 			

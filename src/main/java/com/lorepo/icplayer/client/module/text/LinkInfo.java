@@ -15,7 +15,8 @@ public class LinkInfo {
 	
 	private String 	id;
 	private String 	href;
-	private LinkType	type;
+	private LinkType type;
+	private String target;
 	
 	
 	/**
@@ -24,11 +25,12 @@ public class LinkInfo {
 	 * @param answer
 	 * @param value
 	 */
-	public LinkInfo(String id, LinkType type, String href){
+	public LinkInfo(String id, LinkType type, String href, String target){
 
 		this.id = id;
 		this.type = type;
 		this.href = href;
+		this.target = target;
 	}
 
 
@@ -46,5 +48,8 @@ public class LinkInfo {
 		return href;
 	}
 
+	public String getTarget() {
+		return target;
+	}
 
 }

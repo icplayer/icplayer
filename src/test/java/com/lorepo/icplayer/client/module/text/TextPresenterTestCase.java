@@ -67,7 +67,7 @@ public class TextPresenterTestCase {
 		TextPresenter presenter = new TextPresenter(module, services);
 		presenter.addView(display);
 		
-		display.getListener().onLinkClicked(LinkType.PAGE, "Page 12");
+		display.getListener().onLinkClicked(LinkType.PAGE, "Page 12", "");
 		CommandsMockup commands = (CommandsMockup) services.getCommands();
 		assertEquals("gotoPage: Page 12", commands.getCommand());
 	}

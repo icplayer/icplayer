@@ -28,6 +28,7 @@ public class TextParser {
 	private String baseId = "";
 	private int idCounter = 1;
 	private boolean useDraggableGaps = false;
+	private boolean openLinksinNewTab = true;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
 	private boolean skipGaps = false;
@@ -50,10 +51,10 @@ public class TextParser {
 	public void addVariable(String key, String value) {
 		variables.put(key, value);
 	}
-
-	public static native void alert(String msg) /*-{
-		$wnd.console.log(msg);
-	}-*/;
+	
+	public void setOpenLinksinNewTab(boolean linksTarget) {
+		openLinksinNewTab = linksTarget;
+	}
 
 	public ParserResult parse(String srcText) {
 
@@ -393,7 +394,8 @@ public class TextParser {
 			replaceText = "<a id='" + id
 					+ "' class='ic_definitionLink' href='#'>" + linkText
 					+ "</a>";
-			LinkInfo pli = new LinkInfo(id, type, pageName);
+			LinkInfo pli = new LinkInfo(id, type, pageName, "");
+
 			parserResult.linkInfos.add(pli);
 		}
 
@@ -409,11 +411,11 @@ public class TextParser {
 	private String externalLink2Anchor(String href) {
 
 		String replaceText = null;
-
 		String id = baseId + "-" + UUID.uuid(4);
-		LinkInfo pli = new LinkInfo(id, LinkType.EXTERNAL, href);
+		String target = (openLinksinNewTab) ? "_blank" : "_self";
+		LinkInfo pli = new LinkInfo(id, LinkType.EXTERNAL, href, target);
 		parserResult.linkInfos.add(pli);
-		replaceText = "<a id='" + id + "' href='" + href + "'";
+		replaceText = "<a id='" + id +  "' target='" + target + "' href='" + href + "'";
 
 		return replaceText;
 	}

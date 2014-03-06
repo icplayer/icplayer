@@ -1,3 +1,4 @@
+2014-03-04 Add property for external links target in Text module.
 2014-03-05 Added 'Is disabled' property in Advanced Connector module
 2014-03-04 Basic Math Gaps module: Fixed navigation arrows showing up when clicking on the input and fixed alert error in Editor when Is Equation flag has been set to true
 2014-03-04 Fixed issue with external links in Text module.

@@ -102,7 +102,7 @@ public class TextView extends HTML implements IDisplay{
 						event.stopPropagation();
 						event.preventDefault();
 						if(listener != null){
-							listener.onLinkClicked(info.getType(), info.getHref());
+							listener.onLinkClicked(info.getType(), info.getHref(), info.getTarget());
 						}
 						event.preventDefault();
 					}
