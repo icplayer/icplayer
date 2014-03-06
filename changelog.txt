@@ -1,3 +1,4 @@
+2014-03-05 Added injecting 'event' object into Advanced Connector module scripts
 2014-03-04 Add property for external links target in Text module.
 2014-03-05 Added 'Is disabled' property in Advanced Connector module
 2014-03-04 Basic Math Gaps module: Fixed navigation arrows showing up when clicking on the input and fixed alert error in Editor when Is Equation flag has been set to true
@@ -11,7 +12,7 @@
 2014-02-21 New modules: Basic Math Gaps and eKeyboard
 2014-02-21 PlayerUtils return mistake count also
 2014-02-20 Support for dragging in multiple gap
-2014-02-19 Fixed problem withpage move notification
+2014-02-19 Fixed problem with page move notification
 2014-02-18 Fixed problem with scoring method when module LineNumber was not activity
 2014-02-18 PlayerUtils extended to return score for individual pages
 2014-02-18 Fixed problem with empty text on chrome browser

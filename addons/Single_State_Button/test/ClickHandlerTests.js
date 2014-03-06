@@ -7,9 +7,9 @@ TestCase("Click handler", {
             isErrorMode: false
         };
         
-        var event = {
-			stopPropagation: function() {}
-		};
+        this.event = {
+            stopPropagation: function() {}
+        };
 
         sinon.stub(this.presenter, 'executeUserEventCode');
         sinon.stub(this.presenter, 'triggerButtonClickedEvent');
@@ -23,7 +23,7 @@ TestCase("Click handler", {
     'test button click is disabled': function () {
         this.presenter.configuration.isDisabled = true;
 
-        this.presenter.clickHandler(event);
+        this.presenter.clickHandler(this.event);
 
         assertFalse(this.presenter.executeUserEventCode.called);
         assertFalse(this.presenter.triggerButtonClickedEvent.called);
@@ -32,14 +32,14 @@ TestCase("Click handler", {
     'test addon in error checking mode': function () {
         this.presenter.configuration.isErrorMode = true;
 
-        this.presenter.clickHandler(event);
+        this.presenter.clickHandler(this.event);
 
         assertFalse(this.presenter.executeUserEventCode.called);
         assertFalse(this.presenter.triggerButtonClickedEvent.called);
     },
 
     'test button click is enabled and addon in working mode': function () {
-        this.presenter.clickHandler(event);
+        this.presenter.clickHandler(this.event);
 
         assertTrue(this.presenter.executeUserEventCode.calledOnce);
         assertTrue(this.presenter.triggerButtonClickedEvent.calledOnce);

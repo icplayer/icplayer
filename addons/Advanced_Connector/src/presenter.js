@@ -1,5 +1,6 @@
 function AddonAdvanced_Connector_create() {
     var presenter = function () {};
+    var event;
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -7,10 +8,11 @@ function AddonAdvanced_Connector_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         var i, length;
-        eventData = presenter.fillEventData(eventData, eventName);
+
+        event = presenter.fillEventData(eventData, eventName);
 
         try {
-            var filteredEvents = presenter.filterEvents(presenter.events, eventData, eventName);
+            var filteredEvents = presenter.filterEvents(presenter.events, event);
 
             for (i = 0, length = filteredEvents.length; i < length; i++) {
                 eval(filteredEvents[i].Code);
@@ -18,6 +20,8 @@ function AddonAdvanced_Connector_create() {
         } catch (error) {
             Helpers.alertErrorMessage(error, "Advanced Connector - problem occurred while running scripts!");
         }
+
+        event = undefined;
     };
 
     presenter.reset = function () {
@@ -215,18 +219,18 @@ function AddonAdvanced_Connector_create() {
         return new RegExp(rule).test(field);
     };
 
-    presenter.filterEvents = function (events, eventData, eventName) {
+    presenter.filterEvents = function (events, event) {
         var filteredArray = [], isMatch;
 
         try {
             for (var i = 0, length = events.length; i < length; i++) {
-                isMatch = presenter.matchFieldToRule(eventName, events[i].Name);
-                isMatch = isMatch && presenter.matchFieldToRule(eventData.source, events[i].Source);
-                isMatch = isMatch && presenter.matchFieldToRule(eventData.item, events[i].Item);
-                isMatch = isMatch && presenter.matchFieldToRule(eventData.value, events[i].Value);
-                isMatch = isMatch && presenter.matchFieldToRule(eventData.score, events[i].Score);
-                isMatch = isMatch && presenter.matchFieldToRule(eventData.word, events[i].Word);
-                isMatch = isMatch && presenter.matchFieldToRule(eventData.type, events[i].Type);
+                isMatch = presenter.matchFieldToRule(event.name, events[i].Name);
+                isMatch = isMatch && presenter.matchFieldToRule(event.source, events[i].Source);
+                isMatch = isMatch && presenter.matchFieldToRule(event.item, events[i].Item);
+                isMatch = isMatch && presenter.matchFieldToRule(event.value, events[i].Value);
+                isMatch = isMatch && presenter.matchFieldToRule(event.score, events[i].Score);
+                isMatch = isMatch && presenter.matchFieldToRule(event.word, events[i].Word);
+                isMatch = isMatch && presenter.matchFieldToRule(event.type, events[i].Type);
 
                 if (isMatch) {
                     filteredArray.push(events[i]);

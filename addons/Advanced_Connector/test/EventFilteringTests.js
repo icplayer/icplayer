@@ -69,49 +69,65 @@ TestCase("Events filtering", {
     },
 
     'test event data matches single event': function() {
-        var eventData = {
+        var event = {
+            name: 'ValueChanged',
             source: 'ImageViewer1',
             item: '2',
             value: '1',
-            score: ''
+            score: '',
+            type: '',
+            word: ''
         };
 
-        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, eventData, 'ValueChanged');
+        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
         assertEquals([this.eventsDeclaration[0]], filteredEvents);
     },
 
     'test event data does not match any event': function() {
-        var eventData = {
+        var event = {
+            name: 'ValueChanged',
             source: 'ImageGap1',
             item: '2',
             value: '1',
-            score: ''
+            score: '',
+            type: '',
+            word: ''
         };
 
-        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, eventData, 'ValueChanged');
+        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
         assertEquals([], filteredEvents);
     },
 
     'test event data matches Definition event': function() {
-        var eventData = {
+        var event = {
+            name: 'Definition',
+            source: '',
+            item: '',
+            value: '',
+            score: '',
+            type: '',
             word: 'babylon'
         };
 
-        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, eventData, 'Definition');
+        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
         assertEquals([this.eventsDeclaration[2]], filteredEvents);
     },
 
     'test event data matches draggable events': function() {
-        var eventData = {
+        var event = {
+            name: 'ItemSelected',
             type: 'image',
             item: '1',
-            value: '/file/serve/123456'
+            value: '/file/serve/123456',
+            source: '',
+            score: '',
+            word: ''
         };
 
-        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, eventData, 'ItemSelected');
+        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
         assertEquals([this.eventsDeclaration[3], this.eventsDeclaration[4]], filteredEvents);
     },
@@ -119,13 +135,17 @@ TestCase("Events filtering", {
     'test event data matches only one of draggable events': function() {
         this.eventsDeclaration[3].Type = 'text';
 
-        var eventData = {
+        var event = {
+            name: 'ItemSelected',
             type: 'image',
             item: '1',
-            value: '/file/serve/123456'
+            value: '/file/serve/123456',
+            source: '',
+            score: '',
+            word: ''
         };
 
-        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, eventData, 'ItemSelected');
+        var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
         assertEquals([this.eventsDeclaration[4]], filteredEvents);
     }
