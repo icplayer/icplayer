@@ -488,6 +488,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				enableGap(gapIndex);
 			}
 		}
+        else if(commandName.compareTo("enableallgaps") == 0){
+            enableAllGaps();
+        }
 		else if(commandName.compareTo("disablegap") == 0 && params.size() == 1){
 			if(params.size() > 0 && params.get(0) instanceof IStringType){
 				param = (IStringType) params.get(0);
@@ -495,6 +498,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				disableGap(gapIndex);
 			}
 		}
+        else if(commandName.compareTo("disableallgaps") == 0){
+            disableAllGaps();
+        }
 		else if(commandName.compareTo("show") == 0){
 			show();
 		}
@@ -587,10 +593,19 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		presenter.enableGap = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableGap(I)(gapId);
 		}
+
+        presenter.enableAllGaps = function(){
+            x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableAllGaps()();
+        };
+
 			
 		presenter.disableGap = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableGap(I)(gapId);
 		}
+
+        presenter.disableAllGaps = function(){
+            x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableAllGaps()();
+        };
 			
 		presenter.setText = function(text){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setText(Ljava/lang/String;)(text.toString());
@@ -659,6 +674,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.getChild(index-1).setDisabled(false);
 		}
 	}
+
+    private void enableAllGaps() {
+        for (int index = 0; index < view.getChildrenCount(); index++) {
+            view.getChild(index).setDisabled(false);
+        }
+    }
+
 	
 	
 	private void disableGap(int index){
@@ -667,6 +689,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.getChild(index-1).setDisabled(true);
 		}
 	}
+
+    private void disableAllGaps() {
+        for (int index = 0; index < view.getChildrenCount(); index++) {
+            view.getChild(index).setDisabled(true);
+        }
+    }
+
 	
 	
 	private void setText(String text){
