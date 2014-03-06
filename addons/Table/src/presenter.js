@@ -648,6 +648,13 @@ function AddonTable_create() {
         presenter.enableGap(parseInt(params[0], 10));
     };
 
+    presenter.enableAllGaps = function () {
+        jQuery.each(presenter.configuration.gaps.descriptions, function(index, element) {
+            presenter.$view.find('#' + element.id).removeAttr('disabled');
+            element.isEnabled = true;
+        });
+    };
+
     presenter.disableGap = function (gapIndex) {
         var descriptions = presenter.configuration.gaps.descriptions;
 
@@ -662,6 +669,13 @@ function AddonTable_create() {
         presenter.disableGap(parseInt(params[0], 10));
     };
 
+    presenter.disableAllGaps = function () {
+        jQuery.each(presenter.configuration.gaps.descriptions, function(index, element) {
+            presenter.$view.find('#' + element.id).attr('disabled', 'disabled');
+            element.isEnabled = false;
+        });
+    };
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
@@ -672,7 +686,9 @@ function AddonTable_create() {
             'markGapAsCorrect': presenter.markGapAsCorrectCommand,
             'markGapAsWrong': presenter.markGapAsWrongCommand,
             'enableGap': presenter.enableGapCommand,
-            'disableGap': presenter.disableGapCommand
+            'enableAllGaps': presenter.enableAllGaps,
+            'disableGap': presenter.disableGapCommand,
+            'disableAllGaps': presenter.disableAllGaps
         };
 
         return Commands.dispatch(commands, name, params, presenter);

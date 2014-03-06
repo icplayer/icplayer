@@ -388,3 +388,50 @@ TestCase("Commands logic - disableGap", {
         assertTrue(this.presenter.configuration.gaps.descriptions[1].isEnabled);
     }
 });
+
+TestCase("Commands logic - disable and enable all gaps", {
+    setUp: function () {
+        this.presenter = AddonTable_create();
+        this.presenter.configuration = {
+            gaps: {
+                descriptions: [
+                    { answers: [""], score: 1, id: "Table1-1", value: "", isEnabled: true },
+                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "", isEnabled: true }
+                ]
+            }
+        };
+
+        this.presenter.$view = { find: function () {} };
+        this.findStub = sinon.stub(this.presenter.$view, 'find');
+    },
+
+    'test enable all gaps': function () {
+        /*:DOC inp1 = <input id="Table1-1" class="ic_gap" disabled>*/
+        /*:DOC inp2 = <input id="Table1-2" class="ic_gap" disabled>*/
+        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+        this.findStub.withArgs('#Table1-2').returns($(this.inp2));
+        this.presenter.configuration.gaps.descriptions[0].isEnabled = false;
+        this.presenter.configuration.gaps.descriptions[1].isEnabled = false;
+
+        this.presenter.enableAllGaps();
+
+        assertUndefined($(this.inp1).attr('disabled'));
+        assertTrue(this.presenter.configuration.gaps.descriptions[0].isEnabled);
+        assertUndefined($(this.inp2).attr('disabled'));
+        assertTrue(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+    },
+
+    'test disable all gaps': function () {
+        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
+        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
+        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+        this.findStub.withArgs('#Table1-2').returns($(this.inp2));
+
+        this.presenter.disableAllGaps();
+
+        assertEquals("disabled", $(this.inp1).attr('disabled'));
+        assertFalse(this.presenter.configuration.gaps.descriptions[0].isEnabled);
+        assertEquals("disabled", $(this.inp2).attr('disabled'));
+        assertFalse(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+    }
+});
