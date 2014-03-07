@@ -1,3 +1,4 @@
+2014-03-07 Fixed problem with parsing addon properties
 2014-03-07 Fixed issue with icon pages on navigation bar for mLibro. 
 2014-03-07 New addon connecting dots and updated fractions
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Table module

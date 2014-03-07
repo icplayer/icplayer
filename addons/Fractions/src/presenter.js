@@ -1,4 +1,4 @@
-function AddonFractions_create() {
+function AddonFractions_dev_create() {
 
 	var presenter = function() {
 	};
@@ -106,6 +106,8 @@ function AddonFractions_create() {
 				&& (!(isNaN(presenter.strokeWidth))
 						&& parseFloat(presenter.strokeWidth) == parseInt(
 								presenter.strokeWidth, 10) && parseFloat(presenter.strokeWidth) > 0)) {
+			presenter.strokeWidth = parseInt(presenter.strokeWidth, 10);
+
 			if (model.Figure == 'Rectangular') {
 				if (parseFloat(model.RectHorizontal) > 0
 						&& parseFloat(model.RectHorizontal) == Math
@@ -195,7 +197,7 @@ function AddonFractions_create() {
 						}
 						presenter.currentSelected.item[0] = model.ID;
 
-						if (model.Height >= model.Width) {
+						if (parseInt(model.Height) >= parseInt(model.Width)) {
 							radius = Math
 									.round((model.Width - 2 * presenter.strokeWidth) * 50) / 100;
 							circOX = radius + presenter.strokeWidth;
