@@ -35,11 +35,23 @@ public class NavigationBar extends PopupPanel {
 		buttonGrid.setStyleName("ic_navibar_grid_panel");
 		buttonGrid.getElement().getStyle().setProperty("marginLeft", "auto");
 		buttonGrid.getElement().getStyle().setProperty("marginRight", "auto");
-
+		String baseUrl = contentModel.getPage(0).getBaseURL();
+				
 		for (int col = 0; col < pageCount; ++col) {
+			
 			previewURL = contentModel.getPage(col).getPreview();
 			if (previewURL == null || previewURL == "")
+			{
 				buttonLabel = "" + (col + 1);
+			}
+			else
+			{
+				if (baseUrl.startsWith("file")) {
+					//for mLibro and offline content
+					previewURL = baseUrl + previewURL;
+				}
+				buttonLabel = "";
+			}
 			
 			GoToPageIndexButton goToPageButton = new GoToPageIndexButton(
 					buttonLabel, col, playerController, previewURL);
