@@ -3,12 +3,6 @@ function AddonFractions_create() {
 	var presenter = function() {
 	};
 
-	presenter.setPlayerController = function(controller) {
-
-	};
-	presenter.lastReceivedEvent = null;
-	presenter.addonId = null;
-
 	presenter.currentSelected = function() {
 	};
 	var Counter = 0;
@@ -25,6 +19,8 @@ function AddonFractions_create() {
 	presenter.isDrawn = false;
 	presenter.initialMarks = 0;
 	presenter.validate = false;
+	presenter.isDisable = false;
+	presenter.wasDisable = false;
 
 	function displayText() {
 		var textToDisplay = presenter.model['Text to be displayed'], isTextColored = presenter.model['Color text'] === 'True', $textContainer = presenter.$view
@@ -50,123 +46,288 @@ function AddonFractions_create() {
 		presenter.isVisible = false;
 	};
 
+	presenter.disable = function() {
+		presenter.isDisable = true;
+		var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
+		$($myDiv).addClass('disable');
+
+	};
+
+	presenter.enable = function() {
+		presenter.isDisable = false;
+		var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
+		$($myDiv).removeClass('disable');
+	};
+
+	presenter.isComplete = function() {
+		return Counter === (presenter.initialMarks) / 2 ? false : true;
+	};
+
 	presenter.init = function(view, model) {
 		presenter.$view = $(view);
 		presenter.model = model;
 		correctAnswer = model.Correct;
 
-		if (model.selectedParts.length > 0)
+		if (model.selectedParts.length > 0) {
 			presenter.selected.selectedString = model.selectedParts;
-		else
-			presenter.selected.selectedString = '#97FFFF';
-		if (model.selectionColor.length > 0)
+		} else {
+			presenter.selected.selectedString = '';
+		}
+		if (model.selectionColor.length > 0) {
 			presenter.selectionColor = model.selectionColor;
-		else
+		} else {
 			presenter.selectionColor = '#7FFFD4';
-		if (model.strokeColor.length > 0)
+		}
+		if (model.strokeColor.length > 0) {
 			presenter.strokeColor = model.strokeColor;
-		else
+		} else {
 			presenter.strokeColor = '#838B8B';
-		if (model.emptyColor.length > 0)
+		}
+		if (model.emptyColor.length > 0) {
 			presenter.emptyColor = model.emptyColor;
-		else
+		} else {
 			presenter.emptyColor = '#eeeeee';
+		}
 
-		if (model.strokeWidth > 1)
-			presenter.strokeWidth = parseFloat(model.strokeWidth);
+		if (model.strokeWidth.length > 0) {
+			presenter.strokeWidth = model.strokeWidth;
+		}
 
 		var radius = 0;
 		var circOX = 0;
 		var circOY = 0;
 
-		$counter = $(view).find('.sample-addon-clicks-counter');
+		$counter = $(view).find('.FractionsCommandsViewer');
 		var myDiv = $(view).find('.FractionsWrapper')[0];
 
-		if (model.Figure == 'Rectangular') {
-			if (parseFloat(model.RectHorizontal) > 0
-					&& parseFloat(model.RectHorizontal) == Math
-							.round(model.RectHorizontal)
-					&& parseFloat(model.RectVertical) > 0
-					&& parseFloat(model.RectVertical) == Math
-							.round(model.RectVertical)) {
-				if (parseFloat(model.RectHorizontal) > 30
-						|| parseFloat(model.RectVertical) > 30) {
-					$counter.text('Choose rectangular parts less than 30.');
-					isNotActivity = true;
-					presenter.validate = false;
-				} else {
-					for ( var i = 0; i < parseInt(model.RectHorizontal, 10)
-							* parseInt(model.RectVertical, 10) + 1; i++) {
-						presenter.currentSelected.item[i] = false;
-					}
-					presenter.currentSelected.item[0] = model.ID;
-					var figureRect = presenter.drawRect(model.RectHorizontal,
-							model.RectVertical, model.ID, model.Height,
-							model.Width);
-					$(myDiv).append(figureRect);
-					$(myDiv).addClass('rect');
-					presenter.isDrawn = true;
-					isNotActivity = false;
-					presenter.validate = true;
-				}
-			} else {
-				$counter.text('Incorrect rectangular parts.');
-				isNotActivity = true;
-				presenter.validate = false;
-			}
-		}
-
-		if (model.Figure == 'Circle') {
-			if (model.CircleParts == Math.round(model.CircleParts)
-					&& parseFloat(model.CircleParts) > 0) {
-				if (parseFloat(model.CircleParts) < 100) {
-					for ( var i = 0; i < parseInt(model.CircleParts, 10) + 1; i++) {
-						presenter.currentSelected.item[i] = false;
-					}
-					presenter.currentSelected.item[0] = model.ID;
-
-					if (model.Height >= model.Width) {
-						radius = Math
-								.round((model.Width - 2 * presenter.strokeWidth) * 50) / 100;
-						circOX = radius + presenter.strokeWidth;
-						circOY = radius + presenter.strokeWidth;
+		if (presenter.checkColor(presenter.selectionColor)
+				&& presenter.checkColor(presenter.strokeColor)
+				&& presenter.checkColor(presenter.emptyColor)
+				&& (!(isNaN(presenter.strokeWidth))
+						&& parseFloat(presenter.strokeWidth) == parseInt(
+								presenter.strokeWidth, 10) && parseFloat(presenter.strokeWidth) > 0)) {
+			if (model.Figure == 'Rectangular') {
+				if (parseFloat(model.RectHorizontal) > 0
+						&& parseFloat(model.RectHorizontal) == Math
+								.round(model.RectHorizontal)
+						&& parseFloat(model.RectVertical) > 0
+						&& parseFloat(model.RectVertical) == Math
+								.round(model.RectVertical)) {
+					if (parseFloat(model.RectHorizontal) > 30
+							|| parseFloat(model.RectVertical) > 30) {
+						$counter.text('Choose rectangular parts less than 30.');
+						isNotActivity = true;
+						presenter.validate = false;
 					} else {
-						radius = Math
-								.round((model.Height - 2 * presenter.strokeWidth) * 50) / 100;
-						circOX = radius + presenter.strokeWidth;
-						circOY = radius + presenter.strokeWidth;
+						for ( var i = 0; i < parseInt(model.RectHorizontal, 10)
+								* parseInt(model.RectVertical, 10) + 1; i++) {
+							presenter.currentSelected.item[i] = false;
+						}
+						presenter.currentSelected.item[0] = model.ID;
+
+						if (correctAnswer.length > 0) {
+							if (!(isNaN(correctAnswer))
+									&& parseFloat(correctAnswer) == Math
+											.round(correctAnswer)
+									&& parseFloat(correctAnswer) > 0
+									&& parseFloat(correctAnswer) <= parseInt(
+											model.RectHorizontal, 10)
+											* parseInt(model.RectVertical, 10)) {
+								$counter.text('');
+								var figureRect = presenter.drawRect(
+										model.RectHorizontal,
+										model.RectVertical, model.ID,
+										model.Height, model.Width);
+								$(myDiv).append(figureRect);
+								$(myDiv).addClass('rect');
+								presenter.isDrawn = true;
+								presenter.validate = true;
+							} else {
+								if (model.isNotActivity == 'True') {
+									$counter.text('');
+									var figureRect = presenter.drawRect(
+											model.RectHorizontal,
+											model.RectVertical, model.ID,
+											model.Height, model.Width);
+									$(myDiv).append(figureRect);
+									$(myDiv).addClass('rect');
+									presenter.isDrawn = true;
+									presenter.validate = true;
+								} else {
+									$counter
+											.text('Incorrect value for Correct property.');
+									isNotActivity = true;
+									presenter.validate = false;
+								}
+							}
+						} else {
+							if (model.isNotActivity == 'True') {
+								$counter.text('');
+								var figureRect = presenter.drawRect(
+										model.RectHorizontal,
+										model.RectVertical, model.ID,
+										model.Height, model.Width);
+								$(myDiv).append(figureRect);
+								$(myDiv).addClass('rect');
+								presenter.isDrawn = true;
+								presenter.validate = true;
+							} else {
+								$counter
+										.text('Fill the Correct property, or check isNotActivity.');
+								isNotActivity = true;
+								presenter.validate = false;
+							}
+						}
 					}
-					var figureCirc = presenter.drawArcs(model.CircleParts,
-							circOX, circOY, radius, model.ID, model.Height,
-							model.Width);
-					$(myDiv).append(figureCirc);
-					$(myDiv).addClass('circ');
-					presenter.isDrawn = true;
-					isNotActivity = false;
-					presenter.validate = true;
 				} else {
-					$counter.text('Choose circle parts less than 100.');
+					$counter.text('Incorrect rectangular parts.');
 					isNotActivity = true;
 					presenter.validate = false;
 				}
-			} else {
-				$counter.text('Incorrect circle parts.');
+			}
+
+			if (model.Figure == 'Circle') {
+				if (model.CircleParts == Math.round(model.CircleParts)
+						&& parseFloat(model.CircleParts) > 0) {
+					if (parseFloat(model.CircleParts) < 100) {
+						for ( var i = 0; i < parseInt(model.CircleParts, 10) + 1; i++) {
+							presenter.currentSelected.item[i] = false;
+						}
+						presenter.currentSelected.item[0] = model.ID;
+
+						if (model.Height >= model.Width) {
+							radius = Math
+									.round((model.Width - 2 * presenter.strokeWidth) * 50) / 100;
+							circOX = radius + presenter.strokeWidth;
+							circOY = radius + presenter.strokeWidth;
+						} else {
+							radius = Math
+									.round((model.Height - 2 * presenter.strokeWidth) * 50) / 100;
+							circOX = radius + presenter.strokeWidth;
+							circOY = radius + presenter.strokeWidth;
+						}
+
+						if (correctAnswer.length > 0) {
+							if (!(isNaN(correctAnswer))
+									&& parseFloat(correctAnswer) == Math
+											.round(correctAnswer)
+									&& parseFloat(correctAnswer) > 0
+									&& parseFloat(correctAnswer) <= parseInt(
+											model.CircleParts, 10)) {
+								$counter.text('');
+								var figureCirc = presenter.drawArcs(
+										model.CircleParts, circOX, circOY,
+										radius, model.ID, model.Height,
+										model.Width);
+								$(myDiv).append(figureCirc);
+								$(myDiv).addClass('circ');
+								presenter.isDrawn = true;
+								isNotActivity = false;
+								presenter.validate = true;
+
+							} else {
+								if (model.isNotActivity == 'True') {
+									$counter.text('');
+									var figureCirc = presenter.drawArcs(
+											model.CircleParts, circOX, circOY,
+											radius, model.ID, model.Height,
+											model.Width);
+									$(myDiv).append(figureCirc);
+									$(myDiv).addClass('circ');
+									presenter.isDrawn = true;
+									isNotActivity = false;
+									presenter.validate = true;
+								} else {
+									$counter
+											.text('Incorrect value for Correct property.');
+									isNotActivity = true;
+									presenter.validate = false;
+								}
+							}
+						} else {
+							if (model.isNotActivity == 'True') {
+								$counter.text('');
+								var figureCirc = presenter.drawArcs(
+										model.CircleParts, circOX, circOY,
+										radius, model.ID, model.Height,
+										model.Width);
+								$(myDiv).append(figureCirc);
+								$(myDiv).addClass('circ');
+								presenter.isDrawn = true;
+								isNotActivity = false;
+								presenter.validate = true;
+							} else {
+								$counter
+										.text('Fill the Correct property, or check isNotActivity.');
+								isNotActivity = true;
+								presenter.validate = false;
+
+							}
+						}
+
+					} else {
+						$counter.text('Choose circle parts less than 100.');
+						isNotActivity = true;
+						presenter.validate = false;
+					}
+				} else {
+					$counter.text('Incorrect circle parts.');
+					isNotActivity = true;
+				}
+			}
+
+			if (model.isNotActivity == 'True') {
 				isNotActivity = true;
 			}
+			if (model.isDisable == 'True') {
+				presenter.isDisable = true;
+				presenter.wasDisable = true;
+				$(myDiv).addClass('disable');
+			}
+
+			presenter.clear();
+
+			if (model.selectedParts.length > 0) {
+				presenter.selected(model.selectedParts);
+			}
+
+		} else {
+			if (!(presenter.checkColor(presenter.selectionColor))) {
+				$counter.text('Incorrect selectionColor.');
+			} else if (!(presenter.checkColor(presenter.strokeColor))) {
+				$counter.text('Incorrect strokeColor.');
+			} else if (!(presenter.checkColor(presenter.emptyColor))) {
+				$counter.text('Incorrect emptyColor.');
+			} else {
+				$counter.text('Incorrect strokeWidth.');
+			}
 		}
-
-		if (model.isNotActivity == 'True')
-			isNotActivity = true;
-		presenter.clear();
-
-		if (model.selectedParts.length > 0)
-			presenter.selected(model.selectedParts);
 
 		displayText();
+
+	};
+
+	presenter.checkColor = function(color) {
+
+		var regExp = new RegExp("^#[0-9a-fA-F]{6}$");
+		var colorMatch;
+		colorMatch = color.match(regExp);
+		// if(color == 'transparent') return true;
+
+		if (colorMatch === null)
+			return false;
+		else
+			return true;
 	};
 
 	presenter.executeCommand = function(name, params) {
 		switch (name.toLowerCase()) {
+		case 'enable'.toLowerCase():
+			presenter.enable();
+			break;
+		case 'disable'.toLowerCase():
+			presenter.disable();
+			break;
 		case 'setSelectionColor'.toLowerCase():
 			presenter.setSelectionColorButton(params);
 			break;
@@ -187,6 +348,9 @@ function AddonFractions_create() {
 			break;
 		case 'markAsEmpty'.toLowerCase():
 			presenter.markAsEmpty();
+			break;
+		case 'isComplete'.toLowerCase():
+			presenter.isComplete();
 			break;
 		}
 	};
@@ -242,6 +406,20 @@ function AddonFractions_create() {
 
 			});
 		});
+
+		jQuery(function($) {
+			$(view).find('path').on("mouseenter", function() {
+				$(this).attr("class", model.ID + " mouse-hover");
+			});
+		});
+
+		jQuery(function($) {
+			$(view).find('path').on("mouseleave", function() {
+				$(this).attr("class", model.ID);
+			});
+
+		});
+
 	};
 
 	presenter.createPreview = function(view, model) {
@@ -266,7 +444,6 @@ function AddonFractions_create() {
 	};
 
 	presenter.selected = function(selectedString) {
-		// var range = presenter.currentSelected.item.length;
 
 		if (presenter.validate) {
 			presenter.clear();
@@ -284,8 +461,9 @@ function AddonFractions_create() {
 						presenter.currentSelected.item[toSelect] = true;
 						Counter++;
 						presenter.initialMarks++;
-					} else
+					} else {
 						presenter.selectRange(toSelect);
+					}
 				}
 				var toSelect1 = selectedStringBufor;
 				if (!(toSelect1.isNaN)
@@ -294,8 +472,9 @@ function AddonFractions_create() {
 					presenter.currentSelected.item[toSelect1] = true;
 					Counter++;
 					presenter.initialMarks++;
-				} else
+				} else {
 					presenter.selectRange(toSelect1);
+				}
 			} else {
 				var toSelect2 = selectedString;
 				if (!(toSelect2.isNaN)
@@ -304,8 +483,9 @@ function AddonFractions_create() {
 					presenter.currentSelected.item[toSelect2] = true;
 					Counter++;
 					presenter.initialMarks++;
-				} else
+				} else {
 					presenter.selectRange(toSelect2);
+				}
 			}
 		}
 	};
@@ -338,12 +518,15 @@ function AddonFractions_create() {
 					&& parseFloat(toSelect2) === Math.round(toSelect2)
 					&& !(toSelect3.isNaN)
 					&& parseFloat(toSelect3) === Math.round(toSelect3)) {
-				if (parseFloat(toSelect1) > presenter.currentSelected.item.length)
+				if (parseFloat(toSelect1) > presenter.currentSelected.item.length) {
 					toSelect1 = presenter.currentSelected.item.length;
-				if (parseFloat(toSelect2) > presenter.currentSelected.item.length)
+				}
+				if (parseFloat(toSelect2) > presenter.currentSelected.item.length) {
 					toSelect2 = presenter.currentSelected.item.length;
-				if (parseFloat(toSelect3) > presenter.currentSelected.item.length)
+				}
+				if (parseFloat(toSelect3) > presenter.currentSelected.item.length) {
 					toSelect3 = presenter.currentSelected.item.length;
+				}
 
 				if (presenter.validate) {
 					for ( var i = parseFloat(toSelect1); i < parseFloat(toSelect2) + 1; i += parseFloat(toSelect3)) {
@@ -359,7 +542,9 @@ function AddonFractions_create() {
 
 	presenter.markElementAsClicked = function(element) {
 		var clickedElementID = element.id;
-		if (presenter.isErrorCheckingMode === false) {
+
+		if (presenter.isErrorCheckingMode === false
+				&& presenter.isDisable === false) {
 			if (presenter.currentSelected.item[clickedElementID.slice(
 					presenter.currentSelected.item[0].length,
 					clickedElementID.length)] === false) {
@@ -387,8 +572,7 @@ function AddonFractions_create() {
 	};
 
 	presenter.markElementAsSelected = function(element) {
-		// var $myDiv = presenter.$view.find('.' +
-		// presenter.currentSelected.item[0])[element-1];
+
 		var $myDiv = presenter.$view.find('"#'
 				+ presenter.currentSelected.item[0] + element + '"');
 		jQuery($myDiv).css('fill', presenter.selectionColor);
@@ -422,7 +606,7 @@ function AddonFractions_create() {
 						+ stepx + ' v' + stepy + ' h' + (-stepx) + ' v'
 						+ (-stepy) + '" stroke-width="' + presenter.strokeWidth
 						+ '" style="stroke: ' + presenter.strokeColor
-						+ '; fill: "' + presenter.emptyColor + '";" />';
+						+ '; fill: ' + presenter.emptyColor + ';" />';
 				k++;
 			}
 		}
@@ -500,11 +684,15 @@ function AddonFractions_create() {
 		var currentItems = presenter.currentSelected.item;
 		var visible = presenter.isVisible;
 		var initialMarks = presenter.initialMarks;
+		var wasDisable = presenter.wasDisable;
+		var isDisable = presenter.isDisable;
 		return JSON.stringify({
 			Counter : Counter,
 			currentItems : currentItems,
 			visible : visible,
-			initialMarks : initialMarks
+			initialMarks : initialMarks,
+			wasDisable : wasDisable,
+			isDisable : isDisable
 		});
 
 	};
@@ -514,8 +702,8 @@ function AddonFractions_create() {
 				.find('.FractionsWrapper')[0];
 		presenter.isVisible = parsedState.visible;
 		Counter = parsedState.Counter;
-		presenter.initialMarks = parsedState.initialMarks;
-
+		presenter.wasDisable = parsedState.wasDisable;
+		presenter.isDisable = parsedState.isDisable;
 		presenter.setVisibility(presenter.isVisible);
 		presenter.currentSelected.item = JSON.parse(state).currentItems;
 		presenter.clear();
@@ -525,36 +713,56 @@ function AddonFractions_create() {
 				presenter.markElementAsSelected(j);
 			}
 		}
-
+		presenter.initialMarks = parsedState.initialMarks;
+		presenter.isDisable === true ? $($myDiv).addClass('disable')
+				: $($myDiv).removeClass('disable');
 	};
 
 	presenter.getMaxScore = function() {
+		if (parseInt(presenter.initialMarks, 10) / 2 === parseInt(
+				correctAnswer, 10)) {
+			return 0;
+		}
 		if (isNotActivity === false) {
 			return 1;
-		} else
+		} else {
 			return 0;
+		}
 	};
 
 	presenter.neutralOption = function() {
-
 		return Counter === (presenter.initialMarks) / 2 ? 1 : 0;
 	};
 
 	presenter.getScore = function() {
+		if (parseInt(presenter.initialMarks, 10) / 2 === parseInt(
+				correctAnswer, 10)) {
+			return 0;
+		}
 		if (isNotActivity === false) {
 			return Counter == correctAnswer ? 1 : 0;
-		} else
+		} else {
 			return 0;
+		}
 	};
 
 	presenter.getErrorCount = function() {
 		if (isNotActivity === false) {
-			if (presenter.neutralOption() == 1)
+
+			if (parseInt(presenter.initialMarks, 10) / 2 === parseInt(
+					correctAnswer, 10)
+					&& parseInt(correctAnswer, 10) != Counter) {
+				return 1;
+			}
+
+			if (presenter.neutralOption() == 1) {
 				return 0;
-			else
+			} else {
 				return presenter.getMaxScore() - presenter.getScore();
-		} else
+			}
+		} else {
 			return 0;
+		}
 	};
 
 	presenter.setShowErrorsMode = function() {
@@ -563,7 +771,8 @@ function AddonFractions_create() {
 			var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
 
 			if (presenter.neutralOption() === 0) {
-				if (presenter.getScore() === presenter.getMaxScore()) {
+				if (presenter.getScore() === presenter.getMaxScore()
+						&& presenter.getErrorCount() === 0) {
 					$($myDiv).addClass('correct');
 				} else {
 					$($myDiv).addClass('incorrect');
@@ -581,6 +790,7 @@ function AddonFractions_create() {
 	};
 
 	presenter.reset = function() {
+		var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
 		presenter.setWorkMode();
 		for ( var i = 1; i < presenter.currentSelected.item.length; i++)
 			presenter.currentSelected.item[i] = false;
@@ -589,6 +799,9 @@ function AddonFractions_create() {
 		presenter.initialMarks = 0;
 		presenter.selected(presenter.selected.selectedString);
 		presenter.setVisibility(presenter.wasVisible);
+		presenter.isDisable = presenter.wasDisable;
+		presenter.isDisable === true ? $($myDiv).addClass('disable')
+				: $($myDiv).removeClass('disable');
 	};
 
 	presenter.isNotActivity = function() {

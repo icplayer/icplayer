@@ -11,6 +11,7 @@
 		<property name="emptyColor" type="string" />
 		<property name="strokeColor" type="string" />
 		<property name="strokeWidth" type="string" />
-		<property name="isNotActivity" type="boolean" isLocalized="True"/>
+		<property name="isNotActivity" type="boolean"/>
+		<property name="isDisable" type="boolean"/>
 	</model>
 </addon>

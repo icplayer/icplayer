@@ -34,6 +34,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Animation", "Animation", "Media");
 		addDescriptor("Audio", "Audio", "Media");
 		addDescriptor("Basic_Math_Gaps", "Basic Math Gaps", "Activities");
+		addDescriptor("ConnectingDots", "Connecting Dots", "Activities");
 		addDescriptor("Connection", "Connection", "Activities");
 		addDescriptor("Connector", "Connector", "Scripting");
 		addDescriptor("Count_and_Graph", "Count and Graph", "Activities");

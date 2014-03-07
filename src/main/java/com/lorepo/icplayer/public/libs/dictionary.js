@@ -300,5 +300,6 @@ var ice_dictionary = {
 	"Drawing_info": "Allows to draw on canvas, you can choose color and girth",
 	"abandon_all_changes": "Abandon All Changes",
 	"confirm_abandon_all_changes": "All changes done in this editor session will be removed. Are you sure you want to continue?",
-	"Fractions_info": "Allows to select a fraction of figure"
+	"Fractions_info": "Allows to select a fraction of figure",
+	"ConnectingDots": "An activity that requires user to connect dots in order"
 };

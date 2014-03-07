@@ -1,3 +1,4 @@
+2014-03-07 New addon connecting dots and updated fractions
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Table module
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Text module
 2014-03-06 Added injecting 'event' object into Advanced Connector module scripts

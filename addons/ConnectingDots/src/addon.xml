@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="ConnectingDots" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Dots" type="text" displayName="Dots' coordinates"/>
+		<property name="Indexes" type="text" displayName="Dots' indexes"/>
+		<property name="Is activity" type="boolean"/>
+		<property name="Time" type="string" displayName="Animation time"/>
+		<property name="Image A" type="image" displayName="Start image"/>
+		<property name="Image B" type="image" displayName="End image"/>
+		<property name="Is disabled" type="boolean"/>
+	</model>
+</addon>
