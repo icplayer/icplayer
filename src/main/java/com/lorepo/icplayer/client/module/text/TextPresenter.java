@@ -394,7 +394,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String itemID = id.substring(id.lastIndexOf("-")+1);
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, newValue, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
-		
+
+
+        if (isAllOK()) {
+            ValueChangedEvent allOKEvent = new ValueChangedEvent(module.getId(), "all", "", "");
+            playerServices.getEventBus().fireEvent(allOKEvent);
+        }
 	}
 
 
@@ -510,6 +515,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		else if(commandName.compareTo("reset") == 0){
 			reset();
 		}
+        else if(commandName.compareTo("isallok") == 0){
+            return String.valueOf(isAllOK());
+        }
 		
 		return "";
 	}
@@ -621,10 +629,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		presenter.reset = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset()();
-		}
+		};
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getView()();
-		}
+		};
+
+        presenter.isAllOK = function() {
+            return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAllOK()();
+        };
 		
 		return presenter;
 	}-*/;
@@ -720,5 +732,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.hide();
 		}
 	}
+
+    public boolean isAllOK() {
+        return getScore() == getMaxScore() && getErrorCount() == 0;
+    }
 
 }

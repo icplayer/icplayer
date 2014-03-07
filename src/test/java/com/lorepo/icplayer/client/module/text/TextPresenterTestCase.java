@@ -1,30 +1,23 @@
 package com.lorepo.icplayer.client.module.text;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.services.CommandsMockup;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.event.dnd.*;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
+import org.junit.Before;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+
+import static org.junit.Assert.*;
 
 public class TextPresenterTestCase {
 
@@ -33,14 +26,15 @@ public class TextPresenterTestCase {
 	private TextViewMockup display;
 	private TextPresenter presenter;
 	private boolean eventReceived;
+    private boolean allOKEventReceived;
 	private String id1;
 	private String id2;
 	private String id3;
 
-	
+
 	@Before
 	public void runBeforeEveryTest() throws SAXException, IOException {
-		
+
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -55,18 +49,18 @@ public class TextPresenterTestCase {
 		id2 = module.choiceInfos.get(1).getId();
 		id3 = module.gapInfos.get(0).getId();
 	}
-	
-	
+
+
 	@Test
 	public void create() throws SAXException, IOException {
-		
+
 		TextModel module = new TextModel();
 
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		TextViewMockup display = new TextViewMockup(module);
 		TextPresenter presenter = new TextPresenter(module, services);
 		presenter.addView(display);
-		
+
 		display.getListener().onLinkClicked(LinkType.PAGE, "Page 12", "");
 		CommandsMockup commands = (CommandsMockup) services.getCommands();
 		assertEquals("gotoPage: Page 12", commands.getCommand());
@@ -74,35 +68,52 @@ public class TextPresenterTestCase {
 
 	@Test
 	public void maxScore() throws SAXException, IOException {
-		
+
 		assertEquals(5, presenter.getMaxScore());
 	}
-	
+
 	@Test
 	public void score() throws SAXException, IOException {
-		
+
 		display.getListener().onValueChanged(id1, "likes");
 		display.getListener().onValueChanged(id3, "Volvo");
 		assertEquals(3, presenter.getScore());
 	}
-	
+
 	@Test
 	public void errorCount() throws SAXException, IOException {
-		
+
 		display.getListener().onValueChanged(id1, "error1");
 		display.getListener().onValueChanged(id3, "error2");
 		assertEquals(2, presenter.getErrorCount());
 	}
-	
+
 	@Test
 	public void moduleScore() throws SAXException, IOException {
-		
+
 		display.getListener().onValueChanged(id1, "likes");
 		display.getListener().onValueChanged(id3, "Volvo");
-		
+
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(3, moduleScore);
 	}
+
+    @Test
+    public void isAllOKShouldReturnTrue() throws SAXException, IOException {
+        display.getListener().onValueChanged(id1, "likes");
+        display.getListener().onValueChanged(id2, "I don't like it");
+        display.getListener().onValueChanged(id3, "Volvo");
+
+        assertTrue(presenter.isAllOK());
+    }
+
+    @Test
+    public void isAllOKShouldReturnFalse() throws SAXException, IOException {
+        display.getListener().onValueChanged(id1, "likes");
+        display.getListener().onValueChanged(id3, "Volvo");
+
+        assertFalse(presenter.isAllOK());
+    }
 	
 	@Test
 	public void caseSensitive() throws SAXException, IOException {
@@ -206,6 +217,11 @@ public class TextPresenterTestCase {
 
 		assertEquals(2, presenter.getScore());
 	}
+
+    private boolean isAllOKEvent(HashMap<String,String> eventData) {
+        return eventData.get("item").equals("all") && eventData.get("value").equals("") && eventData.get("score").equals("");
+    }
+
 	
 	@Test
 	public void valueChangedEventOnDrop() throws SAXException, IOException {
@@ -256,6 +272,54 @@ public class TextPresenterTestCase {
 		
 		assertTrue(eventReceived);
 	}
+
+    @Test
+    public void allOKEventNotFired() throws SAXException, IOException {
+        eventReceived = false;
+        allOKEventReceived = false;
+
+        services.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+            public void onScoreChanged(ValueChangedEvent event) {
+                HashMap<String,String> eventData = event.getData();
+                if (isAllOKEvent(eventData)) {
+                    allOKEventReceived = true;
+                }
+
+                eventReceived = true;
+            }
+        });
+
+        display.getListener().onValueChanged(module.getId()+"-3", "volvo");
+
+        assertTrue(eventReceived);
+        assertFalse(allOKEventReceived);
+    }
+
+    @Test
+    public void allOKEventShouldBeFired() throws SAXException, IOException {
+        eventReceived = false;
+        allOKEventReceived = false;
+
+        display.getListener().onValueChanged(id1, "likes");
+        display.getListener().onValueChanged(id2, "I don't like it");
+
+        services.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+            public void onScoreChanged(ValueChangedEvent event) {
+                HashMap<String,String> eventData = event.getData();
+                if (isAllOKEvent(eventData)) {
+                    allOKEventReceived = true;
+                }
+
+                eventReceived = true;
+            }
+        });
+
+        display.getListener().onValueChanged(id3, "Volvo");
+
+        assertTrue(eventReceived);
+        assertTrue(allOKEventReceived);
+    }
+
 	
 	
 	@Test
