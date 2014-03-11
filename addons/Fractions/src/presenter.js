@@ -1,4 +1,4 @@
-function AddonFractions_dev_create() {
+function AddonFractions_create() {
 
 	var presenter = function() {
 	};
