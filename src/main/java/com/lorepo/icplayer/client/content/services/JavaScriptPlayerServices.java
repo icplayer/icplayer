@@ -147,6 +147,9 @@ public class JavaScriptPlayerServices{
 				page.getName = function(){
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageName(I)(index);
 				}
+				page.getId = function(){
+					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageId(I)(index);
+				}
 				page.getBaseURL = function(){
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getBaseURL(I)(index);
 				}
@@ -272,6 +275,10 @@ public class JavaScriptPlayerServices{
 		return playerServices.getModel().getPage(index).getName();
 	}
 
+	private String getPageId(int index){
+		return playerServices.getModel().getPage(index).getId();
+	}
+	
 	private String getBaseURL(int index){
 		return playerServices.getModel().getPage(index).getBaseURL();
 	}
