@@ -4,16 +4,24 @@ TestCase("Show and hide methods", {
         this.presenter.configuration = {
             isVisibleByDefault: true,
             isVisible: false,
-            labels: []
+            labels: [],
+            animationState: this.presenter.ANIMATION_STATE.STOPPED,
+            currentFrame: 0
+        };
+        this.presenter.isLoaded = true;
+
+        this.presenter.commandsQueue = {
+            addTask: function () {}
+        };
+
+        this.stubs = {
+            addTask:  sinon.stub(this.presenter.commandsQueue, 'addTask')
         };
 
         this.presenter.DOMElements.viewContainer = $("<div>" +
                                                         "<div class='animation-label' style='visibility: visible'>1</div>" +
                                                         "<div class='animation-label' style='visibility: visible'>2</div>" +
                                                     "</div>");
-
-        this.presenter.configuration.animationState = this.presenter.ANIMATION_STATE.STOPPED;
-        this.presenter.configuration.currentFrame = 0;
     },
 
     'test show method': function () {
@@ -23,11 +31,42 @@ TestCase("Show and hide methods", {
         assertTrue(this.presenter.configuration.isVisibleByDefault);
     },
 
+    'test show method while addon is not fully loaded': function () {
+        this.presenter.isLoaded = false;
+        this.stubs.setVisibility =  sinon.stub(this.presenter, 'setVisibility');
+
+        this.presenter.show();
+
+        assertTrue(this.stubs.addTask.calledWith('show', []));
+        assertFalse(this.stubs.setVisibility.called);
+
+        assertFalse(this.presenter.configuration.isVisible);
+        assertTrue(this.presenter.configuration.isVisibleByDefault);
+
+        this.presenter.setVisibility.restore();
+    },
+
     'test hide method': function () {
         this.presenter.hide();
 
         assertFalse(this.presenter.configuration.isVisible);
         assertTrue("defaultVisibility should NOT change !", this.presenter.configuration.isVisibleByDefault);
+    },
+
+    'test hide method while addon is not fully loaded': function () {
+        this.presenter.isLoaded = false;
+        this.stubs.setVisibility =  sinon.stub(this.presenter, 'setVisibility');
+        this.presenter.configuration.isVisible = true;
+
+        this.presenter.hide();
+
+        assertTrue(this.stubs.addTask.calledWith('hide', []));
+        assertFalse(this.stubs.setVisibility.called);
+
+        assertTrue(this.presenter.configuration.isVisible);
+        assertTrue(this.presenter.configuration.isVisibleByDefault);
+
+        this.presenter.setVisibility.restore();
     },
 
     'test labels are hiding properly': function () {

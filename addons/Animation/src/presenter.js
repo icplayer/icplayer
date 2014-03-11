@@ -320,6 +320,11 @@ function AddonAnimation_create (){
     };
 
     presenter.pause = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('pause', []);
+            return;
+        }
+
         if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) return;
 
         presenter.configuration.animationState = presenter.ANIMATION_STATE.PAUSED;
@@ -331,6 +336,11 @@ function AddonAnimation_create (){
     };
 
     presenter.stop = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('stop', []);
+            return;
+        }
+
         $(presenter.DOMElements.preview).show();
         $(presenter.DOMElements.animation).hide();
         presenter.configuration.animationState = presenter.ANIMATION_STATE.STOPPED;
@@ -387,11 +397,22 @@ function AddonAnimation_create (){
             return;
         }
 
+        presenter.isLoaded = false;
+        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
+
         setElementsDimensions(view);
         prepareLoadingScreen(model.Width, model.Height);
 
         presenter.imagesLoadedDfd = new jQuery.Deferred();
         presenter.imagesLoaded = presenter.imagesLoadedDfd.promise();
+
+        $.when(presenter.imagesLoaded).then(function () {
+            presenter.isLoaded = true;
+
+            if (!presenter.commandsQueue.isQueueEmpty()) {
+                presenter.commandsQueue.executeAllTasks();
+            }
+        });
 
         loadImages();
         prepareLabels();
@@ -407,6 +428,11 @@ function AddonAnimation_create (){
     };
 
     presenter.reset = function(){
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('reset', []);
+            return;
+        }
+
         this.stop();
         presenter.configuration.watermarkOptions.clicked = false;
         if(presenter.configuration.watermarkOptions.show) {
@@ -423,6 +449,8 @@ function AddonAnimation_create (){
     };
 
     presenter.getState = function() {
+        if (!presenter.isLoaded) return '';
+
         if (presenter.ANIMATION_STATE.PLAYING === presenter.configuration.animationState) {
             presenter.pause();
         }
@@ -438,42 +466,45 @@ function AddonAnimation_create (){
     presenter.setState = function(stateString) {
         if (!stateString) return;
 
-        $.when(presenter.imagesLoaded).then(function () {
-            var state = JSON.parse(stateString);
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('setState', [stateString]);
+            return;
+        }
 
-            presenter.configuration.currentFrame = state.currentFrame;
-            presenter.configuration.animationState = state.animationState;
-            presenter.configuration.watermarkOptions.clicked = state.watermarkClicked;
-            changeFrame();
+        var state = JSON.parse(stateString);
 
-            if (state.isVisible) {
-                presenter.show();
-            } else {
-                presenter.hide();
-            }
+        presenter.configuration.currentFrame = state.currentFrame;
+        presenter.configuration.animationState = state.animationState;
+        presenter.configuration.watermarkOptions.clicked = state.watermarkClicked;
+        changeFrame();
 
-            if (!presenter.configuration.watermarkOptions.clicked) {
-                showLabelsForFrame(0);
-            }
+        if (state.isVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
 
-            //noinspection FallthroughInSwitchStatementJS
-            switch (presenter.configuration.animationState) {
-                case presenter.ANIMATION_STATE.PLAYING:
-                    presenter.playAnimation();
-                    break;
-                case presenter.ANIMATION_STATE.PAUSED:
-                case presenter.ANIMATION_STATE.ENDED:
-                    $(presenter.DOMElements.preview).hide();
-                    $(presenter.DOMElements.animation).show();
-                    break;
-            }
+        if (!presenter.configuration.watermarkOptions.clicked) {
+            showLabelsForFrame(0);
+        }
 
-            if (presenter.configuration.watermarkOptions.show && !presenter.configuration.watermarkOptions.clicked) {
-                $(presenter.DOMElements.watermark).show();
-            } else {
-                $(presenter.DOMElements.watermark).hide();
-            }
-        });
+        //noinspection FallthroughInSwitchStatementJS
+        switch (presenter.configuration.animationState) {
+            case presenter.ANIMATION_STATE.PLAYING:
+                presenter.playAnimation();
+                break;
+            case presenter.ANIMATION_STATE.PAUSED:
+            case presenter.ANIMATION_STATE.ENDED:
+                $(presenter.DOMElements.preview).hide();
+                $(presenter.DOMElements.animation).show();
+                break;
+        }
+
+        if (presenter.configuration.watermarkOptions.show && !presenter.configuration.watermarkOptions.clicked) {
+            $(presenter.DOMElements.watermark).show();
+        } else {
+            $(presenter.DOMElements.watermark).hide();
+        }
     };
 
     function loadImagesEndCallback () {
@@ -498,6 +529,11 @@ function AddonAnimation_create (){
     }
 
     presenter.play = function () {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('play', []);
+            return;
+        }
+
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.ENDED) {
             presenter.stop();
         } else {
@@ -528,6 +564,11 @@ function AddonAnimation_create (){
     };
 
     presenter.hide = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('hide', []);
+            return;
+        }
+
         this.configuration.isVisible = false;
         if(presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
             this.pause();
@@ -537,6 +578,11 @@ function AddonAnimation_create (){
     };
 
     presenter.show = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('show', []);
+            return;
+        }
+
         this.configuration.isVisible = true;
         if(presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
             this.playAnimation();
