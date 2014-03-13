@@ -242,6 +242,10 @@ public class JavaScriptPlayerServices{
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScore(Ljava/lang/String;)(name);
 			}
 
+			score.getArchivedPageScore = function(name){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getArchivedPageScore(Ljava/lang/String;)(name);
+			}
+
 			return score;
 		}	
 		
@@ -379,13 +383,27 @@ public class JavaScriptPlayerServices{
 		
 		playerServices.getCommands().updateCurrentPageScore();
 		PageScore score = playerServices.getScoreService().getPageScore(pageName);
-		JavaScriptObject model = JavaScriptObject.createArray();
+		JavaScriptObject model = scoreToJs(score);
 		
+		return model;
+	}
+
+
+	private JavaScriptObject scoreToJs(PageScore score) {
+		JavaScriptObject model = JavaScriptObject.createArray();
 		JavaScriptUtils.addPropertyToJSArray(model, "score", (int)score.getScore());
 		JavaScriptUtils.addPropertyToJSArray(model, "maxScore", (int)score.getMaxScore());
 		JavaScriptUtils.addPropertyToJSArray(model, "checkCount", score.getCheckCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "errorCount", score.getErrorCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
+		return model;
+	}
+	
+	private JavaScriptObject getArchivedPageScore(String pageName){
+		
+		playerServices.getCommands().updateCurrentPageScore();
+		PageScore score = playerServices.getScoreService().getArchivedPageScore(pageName);
+		JavaScriptObject model = scoreToJs(score);
 		
 		return model;
 	}

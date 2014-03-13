@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.content.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -10,12 +12,16 @@ public class ScoreService implements IScoreService {
 
 	private HashMap<String, Integer>	scores;
 	private HashMap<String, PageScore>	pageScores;
+	private HashMap<String, List<PageScore>> pageScoresHistory;
+	private boolean archiveUseLast;
 
 	
-	public ScoreService(){
+	public ScoreService(boolean useLast){
 
+		archiveUseLast = useLast;
 		scores = new HashMap<String, Integer>();
 		pageScores = new HashMap<String, PageScore>();
+		pageScoresHistory = new HashMap<String, List<PageScore>>();
 	}
 	
 	
@@ -103,5 +109,32 @@ public class ScoreService implements IScoreService {
 			pageScore.loadFromString(data.get(pageName));
 			pageScores.put(pageName, pageScore);
 		}
+	}
+
+
+	@Override
+	public void updateHistory(String name) {
+		PageScore score = pageScores.get(name);
+		List<PageScore> sl = pageScoresHistory.get(name);
+		if(sl == null){
+			sl = new ArrayList<PageScore>();
+			pageScoresHistory.put(name, sl);
+		}
+		sl.add(score.copy());
+	}
+
+
+	@Override
+	public PageScore getArchivedPageScore(String pageName) {
+		List<PageScore> sl = pageScoresHistory.get(pageName);
+		PageScore score;
+		if(sl != null && sl.size() > 0 && !archiveUseLast){
+			score = sl.get(0);
+		}
+		else{
+			score = getPageScore(pageName);
+		}
+		
+		return score;
 	}
 }

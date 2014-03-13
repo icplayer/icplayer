@@ -138,6 +138,7 @@ public class PageController {
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
 			pageScore.incrementCheckCount();
 			pageScore.incrementMistakeCount();
+			playerService.getScoreService().updateHistory(currentPage.getName());
 		}
 	}
 

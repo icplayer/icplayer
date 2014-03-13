@@ -16,7 +16,7 @@ public class PlayerControllerMockup implements IPlayerController {
 	private StateService	stateService;
 
 	public PlayerControllerMockup() {
-		scoreService = new ScoreService();
+		scoreService = new ScoreService(true);
 		stateService = new StateService();
 	}
 	

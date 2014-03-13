@@ -36,7 +36,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
-		scoreService = new ScoreService();
+		scoreService = new ScoreService(true);
 		jsonMockup = new JsonMockup();
 	}
 	

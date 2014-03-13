@@ -23,8 +23,11 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
  */
 public class Content implements IXMLSerializable, IContent {
 
+	public enum ScoreType{ first, last }
+	
 	private static final String COMMONS_FOLDER = "commons/";
 	private String name = "";
+	private ScoreType scoreType = ScoreType.last; 
 	private PageList	pages;
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
@@ -92,12 +95,16 @@ public class Content implements IXMLSerializable, IContent {
 		});
 		
 	}
+
 	
+	public ScoreType getScoreType(){
+		return scoreType;
+	}
 	
-	/**
-	 * Add content listener
-	 * @param l
-	 */
+	public void setScoreType(ScoreType st){
+		scoreType = st;
+	}
+	
 	public void addChangeListener(IContentListener l){
 		listener = l;
 	}
@@ -197,8 +204,7 @@ public class Content implements IXMLSerializable, IContent {
 
 		baseUrl = url.substring(0, url.lastIndexOf("/")+1);
 
-		name = XMLUtils.getAttributeAsString(rootElement, "name");
-		name = StringUtils.unescapeXML(name);
+		loadAttributes(rootElement);
 		NodeList children = rootElement.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++){
 			
@@ -223,6 +229,15 @@ public class Content implements IXMLSerializable, IContent {
 			}
 		}
 		
+	}
+
+	private void loadAttributes(Element rootElement) {
+		name = XMLUtils.getAttributeAsString(rootElement, "name");
+		name = StringUtils.unescapeXML(name);
+		String st = XMLUtils.getAttributeAsString(rootElement, "scoreType");
+		if(st.equals(ScoreType.first.toString())){
+			scoreType = ScoreType.first;
+		}
 	}
 
 
@@ -316,7 +331,7 @@ public class Content implements IXMLSerializable, IContent {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>"; 
 
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "'>";			
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";			
 		
 		// Metadata
 		xml += "<metadata>";

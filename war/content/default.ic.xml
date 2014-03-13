@@ -52,8 +52,6 @@
 </style>
 
 <pages>
-	<page name="test" href="pages/test.xml"/>
-	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
@@ -70,6 +68,8 @@
 		<page name="footer" href="pages/footer.xml"/>
 	</folder>
 	<!--
+	<page name="youtube" href="pages/youtube.page.xml"/>
+	<page name="test" href="pages/test.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>

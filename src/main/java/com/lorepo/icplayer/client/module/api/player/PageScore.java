@@ -122,4 +122,13 @@ public class PageScore {
 		errorCount = Integer.parseInt(data.get("errorCount"));
 		mistakeCount = Integer.parseInt(data.get("mistakeCount"));
 	}
+
+
+	public PageScore copy() {
+		PageScore copyScore = new PageScore(pageName);
+		copyScore.setErrorCount(getErrorCount());
+		copyScore.setMaxScore(getMaxScore());
+		copyScore.setScore(getScore());
+		return copyScore;
+	}
 }

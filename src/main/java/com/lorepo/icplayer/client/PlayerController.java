@@ -20,6 +20,7 @@ import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -55,7 +56,7 @@ public class PlayerController implements IPlayerController{
 		playerView = view;
 		playerView.setPlayerController(this);
 		sessionId = UUID.uuid();
-		scoreService = new ScoreService();
+		scoreService = new ScoreService(contentModel.getScoreType() == ScoreType.last);
 		stateService = new StateService();
 		createPageControllers(bookMode);
 	}

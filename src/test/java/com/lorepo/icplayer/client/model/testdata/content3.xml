@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<interactiveContent>
+<interactiveContent scoreType="first">
 
 <pages>
 	<page id="123456" name="Page 1" href="pages/style-audio.page.xml" preview="/file/12"/>

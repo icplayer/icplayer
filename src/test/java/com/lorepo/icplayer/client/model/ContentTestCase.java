@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
@@ -390,7 +391,7 @@ public class ContentTestCase {
 
 
 	@Test
-	public void loadSavePreview() throws SAXException, IOException {
+	public void loadSave() throws SAXException, IOException {
 		
 		Content model = initContentFromFile("testdata/content3.xml");
 		String xml = model.toXML();
@@ -398,6 +399,7 @@ public class ContentTestCase {
 		
 		IPage page = model.getPage(0);
 		assertEquals("/file/12", page.getPreview());
+		assertEquals(ScoreType.first, model.getScoreType());
 	}
 
 
