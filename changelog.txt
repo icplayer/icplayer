@@ -1,3 +1,4 @@
+2014-03-14 Added command isAtempted to choice
 2014-03-12 Player can return first or last score
 2014-03-11 Fixed problem with Animation module commands execution on PageLoaded event
 2014-03-11 Player API extended to return page id

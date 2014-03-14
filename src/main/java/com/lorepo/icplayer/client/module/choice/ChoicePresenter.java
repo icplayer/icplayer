@@ -413,6 +413,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::reset()();
 		}
 		
+		presenter.IsAttempted = function(){ 
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::IsAttempted()();
+		}
+		
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getView()();
 		}
@@ -481,5 +485,20 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if(view != null){
 			view.hide();
 		}
+	}
+	
+	
+	/**
+	 * Check if module has any option selected 
+	 */
+	private boolean IsAttempted(){
+		
+		for(IOptionDisplay optionView : view.getOptions()){
+			if(optionView.isDown()){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
