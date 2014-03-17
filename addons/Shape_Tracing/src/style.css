@@ -1,0 +1,25 @@
+.addon_Shape_Tracing .outer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.addon_Shape_Tracing .outer .drawing,
+.addon_Shape_Tracing .outer .background,
+.addon_Shape_Tracing .outer .shape {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.addon_Shape_Tracing .outer .drawing {
+    cursor: crosshair;
+}
+
+.addon_Shape_Tracing .outer .background {
+
+}
+
+.addon_Shape_Tracing .outer .shape {
+
+}

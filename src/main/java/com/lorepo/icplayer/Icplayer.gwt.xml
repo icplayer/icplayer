@@ -37,7 +37,8 @@
 	<script src="libs/htmlparser.js" />
 	<script src="libs/canvasfloodfill.js" />
 	<script src="libs/jquery.ui.touch-punch.min.js" />
-    <script src="libs/jquery.keyboard.min.js" />
+	<script src="libs/jquery.keyboard.min.js" />
+	<script src="libs/kinetic-v5.0.1.min.js" />
 
     <script src="libs/jqplot/jquery.jqplot.min.js"/>
     <script src="libs/jqplot/jqplot.barRenderer.min.js"/>

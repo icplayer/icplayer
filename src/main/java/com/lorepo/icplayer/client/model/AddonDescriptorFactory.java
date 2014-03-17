@@ -71,6 +71,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Plot", "Plot", "Activities");
 		addDescriptor("Points_To_Plot", "Points To Plot", "Activities");
 		addDescriptor("Puzzle", "Puzzle", "Activities");
+		addDescriptor("Shape_Tracing", "Shape Tracing", "Media");
 		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
 		addDescriptor("Slider", "Slider", "Scripting");
 		addDescriptor("Slideshow", "Slideshow", "Media");

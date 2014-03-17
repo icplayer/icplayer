@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Shape_Tracing' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Shape image" type="file" />
+        <property name="Show Shape image" type="boolean" />
+        <property name="Hide Shape image on check" type="boolean" />
+        <property name="Show Boundaries (editor)" type="boolean" />
+        <property name="Background image" type="file" />
+        <property name="Correct number of lines" type="string" />
+        <property name="Points' coordinates" type="text" />
+        <property name="isPointsOrder" displayName="Mind points' order" type="boolean" />
+        <property name="Color" type="string" />
+        <property name="Pen Thickness" displayName="Thickness" type="string" />
+        <property name="Opacity" type="string" />
+        <property name="Border" type="string" />
+    </model>
+</addon>
