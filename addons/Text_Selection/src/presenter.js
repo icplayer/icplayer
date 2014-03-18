@@ -2,6 +2,43 @@ function AddonText_Selection_create() {
 
 	var presenter = function(){};
 
+    presenter.eventBus = null;
+
+    presenter.playerController = null;
+
+    presenter.setPlayerController = function (controller) {
+        this.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
+    };
+
+    presenter.createEventData = function (item, value, score) {
+
+        return {
+            'source': presenter.configuration.addonID,
+            'item': parseInt(item, 10) + 1,
+            'value': value ? 1 : 0,
+            'score': score ? 1 : 0
+        };
+    };
+
+    presenter.sendEvent = function(item, value, score, checkIsAllOK) {
+        var eventData = presenter.createEventData(item, value, score);
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+
+        if (presenter.isAllOK() && checkIsAllOK) sendAllOKEvent();
+    };
+
+    function sendAllOKEvent() {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    }
+
 	var first = 0,
 		beforeActive = false,
 		lastMoveEvent = null;
@@ -96,10 +133,10 @@ function AddonText_Selection_create() {
 	presenter.startSelection = function(et) {
 		first = parseInt($(et).attr('number'), 10);
 		if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
-		if (isNaN(first)) first = parseInt($(et).closest('.selectable').attr('number'));
+		if (isNaN(first)) first = parseInt($(et).closest('.selectable').attr('number'), 10);
 		if (isNaN(first)) {
 			$(et).nextAll('div').each(function() {
-				first = parseInt($(this).children('span.selectable').attr('number'));
+				first = parseInt($(this).children('span.selectable').attr('number'), 10);
 				if (!isNaN(first)) {
 					beforeActive = true;
 					return false;
@@ -120,10 +157,10 @@ function AddonText_Selection_create() {
 			element = null;
 
 		if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
-		if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'));
+		if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'), 10);
 		if (isNaN(last)) {
 			$(et).nextAll('div').each(function() {
-				last = parseInt($(this).children('span.selectable').attr('number'));
+				last = parseInt($(this).children('span.selectable').attr('number'), 10);
 				if (!isNaN(last)) {
 					return false;
 				}
@@ -171,16 +208,25 @@ function AddonText_Selection_create() {
 				}
 
 			}
+
+            for (i=first; i<last+1; i++) {
+                element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
+                if (element.hasClass('selectable')) {
+                    presenter.sendEvent(element.attr('number'), element.hasClass('selected'), isCorrect(element), i === last);
+                }
+            }
+
 		} else if (first === last && !beforeActive) {
 			$span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
 
 			if (presenter.configuration.selection_type === 'SINGLESELECT') {
+
 				if (selected.length == 0) {
 					if ($span.hasClass('selectable')) {
 						$span.addClass('selected');
 					}
 				} else if (selected.length == 1) {
-					if (parseInt(selected.attr('number')) === parseInt(first, 10)) {
+					if (parseInt(selected.attr('number'), 10) === parseInt(first, 10)) {
 						selected.removeClass('selected');
 					} else {
 						if ($span.hasClass('selectable')) {
@@ -189,11 +235,18 @@ function AddonText_Selection_create() {
 						}
 					}
 				}
+
+
 			} else if (presenter.configuration.selection_type === 'MULTISELECT') {
+
 				if ($span.hasClass('selectable')) {
 					$span.toggleClass('selected');
 				}
 			}
+
+            if ($span.hasClass('selectable')) {
+                presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), true);
+            }
 		}
 
 		first = 0;
@@ -204,6 +257,12 @@ function AddonText_Selection_create() {
 			document.selection.empty();
 		}
 	};
+
+    function isCorrect(element) {
+        var number = parseInt($(element).attr('number'), 10),
+            isInCorrectArray = $.inArray(number, presenter.markers.markedCorrect) >= 0;
+        return element.hasClass('selected') ? isInCorrectArray : !isInCorrectArray;
+    }
 
 	presenter.turnOnEventListeners = function() {
 		var $text_selection = presenter.$view.find('.text_selection');
@@ -361,7 +420,8 @@ function AddonText_Selection_create() {
 			renderedPreview: parsedWords.renderedPreview,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
 			isExerciseStarted: false,
-			areEventListenersOn: true
+			areEventListenersOn: true,
+            addonID: model['ID']
 		};
 	};
 
@@ -643,7 +703,8 @@ function AddonText_Selection_create() {
 
 		var commands = {
 			'show': presenter.show,
-			'hide': presenter.hide
+			'hide': presenter.hide,
+            'isAllOK' : presenter.isAllOK
 		};
 
 		Commands.dispatch(commands, name, params, presenter);
@@ -688,9 +749,10 @@ function AddonText_Selection_create() {
 	presenter.setState = function(state) {
 		if (ModelValidationUtils.isStringEmpty(state)) return;
 
-		var nums              = JSON.parse(state).numbers,
-			isVisible         = JSON.parse(state).isVisible,
-			isExerciseStarted = JSON.parse(state).isExerciseStarted;
+        var parsed = JSON.parse(state),
+		    nums              = parsed.numbers,
+			isVisible         = parsed.isVisible,
+			isExerciseStarted = parsed.isExerciseStarted;
 
 		for (var i=0; i<nums.length; i++) {
 			presenter.$view.find('.text_selection').find("span[number='" + nums[i] + "']").addClass("selected");
@@ -750,7 +812,7 @@ function AddonText_Selection_create() {
 
 	function points(selector) {
 		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
-			return parseInt(this.getAttribute('number'));
+			return parseInt(this.getAttribute('number'), 10);
 		}).get();
 
 		return intersection(selector, numbersSelected).length;
@@ -767,6 +829,10 @@ function AddonText_Selection_create() {
 	presenter.getScore = function() {
 		return points(presenter.markers.markedCorrect);
 	};
+
+    presenter.isAllOK = function() {
+        return presenter.getMaxScore() == presenter.getScore();
+    };
 
 	return presenter;
 }
