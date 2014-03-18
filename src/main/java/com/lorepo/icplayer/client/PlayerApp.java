@@ -56,6 +56,7 @@ public class PlayerApp{
 	public void load(String url, int pageIndex) {
 		startPageIndex = pageIndex;
 		contentModel = new Content();
+		if (pagesSubset != null) contentModel.setPageSubset(pagesSubset);
 		XMLLoader	reader = new XMLLoader(contentModel);
 		reader.load(url, new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
@@ -88,7 +89,7 @@ public class PlayerApp{
 	 * Init player after content is loaded
 	 */
 	private void initPlayer() {
-		if (pagesSubset != null) contentModel.setPages(pagesSubset);
+		
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode);
 		playerController.setFirstPageAsCover(showCover);

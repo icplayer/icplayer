@@ -22,7 +22,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	private List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
 	public String name;
-	
 
 	public PageList(){
 		this("Chapter");
@@ -38,7 +37,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return name;
 	}
 	
-	
+
 	public void addListener(IPageListListener l){
 		this.listener = l;
 	}
@@ -73,24 +72,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		
 		return pages;
 	}
-	
-	public void setSubsetPages(ArrayList<Integer> subsetArray) {
-		List<IContentNode> pages = new Vector<IContentNode>();
-		for (IContentNode node : nodes) {
-			if (node instanceof Page) {
-				if (subsetArray.contains(indexOf(node))) {
-					pages.add(node);
-					subsetArray.remove(subsetArray.indexOf(indexOf(node)));
-				}
-			}
-		}
-		if (subsetArray.size() > 0)
-			throw new IllegalArgumentException("Page index "
-					+ subsetArray.get(0) + " is out of range");
-		if (pages.size() > 0)
-			nodes = pages;
-	}
-
 	
 	public void insertBefore(int index, IContentNode node){
 		
@@ -223,29 +204,40 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return counter;
 	}
 
-
-
 	@Override
 	public void load(Element rootElement, String url) {
+		//for IXMLSerializable interface  
+		load(rootElement, url, null, 0);
+	}
+
+
+	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex) {
 		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
+		
+		boolean isLoadedWithSubset = subsetOfPages != null && subsetOfPages.size() > 0;
 		name = StringUtils.unescapeXML(nodeName);
 		NodeList children = rootElement.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++){
-	
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("page") == 0){
-					Page page = loadPage(node);
-					add(page);
-				}
-				else if(node.getNodeName().compareTo("chapter") == 0){
+					if (isLoadedWithSubset && !subsetOfPages.contains(pageIndex)) { 
+						pageIndex++;
+						continue;
+					} else {		
+						Page page = loadPage(node);
+						add(page);
+						pageIndex++;
+					}
+				} else if(node.getNodeName().compareTo("chapter") == 0) {
 					PageList chapter = new PageList();
 					chapter.addListener(listener);
-					chapter.load(node, url);
+					pageIndex = chapter.load(node, url, subsetOfPages, pageIndex);
 					nodes.add(chapter);
 				}
 			}
 		}
+		return pageIndex;
 	}
 
 	private Page loadPage(Element node) {
@@ -409,5 +401,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		}
 		return parent;
 	}
+
+
 
 }

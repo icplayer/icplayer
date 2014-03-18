@@ -15,12 +15,6 @@ import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
-/**
- * Model reprezentujący główny plik startowy.
- * 
- * @author Krzysztof Langner
- *
- */
 public class Content implements IXMLSerializable, IContent {
 
 	public enum ScoreType{ first, last }
@@ -32,6 +26,7 @@ public class Content implements IXMLSerializable, IContent {
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
+	private ArrayList<Integer> pageSubset = new ArrayList<Integer>();
 	private String styles;
 	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
@@ -195,11 +190,11 @@ public class Content implements IXMLSerializable, IContent {
 		styles = text;
 	}
 
-	public void setPages(ArrayList<Integer> a){
-		pages.setSubsetPages(a);
+	public void setPageSubset(ArrayList<Integer> pageList){
+		pageSubset = pageList;
 	}
 
-	
+	@Override
 	public void load(Element rootElement, String url) {
 
 		baseUrl = url.substring(0, url.lastIndexOf("/")+1);
@@ -221,7 +216,7 @@ public class Content implements IXMLSerializable, IContent {
 					loadStyles(child);
 				}
 				else if(name.compareTo("pages") == 0){
-					loadPages(child, url);
+					loadPages(child, url, pageSubset);
 				}
 				else if(name.compareTo("assets") == 0){
 					loadAssets(child);
@@ -278,17 +273,16 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 
-	private void loadPages(Element rootElement, String baseUrl) {
-		
+	private void loadPages(Element rootElement, String baseUrl, ArrayList<Integer> pageSubset) {
 		NodeList children = rootElement.getChildNodes();
-		pages.load(rootElement, baseUrl);
+		pages.load(rootElement, baseUrl, pageSubset, 0);
 		
 		for(int i = 0; i < children.getLength(); i++){
 	
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("folder") == 0){
-					commonPages.load(node, baseUrl);
+					commonPages.load(node, baseUrl, null, 0);
 				}
 				else if(node.getNodeName().compareTo("header") == 0){
 					headerPageName = node.getAttribute("ref");
@@ -464,5 +458,7 @@ public class Content implements IXMLSerializable, IContent {
 		}
 		return parent;
 	}
+
+
 	
 }
