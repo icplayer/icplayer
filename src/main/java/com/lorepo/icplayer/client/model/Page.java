@@ -198,7 +198,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		
 		width = XMLUtils.getAttributeAsInt(rootElement, "width");
 		height = XMLUtils.getAttributeAsInt(rootElement, "height");
-		setInlineStyle(rootElement.getAttribute("style"));
+		String style = StringUtils.unescapeXML(rootElement.getAttribute("style"));
+		String css = URLUtils.resolveCSSURL(baseURL, style);
+		setInlineStyle(css);
 		setStyleClass(rootElement.getAttribute("class"));
 		
 		String positioning = rootElement.getAttribute("layout");
