@@ -17,12 +17,10 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
 /**
