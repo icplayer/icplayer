@@ -10,6 +10,7 @@ function Addonvideo_create() {
     presenter.isPreview = false;
     presenter.captions = [];
     presenter.configuration = {};
+    presenter.captionDivs = [];
 
     var height;
 
@@ -123,7 +124,7 @@ function Addonvideo_create() {
                 transformation = 'scale(' + scale + ')';
                 $(element).css({
                     position: 'fixed',
-                    zIndex: 9999999999,
+                    zIndex: 999999,
                     top: (newTop + offsetY + translateY) + 'px',
                     left: (newLeft + offsetX + translateX) + 'px',
                     '-moz-transform': transformation,
@@ -318,14 +319,14 @@ function Addonvideo_create() {
                     transformation = 'scale(' + scale + ')';
                     $(caption.element).css({
                         position: 'fixed',
-                        zIndex: 9999999999,
+                        zIndex: 999999,
                         top: (newTop + offsetY + translateY) + 'px',
                         left: (newLeft + offsetX + translateX) + 'px',
-                        '-moz-transform': transformation,
+                        'transform': transformation,
+                        '-ms-transform': transformation,
                         '-webkit-transform': transformation,
                         '-o-transform': transformation,
-                        '-ms-transform': transformation,
-                        'transform': transformation
+                        '-moz-transform': transformation
                     });
                 }
 
@@ -484,6 +485,8 @@ function Addonvideo_create() {
 
                 caption.element = createCaptionElement(caption);
                 this.captions.push(caption);
+
+                presenter.captionDivs.push(caption.element);
             }
         }
 
@@ -495,9 +498,6 @@ function Addonvideo_create() {
             subtitles = this.files[this.currentMovie].Subtitles;
 
         if (subtitles) {
-            var lines = [],
-                captions = {};
-
             if (StringUtils.startsWith(subtitles, "/file")) {
                 $.get(subtitles, function(data) {
                     subtitlesLoadedDeferred.resolve(data);
@@ -506,19 +506,15 @@ function Addonvideo_create() {
                 subtitlesLoadedDeferred.resolve(subtitles);
             }
 
+            presenter.convertLinesToCaptions(Helpers.splitLines(subtitles));
             $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
-                lines = presenter.splitLines(data);
-                presenter.convertLinesToCaptions(lines);
-                captions = $(presenter.videoContainer[0]).find(".captions");
-                $.each(captions, function() {
+                presenter.convertLinesToCaptions(Helpers.splitLines(data));
+                //var captions = $(presenter.videoContainer[0]).find("div.captions");
+                $.each(presenter.captionDivs, function() {
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, this])();
                 });
             });
         }
-    };
-
-    presenter.splitLines = function(data) {
-        return data.split(/[\n\r]+/);
     };
 
     presenter.calculateVideoContainerHeight = function ($container, moduleHeight) {
