@@ -1,0 +1,27 @@
+.coloring-wrapper .coloring-container canvas {
+    display: table;
+    margin: auto;
+}
+
+.coloring-wrapper {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+.coloring-wrapper .coloring-container {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.coloring-wrapper .coloring-container .icon-container {
+    border: 1px solid #111111;
+    border-radius: 50%;
+    font-size: 10px;
+    height: 8px;
+    line-height: 6px;
+    padding: 2px;
+    position: absolute;
+    width: 8px;
+    font-weight: bold;
+}

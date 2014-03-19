@@ -1,3 +1,4 @@
+2014-03-19 Added Coloring module
 2014-03-18 Fixed problem with links in page styles.
 2014-03-18 Added sending events to Text Selection module
 2014-03-17 Added addon Shape Tracing

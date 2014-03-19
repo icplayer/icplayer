@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="Coloring">
+	<model>
+        <property name="Image" displayName="Image" type="file" />
+        <property name="Areas" displayName="Areas" type="text" />
+        <property name="DefaultFillingColor" displayName="Default Filling Color" type="string" />
+        <property name="Tolerance" displayName="Tolerance" type="string" />
+        <property name="isNotActivity" displayName="Is Not Activity" type="boolean" />
+        <property name="isDisabled" displayName="Is Disabled" type="boolean" />
+	</model>
+</addon>
