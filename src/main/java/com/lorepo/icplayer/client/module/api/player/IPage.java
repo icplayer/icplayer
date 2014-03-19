@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.api.player;
 
+import java.util.List;
+
 public interface IPage extends IContentNode{
 
 	public String getName();
@@ -9,4 +11,5 @@ public interface IPage extends IContentNode{
 	public String getURL();
 	public String getId();
 	public String getHref();
+	public List<String> getModulesList();
 }

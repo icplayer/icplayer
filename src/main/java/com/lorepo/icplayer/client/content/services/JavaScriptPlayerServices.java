@@ -9,7 +9,9 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
@@ -156,6 +158,9 @@ public class JavaScriptPlayerServices{
 				page.isReportable = function(){
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageReportable(I)(index);
 				}
+				page.getModules = function() {
+					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModules(I)(index);
+				}
 				
 				return page;
 			}
@@ -289,6 +294,14 @@ public class JavaScriptPlayerServices{
 
 	private boolean isPageReportable(int index){
 		return playerServices.getModel().getPage(index).isReportable();
+	}
+	
+	private JavaScriptObject getModules(int index) {
+		JavaScriptObject model = JavaScriptObject.createArray();
+		for(String id : playerServices.getModel().getPage(index).getModulesList()) {
+			JavaScriptUtils.addElementToJSArray(model, id);
+		}
+		return model;
 	}
 
 

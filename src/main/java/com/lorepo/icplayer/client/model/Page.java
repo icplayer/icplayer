@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -14,10 +17,12 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 
 /**
@@ -465,11 +470,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		return "page";
 	}
 
-
 	public ModuleList getModules() {
 		return modules;
 	}
 	
+	public List<String> getModulesList() {
+		List<String> ids = new ArrayList<String>();
+		for(IModuleModel module : modules) {
+			ids.add(module.getId());
+		}
+		
+		return ids;
+	}
 	
 	public int getWidth(){
 		return width;
@@ -620,6 +632,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		}
 		page.isReportable = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
+		}
+		page.getModules = function() {
+			return x.@com.lorepo.icplayer.client.model.Page::getModulesList()();
 		}
 		
 		return page;
