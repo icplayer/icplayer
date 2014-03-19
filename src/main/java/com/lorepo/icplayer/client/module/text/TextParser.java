@@ -291,6 +291,8 @@ public class TextParser {
 		}
 		return parsedText;
 	}
+	
+	
 
 	private String parseExternalLinks(String srcText) {
 
@@ -300,6 +302,7 @@ public class TextParser {
 		String replaceText;
 		String parsedText = srcText;
 		String href = null;
+		String literalReplacement = null;
 
 		while ((matchResult = gapRegExp.exec(parsedText)) != null) {
 			if (matchResult.getGroupCount() > 0) {
@@ -309,7 +312,9 @@ public class TextParser {
 				if (replaceText == null) {
 					replaceText = "#ERR#";
 				}
-				parsedText = parsedText.replaceFirst(matchResult.getGroup(0),
+				
+				literalReplacement = StringUtils.quoteReplacement(matchResult.getGroup(0));
+				parsedText = parsedText.replaceFirst(literalReplacement,
 						replaceText);
 			} else {
 				break;
@@ -409,14 +414,15 @@ public class TextParser {
 	 * @return
 	 */
 	private String externalLink2Anchor(String href) {
-
+		
 		String replaceText = null;
 		String id = baseId + "-" + UUID.uuid(4);
 		String target = (openLinksinNewTab) ? "_blank" : "_self";
+		
 		LinkInfo pli = new LinkInfo(id, LinkType.EXTERNAL, href, target);
 		parserResult.linkInfos.add(pli);
 		replaceText = "<a id='" + id +  "' target='" + target + "' href='" + href + "'";
-
+		
 		return replaceText;
 	}
 

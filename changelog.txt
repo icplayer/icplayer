@@ -1,3 +1,4 @@
+2014-03-19 Fixed issue with special characters external links in Text module
 2014-03-19 Added getModules method to Player API
 2014-03-19 Fixed problem with Tex in Video module
 2014-03-19 Added Coloring module

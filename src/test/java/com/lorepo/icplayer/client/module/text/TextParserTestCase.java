@@ -383,6 +383,21 @@ public class TextParserTestCase {
 	}
 	
 	@Test
+	public void testExternalLinksWithSpecialCharacters() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="This is <a href='https://www.google.pl/search?q=lorem+ipsum&oq=lorem+ipsum&aqs=chrome..69i57j0l5.2695j0j7&sourceid=chrome&espv=210&es_sm=93&ie=UTF-8'>externalLink1</a>.";
+		String expectedText ="This is <a id='xcf-1' target='_blank' href='https://www.google.pl/search?q=lorem+ipsum&oq=lorem+ipsum&aqs=chrome..69i57j0l5.2695j0j7&sourceid=chrome&espv=210&es_sm=93&ie=UTF-8'>externalLink1</a>.";
+		
+		parser.setId("xcf");
+		ParserResult parsedText = parser.parse(srcText);
+		Iterator<LinkInfo> it = parsedText.linkInfos.iterator();
+		expectedText = expectedText.replace("'xcf-1'", "'" + it.next().getId() + "'");
+
+		assertEquals(expectedText, parsedText.parsedText);
+	}
+	
+	@Test
 	public void testGap1() {
 		
 		TextParser parser = new TextParser();
