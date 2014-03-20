@@ -35,7 +35,6 @@
 	<script src="libs/tinymce.min.js"/>
 	<script src="libs/jsc3d.js" />
 	<script src="libs/htmlparser.js" />
-	<script src="libs/canvasfloodfill.js" />
 	<script src="libs/jquery.ui.touch-punch.min.js" />
 	<script src="libs/jquery.keyboard.min.js" />
 	<script src="libs/kinetic-v5.0.1.min.js" />
