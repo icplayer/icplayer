@@ -1,3 +1,4 @@
+2014-03-21 Added new text properties to check button
 2014-03-21 Added checkAnswers and uncheckAnswers method to Player API
 2014-03-21 Added command isAttempted to Text module
 2014-03-21 New addon: Hierarchical_Lesson_Report
