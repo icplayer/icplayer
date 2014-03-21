@@ -302,5 +302,6 @@ var ice_dictionary = {
 	"confirm_abandon_all_changes": "All changes done in this editor session will be removed. Are you sure you want to continue?",
     "Shape_Tracing_info": "An addon that allows user to draw on canvas with shapes",
 	"Fractions_info": "Allows to select a fraction of figure",
+    "Hierarchical_Lesson_Report_info": "Enables to insert a ready-made lesson report, including percentage results for each individual page in a presentation or chapter, a total percentage result, and a number of checks and errors. It is possible to modify the look of each part of the report individually.",
 	"ConnectingDots_info": "An activity that requires user to connect dots in order"
 };

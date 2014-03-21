@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<project name="Hierarchical_Lesson_Report" basedir="." default="Addon.test">
+    <import file="../tools/targets.xml" />
+</project>

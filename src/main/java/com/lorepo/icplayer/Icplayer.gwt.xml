@@ -44,6 +44,9 @@
     <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
     <script src="libs/jqplot/jqplot.cursor.min.js"/>
     <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
+    
+    <script src="libs/TreeGrid/js/jquery.treegrid.js"/>
+    <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 

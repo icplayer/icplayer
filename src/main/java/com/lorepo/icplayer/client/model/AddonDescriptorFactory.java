@@ -52,6 +52,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Glossary", "Glossary", "Media");
 		addDescriptor("graph", "Graph", "Activities");
 		addDescriptor("Hangman", "Hangman", "Activities");
+		addDescriptor("Hierarchical_Lesson_Report", "Hierarchical Lesson Report", "Reporting");
 		addDescriptor("Image_Identification", "Image Identification", "Activities");
 		addDescriptor("Image_Viewer_Public", "Image Viewer", "Media");
 		addDescriptor("Image_Viewer_Button_Controlled_Public", "Image Viewer Button Controlled", "Media");
