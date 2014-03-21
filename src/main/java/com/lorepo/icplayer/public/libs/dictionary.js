@@ -15,6 +15,8 @@ var ice_dictionary = {
 	"shape" : "Shape",
 	"choice" : "Choice",
 	"check_answers" : "Check answers",
+	"check_title" : "Check text",
+	"uncheck_title" : "Uncheck text",
 	"reset" : "Reset",
 	"edit_css" : "Edit CSS",
 	"preferences" : "Preferences",

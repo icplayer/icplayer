@@ -11,6 +11,9 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 import com.lorepo.icplayer.client.module.button.ButtonView;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonView;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterModule;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterView;
@@ -73,6 +76,9 @@ public class ModuleFactory implements IModuleFactory{
 		if(xmlNodeName.compareTo("buttonModule") == 0){
 			module = new ButtonModule();
 		}
+		else if(xmlNodeName.compareTo("checkModule") == 0){
+			module = new CheckButtonModule();
+		}
 		else if(xmlNodeName.compareTo("choiceModule") == 0){
 			module = new ChoiceModel();
 		}
@@ -127,6 +133,9 @@ public class ModuleFactory implements IModuleFactory{
 		else if(module instanceof ButtonModule){
 			return new ButtonView((ButtonModule)module, services);
 		}
+		else if(module instanceof CheckButtonModule){
+			return new CheckButtonView((CheckButtonModule)module, services);
+		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterView((CheckCounterModule) module, isPreview);
 		}
@@ -175,6 +184,9 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if (module instanceof ButtonModule) {
 			return new ButtonPresenter((ButtonModule) module, services);
+		}
+		else if (module instanceof CheckButtonModule) {
+			return new CheckButtonPresenter((CheckButtonModule) module, services);
 		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterPresenter((CheckCounterModule) module, services);

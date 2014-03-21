@@ -43,9 +43,9 @@
 			<gap answerId="is2" isActivity="false"/>
 		</imageGapModule>
 		
-		<buttonModule  left="520" top="500" width="80" height="60" style="">
-			<button type="checkAnswers" text=""/>
-		</buttonModule>
+		<checkModule  left="520" top="500" width="80" height="60" style="">
+			<button checkTitle="" unCheckTitle=""/>
+		</checkModule>
 		
 		<buttonModule  left="600" top="500" width="80" height="60" style="">
 			<button type="reset" text=""/>

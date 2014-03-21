@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<checkModule  left="90" top="0" width="10" height="10" style="">
+	<button checkTitle="check" unCheckTitle="unCheck"/>
+</checkModule>
