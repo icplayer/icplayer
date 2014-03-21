@@ -190,6 +190,13 @@ public class JavaScriptPlayerServices{
 			commands.getTimeElapsed = function(){
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTimeElapsed()();
 			}
+			commands.checkAnswers = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::checkAnswers()();
+			}
+			commands.uncheckAnswers = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
+			}
+			
 			return commands;
 		}	
 		
@@ -428,7 +435,14 @@ public class JavaScriptPlayerServices{
 	private int getTimeElapsed(){
 		return (int)playerServices.getCommands().getTimeElapsed();
 	}
+	
+	private void checkAnswers() {
+		playerServices.getCommands().checkAnswers();
+	}
 
+	private void uncheckAnswers() {
+		playerServices.getCommands().uncheckAnswers();
+	}
 	
 	private void sendEvent(String eventName, JavaScriptObject eventData){
 

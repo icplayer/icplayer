@@ -1,3 +1,4 @@
+2014-03-21 Added checkAnswers and uncheckAnswers method to Player API
 2014-03-19 Fixed issue with special characters external links in Text module
 2014-03-19 Added getModules method to Player API
 2014-03-19 Fixed problem with Tex in Video module
@@ -5,7 +6,7 @@
 2014-03-18 Fixed problem with links in page styles.
 2014-03-18 Added sending events to Text Selection module
 2014-03-17 Added addon Shape Tracing
-2014-03-14 Added command isAtempted to choice
+2014-03-14 Added command isAttempted to choice
 2014-03-12 Player can return first or last score
 2014-03-11 Fixed problem with Animation module commands execution on PageLoaded event
 2014-03-11 Player API extended to return page id
