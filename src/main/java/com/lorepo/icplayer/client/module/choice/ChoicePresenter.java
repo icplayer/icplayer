@@ -390,53 +390,54 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	
 	private native JavaScriptObject initJSObject(ChoicePresenter x) /*-{
-	
-		var presenter = function(){}
-			
-		presenter.disable = function(){ 
+
+		var presenter = function() {
+		}
+
+		presenter.disable = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::disable()();
 		}
-			
-		presenter.enable = function(){ 
+
+		presenter.enable = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::enable()();
 		}
-		
-		presenter.show = function(){ 
+
+		presenter.show = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::show()();
 		}
-		
-		presenter.hide = function(){ 
+
+		presenter.hide = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::hide()();
 		}
-		
-		presenter.reset = function(){ 
+
+		presenter.reset = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::reset()();
 		}
-		
-		presenter.IsAttempted = function(){ 
-			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::IsAttempted()();
+
+		presenter.isAttempted = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isAttempted()();
 		}
-		
-		presenter.getView = function() { 
+
+		presenter.getView = function() {
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getView()();
 		}
-		
-		presenter.markOptionAsCorrect = function(index){ 
+
+		presenter.markOptionAsCorrect = function(index) {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::markOptionAsCorrect(I)(index);
 		}
-			
-		presenter.markOptionAsWrong = function(index){ 
+
+		presenter.markOptionAsWrong = function(index) {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::markOptionAsWrong(I)(index);
 		}
-			
-		presenter.markOptionAsEmpty = function(index){ 
+
+		presenter.markOptionAsEmpty = function(index) {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::markOptionAsEmpty(I)(index);
 		}
-			
-		presenter.isOptionSelected = function(index){ 
+
+		presenter.isOptionSelected = function(index) {
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isOptionSelected(I)(index);
 		}
-		
+
 		return presenter;
 	}-*/;
 	
@@ -491,7 +492,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	/**
 	 * Check if module has any option selected 
 	 */
-	private boolean IsAttempted(){
+	private boolean isAttempted() {
 		
 		for(IOptionDisplay optionView : view.getOptions()){
 			if(optionView.isDown()){

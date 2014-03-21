@@ -1,4 +1,6 @@
 2014-03-21 Added checkAnswers and uncheckAnswers method to Player API
+2014-03-21 Added command isAttempted to Text module
+2014-03-21 New addon: Hierarchical_Lesson_Report
 2014-03-19 Fixed issue with special characters external links in Text module
 2014-03-19 Added getModules method to Player API
 2014-03-19 Fixed problem with Tex in Video module

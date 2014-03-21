@@ -140,6 +140,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 		addStyleDependentName("empty");
 	}
 
+	public boolean isAttempted() {
+		return (answerText.length() > 0);
+	}
+
 	@Override
 	public boolean isDisabled() {
 		return disabled;

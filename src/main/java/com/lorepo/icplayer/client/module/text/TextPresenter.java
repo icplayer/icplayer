@@ -46,6 +46,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void markGapAsCorrect();
 		void markGapAsWrong();
 		void markGapAsEmpty();
+		boolean isAttempted();
 		void setDisabled(boolean disabled);
 		boolean isDisabled();
 	}
@@ -630,6 +631,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		presenter.reset = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset()();
 		};
+		
+		presenter.isAttempted = function(){ 
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAttempted()();
+		};
+				
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getView()();
 		};
@@ -707,6 +713,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
             view.getChild(index).setDisabled(true);
         }
     }
+
+	private boolean isAttempted() {
+		boolean isAllAttempted = true;
+		for (int index = 0; index < view.getChildrenCount(); index++) {
+			if (!view.getChild(index).isAttempted()) {
+				isAllAttempted = false;
+			}
+
+		}
+		return isAllAttempted;
+	}
 
 	
 	

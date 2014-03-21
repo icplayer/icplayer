@@ -128,6 +128,10 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		addStyleDependentName("empty");
 	}
 
+	public boolean isAttempted() {
+		return (getText().trim().length() > 0);
+	}
+
 	public void setDisabled(boolean disabled) {
 		isDisabled = disabled;
 		setEnabled(!disabled);

@@ -138,6 +138,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	public void markGapAsEmpty() {
 	}
 
+	public boolean isAttempted() {
+		int index = getSelectedIndex();
+		return (index > 0);
+	}
+
 	@Override
 	public boolean isDisabled() {
 		return isDisabled;
