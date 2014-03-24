@@ -3,14 +3,17 @@ package com.lorepo.icplayer.client.content.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.json.client.JSONString;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -113,6 +116,12 @@ public class JavaScriptPlayerServices{
 		eventBus.addHandler(PageLoadedEvent.TYPE, new PageLoadedEvent.Handler() {
 			public void onPageLoaded(PageLoadedEvent event) {
 				fireEvent(PAGE_LOADED_EVENT_NAME, event.getData());
+			}
+		});
+		
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			public void onCustomEventOccurred(CustomEvent event) {
+				fireEvent(event.eventName, event.getData());
 			}
 		});
 		
@@ -463,7 +472,12 @@ public class JavaScriptPlayerServices{
 		else if(DEFINITION_EVENT_NAME.compareTo(eventName) == 0){
 			String word = JavaScriptUtils.getArrayItemByKey(eventData, "word");
 			event = new DefinitionEvent(word);
+		} else {
+			String jsonString = JavaScriptUtils.toJsonString(eventData);
+			event = new CustomEvent(eventName, (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonString));
 		}
+		
+		
 		
 		if(event != null){
 			playerServices.getEventBus().fireEventFromSource(event, this);

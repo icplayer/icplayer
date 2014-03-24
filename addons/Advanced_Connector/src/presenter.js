@@ -36,6 +36,12 @@ function AddonAdvanced_Connector_create() {
         presenter.onEventReceived('Uncheck', {});
     };
 
+    function isCustomEvent(eventName) {
+        var standardEvents = ['ValueChanged', 'Definition', 'ItemSelected', 'ItemConsumed', 'ItemReturned', 'PageLoaded'];
+
+        return $.inArray(eventName, standardEvents) == -1 ? true : false;
+    }
+
     presenter.run = function(view, model) {
         var validatedScript = presenter.validateScript(model.Scripts), eventBus;
 
@@ -57,6 +63,12 @@ function AddonAdvanced_Connector_create() {
         eventBus.addEventListener('ItemConsumed', this);
         eventBus.addEventListener('ItemReturned', this);
         eventBus.addEventListener('PageLoaded', this);
+
+        $.each(presenter.events, function() {
+            if (isCustomEvent(this.Name)) {
+                eventBus.addEventListener(this.Name.trim(), presenter);
+            }
+        });
 
         $(view).css('visibility', 'hidden');
     };
