@@ -96,4 +96,10 @@ public class ImageGapViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean isAttempted() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

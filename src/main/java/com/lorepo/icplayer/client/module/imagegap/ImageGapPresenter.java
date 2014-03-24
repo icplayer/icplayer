@@ -39,6 +39,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public void hide();
 		public void markGapAsEmpty();
 		public void markGapAsWrong();
+		public boolean isAttempted();
 		public Element getElement();
 	}
 	
@@ -343,38 +344,42 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
-	
-		var presenter = function(){}
-			
-		presenter.getImageId = function(){ 
+
+		var presenter = function() {
+		}
+
+		presenter.getImageId = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
 		}
-		presenter.getGapValue = function(){ 
+		presenter.getGapValue = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
 		}
-		presenter.show = function(){ 
+		presenter.show = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::show()();
 		}
-			
-		presenter.hide = function(){ 
+
+		presenter.hide = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::hide()();
 		}
-			
-		presenter.markGapAsCorrect = function(){ 
+
+		presenter.markGapAsCorrect = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::markGapAsCorrect()();
 		}
-			
-		presenter.markGapAsWrong = function(){ 
+
+		presenter.markGapAsWrong = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::markGapAsWrong()();
 		}
-			
-		presenter.markGapAsEmpty = function(){ 
+
+		presenter.markGapAsEmpty = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::markGapAsEmpty()();
 		}
-		presenter.getView = function() { 
+		presenter.isAttempted = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isAttempted()();
+		}
+		presenter.getView = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getView()();
 		}
-		
+
 		return presenter;
 	}-*/;
 	
@@ -426,4 +431,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 	
 	
+	private boolean isAttempted() {
+		return view.isAttempted();
+	}
+
 }

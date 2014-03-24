@@ -353,7 +353,8 @@ function AddonHierarchical_Lesson_Report_create() {
 
 
     presenter.validateModel = function (model) {
-        var expandDepth = 0;
+        var expandDepth = {value:0, isValid: true};
+
         if (model['expandDepth'].length > 0) {
             var expandDepth = ModelValidationUtils.validateInteger(model['expandDepth']);
             if (!expandDepth.isValid) {

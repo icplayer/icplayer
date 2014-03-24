@@ -1,3 +1,4 @@
+2014-03-21 Added command isAttempted to Image Gap module
 2014-03-24 "Return first score" flag modifies how the score is presented to the user
 2014-03-24 New module Submit, which acts like a Check module, but checks results only when all modules are in attempted state
 2014-03-24 Added handling custom events in the Advanced Connector

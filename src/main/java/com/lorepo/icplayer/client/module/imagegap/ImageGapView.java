@@ -145,4 +145,9 @@ public class ImageGapView extends Image implements IDisplay {
 		addStyleDependentName(WRONG_STYLE);		
 	}
 
+	@Override
+	public boolean isAttempted() {
+		return (getUrl().indexOf(HOLLOW_IMAGE) < 0);
+	}
+
 }
