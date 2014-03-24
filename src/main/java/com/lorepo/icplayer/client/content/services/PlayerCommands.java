@@ -84,7 +84,7 @@ public class PlayerCommands implements IPlayerCommands {
 
 	@Override
 	public void updateCurrentPageScore() {
-		pageController.updateScore();
+		pageController.updateScore(false);
 	}
 
 

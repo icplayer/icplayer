@@ -131,18 +131,12 @@ public class PageController {
 
 
 	public void checkAnswers() {
-		
-		updateScore();
+		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
-		if(currentPage.isReportable()){
-			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
-			PageScore score2 = pageScore.incrementCounters();
-			playerService.getScoreService().setPageScore(score2);
-		}
 	}
 
 
-	public void updateScore() {
+	public void updateScore(boolean updateCounters) {
 		if(currentPage != null){
 
 			Score.Result result;
@@ -157,7 +151,12 @@ public class PageController {
 			if(currentPage.isReportable()){
 				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
 				PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
-				playerService.getScoreService().setPageScore(score);
+				if(updateCounters){
+					playerService.getScoreService().setPageScore(score.incrementCounters());
+				}
+				else{
+					playerService.getScoreService().setPageScore(score);
+				}
 			}
 		}
 	}
