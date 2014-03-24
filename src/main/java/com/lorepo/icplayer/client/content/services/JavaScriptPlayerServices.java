@@ -252,10 +252,6 @@ public class JavaScriptPlayerServices{
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScore(Ljava/lang/String;)(name);
 			}
 
-			score.getArchivedPageScore = function(name){
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getArchivedPageScore(Ljava/lang/String;)(name);
-			}
-
 			return score;
 		}	
 		
@@ -416,16 +412,6 @@ public class JavaScriptPlayerServices{
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
 		return model;
 	}
-	
-	private JavaScriptObject getArchivedPageScore(String pageName){
-		
-		playerServices.getCommands().updateCurrentPageScore();
-		PageScore score = playerServices.getScoreService().getArchivedPageScore(pageName);
-		JavaScriptObject model = scoreToJs(score);
-		
-		return model;
-	}
-	
 	
 	private String getStaticFilesPath(){
 		return GWT.getModuleBaseForStaticFiles();

@@ -52,16 +52,16 @@
 </style>
 
 <pages>
+	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
-	<page name="schoice" href="pages/schoice.page.xml"/>
+	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<chapter name="chapter 1">
 		<page name="mchoice" href="pages/mchoice.page.xml"/>
 		<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
 		<page name="image source" href="pages/image-source.xml"/>
 		<page name="links" href="pages/links.page.xml" reportable="false"/>
 	</chapter>
-	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<folder name="commons">
 		<page name="popup1" href="pages/popup.page.xml"/>
 		<page name="header" href="pages/header.xml"/>

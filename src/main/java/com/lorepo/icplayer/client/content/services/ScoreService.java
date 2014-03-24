@@ -1,8 +1,6 @@
 package com.lorepo.icplayer.client.content.services;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -12,16 +10,14 @@ public class ScoreService implements IScoreService {
 
 	private HashMap<String, Integer>	scores;
 	private HashMap<String, PageScore>	pageScores;
-	private HashMap<String, List<PageScore>> pageScoresHistory;
-	private boolean archiveUseLast;
+	private final boolean useLast;
 
 	
 	public ScoreService(boolean useLast){
 
-		archiveUseLast = useLast;
+		this.useLast = useLast;
 		scores = new HashMap<String, Integer>();
 		pageScores = new HashMap<String, PageScore>();
-		pageScoresHistory = new HashMap<String, List<PageScore>>();
 	}
 	
 	
@@ -66,7 +62,11 @@ public class ScoreService implements IScoreService {
 			total += scoreObj.getPercentageScore();
 		}
 		
-		return total/pageScores.size();
+		if(pageScores.size() > 0){
+			return total/pageScores.size();
+		}
+		
+		return 0;
 	}
 
 	@Override
@@ -81,14 +81,12 @@ public class ScoreService implements IScoreService {
 	@Override
 	public PageScore getPageScore(String pageName) {
 		
-		PageScore pageScore = pageScores.get(pageName);
-		
-		if(pageScore == null){
-			pageScore = new PageScore(pageName);
-			pageScores.put(pageName, pageScore);
+		PageScore score = pageScores.get(pageName);
+		if(score == null){
+			score = new PageScore(pageName);
 		}
 		
-		return pageScore;
+		return score;
 	}
 
 	@Override
@@ -105,36 +103,16 @@ public class ScoreService implements IScoreService {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
 		for(String pageName : data.keySet()){
 			PageScore pageScore = pageScores.get(pageName);
-			pageScore = new PageScore(pageName);
-			pageScore.loadFromString(data.get(pageName));
+			pageScore = PageScore.loadFromString(pageName, data.get(pageName));
 			pageScores.put(pageName, pageScore);
 		}
 	}
 
 
 	@Override
-	public void updateHistory(String name) {
-		PageScore score = pageScores.get(name);
-		List<PageScore> sl = pageScoresHistory.get(name);
-		if(sl == null){
-			sl = new ArrayList<PageScore>();
-			pageScoresHistory.put(name, sl);
+	public void setPageScore(PageScore score) {
+		if(useLast || pageScores.get(score.getPageName()) == null){
+			pageScores.put(score.getPageName(), score);
 		}
-		sl.add(score.copy());
-	}
-
-
-	@Override
-	public PageScore getArchivedPageScore(String pageName) {
-		List<PageScore> sl = pageScoresHistory.get(pageName);
-		PageScore score;
-		if(sl != null && sl.size() > 0 && !archiveUseLast){
-			score = sl.get(0);
-		}
-		else{
-			score = getPageScore(pageName);
-		}
-		
-		return score;
 	}
 }

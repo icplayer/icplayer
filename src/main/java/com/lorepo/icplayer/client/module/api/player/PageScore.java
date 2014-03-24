@@ -6,28 +6,52 @@ import com.lorepo.icf.utils.JSONUtils;
 
 
 /**
- * Informacja o wyniku strony
- * @author Krzysztof Langner
- *
+ * Contains information about page score
  */
 public class PageScore {
 
-	private String 	pageName;
-	private float	score;
-	private float	maxScore;
-	private int		checkCount;
-	private int		errorCount;
-	private int 	mistakeCount;
+	private final String 	pageName;
+	private final float	score;
+	private final float	maxScore;
+	private final int	checkCount;
+	private final int	errorCount;
+	private final int 	mistakeCount;
 	
 	
 	
-	public PageScore(String pageName){
+	public PageScore(String pageName, float score, float maxScore, int checkCount,
+			int errorCount, int mistakeCount)
+	{
 		this.pageName = pageName;
-		score = 0;
-		maxScore = 1;
+		this.score = score;
+		this.maxScore = maxScore;
+		this.checkCount = checkCount;
+		this.errorCount = errorCount;
+		this.mistakeCount = mistakeCount;
 	}
 
 	
+	public PageScore(String pageName, float score, float maxScore)
+	{
+		this.pageName = pageName;
+		this.score = score;
+		this.maxScore = maxScore;
+		this.checkCount = 0;
+		this.errorCount = 0;
+		this.mistakeCount = 0;
+	}
+
+	
+	public PageScore(String pageName) {
+		this.pageName = pageName;
+		this.score = 0;
+		this.maxScore = 0;
+		this.checkCount = 0;
+		this.errorCount = 0;
+		this.mistakeCount = 0;
+	}
+
+
 	public String getPageName(){
 		return pageName;
 	}
@@ -74,29 +98,6 @@ public class PageScore {
 	}
 
 
-	public void setScore(float score) {
-
-		this.score = score;
-	}
-
-
-	public void setMaxScore(float max) {
-		this.maxScore = max;
-	}
-
-
-	public void setErrorCount(int count) {
-		this.errorCount = count;
-	}
-	
-	public void incrementCheckCount(){
-		checkCount ++;
-	}
-
-	public void incrementMistakeCount(){
-		mistakeCount += errorCount;
-	}
-
 	public int getMistakeCount() {
 		return mistakeCount;
 	}
@@ -114,21 +115,31 @@ public class PageScore {
 	}
 
 
-	public void loadFromString(String state) {
+	static public PageScore loadFromString(String pageName, String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
-		score = Float.parseFloat(data.get("score"));
-		maxScore = Float.parseFloat(data.get("maxScore"));
-		checkCount = Integer.parseInt(data.get("checkCount"));
-		errorCount = Integer.parseInt(data.get("errorCount"));
-		mistakeCount = Integer.parseInt(data.get("mistakeCount"));
+		float score = Float.parseFloat(data.get("score"));
+		float maxScore = Float.parseFloat(data.get("maxScore"));
+		int checkCount = Integer.parseInt(data.get("checkCount"));
+		int errorCount = Integer.parseInt(data.get("errorCount"));
+		int mistakeCount = Integer.parseInt(data.get("mistakeCount"));
+		return new PageScore(pageName, score, maxScore, checkCount, errorCount, mistakeCount);
 	}
 
 
-	public PageScore copy() {
-		PageScore copyScore = new PageScore(pageName);
-		copyScore.setErrorCount(getErrorCount());
-		copyScore.setMaxScore(getMaxScore());
-		copyScore.setScore(getScore());
-		return copyScore;
+	public PageScore incrementCounters() {
+		return new PageScore(pageName, score, maxScore, checkCount, 
+				errorCount+1, mistakeCount+errorCount);  
 	}
+
+
+	public PageScore reset() {
+		return new PageScore(pageName, 0, maxScore, checkCount, 0, mistakeCount);  
+	}
+
+
+	public PageScore updateScore(float score, float maxScore, int errorCount) {
+		return new PageScore(pageName, score, maxScore, checkCount, 
+				errorCount, mistakeCount);  
+	}
+
 }

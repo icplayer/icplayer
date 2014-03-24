@@ -26,10 +26,7 @@ public class CommandsMockup implements IPlayerCommands {
 
 	@Override
 	public PageScore getCurrentPageScore() {
-		PageScore pageScore = new PageScore("");
-		pageScore.setScore(score);
-		pageScore.setMaxScore(maxScore);
-		pageScore.setErrorCount(errorCount);
+		PageScore pageScore = new PageScore("", score, maxScore, 0, errorCount, 0);
 		return pageScore;
 	}
 
