@@ -78,6 +78,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Slider", "Slider", "Scripting");
 		addDescriptor("Slideshow", "Slideshow", "Media");
 		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
+		addDescriptor("Submit", "Submit", "Reporting");
 		addDescriptor("SVG2", "SVG", "Media");
 		addDescriptor("Table", "Table", "Activities");
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
