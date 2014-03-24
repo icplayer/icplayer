@@ -28,8 +28,7 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	private void createUI() {
 
 		StyleUtils.applyInlineStyle(this, module);
-		setStyleName("ic_button_check");
-		setText(module.getCheckTitle());
+		updateStyle();
 
 		if(playerServices != null){
 			setVisible(module.isVisible());
@@ -57,11 +56,11 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	private void updateStyle(){
 		if(isShowErrorsMode){
 			setStyleName("ic_button_uncheck");
-			setText(module.getUnCheckTitle());
+			getUpFace().setText(module.getUnCheckTitle());
 		}
 		else{
 			setStyleName("ic_button_check");
-			setText(module.getCheckTitle());
+			getUpFace().setText(module.getCheckTitle());
 		}
 	}
 
