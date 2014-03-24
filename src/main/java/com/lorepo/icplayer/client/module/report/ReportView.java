@@ -108,7 +108,7 @@ public class ReportView extends Composite implements IDisplay{
 		String errors = pageScore.getErrorCount() + "/" + pageScore.getMistakeCount();
 		grid.setWidget(lastRow, 1, progressBar);
 		if(module.isShowCounters()){
-			grid.setText(lastRow, 2, Integer.toString(pageScore.getCheckCount()) );
+			grid.setText(lastRow, 2, Integer.toString(pageScore.getCheckCount()));
 			grid.setText(lastRow, 3, errors );
 		}
 

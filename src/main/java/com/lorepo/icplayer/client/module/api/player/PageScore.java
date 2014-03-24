@@ -127,8 +127,8 @@ public class PageScore {
 
 
 	public PageScore incrementCounters() {
-		return new PageScore(pageName, score, maxScore, checkCount, 
-				errorCount+1, mistakeCount+errorCount);  
+		return new PageScore(pageName, score, maxScore, checkCount+1, 
+				errorCount+errorCount, mistakeCount+errorCount);  
 	}
 
 
