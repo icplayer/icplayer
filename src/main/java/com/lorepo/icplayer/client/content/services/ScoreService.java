@@ -55,21 +55,6 @@ public class ScoreService implements IScoreService {
 	}
 	
 	@Override
-	public int getTotalPercentage() {
-
-		int total = 0;
-		for(PageScore scoreObj : pageScores.values()){
-			total += scoreObj.getPercentageScore();
-		}
-		
-		if(pageScores.size() > 0){
-			return total/pageScores.size();
-		}
-		
-		return 0;
-	}
-
-	@Override
 	public void setScore(String moduleName, int score, int maxScore) {
 
 		Integer scoreObj = new Integer(score);

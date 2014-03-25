@@ -42,6 +42,8 @@ public class ReportPresenter implements IPresenter{
 		int totalMistakes = 0;
 		
 		view.clear();
+		int total = 0;
+		int counter = 0;
 		
 		for(int i = 0; i < contentModel.getPageCount(); i++){
 			
@@ -49,6 +51,7 @@ public class ReportPresenter implements IPresenter{
 			if(page.isReportable()){
 
 				PageScore pageScore = scoreService.getPageScore(page.getName());
+				counter ++;
 				
 				if(pageScore != null){
 					view.addRow(page.getName(), pageScore);
@@ -56,6 +59,7 @@ public class ReportPresenter implements IPresenter{
 					totalChecks += pageScore.getCheckCount();
 					totalErrors += pageScore.getErrorCount();
 					totalMistakes += pageScore.getMistakeCount();
+					total += pageScore.getPercentageScore();
 				}
 				else{
 					view.addRow(page.getName());
@@ -63,7 +67,7 @@ public class ReportPresenter implements IPresenter{
 			}
 		}
 		
-		totalScore = scoreService.getTotalPercentage();
+		totalScore = counter > 0? total/counter: 0;
 		
 		view.addSummaryRow(totalScore, totalChecks, totalErrors, totalMistakes);
 		
