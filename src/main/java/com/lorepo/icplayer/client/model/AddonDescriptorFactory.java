@@ -43,6 +43,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Custom_Scoring", "Custom Scoring", "Reporting");
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
 		addDescriptor("Drawing", "Drawing", "Media");
+		addDescriptor("EdgeAnimation", "Edge Animation", "Media");
 		addDescriptor("eKeyboard", "eKeyboard", "Scripting");
 		addDescriptor("Event_Listener", "Event Listener", "Others");
 		addDescriptor("Event_Sender", "Event Sender", "Others");
@@ -72,6 +73,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Paragraph", "Paragraph", "Activities");
 		addDescriptor("Plot", "Plot", "Activities");
 		addDescriptor("Points_To_Plot", "Points To Plot", "Activities");
+		addDescriptor("PointsLines", "Points and Lines", "Activities");
 		addDescriptor("Puzzle", "Puzzle", "Activities");
 		addDescriptor("Shape_Tracing", "Shape Tracing", "Media");
 		addDescriptor("Single_State_Button", "Single State Button", "Scripting");
