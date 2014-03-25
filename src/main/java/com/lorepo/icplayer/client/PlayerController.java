@@ -270,7 +270,9 @@ public class PlayerController implements IPlayerController{
 	
 	private void closeCurrentPages() {
 		closePopup();
-		pageController1.updateScore(false);
+		if(scoreService.useLast()){
+			pageController1.updateScore(false);
+		}
 		updateState();
 		pageController1.closePage();
 		

@@ -115,4 +115,9 @@ public class ScoreService implements IScoreService {
 			pageScores.put(score.getPageName(), score);
 		}
 	}
+
+
+	public boolean useLast() {
+		return useLast;
+	}
 }
