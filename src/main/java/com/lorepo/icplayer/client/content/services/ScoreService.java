@@ -83,7 +83,7 @@ public class ScoreService implements IScoreService {
 		
 		PageScore score = pageScores.get(pageName);
 		if(score == null){
-			score = new PageScore(pageName);
+			score = new EmptyScore(pageName);
 		}
 		
 		return score;
