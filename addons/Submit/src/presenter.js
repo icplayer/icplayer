@@ -9,6 +9,9 @@ function AddonSubmit_create(){
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.eventBus.addEventListener('PageLoaded', this);
+
+        presenter.runEndedDeferred = new $.Deferred();
+        presenter.runEnded = presenter.runEndedDeferred.promise();
     };
 
     presenter.onEventReceived = function(eventName) {
@@ -122,6 +125,8 @@ function AddonSubmit_create(){
                 }
 
             });
+
+            presenter.runEndedDeferred.resolve();
         });
     }
 
@@ -136,6 +141,8 @@ function AddonSubmit_create(){
     };
 
     presenter.reset = function(){
+        presenter.submitButton.removeClass('selected');
+        presenter.submitButton.html(presenter.configuration.buttonText);
     };
 
     presenter.getErrorCount = function(){
@@ -158,9 +165,13 @@ function AddonSubmit_create(){
 
     presenter.setState = function(state){
         var parsed = JSON.parse(state);
-        if (parsed.isSelected) {
-            presenter.submitButton.addClass('selected');
-        }
+
+        presenter.runEnded.then(function() {
+            if (parsed.isSelected) {
+                presenter.submitButton.html(presenter.configuration.buttonTextSelected);
+                presenter.submitButton.addClass('selected');
+            }
+        });
     };
 
     return presenter;
