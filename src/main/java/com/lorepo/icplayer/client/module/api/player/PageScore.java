@@ -16,6 +16,7 @@ public class PageScore {
 	private final int	checkCount;
 	private final int	errorCount;
 	private final int 	mistakeCount;
+	private boolean hasScore = true;
 	
 	
 	
@@ -49,6 +50,7 @@ public class PageScore {
 		this.checkCount = 0;
 		this.errorCount = 0;
 		this.mistakeCount = 0;
+		hasScore = false;
 	}
 
 
@@ -78,8 +80,11 @@ public class PageScore {
 		if(maxScore > 0){
 			return (int) (score*100/maxScore);
 		}
-		else{
+		else if(hasScore){
 			return 100;
+		}
+		else{
+			return 0;
 		}
 	}
 	
