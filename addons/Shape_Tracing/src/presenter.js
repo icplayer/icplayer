@@ -55,6 +55,7 @@ function AddonShape_Tracing_create() {
         presenter.data.pencilThickness = presenter.configuration.penThickness;
         presenter.data.incorrect = false;
         initPointsArray();
+        isOutsideShape = false;
 
         presenter.configuration.color = presenter.data.startColor;
 
@@ -283,26 +284,33 @@ function AddonShape_Tracing_create() {
         });
 
         presenter.layerBG = new Kinetic.Layer();
+        if (presenter.configuration.backgroundImage !== '') {
+            var backgroundImage = new Image();
+            backgroundImage.onload = function() {
+                var BGimg = new Kinetic.Image({
+                    x: 0,
+                    y: 0,
+                    height: presenter.data.height,
+                    width: presenter.data.width,
+                    image: backgroundImage
+                });
 
-        var backgroundImage = new Image();
-        backgroundImage.onload = function() {
-            var BGimg = new Kinetic.Image({
-                x: 0,
-                y: 0,
-                height: presenter.data.height,
-                width: presenter.data.width,
-                image: backgroundImage
-            });
+                presenter.layerBG.add(BGimg);
+                presenter.stageBG.add(presenter.layerBG);
 
-            presenter.layerBG.add(BGimg);
-            presenter.stageBG.add(presenter.layerBG);
-
+                if (isPreview) {
+                    cursorCoordinates();
+                    drawActivePoints();
+                }
+            };
+            //backgroundImage.crossOrigin = "anonymous";
+            backgroundImage.src = presenter.configuration.backgroundImage;
+        } else {
             if (isPreview) {
                 cursorCoordinates();
                 drawActivePoints();
             }
-        };
-        backgroundImage.src = presenter.configuration.backgroundImage;
+        }
     }
 
     function drawShapeImage(isPreview) {
@@ -312,7 +320,6 @@ function AddonShape_Tracing_create() {
             width: presenter.data.width
         });
         presenter.layer = new Kinetic.Layer();
-
         var image = new Image();
         image.onload = function() {
             var img = new Kinetic.Image({
@@ -338,6 +345,7 @@ function AddonShape_Tracing_create() {
                 }
             }
         };
+        //image.crossOrigin = "anonymous";
         image.src = presenter.configuration.shapeImage;
     }
 
@@ -409,6 +417,25 @@ function AddonShape_Tracing_create() {
         return false;
     };
 
+    function checkCorrectness() {
+        var x = parseInt(presenter.cursorPosition.x, 10);
+        var y = parseInt(presenter.cursorPosition.y, 10);
+        if (presenter.isShapeCoveredInCircle(x, y, presenter.data.pencilThickness / 2)) {
+            isOutsideShape = false;
+        } else {
+            if (!isOutsideShape) {
+                presenter.data.numberOfDescentsFromShape++;
+                isOutsideShape = true;
+            }
+        }
+        if (presenter.isPositionInDefinedPoint(x, y, presenter.data.pencilThickness / 2)) {
+            presenter.data.currentPointNumber++;
+            if (presenter.data.currentPointNumber > presenter.configuration.points.length) {
+                presenter.data.isAllPointsChecked = true;
+            }
+        }
+    }
+
     function drawDot() {
         if (presenter.data.isPencilActive) {
             var ctx = presenter.$view.find(".drawing")[0].getContext("2d");
@@ -426,23 +453,7 @@ function AddonShape_Tracing_create() {
             ctx.stroke();
 
             // active only on drawing, disable when eraser
-            var x = parseInt(presenter.cursorPosition.x, 10);
-            var y = parseInt(presenter.cursorPosition.y, 10);
-            if (presenter.isShapeCoveredInCircle(x, y, presenter.data.pencilThickness / 2)) {
-                isOutsideShape = false;
-            } else {
-                if (!isOutsideShape) {
-                    presenter.data.numberOfDescentsFromShape++;
-                    isOutsideShape = true;
-                }
-            }
-
-            if (presenter.isPositionInDefinedPoint(x, y, presenter.data.pencilThickness / 2)) {
-                presenter.data.currentPointNumber++;
-                if (presenter.data.currentPointNumber > presenter.configuration.points.length) {
-                    presenter.data.isAllPointsChecked = true;
-                }
-            }
+            checkCorrectness();
         }
     }
 
@@ -463,25 +474,9 @@ function AddonShape_Tracing_create() {
         ctx.strokeStyle = grad;
         ctx.stroke();
 
-        // active only on drawing, disable when eraser
         if (presenter.data.isPencilActive) {
-            var x = parseInt(presenter.cursorPosition.x, 10);
-            var y = parseInt(presenter.cursorPosition.y, 10);
-            if (presenter.isShapeCoveredInCircle(x, y, presenter.data.pencilThickness / 2)) {
-                isOutsideShape = false;
-            } else {
-                if (!isOutsideShape) {
-                    presenter.data.numberOfDescentsFromShape++;
-                    isOutsideShape = true;
-                }
-            }
-
-            if (presenter.isPositionInDefinedPoint(x, y, presenter.data.pencilThickness / 2)) {
-                presenter.data.currentPointNumber++;
-                if (presenter.data.currentPointNumber > presenter.configuration.points.length) {
-                    presenter.data.isAllPointsChecked = true;
-                }
-            }
+            // active only on drawing, disable when eraser
+            checkCorrectness();
         }
     }
 
@@ -500,7 +495,6 @@ function AddonShape_Tracing_create() {
             updateCursorPosition(e);
             drawDot();
             ctx.on('touchmove', draw);
-
             if (presenter.data.isPencilActive) {
                 presenter.data.isStarted = true;
                 presenter.data.numberOfLines++;
@@ -811,14 +805,22 @@ function AddonShape_Tracing_create() {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
+    presenter.show = function() {
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
+    };
+
     presenter.executeCommand = function(name, params) {
         if (!presenter.configuration.isValid) {
             return;
         }
 
         var commands = {
-            "show": presenter.setVisibility(true),
-            "hide": presenter.setVisibility(false),
+            "show": presenter.show,
+            "hide": presenter.hide,
             "setEraserOn": presenter.setEraserOn,
             "setColor": presenter.setColor,
             "setThickness": presenter.setThickness

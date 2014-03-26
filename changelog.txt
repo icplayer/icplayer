@@ -1,4 +1,5 @@
 2014-03-26 Added command isAttempted for Connection addon
+2014-03-26 Fixed couple of issues with Shape Tracing addon
 2014-03-26 Added command isAttempted for True/False addon
 2014-03-26 Is attempted command for Fractions addon
 2014-03-25 New addons Points and Lines and Edge Animation
