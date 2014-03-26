@@ -146,5 +146,9 @@ public class PageScore {
 		return new PageScore(pageName, score, maxScore, checkCount, 
 				errorCount, mistakeCount);  
 	}
+	
+	public boolean hasScore(){
+		return hasScore;
+	}
 
 }

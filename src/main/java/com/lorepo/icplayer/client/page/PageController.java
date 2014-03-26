@@ -172,8 +172,10 @@ public class PageController {
 		
 		if(currentPage.isReportable()){
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
-			PageScore score = pageScore.reset();
-			playerService.getScoreService().setPageScore(score);
+			if(pageScore.hasScore()){
+				PageScore score = pageScore.reset();
+				playerService.getScoreService().setPageScore(score);
+			}
 		}
 		playerService.getEventBus().fireEvent(new ResetPageEvent());
 	}
