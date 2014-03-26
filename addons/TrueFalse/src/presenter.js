@@ -390,7 +390,8 @@ function AddonTrueFalse_create() {
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
             'markAsEmpty': presenter.markAsEmptyCommand,
-            'removeMark': presenter.removeMarkCommand
+            'removeMark': presenter.removeMarkCommand,
+            'isAttempted' : presenter.isAttemptedCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -457,8 +458,30 @@ function AddonTrueFalse_create() {
         }
     };
 
+    presenter.isAttempted = function () {
+        var isAttempted = false;
+        for (var rowIndex = 0; rowIndex < questions.length + 1; rowIndex++) {
+            var answerIndex = 0;
+            var row = presenter.$view.find('#' + rowIndex);
+            if (rowIndex > 0) {
+                row.children().each(function () {
+                    if (presenter.isSelected(rowIndex, answerIndex)) {
+                        isAttempted = true;
+                        return false; // break;
+                    }
+                    answerIndex++;
+                });
+            }
+        }
+        return isAttempted;
+    };
+
     presenter.isSelectedCommand = function (params) {
         presenter.isSelected(parseInt(params[0], 10), parseInt(params[1], 10));
+    };
+
+    presenter.isAttemptedCommand = function () {
+         return presenter.isAttempted();
     };
 
     presenter.markAsEmptyCommand = function (params) {

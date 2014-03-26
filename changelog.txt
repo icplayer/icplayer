@@ -1,3 +1,4 @@
+2014-03-26 Added command isAttempted for True/False addon
 2014-03-26 Is attempted command for Fractions addon
 2014-03-25 New addons Points and Lines and Edge Animation
 2014-03-25 Fixed problem with report score for not visited pages
