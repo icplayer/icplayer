@@ -59,7 +59,7 @@ function AddonFractions_create() {
 		$($myDiv).removeClass('disable');
 	};
 
-	presenter.isComplete = function() {
+	presenter.isAttempted = function() {
 		return Counter === (presenter.initialMarks) / 2 ? false : true;
 	};
 
@@ -351,8 +351,8 @@ function AddonFractions_create() {
 		case 'markAsEmpty'.toLowerCase():
 			presenter.markAsEmpty();
 			break;
-		case 'isComplete'.toLowerCase():
-			presenter.isComplete();
+		case 'isAttempted'.toLowerCase():
+			presenter.isAttempted();
 			break;
 		}
 	};

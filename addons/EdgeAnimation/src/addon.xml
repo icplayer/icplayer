@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="EdgeAnimation" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Animations" type="list">
+			<property name="compositionClass" type="string" displayName="Composition Class"/>
+			<property name="edgeFile" type="file" displayName="edge.js"/>
+			<property name="edgeActionsFile" type="file" displayName="edgeActions.js"/>
+		</property>
+		<property name="Images" type="list">
+			<property name="animationItem" type="string" displayName="Animation Item Number"/>
+			<property name="elementId" type="string" displayName="Edge element IDs (csv)"/>
+			<property name="imageFile" type="image" displayName="Image File"/>
+		</property>
+		<property name="initialAnimation" type="string" displayName="Initial Animation"/>
+		<property name="Narration" type="text"/>
+	</model>
+</addon>
