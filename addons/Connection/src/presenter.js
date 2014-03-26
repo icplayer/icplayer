@@ -724,6 +724,10 @@ function AddonConnection_create() {
         return (presenter.lineStack.hasLine(line).length > 0);
     }
 
+    presenter.isAttempted = function () {
+        return (presenter.lineStack.stack.length > 0)
+    }
+
 
     presenter.markAsCorrect = function (leftIndex, rightIndex) {
         var leftElement = getElementById(leftIndex);
@@ -758,6 +762,10 @@ function AddonConnection_create() {
         presenter.markAsWrong(params[0], params[1]);
     };
 
+    presenter.isAttemptedCommand = function () {
+        return presenter.isAttempted();
+    };
+
 
     presenter.executeCommand = function (name, params) {
         if (!isSelectionPossible) {
@@ -768,7 +776,8 @@ function AddonConnection_create() {
             'isAllOK': presenter.isAllOK,
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
-            'markAsWrong': presenter.markAsWrongCommand
+            'markAsWrong': presenter.markAsWrongCommand,
+            'isAttempted' : presenter.isAttemptedCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
