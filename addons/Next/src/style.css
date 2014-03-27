@@ -1,0 +1,17 @@
+.next-wrapper,
+.next-wrapper .next-container,
+.next-wrapper .next-container .next-button {
+    width: 100%;
+    height: 100%;
+}
+
+.next-wrapper .next-container .next-button {
+    background: url('resources/next-button.png') no-repeat center;
+    cursor: pointer;
+    text-align: center;
+}
+
+.next-wrapper.disabled .next-container .next-button {
+    cursor: not-allowed;
+    background: url('resources/next-button-disabled.png') no-repeat center;
+}

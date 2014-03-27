@@ -68,6 +68,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Multiple_Audio_Controls_Binder", "Multiple Audio Controls Binder", "Scripting");
 		addDescriptor("multiplegap", "Multiple Gap", "Activities");
 		addDescriptor("Navigation_Bar", "Navigation Bar", "Navigation");
+		addDescriptor("Next", "Next", "Navigation");
 		addDescriptor("Page_Counter", "Page Counter", "Navigation");
 		addDescriptor("Page_Name", "Page Name", "Navigation");
 		addDescriptor("Paragraph", "Paragraph", "Activities");
