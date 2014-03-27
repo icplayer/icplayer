@@ -259,8 +259,8 @@ public class JavaScriptPlayerServices{
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScore(Ljava/lang/String;)(name);
 			}
 
-			score.getPageScoreById = function(name){
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(id);
+			score.getPageScoreById = function(pageId){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(pageId);
 			}
 
 			return score;
