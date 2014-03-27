@@ -1,3 +1,4 @@
+2014-03-27 Fixed issue with improper total lesson scoring in hierarchical lesson report.
 2014-03-27 Score is saved by page id instead of name.
 2014-03-27 Fixed issue with Basic Math Gaps events
 2014-03-27 New module Next, similar to Next Page Button module, navigating to next page, but first it checks whenever all activities on the page has been attempted and button Submit has been pressed.

@@ -80,11 +80,16 @@ function AddonHierarchical_Lesson_Report_create() {
 
         if (presenter.configuration.showResults) {
             var score = resetScore();
-            if (!isPreview)
+
+            if (!isPreview)  {
+                var playerUtils = new PlayerUtils({});
+                playerUtils.scoreService = presentationController.getScore();
+                var totalScore = playerUtils.getPresentationScore(presentationController.getPresentation());
                 score = {
-                    score: presentationController.getScore().getTotalScore(),
-                    maxScore: presentationController.getScore().getMaxScore()
+                    score: totalScore.rawScore,
+                    maxScore: totalScore.maxScore
                 }
+            }
             createProgressCell(row, score);
         }
 
@@ -133,7 +138,7 @@ function AddonHierarchical_Lesson_Report_create() {
         $(progressbar).addClass("hier_report-progressbar");
         if (score.maxScore == 0) score.maxScore ++;
 
-        var percent = (Math.round((score.score / score.maxScore) * 100));
+        var percent = (Math.floor((score.score / score.maxScore) * 100));
 
         progressInfo = document.createElement('div');
         $(progressInfo).appendTo($(progressCell))
@@ -213,7 +218,7 @@ function AddonHierarchical_Lesson_Report_create() {
             }
             else {
                 if (pageScore.maxScore == 0) pageScore.maxScore++;
-                var percent = (Math.round((pageScore.score / pageScore.maxScore) * 100));
+                var percent = (Math.floor((pageScore.score / pageScore.maxScore) * 100));
                 progressbar = $(row).find("#progressbar-" + pageIndex);
                 $(progressbar).progressbar({value: pageScore.score, max: pageScore.maxScore});
                 $(progressbar).closest("div").next().html(percent + "%");
@@ -231,8 +236,6 @@ function AddonHierarchical_Lesson_Report_create() {
         if (presenter.configuration.showErrors) {
             $(row).find(".hier_report-errors").html((isEmptyChapter)?"-": pageScore.errorCount);
         }
-
-
     }
 
     function updateScore(score, update) {
@@ -411,6 +414,7 @@ function AddonHierarchical_Lesson_Report_create() {
             presenter.createPreviewTree();
         } else {
             var presentation = presentationController.getPresentation();
+
             presenter.createTree(presentation.getTableOfContents(), null, presentation.getTableOfContents().size());
         }
         if (presenter.configuration.showTotal) addFooter();
