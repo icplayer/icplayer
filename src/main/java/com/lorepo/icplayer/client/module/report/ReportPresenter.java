@@ -50,7 +50,7 @@ public class ReportPresenter implements IPresenter{
 			IPage page = contentModel.getPage(i);
 			if(page.isReportable()){
 
-				PageScore pageScore = scoreService.getPageScore(page.getName());
+				PageScore pageScore = scoreService.getPageScoreById(page.getId());
 				counter ++;
 				
 				if(pageScore != null){

@@ -152,10 +152,10 @@ public class PageController {
 				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
 				PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
 				if(updateCounters){
-					playerService.getScoreService().setPageScore(score.incrementCounters());
+					playerService.getScoreService().setPageScore(currentPage, score.incrementCounters());
 				}
 				else{
-					playerService.getScoreService().setPageScore(score);
+					playerService.getScoreService().setPageScore(currentPage, score);
 				}
 			}
 		}
@@ -174,7 +174,7 @@ public class PageController {
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
 			if(pageScore.hasScore()){
 				PageScore score = pageScore.reset();
-				playerService.getScoreService().setPageScore(score);
+				playerService.getScoreService().setPageScore(currentPage, score);
 			}
 		}
 		playerService.getEventBus().fireEvent(new ResetPageEvent());

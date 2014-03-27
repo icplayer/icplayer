@@ -10,7 +10,6 @@ import com.lorepo.icf.utils.JSONUtils;
  */
 public class PageScore {
 
-	private final String 	pageName;
 	private final float	score;
 	private final float	maxScore;
 	private final int	checkCount;
@@ -20,10 +19,9 @@ public class PageScore {
 	
 	
 	
-	public PageScore(String pageName, float score, float maxScore, int checkCount,
+	public PageScore(float score, float maxScore, int checkCount,
 			int errorCount, int mistakeCount)
 	{
-		this.pageName = pageName;
 		this.score = score;
 		this.maxScore = maxScore;
 		this.checkCount = checkCount;
@@ -32,9 +30,8 @@ public class PageScore {
 	}
 
 	
-	public PageScore(String pageName, float score, float maxScore)
+	public PageScore(float score, float maxScore)
 	{
-		this.pageName = pageName;
 		this.score = score;
 		this.maxScore = maxScore;
 		this.checkCount = 0;
@@ -43,8 +40,7 @@ public class PageScore {
 	}
 
 	
-	public PageScore(String pageName) {
-		this.pageName = pageName;
+	public PageScore() {
 		this.score = 0;
 		this.maxScore = 0;
 		this.checkCount = 0;
@@ -54,10 +50,6 @@ public class PageScore {
 	}
 
 
-	public String getPageName(){
-		return pageName;
-	}
-	
 	/**
 	 * @return score
 	 */
@@ -127,23 +119,23 @@ public class PageScore {
 		int checkCount = Integer.parseInt(data.get("checkCount"));
 		int errorCount = Integer.parseInt(data.get("errorCount"));
 		int mistakeCount = Integer.parseInt(data.get("mistakeCount"));
-		return new PageScore(pageName, score, maxScore, checkCount, errorCount, mistakeCount);
+		return new PageScore(score, maxScore, checkCount, errorCount, mistakeCount);
 	}
 
 
 	public PageScore incrementCounters() {
-		return new PageScore(pageName, score, maxScore, checkCount+1, 
+		return new PageScore(score, maxScore, checkCount+1, 
 				errorCount, mistakeCount+errorCount);  
 	}
 
 
 	public PageScore reset() {
-		return new PageScore(pageName, 0, maxScore, checkCount, 0, mistakeCount);  
+		return new PageScore(0, maxScore, checkCount, 0, mistakeCount);  
 	}
 
 
 	public PageScore updateScore(float score, float maxScore, int errorCount) {
-		return new PageScore(pageName, score, maxScore, checkCount, 
+		return new PageScore(score, maxScore, checkCount, 
 				errorCount, mistakeCount);  
 	}
 	

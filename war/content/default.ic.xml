@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
-<interactiveContent scoreType="first">
+<interactiveContent scoreType="last">
 
 <addons>
 	<addon-descriptor addonId="YouTube_Addon"/>
@@ -53,15 +53,15 @@
 
 <pages>
 	<page name="schoice" href="pages/schoice.page.xml"/>
-	
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<chapter name="chapter 1">
-		<page name="mchoice" href="pages/mchoice.page.xml"/>
+		<page name="schoice" href="pages/schoice.page.xml"/>
+		<chapter name="chapter 1.1">
+			<page name="mchoice" href="pages/mchoice.page.xml"/>
+		</chapter>
 		<page name="Math page, $$ f = \frac{x}{2}$$" href="pages/math.page.xml"/>
-		<page name="image source" href="pages/image-source.xml"/>
-		<page name="links" href="pages/links.page.xml" reportable="false"/>
 	</chapter>
 	
 	<folder name="commons">
@@ -71,6 +71,8 @@
 	</folder>
 	
 	<!--
+	<page name="image source" href="pages/image-source.xml"/>
+	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="test" href="pages/test.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>

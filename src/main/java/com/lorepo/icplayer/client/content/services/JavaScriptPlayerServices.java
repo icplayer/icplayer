@@ -259,6 +259,10 @@ public class JavaScriptPlayerServices{
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScore(Ljava/lang/String;)(name);
 			}
 
+			score.getPageScoreById = function(name){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(id);
+			}
+
 			return score;
 		}	
 		
@@ -404,6 +408,16 @@ public class JavaScriptPlayerServices{
 		
 		playerServices.getCommands().updateCurrentPageScore();
 		PageScore score = playerServices.getScoreService().getPageScore(pageName);
+		JavaScriptObject model = scoreToJs(score);
+		
+		return model;
+	}
+
+	
+	private JavaScriptObject getPageScoreById(String id){
+		
+		playerServices.getCommands().updateCurrentPageScore();
+		PageScore score = playerServices.getScoreService().getPageScoreById(id);
 		JavaScriptObject model = scoreToJs(score);
 		
 		return model;
