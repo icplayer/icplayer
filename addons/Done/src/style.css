@@ -1,0 +1,18 @@
+.done-wrapper,
+.done-wrapper .done-container,
+.done-wrapper .done-container .done-button {
+    width: 100%;
+    height: 100%;
+}
+
+.done-wrapper .done-container .done-button {
+    background: url('resources/done-button.png') no-repeat center;
+    cursor: pointer;
+    text-align: center;
+}
+
+.done-wrapper.disabled .done-container .done-button {
+    background: url('resources/done-button-disabled.png') no-repeat center;
+    cursor: pointer;
+    text-align: center;
+}
