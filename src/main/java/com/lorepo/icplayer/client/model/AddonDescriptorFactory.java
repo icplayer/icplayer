@@ -42,6 +42,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("crossword", "Crossword", "Activities");
 		addDescriptor("Custom_Scoring", "Custom Scoring", "Reporting");
 		addDescriptor("Double_State_Button", "Double State Button", "Scripting");
+		addDescriptor("Done", "Done", "Reporting");
 		addDescriptor("Drawing", "Drawing", "Media");
 		addDescriptor("EdgeAnimation", "Edge Animation", "Media");
 		addDescriptor("eKeyboard", "eKeyboard", "Scripting");
