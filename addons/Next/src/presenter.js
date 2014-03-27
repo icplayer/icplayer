@@ -15,7 +15,6 @@ function AddonNext_create(){
 
     presenter.onEventReceived = function(eventName) {
         if (eventName == 'PageLoaded') {
-            console.log('Page Loaded')
             presenter.pageLoadedDeferred.resolve();
         } else if (eventName == 'Submitted') {
             presenter.pageSubmittedDeferred.resolve();

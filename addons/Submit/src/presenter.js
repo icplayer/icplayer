@@ -88,33 +88,35 @@ function AddonSubmit_create(){
 
         presenter.$view = $(view);
 
+        presenter.configuration = presenter.validateModel(model, isPreview);
+
+        if (presenter.configuration.isError) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return;
+        }
+
+        presenter.submitButton = presenter.$view.find('.submit-button');
+        presenter.submitButton.html(presenter.configuration.buttonText);
+        presenter.submitWrapper = presenter.$view.find('.submit-wrapper');
+
         presenter.pageLoaded.then(function() {
-            presenter.configuration = presenter.validateModel(model, isPreview);
-
-            if (presenter.configuration.isError) {
-                DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-                return;
-            }
-
-            presenter.submitButton = presenter.$view.find('.submit-button');
-            presenter.submitButton.html(presenter.configuration.buttonText);
 
             presenter.modulesOnPage = getAllOfTheModulesThatImplementIsAttempted();
 
             presenter.submitButton.click(function(e) {
                 e.stopPropagation();
 
-                var isSelected = $(this).hasClass('selected');
+                var isSelected = $(presenter.submitWrapper).hasClass('selected');
 
                 if (isSelected) {
-                    presenter.submitButton.removeClass('selected');
+                    presenter.submitWrapper.removeClass('selected');
                     presenter.submitButton.html(presenter.configuration.buttonText);
 
                     presenter.playerController.getCommands().uncheckAnswers();
                     presenter.sendEvent('State', presenter.createEventData({ 'value' : 0 }));
 
                 } else if (areAllModulesAttempted()) {
-                    presenter.submitButton.addClass('selected');
+                    presenter.submitWrapper.addClass('selected');
                     presenter.submitButton.html(presenter.configuration.buttonTextSelected);
 
                     presenter.playerController.getCommands().checkAnswers();
@@ -141,7 +143,7 @@ function AddonSubmit_create(){
     };
 
     presenter.reset = function(){
-        presenter.submitButton.removeClass('selected');
+        presenter.submitWrapper.removeClass('selected');
         presenter.submitButton.html(presenter.configuration.buttonText);
     };
 
@@ -158,20 +160,9 @@ function AddonSubmit_create(){
     };
 
     presenter.getState = function(){
-        return JSON.stringify({
-            'isSelected' : presenter.submitButton.hasClass('selected')
-        });
     };
 
     presenter.setState = function(state){
-        var parsed = JSON.parse(state);
-
-        presenter.runEnded.then(function() {
-            if (parsed.isSelected) {
-                presenter.submitButton.html(presenter.configuration.buttonTextSelected);
-                presenter.submitButton.addClass('selected');
-            }
-        });
     };
 
     return presenter;
