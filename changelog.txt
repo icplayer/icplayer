@@ -1,3 +1,4 @@
+2014-03-27 Fixed issue with Basic Math Gaps events
 2014-03-26 Added command isAttempted for Connection addon
 2014-03-26 Fixed couple of issues with Shape Tracing addon
 2014-03-26 Added command isAttempted for True/False addon

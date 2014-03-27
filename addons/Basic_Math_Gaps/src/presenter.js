@@ -66,6 +66,8 @@ function AddonBasic_Math_Gaps_create(){
             displayGaps(model);
         }
 
+        if (!isPreview) presenter.addFocusOutEventListener();
+
         presenter.$view.find('input').click(function(e) {
             e.stopPropagation();
         });
