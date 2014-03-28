@@ -85,4 +85,10 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void gotoPageId(String pageId) {
+		// TODO Auto-generated method stub
+		
+	}
 }

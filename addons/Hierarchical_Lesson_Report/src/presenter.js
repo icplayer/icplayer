@@ -119,11 +119,17 @@ function AddonHierarchical_Lesson_Report_create() {
         row = document.createElement('tr');
         $(row).appendTo($("#" + presenter.treeID).find('table'))
             .addClass("treegrid-" + index);
-        if (parrentIndex != null) $(row).addClass("treegrid-parent-" + parrentIndex);
-        if (isChapter)  $(row).addClass("hier_report-chapter");
-        else {
-            if (index % 2 > 0) $(row).addClass("hier_report-odd");
-            else $(row).addClass("hier_report-even");
+        if (parrentIndex != null) {
+        	$(row).addClass("treegrid-parent-" + parrentIndex);
+        }
+        if (isChapter) {
+        	$(row).addClass("hier_report-chapter");
+        } else {
+            if (index % 2 > 0) {
+            	$(row).addClass("hier_report-odd");
+            } else {
+            	$(row).addClass("hier_report-even");
+            }
         }
         return row;
     }
@@ -153,9 +159,9 @@ function AddonHierarchical_Lesson_Report_create() {
         }
     }
 
-    function createScoreCells(row, name, index, isChapter) {
+    function createScoreCells(row, pageId, index, isChapter) {
          var score = resetScore();
-        if (!isPreview) score = presentationController.getScore().getPageScore(name);
+        if (!isPreview) score = presentationController.getScore().getPageScoreById(pageId);
 
         if (presenter.configuration.showResults) {
             createProgressCell(row, score, index, isChapter);
@@ -186,11 +192,12 @@ function AddonHierarchical_Lesson_Report_create() {
         }
     }
 
-    function generatePageLinks(text, isChapter) {
+    function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
             $link = $(document.createElement('a'))
                 .text(text)
-                .attr('href', '#');
+                .attr('href', '#')
+                .attr('data-page-id', pageId);
 
         if (isChapter) $element.html(text)
         else $element.html($link);
@@ -198,13 +205,13 @@ function AddonHierarchical_Lesson_Report_create() {
         return $element;
     }
 
-    function addRow(name, index, parrentIndex, isChapter) {
+    function addRow(name, index, parrentIndex, isChapter, pageId) {
         row = createRow(index, parrentIndex, isChapter);
 
-        nameCell = generatePageLinks(name, isChapter);
+        nameCell = generatePageLinks(name, isChapter, pageId);
         $(nameCell).appendTo($(row));
 
-        createScoreCells(row, name, index, isChapter);
+        createScoreCells(row, pageId, index, isChapter, pageId);
     }
 
     function updateRow(pageIndex, pageScore, isEmptyChapter) {
@@ -277,8 +284,12 @@ function AddonHierarchical_Lesson_Report_create() {
             var isChapter = (root.get(i).type == "chapter");
             if (!isChapter && !root.get(i).isReportable())  continue;
             isEmpty = false;
-            addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter);
-            pageScore = presentationController.getScore().getPageScore(root.get(i).getName());
+            var pageId = "chapter";
+            if (!isChapter) {
+            	pageId = root.get(i).getId();
+            }
+            addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter, pageId);
+            pageScore = presentationController.getScore().getPageScoreById(pageId);
             pageIndex++;
             if (isChapter) {
                 chapterIndex = pageIndex - 1;
@@ -299,7 +310,7 @@ function AddonHierarchical_Lesson_Report_create() {
             $(this).click(function (event) {
                 event.preventDefault();
                 event.stopPropagation();
-                commander.gotoPage($(this).text());
+                commander.gotoPageId($(this).attr('data-page-id'));
             });
         });
 

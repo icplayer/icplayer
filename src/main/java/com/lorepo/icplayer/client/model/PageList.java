@@ -173,6 +173,20 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		
 		return -1;
 	}
+	
+	public int findPageIndexById(String pageId) {
+
+		int index = 0;
+		List<Page> pages = getAllPages();
+		for(Page page : pages){
+			if(page.getId().equals(pageId)){
+				return index;
+			}
+			index++;
+		}
+		
+		return -1;
+	}
 
 	
 	public String generateUniquePageName() {

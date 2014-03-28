@@ -622,6 +622,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	
 		var page = function(){}
 		page.type = "page";
+		page.getId = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::getId()();
+		}
 		page.getName = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::getName()();
 		}

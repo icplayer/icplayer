@@ -54,7 +54,7 @@
                 page = presentation.getPage(i);
 
                 if (page.isReportable()) {
-                    score = this.scoreService.getPageScore(page.getName());
+                    score = this.scoreService.getPageScoreById(page.getId());
                     sumOfScaledScore += score['maxScore'] ? score['score']/score['maxScore'] : 0;
                     sumOfScore += score.score;
                     sumOfErrors += score.errorCount;

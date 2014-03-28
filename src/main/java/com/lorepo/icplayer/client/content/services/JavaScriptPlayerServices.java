@@ -191,6 +191,9 @@ public class JavaScriptPlayerServices{
 			commands.gotoPageIndex = function(index){
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageIndex(I)(index);
 			}
+			commands.gotoPageId = function(pageId){
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
+			}
 			commands.executeEventCode = function(code){
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::executeEventCode(Ljava/lang/String;)(code);
 			}
@@ -326,6 +329,9 @@ public class JavaScriptPlayerServices{
 		playerServices.getCommands().gotoPageIndex(index);
 	}
 
+	private void gotoPageId(String pageId){
+		playerServices.getCommands().gotoPageId(pageId);
+	}
 	
 	private void executeEventCode(String code){
 		playerServices.getCommands().executeEventCode(code);

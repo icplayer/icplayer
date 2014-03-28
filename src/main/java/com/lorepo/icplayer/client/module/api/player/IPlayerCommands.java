@@ -20,6 +20,7 @@ public interface IPlayerCommands {
 	public void	prevPage();
 	public void	gotoPage(String name);
 	public void	gotoPageIndex(int index);
+	public void	gotoPageId(String pageId);
 	public void showPopup(String pageName, String additinalClasses);
 	public void closePopup();
 

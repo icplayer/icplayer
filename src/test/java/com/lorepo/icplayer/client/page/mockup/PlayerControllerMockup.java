@@ -134,4 +134,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+
+	@Override
+	public void switchToPageById(String pageId) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

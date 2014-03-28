@@ -75,6 +75,11 @@ public class PlayerCommands implements IPlayerCommands {
 		controller.switchToPage(index);
 	}
 
+	@Override
+	public void gotoPageId(String pageId) {
+		controller.switchToPageById(pageId);
+	}
+	
 
 	@Override
 	public void executeEventCode(String code) {

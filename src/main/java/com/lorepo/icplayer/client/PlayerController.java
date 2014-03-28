@@ -137,6 +137,16 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
+	@Override
+	public void switchToPageById(String pageId) {
+		int index = getModel().getPages().findPageIndexById(pageId);
+		if(index > -1){
+			switchToPage(index);
+		}
+		else{
+			Window.alert("Missing page with id:\n<" + pageId + ">");
+		}
+	}
 
 	public void switchToPrevPage() {
 		PageList pages = contentModel.getPages();
@@ -209,7 +219,7 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 	
-	
+
 	private void switchToPage(IPage page, final PageController pageController){
 
 		
@@ -393,5 +403,7 @@ public class PlayerController implements IPlayerController{
 	public void setPopupEnabled(boolean enabled) {
 		isPopupEnabled = enabled;
 	}
+
+
 
 }
