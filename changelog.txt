@@ -1,3 +1,4 @@
+2014-03-28 Fixed problem with checking answers when not all gaps were filled in Basic Math Gaps module
 2014-03-28 Player API extended to switch pages by page id
 2014-03-27 New module Done, it checks whenever all activities on the page has been attempted and button Submit has been pressed, then it sends 'Done' event
 2014-03-27 Fixed issue with improper total lesson scoring in hierarchical lesson report.
