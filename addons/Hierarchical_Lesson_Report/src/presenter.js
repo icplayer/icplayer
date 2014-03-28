@@ -9,20 +9,20 @@ function AddonHierarchical_Lesson_Report_create() {
     var isPreview = false;
 
     var pagesMockup = [
-        {name: "Page1", parrent: null},
-        {name: "Unit1", parrent: null},
-        {name: "Page2", parrent: 1},
-        {name: "Chapter1", parrent: 1},
-        {name: "Page3", parrent: 3},
-        {name: "Page4", parrent: 3},
-        {name: "Chapter2", parrent: 1},
-        {name: "Page5", parrent: 6},
-        {name: "Page6", parrent: 1},
-        {name: "Page7", parrent: null},
-        {name: "Page8", parrent: null},
-        {name: "Page9", parrent: null},
-        {name: "Page10", parrent: null},
-        {name: "Page11", parrent: null}
+        {name: "Page1", parrent: null, pageId : "some_id"},
+        {name: "Unit1", parrent: null, pageId : "some_id"},
+        {name: "Page2", parrent: 1, pageId : "some_id"},
+        {name: "Chapter1", parrent: 1, pageId : "some_id"},
+        {name: "Page3", parrent: 3, pageId : "some_id"},
+        {name: "Page4", parrent: 3, pageId : "some_id"},
+        {name: "Chapter2", parrent: 1, pageId : "some_id"},
+        {name: "Page5", parrent: 6, pageId : "some_id"},
+        {name: "Page6", parrent: 1, pageId : "some_id"},
+        {name: "Page7", parrent: null, pageId : "some_id"},
+        {name: "Page8", parrent: null, pageId : "some_id"},
+        {name: "Page9", parrent: null, pageId : "some_id"},
+        {name: "Page10", parrent: null, pageId : "some_id"},
+        {name: "Page11", parrent: null, pageId : "some_id"}
     ];
 
     presenter.ERROR_MESSAGES = {
@@ -160,7 +160,7 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     function createScoreCells(row, pageId, index, isChapter) {
-         var score = resetScore();
+        var score = resetScore();
         if (!isPreview) score = presentationController.getScore().getPageScoreById(pageId);
 
         if (presenter.configuration.showResults) {
@@ -222,8 +222,7 @@ function AddonHierarchical_Lesson_Report_create() {
                 progresscell = $(row).find(".hier_report-progress");
                 $(progresscell).children().remove();
                 $(progresscell).html("-");
-            }
-            else {
+            } else {
                 if (pageScore.maxScore == 0) pageScore.maxScore++;
                 var percent = (Math.floor((pageScore.score / pageScore.maxScore) * 100));
                 progressbar = $(row).find("#progressbar-" + pageIndex);
@@ -268,7 +267,7 @@ function AddonHierarchical_Lesson_Report_create() {
     presenter.createPreviewTree = function () {
         var chapterScore = resetScore();
         for (var i = 0; i < pagesMockup.length; i++) {
-            addRow(pagesMockup[i].name, i, pagesMockup[i].parrent, false);
+            addRow(pagesMockup[i].name, i, pagesMockup[i].parrent, false, pagesMockup[i].pageId);
         }
         return chapterScore;
     }
