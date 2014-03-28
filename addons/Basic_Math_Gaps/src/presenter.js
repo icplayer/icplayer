@@ -87,7 +87,7 @@ function AddonBasic_Math_Gaps_create(){
                     value = $(this).val(),
                     score = $(this).val() == presenter.configuration.gapsValues[item];
 
-                if (presenter.configuration.isEquation && getNonEmptyInputs().length != presenter.$view.find('input').length ) { return; }
+                if (presenter.configuration.isEquation && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) { return; }
                 presenter.sendEvent(item, value, score);
             });
         }
@@ -356,7 +356,9 @@ function AddonBasic_Math_Gaps_create(){
             $(this).addClass('disabled');
         });
 
-        if (canNOTCheckScore() || areInputsAllEmpty(inputs) || (presenter.configuration.isEquation && getNonEmptyInputs().length != presenter.$view.find('input').length)) {
+        if (canNOTCheckScore() || areInputsAllEmpty(inputs)
+            || (presenter.configuration.isEquation
+            && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length)) {
             return;
         }
 
@@ -412,6 +414,9 @@ function AddonBasic_Math_Gaps_create(){
         inputs.attr('disabled', false);
         inputs.removeClass('correct wrong disabled');
         inputs.val('');
+        presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
+
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     function isEquationCorrect(validatedScore) {
@@ -438,14 +443,13 @@ function AddonBasic_Math_Gaps_create(){
 
             return 0;
         } else {
-            return getNonEmptyInputs().length - validated.validGapsCount;
+            return filterInputs(function(element) { return $(element).val().length > 0; }).length - validated.validGapsCount;
         }
 
     };
 
-    function getNonEmptyInputs() {
-        var nonEmpty = $.grep(presenter.$view.find('input'), function(element) { return $(element).val().length > 0 });
-        return nonEmpty;
+    function filterInputs(testFunction) {
+        return $.grep(presenter.$view.find('input'), function(element) { return testFunction(element) });
     }
 
     presenter.getMaxScore = function(){
@@ -472,13 +476,15 @@ function AddonBasic_Math_Gaps_create(){
                 elements.push(container.find('.denominator').children());
             }
             $.each(elements, function() {
-                var element = $(this);
+                var element = $(this),
+                    value = null;
+
                 if (element.is('input')) {
-                    element = element.val();
+                    value = element.val();
                 } else {
-                    element = element.html();
+                    value = element.html();
                 }
-                result += convertDecimalSeparator(element, presenter.configuration.decimalSeparator, '.');
+                result += convertDecimalSeparator(value, presenter.configuration.decimalSeparator, '.');
             });
         });
 
@@ -519,14 +525,20 @@ function AddonBasic_Math_Gaps_create(){
             splitted = userExpression.split('='),
             userExpressionValid = false;
 
-        if (presenter.configuration.isEquation && splitted.length > 1 && splitted[0].length > 0 && splitted[1].length > 0) {
-            var userExpressionLeft = splitted[0],
-                userExpressionRight = userExpression.split('=')[1],
-                leftEvaluated = eval(userExpressionLeft).toFixed(2),
-                rightEvaluated = eval(userExpressionRight).toFixed(2),
-                isSameResultOnBothSides = leftEvaluated == rightEvaluated;
+        if (presenter.configuration.isEquation && splitted.length > 1 && filterInputs(function(element) { return $(element).val().length == 0; }).length == 0) {
+            try {
+                var userExpressionLeft = splitted[0],
+                    userExpressionRight = userExpression.split('=')[1],
+                    leftEvaluated = eval(userExpressionLeft).toFixed(2),
+                    rightEvaluated = eval(userExpressionRight).toFixed(2),
+                    isSameResultOnBothSides = leftEvaluated == rightEvaluated;
 
-            userExpressionValid = true;
+                userExpressionValid = true;
+
+            } catch (_) {
+                userExpressionValid = false;
+            }
+
         }
 
         return {
@@ -613,7 +625,7 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.setVisibility = function(isVisible) {
-        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.$view.find('.basic-math-gaps-wrapper').css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.disable = function() {
