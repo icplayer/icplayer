@@ -166,7 +166,7 @@ function AddonColoring_create(){
             setAreasDefaultColors();
             setAreasPixelPosition();
 
-            if (!isPreview && !presenter.configuration.isDisabled) {
+            if (!presenter.configuration.isDisabled) {
                 canvasElement.on('click', function(e) {
                     presenter.clickLogic(e);
                 });
@@ -182,8 +182,9 @@ function AddonColoring_create(){
                 });
 
                 presenter.runEndedDeferred.resolve();
+            }
 
-            } else {
+            if (isPreview) {
                 var coordinatesContainer = $('<div></div>'),
                     xContainer = $('<div>x: <span class="value"></span></div>'),
                     yContainer = $('<div>y: <span class="value"></span></div>'),
@@ -717,7 +718,8 @@ function AddonColoring_create(){
             currentFillingColor: presenter.configuration.currentFillingColor,
             isErase: presenter.configuration.isErase,
             colorsThatCanBeFilled: presenter.configuration.colorsThatCanBeFilled,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isVisible,
+            isDisabled: presenter.configuration.isDisabled
         };
 
         return JSON.stringify(state);
@@ -728,6 +730,7 @@ function AddonColoring_create(){
 
         presenter.configuration.isErase = parsed.isErase;
         presenter.configuration.isVisible = parsed.isVisible;
+        presenter.configuration.isDisabled = parsed.isDisabled;
 
         if (presenter.configuration.isErase) {
             presenter.configuration.currentFillingColor = [255, 255, 255, 255];
