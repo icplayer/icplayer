@@ -47,4 +47,21 @@
     };
 
 
+    /**
+     Parse given text and replace definition of gaps with appropriate html structure.
+     Proxy for textParser from Player Services.
+
+     @method parseGaps
+     @param {String} container the string which would be processed
+     @return {Array} Array wih gaps structure:
+                    - {String} parsedText - string with replaced gaps definitions
+                    - {Array} gaps - array with gaps structure
+                    - {Array} inLineGaps -  array with inline gaps structure
+     */
+    window.TextParserProxy.prototype.parseGaps = function (text) {
+        return this.parser.parseGaps(text);
+    };
+
+
+
 })(window);

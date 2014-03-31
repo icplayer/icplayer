@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.content.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -31,6 +32,8 @@ import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
 import com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
+import com.lorepo.icplayer.client.module.text.GapInfo;
+import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
@@ -139,65 +142,69 @@ public class JavaScriptPlayerServices{
 
 
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
-		
-		var playerServices = function(){}
-			
-		playerServices.getPresentation = function(){
-			var model = function(){};
 
-			model.getPageCount = function(){
+		var playerServices = function() {
+		}
+
+		playerServices.getPresentation = function() {
+			var model = function() {
+			};
+
+			model.getPageCount = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageCount()();
 			}
-				
-			model.getPage = function(index){
-				var page = function(){}
-				page.getName = function(){
+
+			model.getPage = function(index) {
+				var page = function() {
+				}
+				page.getName = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageName(I)(index);
 				}
-				page.getId = function(){
+				page.getId = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageId(I)(index);
 				}
-				page.getBaseURL = function(){
+				page.getBaseURL = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getBaseURL(I)(index);
 				}
-				page.isReportable = function(){
+				page.isReportable = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageReportable(I)(index);
 				}
 				page.getModules = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModules(I)(index);
 				}
-				
+
 				return page;
 			}
-				
-			model.getTableOfContents = function(){
+
+			model.getTableOfContents = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTableOfContents()();
 			}
-				
+
 			return model;
 		}
-			
-		playerServices.getCurrentPageIndex = function(){ 
+
+		playerServices.getCurrentPageIndex = function() {
 			var index = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentPageIndex()();
 			return index;
 		}
-			
-		playerServices.getCommands = function(){
-			var commands = function(){};
 
-			commands.gotoPage = function(pageName){
+		playerServices.getCommands = function() {
+			var commands = function() {
+			};
+
+			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
 			}
-			commands.gotoPageIndex = function(index){
+			commands.gotoPageIndex = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageIndex(I)(index);
 			}
-			commands.gotoPageId = function(pageId){
+			commands.gotoPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
 			}
-			commands.executeEventCode = function(code){
+			commands.executeEventCode = function(code) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::executeEventCode(Ljava/lang/String;)(code);
 			}
-			commands.getTimeElapsed = function(){
+			commands.getTimeElapsed = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTimeElapsed()();
 			}
 			commands.checkAnswers = function() {
@@ -206,81 +213,93 @@ public class JavaScriptPlayerServices{
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
 			}
-			
-			return commands;
-		}	
-		
-		playerServices.getEventBus = function(){
-			var commands = function(){};
 
-			commands.addEventListener = function(name, listener){
+			return commands;
+		}
+
+		playerServices.getEventBus = function() {
+			var commands = function() {
+			};
+
+			commands.addEventListener = function(name, listener) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, listener);
 			}
 
-			commands.sendEvent = function(name, data){
+			commands.sendEvent = function(name, data) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
 			}
 			return commands;
-		}	
-		
-		playerServices.getTextParser = function(){
-			var commands = function(){};
+		}
 
-			commands.parse = function(text){
+		playerServices.getTextParser = function() {
+			var commands = function() {
+			};
+
+			commands.parse = function(text) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseText(Ljava/lang/String;)(text);
 			}
 
-			commands.connectLinks = function(node){
-				node.find('.ic_definitionLink').click(function(e){
-					e.preventDefault();
-            		e.stopPropagation();
-					var name = 'Definition'
-					var data = {'word': $wnd.$(this).html()}
-					x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
-				});
+			commands.parseGaps = function(text) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseGaps(Ljava/lang/String;)(text);
+			}
+
+			commands.connectLinks = function(node) {
+				node
+						.find('.ic_definitionLink')
+						.click(
+								function(e) {
+									e.preventDefault();
+									e.stopPropagation();
+									var name = 'Definition'
+									var data = {
+										'word' : $wnd.$(this).html()
+									}
+									x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
+								});
 			}
 
 			return commands;
-		}	
-		
-		playerServices.getModule = function(name){ 
+		}
+
+		playerServices.getModule = function(name) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(name);
 		}
-			
-		playerServices.getScore = function(){
-			var score = function(){};
 
-			score.getMaxScore = function(){
+		playerServices.getScore = function() {
+			var score = function() {
+			};
+
+			score.getMaxScore = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getMaxScore()();
 			}
 
-			score.getTotalScore = function(){
+			score.getTotalScore = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTotalScore()();
 			}
 
-			score.getPageScore = function(name){
+			score.getPageScore = function(name) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScore(Ljava/lang/String;)(name);
 			}
 
-			score.getPageScoreById = function(pageId){
+			score.getPageScoreById = function(pageId) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(pageId);
 			}
 
 			return score;
-		}	
-		
-		playerServices.getStaticFilesPath = function(){ 
+		}
+
+		playerServices.getStaticFilesPath = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getStaticFilesPath()();
 		}
-		
-		playerServices.isBookMode = function(){ 
+
+		playerServices.isBookMode = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isBookMode()();
 		}
-		
-		playerServices.hasCover = function(){ 
+
+		playerServices.hasCover = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hasCover()();
 		}
-		
+
 		return playerServices;
 	}-*/;
 	
@@ -356,11 +375,34 @@ public class JavaScriptPlayerServices{
 	 * - defCount - ilość linków z definicjami
 	 */
 	private String parseText(String text){
-
 		TextParser parser = new TextParser();
 		parser.skipGaps();
 		ParserResult result = parser.parse(text);
 		return result.parsedText;
+	}
+
+	/**
+	 * Parsing gaps and inline gaps
+	 * 
+	 * @return Hashmap with values - parsedText - string with replaced gaps
+	 *         definitions - gaps - hashmap with gaps structure - inLineGaps -
+	 *         hashmap with inline gaps structure
+	 */
+	private JavaScriptObject parseGaps(String text) {
+		TextParser parser = new TextParser();
+		ParserResult result = parser.parse(text);
+
+		JavaScriptObject inlineGaps = inLineChoiceToJs(result.choiceInfos);
+		JavaScriptObject gaps = gapsToJs(result.gapInfos);
+
+		JavaScriptObject model = JavaScriptObject.createArray();
+		JavaScriptUtils.addObjectAsPropertyToJSArray(model, "inLineGaps",
+				inlineGaps);
+		JavaScriptUtils.addObjectAsPropertyToJSArray(model, "gaps", gaps);
+		JavaScriptUtils.addPropertyToJSArray(model, "parsedText",
+				result.parsedText);
+
+		return model;
 	}
 
 	
@@ -440,6 +482,57 @@ public class JavaScriptPlayerServices{
 		return model;
 	}
 	
+	private JavaScriptObject inLineChoiceToJs(List<InlineChoiceInfo> choiceInfos) {
+		JavaScriptObject model = JavaScriptObject.createArray();
+
+		for (int i = 0; i < choiceInfos.size(); i++) {
+			JavaScriptObject gap = JavaScriptObject.createArray();
+			JavaScriptUtils.addPropertyToJSArray(gap, "id", choiceInfos.get(i)
+					.getId());
+			JavaScriptUtils.addPropertyToJSArray(gap, "answer", choiceInfos
+					.get(i).getAnswer());
+			JavaScriptUtils.addPropertyToJSArray(gap, "value",
+					(int) choiceInfos.get(i).getValue());
+			JavaScriptObject distractors = JavaScriptObject.createArray();
+
+			Iterator<String> gapDistractors = choiceInfos.get(i)
+					.getDistractors();
+			while (gapDistractors.hasNext()) {
+				String dist = gapDistractors.next();
+				JavaScriptUtils.addElementToJSArray(distractors, dist);
+			}
+			JavaScriptUtils.addObjectAsPropertyToJSArray(gap, "distractors",
+					distractors);
+
+			JavaScriptUtils.addObjectToJSArray(model, gap);
+		}
+		return model;
+	}
+
+	private JavaScriptObject gapsToJs(List<GapInfo> gapInfos) {
+		JavaScriptObject model = JavaScriptObject.createArray();
+
+		for (int i = 0; i < gapInfos.size(); i++) {
+			JavaScriptObject gap = JavaScriptObject.createArray();
+			JavaScriptUtils.addPropertyToJSArray(gap, "id", gapInfos.get(i)
+					.getId());
+			JavaScriptUtils.addPropertyToJSArray(gap, "value", (int) gapInfos
+					.get(i).getValue());
+
+			JavaScriptObject answersArray = JavaScriptObject.createArray();
+			Iterator<String> answers = gapInfos.get(i).getAnswers();
+			while (answers.hasNext()) {
+				String dist = answers.next();
+				JavaScriptUtils.addElementToJSArray(answersArray, dist);
+			}
+			JavaScriptUtils.addObjectAsPropertyToJSArray(gap, "answers",
+					answersArray);
+
+			JavaScriptUtils.addObjectToJSArray(model, gap);
+		}
+		return model;
+	}
+
 	private String getStaticFilesPath(){
 		return GWT.getModuleBaseForStaticFiles();
 	}
