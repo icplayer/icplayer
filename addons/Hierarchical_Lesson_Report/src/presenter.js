@@ -86,8 +86,8 @@ function AddonHierarchical_Lesson_Report_create() {
                 playerUtils.scoreService = presentationController.getScore();
                 var totalScore = playerUtils.getPresentationScore(presentationController.getPresentation());
                 score = {
-                    score: totalScore.rawScore,
-                    maxScore: totalScore.maxScore
+                    score: totalScore.scaledScore,
+                    count: 1
                 }
             }
             createProgressCell(row, score);
@@ -142,9 +142,8 @@ function AddonHierarchical_Lesson_Report_create() {
         $(progressbar).appendTo($(progressCell));
         $(progressbar).attr("id", "progressbar-" + index)
         $(progressbar).addClass("hier_report-progressbar");
-        if (score.maxScore == 0) score.maxScore ++;
 
-        var percent = (Math.floor((score.score / score.maxScore) * 100));
+        var percent = Math.floor(score.score / score.count * 100);
 
         progressInfo = document.createElement('div');
         $(progressInfo).appendTo($(progressCell))
@@ -153,8 +152,8 @@ function AddonHierarchical_Lesson_Report_create() {
 
         if (!isChapter) {
             $(progressbar).progressbar({
-                value: score.score,
-                max: score.maxScore
+                value: Math.floor(score.score * 100),
+                max: 100
             });
         }
     }
@@ -163,6 +162,11 @@ function AddonHierarchical_Lesson_Report_create() {
         var score = resetScore();
         if (!isPreview) score = presentationController.getScore().getPageScoreById(pageId);
 
+        if (!isChapter) {
+        	score.count = 1;
+        	score.score = score.score / score.maxScore;
+        }
+        
         if (presenter.configuration.showResults) {
             createProgressCell(row, score, index, isChapter);
         }
@@ -223,10 +227,9 @@ function AddonHierarchical_Lesson_Report_create() {
                 $(progresscell).children().remove();
                 $(progresscell).html("-");
             } else {
-                if (pageScore.maxScore == 0) pageScore.maxScore++;
-                var percent = (Math.floor((pageScore.score / pageScore.maxScore) * 100));
+                var percent = (Math.floor((pageScore.score / pageScore.count) * 100));
                 progressbar = $(row).find("#progressbar-" + pageIndex);
-                $(progressbar).progressbar({value: pageScore.score, max: pageScore.maxScore});
+                $(progressbar).progressbar({value: Math.floor((pageScore.score / pageScore.count) * 100), max: 100});
                 $(progressbar).closest("div").next().html(percent + "%");
             }
         }
@@ -245,11 +248,11 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     function updateScore(score, update) {
-        score.score += update.score;
-        score.maxScore += update.maxScore;
+        score.score += update.maxScore === 0 ? update.score : update.score/update.maxScore;
         score.errorCount += update.errorCount;
         score.checkCount += update.checkCount;
         score.mistakeCount += update.mistakeCount;
+        score.count += update.count;
         return score;
     }
 
@@ -259,7 +262,8 @@ function AddonHierarchical_Lesson_Report_create() {
             maxScore: 0,
             errorCount: 0,
             checkCount: 0,
-            mistakeCount: 0
+            mistakeCount: 0,
+            count: 0
         }
         return score;
     }
@@ -289,6 +293,7 @@ function AddonHierarchical_Lesson_Report_create() {
             }
             addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter, pageId);
             pageScore = presentationController.getScore().getPageScoreById(pageId);
+            pageScore.count = 1;
             pageIndex++;
             if (isChapter) {
                 chapterIndex = pageIndex - 1;
