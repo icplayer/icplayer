@@ -233,8 +233,8 @@ public class ChoiceModel extends BasicModuleModel{
 			}
 
 			@Override
-			public void setChildrenCount(int count) {
-				resizeItemsArray(count);
+			public void addChildren(int count) {
+				addItems(count);
 				sendPropertyChangedEvent(this);
 			}
 
@@ -242,33 +242,57 @@ public class ChoiceModel extends BasicModuleModel{
 			public String getDisplayName() {
 				return DictionaryWrapper.get("choice_item");
 			}
+
+			@Override
+			public void removeChildren(int index) {
+				removeItem(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+				moveItemUp(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+				moveItemDown(index);
+				sendPropertyChangedEvent(this);
+			}
 		};
 		
 		addProperty(optionsProperty);
 	}
 
 
-	protected void resizeItemsArray(int count) {
+	protected void addItems(int count) {
 		
 		if(count > 0 && count < 50){
-			
-			if(count < options.size()){
-				
-				int diff = options.size()-count;
-				for(int i = 0; i < diff; i++){
-					options.remove(options.size()-1);
-				}
-			}
-			else if(count > options.size()){
-				int diff = count-options.size();
-				for(int i = 0; i < diff; i++){
-					String optionID = Integer.toString(i+options.size()+1);
-					addOption(new ChoiceOption(optionID, "New Option", 0));
-				}
+			for(int i = 0; i < count; i++){
+				String optionID = Integer.toString(i+options.size()+1);
+				addOption(new ChoiceOption(optionID, "New Option", 0));
 			}
 		}
 	}
 
+	private void removeItem(int index) {
+		options.remove(index);
+	}
+
+	private void moveItemUp(int index) {
+		if(index > 0){
+			ChoiceOption item = options.remove(index);
+			options.add(index-1, item);
+		}
+	}
+
+	private void moveItemDown(int index) {
+		if(index < options.size()-1){
+			ChoiceOption item = options.remove(index);
+			options.add(index+1, item);
+		}
+	}
 
 	public ArrayList<ChoiceOption> getOptions() {
 		return options;

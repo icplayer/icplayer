@@ -143,8 +143,8 @@ public class ListAddonParam extends StringAddonParam{
 			}
 
 			@Override
-			public void setChildrenCount(int count) {
-				resizeTo(count);
+			public void addChildren(int count) {
+				addNewItems(count);
 				sendPropertyChangedEvent(this);
 			}
 
@@ -152,26 +152,57 @@ public class ListAddonParam extends StringAddonParam{
 			public IPropertyProvider getChild(int index) {
 				return propertyProviders.get(index);
 			}
+
+			@Override
+			public void removeChildren(int index) {
+				removeItem(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+				moveItemUp(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+				moveItemDown(index);
+				sendPropertyChangedEvent(this);
+			}
 		};
 		
 		return property;
 	}
 
 
-	public void resizeTo(int count) {
+	public void addNewItems(int count) {
 
-		while(propertyProviders.size() > count){
-			propertyProviders.remove(propertyProviders.size()-1);
-		}
-		
-		while(propertyProviders.size() < count){
-
+		for(int i = 0; i < count; i++){
 			AddonParamProvider provider = createParamProvider();
 			propertyProviders.add(provider);
 		}
 	}
 
+	private void removeItem(int index) {
+		propertyProviders.remove(index);
+	}
 
+
+	private void moveItemUp(int index) {
+		if(index > 0){
+			AddonParamProvider item = propertyProviders.remove(index);
+			propertyProviders.add(index-1, item);
+		}
+	}
+
+	private void moveItemDown(int index) {
+		if(index < propertyProviders.size()-1){
+			AddonParamProvider item = propertyProviders.remove(index);
+			propertyProviders.add(index+1, item);
+		}
+	}
+	
 	private AddonParamProvider createParamProvider() {
 
 		AddonParamProvider provider = new AddonParamProvider();

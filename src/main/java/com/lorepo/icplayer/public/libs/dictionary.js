@@ -151,6 +151,7 @@ var ice_dictionary = {
 	"change" : "Change",
 	"items_editor" : "Items Editor",
 	"item_count" : "Item count:",
+	"number_of_items" : "Number of items:",
 	"title" : "Title",
 	"page" : "Page",
 	"on_click" : "onClick",

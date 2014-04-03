@@ -249,8 +249,8 @@ public class OrderingModule extends BasicModuleModel{
 			}
 
 			@Override
-			public void setChildrenCount(int count) {
-				resizeItemsArray(count);
+			public void addChildren(int count) {
+				addItems(count);
 				sendPropertyChangedEvent(this);
 			}
 
@@ -258,31 +258,52 @@ public class OrderingModule extends BasicModuleModel{
 			public String getDisplayName() {
 				return "Item";
 			}
+
+			@Override
+			public void removeChildren(int index) {
+				items.remove(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+				moveItemUp(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+				moveItemDown(index);
+				sendPropertyChangedEvent(this);
+			}
 		};
 		
 		addProperty(itemsProperty);
 	}
 
 
-	protected void resizeItemsArray(int count) {
+	private void addItems(int count) {
 		
 		if(count > 0 && count < 50){
-			
-			if(count < items.size()){
-				
-				int diff = items.size()-count;
-				for(int i = 0; i < diff; i++){
-					items.remove(items.size()-1);
-				}
+			for(int i = 0; i < count; i++){
+				int index = items.size()+1;
+				String name = DictionaryWrapper.get("ordering_new_item");
+				addItem(new OrderingItem(index, name, getBaseURL()));
 			}
-			else if(count > items.size()){
-				int diff = count-items.size();
-				for(int i = 0; i < diff; i++){
-					int index = items.size()+1;
-					String name = DictionaryWrapper.get("ordering_new_item");
-					addItem(new OrderingItem(index, name, getBaseURL()));
-				}
-			}
+		}
+	}
+
+	private void moveItemUp(int index) {
+		if(index > 0){
+			OrderingItem item = items.remove(index);
+			items.add(index-1, item);
+		}
+	}
+
+	private void moveItemDown(int index) {
+		if(index < items.size()-1){
+			OrderingItem item = items.remove(index);
+			items.add(index+1, item);
 		}
 	}
 

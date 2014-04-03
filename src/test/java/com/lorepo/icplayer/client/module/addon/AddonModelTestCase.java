@@ -453,8 +453,8 @@ public class AddonModelTestCase {
 		assertNotNull(foundProperty);
 		assertEquals(3, foundProperty.getChildrenCount());
 		
-		foundProperty.setChildrenCount(2);
-		assertEquals(2, foundProperty.getChildrenCount());
+		foundProperty.addChildren(2);
+		assertEquals(5, foundProperty.getChildrenCount());
 	}
 	
 
@@ -487,8 +487,8 @@ public class AddonModelTestCase {
 		assertNotNull(foundProperty);
 		assertEquals(3, foundProperty.getChildrenCount());
 		
-		foundProperty.setChildrenCount(5);
-		assertEquals(5, foundProperty.getChildrenCount());
+		foundProperty.addChildren(5);
+		assertEquals(8, foundProperty.getChildrenCount());
 
 		IPropertyProvider provider = foundProperty.getChild(4);
 		assertEquals(2, provider.getPropertyCount());

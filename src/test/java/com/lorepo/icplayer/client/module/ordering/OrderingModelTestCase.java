@@ -77,7 +77,7 @@ public class OrderingModelTestCase {
 
 
 	@Test
-	public void propertyResizeItems() {
+	public void propertyAddItems() {
 		
 		OrderingModule module = new OrderingModule();
 		
@@ -87,13 +87,13 @@ public class OrderingModelTestCase {
 			
 			if(module.getProperty(i) instanceof IListProperty){
 				IListProperty listProperty = (IListProperty) module.getProperty(i);
-				listProperty.setChildrenCount(5);
+				listProperty.addChildren(5);
 				count = listProperty.getChildrenCount();
 				break;
 			}
 		}
 		
-		assertEquals(5, count);
+		assertEquals(8, count);
 	}
 	
 	@Test

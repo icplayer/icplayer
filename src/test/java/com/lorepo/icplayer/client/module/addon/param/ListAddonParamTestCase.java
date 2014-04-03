@@ -52,7 +52,7 @@ public class ListAddonParamTestCase {
 		
 		assertEquals(3, property.getChildrenCount());
 		
-		property.setChildrenCount(5);
+		property.addChildren(5);
 		IPropertyProvider provider = property.getChild(4);
 		
 		IProperty iconProperty = null;
