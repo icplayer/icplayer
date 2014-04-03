@@ -185,7 +185,9 @@ public class ListAddonParam extends StringAddonParam{
 	}
 
 	private void removeItem(int index) {
-		propertyProviders.remove(index);
+		if(propertyProviders.size() > 1){
+			propertyProviders.remove(index);
+		}
 	}
 
 

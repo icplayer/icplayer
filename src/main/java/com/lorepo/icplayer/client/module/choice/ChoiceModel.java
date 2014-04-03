@@ -277,7 +277,9 @@ public class ChoiceModel extends BasicModuleModel{
 	}
 
 	private void removeItem(int index) {
-		options.remove(index);
+		if(options.size() > 1){
+			options.remove(index);
+		}
 	}
 
 	private void moveItemUp(int index) {

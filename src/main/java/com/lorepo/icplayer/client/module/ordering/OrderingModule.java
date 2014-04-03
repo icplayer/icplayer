@@ -261,7 +261,7 @@ public class OrderingModule extends BasicModuleModel{
 
 			@Override
 			public void removeChildren(int index) {
-				items.remove(index);
+				removeItem(index);
 				sendPropertyChangedEvent(this);
 			}
 
@@ -290,6 +290,12 @@ public class OrderingModule extends BasicModuleModel{
 				String name = DictionaryWrapper.get("ordering_new_item");
 				addItem(new OrderingItem(index, name, getBaseURL()));
 			}
+		}
+	}
+	
+	private void removeItem(int index){
+		if(items.size() > 1){
+			items.remove(index);
 		}
 	}
 
