@@ -70,6 +70,7 @@ var ice_dictionary = {
 	"cant_save_duplicate" : "Can't save duplicated page: ",
 	"error_loading_addon" : "Error loading addon descriptor from: ",
 	"delete_page_confirmation" : "You are going to delete page:\n ",
+	"delete_item_confirmation" : "You are going to remove item:\n",
 	"delete_chapter_confirmation" : "You are going to delete chapter:\n ",
 	"split_page_confirmation" : "Do you want to split this page?",
 	"delete_module_confirmation" : "Do you want to remove selected modules?",
