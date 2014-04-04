@@ -75,4 +75,14 @@
     border: 1px solid orange;
 }
 
+.hier_report .treegrid-expander {
+	float: left;
+}
 
+.hier_report .treegrid-indent {
+	float: left;
+}
+
+.hier_report .text-wrapper {
+	overflow: hidden;
+}

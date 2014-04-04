@@ -1,3 +1,4 @@
+2014-04-04 Fixed issue with NaN scores in hierarchical lesson report. Improvement to chapter names formatting.
 2014-03-31 Fixed bug in calculating scores in hierarchical lesson report
 2014-03-31 Added parseGaps command to JavaScriptPlayerServices
 2014-03-31 Added global style, fixing android highlight when focus on HTML element, to the Player

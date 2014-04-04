@@ -164,7 +164,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
         if (!isChapter) {
         	score.count = 1;
-        	score.score = score.score / score.maxScore;
+        	score.score = score.maxScore !== 0 ? score.score / score.maxScore : 0;
         }
         
         if (presenter.configuration.showResults) {
@@ -203,9 +203,15 @@ function AddonHierarchical_Lesson_Report_create() {
                 .attr('href', '#')
                 .attr('data-page-id', pageId);
 
-        if (isChapter) $element.html(text)
-        else $element.html($link);
+        
+        var wrapper = $('<div class="text-wrapper">');
+        if (isChapter) {
+        	wrapper.html(text);
+        } else {
+        	wrapper.html($link);
+        }
 
+        $element.append(wrapper);
         return $element;
     }
 
@@ -286,7 +292,9 @@ function AddonHierarchical_Lesson_Report_create() {
         for (var i = 0; i < pageCount; i++) {
             var isChapter = (root.get(i).type == "chapter");
             if (!isChapter && !root.get(i).isReportable())  continue;
-            isEmpty = false;
+            if (!isChapter && root.get(i).isReportable()) {
+            	isEmpty = false;
+            }
             var pageId = "chapter";
             if (!isChapter) {
             	pageId = root.get(i).getId();
@@ -296,12 +304,12 @@ function AddonHierarchical_Lesson_Report_create() {
             pageScore.count = 1;
             pageIndex++;
             if (isChapter) {
-                chapterIndex = pageIndex - 1;
-                values = presenter.createTree(root.get(i), chapterIndex, root.get(i).size());
-                updateRow(chapterIndex, values.pagesScore, values.isEmpty);
-                pageScore =  values.pagesScore;
+            	chapterIndex = pageIndex - 1;
+            	values = presenter.createTree(root.get(i), chapterIndex, root.get(i).size());
+            	updateRow(chapterIndex, values.pagesScore, values.isEmpty);
+            	pageScore =  values.pagesScore;
             }
-            chapterScore = updateScore(chapterScore, pageScore);
+           	chapterScore = updateScore(chapterScore, pageScore);
         }
         return {pagesScore: chapterScore, isEmpty:isEmpty};
     }
@@ -435,7 +443,8 @@ function AddonHierarchical_Lesson_Report_create() {
         if (presenter.configuration.showTotal) addFooter();
 
         $("#" + presenter.treeID).find('table').not('.hier_report-header').not('.hier_report-footer').treegrid({
-            'initialState': 'collapsed'
+            'initialState': 'collapsed',
+            'expanderTemplate': '<div class="treegrid-expander"></div>',
         });
 
         expandTree(presenter.configuration.expandDepth);
