@@ -7,6 +7,6 @@
             <property name="Text" type="string" isLocalized="true" />
             <property name="Description" type="html" isLocalized="true" />
         </property>
-        <property name="Visible" type="boolean" />
+        <property displayName="Show In Editor" name="Visible" type="boolean" />
 	</model>
 </addon>
