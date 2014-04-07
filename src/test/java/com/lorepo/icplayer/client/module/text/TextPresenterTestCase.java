@@ -272,54 +272,6 @@ public class TextPresenterTestCase {
 		
 		assertTrue(eventReceived);
 	}
-
-    @Test
-    public void allOKEventNotFired() throws SAXException, IOException {
-        eventReceived = false;
-        allOKEventReceived = false;
-
-        services.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
-            public void onScoreChanged(ValueChangedEvent event) {
-                HashMap<String,String> eventData = event.getData();
-                if (isAllOKEvent(eventData)) {
-                    allOKEventReceived = true;
-                }
-
-                eventReceived = true;
-            }
-        });
-
-        display.getListener().onValueChanged(module.getId()+"-3", "volvo");
-
-        assertTrue(eventReceived);
-        assertFalse(allOKEventReceived);
-    }
-
-    @Test
-    public void allOKEventShouldBeFired() throws SAXException, IOException {
-        eventReceived = false;
-        allOKEventReceived = false;
-
-        display.getListener().onValueChanged(id1, "likes");
-        display.getListener().onValueChanged(id2, "I don't like it");
-
-        services.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
-            public void onScoreChanged(ValueChangedEvent event) {
-                HashMap<String,String> eventData = event.getData();
-                if (isAllOKEvent(eventData)) {
-                    allOKEventReceived = true;
-                }
-
-                eventReceived = true;
-            }
-        });
-
-        display.getListener().onValueChanged(id3, "Volvo");
-
-        assertTrue(eventReceived);
-        assertTrue(allOKEventReceived);
-    }
-
 	
 	
 	@Test

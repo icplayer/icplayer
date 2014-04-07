@@ -395,12 +395,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String itemID = id.substring(id.lastIndexOf("-")+1);
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, newValue, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
-
-
-        if (isAllOK()) {
-            ValueChangedEvent allOKEvent = new ValueChangedEvent(module.getId(), "all", "", "");
-            playerServices.getEventBus().fireEvent(allOKEvent);
-        }
 	}
 
 
