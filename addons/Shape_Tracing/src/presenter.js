@@ -829,13 +829,33 @@ function AddonShape_Tracing_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
+    function countScore() {
+        var correctLinesNum = presenter.configuration.numberOfLines;
+        var linesNum = presenter.data.numberOfLines;
+        var numOfDesc = presenter.data.numberOfDescentsFromShape;
+
+        if (correctLinesNum.length === 0) {
+            if (numOfDesc === 0 && presenter.data.isAllPointsChecked) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            if (correctLinesNum[0] <= linesNum && linesNum <= correctLinesNum[1] && numOfDesc === 0 && presenter.data.isAllPointsChecked) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
     presenter.setShowErrorsMode = function() {
         turnOffEventListeners();
 
         if (presenter.data.isStarted) {
             var $drawing = presenter.$view.find(".drawing");
 
-            if (presenter.getScore() === 1) {
+            if (countScore() === 1) {
                 $drawing.addClass("correct");
             } else {
                 $drawing.addClass("wrong");
@@ -863,35 +883,27 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.getErrorCount = function() {
-        return presenter.getScore() === 0 ? 1 : 0;
+        if (!presenter.data.isStarted) {
+            return 0;
+        }
+
+        return countScore() === 0 ? 1 : 0;
     };
 
     presenter.getMaxScore = function() {
+        if (!presenter.data.isStarted) {
+            return 0;
+        }
+
         return 1;
     };
 
     presenter.getScore = function() {
         if (!presenter.data.isStarted) {
-            return;
+            return 0;
         }
 
-        var correctLinesNum = presenter.configuration.numberOfLines;
-        var linesNum = presenter.data.numberOfLines;
-        var numOfDesc = presenter.data.numberOfDescentsFromShape;
-
-        if (correctLinesNum.length === 0) {
-            if (numOfDesc === 0 && presenter.data.isAllPointsChecked) {
-                return 1;
-            } else {
-                return 0;
-            }
-        } else {
-            if (correctLinesNum[0] <= linesNum && linesNum <= correctLinesNum[1] && numOfDesc === 0 && presenter.data.isAllPointsChecked) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
+        return countScore();
     };
 
     presenter.getState = function() {
