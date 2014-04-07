@@ -891,10 +891,6 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.getMaxScore = function() {
-        if (!presenter.data.isStarted) {
-            return 0;
-        }
-
         return 1;
     };
 
