@@ -1,3 +1,4 @@
+2014-04-08 Prevented adding class .hover to elements, when tapping on mobile devices in Text Selection module
 2014-04-07 Fixed issue with scoring in Shape Tracing addon
 2014-04-04 Fixed issue with NaN scores in hierarchical lesson report. Improvement to chapter names formatting.
 2014-03-31 Fixed bug in calculating scores in hierarchical lesson report

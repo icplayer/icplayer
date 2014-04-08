@@ -13,6 +13,12 @@ hr, table, fieldset {
 	font: 16px Verdana, Arial;
 }
 
+.ic_page * {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important; 
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none;
+}
+
 .ic_page{
 	width:	578px;
 	height:	398px;
