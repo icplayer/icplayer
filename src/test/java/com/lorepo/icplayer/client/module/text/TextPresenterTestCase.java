@@ -1,23 +1,31 @@
 package com.lorepo.icplayer.client.module.text;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.services.CommandsMockup;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.*;
+import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
+import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
+import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
+import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
+import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
+import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
-import org.junit.Before;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-
-import static org.junit.Assert.*;
 
 public class TextPresenterTestCase {
 
@@ -26,7 +34,6 @@ public class TextPresenterTestCase {
 	private TextViewMockup display;
 	private TextPresenter presenter;
 	private boolean eventReceived;
-    private boolean allOKEventReceived;
 	private String id1;
 	private String id2;
 	private String id3;
@@ -218,11 +225,6 @@ public class TextPresenterTestCase {
 		assertEquals(2, presenter.getScore());
 	}
 
-    private boolean isAllOKEvent(HashMap<String,String> eventData) {
-        return eventData.get("item").equals("all") && eventData.get("value").equals("") && eventData.get("score").equals("");
-    }
-
-	
 	@Test
 	public void valueChangedEventOnDrop() throws SAXException, IOException {
 		

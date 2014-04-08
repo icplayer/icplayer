@@ -1,15 +1,16 @@
 package com.lorepo.icplayer.client.module.ordering;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -156,18 +157,16 @@ public class OrderingView extends Composite implements IDisplay{
 	public void randomizeViewItems() {
 		
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
+		List<Integer> order = RandomUtils.singlePermutation(innerCellPanel.getWidgetCount());
 		
 		while(innerCellPanel.getWidgetCount() > 0){
-	
 			widgets.add(innerCellPanel.getWidget(0));
 			innerCellPanel.remove(0);
 		}
 		
-		while(widgets.size() > 0){
-	
-			int index = Random.nextInt(widgets.size());
+		for(int i = 0; i < order.size(); i++){
+			Integer index = order.get(i);
 			innerCellPanel.add(widgets.get(index));
-			widgets.remove(index);
 		}
 	}
 

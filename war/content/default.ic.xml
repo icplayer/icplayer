@@ -52,9 +52,9 @@
 </style>
 
 <pages>
+	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
-	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="report" href="pages/report.page.xml" reportable="false"/>
 	<chapter name="chapter 1">
 		<page name="schoice" href="pages/schoice.page.xml"/>

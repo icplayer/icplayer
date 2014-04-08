@@ -53,7 +53,6 @@ public class OrderingModule extends BasicModuleModel{
 			
 			@Override
 			public void onPropertyChanged(IProperty source) {
-
 				OrderingModule.this.sendPropertyChangedEvent(itemsProperty);
 			}
 		});
@@ -140,11 +139,7 @@ public class OrderingModule extends BasicModuleModel{
 	}
 
 
-	/**
-	 * Remove all options
-	 */
 	public void removeAllItems() {
-	
 		items.clear();
 	}
 
