@@ -1,3 +1,4 @@
+2014-04-09 Fixed issue with boundaries detection in Shape Tracing addon on iOS7 devices
 2014-04-08 Ordering is always shuffled
 2014-04-08 Prevented adding class .hover to elements, when tapping on mobile devices in Text Selection module
 2014-04-07 Fixed issue with scoring in Shape Tracing addon

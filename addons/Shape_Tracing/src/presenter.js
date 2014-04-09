@@ -156,12 +156,13 @@ function AddonShape_Tracing_create() {
     };
 
     function calculateBorderCoordinates() {
-        function isBoundaryColor(data) {
-            //return (data[0] < 200 && data[1] < 200 && data[2] < 200) && data[3] === 255;
-            return (data[0] !== 255 || data[1] !== 255 || data[2] !== 255) && data[3] === 255;
+        function isBoundaryColor(r, g, b, a) {
+            //return (r < 200 && g < 200 && b < 200) && a === 255;
+            return (r !== 255 || g !== 255 || b !== 255) && a === 255;
         }
 
-        var ctx = presenter.layer.getContext('2d');
+        //var ctx = presenter.layer.getContext('2d');
+        var ctx = presenter.layer.getCanvas().getContext();
         var pt = ctx.getImageData(0, 0, presenter.data.width, presenter.data.height);
         var data = pt.data;
         var row;
@@ -170,21 +171,20 @@ function AddonShape_Tracing_create() {
             row = [];
             for (var x=0; x<presenter.data.width; x++) {
                 var index = 4 * ((presenter.data.width * y) + x);
-                row.push(isBoundaryColor([data[index+0], data[index+1], data[index+2], data[index+3]]));
+                row.push(isBoundaryColor(data[index+0], data[index+1], data[index+2], data[index+3]));
             }
             presenter.data.borderPositions.push(row);
         }
     }
 
     function showFoundBoundaryPoints() {
-        var index;
         var ctx = presenter.layer.getContext('2d');
         var imgData = ctx.getImageData(0, 0, presenter.data.width, presenter.data.height);
 
         for (var i=0; i<presenter.data.height; i++) {
             for (var j=0; j<presenter.data.width; j++) {
                 if (presenter.data.borderPositions[i][j]) {
-                    index = 4 * (i * presenter.data.width + j);
+                    var index = 4 * (i * presenter.data.width + j);
                     imgData.data[index + 0] = 255;
                     imgData.data[index + 1] = 0;
                     imgData.data[index + 2] = 0;
@@ -193,7 +193,7 @@ function AddonShape_Tracing_create() {
             }
         }
 
-        ctx.putImageData(imgData, 0, 0);
+        ctx.putImageData(imgData, 0, 0, presenter.data.width, presenter.data.height);
     }
 
     function colorNameToHex(color) {
@@ -734,6 +734,7 @@ function AddonShape_Tracing_create() {
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
 
+        Kinetic.pixelRatio = 1;
         var zoom = $('#_icplayer').css('zoom');
         presenter.data.zoom = zoom == "" || zoom == undefined || isNaN(zoom) ? 1 : zoom;
         presenter.data.width = parseInt(model["Width"], 10);
