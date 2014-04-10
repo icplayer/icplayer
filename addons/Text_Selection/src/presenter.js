@@ -276,48 +276,50 @@ function AddonText_Selection_create() {
 		var $text_selection = presenter.$view.find('.text_selection'),
             selectable = $text_selection.find('.selectable');
 
-		$text_selection.on('touchstart', function(e) {
-            e.stopPropagation();
-			e.preventDefault();
-			presenter.startSelection(e.target);
-		});
+        if (isMobile()) {
+            $text_selection.on('touchstart', function(e) {
+                console.log('touchstart')
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.startSelection(e.target);
+            });
 
-		$text_selection.on('touchend', function(e) {
-            e.stopPropagation();
-			presenter.configuration.isExerciseStarted = true;
-			e.preventDefault();
-			if (lastMoveEvent != null) {
-				presenter.endSelection(lastMoveEvent);
-			} else {
-				presenter.endSelection(e.target);
-			}
-			lastMoveEvent = null;
-		});
+            $text_selection.on('touchend', function(e) {
+                console.log('touchend')
+                e.stopPropagation();
+                presenter.configuration.isExerciseStarted = true;
+                e.preventDefault();
+                if (lastMoveEvent != null) {
+                    presenter.endSelection(lastMoveEvent);
+                } else {
+                    presenter.endSelection(e.target);
+                }
+                lastMoveEvent = null;
+            });
 
-		$text_selection.on('touchmove', function(e) {
-            e.stopPropagation();
-			e.preventDefault();
-			var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+            $text_selection.on('touchmove', function(e) {
+                console.log('touchmove')
+                e.stopPropagation();
+                e.preventDefault();
+                var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
 
-			lastMoveEvent = $(document.elementFromPoint(temp.pageX - $(document).scrollLeft(), temp.pageY - $(document).scrollTop()));
-		});
+                lastMoveEvent = $(document.elementFromPoint(temp.pageX - $(document).scrollLeft(), temp.pageY - $(document).scrollTop()));
+            });
+        } else {
 
-        $text_selection.on('click', function(e) {
-            e.stopPropagation();
-        });
+            $text_selection.on('mouseup', function(e) {
+                console.log('mouseup')
+                e.stopPropagation();
+                presenter.configuration.isExerciseStarted = true;
+                presenter.endSelection(e.target);
+            });
 
-        $text_selection.on('mouseup', function(e) {
-            e.stopPropagation();
-            presenter.configuration.isExerciseStarted = true;
-            presenter.endSelection(e.target);
-        });
+            $text_selection.on('mousedown', function(e) {
+                console.log('mousedown')
+                e.stopPropagation();
+                presenter.startSelection(e.target);
+            });
 
-        $text_selection.on('mousedown', function(e) {
-            e.stopPropagation();
-            presenter.startSelection(e.target);
-        });
-
-        if (!isMobile()) {
             selectable.hover(
                 function() {
                     $(this).addClass("hover");
@@ -327,6 +329,12 @@ function AddonText_Selection_create() {
                 }
             );
         }
+
+        $text_selection.on('click', function(e) {
+            console.log('click')
+            e.stopPropagation();
+        });
+
 
 		presenter.configuration.areEventListenersOn = true;
 	};
