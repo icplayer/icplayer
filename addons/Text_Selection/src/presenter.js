@@ -278,14 +278,12 @@ function AddonText_Selection_create() {
 
         if (isMobile()) {
             $text_selection.on('touchstart', function(e) {
-                console.log('touchstart')
                 e.stopPropagation();
                 e.preventDefault();
                 presenter.startSelection(e.target);
             });
 
             $text_selection.on('touchend', function(e) {
-                console.log('touchend')
                 e.stopPropagation();
                 presenter.configuration.isExerciseStarted = true;
                 e.preventDefault();
@@ -298,7 +296,6 @@ function AddonText_Selection_create() {
             });
 
             $text_selection.on('touchmove', function(e) {
-                console.log('touchmove')
                 e.stopPropagation();
                 e.preventDefault();
                 var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
@@ -308,14 +305,12 @@ function AddonText_Selection_create() {
         } else {
 
             $text_selection.on('mouseup', function(e) {
-                console.log('mouseup')
                 e.stopPropagation();
                 presenter.configuration.isExerciseStarted = true;
                 presenter.endSelection(e.target);
             });
 
             $text_selection.on('mousedown', function(e) {
-                console.log('mousedown')
                 e.stopPropagation();
                 presenter.startSelection(e.target);
             });
@@ -331,7 +326,6 @@ function AddonText_Selection_create() {
         }
 
         $text_selection.on('click', function(e) {
-            console.log('click')
             e.stopPropagation();
         });
 
