@@ -1,0 +1,17 @@
+.addon_DrawingSmartPen .drawing .canvas {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0; top: 0;
+
+    cursor: crosshair;
+}
+
+.addon_DrawingSmartPen .drawing .canvas:active {
+    cursor: crosshair;
+}
+
+/* https://code.google.com/p/android/issues/detail?id=35474 */
+.addon_DrawingSmartPen .drawing {
+    overflow: hidden;
+    overflow-x: visible;
+}
