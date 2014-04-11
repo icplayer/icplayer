@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Image_Viewer_Button_Controlled_Public'>
+<addon id='Image_Viewer_Button_Controlled_Public' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Image' type='file' />
 		<property name="Frames" type="string" />
@@ -8,7 +8,7 @@
 		<property name="Sounds" type="list">
 			<property name="MP3 sound" type="file" />
 			<property name="OGG sound" type="file" />
-			<property name="AAC sound" type="fule" />
+			<property name="AAC sound" type="file" />
 		</property>
 		<property name="Frame names" type="list">
 			<property name="name" type="string" />

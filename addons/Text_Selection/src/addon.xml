@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Text_Selection'>
+<addon id='Text_Selection' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Mode' type='{Mark phrases to select, All selectable}'/>
 		<property name='Selection type' type='{Single select, Multiselect}'/>
-		<property name='Text' type='html'/>
+		<property name='Text' type='html' isLocalized="true"/>
 	</model>
 </addon>

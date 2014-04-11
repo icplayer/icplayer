@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Hierarchical_Lesson_Report'>
+<addon id='Hierarchical_Lesson_Report' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="titleLabel" displayName="Title Label" type="string" />
+        <property name="titleLabel" displayName="Title Label" type="string" isLocalized="true" />
         <property name='results' displayName="Show Results" type='boolean' />
-        <property name="resultsLabel" displayName="Results Label" type="string" />
+        <property name="resultsLabel" displayName="Results Label" type="string" isLocalized="true" />
         <property name='checks' displayName="Show Checks" type='boolean' />
-        <property name="checksLabel" displayName="Checks Label" type="string" />
+        <property name="checksLabel" displayName="Checks Label" type="string" isLocalized="true" />
         <property name='errors' displayName="Show Errors" type='boolean' />
-        <property name="errorsLabel" displayName="Errors Label" type="string" />
+        <property name="errorsLabel" displayName="Errors Label" type="string" isLocalized="true" />
         <property name='mistakes' displayName="Show Mistakes" type='boolean' />
-        <property name="mistakesLabel" displayName="Mistakes Label" type="string" />
+        <property name="mistakesLabel" displayName="Mistakes Label" type="string" isLocalized="true" />
         <property name='total' displayName="Show Total" type='boolean' />
-        <property name="totalLabel" displayName="Total Label" type="string" />
+        <property name="totalLabel" displayName="Total Label" type="string" isLocalized="true" />
         <property name="expandDepth" displayName="Depth of expand" type="string" />
 	</model>
 </addon>

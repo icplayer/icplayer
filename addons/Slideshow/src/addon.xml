@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Slideshow'>
+<addon id='Slideshow' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Audio' type='list'>
 			<property name="MP3" type="file" />
@@ -11,7 +11,7 @@
 			<property name="Start" type="string" />
 		</property>
 		<property name="Texts" type="list">
-			<property name="Text" type="string" />
+			<property name="Text" type="string" isLocalized="true" />
 			<property name="Top" type="string" />
 			<property name="Left" type="string" />
 			<property name="Start" type="string" />

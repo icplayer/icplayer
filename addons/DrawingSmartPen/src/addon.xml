@@ -4,7 +4,7 @@
 	<model>
         <property name="SmartPen" type="boolean" />
         <property name="Colors" type="text" />
-		<property name="Thickness" type="text" />
+        <property name="Thickness" type="text" />
         <property name="Opacity" type="text" />
 
         <property name="Squeeze limits" type="string" />
