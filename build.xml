@@ -207,11 +207,19 @@
     <zip destfile="dist/icplayer.zip" basedir="dist/build"/>
   </target>
 
-  <target name="dist" depends="build" description="Create player package">
+  <target name="dist" depends="build copy.dictionary" description="Create player package">
     <antcall target="create.package" />
   </target>
 
   <target name="dist.full" depends="build.full" description="Create player package after full build">
     <antcall target="create.package" />
+  </target>
+  
+  <target name="copy.dictionary">
+	<copy todir="src/main/java/com/lorepo/icplayer/public/libs/dictionaries/com">
+		<fileset dir="src/main/java/com/lorepo/icplayer/public/libs">
+			<include name="dictionary.js" />
+		</fileset>
+    </copy>
   </target>
 </project>
