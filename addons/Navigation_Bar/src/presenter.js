@@ -78,22 +78,22 @@ function AddonNavigation_Bar_create() {
     }
 
     function handleArrowClickActions() {
-        presenter.$view.find('[class*="navigationbar-element-first"]').parent().click(function () {
+        presenter.$view.find('[class="navigationbar-element-first"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.FIRST);
             return false;
         });
 
-        presenter.$view.find('[class*="navigationbar-element-previous"]').parent().click(function () {
+        presenter.$view.find('[class="navigationbar-element-previous"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.PREVIOUS);
             return false;
         });
 
-        presenter.$view.find('[class*="navigationbar-element-next"]').parent().click(function () {
+        presenter.$view.find('[class="navigationbar-element-next"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.NEXT);
             return false;
         });
 
-        presenter.$view.find('[class*="navigationbar-element-last"]').parent().click(function () {
+        presenter.$view.find('[class="navigationbar-element-last"]').parent().click(function () {
             goToPage(NAVIGATION_PAGE.LAST);
             return false;
         });
@@ -244,7 +244,7 @@ function AddonNavigation_Bar_create() {
         var elementStyle = isElementInactive ? "navigationbar-element-first-inactive" : "navigationbar-element-first";
 
         if (presenter.$view.has('[class*="navigationbar-element-first"]').length < 1) {
-            var homeElementArrow = '<a title="First page" href="#">' +
+            var homeElementArrow = '<a href="#">' +
                 '<span class="' + elementStyle + '">&lt;&lt;</span>' +
                 '</a>';
 
@@ -257,7 +257,7 @@ function AddonNavigation_Bar_create() {
         var isElementInactive = presenter.currentIndex === 0;
         var elementStyle = isElementInactive ? "navigationbar-element-previous-inactive" : "navigationbar-element-previous";
 
-        var previousElementArrow = '<a title="Previous page" href="#">' +
+        var previousElementArrow = '<a href="#">' +
             '<span class="' + elementStyle + '">&lt;</span>' +
             '</a>';
 
@@ -274,7 +274,7 @@ function AddonNavigation_Bar_create() {
         var isElementInactive = presenter.currentIndex === presenter.pageCount - 1;
         var elementStyle = isElementInactive ? "navigationbar-element-next-inactive" : "navigationbar-element-next";
 
-        var nextElementArrow = '<a title="Next page" href="#">' +
+        var nextElementArrow = '<a href="#">' +
             '<span class="' + elementStyle + '">&gt;</span>' +
             '</a>';
 
@@ -286,7 +286,7 @@ function AddonNavigation_Bar_create() {
         var elementStyle = isElementInactive ? "navigationbar-element-last-inactive" : "navigationbar-element-last";
 
         if (presenter.$view.has('[class*="navigationbar-element-last"]').length < 1) {
-            var reportElementArrow = '<a title="Last page" href="#">' +
+            var reportElementArrow = '<a href="#">' +
                 '<span class="' + elementStyle + '">&gt;&gt;</span>' +
                 '</a>';
 
@@ -315,9 +315,7 @@ function AddonNavigation_Bar_create() {
     }
 
     function generateDottedElement(dotsSide) {
-        var title = dotsSide === DOTTED_SIDE.LEFT ? "Lower page indexes" : "Higher page indexes";
-
-        return '<a title="' + title + '" href="#">' +
+        return '<a href="#">' +
             '<span class="navigationbar-element navigationbar-dotted-element ' + dotsSide.CSSClass + '">&hellip;</span>' +
             '</a>';
     }
@@ -327,9 +325,8 @@ function AddonNavigation_Bar_create() {
         var isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
 
         var currentElementStyle = isCurrentElement ? "navigationbar-element-current" : "navigationbar-element";
-        var elementTitle = isCurrentElement ? "Current page" : "Page " + Internationalization.translate(index, presenter.configuration.language);
 
-        return '<a title="' + elementTitle + '" href="#">' +
+        return '<a href="#">' +
             '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + index + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
             '</a>';
     }
