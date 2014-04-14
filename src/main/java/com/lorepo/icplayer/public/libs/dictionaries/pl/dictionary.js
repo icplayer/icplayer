@@ -1,9 +1,9 @@
 var ice_dictionary = {
 	"editor_title" : "Multiplatform Interactive Content Editor",
 	"save" : "Zapisz",
-	"saved" : "Saved",
+	"saved" : "Zapisany",
 	"ok" : "OK",
-	"close_editor" : "Close editor",
+	"close_editor" : "Zamknij edytor",
 	"add" : "Add",
 	"use" : "Use",
 	"apply" : "Apply",
