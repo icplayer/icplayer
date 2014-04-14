@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
+import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
@@ -51,6 +52,7 @@ public class JavaScriptPlayerServices{
 	private static final String VALUE_CHANGED_EVENT_NAME = "ValueChanged";
 	private static final String DEFINITION_EVENT_NAME = "Definition";
 	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
+	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
 	
 	
 	private IPlayerServices playerServices;
@@ -123,6 +125,12 @@ public class JavaScriptPlayerServices{
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			public void onCustomEventOccurred(CustomEvent event) {
 				fireEvent(event.eventName, event.getData());
+			}
+		});
+		
+		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+			public void onShowErrors(ShowErrorsEvent event) {
+				fireEvent(SHOW_ERRORS_EVENT_NAME, new HashMap<String, String>());
 			}
 		});
 		
