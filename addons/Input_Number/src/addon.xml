@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<addon id="Input_Number">
+<addon id="Input_Number" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
         <property name="decimalSeparator" displayName="Decimal Separator" type="string" />
 		<property name="checkingType" displayName="Checking Type" type="{Every gap separately, All gaps together}" />

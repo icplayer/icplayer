@@ -12,6 +12,6 @@
 			<property name="imageFile" type="image" displayName="Image File"/>
 		</property>
 		<property name="initialAnimation" type="string" displayName="Initial Animation"/>
-		<property name="Narration" type="text"/>
+		<property name="Narration" type="narration"/>
 	</model>
 </addon>

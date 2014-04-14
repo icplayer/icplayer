@@ -7,6 +7,7 @@
 	<property name="src-test" location="src/test/java" />
 	<property name="icfoundation-src" location="../icfoundation/src/main/java" />
     <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar" />
+	<property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs" />
 
   	<!-- Arguments to gwtc and devmode targets -->
   	<property name="gwt.args" value="" />
@@ -193,6 +194,15 @@
 
   <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests" />
 
+  <target name="copy.dictionary">
+	<delete file="${libs}/dictionaries/com/dictionary.js" />
+	<copy todir="${libs}/dictionaries/com">
+		<fileset dir="${libs}">
+			<include name="dictionary.js" />
+		</fileset>
+    </copy>
+  </target>
+  
   <target name="create.package" >
     <delete dir="dist" failonerror="false" />
     <mkdir dir="dist/build" />
@@ -208,10 +218,12 @@
   </target>
 
   <target name="dist" depends="build" description="Create player package">
+	<antcall target="copy.dictionary" />
     <antcall target="create.package" />
   </target>
 
   <target name="dist.full" depends="build.full" description="Create player package after full build">
     <antcall target="create.package" />
   </target>
+  
 </project>
