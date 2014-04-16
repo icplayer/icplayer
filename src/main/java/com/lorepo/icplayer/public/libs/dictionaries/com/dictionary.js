@@ -84,6 +84,8 @@ var ice_dictionary = {
 	"edit_css_menu" : "Edit CSS...",
 	"close_menu" : "Close",
 	"presentation_menu" : "Presentation",
+	"undo_menu" : "Undo",
+	"redo_menu" : "Redo",
 	"copy_menu" : "Copy",
 	"paste_menu" : "Paste",
 	"edit_menu" : "Edit",

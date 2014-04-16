@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.xml.client.Element;
@@ -30,6 +31,7 @@ public class TextModel extends BasicModuleModel{
 	public List<GapInfo>	gapInfos = new ArrayList<GapInfo>();
 	public List<InlineChoiceInfo>	choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo>	linkInfos = new ArrayList<LinkInfo>();
+	public HashMap<String, String> mathGapsAnswers = new HashMap<String, String>();
 
 	private String moduleText = "";
 	private boolean useDraggableGaps;

@@ -66,6 +66,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void hide();
 		void show();
 		Element getElement();
+		ITextViewListener getListener();
+		void addElement(TextElementDisplay el);
 	}
 	
 	private TextModel	module;
@@ -359,7 +361,33 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.connectInlineChoices(module.getChoiceInfos().iterator());
 		view.connectLinks(module.getLinkInfos().iterator());
 	}
-
+	
+	private String getGapId(String answers) {
+		int counter = module.gapInfos.size();
+		String id = module.getGapUniqueId() + '-' + Integer.toString(counter + 1);
+		module.mathGapsAnswers.put(id, answers);
+		return id;
+	}
+	
+	private void registerGap(String id) {
+		GapInfo gi = new GapInfo(id, 1, module.isCaseSensitive(), module.isIgnorePunctuation());
+		try {
+			String[] answersList = module.mathGapsAnswers.get(id).split("|");
+			for (int i = 0; i < answersList.length; i++) {
+				gi.addAnswer(answersList[i]);
+			}
+			module.gapInfos.add(gi);
+			int gapWidth = module.getGapWidth();
+			GapWidget gap = new GapWidget(gi, view.getListener());
+			if (gapWidth > 0) {
+				gap.setWidth(gapWidth + "px");
+			}
+			gap.setDisabled(module.isDisabled());
+			view.addElement(gap);
+		} catch (Exception e) {
+			Window.alert("Can't create module: " + gi.getId());
+		}
+	}
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
@@ -637,7 +665,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
         presenter.isAllOK = function() {
             return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAllOK()();
         };
-		
+        
+        presenter.registerGap = function(id) {
+        	return x.@com.lorepo.icplayer.client.module.text.TextPresenter::registerGap(Ljava/lang/String;)(id.toString());
+        };
+        
+        presenter.getGapId = function(answers) {
+        	return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapId(Ljava/lang/String;)(answers.toString());
+        };
+        
 		return presenter;
 	}-*/;
 	

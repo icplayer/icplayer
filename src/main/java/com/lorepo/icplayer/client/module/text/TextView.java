@@ -8,6 +8,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.Element;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -24,17 +26,23 @@ public class TextView extends HTML implements IDisplay{
 		createUI(isPreview);
 	}
 
-	
 	private void createUI(boolean isPreview) {
 
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
 		if(!isPreview){
-			setVisible(module.isVisible());
+			hide();
 		}
 	}
 	
+	public ITextViewListener getListener() {
+		return listener;
+	}
+	
+	public void addElement(TextElementDisplay el) { 
+		textElements.add(el);
+	}
 	
 	@Override
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
@@ -156,14 +164,15 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void hide() {
-		setVisible(false);
+		getElement().getStyle().setProperty("visibility", "hidden");
 	}
 
 
 	@Override
 	public void show() {
-		if(!isVisible()){
-			setVisible(true);
+		Element element = getElement();
+		if(element.getStyle().getVisibility().equals("hidden")){
+			element.getStyle().setProperty("visibility", "visible");
 			refreshMath();
 		}
 	}

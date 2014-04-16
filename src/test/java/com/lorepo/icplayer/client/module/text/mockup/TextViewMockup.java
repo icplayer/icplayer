@@ -111,4 +111,8 @@ public class TextViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public void addElement(TextElementDisplay el) { 
+	}
 }
