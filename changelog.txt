@@ -1,3 +1,4 @@
+2014-04-16 New addons Clock and Swiffy Animation
 2014-04-16 New gap type - drop-down in Table addon.
 2014-04-16 Added Is Not Activity property to Graph addon.
 2014-04-10 Fixed selecting issue in Text Selection module in adroid 4.2.2

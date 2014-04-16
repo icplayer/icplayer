@@ -1,0 +1,42 @@
+#clock-face {
+	stroke: black;
+	stroke-width: 2px;
+	fill: white;
+}
+
+.analog-clock {
+	border: 3px solid transparent;
+}
+
+.analog-clock.incorrect {
+	border: 3px solid #ff4901;
+}
+
+.analog-clock.correct {
+	border: 3px solid #06d401;
+}
+
+#h-hand,#m-hand {
+	stroke: #A52A2A;
+	stroke-opacity: 0.0;
+}
+
+#h-hand {
+	stroke-width: 50px
+}
+
+#m-hand {
+	stroke-width: 50px;
+}
+
+.time-text {
+	text-align: center;
+}
+
+.text_label { /*fill: blue;*/
+	
+}
+
+#label_mask {
+	opacity: 0;
+}

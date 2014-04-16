@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="SwiffyAnimation" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Animations" type="list">
+			<property name="swiffyobject" type="file" displayName="Swiffy File"/>
+			<property name="autoPlay" type="boolean" displayName="Auto Play"/>
+			<property name="disableTransparentBackground" type="boolean" displayName="Disable Transparent Background"/>
+		</property>
+		<property name="initialAnimation" type="string" displayName="Initial Animation"/>
+	</model>
+</addon>

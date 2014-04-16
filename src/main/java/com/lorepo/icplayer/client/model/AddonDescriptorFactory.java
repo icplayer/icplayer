@@ -34,6 +34,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Animation", "Animation", "Media");
 		addDescriptor("Audio", "Audio", "Media");
 		addDescriptor("Basic_Math_Gaps", "Basic Math Gaps", "Activities");
+		addDescriptor("Clock", "Clock", "Activities");
 		addDescriptor("Coloring", "Coloring", "Media");
 		addDescriptor("ConnectingDots", "Connecting Dots", "Activities");
 		addDescriptor("Connection", "Connection", "Activities");
@@ -84,6 +85,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Standard_Shapes", "Standard Shapes", "Media");
 		addDescriptor("Submit", "Submit", "Reporting");
 		addDescriptor("SVG2", "SVG", "Media");
+		addDescriptor("SwiffyAnimation", "Swiffy Animation", "Media");
 		addDescriptor("Table", "Table", "Activities");
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 		addDescriptor("text_identification", "Text Identification", "Activities");

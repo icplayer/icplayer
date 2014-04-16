@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="Clock" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="TimeStandard" type="{24H,12H}"/>
+		<property name="InitialTime" type="string"/>
+		<property name="TimeStep" type="string" displayName="Step (minutes)"/>
+		<property name="ShowClockLabels" type="boolean"/>
+		<property name="ActiveHand" type="{Both,HourHand,MinuteHand}"/>
+		<property name="SynchronizeHands" type="{None, Min with Hour, Both}"/>
+		<property name="Images" type="list">
+			<property name="Background" type="image"/>
+		</property>
+		<property name="CorrectAnswer" type="string"/>
+		<property name="isDisable" type="boolean"/>
+		<property name="isActivity" type="boolean"/>
+	</model>
+</addon>
