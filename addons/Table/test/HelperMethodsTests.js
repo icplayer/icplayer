@@ -43,7 +43,8 @@ TestCase("Helper methods - removeMarkClassesFromAllGaps", {
                     { answers: [""], id: "Table1-3", value: "" },
                     { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "" }
                 ]
-            }
+            },
+            addonID: "Table1"
         };
     },
 
@@ -137,19 +138,12 @@ TestCase("Helper methods - restoreGapValues", {
                     { answers: [""], id: "Table1-3", value: "" },
                     { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "" }
                 ]
-            }
-        };
-    },
+            },
+            addonID: "Table1"
+          };
+       },
 
     'test all gaps are empty': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        /*:DOC inp3 = <input id="Table1-3" class="ic_gap">*/
-        /*:DOC inp4 = <input id="Table1-4" class="ic_gap">*/
-
-        this.presenter.$view = { find: function () {} };
-        var findStub = sinon.stub(this.presenter.$view, 'find');
-        findStub.returns([this.inp1, this.inp2, this.inp3, this.inp4]);
 
         var gapValues = ["", "", "", ""],
             expectedDescriptions = [
@@ -162,21 +156,9 @@ TestCase("Helper methods - restoreGapValues", {
         this.presenter.restoreGapValues(gapValues);
 
         assertEquals(expectedDescriptions, this.presenter.configuration.gaps.descriptions);
-        assertEquals("", $(this.inp1).val());
-        assertEquals("", $(this.inp2).val());
-        assertEquals("", $(this.inp3).val());
-        assertEquals("", $(this.inp4).val());
     },
 
     'test some gaps had not-empty content': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        /*:DOC inp3 = <input id="Table1-3" class="ic_gap">*/
-        /*:DOC inp4 = <input id="Table1-4" class="ic_gap">*/
-
-        this.presenter.$view = { find: function () {} };
-        var findStub = sinon.stub(this.presenter.$view, 'find');
-        findStub.returns([this.inp1, this.inp2, this.inp3, this.inp4]);
 
         var gapValues = ["some value", "", "another value", ""],
             expectedDescriptions = [
@@ -189,9 +171,5 @@ TestCase("Helper methods - restoreGapValues", {
         this.presenter.restoreGapValues(gapValues);
 
         assertEquals(expectedDescriptions, this.presenter.configuration.gaps.descriptions);
-        assertEquals("some value", $(this.inp1).val());
-        assertEquals("", $(this.inp2).val());
-        assertEquals("another value", $(this.inp3).val());
-        assertEquals("", $(this.inp4).val());
     }
 });

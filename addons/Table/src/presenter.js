@@ -1,5 +1,6 @@
 function AddonTable_create() {
-    var presenter = function () {};
+    var presenter = function () {
+    };
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -16,129 +17,56 @@ function AddonTable_create() {
         'GW_01': "Gap width incorrect!"
     };
 
-    presenter.GAP_TYPE = {
-        EDITABLE: 0,
-        DROP_DOWN: 1,
-        DRAGGABLE: 2
-    };
-
-    presenter.parseGapContent = function (gapContent) {
-        if (gapContent.trim() === "") return { answers: [gapContent], isValid: true }; // Empty gap, only spaces and tabs inside, score is default
-        if (gapContent.indexOf('\\gap{') !== -1) return { isValid: false }; // Nested gaps are not allowed
-
-        var parsedAnswers, answers = parsedAnswers = gapContent.split('|'), isValid = true;
-
-        if (answers.length > 1) {
-            parsedAnswers = [];
-            $.each(answers, function (index, answer) {
-                if (answer.indexOf(':') === 0) {
-                    isValid = false;
-                    return false; // jQuery.each break statement
-                }
-
-                if (answer) parsedAnswers.push(answer);
-
-                return true; // jQuery.each continue statement
-            });
-        }
-
-        return {
-            isValid: isValid,
-            answers: parsedAnswers
-        };
-    };
-
-    presenter.parseSingleCell = function (cellContent, gapCounter, addonID, isDisabled) {
-        var gapCount = 0,
-            descriptions = [],
-            finalCellContent = "",
-            indexOfGapEnd,
-            tempStr = cellContent, gapContent;
-
-        while (tempStr.indexOf('\\gap{') !== -1) {
-            var indexOfGapStart = tempStr.indexOf('\\gap{'),
-                parsedGapContent, gapID;
-            finalCellContent += tempStr.substring(0, indexOfGapStart);
-            tempStr = tempStr.substring(indexOfGapStart + 5); // +5 comes from '\gap{' string length
-
-            indexOfGapEnd = tempStr.indexOf('}');
-            if (indexOfGapEnd === -1) { // Missing closing curly brace
-                finalCellContent += '\\gap{' + tempStr;
-                tempStr = "";
-                break;
-            } else {
-                gapContent = tempStr.substring(0, indexOfGapEnd);
-                parsedGapContent = presenter.parseGapContent(gapContent);
-                if (parsedGapContent.isValid) {
-                    gapCount++;
-                    gapID = addonID + '-' + (gapCounter + gapCount);
-
-                    finalCellContent += '<input id="' + gapID + '" class="ic_gap"';
-                    if (isDisabled) finalCellContent += ' disabled';
-                    finalCellContent += ' />';
-
-                    descriptions.push({
-                        answers: parsedGapContent.answers,
-                        id: gapID,
-                        value: "",
-                        isEnabled: !isDisabled
-                    });
-
-                    tempStr = tempStr.substring(indexOfGapEnd + 1);
-                } else {
-                    finalCellContent += '\\gap{' + gapContent + '}';
-                    tempStr = tempStr.substring(indexOfGapEnd + 1);
-                }
-            }
-        }
-
-        finalCellContent += tempStr;
-
-        return {
-            count: gapCount,
-            content: finalCellContent,
-            descriptions:  descriptions
-        };
-    };
-
-    presenter.getCellContents = function () {
-        return $.map(presenter.$view.find('td'), function (element) {
-            return $(element).html();
-        });
+    presenter.replaceGapID = function (gap, parsedText) {
+        var gapID = presenter.configuration.addonID + gap.id;
+        var patt = new RegExp("id='" + gap.id + "'");
+        var rep = "id='" + gapID + "'";
+        return  parsedText.replace(patt, rep);
     };
 
     presenter.parseGaps = function () {
-        var gapCounter = 0,
-            cellContents = presenter.getCellContents(),
-            parseResult = { content: [], descriptions: [] },
+        var parseResult = { content: [], descriptions: [] },
             isDisabled = presenter.configuration.isDisabled;
 
-        $.each(cellContents, function (index, cell) {
-            var i, parsedCell = presenter.parseSingleCell(cell, gapCounter, presenter.configuration.addonID, isDisabled);
-            parseResult.content.push(parsedCell.content);
+        var textParserCell = presenter.textParser.parseGaps(presenter.$view.html());
+        var parsedText = textParserCell.parsedText;
 
-            for (i = 0; i < parsedCell.count; i++) {
-                parseResult.descriptions.push(parsedCell.descriptions[i]);
-            }
+        var simpleGaps = textParserCell.gaps;
 
-            gapCounter += parsedCell.count;
+        $.each(simpleGaps, function (index, gap) {
+            parsedText = presenter.replaceGapID(gap, parsedText);
+            parseResult.descriptions.push({
+                answers: gap.answers,
+                id: presenter.configuration.addonID + gap.id,
+                value: "",
+                score: 1,
+                isEnabled: !isDisabled
+            });
         });
+        var inlineGaps = textParserCell.inLineGaps;
 
+        $.each(inlineGaps, function (index, gap) {
+            parsedText = presenter.replaceGapID(gap, parsedText);
+            parseResult.descriptions.push({
+                answers: gap.distractors,
+                id: presenter.configuration.addonID + gap.id,
+                value: "",
+                score: gap.value,
+                isEnabled: !isDisabled
+            });
+        });
+        presenter.$view.html(parsedText);
         return parseResult;
-    };
-
-    presenter.replaceGapsWithHTMLElements = function () {
-        var gaps = presenter.configuration.gaps;
-
-        $.each(presenter.$view.find('td'), function (index, element) {
-            $(element).html(gaps.content[index]);
-        });
     };
 
     presenter.setGapsWidth = function () {
         if (presenter.configuration.gapWidth.isSet) {
             presenter.$view.find('.ic_gap').width(presenter.configuration.gapWidth.value + 'px');
         }
+    };
+
+    presenter.setGapsClass = function () {
+        presenter.$view.find('.ic_inlineChoice').addClass('ic_gap');
     };
 
     presenter.getGapIndex = function (gap) {
@@ -151,20 +79,29 @@ function AddonTable_create() {
 
     presenter.valueChangedEventHandler = function () {
         var gapIndex = presenter.getGapIndex(this);
-
         presenter.configuration.gaps.descriptions[gapIndex].value = $(this).val();
         presenter.sendValueChangeEvent(gapIndex);
     };
 
+    presenter.valueClickEventHandler = function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
     presenter.attachGapsHandlers = function () {
         presenter.$view.find('.ic_gap').blur(presenter.valueChangedEventHandler);
+        presenter.$view.find('.ic_gap').click(presenter.valueClickEventHandler);
     };
 
     presenter.gapLogic = function (isPreview) {
-        presenter.configuration.gaps = presenter.parseGaps();
-
-        presenter.replaceGapsWithHTMLElements();
+        if (!isPreview) {
+            presenter.configuration.gaps = presenter.parseGaps();
+            presenter.resetIsEnabledProperty();
+        }
+        presenter.setGapsClass();
         presenter.setGapsWidth();
+
+
     };
 
     presenter.logic = function (view, model, isPreview) {
@@ -182,13 +119,13 @@ function AddonTable_create() {
         presenter.setRowHeight($table, presenter.configuration.rowsHeight);
         presenter.setVisibility(presenter.configuration.isVisible);
 
-        presenter.gapLogic(isPreview);
+       presenter.gapLogic(isPreview);
 
         if (!isPreview) presenter.parseDefinitionLinks();
         if (!isPreview) presenter.attachGapsHandlers();
     };
 
-    presenter.setPlayerController = function(controller){
+    presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
@@ -212,7 +149,6 @@ function AddonTable_create() {
 
     presenter.resetIsEnabledProperty = function () {
         var isEnabled = !presenter.configuration.isDisabled;
-
         $.each(presenter.configuration.gaps.descriptions, function (index) {
             presenter.setGapDisableProperties(index, isEnabled);
         });
@@ -241,9 +177,10 @@ function AddonTable_create() {
     };
 
     presenter.restoreGapValues = function (gapValues) {
-        $.each(presenter.$view.find('.ic_gap'), function (index, value) {
+        $.each(gapValues, function (index, value) {
             presenter.configuration.gaps.descriptions[index].value = gapValues[index];
-            $(this).val(gapValues[index])
+            var gapIndex = presenter.configuration.addonID + "-" + (index + 1);
+            $("#" + gapIndex).val(gapValues[index]);
         });
     };
 
@@ -368,7 +305,7 @@ function AddonTable_create() {
             }
         }
 
-        if (ModelValidationUtils.isArrayElementEmpty(content[0])){
+        if (ModelValidationUtils.isArrayElementEmpty(content[0])) {
             if (content.length === 1) {
                 return { isValid: true, content: validatedContent };
             } else {
@@ -523,8 +460,7 @@ function AddonTable_create() {
             isDisabled: ModelValidationUtils.validateBoolean(model["Is disabled"]),
             isPunctuationIgnored: ModelValidationUtils.validateBoolean(model["Ignore punctuation"]),
             isCaseSensitive: ModelValidationUtils.validateBoolean(model["Case sensitive"]),
-            gapWidth: gapWidth,
-            gapType: presenter.GAP_TYPE.EDITABLE
+            gapWidth: gapWidth
         };
     };
 
@@ -533,7 +469,9 @@ function AddonTable_create() {
         $.extend(true, upgradedModel, model);
 
         if (!model["Columns width"]) {
-            upgradedModel["Columns width"] = [{ Width: "" }];
+            upgradedModel["Columns width"] = [
+                { Width: "" }
+            ];
         }
 
         return upgradedModel;
@@ -544,28 +482,30 @@ function AddonTable_create() {
         $.extend(true, upgradedModel, model);
 
         if (!model["Rows height"]) {
-            upgradedModel["Rows height"] = [{ Height: "" }];
+            upgradedModel["Rows height"] = [
+                { Height: "" }
+            ];
         }
 
         return upgradedModel;
     };
 
-    presenter.upgradeModel = function(model) {
+    presenter.upgradeModel = function (model) {
         var modelWithColumnsWidth = presenter.addColumnsWidth(model);
 
         return presenter.addRowHeights(modelWithColumnsWidth);
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
     };
@@ -649,7 +589,7 @@ function AddonTable_create() {
     };
 
     presenter.enableAllGaps = function () {
-        jQuery.each(presenter.configuration.gaps.descriptions, function(index, element) {
+        jQuery.each(presenter.configuration.gaps.descriptions, function (index, element) {
             presenter.$view.find('#' + element.id).removeAttr('disabled');
             element.isEnabled = true;
         });
@@ -670,13 +610,13 @@ function AddonTable_create() {
     };
 
     presenter.disableAllGaps = function () {
-        jQuery.each(presenter.configuration.gaps.descriptions, function(index, element) {
+        jQuery.each(presenter.configuration.gaps.descriptions, function (index, element) {
             presenter.$view.find('#' + element.id).attr('disabled', 'disabled');
             element.isEnabled = false;
         });
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
@@ -695,30 +635,40 @@ function AddonTable_create() {
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.isActivity ? presenter.configuration.gaps.descriptions.length : 0;
+        if (!presenter.configuration.isActivity) return 0;
+
+        var score = 0;
+        $.each(presenter.configuration.gaps.descriptions, function (index, gap) {
+            score += gap.score;
+        });
+
+        return score;
     };
 
     presenter.isGapCorrect = function (gap, isCaseSensitive, isPunctuationIgnored) {
         var isCorrect = false;
+        if ($("#" + gap.id).hasClass("ic_inlineChoice")) {
+            isCorrect = gap.value == gap.answers[0];
+        }
+        else {
+            $.each(gap.answers, function (index, element) {
+                var answer = isCaseSensitive ? gap.value : gap.value.toLowerCase(),
+                    properAnswer = isCaseSensitive ? element : element.toLowerCase();
 
-        $.each(gap.answers, function (index, element) {
-            var answer = isCaseSensitive ? gap.value : gap.value.toLowerCase(),
-                properAnswer = isCaseSensitive ? element : element.toLowerCase();
+                if (isPunctuationIgnored) {
+                    // replace(/\W/g, '') replaces every non-word characters (NOT the range 0 - 9, A - Z and a - z) to empty string
+                    answer = answer.replace(/\W/g, '');
+                    properAnswer = properAnswer.replace(/\W/g, '');
+                }
 
-            if (isPunctuationIgnored) {
-                // replace(/\W/g, '') replaces every non-word characters (NOT the range 0 - 9, A - Z and a - z) to empty string
-                answer = answer.replace(/\W/g, '');
-                properAnswer = properAnswer.replace(/\W/g, '');
-            }
+                if (answer === properAnswer) {
+                    isCorrect = true;
+                    return false; // jQuery.each break statement
+                }
 
-            if (answer === properAnswer) {
-                isCorrect = true;
-                return false; // jQuery.each break statement
-            }
-
-            return true; // jQuery.each continue
-        });
-
+                return true; // jQuery.each continue
+            });
+        }
         return isCorrect;
     };
 
@@ -728,10 +678,10 @@ function AddonTable_create() {
         var score = 0,
             isCaseSensitive = presenter.configuration.isCaseSensitive,
             isPunctuationIgnored = presenter.configuration.isPunctuationIgnored;
-
         $.each(presenter.configuration.gaps.descriptions, function (index, gap) {
+
             if (presenter.isGapCorrect(gap, isCaseSensitive, isPunctuationIgnored)) {
-                score++;
+                score += gap.score;
             }
         });
 
@@ -744,7 +694,6 @@ function AddonTable_create() {
         var errorCount = 0,
             isCaseSensitive = presenter.configuration.isCaseSensitive,
             isPunctuationIgnored = presenter.configuration.isPunctuationIgnored;
-
         $.each(presenter.configuration.gaps.descriptions, function (index, gap) {
             if (gap.value.trim() !== "" && !presenter.isGapCorrect(gap, isCaseSensitive, isPunctuationIgnored)) {
                 errorCount++;
@@ -761,10 +710,9 @@ function AddonTable_create() {
 
         $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
             $(gap).attr('disabled', 'disabled');
-
             if (!isActivity) return true;
-
-            var gapDescription = presenter.configuration.gaps.descriptions[index];
+            var gapIndex = presenter.getGapIndex(gap);
+            var gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
             if (gapDescription.value.trim() === "") {
                 $(gap).addClass('ic_gap-empty');
                 return true; // jQuery.each continue
@@ -794,8 +742,8 @@ function AddonTable_create() {
 
     presenter.setWorkMode = function () {
         $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
-            var gapDescription = presenter.configuration.gaps.descriptions[index];
-
+            var gapIndex = presenter.getGapIndex(gap),
+                gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
             if (gapDescription.isEnabled) $(gap).removeAttr('disabled');
             presenter.removeMarkClasses(gap);
         });
@@ -803,10 +751,10 @@ function AddonTable_create() {
 
     presenter.createEventData = function (item, value, score) {
         return {
-            source : presenter.configuration.addonID,
-            item : "" + item,
-            value : "" + value,
-            score : "" + score
+            source: presenter.configuration.addonID,
+            item: "" + item,
+            value: "" + value,
+            score: "" + score
         };
     };
 

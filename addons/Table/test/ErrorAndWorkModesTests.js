@@ -12,7 +12,8 @@ TestCase("Error mode", {
             },
             isActivity: true,
             isCaseSensitive: false,
-            isPunctuationIgnored: false
+            isPunctuationIgnored: false,
+            addonID: "Table1"
         };
     },
 
@@ -108,7 +109,8 @@ TestCase("Work mode", {
             },
             isActivity: true,
             isCaseSensitive: false,
-            isPunctuationIgnored: false
+            isPunctuationIgnored: false,
+            addonID: "Table1"
         };
     },
 

@@ -3,7 +3,8 @@ TestCase("Scoring - single gap", {
         this.presenter = AddonTable_create();
         this.presenter.configuration = {
             isCaseSensitive: false,
-            isPunctuationIgnored: false
+            isPunctuationIgnored: false,
+            addonID: "Table1"
         };
     },
 
@@ -101,7 +102,8 @@ TestCase("Scoring", {
             },
             isActivity: true,
             isCaseSensitive: false,
-            isPunctuationIgnored: false
+            isPunctuationIgnored: false,
+            addonID: "Table1"
         };
     },
 
@@ -113,7 +115,7 @@ TestCase("Scoring", {
 
     'test single empty gap filled': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "some value" }
+            { answers: [""], id: "Table1-1", value: "some value", score: 1 }
         ];
 
         assertEquals(1, this.presenter.getMaxScore());
@@ -125,7 +127,7 @@ TestCase("Scoring", {
         this.presenter.configuration.isCaseSensitive = true;
         this.presenter.configuration.isPunctuationIgnored = true;
         this.presenter.configuration.gaps.descriptions = [
-            { answers: ["aaAA 1.0000"], id: "Table1-1", value: "aaAA 10000" }
+            { answers: ["aaAA 1.0000"], id: "Table1-1", value: "aaAA 10000", score: 1 }
         ];
 
         assertEquals(1, this.presenter.getMaxScore());
@@ -135,7 +137,7 @@ TestCase("Scoring", {
 
     'test single gap not filled': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: ["some value"], id: "Table1-1", value: "" }
+            { answers: ["some value"], id: "Table1-1", value: "", score: 1 }
         ];
 
         assertEquals(1, this.presenter.getMaxScore());
@@ -145,7 +147,7 @@ TestCase("Scoring", {
 
     'test single gap filled with just whitespaces': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: ["some value"], id: "Table1-1", value: " \t " }
+            { answers: ["some value"], id: "Table1-1", value: " \t ", score: 1 }
         ];
 
         assertEquals(1, this.presenter.getMaxScore());
@@ -155,23 +157,23 @@ TestCase("Scoring", {
 
     'test multiple gaps - each filled correctly': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "" },
-            { answers: ["ans1"], id: "Table1-2", value: "ans1" },
-            { answers: ["some"], id: "Table1-3", value: "some" },
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "answ3" }
+            { answers: [""], id: "Table1-1", value: "", score: 1 },
+            { answers: ["ans1"], id: "Table1-2", value: "ans1", score: 1 },
+            { answers: ["some"], id: "Table1-3", value: "some", score: 1 },
+            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "answ3", score: 2 }
         ];
 
-        assertEquals(4, this.presenter.getMaxScore());
-        assertEquals(4, this.presenter.getScore());
+        assertEquals(5, this.presenter.getMaxScore());
+        assertEquals(5, this.presenter.getScore());
         assertEquals(0, this.presenter.getErrorCount());
     },
 
     'test multiple gaps - each filled incorrectly': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "some" },
-            { answers: ["ans1"], id: "Table1-2", value: "ans2" },
-            { answers: ["some"], id: "Table1-3", value: "some value" },
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "answ4" }
+            { answers: [""], id: "Table1-1", value: "some", score: 1 },
+            { answers: ["ans1"], id: "Table1-2", value: "ans2", score: 1 },
+            { answers: ["some"], id: "Table1-3", value: "some value", score: 1 },
+            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "answ4", score: 1 }
         ];
 
         assertEquals(4, this.presenter.getMaxScore());
@@ -181,15 +183,15 @@ TestCase("Scoring", {
 
     'test multiple gaps - each filled differently': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "" }, // correct
-            { answers: ["ans1"], id: "Table1-2", value: "ans1" }, // correct
-            { answers: ["some"], id: "Table1-3", value: "some value" }, // incorrect
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "" }, // empty - no score and error points
-            { answers: ["answ1", "answ2"], id: "Table1-4", value: "answ2" } // correct
+            { answers: [""], id: "Table1-1", value: "", score: 4 }, // correct
+            { answers: ["ans1"], id: "Table1-2", value: "ans1", score: 1 }, // correct
+            { answers: ["some"], id: "Table1-3", value: "some value", score: 1 }, // incorrect
+            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "" , score: 1}, // empty - no score and error points
+            { answers: ["answ1", "answ2"], id: "Table1-4", value: "answ2" , score: 1} // correct
         ];
 
-        assertEquals(5, this.presenter.getMaxScore());
-        assertEquals(3, this.presenter.getScore());
+        assertEquals(8, this.presenter.getMaxScore());
+        assertEquals(6, this.presenter.getScore());
         assertEquals(1, this.presenter.getErrorCount());
     }
 });
@@ -207,7 +209,7 @@ TestCase("Scoring - is not activity option selected", {
 
     'test single empty gap filled': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "some value" }
+            { answers: [""], id: "Table1-1", value: "some value", score: 1 }
         ];
 
         assertEquals(0, this.presenter.getMaxScore());
@@ -217,11 +219,11 @@ TestCase("Scoring - is not activity option selected", {
 
     'test multiple gaps - each filled differently': function () {
         this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "" }, // correct
-            { answers: ["ans1"], id: "Table1-2", value: "ans1" }, // correct
-            { answers: ["some"], id: "Table1-3", value: "some value" }, // incorrect
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "" }, // empty - no score and error points
-            { answers: ["answ1", "answ2"], id: "Table1-4", value: "answ2" } // correct
+            { answers: [""], id: "Table1-1", value: "", score: 1 }, // correct
+            { answers: ["ans1"], id: "Table1-2", value: "ans1", score: 1 }, // correct
+            { answers: ["some"], id: "Table1-3", value: "some value", score: 1 }, // incorrect
+            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "", score: 1 }, // empty - no score and error points
+            { answers: ["answ1", "answ2"], id: "Table1-4", value: "answ2", score: 1 } // correct
         ];
 
         assertEquals(0, this.presenter.getMaxScore());

@@ -1,36 +1,3 @@
-TestCase("Gaps logic", {
-    setUp: function () {
-        this.presenter = AddonTable_create();
-        this.presenter.configuration = {};
-
-        sinon.stub(this.presenter, 'parseGaps');
-        sinon.stub(this.presenter, 'replaceGapsWithHTMLElements');
-        sinon.stub(this.presenter, 'setGapsWidth');
-    },
-
-    tearDown: function () {
-        this.presenter.parseGaps.restore();
-        this.presenter.replaceGapsWithHTMLElements.restore();
-        this.presenter.setGapsWidth.restore();
-    },
-
-    'test run mode': function () {
-        this.presenter.gapLogic(false);
-
-        assertTrue(this.presenter.parseGaps.calledOnce);
-        assertTrue(this.presenter.replaceGapsWithHTMLElements.calledOnce);
-        assertTrue(this.presenter.setGapsWidth.calledOnce);
-    },
-
-    'test preview mode': function () {
-        this.presenter.gapLogic(true);
-
-        assertTrue(this.presenter.parseGaps.calledOnce);
-        assertTrue(this.presenter.replaceGapsWithHTMLElements.calledOnce);
-        assertTrue(this.presenter.setGapsWidth.calledOnce);
-    }
-});
-
 TestCase("Value change event handler", {
     setUp: function () {
         this.presenter = AddonTable_create();
