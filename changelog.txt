@@ -1,4 +1,5 @@
-2014-04-10 Fixed selecting issue in Text Selection module in adrodi 4.2.2
+2014-04-16 Added Is Not Activity property to Graph addon.
+2014-04-10 Fixed selecting issue in Text Selection module in adroid 4.2.2
 2014-04-09 Fixed issue with boundaries detection in Shape Tracing addon on iOS7 devices
 2014-04-08 Ordering is always shuffled
 2014-04-08 Prevented adding class .hover to elements, when tapping on mobile devices in Text Selection module

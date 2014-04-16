@@ -2,6 +2,7 @@
 
 <addon id='graph' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
+        <property name="isNotActivity" displayName="Is not an activity" type="boolean" />
 		<property name="X axis description" type="string" isLocalized="true" />
 		<property name="Show X axis bars descriptions" type="boolean" />
 		<property name="X axis bars descriptions" type="list">

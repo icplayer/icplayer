@@ -14,6 +14,8 @@ function Addongraph_create(){
     presenter.$view             = null;
     presenter.configuration     = {};
 
+    var isNotActivity = false;
+
     presenter.ERROR_MESSAGES = {
         DATA_ROW_NOT_ENOUGH_COLUMNS:      "Row %row% in data contains not enough columns, minimum amount of columns is 2 - first indicates X axis description, second and further contain values",
         DATA_ROW_MALFORMED:               "Row %row% is not valid CSV - check its syntax",
@@ -201,7 +203,7 @@ function Addongraph_create(){
     };
 
     presenter.getScore = function() {
-        if (!presenter.configuration.isInteractive || !presenter.configuration.shouldCalcScore || !presenter.isStarted) {
+        if (isNotActivity || !presenter.configuration.shouldCalcScore || !presenter.isStarted) {
             return 0;
         }
 
@@ -209,15 +211,13 @@ function Addongraph_create(){
     };
 
     presenter.getMaxScore = function() {
-        if (!presenter.configuration.isInteractive) {
-            return 0;
-        }
+        if (isNotActivity) return 0;
 
         return presenter.configuration.answers.length;
     };
 
     presenter.getErrorCount = function() {
-        if (!presenter.configuration.isInteractive || !presenter.configuration.shouldCalcScore || !presenter.isStarted) {
+        if (isNotActivity || !presenter.configuration.shouldCalcScore || !presenter.isStarted) {
             return 0;
         }
 
@@ -887,6 +887,13 @@ function Addongraph_create(){
         }
 
         presenter.setVisibility(presenter.configuration.isVisible);
+
+        if (model['isNotActivity'] != undefined){
+            isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
+        }
+        else {
+            isNotActivity = false;
+        }
 
         // Read data
         var currentValue;
