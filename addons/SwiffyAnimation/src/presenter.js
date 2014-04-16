@@ -86,13 +86,11 @@ function AddonSwiffyAnimation_create(){
 				}
 				
 				$(presenter.loadingIconImg).css('display','none');
-				if(i == presenter.Animations.length-1) {
+				if(i == presenter.Animations.length-1){
 					presenter.loaded = true;
 				}
 			});
 		});//end loop
-		
-		
     };
 	
 	presenter.createPreview = function (view, model) {
@@ -130,7 +128,6 @@ function AddonSwiffyAnimation_create(){
             'show': presenter.show,
             'hide': presenter.hide,
             'start': presenter.start,
-            /*'destroy': presenter.destroy,*/
             'replay': presenter.replay,
             'setVars': presenter.setVars,
             'switchAnimation': presenter.switchAnimation
@@ -140,8 +137,10 @@ function AddonSwiffyAnimation_create(){
     };
 	
 	presenter.start = function(item){
-		var i = item !== undefined ? i = item - 1 : i = presenter.currentAnimationItem - 1;
-		presenter.stage[i].start();
+		var i = typeof item !== 'undefined' ? i = item - 1 : i = presenter.currentAnimationItem - 1;
+		if(presenter.animsRunning[i] === false && typeof presenter.stage[i] !== 'undefined'){
+			presenter.stage[i].start();
+		}
 		presenter.animsRunning[i] = true;
 	};
 	
@@ -170,15 +169,17 @@ function AddonSwiffyAnimation_create(){
 	};
 	
 	presenter.replay = function(item){
-        var itemToDestroy = item !== undefined ? itemToDestroy = item - 1 : itemToDestroy = presenter.currentAnimationItem - 1;	
-		var currentSwiffyObject = presenter.swiffyObject[itemToDestroy];
-		presenter.swiffyItem = presenter.$view.find('.swiffyItem_'+itemToDestroy)[0];
-		presenter.stage[itemToDestroy].destroy();
-		presenter.stage[itemToDestroy] = new swiffy.Stage(presenter.swiffyItem,currentSwiffyObject);
-		if(presenter.Animations[itemToDestroy].disableTransparentBackground === 'False'){
-			presenter.stage[itemToDestroy].setBackground(null);
+		var itemToDestroy = typeof item !== 'undefined' ? itemToDestroy = item - 1 : itemToDestroy = presenter.currentAnimationItem - 1;	
+		if(presenter.animsRunning[itemToDestroy] === true && typeof presenter.stage[itemToDestroy] !== 'undefined'){
+			var currentSwiffyObject = presenter.swiffyObject[itemToDestroy];
+			presenter.swiffyItem = presenter.$view.find('.swiffyItem_'+itemToDestroy)[0];
+			presenter.stage[itemToDestroy].destroy();
+			presenter.stage[itemToDestroy] = new swiffy.Stage(presenter.swiffyItem,currentSwiffyObject);
+			if(presenter.Animations[itemToDestroy].disableTransparentBackground === 'False'){
+				presenter.stage[itemToDestroy].setBackground(null);
+			}
+			presenter.stage[itemToDestroy].start();
 		}
-		presenter.stage[itemToDestroy].start();
 	};
 	
 	presenter.switchAnimation = function(item){
@@ -198,9 +199,9 @@ function AddonSwiffyAnimation_create(){
 			presenter.loaded = false;
 			$(presenter.swiffyContainer).html("");
 			$(presenter.Animations).each(function(i, animation){
-					var currentSwiffyObject = presenter.swiffyObject[i];
-					presenter.swiffyItem = presenter.$view.find('.swiffyItem_'+i)[0];
+				if(presenter.animsRunning[i] === true && typeof presenter.stage[i] !== 'undefined'){
 					presenter.stage[i].destroy();
+				}
 			});
 			$(presenter.loadingIconImg).css('display','block');
 			presenter.run(presenter.view,presenter.model);
@@ -212,9 +213,9 @@ function AddonSwiffyAnimation_create(){
 			presenter.loaded = false;	
 			$(presenter.swiffyContainer).html("");
 			$(presenter.Animations).each(function(i, animation){
-				var currentSwiffyObject = presenter.swiffyObject[i];
-				presenter.swiffyItem = presenter.$view.find('.swiffyItem_'+i)[0];
-				presenter.stage[i].destroy();
+				if(presenter.animsRunning[i] === true && typeof presenter.stage[i] !== 'undefined'){
+					presenter.stage[i].destroy();
+				}
 			});
 			$(presenter.loadingIconImg).css('display','block');
 		}
