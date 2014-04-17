@@ -31,7 +31,7 @@ public class TextView extends HTML implements IDisplay{
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
-		if(!isPreview){
+		if(!isPreview && !module.isVisible()) {
 			hide();
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
@@ -13,6 +14,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -79,6 +81,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private JavaScriptObject	jsObject;
 	private String enteredText = null;
 	private boolean isVisible;
+	private String lastStateSaved = "";
 	
 	
 	public TextPresenter(TextModel module, IPlayerServices services){
@@ -156,6 +159,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
+		
 		if(enteredText != null){
 			state.put("enteredText", enteredText);
 		}
@@ -175,6 +179,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		state.put("disabled", JSONUtils.toJSONString(stateDisabled));
 		state.put("isVisible", Boolean.toString(isVisible));
 		
+		
+		
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -184,7 +190,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	 */
 	@Override
 	public void setState(String stateObj) {
-
+		lastStateSaved = stateObj;
+		
 		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
 		String oldGapId = state.get("gapUniqueId") + "-";
 		values.clear();
@@ -371,10 +378,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	private void registerGap(String id) {
 		GapInfo gi = new GapInfo(id, 1, module.isCaseSensitive(), module.isIgnorePunctuation());
+		int gapIndex = Integer.parseInt(id.split("-")[1]);
 		try {
 			String[] answersList = module.mathGapsAnswers.get(id).split("|");
 			for (int i = 0; i < answersList.length; i++) {
-				gi.addAnswer(answersList[i]);
+				if (!answersList[i].trim().isEmpty()) {
+					gi.addAnswer(answersList[i]);
+				}
 			}
 			module.gapInfos.add(gi);
 			int gapWidth = module.getGapWidth();
@@ -384,10 +394,24 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 			gap.setDisabled(module.isDisabled());
 			view.addElement(gap);
+			setStateForMathGap(gapIndex);
 		} catch (Exception e) {
 			Window.alert("Can't create module: " + gi.getId());
 		}
 	}
+
+	private void setStateForMathGap(int gapIndex) {
+		if (!lastStateSaved.isEmpty()) {
+			HashMap<String, String> state = JSONUtils.decodeHashMap(lastStateSaved);
+			String id = module.getGapUniqueId() + "-" + Integer.toString(gapIndex);
+			String value = values.get(id);
+			view.setValue(id, value);
+			ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
+			int i = gapIndex - 1;
+			view.getChild(i).setDisabled(stateDisabled.get(i));
+		}
+	}
+
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
@@ -483,7 +507,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 
 	private void updateScore() {
-
 		IScoreService scoreService = playerServices.getScoreService();
 		scoreService.setScore(module.getId(), getScore(), getMaxScore());
 	}
