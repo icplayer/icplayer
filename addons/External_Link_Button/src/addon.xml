@@ -4,6 +4,6 @@
 	<model>
 		<property name="Title" type="string" isLocalized="true" />
 		<property name="Image" type="image" />
-		<property name="URI" type="string" />
+		<property name="URI" displayName="URL" type="string" />
 	</model>
 </addon>

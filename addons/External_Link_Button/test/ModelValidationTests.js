@@ -53,74 +53,26 @@ TestCase("[External Link Button] Model validation", {
     	assertFalse(validatedModel.isVisible);
     	assertFalse(validatedModel.isVisibleByDefault);
     },
-    
-   'test wrong URI - case 1': function() {
-	 // given
-	 var model = {
-			   'URI': 'whatever',
-			   'Title': 'Bad URI',
-			   'Is Visible': 'True',
-	 };
-	   
-   	// when
-   	var validatedModel = this.presenter.validateModel(model);
-   	
-   	// then
-   	assertFalse(validatedModel.isValid);
-   },
-   
-   'test wrong URI - case 2': function() {
-		 // given
-		 var model = {
-				   'URI': ':path',
-				   'Title': 'Bad URI',
-				   'Is Visible': 'True',
-		 };
-		   
-	   	// when
-	   	var validatedModel = this.presenter.validateModel(model);
-	   	
-	   	// then
-	   	assertFalse(validatedModel.isValid);
-	   },
 
-	   'test wrong URI - case 3': function() {
-			 // given
-			 var model = {
-					   'URI': 'http:',
-					   'Title': 'Bad URI',
-					   'Is Visible': 'True',
-			 };
-			   
-		   	// when
-		   	var validatedModel = this.presenter.validateModel(model);
-		   	
-		   	// then
-		   	assertFalse(validatedModel.isValid);
-	   },
+    'test full config': function() {
+        // given
+        var model = {
+            'Is Visible': "True",
+            'Image': "/file/server/123456",
+            'URI': 'callto:123456789',
+            'Title': 'Call me!'
+        };
 
-	   'test full config': function() {
-			 // given
-			 var model = {
-			           'Is Visible': "True",
-			           'Image': "/file/server/123456",
-					   'URI': 'callto:123456789',
-					   'Title': 'Call me!',
-					   'Is Visible': 'True',
-			 };
-			   
-		   	// when
-		   	var validatedModel = this.presenter.validateModel(model);
-		   	
-		   	// then
-			assertEquals('callto:123456789', validatedModel.URI);
-			assertEquals('Call me!', validatedModel.title);
-		   	assertTrue(validatedModel.isValid);
-		   	assertEquals("/file/server/123456", validatedModel.image);
-		   	assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.BOTH, validatedModel.displayContent);
-		   	assertTrue(validatedModel.isVisible);
-		   	assertTrue(validatedModel.isVisibleByDefault);
-	   },
-	   
-	   
+        // when
+        var validatedModel = this.presenter.validateModel(model);
+
+        // then
+        assertEquals('callto:123456789', validatedModel.URI);
+        assertEquals('Call me!', validatedModel.title);
+        assertTrue(validatedModel.isValid);
+        assertEquals("/file/server/123456", validatedModel.image);
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.BOTH, validatedModel.displayContent);
+        assertTrue(validatedModel.isVisible);
+        assertTrue(validatedModel.isVisibleByDefault);
+    }
 });

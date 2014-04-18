@@ -2,8 +2,7 @@ function AddonExternal_Link_Button_create() {
     var presenter = function() {};
     
     presenter.ERROR_CODES = {
-    	'M01': 'URI property cannot be empty!',
-    	'M02': 'Not valid URI!'
+    	'M01': 'URL property cannot be empty!'
     };
     
     presenter.DISPLAY_CONTENT_TYPE = {
@@ -33,7 +32,7 @@ function AddonExternal_Link_Button_create() {
         $imageElement.attr('src', presenter.configuration.image);
 
         $(element).append($imageElement);
-    }
+    };
     
     presenter.createTitleElement = function (element) {
         var $titleElement = $(document.createElement('span'));
@@ -42,15 +41,13 @@ function AddonExternal_Link_Button_create() {
         $titleElement.html(presenter.configuration.title);
 
         $(element).append($titleElement);
-    }
+    };
 
     presenter.createElements = function (wrapper) {
         var $ahref = $(document.createElement('a'));
         $ahref.attr('href',presenter.configuration.URI);
         $ahref.attr('target','_blank');
-        $ahref.click(function (event) {
-        event.stopPropagation();
-        });
+        $ahref.click(function (event) { event.stopPropagation(); });
 
         var $element = $(document.createElement('div'));
         $element.addClass('external-link-button-element');
@@ -58,16 +55,13 @@ function AddonExternal_Link_Button_create() {
         switch (presenter.configuration.displayContent) {
 	        case presenter.DISPLAY_CONTENT_TYPE.TITLE:
 	            presenter.createTitleElement($element);
-	
 	            break;
 	        case presenter.DISPLAY_CONTENT_TYPE.IMAGE:
 	            presenter.createImageElement($element);
-	
 	            break;
 	        case presenter.DISPLAY_CONTENT_TYPE.BOTH:
 	            presenter.createImageElement($element);
 	            presenter.createTitleElement($element);
-	
 	            break;
         }
         
@@ -97,7 +91,7 @@ function AddonExternal_Link_Button_create() {
         presenter.setElementsDimensions(model, $wrapper, $element);
         
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-    }
+    };
 
     presenter.createPreview = function(view, model) {
     	presenter.presenterLogic(view, model);
@@ -133,9 +127,6 @@ function AddonExternal_Link_Button_create() {
     presenter.validateModel = function (model) {
     	if (ModelValidationUtils.isStringEmpty(model.URI)) {
     		return { isValid: false, errorCode: 'M01' };
-    	}
-    	else if (model.URI.indexOf(":")<=0 || (model.URI.indexOf(":")>0 && model.URI.substr(model.URI.indexOf(":")).length<2 ) ) {
-    		return { isValid: false, errorCode: 'M02' };
     	}
     	
     	var image = presenter.validateString(model.Image);
