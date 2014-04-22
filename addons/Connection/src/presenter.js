@@ -345,7 +345,7 @@ function AddonConnection_create() {
         // http://code.google.com/p/android/issues/detail?id=38808
         var current = new Date().getTime();
         var delta = current - presenter.lastClickTime;
-        if (!isSelectionPossible || delta < 500) return;
+        if (!isSelectionPossible || delta < 50) return;
         presenter.lastClickTime = current;
         if (!$(element).hasClass('selected') && selectedItem == null) {
             // zaznaczony pierwszy element
