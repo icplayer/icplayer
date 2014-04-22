@@ -28,10 +28,10 @@ function AddonTable_create() {
         var parseResult = { content: [], descriptions: [] },
             isDisabled = presenter.configuration.isDisabled;
 
-        var textParserCell = presenter.textParser.parseGaps(presenter.$view.html());
-        var parsedText = textParserCell.parsedText;
+        var textParserResult = presenter.textParser.parseGaps(presenter.$view.html());
+        var parsedText = textParserResult.parsedText;
 
-        var simpleGaps = textParserCell.gaps;
+        var simpleGaps = textParserResult.gaps;
 
         $.each(simpleGaps, function (index, gap) {
             parsedText = presenter.replaceGapID(gap, parsedText);
@@ -43,12 +43,12 @@ function AddonTable_create() {
                 isEnabled: !isDisabled
             });
         });
-        var inlineGaps = textParserCell.inLineGaps;
+        var inlineGaps = textParserResult.inLineGaps;
 
         $.each(inlineGaps, function (index, gap) {
             parsedText = presenter.replaceGapID(gap, parsedText);
             parseResult.descriptions.push({
-                answers: gap.distractors,
+                answers: [gap.answer],
                 id: presenter.configuration.addonID + gap.id,
                 value: "",
                 score: gap.value,
@@ -100,8 +100,6 @@ function AddonTable_create() {
         }
         presenter.setGapsClass();
         presenter.setGapsWidth();
-
-
     };
 
     presenter.logic = function (view, model, isPreview) {
