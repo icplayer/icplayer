@@ -1,3 +1,4 @@
+2014-04-22 Fixed bug with selected page number in Table of Contents addon
 2014-04-18 Removed restrictions to URLs in External Link Button
 2014-04-16 Added MathJax \blank{} macro for Text module, which can be used for creating gaps in Math Expressions
 2014-04-16 New addons Clock and Swiffy Animation

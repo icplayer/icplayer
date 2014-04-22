@@ -87,7 +87,11 @@ function AddonTable_Of_Contents_create(){
         }
 
         $pageList.children().removeClass('selected');
-        $pageList.find('a:contains('+ (page+1) + ')').addClass('selected');
+        $pageList.find('a').each(function(){
+            if ($(this).text()==(page+1)) {
+                $(this).addClass('selected');
+            }
+        });
    }
 
     function isSpaceSufficient($list, spareHeight) {
