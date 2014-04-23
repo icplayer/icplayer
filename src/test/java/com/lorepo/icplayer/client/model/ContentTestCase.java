@@ -278,7 +278,7 @@ public class ContentTestCase {
 		content.addChangeListener(new IContentListener() {
 			
 			@Override
-			public void onRemovePage(IContentNode node) {
+			public void onRemovePage(IContentNode node, IChapter parent) {
 			}
 			
 			@Override
@@ -307,7 +307,7 @@ public class ContentTestCase {
 		content.addChangeListener(new IContentListener() {
 			
 			@Override
-			public void onRemovePage(IContentNode node) {
+			public void onRemovePage(IContentNode node, IChapter parent) {
 			}
 			
 			@Override
@@ -473,7 +473,7 @@ public class ContentTestCase {
 		model.addChangeListener(new IContentListener() {
 			
 			@Override
-			public void onRemovePage(IContentNode node) {
+			public void onRemovePage(IContentNode node, IChapter parent) {
 			}
 			
 			@Override

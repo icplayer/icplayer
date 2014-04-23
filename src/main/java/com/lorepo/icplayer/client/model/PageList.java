@@ -88,7 +88,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		IContentNode node = nodes.remove(index);
 		
 		if(listener != null){
-			listener.onNodeRemoved(node);
+			listener.onNodeRemoved(node, this);
 		}
 		
 		return node;
@@ -100,7 +100,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		boolean result = nodes.remove(node);
 		
 		if(listener != null && result){
-			listener.onNodeRemoved(node);
+			listener.onNodeRemoved(node, this);
 		}
 		
 		return result;
@@ -113,7 +113,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		
 		if(result){
 			if(listener != null){
-				listener.onNodeRemoved(node);
+				listener.onNodeRemoved(node, this);
 			}
 		}
 		else{
@@ -139,7 +139,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				if(page.getName().equals(name)){
 					nodes.remove(node);
 					if(listener != null){
-						listener.onNodeRemoved(page);
+						listener.onNodeRemoved(page, this);
 					}
 					return true;
 				}

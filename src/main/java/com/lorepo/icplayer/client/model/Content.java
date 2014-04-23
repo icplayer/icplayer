@@ -45,9 +45,9 @@ public class Content implements IXMLSerializable, IContent {
 	private void connectHandlers() {
 		
 		pages.addListener(new IPageListListener() {
-			public void onNodeRemoved(IContentNode node) {
+			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
-					listener.onRemovePage(node);
+					listener.onRemovePage(node, parent);
 				}
 			}
 			
@@ -73,9 +73,9 @@ public class Content implements IXMLSerializable, IContent {
 		});
 		
 		commonPages.addListener(new IPageListListener() {
-			public void onNodeRemoved(IContentNode node) {
+			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
-					listener.onRemovePage(node);
+					listener.onRemovePage(node, parent);
 				}
 			}
 			public void onNodeMoved(IChapter source, int from, int to) {

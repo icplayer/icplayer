@@ -13,7 +13,7 @@ import com.lorepo.icplayer.client.module.api.player.IContentNode;
 public interface IContentListener {
 
 	void onAddPage(IContentNode node);
-	void onRemovePage(IContentNode node);
+	void onRemovePage(IContentNode node, IChapter parent);
 	void onPageMoved(IChapter source, int from, int to);
 	void onChanged(IContentNode source);
 }

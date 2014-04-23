@@ -27,7 +27,7 @@ public class PagesListenerTestCase {
 		}
 
 		@Override
-		public void onNodeRemoved(IContentNode page) {
+		public void onNodeRemoved(IContentNode page, IChapter parent) {
 			pageRemovedCalled = true;
 		}
 

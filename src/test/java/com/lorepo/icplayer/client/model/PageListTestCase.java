@@ -215,7 +215,7 @@ public class PageListTestCase {
 
 		PageList pages = new PageList();
 		pages.addListener(new IPageListListener() {
-			public void onNodeRemoved(IContentNode node) {
+			public void onNodeRemoved(IContentNode node, IChapter parent) {
 			}
 			public void onNodeMoved(IChapter source, int from, int to) {
 			}
