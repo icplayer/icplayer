@@ -32,7 +32,8 @@ TestCase("[Graph] Scoring logic", {
     },
 
     'test module is not in interactive mode': function () {
-        this.presenter.configuration.isInteractive = false;
+        this.presenter.configuration.isInteractive = true;
+        this.presenter.configuration.isNotActivity = true;
         this.presenter.configuration.shouldCalcScore = true;
 
         assertEquals(0, this.presenter.getMaxScore());

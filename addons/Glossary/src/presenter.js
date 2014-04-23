@@ -78,9 +78,13 @@ function AddonGlossary_create(){
 
     presenter.openDialogEventHandler = function(event, ui) {
         var $dialog  = $(event.target).closest('.ui-dialog');
+        var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
+        var isPopup =  $(presenter.$ICPage).is('.ic_popup_page');
+        var isMarginalPage =  $(presenter.$ICPage).is('.ic_footer') || (presenter.$ICPage).is('.ic_header');
+
         var presentationPosition = $(presenter.$ICPage).offset();
         var presentationWidth = $(presenter.$ICPage).outerWidth();
-        var presentationHeight = $(presenter.$ICPage).outerHeight();
+        var presentationHeight = isMarginalPage ?  $('.ic_page').outerHeight() : $(presenter.$ICPage).outerHeight();
         var dialogWidth = $dialog.outerWidth();
         var dialogHeight = $dialog.outerHeight();
 
@@ -90,10 +94,6 @@ function AddonGlossary_create(){
         var popupTop = 0;
         var popupLeft = 0;
         var topPosition = 0;
-        var dialogTop = 0;
-
-        var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
-        var isPopup =  $(presenter.$ICPage).is('.ic_popup_page');
 
         if (isPreview) {
             scrollTop = $(presenter.$ICPage).scrollTop();
@@ -148,11 +148,10 @@ function AddonGlossary_create(){
         if ($(window).scrollTop() > popupTop && isPopup) {
             topPosition += ($(window).scrollTop() - popupTop);
         }
-        dialogTop = (topPosition + scrollTop + previewFrame);
 
         $dialog.css({
             left: (leftPosition - popupLeft) + 'px',
-            top: (dialogTop) + 'px',
+            top: (topPosition + scrollTop + previewFrame) + 'px',
             'font-size': '18px',
             'font-family': 'Trebuchet MS, Tahoma, Verdana, Arial, sans-serif'
         });

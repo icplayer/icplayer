@@ -54,7 +54,6 @@ TestCase("Model validation", {
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);
         assertEquals({isSet: false, value: undefined}, validatedModel.gapWidth);
-        assertEquals(this.presenter.GAP_TYPE.EDITABLE, validatedModel.gapType);
     },
 
     'test rows error': function() {
@@ -158,7 +157,6 @@ TestCase("Model validation", {
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);
         assertEquals({isSet: true, value: 10}, validatedModel.gapWidth);
-        assertEquals(this.presenter.GAP_TYPE.EDITABLE, validatedModel.gapType);
     },
 
     'test is not an activity option selected': function() {
@@ -171,6 +169,5 @@ TestCase("Model validation", {
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);
         assertEquals({isSet: false, value: undefined}, validatedModel.gapWidth);
-        assertEquals(this.presenter.GAP_TYPE.EDITABLE, validatedModel.gapType);
     }
 });

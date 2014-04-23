@@ -75,7 +75,7 @@ TestCase("Presenter logic", {
         assertTrue(this.presenter.setColumnWidth.calledOnce);
         assertTrue(this.presenter.setRowHeight.calledOnce);
         assertTrue(this.presenter.setVisibility.calledOnce);
-        assertFalse(this.presenter.gapLogic.calledOnce);
+        assertTrue(this.presenter.gapLogic.calledOnce);
         assertFalse(this.presenter.parseDefinitionLinks.calledOnce);
         assertFalse(this.presenter.attachGapsHandlers.calledOnce);
     },

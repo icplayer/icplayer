@@ -46,7 +46,7 @@ TestCase("States Tests", {
 
         var state = this.presenter.getState();
 
-        assertEquals('{\"filledAreas\":[],\"currentFillingColor\":[255,50,255,255],\"isErase\":true,\"colorsThatCanBeFilled\":[[255,255,255,255]],\"isVisible\":false}', state);
+        assertEquals('{\"filledAreas\":[],\"currentFillingColor\":[255,50,255,255],\"isErase\":true,\"colorsThatCanBeFilled\":[[255,255,255,255]],\"isVisible\":false,\"isDisabled\":false}', state);
     },
 
     'test set state sets fields properly' : function() {

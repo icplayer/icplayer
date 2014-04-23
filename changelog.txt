@@ -1,3 +1,4 @@
+2014-04-23 Fixed issue with incorrect glossary widget position for Glossary addon placed in header/footer
 2014-04-22 Fixed issue with slow response of Connection addon
 2014-04-22 Fixed issue with correct answer mark for drop-down gaps in Table addon
 2014-04-22 Fixed bug with selected page number in Table of Contents addon
