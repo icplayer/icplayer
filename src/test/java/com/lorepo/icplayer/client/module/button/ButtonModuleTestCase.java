@@ -81,7 +81,7 @@ public class ButtonModuleTestCase {
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("additional_classes")).thenReturn("Additional classes");
 		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/presenter.xml");
+		InputStream inputStream = getClass().getResourceAsStream("testdata/popup.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		

@@ -26,7 +26,7 @@ public class ButtonPresenterTestCase {
 	
 	@Before
 	public void runBeforeEveryTest() throws SAXException, IOException {
-		InputStream inputStream = getClass().getResourceAsStream("testdata/presenter.xml");
+		InputStream inputStream = getClass().getResourceAsStream("testdata/check.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new ButtonModule();

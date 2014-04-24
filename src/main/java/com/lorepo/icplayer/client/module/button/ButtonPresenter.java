@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 
 public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver {
 	
@@ -152,14 +153,18 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	}
 	
 	private void setShowErrorsMode() {
-		view.setErrorCheckingMode(true);
-		view.setDisabled(true);
+		if(model.getType() != ButtonType.popup){
+			view.setErrorCheckingMode(true);
+			view.setDisabled(true);
+		}
 	}
 
 
 	private void setWorkMode() {
-		view.setErrorCheckingMode(false);
-		view.setDisabled(false);
+		if(model.getType() != ButtonType.popup){
+			view.setErrorCheckingMode(false);
+			view.setDisabled(false);
+		}
 	}
 	
 	public JavaScriptObject getAsJavaScript() {

@@ -24,8 +24,8 @@
 	width:	800px;
 	height:	600px;
 }
-.ic_footer{background-color: #e0e0ff; width:	100%;}
-.ic_header{background-color: #e0e0ff;}
+.ic_footer{background-color: #e0e0ff; width: 100%;}
+.ic_header{background-color: #e0e0ff; width: 100%;}
 .myText{background-color:yellow; border:1px solid blue;}
 .silver{background-color:silver;}
 .lightgreen{background-color:lightgreen;}
@@ -52,6 +52,7 @@
 </style>
 
 <pages>
+	<page name="Show popup" href="pages/showpopup.page.xml"/>
 	<page name="ordering" href="pages/ordering.page.xml" reportable="true"/>
 	<page name="schoice" href="pages/schoice.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
@@ -82,7 +83,6 @@
 	<page name="layout" href="pages/layout.page.xml"/>
 	<page name="Puzzles" href="pages/puzzle.page.xml"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
-	<page name="Show popup" href="pages/showpopup.page.xml"/>
 	<page name="layout2" href="pages/layout2.page.xml"/>
 	<page name="problem" href="pages/problem.page.xml"/>
 	<page name="problem" href="pages/problem.page.xml"/>

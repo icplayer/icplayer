@@ -3,30 +3,24 @@
 
 	<modules>
 	
-		<textModule left="10" top="2" width="80" height="45" 
-			style="background-color:#eeeeff; border: 1px solid gray">
-			<text>
-				When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-				$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
-				&lt;br/&gt;
-				When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-				$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+		<textModule id="dropdown1" left='10' top='10' width='580' height='300' class="">
+			<text isDisabled="false">
+				&lt;p&gt;She {{2: likes | \(a \ne 0\) | \(ax^2 + bx + c = 0\) }} him very much (like).&lt;/p&gt;
+				&lt;p&gt;She {{2: don't | aaaaa aa | bbb bb }} him very much (like).&lt;/p&gt;
+				&lt;p&gt;Większy równy {{1:≥|&lt;p&gt;|≤|&lt;/p&gt;}} .&lt;/p&gt;
 			</text>
 		</textModule>
 		
-		<textModule left="10" top="50" width="80" height="40" 
-			style="background-color:#eeeeff; border: 1px solid gray">
-			<text>
-				This is \(\cfrac{1}{10^4}\) not a gap
-				&lt;br/&gt;
-				This is \(\cfrac{{1}}{10^4}\) not a gap
-			</text>
-		</textModule>
-		
-		<buttonModule  left="45" top="90" width="10" height="10" style="">
-			<button type="popup" text="" onclick="commons/popup1"/>
+		<pageProgressModule id="c3" left="5" top="350" width="150" height="20">
+		</pageProgressModule>
+
+		<buttonModule  left="250" top="350" width="50" height="50" style="">
+			<button type="checkAnswers" text=""/>
 		</buttonModule>
 		
+		<buttonModule  left="360" top="350" width="50" height="50" style="">
+			<button type="popup" text="" onclick="commons/popup1"/>
+		</buttonModule>
 	</modules>
 
 </page>
