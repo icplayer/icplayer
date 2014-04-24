@@ -7,6 +7,7 @@ TestCase('[Text Selection] States restoring', {
         sinon.stub(this.presenter, 'show');
         sinon.stub(this.presenter, 'hide');
         sinon.stub(this.presenter, 'turnOffEventListeners');
+        sinon.stub(this.presenter, 'sendEvent');
     },
 
     tearDown : function() {

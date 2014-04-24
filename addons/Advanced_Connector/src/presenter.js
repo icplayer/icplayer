@@ -227,8 +227,7 @@ function AddonAdvanced_Connector_create() {
         return { isError: false, events: scriptsArray };
     };
 
-    presenter.matchFieldToRule = function (field, rule, doExactMatch) {
-        var rule = doExactMatch ? '^' + $.trim(rule) + '$' : $.trim(rule);
+    presenter.matchFieldToRule = function (field, rule) {
         return new RegExp(rule).test(field);
     };
 
@@ -237,7 +236,7 @@ function AddonAdvanced_Connector_create() {
 
         try {
             for (var i = 0, length = events.length; i < length; i++) {
-                isMatch = presenter.matchFieldToRule(event.name, events[i].Name, true);
+                isMatch = presenter.matchFieldToRule(event.name, events[i].Name);
                 isMatch = isMatch && presenter.matchFieldToRule(event.source, events[i].Source);
                 isMatch = isMatch && presenter.matchFieldToRule(event.item, events[i].Item);
                 isMatch = isMatch && presenter.matchFieldToRule(event.value, events[i].Value);
