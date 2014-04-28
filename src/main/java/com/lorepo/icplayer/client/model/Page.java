@@ -153,12 +153,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 
 
 
+	/**
+	 * Serialize page to XML format
+	 * @param includeAll - If true save name and isReportable property
+	 */
 	@Override
 	public String toXML() {
 
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		
 		xml += "<page layout='" + layout.toString() + "'";
+		xml += " name='" + name + "'";
+		xml += " isReportable='" + reportable + "'";
 		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
