@@ -225,6 +225,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		
 		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
 		setScoreFromString(scoring);
+		
+		name = XMLUtils.getAttributeAsString(rootElement, "name", name);
+		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable", reportable);
 	}
 
 
