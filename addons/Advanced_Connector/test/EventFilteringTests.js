@@ -54,7 +54,7 @@ TestCase("Events filtering", {
             Score: '.*',
             Type: 'image',
             Word: '.*',
-            Name: 'Item',
+            Name: 'ItemSelected',
             Code: ''
         }, {
             Source: '.*',
@@ -63,7 +63,25 @@ TestCase("Events filtering", {
             Score: '.*',
             Type: 'image',
             Word: '.*',
-            Name: 'Item',
+            Name: 'Item*',
+            Code: ''
+        }, {
+            Source: '.*',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'NotAllAttempted',
+            Code: ''
+        }, {
+            Source: '.*',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'AllAttempted',
             Code: ''
         }];
     },
@@ -116,7 +134,7 @@ TestCase("Events filtering", {
         assertEquals([this.eventsDeclaration[2]], filteredEvents);
     },
 
-    'test event data matches draggable events': function() {
+    'test event data matches several of draggable events': function() {
         var event = {
             name: 'ItemSelected',
             type: 'image',
@@ -129,17 +147,17 @@ TestCase("Events filtering", {
 
         var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
-        assertEquals([this.eventsDeclaration[3], this.eventsDeclaration[4]], filteredEvents);
+        assertEquals([this.eventsDeclaration[3]], filteredEvents);
     },
 
-    'test event data matches only one of draggable events': function() {
-        this.eventsDeclaration[3].Type = 'text';
+    'test event data matches only one of events': function() {
+        this.eventsDeclaration[4].Type = 'text';
 
         var event = {
             name: 'ItemSelected',
             type: 'image',
-            item: '1',
-            value: '/file/serve/123456',
+            item: '',
+            value: '',
             source: '',
             score: '',
             word: ''
@@ -147,6 +165,6 @@ TestCase("Events filtering", {
 
         var filteredEvents = this.presenter.filterEvents(this.eventsDeclaration, event);
 
-        assertEquals([this.eventsDeclaration[4]], filteredEvents);
+        assertEquals([this.eventsDeclaration[3]], filteredEvents);
     }
 });

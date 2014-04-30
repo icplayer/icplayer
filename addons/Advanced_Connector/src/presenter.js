@@ -8,12 +8,10 @@ function AddonAdvanced_Connector_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         var i, length;
-
         event = presenter.fillEventData(eventData, eventName);
 
         try {
             var filteredEvents = presenter.filterEvents(presenter.events, event);
-
             for (i = 0, length = filteredEvents.length; i < length; i++) {
                 eval(filteredEvents[i].Code);
             }
@@ -43,7 +41,8 @@ function AddonAdvanced_Connector_create() {
     }
 
     presenter.run = function(view, model) {
-        var validatedScript = presenter.validateScript(model.Scripts), eventBus;
+        var validatedScript = presenter.validateScript(model.Scripts), eventBus,
+            customEventListeners = [];
 
         if (validatedScript.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedScript.errorCode);
@@ -65,8 +64,9 @@ function AddonAdvanced_Connector_create() {
         eventBus.addEventListener('PageLoaded', this);
 
         $.each(presenter.events, function() {
-            if (isCustomEvent(this.Name)) {
+            if (isCustomEvent(this.Name) && (customEventListeners.indexOf(this.Name) == -1) ){
                 eventBus.addEventListener(this.Name.trim(), presenter);
+                customEventListeners.push(this.Name);
             }
         });
 
@@ -227,7 +227,9 @@ function AddonAdvanced_Connector_create() {
         return { isError: false, events: scriptsArray };
     };
 
-    presenter.matchFieldToRule = function (field, rule) {
+    presenter.matchFieldToRule = function (field, rule, doExactMatch) {
+        if (rule.length > 0)
+            var rule = doExactMatch ? '^' + $.trim(rule) + '$' : $.trim(rule);
         return new RegExp(rule).test(field);
     };
 
@@ -236,7 +238,7 @@ function AddonAdvanced_Connector_create() {
 
         try {
             for (var i = 0, length = events.length; i < length; i++) {
-                isMatch = presenter.matchFieldToRule(event.name, events[i].Name);
+                isMatch = presenter.matchFieldToRule(event.name, events[i].Name, true);
                 isMatch = isMatch && presenter.matchFieldToRule(event.source, events[i].Source);
                 isMatch = isMatch && presenter.matchFieldToRule(event.item, events[i].Item);
                 isMatch = isMatch && presenter.matchFieldToRule(event.value, events[i].Value);
