@@ -20,6 +20,8 @@ function Addoncrossword_create(){
     presenter.markedColumnIndex = 0;
     presenter.markedRowIndex = 0;
 
+    presenter.numberOfConstantLetters = 0;
+
     presenter.ERROR_MESSAGES = {
         ROWS_NOT_SPECIFIED:                     "Amount of rows is not specified",
         COLUMNS_NOT_SPECIFIED:                  "Amount of columns is not specified",
@@ -30,7 +32,10 @@ function Addoncrossword_create(){
         INVALID_BLANK_CELLS_BORDER_WIDTH:       "Blank cells border width must be greater on equal to 0",
         INVALID_LETTER_CELLS_BORDER_WIDTH:      "Letter cells border width must be greater on equal to 0",
         INVALID_AMOUNT_OF_ROWS_IN_CROSSWORD:    "Amount of lines (that act as rows) in the specified Crossword is different that amount of rows you have specified in Properties",
-        INVALID_AMOUNT_OF_COLUMNS_IN_CROSSWORD: "Amount of characters (that act as columns) in row %row% of specified Crossword is different that amount of columns you have specified in Properties"
+        INVALID_AMOUNT_OF_COLUMNS_IN_CROSSWORD: "Amount of characters (that act as columns) in row %row% of specified Crossword is different that amount of columns you have specified in Properties",
+        DOUBLED_EXCLAMATION_MARK:               "You cannot type 2 exclamation marks in a row",
+        LAST_CHARACTER_EXCLAMATION_MARK:        "You cannot type exclamation mark at the end of line",
+        EXCLAMATION_MARK_BEFORE_EMPTY_FIELD:    "You cannot type exclamation mark before empty field"
     };
 
     presenter.VALIDATION_MODE = {
@@ -53,7 +58,6 @@ function Addoncrossword_create(){
         presenter.$view.html(errorContainer);
     };
 
-
     presenter.prepareGrid = function(model) {
         presenter.tabIndexBase = ($("div.crossword_container").length * 5000) + 5000;
         presenter.maxScore = 0;
@@ -62,15 +66,20 @@ function Addoncrossword_create(){
         var rows = model['Crossword'].split("\n");
         for(var i = 0; i < presenter.rowCount; i++) {
             var r = [];
-
-            for(var j = 0; j < presenter.columnCount; j++) {
-                r.push(rows[i][j].toUpperCase());
+            var numberOfExclamationMarks = rows[i].match(/!/g) == null ? 0 : rows[i].match(/!/g).length;
+            presenter.numberOfConstantLetters += numberOfExclamationMarks;
+            for(var j = 0; j < presenter.columnCount + numberOfExclamationMarks; j++) {
+                if (rows[i][j] === '!') {
+                    j++;
+                    r.push('!' + rows[i][j].toUpperCase());
+                } else {
+                    r.push(rows[i][j].toUpperCase());
+                }
             }
 
             presenter.crossword.push(r);
         }
     };
-
 
     presenter.isHorizontalWordBegin = function(i, j) {
         if(!presenter.wordNumbersHorizontal)
@@ -161,35 +170,44 @@ function Addoncrossword_create(){
                 if(presenter.crossword[i][j] == ' ') {
                     cell.addClass('cell_blank');
                     cellContainer.addClass('cell_container_blank');
-
                 } else {
                     cell.addClass('cell_letter');
                     cellContainer.addClass('cell_container_letter');
 
-                    var input = $('<input type="text" maxlength="1" />')
-                        .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++)
-                        .keyup(presenter.onCellInputKeyUp)
-                        .focus(presenter.onCellInputFocus)
-                        .mouseup(presenter.onCellInputMouseUp)
-                        .click(function(e) {
-                            e.stopPropagation();
+                    var input = $('<input type="text" maxlength="1" />');
+
+                    if (presenter.crossword[i][j][0] === '!') {
+                        input
+                            .val(presenter.crossword[i][j][1])
+                            .prop('disabled', true);
+
+                        cell.addClass("cell_constant_letter");
+                        cell.addClass("");
+                    } else {
+                        input
+                            .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++)
+                            .keyup(presenter.onCellInputKeyUp)
+                            .focus(presenter.onCellInputFocus)
+                            .mouseup(presenter.onCellInputMouseUp)
+                            .click(function(e) { e.stopPropagation(); });
+                    }
+
+                    if(presenter.preview) {
+                        input.attr({
+                            value: presenter.crossword[i][j].toUpperCase(),
+                            disabled: true
                         });
-
-                    if(presenter.preview)
-                        input.attr({ value    : presenter.crossword[i][j].toUpperCase(),
-                            disabled : true });
-
-
+                    }
 
                     cell.append(input);
 
                     var horizontalWordBegin = presenter.isHorizontalWordBegin(i, j);
                     var verticalWordBegin = presenter.isVerticalWordBegin(i, j);
 
+                    if (horizontalWordBegin) presenter.maxScore++;
+                    if (verticalWordBegin) presenter.maxScore++;
 
                     if(horizontalWordBegin || verticalWordBegin) {
-                        presenter.maxScore++;
-
                         cell.addClass('cell_word_begin');
 
                         if(horizontalWordBegin)
@@ -203,7 +221,6 @@ function Addoncrossword_create(){
 
                             cell.append(wordNumber);
                         }
-
                     }
                 }
 
@@ -234,7 +251,6 @@ function Addoncrossword_create(){
                         borderTopColor: borderColor });
                 }
 
-
                 if(i === presenter.rowCount - 1 || presenter.crossword[i+1][j] == ' ') { // Outer bottom border
                     cell.css({ borderBottomStyle: borderStyle,
                         borderBottomWidth: (borderWidth * 2) + 'px',
@@ -245,7 +261,6 @@ function Addoncrossword_create(){
                         borderBottomWidth: borderWidth + 'px',
                         borderBottomColor: borderColor });
                 }
-
 
                 if(j === 0 || presenter.crossword[i][j-1] == ' ') { // Outer left border
                     cell.css({ borderLeftStyle: borderStyle,
@@ -258,7 +273,6 @@ function Addoncrossword_create(){
                         borderLeftColor: borderColor });
                 }
 
-
                 if(j === presenter.columnCount - 1 || presenter.crossword[i][j+1] == ' ') { // Outer right border
                     cell.css({ borderRightStyle: borderStyle,
                         borderRightWidth: (borderWidth * 2) + 'px',
@@ -269,9 +283,6 @@ function Addoncrossword_create(){
                         borderRightWidth: borderWidth + 'px',
                         borderRightColor: borderColor });
                 }
-
-
-
 
                 // Additional classes
                 if(j == 0) {
@@ -286,18 +297,20 @@ function Addoncrossword_create(){
                     cell.addClass('cell_last_in_column');
                 }
 
-
-
-
                 gridContainer.append(cellContainer);
             }
         }
 
-
         presenter.$view.append(gridContainer);
-
     };
 
+    function returnErrorMessage(errorMessage, errorMessageSubstitutions) {
+        return {
+            isError: true,
+            errorMessage: errorMessage,
+            errorMessageSubstitutions: errorMessageSubstitutions
+        }
+    }
 
     presenter.readConfiguration = function(model) {
         if(typeof(model['Blank cells border color']) != "undefined" && model['Blank cells border color'] !== "")
@@ -329,66 +342,41 @@ function Addoncrossword_create(){
         if(typeof(model['Marked column index']) != "undefined" && model['Marked column index'] !== "") {
             presenter.markedColumnIndex = parseInt(model['Marked column index']);
             if(presenter.markedColumnIndex < 0) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.INVALID_MARKED_COLUMN_INDEX
-                };
+                return returnErrorMessage(presenter.ERROR_MESSAGES.INVALID_MARKED_COLUMN_INDEX)
             }
         }
 
         if(typeof(model['Marked row index']) != "undefined" && model['Marked row index'] !== "") {
             presenter.markedRowIndex = parseInt(model['Marked row index']);
             if(presenter.markedRowIndex < 0) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.INVALID_MARKED_ROW_INDEX
-                };
+                return returnErrorMessage(presenter.ERROR_MESSAGES.INVALID_MARKED_ROW_INDEX);
             }
         }
-
 
         presenter.disableAutomaticWordNumbering = model['Disable automatic word numberin'] == 'True';
 
         if(presenter.blankCellsBorderWidth < 0) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.INVALID_BLANK_CELLS_BORDER_WIDTH
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.INVALID_BLANK_CELLS_BORDER_WIDTH);
         }
 
         if(presenter.letterCellsBorderWidth < 0) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.INVALID_LETTER_CELLS_BORDER_WIDTH
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.INVALID_LETTER_CELLS_BORDER_WIDTH);
         }
 
         if(parseInt(model['Columns']) <= 0 || isNaN(parseInt(model['Columns'])) ) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.COLUMNS_NOT_SPECIFIED
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.COLUMNS_NOT_SPECIFIED);
         }
 
         if(parseInt(model['Rows']) <= 0 || isNaN(parseInt(model['Rows']))) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.ROWS_NOT_SPECIFIED
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.ROWS_NOT_SPECIFIED);
         }
 
         if(parseInt(model['Cell width']) <= 0 || isNaN(parseInt(model['Cell width'])) ) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.CELL_WIDTH_NOT_SPECIFIED
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.CELL_WIDTH_NOT_SPECIFIED);
         }
 
         if(parseInt(model['Cell height']) <= 0 || isNaN(parseInt(model['Cell height']))) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.CELL_HEIGHT_NOT_SPECIFIED
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.CELL_HEIGHT_NOT_SPECIFIED);
         }
 
         presenter.rowCount        = parseInt(model['Rows']);
@@ -398,19 +386,30 @@ function Addoncrossword_create(){
 
         var rows = model['Crossword'].split("\n");
         if(rows.length != presenter.rowCount) {
-            return {
-                isError: true,
-                errorMessage: presenter.ERROR_MESSAGES.INVALID_AMOUNT_OF_ROWS_IN_CROSSWORD
-            };
+            return returnErrorMessage(presenter.ERROR_MESSAGES.INVALID_AMOUNT_OF_ROWS_IN_CROSSWORD);
         }
 
         for(var i = 0; i < rows.length; i++) {
-            if(rows[i].length != presenter.columnCount) {
-                return {
-                    isError: true,
-                    errorMessage: presenter.ERROR_MESSAGES.INVALID_AMOUNT_OF_COLUMNS_IN_CROSSWORD,
-                    errorMessageSubstitutions: { row : i + 1 }
-                };
+            if(rows[i].replace(/!/g, "").length != presenter.columnCount) {
+                return returnErrorMessage(presenter.ERROR_MESSAGES.INVALID_AMOUNT_OF_COLUMNS_IN_CROSSWORD, { row : i + 1 });
+            }
+
+            var line = rows[i];
+            var previous = line[0];
+
+            if (line.slice(-1) === '!') {
+                return returnErrorMessage(presenter.ERROR_MESSAGES.LAST_CHARACTER_EXCLAMATION_MARK);
+            }
+
+            for (var j=1; j<line.length; j++) {
+                if (previous === '!') {
+                    switch (line[j]) {
+                        case '!': return returnErrorMessage(presenter.ERROR_MESSAGES.DOUBLED_EXCLAMATION_MARK); break;
+                        case ' ': return returnErrorMessage(presenter.ERROR_MESSAGES.EXCLAMATION_MARK_BEFORE_EMPTY_FIELD); break;
+                        default: break;
+                    }
+                }
+                previous = line[j];
             }
         }
 
@@ -419,10 +418,8 @@ function Addoncrossword_create(){
         };
     };
 
-
     presenter.initializeLogic = function(view, model) {
         presenter.$view = $(view);
-        presenter.shouldCalcScore = false;
 
         var configuration = presenter.readConfiguration(model);
         if(configuration.isError) {
@@ -431,9 +428,7 @@ function Addoncrossword_create(){
             presenter.prepareGrid(model);
             presenter.createGrid();
         }
-
     };
-
 
     presenter.validate = function(mode) {
         var wordValid, i, j, k, l, score, markedCell;
@@ -454,7 +449,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[i][k] != presenter.$view.find('.cell_' + i + 'x' + k + " input").attr('value')) {
+                        if(presenter.crossword[i][k] != presenter.$view.find('.cell_' + i + 'x' + k + " input").attr('value') && presenter.crossword[i][k][0] !== '!') {
                             wordValid = false;
                         }
                     }
@@ -471,7 +466,6 @@ function Addoncrossword_create(){
 
                             if(wordValid && markedCell.hasClass('cell_invalid'))
                                 markedCell.removeClass('cell_invalid');
-
                         }
                     }
                 }
@@ -484,7 +478,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[k][j] != presenter.$view.find('.cell_' + k + 'x' + j + " input").attr('value')) {
+                        if(presenter.crossword[k][j] != presenter.$view.find('.cell_' + k + 'x' + j + " input").attr('value') && presenter.crossword[k][j][0] !== '!') {
                             wordValid = false;
                         }
                     }
@@ -515,13 +509,15 @@ function Addoncrossword_create(){
     };
 
     presenter.setShowErrorsMode = function() {
-        presenter.shouldCalcScore = true;
+        if (!presenter.isAttempted()) {
+            return;
+        }
+
         presenter.validate(presenter.VALIDATION_MODE.SHOW_ERRORS);
     };
 
-
     presenter.setWorkMode = function() {
-        presenter.$view.find(".cell_letter input").attr('disabled', false);
+        presenter.$view.find(".cell_letter:not(.cell_constant_letter) input").attr('disabled', false);
         presenter.$view.find(".cell_valid").removeClass("cell_valid");
         presenter.$view.find(".cell_invalid").removeClass("cell_invalid");
     };
@@ -537,35 +533,24 @@ function Addoncrossword_create(){
     };
 
     presenter.reset = function() {
-        presenter.shouldCalcScore = true;
-        presenter.$view.find(".cell_letter input").attr('value', '');
+        presenter.$view.find(".cell_letter input:not([disabled])").attr('value', '');
         presenter.setWorkMode();
     };
 
-    function isAnyCellFilled () {
-        var isAnyCellFilled = false;
+    presenter.isAttempted = function() {
+        var countedConstantLetters = 0;
 
-        jQuery.each(presenter.$view.find('.cell input'), function () {
-            if (!ModelValidationUtils.isStringEmpty($(this).val())) {
-                isAnyCellFilled = true;
-                return false;
-            }
-
-            return true;
+        jQuery.each(presenter.$view.find('.cell input'), function() {
+            if (!ModelValidationUtils.isStringEmpty($(this).val())) countedConstantLetters++;
         });
 
-        return isAnyCellFilled;
-    }
-
-    function shouldCalcScore () {
-        // Addon should return score only if user makes some interaction (via Check/Reset buttons) or fills any of cells
-        return presenter.shouldCalcScore || isAnyCellFilled();
-    }
+        return presenter.numberOfConstantLetters < countedConstantLetters;
+    };
 
     presenter.getScore = function() {
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
 
-        return shouldCalcScore() ? score : 0;
+        return presenter.isAttempted() ? score : 0;
     };
 
     presenter.getMaxScore = function() {
@@ -576,7 +561,7 @@ function Addoncrossword_create(){
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE),
             errorCount = presenter.getMaxScore() - score;
 
-        return shouldCalcScore() ? errorCount : 0;
+        return presenter.isAttempted() ? errorCount : 0;
     };
 
     presenter.getState = function() {
@@ -607,7 +592,6 @@ function Addoncrossword_create(){
             }
         }
     };
-
 
     return presenter;
 }
