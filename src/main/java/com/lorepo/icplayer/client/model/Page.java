@@ -163,7 +163,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		
 		xml += "<page layout='" + layout.toString() + "'";
-		xml += " name='" + name + "'";
+		xml += " name='" + StringUtils.escapeXML(name) + "'";
 		xml += " isReportable='" + reportable + "'";
 		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
@@ -226,7 +226,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
 		setScoreFromString(scoring);
 		
-		name = XMLUtils.getAttributeAsString(rootElement, "name", name);
+		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
+        if(!rawName.isEmpty()){
+    		name = StringUtils.unescapeXML(rawName);
+        }
 		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable", reportable);
 	}
 

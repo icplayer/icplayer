@@ -1,4 +1,5 @@
-2014-05-05 Fixed problem with dragging image source and source list while in editor mode
+2014-05-06 Fixed problem with reading page name with special characters
+2014-05-06 Fixed problem with dragging image source and source list while in editor mode
 2014-05-05 Added ability to define constant letters in Crossword addon
 2014-04-30 Fixed issue with custom events improper behaviour in Advanced Connector
 2014-04-24 Popup button is active while in check answers mode
