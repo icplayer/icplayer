@@ -35,11 +35,11 @@ public class ImageSourceView extends Image implements IDisplay {
 			setUrl(imageUrl);
 		}
 		
+		getElement().setId(module.getId());
 		if(!isPreview){
 			setVisible(module.isVisible());
+			JavaScriptUtils.makeDraggable(getElement());
 		}
-		getElement().setId(module.getId());
-		JavaScriptUtils.makeDraggable(getElement());
 	}
 	
 	

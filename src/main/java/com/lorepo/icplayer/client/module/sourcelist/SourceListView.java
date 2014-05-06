@@ -23,6 +23,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private HashMap<String, Label>	labels = new HashMap<String, Label>();
 	private IViewListener listener;
 	private boolean isDragged = false;
+	private boolean isPreview = false;
 	
 	public SourceListView(SourceListModule module, boolean isPreview){
 
@@ -33,6 +34,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 
 	private void createUI(boolean isPreview) {
 
+        this.isPreview = isPreview;
 		if(module.getStyleClass().isEmpty()){
 			setStyleName("ic_sourceList");
 		}
@@ -110,7 +112,9 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			}
 		});
 		
-		JavaScriptUtils.makeDraggable(label.getElement());
+        if(!isPreview){
+    		JavaScriptUtils.makeDraggable(label.getElement());
+        }
 	}
 
 
