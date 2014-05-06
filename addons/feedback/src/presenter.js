@@ -191,7 +191,8 @@ function Addonfeedback_create() {
             fadeTransitions: ModelValidationUtils.validateBoolean(model['Fade transitions']),
             centerHorizontally: ModelValidationUtils.validateBoolean(model['Center horizontally']),
             centerVertically: ModelValidationUtils.validateBoolean(model['Center vertically']),
-            isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity'])
+            isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity']),
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
         };
     };
 
@@ -247,6 +248,8 @@ function Addonfeedback_create() {
 
     presenter.executeCommand = function (name, params) {
         var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
             'change': presenter.changeCommand,
             'setDefaultResponse': presenter.setDefaultResponse,
             'next': presenter.next,
@@ -255,6 +258,20 @@ function Addonfeedback_create() {
 
         Commands.dispatch(commands, name, params, presenter);
     };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+    
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
+    }
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
+    }
 
     presenter.next = function () {
         var currentID = presenter.currentStateId, index, newID;
@@ -287,7 +304,8 @@ function Addonfeedback_create() {
     presenter.getState = function () {
         return JSON.stringify({
             'currentStateDefault': presenter.currentStateDefault,
-            'currentStateId': presenter.currentStateId
+            'currentStateId': presenter.currentStateId,
+            'isVisible': presenter.configuration.isVisible,
         });
     };
 
@@ -303,6 +321,9 @@ function Addonfeedback_create() {
         } else {
             presenter.setResponse(state['currentStateId']);
         }
+        
+        presenter.configuration.isVisible = state['isVisible'];
+        presenter.setVisibility(state['isVisible']);
     };
 
     presenter.getResponseIndex = function (responseID) {
