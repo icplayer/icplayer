@@ -194,9 +194,7 @@ function AddonTrueFalse_create() {
             e.preventDefault();
 
             if (presenter.lastEvent.type != e.type) {
-                var eventData = event.touches[0] || event.changedTouches[0];
-
-                clickLogic($(eventData.target).parent());
+                clickLogic($(e.target).parent());
             }
         });
 

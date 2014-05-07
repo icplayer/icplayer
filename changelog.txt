@@ -1,3 +1,4 @@
+2014-05-07 Fixed issue with True/False addon on Firefox mobile browser
 2014-05-06 Added show/hide methods to Feedback addon
 2014-05-06 Fixed problem with reading page name with special characters
 2014-05-06 Fixed problem with dragging image source and source list while in editor mode
