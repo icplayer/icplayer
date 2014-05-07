@@ -186,13 +186,15 @@ function Addonfeedback_create() {
     };
 
     presenter.validateModel = function (model) {
+        var validatedIsVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         return {
             resetResponse: ModelValidationUtils.validateBoolean(model['Reset response on page change']),
             fadeTransitions: ModelValidationUtils.validateBoolean(model['Fade transitions']),
             centerHorizontally: ModelValidationUtils.validateBoolean(model['Center horizontally']),
             centerVertically: ModelValidationUtils.validateBoolean(model['Center vertically']),
             isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity']),
-            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isVisible: validatedIsVisible,
+            isVisibleByDefault: validatedIsVisible
         };
     };
 
@@ -226,6 +228,7 @@ function Addonfeedback_create() {
 
     presenter.reset = function () {
         presenter.setDefaultResponse();
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.setShowErrorsMode = function () {
@@ -305,7 +308,7 @@ function Addonfeedback_create() {
         return JSON.stringify({
             'currentStateDefault': presenter.currentStateDefault,
             'currentStateId': presenter.currentStateId,
-            'isVisible': presenter.configuration.isVisible,
+            'isVisible': presenter.configuration.isVisible
         });
     };
 
