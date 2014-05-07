@@ -191,6 +191,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	}
 
 
+	public void reload(Element rootElement) {
+		load(rootElement, baseURL);
+		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
+        name = StringUtils.unescapeXML(rawName);
+		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable");
+	}
+	
 	@Override
 	public void load(Element rootElement, String url) {
 
@@ -226,14 +233,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
 		setScoreFromString(scoring);
 		
-		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
-        if(!rawName.isEmpty()){
-    		name = StringUtils.unescapeXML(rawName);
-        }
-		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable", reportable);
 	}
 
-
+	
 	private void loadModules(Element rootElement) {
 		
 		ModuleFactory moduleFactory = new ModuleFactory(null);
@@ -652,5 +654,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		
 		return page;
 	}-*/;
-	
+
+
 }
