@@ -149,7 +149,7 @@ public class PageController {
 			}
 	
 			if(currentPage.isReportable()){
-				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
+				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
 				PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
 				if(updateCounters){
 					playerService.getScoreService().setPageScore(currentPage, score.incrementCounters());
@@ -171,7 +171,7 @@ public class PageController {
 	public void reset() {
 		
 		if(currentPage.isReportable()){
-			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getName());
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
 			if(pageScore.hasScore()){
 				PageScore score = pageScore.reset();
 				playerService.getScoreService().setPageScore(currentPage, score);
@@ -187,7 +187,7 @@ public class PageController {
 			return null;
 		}
 		
-		return playerService.getScoreService().getPageScore(currentPage.getName());
+		return playerService.getScoreService().getPageScore(currentPage.getId());
 	}
 
 

@@ -1,3 +1,4 @@
+2014-05-08 Fixed problem with check counter in report after reopening page
 2014-05-07 Fixed issue with True/False addon on Firefox mobile browser
 2014-05-06 Added show/hide methods to Feedback addon
 2014-05-06 Fixed problem with reading page name with special characters

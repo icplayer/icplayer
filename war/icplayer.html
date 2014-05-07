@@ -28,15 +28,15 @@
 
 	       	player = icCreatePlayer('_icplayer');
 	        //player.setPages("0,1,3");
-	       	//loadPlayerState();
+	       	loadPlayerState();
 	        //player.setAnalytics('5n2WsdElQZqnDqT3-amHrw');
 	        //player.load('test/pages/main.xml');
 	       	player.load('content/default.ic.xml');
 	       	//player.load('content/responsive.ic.xml');
-        	//player.onStatusChanged(function(type, source, value){
-        	//	console.log("type:" + type + ", source: " + source, ", value:" + value);
-        	//	savePlayerState();
-        	//});
+        	player.onStatusChanged(function(type, source, value){
+        		//console.log("type:" + type + ", source: " + source, ", value:" + value);
+        		savePlayerState();
+        	});
       	}
       	
       	function testPlayerService(){
@@ -67,11 +67,13 @@
 			}
       		else{
       			localStorage.state = player.getState();
+      			//console.log("save state: " + localStorage.state);
       		}
       	}
       	
       	function loadPlayerState(){
       		if(localStorage.state){
+      			//console.log("load state: " + localStorage.state);
       			player.setState(localStorage.state);
       		}
       	}

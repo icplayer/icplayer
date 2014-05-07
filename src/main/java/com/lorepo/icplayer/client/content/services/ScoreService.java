@@ -59,21 +59,23 @@ public class ScoreService implements IScoreService {
 	
 	@Override
 	public void setScore(String moduleName, int score, int maxScore) {
-
 		Integer scoreObj = new Integer(score);
-		
 		scores.put(moduleName, scoreObj);
 	}
 
 
 	@Override
-	public PageScore getPageScore(String pageName) {
+	public PageScore getPageScore(String pageId) {
 		
-		PageScore score = pageScoresByName.get(pageName);
+		PageScore score = pageScores.get(pageId);
 		if(score == null){
-			score = new PageScore();
+			score = pageScoresByName.get(pageId);
+			if(score == null){
+				score = new PageScore();
+			}
 		}
 		
+		assert(score != null);
 		return score;
 	}
 

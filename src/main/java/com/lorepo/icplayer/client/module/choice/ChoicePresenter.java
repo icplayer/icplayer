@@ -192,7 +192,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				}
 				
 				boolean value = (optionState.charAt(index) == '1');
-	
 				if(value){
 					option.setDown(true);
 				}

@@ -3,11 +3,13 @@ package com.lorepo.icplayer.client.module.checkcounter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.api.player.PageScore;
 
-public class CheckCounterPresenter implements IPresenter, IStateful {
+public class CheckCounterPresenter implements IPresenter{
 
 	public interface IDisplay extends IModuleView {
 		public void setData(int value);
@@ -16,7 +18,6 @@ public class CheckCounterPresenter implements IPresenter, IStateful {
 	private CheckCounterModule module;
 	private IDisplay view;
 	private IPlayerServices playerServices;
-	private int checkCount = 0;
 	
 	public CheckCounterPresenter(CheckCounterModule module, IPlayerServices services) {
 		this.module = module;
@@ -26,42 +27,36 @@ public class CheckCounterPresenter implements IPresenter, IStateful {
 	}
 	
 	private void connectHandlers() {
-		if (playerServices != null) {
+		if(playerServices != null){
+			
 			playerServices.getEventBus().addHandler(ShowErrorsEvent.TYPE, 
 					new ShowErrorsEvent.Handler() {
+						
 						@Override
 						public void onShowErrors(ShowErrorsEvent event) {
-							updateCounter();
+							updateDisplay();
+						}
+					});
+
+			playerServices.getEventBus().addHandler(ResetPageEvent.TYPE, 
+					new ResetPageEvent.Handler() {
+						
+						@Override
+						public void onResetPage(ResetPageEvent event) {
+							updateDisplay();
 						}
 					});
 		}
 	}
 
-	private void updateCounter() {
-		checkCount ++;
-		updateDisplay();
-	}
-
 	public void updateDisplay() {
-		view.setData(checkCount);
+		IPlayerCommands pageService = playerServices.getCommands();
+		PageScore pageScore = pageService.getCurrentPageScore();
+		if(pageScore != null){
+			view.setData(pageScore.getCheckCount());
+		}		
 	}
 	
-	@Override
-	public String getSerialId() {
-		return module.getId();
-	}
-
-	@Override
-	public String getState() {
-		return Integer.toString(checkCount);
-	}
-
-	@Override
-	public void setState(String state) {
-		checkCount = Integer.parseInt(state);
-		updateDisplay();
-	}
-
 	@Override
 	public void addView(IModuleView view) {
 		if(view instanceof IDisplay){
