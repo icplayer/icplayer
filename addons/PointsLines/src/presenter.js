@@ -14,38 +14,88 @@ function AddonPointsLines_create() {
 
 	presenter.executeCommand = function(name, params) {
 		switch (name.toLowerCase()) {
-		case 'hide'.toLowerCase():
-			presenter.hide();
-			break;
-		case 'show'.toLowerCase():
-			presenter.show();
-			break;
-		case 'reset'.toLowerCase():
-			presenter.reset();
-			break;
-		case 'disable'.toLowerCase():
-			presenter.disable();
-			break;
-		case 'enable'.toLowerCase():
-			presenter.enable();
-			break;
-		case 'isAllOK'.toLowerCase():
-			presenter.isAllOK();
-			break;
-		case 'isAttempted'.toLowerCase():
-			presenter.isAttempted();
-			break;
+			case 'hide'.toLowerCase():
+				presenter.hide();
+				break;
+			case 'show'.toLowerCase():
+				presenter.show();
+				break;
+			case 'reset'.toLowerCase():
+				presenter.reset();
+				break;
+			case 'disable'.toLowerCase():
+				presenter.disable();
+				break;
+			case 'enable'.toLowerCase():
+				presenter.enable();
+				break;
+			case 'isAllOK'.toLowerCase():
+				presenter.isAllOK();
+				break;
+			case 'markAsCorrect'.toLowerCase():
+				presenter.markAsCorrect();
+				break;
+			case 'markAsWrong'.toLowerCase():
+				presenter.markAsWrong();
+				break;
+			case 'markAsNeutral'.toLowerCase():
+				presenter.markAsNeutral();
+				break;
+			case 'isEmpty'.toLowerCase():
+				presenter.isEmpty();
+				break;
+			case 'isAttempted'.toLowerCase():
+				presenter.isAttempted();
+				break;
+			case 'isConnected'.toLowerCase():
+				presenter.isConnected(params[0],params[1]);
+				break;
 		}
 	};
 
 	presenter.isAttempted = function() {
-		return (!(presenter.activity) || (presenter.getScore() !== 0) || (presenter
-				.getErrorCount() !== 0));
+		return (!(presenter.activity) || (presenter.getScore() !== 0) || (presenter.getErrorCount() !== 0));
 	};
-
+	 
+	presenter.markAsCorrect = function() {
+		presenter.$view.find('.pointslines').removeClass('wrong');
+		presenter.$view.find('.pointslines').addClass('correct');
+	};
+	 
+	presenter.markAsWrong = function() {
+		presenter.$view.find('.pointslines').removeClass('correct');
+		presenter.$view.find('.pointslines').addClass('wrong');	
+	};
+	 
+	presenter.markAsNeutral = function() {
+		presenter.$view.find('.pointslines').removeClass('correct');
+		presenter.$view.find('.pointslines').removeClass('wrong');
+	};
+	 
+	presenter.isConnected = function(i,j) {
+		var lineIndex = presenter.currentLines[Math.min(i-1,j-1)][Math.max(i-1,j-1)];
+		if (lineIndex == 1 || lineIndex == 2) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	 
+	presenter.isEmpty = function() {
+		var numberOfPoints = presenter.points.length;
+		var i, j;
+		for (i = 0; i < numberOfPoints; i++) {
+			for (j = i; j < numberOfPoints; j++) {
+				if (presenter.startingLines[i][j] !== presenter.currentLines[i][j]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+ 
 	presenter.isAllOK = function() {
-		return ((presenter.getScore() == presenter.getMaxScore()) && (presenter
-				.getErrorCount() === 0));
+		return ((presenter.getScore() == presenter.getMaxScore()) && (presenter.getErrorCount() === 0));
 	};
 
 	presenter.disable = function() {
@@ -148,10 +198,7 @@ function AddonPointsLines_create() {
 						|| isNaN(pointsCoordinates[i][1])) {
 					presenter.error = 'PE';
 					return false;
-				} else if (pointsCoordinates[i][0] >= (con.width())
-						|| pointsCoordinates[i][0] <= 0
-						|| pointsCoordinates[i][1] <= 0
-						|| pointsCoordinates[i][1] >= (con.height())) {
+				} else if (pointsCoordinates[i][0] >= (con.width()) || pointsCoordinates[i][0] <= 0 || pointsCoordinates[i][1] <= 0 || pointsCoordinates[i][1] >= (con.height())) {
 					presenter.error = 'PO';
 					return false;
 				}
@@ -193,22 +240,13 @@ function AddonPointsLines_create() {
 					point2 = parseInt(tmp_dane[1], 10) - 1;
 				}
 				Lines[point1][point2] = 1;
-			} else if (stars
-					&& !isNaN(tmp_dane[0])
-					&& parseInt(tmp_dane[0], 10) <= numberOfPoints
-					&& !isNaN(tmp_dane[1].substring(0, tmp_dane[1].length - 1))
-					&& (tmp_dane[1].substring(tmp_dane[1].length - 1)) === '*'
-					&& parseInt(tmp_dane[1]
-							.substring(0, tmp_dane[1].length - 1), 10) <= numberOfPoints) {
-				if (parseInt(tmp_dane[0], 10) > parseInt(tmp_dane[1].substring(
-						0, tmp_dane[1].length - 1), 10)) {
-					point1 = parseInt(tmp_dane[1].substring(0,
-							tmp_dane[1].length - 1), 10) - 1;
+			} else if (stars && !isNaN(tmp_dane[0]) && parseInt(tmp_dane[0], 10) <= numberOfPoints && !isNaN(tmp_dane[1].substring(0, tmp_dane[1].length - 1)) && (tmp_dane[1].substring(tmp_dane[1].length - 1)) === '*' && parseInt(tmp_dane[1].substring(0, tmp_dane[1].length - 1), 10) <= numberOfPoints) {
+				if (parseInt(tmp_dane[0], 10) > parseInt(tmp_dane[1].substring(0, tmp_dane[1].length - 1), 10)) {
+					point1 = parseInt(tmp_dane[1].substring(0,tmp_dane[1].length - 1), 10) - 1;
 					point2 = parseInt(tmp_dane[0], 10) - 1;
 				} else {
 					point1 = parseInt(tmp_dane[0], 10) - 1;
-					point2 = parseInt(tmp_dane[1].substring(0,
-							tmp_dane[1].length - 1), 10) - 1;
+					point2 = parseInt(tmp_dane[1].substring(0,tmp_dane[1].length - 1), 10) - 1;
 				}
 				Lines[point1][point2] = 2;
 			} else {
@@ -229,19 +267,13 @@ function AddonPointsLines_create() {
 			div.attr('id', 'point_container_' + presenter.addonID + '_' + i);
 			div.attr('class', 'point_container');
 			div.attr('order_value', i + 1);
-			div.attr('style', 'left: ' + presenter.points[i][0] + 'px; top: '
-					+ presenter.points[i][1] + 'px;');
+			div.attr('style', 'left: ' + presenter.points[i][0] + 'px; top: ' + presenter.points[i][1] + 'px;');
 			presenter.$view.find('.pointslines').append(div);
 			div = $('<div class="point"></div>');
 			div.attr('id', 'point_' + presenter.addonID + '_' + i);
-			presenter.$view.find(
-					'#point_container_' + presenter.addonID + '_' + i).append(
-					div);
-			div = $('<div class="point_index">' + presenter.indexes[i]
-					+ '</div>');
-			presenter.$view.find(
-					'#point_container_' + presenter.addonID + '_' + i).append(
-					div);
+			presenter.$view.find('#point_container_' + presenter.addonID + '_' + i).append(div);
+			div = $('<div class="point_index">' + presenter.indexes[i] + '</div>');
+			presenter.$view.find('#point_container_' + presenter.addonID + '_' + i).append(div);
 		}
 	};
 
@@ -284,8 +316,7 @@ function AddonPointsLines_create() {
 				'-o-transform-origin' : '0px 0px'
 			});
 			if (presenter.startingLines[i][j] == 2) {
-				presenter.$view.find('#line_' + i + '_' + j).addClass(
-						'noremovable');
+				presenter.$view.find('#line_' + i + '_' + j).addClass('noremovable');
 			}
 		}
 	};
@@ -295,13 +326,10 @@ function AddonPointsLines_create() {
 		presenter.model = model;
 		presenter.addonID = model.ID;
 		var coords = presenter.model['Points'];
-		presenter.activity = ModelValidationUtils
-				.validateBoolean(presenter.model['Is activity']);
-		presenter.disabled = ModelValidationUtils
-				.validateBoolean(presenter.model['Is disabled']);
+		presenter.activity = ModelValidationUtils.validateBoolean(presenter.model['Is activity']);
+		presenter.disabled = ModelValidationUtils.validateBoolean(presenter.model['Is disabled']);
 		presenter.initDisabled = presenter.disabled;
-		presenter.isVisible = ModelValidationUtils
-				.validateBoolean(model["Is Visible"]);
+		presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 		presenter.initIsVisible = presenter.isVisible;
 		var startingLines = presenter.model['Starting lines'];
 		var con = presenter.$view.find('.pointslines').parent();
@@ -310,8 +338,7 @@ function AddonPointsLines_create() {
 			'height' : con.height()
 		});
 		presenter.points = getPoint(con, coords);
-		presenter.indexes = checkIndexes(presenter.model['Indexes'],
-				(presenter.points).length);
+		presenter.indexes = checkIndexes(presenter.model['Indexes'],(presenter.points).length);
 		if (presenter.points === false || presenter.indexes === false) {
 			con.text(presenter.ERROR_CODES[presenter.error]);
 			return;
@@ -328,8 +355,7 @@ function AddonPointsLines_create() {
 
 		for ( var i = 0; i < numberOfPoints; i++) {
 			for ( var j = i; j < numberOfPoints; j++) {
-				if (presenter.currentLines[i][j] == 1
-						|| presenter.currentLines[i][j] == 2) {
+				if (presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) {
 					presenter.drawLine(i, j);
 				}
 			}
@@ -350,103 +376,66 @@ function AddonPointsLines_create() {
 		presenter.selectedPoint = -1;
 		if (presenter.disabled)
 			presenter.disable();
-		$(view)
-				.find('.point_container')
-				.click(
-						function(event) {
-							event.stopPropagation();
-							if (!presenter.isErrorMode && !presenter.isDisabled) {
-								i = parseInt($(this).attr('order_value'), 10) - 1;
-								if (presenter.selectedPoint == i) {
-									$(view).find(
-											'#point_' + presenter.addonID + '_'
-													+ i)
-											.removeClass('selected');
-									presenter.selectedPoint = -1;
-								} else if (presenter.selectedPoint != -1) {
-									if (presenter.selectedPoint < i) {
-										point1 = presenter.selectedPoint;
-										point2 = i;
-									} else {
-										point2 = presenter.selectedPoint;
-										point1 = i;
-									}
-									if (presenter.currentLines[point1][point2] === 0) {
-										presenter.drawLine(point1, point2);
-										presenter.currentLines[point1][point2] = 1;
-										line = 'line_' + (point1) + '_'
-												+ (point2);
-										if (presenter.startingLines[point1][point2] === 0
-												&& presenter.answer[point1][point2] == 1) {
-											score = 1;
-										} else {
-											score = 0;
-										}
-										presenter.triggerLineEvent(line, 1,
-												score);
-										line = 'all';
-										score = '';
-										if (presenter.isAllOK()
-												&& presenter.activity) {
-											presenter.triggerLineEvent(line,
-													score, score);
-										}
-										$(view)
-												.find(
-														'#point_'
-																+ presenter.addonID
-																+ '_'
-																+ presenter.selectedPoint)
-												.removeClass('selected');
-										presenter.selectedPoint = -1;
-									} else if (presenter.currentLines[point1][point2] == 1) {
-										$(view).find(
-												'#line_' + (point1) + '_'
-														+ (point2)).remove();
-										presenter.currentLines[point1][point2] = 0;
-										line = 'line_' + (point1) + '_'
-												+ (point2);
-										if (presenter.startingLines[point1][point2] == 1
-												&& presenter.answer[point1][point2] === 0) {
-											score = 1;
-										} else {
-											score = 0;
-										}
-										presenter.triggerLineEvent(line, 0,
-												score);
-										line = 'all';
-										score = '';
-										if (presenter.isAllOK()
-												&& presenter.activity) {
-											presenter.triggerLineEvent(line,
-													score, score);
-										}
-										$(view)
-												.find(
-														'#point_'
-																+ presenter.addonID
-																+ '_'
-																+ presenter.selectedPoint)
-												.removeClass('selected');
-										presenter.selectedPoint = -1;
-									} else {
-										$(view)
-												.find(
-														'#point_'
-																+ presenter.addonID
-																+ '_'
-																+ presenter.selectedPoint)
-												.removeClass('selected');
-										presenter.selectedPoint = -1;
-									}
-								} else {
-									$(view).find(
-											'#point_' + presenter.addonID + '_'
-													+ i).addClass('selected');
-									presenter.selectedPoint = i;
-								}
+			$(view).find('.point_container').click(function(event) {
+				event.stopPropagation();
+				if (!presenter.isErrorMode && !presenter.isDisabled) {
+					i = parseInt($(this).attr('order_value'), 10) - 1;
+					if (presenter.selectedPoint == i) {
+						$(view).find('#point_' + presenter.addonID + '_' + i).removeClass('selected');
+						presenter.selectedPoint = -1;
+					} else if (presenter.selectedPoint != -1) {
+						if (presenter.selectedPoint < i) {
+							point1 = presenter.selectedPoint;
+							point2 = i;
+						} else {
+							point2 = presenter.selectedPoint;
+							point1 = i;
+						}
+						if (presenter.currentLines[point1][point2] === 0) {
+							presenter.drawLine(point1, point2);
+							presenter.currentLines[point1][point2] = 1;
+							line = 'line_' + (point1) + '_' + (point2);
+							if (presenter.startingLines[point1][point2] === 0 && presenter.answer[point1][point2] == 1) {
+								score = 1;
+							} else {
+								score = 0;
 							}
-						});
+							presenter.triggerLineEvent(line, 1, score);
+							line = 'all';
+							score = '';
+							if (presenter.isAllOK()
+									&& presenter.activity) {
+								presenter.triggerLineEvent(line, score, score);
+							}
+							$(view).find('#point_' + presenter.addonID + '_' + presenter.selectedPoint).removeClass('selected');
+							presenter.selectedPoint = -1;
+						} else if (presenter.currentLines[point1][point2] == 1) {
+							$(view).find('#line_' + (point1) + '_' + (point2)).remove();
+							presenter.currentLines[point1][point2] = 0;
+							line = 'line_' + (point1) + '_' + (point2);
+							if (presenter.startingLines[point1][point2] == 1 && presenter.answer[point1][point2] === 0) {
+								score = 1;
+							} else {
+								score = 0;
+							}
+							presenter.triggerLineEvent(line, 0, score);
+							line = 'all';
+							score = '';
+							if (presenter.isAllOK() && presenter.activity) {
+								presenter.triggerLineEvent(line, score, score);
+							}
+							$(view).find('#point_' + presenter.addonID + '_' + presenter.selectedPoint).removeClass('selected');
+							presenter.selectedPoint = -1;
+						} else {
+							$(view).find('#point_' + presenter.addonID + '_' + presenter.selectedPoint).removeClass('selected');
+							presenter.selectedPoint = -1;
+						}
+					} else {
+						$(view).find('#point_' + presenter.addonID + '_' + i).addClass('selected');
+						presenter.selectedPoint = i;
+					}
+				}
+			});
 	};
 
 	function getMousePositionOnCanvas(e, isTouch) {
@@ -463,13 +452,11 @@ function AddonPointsLines_create() {
 
 	presenter.createPreview = function(view, model) {
 		presenter.initiate(view, model);
-		var canvasElement = $('<canvas></canvas>'), ctx = canvasElement[0]
-				.getContext('2d');
+		var canvasElement = $('<canvas></canvas>'),
+		ctx = canvasElement[0].getContext('2d');
 
-		canvasElement.attr('width', presenter.$view.find('.pointslines')
-				.parent().width());
-		canvasElement.attr('height', presenter.$view.find('.pointslines')
-				.parent().height());
+		canvasElement.attr('width', presenter.$view.find('.pointslines').parent().width());
+		canvasElement.attr('height', presenter.$view.find('.pointslines').parent().height());
 
 		presenter.canvasWidth = presenter.$view.find('.pointslines').parent().width;
 		presenter.canvasHeight = presenter.$view.find('.pointslines').parent().height;
@@ -478,8 +465,10 @@ function AddonPointsLines_create() {
 		presenter.$view.find('.pointslines').append(canvasElement);
 		presenter.canvasOffset = canvasElement.offset();
 
-		var coordinatesContainer = $('<div></div>'), xContainer = $('<div>x: <span class="value"></span></div>'), yContainer = $('<div>y: <span class="value"></span></div>'), coloringWrapper = presenter.$view
-				.find('.pointslines');
+		var coordinatesContainer = $('<div></div>'),
+			xContainer = $('<div>x: <span class="value"></span></div>'),
+			yContainer = $('<div>y: <span class="value"></span></div>'),
+			coloringWrapper = presenter.$view.find('.pointslines');
 
 		coordinatesContainer.css({
 			'width' : 35,
@@ -514,11 +503,9 @@ function AddonPointsLines_create() {
 		for ( var i = 0; i < numberOfPoints; i++) {
 			for ( var j = i; j < numberOfPoints; j++) {
 				presenter.currentLines[i][j] = presenter.startingLines[i][j];
-				if ((presenter.startingLines[i][j] == 1 || presenter.startingLines[i][j] == 2)
-						&& (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
+				if ((presenter.startingLines[i][j] == 1 || presenter.startingLines[i][j] == 2) && (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
 					presenter.drawLine(i, j);
-				} else if (presenter.startingLines[i][j] === 0
-						&& presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
+				} else if (presenter.startingLines[i][j] === 0 && presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
 					presenter.$view.find('#line_' + (i) + '_' + (j)).remove();
 				}
 			}
@@ -557,14 +544,11 @@ function AddonPointsLines_create() {
 		var numberOfPoints = presenter.points.length;
 		for ( var i = 0; i < numberOfPoints; i++) {
 			for ( var j = i; j < numberOfPoints; j++) {
-				if ((presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2)
-						&& (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
+				if ((presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) && (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
 					presenter.drawLine(i, j);
 				} else {
-					if (presenter.currentLines[i][j] === 0
-							&& presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
-						presenter.$view.find('#line_' + (i) + '_' + (j))
-								.remove();
+					if (presenter.currentLines[i][j] === 0 && presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
+						presenter.$view.find('#line_' + (i) + '_' + (j)).remove();
 					}
 				}
 			}
@@ -578,11 +562,9 @@ function AddonPointsLines_create() {
 			var i, j;
 			for (i = 0; i < numberOfPoints; i++) {
 				for (j = i; j < numberOfPoints; j++) {
-					if (presenter.startingLines[i][j] === 0
-							&& presenter.answer[i][j] == 1) {
+					if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1) {
 						licznik++;
-					} else if (presenter.startingLines[i][j] == 1
-							&& presenter.answer[i][j] === 0) {
+					} else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0) {
 						licznik++;
 					}
 				}
@@ -602,13 +584,9 @@ function AddonPointsLines_create() {
 			var i, j;
 			for (i = 0; i < numberOfPoints; i++) {
 				for (j = i; j < numberOfPoints; j++) {
-					if (presenter.startingLines[i][j] === 0
-							&& presenter.answer[i][j] == 1
-							&& presenter.currentLines[i][j] == 1) {
+					if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] == 1) {
 						licznik++;
-					} else if (presenter.startingLines[i][j] == 1
-							&& presenter.answer[i][j] === 0
-							&& presenter.currentLines[i][j] === 0) {
+					} else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] === 0) {
 						licznik++;
 					}
 				}
@@ -616,7 +594,7 @@ function AddonPointsLines_create() {
 			return licznik;
 		}
 	};
-
+ 
 	presenter.getErrorCount = function() {
 		var numberOfPoints = presenter.points.length;
 		if (!presenter.activity || (presenter.error !== false)) {
@@ -626,13 +604,9 @@ function AddonPointsLines_create() {
 			var i, j;
 			for (i = 0; i < numberOfPoints; i++) {
 				for (j = i; j < numberOfPoints; j++) {
-					if (presenter.startingLines[i][j] === 0
-							&& presenter.answer[i][j] === 0
-							&& presenter.currentLines[i][j] == 1) {
+					if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] == 1) {
 						licznik++;
-					} else if (presenter.startingLines[i][j] == 1
-							&& presenter.answer[i][j] == 1
-							&& presenter.currentLines[i][j] === 0) {
+					} else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] === 0) {
 						licznik++;
 					}
 				}
@@ -650,16 +624,10 @@ function AddonPointsLines_create() {
 		if (presenter.getScore() > 0) {
 			for (i = 0; i < numberOfPoints; i++) {
 				for (j = i; j < numberOfPoints; j++) {
-					if (presenter.startingLines[i][j] === 0
-							&& presenter.answer[i][j] == 1
-							&& presenter.currentLines[i][j] == 1) {
-						presenter.$view.find('#line_' + i + '_' + j).addClass(
-								'correctLine');
-					} else if (presenter.startingLines[i][j] == 1
-							&& presenter.answer[i][j] === 0
-							&& presenter.currentLines[i][j] === 0) {
-						presenter.$view.find('#line_' + i + '_' + j).addClass(
-								'correctLine');
+					if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] == 1) {
+						presenter.$view.find('#line_' + i + '_' + j).addClass('correctLine');
+					} else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] === 0) {
+						presenter.$view.find('#line_' + i + '_' + j).addClass('correctLine');
 					}
 				}
 			}
@@ -667,25 +635,17 @@ function AddonPointsLines_create() {
 		if (presenter.getErrorCount() > 0) {
 			for (i = 0; i < numberOfPoints; i++) {
 				for (j = i; j < numberOfPoints; j++) {
-					if (presenter.startingLines[i][j] === 0
-							&& presenter.answer[i][j] === 0
-							&& presenter.currentLines[i][j] == 1) {
-						presenter.$view.find('#line_' + i + '_' + j).addClass(
-								'wrongLine');
-					} else if (presenter.startingLines[i][j] == 1
-							&& presenter.answer[i][j] == 1
-							&& presenter.currentLines[i][j] === 0) {
-						presenter.$view.find('#line_' + i + '_' + j).addClass(
-								'wrongLine');
+					if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] == 1) {
+						presenter.$view.find('#line_' + i + '_' + j).addClass('wrongLine');
+					} else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] === 0) {
+						presenter.$view.find('#line_' + i + '_' + j).addClass('wrongLine');
 					}
 				}
 			}
 		}
-		if (presenter.getScore() == presenter.getMaxScore()
-				&& presenter.getErrorCount() === 0) {
+		if (presenter.getScore() == presenter.getMaxScore() && presenter.getErrorCount() === 0 && !(presenter.isEmpty())) {
 			presenter.$view.find('.pointslines').addClass('correct');
-		} else if (presenter.getScore() === 0
-				&& presenter.getErrorCount() === 0) {
+		} else if (presenter.getScore() === 0 && presenter.getErrorCount() === 0) {
 		} else {
 			presenter.$view.find('.pointslines').addClass('wrong');
 		}
