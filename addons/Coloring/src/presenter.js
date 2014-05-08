@@ -166,24 +166,6 @@ function AddonColoring_create(){
             setAreasDefaultColors();
             setAreasPixelPosition();
 
-            if (!presenter.configuration.isDisabled) {
-                canvasElement.on('click', function(e) {
-                    presenter.clickLogic(e);
-                });
-
-                canvasElement.on('touchstart', function (e){
-                    presenter.lastEvent = e;
-                });
-
-                canvasElement.on('touchend', function (e){
-                    if ( presenter.lastEvent.type != e.type ) {
-                        presenter.clickLogic(e, true);
-                    }
-                });
-
-                presenter.runEndedDeferred.resolve();
-            }
-
             if (isPreview) {
                 var coordinatesContainer = $('<div></div>'),
                     xContainer = $('<div>x: <span class="value"></span></div>'),
@@ -218,6 +200,22 @@ function AddonColoring_create(){
                     xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
                     yContainer.find('.value').html(getMousePositionOnCanvas(e).y);
                 });
+            } else if (!presenter.configuration.isDisabled) {
+                canvasElement.on('click', function(e) {
+                    presenter.clickLogic(e);
+                });
+
+                canvasElement.on('touchstart', function (e){
+                    presenter.lastEvent = e;
+                });
+
+                canvasElement.on('touchend', function (e){
+                    if ( presenter.lastEvent.type != e.type ) {
+                        presenter.clickLogic(e, true);
+                    }
+                });
+
+                presenter.runEndedDeferred.resolve();
             }
 
 
