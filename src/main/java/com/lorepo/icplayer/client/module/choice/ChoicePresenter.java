@@ -261,7 +261,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		playerServices.getEventBus().fireEvent(valueEvent);
 		
 		if(getScore() == getMaxScore() && getErrorCount() == 0){
-			
+			score = Integer.toString(getScore());
 			valueEvent = new ValueChangedEvent(module.getId(), id, "allOK", score);
 			playerServices.getEventBus().fireEvent(valueEvent);
 		}
