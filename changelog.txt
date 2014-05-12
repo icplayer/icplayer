@@ -1,4 +1,5 @@
-2014-05-00 Choice returns max score on All ok event.
+2014-05-11 Added isAttempted, setAttempted, isAllOK to Plot addon
+2014-05-10 Choice returns max score on All ok event.
 2014-05-08 New commands in Points and Lines addon: markAsCorrect, markAsWrong, markAsNeutral, isConnected, isEmpty
 2014-05-08 Fixed problem with Coloring module not displaying coordinates in editor
 2014-05-08 Fixed problem with check counter in report after reopening page

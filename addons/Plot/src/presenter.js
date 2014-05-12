@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.15';
+        this.VERSION = '1.1.16';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -59,6 +59,7 @@ function AddonPlot_create(){
         this.isActivity = true;
         this.freePoints = false;
         this.precision = {x: 100, y:100};
+        this.attempted = false;
 
         this.setScale = function () {
             this.svgDoc.find('.scale').attr('transform', 'scale(1, -1)');
@@ -356,6 +357,7 @@ function AddonPlot_create(){
             }
         };
         this._touchPoint = function(x, y) {
+            this.attempted = true;
             var pvx = parseFloat(x);
             var pvy = parseFloat(y);
             //mark as touched in model if exists
@@ -481,6 +483,7 @@ function AddonPlot_create(){
                     var refObjOutline = plot.svgDoc.find('.draw_outline_base[ouid="'+id+'"]');
                     var selected = parseInt(refObj.attr('isselected'));
                     plot.expressions[id].touched = true;
+                    plot.attempted = true;
                     if(selected) {
                         refObj.attr('isselected', 0);
                         refObj.attr('style', refObj.data().cssStyle);
@@ -1149,6 +1152,7 @@ function AddonPlot_create(){
                 $.each(this.expressions, function(idx, val){
                     if(val.id == id) {
                         if(val.variables[variable] != undefined) {
+                            plot.attempted = true;
                             val.variables[variable]['value'] = value != '' ? value : 0;
                             if(val.variables[variable]['isExercise']) {
                                 val.variables[variable]['touched'] = true;
@@ -1367,6 +1371,14 @@ function AddonPlot_create(){
 
             return state;
         }
+
+        this.isAttempted = function () {
+            return this.attempted;
+        }
+
+        this.setAttempted = function (state) {
+            this.attempted = state;
+        }
     }
 
     var presenter = function(){};
@@ -1574,6 +1586,7 @@ function AddonPlot_create(){
     presenter.reset = function(){
         presenter.errorsMode = false;
         presenter._allDoneState = false;
+        plot.setAttempted(false);
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
             val.cssColor = val.cssColorInitialValue;
@@ -1912,6 +1925,14 @@ function AddonPlot_create(){
             case 'restoreView'.toLowerCase():
                 plot.restoreInitialViewPort();
                 break;
+            case 'isAttempted'.toLowerCase():
+                return presenter.isAttempted();
+                break;
+            case 'setAttempted'.toLocaleLowerCase():
+                presenter.setAttempted(params);
+                break;
+            case 'isAllOK'.toLocaleLowerCase():
+                return presenter.isAllOK();
         }
         if(presenter.errorsMode) {
             presenter.setShowErrorsMode();
@@ -1963,12 +1984,13 @@ function AddonPlot_create(){
 
         var state = JSON.stringify({
             version: 2,
-            plots:plotState,
+            plots: plotState,
             variables: variableState,
-            selectedPoints:plot.selectedPoints,
+            selectedPoints: plot.selectedPoints,
             points: pointsState,
-            isVisible: presenter.isVisible
-            });
+            isVisible: presenter.isVisible,
+            isAttempted: presenter.isAttempted()
+        });
         return state;
     }
 
@@ -2022,6 +2044,10 @@ function AddonPlot_create(){
                 } else {
                     presenter.show();
                 }
+                if(state.isAttempted === undefined) {
+                    state.isAttempted = true;
+                }
+                presenter.setAttempted(state.isAttempted);
             }
 
             plot.draw();
@@ -2084,6 +2110,14 @@ function AddonPlot_create(){
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    }
+
+    presenter.isAttempted = function () {
+        return !this.isActivity ? true : this.getPlot().isAttempted();
+    }
+
+    presenter.setAttempted = function (state) {
+        this.getPlot().setAttempted(state);
     }
 
     presenter.getPlot = function() {
