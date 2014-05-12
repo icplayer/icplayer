@@ -118,17 +118,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	}
 	
 	public void release(){
-		
 		for(IModuleModel module : modules){
 			module.release();
 		}
-		
 		loaded = false;
 	}
 	
 	
 	public String toString(){
-		
 		return "ID: " + name + ", href: " + href + " modules#: " + modules.size(); 
 	}
 
@@ -201,7 +198,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	@Override
 	public void load(Element rootElement, String url) {
 
-		modules = new ModuleList();
+		modules.clear();
 		baseURL = url.substring(0, url.lastIndexOf("/")+1);
 
 		loadPageAttributes(rootElement);
