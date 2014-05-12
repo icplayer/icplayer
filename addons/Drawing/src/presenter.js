@@ -326,15 +326,17 @@ function AddonDrawing_create() {
     };
 
     presenter.setColor = function(color) {
+        if (typeof color === "object") color = color[0];
+
         presenter.configuration.isPencil = true;
-
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
-
         presenter.configuration.context.globalCompositeOperation = "source-over";
         presenter.configuration.color = presenter.parseColor(color).color;
     };
 
     presenter.setThickness = function(thickness) {
+        if (typeof thickness === "object") thickness = thickness[0];
+
         presenter.configuration.pencilThickness = presenter.parseThickness(thickness).thickness;
         if (presenter.configuration.isPencil) {
             presenter.configuration.thickness = presenter.configuration.pencilThickness;
@@ -489,7 +491,11 @@ function AddonDrawing_create() {
 
         var commands = {
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'setColor': presenter.setColor,
+            'setThickness': presenter.setThickness,
+            'setEraserOn': presenter.setEraserOn,
+            'setEraserThickness': presenter.setEraserThickness
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -509,14 +515,6 @@ function AddonDrawing_create() {
         presenter.configuration.isVisible = false;
     };
 
-    /*presenter.setShowErrorsMode = function() {
-
-    };
-
-    presenter.setWorkMode = function() {
-
-    };*/
-
     presenter.reset = function() {
         presenter.configuration.context.clearRect(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
         presenter.isStarted = false;
@@ -524,18 +522,6 @@ function AddonDrawing_create() {
         presenter.setColor(presenter.model.Color);
         presenter.setThickness(presenter.model.Thickness);
     };
-
-    /*presenter.getErrorCount = function() {
-     return 7;
-     };
-
-     presenter.getMaxScore = function() {
-     return 3;
-     };
-
-     presenter.getScore = function() {
-     return 1;
-     };*/
 
     presenter.getState = function() {
         if (!presenter.isStarted) {
@@ -554,7 +540,6 @@ function AddonDrawing_create() {
             color: color,
             pencilThickness: pencilThickness,
             eraserThickness: eraserThickness,
-            isStarted: presenter.isStarted,
             data: data,
             isVisible: presenter.configuration.isVisible
         });
@@ -577,9 +562,9 @@ function AddonDrawing_create() {
 
         presenter.configuration.pencilThickness = JSON.parse(state).pencilThickness;
         presenter.configuration.eraserThickness = JSON.parse(state).eraserThickness;
-        presenter.isStarted = JSON.parse(state).isStarted;
         presenter.configuration.isVisible = JSON.parse(state).isVisible;
         presenter.configuration.isPencil = isPencil;
+        presenter.isStarted = true;
 
         if (isPencil) {
             presenter.setColor(color);
