@@ -1,3 +1,4 @@
+2014-05-15 Added commands hide and show to Done addon
 2014-05-12 Added commands setColor(color), setThickness(thickness), setEraserOn() and setEraserThickness(thickness) to Drawing addon
 2014-05-11 Added isAttempted, setAttempted, isAllOK to Plot addon
 2014-05-10 Choice returns max score on All ok event.

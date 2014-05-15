@@ -152,6 +152,27 @@ function AddonDone_create(){
     presenter.reset = function(){
     };
 
+    presenter.setVisibility = function (isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.show = function() {
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
+    };
+
+    presenter.executeCommand = function(name, params) {
+        var commands = {
+            "show": presenter.show,
+            "hide": presenter.hide
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
+
     presenter.getErrorCount = function(){
         return 0;
     };
