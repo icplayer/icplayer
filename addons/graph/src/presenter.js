@@ -1008,6 +1008,8 @@ function Addongraph_create(){
             presenter.seriesColors.push(model['Series colors'][i]['Color']);
         }
 
+        presenter.configuration.answers = [];
+
         if (presenter.configuration.isInteractive) {
             var validatedAnswers = presenter.validateAnswers(model['Answers'], barsCount);
             if (!validatedAnswers.isValid) {
