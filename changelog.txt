@@ -1,3 +1,4 @@
+2014-05-16 Fixed issues with states and reset in Done addon
 2014-05-16 Fixed issue with Graph module on page change
 2014-05-16 New Gap type: Math in Text module
 2014-05-15 Added commands hide and show to Done addon
