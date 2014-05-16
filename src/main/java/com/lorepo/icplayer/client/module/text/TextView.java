@@ -9,7 +9,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -118,8 +117,7 @@ public class TextView extends HTML implements IDisplay{
 						mathGapIds.add(id);
 					}
 				} catch (Exception e) {
-					JavaScriptUtils.log(e.getMessage());
-//					Window.alert("Can't create module: " + gi.getId());
+					Window.alert("Can't create module: " + gi.getId());
 				}
 			}
 		}

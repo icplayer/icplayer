@@ -338,7 +338,7 @@ public class TextParserTestCase {
 		
 		TextParser parser = new TextParser();
 		String srcText ="This is [[page1|Link do strony 1]] and [[page2|Link do strony 2]]";
-		String expectedText ="This is <a id='xcf-1' class='ic_definitionLink' href='#'>Link do strony 1</a> and <a id='xcf-2' class='ic_definitionLink' href='#'>Link do strony 2</a>";
+		String expectedText ="This is <a id='xcf-1' class='ic_definitionLink' href='javascript:void(0);'>Link do strony 1</a> and <a id='xcf-2' class='ic_definitionLink' href='javascript:void(0);'>Link do strony 2</a>";
 		
 		parser.setId("xcf");
 		ParserResult parsedText = parser.parse(srcText);
@@ -369,7 +369,7 @@ public class TextParserTestCase {
 		
 		TextParser parser = new TextParser();
 		String srcText ="This is [[page1|pageLink1]] and <a href='http://www.google.com'>externalLink1</a>. This is  [[page2|pageLink2]] and <a href='http://www.gwtproject.org/'>externalLink2</a>";
-		String expectedText ="This is <a id='xcf-1' class='ic_definitionLink' href='#'>pageLink1</a> and <a id='xcf-3' target='_blank' href='http://www.google.com'>externalLink1</a>. This is <a id='xcf-2' class='ic_definitionLink' href='#'>pageLink2</a> and <a id='xcf-4' target='_blank' href='http://www.gwtproject.org/'>externalLink2</a>";
+		String expectedText ="This is <a id='xcf-1' class='ic_definitionLink' href='javascript:void(0);'>pageLink1</a> and <a id='xcf-3' target='_blank' href='http://www.google.com'>externalLink1</a>. This is <a id='xcf-2' class='ic_definitionLink' href='javascript:void(0);'>pageLink2</a> and <a id='xcf-4' target='_blank' href='http://www.gwtproject.org/'>externalLink2</a>";
 		
 		parser.setId("xcf");
 		ParserResult parsedText = parser.parse(srcText);

@@ -363,7 +363,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 	}
-	
+
 	private void updateViewText() {
 		view.setHTML(module.getParsedText());
 		if(module.hasDraggableGaps()){
