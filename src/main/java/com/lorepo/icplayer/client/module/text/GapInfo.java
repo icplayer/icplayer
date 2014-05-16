@@ -42,7 +42,7 @@ public class GapInfo {
 	}
 	
 	
-	private String removePunctuation(String text) {
+	private static String removePunctuation(String text) {
 		return text.replaceAll("\\W", "");
 	}
 

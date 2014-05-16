@@ -102,7 +102,7 @@ public class LayoutDefinition implements ILayoutDefinition{
 		}
 	}
 
-	private Property getPropertyFromString(String name) {
+	private static Property getPropertyFromString(String name) {
 		for(Property property : Property.values()){
 			if(property.toString().equals(name)){
 				return property;

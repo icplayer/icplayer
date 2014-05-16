@@ -212,7 +212,7 @@ public class PageTestCase {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private void parseXML(String xml) throws ParserConfigurationException,
+	private static void parseXML(String xml) throws ParserConfigurationException,
 			SAXException, IOException {
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;

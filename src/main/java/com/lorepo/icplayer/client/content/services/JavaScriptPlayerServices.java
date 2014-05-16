@@ -382,7 +382,7 @@ public class JavaScriptPlayerServices{
 	 * - text - zmieniony tekst
 	 * - defCount - ilość linków z definicjami
 	 */
-	private String parseText(String text){
+	private static String parseText(String text){
 		TextParser parser = new TextParser();
 		parser.skipGaps();
 		ParserResult result = parser.parse(text);
@@ -396,7 +396,7 @@ public class JavaScriptPlayerServices{
 	 *         definitions - gaps - hashmap with gaps structure - inLineGaps -
 	 *         hashmap with inline gaps structure
 	 */
-	private JavaScriptObject parseGaps(String text) {
+	private static JavaScriptObject parseGaps(String text) {
 		TextParser parser = new TextParser();
 		ParserResult result = parser.parse(text);
 
@@ -480,7 +480,7 @@ public class JavaScriptPlayerServices{
 	}
 
 
-	private JavaScriptObject scoreToJs(PageScore score) {
+	private static JavaScriptObject scoreToJs(PageScore score) {
 		JavaScriptObject model = JavaScriptObject.createArray();
 		JavaScriptUtils.addPropertyToJSArray(model, "score", (int)score.getScore());
 		JavaScriptUtils.addPropertyToJSArray(model, "maxScore", (int)score.getMaxScore());
@@ -490,7 +490,7 @@ public class JavaScriptPlayerServices{
 		return model;
 	}
 	
-	private JavaScriptObject inLineChoiceToJs(List<InlineChoiceInfo> choiceInfos) {
+	private static JavaScriptObject inLineChoiceToJs(List<InlineChoiceInfo> choiceInfos) {
 		JavaScriptObject model = JavaScriptObject.createArray();
 
 		for (int i = 0; i < choiceInfos.size(); i++) {
@@ -517,7 +517,7 @@ public class JavaScriptPlayerServices{
 		return model;
 	}
 
-	private JavaScriptObject gapsToJs(List<GapInfo> gapInfos) {
+	private static JavaScriptObject gapsToJs(List<GapInfo> gapInfos) {
 		JavaScriptObject model = JavaScriptObject.createArray();
 
 		for (int i = 0; i < gapInfos.size(); i++) {
@@ -541,7 +541,7 @@ public class JavaScriptPlayerServices{
 		return model;
 	}
 
-	private String getStaticFilesPath(){
+	private static String getStaticFilesPath(){
 		return GWT.getModuleBaseForStaticFiles();
 	}
 

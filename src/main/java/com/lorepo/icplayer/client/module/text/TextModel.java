@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.xml.client.Element;

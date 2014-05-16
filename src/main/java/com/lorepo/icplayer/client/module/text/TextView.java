@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -159,8 +158,6 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void setValue(String id, String value) {
-		boolean hasBeenFound = false;
-		
 		for(TextElementDisplay gap : textElements){
 			if(gap.hasId(id)){
 				gap.setText(value);

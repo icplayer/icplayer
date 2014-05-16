@@ -73,7 +73,7 @@ public class SaveStateTestCase {
 		assertFalse(isDown);
 	}
 
-	private Page createPageWithSingleChoice(String pageName, String pageUrl) {
+	private static Page createPageWithSingleChoice(String pageName, String pageUrl) {
 
 		Page page = new Page(pageName, pageUrl);
 		

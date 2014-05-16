@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -144,7 +143,7 @@ public class TextParser {
 		return output;
 	}
 
-	private boolean isInMath(String text) {
+	private static boolean isInMath(String text) {
 		int endIndex = text.indexOf("\\)");
 		if (endIndex > 0) {
 			int startIndex = text.indexOf("\\(");
@@ -153,7 +152,7 @@ public class TextParser {
 		return false;
 	}
 	
-	private boolean isBetweenBrackets(String text) {
+	private static boolean isBetweenBrackets(String text) {
 		int endIndex = text.indexOf("\\)");
 		if (endIndex > 0) {
 			int startIndex = text.indexOf("\\(");
@@ -415,7 +414,7 @@ public class TextParser {
 		return output;
 	}
 
-	private int findClosingBracket(String input) {
+	private static int findClosingBracket(String input) {
 
 		int counter = 0;
 

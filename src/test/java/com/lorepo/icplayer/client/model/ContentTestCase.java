@@ -259,7 +259,7 @@ public class ContentTestCase {
 		return model;
 	}
 
-	private Content initContentFromString(String xml) throws SAXException, IOException {
+	private static Content initContentFromString(String xml) throws SAXException, IOException {
 
 		Content model;
 		XMLParserMockup xmlParser = new XMLParserMockup();

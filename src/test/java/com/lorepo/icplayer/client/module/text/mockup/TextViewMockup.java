@@ -10,7 +10,6 @@ import com.lorepo.icplayer.client.module.text.ITextViewListener;
 import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
 import com.lorepo.icplayer.client.module.text.TextModel;
-import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 

@@ -268,7 +268,7 @@ public class PlayerController implements IPlayerController{
 	}
 
 	
-	private void scrollViewToBeggining() {
+	private static void scrollViewToBeggining() {
 		 
 		Scheduler.get().scheduleFinally(new ScheduledCommand() {
 			public void execute() {
