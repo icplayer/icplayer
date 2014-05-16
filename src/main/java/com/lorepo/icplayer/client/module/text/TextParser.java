@@ -451,7 +451,7 @@ public class TextParser {
 			String linkText = expression.substring(index + 1).trim();
 			String id = baseId + "-" + UUID.uuid(4);
 			replaceText = "<a id='" + id
-					+ "' class='ic_definitionLink' href='#'>" + linkText
+					+ "' class='ic_definitionLink' href='javascript:void(0);'>" + linkText
 					+ "</a>";
 			LinkInfo pli = new LinkInfo(id, type, pageName, "");
 

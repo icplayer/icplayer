@@ -5,6 +5,7 @@ function AddonDone_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.wasSubmitted = false;
+    presenter.isVisible = null;
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -42,10 +43,9 @@ function AddonDone_create(){
     };
 
     presenter.validateModel = function(model, isPreview) {
-        var buttonText = model['Text'];
-
         return {
-            'buttonText' : buttonText,
+            'buttonText' : model['Text'],
+            'isVisible' : ModelValidationUtils.validateBoolean(model["Is Visible"]),
             'addonID' : model['ID']
         }
     };
@@ -62,7 +62,6 @@ function AddonDone_create(){
             if (currentModule && currentModule.isAttempted !== undefined) {
                 modules.push(currentModule);
             }
-
         });
 
         return modules;
@@ -97,6 +96,7 @@ function AddonDone_create(){
         }
 
         presenter.$view = $(view);
+        presenter.setVisibility(presenter.configuration.isVisible);
         presenter.submitButton = presenter.$view.find('.done-button');
         presenter.submitButton.html(presenter.configuration.buttonText);
         presenter.doneWrapper = presenter.$view.find('.done-wrapper');
@@ -114,22 +114,14 @@ function AddonDone_create(){
                 e.stopPropagation();
 
                 if (presenter.doneWrapper.hasClass('disabled')) {
-
                     if (areAllModulesAttempted()) {
-
                         presenter.sendEvent('AllAttempted', presenter.createEventData());
-
                     } else {
-
                         presenter.sendEvent('NotAllAttempted', presenter.createEventData());
-
                     }
-
                 } else {
-
                     presenter.wasSubmitted = true;
                     presenter.sendEvent('Done', presenter.createEventData());
-
                 }
 
             });
@@ -139,20 +131,21 @@ function AddonDone_create(){
 
     }
 
-    presenter.run = function(view, model){
+    presenter.run = function(view, model) {
         runLogic(view, model, false);
     };
 
-    presenter.setShowErrorsMode = function(){
-    };
+    presenter.setShowErrorsMode = function() {};
 
-    presenter.setWorkMode = function(){
-    };
+    presenter.setWorkMode = function() {};
 
-    presenter.reset = function(){
+    presenter.reset = function() {
+        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.wasSubmitted = false;
     };
 
     presenter.setVisibility = function (isVisible) {
+        presenter.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
@@ -173,33 +166,32 @@ function AddonDone_create(){
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.getErrorCount = function(){
+    presenter.getErrorCount = function() {
         return 0;
     };
 
-    presenter.getMaxScore = function(){
+    presenter.getMaxScore = function() {
         return 0;
     };
 
-    presenter.getScore = function(){
+    presenter.getScore = function() {
         return 0;
     };
 
-    presenter.getState = function(){
+    presenter.getState = function() {
         return JSON.stringify({
-            'wasSubmitted' : presenter.wasSubmitted
+            'wasSubmitted' : presenter.wasSubmitted,
+            'isVisible' : presenter.isVisible
         });
     };
 
-    presenter.setState = function(state){
-        var parsed = JSON.parse(state);
-
-        presenter.wasSubmitted = parsed.wasSubmitted;
+    presenter.setState = function(state) {
+        presenter.wasSubmitted = JSON.parse(state).wasSubmitted;
+        presenter.isVisible = JSON.parse(state).isVisible;
 
         presenter.runEnded.then(function() {
-            if (parsed.wasSubmitted) {
-                presenter.doneWrapper.removeClass('disabled');
-            }
+            if (presenter.wasSubmitted) { presenter.doneWrapper.removeClass('disabled'); }
+            presenter.setVisibility(presenter.isVisible);
         });
     };
 
