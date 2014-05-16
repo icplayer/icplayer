@@ -13,7 +13,6 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -374,11 +373,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 	}
-	
-	private void write(String txt) {
-		JavaScriptUtils.log(txt);
-	}
-
 
 	private void updateViewText() {
 		view.setHTML(module.getParsedText());
