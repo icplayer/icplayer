@@ -31,10 +31,10 @@ public class TextModel extends BasicModuleModel{
 	public List<GapInfo>	gapInfos = new ArrayList<GapInfo>();
 	public List<InlineChoiceInfo>	choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo>	linkInfos = new ArrayList<LinkInfo>();
-	public HashMap<String, String> mathGapsAnswers = new HashMap<String, String>();
 
 	private String moduleText = "";
 	private boolean useDraggableGaps;
+	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
 	private int gapWidth = 0;
 	private boolean isActivity = true;
@@ -49,7 +49,7 @@ public class TextModel extends BasicModuleModel{
 		super(DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
 		setText(DictionaryWrapper.get("text_module_default"));
-		addPropertyDraggable();
+		addPropertyGapType();
 		addPropertyGapWidth();
 		addPropertyIsActivity();
 		addPropertyIsDisabled();
@@ -105,6 +105,7 @@ public class TextModel extends BasicModuleModel{
 
 					Element textElement = (Element) childNode;
 					useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
+					useMathGaps = XMLUtils.getAttributeAsBoolean(textElement, "math");
 					gapWidth = XMLUtils.getAttributeAsInt(textElement, "gapWidth");
 					isActivity = XMLUtils.getAttributeAsBoolean(textElement, "isActivity", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
@@ -130,8 +131,10 @@ public class TextModel extends BasicModuleModel{
 		TextParser parser = new TextParser();
 		parser.setId(gapUniqueId);
 		parser.setUseDraggableGaps(useDraggableGaps);
+		parser.setUseMathGaps(useMathGaps);
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		parser.setIgnorePunctuationGaps(isIgnorePunctuation);
+		parser.setGapWidth(gapWidth);
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
@@ -149,6 +152,7 @@ public class TextModel extends BasicModuleModel{
 		
 		String xml = "<textModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<text draggable='" + useDraggableGaps + "' " +
+				"math='" + useMathGaps + "' " + 
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
 				"isIgnorePunctuation='" + isIgnorePunctuation + 
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive + 
@@ -190,13 +194,14 @@ public class TextModel extends BasicModuleModel{
 	}
 	
 	
-	private void addPropertyDraggable() {
+	private void addPropertyGapType() {
 
 		IProperty property = new IEnumSetProperty() {
 			
 			@Override
 			public void setValue(String newValue) {
 				useDraggableGaps = newValue.compareTo("Draggable") == 0;
+				useMathGaps = newValue.compareTo("Math") == 0;
 				setText(moduleText);
 				sendPropertyChangedEvent(this);
 			}
@@ -205,8 +210,9 @@ public class TextModel extends BasicModuleModel{
 			public String getValue() {
 				if(useDraggableGaps){
 					return "Draggable";
-				}
-				else{
+				} else if (useMathGaps) {
+					return "Math";
+				} else {
 					return "Editable";
 				}
 			}
@@ -218,16 +224,17 @@ public class TextModel extends BasicModuleModel{
 
 			@Override
 			public int getAllowedValueCount() {
-				return 2;
+				return 3;
 			}
 
 			@Override
 			public String getAllowedValue(int index) {
-				if(index == 0){
+				if(index == 0) {
 					return "Editable";
-				}
-				else{
+				} else if (index == 1) {
 					return "Draggable";
+				} else {
+					return "Math";
 				}
 			}
 
@@ -298,6 +305,7 @@ public class TextModel extends BasicModuleModel{
 			@Override
 			public void setValue(String newValue) {
 				gapWidth = Integer.parseInt(newValue);
+				setText(moduleText);
 				sendPropertyChangedEvent(this);
 			}
 			
@@ -505,6 +513,10 @@ public class TextModel extends BasicModuleModel{
 	public boolean isDisabled() {
 		return isDisabled;
 	}
+	
+	public void setIsDisabled(boolean value) {
+		isDisabled = value;
+	}
 
 	
 	public boolean isCaseSensitive() {
@@ -518,6 +530,11 @@ public class TextModel extends BasicModuleModel{
 	
 	public boolean openLinksinNewTab() {
 		return openLinksinNewTab;
+	}
+
+
+	public boolean hasMathGaps() {
+		return useMathGaps;
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,6 +10,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -19,6 +21,7 @@ public class TextView extends HTML implements IDisplay{
 	private TextModel	module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay>	textElements = new ArrayList<TextElementDisplay>();
+	private ArrayList<String>	mathGapIds = new ArrayList<String>();
 
 	public TextView(TextModel module, boolean isPreview){
 		this.module = module;
@@ -26,7 +29,6 @@ public class TextView extends HTML implements IDisplay{
 	}
 
 	private void createUI(boolean isPreview) {
-
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
@@ -77,7 +79,6 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void connectGaps(Iterator<GapInfo> giIterator) {
-
 		int gapWidth = module.getGapWidth();
 		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
@@ -92,7 +93,37 @@ public class TextView extends HTML implements IDisplay{
 				Window.alert("Can't create module: " + gi.getId());
 			}
 		}
-
+	}
+	
+	@Override
+	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
+		while (giIterator.hasNext()) {
+			GapInfo gi = giIterator.next();
+			if (gi.getId().equals(id)) {
+				try {
+					int counter = Integer.parseInt(id.split("-")[1]) - 1;
+					if (mathGapIds.contains(id)) {
+						if (savedDisabledState.size() > counter) {
+							GapWidget gap = (GapWidget) getChild(counter);
+							gap.setDisabled(savedDisabledState.get(counter));
+							textElements.set(counter, gap);
+						}
+					} else {
+						GapWidget gap = new GapWidget(gi, listener);
+						if (savedDisabledState.size() > 0) {
+							gap.setDisabled(savedDisabledState.get(counter));
+						} else {
+							gap.setDisabled(module.isDisabled());
+						}
+						textElements.add(gap);
+						mathGapIds.add(id);
+					}
+				} catch (Exception e) {
+					JavaScriptUtils.log(e.getMessage());
+//					Window.alert("Can't create module: " + gi.getId());
+				}
+			}
+		}
 	}
 
 	@Override
@@ -128,13 +159,15 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void setValue(String id, String value) {
-
+		boolean hasBeenFound = false;
+		
 		for(TextElementDisplay gap : textElements){
 			if(gap.hasId(id)){
 				gap.setText(value);
 				return;
 			}
 		}
+		
 	}
 
 
@@ -175,4 +208,5 @@ public class TextView extends HTML implements IDisplay{
 			refreshMath();
 		}
 	}
+	
 }

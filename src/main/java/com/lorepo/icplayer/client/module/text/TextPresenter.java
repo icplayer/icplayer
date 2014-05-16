@@ -13,6 +13,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -66,8 +67,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void hide();
 		void show();
 		Element getElement();
-		ITextViewListener getListener();
-		void addElement(TextElementDisplay el);
+		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 	}
 	
 	private TextModel	module;
@@ -79,7 +79,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private JavaScriptObject	jsObject;
 	private String enteredText = null;
 	private boolean isVisible;
-	private String lastStateSaved = "";
+	private ArrayList<Boolean> savedDisabledState = new ArrayList<Boolean>();
 	
 	
 	public TextPresenter(TextModel module, IPlayerServices services){
@@ -93,7 +93,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	
 	private void connectHandlers() {
-		
 		EventBus eventBus = playerServices.getEventBus();
 		
 		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
@@ -138,6 +137,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 
 	protected void setShowErrorsMode() {
+		String enteredValue;
+		int score = 0;
+		
+		for(GapInfo gap : module.getGapInfos()){
+			enteredValue = getElementText(gap.getId());
+			if(gap.isCorrect(enteredValue)){
+				score += gap.getValue();
+			}
+		}
 		
 		for(int i = 0; i < view.getChildrenCount(); i++){
 			view.getChild(i).setShowErrorsMode(module.isActivity());
@@ -153,7 +161,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	@Override
 	public String getState() {
-
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
@@ -177,8 +184,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		state.put("disabled", JSONUtils.toJSONString(stateDisabled));
 		state.put("isVisible", Boolean.toString(isVisible));
 		
-		
-		
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -188,9 +193,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	 */
 	@Override
 	public void setState(String stateObj) {
-		lastStateSaved = stateObj;
-		
 		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
+		
 		String oldGapId = state.get("gapUniqueId") + "-";
 		values.clear();
 		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
@@ -202,7 +206,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			enteredText = state.get("enteredText");
 			view.setHTML(enteredText);
 		}
-
 		consumedItems = new HashMap<String, DraggableItem>();
 		HashMap<String, String> itemsState = JSONUtils.decodeHashMap(state.get("consumed"));
 		for(String key: itemsState.keySet()){
@@ -210,15 +213,26 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
 			consumedItems.put(newKey,  DraggableItem.createFromString(value));
 		}
-
+		
+		
 		for(String id : values.keySet()){
 			String value = values.get(id);
-			view.setValue(id, value);
+			if (module.hasMathGaps()) {
+				module.parsedText = module.parsedText.replace("{{value:" + id + "}}", value);
+			} else {
+				view.setValue(id, value);
+			}
 		}
-
+		
 		ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
 		for(int i = 0; i < view.getChildrenCount() && i < stateDisabled.size(); i++){
 			view.getChild(i).setDisabled(stateDisabled.get(i));
+		}
+		
+		savedDisabledState = stateDisabled;
+		
+		if (module.hasMathGaps()) {
+			view.setHTML(module.parsedText);
 		}
 		
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
@@ -314,6 +328,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			String enteredValue;
 		
 			for(GapInfo gap : module.getGapInfos()){
+				
 				enteredValue = getElementText(gap.getId());
 				if(gap.isCorrect(enteredValue)){
 					score += gap.getValue();
@@ -333,7 +348,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 
 	private String getElementText(String id) {
-		
 		String enteredValue;
 		enteredValue = values.get(id);
 		if(enteredValue == null){
@@ -352,6 +366,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			connectViewListener();
 			updateViewText();
 		}
+		
+		if (display instanceof TextView && module.hasMathGaps()) {
+			String gapUniqueId = module.getGapUniqueId();
+			for (int i = 1; i <= module.getGapInfos().size(); i++) {
+				connectGapWhenMathJaxReady(this, gapUniqueId + '-' + Integer.toString(i));
+			}
+		}
+	}
+	
+	private void write(String txt) {
+		JavaScriptUtils.log(txt);
 	}
 
 
@@ -360,56 +385,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if(module.hasDraggableGaps()){
 			view.connectDraggableGaps(module.getGapInfos().iterator());
 		}
-		else{
+		else if (!module.hasMathGaps()) {
 			view.connectGaps(module.getGapInfos().iterator());
 		}
 		view.connectInlineChoices(module.getChoiceInfos().iterator());
 		view.connectLinks(module.getLinkInfos().iterator());
 	}
-	
-	private String getGapId(String answers) {
-		int counter = module.gapInfos.size();
-		String id = module.getGapUniqueId() + '-' + Integer.toString(counter + 1);
-		module.mathGapsAnswers.put(id, answers);
-		return id;
-	}
-	
-	private void registerGap(String id) {
-		GapInfo gi = new GapInfo(id, 1, module.isCaseSensitive(), module.isIgnorePunctuation());
-		int gapIndex = Integer.parseInt(id.split("-")[1]);
-		try {
-			String[] answersList = module.mathGapsAnswers.get(id).split("|");
-			for (int i = 0; i < answersList.length; i++) {
-				if (!answersList[i].trim().isEmpty()) {
-					gi.addAnswer(answersList[i]);
-				}
-			}
-			module.gapInfos.add(gi);
-			int gapWidth = module.getGapWidth();
-			GapWidget gap = new GapWidget(gi, view.getListener());
-			if (gapWidth > 0) {
-				gap.setWidth(gapWidth + "px");
-			}
-			gap.setDisabled(module.isDisabled());
-			view.addElement(gap);
-			setStateForMathGap(gapIndex);
-		} catch (Exception e) {
-			Window.alert("Can't create module: " + gi.getId());
-		}
-	}
-
-	private void setStateForMathGap(int gapIndex) {
-		if (!lastStateSaved.isEmpty()) {
-			HashMap<String, String> state = JSONUtils.decodeHashMap(lastStateSaved);
-			String id = module.getGapUniqueId() + "-" + Integer.toString(gapIndex);
-			String value = values.get(id);
-			view.setValue(id, value);
-			ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
-			int i = gapIndex - 1;
-			view.getChild(i).setDisabled(stateDisabled.get(i));
-		}
-	}
-
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
@@ -646,18 +627,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableGap(I)(gapId);
 		}
 
-        presenter.enableAllGaps = function(){
-            x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableAllGaps()();
-        };
+		presenter.enableAllGaps = function(){
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableAllGaps()();
+		};
 
 			
 		presenter.disableGap = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableGap(I)(gapId);
 		}
 
-        presenter.disableAllGaps = function(){
-            x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableAllGaps()();
-        };
+		presenter.disableAllGaps = function(){
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableAllGaps()();
+		};
 			
 		presenter.setText = function(text){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setText(Ljava/lang/String;)(text.toString());
@@ -683,25 +664,42 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getView()();
 		};
 
-        presenter.isAllOK = function() {
-            return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAllOK()();
-        };
-        
-        presenter.registerGap = function(id) {
-        	return x.@com.lorepo.icplayer.client.module.text.TextPresenter::registerGap(Ljava/lang/String;)(id.toString());
-        };
-        
-        presenter.getGapId = function(answers) {
-        	return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapId(Ljava/lang/String;)(answers.toString());
-        };
-        
+		presenter.isAllOK = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAllOK()();
+		};
+		
 		return presenter;
 	}-*/;
+	
+	private native void connectGapWhenMathJaxReady(TextPresenter x, String id) /*-{
+		try {
+			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Process", function () {
+				var dfd = $wnd.$.Deferred(),
+					element = $wnd.$('#' + id);
+				var checkSelector = setInterval(function () {
+					if (element.length) {
+						dfd.resolve(element);
+						clearInterval(checkSelector);
+					}
+				}, 100);
+				
+				dfd.promise().done(function (_element) {
+					x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
+					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
+				});
+			});
+		} catch(err) {
+			console.log("Error : " + err);
+		}
+	}-*/;
+	
+	private void connectMathGap(String id) {
+		view.connectMathGap(module.getGapInfos().iterator(), id, savedDisabledState);
+	}
 	
 	private Element getView(){
 		return view.getElement();
 	}
-	
 	
 	private String getGapText(int index){
 		
@@ -744,26 +742,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-    private void enableAllGaps() {
-        for (int index = 0; index < view.getChildrenCount(); index++) {
-            view.getChild(index).setDisabled(false);
-        }
-    }
+	private void enableAllGaps() {
+		for (int index = 0; index < view.getChildrenCount(); index++) {
+			view.getChild(index).setDisabled(false);
+		}
+	}
 
 	
 	
 	private void disableGap(int index){
-		
 		if(view != null && index <= view.getChildrenCount()){
 			view.getChild(index-1).setDisabled(true);
 		}
 	}
 
-    private void disableAllGaps() {
-        for (int index = 0; index < view.getChildrenCount(); index++) {
-            view.getChild(index).setDisabled(true);
-        }
-    }
+	private void disableAllGaps() {
+		for (int index = 0; index < view.getChildrenCount(); index++) {
+			view.getChild(index).setDisabled(true);
+		}
+	}
 
 	private boolean isAttempted() {
 		boolean isAllAttempted = true;
@@ -801,8 +798,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-    public boolean isAllOK() {
-        return getScore() == getMaxScore() && getErrorCount() == 0;
-    }
+	public boolean isAllOK() {
+		return getScore() == getMaxScore() && getErrorCount() == 0;
+	}
 
 }

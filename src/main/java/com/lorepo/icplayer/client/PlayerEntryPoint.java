@@ -162,7 +162,6 @@ public class PlayerEntryPoint implements EntryPoint {
 		}
 	}-*/;
 
-
 	public void onPageLoaded() {
 		firePageLoaded(pageLoadedListener);
 		int currentPageIndex = theApplication.getPlayerServices().getCurrentPageIndex(); 

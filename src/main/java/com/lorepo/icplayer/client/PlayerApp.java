@@ -13,6 +13,7 @@ import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 /**
@@ -123,8 +124,7 @@ public class PlayerApp{
 			}
 		});
 	}
-
-
+	
 	private void loadFirstPage() {
 		if(loadedState != null){
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));

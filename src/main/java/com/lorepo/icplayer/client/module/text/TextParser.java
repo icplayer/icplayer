@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -28,16 +29,22 @@ public class TextParser {
 	private String baseId = "";
 	private int idCounter = 1;
 	private boolean useDraggableGaps = false;
+	private boolean useMathGaps = false;
 	private boolean openLinksinNewTab = true;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
 	private boolean skipGaps = false;
+	private int gapWidth = 0;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
 
 	public void setUseDraggableGaps(boolean draggable) {
 		useDraggableGaps = draggable;
+	}
+	
+	public void setUseMathGaps(boolean value) {
+		useMathGaps = value;
 	}
 
 	public void setCaseSensitiveGaps(boolean value) {
@@ -64,7 +71,9 @@ public class TextParser {
 			srcText = srcText.replaceAll("\\s+", " ");
 			if (!skipGaps) {
 				parserResult.parsedText = parseGaps(srcText);
-				parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
+				if (!useMathGaps) {
+					parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
+				}
 				parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 				parserResult.parsedText = parseLinks(parserResult.parsedText);
 			} else {
@@ -139,7 +148,16 @@ public class TextParser {
 		int endIndex = text.indexOf("\\)");
 		if (endIndex > 0) {
 			int startIndex = text.indexOf("\\(");
-			return startIndex < 0 || startIndex > endIndex;
+			return startIndex <= 0 && startIndex < endIndex;
+		}
+		return false;
+	}
+	
+	private boolean isBetweenBrackets(String text) {
+		int endIndex = text.indexOf("\\)");
+		if (endIndex > 0) {
+			int startIndex = text.indexOf("\\(");
+			return startIndex >= 0 && startIndex < endIndex;
 		}
 		return false;
 	}
@@ -162,6 +180,41 @@ public class TextParser {
 			idCounter++;
 			replaceText = "<input id='" + id + "' type='edit' size='"
 					+ answer.length() + "' class='ic_gap'/>";
+			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
+					isCaseSensitive, isIgnorePunctuation);
+			String[] answers = answer.split("\\|");
+			for (int i = 0; i < answers.length; i++) {
+				gi.addAnswer(answers[i]);
+			}
+			parserResult.gapInfos.add(gi);
+		}
+
+		return replaceText;
+	}
+	
+	private String matchMathGap(String expression) {
+
+		String replaceText = null;
+
+		int index = expression.indexOf(":");
+		
+		if (index > 0) {
+			String value = expression.substring(0, index).trim();
+			String answer = expression.substring(index + 1).trim();
+			String id = baseId + "-" + idCounter;
+			
+			replaceText = // \gap{id|size|width|{{value:id}} - {{value:id}} will be replaced in setState
+						"\\gap{" +
+						id + 
+						"|" + 
+						answer.length() + 
+						"|" + 
+						gapWidth +  
+						"|" +
+						"{{value:" + id + "}}" + 
+						"}";
+			idCounter++;
+			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
 					isCaseSensitive, isIgnorePunctuation);
 			String[] answers = answer.split("\\|");
@@ -329,7 +382,7 @@ public class TextParser {
 		String output = "";
 		int index = -1;
 		String replaceText;
-
+		
 		while ((index = input.indexOf("\\gap{")) >= 0) {
 
 			output += input.substring(0, index);
@@ -344,6 +397,8 @@ public class TextParser {
 
 			if (useDraggableGaps) {
 				replaceText = matchDraggableGap(expression);
+			} else if (useMathGaps && isBetweenBrackets(srcText)) {
+				replaceText = matchMathGap(expression);
 			} else {
 				replaceText = matchGap(expression);
 			}
@@ -469,6 +524,10 @@ public class TextParser {
 
 	public void skipGaps() {
 		skipGaps = true;
+	}
+
+	public void setGapWidth(int gapWidth) {
+		this.gapWidth = gapWidth;
 	}
 
 }

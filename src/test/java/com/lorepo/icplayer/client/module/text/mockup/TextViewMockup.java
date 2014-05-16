@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.text.mockup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -9,6 +10,7 @@ import com.lorepo.icplayer.client.module.text.ITextViewListener;
 import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
 import com.lorepo.icplayer.client.module.text.TextModel;
+import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -113,6 +115,7 @@ public class TextViewMockup implements IDisplay {
 	}
 	
 	@Override
-	public void addElement(TextElementDisplay el) { 
+	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
+		
 	}
 }
