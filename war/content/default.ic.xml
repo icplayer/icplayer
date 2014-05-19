@@ -53,7 +53,6 @@
 
 <pages>
 	<page id="schoice" name="schoice" href="pages/schoice.page.xml"/>
-	<page id="report" name="report" href="pages/report.page.xml" reportable="false"/>
 	
 	<folder name="commons">
 		<page name="popup1" href="pages/popup.page.xml"/>
@@ -62,6 +61,7 @@
 	</folder>
 	
 	<!--
+	<page id="report" name="report" href="pages/report.page.xml" reportable="false"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<chapter name="chapter 1">
 		<page name="schoice" href="pages/schoice.page.xml"/>

@@ -382,7 +382,7 @@ public class JavaScriptPlayerServices{
 	 * - text - zmieniony tekst
 	 * - defCount - ilość linków z definicjami
 	 */
-	private static String parseText(String text){
+	private String parseText(String text){
 		TextParser parser = new TextParser();
 		parser.skipGaps();
 		ParserResult result = parser.parse(text);
@@ -396,7 +396,7 @@ public class JavaScriptPlayerServices{
 	 *         definitions - gaps - hashmap with gaps structure - inLineGaps -
 	 *         hashmap with inline gaps structure
 	 */
-	private static JavaScriptObject parseGaps(String text) {
+	private JavaScriptObject parseGaps(String text) {
 		TextParser parser = new TextParser();
 		ParserResult result = parser.parse(text);
 
@@ -541,7 +541,7 @@ public class JavaScriptPlayerServices{
 		return model;
 	}
 
-	private static String getStaticFilesPath(){
+	private String getStaticFilesPath(){
 		return GWT.getModuleBaseForStaticFiles();
 	}
 
