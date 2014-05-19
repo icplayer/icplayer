@@ -126,7 +126,7 @@ public class PlayerView extends VerticalPanel{
 	private void toggleNavigationPanels() {
 		if(navigationBar.isShowing()) {
 			hideNavigationPanels();
-		} else {
+		} else if(playerController.getModel().getPageCount() > 1) {
 			boolean isMobile = false;
 			if (Window.Navigator.getUserAgent().matches("(.*)Android(.*)") || Window.Navigator.getUserAgent().matches("(.*)iPad(.*)") || Window.Navigator.getUserAgent().matches("(.*)iPhone(.*)")) {
 				isMobile = true;
