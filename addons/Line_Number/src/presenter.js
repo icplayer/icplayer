@@ -1136,6 +1136,11 @@ function AddonLine_Number_create() {
             drawnRangesData: presenter.configuration.drawnRangesData,
             isVisible: presenter.configuration.isCurrentlyVisible,
             isDisabled: presenter.configuration.isDisabled
+        }, function (key, value) {
+            if (value === Infinity) return "Infinity";
+            else if (value === -Infinity) return "-Infinity";
+            else if (value !== value) return "NaN";
+            else return value;
         });
     };
 
@@ -1155,7 +1160,13 @@ function AddonLine_Number_create() {
     presenter.setState = function (state) {
         if (ModelValidationUtils.isStringEmpty(state)) return;
 
-        var parsedState = JSON.parse(state);
+        var parsedState = JSON.parse(state,
+            function (key, value) {
+                if (value === "Infinity") return Infinity;
+                else if (value === "-Infinity") return -Infinity;
+                else if (value === "NaN") return NaN;
+                else return value;
+            });
 
         presenter.redrawRanges(parsedState.drawnRangesData.ranges);
 
