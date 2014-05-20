@@ -9,7 +9,7 @@ public class LinkWidget extends Anchor{
 	public LinkWidget(LinkInfo info){
 		
 		super(DOM.getElementById(info.getId()));
-		setStyleName("ic_pageLink");
+		setStyleName("ic_pageLink ic_definitionLink");
 		onAttach();
 	}
 
