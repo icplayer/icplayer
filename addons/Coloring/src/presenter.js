@@ -604,11 +604,10 @@ function AddonColoring_create(){
 
         iconContainer.css({
             top: top + 'px',
-            left: left + 'px',
-            backgroundColor: isWrong ? '#ff5599' : '#55ff99'
+            left: left + 'px'
         });
 
-        iconContainer.html(isWrong ? 'x' : 'v');
+        iconContainer.addClass(isWrong ? 'wrong' : 'correct');
 
         container.append(iconContainer);
     }

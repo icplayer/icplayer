@@ -27,3 +27,19 @@
     width: 8px;
     font-weight: bold;
 }
+
+.coloring-wrapper .coloring-container .icon-container.wrong {
+    background-color: #ff5599;
+}
+
+.coloring-wrapper .coloring-container .icon-container.correct {
+    background-color: #55ff99;
+}
+
+.coloring-wrapper .coloring-container .icon-container.correct:after {
+    content: 'v';
+}
+
+.coloring-wrapper .coloring-container .icon-container.wrong:after {
+    content: 'x';
+}
