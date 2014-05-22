@@ -1,11 +1,15 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -17,9 +21,10 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.module.choice.IOptionListener;
 
-
-public class SourceListPresenter implements IPresenter, IStateful{
+public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity {
 
 	public interface IDisplay extends IModuleView{
 		public void addItem(String id, String item, boolean callMathJax);
@@ -90,12 +95,11 @@ public class SourceListPresenter implements IPresenter, IStateful{
 	}
 	
 	
-	protected void returnItem(DraggableItem item){
+	protected void returnItem(DraggableItem item) {
 
-		if(model.isRemovable()){
+		if(model.isRemovable()) {
 			String prefix = model.getId() + "-";
-			if(item.getId().startsWith(prefix)){
-				
+			if(item.getId().startsWith(prefix)) {
 				items.put(item.getId(), item.getValue());
 				view.addItem(item.getId(), item.getValue(), true);
 			}
@@ -118,7 +122,6 @@ public class SourceListPresenter implements IPresenter, IStateful{
 
 
 	private void loadItems(boolean callMathJax) {
-
 		items.clear();
 		view.removeAll();
 		for(int i = 0; i < model.getItemCount(); i++){
@@ -131,24 +134,21 @@ public class SourceListPresenter implements IPresenter, IStateful{
 
 
 	private void selectItem(String id) {
-		
 		DraggableItem draggableItem = null;
 		String oldSelection = selectedId;
 		deselectCurrentItem();
 		
-		if(oldSelection == null || oldSelection.compareTo(id) != 0){
+		if(oldSelection == null || oldSelection.compareTo(id) != 0) {
 			selectedId = id;
 			view.selectItem(id);
 			draggableItem = new DraggableText(selectedId, items.get(selectedId));
 		}
-		
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
 	}
 	
 	
 	private void deselectCurrentItem() {
-		
 		if(selectedId != null){
 			view.deselectItem(selectedId);
 			selectedId = null;
@@ -187,13 +187,11 @@ public class SourceListPresenter implements IPresenter, IStateful{
 
 	@Override
 	public void setState(String state) {
-		
 		items = JSONUtils.decodeHashMap(state);
 		refreshView();
 	}
 	
 	private void refreshView() {
-
 		view.removeAll();
 		for(String id : items.keySet()){
 			String text = items.get(id);
@@ -222,10 +220,57 @@ public class SourceListPresenter implements IPresenter, IStateful{
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getView()();
 		}
 		
+		presenter.reset = function() { 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::reset()();
+		};
+		
 		return presenter;
 	}-*/;
 	
+	@Override
+	public String executeCommand(String commandName, List<IType> _) {
+		
+		if(commandName.compareTo("reset") == 0) {
+			reset();
+		}
+		
+		return "";
+	}
+	
 	private Element getView(){
 		return view.getElement();
+	}
+
+	@Override
+	public String getName() {
+		return model.getId();
+	}
+
+
+	@Override
+	public int getErrorCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public int getMaxScore() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public int getScore() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public void onValueChange(IOptionDisplay option, boolean selected) {
+		// TODO Auto-generated method stub
+		
 	}
 }

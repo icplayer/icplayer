@@ -177,12 +177,7 @@ public class SourceListModule extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(removable){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return removable ? "True" : "False";
 			}
 			
 			@Override
