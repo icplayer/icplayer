@@ -164,6 +164,10 @@ function AddonTable_create() {
     };
 
     presenter.getState = function () {
+        if (!presenter.configuration.isActivity || presenter.configuration.isDisabled || presenter.configuration.gaps.descriptions === undefined) {
+            return;
+        }
+
         var gaps = $.map(presenter.configuration.gaps.descriptions, function (gap) {
             return { value: gap.value, isEnabled: gap.isEnabled };
         });
