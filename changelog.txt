@@ -1,3 +1,4 @@
+2014-05-22 Fixed issue with Slider not working on Firefox
 2014-05-22 Fixed issue with doubled 3D Viewer addon on devices with Android 4.2.2
 2014-05-22 Added command reset to SourceList addon
 2014-05-21 Added possibility to style correct/wrong answers to Coloring module

@@ -181,7 +181,7 @@ function AddonSlider_create () {
     }
 
     function mouseClickCallback (eventData) {
-        event.stopPropagation();
+        eventData.stopPropagation();
 
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
