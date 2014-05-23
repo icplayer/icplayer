@@ -133,11 +133,10 @@ function AddonGlossary_create(){
         // adjust top position if Player was embedded in iframe (i.e. EverTeach)
         if (window !== top.window) {
             var iframe = window.parent.document.getElementsByTagName('iframe');
-            var offset = parseInt($(iframe).offset().top, 10);
             var iframeDialogHeight = parseInt($dialog.height(), 10);
             iframeDialogHeight += DOMOperationsUtils.calculateOuterDistances(DOMOperationsUtils.getOuterDimensions($dialog)).vertical;
 
-            topPosition -= offset - scrollTop;
+            topPosition -= scrollTop;
 
             if (topPosition < 0) {
                 topPosition = 0;
@@ -145,6 +144,8 @@ function AddonGlossary_create(){
                 topPosition = $(window).height() - iframeDialogHeight;
             }
         }
+
+
         if ($(window).scrollTop() > popupTop && isPopup) {
             topPosition += ($(window).scrollTop() - popupTop);
         }
