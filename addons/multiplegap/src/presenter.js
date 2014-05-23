@@ -542,10 +542,19 @@ function Addonmultiplegap_create(){
         return presenter.$view.find('.placeholder').length;
     };
 
+    presenter.isAttemptedCommand = function () {
+        return presenter.isAttempted();
+    };
+
+    presenter.isAttempted = function() {
+        return presenter.countItems() > 0;
+    };
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'countItems': presenter.countItems,
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'isAttempted' : presenter.isAttempted
         };
 
         return Commands.dispatch(commands, name, params, presenter);
