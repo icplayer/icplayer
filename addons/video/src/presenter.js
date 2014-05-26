@@ -11,6 +11,7 @@ function Addonvideo_create() {
     presenter.captions = [];
     presenter.configuration = {};
     presenter.captionDivs = [];
+    presenter.isEnded = false;
 
     var height;
 
@@ -229,12 +230,25 @@ function Addonvideo_create() {
         this.video.addEventListener('click', function(e){ e.stopPropagation(); });
         this.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
         this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
-        this.video.addEventListener('play', function() { presenter.videoState = presenter.VIDEO_STATE.PLAYING; }, false);
+        this.video.addEventListener('play', function() {
+            presenter.videoState = presenter.VIDEO_STATE.PLAYING;
+            presenter.isEnded = false;
+        }, false);
         this.video.addEventListener('pause', function() {
             if (!presenter.isHideExecuted) {
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
             }
             delete presenter.isHideExecuted;
+        }, false);
+        this.video.addEventListener('ended', function() {
+            if (!presenter.isEnded) {
+                presenter.sendVideoEndedEvent();
+                presenter.reload();
+                if (presenter.configuration.isFullScreen) {
+                    fullScreenChange();
+                }
+                presenter.isEnded = true;
+            }
         }, false);
     };
 
@@ -416,10 +430,13 @@ function Addonvideo_create() {
             // "ended" event doesn't work on Safari
             $(this.video).bind("timeupdate", function () {
                 if (this.currentTime == this.duration) {
-                    presenter.sendVideoEndedEvent();
-                    presenter.reload();
-                    if (presenter.configuration.isFullScreen) {
-                        fullScreenChange();
+                    if (!presenter.isEnded) {
+                        presenter.sendVideoEndedEvent();
+                        presenter.reload();
+                        if (presenter.configuration.isFullScreen) {
+                            fullScreenChange();
+                        }
+                        presenter.isEnded = true;
                     }
                 }
             });
