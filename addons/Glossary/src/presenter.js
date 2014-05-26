@@ -229,7 +229,7 @@ function AddonGlossary_create(){
 
         var $popup = $('#icplayer').parent().find('.ic_popup');
         var dialogWidget = dialog.dialog("widget");
-        outsideView = presenter.$view;
+        var outsideView = presenter.$view;
         outsideView.css({'display': 'block',
                         'width': 0,
                         'height': 0,
