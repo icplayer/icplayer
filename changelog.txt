@@ -1,3 +1,4 @@
+2014-05-26 Fixed issue with Video addon on IE
 2014-05-23 Added isAttempted method to Multiplegap module
 2014-05-23 Fixed wrong positioning of Glossary module in iFrame
 2014-05-22 Fixed issue with states in Table addon
