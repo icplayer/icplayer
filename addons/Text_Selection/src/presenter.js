@@ -3,7 +3,6 @@ function AddonText_Selection_create() {
 	var presenter = function(){};
 
     presenter.eventBus = null;
-
     presenter.playerController = null;
 
     presenter.setPlayerController = function (controller) {
@@ -64,15 +63,13 @@ function AddonText_Selection_create() {
 	};
 
     presenter.getWrongWords = function(word) {
-        var pattern = (/(.*)\\wrong{(.*)}(.*)/),
-            words =  pattern.exec(word).slice(1);
-        return words;
+        var pattern = (/(.*)\\wrong{(.*)}(.*)/);
+        return pattern.exec(word).slice(1);
     };
 
     presenter.getCorrectWords = function(word) {
-        var pattern = (/(.*)\\correct{(.*)}(.*)/),
-            words =  pattern.exec(word).slice(1);
-        return words;
+        var pattern = (/(.*)\\correct{(.*)}(.*)/);
+        return pattern.exec(word).slice(1);
     };
 
 	presenter.isMarkedCorrect = function(word) {
@@ -94,7 +91,7 @@ function AddonText_Selection_create() {
 			}
 			return word.substring(0, word.length-1);
 		} else {
-			word = word.replace(/\\correct{/, '')
+			word = word.replace(/\\correct{/, '');
 			if (countedBrackets.open === countedBrackets.close) {
 				word = word.replace(/}([^}]*)$/,'$1');
 			}
@@ -113,7 +110,7 @@ function AddonText_Selection_create() {
 		} else {
 			word = word.replace(/\\wrong{/, '');
 			if (countedBrackets.open === countedBrackets.close) {
-				word = word.replace(/}([^}]*)$/,'$1'); 
+				word = word.replace(/}([^}]*)$/,'$1');
 			}
 			return word;
 		}
@@ -236,7 +233,6 @@ function AddonText_Selection_create() {
 					}
 				}
 
-
 			} else if (presenter.configuration.selection_type === 'MULTISELECT') {
 
 				if ($span.hasClass('selectable')) {
@@ -329,7 +325,6 @@ function AddonText_Selection_create() {
             e.stopPropagation();
         });
 
-
 		presenter.configuration.areEventListenersOn = true;
 	};
 
@@ -340,20 +335,8 @@ function AddonText_Selection_create() {
 		presenter.configuration.areEventListenersOn = false;
 	};
 
-	function getSelectableSpan(i, word) {
-		return $('<span></span>').attr('number', i).addClass('selectable').html(word);
-	}
-
-	function getBlock(i, specialSign) {
-		return "<span left=\"" + i + "\" right=\"" + (i+1) + "\">" + specialSign + " </span>";
-	}
-
 	function getSpace(i) {
 		return "<span left=\"" + i + "\" right=\"" + (i+1) + "\"> </span>";
-	}
-
-	function getSpecialSign(word) {
-		return isLastSpecialSign(word) && (presenter.isMarkedWrong(word) || presenter.isMarkedCorrect(word)) ? word[word.length - 1] : "";
 	}
 	
 	function getSpecialIfStarted(word) {
@@ -504,8 +487,7 @@ function AddonText_Selection_create() {
 			wrongMarkerInAllSelectable = false,
 			emptyWord = false,
             stack = 0,
-            counted = null,
-            wordAfter = null;
+            counted = null;
 
 		HTMLParser(text.replace(/&nbsp;/, ' '), {
 			start: function(tag, attrs, unary) {
@@ -717,7 +699,8 @@ function AddonText_Selection_create() {
 		var commands = {
 			'show': presenter.show,
 			'hide': presenter.hide,
-            'isAllOK' : presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'isAttempted': presenter.isAttempted
 		};
 
 		Commands.dispatch(commands, name, params, presenter);
@@ -845,6 +828,10 @@ function AddonText_Selection_create() {
 
     presenter.isAllOK = function() {
         return presenter.getMaxScore() == presenter.getScore();
+    };
+
+    presenter.isAttempted = function() {
+        return presenter.$view.find('.text_selection').find('.selected').length > 0;
     };
 
 	return presenter;
