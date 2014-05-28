@@ -21,7 +21,7 @@ function Addonmultiplegap_create(){
     presenter.eventBus            = null;
     presenter.playerController    = null;
 
-    presenter.$view       = null;
+    presenter.$view               = null;
 
     presenter.selectedItem        = null;
 
@@ -37,8 +37,7 @@ function Addonmultiplegap_create(){
     presenter.itemHorizontalAlign = null;
     presenter.itemVerticalAlign   = null;
 
-
-    presenter.items               = []
+    presenter.items               = [];
 
     presenter.showErrorsMode      = false;
 
@@ -102,7 +101,6 @@ function Addonmultiplegap_create(){
                 presenter.sourceType = presenter.SOURCE_TYPES.TEXTS;
                 container.addClass("multiplegap_texts");
                 break;
-
         }
 
         presenter.itemWidth = parseInt(model['Item width']);
@@ -202,24 +200,18 @@ function Addonmultiplegap_create(){
 
         if(presenter.showErrorsMode) return;
 
-        presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false);
+        presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
     };
 
     presenter.maximumItemCountReached = function() {
         return presenter.countItems() >= presenter.maximumItemCount;
     };
 
-    presenter.performAcceptDraggable = function(handler, item, sendEvents, force) {
-        if(!force && presenter.selectedItem == null)
-            return;
+    presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
+        if(!force && presenter.selectedItem == null) return;
+        if(presenter.maximumItemCountReached()) return;
 
-        if(presenter.maximumItemCountReached())
-            return;
-
-        var placeholder = handler.parent();
         var child;
-
-
         var placeholder = $('<div class="placeholder"></div>');
         placeholder.css({
             width: presenter.itemWidth + 'px',
@@ -245,8 +237,6 @@ function Addonmultiplegap_create(){
         }
 
         presenter.$view.find('.multiplegap_placeholders').append(placeholder);
-
-
 
         switch(presenter.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
@@ -275,7 +265,9 @@ function Addonmultiplegap_create(){
             })
             .append(child);
 
-        MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(child[0])});
+        if (!isState) {
+            MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(child[0])});
+        }
 
         var placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding,
             placeholderVerticalPadding = placeholderPadding.left + placeholderPadding.right,
@@ -336,7 +328,7 @@ function Addonmultiplegap_create(){
                 break;
         }
 
-        var handler = $('<div class="handler"></div>');
+        handler = $('<div class="handler"></div>');
 
         // Workaround for IE bug: empty divs in IE are not clickable so let's
         // make them not empty and appear as empty.
@@ -365,7 +357,6 @@ function Addonmultiplegap_create(){
         $(presenter.selectorRootClass() + '>.handler').hide();
 
         presenter.clearSelected();
-
     };
 
     presenter.removeDraggable = function(e) {
@@ -451,7 +442,7 @@ function Addonmultiplegap_create(){
         return presenter.configuration.isActivity ? presenter.countItems() - presenter.getScore() : 0;
     };
 
-    presenter.isAllOK = function () {
+    presenter.isAllOK = function() {
         if (!presenter.configuration.isActivity) return;
 
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
@@ -497,8 +488,6 @@ function Addonmultiplegap_create(){
         presenter.$view.find('.placeholder:not(.placeholder_valid)').addClass('placeholder_invalid');
     };
 
-
-
     presenter.setWorkMode = function() {
         presenter.showErrorsMode = false;
         removeInactivityMark();
@@ -534,15 +523,17 @@ function Addonmultiplegap_create(){
         var state = JSON.parse(serializedState);
 
         for(var i = 0; i < state.length; i++) {
-            presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), state[i], false, true);
+            presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), state[i], false, true, true);
         }
+
+        MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.$view.find('.multiplegap_container')[0])});
     };
 
-    presenter.countItems = function () {
+    presenter.countItems = function() {
         return presenter.$view.find('.placeholder').length;
     };
 
-    presenter.isAttemptedCommand = function () {
+    presenter.isAttemptedCommand = function() {
         return presenter.isAttempted();
     };
 

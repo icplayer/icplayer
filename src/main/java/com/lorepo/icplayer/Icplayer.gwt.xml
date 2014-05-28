@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module rename-to='icplayer'>
-  	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.user.User'/>
 
 	<inherits name="com.google.gwt.http.HTTP" />
 	<inherits name="com.google.gwt.xml.XML" />
@@ -12,8 +12,8 @@
 	<stylesheet src="theme/player.css"/>
 	<stylesheet src="libs/jquery-ui.css"/>
 
-  <script src="libs/player-utils.js"/>
-  <script src="libs/buzz.js"/>
+	<script src="libs/player-utils.js"/>
+	<script src="libs/buzz.js"/>
 	<script src="libs/jcanvas.min.js"/>
 	<script src="libs/jquery-ui.js"/>
 	<script src="libs/jquery-csv.js"/>
@@ -40,14 +40,14 @@
 	<script src="libs/kinetic-v5.1.0.min.js" />
 	<script src="libs/swiffy_runtime.js" />
 
-    <script src="libs/jqplot/jquery.jqplot.min.js"/>
-    <script src="libs/jqplot/jqplot.barRenderer.min.js"/>
-    <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
-    <script src="libs/jqplot/jqplot.cursor.min.js"/>
-    <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
-    
-    <script src="libs/TreeGrid/js/jquery.treegrid.js"/>
-    <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
+	<script src="libs/jqplot/jquery.jqplot.min.js"/>
+	<script src="libs/jqplot/jqplot.barRenderer.min.js"/>
+	<script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+	<script src="libs/jqplot/jqplot.cursor.min.js"/>
+	<script src="libs/jqplot/jqplot.pointLabels.min.js"/>
+
+	<script src="libs/TreeGrid/js/jquery.treegrid.js"/>
+	<stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 
