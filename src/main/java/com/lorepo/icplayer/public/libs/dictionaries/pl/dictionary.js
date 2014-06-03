@@ -1,4 +1,4 @@
-ar ice_dictionary = {
+var ice_dictionary = {
 	"editor_title" : "Wieloplatformowy, interaktywny edytor treści cyfrowych",
 	"save" : "Zapisz",
 	"saved" : "Zapisane",
@@ -311,5 +311,5 @@ ar ice_dictionary = {
 	"PointsLines_info" : "Pozwala na dodanie do prezentacji ćwiczenia, w którym wybranie dwóch punktów powoduje utworzenie lub usunięcie segmentu łączącego te dwa punkty. Addon można wykorzystać zarówno w formie prezentacji zagadnienia matematycznego lub jako w pełni interaktywne zadanie.",
 	"EdgeAnimation_info" : "Pozwala na osadzenie w prezentacji animacji utworzonej w programie Adobe Edge Animate. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane właściwości w menu bocznym (Animations, Images i Initial Animation.",
 	"Clock_info" : "Pozwala na tworzenie ćwiczeń związanych z zegarem i pokazywaniem czasu. Addon można wykorzystać zarówno w formie prezentacji lub jako w pełni interaktywne zadanie, wystarczy skonfigurować odpowiednie parametry w menu Właściwości.",
-	"SwiffyAnimation_info" : "Pozwala na osadzenie animacji utworzonej w programie Adobe Flash i skonwertowanej za pomocą Google Swiffy. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane parametry w menu Właściwości.",
+	"SwiffyAnimation_info" : "Pozwala na osadzenie animacji utworzonej w programie Adobe Flash i skonwertowanej za pomocą Google Swiffy. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane parametry w menu Właściwości."
 };
