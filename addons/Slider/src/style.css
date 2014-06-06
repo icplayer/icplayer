@@ -10,4 +10,5 @@
     bottom: 0;
     right: 0;
     border: 0 solid black;
+    -ms-touch-action: none;
 }

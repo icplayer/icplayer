@@ -144,8 +144,10 @@ function AddonSlider_create () {
     function touchStartCallback (event) {
         event.preventDefault();
         event.stopPropagation();
+
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
-        var touch = event.touches[0] || event.changedTouches[0];
+        var touch = event.touches[0] || touchPoints[0];
         mouseDownCallback(touch);
     }
 
@@ -252,11 +254,19 @@ function AddonSlider_create () {
         event.preventDefault();
         event.stopPropagation();
 
-        var touch = event.touches[0] || event.changedTouches[0];
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+
+        var touch = event.touches[0] || touchPoints[0];
         mouseMoveCallback(touch);
     }
 
     function handleMouseDrag(addonContainer) {
+        presenter.isWindowsMobile = false;
+
+        if (window.navigator.msPointerEnabled) {
+            presenter.isWindowsMobile = true;
+        }
+
         var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
 
         $(imageElement).hover(
@@ -268,16 +278,21 @@ function AddonSlider_create () {
             }
         );
 
-        $(imageElement).mousedown(mouseDownCallback);
-        imageElement.ontouchstart = touchStartCallback;
+        if (presenter.isWindowsMobile) {
+            imageElement.addEventListener('MSPointerDown', touchStartCallback, false);
+            imageElement.addEventListener('MSPointerMove', touchMoveCallback, false);
+        } else {
+            imageElement.ontouchstart = touchStartCallback;
+            imageElement.ontouchmove = touchMoveCallback;
+        }
 
+        $(imageElement).mousedown(mouseDownCallback);
+        $(imageElement).mousemove(mouseMoveCallback);
         $(imageElement).mouseup(mouseUpCallback);
         imageElement.ontouchend = touchEndCallback;
 
         $(addonContainer).click(mouseClickCallback);
 
-        $(imageElement).mousemove(mouseMoveCallback);
-        imageElement.ontouchmove = touchMoveCallback;
 
         $(imageElement).hover(function() {
             $(presenter.imageElement).addClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER);
