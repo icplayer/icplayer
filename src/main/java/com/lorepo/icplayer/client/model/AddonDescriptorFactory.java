@@ -90,6 +90,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Table_Of_Contents", "Table Of Contents", "Navigation");
 		addDescriptor("text_identification", "Text Identification", "Activities");
 		addDescriptor("Text_Selection", "Text Selection", "Activities");
+		addDescriptor("TextAudio", "TextAudio", "Media");
 		addDescriptor("TrueFalse", "True False", "Activities");
 		addDescriptor("video", "Video", "Media");
 		addDescriptor("WritingCalculations", "Writing Calculations", "Activities");

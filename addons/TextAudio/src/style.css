@@ -1,0 +1,21 @@
+.wrapper-addon-textaudio {
+    height: 30px;
+    position: relative;
+}
+
+.wrapper-addon-textaudio audio {
+    bottom: 0;
+    position: absolute;
+}
+
+.wrapper-addon-textaudio .textaudio-text {
+    position: absolute;
+}
+
+.wrapper-addon-textaudio  span {
+    cursor: pointer;
+}
+
+.wrapper-addon-textaudio span.active {
+    color: #cc0000;
+}
