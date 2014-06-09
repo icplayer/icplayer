@@ -298,19 +298,19 @@ function AddonTextAudio_create(){
 
     presenter.toFrames = function(time_entry) {
         var entry = time_entry.split(':');
-        var minutes = parseInt(entry[0]);
+        var minutes = parseInt(entry[0], 10);
         var seconds = 0;
         var decyseconds = 0;
         if (entry[1].indexOf('.')>-1) {
             var seconds_with_decyseconds = entry[1].split('.');
-            seconds = parseInt(seconds_with_decyseconds[0]);
-            decyseconds = parseInt(seconds_with_decyseconds[1]);
+            seconds = parseInt(seconds_with_decyseconds[0], 10);
+            decyseconds = parseInt(seconds_with_decyseconds[1], 10);
             if (decyseconds.toString().length>1) {
-                decyseconds = parseInt(decyseconds.toString().substr(0,1));
+                decyseconds = parseInt(decyseconds.toString().substr(0,1), 10);
             }
         }
         else {
-            seconds = parseInt(entry[1]);
+            seconds = parseInt(entry[1], 10);
         }
         minutes = isNaN(minutes)? 0: minutes;
         seconds = isNaN(seconds)? 0: seconds;
