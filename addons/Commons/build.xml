@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="1.9.3" />
+    <property name="version" value="1.9.4" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -18,6 +18,7 @@
             <arg line="--js src/states-serialization.js" />
             <arg line="--js src/watermark.js" />
             <arg line="--js src/helpers.js" />
+            <arg line="--js src/mobile-devices.js" />
             <arg line="--js src/commands.js" />
             <arg line="--js src/image-viewer.js" />
             <arg line="--js src/string-utils.js" />
@@ -39,6 +40,7 @@
  * - Commands
  * - Image Viewer (partial)
  * - Helpers
+ * - Mobile Utils
  * - String Utils
  * - Internationalization
  * - Text Parser Proxy

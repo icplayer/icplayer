@@ -259,19 +259,11 @@ function AddonText_Selection_create() {
         return element.hasClass('selected') ? isInCorrectArray : !isInCorrectArray;
     }
 
-    function isMobile() {
-        return navigator.userAgent.match(/Android/i) ||
-            navigator.userAgent.match(/BlackBerry/i) ||
-            navigator.userAgent.match(/iPhone|iPad|iPod/i) ||
-            navigator.userAgent.match(/IEMobile/i) ||
-            navigator.userAgent.match(/Opera Mini/i);
-    }
-
 	presenter.turnOnEventListeners = function() {
 		var $text_selection = presenter.$view.find('.text_selection'),
             selectable = $text_selection.find('.selectable');
 
-        if (isMobile()) {
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
             $text_selection.on('touchstart', function(e) {
                 e.stopPropagation();
                 e.preventDefault();

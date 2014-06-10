@@ -5,6 +5,7 @@
     float: left;
     overflow: hidden;
     background: no-repeat 0 0;
+    -ms-touch-action: none;
 }
 
 .image-viewer-audio-wrapper {

@@ -163,13 +163,16 @@ function AddonImage_Viewer_Public_create() {
     }
 
     function isMoreThanOneFingerGesture(event) {
-        return (event.touches.length || event.changedTouches.length) > 1;
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+        return (event.touches.length || touchPoints.length) > 1;
     }
 
     function touchStartCallback (event) {
         if (isMoreThanOneFingerGesture(event)) return;
 
-        var touch = event.touches[0] || event.changedTouches[0];
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+
+        var touch = event.touches[0] || touchPoints[0];
         mouseDownCallback(touch);
     }
 
@@ -264,7 +267,9 @@ function AddonImage_Viewer_Public_create() {
 
         event.preventDefault();
 
-        var touch = event.touches[0] || event.changedTouches[0];
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+
+        var touch = event.touches[0] || touchPoints[0];
         mouseMoveCallback(touch);
     }
 
@@ -464,12 +469,23 @@ function AddonImage_Viewer_Public_create() {
     };
 
     function attachEventHandlers() {
-        presenter.$element.mousedown(mouseDownCallback);
-        presenter.$element[0].ontouchstart = touchStartCallback;
-        presenter.$element.mouseup(mouseUpCallback);
-        presenter.$element[0].ontouchend = touchEndCallback;
-        presenter.$element.mousemove(mouseMoveCallback);
-        presenter.$element[0].ontouchmove = touchMoveCallback;
+
+        if (window.navigator.msPointerEnabled) { // isWindowsMobile
+            presenter.$element[0].addEventListener("MSPointerDown", touchStartCallback, false);
+            presenter.$element[0].addEventListener("MSPointerUp", touchEndCallback, false);
+            presenter.$element[0].addEventListener("MSPointerMove", touchMoveCallback, false);
+        }
+        else if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            presenter.$element[0].ontouchstart = touchStartCallback;
+            presenter.$element[0].ontouchend = touchEndCallback;
+            presenter.$element[0].ontouchmove = touchMoveCallback;
+        }
+        else {
+            presenter.$element.mousedown(mouseDownCallback);
+            presenter.$element.mouseup(mouseUpCallback);
+            presenter.$element.mousemove(mouseMoveCallback);
+        }
+
         presenter.$element.click(clickHandler);
 
         $(watermarkElement).click(function(e) {
