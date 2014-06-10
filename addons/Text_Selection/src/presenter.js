@@ -11,7 +11,6 @@ function AddonText_Selection_create() {
     };
 
     presenter.createEventData = function (item, value, score) {
-
         return {
             'source': presenter.configuration.addonID,
             'item': parseInt(item, 10) + 1,
@@ -754,11 +753,8 @@ function AddonText_Selection_create() {
 			presenter.$view.find('.text_selection').find("span[number='" + nums[i] + "']").addClass("selected");
 		}
 
-		if (isVisible) {
-			presenter.show();
-		} else {
-			presenter.hide();
-		}
+		if (isVisible) { presenter.show(); }
+        else { presenter.hide(); }
 
 		presenter.configuration.isVisible = isVisible;
 		presenter.configuration.isExerciseStarted = isExerciseStarted;
@@ -772,7 +768,6 @@ function AddonText_Selection_create() {
 
 	presenter.setShowErrorsMode = function() {
 		if (!presenter.configuration.isExerciseStarted) return;
-
 		var i;
 
 		presenter.turnOffEventListeners();
@@ -827,7 +822,10 @@ function AddonText_Selection_create() {
 	};
 
     presenter.isAllOK = function() {
-        return presenter.getMaxScore() == presenter.getScore();
+        var isMaxScore = presenter.getMaxScore() == presenter.getScore();
+        var hasErrors = presenter.getErrorCount() > 0;
+
+        return isMaxScore && !hasErrors;
     };
 
     presenter.isAttempted = function() {
