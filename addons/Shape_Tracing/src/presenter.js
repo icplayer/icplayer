@@ -19,6 +19,7 @@ function AddonShape_Tracing_create() {
         numberOfDescentsFromShape: 0,
         isShowErrorOn: false,
         incorrect: false,
+        isAllOk: false,
 
         pencilThickness: 0
     };
@@ -68,7 +69,8 @@ function AddonShape_Tracing_create() {
 
     function eventCreator() {
         function sendEventScore(isCorrect) {
-            eventBus.sendEvent('ItemReturned', {
+            presenter.data.isAllOk = isCorrect;
+            eventBus.sendEvent('ValueChanged', {
                 'source': presenter.configuration.ID,
                 'item': 'allOk',
                 'value': '',
@@ -77,7 +79,8 @@ function AddonShape_Tracing_create() {
         }
 
         function sendEventValue(isCorrect) {
-            eventBus.sendEvent('ItemReturned', {
+            presenter.data.isAllOk = isCorrect;
+            eventBus.sendEvent('ValueChanged', {
                 'source': presenter.configuration.ID,
                 'item': '',
                 'value': isCorrect ? '1' : '0',
@@ -943,6 +946,10 @@ function AddonShape_Tracing_create() {
             }
         };
         savedImg.src = JSON.parse(state).imgData;
+    };
+
+    presenter.isAllOk = function() {
+        return presenter.data.isAllOk;
     };
 
     return presenter;
