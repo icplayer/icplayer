@@ -52,6 +52,7 @@
 </style>
 
 <pages>
+	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page id="schoice" name="schoice" href="pages/schoice.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
 	<page id="report" name="report" href="pages/report.page.xml" reportable="false"/>
@@ -76,7 +77,6 @@
 	<page name="links" href="pages/links.page.xml" reportable="false"/>
 	<page name="youtube" href="pages/youtube.page.xml"/>
 	<page name="test" href="pages/test.xml"/>
-	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page name="open-popup" href="pages/open-popup.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
 	<page name="cloze" href="pages/cloze.page.xml"/>

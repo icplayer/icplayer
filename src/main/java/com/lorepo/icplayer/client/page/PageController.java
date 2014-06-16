@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
@@ -133,6 +134,10 @@ public class PageController {
 	public void checkAnswers() {
 		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
+		PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+		if(pageScore.getPercentageScore() == 100 && pageScore.getErrorCount() == 0){
+			playerService.getEventBus().fireEvent(new CustomEvent("PageAllOk", new HashMap<String, String>()));
+		}
 	}
 
 

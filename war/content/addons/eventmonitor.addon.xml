@@ -54,6 +54,7 @@
 				playerController.getEventBus().addEventListener('ValueChanged', this);
 				playerController.getEventBus().addEventListener('Definition', this);
 				playerController.getEventBus().addEventListener('AllOk', this);
+				playerController.getEventBus().addEventListener('PageAllOk', this);
 				playerController.getEventBus().addEventListener('PageLoaded', this);
 			}
 
