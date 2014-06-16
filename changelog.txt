@@ -1,3 +1,4 @@
+2014-06-16 Fixed selecting issue in Line Number addon on Android 4.2.2 devices
 2014-06-11 Added command isAllOk() to Shape Tracing addon
 2014-06-10 Fixed issue with text width in TextAudio addon
 2014-06-10 Added support for touches on Windows 8 Mobile in Image Viewer addon

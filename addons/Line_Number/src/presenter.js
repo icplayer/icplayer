@@ -85,29 +85,32 @@ function AddonLine_Number_create() {
         var infinityLeft = presenter.$view.find('.infinity-left');
         var infinityRight = presenter.$view.find('.infinity-right');
 
-        infinityLeft.on('touchstart', function (e){
-            e.stopPropagation();
-            e.preventDefault();
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            infinityLeft.on('touchstart', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-            presenter.configuration.touchData.lastEvent = e;
-        });
+                presenter.configuration.touchData.lastEvent = e;
+            });
 
-        infinityLeft.on('touchend', function (e){
-            e.stopPropagation();
-            e.preventDefault();
+            infinityLeft.on('touchend', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
-                var eventData = event.touches[0] || event.changedTouches[0];
-                clickLogic(eventData.target);
-            }
+                if (presenter.configuration.touchData.lastEvent.type != e.type) {
+                    var eventData = event.touches[0] || event.changedTouches[0];
+                    clickLogic(eventData.target);
+                }
 
-        });
-
-        infinityLeft.on('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            clickLogic($(e.target));
-        });
+            });
+        }
+        else {
+            infinityLeft.on('click', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                clickLogic($(e.target));
+            });
+        }
 
         infinityLeft.hover(function() {
             infinityLeft.addClass('infinity-hover');
@@ -115,29 +118,32 @@ function AddonLine_Number_create() {
             infinityLeft.removeClass('infinity-hover');
         });
 
-        infinityRight.on('touchstart', function (e){
-            e.stopPropagation();
-            e.preventDefault();
-            presenter.configuration.touchData.lastEvent = e;
-        });
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            infinityRight.on('touchstart', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.configuration.touchData.lastEvent = e;
+            });
 
-        infinityRight.on('touchend', function (e){
-            e.stopPropagation();
-            e.preventDefault();
+            infinityRight.on('touchend', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
-                var eventData = event.touches[0] || event.changedTouches[0];
-                clickLogic(eventData.target);
-            }
-        });
+                if (presenter.configuration.touchData.lastEvent.type != e.type) {
+                    var eventData = event.touches[0] || event.changedTouches[0];
+                    clickLogic(eventData.target);
+                }
+            });
+        }
+        else {
+            infinityRight.on('click', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                clickLogic($(e.target));
+            });
+        }
 
-        infinityRight.on('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            clickLogic($(e.target));
-        });
-
-        infinityRight.hover(function() {
+        infinityRight.hover(function () {
             infinityRight.addClass('infinity-hover');
         }, function () {
             infinityRight.removeClass('infinity-hover');
@@ -386,38 +392,41 @@ function AddonLine_Number_create() {
     function bindClickAreaListeners(clickArea) {
         removeAllClickListeners();
 
-        clickArea.on('mouseleave', function (e) {
-            e.stopPropagation();
-            hideCurrentMousePosition();
-        });
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            clickArea.on('touchstart', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-        clickArea.on('mouseenter', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            displayCurrentMousePosition($(e.target));
-        });
+                presenter.configuration.touchData.lastEvent = e;
+            });
 
-        clickArea.on('contextmenu', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-        });
+            clickArea.on('touchend', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-        clickArea.on('touchstart', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
+                if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
+                    var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+                    clickLogic(eventData.target);
+                }
+            });
+        }
+        else {
+            clickArea.on('mouseleave', function (e) {
+                e.stopPropagation();
+                hideCurrentMousePosition();
+            });
 
-            presenter.configuration.touchData.lastEvent = e;
-        });
+            clickArea.on('mouseenter', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                displayCurrentMousePosition($(e.target));
+            });
 
-        clickArea.on('touchend', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
-                var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
-                clickLogic(eventData.target);
-            }
-        });
+            clickArea.on('contextmenu', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            });
+        }
 
         clickArea.on('click', function (e) {
             e.stopPropagation();
