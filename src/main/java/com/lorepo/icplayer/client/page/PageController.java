@@ -21,6 +21,7 @@ import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -92,6 +93,19 @@ public class PageController {
 		}
 		pageView.refreshMathJax();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
+		playerService.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+			public void onScoreChanged(ValueChangedEvent event) {
+				valueChanged(event);
+			}
+		});
+	}
+
+
+	protected void valueChanged(ValueChangedEvent event) {
+		Score.Result result = getCurrentScore();
+		if(result.errorCount == 0 && result.maxScore > 0 && result.score == result.maxScore){
+			playerService.getEventBus().fireEvent(new CustomEvent("PageAllOk", new HashMap<String, String>()));
+		}
 	}
 
 
@@ -134,24 +148,13 @@ public class PageController {
 	public void checkAnswers() {
 		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
-		PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
-		if(pageScore.getPercentageScore() == 100 && pageScore.getErrorCount() == 0){
-			playerService.getEventBus().fireEvent(new CustomEvent("PageAllOk", new HashMap<String, String>()));
-		}
 	}
 
 
 	public void updateScore(boolean updateCounters) {
 		if(currentPage != null){
 
-			Score.Result result;
-			if(currentPage.getScoringType() == ScoringType.zeroOne){
-				result = Score.calculateZeroOneScore(presenters);
-			}else if(currentPage.getScoringType() == ScoringType.minusErrors){
-				result = Score.calculateMinusScore(presenters);
-			}else{
-				result = Score.calculatePercentageScore(presenters);
-			}
+			Score.Result result = getCurrentScore();
 	
 			if(currentPage.isReportable()){
 				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
@@ -164,6 +167,19 @@ public class PageController {
 				}
 			}
 		}
+	}
+
+
+	private Score.Result getCurrentScore() {
+		Score.Result result;
+		if(currentPage.getScoringType() == ScoringType.zeroOne){
+			result = Score.calculateZeroOneScore(presenters);
+		}else if(currentPage.getScoringType() == ScoringType.minusErrors){
+			result = Score.calculateMinusScore(presenters);
+		}else{
+			result = Score.calculatePercentageScore(presenters);
+		}
+		return result;
 	}
 
 	

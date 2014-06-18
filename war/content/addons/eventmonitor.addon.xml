@@ -41,7 +41,7 @@
 					html += key + ":" + eventData[key] + " | ";
 				}
 				outputView.innerHTML = html;
-				console.log(html);
+				console.log("Event monitor:" + html);
 			}
 			
 			
