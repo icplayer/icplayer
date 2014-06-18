@@ -1,3 +1,4 @@
+2014-06-16 Added listening on PageAllOk event in EventListener module
 2014-06-16 New event PageAllOk
 2014-06-16 Fixed selecting issue in Line Number addon on Android 4.2.2 devices
 2014-06-11 Added command isAllOk() to Shape Tracing addon

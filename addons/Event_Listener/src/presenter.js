@@ -45,6 +45,8 @@ function AddonEvent_Listener_create() {
             case 'PageLoaded':
                 eventTypeAttr = 'pl';
                 break;
+            case 'PageAllOk':
+                eventTypeAttr = 'pa'
         }
 
         return eventTypeAttr;
@@ -100,6 +102,7 @@ function AddonEvent_Listener_create() {
         eventBus.addEventListener('ItemSelected', this);
         eventBus.addEventListener('Definition', this);
         eventBus.addEventListener('PageLoaded', this);
+        eventBus.addEventListener('PageAllOk', this);
 
         $view = $(view);
 
