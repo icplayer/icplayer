@@ -62,7 +62,7 @@ public class GapInfo {
 				break;
 			}
 		}
-		
+
 		return correct;
 	}
 	

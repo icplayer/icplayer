@@ -467,7 +467,7 @@ public class TextParserTestCase {
 
 
 	/**
-	 * Błędna składania nie powinna sypać parsera
+	 * Wrong syntax should be correctly parsed.
 	 */
 	@Test
 	public void wrongSyntax() {

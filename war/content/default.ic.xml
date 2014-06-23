@@ -52,6 +52,7 @@
 </style>
 
 <pages>
+	<page name="test" href="pages/test.xml"/>
 	<page name="eventbus" href="pages/eventbus.page.xml"/>
 	<page id="schoice" name="schoice" href="pages/schoice.page.xml"/>
 	<page name="draggable" href="pages/draggable-gaps.page.xml"/>
@@ -93,7 +94,6 @@
 	<page name="images" href="pages/images.xml"/>
 	<page name="goto" href="pages/goto.page.xml"/>
 	<page name="feedback addon" href="pages/feedback-addon.page.xml"/>
-	<page name="test" href="pages/test.xml"/>
 	<page name="text parser" href="pages/text-parser.xml"/>
 	<page name="text" href="pages/text.page.xml"/> 
 	<page name="style-audio" href="pages/style-audio.page.xml"/>
