@@ -6,7 +6,9 @@ function AddonAudio_create(){
     var eventBus;
     var currentTimeAlreadySent;
 
-    presenter.audio = {};
+    presenter.audio = {
+        readyState : 0
+    };
     presenter.playerController = null;
     presenter.addonID = null;
 
@@ -103,7 +105,7 @@ function AddonAudio_create(){
             $(view).html(AUDIO_FILES_MISSING);
         }
 
-        var audio = new Audio(); //document.createElement("audio");
+        var audio = document.createElement("audio");
 
         if (presenter.configuration.defaultControls){
             $(audio).attr("controls", "controls").attr("preload", "auto");
@@ -222,16 +224,16 @@ function AddonAudio_create(){
     };
 
     presenter.play = function() {
-        if(this.audio.paused) {
+        if(this.audio.src && this.audio.paused) {
             this.stop();
             this.audio.play();
         }
     };
 
     presenter.stop = function() {
-        if(!this.audio.paused) {
-            this.audio.pause();
-            this.audio.currentTime = 0;
+        if(presenter.audio.readyState > 0 && !presenter.audio.paused) {
+            presenter.audio.pause();
+            presenter.audio.currentTime = 0;
         }
     };
 

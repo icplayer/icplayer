@@ -1,3 +1,4 @@
+2014-06-24 Fixed Audio module on mLibro and Opera
 2014-06-24 Fixed problem with poster on iPad in Video Addon
 2014-06-16 Added listening on PageAllOk event in EventListener module
 2014-06-16 New event PageAllOk
