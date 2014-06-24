@@ -8,3 +8,24 @@
     z-index: 999;
     color: #fff;
 }
+
+.poster-wrapper {
+    display: block;
+    position: absolute;
+    top:0;
+    left:0;
+}
+
+.poster-wrapper img {
+    position : absolute;
+    top:0;
+    left:0;
+}
+
+.video-poster-play {
+    position : absolute;
+    background: url('resources/video-poster-play.svg') no-repeat center;
+    text-align: center;
+    width: 80px;
+    height: 80px;
+}

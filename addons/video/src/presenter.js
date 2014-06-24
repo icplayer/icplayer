@@ -396,7 +396,48 @@ function Addonvideo_create() {
     };
 
     presenter.addAttributePoster = function(video, posterSource) {
-        video.attr('poster', posterSource ? posterSource : '');
+        if (posterSource) {
+            if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
+                video.attr('poster', posterSource);
+                return;
+            }
+
+            var video_width = presenter.configuration.dimensions.video.width,
+                video_height = presenter.configuration.dimensions.video.height,
+
+                poster_click = function(e) {
+                    e.stopPropagation();
+                    presenter.$view.find('.poster-wrapper').remove();
+                    video.attr('controls', true);
+                    presenter.video.play();
+                };
+
+            var poster_wrapper = $('<div>');
+            poster_wrapper.width(video_width);
+            poster_wrapper.height(video_height);
+            poster_wrapper.addClass('poster-wrapper');
+            poster_wrapper.on('click', poster_click);
+
+            var poster = $('<img>');
+            poster.attr('src', posterSource);
+            poster.width(video_width);
+            poster.height(video_height);
+            poster_wrapper.append(poster);
+
+            var play_btn = $('<div>');
+            play_btn.addClass('video-poster-play');
+            play_btn.css({top:(video_height-80)/2, left:(video_width-80)/2});
+            poster_wrapper.append(play_btn);
+
+            video.parent().append(poster_wrapper);
+
+            // Default video controls should be disabled to enable events on poster
+            video.attr('controls', false);
+        }
+        else {
+            video.attr('poster', '');
+            presenter.$view.find('.poster-wrapper').remove();
+        }
     };
 
     presenter.setVideo = function() {

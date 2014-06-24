@@ -27,6 +27,16 @@
                 return true;
             else
                 return false;
+        },
+
+        isSafariMobile: function(userAgent) {
+            if (userAgent === undefined || !userAgent)
+                return false;
+            var mobile_agent = userAgent.match(/iPhone|iPad|iPod/i);
+            if (mobile_agent)
+                return true;
+            else
+                return false;
         }
 
     }
