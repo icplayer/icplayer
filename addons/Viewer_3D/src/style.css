@@ -3,3 +3,9 @@ div.Viewer_3D_frame {
     overflow: hidden;
     overflow-x: visible;
 }
+
+div.viewer-3d-wrapper {
+    -ms-touch-action: none;
+    touch-action: none;
+}
+
