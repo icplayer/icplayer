@@ -1,0 +1,4 @@
+/* https://code.google.com/p/android/issues/detail?id=35474 */
+.addon_Smart_Pen_Data {
+    overflow: hidden;
+}

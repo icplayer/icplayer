@@ -19,14 +19,14 @@ TestCase("[DrawingSmartPen] Model validation", {
             "Thickness": "SQUEEZE_B\n50%10\n90%35",
             "Opacity": "SQUEEZE_MAX\n30%0.5\n60%0.8",
             "Squeeze limits": "20;80",
+            "Squeeze limits interpretation": "",
             "Pressure limits": "15;75",
             "Events": [
                 { "Sensor": "SQUEEZE_A", "Reaction scope": "80;100", "Item": "Item1", "Value": "0", "Score": "0" },
                 { "Sensor": "PRESSURE", "Reaction scope": "0;15", "Item": "Item2", "Value": "1", "Score": "1" }
             ],
             "Mirror": "True",
-            "Background color": "",
-            "Border": ""
+            "Background color": ""
         };
     },
 
@@ -63,6 +63,9 @@ TestCase("[DrawingSmartPen] Model validation", {
         assertEquals(20, validatedModel.squeezeLimits[0]);
         assertEquals(80, validatedModel.squeezeLimits[1]);
 
+        // Squeeze limits interpretations
+        assertEquals("SEPARATELY", validatedModel.squeezeLimitsInterpretation);
+
         // Pressure limits
         assertEquals(15, validatedModel.pressureLimits[0]);
         assertEquals(75, validatedModel.pressureLimits[1]);
@@ -87,7 +90,6 @@ TestCase("[DrawingSmartPen] Model validation", {
 
         assertTrue(validatedModel.isMirror);
         assertEquals("NO_BG", validatedModel.backgroundColor);
-        assertEquals("", validatedModel.border);
 
         assertTrue(validatedModel.isValid);
     },
@@ -312,29 +314,5 @@ TestCase("[DrawingSmartPen] Model validation", {
 
         assertFalse(validatedModel.isValid);
         assertEquals("E02", validatedModel.errorCode);
-    },
-
-    'test border less than 0' : function() {
-        this.model["SmartPen"] = "False";
-        this.model['Border'] = '-1';
-        this.model["Colors"] = "black";
-        this.model["Thickness"] = "15";
-        this.model["Opacity"] = "";
-        var validatedModel = this.presenter.validateModel(this.model);
-
-        assertFalse(validatedModel.isValid);
-        assertEquals('B02', validatedModel.errorCode);
-    },
-
-    'test border more than 5' : function() {
-        this.model["SmartPen"] = "False";
-        this.model['Border'] = '6';
-        this.model["Colors"] = "black";
-        this.model["Thickness"] = "15";
-        this.model["Opacity"] = "";
-        var validatedModel = this.presenter.validateModel(this.model);
-
-        assertFalse(validatedModel.isValid);
-        assertEquals('B03', validatedModel.errorCode);
     }
 });

@@ -2,12 +2,13 @@
 
 <addon id="DrawingSmartPen" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="SmartPen" type="boolean" />
+        <property name="SmartPen" displayName="LearnPen" type="boolean" />
         <property name="Colors" type="text" />
         <property name="Thickness" type="text" />
         <property name="Opacity" type="text" />
 
         <property name="Squeeze limits" type="string" />
+        <property name="Squeeze limits interpretation" type="{Separately, Together}" />
         <property name="Pressure limits" type="string" />
 
         <property name="Events" type="list">
@@ -20,6 +21,5 @@
 
         <property name="Mirror" type="boolean" />
         <property name="Background color" type="string" />
-        <property name="Border" type="string" />
 	</model>
 </addon>

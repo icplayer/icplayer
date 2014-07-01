@@ -90,11 +90,22 @@ function AddonDrawingSmartPen_create() {
     }
 
     function areLimitsOk(a, b, c, p) {
-        var isSqueezeAOK = presenter.configuration.squeezeLimits[0] <= a && a <= presenter.configuration.squeezeLimits[1];
-        var isSqueezeBOK = presenter.configuration.squeezeLimits[0] <= b && b <= presenter.configuration.squeezeLimits[1];
-        var isSqueezeCOK = presenter.configuration.squeezeLimits[0] <= c && c <= presenter.configuration.squeezeLimits[1];
         var isPressureOK = presenter.configuration.pressureLimits[0] <= p && p <= presenter.configuration.pressureLimits[1];
-        return isSqueezeAOK && isSqueezeBOK && isSqueezeCOK && isPressureOK;
+
+        if (presenter.configuration.squeezeLimitsInterpretation === "TOGETHER") {
+            var sum = a + b + c;
+            var isSqueezeOK = (presenter.configuration.squeezeLimits[0] * 3) <= sum && sum <= (presenter.configuration.squeezeLimits[1] * 3);
+
+            return isPressureOK && isSqueezeOK;
+        } else if (presenter.configuration.squeezeLimitsInterpretation === "SEPARATELY") {
+            var isSqueezeAOK = presenter.configuration.squeezeLimits[0] <= a && a <= presenter.configuration.squeezeLimits[1];
+            var isSqueezeBOK = presenter.configuration.squeezeLimits[0] <= b && b <= presenter.configuration.squeezeLimits[1];
+            var isSqueezeCOK = presenter.configuration.squeezeLimits[0] <= c && c <= presenter.configuration.squeezeLimits[1];
+
+            return isSqueezeAOK && isSqueezeBOK && isSqueezeCOK && isPressureOK;
+        }
+
+        return false;
     }
 
     presenter.calculateValue = function(v, collection, defaultVal) {
@@ -136,14 +147,15 @@ function AddonDrawingSmartPen_create() {
     function updateDrawingData(e) {
         var a, b, c, p;
         if (presenter.configuration.isSmartPen) {
-            if (window.SmartPen === undefined) {
-                presenter.drawingData.isDrawingOn = false;
-                presenter.noDraw = true;
+            if (window.LearnPen === undefined) {
+                presenter.drawingData.isDrawingOn = true;
+                presenter.drawingData.pre_color = presenter.drawingData.color = "black";
+                presenter.drawingData.thickness = 1;
             } else {
-                a = parseInt(window.SmartPen.getR() / 10, 10);
-                b = parseInt(window.SmartPen.getG() / 10, 10);
-                c = parseInt(window.SmartPen.getB() / 10, 10);
-                p = parseInt(window.SmartPen.getP() / 10, 10);
+                a = parseInt(window.LearnPen.getA() / 10, 10);
+                b = parseInt(window.LearnPen.getB() / 10, 10);
+                c = parseInt(window.LearnPen.getC() / 10, 10);
+                p = parseInt(window.LearnPen.getP() / 10, 10);
 
                 eventCreator(a, b, c, p);
 
@@ -169,9 +181,6 @@ function AddonDrawingSmartPen_create() {
         presenter.position.pre_y = presenter.position.y;
         presenter.position.x = parseInt((e.pageX - presenter.data.canvas.offset().left) / presenter.data.zoom, 10);
         presenter.position.y = parseInt((e.pageY - presenter.data.canvas.offset().top) / presenter.data.zoom, 10);
-
-//        presenter.position.x = parseInt(e.offsetX / presenter.data.zoom, 10);
-//        presenter.position.y = parseInt(e.offsetY / presenter.data.zoom, 10);
     }
 
     function resizeCanvas() {
@@ -213,10 +222,6 @@ function AddonDrawingSmartPen_create() {
         presenter.$view.find('.drawing').css('opacity', presenter.configuration.opacity);
         resizeCanvas();
 
-        if (presenter.configuration.border !== 0) {
-            presenter.$view.find('canvas').css('border', presenter.configuration.border + 'px solid black');
-        }
-
         fillCanvasWithColor();
         drawVerticalLineIfIsMirror();
 
@@ -237,6 +242,12 @@ function AddonDrawingSmartPen_create() {
     function returnCorrectObject(v) {
         return { isValid: true, value: v };
     }
+    // {Separately, Together}
+    presenter.SQ_LIMITS_INTERPRETATION = {
+        'Separately': 'SEPARATELY',
+        'Together': 'TOGETHER',
+        DEFAULT: 'Separately'
+    };
 
     presenter.ERROR_CODES = {
         F01: "Value range has to be between 0 and 100%",
@@ -760,22 +771,17 @@ function AddonDrawingSmartPen_create() {
             return returnErrorObject(parsedBGColor.errorCode);
         }
 
-        var parsedBorder = presenter.parseBorder(model["Border"]);
-        if (!parsedBorder.isValid) {
-            return returnErrorObject(parsedBorder.errorCode);
-        }
-
         return {
             isSmartPen: isSmartPen,
             colors: parsedColors.value, // if (isSmartPen) {sensor: String, values: [Integer, Hex color] } else String (hex color)
             thickness: parsedThickness.value, // if (isSmartPen) {sensor: String, thicknesses: [Integer, Integer] } else Integer
             opacity: parsedOpacity.value, // if (isSmartPen) {sensor: String, opacity: [Integer, Float] } else Float
             squeezeLimits: parsedSqueeze.value,
+            squeezeLimitsInterpretation: ModelValidationUtils.validateOption(presenter.SQ_LIMITS_INTERPRETATION, model["Squeeze limits interpretation"]),
             pressureLimits: parsedPressure.value,
             events: parsedEvent.value,
             isMirror: ModelValidationUtils.validateBoolean(model["Mirror"]),
             backgroundColor: parsedBGColor.value,
-            border: parsedBorder.value,
 
             width: model["Width"],
             height: model["Height"],
@@ -841,13 +847,8 @@ function AddonDrawingSmartPen_create() {
         presenter.configuration.isVisible = false;
     };
 
-//    presenter.setShowErrorsMode = function() {
-//
-//    };
-//
-//    presenter.setWorkMode = function() {
-//
-//    };
+//    presenter.setShowErrorsMode = function() {};
+//    presenter.setWorkMode = function() {};
 
     presenter.setPlayerController = function(controller) {
         eventBus = controller.getEventBus();
@@ -863,17 +864,9 @@ function AddonDrawingSmartPen_create() {
         //presenter.$view.find(".drawing").css("overflow", "hidden");
     };
 
-//     presenter.getErrorCount = function() {
-//     return 7;
-//     };
-//
-//     presenter.getMaxScore = function() {
-//     return 3;
-//     };
-//
-//     presenter.getScore = function() {
-//     return 1;
-//     };
+//     presenter.getErrorCount = function() {};
+//     presenter.getMaxScore = function() {};
+//     presenter.getScore = function() {};
 
     presenter.getState = function() {
         if (!presenter.data.isStarted) {
@@ -943,6 +936,10 @@ function AddonDrawingSmartPen_create() {
             presenter.data.context.globalCompositeOperation = "destination-out";
             presenter.configuration.color = "rgba(255, 255, 255, 1)";
         }
+    };
+
+    presenter.isLearnPenConnected = function() {
+        return window.LearnPen !== undefined
     };
 
     return presenter;

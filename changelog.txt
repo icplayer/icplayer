@@ -1,3 +1,4 @@
+2014-07-01 Adden new LearnPen addons: LearnPen Drawing and LearnPen Data
 2014-06-25 Fixed touch behavior on Windows 8 Mobile in 3D Viewer addon
 2014-06-24 Fixed Audio module on mLibro and Opera
 2014-06-24 Fixed problem with poster on iPad in Video Addon

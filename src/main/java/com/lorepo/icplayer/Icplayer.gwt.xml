@@ -45,6 +45,16 @@
 	<script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
 	<script src="libs/jqplot/jqplot.cursor.min.js"/>
 	<script src="libs/jqplot/jqplot.pointLabels.min.js"/>
+	
+	<script src="libs/RGraph_lib/RGraph.common.core.js"/>
+	<script src="libs/RGraph_lib/RGraph.bar.js"/>
+	<script src="libs/RGraph_lib/RGraph.gauge.js"/>
+	<script src="libs/RGraph_lib/RGraph.hbar.js"/>
+	<script src="libs/RGraph_lib/RGraph.hprogress.js"/>
+	<script src="libs/RGraph_lib/RGraph.line.js"/>
+	<script src="libs/RGraph_lib/RGraph.meter.js"/>
+	<script src="libs/RGraph_lib/RGraph.radar.js"/>
+	<script src="libs/RGraph_lib/RGraph.rose.js"/>
 
 	<script src="libs/TreeGrid/js/jquery.treegrid.js"/>
 	<stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>

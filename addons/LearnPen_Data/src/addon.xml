@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Smart_Pen_Data'>
+    <model>
+        <property name='Is Disable' type='boolean' />
+        <property name='Chart type' type='{Gauge, Horizontal progress bar, Bars, Horizontal Bars, Line, Radar, Rose}' />
+        <property name='1st label' type='string' />
+        <property name='2nd label' type='string' />
+        <property name='3rd label' type='string' />
+        <property name='4th label' type='string' />
+        <property name='Background color' type='string' />
+        <property name='Text color' type='string' />
+        <property name='1st color' type='string' />
+        <property name='2nd color' type='string' />
+        <property name='3rd color' type='string' />
+        <property name='4th color' type='string' />
+        <property name='Refresh time' type='string' />
+        <property name='Mode' type='{All, Sum from squeezes, Sum from squeezes + pressure, Max from squeezes, Max from squeezes + pressure, Pressure, Squeeze A, Squeeze B, Squeeze C}' />
+    </model>
+</addon>
