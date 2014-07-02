@@ -1,3 +1,4 @@
+2014-07-02 Fixed issue with Animation addon on Windows 8 Mobile devices
 2014-07-02 Fixed issue with dragging and clicking on mobile devices in ImageViewer addon
 2014-07-01 Adden new LearnPen addons: LearnPen Drawing and LearnPen Data
 2014-06-25 Fixed touch behavior on Windows 8 Mobile in 3D Viewer addon
