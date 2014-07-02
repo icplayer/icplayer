@@ -191,6 +191,7 @@ function AddonImage_Viewer_Public_create() {
 
     function touchEndCallback () {
         mouseUpCallback();
+        presenter.mouseData.isMouseDragged = false;
     }
 
     function getRequiredShift() {
