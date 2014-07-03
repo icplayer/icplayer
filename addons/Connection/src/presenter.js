@@ -176,6 +176,14 @@ function AddonConnection_create() {
         }
     }
 
+    presenter.parseDefinitionLinks = function () {
+        $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
+            $(element).html(presenter.textParser.parse($(element).html()));
+        });
+
+        presenter.textParser.connectLinks($(presenter.view));
+    };
+
     presenter.setPlayerController = function (controller) {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
@@ -188,6 +196,8 @@ function AddonConnection_create() {
         });
 
         playerController = controller;
+
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.setColumnsWidth = function (view, columnsWidth) {
@@ -219,6 +229,8 @@ function AddonConnection_create() {
 
         presenter.initialize(presenter.view, presenter.model, false);
         presenter.registerListeners(presenter.view);
+
+        presenter.parseDefinitionLinks();
     };
 
     presenter.createPreview = function (view, model) {
