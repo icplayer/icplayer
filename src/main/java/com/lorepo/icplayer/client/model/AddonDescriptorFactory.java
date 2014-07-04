@@ -98,6 +98,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("YouTube_Addon", "YouTube", "media_menu");
 		addDescriptor("DrawingSmartPen", "LearnPen Drawing", "learn_pen_menu");
 		addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
+		addDescriptor("Zoom_Image", "Zoom Image", "media_menu");
 	}
 
 	private void addDescriptor(String id, String name, String category) {
