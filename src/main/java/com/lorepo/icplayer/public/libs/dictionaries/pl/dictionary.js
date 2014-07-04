@@ -107,6 +107,7 @@ var ice_dictionary = {
 	"activities_menu" : "Activities",
 	"reporting_menu" : "Reporting",
 	"navigation_menu" : "Navigation",
+	"learn_pen_menu" : "LearnPen",
 	"media_menu" : "Media",
 	"scripting_menu" : "Scripting",
 	"private_menu" : "Private",
