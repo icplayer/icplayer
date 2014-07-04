@@ -96,6 +96,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("WritingCalculations", "Writing Calculations", "Activities");
 		addDescriptor("Vimeo", "Vimeo", "Media");
 		addDescriptor("YouTube_Addon", "YouTube", "Media");
+		addDescriptor("Zoom_Image", "Zoom Image", "Media");
 		addDescriptor("DrawingSmartPen", "LearnPen Drawing", "LearnPen");
 		addDescriptor("LearnPen_Data", "LearnPen Data", "LearnPen");
 	}

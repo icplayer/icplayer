@@ -1,0 +1,22 @@
+.addon_Zoom_Image .content {
+    position: relative;
+}
+
+.addon_Zoom_Image .content div.icon {
+    position: absolute;
+    background-color: #adff2f;
+    width: 30px;
+    height: 30px;
+    bottom: 0;
+    right: 0;
+}
+
+img.big {
+    display: table;
+    margin: auto;
+}
+
+.ui-widget-overlay {
+    background: black !important;
+    opacity: 0.7 !important;
+}

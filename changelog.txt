@@ -1,3 +1,4 @@
+2014-07-04 New addon - Zoom Image
 2014-07-03 Fixed issue with scoring on some mobile devices in Text module
 2014-07-03 Added parsing definitions in Connection module
 2014-07-02 Fixed issue with Animation addon on Windows 8 Mobile devices
