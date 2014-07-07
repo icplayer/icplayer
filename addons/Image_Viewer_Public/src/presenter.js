@@ -493,7 +493,7 @@ function AddonImage_Viewer_Public_create() {
             e.stopPropagation();
 
             $(watermarkElement).hide();
-            clickHandler();
+            clickHandler(e);
         });
 
         if (presenter.configuration.showFrameCounter) {

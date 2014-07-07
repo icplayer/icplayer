@@ -1,3 +1,4 @@
+2014-07-07 Fixed issue with first click on Image Viewer addon
 2014-07-07 Fixed loading cached image on Slider module on IE 10
 2014-07-04 New addon - Zoom Image
 2014-07-03 Fixed issue with scoring on some mobile devices in Text module
