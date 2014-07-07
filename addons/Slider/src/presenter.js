@@ -50,21 +50,38 @@ function AddonSlider_create () {
         }
     };
 
+    /**
+     * Trigger a callback when the selected images are loaded:
+     * @param {String} selector
+     * @param {Function} callback
+     */
+    var onImgLoaded = function($element, callback){
+        if ($element[0].complete || /*for IE 10-*/ $element.height() > 0) {
+            callback($element[0]);
+        }
+        else {
+            $element.on('load', function(){
+                callback($element[0]);
+            });
+        }
+    };
+
     function loadImageElement(isPreview) {
         var addonContainer = presenter.$addonContainer;
         var imageElement = document.createElement('img');
-        $(imageElement).attr('src', presenter.configuration.imageSrc);
+        $(imageElement).attr('src', presenter.configuration.imageSrc + "?" + new Date().getTime()); // fix for IE 10 cached images http://css-tricks.com/snippets/jquery/fixing-load-in-ie-for-cached-images/
         addonContainer.html(imageElement);
 
-        $(imageElement).load(function() {
-            imageElementData.width = $(this).width();
-            imageElementData.height = $(this).height();
-            imageElementData.maxLeft = $(addonContainer).width() - $(this).width();
-            imageElementData.maxTop = $(addonContainer).height() - $(this).height();
-
-            $(this).remove();
+        onImgLoaded($(imageElement), function(image) {
+            var width = image.width;
+            var height = image.height;
+            imageElementData.width = width;
+            imageElementData.height = height;
+            imageElementData.maxLeft = $(addonContainer).width() - width;
+            imageElementData.maxTop = $(addonContainer).height() - height;
 
             var imageContainer = document.createElement('div');
+
             $(imageContainer).addClass(CLASSES_NAMES.ELEMENT_IMAGE.STANDARD_CLASS);
             $(imageContainer).css({
                 backgroundImage: "url('" + presenter.configuration.imageSrc + "')",
@@ -72,16 +89,17 @@ function AddonSlider_create () {
                 width: imageElementData.width + 'px',
                 height: imageElementData.height + 'px'
             });
-
             addonContainer.html(imageContainer);
 
             var containerLength = presenter.configuration.orientation === presenter.ORIENTATION.LANDSCAPE ? $(addonContainer).width() : $(addonContainer).height();
+
             var elementLength = presenter.configuration.orientation === presenter.ORIENTATION.LANDSCAPE ? $(imageContainer).width() : $(imageContainer).height();
             if(!presenter.configuration.stepwise) {
                 presenter.configuration.stepsCount = containerLength - elementLength + 1;
             }
-
             var stepZoneLength = (containerLength - elementLength) / (presenter.configuration.stepsCount - 1);
+
+
 
             presenter.configuration.snapPoints.push(elementLength / 2);
             for (var i = 0; i < presenter.configuration.stepsCount - 2; i++) {
@@ -263,7 +281,7 @@ function AddonSlider_create () {
     function handleMouseDrag(addonContainer) {
         presenter.isWindowsMobile = false;
 
-        if (window.navigator.msPointerEnabled) {
+        if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent()) {
             presenter.isWindowsMobile = true;
         }
 
