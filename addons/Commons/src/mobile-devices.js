@@ -37,6 +37,14 @@
                 return true;
             else
                 return false;
+        },
+
+        isWindowsMobile: function(userAgent) {
+            if (userAgent === undefined || !userAgent)
+                return false;
+            if (userAgent.msPointerEnabled)
+                return true;
+            return false;
         }
 
     }

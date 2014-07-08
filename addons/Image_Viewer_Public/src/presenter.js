@@ -147,7 +147,8 @@ function AddonImage_Viewer_Public_create() {
     }
 
     function clickHandler(e) {
-        e.stopPropagation();
+        if (e)
+            e.stopPropagation();
 
         if (presenter.configuration.isClickDisabled) return;
         if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
@@ -163,8 +164,10 @@ function AddonImage_Viewer_Public_create() {
     }
 
     function isMoreThanOneFingerGesture(event) {
-        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
-        return (event.touches.length || touchPoints.length) > 1;
+        var touch, touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+        if (event.hasOwnProperty('touches'))
+            touchPoints = event.touches
+        return touchPoints.length> 1;
     }
 
     function touchStartCallback (event) {
@@ -172,7 +175,10 @@ function AddonImage_Viewer_Public_create() {
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
-        var touch = event.touches[0] || touchPoints[0];
+        if (event.hasOwnProperty('touches'))
+            touch = event.touches[0]
+        else
+            touch = touchPoints[0];
         mouseDownCallback(touch);
     }
 
@@ -191,7 +197,6 @@ function AddonImage_Viewer_Public_create() {
 
     function touchEndCallback () {
         mouseUpCallback();
-        presenter.mouseData.isMouseDragged = false;
     }
 
     function getRequiredShift() {
@@ -261,6 +266,15 @@ function AddonImage_Viewer_Public_create() {
         presenter.configuration.animation = originalAnimation;
         presenter.mouseData.isMouseDown = false;
         delete presenter.mouseData.originalBackgroundPosition;
+
+        if (!MobileUtils.isWindowsMobile(window.navigator)) {
+         presenter.mouseData.isMouseDragged = false;
+        }
+        if (MobileUtils.isWindowsMobile(window.navigator) && shift <= getRequiredShift()) {
+            presenter.mouseData.isMouseDragged = false;
+            clickHandler(false);
+            presenter.mouseData.isMouseDragged = true;
+        }
     }
 
     function touchMoveCallback (event) {
@@ -268,9 +282,13 @@ function AddonImage_Viewer_Public_create() {
 
         event.preventDefault();
 
+        var touch;
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
-        var touch = event.touches[0] || touchPoints[0];
+        if (event.hasOwnProperty('touches'))
+            touch = event.touches[0]
+        else
+            touch = touchPoints[0];
         mouseMoveCallback(touch);
     }
 
@@ -471,7 +489,7 @@ function AddonImage_Viewer_Public_create() {
 
     function attachEventHandlers() {
 
-        if (window.navigator.msPointerEnabled) { // isWindowsMobile
+        if (MobileUtils.isWindowsMobile(window.navigator)) {
             presenter.$element[0].addEventListener("MSPointerDown", touchStartCallback, false);
             presenter.$element[0].addEventListener("MSPointerUp", touchEndCallback, false);
             presenter.$element[0].addEventListener("MSPointerMove", touchMoveCallback, false);
