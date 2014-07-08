@@ -29,6 +29,13 @@
                 return false;
         },
 
+        /**
+         Recognizes if userAgent is Safari mobile device
+         @method isSafariMobile
+
+         @return {Boolean} True if userAgent is Safari mobile device
+         */
+
         isSafariMobile: function(userAgent) {
             if (userAgent === undefined || !userAgent)
                 return false;
@@ -39,13 +46,59 @@
                 return false;
         },
 
-        isWindowsMobile: function(userAgent) {
-            if (userAgent === undefined || !userAgent)
+        /**
+         Recognizes if window_navigator is Windows mobile device
+         @method isWindowsMobile
+
+         @return {Boolean} True if window_navigator is Windows mobile device
+         */
+
+        isWindowsMobile: function(window_navigator) {
+            if (window_navigator === undefined || !window_navigator)
                 return false;
-            if (userAgent.msPointerEnabled)
+            if (window_navigator.msPointerEnabled)
                 return true;
             return false;
-        }
+        },
+
+        /**
+         Recognizes if eventName is supported on current device
+         @method isEventSupported
+
+         @return {Boolean} True if eventName is supported on current device
+         */
+
+        isEventSupported : function() {
+            var cache = {};
+
+            return function(eventName) {
+                  var TAGNAMES = {
+                  'select': 'input',
+                  'change': 'input',
+                  'submit': 'form',
+                  'reset' : 'form',
+                  'error' : 'img',
+                  'load'  : 'img',
+                  'abort' : 'img',
+                  'unload': 'win',
+                  'resize': 'win'
+                },
+                shortEventName = eventName.replace(/^on/, '');
+                if(cache[shortEventName]) { return cache[shortEventName]; }
+                var elt = TAGNAMES[shortEventName] == 'win'
+                          ? window
+                          : document.createElement(TAGNAMES[shortEventName] || 'div');
+                eventName = 'on'+shortEventName;
+                var eventIsSupported = (eventName in elt);
+                if (!eventIsSupported) {
+                    elt.setAttribute(eventName, 'return;');
+                    eventIsSupported = typeof elt[eventName] == 'function';
+                    }
+                elt = null;
+                cache[shortEventName] = eventIsSupported;
+                return eventIsSupported;
+            };
+    }()
 
     }
 })(window);

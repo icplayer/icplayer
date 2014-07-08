@@ -267,8 +267,8 @@ function AddonImage_Viewer_Public_create() {
         presenter.mouseData.isMouseDown = false;
         delete presenter.mouseData.originalBackgroundPosition;
 
-        if (!MobileUtils.isWindowsMobile(window.navigator)) {
-         presenter.mouseData.isMouseDragged = false;
+        if (!MobileUtils.isWindowsMobile(window.navigator) && presenter.isMobileDevice) {
+            presenter.mouseData.isMouseDragged = false;
         }
         if (MobileUtils.isWindowsMobile(window.navigator) && shift <= getRequiredShift()) {
             presenter.mouseData.isMouseDragged = false;
@@ -489,12 +489,13 @@ function AddonImage_Viewer_Public_create() {
 
     function attachEventHandlers() {
 
+        presenter.isMobileDevice = MobileUtils.isMobileUserAgent(navigator.userAgent) || MobileUtils.isEventSupported('touchend');
         if (MobileUtils.isWindowsMobile(window.navigator)) {
             presenter.$element[0].addEventListener("MSPointerDown", touchStartCallback, false);
             presenter.$element[0].addEventListener("MSPointerUp", touchEndCallback, false);
             presenter.$element[0].addEventListener("MSPointerMove", touchMoveCallback, false);
         }
-        else if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+        else if (presenter.isMobileDevice) {
             presenter.$element[0].ontouchstart = touchStartCallback;
             presenter.$element[0].ontouchend = touchEndCallback;
             presenter.$element[0].ontouchmove = touchMoveCallback;
