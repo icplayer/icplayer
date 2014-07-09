@@ -382,6 +382,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				valueChanged(id, newValue);
 			}
 			
+			public void onValueEdited(String id, String newValue) {
+				valueEdited(id, newValue);
+			}
+			
 			public void onLinkClicked(LinkType type, String link, String target) {
 				if(type == LinkType.PAGE){
 					gotoPage(link);
@@ -410,6 +414,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String itemID = id.substring(id.lastIndexOf("-")+1);
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, newValue, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
+	}
+	
+	protected void valueEdited(String id, String newValue) {
+		
+		values.put(id, newValue);
+		updateScore();
 	}
 
 

@@ -8,6 +8,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -28,6 +30,13 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		onAttach();
 		
 		if(listener != null){
+			
+			addKeyUpHandler(new KeyUpHandler() {
+				public void onKeyUp(KeyUpEvent event) {
+					listener.onValueEdited(gapInfo.getId(), getText());
+				}
+			});
+			
 			addBlurHandler(new BlurHandler() {
 				public void onBlur(BlurEvent event) {
 					listener.onValueChanged(gapInfo.getId(), getText());
