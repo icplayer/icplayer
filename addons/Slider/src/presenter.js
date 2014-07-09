@@ -281,7 +281,7 @@ function AddonSlider_create () {
     function handleMouseDrag(addonContainer) {
         presenter.isWindowsMobile = false;
 
-        if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent()) {
+        if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
             presenter.isWindowsMobile = true;
         }
 
