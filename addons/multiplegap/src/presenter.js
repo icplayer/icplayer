@@ -181,8 +181,6 @@ function Addonmultiplegap_create(){
         $(presenter.selectorRootClass() + ' .handler_disabled')
             .click(presenter.removeDraggable)
             .removeClass('handler_disabled');
-
-        presenter.$view.find('.handler').css('background-color', '');
     };
 
     presenter.saveSelected = function(eventData) {
@@ -333,8 +331,7 @@ function Addonmultiplegap_create(){
         // Workaround for IE bug: empty divs in IE are not clickable so let's
         // make them not empty and appear as empty.
         if($.browser.msie) {
-            handler.css('background', '#000');
-            handler[0].style.filter = "alpha(opacity=0)";
+            handler.css({backgroundColor: "#000000", opacity: 0 });
         }
 
         handler.click(presenter.removeDraggable);
