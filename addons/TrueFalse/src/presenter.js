@@ -66,7 +66,7 @@ function AddonTrueFalse_create() {
             var row = presenter.$view.find('#' + i);
             if (i > 0) {
                 var values = (questions[i - 1].Answer).split(',');
-                row.children(':not(.tf_radio_question)').each(function () {
+                row.children().each(function () {
                     if ($(this).hasClass("disabled") && j > 0) return;
                     $(this).addClass("disabled");
                     if (isCorrectAnswer($(this), values, j)) {
