@@ -66,8 +66,8 @@ function AddonTrueFalse_create() {
             var row = presenter.$view.find('#' + i);
             if (i > 0) {
                 var values = (questions[i - 1].Answer).split(',');
-                row.children().each(function () {
-                    if ($(this).hasClass("disabled") && j>0) return;
+                row.children(':not(.tf_radio_question)').each(function () {
+                    if ($(this).hasClass("disabled") && j > 0) return;
                     $(this).addClass("disabled");
                     if (isCorrectAnswer($(this), values, j)) {
                         $(this).addClass("correct");
@@ -342,6 +342,7 @@ function AddonTrueFalse_create() {
         presenter.$view.find(".tf_" + presenter.type + "_image").each(function () {
             if (selectedElements[i] == true) {
                 $(this).addClass("down");
+                $(this).removeClass("up");
             }
             i++;
         });
