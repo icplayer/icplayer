@@ -28,3 +28,36 @@
     border: 1px solid green !important;
     background-color: #afa !important;
 }
+
+.wrapper-line {
+    float: left;
+    width: 50px;
+}
+
+.container-line {
+    border-bottom: 1px solid #111;
+    height: 5px;
+}
+
+.wrapper-empty-space {
+    float: left;
+    height: 1px;
+    width: 50px;
+}
+
+.wrapper-dot {
+    float: left;
+    width: 0px;
+    position: relative;
+}
+
+.container-dot {
+    position: absolute;
+    left: -7px;
+    top: 20px;
+}
+
+.wrapper-cell {
+    min-height: 3px;
+}
+

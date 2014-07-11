@@ -119,28 +119,35 @@ function AddonWritingCalculations_create() {
     presenter.createView = function(convertedArray) {
         var viewWrapper = this.$view.find("#writing-calculations-wrapper"), columnItemIndex = 0;
         for(var rowIndex = 0; rowIndex < convertedArray.length; rowIndex++) {
-            var rowWrapper = this.createRowWrapper(rowIndex);
+            var rowWrapper = this.createRowWrapper(rowIndex),
+                cellIndex = 0;
+
             columnItemIndex = 0;
 
-            for(var cellIndex = 0; cellIndex < convertedArray[rowIndex].length; cellIndex++) {
-                var element, row = convertedArray[rowIndex];
+            for(var index = 0; index < convertedArray[rowIndex].length; index++) {
+                var element, row = convertedArray[rowIndex],
+                    isGap = row[index] == '[';
 
-                if( row[cellIndex] == '[') {
-                    element = row.slice(cellIndex, cellIndex + 3);
+                if( isGap ) {
+                    element = row.slice(index, index + 3);
                     presenter.verifyElementRange(element);
                     var correctAnswer = {
                         rowIndex: rowIndex + 1,
-                        cellIndex: ++columnItemIndex,
+                        index: ++columnItemIndex,
                         value: this.getValueOfElement(element)
                     };
                     this.correctAnswersList.push(correctAnswer);
-                    cellIndex += 2;
+                    index += 2;
                 } else {
-                    element = row[cellIndex];
+                    element = row[index];
+                }
+                var elementType = this.getElementType(element);
+
+                var createdElement = this.createElement(element, elementType);
+                if (elementType != presenter.ELEMENT_TYPE.LINE) {
+                    addCellClass(createdElement, cellIndex);
                 }
 
-                var elementType = this.getElementType(element);
-                var createdElement = this.createElement(element, elementType);
                 this.transformElement(createdElement, element, elementType);
 
                 if ( elementType == this.ELEMENT_TYPE.EMPTY_BOX ) {
@@ -148,11 +155,19 @@ function AddonWritingCalculations_create() {
                 }
 
                 rowWrapper.append(createdElement);
+
+                if (elementType != this.ELEMENT_TYPE.DOT) {
+                    cellIndex++;
+                }
             }
 
             viewWrapper.append(rowWrapper);
         }
     };
+
+    function addCellClass(createdElement, cellIndex) {
+        $(createdElement).addClass('cell-' + cellIndex);
+    }
 
     presenter.verifyElementRange = function(element) {
         if( element[2] != ']' ) {
@@ -182,8 +197,7 @@ function AddonWritingCalculations_create() {
 
     presenter.createRowWrapper = function(index) {
         var rowWrapper = $("<div></div>");
-        rowWrapper.addClass("wrapper-row");
-        rowWrapper.attr("id", index);
+        rowWrapper.addClass("wrapper-row row-" + index);
         return rowWrapper;
     };
 
@@ -197,25 +211,28 @@ function AddonWritingCalculations_create() {
                 createdElement = this.createWrapperAndContainer("symbol");
                 break;
             case this.ELEMENT_TYPE.EMPTY_SPACE:
-                createdElement = this.createWrapperAndContainer("emptySpace");
+                createdElement = this.createWrapperAndContainer("emptySpace", 'wrapper-empty-space');
                 break;
             case this.ELEMENT_TYPE.EMPTY_BOX:
                 createdElement = this.createWrapperAndContainer("emptyBox");
                 break;
             case this.ELEMENT_TYPE.LINE:
-                createdElement = this.createWrapperAndContainer("line");
+                createdElement = this.createWrapperAndContainer("line", 'wrapper-line');
                 break;
             case this.ELEMENT_TYPE.DOT:
-                createdElement = this.createWrapperAndContainer("dot");
+                createdElement = this.createWrapperAndContainer("dot", 'wrapper-dot');
                 break;
         }
 
         return createdElement;
     };
 
-    presenter.createWrapperAndContainer = function(cssClass) {
+    presenter.createWrapperAndContainer = function(cssClass, wrapperClass) {
+        if (!wrapperClass || wrapperClass === undefined) {
+            wrapperClass = "wrapper-cell";
+        }
         var wrapper = $("<div></div>");
-        wrapper.addClass("wrapper-cell");
+        wrapper.addClass(wrapperClass);
         var container = $("<div></div>");
         container.addClass("container-" + cssClass);
         wrapper.append(container);
@@ -226,7 +243,6 @@ function AddonWritingCalculations_create() {
         var container = $(element).find("[class*=container]");
         switch(type) {
             case this.ELEMENT_TYPE.EMPTY_SPACE:
-                container.parent().css("height", "3px");
                 break;
             case this.ELEMENT_TYPE.EMPTY_BOX:
                 var input = $("<input type='text'>");
@@ -234,17 +250,11 @@ function AddonWritingCalculations_create() {
                 container.append(input);
                 break;
             case this.ELEMENT_TYPE.LINE:
-                container.parent().css("height", "3px");
-                container.css({
-                    "borderBottom" : "1px solid #111",
-                    "height" : "100%"
-                });
                 break;
             case this.ELEMENT_TYPE.SYMBOL:
                 container.html(this.convertLaTeX(value));
                 break;
             case this.ELEMENT_TYPE.DOT:
-                container.parent().css("width", "0");
                 container.html(value);
                 break;
             default:
