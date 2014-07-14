@@ -12,7 +12,7 @@ TestCase("Create Elements Tests", {
 
         // Then
         assertTrue("", rowWrapper.hasClass("wrapper-row"));
-        assertEquals("", index, rowWrapper.attr("id"));
+        assertTrue("", rowWrapper.attr("class").indexOf('row-' + index) >= 0 );
     },
 
     'test createElement method with different types': function() {

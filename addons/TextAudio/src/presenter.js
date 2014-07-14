@@ -4,6 +4,7 @@ function AddonTextAudio_create(){
     var oggFile;
     var eventBus;
     var currentTimeAlreadySent;
+    var hasBeenStarted = false;
 
     presenter.ERROR_CODES = {
     	'M01': 'This addon needs at least 1 audio file.',
@@ -110,13 +111,13 @@ function AddonTextAudio_create(){
         presenter.$view.find('#durationTime').html(formatTime(duration));
     }
 
-    function goto(slide_id, selectionId) {
+    function go_to(slide_id, selectionId) {
         slide_id = parseInt(slide_id);
         selectionId = parseInt(selectionId);
-        if (slide_id<0 || selectionId<0)
-            return false;
-        var frame2go = presenter.configuration.slides[slide_id].Times[selectionId].start;
-        presenter.audio.currentTime = frame2go / presenter.fps;
+        if (slide_id >= 0 || selectionId >= 0) {
+            var frame2go = presenter.configuration.slides[slide_id].Times[selectionId].start;
+            presenter.audio.currentTime = frame2go / presenter.fps;
+        }
     }
 
     function make_slide(textWrapper, slide_id) {
@@ -134,7 +135,7 @@ function AddonTextAudio_create(){
             textWrapper.find("span[class^='textelement']").each(function(){
                 $(this).on('click', function(){
                     var selectionId = $(this).attr('data-selectionId');
-                    goto(slide_id, selectionId);
+                    go_to(slide_id, selectionId);
                 })
             })
         }
@@ -187,8 +188,7 @@ function AddonTextAudio_create(){
                             selection_id: 0
                         }
         }
-        var is_playing = (presenter.audio.paused === false);
-        if (!is_playing) {
+        if (!hasBeenStarted) {
             slide_data.selection_id = -1;
         }
         change_slide_from_data(slide_data)
@@ -221,6 +221,7 @@ function AddonTextAudio_create(){
 
         if (!isPreview) {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+            audio.addEventListener('playing', function() { hasBeenStarted = true; }, false);
         }
 
         presenter.audio = audio;
@@ -316,7 +317,7 @@ function AddonTextAudio_create(){
         seconds = isNaN(seconds)? 0: seconds;
         decyseconds = isNaN(decyseconds)? 0: decyseconds;
         return ((minutes * 60 + seconds) * presenter.fps) + decyseconds;
-    }
+    };
 
     presenter.validateSlides = function(slides) {
         var validationResult = {
@@ -330,9 +331,9 @@ function AddonTextAudio_create(){
         var frames = [];
         for (i=0; i<slides.length; i++)
         {
-            slide = slides[i];
-            slide_texts = slide.Text.split('||');
-            slide_times = slide.Times.split('\n');
+            var slide = slides[i];
+            var slide_texts = slide.Text.split('||');
+            var slide_times = slide.Times.split('\n');
 
             if (slide_texts.length != slide_times.length) {
                 validationResult.errorCode = 'M02';
@@ -384,7 +385,7 @@ function AddonTextAudio_create(){
         validationResult.value = slides;
         validationResult.frames = frames;
         return validationResult
-    }
+    };
 
     presenter.validateModel = function (model) {
 
