@@ -1,3 +1,4 @@
+2014-07-14 New properties for cells in Table addon: CSS Class and CSS Style
 2014-07-11 Fixed Writing Calculation styling
 2014-07-11 Fixed bug with True/False module scoring
 2014-07-10 Fixed bug with removing elements from MultipleGap addon on Windows 8 mobile

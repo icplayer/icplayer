@@ -228,6 +228,12 @@ function AddonTable_create() {
                 colspan: content[i].colSpan,
                 rowspan: content[i].rowSpan
             });
+            if (content[i].class) {
+                $element.addClass(content[i].class)
+            };
+            if (content[i].style) {
+                $element.attr({style:content[i].style})
+            }
 
             $rowElement.append($element);
         }
@@ -334,7 +340,9 @@ function AddonTable_create() {
                         validatedContent[row][column] = {
                             content: content[i].Content,
                             rowSpan: rows.values.length,
-                            colSpan: columns.values.length
+                            colSpan: columns.values.length,
+                            class : content[i].hasOwnProperty("CSS Class") ? content[i]["CSS Class"] : "",
+                            style: content[i].hasOwnProperty("CSS Style") ? content[i]["CSS Style"] : ""
                         };
                     } else {
                         validatedContent[row][column] = undefined;

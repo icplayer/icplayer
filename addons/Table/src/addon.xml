@@ -8,6 +8,8 @@
 			<property name="Row" type="string" />
 			<property name="Column" type="string" />
 			<property name="Content" type="html" isLocalized="true" />
+            <property name="CSS Class" type="string" />
+            <property name="CSS Style" type="string" />
 		</property>
 		<property name="Columns width" type="list">
 			<property name="Width" type="string" />

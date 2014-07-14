@@ -104,29 +104,37 @@ TestCase("Content validation", {
         var content = [{
             Row: "1",
             Column: "1",
-            Content: "[1][1]"
+            Content: "[1][1]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "1",
             Column: "3",
-            Content: "[1][3]"
+            Content: "[1][3]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "2",
             Column: "1",
-            Content: "[2][1]"
+            Content: "[2][1]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "2",
             Column: "2",
-            Content: "[2][2]"
+            Content: "[2][2]",
+            "class" : "",
+            "style" : ""
         }];
 
         var emptyContent = [
             [
-                { content: "[1][1]", rowSpan: 1, colSpan: 1 },
+                { content: "[1][1]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" },
                 { content: "", rowSpan: 1, colSpan: 1 },
-                { content: "[1][3]", rowSpan: 1, colSpan: 1 }
+                { content: "[1][3]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" }
             ], [
-                { content: "[2][1]", rowSpan: 1, colSpan: 1 },
-                { content: "[2][2]", rowSpan: 1, colSpan: 1 },
+                { content: "[2][1]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" },
+                { content: "[2][2]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" },
                 { content: "", rowSpan: 1, colSpan: 1 }
             ]
         ];
@@ -170,29 +178,37 @@ TestCase("Content validation", {
         var content = [{
             Row: "1",
             Column: "1,2",
-            Content: "[1][1]"
+            Content: "[1][1]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "1",
             Column: "3",
-            Content: "[1][3]"
+            Content: "[1][3]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "2",
             Column: "1",
-            Content: "[2][1]"
+            Content: "[2][1]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "2",
             Column: "2,3",
-            Content: "[2][2]"
+            Content: "[2][2]",
+            "class" : "",
+            "style" : ""
         }];
 
         var emptyContent = [
             [
-                { content: "[1][1]", rowSpan: 1, colSpan: 2 },
+                { content: "[1][1]", rowSpan: 1, colSpan: 2, "class" : "", "style" : "" },
                 undefined,
-                { content: "[1][3]", rowSpan: 1, colSpan: 1 }
+                { content: "[1][3]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" }
             ], [
-                { content: "[2][1]", rowSpan: 1, colSpan: 1 },
-                { content: "[2][2]", rowSpan: 1, colSpan: 2 },
+                { content: "[2][1]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" },
+                { content: "[2][2]", rowSpan: 1, colSpan: 2, "class" : "", "style" : "" },
                 undefined
             ]
         ];
@@ -206,29 +222,37 @@ TestCase("Content validation", {
         var content = [{
             Row: "1,2",
             Column: "1",
-            Content: "[1][1]"
+            Content: "[1][1]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "1,2",
             Column: "3",
-            Content: "[1][3]"
+            Content: "[1][3]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "1",
             Column: "2",
-            Content: "[1][2]"
+            Content: "[1][2]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "2",
             Column: "2",
-            Content: "[2][2]"
+            Content: "[2][2]",
+            "class" : "",
+            "style" : ""
         }];
 
         var emptyContent = [
             [
-                { content: "[1][1]", rowSpan: 2, colSpan: 1 },
-                { content: "[1][2]", rowSpan: 1, colSpan: 1 },
-                { content: "[1][3]", rowSpan: 2, colSpan: 1 }
+                { content: "[1][1]", rowSpan: 2, colSpan: 1, "class" : "", "style" : "" },
+                { content: "[1][2]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" },
+                { content: "[1][3]", rowSpan: 2, colSpan: 1, "class" : "", "style" : "" }
             ], [
                 undefined,
-                { content: "[2][2]", rowSpan: 1, colSpan: 1 },
+                { content: "[2][2]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" },
                 undefined
             ]
         ];
@@ -243,26 +267,32 @@ TestCase("Content validation", {
         var content = [{
             Row: "1,2",
             Column: "1,2",
-            Content: "[1][1]"
+            Content: "[1][1]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "1",
             Column: "3",
-            Content: "[1][3]"
+            Content: "[1][3]",
+            "class" : "",
+            "style" : ""
         }, {
             Row: "2",
             Column: "3",
-            Content: "[2][3]"
+            Content: "[2][3]",
+            "class" : "",
+            "style" : ""
         }];
 
         var emptyContent = [
             [
-                { content: "[1][1]", rowSpan: 2, colSpan: 2 },
+                { content: "[1][1]", rowSpan: 2, colSpan: 2, "class" : "", "style" : "" },
                 undefined,
-                { content: "[1][3]", rowSpan: 1, colSpan: 1 }
+                { content: "[1][3]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" }
             ], [
                 undefined,
                 undefined,
-                { content: "[2][3]", rowSpan: 1, colSpan: 1 }
+                { content: "[2][3]", rowSpan: 1, colSpan: 1, "class" : "", "style" : "" }
             ]
         ];
 

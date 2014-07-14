@@ -3,6 +3,7 @@ TestCase("State saving", {
         this.presenter = AddonTable_create();
         this.presenter.configuration = {
             isVisible: true,
+            isActivity: true,
             gaps: {
                 descriptions: []
             }
