@@ -187,6 +187,11 @@ function AddonGlossary_create(){
             $(this).attr('controls', 'controls');
         });
         presenter.dialog.css("maxHeight", "none");
+
+        if (presenter.scrollParentWindow !== undefined) {
+            $(window.parent).scrollTop(presenter.scrollParentWindow);
+            presenter.scrollParentWindow = undefined;
+        }
     };
 
     presenter.show = function(id) {
@@ -207,6 +212,12 @@ function AddonGlossary_create(){
         presenter.updateLaTeX(dialogData.description);
     };
 
+    presenter.catchScroll = function() {
+        if (window.parent && presenter.scrollParentWindow === undefined) {
+            presenter.scrollParentWindow = $(window.parent).scrollTop();
+        }
+    }
+
     presenter.initializeView = function(view, model) {
         presenter.model = model;
         presenter.$view = $(view);
@@ -223,6 +234,7 @@ function AddonGlossary_create(){
             width: model.Width,
             minHeight: 'auto',
             resizable: false,
+            focus: presenter.catchScroll,
             open: presenter.openDialogEventHandler,
             close: presenter.closeDialogEventHandler
         });
