@@ -305,6 +305,10 @@ hr, table, fieldset {
 	background-repeat:no-repeat;
 }
 
+.ui-draggable {
+	-ms-touch-action: none;
+}
+
 .ic_draggableGapEmpty-wrong{
 	padding-left:16px;
 	background-image:url('images/wrong.png');
