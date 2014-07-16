@@ -64,6 +64,32 @@ public class PagePopupPanel extends DialogBox {
 		pageController.setPage(page);
 		center();
 	}
+	
+	public static native int getParentWindowOffset() /*-{
+		if ($wnd == $wnd.parent) {
+			return 0;
+		}
+
+		var iframe_offset = 0,
+			iframes = $wnd.parent.document.getElementsByTagName("iframe");
+
+		for (var i=0; i < iframes.length; i++) {
+			var current_iframe = iframes[i];
+
+			if ($wnd.location.href == current_iframe.src){
+				var iframe_placement = current_iframe.getBoundingClientRect().top,
+					body_placement = $wnd.parent.document.body.getBoundingClientRect().top;
+
+				iframe_offset = Math.round(iframe_placement - body_placement);
+			}
+		}
+
+		if ($wnd.parent.pageYOffset < iframe_offset){
+			return 0;
+		}
+		
+		return $wnd.parent.pageYOffset - iframe_offset;
+	}-*/;
 
 	/**
 	 * Center popup
@@ -83,6 +109,8 @@ public class PagePopupPanel extends DialogBox {
 			else{
 				top = Window.getScrollTop();
 			}
+			
+			top += getParentWindowOffset();
 			
 			Window.addWindowScrollHandler(new ScrollHandler() {
 				public void onWindowScroll(ScrollEvent event) {
