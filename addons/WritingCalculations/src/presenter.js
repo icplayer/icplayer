@@ -133,7 +133,7 @@ function AddonWritingCalculations_create() {
                     presenter.verifyElementRange(element);
                     var correctAnswer = {
                         rowIndex: rowIndex + 1,
-                        index: ++columnItemIndex,
+                        cellIndex: ++columnItemIndex,
                         value: this.getValueOfElement(element)
                     };
                     this.correctAnswersList.push(correctAnswer);
