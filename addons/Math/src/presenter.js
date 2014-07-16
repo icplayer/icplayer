@@ -323,6 +323,8 @@ function AddonMath_create() {
             return;
         }
 
+        presenter.markGapsEmptiness(emptyGaps.gaps);
+
         if (emptyGaps.gaps.length !== 0) return;
 
         var separators = presenter.configuration.separators,
@@ -362,7 +364,7 @@ function AddonMath_create() {
 
         if (emptyGaps.gaps.length !== 0) {
             presenter.executeEventCode(presenter.configuration.onPartialEvent);
-            presenter.markGapsEmptiness(emptyGaps.gaps);
+//            presenter.markGapsEmptiness(emptyGaps.gaps); https://www.assembla.com/spaces/lorepo/tickets/cardwall#/ticket:3856
         } else {
             var separators = presenter.configuration.separators,
                 evaluationResult = presenter.evaluateAllExpressions(presenter.configuration.expressions,
