@@ -129,11 +129,28 @@ function Addoncrossword_create(){
 
     presenter.onCellInputFocus = function(event){
         event.target.select();
+        var length = $(event.target).val().length;
+        setCaretPosition(event.target, length + 1);
     };
 
     presenter.onCellInputMouseUp = function(event){
         event.preventDefault();
     };
+
+    function setCaretPosition(elem, caretPos) {
+        var range;
+
+        if (elem.createTextRange) {
+            range = elem.createTextRange();
+            range.move('character', caretPos);
+            range.select();
+        } else {
+            elem.focus();
+            if (elem.selectionStart !== undefined) {
+                elem.setSelectionRange(caretPos, caretPos);
+            }
+        }
+    }
 
     presenter.createGrid = function() {
         var wordNumberCounter = 1;
