@@ -99,8 +99,15 @@ function Addontext_identification_create(){
 
     presenter.centerElements = function ($text, $container) {
         $.when(presenter.mathJaxProcessEnded).then(function () {
-             var containerWidth = parseInt(viewContainer.css('width'), 10),
+            var contentWidth = parseInt($text.css('width'), 10),
+                contentHeight = parseInt($text.css('height'), 10),
+                containerWidth = parseInt(viewContainer.css('width'), 10),
                 containerHeight = parseInt(viewContainer.css('height'), 10);
+
+            $text.css({
+                left: Math.round((containerWidth - contentWidth) / 2) + 'px',
+                top: Math.round((containerHeight - contentHeight) / 2) + 'px'
+            });
 
             $container.css({
                 width: containerWidth + 'px',
@@ -113,6 +120,8 @@ function Addontext_identification_create(){
         presenter.registerMathJaxListener();
 
         viewContainer = $(view);
+        presenter.$view = $(view);
+        presenter.currentPageId = presenter.$view.parent('.ic_page').attr('id');
         var textSrc = model.Text;
         presenter.configuration = presenter.validateModel(model);
 
@@ -195,7 +204,9 @@ function Addontext_identification_create(){
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
 
         MathJax.Hub.Register.MessageHook("End Process", function (message) {
-            if ($(message[1]).hasClass('ic_page')) {
+            // We're listening for "End Process" that was fired for ic_page into which addon was inserted.
+            // This way we're not reacting on events from other page in Book View.
+            if ($(message[1]).hasClass('ic_page') && $(message[1]).is('#' + presenter.currentPageId)) {
                 presenter.mathJaxProcessEndedDeferred.resolve();
             }
         });

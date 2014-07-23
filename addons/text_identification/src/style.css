@@ -1,8 +1,6 @@
 .text-identification-content {
     text-align: center;
-    display: table-cell;
-    margin: auto;
-    vertical-align: middle;
+    position: absolute;
 }
 
 .text-identification-element-selected,
@@ -17,7 +15,6 @@
 
 .text-identification-container {
     cursor: pointer;
-    display: table;
 }
 
 .text-identification-background-image {
