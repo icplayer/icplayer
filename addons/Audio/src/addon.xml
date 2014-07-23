@@ -5,6 +5,7 @@
 		<property name="mp3" type="file" />
 		<property name="ogg" type="file" />
 		<property name="defaultControls" type="boolean" />
+        <property name="useBrowserControls" type="boolean" />
 		<property name="displayTime" type="boolean" />
 		<property name="enableLoop" type="boolean" />
 		<property name="Narration" type="narration" isLocalized="true" />
