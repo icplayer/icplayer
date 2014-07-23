@@ -1,3 +1,4 @@
+2014-07-23 Added support for drag & drop in Points and Lines module
 2014-07-23 Added support for drag & drop in Connecting Dots module
 2014-07-23 Added default HTML player to Audio addon
 2014-07-22 Removed tooltip from Close popup Button module
