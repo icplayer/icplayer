@@ -56,7 +56,7 @@ function AddonSlider_create () {
      * @param {Function} callback
      */
     var onImgLoaded = function($element, callback){
-        if ($element[0].complete || /*for IE 10-*/ $element.height() > 0) {
+        if ($element[0].complete) {
             callback($element[0]);
         }
         else {
