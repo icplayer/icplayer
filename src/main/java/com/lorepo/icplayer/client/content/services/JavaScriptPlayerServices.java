@@ -31,6 +31,7 @@ import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
 import com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
 import com.lorepo.icplayer.client.module.text.GapInfo;
@@ -434,6 +435,9 @@ public class JavaScriptPlayerServices{
 		}
 		else if(presenter instanceof ChoicePresenter){
 			return ((ChoicePresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof OrderingPresenter){
+			return ((OrderingPresenter) presenter).getAsJavaScript();
 		}
 		else if(presenter instanceof ButtonPresenter){
 			return ((ButtonPresenter) presenter).getAsJavaScript();

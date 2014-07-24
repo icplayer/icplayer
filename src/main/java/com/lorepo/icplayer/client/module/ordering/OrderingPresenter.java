@@ -1,5 +1,10 @@
 package com.lorepo.icplayer.client.module.ordering;
 
+import java.util.List;
+
+import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -11,7 +16,7 @@ import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-public class OrderingPresenter implements IPresenter, IStateful, IActivity{
+public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver {
 
 	public interface IDisplay extends IModuleView{
 
@@ -21,6 +26,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity{
 	private OrderingModule	module;
 	private IPlayerServices playerServices;
 	private OrderingView view;
+	private JavaScriptObject jsObject;
 	private boolean isSolved = false;
 	
 	
@@ -173,12 +179,31 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity{
 	}
 
 
-	@Override
+	@Override	
 	public IModuleModel getModel() {
 		return module;
 	}
 	
+	public JavaScriptObject getAsJavaScript(){
+		
+		if(jsObject == null){
+			jsObject = initJSObject(this);
+		}
+
+		return jsObject;
+	}
 	
+	private native JavaScriptObject initJSObject(OrderingPresenter x) /*-{
+		var presenter = function(){}
+	
+		presenter.isAllOK = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::isAllOK()();
+		};
+		
+		return presenter;
+	}-*/;
+	
+
 	private void onValueChanged(int sourceIndex, int destIndex) {
 
 		isSolved = true;
@@ -189,4 +214,24 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity{
 		playerServices.getEventBus().fireEvent(valueEvent);
 	}
 	
+	public boolean isAllOK() {
+		return getScore() == getMaxScore() && getErrorCount() == 0;
+	}
+
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String executeCommand(String commandName, List<IType> params) {
+		if(commandName.compareTo("isallok") == 0){
+            return String.valueOf(isAllOK());
+        }
+		
+		return "";
+	}
 }
