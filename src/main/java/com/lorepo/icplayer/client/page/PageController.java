@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.page;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
@@ -47,6 +48,7 @@ public class PageController {
 	private ArrayList<IPresenter>	presenters;
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
+	private HandlerRegistration valueChangedHandler;
 	
 	
 	public PageController(IPlayerController playerController) {
@@ -77,6 +79,19 @@ public class PageController {
 		this.moduleFactory = factory;
 	}
 
+	public void sendPageAllOkOnValueChanged(boolean sendEvent) {
+		if (sendEvent) {
+			valueChangedHandler = playerService.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+				public void onScoreChanged(ValueChangedEvent event) {
+					valueChanged(event);
+				}
+			});
+		}
+		else if (valueChangedHandler != null) {
+			valueChangedHandler.removeHandler();
+			valueChangedHandler = null;
+		}
+	}
 	
 	public void setPage(Page page){
 		
@@ -93,11 +108,6 @@ public class PageController {
 		}
 		pageView.refreshMathJax();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
-		playerService.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
-			public void onScoreChanged(ValueChangedEvent event) {
-				valueChanged(event);
-			}
-		});
 	}
 
 

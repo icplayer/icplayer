@@ -222,6 +222,9 @@ public class JavaScriptPlayerServices{
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
 			}
+			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
+			}
 
 			return commands;
 		}
@@ -560,6 +563,10 @@ public class JavaScriptPlayerServices{
 
 	private void uncheckAnswers() {
 		playerServices.getCommands().uncheckAnswers();
+	}
+
+	private void sendPageAllOkOnValueChanged(boolean sendEvent) {
+		playerServices.getCommands().sendPageAllOkOnValueChanged(sendEvent);
 	}
 	
 	private void sendEvent(String eventName, JavaScriptObject eventData){

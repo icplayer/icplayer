@@ -91,4 +91,9 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void sendPageAllOkOnValueChanged(boolean sendEvent) {
+		// TODO Auto-generated method stub
+	}
 }

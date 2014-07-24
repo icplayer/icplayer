@@ -1,3 +1,4 @@
+2014-07-24 Added new command to Player Services - sendPageAllOkOnValueChanged()
 2014-07-24 Added isAllOK() command to Ordering module
 2014-07-24 Fixed problem with image size in Slider addon
 2014-07-23 Added reset() command to Image Source module

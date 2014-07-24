@@ -17,6 +17,10 @@ public class PlayerCommands implements IPlayerCommands {
 		this.controller = controller;
 	}
 	
+	@Override
+	public void sendPageAllOkOnValueChanged(boolean sendEvent) {
+		this.pageController.sendPageAllOkOnValueChanged(sendEvent);
+	}
 	
 	@Override
 	public void showPopup(String pageName, String additionalClasses) {
