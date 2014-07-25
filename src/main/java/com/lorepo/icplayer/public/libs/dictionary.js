@@ -318,7 +318,9 @@ var ice_dictionary = {
 	"EdgeAnimation_info" : "Enables to embed animations and other projects created in Adobe Edge Animate program. More than one animation can be used in the addon and to make it work, it is necessary to configure certain properties in the addon’s side menu, including Animations, Images and Initial animation.",
 	"Clock_info" : "Allows users to create activities related to clock and showing time. The addon can be successfully used either as a simulation / presentation or a fully interactive activity. To make it work properly, it is necessary to set certain properties in the addon’s side menu, including Initial Time and Step.",
 	"SwiffyAnimation_info" : "Enables users to embed animations and other projects created in Adobe Flash program and converted with Google Swiffy plugin. First, it is necessary to configure certain properties in the addon’s side menu, including Animations (where you add Swiffy file) and Initial animation. The only way to control swiffy animations is to use the addon’s setVars command.",
-	"Zoom_Image_info" : "Zoom Image enables to display two versions of images, one inside addon content and the second in popup",
-	"LearnPen_Data_info" : "Displays LearnPen Data from sensors in real time",
-    "Sudoku_info": "This addon allows users to create activities with sudoku"
+	"Zoom_Image_info" : "Zoom Image enables to display two versions of images, one inside the addon's content and another one in popup.",
+	"LearnPen_Data_info" : "Displays LearnPen Data from sensors in real time.",
+    "Sudoku_info": "This addon allows users to create activities with sudoku.",
+    "Done_info" : "This addon is closely connected with Submit. It checks whether all activities on a page have been attempted and the Submit button has been used. Then it sends 'Done' event.",
+    "Submit_info" : "Submit enables to check if the provided answers are correct or wrong, however, it first checks whether the user has attempted to complete all activities included in a page. If not, the addon sends a relevant message."
 };

@@ -236,6 +236,7 @@ var ice_dictionary = {
 	"Advanced_Connector_info" : "Zaawansowana wersja Addonu Connector, która umożliwia łączenie wielu Addonów i modułów w taki sposób, aby powstały w pełni interaktywne ćwiczenia.",
 	"Animation_info" : "Pozwala na wstawienie prostej animacji utworzonej z pojedynczego obrazu. Wystarczy wgrać obraz i zdefiniować parametry Addonu w menu Właściwości. W celu uruchomienia animacji kliknij w obraz podglądu, a następnie kliknij ponownie, aby spauzować.",
 	"Audio_info" : "Dzięki Addonowi Audio możliwe jest odtwarzanie w prezentacji różnego rodzaju nagrań. Aby Addon działał poprawnie na wszystkich popularnych przeglądarkach, należy wgrać plik w dwóch formatach: mp3 i ogg.",
+    "TextAudio_info" : "Umożliwia odtwarzanie w prezentacji różnego rodzaju nagrań przy jednoczesnym podświetleniu bieżącej transkrypcji. Aby Addon działał poprawnie na wszystkich popularnych przeglądarkach, należy wgrać plik w dwóch formatach: mp3 i ogg.",
 	"Connection_info" : "Pozwala na utworzenie ćwiczenia składającego się z dwóch kolumn z elementami (tekstem lub obrazkami) do połączenia. Ćwiczenie może działać w trybie łączenia pojedynczego lub wielokrotnego (każdy element można wykorzystać w kilku połączeniach).",
 	"Connector_info" : "Specjalny rodzaj Addonu, który umożliwia łączenie wielu Addonów i modułów w taki sposób, aby powstały w pełni interaktywne ćwiczenia.",
 	"Count_and_Graph_info" : "Pozwala na wstawienie gotowego wykresu słupkowego do prezentacji, wystarczy zdefiniować kilka podstawowych parametrów w menu Właściwości.",
@@ -312,5 +313,9 @@ var ice_dictionary = {
 	"PointsLines_info" : "Pozwala na dodanie do prezentacji ćwiczenia, w którym wybranie dwóch punktów powoduje utworzenie lub usunięcie segmentu łączącego te dwa punkty. Addon można wykorzystać zarówno w formie prezentacji zagadnienia matematycznego lub jako w pełni interaktywne zadanie.",
 	"EdgeAnimation_info" : "Pozwala na osadzenie w prezentacji animacji utworzonej w programie Adobe Edge Animate. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane właściwości w menu bocznym (Animations, Images i Initial Animation.",
 	"Clock_info" : "Pozwala na tworzenie ćwiczeń związanych z zegarem i pokazywaniem czasu. Addon można wykorzystać zarówno w formie prezentacji lub jako w pełni interaktywne zadanie, wystarczy skonfigurować odpowiednie parametry w menu Właściwości.",
-	"SwiffyAnimation_info" : "Pozwala na osadzenie animacji utworzonej w programie Adobe Flash i skonwertowanej za pomocą Google Swiffy. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane parametry w menu Właściwości."
+	"SwiffyAnimation_info" : "Pozwala na osadzenie animacji utworzonej w programie Adobe Flash i skonwertowanej za pomocą Google Swiffy. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane parametry w menu Właściwości.",
+    "Zoom_Image_info" : "Umożliwia wyświetlanie dwóch wersji obrazu – wewnątrz Addonu i na wyskakującym okienku.",
+    "LearnPen_Data_info" : "W czasie rzeczywistym wyświetla dane dotyczące LearnPen uzyskane z czujników.",
+    "Done_info" : "Addon ściśle związany z przyciskiem Submit. Pozwala sprawdzić, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie i czy użyto przycisku Submit.",
+    "Submit_info" : "Podobnie jak przycisk Check, Submit weryfikuje poprawność wszystkich podanych odpowiedzi, najpierw jednak sprawdza, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie. Jeśli nie, Addon wysyła odpowiedni komunikat."
 };
