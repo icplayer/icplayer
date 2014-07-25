@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Page_Rating' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Title Text" type="string"/>
+		<property name="Comment Text" type="string" />
+		<property name="Rates" type="list">
+            <property name="Deselected" type="image"/>
+		    <property name="Selected" type="image"/>
+		</property>
+	</model>
+</addon>

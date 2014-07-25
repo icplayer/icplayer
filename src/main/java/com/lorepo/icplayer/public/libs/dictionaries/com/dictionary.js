@@ -268,6 +268,7 @@ var ice_dictionary = {
 	"Navigation_Bar_info": "Allows to add a ready-made navigation bar to a presentation. Since it doesn't require any additional configuration, it is enough to insert it into a presentation and enjoy its functions. Because of the addon's extensive styling mechanism, it has a perfect usage in presentation templates.",
 	"Page_Counter_info": "Allows to add a page counter to a presentation. It can present a current page index and a presentation page count in a normal or reversed order.",
 	"Page_Name_info": "Displays a current page name. Perfect for using in presentation templates.",
+	"Page_Rating_info": "Allows to add rating to a page.",
 	"Paragraph_info": "Allows a user to enter a free form text with basic WYSIWYG formatting.",
 	"Plot_info": "Plot drawing/exercise module allows users to present plots and make plot/points based activities. Plot enables to draw functions: f(x) and f(y).",
 	"Points_To_Plot_info": "This addon is an extension of the Plot addon. It allows users to create activities based on points to plot relations, e.g. define the points or the number of points to be selected in the Plot activity.",

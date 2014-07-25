@@ -73,6 +73,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Next", "Next", "navigation_menu");
 		addDescriptor("Page_Counter", "Page Counter", "navigation_menu");
 		addDescriptor("Page_Name", "Page Name", "navigation_menu");
+		addDescriptor("Page_Rating", "Page Rating", "reporting_menu");
 		addDescriptor("Paragraph", "Paragraph", "activities_menu");
 		addDescriptor("Plot", "Plot", "activities_menu");
 		addDescriptor("Points_To_Plot", "Points To Plot", "activities_menu");
