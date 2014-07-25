@@ -31,6 +31,7 @@ import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
 import com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
 import com.lorepo.icplayer.client.module.text.GapInfo;
@@ -220,6 +221,9 @@ public class JavaScriptPlayerServices{
 			}
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
+			}
+			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
 			}
 
 			return commands;
@@ -435,6 +439,9 @@ public class JavaScriptPlayerServices{
 		else if(presenter instanceof ChoicePresenter){
 			return ((ChoicePresenter) presenter).getAsJavaScript();
 		}
+		else if(presenter instanceof OrderingPresenter){
+			return ((OrderingPresenter) presenter).getAsJavaScript();
+		}
 		else if(presenter instanceof ButtonPresenter){
 			return ((ButtonPresenter) presenter).getAsJavaScript();
 		}
@@ -556,6 +563,10 @@ public class JavaScriptPlayerServices{
 
 	private void uncheckAnswers() {
 		playerServices.getCommands().uncheckAnswers();
+	}
+
+	private void sendPageAllOkOnValueChanged(boolean sendEvent) {
+		playerServices.getCommands().sendPageAllOkOnValueChanged(sendEvent);
 	}
 	
 	private void sendEvent(String eventName, JavaScriptObject eventData){

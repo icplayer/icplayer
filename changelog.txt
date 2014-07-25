@@ -1,3 +1,14 @@
+2014-07-24 Added new module: Sudoku
+2014-07-24 Added new command to Player Services - sendPageAllOkOnValueChanged()
+2014-07-24 Added isAllOK() command to Ordering module
+2014-07-24 Fixed problem with image size in Slider addon
+2014-07-23 Added reset() command to Image Source module
+2014-07-23 Fixed centering content in both Single View and Book View modes for Text Identification module
+2014-07-23 Added support for drag & drop in Points and Lines module
+2014-07-23 Added support for drag & drop in Connecting Dots module
+2014-07-23 Added default HTML player to Audio addon
+2014-07-22 Removed tooltip from Close popup Button module
+2014-07-16 Crossword - setting position of a cursor to the end on the focus
 2014-07-16 Fixed problem with Popup module when appears in iframe
 2014-07-16 Fixed Writing Calculation scoring
 2014-07-15 Fixed draggable elements on Win8 Mobile/IE10

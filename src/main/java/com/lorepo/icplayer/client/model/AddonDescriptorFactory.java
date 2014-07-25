@@ -1,9 +1,9 @@
 package com.lorepo.icplayer.client.model;
 
+import com.google.gwt.core.client.GWT;
+
 import java.util.Collection;
 import java.util.HashMap;
-
-import com.google.gwt.core.client.GWT;
 
 public class AddonDescriptorFactory {
 
@@ -84,6 +84,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Slideshow", "Slideshow", "media_menu");
 		addDescriptor("Standard_Shapes", "Standard Shapes", "media_menu");
 		addDescriptor("Submit", "Submit", "reporting_menu");
+		addDescriptor("Sudoku", "Sudoku", "activities_menu");
 		addDescriptor("SVG2", "SVG", "media_menu");
 		addDescriptor("SwiffyAnimation", "Swiffy Animation", "media_menu");
 		addDescriptor("Table", "Table", "activities_menu");

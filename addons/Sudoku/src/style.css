@@ -1,0 +1,38 @@
+.board input.c {
+    font-size: 15pt;
+    text-align: center;
+}
+.board input.wrong {
+    background-color: #ff2a2a;
+}
+.board input.correct {
+    background-color: #99FF55;
+}
+.board input.filled {
+    background-color: white;
+}
+
+.c {
+    border: 1px black solid;
+    -webkit-border-radius: 0px;
+    -khtml-border-radius: 0px;
+    -moz-border-radius: 0px;
+    width: 2.2em !important;
+    height: 2.2em !important;
+    padding: 0px;
+}
+
+.v {
+    border-right: 0;
+}
+
+.h {
+    border-bottom: 0;
+}
+.filled{
+    color: blue;
+}
+.sudoku-counter{
+    color:red;
+    background-color: #f2f2f2;
+}

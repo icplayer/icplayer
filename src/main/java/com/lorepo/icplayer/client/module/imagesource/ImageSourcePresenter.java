@@ -1,8 +1,12 @@
 package com.lorepo.icplayer.client.module.imagesource;
 
+import java.util.List;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -16,7 +20,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
-public class ImageSourcePresenter implements IPresenter, IStateful{
+public class ImageSourcePresenter implements IPresenter, IStateful, ICommandReceiver{
 
 	public interface IDisplay extends IModuleView{
 		public void select();
@@ -184,6 +188,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful{
 			
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getView()();
+		};
+		
+		presenter.reset = function() { 
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::reset()();
 		}
 		
 		return presenter;
@@ -192,6 +200,22 @@ public class ImageSourcePresenter implements IPresenter, IStateful{
 	
 	private Element getView(){
 		return view.getElement();
+	}
+
+
+	@Override
+	public String getName() {
+		return model.getId();
+	}
+
+
+	@Override
+	public String executeCommand(String commandName, List<IType> params) {
+		if(commandName.compareTo("reset") == 0) {
+			reset();
+		}
+		
+		return "";
 	}
 	
 }

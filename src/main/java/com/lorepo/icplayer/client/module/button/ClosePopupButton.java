@@ -11,7 +11,6 @@ class ClosePopupButton extends PushButton{
 	public ClosePopupButton(final IPlayerCommands pageService){
 		
 		setStyleName("ic_button_cancel");
-		setTitle(DictionaryWrapper.get("close_popup_button"));
 
 		addClickHandler(new ClickHandler() {
 			

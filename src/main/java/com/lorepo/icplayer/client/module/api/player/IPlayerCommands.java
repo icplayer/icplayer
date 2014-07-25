@@ -25,4 +25,6 @@ public interface IPlayerCommands {
 	public void closePopup();
 
 	public void executeEventCode(String code);
+	
+	public void sendPageAllOkOnValueChanged(boolean sendEvent);
 }
