@@ -316,6 +316,8 @@ var ice_dictionary = {
 	"SwiffyAnimation_info" : "Pozwala na osadzenie animacji utworzonej w programie Adobe Flash i skonwertowanej za pomocą Google Swiffy. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane parametry w menu Właściwości.",
     "Zoom_Image_info" : "Umożliwia wyświetlanie dwóch wersji obrazu – wewnątrz Addonu i na wyskakującym okienku.",
     "LearnPen_Data_info" : "W czasie rzeczywistym wyświetla dane dotyczące LearnPen uzyskane z czujników.",
-    "Done_info" : "Addon ściśle związany z przyciskiem Submit. Pozwala sprawdzić, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie i czy użyto przycisku Submit.",
-    "Submit_info" : "Podobnie jak przycisk Check, Submit weryfikuje poprawność wszystkich podanych odpowiedzi, najpierw jednak sprawdza, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie. Jeśli nie, Addon wysyła odpowiedni komunikat."
+    "Sudoku_info" : "Umożliwia tworzenie ćwiczeń opartych na zasadach gier Sudoku.",
+	"Done_info" : "Addon ściśle związany z przyciskiem Submit. Pozwala sprawdzić, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie i czy użyto przycisku Submit.",
+	"Submit_info" : "Podobnie jak przycisk Check, Submit weryfikuje poprawność wszystkich podanych odpowiedzi, najpierw jednak sprawdza, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie. Jeśli nie, Addon wysyła odpowiedni komunikat.",
+	"Show_Answers_info" : "Pozwala na wyświetlenie prawidłowych odpowiedzi dla każdego ćwiczenia na stronie."
 };
