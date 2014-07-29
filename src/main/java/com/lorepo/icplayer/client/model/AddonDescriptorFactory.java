@@ -80,6 +80,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("PointsLines", "Points and Lines", "activities_menu");
 		addDescriptor("Puzzle", "Puzzle", "activities_menu");
 		addDescriptor("Shape_Tracing", "Shape Tracing", "media_menu");
+		addDescriptor("Show_Answers", "Show Answers", "reporting_menu");
 		addDescriptor("Single_State_Button", "Single State Button", "scripting_menu");
 		addDescriptor("Slider", "Slider", "scripting_menu");
 		addDescriptor("Slideshow", "Slideshow", "media_menu");

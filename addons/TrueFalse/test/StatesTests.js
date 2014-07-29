@@ -14,6 +14,15 @@ TestCase("Get and Set State Tests", {
         assertEquals('', expectedState, state);
     },
 
+    'test get state in active show answers mode' : function() {
+        this.presenter.isShowAnswersActive = true;
+        this.presenter.currentState = '[false, true, false]';
+
+        var state = this.presenter.getState();
+
+        assertEquals('[false, true, false]', state);
+    },
+
     'test set state function sets data properly' : function() {
         var stateString = '[true,false,true]';
 

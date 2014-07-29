@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Show_Answers'>
+    <model>
+        <property name="Text" type="string" isLocalized="true" />
+        <property name="Text selected" type="string" isLocalized="true" />
+    </model>
+</addon>

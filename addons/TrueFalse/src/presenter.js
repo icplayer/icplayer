@@ -3,8 +3,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.type = "";
-    presenter.$view;
     presenter.lastEvent = null;
+    presenter.isShowAnswersActive = false;
 
     var possibleChoices = [];
     var multi = false;
@@ -102,6 +102,8 @@ function AddonTrueFalse_create() {
 
                 return false;
             }
+
+            return true;
         });
 
         return answerNumber;
@@ -303,6 +305,9 @@ function AddonTrueFalse_create() {
         textParser = new TextParserProxy(playerController.getTextParser());
         presenter.addonID = model.ID;
         makeView(view, model, false);
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     function isCorrectAnswer(element, values, index) {
@@ -332,6 +337,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.getState = function () {
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentState;
+        }
+
         return getSelectedElements();
     };
 
@@ -350,31 +359,62 @@ function AddonTrueFalse_create() {
 
     presenter.setShowErrorsMode = function () {
         presenter.isErrorMode = true;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         markElements();
     };
 
     presenter.setWorkMode = function () {
         presenter.isErrorMode = false;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         workMode(false);
     };
 
     presenter.reset = function () {
         presenter.isErrorMode = false;
+        presenter.isShowAnswersActive = false;
+
+        if (presenter.currentState) {
+            delete presenter.currentState;
+        }
+
         workMode(true);
     };
 
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return score().errorCount;
     };
 
     presenter.getMaxScore = function () {
         if (isNotActivity) return 0;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return score().maxScore;
     };
 
     presenter.getScore = function () {
         if (isNotActivity) return 0;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return score().score;
     };
 
@@ -404,6 +444,7 @@ function AddonTrueFalse_create() {
         var correctAnswersLength = 0;
         var rowAnswers = questions[selectedQuestion - 1].Answer.split(',');
         var row = presenter.$view.find('#' + selectedQuestion);
+
         for (var i = 0; i < row.children('.down').length; i++) {
             var selectedAnswer = $(row.children('.down')[i]).index();
             var isSelectionCorrect = presenter.isSelectionCorrect(questions[selectedQuestion - 1], parseInt(selectedAnswer, 10));
@@ -411,19 +452,28 @@ function AddonTrueFalse_create() {
                 correctAnswersLength++;
             }
         }
-        ;
+
         return rowAnswers.length === correctAnswersLength;
     };
 
     presenter.isSelected = function (rowIndex, answerIndex) {
         if (answerIndex < 1) return false;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var row = presenter.$view.find('#' + rowIndex);
         var el = row.children()[answerIndex];
         return $(el).hasClass("down");
-    }
+    };
 
 
     presenter.markAsCorrect = function (rowIndex, answerIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var row = presenter.$view.find('#' + rowIndex);
         if (rowIndex > 0) {
             var el = row.children()[answerIndex];
@@ -433,6 +483,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.markAsWrong = function (rowIndex, answerIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var row = presenter.$view.find('#' + rowIndex);
         if (rowIndex > 0) {
             var el = row.children()[answerIndex];
@@ -442,6 +496,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.markAsEmpty = function (rowIndex, answerIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var row = presenter.$view.find('#' + rowIndex);
         if (rowIndex > 0) {
             var el = row.children()[answerIndex];
@@ -450,6 +508,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.removeMark = function (rowIndex, answerIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var row = presenter.$view.find('#' + rowIndex);
         if (rowIndex > 0) {
             var el = row.children()[answerIndex];
@@ -458,6 +520,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.isAttempted = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var isAttempted = false;
         for (var rowIndex = 0; rowIndex < questions.length + 1; rowIndex++) {
             var answerIndex = 0;
@@ -469,6 +535,7 @@ function AddonTrueFalse_create() {
                         return false; // break;
                     }
                     answerIndex++;
+                    return true;
                 });
             }
         }
@@ -499,6 +566,49 @@ function AddonTrueFalse_create() {
         presenter.markAsCorrect(parseInt(params[0], 10), parseInt(params[1], 10));
     };
 
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if (isNotActivity) {
+            return;
+        }
+
+        presenter.isShowAnswersActive = true;
+        presenter.currentState = getSelectedElements();
+        workMode(true);
+
+        for (var i = 1; i < questions.length + 1; i++) {
+            var $row = presenter.$view.find('#' + i),
+                correctValues = (questions[i - 1].Answer).split(',');
+
+            for (var j = 0; j < correctValues.length; j++) {
+                var index = parseInt(correctValues[j], 10) + 1,
+                    $element = $row.find(".tf_" + presenter.type + "_image:nth-child(" + index + ")");
+
+                $element.addClass('down disabled correct').removeClass('up');
+            }
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        if (isNotActivity) {
+            return;
+        }
+
+        workMode(true);
+        presenter.setState(presenter.currentState);
+
+        delete presenter.currentState;
+        presenter.isShowAnswersActive = false;
+    };
 
     return presenter;
 }
