@@ -1,3 +1,4 @@
+2014-07-29 Fixed responding to Check Answers button in True/False module while it's set as not-activity
 2014-07-29 Added isAllOK() command and AllOK event to Memo Game module.
 2014-07-29 Added responding to Show Answers events in True/False module
 2014-07-29 Added new module: Show Answers

@@ -358,6 +358,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if (isNotActivity) {
+            return;
+        }
+
         presenter.isErrorMode = true;
 
         if (presenter.isShowAnswersActive) {
@@ -368,6 +372,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.setWorkMode = function () {
+        if (isNotActivity) {
+            return;
+        }
+
         presenter.isErrorMode = false;
 
         if (presenter.isShowAnswersActive) {
