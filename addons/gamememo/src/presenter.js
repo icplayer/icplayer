@@ -1,6 +1,13 @@
 function Addongamememo_create(){
     var presenter = function(){};
 
+    var playerController;
+    var eventBus;
+
+    presenter.setPlayerController = function (controller) {
+        playerController = controller;
+    };
+
     presenter.numberToCardType = function(n) {
         if(n == 0) {
             return 'A';
@@ -193,7 +200,8 @@ function Addongamememo_create(){
 
 
         return {
-            isError: false
+            isError: false,
+            ID: model.ID
         };
     };
 
@@ -311,18 +319,41 @@ function Addongamememo_create(){
         }
     };
 
+    presenter.cardReveal = function () {
+        var cells = presenter.cardClickedFirst.parent().find(".cell");
+
+        presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
+        presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
+    };
+
+    presenter.addScoreAndSentEvent = function () {
+//        var cells = presenter.cardClickedFirst.parent().find(".cell");
+//
+//        presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
+//        presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
+        presenter.cardReveal();
+
+        presenter.score++;
+
+        if (presenter.isAllOK()) {
+            presenter.sendAllOKEvent();
+        }
+    };
+
     presenter.onCardClicked = function(e) {
         e.stopPropagation();
 
         if(presenter.useTwoStyles) {
             var clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
-            if(clickedStyle == presenter.cardClickedStyle)
+            if(clickedStyle == presenter.cardClickedStyle) {
                 return;
+            }
         }
 
         switch(presenter.state) {
             case presenter.STATES.READY:
                 presenter.handleCardClickedFirst($(e.target).parent());
+
                 break;
 
             case presenter.STATES.CLICKED_FIRST:
@@ -339,12 +370,19 @@ function Addongamememo_create(){
                     presenter.markCardMismatch(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));
                     presenter.markCardMismatch(presenter.cardClickedSecond.find(".card"), presenter.cardClickedFirst.find(".card"));
                 } else {
-                    var cells = presenter.cardClickedFirst.parent().find(".cell");
+//                    var cells = presenter.cardClickedFirst.parent().find(".cell");
+//
+//                    presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
+//                    presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
+//
+//                    presenter.score++;
+//
+//                    if (presenter.isAllOK()) {
+//                        presenter.sendAllOKEvent();
+//                    }
 
-                    presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
-                    presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
+                    presenter.addScoreAndSentEvent();
 
-                    presenter.score++;
                 }
 
                 if(presenter.useTwoStyles) {
@@ -365,11 +403,10 @@ function Addongamememo_create(){
                 presenter.cardClickedSecond = null;
                 presenter.cardClickedFirstId = null;
                 presenter.cardClickedSecondId = null;
-                break;
 
+                break;
         }
     };
-
 
     presenter.createGrid = function() {
         var cards = presenter.cards;
@@ -459,6 +496,7 @@ function Addongamememo_create(){
         presenter.model = model;
 
         var configuration = presenter.readConfiguration(model);
+        presenter.ID = model.ID;
         if(configuration.isError) {
             presenter.showErrorMessage(configuration.errorMessage, configuration.errorMessageSubstitutions);
         } else {
@@ -470,6 +508,7 @@ function Addongamememo_create(){
 
     presenter.run = function(view, model) {
         presenter.preview = false;
+        eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
     };
 
@@ -544,6 +583,31 @@ function Addongamememo_create(){
 
     presenter.getScore = function() {
         return presenter.score;
+    };
+
+    presenter.executeCommand = function (name, params) {
+        if (presenter.configuration.isErrorMode) return;
+
+        var commands = {
+            'isAllOK': presenter.isAllOK
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.isAllOK = function () {
+        return presenter.getMaxScore() === presenter.getScore();
+    };
+
+     presenter.sendAllOKEvent = function () {
+        var eventData = {
+            'source': presenter.ID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+
+        eventBus.sendEvent('ValueChanged', eventData);
     };
 
     return presenter;
