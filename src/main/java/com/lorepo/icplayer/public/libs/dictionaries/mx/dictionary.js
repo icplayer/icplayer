@@ -48,7 +48,7 @@ var ice_dictionary = {
 	"move_page_up" : "Subir página actual",
 	"move_page_down" : "Bajar página actual",
 	"navigation_pages" : "Páginas de la presentación",
-	"commons" : "Archivos comunes",
+	"commons" : "Comunes",
 	"please_wait" : "Espera mientras se guarda la presentación",
 	"presentation_saved" : "Presentación guardada.",
 	"page_saved" : "Página guardada.",
@@ -100,7 +100,7 @@ var ice_dictionary = {
 	"edit_name_menu" : "Editar nombre...",
 	"move_up_menu" : "Subir",
 	"move_down_menu" : "Bajar",
-	"move_to_commons_menu" : "Mover a archivos comunes",
+	"move_to_commons_menu" : "Mover a los comunes",
 	"move_to_navigation_menu" : "Mover a páginas de la presentación",
 	"remove_page_menu" : "Eliminar página",
 	"page_menu" : "Página",
@@ -313,4 +313,9 @@ var ice_dictionary = {
 	"EdgeAnimation_info" : "Permite a incrustar animaciones y otros proyectos creados en el programa Adobe Edge Animate. En el addon se puede utilizar más de una animación y para hacer que funcione, es necesario configurar ciertas propiedades en el menú lateral del addon, incluyendo Animaciones, Imágenes y Animación inicial.",
 	"Clock_info" : "Permite a los usuarios a crear las actividades relacionadas con el reloj. El addon se puede utilizar con éxito como una simulación / presentación o una actividad plenamente interactiva. Para que funcione correctamente, es necesario establecer ciertas propiedades en el menú lateral del addon, incluyendo el tiempo de inicio y el paso.",
 	"SwiffyAnimation_info" : "Permite a los usuarios a insertar animaciones y otros proyectos creados en el programa Adobe Flash y convertidos con el complemento Google Swiffy. En primer lugar, es necesario configurar ciertas propiedades en el menú lateral del addon, incluyendo las Animaciones (donde se agrega el archivo Swiffy) y la Animación de inicio. La única manera de controlar las Animaciones Swiffy es usar el comando setVars del addon."
-};
+	"Zoom_Image_info" : "Permite mostrar dos versiones de imágenes, una dentro de contenido del addon y otro en una ventana popup.",
+	"LearnPen_Data_info" : "Muestra los datos de sensores de LearnPen en tiempo real.",
+    "Sudoku_info": "Permite a los usuarios a crear actividades con sudoku.",
+    "Done_info" : "Este addon está estrechamente relacionado con 'Submit'. Comprueba si todas las actividades en una página se han intentado hacer y si el botón 'Submit' se ha utilizado. Luego envía el evento 'Done'.",
+    "Submit_info" : "Permite comprobar si las respuestas proporcionadas son correctas o incorrectas, sin embargo, en primer lugar comprueba si el usuario ha intentado de completar todas las actividades incluidas en una página. Si no, el addon envía un mensaje relevante.",
+    "Show_Answers_info": "Permite mostrar las respuestas correctas para todas las actividades de una página."};
