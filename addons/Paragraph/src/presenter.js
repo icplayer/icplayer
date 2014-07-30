@@ -97,7 +97,7 @@ function AddonParagraph_create() {
         if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss)
             {
             var elements = [ editorDOM.select('p'), editorDOM.select('ol'), editorDOM.select('ul') ], i;
-    
+
             for (i = 0; i < elements.length; i++) {
                 if (!hasDefaultFontFamily || !hasContentCss) {
                     editorDOM.setStyle(elements[i], 'font-family', presenter.configuration.fontFamily);
@@ -122,6 +122,9 @@ function AddonParagraph_create() {
             editorDOM.select('body')[0].focus();
         });
 
+        var stylesheetFullPath = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "addons/resources/style.css");
+        tinyMCE.activeEditor.dom.loadCSS(stylesheetFullPath);
+
         presenter.setStyles();
         
         if (presenter.configuration.state !== undefined) {
@@ -129,6 +132,10 @@ function AddonParagraph_create() {
         }
         $('#' + editorID + '_ifr').height(presenter.configuration.textAreaHeight);
         presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
+    };
+
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
     };
 
     presenter.onNodeChange = function () {
