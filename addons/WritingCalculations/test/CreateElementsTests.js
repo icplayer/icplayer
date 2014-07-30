@@ -4,15 +4,10 @@ TestCase("Create Elements Tests", {
     },
 
     'test createRowWrapper method': function() {
-        // Given
-        var index = 10;
+        var rowWrapper = this.presenter.createRowWrapper(10);
 
-        // When
-        var rowWrapper = this.presenter.createRowWrapper(index);
-
-        // Then
-        assertTrue("", rowWrapper.hasClass("wrapper-row"));
-        assertTrue("", rowWrapper.attr("class").indexOf('row-' + index) >= 0 );
+        assertTrue(rowWrapper.hasClass("wrapper-row"));
+        assertTrue(rowWrapper.attr("class").indexOf('row-11') >= 0 );
     },
 
     'test createElement method with different types': function() {

@@ -54,6 +54,7 @@ function AddonWritingCalculations_create() {
         presenter.createView(presenter.array);
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
+        presenter.addAdditionalStyles();
     }
 
     presenter.readSigns = function( signs ) {
@@ -83,6 +84,35 @@ function AddonWritingCalculations_create() {
         if (key == 'Multiplication') {
             return "\\(\\times\\)";
         }
+    };
+
+    presenter.addAdditionalStyleToElement = function (row, column, style, clazz) {
+        var rowElement = presenter.$view.find('.row-' + row),
+            cellElement = rowElement.find('.cell-' + column);
+
+        cellElement.addClass(clazz);
+        cellElement.attr('style', style);
+    };
+
+    presenter.addAdditionalStyles = function() {
+        $.each(presenter.model['Styles'], function() {
+            var columns = this['Column'],
+                rows = this['Row'];
+
+            if (rows) {
+                rows = rows.split(',');
+            }
+
+            if (columns) {
+                columns = columns.split(',');
+            }
+
+            for (var row = 0; row < rows.length; row++) {
+                for (var column = 0; column < columns.length; column++) {
+                    presenter.addAdditionalStyleToElement(rows[row], columns[column], this['Style'], this['Class']);
+                }
+            }
+        });
     };
 
     presenter.setContainerWidth = function() {
@@ -166,7 +196,7 @@ function AddonWritingCalculations_create() {
     };
 
     function addCellClass(createdElement, cellIndex) {
-        $(createdElement).addClass('cell-' + cellIndex);
+        $(createdElement).addClass('cell-' + (cellIndex + 1));
     }
 
     presenter.verifyElementRange = function(element) {
@@ -197,7 +227,7 @@ function AddonWritingCalculations_create() {
 
     presenter.createRowWrapper = function(index) {
         var rowWrapper = $("<div></div>");
-        rowWrapper.addClass("wrapper-row row-" + index);
+        rowWrapper.addClass("wrapper-row row-" + (index + 1));
         return rowWrapper;
     };
 

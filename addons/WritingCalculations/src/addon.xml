@@ -1,13 +1,19 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
 <addon id='WritingCalculations' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
-	<model>
-		<property name='Value' type='text' />
+    <model>
+        <property name='Value' type='text' />
         <property name='Signs' type='list'>
             <property name='Addition' type='string' />
             <property name='Subtraction' type='string' />
             <property name='Division' type='string' />
             <property name='Multiplication' type='string' />
         </property>
-	</model>
+        <property displayName="Styles" name="Styles" type="list">
+            <property name="Column" type="string"/>
+            <property name="Row" type="string"/>
+            <property name="Class" type="string"/>
+            <property name="Style" type="string"/>
+        </property>
+    </model>
 </addon>
