@@ -1,6 +1,9 @@
 function Addoncrossword_create(){
     var presenter = function(){};
 
+    var playerController;
+    var eventBus;
+
     presenter.rowCount         = null;
     presenter.columnCount      = null;
     presenter.cellHeight       = null;
@@ -437,14 +440,17 @@ function Addoncrossword_create(){
 
     presenter.initializeLogic = function(view, model) {
         presenter.$view = $(view);
+        presenter.ID = model.ID;
 
         var configuration = presenter.readConfiguration(model);
         if(configuration.isError) {
             presenter.showErrorMessage(configuration.errorMessage, configuration.errorMessageSubstitutions);
-        } else {
-            presenter.prepareGrid(model);
-            presenter.createGrid();
+            return;
         }
+
+        presenter.$view.find(".cell").live("blur", presenter.cellBlurEventHandler);
+        presenter.prepareGrid(model);
+        presenter.createGrid();
     };
 
     presenter.validate = function(mode) {
@@ -539,8 +545,15 @@ function Addoncrossword_create(){
         presenter.$view.find(".cell_invalid").removeClass("cell_invalid");
     };
 
+    presenter.cellBlurEventHandler = function () {
+        if(presenter.isAllOK()){
+            presenter.sendAllOKEvent();
+        }
+    };
+
     presenter.run = function(view, model) {
         presenter.preview = false;
+        eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
     };
 
@@ -608,6 +621,35 @@ function Addoncrossword_create(){
                 counter++;
             }
         }
+    };
+
+    presenter.setPlayerController = function (controller) {
+        playerController = controller;
+    };
+
+    presenter.executeCommand = function (name, params) {
+        if (presenter.configuration.isErrorMode) return;
+
+        var commands = {
+            'isAllOK': presenter.isAllOK
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.isAllOK = function () {
+        return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+    };
+
+    presenter.sendAllOKEvent = function () {
+        var eventData = {
+            'source': presenter.ID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+
+        eventBus.sendEvent('ValueChanged', eventData);
     };
 
     return presenter;
