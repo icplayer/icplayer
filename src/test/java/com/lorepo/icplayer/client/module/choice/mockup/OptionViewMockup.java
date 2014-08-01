@@ -71,27 +71,29 @@ public class OptionViewMockup implements IOptionDisplay {
 	@Override
 	public void setEventBus(EventBus eventBus) {
 		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void markAsCorrect() {
 		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void markAsEmpty() {
 		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void markAsWrong() {
 		// TODO Auto-generated method stub
-		
+	}
+
+
+	@Override
+	public void setCorrectAnswerStyle() {
+		// TODO Auto-generated method stub
 	}
 }

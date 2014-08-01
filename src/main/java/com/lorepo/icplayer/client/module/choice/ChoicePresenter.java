@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -29,6 +30,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		boolean isDown();
 		void setWrongStyle();
 		void setCorrectStyle();
+		void setCorrectAnswerStyle();
 		void resetStyles();
 		void setEventBus(EventBus eventBus);
 		public void markAsCorrect();
@@ -51,8 +53,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	private boolean isDisabled;
 	private JavaScriptObject	jsObject;
 	private boolean isVisible;
+	private boolean isShowAnswersActive = false;
+	private String currentState = "";
 	
-	
+
 	public ChoicePresenter(ChoiceModel module, IPlayerServices services){
 	
 		this.module = module;
@@ -88,12 +92,68 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 							reset();
 						}
 					});
+			
+			playerServices.getEventBus().addHandler(CustomEvent.TYPE,
+					new CustomEvent.Handler() {
+						@Override
+						public void onCustomEventOccurred(CustomEvent event) {
+							if (event.eventName.equals("ShowAnswers")) {
+								showAnswers();
+							} else if (event.eventName.equals("HideAnswers")) {
+								hideAnswers();
+							}
+						}
+					});
 		}
+	}
+	
+	private boolean isShowAnswers() {
+		if (!module.isActivity()) {
+			return false;
+		}
+		
+		return this.isShowAnswersActive;
+	}
+	
+	private void showAnswers() {
+		if (!module.isActivity()) {
+			return;
+		}
+		
+		this.currentState = getState();
+		this.isShowAnswersActive = true;
+
+		clearStylesAndSelection();
+		
+		for(IOptionDisplay optionView : view.getOptions()){
+			ChoiceOption option = optionView.getModel();
+			
+			if (option.getValue() > 0) {
+				optionView.setDown(true);
+				optionView.setCorrectAnswerStyle();
+			}
+		}
+		
+	}
+	
+	private void hideAnswers() {
+		if (!module.isActivity()) {
+			return;
+		}
+		
+		clearStylesAndSelection();
+		setState(this.currentState);
+		
+		this.currentState = "";
+		this.isShowAnswersActive = false;
 	}
 	
 	
 	private void setShowErrorsMode() {
-
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+		
 		if(module.isActivity()){
 			for(IOptionDisplay optionView : view.getOptions()){
 				ChoiceOption option = optionView.getModel();
@@ -120,6 +180,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}	
 	
 	private void setWorkMode() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
 
 		if(module.isActivity()){
 			for(IOptionDisplay optionView : view.getOptions()){
@@ -132,19 +195,27 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	
 	private void reset() {
-
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+		
 		if(module.isVisible()) show();
 		else view.hide();
 
-		for(IOptionDisplay optionView : view.getOptions()){
-			optionView.resetStyles();
-			optionView.setDown(false);
-		}
+		clearStylesAndSelection();
 		
 		isDisabled = module.isDisabled();
 		view.setEnabled(!isDisabled);
 		if(module.isActivity()){
 			saveScore();
+		}
+	}
+
+
+	private void clearStylesAndSelection() {
+		for(IOptionDisplay optionView : view.getOptions()){
+			optionView.setDown(false);
+			optionView.resetStyles();
 		}
 	}
 
@@ -156,6 +227,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	@Override
 	public String getState() {
+		if (isShowAnswers()) {
+			return this.currentState;
+		}
 
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
@@ -221,12 +295,20 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 
 	private void enable() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		isDisabled = false;
 		view.setEnabled(true);
 	}
 
 
 	private void disable() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		isDisabled = true;
 		view.setEnabled(false);
 	}
@@ -273,6 +355,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	// ------------------------------------------------------------------------
 	@Override
 	public int getErrorCount() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
 
 		int errors = 0;
 		if(module.isActivity()){
@@ -289,13 +374,20 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	@Override
 	public int getMaxScore() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(module.isActivity()) return module.getMaxScore();
 		else return 0;
 	}
 
 	@Override
 	public int getScore() {
-		
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		int score = 0;
 		if(module.isActivity()){
 			for(IOptionDisplay optionView : view.getOptions()){
@@ -445,24 +537,40 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 	
 	private void markOptionAsCorrect(int index){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(index <= view.getOptions().size()){
 			view.getOptions().get(index-1).markAsCorrect();
 		}
 	}
 	
-	private void markOptionAsWrong(int index){ 
+	private void markOptionAsWrong(int index){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(index <= view.getOptions().size()){
 			view.getOptions().get(index-1).markAsWrong();
 		}
 	}
 	
-	private void markOptionAsEmpty(int index){ 
+	private void markOptionAsEmpty(int index){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(index <= view.getOptions().size()){
 			view.getOptions().get(index-1).markAsEmpty();
 		}
 	}
 	
 	private boolean isOptionSelected(int index){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(index <= view.getOptions().size()){
 			return view.getOptions().get(index-1).isDown();
 		}
@@ -471,7 +579,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 
 	private void show(){
-		
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		isVisible = true;
 		if(view != null){
 			view.show();
@@ -480,7 +591,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	
 	private void hide(){
-		
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		isVisible = false;
 		if(view != null){
 			view.hide();
@@ -492,7 +606,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	 * Check if module has any option selected 
 	 */
 	private boolean isAttempted() {
-		
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		for(IOptionDisplay optionView : view.getOptions()){
 			if(optionView.isDown()){
 				return true;

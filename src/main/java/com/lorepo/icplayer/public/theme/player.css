@@ -404,7 +404,8 @@ hr, table, fieldset {
 	background-image:url('images/checkbox-up-disabled.png');
 }
 
-.ic_moption-down-correct{
+.ic_moption-down-correct,
+.ic_moption-down-correct-answer {
 	background-image:url('images/checkbox-down-correct.png');
 }
 
@@ -451,7 +452,8 @@ hr, table, fieldset {
 	background-image:url('images/radio-up-disabled.png');
 }
 
-.ic_soption-down-correct{
+.ic_soption-down-correct,
+.ic_soption-down-correct-answer {
 	background-image:url('images/radio-down-correct.png');
 }
 
