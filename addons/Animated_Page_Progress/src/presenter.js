@@ -10,7 +10,8 @@ function AddonAnimated_Page_Progress_create() {
     presenter.ERROR_CODES = {
         'E_01': "All ranges must be in ascending order",
         'E_02': "Last range must equal 100",
-        'E_03': "All ranges must be positive"
+        'E_03': "All ranges must be positive",
+        'E_04': "First range must equal 0"
     };
 
     function returnErrorObject(errorCode) {
@@ -35,6 +36,10 @@ function AddonAnimated_Page_Progress_create() {
 
         if(range_max_score[model.Ranges.length-1] != 100){
             return returnErrorObject('E_02');
+        }
+
+        if(range_max_score[0] != 0){
+            return returnErrorObject('E_04');
         }
 
         return {
