@@ -1,3 +1,4 @@
+2014-08-01 Added new property, "Random order", to Source List module
 2014-08-01 Fixed LearnPen module name
 2014-08-01 Added responding to Show Answers events in Choice module
 2014-08-01 Added separate CSS classes for elements in show answers mode in True/False module

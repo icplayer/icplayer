@@ -12,17 +12,12 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
 
-/**
- * Moduł listy źródłowej
- * 
- * @author Krzysztof Langner
- *
- */
 public class SourceListModule extends BasicModuleModel{
 
 	private ArrayList<String>	items = new ArrayList<String>();
 	private boolean removable = true;
 	private boolean vertical = false;
+	private boolean randomOrder = false;
 	
 	
 	public SourceListModule() {
@@ -32,6 +27,7 @@ public class SourceListModule extends BasicModuleModel{
 		addPropertyItems();
 		addPropertyRemovable();
 		addPropertyVertical();
+		addPropertyRandomOrder();
 	}
 
 
@@ -62,6 +58,7 @@ public class SourceListModule extends BasicModuleModel{
 			Element itemsElement = (Element)nodeList.item(0);
 			removable = XMLUtils.getAttributeAsBoolean(itemsElement, "removable", true);
 			vertical = XMLUtils.getAttributeAsBoolean(itemsElement, "vertical", false);
+			randomOrder = XMLUtils.getAttributeAsBoolean(itemsElement, "randomOrder", false);
 		}
 
 		items.clear();
@@ -81,16 +78,15 @@ public class SourceListModule extends BasicModuleModel{
 	
 	@Override
 	public String toXML() {
-		
 		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "'>";
+		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>";
 		
 		for(String item : items){
 			xml += "<item><![CDATA[" + item + "]]></item>";
 		}
+
 		xml += "</items>";
-		
 		xml += "</sourceListModule>";
 		
 		return xml;
@@ -129,6 +125,42 @@ public class SourceListModule extends BasicModuleModel{
 		};
 		
 		addProperty(property);
+	}
+	
+	private void addPropertyRandomOrder() {
+		IProperty property = new IBooleanProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("source_list_random_order");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("source_list_random_order");
+			}
+
+			@Override
+			public String getValue() {
+				return randomOrder ? "True" : "False";
+			}
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = newValue.compareToIgnoreCase("true") == 0; 
+				
+				if (value != randomOrder) {
+					randomOrder = value;
+					sendPropertyChangedEvent(this);
+				}
+				
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	public boolean isRandomOrder() {
+		return randomOrder;
 	}
 
 
