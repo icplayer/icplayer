@@ -1,4 +1,4 @@
-function AddonDrawingSmartPen_create() {
+function AddonLearnPen_create() {
     var presenter = function() {};
 
     // constant values

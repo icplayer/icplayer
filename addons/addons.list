@@ -13,7 +13,6 @@ crossword
 Custom_Scoring
 Double_State_Button
 Drawing
-DrawingSmartPen
 EdgeAnimation
 eKeyboard
 Event_Listener
@@ -31,6 +30,7 @@ Image_Identification
 Image_Viewer_Public
 Image_Viewer_Button_Controlled_Public
 Layered_Image
+LearnPen
 LearnPen_Data
 Line
 Line_Number
