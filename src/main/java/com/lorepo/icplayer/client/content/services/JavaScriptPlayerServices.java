@@ -251,8 +251,18 @@ public class JavaScriptPlayerServices{
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseText(Ljava/lang/String;)(text);
 			}
 
-			commands.parseGaps = function(text) {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseGaps(Ljava/lang/String;)(text);
+			commands.parseGaps = function(text, options) {
+				if (typeof options == 'undefined') {
+					options = {
+						isCaseSensitive: false
+					};
+				}
+				
+				if (!('isCaseSensitive' in options)) {
+					options.isCaseSensitive = false;
+				}
+
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseGaps(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(text, options);
 			}
 
 			commands.connectLinks = function(node) {
@@ -378,7 +388,7 @@ public class JavaScriptPlayerServices{
 		}
 		eventListeners.add(listener);
 	}
-
+	
 	
 	/**
 	 * Parsuje definicje w tekście
@@ -400,8 +410,10 @@ public class JavaScriptPlayerServices{
 	 *         definitions - gaps - hashmap with gaps structure - inLineGaps -
 	 *         hashmap with inline gaps structure
 	 */
-	private JavaScriptObject parseGaps(String text) {
+	private JavaScriptObject parseGaps(String text, JavaScriptObject options) {
 		TextParser parser = new TextParser();
+		Boolean isCaseSensitive = Boolean.valueOf(JavaScriptUtils.getArrayItemByKey(options, "isCaseSensitive"));
+		parser.setCaseSensitiveGaps(isCaseSensitive);
 		ParserResult result = parser.parse(text);
 
 		JavaScriptObject inlineGaps = inLineChoiceToJs(result.choiceInfos);

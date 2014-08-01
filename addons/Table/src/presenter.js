@@ -26,9 +26,12 @@ function AddonTable_create() {
 
     presenter.parseGaps = function () {
         var parseResult = { content: [], descriptions: [] },
-            isDisabled = presenter.configuration.isDisabled;
+            isDisabled = presenter.configuration.isDisabled,
+            textParserOptions = {
+                isCaseSensitive: presenter.configuration.isCaseSensitive
+            };
 
-        var textParserResult = presenter.textParser.parseGaps(presenter.$view.html());
+        var textParserResult = presenter.textParser.parseGaps(presenter.$view.html(), textParserOptions);
         var parsedText = textParserResult.parsedText;
 
         var simpleGaps = textParserResult.gaps;

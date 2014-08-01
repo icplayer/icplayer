@@ -1,3 +1,5 @@
+2014-08-01 Fixed problem with checking case sensitive answers in Table module gaps
+2014-08-01 Extended TextParser service gaps API with additional options property
 2014-07-31 Added isAllOK() command and AllOK event to Crossword module.
 2014-07-30 Fixed text wrapping and removed problem with double scroll bars in Paragraph module
 2014-07-30 Added possibility of custom styling each cell (via CSS styles and classes) in Writing Calculations module
