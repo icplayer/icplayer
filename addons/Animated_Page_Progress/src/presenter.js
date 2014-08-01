@@ -1,9 +1,16 @@
 function AddonAnimated_Page_Progress_create() {
     var presenter = function () { };
 
+    var range_img = [],
+        range_max_score = [];
+
+    var playerController;
+    var eventBus;
+
     presenter.ERROR_CODES = {
-        'E_01': "You have to add at least 2 rates.",
-        'E_02': "You did not add Selected or/and Deselected image for at least one rate."
+        'E_01': "All ranges must be in ascending order",
+        'E_02': "Last range must equal 100%",
+        'E_03': "All ranges must be positive"
     };
 
     function returnErrorObject(errorCode) {
@@ -12,20 +19,91 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.sanitizeModel = function (model)  {
 
-        return {
+        for (var ranges_prop=0; ranges_prop < model.Ranges.length; ranges_prop++){
+            range_img[ranges_prop] = model.Ranges[ranges_prop].Image;
+            range_max_score[ranges_prop] = parseFloat(model.Ranges[ranges_prop]['Max_Score']);
+        }
 
+        for (var i=0; i< model.Ranges.length; i++){
+            if(range_max_score[i]> range_max_score[i+1]){
+                return returnErrorObject('E_01');
+            }
+            if(range_max_score[i] < 0){
+                return returnErrorObject('E_03');
+            }
+        }
+
+        if(range_max_score[model.Ranges.length-1] != 100){
+            return returnErrorObject('E_02');
+        }
+
+        return {
+            isError: false,
+            Ranges: {
+                Image: range_img,
+                deselected: range_max_score
+            }
+        }
+    };
+
+    presenter.setPlayerController = function(controller) {
+        playerController = controller;
+    };
+
+    presenter.countPercentageScore = function () {
+        var scoreService = playerController.getScore(),
+            pageScore = scoreService.getPageScoreById(presenter.pageID),
+            score = pageScore.score,
+            maxScore = pageScore.maxScore;
+
+        var percentageScore = (score/maxScore) * 100;
+
+        console.log('PageId: ' + presenter.pageID);
+        console.log('Score: ' + score);
+        console.log('maxScore: ' + maxScore);
+        console.log('Percentage Score: ' + percentageScore);
+
+        for (var i=0; i<range_max_score.length; i++){
+            if(percentageScore <= range_max_score[i+1] && percentageScore > range_max_score[i]){
+                presenter.$view.find('.image').each(function () {
+                   $(this).css('display', 'none');
+                });
+                presenter.$view.find('#'+(i+1)).css('display', 'block');
+            }
         }
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
     	presenter.$view = $(view);
     	presenter.configuration = presenter.sanitizeModel(model);
+        presenter.pageID = $(view).parent('.ic_page').attr('id');
+
+        console.log(range_max_score);
 
         if(presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
+        for (var j=0; j<model.Ranges.length; j++){
+            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
+            //presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
+            presenter.$view.find('#' + j).append('<img class="img'+ j +'">');
+            presenter.$view.find('.img' + j).attr('src', range_img[j]);
+            presenter.$view.find('#'+j).css('display', 'none');
+        }
+
+        if(!isPreview) {
+            eventBus = playerController.getEventBus();
+            eventBus.addEventListener('ValueChanged', this);
+        }
+
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ValueChanged") {
+            presenter.countPercentageScore();
+        }
     };
 
     presenter.run = function (view, model) {
@@ -74,6 +152,6 @@ function AddonAnimated_Page_Progress_create() {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
     };
-        
+
     return presenter;
 }
