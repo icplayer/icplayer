@@ -90,8 +90,6 @@ function AddonAnimated_Page_Progress_create() {
     	presenter.configuration = presenter.sanitizeModel(model);
         presenter.pageID = $(view).parent('.ic_page').attr('id');
 
-        console.log(range_max_score);
-
         if(presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
@@ -138,7 +136,7 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.setState = function (state) {
-        if (!state) return;
+       if (!state) return;
 
     	var parsedState = JSON.parse(state);
     };
