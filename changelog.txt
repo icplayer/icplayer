@@ -1,3 +1,4 @@
+2014-08-01 Added separate CSS classes for elements in show answers mode in True/False module
 2014-08-01 Fixed problem with checking case sensitive answers in Table module gaps
 2014-08-01 Extended TextParser service gaps API with additional options property
 2014-07-31 Added isAllOK() command and AllOK event to Crossword module.

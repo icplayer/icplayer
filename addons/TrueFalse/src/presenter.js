@@ -601,7 +601,7 @@ function AddonTrueFalse_create() {
                 var index = parseInt(correctValues[j], 10) + 1,
                     $element = $row.find(".tf_" + presenter.type + "_image:nth-child(" + index + ")");
 
-                $element.addClass('down disabled correct').removeClass('up');
+                $element.addClass('down disabled correct-answer').removeClass('up');
             }
         }
     };
