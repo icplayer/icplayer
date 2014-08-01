@@ -9,7 +9,7 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.ERROR_CODES = {
         'E_01': "All ranges must be in ascending order",
-        'E_02': "Last range must equal 100%",
+        'E_02': "Last range must equal 100",
         'E_03': "All ranges must be positive"
     };
 
@@ -50,6 +50,12 @@ function AddonAnimated_Page_Progress_create() {
         playerController = controller;
     };
 
+    presenter.cleanView = function () {
+        presenter.$view.find('.image').each(function () {
+            $(this).css('display', 'none');
+        });
+    };
+
     presenter.countPercentageScore = function () {
         var scoreService = playerController.getScore(),
             pageScore = scoreService.getPageScoreById(presenter.pageID),
@@ -58,16 +64,22 @@ function AddonAnimated_Page_Progress_create() {
 
         var percentageScore = (score/maxScore) * 100;
 
+        if(isNaN(percentageScore)){
+            percentageScore = 0;
+        }
+
         console.log('PageId: ' + presenter.pageID);
         console.log('Score: ' + score);
         console.log('maxScore: ' + maxScore);
         console.log('Percentage Score: ' + percentageScore);
 
         for (var i=0; i<range_max_score.length; i++){
+            if(percentageScore == 0){
+                presenter.cleanView();
+                presenter.$view.find('#0').css('display', 'block');
+            }
             if(percentageScore <= range_max_score[i+1] && percentageScore > range_max_score[i]){
-                presenter.$view.find('.image').each(function () {
-                   $(this).css('display', 'none');
-                });
+                presenter.cleanView();
                 presenter.$view.find('#'+(i+1)).css('display', 'block');
             }
         }
@@ -95,6 +107,7 @@ function AddonAnimated_Page_Progress_create() {
 
         if(!isPreview) {
             eventBus = playerController.getEventBus();
+            presenter.countPercentageScore();
             eventBus.addEventListener('ValueChanged', this);
         }
 
