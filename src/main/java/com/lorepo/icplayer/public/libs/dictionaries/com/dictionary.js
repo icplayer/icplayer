@@ -211,6 +211,7 @@ var ice_dictionary = {
 	"source_list_items" : "Items",
 	"source_list_removable" : "Removable",
 	"source_list_vertical" : "Vertical",
+	"source_list_random_order" : "Random order",
 	"text_module" : "Text",
 	"text_module_default" : "Enter text here...",
 	"text_module_text" : "Text",

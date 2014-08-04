@@ -58,8 +58,13 @@
                     - {Array} gaps - array with gaps structure
                     - {Array} inLineGaps -  array with inline gaps structure
      */
-    window.TextParserProxy.prototype.parseGaps = function (text) {
-        return this.parser.parseGaps(text);
+    window.TextParserProxy.prototype.parseGaps = function (text, options) {
+        if (typeof options == "undefined") {
+            options = {
+                isCaseSensitive: false
+            };
+        }
+        return this.parser.parseGaps(text, options);
     };
 
 

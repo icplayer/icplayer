@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -124,9 +126,22 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private void loadItems(boolean callMathJax) {
 		items.clear();
 		view.removeAll();
-		for(int i = 0; i < model.getItemCount(); i++){
-			String itemText = model.getItem(i);
-			String id = model.getId() + "-" + (i+1);
+		
+		List<Integer> order;
+		
+		if (model.isRandomOrder()) {
+			order = RandomUtils.singlePermutation(model.getItemCount());
+		} else {
+			order = new ArrayList<Integer>();
+			for(int i = 0; i < model.getItemCount(); i ++) {
+				order.add(i);
+			}
+		}
+
+		for(int i = 0; i < order.size(); i++) {
+			Integer index = order.get(i);
+			String itemText = model.getItem(index);
+			String id = model.getId() + "-" + (index+1);
 			items.put(id, itemText);
 			view.addItem(id, itemText, callMathJax);
 		}

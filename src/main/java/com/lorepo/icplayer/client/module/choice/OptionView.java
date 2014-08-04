@@ -133,12 +133,18 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 			addStyleDependentName("up-correct");
 		}
 	}
+	
+	@Override
+	public void setCorrectAnswerStyle() {
+		addStyleDependentName("down-correct-answer");
+	}
 
 	@Override
 	public void resetStyles() {
 		removeStyleDependentName("up-correct");
 		removeStyleDependentName("up-wrong");
 		removeStyleDependentName("down-correct");
+		removeStyleDependentName("down-correct-answer");
 		removeStyleDependentName("down-wrong");
 	}
 
