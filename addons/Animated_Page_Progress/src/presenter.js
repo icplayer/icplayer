@@ -11,7 +11,8 @@ function AddonAnimated_Page_Progress_create() {
         'E_01': "All ranges must be in ascending order",
         'E_02': "Last range must equal 100",
         'E_03': "All ranges must be positive",
-        'E_04': "First range must equal 0"
+        'E_04': "First range must equal 0",
+        'E_05': "All scores must be filled"
     };
 
     function returnErrorObject(errorCode) {
@@ -26,6 +27,9 @@ function AddonAnimated_Page_Progress_create() {
         }
 
         for (var i=0; i< model.Ranges.length; i++){
+            if(!model.Ranges[i].Score){
+                return returnErrorObject('E_05');
+            }
             if(range_max_score[i]> range_max_score[i+1]){
                 return returnErrorObject('E_01');
             }
@@ -61,7 +65,7 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.cleanView = function () {
-        presenter.$view.find('.image').each(function () {
+        presenter.$view.find('.animated-page-progress-image').each(function () {
             $(this).css('display', 'none');
             $(this).attr('data-name', 'invisible');
         });
@@ -98,7 +102,7 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.appendImages = function (length) {
         for (var j=0; j<length; j++){
-            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
+            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="animated-page-progress-image"></div>');
             presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
             presenter.$view.find('#'+j).css('display', 'none');
         }

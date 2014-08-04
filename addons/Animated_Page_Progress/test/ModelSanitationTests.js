@@ -14,7 +14,7 @@ TestCase("Model sanitation", {
         var sanitationResult = this.presenter.sanitizeModel(model);
 
         assertTrue(sanitationResult.isError);
-        assertEquals('E_02', sanitationResult.errorCode);
+        assertEquals('E_05', sanitationResult.errorCode);
     },
 
     'test first score does not equal 0': function () {
@@ -93,7 +93,7 @@ TestCase("Model sanitation", {
         assertEquals('E_01', sanitationResult.errorCode);
     },
 
-    'test range is not positive': function () {
+    'test score is not positive': function () {
         var model = {
             Ranges: [
                 {
@@ -119,6 +119,34 @@ TestCase("Model sanitation", {
 
         assertTrue(sanitationResult.isError);
         assertEquals('E_03', sanitationResult.errorCode);
+    },
+
+    'test score is not filled': function () {
+        var model = {
+            Ranges: [
+                {
+                    Score: '0',
+                    Image: ''
+                },
+                {
+                    Score: '',
+                    Image: ''
+                },
+                {
+                    Score: '70',
+                    Image: ''
+                },
+                {
+                    Score: '100',
+                    Image: ''
+                }
+            ]
+        };
+
+        var sanitationResult = this.presenter.sanitizeModel(model);
+
+        assertTrue(sanitationResult.isError);
+        assertEquals('E_05', sanitationResult.errorCode);
     },
 
     'test proper model': function () {
