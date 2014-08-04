@@ -67,6 +67,11 @@ function AddonAnimated_Page_Progress_create() {
         });
     };
 
+    presenter.setViewImage = function (id) {
+        presenter.$view.find('#' + id).css('display', 'block');
+        presenter.$view.find('#' + id).attr('data-name', 'visible');
+    };
+
     presenter.countPercentageScore = function () {
         var scoreService = playerController.getScore(),
             pageScore = scoreService.getPageScoreById(presenter.pageID),
@@ -88,13 +93,11 @@ function AddonAnimated_Page_Progress_create() {
         for (var i=0; i<range_max_score.length; i++){
             if(presenter.percentageScore == 0){
                 presenter.cleanView();
-                presenter.$view.find('#0').css('display', 'block');
-                presenter.$view.find('#0').attr('data-name', 'visible');
+                presenter.setViewImage(0);
             }
             if(presenter.percentageScore <= range_max_score[i+1] && presenter.percentageScore > range_max_score[i]){
                 presenter.cleanView();
-                presenter.$view.find('#'+(i+1)).css('display', 'block');
-                presenter.$view.find('#'+(i+1)).attr('data-name', 'visible');
+                presenter.setViewImage(i+1);
             }
         }
     };
@@ -167,7 +170,7 @@ function AddonAnimated_Page_Progress_create() {
         var elementId = parsedState.id;
 
         presenter.cleanView();
-        presenter.$view.find('#' + elementId).css('display', 'block');
+        presenter.setViewImage(elementId);
     };
     
     presenter.executeCommand = function (name, params) {
