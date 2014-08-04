@@ -22,7 +22,7 @@ function AddonAnimated_Page_Progress_create() {
 
         for (var ranges_prop=0; ranges_prop < model.Ranges.length; ranges_prop++){
             range_img[ranges_prop] = model.Ranges[ranges_prop].Image;
-            range_max_score[ranges_prop] = parseFloat(model.Ranges[ranges_prop]['Max_Score']);
+            range_max_score[ranges_prop] = parseFloat(model.Ranges[ranges_prop].Score);
         }
 
         for (var i=0; i< model.Ranges.length; i++){
@@ -63,6 +63,7 @@ function AddonAnimated_Page_Progress_create() {
     presenter.cleanView = function () {
         presenter.$view.find('.image').each(function () {
             $(this).css('display', 'none');
+            $(this).attr('data-name', 'invisible');
         });
     };
 
@@ -73,25 +74,27 @@ function AddonAnimated_Page_Progress_create() {
             maxScore = pageScore.maxScore;
 
         //var presentation = playerController.getPresentation().getModule('Page').is_reportable;
-        var percentageScore = (score/maxScore) * 100;
+        presenter.percentageScore = (score/maxScore) * 100;
 
-        if(isNaN(percentageScore)){
-            percentageScore = 0;
+        if(isNaN(presenter.percentageScore)){
+            presenter.percentageScore = 0;
         }
 
         console.log('PageId: ' + presenter.pageID);
         console.log('Score: ' + score);
         console.log('maxScore: ' + maxScore);
-        console.log('Percentage Score: ' + percentageScore);
+        console.log('Percentage Score: ' + presenter.percentageScore);
 
         for (var i=0; i<range_max_score.length; i++){
-            if(percentageScore == 0){
+            if(presenter.percentageScore == 0){
                 presenter.cleanView();
                 presenter.$view.find('#0').css('display', 'block');
+                presenter.$view.find('#0').attr('data-name', 'visible');
             }
-            if(percentageScore <= range_max_score[i+1] && percentageScore > range_max_score[i]){
+            if(presenter.percentageScore <= range_max_score[i+1] && presenter.percentageScore > range_max_score[i]){
                 presenter.cleanView();
                 presenter.$view.find('#'+(i+1)).css('display', 'block');
+                presenter.$view.find('#'+(i+1)).attr('data-name', 'visible');
             }
         }
     };
@@ -99,11 +102,15 @@ function AddonAnimated_Page_Progress_create() {
     presenter.appendImages = function (length) {
         for (var j=0; j<length; j++){
             presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
-            //presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
-            presenter.$view.find('#' + j).append('<img class="img'+ j +'">');
-            presenter.$view.find('.img' + j).attr('src', range_img[j]);
+            presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
             presenter.$view.find('#'+j).css('display', 'none');
         }
+    };
+
+    presenter.eventListener = function () {
+        eventBus = playerController.getEventBus();
+        presenter.countPercentageScore();
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -116,20 +123,10 @@ function AddonAnimated_Page_Progress_create() {
             return;
         }
 
-//        for (var j=0; j<model.Ranges.length; j++){
-//            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
-//            //presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
-//            presenter.$view.find('#' + j).append('<img class="img'+ j +'">');
-//            presenter.$view.find('.img' + j).attr('src', range_img[j]);
-//            presenter.$view.find('#'+j).css('display', 'none');
-//        }
-
         presenter.appendImages(presenter.configuration.length);
 
         if(!isPreview) {
-            eventBus = playerController.getEventBus();
-            presenter.countPercentageScore();
-            eventBus.addEventListener('ValueChanged', this);
+            presenter.eventListener();
         }
 
     };
@@ -154,7 +151,11 @@ function AddonAnimated_Page_Progress_create() {
             return "";
         }
 
+        var id =  presenter.$view.find('[data-name="visible"]').attr('id');
+        console.log('ID: ' +id);
+
     	return JSON.stringify({
+            id: id
         });
     };
 
@@ -162,6 +163,11 @@ function AddonAnimated_Page_Progress_create() {
        if (!state) return;
 
     	var parsedState = JSON.parse(state);
+
+        var elementId = parsedState.id;
+
+        presenter.cleanView();
+        presenter.$view.find('#' + elementId).css('display', 'block');
     };
     
     presenter.executeCommand = function (name, params) {

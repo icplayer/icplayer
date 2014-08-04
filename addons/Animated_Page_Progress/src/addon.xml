@@ -3,7 +3,7 @@
 <addon id='Animated_Page_Progress' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name="Ranges" type="list">
-            <property name="Max_Score" type="string"/>
+            <property name="Score" type="string"/>
 		    <property name="Image" type="image"/>
 		</property>
 	</model>
