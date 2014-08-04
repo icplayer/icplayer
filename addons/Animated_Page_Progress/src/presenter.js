@@ -42,12 +42,17 @@ function AddonAnimated_Page_Progress_create() {
             return returnErrorObject('E_04');
         }
 
+        var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+
         return {
             isError: false,
             Ranges: {
                 Image: range_img,
                 deselected: range_max_score
-            }
+            },
+            length: model.Ranges.length,
+            isVisible: isVisible
+
         }
     };
 
@@ -67,6 +72,7 @@ function AddonAnimated_Page_Progress_create() {
             score = pageScore.score,
             maxScore = pageScore.maxScore;
 
+        //var presentation = playerController.getPresentation().getModule('Page').is_reportable;
         var percentageScore = (score/maxScore) * 100;
 
         if(isNaN(percentageScore)){
@@ -90,6 +96,16 @@ function AddonAnimated_Page_Progress_create() {
         }
     };
 
+    presenter.appendImages = function (length) {
+        for (var j=0; j<length; j++){
+            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
+            //presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
+            presenter.$view.find('#' + j).append('<img class="img'+ j +'">');
+            presenter.$view.find('.img' + j).attr('src', range_img[j]);
+            presenter.$view.find('#'+j).css('display', 'none');
+        }
+    };
+
     presenter.presenterLogic = function (view, model, isPreview) {
     	presenter.$view = $(view);
     	presenter.configuration = presenter.sanitizeModel(model);
@@ -100,13 +116,15 @@ function AddonAnimated_Page_Progress_create() {
             return;
         }
 
-        for (var j=0; j<model.Ranges.length; j++){
-            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
-            //presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
-            presenter.$view.find('#' + j).append('<img class="img'+ j +'">');
-            presenter.$view.find('.img' + j).attr('src', range_img[j]);
-            presenter.$view.find('#'+j).css('display', 'none');
-        }
+//        for (var j=0; j<model.Ranges.length; j++){
+//            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="image"></div>');
+//            //presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
+//            presenter.$view.find('#' + j).append('<img class="img'+ j +'">');
+//            presenter.$view.find('.img' + j).attr('src', range_img[j]);
+//            presenter.$view.find('#'+j).css('display', 'none');
+//        }
+
+        presenter.appendImages(presenter.configuration.length);
 
         if(!isPreview) {
             eventBus = playerController.getEventBus();
