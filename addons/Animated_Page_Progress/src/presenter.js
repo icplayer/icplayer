@@ -78,7 +78,6 @@ function AddonAnimated_Page_Progress_create() {
             score = pageScore.score,
             maxScore = pageScore.maxScore;
 
-        //var presentation = playerController.getPresentation().getModule('Page').is_reportable;
         presenter.percentageScore = (score/maxScore) * 100;
 
         if(isNaN(presenter.percentageScore)){
@@ -158,7 +157,8 @@ function AddonAnimated_Page_Progress_create() {
         console.log('ID: ' +id);
 
     	return JSON.stringify({
-            id: id
+            id: id,
+            isVisible: presenter.configuration.isVisible
         });
     };
 
@@ -167,10 +167,9 @@ function AddonAnimated_Page_Progress_create() {
 
     	var parsedState = JSON.parse(state);
 
-        var elementId = parsedState.id;
-
         presenter.cleanView();
-        presenter.setViewImage(elementId);
+        presenter.setViewImage(parsedState.id);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
     
     presenter.executeCommand = function (name, params) {
