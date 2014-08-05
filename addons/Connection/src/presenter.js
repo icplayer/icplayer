@@ -809,36 +809,44 @@ function AddonConnection_create() {
     };
 
     presenter.showAnswers = function () {
-        if (isNotActivity) {
-            return;
-        }
-
         presenter.isShowAnswersActive = true;
         // presenter.currentState = getSelectedElements();
+         presenter.tmpElements = [];
+        for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
+            presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
+        }
+
+        presenter.lineStack.clear();
+
+        redraw();
+
         var elements = presenter.elements;
         for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
             var connects = elements[i]['connects'].split(',');
             for (var j = 0; j < connects.length; j++) {
-                if (connects[j] != "" &&
-                    $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
+                if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
                     var pair = [elements[i]['id'], connects[j]];
                     var line = new Line(
                         getElementById(pair[0]),
                         getElementById(pair[1])
                     );
                     drawLine(line, correctConnection);
-                    if (!presenter.correctConnections.hasPair(pair)) {
-                        presenter.correctConnections.push(line);
-                    }
+//                    if (!presenter.correctConnections.hasPair(pair)) {
+//                        presenter.correctConnections.push(line);
+//                    }
                 }
             }
         }
     };
 
     presenter.hideAnswers = function () {
-        if (isNotActivity) {
-            return;
+
+        for (var i = 0; i <  presenter.tmpElements.length; i++) {
+            var pair =  presenter.tmpElements[i].split(':');
+            pushConnection(new Line(getElementById(pair[0]), getElementById(pair[1])), false);
         }
+
+        redraw();
         //presenter.setState(presenter.currentState);
 
         //delete presenter.currentState;
