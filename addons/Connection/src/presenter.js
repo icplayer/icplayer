@@ -231,6 +231,9 @@ function AddonConnection_create() {
         presenter.registerListeners(presenter.view);
 
         presenter.parseDefinitionLinks();
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function (view, model) {
@@ -793,6 +796,53 @@ function AddonConnection_create() {
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if (isNotActivity) {
+            return;
+        }
+
+        presenter.isShowAnswersActive = true;
+        // presenter.currentState = getSelectedElements();
+        var elements = presenter.elements;
+        for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
+            var connects = elements[i]['connects'].split(',');
+            for (var j = 0; j < connects.length; j++) {
+                if (connects[j] != "" &&
+                    $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
+                    var pair = [elements[i]['id'], connects[j]];
+                    var line = new Line(
+                        getElementById(pair[0]),
+                        getElementById(pair[1])
+                    );
+                    drawLine(line, correctConnection);
+                    if (!presenter.correctConnections.hasPair(pair)) {
+                        presenter.correctConnections.push(line);
+                    }
+                }
+            }
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        if (isNotActivity) {
+            return;
+        }
+        //presenter.setState(presenter.currentState);
+
+        //delete presenter.currentState;
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
