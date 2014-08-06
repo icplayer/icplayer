@@ -616,6 +616,10 @@ function AddonConnection_create() {
     }
 
     presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -647,6 +651,7 @@ function AddonConnection_create() {
 
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
+
         var errors = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -659,12 +664,14 @@ function AddonConnection_create() {
 
     presenter.getMaxScore = function () {
         if (isNotActivity) return 0;
+
         return presenter.correctConnections.length();
 
     };
 
     presenter.getScore = function () {
         if (isNotActivity) return 0;
+
         var score = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -733,6 +740,10 @@ function AddonConnection_create() {
 
 
     presenter.isSelected = function (leftIndex, rightIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var leftElement = getElementById(leftIndex);
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
@@ -740,11 +751,19 @@ function AddonConnection_create() {
     }
 
     presenter.isAttempted = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return (presenter.lineStack.stack.length > 0)
     }
 
 
     presenter.markAsCorrect = function (leftIndex, rightIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var leftElement = getElementById(leftIndex);
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
@@ -755,6 +774,10 @@ function AddonConnection_create() {
     };
 
     presenter.markAsWrong = function (leftIndex, rightIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var leftElement = getElementById(leftIndex);
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
@@ -810,14 +833,12 @@ function AddonConnection_create() {
 
     presenter.showAnswers = function () {
         presenter.isShowAnswersActive = true;
-        // presenter.currentState = getSelectedElements();
-         presenter.tmpElements = [];
+        presenter.tmpElements = [];
         for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
             presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
         }
 
         presenter.lineStack.clear();
-
         redraw();
 
         var elements = presenter.elements;
@@ -830,26 +851,22 @@ function AddonConnection_create() {
                         getElementById(pair[0]),
                         getElementById(pair[1])
                     );
-                    drawLine(line, correctConnection);
-//                    if (!presenter.correctConnections.hasPair(pair)) {
-//                        presenter.correctConnections.push(line);
-//                    }
+                    presenter.lineStack.push(line);
                 }
             }
+        }
+
+        redraw();
+        presenter.lineStack.clear();
+
+        for (var element = 0; element <  presenter.tmpElements.length; element++) {
+            var pairs =  presenter.tmpElements[element].split(':');
+            pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
         }
     };
 
     presenter.hideAnswers = function () {
-
-        for (var i = 0; i <  presenter.tmpElements.length; i++) {
-            var pair =  presenter.tmpElements[i].split(':');
-            pushConnection(new Line(getElementById(pair[0]), getElementById(pair[1])), false);
-        }
-
         redraw();
-        //presenter.setState(presenter.currentState);
-
-        //delete presenter.currentState;
         presenter.isShowAnswersActive = false;
     };
 
