@@ -224,6 +224,9 @@ function AddonColoring_create(){
 
     presenter.run = function(view, model){
         runLogic(view, model, false);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.isAlreadyInColorsThatCanBeFilled = function(color) {
@@ -874,6 +877,32 @@ function AddonColoring_create(){
 
         return false;
     }
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if (presenter.validateModel.isActivity) {
+            return;
+        }
+
+        presenter.isShowAnswersActive = true;
+
+    };
+
+    presenter.hideAnswers = function () {
+        if (presenter.validateModel.isActivity) {
+            return;
+        }
+        presenter.isShowAnswersActive = false;
+    };
 
     return presenter;
 }
