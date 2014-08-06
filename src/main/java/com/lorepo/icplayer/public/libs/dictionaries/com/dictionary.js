@@ -324,5 +324,6 @@ var ice_dictionary = {
     "Sudoku_info": "This addon allows users to create activities with sudoku.",
     "Done_info" : "This addon is closely connected with Submit. It checks whether all activities on a page have been attempted and the Submit button has been used. Then it sends 'Done' event.",
     "Submit_info" : "Submit enables to check if the provided answers are correct or wrong, however, it first checks whether the user has attempted to complete all activities included in a page. If not, the addon sends a relevant message.",
-    "Show_Answers_info": "Allows to show the right answers for every activity on page"
+    "Show_Answers_info": "Allows to show the right answers for every activity on page",
+    "Animated_Page_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result on page."
 };

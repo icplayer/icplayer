@@ -1,0 +1,11 @@
+.animated-page-progress-wrapper{
+    width: 100%;
+    height: 100%;
+}
+
+.animated-page-progress-rate {
+    width: 100%;
+    height: 100%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
