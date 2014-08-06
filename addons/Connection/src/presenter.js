@@ -25,6 +25,7 @@ function AddonConnection_create() {
     var correctConnection = "#0d0";
     var incorrectConnection = "#d00";
     var connectionThickness = "1px";
+    var showAnswersColor = "#68e9f0";
 
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.'
@@ -603,6 +604,14 @@ function AddonConnection_create() {
         }
     }
 
+    function redrawShowAnswers () {
+        connections.width = connections.width;
+        connections.clearCanvas();
+        for (var i = 0; i < presenter.lineStack.length(); i++) {
+            drawLine(presenter.lineStack.get(i), showAnswersColor)
+        }
+    }
+
     function drawLine(line, color) {
         var from = getElementSnapPoint(line.from);
         var to = getElementSnapPoint(line.to);
@@ -748,7 +757,7 @@ function AddonConnection_create() {
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
         return (presenter.lineStack.hasLine(line).length > 0);
-    }
+    };
 
     presenter.isAttempted = function () {
         if (presenter.isShowAnswersActive) {
@@ -756,7 +765,7 @@ function AddonConnection_create() {
         }
 
         return (presenter.lineStack.stack.length > 0)
-    }
+    };
 
 
     presenter.markAsCorrect = function (leftIndex, rightIndex) {
@@ -856,8 +865,9 @@ function AddonConnection_create() {
             }
         }
 
-        redraw();
+        redrawShowAnswers();
         presenter.lineStack.clear();
+        isSelectionPossible = false;
 
         for (var element = 0; element <  presenter.tmpElements.length; element++) {
             var pairs =  presenter.tmpElements[element].split(':');
@@ -868,6 +878,7 @@ function AddonConnection_create() {
     presenter.hideAnswers = function () {
         redraw();
         presenter.isShowAnswersActive = false;
+        isSelectionPossible = true;
     };
 
     return presenter;
