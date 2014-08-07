@@ -2,6 +2,7 @@ function AddonImage_Identification_create(){
     var presenter = function() {};
 
     var playerController;
+    var eventBus;
 
     presenter.lastEvent = null;
 
@@ -199,7 +200,12 @@ function AddonImage_Identification_create(){
     };
 
     presenter.run = function(view, model){
+        eventBus = playerController.getEventBus();
+
         presenterLogic(view, model, false);
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.reset = function() {
@@ -393,6 +399,28 @@ function AddonImage_Identification_create(){
         }
 
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+
+
+    };
+
+    presenter.hideAnswers = function () {
+
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
