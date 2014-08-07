@@ -431,11 +431,6 @@ function AddonImage_Identification_create(){
         presenter.isShowAnswersActive = true;
 
         if(presenter.configuration.shouldBeSelected){
-//            var element = presenter.$view.find('div:first')[0];
-//
-//            $(element).removeClass(CSS_CLASSESToString());
-//            $(element).addClass(CSS_CLASSES.CORRECT);
-
             applySelectionStyleShowAnswers(CSS_CLASSES.CORRECT);
         }
 
@@ -443,12 +438,6 @@ function AddonImage_Identification_create(){
     };
 
     presenter.hideAnswers = function () {
-
-//        var element = presenter.$view.find('div:first')[0];
-//
-//        $(element).removeClass(CSS_CLASSESToString());
-//        $(element).addClass(presenter.currentClass);
-
         applySelectionStyleShowAnswers(presenter.currentClass);
 
         presenter.isShowAnswersActive = false;
