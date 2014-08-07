@@ -1,3 +1,4 @@
+2014-08-07 Fixed problem with Popup module when appears in nested iframes
 2014-08-06 Added responding to Show Answers events in Text Selection module
 2014-08-06 Added new module: Animated Page Progress
 2014-08-01 Added new property, "Random order", to Source List module
