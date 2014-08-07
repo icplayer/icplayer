@@ -66,29 +66,31 @@ public class PagePopupPanel extends DialogBox {
 	}
 	
 	public static native int getParentWindowOffset() /*-{
-		if ($wnd == $wnd.parent) {
-			return 0;
-		}
-
-		var iframe_offset = 0,
-			iframes = $wnd.parent.document.getElementsByTagName("iframe");
-
-		for (var i=0; i < iframes.length; i++) {
-			var current_iframe = iframes[i];
-
-			if ($wnd.location.href == current_iframe.src){
-				var iframe_placement = current_iframe.getBoundingClientRect().top,
-					body_placement = $wnd.parent.document.body.getBoundingClientRect().top;
-
-				iframe_offset = Math.round(iframe_placement - body_placement);
+		var current_window = $wnd;
+		var global_offset = 0;
+		
+		while (current_window != current_window.parent) {
+			var iframe_offset = 0,
+				iframes = current_window.parent.document.getElementsByTagName("iframe");
+	
+			for (var i=0; i < iframes.length; i++) {
+				var current_iframe = iframes[i];
+	
+				if (current_window.location.href == current_iframe.src){
+					var iframe_placement = current_iframe.getBoundingClientRect().top,
+						body_placement = current_window.parent.document.body.getBoundingClientRect().top;
+	
+					iframe_offset = Math.round(iframe_placement - body_placement);
+				}
 			}
-		}
-
-		if ($wnd.parent.pageYOffset < iframe_offset){
-			return 0;
+		
+			global_offset += current_window.parent.pageYOffset - iframe_offset;
+			current_window = current_window.parent;
 		}
 		
-		return $wnd.parent.pageYOffset - iframe_offset;
+		global_offset = Math.max(0, global_offset);
+		return global_offset;
+		
 	}-*/;
 
 	/**

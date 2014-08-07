@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+]>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="24px" height="24px" viewBox="-2 -2 24 24" overflow="visible" enable-background="new -2 -2 24 24"
+	 xml:space="preserve">
+<defs>
+</defs>
+<rect x="4" y="9" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="4" height="2"/>
+<rect x="12" y="9" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="4" height="2"/>
+<rect x="9" y="12" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="2" height="4"/>
+<rect x="9" y="4" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="2" height="4"/>
+<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="7,4 13,4 10,0 "/>
+<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="13,16 7,16 10,20 "/>
+<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="16,7 16,13 20,10 "/>
+<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="4,13 4,7 0,10 "/>
+</svg>

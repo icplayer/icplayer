@@ -188,9 +188,14 @@ function AddonGlossary_create(){
         });
         presenter.dialog.css("maxHeight", "none");
 
-        if (presenter.scrollParentWindow !== undefined) {
-            $(window.parent).scrollTop(presenter.scrollParentWindow);
-            presenter.scrollParentWindow = undefined;
+        if (presenter.ancestorsData !== undefined) {
+            var ancestorData;
+            for (i=0; i<presenter.ancestorsData.length; i++)
+            {
+                ancestorData = presenter.ancestorsData[i];
+                $(ancestorData.wnd).scrollTop(ancestorData.offset);
+            }
+            presenter.ancestorsData = undefined;
         }
     };
 
@@ -213,8 +218,16 @@ function AddonGlossary_create(){
     };
 
     presenter.catchScroll = function() {
-        if (window.parent && presenter.scrollParentWindow === undefined) {
-            presenter.scrollParentWindow = $(window.parent).scrollTop();
+        if (window.parent != window && presenter.ancestorsData === undefined) {
+            var current_window = window;
+            presenter.ancestorsData = [];
+            while (current_window != current_window.parent) {
+                presenter.ancestorsData.push({
+                    wnd: current_window.parent,
+                    offset: $(current_window.parent).scrollTop()
+                });
+                current_window = current_window.parent;
+            }
         }
     }
 
