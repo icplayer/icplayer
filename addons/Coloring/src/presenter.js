@@ -533,6 +533,10 @@ function AddonColoring_create(){
     };
 
     presenter.isAttempted = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var isAttempted = false;
         $.each(presenter.configuration.areas, function() {
             if (presenter.shouldBeTakenIntoConsideration(this)) {
@@ -581,6 +585,10 @@ function AddonColoring_create(){
     };
 
     presenter.setShowErrorsMode = function(){
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (presenter.configuration.isActivity) {
             $.each(presenter.configuration.areas, function() {
                 var area = this;
@@ -703,6 +711,10 @@ function AddonColoring_create(){
     };
 
     presenter.getState = function(){
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var filledAreas = [];
         $.each(presenter.configuration.areas, function() {
             if (presenter.shouldBeTakenIntoConsideration(this)) {
@@ -893,6 +905,30 @@ function AddonColoring_create(){
             return;
         }
 
+        presenter.tmpFilledAreas = [];
+        $.each(presenter.configuration.areas, function() {
+            if (presenter.shouldBeTakenIntoConsideration(this)) {
+                presenter.tmpFilledAreas.push({
+                    area: this,
+                    color: getClickedAreaColor(this.x, this.y)
+                });
+            }
+        });
+
+        presenter.clearCanvas();
+
+        var areas = presenter.configuration.areas;
+
+        for (var i=0; i<areas.length; i++) {
+            floodFill({
+                    x: areas[i].x,
+                    y: areas[i].y,
+                    color: [255, 255, 255, 255]
+                },
+                [areas[i].colorToFill[0], areas[i].colorToFill[1], areas[i].colorToFill[2], areas[i].colorToFill[3]],
+                presenter.configuration.tolerance);
+        }
+
         presenter.isShowAnswersActive = true;
 
     };
@@ -901,6 +937,19 @@ function AddonColoring_create(){
         if (presenter.validateModel.isActivity) {
             return;
         }
+
+        presenter.clearCanvas();
+
+        $.each(presenter.tmpFilledAreas, function() {
+            floodFill({
+                    x: this.area.x,
+                    y: this.area.y,
+                    color: [255, 255, 255, 255]
+                },
+                this.color,
+                presenter.configuration.tolerance);
+        });
+
         presenter.isShowAnswersActive = false;
     };
 
