@@ -6,6 +6,7 @@ function AddonAnimated_Page_Progress_create() {
 
     var playerController;
     var eventBus;
+    presenter.displayedImage = null;
 
     presenter.ERROR_CODES = {
         'E_01': "All ranges must be in ascending order",
@@ -65,15 +66,16 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.cleanView = function () {
-        presenter.$view.find('.animated-page-progress-image').each(function () {
+
+        presenter.$view.find('.animated-page-progress-rate').each(function () {
             $(this).css('display', 'none');
             $(this).attr('data-name', 'invisible');
         });
     };
-
-    presenter.setViewImage = function (id) {
-        presenter.$view.find('#' + id).css('display', 'block');
-        presenter.$view.find('#' + id).attr('data-name', 'visible');
+    presenter.setViewImage = function (rate) {
+        presenter.$view.find('.rate-' + (rate+1)).css('display', 'block');
+        presenter.$view.find('.rate-' + (rate+1)).attr('data-name', 'visible');
+        presenter.displayedImage = rate;
     };
 
     presenter.countPercentageScore = function () {
@@ -102,9 +104,11 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.appendImages = function (length) {
         for (var j=0; j<length; j++){
-            presenter.$view.find('.animated-page-progress-wrapper').append('<div id="'+ j +'" class="animated-page-progress-image"></div>');
-            presenter.$view.find('#'+j).css('background-image', 'url(' + range_img[j] + ')');
-            presenter.$view.find('#'+j).css('display', 'none');
+            presenter.$view.find('.animated-page-progress-wrapper').append('<div class="animated-page-progress-rate rate-'+ (j+1) +'"></div>');
+            if(range_img[j] != "") {
+                presenter.$view.find('.rate-' + (j + 1)).css('background-image', 'url(' + range_img[j] + ')');
+            }
+            presenter.$view.find('.rate-'+(j+1)).css('display', 'none');
         }
     };
 
@@ -128,6 +132,8 @@ function AddonAnimated_Page_Progress_create() {
 
         if(!isPreview) {
             presenter.eventListener();
+        }else{
+            presenter.setViewImage(0);
         }
 
     };
@@ -157,7 +163,7 @@ function AddonAnimated_Page_Progress_create() {
         }
 
     	return JSON.stringify({
-            id: presenter.getImageId(),
+            displayedImage: presenter.displayedImage,
             isVisible: presenter.configuration.isVisible
         });
     };
@@ -168,7 +174,7 @@ function AddonAnimated_Page_Progress_create() {
     	var parsedState = JSON.parse(state);
 
         presenter.cleanView();
-        presenter.setViewImage(parsedState.id);
+        presenter.setViewImage(parsedState.displayedImage);
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };
@@ -194,6 +200,11 @@ function AddonAnimated_Page_Progress_create() {
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+    };
+
+    presenter.reset = function () {
+        presenter.cleanView();
+        presenter.setViewImage(0);
     };
 
     return presenter;
