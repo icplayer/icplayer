@@ -409,6 +409,10 @@ function AddonLine_Number_create() {
                     clickLogic(eventData.target);
                 }
             });
+
+            clickArea.on('click', function (e) {
+                e.stopPropagation();
+            });
         }
         else {
             clickArea.on('mouseleave', function (e) {
@@ -426,14 +430,13 @@ function AddonLine_Number_create() {
                 e.stopPropagation();
                 e.preventDefault();
             });
+
+            clickArea.on('click', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                clickLogic($(e.target));
+            });
         }
-
-        clickArea.on('click', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            clickLogic($(e.target));
-        });
-
     }
 
     function removeAllClickListeners() {
