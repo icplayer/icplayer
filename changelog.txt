@@ -1,3 +1,4 @@
+2014-08-07 Fixed problem when video ended in full screen mode on Android native browser
 2014-08-07 Fixed problem with page scroll when glossary popup appears in nested iframes
 2014-08-07 Fixed problem with Popup module when appears in nested iframes
 2014-08-06 Added responding to Show Answers events in Text Selection module

@@ -243,7 +243,6 @@ function Addonvideo_create() {
         this.video.addEventListener('ended', function() {
             if (!presenter.isEnded) {
                 presenter.sendVideoEndedEvent();
-                presenter.reload();
                 if (presenter.configuration.isFullScreen) {
                     fullScreenChange();
                 }
@@ -473,7 +472,6 @@ function Addonvideo_create() {
                 if (this.currentTime == this.duration) {
                     if (!presenter.isEnded) {
                         presenter.sendVideoEndedEvent();
-                        presenter.reload();
                         if (presenter.configuration.isFullScreen) {
                             fullScreenChange();
                         }
