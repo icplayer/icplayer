@@ -12,8 +12,11 @@ function AddonImage_Identification_create(){
         CORRECT : "image-identification-element-correct",
         EMPTY : "image-identification-element-empty",
         INCORRECT : "image-identification-element-incorrect",
-        MOUSE_HOVER : "image-identification-element-mouse-hover"
+        MOUSE_HOVER : "image-identification-element-mouse-hover",
+        SHOW_ANSWERS : "image-identification-element-show-answers"
     };
+
+    presenter.currentClass = CSS_CLASSES.ELEMENT;
 
     /**
      * @return {string}
@@ -160,6 +163,8 @@ function AddonImage_Identification_create(){
 
         $(element).removeClass(CSS_CLASSESToString());
         $(element).addClass(selected ? selectedClass : unselectedClass);
+
+        presenter.currentClass = selected ? selectedClass : unselectedClass;
     }
 
     presenter.executeCommand = function(name, params) {
@@ -231,6 +236,10 @@ function AddonImage_Identification_create(){
     };
 
     presenter.setShowErrorsMode = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.configuration.isErrorCheckMode = true;
 
         if (!presenter.configuration.isActivity) return;
@@ -411,14 +420,36 @@ function AddonImage_Identification_create(){
         }
     };
 
+    function applySelectionStyleShowAnswers (style){
+        var element = presenter.$view.find('div:first')[0];
+
+        $(element).removeClass(CSS_CLASSESToString());
+        $(element).addClass(style);
+    }
+
     presenter.showAnswers = function () {
         presenter.isShowAnswersActive = true;
+
+        if(presenter.configuration.shouldBeSelected){
+//            var element = presenter.$view.find('div:first')[0];
+//
+//            $(element).removeClass(CSS_CLASSESToString());
+//            $(element).addClass(CSS_CLASSES.CORRECT);
+
+            applySelectionStyleShowAnswers(CSS_CLASSES.CORRECT);
+        }
 
 
     };
 
     presenter.hideAnswers = function () {
 
+//        var element = presenter.$view.find('div:first')[0];
+//
+//        $(element).removeClass(CSS_CLASSESToString());
+//        $(element).addClass(presenter.currentClass);
+
+        applySelectionStyleShowAnswers(presenter.currentClass);
 
         presenter.isShowAnswersActive = false;
     };
