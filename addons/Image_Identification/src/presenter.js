@@ -23,7 +23,7 @@ function AddonImage_Identification_create(){
      */
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
-            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER;
+            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.SHOW_ANSWERS;
     }
 
     function clickLogic() {
@@ -430,14 +430,18 @@ function AddonImage_Identification_create(){
     presenter.showAnswers = function () {
         presenter.isShowAnswersActive = true;
 
+        presenter.configuration.isErrorCheckMode = true;
+
         if(presenter.configuration.shouldBeSelected){
-            applySelectionStyleShowAnswers(CSS_CLASSES.CORRECT);
+            applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
         }
 
 
     };
 
     presenter.hideAnswers = function () {
+        presenter.configuration.isErrorCheckMode = false;
+
         applySelectionStyleShowAnswers(presenter.currentClass);
 
         presenter.isShowAnswersActive = false;
