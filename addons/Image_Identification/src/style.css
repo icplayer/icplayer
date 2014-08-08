@@ -2,6 +2,7 @@
 .image-identification-element-correct,
 .image-identification-element-incorrect,
 .image-identification-element-mouse-hover,
+.image-identification-element-show-answers,
 .image-identification-element {
     border: 0 solid black;
     padding: 0;
