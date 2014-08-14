@@ -345,7 +345,9 @@ function AddonConnection_create() {
         var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
         eventBus.sendEvent('ValueChanged', eventData);
 
-        if (presenter.isAllOK()) sendAllOKEvent();
+        if(!presenter.isShowAnswersActive) {
+            if (presenter.isAllOK()) sendAllOKEvent();
+        }
     }
 
     function sendAllOKEvent() {
