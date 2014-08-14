@@ -25,7 +25,7 @@ function AddonConnection_create() {
     var correctConnection = "#0d0";
     var incorrectConnection = "#d00";
     var connectionThickness = "1px";
-    var showAnswersColor = "#68e9f0";
+    var showAnswersColor = "#0d0";
 
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.'
@@ -269,6 +269,9 @@ function AddonConnection_create() {
         }
         if (model['Incorrect connection color'] != '') {
             incorrectConnection = model['Incorrect connection color'];
+        }
+        if (model['Show answers line color'] != '') {
+            showAnswersColor = model['Show answers line color'];
         }
 
         if (model['isNotActivity'] != undefined){
@@ -824,7 +827,9 @@ function AddonConnection_create() {
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
-            'isAttempted' : presenter.isAttemptedCommand
+            'isAttempted' : presenter.isAttemptedCommand,
+            'showAnswers': presenter.showAnswers,
+            'hideAnswers': presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
