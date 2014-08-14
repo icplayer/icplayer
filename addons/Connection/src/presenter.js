@@ -82,7 +82,7 @@ function AddonConnection_create() {
 
             if (this.sendEvents) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
-                sendEvent(pair[0], pair[1], 1, score);
+                presenter.sendEvent(pair[0], pair[1], 1, score);
             }
         };
 
@@ -120,7 +120,7 @@ function AddonConnection_create() {
 
             if (this.sendEvents) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
-                sendEvent(pair[0], pair[1], 0, score);
+                presenter.sendEvent(pair[0], pair[1], 0, score);
             }
         };
 
@@ -341,14 +341,14 @@ function AddonConnection_create() {
         };
     };
 
-    function sendEvent(fromID, toID, value, score) {
+    presenter.sendEvent = function (fromID, toID, value, score) {
         var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
         eventBus.sendEvent('ValueChanged', eventData);
 
         if(!presenter.isShowAnswersActive) {
             if (presenter.isAllOK()) sendAllOKEvent();
         }
-    }
+    };
 
     function sendAllOKEvent() {
         var eventData = {
