@@ -25,7 +25,7 @@ TestCase("States tests", {
 
     'test set state on filled state': function () {
         var state = JSON.stringify({
-            id: 0,
+            displayedImage: 0,
             isVisible: true
         });
 
@@ -45,17 +45,13 @@ TestCase("States tests", {
     'test get state while no error': function () {
         this.presenter.configuration.isError = false;
         this.presenter.configuration.isVisible = true;
-
-        this.getIdStub = sinon.stub(this.presenter, 'getImageId');
-        this.getIdStub.returns(0);
+        this.presenter.displayedImage = 0;
 
         var expectedState = JSON.stringify({
-            id: 0,
+            displayedImage: 0,
             isVisible: true
         });
 
         assertEquals(expectedState, this.presenter.getState());
-
-        this.presenter.getImageId.restore();
     }
 });

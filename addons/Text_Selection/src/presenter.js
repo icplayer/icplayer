@@ -4,6 +4,7 @@ function AddonText_Selection_create() {
 
     presenter.eventBus = null;
     presenter.playerController = null;
+    presenter.selected_elements = null;
 
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
@@ -290,7 +291,6 @@ function AddonText_Selection_create() {
                 lastMoveEvent = $(document.elementFromPoint(temp.pageX - $(document).scrollLeft(), temp.pageY - $(document).scrollTop()));
             });
         } else {
-
             $text_selection.on('mouseup', function(e) {
                 e.stopPropagation();
                 presenter.configuration.isExerciseStarted = true;
@@ -316,15 +316,23 @@ function AddonText_Selection_create() {
             e.stopPropagation();
         });
 
-		presenter.configuration.areEventListenersOn = true;
+        presenter.configuration.areEventListenersOn = true;
 	};
 
 	presenter.turnOffEventListeners = function() {
-		presenter.$view.find('.text_selection').off();
-		presenter.$view.find('.text_selection').find('.selectable').off();
+        var $text_selection = presenter.$view.find('.text_selection'),
+            selectable = $text_selection.find('.selectable');
+
+        $text_selection.off();
+        selectable.off();
 
 		presenter.configuration.areEventListenersOn = false;
 	};
+
+    presenter.turnOnShowAnswersListeners = function() {
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+    };
 
 	function getSpace(i) {
 		return "<span left=\"" + i + "\" right=\"" + (i+1) + "\"> </span>";
@@ -375,6 +383,7 @@ function AddonText_Selection_create() {
 	presenter.run = function(view, model) {
 		presenter.presenterLogic(view, model, false);
 		presenter.turnOnEventListeners();
+        presenter.turnOnShowAnswersListeners();
 	};
 
 	presenter.createPreview = function(view, model) {
@@ -712,6 +721,8 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.reset = function() {
+        presenter.selected_elements = null;
+        presenter.hideAnswers();
 		presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
 		presenter.setWorkMode();
 		presenter.show();
@@ -719,6 +730,8 @@ function AddonText_Selection_create() {
 
 	presenter.getState = function() {
 		var numberSelected = [];
+
+        if (presenter.selected_elements != null) presenter.selected_elements.addClass("selected");
 
 		var allSelected = presenter.$view.find('.text_selection').find('.selected');
 
@@ -759,10 +772,12 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.setShowErrorsMode = function() {
-		if (!presenter.configuration.isExerciseStarted) return;
-		var i;
+        presenter.turnOffEventListeners();
 
-		presenter.turnOffEventListeners();
+        if (!presenter.configuration.isExerciseStarted) return false;
+        if (presenter.is_show_answers) presenter.hideAnswers();
+
+        var i;
 
 		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
 			return this.getAttribute('number');
@@ -778,7 +793,6 @@ function AddonText_Selection_create() {
 		}
 
 		var selectedWrong = intersection(numbersSelected, numbersWrong);
-
 		for (i=0; i<selectedWrong.length; i++) {
 			presenter.$view.find('.text_selection').find("span[number='" + selectedWrong[i] + "']").addClass('wrong');
 		}
@@ -788,9 +802,9 @@ function AddonText_Selection_create() {
 		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
 		presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
 
-		if (!presenter.configuration.areEventListenersOn) {
-			presenter.turnOnEventListeners();
-		}
+        presenter.selected_elements = presenter.$view.find('.text_selection').find('.selected');
+        presenter.turnOffEventListeners();
+        presenter.turnOnEventListeners();
 	};
 
 	function points(selector) {
@@ -822,6 +836,46 @@ function AddonText_Selection_create() {
 
     presenter.isAttempted = function() {
         return presenter.$view.find('.text_selection').find('.selected').length > 0;
+    };
+
+    presenter.showAnswers = function() {
+        if (presenter.is_show_answers) { return false; }
+
+        presenter.turnOffEventListeners();
+
+        presenter.is_show_answers = true;
+        presenter.selected_elements = presenter.$view.find(".selected");
+        var selectable_elements = presenter.$view.find(".selectable");
+
+        presenter.selected_elements.removeClass("selected");
+
+        for (var i=0; i<selectable_elements.length; i++) {
+            var elem = presenter.$view.find(".selectable")[i];
+            var elem_number = parseInt($(elem).attr("number"), 10);
+
+            if (presenter.markers.markedCorrect.indexOf(elem_number) !== -1) {
+                $(elem).addClass("correct-answer");
+            }
+        }
+    };
+
+    presenter.hideAnswers = function() {
+        if (!presenter.is_show_answers) { return false; }
+
+        presenter.turnOnEventListeners();
+
+        presenter.is_show_answers = false;
+        presenter.$view.find(".correct-answer").removeClass("correct-answer");
+        if (presenter.selected_elements != null) presenter.selected_elements.addClass("selected");
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
     };
 
 	return presenter;

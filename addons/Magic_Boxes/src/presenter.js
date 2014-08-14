@@ -17,7 +17,7 @@ function AddonMagic_Boxes_create() {
     };
 
     var maxScore;
-    var isSelectionPossible = true;
+    presenter.isSelectionPossible = true;
 
     presenter.ERROR_MESSAGES = {
         COLUMNS : "Inconsistent column size. Each row has to have same number of elements!",
@@ -156,7 +156,7 @@ function AddonMagic_Boxes_create() {
     }
 
     function selectionHandler(row, column) {
-        if(isSelectionPossible) {
+        if(presenter.isSelectionPossible) {
             gridSelection[row][column] = gridSelection[row][column] ? false : true;
             applySelectionStyle(row, column);
         }
@@ -183,7 +183,14 @@ function AddonMagic_Boxes_create() {
                 return true; // jQeury equivalent of continue
             }
 
-            var className = goodSelectionIndexes[index] != -1 ? 'selectable-element-selected-correct' : 'selectable-element-selected-uncorrect'
+            var className;
+
+            if(goodSelectionIndexes[index] != -1){
+                className = 'selectable-element-selected-correct';
+            }else{
+                className = 'selectable-element-selected-uncorrect';
+            }
+
             $(this).addClass(className);
         });
     }
@@ -202,7 +209,7 @@ function AddonMagic_Boxes_create() {
     }
 
     presenter.reset = function() {
-        isSelectionPossible = true;
+        presenter.isSelectionPossible = true;
 
         cleanAnswersStyles();
 
@@ -215,7 +222,7 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.setShowErrorsMode = function() {
-        isSelectionPossible = false;
+        presenter.isSelectionPossible = false;
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
 
@@ -233,7 +240,7 @@ function AddonMagic_Boxes_create() {
             }
         }
 
-        isSelectionPossible = true;
+        presenter.isSelectionPossible = true;
     };
 
     presenter.getMaxScore = function() {
@@ -697,6 +704,22 @@ function AddonMagic_Boxes_create() {
             gridElements: gridValidationResult.gridElements,
             answers: answersValidationResult.answers
         };
+    };
+
+    presenter.executeCommand = function (name, params) {
+        if (!presenter.isSelectionPossible) return;
+
+        var commands = {
+            'isAllOK': presenter.isAllOK
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.isAllOK = function () {
+        if (!presenter.isSelectionPossible) return;
+
+        return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
     return presenter;

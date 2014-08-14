@@ -59,6 +59,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Image_Identification", "Image Identification", "activities_menu");
 		addDescriptor("Image_Viewer_Public", "Image Viewer", "media_menu");
 		addDescriptor("Image_Viewer_Button_Controlled_Public", "Image Viewer Button Controlled", "media_menu");
+		addDescriptor("Interactive_Table", "Interactive Table", "media_menu");
 		addDescriptor("Layered_Image", "Layered Image", "media_menu");
 		addDescriptor("Line", "Line", "media_menu");
 		addDescriptor("Line_Number", "Line Number", "activities_menu");
