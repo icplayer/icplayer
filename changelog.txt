@@ -1,3 +1,4 @@
+2014-08-18 Fixed drawing on mobile devices in Interactive Table module
 2014-08-11 Added isAllOK() command to Magic Boxes module
 2014-08-07 Fixed selecting issue in Line Number addon on Android 4.2.2 devices
 2014-08-07 Added new module Interactive Table
