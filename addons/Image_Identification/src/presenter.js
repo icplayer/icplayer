@@ -180,7 +180,9 @@ function AddonImage_Identification_create(){
             'markAsCorrect': presenter.markAsCorrect,
             'markAsWrong': presenter.markAsWrong,
             'markAsEmpty': presenter.markAsEmpty,
-            'removeMark': presenter.removeMark
+            'removeMark': presenter.removeMark,
+            'showAnswers': presenter.showAnswers,
+            'hideAnswers': presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
