@@ -44,6 +44,7 @@
     margin-left: 5px;
     background-position: center;
     background-repeat: no-repeat;
+    cursor: pointer;
 }
 
 .interactive-table-panel .button.first {
@@ -94,6 +95,11 @@
 
 .interactive-table-panel .bottom-panel .container {
     float: right;
+    margin-top: 5px;
+}
+
+.interactive-table-panel .bottom-panel-floating-image {
+    margin-right: 77px;
 }
 
 .interactive-table-panel .bottom-panel {
@@ -107,6 +113,11 @@
 
 .interactive-table-panel .button.open {
     display: block;
+    background-image: url('resources/wb-panel_open.svg');
+}
+
+.interactive-table-panel .button.close {
+    background-image: url('resources/wb-panel_close.svg');
 }
 
 .interactive-table-panel .button.zoom {
@@ -182,11 +193,11 @@
 }
 
 .interactive-table-panel .button.floating-image {
-    background-image: url('resources/it_floating_image_icon.svg');
+    background-image: url('resources/wb_panel_rullers_icon.svg');
 }
 
 .interactive-table-panel .button.floating-image.clicked {
-    background: #979797 url('resources/it_floating_image_icon-active.svg');
+    background-image: url('resources/wb_panel_rullers_icon-active.svg');
 }
 
 .interactive-table-panel .button.color {
@@ -266,15 +277,15 @@
 }
 
 .button-floating-image.button-floating-image-1 {
-    background-image: url('resources/it_ruler_icon.png');
+    background-image: url('resources/wb_panel_ruller1_icon.svg');
 }
 
 .button-floating-image.button-floating-image-2 {
-    background-image: url('resources/it_setsquare_icon.png');
+    background-image: url('resources/wb_panel_ruller2_icon.svg');
 }
 
 .button-floating-image.button-floating-image-3 {
-    background-image: url('resources/it_protractor_icon.png');
+    background-image: url('resources/wb_panel_ruller3_icon.svg');
 }
 
 .interactive-table-note {
@@ -282,9 +293,9 @@
     width: 180px;
     min-height: 100px;
     position: absolute;
-    background-color: rgba(255, 255, 155, 0.8);
+    background-color: rgba(255, 255, 155, 0.9);
     border-radius: 4px;
-    box-shadow: 1px 1px #f1f1f1;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
 }
 
 .interactive-table-note .note-header {

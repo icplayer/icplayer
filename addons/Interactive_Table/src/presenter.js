@@ -187,8 +187,8 @@ function AddonInteractive_Table_create(){
 
     function getCursorPosition(e) {
         var client = {
-            x: e.clientX,
-            y: e.clientY
+            x: typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX,
+            y: typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
         };
 
         if (e.type == 'touchmove' || e.type == 'touchstart') {
@@ -199,6 +199,7 @@ function AddonInteractive_Table_create(){
             x: parseInt(client.x, 10),
             y: parseInt(client.y, 10)
         };
+
     }
 
     function changeDrawingType(button) {
@@ -534,19 +535,6 @@ function AddonInteractive_Table_create(){
 
                 lastEvent = e;
             });
-
-            //            function MouseWheelHandler(e) {
-            //                var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-            //
-            //                if (delta > 0) {
-            //                    zoom.scaleUp();
-            //                } else {
-            //                    zoom.scaleDown();
-            //                }
-            //            }
-            //
-            //            presenter.$pagePanel[0].addEventListener('mousewheel', MouseWheelHandler, false);
-            //            presenter.$pagePanel[0].addEventListener('DOMMouseScroll', MouseWheelHandler, false);
         });
 
         presenter.$pagePanel.find('.note').click(function(e) {
@@ -836,9 +824,10 @@ function AddonInteractive_Table_create(){
     function drawAreaLogic(isHide) {
         presenter.selectingCanvas.selectable({
             stop: function( event, _ ) {
+                var pos = getCursorPosition(event.originalEvent);
                 presenter.stopSelection = {
-                    x: event.clientX,
-                    y: event.clientY
+                    x: presenter.startSelection.x + pos.x,
+                    y: presenter.startSelection.y + pos.y
                 };
 
                 drawArea(isHide);
@@ -853,9 +842,10 @@ function AddonInteractive_Table_create(){
                 });
             },
             start: function( event, _ ) {
+                var pos = getCursorPosition(event.originalEvent);
                 presenter.startSelection = {
-                    x: event.clientX,
-                    y: event.clientY
+                    x: pos.x,
+                    y: pos.y
                 };
             }
         });
