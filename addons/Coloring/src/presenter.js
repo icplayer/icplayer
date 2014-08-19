@@ -557,7 +557,9 @@ function AddonColoring_create(){
             'getView' : presenter.getView,
             'setColor' : presenter.setColorCommand,
             'setEraserOn' : presenter.setEraserOn,
-            'isAttempted' : presenter.isAttempted
+            'isAttempted' : presenter.isAttempted,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -653,6 +655,9 @@ function AddonColoring_create(){
     };
 
     presenter.getErrorCount = function(){
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentErrorCount;
+        }
         if (presenter.configuration.isActivity) {
             var errorsCount = 0;
             $.each(presenter.configuration.areas, function() {
@@ -690,6 +695,10 @@ function AddonColoring_create(){
     };
 
     presenter.getScore = function(){
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentScore;
+        }
+
         if (presenter.configuration.isActivity) {
             var scoreCount = 0;
             $.each(presenter.configuration.areas, function() {
@@ -904,6 +913,8 @@ function AddonColoring_create(){
         if (presenter.validateModel.isActivity) {
             return;
         }
+        presenter.currentScore = presenter.getScore();
+        presenter.currentErrorCount = presenter.getErrorCount();
 
         presenter.tmpFilledAreas = [];
         $.each(presenter.configuration.areas, function() {
