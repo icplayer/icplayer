@@ -9,12 +9,8 @@
 	 xml:space="preserve">
 <defs>
 </defs>
-<rect x="4" y="9" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="4" height="2"/>
-<rect x="12" y="9" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="4" height="2"/>
-<rect x="9" y="12" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="2" height="4"/>
-<rect x="9" y="4" fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" width="2" height="4"/>
-<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="7,4 13,4 10,0 "/>
-<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="13,16 7,16 10,20 "/>
-<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="16,7 16,13 20,10 "/>
-<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#C8C8C8" points="4,13 4,7 0,10 "/>
+<polygon opacity="0.2" fill-rule="evenodd" clip-rule="evenodd" points="8,9 4,9 4,7 0,10 4,13 4,11 8,11 "/>
+<polygon opacity="0.2" fill-rule="evenodd" clip-rule="evenodd" points="11,12 9,12 9,16 7,16 10,20 13,16 11,16 "/>
+<polygon opacity="0.2" fill-rule="evenodd" clip-rule="evenodd" points="9,8 11,8 11,4 13,4 10,0 7,4 9,4 "/>
+<polygon opacity="0.2" fill-rule="evenodd" clip-rule="evenodd" points="20,10 16,7 16,9 12,9 12,11 16,11 16,13 "/>
 </svg>
