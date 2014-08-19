@@ -11,6 +11,19 @@ function AddonInteractive_Table_create(){
     presenter.currentLineWidth = 1;
     presenter.isMouseDown = false;
     presenter.lastMousePosition = {};
+    presenter.floatingImageGroups = {};
+    presenter.currentFloatingImageIndex = 0;
+
+    presenter.DEFAULT_FLOATING_IMAGE = {
+        0: 'it_ruler.png',
+        1: 'it_setsquare.png',
+        2: 'it_protractor.png'
+    };
+
+    presenter.FLOATING_IMAGE_MODE = {
+        ROTATE: 1,
+        MOVE: 2
+    };
 
     presenter.DRAW_MODE = {
         MARKER: 1,
@@ -22,6 +35,7 @@ function AddonInteractive_Table_create(){
     };
 
     presenter.drawMode = presenter.DRAW_MODE.NONE;
+    presenter.floatingImageMode = presenter.FLOATING_IMAGE_MODE.MOVE;
 
     presenter.DRAWING_DATA = {
         'color' : {
@@ -50,13 +64,32 @@ function AddonInteractive_Table_create(){
         }
     };
 
+    function getCurrentGroup() {
+        return presenter.floatingImageGroups[presenter.currentFloatingImageIndex];
+    }
+
+    function getCurrentImage() {
+        return presenter.floatingImageGroups[presenter.currentFloatingImageIndex].children[0];
+    }
+
+    function getCurrentMoveIcon() {
+        return presenter.floatingImageGroups[presenter.currentFloatingImageIndex].children[1];
+    }
+
+    function getCurrentRotateIcon() {
+        return presenter.floatingImageGroups[presenter.currentFloatingImageIndex].children[2];
+    }
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
-    presenter.onEventReceived = function(eventName) {
+    presenter.onEventReceived = function(eventName, eventData) {
+        if (eventName == 'PageLoaded' && eventData.source == 'header') {
+            presenter.headerLoadedDeferred.resolve();
+        }
     };
 
     presenter.ERROR_CODES = {
@@ -64,12 +97,6 @@ function AddonInteractive_Table_create(){
 
     presenter.createPreview = function(view, model) {
         runLogic(view, model, true);
-    };
-
-    presenter.validateModel = function(model, isPreview) {
-
-        return {
-        }
     };
 
     function closePanel() {
@@ -106,7 +133,7 @@ function AddonInteractive_Table_create(){
             presenter.$panel.addClass('animationInProgress');
             var left = (parseInt(presenter.$panel.css('left'), 10) - 421);
             presenter.$panel.animate({
-                'width' : 421 + 'px'
+                'width' : 457 + 'px'
 //                    'left' : (left <= 0 ? 0 : left) + 'px'
             }, 1000, _show);
         } else {
@@ -132,11 +159,47 @@ function AddonInteractive_Table_create(){
         ctx.stroke();
     };
 
-    function getCursorPosition(e) {
+    function fixTouch (touch) {
+        var winPageX = window.pageXOffset,
+            winPageY = window.pageYOffset,
+            x = touch.clientX,
+            y = touch.clientY;
+
+        if (touch.pageY === 0 && Math.floor(y) > Math.floor(touch.pageY) ||
+            touch.pageX === 0 && Math.floor(x) > Math.floor(touch.pageX)) {
+            // iOS4 clientX/clientY have the value that should have been
+            // in pageX/pageY. While pageX/page/ have the value 0
+            x = x - winPageX;
+            y = y - winPageY;
+        } else if (y < (touch.pageY - winPageY) || x < (touch.pageX - winPageX) ) {
+            // Some Android browsers have totally bogus values for clientX/Y
+            // when scrolling/zooming a page. Detectable since clientX/clientY
+            // should never be smaller than pageX/pageY minus page scroll
+            x = touch.pageX - winPageX;
+            y = touch.pageY - winPageY;
+        }
+
         return {
-            x: e.clientX - presenter.canvasPosition.left + $(window).scrollLeft(),
-            y: e.clientY - presenter.canvasPosition.top + $(window).scrollTop()
+            x: x,
+            y: y
         };
+    }
+
+    function getCursorPosition(e) {
+        var client = {
+            x: typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX,
+            y: typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
+        };
+
+        if (e.type == 'touchmove' || e.type == 'touchstart') {
+            client = fixTouch(event.touches[0] || event.changedTouches[0]);
+        }
+
+        return {
+            x: parseInt(client.x, 10),
+            y: parseInt(client.y, 10)
+        };
+
     }
 
     function changeDrawingType(button) {
@@ -160,8 +223,10 @@ function AddonInteractive_Table_create(){
         var panel;
         if ($(button).hasClass('color')) {
             panel = presenter.$pagePanel.find('.bottom-panel-color');
-        } else {
+        } else if ($(button).hasClass('thickness')) {
             panel = presenter.$pagePanel.find('.bottom-panel-thickness');
+        } else {
+            panel = presenter.$pagePanel.find('.bottom-panel-floating-image');
         }
 
         if (panel.is(':visible')) {
@@ -171,15 +236,46 @@ function AddonInteractive_Table_create(){
         }
     }
 
+    function applyDoubleTapHandler($element, callback) {
+        var lastEvent = null,
+            tapsCounter = 0;
+
+        $element.on('touchstart', function(e) {
+            lastEvent = e.evt || e;
+        });
+
+        $element.on('touchend', function(e) {
+            if (lastEvent.type == 'touchstart') {
+                tapsCounter++;
+
+                if (tapsCounter == 2) {
+                    callback();
+                    tapsCounter = 0;
+                }
+            }
+            lastEvent = e.evt || e;
+        });
+
+        $element.on('touchmove', function(e) {
+            lastEvent = e.evt || e;
+        });
+    }
+
     function drawingLogic() {
 
-        $(presenter.canvas).off('mousedown mousemove mouseup');
-        $(presenter.markerCanvas).off('mousedown mousemove mouseup');
+        $(presenter.canvas).off('mousedown mousemove mouseup touchstart touchmove touchend');
+        $(presenter.markerCanvas).off('mousedown mousemove mouseup touchstart touchmove touchend');
 
         var lastEvent = null;
 
         $(presenter.canvas).on('mousedown', mouseDownHandler);
+        $(presenter.canvas).on('touchstart', function(e) {
+            mouseDownHandler(e)
+        });
         $(presenter.markerCanvas).on('mousedown', mouseDownHandler);
+        $(presenter.markerCanvas).on('touchstart', function(e) {
+            mouseDownHandler(e)
+        });
 
         function mouseDownHandler(e) {
             e.stopPropagation();
@@ -190,7 +286,13 @@ function AddonInteractive_Table_create(){
         }
 
         $(presenter.canvas).on('mousemove', mouseMoveHandler);
+        $(presenter.canvas).on('touchmove', function(e) {
+            mouseMoveHandler(e);
+        });
         $(presenter.markerCanvas).on('mousemove', mouseMoveHandler);
+        $(presenter.markerCanvas).on('touchmove', function(e) {
+            mouseMoveHandler(e);
+        });
 
         function mouseMoveHandler(e) {
             if (presenter.isMouseDown) {
@@ -211,7 +313,13 @@ function AddonInteractive_Table_create(){
         }
 
         $(presenter.canvas).on('mouseup', mouseUpHandler);
+        $(presenter.canvas).on('touchend', function(e) {
+            mouseUpHandler(e);
+        });
         $(presenter.markerCanvas).on('mouseup', mouseUpHandler);
+        $(presenter.markerCanvas).on('touchend', function(e) {
+            mouseUpHandler(e);
+        });
 
         function mouseUpHandler(e) {
             e.stopPropagation();
@@ -222,73 +330,431 @@ function AddonInteractive_Table_create(){
         }
     }
 
+    function setBasicConfiguration(view) {
+        presenter.$view = $(view);
+        presenter.$panel = $(view).find('.interactive-table-panel');
+        presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
+        presenter.$icplayer = presenter.$panel.parents('.ic_player').parent();
+        presenter.$defaultThicknessButton = presenter.$panel.find('.thickness-1');
+        presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
+        window.$icplayer = presenter.$icplayer;
+        presenter.isInFrame = window.parent.location != window.location;
+        presenter.$buttonsExceptOpen = presenter.$panel.children('.button:not(.open)');
+        presenter.buttonWidth = presenter.$buttonsExceptOpen.width();
+        $('.ic_page:first').append(presenter.$panel);
+        presenter.$pagePanel.css('cursor', 'initial');
+        presenter.$view.disableSelection();
+    }
+
+    function addEventHandlers() {
+        presenter.$pagePanel.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        presenter.$panel.find('.open').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            openPanel(true);
+
+        });
+
+        presenter.$panel.find('.close').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            closePanel();
+        });
+
+        presenter.$pagePanel.find('.button').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeButtonState(this);
+
+            if (isDependingOnDrawing(this) && isDrawingButtonActive() || isFloatingImageButton(this)) {
+                openBottomPanel(this);
+            }
+        });
+
+        presenter.$pagePanel.find('.button-drawing-details').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeBottomButtonState(this);
+
+            changeDrawingType(this);
+        });
+
+        presenter.$pagePanel.find('.button-floating-image').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeBottomButtonState(this);
+
+            changeCurrentFloatingImage(parseInt($(this).attr('index'), 10));
+        });
+
+        presenter.$pagePanel.find('.pen').click(function() {
+            presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
+            changeColor(['#0fa9f0', '#0fa9f0']);
+            changeThickness(1);
+            toggleMasks(
+                [presenter.$mask, presenter.$markerMask],
+                presenter.DRAW_MODE.PEN,
+                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.STAND_AREA, presenter.DRAW_MODE.HIDE_AREA]
+            );
+
+            presenter.ctx.globalCompositeOperation = 'source-over';
+            presenter.drawMode = presenter.DRAW_MODE.PEN;
+
+            drawingLogic();
+        });
+
+        presenter.$pagePanel.find('.marker').click(function() {
+            presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
+            changeColor(['#ffff99', '#ffff99']);
+            changeThickness(10);
+            toggleMasks(
+                [presenter.$mask, presenter.$markerMask],
+                presenter.DRAW_MODE.MARKER,
+                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.STAND_AREA, presenter.DRAW_MODE.HIDE_AREA]
+            );
+
+            presenter.markerCtx.globalCompositeOperation = 'source-over';
+            presenter.drawMode = presenter.DRAW_MODE.MARKER;
+
+            drawingLogic();
+        });
+
+        presenter.$pagePanel.find('.eraser').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if (presenter.ctx) {
+                presenter.ctx.globalCompositeOperation = 'destination-out';
+            }
+            if (presenter.markerCtx) {
+                presenter.markerCtx.globalCompositeOperation = 'destination-out';
+            }
+            changeColor(['rgba(0, 0, 0, 1)', 'rgba(0, 0, 0, 1)']);
+            changeThickness(20);
+            presenter.drawMode = presenter.DRAW_MODE.ERASER;
+            drawingLogic();
+        });
+
+        presenter.$pagePanel.find('.reset').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            presenter.selectingCtx.clearRect(0, 0, presenter.$selectingMask.width(), presenter.$selectingMask.height());
+            presenter.ctx.clearRect(0, 0, presenter.$mask.width(), presenter.$mask.height());
+            presenter.markerCtx.clearRect(0, 0, presenter.$markerMask.width(), presenter.$markerMask.height());
+
+            $.each(presenter.$pagePanel.find('.interactive-table-note'), function() {
+                $(this).remove();
+            });
+
+            presenter.areas = [];
+            presenter.drawMode = presenter.DRAW_MODE.NONE;
+        });
+
+        presenter.$pagePanel.find('.hide-area').click(function(e) {
+            toggleMasks([presenter.$selectingMask],
+                presenter.DRAW_MODE.HIDE_AREA,
+                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.PEN, presenter.DRAW_MODE.MARKER, presenter.DRAW_MODE.ERASER]);
+            drawAreaLogic(true);
+
+            presenter.drawMode = presenter.DRAW_MODE.HIDE_AREA;
+            presenter.$defaultColorButton = presenter.$panel.find('.color-black');
+            changeColor(['#000', '#000']);
+        });
+
+        presenter.$pagePanel.find('.stand-area').click(function(e) {
+            toggleMasks([presenter.$selectingMask],
+                presenter.DRAW_MODE.STAND_AREA,
+                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.PEN, presenter.DRAW_MODE.MARKER, presenter.DRAW_MODE.ERASER]);
+            drawAreaLogic(false);
+
+            presenter.drawMode = presenter.DRAW_MODE.STAND_AREA;
+            presenter.$defaultColorButton = presenter.$panel.find('.color-black');
+            changeColor(['#000', '#000']);
+        });
+
+        presenter.$pagePanel.find('.zoom').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            changeCursor('zoom-in');
+
+            var lastEvent = null;
+            var modules = presenter.$pagePanel.find('.ic_page > div:not(.interactive-table-panel)');
+
+            presenter.$pagePanel.disableSelection();
+
+            modules.on('click mousedown mouseup', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+            });
+
+            modules.find('a').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+            });
+
+            modules.on('mousedown', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                lastEvent = e;
+                presenter.isMouseDown= true;
+            });
+
+            modules.on('mouseup', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.isMouseDown = false;
+
+                if (lastEvent.type == 'mousedown' &&
+                    !$(e.currentTarget).hasClass('interactive-table-panel') &&
+                    !$(e.currentTarget).hasClass('addon_Interactive_Table')) { // click
+
+                    zoomSelectedModule(e.currentTarget);
+                }
+
+                lastEvent = e;
+            });
+
+            modules.on('mousemove', function(e) {
+                if (presenter.isMouseDown) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    var currentScrollX = $(window).scrollLeft(),
+                        currentScrollY = $(window).scrollTop(),
+                        differenceX = lastEvent.clientX - e.clientX,
+                        differenceY = lastEvent.clientY - e.clientY;
+
+                    $(window).scrollLeft(currentScrollX + differenceX);
+                    $(window).scrollTop(currentScrollY + differenceY);
+                }
+
+                lastEvent = e;
+            });
+        });
+
+        presenter.$pagePanel.find('.note').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var note = createNote();
+
+            presenter.$pagePanel.append(note);
+        });
+
+        presenter.$pagePanel.find('.default').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+//                changeButtonState(this);
+        });
+
+        presenter.$pagePanel.find('.floating-image').click(function() {
+            $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
+                presenter.$floatingImageMask.show();
+            });
+        });
+    }
+
+    function applyOnDblClickHandler() {
+        if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.MOVE) {
+            presenter.floatingImageMode = presenter.FLOATING_IMAGE_MODE.ROTATE;
+            getCurrentMoveIcon().visible(false);
+            getCurrentRotateIcon().visible(true);
+            getCurrentGroup().draggable(false);
+            presenter.floatingImageLayer.draw();
+        } else {
+            presenter.floatingImageMode = presenter.FLOATING_IMAGE_MODE.MOVE;
+            getCurrentMoveIcon().visible(true);
+            getCurrentRotateIcon().visible(false);
+            getCurrentGroup().draggable(true);
+            presenter.floatingImageLayer.draw();
+        }
+    }
+
+    presenter.isLeft = function(center, startingPosition, currentPosition) {
+        return ((startingPosition.x - center.x)*(currentPosition.y - center.y) - (startingPosition.y - center.y)*(currentPosition.x - center.x)) >= 0;
+    };
+
+    function Vector(imageCenterPosition, mousePosition){
+        this.x = imageCenterPosition.x - mousePosition.x;
+        this.y = imageCenterPosition.y - mousePosition.y;
+        this.length = Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    function calculateVectorsAngle(v1, v2) {
+        return Math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.length * v2.length));
+    }
+
+    function changeCurrentFloatingImage(index) {
+        $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
+            presenter.$panel.find('.button-floating-image-' + (index + 1)).addClass('clicked-lighter');
+            getCurrentGroup().visible(false);
+            presenter.currentFloatingImageIndex = index;
+            getCurrentGroup().visible(true);
+            presenter.floatingImageLayer.draw();
+        });
+    }
+
+    function addFloatingImages(model) {
+        var $mask = $('<div class="interactive-table-mask floating-image-mask"></div>');
+        presenter.$icplayer.append($mask);
+        $mask.hide();
+
+        var stage = new Kinetic.Stage({
+            container: $mask[0],
+            visible: true,
+            width: presenter.$pagePanel.width(),
+            height: presenter.$pagePanel.height()
+        });
+
+        var layer = new Kinetic.Layer();
+
+        presenter.$floatingImageMask = $mask;
+        presenter.floatingImageLayer = layer;
+        presenter.floatingImageStage = stage;
+        presenter.allImagesLoadedPromises = [];
+
+        for(var index = 0; index < 3; index++) {
+            var imageObj = new Image(),
+                deferredImage = new $.Deferred();
+
+            (function(deferredImage, index, imageObj) {
+                $(imageObj).load(function() {
+                    var group = new Kinetic.Group({
+                        draggable: true,
+                        visible: index == presenter.currentFloatingImageIndex
+                    });
+
+                    var image = new Kinetic.Image({
+                        x: imageObj.width / 2,
+                        y: $(window.top).scrollTop() + (imageObj.height / 2),
+                        image: imageObj,
+                        width: imageObj.width,
+                        height: imageObj.height,
+                        offset: { x: imageObj.width / 2, y: imageObj.height / 2 }
+                    });
+
+                    group.on('dblclick', function() {
+                        applyOnDblClickHandler();
+                    });
+
+                    applyDoubleTapHandler(group, applyOnDblClickHandler);
+//                    group.on('doubleTap', function() {
+//                        applyOnDblClickHandler();
+//                    });
+
+                    var imageMoveObj = new Image();
+                    $(imageMoveObj).load(function() {
+                        var moveIcon = new Kinetic.Image({
+                            x: (imageObj.width / 2) - 16, // -16, czyli połowa szerokości obrazka
+                            y: (imageObj.height / 2) - 16, // -16, czyli połowa wysokości obrazka
+                            image: imageMoveObj,
+                            opacity: 0.4
+                        });
+
+                        var imageRotateObj = new Image();
+                        $(imageRotateObj).load(function() {
+                            var rotateIcon = new Kinetic.Image({
+                                x: (imageObj.width / 2) - 16, // -16, czyli połowa szerokości obrazka
+                                y: (imageObj.height / 2) - 16, // -16, czyli połowa wysokości obrazka
+                                image: imageRotateObj,
+                                visible: false,
+                                opacity: 0.4
+                            });
+
+                            var isMouseDown = false,
+                                startingVector = null;
+
+                            function rotateActionStartHandler() {
+                                if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE) {
+                                    isMouseDown = true;
+                                    var imageCenter = {
+                                        x: (getCurrentImage().getAbsolutePosition().x),
+                                        y: (getCurrentImage().getAbsolutePosition().y)
+                                    };
+
+                                    startingVector = new Vector(imageCenter, stage.getPointerPosition());
+                                }
+                            }
+
+                            presenter.$floatingImageMask.on('mousedown', rotateActionStartHandler);
+                            presenter.$floatingImageMask.on('touchstart', rotateActionStartHandler);
+
+                            function rotateActionEndHandler() {
+                                if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE) {
+                                    isMouseDown = false;
+                                }
+                            }
+
+                            presenter.$floatingImageMask.on('mouseup', rotateActionEndHandler);
+                            presenter.$floatingImageMask.on('touchend', rotateActionEndHandler);
+
+                            var previousPosition = null;
+
+                            function rotateActionMoveHandler() {
+                                var currentPosition = stage.getPointerPosition();
+
+                                if (isMouseDown && presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE && previousPosition) {
+                                    var imageCenter = {
+                                        x: (getCurrentImage().getAbsolutePosition().x),
+                                        y: (getCurrentImage().getAbsolutePosition().y)
+                                    };
+
+                                    var currentVector = new Vector(imageCenter, stage.getPointerPosition());
+                                    var angle = calculateVectorsAngle(startingVector, currentVector);
+                                    var isLeft = presenter.isLeft(imageCenter, previousPosition, currentPosition);
+
+                                    getCurrentImage().rotate(isLeft ? angle : -angle);
+                                    layer.draw();
+                                }
+
+                                previousPosition = currentPosition;
+                            }
+
+                            presenter.$floatingImageMask.on('mousemove', rotateActionMoveHandler);
+                            presenter.$floatingImageMask.on('touchmove', rotateActionMoveHandler);
+
+                            group.add(image);
+                            group.add(moveIcon);
+                            group.add(rotateIcon);
+                            layer.add(group);
+                            stage.add(layer);
+                            presenter.floatingImageGroups[index] = group;
+
+                            deferredImage.resolve();
+                        });
+                        imageRotateObj.src = DOMOperationsUtils.getResourceFullPath(presenter.playerController, 'addons/resources/it_rotate.png');
+
+                    });
+                    imageMoveObj.src = DOMOperationsUtils.getResourceFullPath(presenter.playerController, 'addons/resources/it_move.png');
+
+                });
+                presenter.allImagesLoadedPromises.push(deferredImage.promise());
+            })(deferredImage, index, imageObj);
+
+            if (model['floatingImages'] && model['floatingImages'][index] && model['floatingImages'][index]['Image'].length > 0) {
+                imageObj.src = model['floatingImages'][index]['Image'];
+            } else {
+                imageObj.src = DOMOperationsUtils.getResourceFullPath(presenter.playerController, 'addons/resources/' + presenter.DEFAULT_FLOATING_IMAGE[index]);
+            }
+        }
+    }
+
     function runLogic(view, model, isPreview) {
         if (!isPreview) {
-            presenter.configuration = presenter.validateModel(model, isPreview);
+            presenter.headerLoadedDeferred = new $.Deferred();
+            presenter.headerLoaded = presenter.headerLoadedDeferred.promise();
 
-            if (presenter.configuration.isError) {
-                DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-                return;
-            }
+            Kinetic.pixelRatio = 1;
 
-            presenter.$view = $(view);
-            presenter.$panel = $(view).find('.interactive-table-panel');
-            presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
-            presenter.$icplayer = presenter.$panel.parents('.ic_player').parent();
-            presenter.$defaultThicknessButton = presenter.$panel.find('.thickness-1');
-            presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
-            window.$icplayer = presenter.$icplayer;
-            presenter.isInFrame = window.parent.location != window.location;
-            presenter.$buttonsExceptOpen = presenter.$panel.children('.button:not(.open)');
-            presenter.buttonWidth = presenter.$buttonsExceptOpen.width();
+            setBasicConfiguration(view);
 
-            $('.ic_page:first').append(presenter.$panel);
-            presenter.$pagePanel.css('cursor', 'default');
-
-            presenter.$view.disableSelection();
-
-            createCanvas(
-                function(mask) {
-                    presenter.$markerMask = mask;
-                    presenter.$markerMask.addClass('marker-mask');
-                    return presenter.$markerMask;
-                },
-                function(ctx) {
-                    presenter.markerCtx = ctx;
-                },
-                function(canvas) {
-                    presenter.markerCanvas = canvas;
-                }
-            );
-
-            createCanvas(
-                function(mask) {
-                    presenter.$mask = mask;
-                    presenter.$mask.addClass('pen-mask');
-                    return presenter.$mask;
-                },
-                function(ctx) {
-                    presenter.ctx = ctx;
-                },
-                function(canvas) {
-                    presenter.canvas = canvas;
-                }
-            );
-
-            createCanvas(
-                function(mask) {
-                    presenter.$selectingMask = mask;
-                    presenter.$selectingMask.addClass('selecting');
-                    return presenter.$selectingMask;
-                },
-                function(ctx) {
-                    presenter.selectingCtx = ctx
-                },
-                function(canvas) {
-                    presenter.selectingCanvas = canvas
-                }
-            );
-
+            addFloatingImages(model);
+            createCanvases();
             presenter.$panel.draggable({
                 containment: 'parent',
                 opacity: 0.35,
@@ -297,18 +763,15 @@ function AddonInteractive_Table_create(){
                         $(event.target).css('top', window.savedPanel.position.top + 'px');
                         $(event.target).css('left', window.savedPanel.position.left + 'px');
                     } else {
-                        $(event.target).css('top', presenter.$pagePanel.offset().top + 'px');
+                        presenter.headerLoaded.then(function() {
+                            $(event.target).css('top', presenter.$pagePanel.offset().top + 'px');
+                        });
                     }
                 },
                 stop: function( event, ui ) {
                     window.savedPanel.position = ui.position;
                 }
             });
-
-            presenter.$pagePanel.on('click', function(e) {
-                e.stopPropagation();
-            });
-
             applyHovered([presenter.$panel.find('.button')]);
 
             window.savedPanel = window.savedPanel || {};
@@ -318,260 +781,53 @@ function AddonInteractive_Table_create(){
                 openPanel(false);
             }
 
-            presenter.$panel.find('.open').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                openPanel(true);
-
-            });
-
-            presenter.$panel.find('.close').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                closePanel();
-            });
-
-            presenter.$pagePanel.find('.button').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                changeButtonState(this);
-
-                if (isDependingOnDrawing(this) && isDrawingButtonActive()) {
-                    openBottomPanel(this);
-                }
-            });
-
+            addEventHandlers();
             if(presenter.isInFrame) {
-                var difference = 0,
-                    lastScrollTop = 0,
-                    panelTop = 0;
-
-                $(window.parent.document).scroll(function() {
-                    var containerHeight = presenter.$pagePanel.outerHeight(true),
-                        scrollTop = $(this).scrollTop(),
-                        min = presenter.$pagePanel.offset().top,
-                        max = containerHeight;
-
-                    difference = scrollTop - lastScrollTop;
-                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
-                    lastScrollTop = scrollTop;
-
-                    if(panelTop && (panelTop) > min && (panelTop) < max) {
-                        presenter.$panel.css({
-                            'top' : (panelTop) + 'px'
-                        });
-
-                    } else if (panelTop && (panelTop) >= max) {
-                        presenter.$panel.css({
-                            'top' : (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
-                        });
-                    } else if (panelTop && (panelTop) <= min){
-                        presenter.$panel.css({
-                            'top' : min + 'px'
-                        });
-                    }
-                });
+                addScrollHandler();
             }
 
-            presenter.$pagePanel.find('.button-drawing-details').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                changeBottomButtonState(this);
-
-                changeDrawingType(this);
-            });
-
-            presenter.$pagePanel.find('.pen').click(function() {
-                presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
-                changeColor(['#0fa9f0', '#0fa9f0']);
-                changeThickness(1);
-                toggleMasks(
-                    [presenter.$mask, presenter.$markerMask],
-                    presenter.DRAW_MODE.PEN,
-                    [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.STAND_AREA, presenter.DRAW_MODE.HIDE_AREA]
-                );
-
-//                changeButtonState(this);
-
-                presenter.ctx.globalCompositeOperation = 'source-over';
-                presenter.drawMode = presenter.DRAW_MODE.PEN;
-
-                drawingLogic();
-            });
-
-            presenter.$pagePanel.find('.marker').click(function() {
-                presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
-                changeColor(['#ffff99', '#ffff99']);
-                changeThickness(10);
-                toggleMasks(
-                    [presenter.$mask, presenter.$markerMask],
-                    presenter.DRAW_MODE.MARKER,
-                    [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.STAND_AREA, presenter.DRAW_MODE.HIDE_AREA]
-                );
-
-//                changeButtonState(this);
-
-                presenter.markerCtx.globalCompositeOperation = 'source-over';
-                presenter.drawMode = presenter.DRAW_MODE.MARKER;
-
-                drawingLogic();
-            });
-
-            presenter.$pagePanel.find('.eraser').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                if (presenter.ctx) {
-                    presenter.ctx.globalCompositeOperation = 'destination-out';
-                }
-                if (presenter.markerCtx) {
-                    presenter.markerCtx.globalCompositeOperation = 'destination-out';
-                }
-                changeColor(['rgba(0, 0, 0, 1)', 'rgba(0, 0, 0, 1)']);
-                changeThickness(20);
-                presenter.drawMode = presenter.DRAW_MODE.ERASER;
-                drawingLogic();
-            });
-
-            presenter.$pagePanel.find('.reset').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                presenter.selectingCtx.clearRect(0, 0, presenter.$selectingMask.width(), presenter.$selectingMask.height());
-                presenter.ctx.clearRect(0, 0, presenter.$mask.width(), presenter.$mask.height());
-                presenter.markerCtx.clearRect(0, 0, presenter.$markerMask.width(), presenter.$markerMask.height());
-
-                $.each(presenter.$pagePanel.find('.interactive-table-note'), function() {
-                    $(this).remove();
-                });
-
-                presenter.areas = [];
-                presenter.drawMode = presenter.DRAW_MODE.NONE;
-            });
-
-            presenter.$pagePanel.find('.hide-area').click(function(e) {
-                toggleMasks([presenter.$selectingMask],
-                    presenter.DRAW_MODE.HIDE_AREA,
-                    [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.PEN, presenter.DRAW_MODE.MARKER, presenter.DRAW_MODE.ERASER]);
-//                drawSavedAreas();
-                drawAreaLogic(true);
-
-                presenter.drawMode = presenter.DRAW_MODE.HIDE_AREA;
-                presenter.$defaultColorButton = presenter.$panel.find('.color-black');
-                changeColor(['#000', '#000']);
-            });
-
-            presenter.$pagePanel.find('.stand-area').click(function(e) {
-                toggleMasks([presenter.$selectingMask],
-                    presenter.DRAW_MODE.STAND_AREA,
-                    [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.PEN, presenter.DRAW_MODE.MARKER, presenter.DRAW_MODE.ERASER]);
-//                drawSavedAreas();
-                drawAreaLogic(false);
-
-                presenter.drawMode = presenter.DRAW_MODE.STAND_AREA;
-                presenter.$defaultColorButton = presenter.$panel.find('.color-black');
-                changeColor(['#000', '#000']);
-            });
-
-            presenter.$pagePanel.find('.zoom').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                changeCursor('zoom-in');
-
-                var lastEvent = null;
-
-                var modules = presenter.$pagePanel.find('.ic_page > div:not(.interactive-table-panel)');
-
-                presenter.$pagePanel.disableSelection();
-
-                modules.on('click mousedown mouseup', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                });
-
-                modules.find('a').on('click', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                });
-
-                modules.on('mousedown', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    lastEvent = e;
-                    presenter.isMouseDown= true;
-                });
-
-                modules.on('mouseup', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    presenter.isMouseDown = false;
-
-                    if (lastEvent.type == 'mousedown' &&
-                        !$(e.currentTarget).hasClass('interactive-table-panel') &&
-                        !$(e.currentTarget).hasClass('addon_Interactive_Table')) { // click
-
-                        zoomSelectedModule(e.currentTarget);
-                    }
-
-                    lastEvent = e;
-                });
-
-                modules.on('mousemove', function(e) {
-                    if (presenter.isMouseDown) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var currentScrollX = $(window).scrollLeft(),
-                            currentScrollY = $(window).scrollTop(),
-                            differenceX = lastEvent.clientX - e.clientX,
-                            differenceY = lastEvent.clientY - e.clientY;
-
-                        $(window).scrollLeft(currentScrollX + differenceX);
-                        $(window).scrollTop(currentScrollY + differenceY);
-                    }
-
-                    lastEvent = e;
-                });
-
-    //            function MouseWheelHandler(e) {
-    //                var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    //
-    //                if (delta > 0) {
-    //                    zoom.scaleUp();
-    //                } else {
-    //                    zoom.scaleDown();
-    //                }
-    //            }
-    //
-    //            presenter.$pagePanel[0].addEventListener('mousewheel', MouseWheelHandler, false);
-    //            presenter.$pagePanel[0].addEventListener('DOMMouseScroll', MouseWheelHandler, false);
-            });
-
-            presenter.$pagePanel.find('.note').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                var note = createNote();
-
-                presenter.$pagePanel.append(note);
-            });
-
-
-            presenter.$pagePanel.find('.default').click(function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-//                changeButtonState(this);
-            });
         }
+    }
+
+    function addScrollHandler() {
+        var difference = 0,
+            lastScrollTop = 0,
+            panelTop = 0;
+
+        $(window.parent.document).scroll(function() {
+            var containerHeight = presenter.$pagePanel.outerHeight(true),
+                scrollTop = $(this).scrollTop(),
+                min = presenter.$pagePanel.offset().top,
+                max = containerHeight;
+
+            difference = scrollTop - lastScrollTop;
+            panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
+            lastScrollTop = scrollTop;
+
+            if(panelTop && (panelTop) > min && (panelTop) < max) {
+                presenter.$panel.css({
+                    'top' : (panelTop) + 'px'
+                });
+
+            } else if (panelTop && (panelTop) >= max) {
+                presenter.$panel.css({
+                    'top' : (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
+                });
+            } else if (panelTop && (panelTop) <= min){
+                presenter.$panel.css({
+                    'top' : min + 'px'
+                });
+            }
+        });
     }
 
     function drawAreaLogic(isHide) {
         presenter.selectingCanvas.selectable({
             stop: function( event, _ ) {
+                var pos = getCursorPosition(event.originalEvent);
                 presenter.stopSelection = {
-                    x: event.clientX,
-                    y: event.clientY
+                    x: presenter.startSelection.x + pos.x,
+                    y: presenter.startSelection.y + pos.y
                 };
 
                 drawArea(isHide);
@@ -586,9 +842,10 @@ function AddonInteractive_Table_create(){
                 });
             },
             start: function( event, _ ) {
+                var pos = getCursorPosition(event.originalEvent);
                 presenter.startSelection = {
-                    x: event.clientX,
-                    y: event.clientY
+                    x: pos.x,
+                    y: pos.y
                 };
             }
         });
@@ -667,23 +924,7 @@ function AddonInteractive_Table_create(){
         note.append(header);
         note.append(noteBody);
 
-        note.on('dblclick', function() {
-            var currentValue = noteBody.html(),
-                textarea = $('<textarea></textarea>'),
-                buttonSave = $('<button class="save">Save</button>');
-
-            buttonSave.on('click', function() {
-                var value = textarea.val();
-                noteBody.html(value);
-                textarea.remove();
-            });
-
-            textarea.focus();
-            textarea.val(currentValue);
-
-            noteBody.html(textarea);
-            noteBody.append(buttonSave);
-        });
+        applyNoteEditHandler(note, noteBody);
 
         note.draggable({
             containment: 'parent',
@@ -698,6 +939,36 @@ function AddonInteractive_Table_create(){
         });
 
         return note;
+    }
+
+    function applyNoteEditHandler(note, noteBody) {
+        note.on('dblclick', function() {
+            noteEditHandler(note, noteBody);
+            note.off('dblclick');
+        });
+
+        applyDoubleTapHandler(note, function() {
+            noteEditHandler(note, noteBody);
+        });
+    }
+
+    function noteEditHandler(note, noteBody) {
+        var currentValue = noteBody.html(),
+            textarea = $('<textarea></textarea>'),
+            buttonSave = $('<button class="save">Save</button>');
+
+        buttonSave.on('click', function() {
+            var value = textarea.val();
+            noteBody.html(value);
+            textarea.remove();
+            applyNoteEditHandler(note, noteBody);
+        });
+
+        textarea.focus();
+        textarea.val(currentValue);
+
+        noteBody.html(textarea);
+        noteBody.append(buttonSave);
     }
 
     function zoomSelectedModule(selectedModule) {
@@ -732,6 +1003,10 @@ function AddonInteractive_Table_create(){
         return presenter.$pagePanel.find('.button.pen.clicked, .button.marker.clicked, .button.hide-area.clicked, .button.stand-area.clicked').length > 0;
     }
 
+    function isFloatingImageButton(button) {
+        return $(button).hasClass('floating-image');
+    }
+
     function shouldHideDrawingMasks(button) {
         return !$(button).hasClass('pen') &&
             !$(button).hasClass('marker') &&
@@ -755,19 +1030,16 @@ function AddonInteractive_Table_create(){
             if ( !$(button).hasClass('open') && !$(button).hasClass('close') ) {
                 $(button).toggleClass('clicked');
             }
+            changeCurrentFloatingImage(presenter.currentFloatingImageIndex);
         }
     }
 
     function changeBottomButtonState(button) {
-        presenter.$panel.find('.button-drawing-details.clicked-lighter').removeClass('clicked-lighter');
+        presenter.$panel.find('.container .clicked-lighter').removeClass('clicked-lighter');
         $(button).toggleClass('clicked-lighter');
     }
 
     function toggleMasks(masks, currentDrawingMode, oppositeDrawingModes) {
-        console.log(currentDrawingMode)
-        console.log(presenter.drawMode)
-        console.log(presenter.drawMode == currentDrawingMode)
-        console.log(oppositeDrawingModes.indexOf(presenter.drawMode) >= 0)
         if (currentDrawingMode == presenter.drawMode || oppositeDrawingModes.indexOf(presenter.drawMode) >= 0) {
             $.each(masks, function() {
                 if ($(this).is(':visible')) {
@@ -779,20 +1051,67 @@ function AddonInteractive_Table_create(){
         }
     }
 
+    function createCanvases() {
+        createCanvas(
+            function(mask) {
+                presenter.$markerMask = mask;
+                presenter.$markerMask.addClass('marker-mask');
+                return presenter.$markerMask;
+            },
+            function(ctx) {
+                presenter.markerCtx = ctx;
+            },
+            function(canvas) {
+                presenter.markerCanvas = canvas;
+            }
+        );
+
+        createCanvas(
+            function(mask) {
+                presenter.$mask = mask;
+                presenter.$mask.addClass('pen-mask');
+                return presenter.$mask;
+            },
+            function(ctx) {
+                presenter.ctx = ctx;
+            },
+            function(canvas) {
+                presenter.canvas = canvas;
+            }
+        );
+
+        createCanvas(
+            function(mask) {
+                presenter.$selectingMask = mask;
+                presenter.$selectingMask.addClass('selecting');
+                return presenter.$selectingMask;
+            },
+            function(ctx) {
+                presenter.selectingCtx = ctx
+            },
+            function(canvas) {
+                presenter.selectingCanvas = canvas
+            }
+        );
+
+    }
+
     function createCanvas(setMask, setContext, setCanvas) {
         var $mask = $('<div class="interactive-table-mask"></div>');
         $mask = setMask($mask);
         $mask.hide();
-        presenter.$icplayer.css('position', 'relative');
-        presenter.$icplayer.append($mask);
+        presenter.$pagePanel.css('position', 'relative');
+        presenter.$pagePanel.append($mask);
 
         var canvas = $('<canvas></canvas>');
         setCanvas(canvas);
         setContext(canvas[0].getContext("2d"));
+
         presenter.canvasPosition = canvas[0].getBoundingClientRect();
+
+        $mask.append(canvas);
         canvas[0].width = $mask.width();
         canvas[0].height = $mask.height();
-        $mask.append(canvas);
     }
 
     function applyHovered(elements) {
@@ -820,7 +1139,6 @@ function AddonInteractive_Table_create(){
         presenter.$panel.find('.clicked-lighter').removeClass('clicked-lighter');
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
-        presenter.$pagePanel.find('*:not(.interactive-table-panel, .interactive-table-panel .button)').css('cursor', 'default');
         presenter.$pagePanel.enableSelection();
         presenter.$pagePanel.find('.ic_page > div:not(.interactive-table-panel)').off('mousemove mousedown mouseup');
         presenter.$pagePanel.find('.bottom-panel').hide();
@@ -828,7 +1146,7 @@ function AddonInteractive_Table_create(){
         if (shouldClearCanvas) {
             changeColor(['#0fa9f0', '#0fa9f0']);
             changeThickness(1);
-            clearCanvas();
+            clearCanvases();
         }
 
         if (shouldHideDrawingMasks) {
@@ -844,6 +1162,10 @@ function AddonInteractive_Table_create(){
             if (presenter.$selectingMask) {
                 presenter.$selectingMask.hide();
             }
+        }
+
+        if (presenter.$floatingImageMask) {
+            presenter.$floatingImageMask.hide();
         }
 
 
@@ -872,7 +1194,7 @@ function AddonInteractive_Table_create(){
         presenter.currentLineWidth = size;
     }
 
-    function clearCanvas() {
+    function clearCanvases() {
         if (presenter.canvas) {
             presenter.canvas.off('mousemove mousedown mouseup');
             presenter.ctx.clearRect(0, 0, presenter.canvas[0].width, presenter.canvas[0].height);
@@ -937,6 +1259,8 @@ function AddonInteractive_Table_create(){
                 'marker' : presenter.markerCanvas ? presenter.markerCanvas[0].toDataURL('image/png') : null
             };
 
+        clearCanvases();
+
         return JSON.stringify({
            'areas' : presenter.areas,
            'notes' : notes,
@@ -960,10 +1284,12 @@ function AddonInteractive_Table_create(){
     };
 
     function setDrawingState(image, ctx, data) {
-        $(image).load(function() {
-            ctx.drawImage(image, 0, 0);
-        });
-        image.src = data;
+        if (data) {
+            $(image).load(function() {
+                ctx.drawImage(image, 0, 0);
+            });
+            image.src = data;
+        }
     }
 
     return presenter;

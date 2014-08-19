@@ -2,5 +2,8 @@
 
 <addon id='Interactive_Table' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
+        <property name="floatingImages" displayName="Floating Images" type="list">
+            <property name="Image" type="file" />
+        </property>
 	</model>
 </addon>
