@@ -429,6 +429,12 @@ function AddonImage_Identification_create(){
         $(element).addClass(style);
     }
 
+    function applySelectionStyleHideAnswers (style){
+        var element = presenter.$view.find('div:first')[0];
+
+        $(element).removeClass(style);
+    }
+
     presenter.showAnswers = function () {
         presenter.isShowAnswersActive = true;
 
@@ -444,7 +450,7 @@ function AddonImage_Identification_create(){
     presenter.hideAnswers = function () {
         presenter.configuration.isErrorCheckMode = false;
 
-        applySelectionStyleShowAnswers(presenter.currentClass);
+        applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);
 
         presenter.isShowAnswersActive = false;
     };
