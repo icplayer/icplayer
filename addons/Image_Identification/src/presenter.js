@@ -425,7 +425,7 @@ function AddonImage_Identification_create(){
     function applySelectionStyleShowAnswers (style){
         var element = presenter.$view.find('div:first')[0];
 
-        $(element).removeClass(CSS_CLASSESToString());
+       // $(element).removeClass(CSS_CLASSESToString());
         $(element).addClass(style);
     }
 
