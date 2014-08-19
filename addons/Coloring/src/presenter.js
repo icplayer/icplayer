@@ -941,7 +941,6 @@ function AddonColoring_create(){
         }
 
         presenter.isShowAnswersActive = true;
-
     };
 
     presenter.hideAnswers = function () {
