@@ -259,12 +259,7 @@ public class TextModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(openLinksinNewTab){
-					return "New Tab";
-				}
-				else{
-					return "Same Tab";
-				}
+				return openLinksinNewTab ? "New Tab" : "Same Tab";
 			}
 
 			@Override
@@ -279,12 +274,7 @@ public class TextModel extends BasicModuleModel{
 
 			@Override
 			public String getAllowedValue(int index) {
-				if(index == 0){
-					return "New Tab";
-				}
-				else{
-					return "Same Tab";
-				}
+				return index == 0 ? "New Tab" : "Same Tab";
 			}
 
 			@Override
@@ -342,7 +332,6 @@ public class TextModel extends BasicModuleModel{
 		return linkInfos;
 	}
 
-
 	public boolean isActivity() {
 		return isActivity;
 	}
@@ -364,12 +353,7 @@ public class TextModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isActivity){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isActivity ? "True" : "False";
 			}
 			
 			@Override
@@ -404,12 +388,7 @@ public class TextModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isDisabled){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isDisabled ? "True" : "False";
 			}
 			
 			@Override
@@ -444,12 +423,7 @@ public class TextModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isCaseSensitive){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isCaseSensitive ? "True" : "False";
 			}
 			
 			@Override
@@ -484,12 +458,7 @@ public class TextModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isIgnorePunctuation){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isIgnorePunctuation ? "True" : "False";
 			}
 			
 			@Override

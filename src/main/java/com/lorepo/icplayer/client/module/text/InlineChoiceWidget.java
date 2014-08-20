@@ -58,23 +58,33 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	public void setShowErrorsMode(boolean isActivity) {
 
 		int index = getSelectedIndex();
-		if(isActivity){
+		if(isActivity) {
 
-			if(index > 0){
+			if(index > 0) {
 				if(getItemText(index).compareTo(choiceInfo.getAnswer()) == 0){
 					addStyleDependentName("correct");
-				}
-				else{
+				} else {
 					addStyleDependentName("wrong");
 				}
-			}
-			else{
+			} else {
 				addStyleDependentName("empty");
 			}
 		}
 		
 		setEnabled(false);
 			
+	}
+	
+	@Override
+	public void setStyleShowAnswers() {
+		addStyleDependentName("correct-answer");
+		setEnabled(false);
+	}
+
+	@Override
+	public void removeStyleHideAnswers() {
+		removeStyleDependentName("correct-answer");
+		setEnabled(true);
 	}
 
 	public void setWorkMode() {
@@ -83,7 +93,6 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		setEnabled(!isDisabled);
-			
 	}
 
 	public void reset() {
@@ -147,5 +156,4 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	public boolean isDisabled() {
 		return isDisabled;
 	}
-
 }
