@@ -9,6 +9,15 @@ function AddonNavigation_Bar_create() {
         OTHER: 4
     };
 
+    presenter.ERROR_CODES = {
+        'E_01': "Pages and Style or Class attribute in 'Styles' must be filled",
+        'E_04': "Pages attribute in Styles may contain only previous, next, first, last and positive integer page numbers"
+    };
+
+    function returnErrorObject(errorCode) {
+        return { isError: true, errorCode: errorCode };
+    }
+
     var DOTTED_SIDE = {
         LEFT: { CSSClass: "dotted-element-left" },
         RIGHT: { CSSClass: "dotted-element-right" }
@@ -483,12 +492,65 @@ function AddonNavigation_Bar_create() {
         }
     }
 
+    presenter.arePagesNamesCorrect = function (pageNames, length) {
+        for (var i = 0; i < pageNames.length; i++) {
+            if(length > 1 && pageNames[i] == ""){
+                return false;
+            }
+            if (isNaN(pageNames[i])) {
+                switch (pageNames[i]) {
+                    case "previous":
+                        break;
+                    case "first":
+                        break;
+                    case "last":
+                        break;
+                    case "next":
+                        break;
+                    default:
+                        return false;
+                }
+            }else{
+                if(length>1) {
+                    if (pageNames[i] % 1 !== 0 || pageNames[i] <= 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    };
+
     presenter.validateModel = function (model) {
-        return {
+        var validatedModel = {
+            isError: false,
+            styles: model['Styles'],
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
             hideHomeLastArrows: model.HideHomeLastArrows === 'True',
             language: getLanguage(model)
         };
+
+        if (!model['Styles']) {
+            return validatedModel;
+        }
+
+        for (var i = 0; i < model['Styles'].length; i++) {
+            var pages = model['Styles'][i].Pages;
+            var pageNames = pages.trim().split(',');
+            if (model['Styles'].length > 1) {
+                if (!pages) {
+                    return returnErrorObject('E_01');
+                }
+                if (!model['Styles'][i]['Style'] && !model['Styles'][i]['Class']) {
+                    return returnErrorObject('E_01');
+                }
+            }
+            if(!presenter.arePagesNamesCorrect(pageNames, model['Styles'].length)){
+                return returnErrorObject('E_04');
+            }
+        }
+
+        return  validatedModel;
     };
 
     presenter.getArrowsCount = function () {
@@ -500,6 +562,39 @@ function AddonNavigation_Bar_create() {
         return arrowsCount;
     };
 
+    presenter.addAdditionalStyleToPage = function (page, styleName, styleValue, clazz) {
+        if(isNaN(page)){
+            presenter.$wrapper.find("span[class^='navigationbar-element-"+ page +"']").css(styleName, styleValue);
+            presenter.$wrapper.find("span[class^='navigationbar-element-"+ page +"']").addClass(clazz);
+
+        }else {
+            presenter.$wrapper.find("[data-page-number='" + page + "']").addClass(clazz);
+            presenter.$wrapper.find("[data-page-number='" + page + "']").css(styleName, styleValue);
+        }
+    };
+
+    presenter.setPageStyles = function() {
+        $.each(presenter.configuration.styles, function() {
+            var pages = this['Pages'].split(',');
+            var cssStyle = this['Style'];
+            var styles = cssStyle.split(';');
+
+            for (var page = 0; page < pages.length; page++) {
+                var pageElement = pages[page].trim();
+                for(var pageStyle = 0; pageStyle < styles.length; pageStyle++) {
+                    var oneStyle =  styles[pageStyle].split(':');
+                    if(oneStyle[0]) {
+                        oneStyle[0] = oneStyle[0].trim();
+                    }
+                    if(oneStyle[1]) {
+                        oneStyle[1] = oneStyle[1].trim();
+                    }
+                    presenter.addAdditionalStyleToPage(pageElement, oneStyle[0], oneStyle[1], this['Class']);
+                }
+            }
+        });
+    };
+
     function presenterLogic(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
@@ -507,6 +602,11 @@ function AddonNavigation_Bar_create() {
 
         presenter.configuration = presenter.validateModel(model);
         var arrowsCount = presenter.getArrowsCount();
+
+        if(presenter.configuration.isError){
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return;
+        }
 
         if (isPreview) {
             presenter.currentIndex = 0;
@@ -527,6 +627,9 @@ function AddonNavigation_Bar_create() {
         removeAllElements();
 
         generateElements(elementWidth, elementHeight, false, isPreview, horizontalGap);
+        if(model['Styles']) {
+            presenter.setPageStyles();
+        }
     }
 
     presenter.createPreview = function(view, model) {

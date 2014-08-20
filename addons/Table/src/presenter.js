@@ -629,6 +629,10 @@ function AddonTable_create() {
         });
     };
 
+    presenter.getView = function() {
+        return presenter.$view;
+    };
+
     presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
@@ -641,7 +645,8 @@ function AddonTable_create() {
             'enableGap': presenter.enableGapCommand,
             'enableAllGaps': presenter.enableAllGaps,
             'disableGap': presenter.disableGapCommand,
-            'disableAllGaps': presenter.disableAllGaps
+            'disableAllGaps': presenter.disableAllGaps,
+            'getView' : presenter.getView
         };
 
         return Commands.dispatch(commands, name, params, presenter);

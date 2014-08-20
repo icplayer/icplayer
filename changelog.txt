@@ -1,3 +1,8 @@
+2014-08-20 Added responding to Show Answers events in Text module
+2014-08-20 Added Styles property to Navigation Bar module
+2014-08-20 Added Random order property to Choice module
+2014-08-20 Added new languages layouts to eKeyboard module
+2014-08-20 Added API method getView to Table module
 2014-08-19 Fixed drawing stand area nad hide area, some styling changes, new icons in Interactive Table
 2014-08-18 Fixed drawing on mobile devices in Interactive Table module
 2014-08-11 Added isAllOK() command to Magic Boxes module

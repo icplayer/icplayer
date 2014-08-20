@@ -3,7 +3,7 @@
 <addon id='eKeyboard' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
         <property name="workWith" displayName="Work With" type="text" />
-        <property name="layoutType" displayName="Layout Type" type="{Numeric, QWERTY, Custom}" />
+        <property name="layoutType" displayName="Layout Type" type="{Numeric, QWERTY, AZERTY(French), QWERTZ(German), QWERTY(Polish), QWERTY(Spanish), Custom}" />
         <property name="customLayout" displayName="Custom Layout" type="text" />
         <property name="positionMy" displayName="Position My" type="string" />
         <property name="positionAt" displayName="Position At" type="string" />

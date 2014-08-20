@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icf.utils.RandomUtils;
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
 
@@ -18,6 +19,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private VerticalPanel optionsPanel;
 	private ArrayList<IOptionDisplay>	optionWidgets = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
+	private int[] order;
 	
 	
 	public ChoiceView(ChoiceModel module, boolean isPreview){
@@ -38,7 +40,11 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 		optionsPanel.setStyleName("ic_choice");
 		
-		for(ChoiceOption option : module.getOptions()){
+		makeOrder(isPreview);
+		
+		for(int i = 0; i < order.length; i++) {
+			ChoiceOption option;
+			option = module.getOption(order[i]);
 			OptionView widget;
 			widget = new OptionView(option, module.isMulti());
 			widget.addValueChangeHandler(this);
@@ -60,6 +66,22 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 	    
+	private void makeOrder(boolean isPreview) {
+		if(!isPreview && module.isRandomOrder()) {
+			List<Integer> tmp_order = RandomUtils.singlePermutation(module.getOptionCount());
+			order = new int[module.getOptionCount()];
+			for(int i = 0; i < module.getOptionCount(); i ++) {
+				order[i]=tmp_order.get(i);
+			}
+		}
+		else {
+			order = new int[module.getOptionCount()];
+			for(int i = 0; i < module.getOptionCount(); i ++) {
+				order[i]=i;
+			}
+		}
+	}
+
 	@Override
 	public List<IOptionDisplay> getOptions() {
 		return optionWidgets;
@@ -101,5 +123,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	private void refreshMath() {
 		MathJax.refreshMathJax(getElement());
+	}
+
+	public int[] getOryginalOrder() {
+		int[] array = new int[order.length];
+		for (int i=0; i<order.length; i++) {
+			array[order[i]]=i;
+		}
+		return array;
 	}
 }
