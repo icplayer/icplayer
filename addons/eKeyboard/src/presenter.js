@@ -6,6 +6,13 @@ function AddoneKeyboard_create(){
     presenter.eventBus = null;
     presenter.alreadyFilled = {};
 
+    presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
+        'AZERTY(French)' : 'french-azerty-1',
+        'QWERTZ(German)' : 'german-qwertz-1',
+        'QWERTY(Polish)' : 'polish-qwerty',
+        'QWERTY(Spanish)' : 'spanish-qwerty'
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
@@ -21,6 +28,10 @@ function AddoneKeyboard_create(){
     presenter.validateType = function(rawType) {
         if (rawType == 'Numeric' || rawType.length == 0) {
             return 'num';
+        }
+
+        if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[rawType]) {
+            return presenter.LAYOUT_TO_LANGUAGE_MAPPING[rawType];
         }
 
         return rawType.toLowerCase();

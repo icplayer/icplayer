@@ -13,7 +13,7 @@ import com.lorepo.icf.utils.StringUtils;
  */
 public class GapInfo {
 
-	private String 	id;
+	private String id;
 	private List<String> answers = new ArrayList<String>();
 	private int	value;
 	private boolean isCaseSensitive = false;
@@ -28,24 +28,15 @@ public class GapInfo {
 	}
 
 
-	public void addAnswer(String answer){
-		
+	public void addAnswer(String answer) {
 		answer = StringUtils.unescapeXML(answer);
-		if(isIgnorePunctuation){
-			answer = removePunctuation(answer);
-		}
-		if(isCaseSensitive){
-			answers.add(answer);
-		}else{
-			answers.add(answer.toLowerCase());
-		}
+		if(isIgnorePunctuation) { answer = removePunctuation(answer); }
+		answers.add(isCaseSensitive ? answer : answer.toLowerCase());
 	}
-	
-	
+
 	private static String removePunctuation(String text) {
 		return text.replaceAll("\\W", "");
 	}
-
 
 	public boolean isCorrect(String text) {
 		
@@ -66,14 +57,12 @@ public class GapInfo {
 		return correct;
 	}
 	
-	
 	/**
 	 * @return id
 	 */
 	public String getId() {
 		return id;
 	}
-
 
 	public int getValue() {
 		return value;
