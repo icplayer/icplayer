@@ -44,10 +44,12 @@ function AddonColoring_create(){
     };
 
     presenter.sendEvent = function(item, value, score) {
-        var eventData = presenter.createEventData(item, value, score);
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    	if (!presenter.isShowAnswersActive) {
+    		var eventData = presenter.createEventData(item, value, score);
+    		presenter.eventBus.sendEvent('ValueChanged', eventData);
 
-        if (presenter.isAllOK()) sendAllOKEvent();
+    		if (presenter.isAllOK()) sendAllOKEvent();
+    	}
     };
 
     function sendAllOKEvent() {
