@@ -16,12 +16,12 @@ import com.lorepo.icplayer.client.utils.MathJax;
 
 public class TextView extends HTML implements IDisplay{
 
-	private TextModel	module;
+	private TextModel module;
 	private ITextViewListener listener;
-	private ArrayList<TextElementDisplay>	textElements = new ArrayList<TextElementDisplay>();
-	private ArrayList<String>	mathGapIds = new ArrayList<String>();
+	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
+	private ArrayList<String> mathGapIds = new ArrayList<String>();
 
-	public TextView(TextModel module, boolean isPreview){
+	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
 	}
@@ -47,33 +47,31 @@ public class TextView extends HTML implements IDisplay{
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
 		
 		int gapWidth = module.getGapWidth(); 
-		while(giIterator.hasNext()){
+		while (giIterator.hasNext()) {
 			InlineChoiceInfo gi = giIterator.next();
 			InlineChoiceWidget gap = new InlineChoiceWidget(gi, listener);
-			if(gapWidth > 0){
+			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
 	}
-
 
 	@Override
 	public void connectDraggableGaps(Iterator<GapInfo> giIterator) {
 		
 		int gapWidth = module.getGapWidth(); 
-		while(giIterator.hasNext()){
+		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
-			if(gapWidth > 0){
+			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
 	}
-
 
 	@Override
 	public void connectGaps(Iterator<GapInfo> giIterator) {
@@ -126,7 +124,7 @@ public class TextView extends HTML implements IDisplay{
 	@Override
 	public void connectLinks(Iterator<LinkInfo> it) {
 		
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			final LinkInfo info = it.next();
 			if(DOM.getElementById(info.getId()) != null){
 				LinkWidget widget = new LinkWidget(info);
@@ -182,7 +180,6 @@ public class TextView extends HTML implements IDisplay{
 	public void setHTML(String html){
 		super.setHTML(html);
 	}
-
 
 	@Override
 	public void refreshMath() {

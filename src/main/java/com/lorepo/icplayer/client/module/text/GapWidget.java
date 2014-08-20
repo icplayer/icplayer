@@ -29,7 +29,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		
 		onAttach();
 		
-		if(listener != null){
+		if (listener != null) {
 			
 			addKeyUpHandler(new KeyUpHandler() {
 				public void onKeyUp(KeyUpEvent event) {
@@ -75,26 +75,23 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
 
-		if(isActivity){
+		if(isActivity) {
 			String text = getText().trim();
-			if(text.length() > 0){
-				if(gapInfo.isCorrect(text)){
+			if (text.length() > 0) {
+				if (gapInfo.isCorrect(text)) {
 					addStyleDependentName("correct");
-				}
-				else{
+				} else {
 					addStyleDependentName("wrong");
 				}
-			}else{
+			} else {
 				addStyleDependentName("empty");
 			}
 		}
 
 		setEnabled(false);
 	}
-
 	
 	public void setWorkMode() {
-
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
@@ -103,7 +100,6 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	
 	public void reset() {
-		
 		setText("");
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
@@ -149,6 +145,18 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	@Override
 	public boolean isDisabled() {
 		return isDisabled;
+	}
+
+	@Override
+	public void setStyleShowAnswers() {
+		addStyleDependentName("correct-answer");
+		setEnabled(false);
+	}
+
+	@Override
+	public void removeStyleHideAnswers() {
+		removeStyleDependentName("correct-answer");
+		setEnabled(true);
 	}
 
 }

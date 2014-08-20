@@ -314,7 +314,6 @@ public class TextParser {
 	 * @return null if no match found
 	 */
 	private String matchVariable(String key) {
-
 		return variables.get(key);
 	}
 

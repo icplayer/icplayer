@@ -45,6 +45,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public Element getElement();
 		public void show();
 		public void hide();
+		public int[] getOryginalOrder();
 	}
 	
 	private IDisplay view;
@@ -235,7 +236,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		HashMap<String, String> state = new HashMap<String, String>();
 		String optionState = "";
 		
-		for(IOptionDisplay option : view.getOptions()){
+		int[] oryginalOrder = view.getOryginalOrder();
+
+		for(int i=0; i<oryginalOrder.length; i++){
+			IOptionDisplay option = view.getOptions().get(oryginalOrder[i]);
 			if(option.isDown()){
 				optionState += "1";
 			}
@@ -259,21 +263,25 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if(state.containsKey("options")){
 			String optionState = state.get("options");
 			int index = 0;
-			for(IOptionDisplay option : view.getOptions()){
+			
+			int[] oryginalOrder = view.getOryginalOrder();
+			for(int i=0; i<oryginalOrder.length; i++){
 				
-				if(optionState.length() < index+1){
+				index = oryginalOrder[i];
+				
+				IOptionDisplay option = view.getOptions().get(index);
+				
+				if(optionState.length() < i+1){
 					break;
 				}
 				
-				boolean value = (optionState.charAt(index) == '1');
+				boolean value = (optionState.charAt(i) == '1');
 				if(value){
 					option.setDown(true);
 				}
 				else{
 					option.setDown(false);
 				}
-				
-				index++;
 			}
 		}
 		if(state.containsKey("isDisabled")){

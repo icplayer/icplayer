@@ -28,6 +28,7 @@ public class ChoiceModel extends BasicModuleModel{
 	private int maxScore = 0;
 	private boolean isDisabled = false;
 	private boolean isActivity = true;
+	private boolean randomOrder = false;
 
 	
 	public ChoiceModel() {
@@ -40,6 +41,7 @@ public class ChoiceModel extends BasicModuleModel{
 		addPropertyOptions();
 		addPropertyIsDisabled();
 		addPropertyIsActivity();
+		addPropertyRandomOrder();
 	}
 	
 	
@@ -100,6 +102,7 @@ public class ChoiceModel extends BasicModuleModel{
 			isMulti = XMLUtils.getAttributeAsBoolean(choice, "isMulti");
 			isDisabled = XMLUtils.getAttributeAsBoolean(choice, "isDisabled", false);
 			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
+			randomOrder = XMLUtils.getAttributeAsBoolean(choice, "randomOrder", false);
 		}
 		
 		// Read options nodes
@@ -144,8 +147,12 @@ public class ChoiceModel extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = "<choiceModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<choice isMulti='" + isMulti + "' isDisabled='" + isDisabled + 
-				"' isActivity='" + isActivity + "'/>";
+		xml += "<choice " +
+				"isMulti='" + isMulti + "' " +
+				"isDisabled='" + isDisabled +  "' " +
+				"isActivity='" + isActivity +  "' " +
+				"randomOrder='" + randomOrder +  "' " +
+				" />";
 		xml += "<options>";
 		for(ChoiceOption option : options){
 			xml += option.toXML();
@@ -385,5 +392,48 @@ public class ChoiceModel extends BasicModuleModel{
 		};
 		
 		addProperty(property);	
+	}
+	
+	public boolean isRandomOrder() {
+		return randomOrder;
+	}
+	
+	private void addPropertyRandomOrder() {
+	
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value != randomOrder){
+					randomOrder = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				if(randomOrder){
+					return "True";
+				}
+				else{
+					return "False";
+				}
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("randomOrder");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("randomOrder");
+			}
+
+		};
+		
+		addProperty(property);
 	}
 }

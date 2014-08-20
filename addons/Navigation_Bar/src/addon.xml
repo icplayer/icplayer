@@ -2,8 +2,13 @@
 
 <addon id='Navigation_Bar' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='ShowNextPrevArrows' type='boolean' />
-		<property name="HideHomeLastArrows" type="boolean" />
+		<property name='ShowNextPrevArrows' type='boolean' displayName="Show Next and Prev arrows"/>
+		<property name="HideHomeLastArrows" type="boolean" displayName="Hide Home and Last arrows"/>
 		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" />
+        <property displayName="Styles" name="Styles" type="list">
+            <property name="Pages" type="string"/>
+            <property name="Class" type="string"/>
+            <property name="Style" type="string"/>
+        </property>
 	</model>
 </addon>

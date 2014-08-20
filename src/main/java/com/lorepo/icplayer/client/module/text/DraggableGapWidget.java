@@ -8,7 +8,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-public class DraggableGapWidget extends HTML implements TextElementDisplay{
+public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	private static final String EMPTY_GAP_STYLE = "ic_draggableGapEmpty";
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
@@ -18,8 +18,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 	private boolean isWorkMode = true;
 	private String answerText = "";
 	
-	
-	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener){
+	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		
 		super(DOM.getElementById(gi.getId()));
 		
@@ -29,13 +28,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 		onAttach();
 		setText("");
 		
-		if(listener != null){
-			
+		if (listener != null) {
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
 					event.preventDefault();
-					if(listener != null && !disabled && isWorkMode){
+					if (listener != null && !disabled && isWorkMode) {
 						listener.onGapClicked(gapInfo.getId());
 					}
 				}
@@ -45,57 +43,48 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 		JavaScriptUtils.makeDropable(getElement());
 	}
 	
-	public boolean hasId(String id){
+	public boolean hasId(String id) {
 		return (gapInfo.getId().compareTo(id) == 0);
 	}
 
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
 
-		if(isActivity){
-			if(answerText.length() > 0){
-				if(gapInfo.isCorrect(answerText)){
+		if (isActivity) {
+			if (answerText.length() > 0) {
+				if (gapInfo.isCorrect(answerText)){
 					addStyleDependentName("correct");
-				}
-				else{
+				} else {
 					addStyleDependentName("wrong");
 				}
-			}
-			else{
+			} else {
 				addStyleDependentName("empty");
 			}
 		}
 		isWorkMode = false;
 	}
-
 	
 	public void setWorkMode() {
-
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		isWorkMode = true;
 	}
-
 	
 	public void reset() {
-		
 		setText("");
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		isWorkMode = true;
 	}
-
 	
 	public void setText(String text) {
-		
-		if(text.isEmpty()){
+		if (text.isEmpty()) {
 			super.setHTML(EMPTY_TEXT);
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
-		}
-		else{
+		} else {
 			String markup = StringUtils.markup2html(StringUtils.escapeHTML(text));
 			super.setHTML(markup);
 			answerText = StringUtils.removeAllFormatting(text);
@@ -123,12 +112,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 	}
 
 	public void setDisabled(boolean disabled) {
-		
 		this.disabled = disabled;
-		if(disabled){
+		if (disabled) {
 			addStyleDependentName("disabled");
-		}
-		else{
+		} else{
 			removeStyleDependentName("disabled");
 		}
 	}
@@ -147,5 +134,17 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay{
 	@Override
 	public boolean isDisabled() {
 		return disabled;
+	}
+
+	@Override
+	public void setStyleShowAnswers() {
+		addStyleDependentName("correct-answer");
+		setDisabled(true);
+	}
+
+	@Override
+	public void removeStyleHideAnswers() {
+		removeStyleDependentName("correct-answer");
+		setDisabled(false);
 	}
 }

@@ -16,6 +16,7 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 	private ArrayList<IOptionDisplay>	options = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
 	boolean isVisible = true;
+	private int[] order;
 	
 	
 	public ChoiceViewMockup(ChoiceModel model){
@@ -27,6 +28,8 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 	
 	private void createUI() {
 
+		makeOrder();
+		
 		for(ChoiceOption option : module.getOptions()){
 			OptionViewMockup optionView = new OptionViewMockup(option);
 			
@@ -87,5 +90,17 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		return isVisible;
 	}
 
+
+	private void makeOrder() {
+		order = new int[module.getOptionCount()];
+		for(int i = 0; i < module.getOptionCount(); i ++) {
+			order[i]=i;
+		}
+	}
+
+
+	public int[] getOryginalOrder() {
+		return order;
+	}
 
 }
