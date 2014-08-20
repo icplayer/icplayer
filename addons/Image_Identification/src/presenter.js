@@ -424,8 +424,6 @@ function AddonImage_Identification_create(){
 
     function applySelectionStyleShowAnswers (style){
         var element = presenter.$view.find('div:first')[0];
-
-       // $(element).removeClass(CSS_CLASSESToString());
         $(element).addClass(style);
     }
 
@@ -442,8 +440,9 @@ function AddonImage_Identification_create(){
 
         if(presenter.configuration.shouldBeSelected){
             applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
+        }else{
+            presenter.$view.find('.image-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("image-identification-element was-selected");
         }
-
 
     };
 
@@ -451,6 +450,9 @@ function AddonImage_Identification_create(){
         presenter.configuration.isErrorCheckMode = false;
 
         applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);
+
+         var elementWasSelected = presenter.$view.find('.was-selected');
+         $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
 
         presenter.isShowAnswersActive = false;
     };
