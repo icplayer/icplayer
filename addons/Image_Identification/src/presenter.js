@@ -16,8 +16,6 @@ function AddonImage_Identification_create(){
         SHOW_ANSWERS : "image-identification-element-show-answers"
     };
 
-    presenter.currentClass = CSS_CLASSES.ELEMENT;
-
     /**
      * @return {string}
      */
@@ -163,8 +161,6 @@ function AddonImage_Identification_create(){
 
         $(element).removeClass(CSS_CLASSESToString());
         $(element).addClass(selected ? selectedClass : unselectedClass);
-
-        presenter.currentClass = selected ? selectedClass : unselectedClass;
     }
 
     presenter.executeCommand = function(name, params) {
