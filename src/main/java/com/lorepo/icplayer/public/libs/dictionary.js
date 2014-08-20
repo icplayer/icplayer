@@ -219,6 +219,7 @@ var ice_dictionary = {
 	"text_module_gap_width" : "Gap width",
 	"is_activity" : "Is&nbsp;activity",
 	"is_disabled" : "Is&nbsp;disabled",
+	"randomOrder" : "Random&nbsp;Order",
 	"case_sensitive" : "Case&nbsp;sensitive",
 	"optional_order" : "order",
 	"add_header_footer": "Replace headers",
