@@ -1,3 +1,4 @@
+2014-08-21 Fixed video module not seeking to start after video eneded
 2014-08-21 Added new method open(module_ID, input_index) to eKeyboard module
 2014-08-21 Renamed Interactive Table to IWB Toolbar
 2014-08-21 Added Gap max length property in Text module
