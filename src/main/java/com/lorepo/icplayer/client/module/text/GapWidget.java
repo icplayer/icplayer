@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
+import java.util.Iterator;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.BlurEvent;
@@ -26,6 +28,19 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		
 		gapInfo = gi;
 		setStylePrimaryName("ic_gap");
+		
+		if (gi.getMaxLength()>0) {
+			int max_length = gi.getMaxLength();
+			String answer;
+			Iterator<String> get_answers = gi.getAnswers();
+			while (get_answers.hasNext()) {
+				answer = get_answers.next();
+				if (answer.length() > max_length) {
+					max_length = answer.length();
+				}
+			}
+			setMaxLength(max_length);
+		}
 		
 		onAttach();
 		

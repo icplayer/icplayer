@@ -36,6 +36,7 @@ public class TextModel extends BasicModuleModel{
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
 	private int gapWidth = 0;
+	private int gapMaxLength = 0;
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
 	private boolean isCaseSensitive = false;
@@ -50,6 +51,7 @@ public class TextModel extends BasicModuleModel{
 		setText(DictionaryWrapper.get("text_module_default"));
 		addPropertyGapType();
 		addPropertyGapWidth();
+		addPropertyGapMaxLength();
 		addPropertyIsActivity();
 		addPropertyIsDisabled();
 		addPropertyIsCaseSensitive();
@@ -106,6 +108,7 @@ public class TextModel extends BasicModuleModel{
 					useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
 					useMathGaps = XMLUtils.getAttributeAsBoolean(textElement, "math");
 					gapWidth = XMLUtils.getAttributeAsInt(textElement, "gapWidth");
+					gapMaxLength = XMLUtils.getAttributeAsInt(textElement, "gapMaxLength");
 					isActivity = XMLUtils.getAttributeAsBoolean(textElement, "isActivity", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
 					isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
@@ -134,6 +137,7 @@ public class TextModel extends BasicModuleModel{
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		parser.setIgnorePunctuationGaps(isIgnorePunctuation);
 		parser.setGapWidth(gapWidth);
+		parser.setGapMaxLength(gapMaxLength);
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
@@ -152,6 +156,7 @@ public class TextModel extends BasicModuleModel{
 		String xml = "<textModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<text draggable='" + useDraggableGaps + "' " +
 				"math='" + useMathGaps + "' " + 
+				"gapMaxLength='" + gapMaxLength + "' " +
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
 				"isIgnorePunctuation='" + isIgnorePunctuation + 
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive + 
@@ -311,6 +316,36 @@ public class TextModel extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_gap_width");
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyGapMaxLength() {
+
+		IProperty property = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				gapMaxLength = Integer.parseInt(newValue);
+				setText(moduleText);
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return Integer.toString(gapMaxLength);
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_gap_max_length");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_gap_max_length");
 			}
 		};
 		

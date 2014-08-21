@@ -16,15 +16,17 @@ public class GapInfo {
 	private String id;
 	private List<String> answers = new ArrayList<String>();
 	private int	value;
+	private int maxLength;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation;
 	
 	
-	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation){
+	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength){
 		this.id = id;
 		this.value = value;
 		this.isCaseSensitive = isCaseSensitive;
 		this.isIgnorePunctuation = isIgnorePunctuation;
+		this.maxLength = maxLength;
 	}
 
 
@@ -66,6 +68,10 @@ public class GapInfo {
 
 	public int getValue() {
 		return value;
+	}
+
+	public int getMaxLength() {
+		return maxLength;
 	}
 
 	/**
