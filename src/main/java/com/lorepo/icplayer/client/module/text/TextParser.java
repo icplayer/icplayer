@@ -34,6 +34,7 @@ public class TextParser {
 	private boolean isIgnorePunctuation = false;
 	private boolean skipGaps = false;
 	private int gapWidth = 0;
+	private int gapMaxLength = 0;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -180,7 +181,7 @@ public class TextParser {
 			replaceText = "<input id='" + id + "' type='edit' size='"
 					+ answer.length() + "' class='ic_gap'/>";
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation);
+					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
@@ -215,7 +216,7 @@ public class TextParser {
 			idCounter++;
 			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation);
+					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
@@ -239,7 +240,7 @@ public class TextParser {
 			replaceText = "<span id='" + id
 					+ "' class='ic_draggableGapEmpty'>&nbsp;</span>";
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation);
+					isCaseSensitive, isIgnorePunctuation, 0);
 			String[] answers = answer.split("\\|");
 			String answerToken = null;
 			for (int i = 0; i < answers.length; i++) {
@@ -526,6 +527,10 @@ public class TextParser {
 
 	public void setGapWidth(int gapWidth) {
 		this.gapWidth = gapWidth;
+	}
+	
+	public void setGapMaxLength(int gapMaxLength) {
+		this.gapMaxLength = gapMaxLength;
 	}
 
 }
