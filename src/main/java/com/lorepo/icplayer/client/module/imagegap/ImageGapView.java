@@ -18,22 +18,19 @@ public class ImageGapView extends Image implements IDisplay {
 	private static final String WRONG_STYLE = "wrong";
 	private static final String DISABLED_STYLE = "disabled";
 	private static final String EMPTY_STYLE = "empty";
+	private static final String SHOW_CORRECT_STYLE = "correct-answer";
 	
 	private ImageGapModule module;
 	private IViewListener listener;
 	private boolean disabled = false;
 	
-	
 	public ImageGapView(ImageGapModule module, boolean isPreview) {
-		
 		this.module = module;
 		createUI(isPreview);
 		connectHandlers();
 	}
 
-	
 	private void createUI(boolean isPreview) {
-		
 		setStylePrimaryName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
 		if(!isPreview){
@@ -44,9 +41,7 @@ public class ImageGapView extends Image implements IDisplay {
 		JavaScriptUtils.makeDropable(getElement());
 	}
 	
-	
 	private void connectHandlers() {
-		
 		addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
@@ -58,46 +53,42 @@ public class ImageGapView extends Image implements IDisplay {
 		});
 	}
 
-
 	@Override
 	public void addListener(IViewListener l) {
 		listener = l;
 	}
 
-
 	@Override
 	public void setImageUrl(String url) {
-
-		if(url.isEmpty()){
+		if (url.isEmpty()) {
 			setUrl(GWT.getModuleBaseURL() + HOLLOW_IMAGE);
-		}
-		else{
+		} else {
 			setUrl(url);
 		}
 		resetStyles();
 	}
 
-
 	@Override
 	public void showAsError() {
-		if(getUrl().indexOf(HOLLOW_IMAGE) < 0){
+		if (getUrl().indexOf(HOLLOW_IMAGE) < 0) {
 			addStyleDependentName(WRONG_STYLE);
-		}
-		else{
+		} else {
 			addStyleDependentName(EMPTY_STYLE);
 		}
 	}
-
+	
+	@Override
+	public void showCorrectAnswers() {
+		addStyleDependentName(SHOW_CORRECT_STYLE);
+	}
 
 	@Override
 	public void showAsCorrect() {
 		addStyleDependentName(CORRECT_STYLE);
 	}
 
-
 	@Override
 	public void resetStyles() {
-
 		removeStyleDependentName(WRONG_STYLE);
 		removeStyleDependentName(CORRECT_STYLE);
 		removeStyleDependentName(FILLED_STYLE);
@@ -108,24 +99,20 @@ public class ImageGapView extends Image implements IDisplay {
 		}
 	}
 
-
 	@Override
 	public void setDisabled(boolean disable) {
 		this.disabled = disable;
-		if(disabled){
+		if (disabled) {
 			addStyleDependentName(DISABLED_STYLE);
-		}
-		else{
+		} else {
 			removeStyleDependentName(DISABLED_STYLE);	
 		}
 	}
-
 
 	@Override
 	public void show() {
 		setVisible(true);		
 	}
-
 
 	@Override
 	public void hide() {
@@ -137,7 +124,6 @@ public class ImageGapView extends Image implements IDisplay {
 		resetStyles();
 		addStyleDependentName(EMPTY_STYLE);
 	}
-
 
 	@Override
 	public void markGapAsWrong() {

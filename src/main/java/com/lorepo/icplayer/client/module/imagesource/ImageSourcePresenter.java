@@ -28,6 +28,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		public void showImage();
 		public void hideImage();
 		public void addListener(IViewListener l);
+		public void getImageUrl();
 		public Element getElement();
 	}
 	
@@ -36,7 +37,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	private IPlayerServices playerServices;
 	boolean selected = false;
 	boolean visible = true;
-	private JavaScriptObject	jsObject;
+	private JavaScriptObject jsObject;
 	
 	
 	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services){
@@ -194,6 +195,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::reset()();
 		}
 		
+		presenter.getImageUrl = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getImageUrl()();
+		}
+		
 		return presenter;
 	}-*/;
 	
@@ -202,13 +207,15 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		return view.getElement();
 	}
 
-
 	@Override
 	public String getName() {
 		return model.getId();
 	}
 
-
+	public String getImageUrl() {
+		return model.getUrl();
+	}
+	
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
 		if(commandName.compareTo("reset") == 0) {

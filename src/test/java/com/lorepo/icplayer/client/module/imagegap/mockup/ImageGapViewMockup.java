@@ -102,4 +102,10 @@ public class ImageGapViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void showCorrectAnswers() {
+		// TODO Auto-generated method stub
+		
+	}
 }

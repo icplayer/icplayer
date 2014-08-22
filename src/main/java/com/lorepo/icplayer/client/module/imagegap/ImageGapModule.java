@@ -14,7 +14,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
 /**
  * Gapa przyjmująca obrazek
  * 
@@ -31,7 +30,6 @@ public class ImageGapModule extends BasicModuleModel {
 	private boolean isActivity = true;
 	private HashMap<String, String>  events = new HashMap<String, String>();
 	
-	
 	public ImageGapModule() {
 		super(DictionaryWrapper.get("image_gap_module"));
 		
@@ -41,12 +39,10 @@ public class ImageGapModule extends BasicModuleModel {
 		addPropertyEvent(EVENT_WRONG);
 		addPropertyEvent(EVENT_EMPTY);
 	}
-
 	
 	public String getAnswerId(){
 		return answerId;
 	}
-	
 	
 	@Override
 	public void load(Element node, String baseUrl) {
@@ -56,12 +52,12 @@ public class ImageGapModule extends BasicModuleModel {
 		loadEvents(node);
 		
 		NodeList nodes = node.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
+		for (int i = 0; i < nodes.getLength(); i++) {
 			
 			Node childNode = nodes.item(i);
-			if(childNode instanceof Element){
+			if (childNode instanceof Element) {
 				
-				if(childNode.getNodeName().compareTo("gap") == 0 && childNode instanceof Element){
+				if (childNode.getNodeName().compareTo("gap") == 0 && childNode instanceof Element) {
 					Element gapElement = (Element)childNode;
 					answerId = XMLUtils.getAttributeAsString(gapElement, "answerId");
 					isActivity = XMLUtils.getAttributeAsBoolean(gapElement, "isActivity", true);
@@ -71,18 +67,17 @@ public class ImageGapModule extends BasicModuleModel {
 		}
 	}
 
-
 	private void loadEvents(Element rootElement) {
 		
 		NodeList eventsNodes = rootElement.getElementsByTagName("events");
 
-		if(eventsNodes.getLength() > 0){
+		if (eventsNodes.getLength() > 0) {
 			
 			NodeList eventNodes = eventsNodes.item(0).getChildNodes();
-			for(int i = 0; i < eventNodes.getLength(); i++){
+			for (int i = 0; i < eventNodes.getLength(); i++) {
 	
 				Node node = eventNodes.item(i);
-				if(node instanceof Element && node.getNodeName().compareTo("event") == 0){
+				if (node instanceof Element && node.getNodeName().compareTo("event") == 0) {
 					Element element = (Element)eventNodes.item(i);
 					String name = element.getAttribute("name");
 					String rawCode = element.getAttribute("code");
@@ -92,7 +87,6 @@ public class ImageGapModule extends BasicModuleModel {
 			}
 		}
 	}
-
 
 	/**
 	 * Convert module into XML
@@ -112,14 +106,11 @@ public class ImageGapModule extends BasicModuleModel {
 		return xml;
 	}
 
-	
 	private String eventToXML(String eventName) {
-
 		String code = events.get(eventName);
 		String escapedCode = StringUtils.escapeXML(code);
 		return "<event name='" + eventName + "' code='" + escapedCode + "'/>";
 	}
-
 
 	private void addPropertyAnswer() {
 
@@ -159,7 +150,7 @@ public class ImageGapModule extends BasicModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
 				
-				if(value!= isActivity){
+				if (value!= isActivity) {
 					isActivity = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -167,12 +158,7 @@ public class ImageGapModule extends BasicModuleModel {
 			
 			@Override
 			public String getValue() {
-				if(isActivity){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isActivity ? "True" : "False";
 			}
 			
 			@Override
@@ -203,12 +189,8 @@ public class ImageGapModule extends BasicModuleModel {
 			
 			@Override
 			public String getValue() {
-				String value = events.get(eventName);
-				if(value == null){
-					value = "";
-				}
-					
-				return value;
+				String value = events.get(eventName);		
+				return value == null ? "" : value;
 			}
 			
 			@Override
@@ -227,13 +209,11 @@ public class ImageGapModule extends BasicModuleModel {
 
 
 	public String getEventCode(String eventName) {
-		
 		return events.get(eventName);
 	}
-
 
 	public boolean isActivity() {
 		return isActivity;
 	}
-	
+
 }
