@@ -205,6 +205,14 @@ function Addonmultiplegap_create(){
         return presenter.countItems() >= presenter.maximumItemCount;
     };
 
+    presenter.parseItemValue = function (item) {
+    	if(item.indexOf("**") > -1 || item.indexOf("__") > -1){
+    		return item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/__(.*?)__/g, "<i>$1</i>").replace(/__(.*?)_/g, "<i>$1_</i>").replace(/\*\*(.*?)\*/g, "<b>$1*</b>").replace(/_(.*?)__/g, "_$1").replace(/\*(.*?)\*\*/g, "*$1");
+    	}else{
+    		return item;
+    	}
+    };
+    
     presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
         if(!force && presenter.selectedItem == null) return;
         if(presenter.maximumItemCountReached()) return;
@@ -251,7 +259,7 @@ function Addonmultiplegap_create(){
 
             case presenter.SOURCE_TYPES.TEXTS:
                 child = $('<p class="contents"></p>');
-                child.text(item.value);
+                child.html(presenter.parseItemValue(item.value));
                 break;
         }
 
