@@ -8,5 +8,6 @@
         <property name="positionMy" displayName="Position My" type="string" />
         <property name="positionAt" displayName="Position At" type="string" />
         <property name="maxCharacters" displayName="Max Characters" type="string" />
+        <property name="noOpenOnFocus" displayName="Don't Open On Focus" type="boolean" />
 	</model>
 </addon>
