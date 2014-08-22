@@ -1,3 +1,4 @@
+2014-08-22 Fixed handling HideAnswers event in Choice module
 2014-08-22 Fixed triggering work mode in modules from Check Answers module when ShowAnswers event is fired
 2014-08-22 Added responding to Show Answers events in Check module
 2014-08-22 Added parsing item markups from Source List to Multiple Gap module

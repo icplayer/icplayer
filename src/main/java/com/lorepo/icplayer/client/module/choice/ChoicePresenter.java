@@ -257,7 +257,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	@Override
 	public void setState(String stateObj) {
-
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = json.decodeHashMap(stateObj);
 		if(state.containsKey("options")){
@@ -276,29 +275,24 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				}
 				
 				boolean value = (optionState.charAt(i) == '1');
-				if(value){
-					option.setDown(true);
-				}
-				else{
-					option.setDown(false);
-				}
+				option.setDown(value);
 			}
 		}
+
 		if(state.containsKey("isDisabled")){
 			isDisabled = Boolean.parseBoolean(state.get("isDisabled"));
-			if(isDisabled){
-				disable();
-			}
-			else{
-				enable();
-			}
+			view.setEnabled(!isDisabled);
 		}
+
 		if(state.containsKey("isVisible")){
 			isVisible = Boolean.parseBoolean(state.get("isVisible"));
-			if(isVisible) view.show();
-			else view.hide();
+			
+			if(isVisible) {
+				view.show();
+			} else {
+				view.hide();
+			}
 		}
-		
 	}
 
 
