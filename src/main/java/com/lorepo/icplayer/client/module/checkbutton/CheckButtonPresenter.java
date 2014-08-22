@@ -70,9 +70,9 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
 				if (event.eventName.equals("ShowAnswers")) {
-					view.uncheckAnswers();
-				} else if (event.eventName.equals("HideAnswers")) {
-					// empty
+					if (view.isShowErrorsMode()) {
+						view.setShowErrorsMode(false);
+					}
 				}
 			}
 		});
