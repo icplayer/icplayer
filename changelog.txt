@@ -1,3 +1,9 @@
+2014-08-22 Added parsing item markups from Source List to Multiple Gap module
+2014-08-21 Added new colors to IWB Toolbar
+2014-08-21 Fixed video module not seeking to start after video eneded
+2014-08-21 Added new method open(module_ID, input_index) to eKeyboard module
+2014-08-21 Renamed Interactive Table to IWB Toolbar
+2014-08-21 Added Gap max length property in Text module
 2014-08-20 Added responding to Show Answers events in Text module
 2014-08-20 Added Styles property to Navigation Bar module
 2014-08-20 Added Random order property to Choice module

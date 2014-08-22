@@ -240,15 +240,18 @@ function Addonvideo_create() {
             }
             delete presenter.isHideExecuted;
         }, false);
-        this.video.addEventListener('ended', function() {
-            if (!presenter.isEnded) {
-                presenter.sendVideoEndedEvent();
-                if (presenter.configuration.isFullScreen) {
-                    fullScreenChange();
-                }
-                presenter.isEnded = true;
-            }
-        }, false);
+//        this.video.addEventListener('ended', function() {
+//            console.log('ended')
+//            console.log(presenter.isEnded)
+//            if (!presenter.isEnded) {
+//                presenter.sendVideoEndedEvent();
+//                if (presenter.configuration.isFullScreen) {
+//                    fullScreenChange();
+//                }
+//                presenter.isEnded = true;
+//                presenter.stop();
+//            }
+//        }, false);
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {
@@ -355,10 +358,26 @@ function Addonvideo_create() {
         $(this.videoContainer).find('.captions').remove();
         this.setVideo();
         this.loadSubtitles();
-        this.video.addEventListener("timeupdate", function() {
-            presenter.showCaptions(presenter.video.currentTime);
+        $(this.video).unbind('timeupdate');
+        $(this.video).bind("timeupdate", function() {
+            onTimeUpdate(this);
         });
     };
+
+    function onTimeUpdate(video) {
+        presenter.showCaptions(presenter.video.currentTime);
+        if (video.currentTime == video.duration) {
+            if (!presenter.isEnded) {
+                presenter.sendVideoEndedEvent();
+                if (presenter.configuration.isFullScreen) {
+                    fullScreenChange();
+                }
+                presenter.isEnded = true;
+                video.currentTime = 0;
+                video.pause();
+            }
+        }
+    }
 
     presenter.getState = function() {
         var isPaused = this.video.paused;
@@ -468,16 +487,9 @@ function Addonvideo_create() {
             this.video.load();
 
             // "ended" event doesn't work on Safari
+            $(this.video).unbind('timeupdate');
             $(this.video).bind("timeupdate", function () {
-                if (this.currentTime == this.duration) {
-                    if (!presenter.isEnded) {
-                        presenter.sendVideoEndedEvent();
-                        if (presenter.configuration.isFullScreen) {
-                            fullScreenChange();
-                        }
-                        presenter.isEnded = true;
-                    }
-                }
+                onTimeUpdate(this);
             });
 
             $(this.video).bind("error", function() {
@@ -712,12 +724,14 @@ function Addonvideo_create() {
     };
 
     presenter.stop = function () {
+        console.log('test')
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('stop', []);
             return;
         }
 
         if (!this.video.paused) {
+            console.log('test2')
             presenter.seek(0); // sets the current time to 0
             this.video.pause();
         }

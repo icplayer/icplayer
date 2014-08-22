@@ -215,7 +215,8 @@ function AddoneKeyboard_create(){
             'positionAt' : positionAt,
             'positionMy' : positionMy,
             'maxCharacters' : maxCharacters.value,
-            'offset' : presenter.validateOffsetData(positionMy.value, positionAt.value)
+            'offset' : presenter.validateOffsetData(positionMy.value, positionAt.value),
+            'openOnFocus' : !ModelValidationUtils.validateBoolean(model['noOpenOnFocus'])
         }
     };
 
@@ -302,7 +303,7 @@ function AddoneKeyboard_create(){
                     autoAccept   : true,
 
                     // Prevents direct input in the preview window when true
-                    lockInput    : true,
+                    lockInput    : presenter.configuration.openOnFocus,
 
                     // Prevent keys not in the displayed keyboard from being typed in
                     restrictInput: false,
@@ -352,7 +353,7 @@ function AddoneKeyboard_create(){
                     resetDefault : false,
 
                     // Event (namespaced) on the input to reveal the keyboard. To disable it, just set it to ''.
-                    openOn       : 'focus',
+                    openOn       : presenter.configuration.openOnFocus ? 'focus' : '',
 
                     // When the character is added to the input
                     keyBinding   : 'mousedown touchend',
@@ -389,7 +390,7 @@ function AddoneKeyboard_create(){
 
                     },
                     change      : function(e, keyboard, el) {
-                        if ( presenter.alreadyFilled[$(el).attr('id')] ) {
+                        if ( presenter.alreadyFilled[$(el).attr('id')] && keyboard.acceptedKeys.indexOf(keyboard.lastKey) >= 0) {
                             $(el).val(keyboard.lastKey);
                             presenter.alreadyFilled[$(el).attr('id')] = false;
                         }
@@ -467,6 +468,35 @@ function AddoneKeyboard_create(){
     };
 
     presenter.setShowErrorsMode = function(){
+    };
+
+    presenter.executeCommand = function(name, params) {
+        if (presenter.configuration.isError) return;
+
+        var commands = {
+            'open' : presenter.openCommand
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.open = function(moduleId, index) {
+        var module = presenter.playerController.getModule(moduleId);
+        try {
+            var input = $(module.getView()).find('input').get(parseInt(index, 10) - 1);
+            $(input).data('keyboard').reveal();
+        } catch (e) {
+            console.log(e.message);
+        }
+
+    };
+
+    presenter.openCommand = function(moduleId, index) {
+        if ($.isArray(moduleId)) {
+            presenter.open(moduleId[0], moduleId[1]);
+        } else {
+            presenter.open(moduleId, index);
+        }
     };
 
     presenter.setWorkMode = function(){

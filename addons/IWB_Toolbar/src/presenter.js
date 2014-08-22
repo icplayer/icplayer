@@ -1,4 +1,4 @@
-function AddonInteractive_Table_create(){
+function AddonIWB_Toolbar_create(){
 
     var presenter = function(){};
 
@@ -141,7 +141,7 @@ function AddonInteractive_Table_create(){
         }
     }
 
-    presenter.interactiveTableDraw = function(canvas, ctx, mousePosition) {
+    presenter.IWBDraw = function(canvas, ctx, mousePosition) {
         var grad = ctx.createLinearGradient(0, 0, canvas[0].width, 0);
         grad.addColorStop(0, presenter.currentLineColor[0]);
         grad.addColorStop(1, presenter.currentLineColor[1]);
@@ -299,12 +299,12 @@ function AddonInteractive_Table_create(){
                 e.stopPropagation();
                 e.preventDefault();
                 if (presenter.drawMode == presenter.DRAW_MODE.MARKER) {
-                    presenter.interactiveTableDraw(presenter.markerCanvas, presenter.markerCtx, getCursorPosition(e));
+                    presenter.IWBDraw(presenter.markerCanvas, presenter.markerCtx, getCursorPosition(e));
                 } else if (presenter.drawMode == presenter.DRAW_MODE.PEN) {
-                    presenter.interactiveTableDraw(presenter.canvas, presenter.ctx, getCursorPosition(e));
+                    presenter.IWBDraw(presenter.canvas, presenter.ctx, getCursorPosition(e));
                 } else if (presenter.drawMode == presenter.DRAW_MODE.ERASER) {
-                    presenter.interactiveTableDraw(presenter.markerCanvas, presenter.markerCtx, getCursorPosition(e));
-                    presenter.interactiveTableDraw(presenter.canvas, presenter.ctx, getCursorPosition(e));
+                    presenter.IWBDraw(presenter.markerCanvas, presenter.markerCtx, getCursorPosition(e));
+                    presenter.IWBDraw(presenter.canvas, presenter.ctx, getCursorPosition(e));
                 }
                 presenter.lastMousePosition = getCursorPosition(e);
             }
@@ -332,7 +332,7 @@ function AddonInteractive_Table_create(){
 
     function setBasicConfiguration(view) {
         presenter.$view = $(view);
-        presenter.$panel = $(view).find('.interactive-table-panel');
+        presenter.$panel = $(view).find('.iwb-toolbar-panel');
         presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
         presenter.$icplayer = presenter.$panel.parents('.ic_player').parent();
         presenter.$defaultThicknessButton = presenter.$panel.find('.thickness-1');
@@ -447,7 +447,7 @@ function AddonInteractive_Table_create(){
             presenter.ctx.clearRect(0, 0, presenter.$mask.width(), presenter.$mask.height());
             presenter.markerCtx.clearRect(0, 0, presenter.$markerMask.width(), presenter.$markerMask.height());
 
-            $.each(presenter.$pagePanel.find('.interactive-table-note'), function() {
+            $.each(presenter.$pagePanel.find('.iwb-toolbar-note'), function() {
                 $(this).remove();
             });
 
@@ -484,7 +484,7 @@ function AddonInteractive_Table_create(){
             changeCursor('zoom-in');
 
             var lastEvent = null;
-            var modules = presenter.$pagePanel.find('.ic_page > div:not(.interactive-table-panel)');
+            var modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)');
 
             presenter.$pagePanel.disableSelection();
 
@@ -511,8 +511,8 @@ function AddonInteractive_Table_create(){
                 presenter.isMouseDown = false;
 
                 if (lastEvent.type == 'mousedown' &&
-                    !$(e.currentTarget).hasClass('interactive-table-panel') &&
-                    !$(e.currentTarget).hasClass('addon_Interactive_Table')) { // click
+                    !$(e.currentTarget).hasClass('iwb-toolbar-panel') &&
+                    !$(e.currentTarget).hasClass('addon_IWB_Toolbar')) { // click
 
                     zoomSelectedModule(e.currentTarget);
                 }
@@ -600,7 +600,7 @@ function AddonInteractive_Table_create(){
     }
 
     function addFloatingImages(model) {
-        var $mask = $('<div class="interactive-table-mask floating-image-mask"></div>');
+        var $mask = $('<div class="iwb-toolbar-mask floating-image-mask"></div>');
         presenter.$icplayer.append($mask);
         $mask.hide();
 
@@ -897,7 +897,7 @@ function AddonInteractive_Table_create(){
     }
 
     function createNote(savedNote) {
-        var note = $('<div class="interactive-table-note"></div>'),
+        var note = $('<div class="iwb-toolbar-note"></div>'),
             header = $('<div class="note-header"></div>'),
             date = $('<div class="note-date"></div>'),
             closeButton = $('<div class="note-close">&times;</div>'),
@@ -981,13 +981,13 @@ function AddonInteractive_Table_create(){
                 element: selectedModule
             });
             $(selectedModule).addClass('zoomed');
-            presenter.$pagePanel.find('*:not(.interactive-table-panel, .interactive-table-panel .button)').css('cursor', 'pointer');
+            presenter.$pagePanel.css('cursor', 'pointer');
         }
     }
 
     function changeCursor(type) {
         if (type == 'zoom-in') {
-            presenter.$pagePanel.find('*:not(.interactive-table-panel, .interactive-table-panel .button)').css({
+            presenter.$pagePanel.css({
                 'cursor' : 'zoom-in',
                 'cursor' : '-moz-zoom-in',
                 'cursor' : '-webkit-zoom-in'
@@ -1097,7 +1097,7 @@ function AddonInteractive_Table_create(){
     }
 
     function createCanvas(setMask, setContext, setCanvas) {
-        var $mask = $('<div class="interactive-table-mask"></div>');
+        var $mask = $('<div class="iwb-toolbar-mask"></div>');
         $mask = setMask($mask);
         $mask.hide();
         presenter.$pagePanel.css('position', 'relative');
@@ -1140,7 +1140,8 @@ function AddonInteractive_Table_create(){
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
         presenter.$pagePanel.enableSelection();
-        presenter.$pagePanel.find('.ic_page > div:not(.interactive-table-panel)').off('mousemove mousedown mouseup');
+        presenter.$pagePanel.css('cursor', 'initial');
+        presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)').off('mousemove mousedown mouseup');
         presenter.$pagePanel.find('.bottom-panel').hide();
 
         if (shouldClearCanvas) {
@@ -1240,7 +1241,7 @@ function AddonInteractive_Table_create(){
 
     function getSavedNotes() {
         var notes = [];
-        $.each(presenter.$pagePanel.find('.interactive-table-note'), function() {
+        $.each(presenter.$pagePanel.find('.iwb-toolbar-note'), function() {
             notes.push({
                 'top' : $(this).css('top'),
                 'left' : $(this).css('left'),
