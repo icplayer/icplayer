@@ -53,7 +53,7 @@ function AddonTrueFalse_create() {
     var workMode = function (reset) {
         $(".tf_" + presenter.type + "_image").each(function () {
             var image = $(this);
-            image.removeClass("disabled").removeClass("wrong").removeClass("correct");
+            image.removeClass("disabled wrong correct correct-answer");
             if (reset) {
                 image.removeClass("down").addClass("up");
             }
@@ -597,11 +597,13 @@ function AddonTrueFalse_create() {
             var $row = presenter.$view.find('#' + i),
                 correctValues = (questions[i - 1].Answer).split(',');
 
+            $row.find(".tf_" + presenter.type + "_image").addClass('disabled');
+
             for (var j = 0; j < correctValues.length; j++) {
                 var index = parseInt(correctValues[j], 10) + 1,
                     $element = $row.find(".tf_" + presenter.type + "_image:nth-child(" + index + ")");
 
-                $element.addClass('down disabled correct-answer').removeClass('up');
+                $element.addClass('down correct-answer').removeClass('up');
             }
         }
     };
