@@ -1,3 +1,4 @@
+2014-08-22 Added responding to Show Answers events in Check module
 2014-08-22 Added parsing item markups from Source List to Multiple Gap module
 2014-08-21 Added new colors to IWB Toolbar
 2014-08-21 Fixed video module not seeking to start after video eneded

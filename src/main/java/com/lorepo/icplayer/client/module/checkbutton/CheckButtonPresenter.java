@@ -12,6 +12,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -27,6 +28,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		boolean isShowErrorsMode();
 		void setDisabled(boolean isDisabled);
 		public Element getElement();
+		public void uncheckAnswers();
 	}
 	
 	private CheckButtonModule model;
@@ -63,6 +65,17 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 				setWorkMode();
 			}
 		});
+		
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
+			public void onCustomEventOccurred(CustomEvent event) {
+				if (event.eventName.equals("ShowAnswers")) {
+					view.uncheckAnswers();
+				} else if (event.eventName.equals("HideAnswers")) {
+					// empty
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -80,7 +93,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
 
-		state.put("isVisible", Boolean.toString(isVisible));		
+		state.put("isVisible", Boolean.toString(isVisible));
 		
 		return json.toJSONString(state);
 	}
@@ -92,18 +105,17 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		
 		if (decodedState.containsKey("isVisible")) {
 			isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
-			if (!isVisible){
-				hide();
-			}
-			else{
+			if (isVisible) {
 				show();
+			} else {
+				hide();
 			}
 		}
 	}
 
 	@Override
 	public void addView(IModuleView display) {
-		if (display instanceof IDisplay){
+		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 		}
 	}
@@ -144,7 +156,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 	private void reset() {
 		if (model.isVisible()) {
 			view.show();
-		} else{
+		} else {
 			view.hide();
 		}
 		view.setShowErrorsMode(false);
@@ -156,12 +168,11 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		view.setDisabled(true);
 	}
 
-
 	private void setWorkMode() {
 		view.setShowErrorsMode(false);
 		view.setDisabled(false);
 	}
-	
+
 	public JavaScriptObject getAsJavaScript() {
 		if (jsObject == null) {
 			jsObject = initJSObject(this);
@@ -188,7 +199,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		return presenter;
 	}-*/;
 	
-	private Element getView(){
+	private Element getView() {
 		return view.getElement();
 	}
 }

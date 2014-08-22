@@ -13,7 +13,6 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	private CheckButtonModule module;
 	private boolean isShowErrorsMode;
 	private IPlayerServices playerServices;
-	
 
 	public CheckButtonView(CheckButtonModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -23,14 +22,13 @@ public class CheckButtonView extends PushButton implements IDisplay {
 		createUI();
 		getElement().setId(module.getId());
 	}
-
 	
 	private void createUI() {
 
 		StyleUtils.applyInlineStyle(this, module);
 		updateStyle();
 
-		if(playerServices != null){
+		if (playerServices != null) {
 			setVisible(module.isVisible());
 			
 			addClickHandler(new ClickHandler() {
@@ -40,36 +38,38 @@ public class CheckButtonView extends PushButton implements IDisplay {
 
 					event.stopPropagation();
 					event.preventDefault();
-					isShowErrorsMode = !isShowErrorsMode;
-					updateStyle();
-					if(isShowErrorsMode){
-						playerServices.getCommands().checkAnswers();
-					}
-					else{
-						playerServices.getCommands().uncheckAnswers();
-					}
+					
+					toggleAnswers();
 				}
 			});		
 		}
 	}
 	
-	private void updateStyle(){
-		if(isShowErrorsMode){
+	private void toggleAnswers() {
+		isShowErrorsMode = !isShowErrorsMode;
+		updateStyle();
+		
+		if (isShowErrorsMode) {
+			playerServices.getCommands().checkAnswers();
+		} else {
+			playerServices.getCommands().uncheckAnswers();
+		}
+	}
+	
+	private void updateStyle() {
+		if (isShowErrorsMode) {
 			setStyleName("ic_button_uncheck");
 			getUpFace().setText(module.getUnCheckTitle());
-		}
-		else{
+		} else {
 			setStyleName("ic_button_check");
 			getUpFace().setText(module.getCheckTitle());
 		}
 	}
 
-	
 	@Override
 	public void show() {
 		setVisible(true);
 	}
-
 
 	@Override
 	public void hide() {
@@ -85,7 +85,6 @@ public class CheckButtonView extends PushButton implements IDisplay {
 		}
 	}
 
-
 	@Override
 	public void setShowErrorsMode(boolean mode) {
 		this.isShowErrorsMode = mode;
@@ -95,5 +94,10 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	@Override
 	public boolean isShowErrorsMode() {
 		return isShowErrorsMode;
+	}
+	
+	@Override
+	public void uncheckAnswers() {
+		if (isShowErrorsMode) toggleAnswers();
 	}
 }
