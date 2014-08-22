@@ -44,10 +44,12 @@ function AddonColoring_create(){
     };
 
     presenter.sendEvent = function(item, value, score) {
-        var eventData = presenter.createEventData(item, value, score);
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    	if (!presenter.isShowAnswersActive) {
+    		var eventData = presenter.createEventData(item, value, score);
+    		presenter.eventBus.sendEvent('ValueChanged', eventData);
 
-        if (presenter.isAllOK()) sendAllOKEvent();
+    		if (presenter.isAllOK()) sendAllOKEvent();
+    	}
     };
 
     function sendAllOKEvent() {
@@ -224,6 +226,9 @@ function AddonColoring_create(){
 
     presenter.run = function(view, model){
         runLogic(view, model, false);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.isAlreadyInColorsThatCanBeFilled = function(color) {
@@ -530,6 +535,10 @@ function AddonColoring_create(){
     };
 
     presenter.isAttempted = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var isAttempted = false;
         $.each(presenter.configuration.areas, function() {
             if (presenter.shouldBeTakenIntoConsideration(this)) {
@@ -550,7 +559,9 @@ function AddonColoring_create(){
             'getView' : presenter.getView,
             'setColor' : presenter.setColorCommand,
             'setEraserOn' : presenter.setEraserOn,
-            'isAttempted' : presenter.isAttempted
+            'isAttempted' : presenter.isAttempted,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -578,6 +589,10 @@ function AddonColoring_create(){
     };
 
     presenter.setShowErrorsMode = function(){
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (presenter.configuration.isActivity) {
             $.each(presenter.configuration.areas, function() {
                 var area = this;
@@ -642,6 +657,9 @@ function AddonColoring_create(){
     };
 
     presenter.getErrorCount = function(){
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentErrorCount;
+        }
         if (presenter.configuration.isActivity) {
             var errorsCount = 0;
             $.each(presenter.configuration.areas, function() {
@@ -679,6 +697,10 @@ function AddonColoring_create(){
     };
 
     presenter.getScore = function(){
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentScore;
+        }
+
         if (presenter.configuration.isActivity) {
             var scoreCount = 0;
             $.each(presenter.configuration.areas, function() {
@@ -700,6 +722,10 @@ function AddonColoring_create(){
     };
 
     presenter.getState = function(){
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var filledAreas = [];
         $.each(presenter.configuration.areas, function() {
             if (presenter.shouldBeTakenIntoConsideration(this)) {
@@ -874,6 +900,70 @@ function AddonColoring_create(){
 
         return false;
     }
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if (presenter.validateModel.isActivity) {
+            return;
+        }
+        presenter.currentScore = presenter.getScore();
+        presenter.currentErrorCount = presenter.getErrorCount();
+
+        presenter.tmpFilledAreas = [];
+        $.each(presenter.configuration.areas, function() {
+            if (presenter.shouldBeTakenIntoConsideration(this)) {
+                presenter.tmpFilledAreas.push({
+                    area: this,
+                    color: getClickedAreaColor(this.x, this.y)
+                });
+            }
+        });
+
+        presenter.clearCanvas();
+
+        var areas = presenter.configuration.areas;
+
+        for (var i=0; i<areas.length; i++) {
+            floodFill({
+                    x: areas[i].x,
+                    y: areas[i].y,
+                    color: [255, 255, 255, 255]
+                },
+                [areas[i].colorToFill[0], areas[i].colorToFill[1], areas[i].colorToFill[2], areas[i].colorToFill[3]],
+                presenter.configuration.tolerance);
+        }
+
+        presenter.isShowAnswersActive = true;
+    };
+
+    presenter.hideAnswers = function () {
+        if (presenter.validateModel.isActivity) {
+            return;
+        }
+
+        presenter.clearCanvas();
+
+        $.each(presenter.tmpFilledAreas, function() {
+            floodFill({
+                    x: this.area.x,
+                    y: this.area.y,
+                    color: [255, 255, 255, 255]
+                },
+                this.color,
+                presenter.configuration.tolerance);
+        });
+
+        presenter.isShowAnswersActive = false;
+    };
 
     return presenter;
 }
