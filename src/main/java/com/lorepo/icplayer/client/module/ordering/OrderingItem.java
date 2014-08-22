@@ -7,15 +7,14 @@ import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 
-public class OrderingItem extends BasicPropertyProvider{
+public class OrderingItem extends BasicPropertyProvider {
 
 	private String html;
 	private String baseURL;
 	private int index;
 	private ArrayList<Integer> alternativeIndexes = new ArrayList<Integer>();
 
-	
-	public OrderingItem(int index, String safeHtml, String baseURL){
+	public OrderingItem(int index, String safeHtml, String baseURL) {
 		
 		super(DictionaryWrapper.get("ordering_item"));
 		this.index = index;
@@ -24,22 +23,10 @@ public class OrderingItem extends BasicPropertyProvider{
 		
 		addPropertyText();
 	}
-
 	
-	public String getText(){
-
-		String text;
-		
-		if(baseURL != null){
-			text = StringUtils.updateLinks(html, baseURL);
-		}
-		else{
-			text = html;
-		}
-
-		return text;
+	public String getText() {
+		return baseURL == null ? html : StringUtils.updateLinks(html, baseURL);
 	}
-	
 	
 	private void addPropertyText() {
 
@@ -70,33 +57,23 @@ public class OrderingItem extends BasicPropertyProvider{
 		addProperty(property);
 	}
 	
-	
-	public void addAlternativeIndex(int index){
+	public void addAlternativeIndex(int index) {
 		alternativeIndexes.add(index);
 	}
-	
-	
-	public int getIndex(){
+
+	public int getIndex() {
 		return index;
 	}
 
-	
-	public boolean isCorrect(int position){
+	public boolean isCorrect(int position) {
 		
-		if(index == position){
-			return true;
-		}
-		else{
-			for(int index : alternativeIndexes){
-				if(index == position){
-					return true;
-				}
-			}
-		}
+		if(index == position) return true;
+		
+		for(int index : alternativeIndexes)
+			if(index == position) return true;
 		
 		return false;
 	}
-
 
 	public void clearAlternativeIndexes() {
 		alternativeIndexes.clear();

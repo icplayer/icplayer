@@ -16,29 +16,26 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 
-public class OrderingView extends Composite implements IDisplay{
+public class OrderingView extends Composite implements IDisplay {
 
-	private OrderingModule	module;
+	private OrderingModule module;
 	private IPlayerServices playerServices;
-	protected CellPanel 	innerCellPanel;
-	private Widget	selectedWidget;
+	protected CellPanel innerCellPanel;
+	private Widget selectedWidget;
 	private IReorderListener listener;
-	private boolean workMode = true; 
+	private boolean workMode = true;
 	
-	
-	public OrderingView(OrderingModule module, IPlayerServices services){
-		
+	public OrderingView(OrderingModule module, IPlayerServices services) {
 		this.module = module;
 		this.playerServices = services;
 		createUI(module);
 	}
 
-
 	private void createUI(OrderingModule module) {
 		
 		createWidgetPanel();
 		
-		for(int index = 0; index < module.getItemCount(); index++ ){
+		for (int index = 0; index < module.getItemCount(); index++ ) {
 			ItemWidget itemWidget = new ItemWidget(module.getItem(index));
 			addWidget(itemWidget);
 		}
@@ -47,30 +44,22 @@ public class OrderingView extends Composite implements IDisplay{
 		setStyleName("ic_ordering");
 		StyleUtils.applyInlineStyle(this, module);
 		
-		if(playerServices != null){
+		if (playerServices != null) {
 			randomizeViewItems();
 			saveScore();
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
-
 	}
 	
 	private void createWidgetPanel() {
-
-        if(module.isVertical()){
-        	innerCellPanel = new VerticalPanel();
-        }
-        else{
-        	innerCellPanel = new HorizontalPanel();
-        }
+		innerCellPanel = module.isVertical() ? new VerticalPanel() : new HorizontalPanel();
 	}
 
-
-	private void addWidget(final ItemWidget widget){
+	private void addWidget(final ItemWidget widget) {
 		
 		innerCellPanel.add(widget);
-		if(playerServices != null){
+		if (playerServices != null) {
 			widget.setEventBus(playerServices.getEventBus());
 		}
 		widget.addClickHandler(new ClickHandler() {
@@ -85,16 +74,13 @@ public class OrderingView extends Composite implements IDisplay{
 
 	}
 
-	
 	private void onWidgetClicked(Widget widget) {
 
-		if(workMode){
-			
-			if(selectedWidget == null){
+		if (workMode) {
+			if (selectedWidget == null) {
 				selectedWidget = widget;
 				selectedWidget.addStyleName("ic_drag-source");
-			}
-			else{
+			} else {
 				int sourceIndex = innerCellPanel.getWidgetIndex(selectedWidget);
 				int destIndex = innerCellPanel.getWidgetIndex(widget);
 				replaceWidgetPositions(sourceIndex, destIndex);
@@ -104,7 +90,6 @@ public class OrderingView extends Composite implements IDisplay{
 			}
 		}
 	}
-
 
 	/**
 	 * Zamiana miejscami widgetów
@@ -116,13 +101,12 @@ public class OrderingView extends Composite implements IDisplay{
 		Widget firstWidget;
 		Widget secondWidget;
 		
-		if(srcIndex != destIndex){
+		if (srcIndex != destIndex) {
 			
-			if(srcIndex < destIndex){
+			if (srcIndex < destIndex) {
 				loIndex = srcIndex;
 				hiIndex = destIndex;
-			}
-			else{
+			} else {
 				loIndex = destIndex;
 				hiIndex = srcIndex;
 			}
@@ -132,12 +116,11 @@ public class OrderingView extends Composite implements IDisplay{
 			innerCellPanel.remove(firstWidget);
 			innerCellPanel.remove(secondWidget);
 
-			if(innerCellPanel instanceof VerticalPanel){
+			if (innerCellPanel instanceof VerticalPanel) {
 				VerticalPanel vp = (VerticalPanel) innerCellPanel;
 				vp.insert(secondWidget, loIndex);
 				vp.insert(firstWidget, hiIndex);
-			}
-			else if(innerCellPanel instanceof HorizontalPanel){
+			} else if (innerCellPanel instanceof HorizontalPanel) {
 				HorizontalPanel hp = (HorizontalPanel) innerCellPanel;
 				hp.insert(secondWidget, loIndex);
 				hp.insert(firstWidget, hiIndex);
@@ -145,50 +128,44 @@ public class OrderingView extends Composite implements IDisplay{
 		}
 	}
 
-
 	private void onValueChanged(int sourceIndex, int destIndex) {
-
-		if(listener != null){
+		if (listener != null) {
 			listener.onItemMoved(sourceIndex, destIndex);
 		}
 	}
-
 
 	public void randomizeViewItems() {
 		
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
 		List<Integer> order = RandomUtils.singlePermutation(innerCellPanel.getWidgetCount());
 		
-		while(innerCellPanel.getWidgetCount() > 0){
+		while (innerCellPanel.getWidgetCount() > 0) {
 			widgets.add(innerCellPanel.getWidget(0));
 			innerCellPanel.remove(0);
 		}
 		
-		for(int i = 0; i < order.size(); i++){
+		for (int i = 0; i < order.size(); i++) {
 			Integer index = order.get(i);
 			innerCellPanel.add(widgets.get(index));
 		}
 	}
-
-
-	public void orderChildren(String[] indexes){
-		
+	
+	public void orderChildren(String[] indexes) {
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
-		while(innerCellPanel.getWidgetCount() > 0){
-			
+		while (innerCellPanel.getWidgetCount() > 0) {
 			widgets.add(innerCellPanel.getWidget(0));
 			innerCellPanel.remove(0);
 		}
 		
-		for(int i = 0; i < indexes.length; i++){
+		for (int i = 0; i < indexes.length; i++) {
 	
 			int index = Integer.parseInt(indexes[i]);
-			for(Widget widget : widgets){
+			for (Widget widget : widgets) {
 				
-				if(widget instanceof ItemWidget){
+				if (widget instanceof ItemWidget) {
 					
 					ItemWidget itemWidget = (ItemWidget) widget;
-					if(itemWidget.getIndex() == index){
+					if (itemWidget.getIndex() == index) {
 						innerCellPanel.add(itemWidget);
 						break;
 					}
@@ -197,26 +174,23 @@ public class OrderingView extends Composite implements IDisplay{
 		}
 	}
 
-
 	public int getWidgetCount() {
 		return innerCellPanel.getWidgetCount();
 	}
-
 
 	public Widget getWidget(int index) {
 		return innerCellPanel.getWidget(index);
 	}
 
 	public String getState() {
-
 		String state = "";
 		
-		for(int i = 0; i < getWidgetCount(); i++){
+		for (int i = 0; i < getWidgetCount(); i++) {
 			
-			if(getWidget(i) instanceof ItemWidget){
+			if (getWidget(i) instanceof ItemWidget) {
 				
 				ItemWidget itemWidget = (ItemWidget) getWidget(i);
-				if(i > 0){
+				if (i > 0) {
 					state += ",";
 				}
 				state += Integer.toString( itemWidget.getIndex() );
@@ -227,8 +201,7 @@ public class OrderingView extends Composite implements IDisplay{
 	}
 	
 	public void setState(String state) {
-
-		if(!state.isEmpty()){
+		if (!state.isEmpty()) {
 			String[] indexes = state.split(",");
 			orderChildren(indexes);
 			saveScore();
@@ -243,12 +216,12 @@ public class OrderingView extends Composite implements IDisplay{
 		int errors = 0;
 
 		int index = 1;
-		for(int i = 0; i < getWidgetCount(); i++){
+		for (int i = 0; i < getWidgetCount(); i++) {
 			
-			if(getWidget(i) instanceof ItemWidget){
+			if (getWidget(i) instanceof ItemWidget) {
 				
 				ItemWidget itemWidget = (ItemWidget) getWidget(i);
-				if(!itemWidget.isCorrect(index)){
+				if(!itemWidget.isCorrect(index)) {
 					errors = 1;
 					break;
 				}
@@ -258,23 +231,21 @@ public class OrderingView extends Composite implements IDisplay{
 		
 		return errors;
 	}
-
 	
 	public void setShowErrorsMode() {
 
 		workMode = false;
 		
-		if(module.isActivity()){
-			for(int i = 0; i < getWidgetCount(); i++){
+		if (module.isActivity()) {
+			for (int i = 0; i < getWidgetCount(); i++) {
 				
-				if(getWidget(i) instanceof ItemWidget){
+				if (getWidget(i) instanceof ItemWidget) {
 					
 					ItemWidget itemWidget = (ItemWidget) getWidget(i);
 	
-					if(itemWidget.isCorrect(i+1)){
+					if (itemWidget.isCorrect(i+1)) {
 						itemWidget.addStyleName("ic_ordering-item-correct");
-					}
-					else{
+					} else {
 						itemWidget.addStyleName("ic_ordering-item-wrong");
 					}
 				}
@@ -282,16 +253,14 @@ public class OrderingView extends Composite implements IDisplay{
 		}		
 	}
 
-
 	public void setWorkMode() {
 
 		workMode = true;
 		
-		if(module.isActivity()){
-			for(int i = 0; i < getWidgetCount(); i++){
+		if (module.isActivity()) {
+			for (int i = 0; i < getWidgetCount(); i++) {
 				
-				if(getWidget(i) instanceof ItemWidget){
-					
+				if (getWidget(i) instanceof ItemWidget) {
 					ItemWidget itemWidget = (ItemWidget) getWidget(i);
 					itemWidget.removeStyleName("ic_ordering-item-correct");
 					itemWidget.removeStyleName("ic_ordering-item-wrong");
@@ -299,54 +268,101 @@ public class OrderingView extends Composite implements IDisplay{
 			}
 		}		
 	}
-
+	
+	public void placeItemsByOrder(List<Integer> order) {
+		ArrayList<Widget> widgets = new ArrayList<Widget>();
+		
+		while (innerCellPanel.getWidgetCount() > 0) {
+			widgets.add(innerCellPanel.getWidget(0));
+			innerCellPanel.remove(0);
+		}
+		
+		for (int i = 0; i < order.size(); i++) {
+			Integer index = order.get(i) + 1;
+			
+			for (int j = 0; j < widgets.size(); j ++) {
+				Widget widget = widgets.get(j);
+				ItemWidget iWidget = (ItemWidget) widget;
+				
+				if (index.equals(iWidget.getIndex())) {
+					innerCellPanel.add(widget);
+					break;
+				}
+			}
+		}
+		
+	}
+	
+	public void setWorkStatus(boolean isWorkOn) {
+		workMode = isWorkOn;
+	}
+	
+	public void setCorrectAnswer() {
+		List<Integer> correctOrder = new ArrayList<Integer>();
+		for (int i=0; i<module.getItemCount(); i++) {
+			correctOrder.add(module.getItem(i).getIndex() - 1);
+		}
+		
+		placeItemsByOrder(correctOrder);
+	}
+	
+	public void setCorrectAnswersStyles() {
+		for (int i = 0; i < getWidgetCount(); i++) {
+			if (getWidget(i) instanceof ItemWidget) {
+				ItemWidget itemWidget = (ItemWidget) getWidget(i);
+				itemWidget.addStyleName("correct-answer");
+			}
+		}
+	}
+	
+	public void removeCorrectAnswersStyles() {
+		for (int i = 0; i < getWidgetCount(); i++) {
+			if (getWidget(i) instanceof ItemWidget) {
+				ItemWidget itemWidget = (ItemWidget) getWidget(i);
+				itemWidget.removeStyleName("correct-answer");
+			}
+		}
+	}
 
 	public void reset() {
 
 		workMode = true;
 		
 		randomizeViewItems();
-		for(int i = 0; i < getWidgetCount(); i++){
-
+		for (int i = 0; i < getWidgetCount(); i++) {
 			Widget widget = getWidget(i);
 			widget.removeStyleName("ic_ordering-item-correct");
 			widget.removeStyleName("ic_ordering-item-wrong");
 		}
 
+		removeCorrectAnswersStyles();
+		
 		saveScore();
 	}
-
 
 	public int getMaxScore() {
 		return module.getMaxScore();
 	}
 
-
 	public int getScore() {
-
-		return getMaxScore()-getErrorCount();
+		return getMaxScore() - getErrorCount();
 	}
-
 	
 	/**
 	 * Update module score
 	 * @param value
 	 */
 	private void saveScore() {
-	
 		if(playerServices != null){
 			IScoreService scoreService = playerServices.getScoreService();
 			scoreService.setScore(module.getId(), 0, module.getMaxScore());
-		
 			scoreService.setScore(module.getId(), getScore(), module.getMaxScore());
 		}		
 	}
-
 
 	@Override
 	public void addReorderListener(IReorderListener listener) {
 		this.listener = listener;
 	}
-	
 	
 }

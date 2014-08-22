@@ -1,15 +1,18 @@
 package com.lorepo.icplayer.client.module.ordering;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -18,8 +21,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver {
 
-	public interface IDisplay extends IModuleView{
-
+	public interface IDisplay extends IModuleView {
 		void addReorderListener(IReorderListener listener);
 	}
 	
@@ -28,10 +30,11 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private OrderingView view;
 	private JavaScriptObject jsObject;
 	private boolean isSolved = false;
-	
-	
-	
-	public OrderingPresenter(OrderingModule module, IPlayerServices services){
+	private String currentState = "";
+	private String currentState_view = "";
+	private boolean isShowAnswersActive = false;
+
+	public OrderingPresenter(OrderingModule module, IPlayerServices services) {
 		
 		this.module = module;
 		this.playerServices = services;
@@ -39,10 +42,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		connectHandlers();
 	}
 
-
 	private void connectHandlers() {
 		
-		if(playerServices != null){
+		if (playerServices != null) {
 		
 			playerServices.getEventBus().addHandler(ShowErrorsEvent.TYPE, 
 					new ShowErrorsEvent.Handler() {
@@ -70,7 +72,54 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 							reset();
 						}
 					});
+			
+			playerServices.getEventBus().addHandler(CustomEvent.TYPE,
+					new CustomEvent.Handler() {
+						@Override
+						public void onCustomEventOccurred(CustomEvent event) {
+							if (event.eventName.equals("ShowAnswers")) {
+								showAnswers();
+							} else if (event.eventName.equals("HideAnswers")) {
+								hideAnswers();
+							}
+						}
+					});
 		}
+	}
+	
+	List<Integer> usersOrder = new ArrayList<Integer>();
+	
+	private void showAnswers() {
+		if (!module.isActivity()) { return; }
+		
+		this.currentState = getState();
+		this.currentState_view = view.getState();
+		
+		this.isShowAnswersActive = true;
+		
+//		for (String o : this.currentState_view.split(",")) {
+//			usersOrder.add(Integer.parseInt(o) - 1);
+//		}
+		
+		view.setWorkStatus(false);
+		view.setCorrectAnswersStyles();
+		view.setCorrectAnswer();
+	}
+
+	private void hideAnswers() {
+		if (!module.isActivity()) { return; }
+		
+		reset();
+		
+		setState(this.currentState);
+		
+		this.isShowAnswersActive = false;
+		
+		//view.placeItemsByOrder(usersOrder);
+		usersOrder.clear();
+
+		view.setWorkStatus(true);
+		view.removeCorrectAnswersStyles();
 	}
 	
 	@Override
@@ -80,21 +129,20 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public String getState() {
-
-		String state = "";
-		
-		if(view != null){
-			state = view.getState() + "@" + isSolved;
+		if (this.isShowAnswersActive) {
+			hideAnswers();
 		}
+		
+		if (view == null)
+			return "";
 
-		return state;
+		return view.getState() + "@" + isSolved;
 	}
 
 	@Override
 	public void setState(String stateObj) {
-
 		String[] tokens = stateObj.split("@");
-		if(view != null && tokens.length == 2){
+		if (view != null && tokens.length == 2) {
 			view.setState(tokens[0]);
 			isSolved = Boolean.parseBoolean(tokens[1]);
 		}
@@ -107,61 +155,46 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	public int getErrorCount() {
 
 		int errors = 0;
-		if(view != null && isSolved && module.isActivity()){
+		if (view != null && isSolved && module.isActivity()) {
 			errors = view.getErrorCount();
 		}
 		
 		return errors;
 	}
-
 	
 	private void setShowErrorsMode() {
-
+		if (this.isShowAnswersActive) {
+			hideAnswers();
+		}
+		
 		isSolved = true;
-		if(view != null){
+		if (view != null) {
 			view.setShowErrorsMode();
 		}
 	}
 
-
 	private void setWorkMode() {
-
-		if(view != null){
+		if (view != null) {
 			view.setWorkMode();
 		}
 	}
 
-
-	private void reset() {
-
+	private void reset() {		
 		isSolved = true;
-		if(view != null){
+		if (view != null) {
 			view.reset();
 		}
 	}
 
-
 	@Override
 	public int getMaxScore() {
-		if(module.isActivity()){
-			return module.getMaxScore();
-		}
-		else{
-			return 0;
-		}
+		return module.isActivity() ? module.getMaxScore() : 0;
 	}
-
 
 	public int getScore() {
-
-		if(module.isActivity()){
-			return getMaxScore()-view.getErrorCount();
-		}
-		else{
-			return 0;
-		}
+		JavaScriptUtils.log("getScore");
+		return module.isActivity() ? getMaxScore() - view.getErrorCount() : 0;
 	}
-
 	
 	@Override
 	public void addView(IModuleView view) {
@@ -178,7 +211,6 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 	}
 
-
 	@Override	
 	public IModuleModel getModel() {
 		return module;
@@ -186,7 +218,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	
 	public JavaScriptObject getAsJavaScript(){
 		
-		if(jsObject == null){
+		if (jsObject == null) {
 			jsObject = initJSObject(this);
 		}
 
@@ -205,7 +237,6 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	
 
 	private void onValueChanged(int sourceIndex, int destIndex) {
-
 		isSolved = true;
 		String id = Integer.toString(sourceIndex+1);
 		String newValue = Integer.toString(destIndex+1);
@@ -218,20 +249,14 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return getScore() == getMaxScore() && getErrorCount() == 0;
 	}
 
-
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
-		if(commandName.compareTo("isallok") == 0){
-            return String.valueOf(isAllOK());
-        }
-		
-		return "";
+		return commandName.compareTo("isallok") == 0 ? String.valueOf(isAllOK()) : "";
 	}
 }
