@@ -2,6 +2,7 @@ function AddonImage_Identification_create(){
     var presenter = function() {};
 
     var playerController;
+    var eventBus;
 
     presenter.lastEvent = null;
 
@@ -11,7 +12,8 @@ function AddonImage_Identification_create(){
         CORRECT : "image-identification-element-correct",
         EMPTY : "image-identification-element-empty",
         INCORRECT : "image-identification-element-incorrect",
-        MOUSE_HOVER : "image-identification-element-mouse-hover"
+        MOUSE_HOVER : "image-identification-element-mouse-hover",
+        SHOW_ANSWERS : "image-identification-element-show-answers"
     };
 
     /**
@@ -19,7 +21,7 @@ function AddonImage_Identification_create(){
      */
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
-            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER;
+            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.SHOW_ANSWERS;
     }
 
     function clickLogic() {
@@ -174,7 +176,9 @@ function AddonImage_Identification_create(){
             'markAsCorrect': presenter.markAsCorrect,
             'markAsWrong': presenter.markAsWrong,
             'markAsEmpty': presenter.markAsEmpty,
-            'removeMark': presenter.removeMark
+            'removeMark': presenter.removeMark,
+            'showAnswers': presenter.showAnswers,
+            'hideAnswers': presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -199,7 +203,12 @@ function AddonImage_Identification_create(){
     };
 
     presenter.run = function(view, model){
+        eventBus = playerController.getEventBus();
+
         presenterLogic(view, model, false);
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.reset = function() {
@@ -225,6 +234,10 @@ function AddonImage_Identification_create(){
     };
 
     presenter.setShowErrorsMode = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.configuration.isErrorCheckMode = true;
 
         if (!presenter.configuration.isActivity) return;
@@ -393,6 +406,51 @@ function AddonImage_Identification_create(){
         }
 
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    function applySelectionStyleShowAnswers (style){
+        var element = presenter.$view.find('div:first')[0];
+        $(element).addClass(style);
+    }
+
+    function applySelectionStyleHideAnswers (style){
+        var element = presenter.$view.find('div:first')[0];
+
+        $(element).removeClass(style);
+    }
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+
+        presenter.configuration.isErrorCheckMode = true;
+
+        if(presenter.configuration.shouldBeSelected){
+            applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
+        }else{
+            presenter.$view.find('.image-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("image-identification-element was-selected");
+        }
+
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.configuration.isErrorCheckMode = false;
+
+        applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);
+
+         var elementWasSelected = presenter.$view.find('.was-selected');
+         $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
