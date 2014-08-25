@@ -1071,6 +1071,12 @@ function AddonSlideshow_create() {
 	            },
 	            isMouseDragged : false
 	        };
+
+            view.addEventListener('DOMNodeRemoved',function(ev){
+                if (ev.target === this) {
+                    presenter.stopPresentation();
+                }
+            });
         } else {
         	if (presenter.configuration.groupNextAndPrevious) {
 	            var $container = $(DOMElements.controls.container);
