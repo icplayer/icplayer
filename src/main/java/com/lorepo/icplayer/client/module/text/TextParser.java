@@ -32,6 +32,7 @@ public class TextParser {
 	private boolean openLinksinNewTab = true;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
+	private boolean isKeepOriginalOrder = false;
 	private boolean skipGaps = false;
 	private int gapWidth = 0;
 	private int gapMaxLength = 0;
@@ -53,6 +54,10 @@ public class TextParser {
 
 	public void setIgnorePunctuationGaps(boolean value) {
 		isIgnorePunctuation = value;
+	}
+	
+	public void setKeepOriginalOrder(boolean value) {
+		isKeepOriginalOrder = value;
 	}
 
 	public void addVariable(String key, String value) {
@@ -119,7 +124,11 @@ public class TextParser {
 
 				String replaceText = matchVariable(expression);
 				if (replaceText == null) {
-					replaceText = matchInlineChoice(expression);
+					if (isKeepOriginalOrder) {
+						replaceText = mathInLineChoiceKeepOrder(expression);
+					} else {
+						replaceText = matchInlineChoice(expression);
+					}
 				}
 				if (replaceText == null) {
 					if (useDraggableGaps) {
@@ -305,6 +314,53 @@ public class TextParser {
 			}
 		}
 
+		return replaceText;
+	}
+	
+	private String mathInLineChoiceKeepOrder(String expression) {
+		String replaceText = null;
+		
+		int index = expression.indexOf(":");
+		if (index > 0) {
+			String[] answers = expression.split("\\|");
+			
+			if (answers.length > 1) {
+				String id = baseId + "-" + idCounter;
+				idCounter++;
+				String correctAnswer = "";
+				String value = "";
+				InlineChoiceInfo info = null;
+				
+				for (int i = 0; i < answers.length; i++) {
+					String answer = StringUtils.unescapeXML(answers[i].trim());
+					String[] splitted = answer.split(":");
+					if (splitted.length > 1) {
+						correctAnswer = splitted[1];
+						answers[i] = correctAnswer;
+						value = splitted[0];
+						info = new InlineChoiceInfo(id, correctAnswer,
+								Integer.parseInt(value));
+						parserResult.choiceInfos.add(info);
+					}
+				}
+				
+				if (info != null) {
+					replaceText = "<select id='" + id
+							+ "' class='ic_inlineChoice'>";
+					replaceText += "<option value='-'>---</option>";
+					
+					for (int i = 0; i < answers.length; i++) {
+						String dist = answers[i].trim();
+						info.addDistractor(dist);
+						String itemValue = StringUtils.escapeXML(dist);
+						replaceText += "<option value='" + itemValue + "'>" + dist
+								+ "</option>";
+					}
+					replaceText += "</select>";
+				}
+			}
+		}
+			
 		return replaceText;
 	}
 
