@@ -40,7 +40,7 @@ public class ImageGapModule extends BasicModuleModel {
 		addPropertyEvent(EVENT_EMPTY);
 	}
 	
-	public String getAnswerId(){
+	public String getAnswerId() {
 		return answerId;
 	}
 	
