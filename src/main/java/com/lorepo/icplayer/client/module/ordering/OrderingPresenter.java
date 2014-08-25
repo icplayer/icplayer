@@ -1,12 +1,11 @@
 package com.lorepo.icplayer.client.module.ordering;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -33,6 +32,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private String currentState = "";
 	private String currentState_view = "";
 	private boolean isShowAnswersActive = false;
+	private boolean isShowErrorsActive = false;
 
 	public OrderingPresenter(OrderingModule module, IPlayerServices services) {
 		
@@ -45,61 +45,52 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private void connectHandlers() {
 		
 		if (playerServices != null) {
+			EventBus eventBus = playerServices.getEventBus();
 		
-			playerServices.getEventBus().addHandler(ShowErrorsEvent.TYPE, 
-					new ShowErrorsEvent.Handler() {
-						
-						@Override
-						public void onShowErrors(ShowErrorsEvent event) {
-							setShowErrorsMode();
-						}
-					});
+			eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+				@Override
+				public void onShowErrors(ShowErrorsEvent event) {
+					setShowErrorsMode();
+				}
+			});
 
-			playerServices.getEventBus().addHandler(WorkModeEvent.TYPE, 
-					new WorkModeEvent.Handler() {
-						
-						@Override
-						public void onWorkMode(WorkModeEvent event) {
-							setWorkMode();
-						}
-					});
+			eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
+				@Override
+				public void onWorkMode(WorkModeEvent event) {
+					setWorkMode();
+				}
+			});
 
-			playerServices.getEventBus().addHandler(ResetPageEvent.TYPE, 
-					new ResetPageEvent.Handler() {
-						
-						@Override
-						public void onResetPage(ResetPageEvent event) {
-							reset();
-						}
-					});
+			eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
+				@Override
+				public void onResetPage(ResetPageEvent event) {
+					reset();
+				}
+			});
 			
-			playerServices.getEventBus().addHandler(CustomEvent.TYPE,
-					new CustomEvent.Handler() {
-						@Override
-						public void onCustomEventOccurred(CustomEvent event) {
-							if (event.eventName.equals("ShowAnswers")) {
-								showAnswers();
-							} else if (event.eventName.equals("HideAnswers")) {
-								hideAnswers();
-							}
-						}
-					});
+			eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+				@Override
+				public void onCustomEventOccurred(CustomEvent event) {
+					if (event.eventName.equals("ShowAnswers")) {
+						showAnswers();
+					} else if (event.eventName.equals("HideAnswers")) {
+						hideAnswers();
+					}
+				}
+			});
 		}
 	}
 	
-	List<Integer> usersOrder = new ArrayList<Integer>();
-	
 	private void showAnswers() {
 		if (!module.isActivity()) { return; }
+		
+		if (this.isShowErrorsActive)
+			setWorkMode();
 		
 		this.currentState = getState();
 		this.currentState_view = view.getState();
 		
 		this.isShowAnswersActive = true;
-		
-//		for (String o : this.currentState_view.split(",")) {
-//			usersOrder.add(Integer.parseInt(o) - 1);
-//		}
 		
 		view.setWorkStatus(false);
 		view.setCorrectAnswersStyles();
@@ -114,9 +105,6 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		setState(this.currentState);
 		
 		this.isShowAnswersActive = false;
-		
-		//view.placeItemsByOrder(usersOrder);
-		usersOrder.clear();
 
 		view.setWorkStatus(true);
 		view.removeCorrectAnswersStyles();
@@ -163,6 +151,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 	
 	private void setShowErrorsMode() {
+		this.isShowErrorsActive = true;
+		
 		if (this.isShowAnswersActive) {
 			hideAnswers();
 		}
@@ -174,12 +164,14 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void setWorkMode() {
+		this.isShowErrorsActive = false;
+		
 		if (view != null) {
 			view.setWorkMode();
 		}
 	}
 
-	private void reset() {		
+	private void reset() {
 		isSolved = true;
 		if (view != null) {
 			view.reset();
@@ -192,14 +184,17 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	public int getScore() {
-		JavaScriptUtils.log("getScore");
+		if (this.isShowAnswersActive) {
+			hideAnswers();
+		}
+		
 		return module.isActivity() ? getMaxScore() - view.getErrorCount() : 0;
 	}
 	
 	@Override
 	public void addView(IModuleView view) {
 
-		if(view instanceof OrderingView){
+		if (view instanceof OrderingView) {
 			this.view = (OrderingView) view;
 			this.view.addReorderListener(new IReorderListener() {
 				
@@ -216,7 +211,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return module;
 	}
 	
-	public JavaScriptObject getAsJavaScript(){
+	public JavaScriptObject getAsJavaScript() {
 		
 		if (jsObject == null) {
 			jsObject = initJSObject(this);
@@ -251,7 +246,6 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
