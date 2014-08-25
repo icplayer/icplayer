@@ -640,6 +640,7 @@ function AddonColoring_create(){
     presenter.reset = function(){
         presenter.clearCanvas();
         presenter.$view.find('.icon-container').remove();
+        presenter.isShowAnswersActive = false;
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
