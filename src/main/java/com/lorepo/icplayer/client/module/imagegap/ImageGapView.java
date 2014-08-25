@@ -46,7 +46,7 @@ public class ImageGapView extends Image implements IDisplay {
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 				event.preventDefault();
-				if(listener != null && !disabled){
+				if (listener != null && !disabled) {
 					listener.onClicked();
 				}
 			}
@@ -93,8 +93,9 @@ public class ImageGapView extends Image implements IDisplay {
 		removeStyleDependentName(CORRECT_STYLE);
 		removeStyleDependentName(FILLED_STYLE);
 		removeStyleDependentName(EMPTY_STYLE);
+		removeStyleDependentName(SHOW_CORRECT_STYLE);
 		
-		if(getUrl().indexOf(HOLLOW_IMAGE) < 0){
+		if (getUrl().indexOf(HOLLOW_IMAGE) < 0) {
 			addStyleDependentName(FILLED_STYLE);
 		}
 	}

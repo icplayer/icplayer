@@ -99,29 +99,31 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			}
 		});
 		
-		playerServices.getEventBus().addHandler(CustomEvent.TYPE,
-				new CustomEvent.Handler() {
-					@Override
-					public void onCustomEventOccurred(CustomEvent event) {
-						if (event.eventName.equals("ShowAnswers")) {
-							showAnswers();
-						} else if (event.eventName.equals("HideAnswers")) {
-							hideAnswers();
-						}
-					}
-				});
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
+			public void onCustomEventOccurred(CustomEvent event) {
+				if (event.eventName.equals("ShowAnswers")) {
+					showAnswers();
+				} else if (event.eventName.equals("HideAnswers")) {
+					hideAnswers();
+				}
+			}
+		});
 	}
+	
+	DraggableItem userReadyToDraggableItem = null;
 	
 	private void showAnswers() {
 		if (!model.isActivity() || this.isShowAnswersActive) { return; }
 		
 		this.isShowAnswersActive = true;
+		userReadyToDraggableItem = readyToDraggableItem;
 
 		this.currentState = getState();
 		view.resetStyles();
-		view.showCorrectAnswers();
 		view.setDisabled(true);
 		setCorrectImage();
+		view.showCorrectAnswers();
 	}
 	
 	private void hideAnswers() {
@@ -133,6 +135,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		view.resetStyles();
 		view.setDisabled(false);
 		setState(currentState);
+		readyToDraggableItem = userReadyToDraggableItem;
+		userReadyToDraggableItem = null;
 	}
 
 	private void setShowErrorsMode() {
@@ -236,10 +240,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
-		if(consumedItem != null){
+		if(consumedItem != null) {
 			state.put("consumed",  consumedItem.toString());
 		}
-		state.put("isVisible", Boolean.toString(isVisible));		
+		state.put("isVisible", Boolean.toString(isVisible));
 		return json.toJSONString(state);
 	}
 
@@ -281,7 +285,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			String[] answers = model.getAnswerId().split(";");
 			for (int i = 0; i < answers.length; i++) {
 				String answer = answers[i];
-				if(consumedItem.getId().compareTo(answer) == 0){
+				if (consumedItem.getId().compareTo(answer) == 0) {
 					return true;
 				}
 			}
@@ -326,7 +330,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	
 	public JavaScriptObject getAsJavaScript(){
 		
-		if(jsObject == null){
+		if (jsObject == null) {
 			jsObject = initJSObject(this);
 		}
 
@@ -378,14 +382,14 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 	
 	protected void show() {
-		if (view != null){
+		if (view != null) {
 			view.show();
 			isVisible = true;
 		}
 	}
 	
 	protected void hide() {
-		if (view != null){
+		if (view != null) {
 			view.hide();
 			isVisible = false;
 		}
@@ -395,15 +399,15 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		return consumedItem == null ? "" : consumedItem.getId();
 	}
 	
-	private void markGapAsCorrect(){
+	private void markGapAsCorrect() {
 		view.showAsCorrect();
 	}
 	
-	private void markGapAsWrong(){
+	private void markGapAsWrong() {
 		view.markGapAsWrong();
 	}
 	
-	private void markGapAsEmpty(){
+	private void markGapAsEmpty() {
 		view.markGapAsEmpty();
 	}
 	
