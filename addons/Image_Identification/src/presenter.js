@@ -434,12 +434,14 @@ function AddonImage_Identification_create(){
 
         presenter.configuration.isErrorCheckMode = true;
 
+        presenter.$view.find('.image-identification-element-incorrect').removeClass(CSS_CLASSES.INCORRECT).addClass("image-identification-element was-selected");
+        presenter.$view.find('.image-identification-element-correct').removeClass(CSS_CLASSES.CORRECT).addClass("image-identification-element was-selected");
+
         if(presenter.configuration.shouldBeSelected){
             applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
         }else{
             presenter.$view.find('.image-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("image-identification-element was-selected");
         }
-
     };
 
     presenter.hideAnswers = function () {
