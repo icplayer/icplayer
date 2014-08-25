@@ -463,7 +463,7 @@ function AddonConnection_create() {
     };
 
     presenter.loadElements = function (view, model, columnClass, columnModel, isRightColumn) {
-        var column = $(view).find('.' + columnClass + ':first').find('.content:first')
+        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
         for (var i = 0, columnLength = model[columnModel].length; i < columnLength; i++) {
             var id = model[columnModel][i]['id'];
             if (!this.isIDUnique(id)) {
