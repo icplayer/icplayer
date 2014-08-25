@@ -108,12 +108,13 @@ function AddonColoring_create(){
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
 
-            floodFill(
-                presenter.click,
-                presenter.configuration.currentFillingColor,
-                presenter.configuration.tolerance
-            );
-
+            if(!presenter.isShowAnswersActive){
+                floodFill(
+                    presenter.click,
+                    presenter.configuration.currentFillingColor,
+                    presenter.configuration.tolerance
+                );
+            }
             var clickedArea =  getClickedArea();
 
             presenter.sendEvent([clickedArea.x, clickedArea.y], presenter.configuration.isErase ? 0 : 1, isCorrect(clickedArea) ? 1 : 0);
@@ -915,6 +916,7 @@ function AddonColoring_create(){
         if (presenter.validateModel.isActivity) {
             return;
         }
+        presenter.$view.find('.icon-container').remove();
         presenter.currentScore = presenter.getScore();
         presenter.currentErrorCount = presenter.getErrorCount();
 
