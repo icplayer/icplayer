@@ -32,6 +32,8 @@ public class PlayerApp{
 	private boolean showCover = false;
 	private String analyticsId = null;
 	private ArrayList<Integer> pagesSubset = null;
+	private IPlayerServices playerServices;
+	
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
 		
@@ -101,7 +103,9 @@ public class PlayerApp{
 			public void onError(String error) {
 			}
 		});
-	
+		
+		contentModel.setPlayerController(getPlayerServices());
+		
 		RootPanel.get(divId).add(playerView);
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
 		DOMInjector.appendStyle(css);
@@ -137,7 +141,7 @@ public class PlayerApp{
 	public IPlayerServices getPlayerServices() {
 		return playerController.getPlayerServices();
 	}
-
+	
 
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);

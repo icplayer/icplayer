@@ -178,6 +178,9 @@ public class JavaScriptPlayerServices{
 				page.isReportable = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageReportable(I)(index);
 				}
+				page.isVisited = function() {
+					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageVisited(I)(index);
+				}
 				page.getModules = function() {
 					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModules(I)(index);
 				}
@@ -350,6 +353,16 @@ public class JavaScriptPlayerServices{
 
 	private boolean isPageReportable(int index){
 		return playerServices.getModel().getPage(index).isReportable();
+	}
+	
+	private boolean isPageVisited(int index){
+		if (playerServices.getCurrentPageIndex() == index) {
+			return true;
+		}
+		
+		String pageId = playerServices.getModel().getPage(index).getId();
+
+		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
 	}
 	
 	private JavaScriptObject getModules(int index) {
