@@ -1,3 +1,4 @@
+2014-08-26 Added libraries ydp and CreateJS
 2014-08-25 Fixed bug with SlideShow plays when page is closed
 2014-08-22 Fixed blocking options in ShowAnswers mode and clearing styles on HideAnswers event in True/False module
 2014-08-22 Fixed handling HideAnswers event in Choice module

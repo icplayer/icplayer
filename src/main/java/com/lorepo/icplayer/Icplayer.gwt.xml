@@ -40,10 +40,10 @@
 	<script src="libs/kinetic-v5.1.0.min.js" />
 	<script src="libs/swiffy_runtime.js" />
 
-    <script src="libs/eKeyboard_layouts/french.js" />
-    <script src="libs/eKeyboard_layouts/german.js" />
-    <script src="libs/eKeyboard_layouts/polish.js" />
-    <script src="libs/eKeyboard_layouts/spanish.js" />
+  <script src="libs/eKeyboard_layouts/french.js" />
+  <script src="libs/eKeyboard_layouts/german.js" />
+  <script src="libs/eKeyboard_layouts/polish.js" />
+  <script src="libs/eKeyboard_layouts/spanish.js" />
 
 	<script src="libs/jqplot/jquery.jqplot.min.js"/>
 	<script src="libs/jqplot/jqplot.barRenderer.min.js"/>
@@ -63,6 +63,16 @@
 
 	<script src="libs/TreeGrid/js/jquery.treegrid.js"/>
 	<stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
+	
+  <script src="libs/createjs/easeljs-0.4.1.min.js"/>
+	<script src="libs/createjs/tweenjs-0.2.0.min.js"/>
+	<script src="libs/createjs/movieclip-0.4.1.min.js"/>
+	<script src="libs/createjs/ypreloadjs.js"/>
+	<script src="libs/createjs/ysoundjs.js"/>
+	
+	<script src="libs/ydp/ButtonDecorator.js"/>
+	<script src="libs/ydp/Delegate.js"/>
+	<script src="libs/ydp/Slider.js"/>
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 
