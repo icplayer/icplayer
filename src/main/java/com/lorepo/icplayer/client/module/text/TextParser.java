@@ -76,6 +76,7 @@ public class TextParser {
 			srcText = srcText.replaceAll("\\s+", " ");
 			if (!skipGaps) {
 				parserResult.parsedText = parseGaps(srcText);
+				parserResult.parsedText = parseFilledGaps(parserResult.parsedText);
 				if (!useMathGaps) {
 					parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
 				}
@@ -195,6 +196,27 @@ public class TextParser {
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
 			}
+			parserResult.gapInfos.add(gi);
+		}
+
+		return replaceText;
+	}
+	
+	private String matchFilledGap(String expression) {
+
+		String replaceText = null;
+
+		int index = expression.indexOf("|");
+		if (index > 0) {
+			String placeholder = expression.substring(0, index).trim();
+			String answer = expression.substring(index + 1).trim();
+			String id = baseId + "-" + idCounter;
+			idCounter++;
+			replaceText = "<input id='" + id + "' type='edit' size='"
+					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"' />";
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
+			gi.setPlaceHolder(placeholder);
+			gi.addAnswer(answer);
 			parserResult.gapInfos.add(gi);
 		}
 
@@ -429,6 +451,39 @@ public class TextParser {
 			}
 		}
 		return parsedText;
+	}
+
+	private String parseFilledGaps(String srcText) {
+
+		String input = srcText;
+		String output = "";
+		int index = -1;
+		String replaceText;
+		
+		while ((index = input.indexOf("\\filledGap{")) >= 0) {
+
+			output += input.substring(0, index);
+			input = input.substring(index + 11);
+			index = findClosingBracket(input);
+			if (index < 0) {
+				return output + "\\filledGap{" + input;
+			}
+
+			String expression = input.substring(0, index);
+			input = input.substring(index + 1);
+
+			replaceText = matchFilledGap(expression);
+
+			if (replaceText == null) {
+				replaceText = "#ERR#";
+			}
+
+			output += replaceText;
+		}
+
+		output += input;
+
+		return output;
 	}
 
 	private String parseGaps(String srcText) {

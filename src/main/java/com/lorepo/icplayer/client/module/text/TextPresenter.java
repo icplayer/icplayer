@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
@@ -61,6 +62,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setHTML(String html);
 		String getHTML();
 		void connectGaps(Iterator<GapInfo> giIterator);
+		void connectFilledGaps(Iterator<GapInfo> giIterator);
 		void connectDraggableGaps(Iterator<GapInfo> giIterator);
 		void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator);
 		void connectLinks(Iterator<LinkInfo> giIterator);
@@ -87,6 +89,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isShowAnswersActive = false;
 	private boolean isShowErrorsMode = false;
 	private String currentState = "";
+	private HashMap<String, GapInfo> gapInfos = new HashMap<String, GapInfo>();
 	
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -458,6 +461,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		else if (!module.hasMathGaps()) {
 			view.connectGaps(module.getGapInfos().iterator());
 		}
+		view.connectFilledGaps(module.getGapInfos().iterator());
 		view.connectInlineChoices(module.getChoiceInfos().iterator());
 		view.connectLinks(module.getLinkInfos().iterator());
 	}
@@ -485,10 +489,22 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onGapClicked(String gapId) {
 				gapClicked(gapId);
 			}
+			
+			public void onGapFocused(String gapId, Element element) {
+				gapFocused(gapId, element);
+			}
+			
+			public void onGapBlured(String gapId, Element element) {
+				gapBlured(gapId, element);
+			}
 		});
 	}
 
 	protected void valueChanged(String id, String newValue) {
+		GapInfo gap = getGapInfoById(id);
+		if (newValue == gap.getPlaceHolder()) {
+			newValue = "";
+		}
 		values.put(id, newValue);
 		updateScore();
 		
@@ -539,6 +555,39 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			playerServices.getEventBus().fireEvent(valueEvent);
 		}
 		
+	}
+	
+	protected void gapFocused(String gapId, Element element) {
+		InputElement input = InputElement.as(element);
+		GapInfo gap = getGapInfoById(gapId);
+		String enteredValue = input.getValue();
+		if (enteredValue == "") {
+			input.setValue(gap.getPlaceHolder());
+		}
+	}
+	
+	protected void gapBlured(String gapId, Element element) {
+		InputElement input = InputElement.as(element);
+		GapInfo gap = getGapInfoById(gapId);
+		String enteredValue = input.getValue();
+		if (enteredValue == gap.getPlaceHolder()) {
+			input.setValue("");
+		}
+	}
+	
+	private GapInfo getGapInfoById(String gapId) {
+		GapInfo gap = gapInfos.get(gapId);
+		if (gap == null) {
+			gap = new GapInfo("stub", 0, false, false, 0);
+			for (GapInfo gap1 : module.getGapInfos()) {
+				if (gap1.getId().compareTo(gapId) == 0) {
+					gap = gap1;
+					break;
+				}
+			}
+			gapInfos.put(gapId, gap);
+		}
+		return gap;
 	}
 
 	private void fireItemReturnedEvent(DraggableItem previouslyConsumedItem) {
@@ -604,26 +653,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	private int getItemScore(String itemID) {
 		int score = 0;
-		
-		for (GapInfo gap : module.getGapInfos()) {
-			if (gap.getId().compareTo(itemID) == 0) {
-				String enteredValue = getElementText(gap.getId());
-				if (gap.isCorrect(enteredValue)) {
-					score = gap.getValue();
-				}
-				break;
-			}
+
+		GapInfo gap = getGapInfoById(itemID);
+		String enteredValue = getElementText(gap.getId());
+		if (enteredValue == gap.getPlaceHolder()) {
+			enteredValue = "";
+		}
+		if (gap.isCorrect(enteredValue)) {
+			score = gap.getValue();
 		}
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			if (choice.getId().compareTo(itemID) == 0) {
-				String enteredValue = getElementText(choice.getId());
+				String enteredChoiceValue = getElementText(choice.getId());
 				if (module.isCaseSensitive()) {
-					if (choice.getAnswer().compareTo(enteredValue) == 0) {
+					if (choice.getAnswer().compareTo(enteredChoiceValue) == 0) {
 						score = choice.getValue();
 					}
 				} else {
-					if(choice.getAnswer().compareToIgnoreCase(enteredValue) == 0) {
+					if(choice.getAnswer().compareToIgnoreCase(enteredChoiceValue) == 0) {
 						score = choice.getValue();
 					}
 				}
