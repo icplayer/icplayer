@@ -31,6 +31,7 @@ public class AddonDescriptorFactory {
 		addonList = new HashMap<String, AddonEntry>();
 		addDescriptor("Viewer_3D", "3D Viewer", "media_menu");
 		addDescriptor("Advanced_Connector", "Advanced Connector", "scripting_menu");
+		addDescriptor("Animated_Lesson_Progress", "Animated Lesson Progress", "reporting_menu");
 		addDescriptor("Animation", "Animation", "media_menu");
 		addDescriptor("Audio", "Audio", "media_menu");
 		addDescriptor("Basic_Math_Gaps", "Basic Math Gaps", "activities_menu");
