@@ -138,12 +138,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public void setStyleShowAnswers() {
+		JavaScriptUtils.log("disable");
 		addStyleDependentName("correct-answer");
 		setDisabled(true);
 	}
 
 	@Override
 	public void removeStyleHideAnswers() {
+		JavaScriptUtils.log("anable");
 		removeStyleDependentName("correct-answer");
 		setDisabled(false);
 	}

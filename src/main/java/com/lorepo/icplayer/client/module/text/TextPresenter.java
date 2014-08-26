@@ -131,7 +131,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		});
 		
-		playerServices.getEventBus().addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
 				if (event.eventName.equals("ShowAnswers")) {
@@ -165,8 +165,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void showAnswers() {
 		if (!module.isActivity() || this.isShowAnswersActive) { return; }
 		
+		this.currentState = getState();
+		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-			view.getChild(i).setStyleShowAnswers();
+			TextElementDisplay child = view.getChild(i);
+			child.reset();
+			child.setStyleShowAnswers();
 		}
 		
 		isDropDown = module.getChoiceInfos().size() > 0;
@@ -194,29 +198,39 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				// show only 1st answer
 				Iterator<String> answers = gi.getAnswers();
-				String answer = answers.hasNext() ? answers.next() : "";
-				gap.setText(answer);
-				if (answer.startsWith("\\(")) {
-					view.refreshMath();
-				}
+				gap.setText(answers.hasNext() ? answers.next() : "");
 			}
 		}
+		
+		view.refreshMath();
 	}
 
 	private void hideAnswers() {
 		if (!module.isActivity() || !this.isShowAnswersActive) { return; }
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-			view.getChild(i).removeStyleHideAnswers();
+			TextElementDisplay child = view.getChild(i);
+			child.removeStyleHideAnswers();
+			child.setWorkMode();
+			child.setDisabled(module.isDisabled());
 		}
 		
 		reset();
 		setState(this.currentState);
 		this.currentState = "";
 		this.isShowAnswersActive = false;
+		
+		//if () {
+		view.refreshMath();
+		//}
+		
+		for (int i = 0; i < view.getChildrenCount(); i++) {
+			TextElementDisplay child = view.getChild(i);
+			child.setDisabled(module.isDisabled());
+		}
 	}
 
-	protected void setWorkMode() {
+	protected void setWorkMode() {		
 		for(int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setWorkMode();
 		}
@@ -225,7 +239,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	protected void setShowErrorsMode() {
-		if (this.isShowAnswersActive) hideAnswers();
+		if (this.isShowAnswersActive) {
+			hideAnswers();
+		}
 		
 		for(int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setShowErrorsMode(module.isActivity());
@@ -364,8 +380,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.hide();
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-			view.getChild(i).reset();
-			view.getChild(i).setDisabled(module.isDisabled());
+			TextElementDisplay child = view.getChild(i);
+			child.reset();
+			child.setDisabled(module.isDisabled());
+			child.removeStyleHideAnswers();
 		}
 
 		if (enteredText != null) {
