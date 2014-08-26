@@ -1,3 +1,4 @@
+2014-08-26 Added permutations (safari,ie9,gecko1_8,opera)
 2014-08-26 Added isVisited() method to icPlayer API
 2014-08-26 New gap type in Text module - filled gap
 2014-08-26 Added libraries ydp and CreateJS
