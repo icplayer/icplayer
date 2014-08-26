@@ -56,8 +56,8 @@ function AddonAnimated_Page_Progress_create() {
                 deselected: range_max_score
             },
             length: model.Ranges.length,
-            isVisible: isVisible
-
+            isVisible: isVisible,
+            initialImage: model['Initial image']
         }
     };
 
@@ -73,8 +73,17 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.setViewImage = function (rate) {
-        presenter.$view.find('.rate-' + (rate+1)).css('display', 'block');
-        presenter.$view.find('.rate-' + (rate+1)).attr('data-name', 'visible');
+        var $rate;
+
+        if (rate == "initial") {
+            $rate = presenter.$view.find('.rate-initial');
+        } else {
+            $rate = presenter.$view.find('.rate-' + (rate + 1));
+        }
+
+        $rate.css('display', 'block');
+        $rate.attr('data-name', 'visible');
+
         presenter.displayedImage = rate;
     };
 
@@ -103,24 +112,41 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.appendImages = function (length) {
-        for (var j=0; j<length; j++){
-            presenter.$view.find('.animated-page-progress-wrapper').append('<div class="animated-page-progress-rate rate-'+ (j+1) +'"></div>');
-            if(range_img[j] != "") {
-                presenter.$view.find('.rate-' + (j + 1)).css('background-image', 'url(' + range_img[j] + ')');
+        var $wrapper = presenter.$view.find('.animated-page-progress-wrapper');
+
+        for (var i = 0; i < length; i++) {
+            var $rate = $(document.createElement('div'));
+
+            $rate.addClass('animated-page-progress-rate rate-' + (i + 1)).css('display', 'none');
+
+            if (range_img[i] != "") {
+                $rate.css('background-image', 'url(' + range_img[i] + ')');
             }
-            presenter.$view.find('.rate-'+(j+1)).css('display', 'none');
+
+            $wrapper.append($rate);
+        }
+
+        if (presenter.configuration.initialImage) {
+            var $initialRate = $(document.createElement('div'));
+
+            $initialRate.addClass('animated-page-progress-rate rate-initial');
+            $initialRate.css({
+                'display': 'none',
+                'background-image': 'url(' + presenter.configuration.initialImage + ')'
+            });
+
+            $wrapper.append($initialRate);
         }
     };
 
     presenter.eventListener = function () {
         eventBus = playerController.getEventBus();
-        presenter.countPercentageScore();
         eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
-    	presenter.$view = $(view);
-    	presenter.configuration = presenter.sanitizeModel(model);
+        presenter.$view = $(view);
+        presenter.configuration = presenter.sanitizeModel(model);
         presenter.pageID = $(view).parent('.ic_page').attr('id');
 
         if(presenter.configuration.isError){
@@ -128,14 +154,13 @@ function AddonAnimated_Page_Progress_create() {
             return;
         }
 
-        presenter.appendImages(presenter.configuration.length);
+        presenter.appendImages(range_img.length);
 
-        if(!isPreview) {
+        if (!isPreview) {
             presenter.eventListener();
-        }else{
-            presenter.setViewImage(0);
         }
 
+        presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
     };
 
     presenter.onEventReceived = function (eventName) {

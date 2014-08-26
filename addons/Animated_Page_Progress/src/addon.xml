@@ -6,5 +6,6 @@
             <property name="Score" type="string"/>
 		    <property name="Image" type="image"/>
 		</property>
+        <property name="Initial image" type="image" />
 	</model>
 </addon>
