@@ -698,31 +698,31 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	private native JavaScriptObject initJSObject(TextPresenter x) /*-{
 	
-		var presenter = function(){}
+		var presenter = function() {};
 			
 		presenter.getGapText = function(gapId){ 
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapText(I)(gapId);
-		}
+		};
 			
 		presenter.getGapValue = function(gapId){ 
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapText(I)(gapId);
-		}
+		};
 			
 		presenter.markGapAsCorrect = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::markGapAsCorrect(I)(gapId);
-		}
+		};
 			
 		presenter.markGapAsWrong = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::markGapAsWrong(I)(gapId);
-		}
+		};
 			
 		presenter.markGapAsEmpty = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::markGapAsEmpty(I)(gapId);
-		}
+		};
 			
 		presenter.enableGap = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableGap(I)(gapId);
-		}
+		};
 
 		presenter.enableAllGaps = function(){
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::enableAllGaps()();
@@ -730,7 +730,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			
 		presenter.disableGap = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableGap(I)(gapId);
-		}
+		};
 
 		presenter.disableAllGaps = function(){
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::disableAllGaps()();
@@ -738,24 +738,28 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			
 		presenter.setText = function(text){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setText(Ljava/lang/String;)(text.toString());
-		}
+		};
 			
 		presenter.show = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::show()();
-		}
+		};
 			
 		presenter.hide = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::hide()();
-		}
+		};
 		
 		presenter.reset = function(){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset()();
 		};
-		
-		presenter.isAttempted = function(){ 
-			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAttempted()();
-		};
-				
+
+        var isActivity = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isActivity()();
+
+        if (isActivity) {
+            presenter.isAttempted = function(){
+                return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isAttempted()();
+            };
+        }
+
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getView()();
 		};
@@ -848,6 +852,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.getChild(index).setDisabled(true);
 		}
 	}
+
+    private boolean isActivity () {
+        return module.isActivity();
+    }
 
 	private boolean isAttempted() {
 		boolean isAllAttempted = true;
