@@ -234,6 +234,7 @@ var ice_dictionary = {
 	"side": "Side",
 	"showCounters": "Show counters",
 	"Ignore_punctuation": "Ignore punctuation",
+	"Keep_original_order": "Keep Original Order",
 	"open_links_in_new_tab": "Open external link in",
 	"page_exported": "Page copied",
 	"cant_import_page": "There is no page available to import",

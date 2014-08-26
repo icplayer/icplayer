@@ -6,6 +6,8 @@ function AddonText_Selection_create() {
     presenter.playerController = null;
     presenter.selected_elements = null;
 
+    presenter.is_work_mode = true;
+
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
         presenter.eventBus = controller.getEventBus();
@@ -772,9 +774,12 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.setShowErrorsMode = function() {
+        presenter.is_work_mode = false;
+
         presenter.turnOffEventListeners();
 
         if (!presenter.configuration.isExerciseStarted) return false;
+
         if (presenter.is_show_answers) presenter.hideAnswers();
 
         var i;
@@ -799,6 +804,8 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.setWorkMode = function() {
+        presenter.is_work_mode = true;
+
 		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
 		presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
 
@@ -841,6 +848,8 @@ function AddonText_Selection_create() {
     presenter.showAnswers = function() {
         if (presenter.is_show_answers) { return false; }
 
+        if (!presenter.is_work_mode) { presenter.setWorkMode(); }
+
         presenter.turnOffEventListeners();
 
         presenter.is_show_answers = true;
@@ -849,7 +858,7 @@ function AddonText_Selection_create() {
 
         presenter.selected_elements.removeClass("selected");
 
-        for (var i=0; i<selectable_elements.length; i++) {
+        for (var i = 0; i < selectable_elements.length; i++) {
             var elem = presenter.$view.find(".selectable")[i];
             var elem_number = parseInt($(elem).attr("number"), 10);
 

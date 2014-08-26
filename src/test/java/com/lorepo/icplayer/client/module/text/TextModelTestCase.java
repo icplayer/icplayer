@@ -314,6 +314,26 @@ public class TextModelTestCase {
 		assertTrue(foundProperty);
 	}
 	
+	@Test
+	public void propertyKeepOriginalOrder() {
+		
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("Keep_original_order")).thenReturn("Keep Original Order");
+
+		TextModel module = new TextModel();
+
+		boolean foundProperty = false;
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			
+			IProperty property = module.getProperty(i);
+			if(property.getName().compareTo("Keep Original Order") == 0){
+				foundProperty = true;
+			}
+		}
+
+		assertTrue(foundProperty);
+	}
+	
 	
 	@Test
 	public void math() throws SAXException, IOException {

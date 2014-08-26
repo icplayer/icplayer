@@ -41,6 +41,7 @@ public class TextModel extends BasicModuleModel{
 	private boolean isDisabled = false;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
+	private boolean isKeepOriginalOrder = false;
 	public String rawText;
 	public String gapUniqueId = "";
 	
@@ -58,10 +59,11 @@ public class TextModel extends BasicModuleModel{
 		addPropertyIsIgnorePunctuation();
 		addPropertyOpenLinksinNewTab();
 		addPropertyText();
+		addPropertyKeepOriginalOrder();
 		
 	}
-	
-	
+
+
 	@Override
 	public void setId(String id){
 		super.setId(id);
@@ -113,6 +115,7 @@ public class TextModel extends BasicModuleModel{
 					isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
 					isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
 					isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
+					isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
 					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
 					if(rawText == null){
@@ -136,6 +139,7 @@ public class TextModel extends BasicModuleModel{
 		parser.setUseMathGaps(useMathGaps);
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		parser.setIgnorePunctuationGaps(isIgnorePunctuation);
+		parser.setKeepOriginalOrder(isKeepOriginalOrder);
 		parser.setGapWidth(gapWidth);
 		parser.setGapMaxLength(gapMaxLength);
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
@@ -159,6 +163,7 @@ public class TextModel extends BasicModuleModel{
 				"gapMaxLength='" + gapMaxLength + "' " +
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
 				"isIgnorePunctuation='" + isIgnorePunctuation + 
+				"' isKeepOriginalOrder='" + isKeepOriginalOrder + 
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive + 
 				"' openLinksinNewTab='" + openLinksinNewTab + 
 				"'><![CDATA[" + moduleText + "]]></text>";
@@ -511,6 +516,40 @@ public class TextModel extends BasicModuleModel{
 		
 		addProperty(property);	
 	}
+	
+	private void addPropertyKeepOriginalOrder() {
+			IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value!= isKeepOriginalOrder){
+					isKeepOriginalOrder = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return isKeepOriginalOrder ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Keep_original_order");
+			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Keep_original_order");
+			}
+
+
+		};
+		
+		addProperty(property);	
+	}
 
 
 	public boolean isDisabled() {
@@ -533,6 +572,10 @@ public class TextModel extends BasicModuleModel{
 	
 	public boolean openLinksinNewTab() {
 		return openLinksinNewTab;
+	}
+	
+	public boolean isKeepOriginalOrder() {
+		return isKeepOriginalOrder;
 	}
 
 
