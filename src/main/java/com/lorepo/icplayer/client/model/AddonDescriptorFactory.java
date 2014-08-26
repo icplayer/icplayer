@@ -105,6 +105,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
 		addDescriptor("Zoom_Image", "Zoom Image", "media_menu");
 		addDescriptor("Animated_Page_Progress", "Animated Page Progress", "reporting_menu");
+		addDescriptor("Completion_Progress", "Completion Progress", "reporting_menu");
 	}
 
 	private void addDescriptor(String id, String name, String category) {
