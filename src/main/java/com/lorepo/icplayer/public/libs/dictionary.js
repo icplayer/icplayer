@@ -330,5 +330,6 @@ var ice_dictionary = {
     "Show_Answers_info": "Allows to show the right answers for every activity on page",
     "Animated_Page_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result on page.",
     "Animated_Lesson_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result of the entire lesson.",
-    "Completion_Progress_info": "Enables to insert a ready-made progress bar indicating the percentage of attempted activity modules on a current page."
+    "Completion_Progress_info": "Enables to insert a ready-made progress bar indicating the percentage of attempted activity modules on a current page.",
+    "Lesson_Error_Counter_info": "Enables to display summed number of errors of the entire lesson."
 };
