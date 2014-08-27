@@ -1,0 +1,24 @@
+.lesson-score-counter-wrapper {
+
+}
+
+.lesson-score-counter-wrapper > div.hidden {
+    display: none;
+}
+
+.lesson-score-counter-wrapper > div {
+    border: 1px solid #002266;
+    border-radius: 4px;
+    background-color: #fafafa;
+    box-shadow: 1px 1px 1px #005599;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    font-size: 12px;
+}
+
+.lesson-score-counter-wrapper .fraction > div {
+    text-align: left;
+    display: inline-block;
+}

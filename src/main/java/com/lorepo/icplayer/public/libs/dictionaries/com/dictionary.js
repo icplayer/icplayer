@@ -332,5 +332,6 @@ var ice_dictionary = {
     "Animated_Lesson_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result of the entire lesson.",
     "Completion_Progress_info": "Enables to insert a ready-made progress bar indicating the percentage of attempted activity modules on a current page.",
     "Lesson_Error_Counter_info": "Enables to display summed number of errors of the entire lesson.",
-    "Page_Score_Counter_info": "Shows the score and/or the max score for lesson's page."
+    "Page_Score_Counter_info": "Shows the score and/or the max score for the lesson's page.",
+    "Lesson_Score_Counter_info": "Shows the score and/or the max score for the whole lesson."
 };
