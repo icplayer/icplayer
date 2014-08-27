@@ -88,7 +88,7 @@ function AddonAnimated_Lesson_Progress_create() {
             if(page.isReportable()){
                 count += 1;
 
-                var pageScore = scoreService.getPageScore(page.getName()),
+                var pageScore = scoreService.getPageScoreById(page.getId()),
                     score = pageScore.score,
                     maxScore = pageScore.maxScore;
 
