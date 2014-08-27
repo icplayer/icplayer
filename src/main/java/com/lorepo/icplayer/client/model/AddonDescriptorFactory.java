@@ -22,7 +22,6 @@ public class AddonDescriptorFactory {
 		registerLocalDescriptors();
 	}
 
-
     /**
      * Init list of local addons
      */
@@ -66,6 +65,7 @@ public class AddonDescriptorFactory {
         addDescriptor("Hierarchical_Lesson_Report", "Hierarchical Lesson Report", "reporting_menu");
         addDescriptor("Lesson_Error_Counter", "Lesson Error Counter", "reporting_menu");
         addDescriptor("Page_Rating", "Page Rating", "reporting_menu");
+        addDescriptor("Page_Score_Counter", "Page Score Counter", "reporting_menu");
         addDescriptor("Show_Answers", "Show Answers", "reporting_menu");
         addDescriptor("Submit", "Submit", "reporting_menu");
 
@@ -130,7 +130,6 @@ public class AddonDescriptorFactory {
 				category);
 		addonList.put(entry.getId(), entry);
 	}
-
 
 	public boolean isLocalAddon(String addonId){
 		return addonList.containsKey(addonId);
