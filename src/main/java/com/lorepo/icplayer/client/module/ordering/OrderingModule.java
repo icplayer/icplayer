@@ -16,12 +16,6 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
 
-/**
- * Posiada elementy, które należy ułożyć w odpowiedniej kolejności
- * 
- * @author Krzysztof Langner
- *
- */
 public class OrderingModule extends BasicModuleModel{
 
 	private boolean 	isVertical = true;
