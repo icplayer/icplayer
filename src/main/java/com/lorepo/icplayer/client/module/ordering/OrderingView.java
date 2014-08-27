@@ -23,7 +23,8 @@ public class OrderingView extends Composite implements IDisplay{
 	protected CellPanel 	innerCellPanel;
 	private Widget	selectedWidget;
 	private IReorderListener listener;
-	private boolean workMode = true; 
+	private boolean workMode = true;
+	private String initialOrder = "";
 	
 	
 	public OrderingView(OrderingModule module, IPlayerServices services){
@@ -31,6 +32,10 @@ public class OrderingView extends Composite implements IDisplay{
 		this.module = module;
 		this.playerServices = services;
 		createUI(module);
+	}
+	
+	public String getInitialOrder() {
+		return initialOrder;
 	}
 
 
@@ -168,6 +173,8 @@ public class OrderingView extends Composite implements IDisplay{
 			Integer index = order.get(i);
 			innerCellPanel.add(widgets.get(index));
 		}
+		
+		initialOrder = getState();
 	}
 
 
@@ -206,7 +213,7 @@ public class OrderingView extends Composite implements IDisplay{
 	public Widget getWidget(int index) {
 		return innerCellPanel.getWidget(index);
 	}
-
+	
 	public String getState() {
 
 		String state = "";
