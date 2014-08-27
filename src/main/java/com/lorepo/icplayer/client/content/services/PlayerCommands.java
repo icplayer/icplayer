@@ -101,4 +101,9 @@ public class PlayerCommands implements IPlayerCommands {
 	public long getTimeElapsed() {
 		return controller.getTimeElapsed();
 	}
+	
+	@Override
+	public PageController getPageController() {
+		return pageController;
+	}
 }

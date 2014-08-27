@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.api.player;
 
+import com.lorepo.icplayer.client.page.PageController;
+
 
 
 /**
@@ -27,4 +29,5 @@ public interface IPlayerCommands {
 	public void executeEventCode(String code);
 	
 	public void sendPageAllOkOnValueChanged(boolean sendEvent);
+	public PageController getPageController();
 }

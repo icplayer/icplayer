@@ -196,6 +196,7 @@ var ice_dictionary = {
 	"ordering_item" : "Ordering item",
 	"ordering_item_text" : "Text",
 	"page_progress_module" : "Page Progress",
+	"real_time_calculation_property" : "Calculate in real time",
 	"report_module" : "Report",
 	"report_errors" : "No. of errors",
 	"report_checks" : "No. of checks",
