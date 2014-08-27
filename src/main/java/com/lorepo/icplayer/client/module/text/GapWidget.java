@@ -31,6 +31,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		
 		if (gi.getMaxLength()>0) {
 			int max_length = gi.getMaxLength();
+			max_length = Math.max(max_length, gi.getPlaceHolder().length());
 			String answer;
 			Iterator<String> get_answers = gi.getAnswers();
 			while (get_answers.hasNext()) {
@@ -81,6 +82,10 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 			}
 		});
 		
+	}
+	
+	public GapInfo getGapInfo() {
+		return gapInfo;
 	}
 	
 	public boolean hasId(String id){

@@ -278,16 +278,19 @@ hr, table, fieldset {
 	cursor: pointer; 	
 }
 
-.ic_gap{
+.ic_gap,
+.ic_filled_gap{
 }
 
-.ic_gap-correct{
+.ic_gap-correct,
+.ic_filled_gap-correct{
 	padding-left:16px;
 	background-image:url('images/correct.png');
 	background-repeat:no-repeat;
 }
 
-.ic_gap-wrong{
+.ic_gap-wrong,
+.ic_filled_gap-wrong{
 	padding-left:16px;
 	background-image:url('images/wrong.png');
 	background-repeat:no-repeat;

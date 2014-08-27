@@ -12,6 +12,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -22,6 +23,7 @@ import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 /**
  * Model reprezentujący pojedyncza strone
@@ -31,6 +33,8 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
  */
 public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 
+	
+	private IPlayerServices playerServices;
 	public enum LayoutType{
 		percentage,
 		pixels,
@@ -61,6 +65,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	private String previewURL = "";
 	// Properties
 	IProperty propertyName;
+	private int index;
 	
 	
 	public Page(String name, String url){
@@ -77,6 +82,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		addPropertyScoreType();
 	}
 	
+	public void setPlayerServices(IPlayerServices ps) {
+		this.playerServices = ps;	
+	}
+
 	
 	@Override
 	public String getBaseURL(){
@@ -645,6 +654,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		page.isReportable = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
 		}
+		
+		page.isVisited = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
+		}
+		
 		page.getModules = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::getModulesList()();
 		}
@@ -652,5 +666,25 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		return page;
 	}-*/;
 
+	public boolean isVisited() {
 
+		String pageId;
+		int index = 0;
+
+		int tocLength = playerServices.getModel().getPageCount();
+		
+		for (int i = 0; i < tocLength; i++) {
+			if (playerServices.getModel().getPage(i).getId() == id) {
+				index = i;
+				break;
+			} 
+		}
+		
+		if (playerServices.getCurrentPageIndex() == index) {
+			return true;
+		}
+
+		pageId = playerServices.getModel().getPage(index).getId();
+		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
+}
 }

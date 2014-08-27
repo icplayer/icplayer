@@ -55,6 +55,12 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
+	public void connectFilledGaps(Iterator<GapInfo> giIterator) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
 		// TODO Auto-generated method stub
 		

@@ -92,6 +92,27 @@ public class TextView extends HTML implements IDisplay{
 	}
 	
 	@Override
+	public void connectFilledGaps(Iterator<GapInfo> giIterator) {
+		int gapWidth = module.getGapWidth();
+		while (giIterator.hasNext()) {
+			GapInfo gi = giIterator.next();
+			if (gi.getPlaceHolder() == "") {
+				continue;
+			}
+			try {
+				FilledGapWidget gap = new FilledGapWidget(gi, listener);
+				if (gapWidth > 0) {
+					gap.setWidth(gapWidth + "px");
+				}
+				gap.setDisabled(module.isDisabled());
+				textElements.add(gap);
+			} catch (Exception e) {
+				Window.alert("Can't create module: " + gi.getId());
+			}
+		}
+	}
+	
+	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
 		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();

@@ -31,6 +31,7 @@ public class AddonDescriptorFactory {
 		addonList = new HashMap<String, AddonEntry>();
 		addDescriptor("Viewer_3D", "3D Viewer", "media_menu");
 		addDescriptor("Advanced_Connector", "Advanced Connector", "scripting_menu");
+		addDescriptor("Animated_Lesson_Progress", "Animated Lesson Progress", "reporting_menu");
 		addDescriptor("Animation", "Animation", "media_menu");
 		addDescriptor("Audio", "Audio", "media_menu");
 		addDescriptor("Basic_Math_Gaps", "Basic Math Gaps", "activities_menu");
@@ -104,6 +105,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
 		addDescriptor("Zoom_Image", "Zoom Image", "media_menu");
 		addDescriptor("Animated_Page_Progress", "Animated Page Progress", "reporting_menu");
+		addDescriptor("Completion_Progress", "Completion Progress", "reporting_menu");
 	}
 
 	private void addDescriptor(String id, String name, String category) {

@@ -19,6 +19,7 @@ public class GapInfo {
 	private int maxLength;
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation;
+	private String placeHolder = "";
 	
 	
 	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength){
@@ -72,6 +73,14 @@ public class GapInfo {
 
 	public int getMaxLength() {
 		return maxLength;
+	}
+
+	public void setPlaceHolder(String placeHolder) {
+		this.placeHolder = placeHolder;
+	}
+	
+	public String getPlaceHolder() {
+		return placeHolder;
 	}
 
 	/**

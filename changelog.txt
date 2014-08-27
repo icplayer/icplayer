@@ -1,3 +1,10 @@
+2014-08-26 Added "Initial image" property to Animated Page Progress module
+2014-08-26 Fixed isAttempted command visibility in Text module in not activity mode
+2014-08-26 Added new module: Completion Progress
+2014-08-26 Added new module: Animated Lesson Progress
+2014-08-26 Added permutations (safari,ie9,gecko1_8,opera)
+2014-08-26 Added isVisited() method to icPlayer API
+2014-08-26 New gap type in Text module - filled gap
 2014-08-26 Added libraries ydp and CreateJS
 2014-08-25 Fixed bug with SlideShow plays when page is closed
 2014-08-22 Fixed blocking options in ShowAnswers mode and clearing styles on HideAnswers event in True/False module

@@ -9,23 +9,29 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
 
 public class PageList extends BasicPropertyProvider implements IChapter{
-
+	
+	private IPlayerServices playerServices;
 	private List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
 	public String name;
-
+	
 	public PageList(){
 		this("Chapter");
 	}
+	
+
 	
 	public PageList(String name){
 		super("Chapter");
@@ -35,6 +41,14 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	
 	public String getName(){
 		return name;
+	}
+	
+	public void setPlayerServices(IPlayerServices ps) {
+		this.playerServices = ps;
+		List<Page> pages = getAllPages();
+		for (Page page : pages) {
+			page.setPlayerServices(ps);
+		}
 	}
 	
 
@@ -265,6 +279,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		if(pageId != null && pageId.length() > 0 && !pageId.equals("null")){
 			page.setId(pageId);
 		}
+
 		page.setReportable(reportable);
 		page.setPreview(preview);
 		return page;
@@ -415,7 +430,5 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		}
 		return parent;
 	}
-
-
 
 }

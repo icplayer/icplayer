@@ -121,7 +121,7 @@ public class ScoreService implements IScoreService {
 		if(score == null){
 			score = new PageScore();
 		}
-		
+
 		return score;
 	}
 }

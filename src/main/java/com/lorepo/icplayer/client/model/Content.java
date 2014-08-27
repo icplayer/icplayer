@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 public class Content implements IXMLSerializable, IContent {
 
@@ -33,7 +34,7 @@ public class Content implements IXMLSerializable, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	
+	private IPlayerServices playerServices;
 	
 	public Content(){
 		
@@ -41,9 +42,12 @@ public class Content implements IXMLSerializable, IContent {
 		commonPages = new PageList("commons");
 		connectHandlers();
 	}
-
+	
+	public void setPlayerController(IPlayerServices ps) {
+		pages.setPlayerServices(ps);
+	}
+	
 	private void connectHandlers() {
-		
 		pages.addListener(new IPageListListener() {
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
@@ -200,6 +204,7 @@ public class Content implements IXMLSerializable, IContent {
 		baseUrl = url.substring(0, url.lastIndexOf("/")+1);
 
 		loadAttributes(rootElement);
+
 		NodeList children = rootElement.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++){
 			
@@ -276,7 +281,6 @@ public class Content implements IXMLSerializable, IContent {
 	private void loadPages(Element rootElement, String baseUrl, ArrayList<Integer> pageSubset) {
 		NodeList children = rootElement.getChildNodes();
 		pages.load(rootElement, baseUrl, pageSubset, 0);
-		
 		for(int i = 0; i < children.getLength(); i++){
 	
 			if(children.item(i) instanceof Element){

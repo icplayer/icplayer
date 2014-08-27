@@ -36,19 +36,6 @@ TestCase("States tests", {
         assertTrue(this.presenter.setVisibility.calledWith(true));
     },
 
-    'test set state with initial image': function () {
-        var state = JSON.stringify({
-            displayedImage: "initial",
-            isVisible: true
-        });
-
-        this.presenter.setState(state);
-
-        assertTrue(this.presenter.cleanView.called);
-        assertTrue(this.presenter.setViewImage.calledWith("initial"));
-        assertTrue(this.presenter.setVisibility.calledWith(true));
-    },
-
     'test get state while is error': function () {
         this.presenter.configuration.isError = true;
 
@@ -62,19 +49,6 @@ TestCase("States tests", {
 
         var expectedState = JSON.stringify({
             displayedImage: 0,
-            isVisible: true
-        });
-
-        assertEquals(expectedState, this.presenter.getState());
-    },
-
-    'test get state with initial image': function () {
-        this.presenter.configuration.isError = false;
-        this.presenter.configuration.isVisible = true;
-        this.presenter.displayedImage = "initial";
-
-        var expectedState = JSON.stringify({
-            displayedImage: "initial",
             isVisible: true
         });
 

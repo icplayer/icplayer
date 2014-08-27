@@ -1,4 +1,4 @@
-function AddonAnimated_Page_Progress_create() {
+function AddonAnimated_Lesson_Progress_create() {
     var presenter = function () { };
 
     var range_img = [],
@@ -6,7 +6,6 @@ function AddonAnimated_Page_Progress_create() {
 
     var playerController;
     var eventBus;
-    presenter.displayedImage = null;
 
     presenter.ERROR_CODES = {
         'E_01': "All ranges must be in ascending order",
@@ -56,8 +55,8 @@ function AddonAnimated_Page_Progress_create() {
                 deselected: range_max_score
             },
             length: model.Ranges.length,
-            isVisible: isVisible,
-            initialImage: model['Initial image']
+            isVisible: isVisible
+
         }
     };
 
@@ -66,101 +65,97 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.cleanView = function () {
-        presenter.$view.find('.animated-page-progress-rate').each(function () {
+        presenter.$view.find('.animated-lesson-progress-rate').each(function () {
             $(this).css('display', 'none');
             $(this).attr('data-name', 'invisible');
         });
     };
 
     presenter.setViewImage = function (rate) {
-        var $rate;
-
-        if (rate == "initial") {
-            $rate = presenter.$view.find('.rate-initial');
-        } else {
-            $rate = presenter.$view.find('.rate-' + (rate + 1));
-        }
-
-        $rate.css('display', 'block');
-        $rate.attr('data-name', 'visible');
-
-        presenter.displayedImage = rate;
+        presenter.$view.find('.rate-' + (rate+1)).css('display', 'block');
+        presenter.$view.find('.rate-' + (rate+1)).attr('data-name', 'visible');
     };
 
     presenter.countPercentageScore = function () {
-        var scoreService = playerController.getScore(),
-            pageScore = scoreService.getPageScoreById(presenter.pageID),
-            score = pageScore.score,
-            maxScore = pageScore.maxScore;
+        var model = playerController.getPresentation();
+        var scoreService = playerController.getScore();
+        var count = 0,
+            percentageScore = 0;
 
-        presenter.percentageScore = (score/maxScore) * 100;
+        for(var i = 0; i < model.getPageCount(); i++){
+            var page = model.getPage(i);
 
-        if(isNaN(presenter.percentageScore)){
-            presenter.percentageScore = 0;
+            if(page.isReportable()){
+                count += 1;
+
+                var pageScore = scoreService.getPageScore(page.getName()),
+                    score = pageScore.score,
+                    maxScore = pageScore.maxScore;
+
+                if (maxScore > 0) {
+                    percentageScore += ((score/maxScore) * 100);
+                } else if (page.isVisited()) {
+                    percentageScore += 100; // the page was visited but there is no activities, so we give you a bonus +100% :-)
+                }
+
+            }
         }
 
-        for (var i=0; i<range_max_score.length; i++){
-            if(presenter.percentageScore == 0){
+        if (count > 0) {
+            percentageScore = percentageScore / count;
+        }
+
+        console.log(count)
+        console.log(percentageScore)
+
+        for (var j = 0; j < range_max_score.length; j++){
+            if(percentageScore == 0){
                 presenter.cleanView();
                 presenter.setViewImage(0);
+                return;
             }
-            if(presenter.percentageScore <= range_max_score[i+1] && presenter.percentageScore > range_max_score[i]){
+
+            if(percentageScore <= range_max_score[j+1] && percentageScore > range_max_score[j]){
                 presenter.cleanView();
-                presenter.setViewImage(i+1);
+                presenter.setViewImage(j+1);
             }
         }
+
     };
 
     presenter.appendImages = function (length) {
-        var $wrapper = presenter.$view.find('.animated-page-progress-wrapper');
-
-        for (var i = 0; i < length; i++) {
-            var $rate = $(document.createElement('div'));
-
-            $rate.addClass('animated-page-progress-rate rate-' + (i + 1)).css('display', 'none');
-
-            if (range_img[i] != "") {
-                $rate.css('background-image', 'url(' + range_img[i] + ')');
+        for (var j=0; j<length; j++){
+            presenter.$view.find('.animated-lesson-progress-wrapper').append('<div class="animated-lesson-progress-rate rate-'+ (j+1) +'"></div>');
+            if(range_img[j] != "") {
+                presenter.$view.find('.rate-' + (j + 1)).css('background-image', 'url(' + range_img[j] + ')');
             }
-
-            $wrapper.append($rate);
-        }
-
-        if (presenter.configuration.initialImage) {
-            var $initialRate = $(document.createElement('div'));
-
-            $initialRate.addClass('animated-page-progress-rate rate-initial');
-            $initialRate.css({
-                'display': 'none',
-                'background-image': 'url(' + presenter.configuration.initialImage + ')'
-            });
-
-            $wrapper.append($initialRate);
+            presenter.$view.find('.rate-'+(j+1)).css('display', 'none');
         }
     };
 
     presenter.eventListener = function () {
         eventBus = playerController.getEventBus();
+        presenter.countPercentageScore();
         eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
-        presenter.$view = $(view);
-        presenter.configuration = presenter.sanitizeModel(model);
-        presenter.pageID = $(view).parent('.ic_page').attr('id');
+    	presenter.$view = $(view);
+    	presenter.configuration = presenter.sanitizeModel(model);
 
         if(presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
-        presenter.appendImages(range_img.length);
+        presenter.appendImages(presenter.configuration.length);
 
-        if (!isPreview) {
+        if(!isPreview) {
             presenter.eventListener();
+        }else{
+            presenter.setViewImage(0);
         }
 
-        presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
     };
 
     presenter.onEventReceived = function (eventName) {
@@ -188,7 +183,6 @@ function AddonAnimated_Page_Progress_create() {
         }
 
     	return JSON.stringify({
-            displayedImage: presenter.displayedImage,
             isVisible: presenter.configuration.isVisible
         });
     };
@@ -198,8 +192,6 @@ function AddonAnimated_Page_Progress_create() {
 
     	var parsedState = JSON.parse(state);
 
-        presenter.cleanView();
-        presenter.setViewImage(parsedState.displayedImage);
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };
