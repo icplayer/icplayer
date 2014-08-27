@@ -5,7 +5,8 @@ function AddonPage_Score_Counter_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.isVisible = true;
-    presenter.score = 0;
+    presenter.isScoreVisible = false;
+    presenter.currentScore = 0;
     presenter.maxScore = 0;
 
     presenter.DISPLAY_MODE = {
@@ -17,9 +18,9 @@ function AddonPage_Score_Counter_create(){
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
-    };
 
-    presenter.onEventReceived = function(eventName) {
+        var presentation = presenter.playerController.getPresentation();
+        presenter.page = presentation.getPage(presenter.playerController.getCurrentPageIndex());
     };
 
     presenter.createEventData = function (score) {
@@ -35,12 +36,8 @@ function AddonPage_Score_Counter_create(){
         presenter.eventBus.sendEvent(eventName, eventData);
     };
 
-    presenter.ERROR_CODES = {
-
-    };
-
     presenter.createPreview = function(view, model) {
-        runLogic(view, model, false);
+        runLogic(view, model, true);
     };
 
     presenter.validateModel = function(model) {
@@ -61,21 +58,29 @@ function AddonPage_Score_Counter_create(){
         }
     }
 
+    presenter.attachEventHandler = function () {
+        if (presenter.page.isReportable()) {
+            presenter.eventBus.addEventListener('ValueChanged', this);
+        }
+    };
     function runLogic(view, model, isPreview) {
-
+        presenter.$view = $(view);
         presenter.configuration = presenter.validateModel(model);
 
-        if (presenter.configuration.isError) {
-            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-            return;
-        }
-
-        presenter.$view = $(view);
         presenter.setVisibility(presenter.configuration.isVisible);
+
         presenter.$fractionWrapper = presenter.$view.find('.page-score-counter-wrapper > .fraction');
         presenter.$scoreWrapper = presenter.$view.find('.page-score-counter-wrapper > .score');
         presenter.$maxScoreWrapper = presenter.$view.find('.page-score-counter-wrapper > .max-score');
 
+        if (!isPreview) {
+            presenter.attachEventHandler();
+        } else {
+            toggleBoxesVisibility();
+        }
+    }
+
+    function toggleBoxesVisibility() {
         if (presenter.configuration.displayMode == presenter.DISPLAY_MODE.FRACTION) {
             toggleBoxVisibility(presenter.$fractionWrapper);
         } else if (presenter.configuration.displayMode == presenter.DISPLAY_MODE.SCORE) {
@@ -83,42 +88,34 @@ function AddonPage_Score_Counter_create(){
         } else if (presenter.configuration.displayMode == presenter.DISPLAY_MODE.MAX_SCORE) {
             toggleBoxVisibility(presenter.$maxScoreWrapper);
         }
-
-        if (!isPreview) {
-            updateValue();
-        }
     }
 
-    function updateValue(scoreValue, maxScoreValue) {
-        if (presenter.playerController) {
-        var score = scoreValue == undefined ? 0 : scoreValue,
-            maxScore = maxScoreValue == undefined ? 0 : maxScoreValue;
+    presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName == "ValueChanged" && eventData.source != presenter.configuration.addonID) {
+            presenter.countScore();
+            updateView();
+            presenter.sendEvent('ValueChanged', presenter.createEventData(presenter.currentScore));
+        }
+    };
 
-        var model = presenter.playerController.getPresentation();
-        var scoreService = presenter.playerController.getScore();
-        var pageIndex = presenter.playerController.getCurrentPageIndex();
-        var page = model.getPage(pageIndex);
+    presenter.countScore = function () {
+        var scoreService = presenter.playerController.getScore(),
+            pageScore = scoreService.getPageScoreById(presenter.page.getId());
 
-        if(page.isReportable()){
-            var pageScore = scoreService.getPageScoreById(page.getId()),
-                score = pageScore.score,
-                maxScore = pageScore.maxScore;
+        presenter.currentScore = pageScore.score;
+        presenter.maxScore = pageScore.maxScore;
+    };
 
-            if (maxScore == 0 && page.isVisited()) {
-                score = 1;
-                maxScore = 1;
-            }
-
-            presenter.$fractionWrapper.find('.score').html(score);
-            presenter.$fractionWrapper.find('.max-score').html(maxScore);
-            presenter.$scoreWrapper.html(score);
-            presenter.$maxScoreWrapper.html(maxScore);
-            presenter.score = score;
-            presenter.maxScore = maxScore;
+    function updateView() {
+        if (!presenter.isScoreVisible) {
+            toggleBoxesVisibility();
+            presenter.isScoreVisible = true;
         }
 
-        presenter.sendEvent('ValueChanged', presenter.createEventData(score));
-        }
+        presenter.$fractionWrapper.find('.score').html(presenter.currentScore);
+        presenter.$fractionWrapper.find('.max-score').html(presenter.maxScore);
+        presenter.$scoreWrapper.html(presenter.currentScore);
+        presenter.$maxScoreWrapper.html(presenter.maxScore);
     }
 
     function toggleBoxVisibility($element) {
@@ -130,15 +127,8 @@ function AddonPage_Score_Counter_create(){
         runLogic(view, model, false);
     };
 
-    presenter.setShowErrorsMode = function() {
-        updateValue();
-    };
-
-    presenter.setWorkMode = function() {};
-
     presenter.reset = function() {
         presenter.setVisibility(presenter.configuration.isVisible);
-        updateValue();
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -162,44 +152,41 @@ function AddonPage_Score_Counter_create(){
             'getPageMaxScore' : presenter.getPageMaxScore
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.getPageScore = function() {
-        return presenter.score;
+        return presenter.currentScore;
     };
 
     presenter.getPageMaxScore = function() {
         return presenter.maxScore;
     };
 
-    presenter.getErrorCount = function() {
-        return 0;
-    };
-
-    presenter.getMaxScore = function() {
-        return 0;
-    };
-
-    presenter.getScore = function() {
-        return 0;
-    };
-
     presenter.getState = function() {
         return JSON.stringify({
             'isVisible' : presenter.isVisible,
-            'score' : presenter.score,
+            'isScoreVisible': presenter.isScoreVisible,
+            'score' : presenter.currentScore,
             'maxScore' : presenter.maxScore
         });
     };
 
     presenter.setState = function(state) {
-        var parsed = JSON.parse(state);
-        presenter.isVisible = parsed.isVisible;
+        if (!state) {
+            return;
+        }
 
-        updateValue(parsed.score, parsed.maxScore);
+        var parsedState = JSON.parse(state);
 
-        presenter.setVisibility(presenter.isVisible);
+        presenter.currentScore = parsedState.score;
+        presenter.maxScore = parsedState.maxScore;
+
+        if (parsedState.isScoreVisible) {
+            updateView();
+        }
+
+        presenter.setVisibility(parsedState.isVisible);
     };
 
     return presenter;

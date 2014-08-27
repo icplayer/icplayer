@@ -1,3 +1,4 @@
+2014-08-27 Fixed multiple issues with Page Score Counter module
 2014-08-27 Added "Calculate in real time" property to Error Counter module
 2014-08-27 Added new module: Lesson Score Counter
 2014-08-27 Added new module: Page Score Counter
