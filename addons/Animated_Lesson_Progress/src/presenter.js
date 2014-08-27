@@ -105,9 +105,6 @@ function AddonAnimated_Lesson_Progress_create() {
             percentageScore = percentageScore / count;
         }
 
-        console.log(count)
-        console.log(percentageScore)
-
         for (var j = 0; j < range_max_score.length; j++){
             if(percentageScore == 0){
                 presenter.cleanView();
