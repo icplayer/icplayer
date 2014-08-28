@@ -62,7 +62,6 @@
     top: 0px;
     left: 0px;
     cursor: crosshair;
-    /*pointer-events: none;*/
 }
 
 .iwb-toolbar-mask.pen-mask, .iwb-toolbar-mask.marker-mask {
