@@ -47,7 +47,6 @@ function AddonLesson_Score_Counter_create(){
     };
 
     function getDisplayMode(rawDisplayMode) {
-        console.log(rawDisplayMode)
         if (rawDisplayMode == 'Fraction (Score/Max Score)' || rawDisplayMode == '') { // when dropdown hasn't been changed it gives you empty string
             return presenter.DISPLAY_MODE.FRACTION;
         } else if (rawDisplayMode == 'Score'){

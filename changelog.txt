@@ -1,3 +1,4 @@
+2014-08-28 Added commands for setting scoring values in Custom Scoring module
 2014-08-28 Changed the parent for the masks in IWB Toolbar
 2014-08-28 Fixed reaction on methods isAttempted() in Completion Progress module
 2014-08-28 Fixed saving state when "Is disabled" property is selected in Table module
