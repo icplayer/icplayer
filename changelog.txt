@@ -1,3 +1,4 @@
+2014-08-28 Fixed reaction on methods isAttempted() in Completion Progress module
 2014-08-28 Fixed saving state when "Is disabled" property is selected in Table module
 2014-08-27 Fixed isAttempted command visibility in Ordering module in not activity mode
 2014-08-27 Added isAttempted() command to Ordering module

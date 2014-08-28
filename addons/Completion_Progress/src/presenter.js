@@ -10,6 +10,7 @@ function AddonCompletion_Progress_create() {
     presenter.setPlayerController = function(controller) {
         playerController = controller;
         eventBus = controller.getEventBus();
+        eventBus.addEventListener('PageLoaded', this);
 
         presenter.page = controller.getPresentation().getPage(controller.getCurrentPageIndex());
     };
@@ -59,23 +60,30 @@ function AddonCompletion_Progress_create() {
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
-        presenter.$view = $(view);
-        presenter.model = model;
-        presenter.configuration = presenter.validateModel(model);
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+            presenter.$view = $(view);
+            presenter.model = model;
+            presenter.configuration = presenter.validateModel(model);
 
-        if (!isPreview && presenter.configuration.automaticCounting) {
-            eventBus.addEventListener('ValueChanged', this);
+            presenter.setVisibility(presenter.configuration.isVisible);
 
-            presenter.loadModules();
-            presenter.updateProgress();
-        }
+            if (!isPreview && presenter.configuration.automaticCounting) {
+                eventBus.addEventListener('ValueChanged', this);
+                presenter.pageLoaded.then(function() {
+                    presenter.loadModules();
+                    presenter.updateProgress();
+                });
+            }
     };
 
     presenter.onEventReceived = function (eventName) {
         if (eventName == "ValueChanged") {
             presenter.updateProgress();
+        }
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
         }
     };
 
