@@ -1,4 +1,5 @@
-2014-08-20 Fixed getting score in Puzzle module
+2014-08-29 Added new library Sonic.js
+2014-08-29 Fixed getting score in Puzzle module
 2014-08-28 Added commands for setting scoring values in Custom Scoring module
 2014-08-28 Changed the parent for the masks in IWB Toolbar
 2014-08-28 Fixed reaction on methods isAttempted() in Completion Progress module

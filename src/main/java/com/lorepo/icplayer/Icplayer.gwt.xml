@@ -39,6 +39,7 @@
 	<script src="libs/jquery.keyboard.min.js" />
 	<script src="libs/kinetic-v5.1.0.min.js" />
 	<script src="libs/swiffy_runtime.js" />
+	<script src="libs/sonic.js" />
 
   <script src="libs/eKeyboard_layouts/french.js" />
   <script src="libs/eKeyboard_layouts/german.js" />
