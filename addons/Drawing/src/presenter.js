@@ -8,6 +8,14 @@ function AddonDrawing_create() {
     presenter.mouse = {x: 0, y: 0};
     presenter.isStarted = false;
 
+    function convertZoomToNumber(val) {
+        if (val == "normal" || val == "") { // IE 11
+            return 1;
+        }
+
+        return parseInt(val, 10);
+    }
+
     presenter.hexToRGBA = function(hex, opacity) {
         hex = hex.replace('#', '');
         var r = parseInt(hex.substring(0,2), 16);
@@ -121,7 +129,7 @@ function AddonDrawing_create() {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
-            presenter.zoom = $('#_icplayer').css('zoom');
+            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
             }
@@ -143,7 +151,7 @@ function AddonDrawing_create() {
             e.preventDefault();
             e.stopPropagation();
 
-            presenter.zoom = $('#_icplayer').css('zoom');
+            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
             }
@@ -173,7 +181,7 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('mousemove', function(e) {
             e.stopPropagation();
 
-            presenter.zoom = $('#_icplayer').css('zoom');
+            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
             }
@@ -182,8 +190,8 @@ function AddonDrawing_create() {
             var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
 
             if (presenter.zoom !== 1) {
-                x = x * (1 / presenter.zoom);
-                y = y * (1 / presenter.zoom);
+                x = x * (1 / parseInt(presenter.zoom, 10));
+                y = y * (1 / parseInt(presenter.zoom, 10));
             }
 
             presenter.mouse.x = x;
@@ -208,7 +216,7 @@ function AddonDrawing_create() {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
-            presenter.zoom = $('#_icplayer').css('zoom');
+            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
             }
