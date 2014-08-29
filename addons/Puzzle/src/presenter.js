@@ -299,8 +299,8 @@ function AddonPuzzle_create() {
     }
 
     function replaceBorderClasses(firstElement, secondElement) {
-        var firstElementClasses = elementHasClasses(firstElement)
-        var secondElementClasses = elementHasClasses(secondElement)
+        var firstElementClasses = elementHasClasses(firstElement);
+        var secondElementClasses = elementHasClasses(secondElement);
 
         removeBorderClasses(firstElement);
         removeBorderClasses(secondElement);
@@ -464,7 +464,8 @@ function AddonPuzzle_create() {
 
         return JSON.stringify({
             visible: presenter.configuration.isVisibleByDefault,
-            board: savedBoard
+            board: savedBoard,
+            shouldCalcScore: presenter.configuration.shouldCalcScore
         });
     };
 
@@ -475,6 +476,7 @@ function AddonPuzzle_create() {
             var stateObj = JSON.parse(state);
 
             presenter.prepareBoardFromSavedState(stateObj.board);
+            presenter.configuration.shouldCalcScore = stateObj.shouldCalcScore;
             if (!stateObj.visible) {
                 presenter.hide();
             }
