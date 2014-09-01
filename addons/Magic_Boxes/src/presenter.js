@@ -8,6 +8,8 @@ function AddonMagic_Boxes_create() {
     var viewContainer;
     var gridContainerWrapper;
     var gridContainer;
+    var playerController;
+    var eventBus;
 
     presenter.configuration = {
         rows: 0,
@@ -24,6 +26,10 @@ function AddonMagic_Boxes_create() {
         ROWS : "Inconsistent row definition. Whitespaces, semicolons and commas aren't alowed in grid!",
         ANSWERS_NOT_PROVIDED : "Answers section is missing or empty!",
         GRID_NOT_PROVIDED : "Grid definition missing or empty!"
+    };
+
+    presenter.setPlayerController = function (controller) {
+        playerController = controller;
     };
 
     function showErrorMessage(errorMessage) {
@@ -155,10 +161,35 @@ function AddonMagic_Boxes_create() {
         });
     }
 
+    presenter.calculateScoreForEvent = function (prevScore, currentScore) {
+        var score;
+        if(currentScore > prevScore){
+            score = 1;
+        }else{
+            score = 0;
+        }
+
+        return score;
+    };
+
     function selectionHandler(row, column) {
+        var prevScore = presenter.getScore();
         if(presenter.isSelectionPossible) {
             gridSelection[row][column] = gridSelection[row][column] ? false : true;
             applySelectionStyle(row, column);
+
+            var item = (row+1) +"-"+ (column+1);
+            var index = row * presenter.configuration.columns + column;
+            var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+            var currentScore = presenter.getScore();
+
+            var eventData = presenter.createEventData(item, element.text(), presenter.calculateScoreForEvent(prevScore, currentScore));
+            eventBus.sendEvent('ValueChanged', eventData);
+
+            if(presenter.isAllOK()){
+                var allOKEventData = presenter.createAllOKEventData();
+                eventBus.sendEvent('ValueChanged', allOKEventData);
+            }
         }
     }
 
@@ -348,6 +379,8 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.run = function(view, model) {
+        eventBus = playerController.getEventBus();
+        presenter.addonID = model.ID;
         presenterLogic(view, model, false);
     };
 
@@ -720,6 +753,24 @@ function AddonMagic_Boxes_create() {
         if (!presenter.isSelectionPossible) return;
 
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+    };
+
+    presenter.createAllOKEventData = function () {
+        return {
+            'source': presenter.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+    };
+
+    presenter.createEventData = function (item, value, score) {
+        return {
+            'source': presenter.addonID,
+            'item': item,
+            'value': value,
+            'score': score
+        };
     };
 
     return presenter;
