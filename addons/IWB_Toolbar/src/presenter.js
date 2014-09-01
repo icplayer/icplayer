@@ -757,16 +757,20 @@ function AddonIWB_Toolbar_create(){
 
             addFloatingImages(model);
             createCanvases();
+
             presenter.$panel.draggable({
                 containment: 'parent',
                 opacity: 0.35,
                 create: function(event, _) {
+                    $(event.target).addClass('running');
+                    $(event.target).css('position', '');
                     if (window.savedPanel && window.savedPanel.position) {
                         $(event.target).css('top', window.savedPanel.position.top + 'px');
                         $(event.target).css('left', window.savedPanel.position.left + 'px');
                     } else {
                         presenter.headerLoaded.then(function() {
-                            $(event.target).css('top', presenter.$pagePanel.offset().top + 'px');
+                            $(event.target).css('top', presenter.$pagePanel.offset().top + parseInt(model['Top'], 10) + 'px');
+                            $(event.target).css('left', model['Left'] + 'px');
                         });
                     }
                 },
@@ -774,6 +778,7 @@ function AddonIWB_Toolbar_create(){
                     window.savedPanel.position = ui.position;
                 }
             });
+
             applyHovered([presenter.$panel.find('.button')]);
 
             window.savedPanel = window.savedPanel || {};
