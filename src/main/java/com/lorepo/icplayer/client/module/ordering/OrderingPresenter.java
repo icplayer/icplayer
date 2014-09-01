@@ -194,7 +194,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 	
 	private native JavaScriptObject initJSObject(OrderingPresenter x) /*-{
-		var presenter = function(){}
+		var presenter = function(){};
 	
 		presenter.isAllOK = function() {
 			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::isAllOK()();
@@ -238,6 +238,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	public String executeCommand(String commandName, List<IType> params) {
 		if(commandName.compareTo("isallok") == 0){
             return String.valueOf(isAllOK());
+        }
+
+        if (commandName.compareTo("isattempted") == 0 && module.isActivity()) {
+            return String.valueOf(isAttempted());
         }
 		
 		return "";
