@@ -127,18 +127,14 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 
 	@Override
-<<<<<<< HEAD
 	public IPresenter getHeaderModule(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
+	
 	@Override
 	public IPresenter getFooterModule(String id) {
-=======
-	public IPresenter getHeaderModule(String name) {
->>>>>>> master
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -413,7 +413,6 @@ public class PlayerController implements IPlayerController{
 
 
 	@Override
-<<<<<<< HEAD
 	public IPresenter findHeaderModule(String id) {
 		if (headerController == null) {
 			return null;
@@ -429,10 +428,6 @@ public class PlayerController implements IPlayerController{
 		}
 		
 		return footerController.findModule(id);	
-=======
-	public IPresenter findHeaderModule(String name) {
-		return headerController.findModule(name);	
->>>>>>> master
 	}
 
 

@@ -103,7 +103,6 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-<<<<<<< HEAD
 	public IPresenter getHeaderModule(String moduleId) {
 		
 		return playerController.findHeaderModule(moduleId);
@@ -113,11 +112,6 @@ public class PlayerServices implements IPlayerServices {
 	public IPresenter getFooterModule(String moduleId) {
 		
 		return playerController.findFooterModule(moduleId);
-=======
-	public IPresenter getHeaderModule(String moduleName) {
-		
-		return playerController.findHeaderModule(moduleName);
->>>>>>> master
 	}
 
 	@Override

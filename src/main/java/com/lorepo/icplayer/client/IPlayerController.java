@@ -29,8 +29,5 @@ public interface IPlayerController {
 	boolean isPopupEnabled();
 	void setPopupEnabled(boolean enabled);
 	IPresenter findHeaderModule(String name);
-<<<<<<< HEAD
 	IPresenter findFooterModule(String name);
-=======
->>>>>>> master
 }

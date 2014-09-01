@@ -25,8 +25,5 @@ public interface IPlayerServices {
 	public boolean hasCover();
 	public void sendAnalytics(String event, HashMap<String,String> params);
 	public IPresenter getHeaderModule(String name);
-<<<<<<< HEAD
 	public IPresenter getFooterModule(String name);
-=======
->>>>>>> master
 }

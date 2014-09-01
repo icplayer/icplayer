@@ -290,17 +290,12 @@ public class JavaScriptPlayerServices{
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
 		}
 	
-<<<<<<< HEAD
 		playerServices.getHeaderModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(id);
 		}
 		
 		playerServices.getFooterModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
-=======
-		playerServices.getHeaderModule = function(name) {
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(name);
->>>>>>> master
 		}
 		
 		playerServices.getScore = function() {
@@ -455,47 +450,6 @@ public class JavaScriptPlayerServices{
 
 		return model;
 	}
-<<<<<<< HEAD
-=======
-	
-	/*getPresenterModule gets header modules */
-	private JavaScriptObject getHeaderModule(String name){
-		IPresenter presenter = playerServices.getHeaderModule(name);
-		
-		if(presenter instanceof AddonPresenter){
-			return ((AddonPresenter) presenter).getJavaScriptObject();
-		}
-		else if(presenter instanceof TextPresenter){
-			return ((TextPresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof ImagePresenter){
-			return ((ImagePresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof ImageGapPresenter){
-			return ((ImageGapPresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof ImageSourcePresenter){
-			return ((ImageSourcePresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof ChoicePresenter){
-			return ((ChoicePresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof OrderingPresenter){
-			return ((OrderingPresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof ButtonPresenter){
-			return ((ButtonPresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof SourceListPresenter){
-			return ((SourceListPresenter) presenter).getAsJavaScript();
-		}
-		else if(presenter instanceof PageProgressPresenter){
-			return ((PageProgressPresenter) presenter).getAsJavaScript();
-		}
-		
-		return null;
-	}
->>>>>>> master
 	
 	private JavaScriptObject getHeaderModule(String id){
 		IPresenter presenter = playerServices.getHeaderModule(id);
