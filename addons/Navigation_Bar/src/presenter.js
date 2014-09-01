@@ -1,6 +1,8 @@
 function AddonNavigation_Bar_create() {
     var presenter = function () { };
 
+    presenter.eventBus = null;
+
     var NAVIGATION_PAGE = {
         FIRST: 0,
         LAST: 1,
@@ -38,10 +40,13 @@ function AddonNavigation_Bar_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
         presenter.presentation = controller.getPresentation();
         presenter.commander = controller.getCommands();
         presenter.pageCount = controller.getPresentation().getPageCount();
         presenter.currentIndex = controller.getCurrentPageIndex();
+        presenter.scoreService = controller.getScore();
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     function goToPage(whereTo, index) {
@@ -632,12 +637,69 @@ function AddonNavigation_Bar_create() {
         }
     }
 
+    presenter.setShowErrorsMode = function(){
+        presenter.isCurrentPageOk();
+    };
+
+    presenter.reset = function () {
+        presenter.isCurrentPageOk();
+    };
+
+    presenter.isCurrentPageOk = function () {
+        if(presenter.presentation.getPage(presenter.currentIndex).isReportable()){
+            var id = presenter.presentation.getPage(presenter.currentIndex).getId();
+            var score = presenter.scoreService.getPageScoreById(id).score;
+            var maxScore = presenter.scoreService.getPageScoreById(id).maxScore;
+            var percentageScore = (score/maxScore) * 100;
+            var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.currentIndex + 1) + "']");
+
+            if(percentageScore == 100 || isNaN(percentageScore)){
+                $page.addClass("navigationbar-page-ok");
+            }
+            if(percentageScore < 100){
+                $page.removeClass("navigationbar-page-ok");
+            }
+        }
+    };
+
+    presenter.isPageOK = function () {
+      for (var i=0; i<presenter.pageCount; i++){
+          if(presenter.presentation.getPage(i).isReportable() && presenter.presentation.getPage(i).isVisited()){
+              var id = presenter.presentation.getPage(i).getId();
+              var score = presenter.scoreService.getPageScoreById(id).score;
+              var maxScore = presenter.scoreService.getPageScoreById(id).maxScore;
+              var percentageScore = (score/maxScore) * 100;
+
+              if(isNaN(percentageScore)){
+                  percentageScore = 100;
+              }
+
+              if(percentageScore == 100){
+                  presenter.$wrapper.find("[data-page-number='" + (i+1) + "']").addClass("navigationbar-page-ok");
+              }
+          }
+      }
+    };
+
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model, true);
     };
 
     presenter.run = function (view, model) {
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
         presenterLogic(view, model, false);
+
+        presenter.pageLoaded.then(function() {
+            presenter.isPageOK();
+        });
+    };
+
+    presenter.onEventReceived = function(eventName) {
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
+        }
     };
 
     return presenter;

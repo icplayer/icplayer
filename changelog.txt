@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-=======
+2014-09-01 Added adding CSS class to page when page score is 100%
 2014-09-01 Added getHeaderModule() method to icPlayer API
 2014-09-01 Added isAttempted() to Ordering module commands (previously was only as presenter API)
 2014-08-29 Fixed issue with Drawing on IE 11
@@ -21,7 +20,6 @@
 2014-08-26 Fixed isAttempted command visibility in Text module in not activity mode
 2014-08-26 Added new module: Completion Progress
 2014-08-26 Added new module: Animated Lesson Progress
->>>>>>> master
 2014-08-26 Added permutations (safari,ie9,gecko1_8,opera)
 2014-08-26 Added isVisited() method to icPlayer API
 2014-08-26 New gap type in Text module - filled gap
