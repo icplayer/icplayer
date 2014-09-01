@@ -413,8 +413,26 @@ public class PlayerController implements IPlayerController{
 
 
 	@Override
+<<<<<<< HEAD
+	public IPresenter findHeaderModule(String id) {
+		if (headerController == null) {
+			return null;
+		}
+		
+		return headerController.findModule(id);	
+	}
+	
+	@Override
+	public IPresenter findFooterModule(String id) {
+		if (footerController == null) {
+			return null;
+		}
+		
+		return footerController.findModule(id);	
+=======
 	public IPresenter findHeaderModule(String name) {
 		return headerController.findModule(name);	
+>>>>>>> master
 	}
 
 

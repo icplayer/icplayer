@@ -1,3 +1,4 @@
+2014-09-01 Added getFooterModule() method in Player API
 2014-08-01 Added sending events in Magic Boxes module
 2014-09-01 IWB Toolbar: fixed problem with module not working on Internet Explorer 11
 2014-09-01 IWB Toolbar: now the position of toolbar in Player is the as in Editor

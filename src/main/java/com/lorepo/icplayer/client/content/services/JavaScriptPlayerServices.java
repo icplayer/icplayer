@@ -286,12 +286,21 @@ public class JavaScriptPlayerServices{
 			return commands;
 		}
 
-		playerServices.getModule = function(name) {
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(name);
+		playerServices.getModule = function(id) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
 		}
 	
+<<<<<<< HEAD
+		playerServices.getHeaderModule = function(id) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(id);
+		}
+		
+		playerServices.getFooterModule = function(id) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
+=======
 		playerServices.getHeaderModule = function(name) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(name);
+>>>>>>> master
 		}
 		
 		playerServices.getScore = function() {
@@ -446,6 +455,8 @@ public class JavaScriptPlayerServices{
 
 		return model;
 	}
+<<<<<<< HEAD
+=======
 	
 	/*getPresenterModule gets header modules */
 	private JavaScriptObject getHeaderModule(String name){
@@ -484,10 +495,24 @@ public class JavaScriptPlayerServices{
 		
 		return null;
 	}
+>>>>>>> master
 	
-	private JavaScriptObject getModule(String name){
-		IPresenter presenter = playerServices.getModule(name);
-		
+	private JavaScriptObject getHeaderModule(String id){
+		IPresenter presenter = playerServices.getHeaderModule(id);
+		return getModulePresentationJSObject(presenter);
+	}
+	
+	private JavaScriptObject getFooterModule(String id){
+		IPresenter presenter = playerServices.getFooterModule(id);
+		return getModulePresentationJSObject(presenter);
+	}
+	
+	private JavaScriptObject getModule(String id){
+		IPresenter presenter = playerServices.getModule(id);
+		return getModulePresentationJSObject(presenter);
+	}
+	
+	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
 		if(presenter instanceof AddonPresenter){
 			return ((AddonPresenter) presenter).getJavaScriptObject();
 		}

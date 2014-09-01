@@ -142,9 +142,20 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+<<<<<<< HEAD
+	@Override
+	public IPresenter findFooterModule(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public IPresenter findHeaderModule(String id) {
+=======
 
 	@Override
 	public IPresenter findHeaderModule(String name) {
+>>>>>>> master
 		// TODO Auto-generated method stub
 		return null;
 	}

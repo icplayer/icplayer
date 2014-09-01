@@ -97,15 +97,27 @@ public class PlayerServices implements IPlayerServices {
 
 
 	@Override
-	public IPresenter getModule(String moduleName) {
+	public IPresenter getModule(String moduleId) {
 		
-		return pageController.findModule(moduleName);
+		return pageController.findModule(moduleId);
 	}
 
 	@Override
+<<<<<<< HEAD
+	public IPresenter getHeaderModule(String moduleId) {
+		
+		return playerController.findHeaderModule(moduleId);
+	}
+	
+	@Override
+	public IPresenter getFooterModule(String moduleId) {
+		
+		return playerController.findFooterModule(moduleId);
+=======
 	public IPresenter getHeaderModule(String moduleName) {
 		
 		return playerController.findHeaderModule(moduleName);
+>>>>>>> master
 	}
 
 	@Override
