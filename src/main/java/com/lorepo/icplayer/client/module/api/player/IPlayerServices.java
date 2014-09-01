@@ -24,4 +24,5 @@ public interface IPlayerServices {
 	public boolean isBookMode();
 	public boolean hasCover();
 	public void sendAnalytics(String event, HashMap<String,String> params);
+	public IPresenter getHeaderModule(String name);
 }

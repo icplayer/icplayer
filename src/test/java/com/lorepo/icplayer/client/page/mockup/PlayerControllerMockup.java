@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
+import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -139,6 +140,13 @@ public class PlayerControllerMockup implements IPlayerController {
 	public void switchToPageById(String pageId) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public IPresenter findHeaderModule(String name) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

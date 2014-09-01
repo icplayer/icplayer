@@ -124,4 +124,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+
+	@Override
+	public IPresenter getHeaderModule(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

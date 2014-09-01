@@ -102,6 +102,11 @@ public class PlayerServices implements IPlayerServices {
 		return pageController.findModule(moduleName);
 	}
 
+	@Override
+	public IPresenter getHeaderModule(String moduleName) {
+		
+		return playerController.findHeaderModule(moduleName);
+	}
 
 	@Override
 	public IJsonServices getJsonServices() {

@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -79,6 +80,7 @@ public class PlayerController implements IPlayerController{
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
 			headerController.setView(playerView.getHeaderView());
+			
 //			headerController.setPage(contentModel.getHeader());
 		}
 		if(contentModel.getFooter() != null){
@@ -407,6 +409,12 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public void setPopupEnabled(boolean enabled) {
 		isPopupEnabled = enabled;
+	}
+
+
+	@Override
+	public IPresenter findHeaderModule(String name) {
+		return headerController.findModule(name);	
 	}
 
 

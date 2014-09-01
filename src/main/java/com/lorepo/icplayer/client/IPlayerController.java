@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client;
 
 import java.util.HashMap;
 
+import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -27,4 +28,5 @@ public interface IPlayerController {
 	boolean hasCover();
 	boolean isPopupEnabled();
 	void setPopupEnabled(boolean enabled);
+	IPresenter findHeaderModule(String name);
 }

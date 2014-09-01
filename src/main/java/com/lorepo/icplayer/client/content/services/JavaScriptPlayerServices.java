@@ -289,7 +289,11 @@ public class JavaScriptPlayerServices{
 		playerServices.getModule = function(name) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(name);
 		}
-
+	
+		playerServices.getHeaderModule = function(name) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(name);
+		}
+		
 		playerServices.getScore = function() {
 			var score = function() {
 			};
@@ -367,13 +371,14 @@ public class JavaScriptPlayerServices{
 	
 	private JavaScriptObject getModules(int index) {
 		JavaScriptObject model = JavaScriptObject.createArray();
+
 		for(String id : playerServices.getModel().getPage(index).getModulesList()) {
 			JavaScriptUtils.addElementToJSArray(model, id);
 		}
 		return model;
 	}
-
-
+	
+	
 	private void gotoPage(String pageName){
 		playerServices.getCommands().gotoPage(pageName);
 	}
@@ -441,7 +446,44 @@ public class JavaScriptPlayerServices{
 
 		return model;
 	}
-
+	
+	/*getPresenterModule gets header modules */
+	private JavaScriptObject getHeaderModule(String name){
+		IPresenter presenter = playerServices.getHeaderModule(name);
+		
+		if(presenter instanceof AddonPresenter){
+			return ((AddonPresenter) presenter).getJavaScriptObject();
+		}
+		else if(presenter instanceof TextPresenter){
+			return ((TextPresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ImagePresenter){
+			return ((ImagePresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ImageGapPresenter){
+			return ((ImageGapPresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ImageSourcePresenter){
+			return ((ImageSourcePresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ChoicePresenter){
+			return ((ChoicePresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof OrderingPresenter){
+			return ((OrderingPresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof ButtonPresenter){
+			return ((ButtonPresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof SourceListPresenter){
+			return ((SourceListPresenter) presenter).getAsJavaScript();
+		}
+		else if(presenter instanceof PageProgressPresenter){
+			return ((PageProgressPresenter) presenter).getAsJavaScript();
+		}
+		
+		return null;
+	}
 	
 	private JavaScriptObject getModule(String name){
 		IPresenter presenter = playerServices.getModule(name);
