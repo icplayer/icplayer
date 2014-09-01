@@ -794,7 +794,6 @@ function AddonIWB_Toolbar_create(){
             }
 
             $(view).hide();
-
         }
     }
 
@@ -1118,7 +1117,11 @@ function AddonIWB_Toolbar_create(){
         setCanvas(canvas);
         setContext(canvas[0].getContext("2d"));
 
-        presenter.canvasPosition = canvas[0].getBoundingClientRect();
+        try {
+            presenter.canvasPosition = canvas[0].getBoundingClientRect(); // IE 11 has problem with this method http://bugs.jquery.com/ticket/4996
+        } catch(_) {
+            presenter.canvasPosition = { 'top' : canvas[0].offsetTop, 'left' : canvas[0].offsetLeft };
+        }
 
         $mask.append(canvas);
         canvas[0].width = $mask.width();
