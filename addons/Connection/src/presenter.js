@@ -7,6 +7,8 @@ function AddonConnection_create() {
     var addonID;
 
     presenter.uniqueIDs = [];
+    presenter.uniqueElementLeft = [];
+    presenter.uniqueElementRight = [];
     presenter.elements = [];
     presenter.lastClickTime = 0;
     presenter.lastEvent = null;
@@ -253,8 +255,26 @@ function AddonConnection_create() {
         model = presenter.upgradeModel(model);
 
         this.setSingleMode(model['Single connection mode']);
-        this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
-        this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
+
+        var isRandomLeft = (model['Random order left column'].toLowerCase() === 'true');
+        var isRandomRight = (model['Random order right column'].toLowerCase() === 'true');
+
+        if(!isPreview){
+            if(!isRandomLeft){
+                this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
+            }else{
+                this.loadRandomElementsLeft(view, model, 'connectionLeftColumn', 'Left column', false);
+            }
+
+            if(!isRandomRight){
+                this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
+            }else{
+                this.loadRandomElementsRight(view, model, 'connectionRightColumn', 'Right column', true);
+            }
+        }else{
+            this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
+            this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
+        }
 
         this.setColumnsWidth(view, model["Columns width"]);
 
@@ -465,39 +485,7 @@ function AddonConnection_create() {
     presenter.loadElements = function (view, model, columnClass, columnModel, isRightColumn) {
         var column = $(view).find('.' + columnClass + ':first').find('.content:first');
         for (var i = 0, columnLength = model[columnModel].length; i < columnLength; i++) {
-            var id = model[columnModel][i]['id'];
-            if (!this.isIDUnique(id)) {
-                return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
-            }
-            var element = $('<table class="connectionItem" id="connection-' + id + '"></div>');
-            var row = $('<tr></tr>');
-            element.append(row);
-            var innerElement = $('<td class="inner"></td>');
-            var innerWrapper = $('<div class="innerWrapper"></div>');
-            innerWrapper = presenter.addClassToElement(innerWrapper, model[columnModel][i]['additional class']);
-            $(innerWrapper).css('direction', isRTL ? 'rtl' : 'ltr');
-            innerWrapper.html(model[columnModel][i]['content']);
-            innerElement.append(innerWrapper);
-            var iconElement = $('<td class="icon"></td>');
-            var iconWrapper = $('<div class="iconWrapper"></div>');
-            iconElement.append(iconWrapper);
-            if (isRightColumn) {
-                row.append(iconElement);
-                row.append(innerElement);
-            } else {
-                row.append(innerElement);
-                row.append(iconElement);
-            }
-            presenter.elements.push({
-                element: element,
-                id: id,
-                connects: model[columnModel][i]['connects to']
-            });
-            var newRow = $('<tr></tr>');
-            var newCell = $('<td class="connectionItemWrapper"></td>');
-            newCell.append(element);
-            newRow.append(newCell);
-            column.append(newRow);
+            presenter.appendElements(i, model, columnModel, column, isRightColumn);
         }
     };
 
@@ -508,6 +496,98 @@ function AddonConnection_create() {
             return true;
         } else {
             return false;
+        }
+    };
+
+    presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
+        var id = model[columnModel][i]['id'];
+        if (!this.isIDUnique(id)) {
+            return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
+        }
+        var element = $('<table class="connectionItem" id="connection-' + id + '"></div>');
+        var row = $('<tr></tr>');
+        element.append(row);
+        var innerElement = $('<td class="inner"></td>');
+        var innerWrapper = $('<div class="innerWrapper"></div>');
+        innerWrapper = presenter.addClassToElement(innerWrapper, model[columnModel][i]['additional class']);
+        $(innerWrapper).css('direction', isRTL ? 'rtl' : 'ltr');
+        innerWrapper.html(model[columnModel][i]['content']);
+        innerElement.append(innerWrapper);
+        var iconElement = $('<td class="icon"></td>');
+        var iconWrapper = $('<div class="iconWrapper"></div>');
+        iconElement.append(iconWrapper);
+        if (isRightColumn) {
+            row.append(iconElement);
+            row.append(innerElement);
+        } else {
+            row.append(innerElement);
+            row.append(iconElement);
+        }
+        presenter.elements.push({
+            element: element,
+            id: id,
+            connects: model[columnModel][i]['connects to']
+        });
+        var newRow = $('<tr></tr>');
+        var newCell = $('<td class="connectionItemWrapper"></td>');
+        newCell.append(element);
+        newRow.append(newCell);
+        column.append(newRow);
+    };
+
+    presenter.loadRandomElementsLeft = function (view, model, columnClass, columnModel, isRightColumn) {
+        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
+        var elementCounterLeft = 0;
+        var columnLength = model[columnModel].length;
+        while (elementCounterLeft < model[columnModel].length) {
+            var i = Math.floor((Math.random() * columnLength));
+            if (presenter.isElementLeftUnique(i)){
+                presenter.appendElements(i, model, columnModel, column, isRightColumn);
+                elementCounterLeft++;
+            }
+        }
+    };
+
+    presenter.loadRandomElementsRight = function (view, model, columnClass, columnModel, isRightColumn) {
+        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
+        var elementCounterRight = 0;
+        var columnLength = model[columnModel].length;
+        while (elementCounterRight < model[columnModel].length) {
+            var i = Math.floor((Math.random() * columnLength));
+            if (presenter.isElementRightUnique(i)){
+                presenter.appendElements(i, model, columnModel, column, isRightColumn);
+                elementCounterRight++;
+            }
+        }
+    };
+
+    presenter.isElementLeftUnique = function (element) {
+        var isElement = false;
+        for (var i=0; i<presenter.uniqueElementLeft.length; i++){
+            if(presenter.uniqueElementLeft[i] == element){
+              isElement = true;
+            }
+        }
+        if(isElement){
+            return false;
+        }else{
+            presenter.uniqueElementLeft.push(element);
+            return true;
+        }
+    };
+
+    presenter.isElementRightUnique = function (element) {
+        var isElement = false;
+        for (var i=0; i<presenter.uniqueElementRight.length; i++){
+            if(presenter.uniqueElementRight[i] == element){
+                isElement = true;
+            }
+        }
+        if(isElement){
+            return false;
+        }else{
+            presenter.uniqueElementRight.push(element);
+            return true;
         }
     };
 

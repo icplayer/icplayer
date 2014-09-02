@@ -25,6 +25,8 @@
 		<property name="Correct connection color" type="string" />
 		<property name="Incorrect connection color" type="string" />
 		<property name="Connection thickness" type="string" />
+        <property name="Random order left column" type="boolean" />
+        <property name="Random order right column" type="boolean" />
         <property name="Show answers line color" type="string" />
 	</model>
 </addon>

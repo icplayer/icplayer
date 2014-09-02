@@ -1,8 +1,9 @@
+2014-09-02 Added random order properties to Connection module
 2014-09-02 Added responding to Show Answers events in Coloring, Connection, Text, Image Gap, Image Identification, Ordering and Text Selection
 2014-09-02 Fixed initial scoring in Puzzle module
 2014-09-02 Fixed initial scoring in Coloring module
 2014-09-01 Added getFooterModule() method in Player API
-2014-08-01 Added sending events in Magic Boxes module
+2014-09-01 Added sending events in Magic Boxes module
 2014-09-01 IWB Toolbar: fixed problem with module not working on Internet Explorer 11
 2014-09-01 IWB Toolbar: now the position of toolbar in Player is the as in Editor
 2014-09-01 Added adding CSS class to page when page score is 100%
