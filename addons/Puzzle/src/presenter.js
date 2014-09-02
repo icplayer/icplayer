@@ -1,6 +1,5 @@
 function AddonPuzzle_create() {
-    var presenter = function () {
-    };
+    var presenter = function () {};
 
     /* Global variables */
     var board = []; // Array that will hold the 2-dimentional representation of the board.
@@ -33,6 +32,9 @@ function AddonPuzzle_create() {
 
     var playerController;
     var eventBus;
+
+    presenter.previousScore = 0;
+    presenter.previousErrors = 0;
 
     function getElementDimensions(element) {
         element = $(element);
@@ -460,24 +462,38 @@ function AddonPuzzle_create() {
     };
 
     presenter.getState = function () {
+        if (!presenter.isFullyLoaded()) {
+            return "";
+        }
+
         presenter.saveBoard();
 
         return JSON.stringify({
             visible: presenter.configuration.isVisibleByDefault,
             board: savedBoard,
-            shouldCalcScore: presenter.configuration.shouldCalcScore
+            shouldCalcScore: presenter.configuration.shouldCalcScore,
+            score: presenter.getScore(),
+            errors: presenter.getErrorCount()
         });
     };
 
     presenter.setState = function (state) {
         if (!state) return;
 
-        $.when(presenter.imageLoaded).then(function () {
-            var stateObj = JSON.parse(state);
+        var parsedState = JSON.parse(state);
 
-            presenter.prepareBoardFromSavedState(stateObj.board);
-            presenter.configuration.shouldCalcScore = stateObj.shouldCalcScore;
-            if (!stateObj.visible) {
+        if (parsedState.score) {
+            presenter.previousScore = parsedState.score;
+        }
+
+        if (parsedState.errors) {
+            presenter.previousErrors = parsedState.errors;
+        }
+
+        $.when(presenter['imageLoaded']).then(function () {
+            presenter.prepareBoardFromSavedState(parsedState.board);
+            presenter.configuration.shouldCalcScore = parsedState.shouldCalcScore;
+            if (!parsedState.visible) {
                 presenter.hide();
             }
         });
@@ -488,6 +504,10 @@ function AddonPuzzle_create() {
     };
 
     presenter.getScore = function () {
+        if (!presenter.isFullyLoaded()) {
+            return presenter.previousScore;
+        }
+
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             row, col;
@@ -504,6 +524,10 @@ function AddonPuzzle_create() {
     };
 
     presenter.getErrorCount = function () {
+        if (!presenter.isFullyLoaded()) {
+            return presenter.previousErrors;
+        }
+
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             errors = 0;
@@ -546,6 +570,10 @@ function AddonPuzzle_create() {
 
     presenter.setPlayerController = function (controller) {
         playerController = controller;
+    };
+
+    presenter.isFullyLoaded = function () {
+        return presenter['imageLoadedDeferred'].state() != "pending";
     };
 
     presenter.run = function (view, model) {
