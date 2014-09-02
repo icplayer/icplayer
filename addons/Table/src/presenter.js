@@ -167,7 +167,7 @@ function AddonTable_create() {
     };
 
     presenter.getState = function () {
-        if (!presenter.configuration.isActivity || presenter.configuration.isDisabled || presenter.configuration.gaps.descriptions === undefined) {
+        if (!presenter.configuration.isActivity || presenter.configuration.gaps.descriptions === undefined) {
             return;
         }
 
@@ -233,7 +233,7 @@ function AddonTable_create() {
             });
             if (content[i].class) {
                 $element.addClass(content[i].class)
-            };
+            }
             if (content[i].style) {
                 $element.attr({style:content[i].style})
             }

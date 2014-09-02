@@ -5,6 +5,7 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
@@ -31,20 +32,20 @@ public class ErrorCounterPresenter implements IPresenter{
 
 
 	private void updateDisplay() {
-		
 		IPlayerCommands pageService = playerServices.getCommands();
 		PageScore pageScore = pageService.getCurrentPageScore();
 		if(pageScore != null){
 			view.setData(pageScore.getErrorCount(), pageScore.getMistakeCount());
 		}
-		
 	}
 
 
 	private void connectHandlers() {
+		if (playerServices == null) {
+			return;			
+		}
 		
-		if(playerServices != null){
-		
+		if (!module.isRealTimeCalculation()) {
 			playerServices.getEventBus().addHandler(ShowErrorsEvent.TYPE, 
 					new ShowErrorsEvent.Handler() {
 						
@@ -53,12 +54,23 @@ public class ErrorCounterPresenter implements IPresenter{
 							updateDisplay();
 						}
 					});
+		}
+		
+		playerServices.getEventBus().addHandler(ResetPageEvent.TYPE, 
+				new ResetPageEvent.Handler() {
+					
+					@Override
+					public void onResetPage(ResetPageEvent event) {
+						updateDisplay();
+					}
+				});
 
-			playerServices.getEventBus().addHandler(ResetPageEvent.TYPE, 
-					new ResetPageEvent.Handler() {
-						
+		if (module.isRealTimeCalculation()) {
+			playerServices.getEventBus().addHandler(ValueChangedEvent.TYPE, 
+					new ValueChangedEvent.Handler() {
 						@Override
-						public void onResetPage(ResetPageEvent event) {
+						public void onScoreChanged(ValueChangedEvent event) {
+							playerServices.getCommands().getPageController().updateScore(true);
 							updateDisplay();
 						}
 					});

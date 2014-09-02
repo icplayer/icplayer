@@ -86,7 +86,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 
 	@Override
-	public IPresenter getModule(String moduleName) {
+	public IPresenter getModule(String moduleId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -123,5 +123,19 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public boolean hasCover() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public IPresenter getHeaderModule(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	@Override
+	public IPresenter getFooterModule(String id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

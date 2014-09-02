@@ -1,3 +1,27 @@
+2014-09-02 Fixed initial scoring in Puzzle module
+2014-09-02 Fixed initial scoring in Coloring module
+2014-09-01 Added getFooterModule() method in Player API
+2014-08-01 Added sending events in Magic Boxes module
+2014-09-01 IWB Toolbar: fixed problem with module not working on Internet Explorer 11
+2014-09-01 IWB Toolbar: now the position of toolbar in Player is the as in Editor
+2014-09-01 Added adding CSS class to page when page score is 100%
+2014-09-01 Added getHeaderModule() method to icPlayer API
+2014-09-01 Added isAttempted() to Ordering module commands (previously was only as presenter API)
+2014-08-29 Fixed issue with Drawing on IE 11
+2014-08-29 Changed eKeyboard CustomLayout property, added new property Lock Standard Keyboard Input, added Special Characters for 3 languages
+2014-08-29 Added new library Sonic.js
+2014-08-29 Fixed getting score in Puzzle module
+2014-08-28 Added commands for setting scoring values in Custom Scoring module
+2014-08-28 Changed the parent for the masks in IWB Toolbar
+2014-08-28 Fixed reaction on methods isAttempted() in Completion Progress module
+2014-08-28 Fixed saving state when "Is disabled" property is selected in Table module
+2014-08-27 Fixed isAttempted command visibility in Ordering module in not activity mode
+2014-08-27 Added isAttempted() command to Ordering module
+2014-08-27 Fixed multiple issues with Page Score Counter module
+2014-08-27 Added "Calculate in real time" property to Error Counter module
+2014-08-27 Added new module: Lesson Score Counter
+2014-08-27 Added new module: Page Score Counter
+2014-08-27 Added new module: Lesson Error Count
 2014-08-26 Added "Initial image" property to Animated Page Progress module
 2014-08-26 Fixed isAttempted command visibility in Text module in not activity mode
 2014-08-26 Added new module: Completion Progress

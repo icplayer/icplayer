@@ -88,7 +88,7 @@ function AddonAnimated_Lesson_Progress_create() {
             if(page.isReportable()){
                 count += 1;
 
-                var pageScore = scoreService.getPageScore(page.getName()),
+                var pageScore = scoreService.getPageScoreById(page.getId()),
                     score = pageScore.score,
                     maxScore = pageScore.maxScore;
 
@@ -104,9 +104,6 @@ function AddonAnimated_Lesson_Progress_create() {
         if (count > 0) {
             percentageScore = percentageScore / count;
         }
-
-        console.log(count)
-        console.log(percentageScore)
 
         for (var j = 0; j < range_max_score.length; j++){
             if(percentageScore == 0){

@@ -14,7 +14,6 @@ function AddonCustom_Scoring_create(){
     };
 
     presenter.ERROR_CODES = {
-        'ERR_01': "Script cannot be empty!",
         'ERR_02': "Invalid max score!"
     };
 
@@ -26,7 +25,9 @@ function AddonCustom_Scoring_create(){
         delete presenter.evaluate;
         delete presenter.setShowErrorsMode;
         delete presenter.setScore;
+        delete presenter.setScoreCommand;
         delete presenter.setErrors;
+        delete presenter.setErrorsCommand;
     }
 
     presenter.presenterLogic = function (view, model) {
@@ -42,10 +43,6 @@ function AddonCustom_Scoring_create(){
     };
 
     presenter.parseModel = function (model) {
-        if (ModelValidationUtils.isStringEmpty(model['Script'])) {
-            return { isValid: false, errorCode: 'ERR_01'}
-        }
-
         var modelMaxScore = model['Max Score'],
             maxScore = 0;
 
@@ -108,6 +105,10 @@ function AddonCustom_Scoring_create(){
     };
 
     presenter.evaluateScript = function () {
+        if (!presenter.configuration.script) {
+            return;
+        }
+
         try {
             eval(presenter.configuration.script);
         } catch (error) {
@@ -126,7 +127,9 @@ function AddonCustom_Scoring_create(){
 
     presenter.executeCommand = function (name, params) {
         var commands = {
-            'evaluate': presenter.evaluate
+            'evaluate': presenter.evaluate,
+            'setScore': presenter.setScoreCommand,
+            'setErrors': presenter.setErrorsCommand
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -134,6 +137,30 @@ function AddonCustom_Scoring_create(){
 
     presenter.setShowErrorsMode = function () {
         presenter.evaluateScript();
+    };
+
+    presenter.setScoreCommand = function (params) {
+        presenter.setScore(params[0]);
+    };
+
+    presenter.setErrorsCommand = function (params) {
+        presenter.setErrors(params[0]);
+    };
+
+    presenter.getState = function () {
+        return JSON.stringify({
+            score: presenter.configuration.scoring.score,
+            errors: presenter.configuration.scoring.errors
+        });
+    };
+
+    presenter.setState = function (state) {
+        if (!state) return;
+
+        var parsedState = JSON.parse(state);
+
+        presenter.configuration.scoring.score = parsedState.score;
+        presenter.configuration.scoring.errors = parsedState.errors;
     };
 
     return presenter;

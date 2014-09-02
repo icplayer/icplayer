@@ -196,6 +196,7 @@ var ice_dictionary = {
 	"ordering_item" : "Ordering item",
 	"ordering_item_text" : "Text",
 	"page_progress_module" : "Page Progress",
+	"real_time_calculation_property" : "Calculate in real time",
 	"report_module" : "Report",
 	"report_errors" : "No. of errors",
 	"report_checks" : "No. of checks",
@@ -330,5 +331,8 @@ var ice_dictionary = {
     "Show_Answers_info": "Allows to show the right answers for every activity on page",
     "Animated_Page_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result on page.",
     "Animated_Lesson_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result of the entire lesson.",
-    "Completion_Progress_info": "Enables to insert a ready-made progress bar indicating the percentage of attempted activity modules on a current page."
+    "Completion_Progress_info": "Enables to insert a ready-made progress bar indicating the percentage of attempted activity modules on a current page.",
+    "Lesson_Error_Counter_info": "Enables to display summed number of errors of the entire lesson.",
+    "Page_Score_Counter_info": "Shows the score and/or the max score for the lesson's page.",
+    "Lesson_Score_Counter_info": "Shows the score and/or the max score for the whole lesson."
 };

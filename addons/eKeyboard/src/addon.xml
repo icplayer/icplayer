@@ -3,11 +3,13 @@
 <addon id='eKeyboard' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
         <property name="workWith" displayName="Work With" type="text" />
-        <property name="layoutType" displayName="Layout Type" type="{Numeric, QWERTY, AZERTY(French), QWERTZ(German), QWERTY(Polish), QWERTY(Spanish), Custom}" />
+        <property name="layoutType" displayName="Layout Type"
+                  type="{Numeric, French (Special Characters), German (Special Characters), Spanish (Special Characters), Custom}" />
         <property name="customLayout" displayName="Custom Layout" type="text" />
         <property name="positionMy" displayName="Position My" type="string" />
         <property name="positionAt" displayName="Position At" type="string" />
         <property name="maxCharacters" displayName="Max Characters" type="string" />
         <property name="noOpenOnFocus" displayName="Don't Open On Focus" type="boolean" />
+        <property name="lockStandardKeyboardInput" displayName="Lock Standard Keyboard Input" type="boolean" />
 	</model>
 </addon>

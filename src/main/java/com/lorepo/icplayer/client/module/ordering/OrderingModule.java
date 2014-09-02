@@ -15,7 +15,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
 /**
  * Posiada elementy, które należy ułożyć w odpowiedniej kolejności
  * 

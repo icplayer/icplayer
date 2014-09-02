@@ -7,10 +7,18 @@ function AddoneKeyboard_create(){
     presenter.alreadyFilled = {};
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
-        'AZERTY(French)' : 'french-azerty-1',
-        'QWERTZ(German)' : 'german-qwertz-1',
-        'QWERTY(Polish)' : 'polish-qwerty',
-        'QWERTY(Spanish)' : 'spanish-qwerty'
+        'french (special characters)' : "{ \
+            'default': ['\u00e0 \u00e2 \u00e7 \u00e8 \u00e9 \u00ea \u00ee \u00ef \u00f4 \u00f9 \u0153 \u00e6 \u00eb {shift}'], \
+            'shift': ['\u00c0 \u00c2 \u00c7 \u00c8 \u00c9 \u00ca \u00cb \u00ce \u00cf \u00d4 \u00d9 \u00c6 \u0152 {shift}'] \
+        }",
+        'german (special characters)' : "{ \
+            'default': ['\u00e4 \u00f6 \u00fc \u00df {shift}'], \
+            'shift': ['\u00c4 \u00d6 \u00dc {empty} {shift}'] \
+        }",
+        'spanish (special characters)' : "{ \
+            'default': ['\u00e1 \u00e9 \u00ed \u00f3 \u00fa \u00f1 \u00e7 \u00fc \u00a1 \u00bf \u00ba \u00aa {shift}'], \
+            'shift': ['\u00c1 \u00c9 \u00cd \u00d3 \u00da \u00d1 \u00c7 \u00dc {empty} {empty} {empty} {empty} {shift}'] \
+        }"
     };
 
     presenter.setPlayerController = function (controller) {
@@ -28,10 +36,6 @@ function AddoneKeyboard_create(){
     presenter.validateType = function(rawType) {
         if (rawType == 'Numeric' || rawType.length == 0) {
             return 'num';
-        }
-
-        if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[rawType]) {
-            return presenter.LAYOUT_TO_LANGUAGE_MAPPING[rawType];
         }
 
         return rawType.toLowerCase();
@@ -146,7 +150,7 @@ function AddoneKeyboard_create(){
         var workWithModules = Helpers.splitLines(model['workWith']),
             workWithViews = [],
             layoutType = presenter.validateType(model['layoutType']),
-            customLayout = Helpers.splitLines(model['customLayout']),
+            customLayout = model['customLayout'],
             maxCharacters = presenter.validateMaxCharacters(model['maxCharacters']),
             positionMy = presenter.validatePosition(model['positionMy'], true),
             positionAt = presenter.validatePosition(model['positionAt'], false),
@@ -207,6 +211,10 @@ function AddoneKeyboard_create(){
             }
         }
 
+        if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType] != undefined) {
+            customLayout = presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType];
+            layoutType = 'custom';
+        }
         return {
             'isError' : false,
             'workWithViews' : workWithViews,
@@ -216,7 +224,8 @@ function AddoneKeyboard_create(){
             'positionMy' : positionMy,
             'maxCharacters' : maxCharacters.value,
             'offset' : presenter.validateOffsetData(positionMy.value, positionAt.value),
-            'openOnFocus' : !ModelValidationUtils.validateBoolean(model['noOpenOnFocus'])
+            'openOnFocus' : !ModelValidationUtils.validateBoolean(model['noOpenOnFocus']),
+            'lockInput' : ModelValidationUtils.validateBoolean(model['lockStandardKeyboardInput'])
         }
     };
 
@@ -233,10 +242,19 @@ function AddoneKeyboard_create(){
             }
 
             if (!isPreview) {
+                if (presenter.configuration.customLayout.length > 0) {
+                    try {
+                        eval('presenter.configuration.customLayout = ' + presenter.configuration.customLayout);
+                    } catch(e) {
+                        presenter.ERROR_CODES['evaluationError'] = e.message;
+                        DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
+                    }
+                }
+
                 $(presenter.configuration.workWithViews).find('input').keyboard({
                     // *** choose layout ***
                     layout       : presenter.configuration.layoutType,
-                    customLayout : { 'default': presenter.configuration.customLayout },
+                    customLayout : presenter.configuration.customLayout,
 
                     position     : {
                         of : null, // optional - null (attach to input/textarea) or a jQuery object (attach elsewhere)
@@ -279,7 +297,7 @@ function AddoneKeyboard_create(){
                         'prev'   : 'Prev',
                         'right'  : '\u2192',              // right arrow (move caret)
                         's'      : '\u21e7:Shift',        // thick hollow up arrow
-                        'shift'  : 'Shift:Shift',
+                        'shift'  : 'CapsLock:CapsLock',
                         'sign'   : '\u00b1:Change Sign',  // +/- sign for num pad
                         'space'  : '&nbsp;:Space',
                         't'      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
@@ -303,7 +321,7 @@ function AddoneKeyboard_create(){
                     autoAccept   : true,
 
                     // Prevents direct input in the preview window when true
-                    lockInput    : presenter.configuration.openOnFocus,
+                    lockInput    : presenter.configuration.lockInput,
 
                     // Prevent keys not in the displayed keyboard from being typed in
                     restrictInput: false,
@@ -486,7 +504,7 @@ function AddoneKeyboard_create(){
             var input = $(module.getView()).find('input').get(parseInt(index, 10) - 1);
             $(input).data('keyboard').reveal();
         } catch (e) {
-            console.log(e.message);
+            alert(e.message);
         }
 
     };

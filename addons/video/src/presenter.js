@@ -724,14 +724,12 @@ function Addonvideo_create() {
     };
 
     presenter.stop = function () {
-        console.log('test')
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('stop', []);
             return;
         }
 
         if (!this.video.paused) {
-            console.log('test2')
             presenter.seek(0); // sets the current time to 0
             this.video.pause();
         }

@@ -36,6 +36,8 @@ IWB_Toolbar
 Layered_Image
 LearnPen
 LearnPen_Data
+Lesson_Error_Counter
+Lesson_Score_Counter
 Line
 Line_Number
 Magic_Boxes
@@ -49,6 +51,7 @@ Next
 Page_Counter
 Page_Name
 Page_Rating
+Page_Score_Counter
 Paragraph
 Plot
 PointsLines

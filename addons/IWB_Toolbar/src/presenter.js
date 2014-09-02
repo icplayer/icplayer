@@ -542,7 +542,7 @@ function AddonIWB_Toolbar_create(){
             e.preventDefault();
             var note = createNote();
 
-            presenter.$pagePanel.append(note);
+            presenter.$pagePanel.find('.ic_page').append(note);
         });
 
         presenter.$pagePanel.find('.default').click(function(e) {
@@ -596,12 +596,66 @@ function AddonIWB_Toolbar_create(){
             presenter.currentFloatingImageIndex = index;
             getCurrentGroup().visible(true);
             presenter.floatingImageLayer.draw();
+
+            var isMouseDown = false,
+                startingVector = null;
+
+            function rotateActionStartHandler() {
+                if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE) {
+                    isMouseDown = true;
+                    var imageCenter = {
+                        x: (getCurrentImage().getAbsolutePosition().x),
+                        y: (getCurrentImage().getAbsolutePosition().y)
+                    };
+
+                    startingVector = new Vector(imageCenter, presenter.floatingImageStage.getPointerPosition());
+                }
+            }
+
+            presenter.$floatingImageMask.off('mousedown touchstart mouseup touchend touchmove mousemove')
+            presenter.$floatingImageMask.on('mousedown', rotateActionStartHandler);
+            presenter.$floatingImageMask.on('touchstart', rotateActionStartHandler);
+
+            function rotateActionEndHandler() {
+                if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE) {
+                    isMouseDown = false;
+                }
+            }
+
+            presenter.$floatingImageMask.on('mouseup', rotateActionEndHandler);
+            presenter.$floatingImageMask.on('touchend', rotateActionEndHandler);
+
+            var previousPosition = null;
+
+            function rotateActionMoveHandler() {
+                var currentPosition = presenter.floatingImageStage.getPointerPosition();
+
+                if (isMouseDown && presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE && previousPosition) {
+                    var imageCenter = {
+                        x: (getCurrentImage().getAbsolutePosition().x),
+                        y: (getCurrentImage().getAbsolutePosition().y)
+                    };
+
+                    var currentVector = new Vector(imageCenter, presenter.floatingImageStage.getPointerPosition());
+                    var angle = calculateVectorsAngle(startingVector, currentVector);
+                    var isLeft = presenter.isLeft(imageCenter, previousPosition, currentPosition);
+
+                    getCurrentImage().rotate(isLeft ? angle : -angle);
+                    presenter.floatingImageLayer.draw();
+                }
+
+                previousPosition = currentPosition;
+            }
+
+            presenter.$floatingImageMask.on('mousemove', rotateActionMoveHandler);
+            presenter.$floatingImageMask.on('touchmove', rotateActionMoveHandler);
+
         });
     }
 
     function addFloatingImages(model) {
         var $mask = $('<div class="iwb-toolbar-mask floating-image-mask"></div>');
-        presenter.$icplayer.append($mask);
+        presenter.$pagePanel.find('.ic_page').append($mask);
         $mask.hide();
 
         var stage = new Kinetic.Stage({
@@ -666,58 +720,6 @@ function AddonIWB_Toolbar_create(){
                                 opacity: 0.4
                             });
 
-                            var isMouseDown = false,
-                                startingVector = null;
-
-                            function rotateActionStartHandler() {
-                                if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE) {
-                                    isMouseDown = true;
-                                    var imageCenter = {
-                                        x: (getCurrentImage().getAbsolutePosition().x),
-                                        y: (getCurrentImage().getAbsolutePosition().y)
-                                    };
-
-                                    startingVector = new Vector(imageCenter, stage.getPointerPosition());
-                                }
-                            }
-
-                            presenter.$floatingImageMask.on('mousedown', rotateActionStartHandler);
-                            presenter.$floatingImageMask.on('touchstart', rotateActionStartHandler);
-
-                            function rotateActionEndHandler() {
-                                if (presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE) {
-                                    isMouseDown = false;
-                                }
-                            }
-
-                            presenter.$floatingImageMask.on('mouseup', rotateActionEndHandler);
-                            presenter.$floatingImageMask.on('touchend', rotateActionEndHandler);
-
-                            var previousPosition = null;
-
-                            function rotateActionMoveHandler() {
-                                var currentPosition = stage.getPointerPosition();
-
-                                if (isMouseDown && presenter.floatingImageMode == presenter.FLOATING_IMAGE_MODE.ROTATE && previousPosition) {
-                                    var imageCenter = {
-                                        x: (getCurrentImage().getAbsolutePosition().x),
-                                        y: (getCurrentImage().getAbsolutePosition().y)
-                                    };
-
-                                    var currentVector = new Vector(imageCenter, stage.getPointerPosition());
-                                    var angle = calculateVectorsAngle(startingVector, currentVector);
-                                    var isLeft = presenter.isLeft(imageCenter, previousPosition, currentPosition);
-
-                                    getCurrentImage().rotate(isLeft ? angle : -angle);
-                                    layer.draw();
-                                }
-
-                                previousPosition = currentPosition;
-                            }
-
-                            presenter.$floatingImageMask.on('mousemove', rotateActionMoveHandler);
-                            presenter.$floatingImageMask.on('touchmove', rotateActionMoveHandler);
-
                             group.add(image);
                             group.add(moveIcon);
                             group.add(rotateIcon);
@@ -755,16 +757,20 @@ function AddonIWB_Toolbar_create(){
 
             addFloatingImages(model);
             createCanvases();
+
             presenter.$panel.draggable({
                 containment: 'parent',
                 opacity: 0.35,
                 create: function(event, _) {
+                    $(event.target).addClass('running');
+                    $(event.target).css('position', '');
                     if (window.savedPanel && window.savedPanel.position) {
                         $(event.target).css('top', window.savedPanel.position.top + 'px');
                         $(event.target).css('left', window.savedPanel.position.left + 'px');
                     } else {
                         presenter.headerLoaded.then(function() {
-                            $(event.target).css('top', presenter.$pagePanel.offset().top + 'px');
+                            $(event.target).css('top', presenter.$pagePanel.offset().top + parseInt(model['Top'], 10) + 'px');
+                            $(event.target).css('left', model['Left'] + 'px');
                         });
                     }
                 },
@@ -772,6 +778,7 @@ function AddonIWB_Toolbar_create(){
                     window.savedPanel.position = ui.position;
                 }
             });
+
             applyHovered([presenter.$panel.find('.button')]);
 
             window.savedPanel = window.savedPanel || {};
@@ -786,6 +793,7 @@ function AddonIWB_Toolbar_create(){
                 addScrollHandler();
             }
 
+            $(view).hide();
         }
     }
 
@@ -1100,14 +1108,20 @@ function AddonIWB_Toolbar_create(){
         var $mask = $('<div class="iwb-toolbar-mask"></div>');
         $mask = setMask($mask);
         $mask.hide();
-        presenter.$pagePanel.css('position', 'relative');
-        presenter.$pagePanel.append($mask);
+
+        var icPage = presenter.$pagePanel.find('.ic_page');
+        icPage.css('position', 'relative');
+        icPage.append($mask);
 
         var canvas = $('<canvas></canvas>');
         setCanvas(canvas);
         setContext(canvas[0].getContext("2d"));
 
-        presenter.canvasPosition = canvas[0].getBoundingClientRect();
+        try {
+            presenter.canvasPosition = canvas[0].getBoundingClientRect(); // IE 11 has problem with this method http://bugs.jquery.com/ticket/4996
+        } catch(_) {
+            presenter.canvasPosition = { 'top' : canvas[0].offsetTop, 'left' : canvas[0].offsetLeft };
+        }
 
         $mask.append(canvas);
         canvas[0].width = $mask.width();
@@ -1278,7 +1292,7 @@ function AddonIWB_Toolbar_create(){
 
         $.each(presenter.notes, function() {
             var note = createNote(this);
-            presenter.$pagePanel.append(note);
+            presenter.$pagePanel.find('.ic_page').append(note);
         });
 
         drawSavedAreas();

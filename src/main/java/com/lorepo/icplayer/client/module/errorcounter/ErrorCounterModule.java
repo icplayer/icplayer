@@ -9,22 +9,18 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
 
-/**
- * Show number of errors and/or mistakes.
- * 
- * @author Krzysztof Langner
- *
- */
 public class ErrorCounterModule extends BasicModuleModel{
 
 	private boolean showErrorCounter = true;
 	private boolean showMistakeCounter = true;
+	private boolean realTimeCalculation = false;
 	
 	
 	public ErrorCounterModule() {
 		super(DictionaryWrapper.get("error_counter_module"));
 		addPropertyShowErrors();
 		addPropertyShowMistakes();
+		addPropertyRealTimeCalculation();
 	}
 
 	
@@ -32,8 +28,9 @@ public class ErrorCounterModule extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = "<errorCounterModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<counter showErrorCounter='" + showErrorCounter + 
-				"' showMistakeCounter='" + showMistakeCounter + "'/>";
+		xml += "<counter showErrorCounter='" + showErrorCounter +
+				"' showMistakeCounter='" + showMistakeCounter + 
+				"' realTimeCalculation='" + realTimeCalculation + "'/>";
 		xml += "</errorCounterModule>";
 		
 		return xml;
@@ -49,6 +46,7 @@ public class ErrorCounterModule extends BasicModuleModel{
 			Element counterElement = (Element)counters.item(0);
 			showErrorCounter = XMLUtils.getAttributeAsBoolean(counterElement, "showErrorCounter", true);
 			showMistakeCounter = XMLUtils.getAttributeAsBoolean(counterElement, "showMistakeCounter", true);
+			realTimeCalculation = XMLUtils.getAttributeAsBoolean(counterElement, "realTimeCalculation", false);
 		}
 		
 	}
@@ -61,6 +59,10 @@ public class ErrorCounterModule extends BasicModuleModel{
 
 	public boolean getShowMistakeCounter() {
 		return showMistakeCounter;
+	}
+	
+	public boolean isRealTimeCalculation() {
+		return realTimeCalculation;
 	}
 
 	
@@ -136,6 +138,40 @@ public class ErrorCounterModule extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("mistakes_property");
+			}
+
+		};
+		
+		addProperty(property);	
+	}
+	
+	private void addPropertyRealTimeCalculation() {
+		
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value!= realTimeCalculation){
+					realTimeCalculation = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return realTimeCalculation ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("real_time_calculation_property");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("real_time_calculation_property");
 			}
 
 		};

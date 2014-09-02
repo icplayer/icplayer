@@ -264,11 +264,11 @@ public class PageController {
 	}
 	
 	
-	public IPresenter findModule(String name){
+	public IPresenter findModule(String id){
 		
 		for(IPresenter presenter : presenters){
 		
-			if(presenter.getModel().getId().compareTo(name) == 0){
+			if(presenter.getModel().getId().compareTo(id) == 0){
 				return presenter;
 			}
 		}

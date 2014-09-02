@@ -5,6 +5,7 @@ function AddonColoring_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.lastEvent = null;
+    presenter.imageHasBeenLoaded = false;
 
     presenter.createPreview = function(view, model){
         runLogic(view, model, true);
@@ -153,6 +154,7 @@ function AddonColoring_create(){
             presenter.canvas = canvasElement[0];
 
             ctx.drawImage(imageElement[0], 0, 0);
+            presenter.imageHasBeenLoaded = true;
 
             presenter.imageData = ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
 
@@ -662,7 +664,8 @@ function AddonColoring_create(){
         if (presenter.isShowAnswersActive) {
             return presenter.currentErrorCount;
         }
-        if (presenter.configuration.isActivity) {
+
+        if (presenter.configuration.isActivity && presenter.imageHasBeenLoaded) {
             var errorsCount = 0;
             $.each(presenter.configuration.areas, function() {
                 var area = this;
@@ -677,6 +680,8 @@ function AddonColoring_create(){
             });
 
             return errorsCount;
+        } else if (presenter.configuration.isActivity && presenter.savedErrorCount) {
+            return 0;
         } else {
             return 0;
         }
@@ -703,7 +708,7 @@ function AddonColoring_create(){
             return presenter.currentScore;
         }
 
-        if (presenter.configuration.isActivity) {
+        if (presenter.configuration.isActivity && presenter.imageHasBeenLoaded) {
             var scoreCount = 0;
             $.each(presenter.configuration.areas, function() {
                 var area = this;
@@ -718,6 +723,8 @@ function AddonColoring_create(){
             });
 
             return scoreCount;
+        } else if (presenter.configuration.isActivity && presenter.savedScore) {
+            return 0;
         } else {
             return 0;
         }
@@ -744,7 +751,9 @@ function AddonColoring_create(){
             isErase: presenter.configuration.isErase,
             colorsThatCanBeFilled: presenter.configuration.colorsThatCanBeFilled,
             isVisible: presenter.configuration.isVisible,
-            isDisabled: presenter.configuration.isDisabled
+            isDisabled: presenter.configuration.isDisabled,
+            score: presenter.getScore(),
+            errorCount: presenter.getErrorCount()
         };
 
         return JSON.stringify(state);
@@ -756,6 +765,8 @@ function AddonColoring_create(){
         presenter.configuration.isErase = parsed.isErase;
         presenter.configuration.isVisible = parsed.isVisible;
         presenter.configuration.isDisabled = parsed.isDisabled;
+        presenter.savedScore = parsed.score;
+        presenter.savedErrorCount = parsed.errorCount;
 
         if (presenter.configuration.isErase) {
             presenter.configuration.currentFillingColor = [255, 255, 255, 255];
