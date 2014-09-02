@@ -25,6 +25,7 @@ function AddonConnection_create() {
     var correctConnection = "#0d0";
     var incorrectConnection = "#d00";
     var connectionThickness = "1px";
+    var showAnswersColor = "#0d0";
 
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.'
@@ -81,7 +82,7 @@ function AddonConnection_create() {
 
             if (this.sendEvents) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
-                sendEvent(pair[0], pair[1], 1, score);
+                presenter.sendEvent(pair[0], pair[1], 1, score);
             }
         };
 
@@ -119,7 +120,7 @@ function AddonConnection_create() {
 
             if (this.sendEvents) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
-                sendEvent(pair[0], pair[1], 0, score);
+                presenter.sendEvent(pair[0], pair[1], 0, score);
             }
         };
 
@@ -231,6 +232,9 @@ function AddonConnection_create() {
         presenter.registerListeners(presenter.view);
 
         presenter.parseDefinitionLinks();
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function (view, model) {
@@ -265,6 +269,9 @@ function AddonConnection_create() {
         }
         if (model['Incorrect connection color'] != '') {
             incorrectConnection = model['Incorrect connection color'];
+        }
+        if (model['Show answers line color'] != '') {
+            showAnswersColor = model['Show answers line color'];
         }
 
         if (model['isNotActivity'] != undefined){
@@ -334,12 +341,13 @@ function AddonConnection_create() {
         };
     };
 
-    function sendEvent(fromID, toID, value, score) {
+    presenter.sendEvent = function (fromID, toID, value, score) {
+    	if(!presenter.isShowAnswersActive) {
         var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
         eventBus.sendEvent('ValueChanged', eventData);
-
-        if (presenter.isAllOK()) sendAllOKEvent();
-    }
+            if (presenter.isAllOK()) sendAllOKEvent();
+        }
+    };
 
     function sendAllOKEvent() {
         var eventData = {
@@ -455,7 +463,7 @@ function AddonConnection_create() {
     };
 
     presenter.loadElements = function (view, model, columnClass, columnModel, isRightColumn) {
-        var column = $(view).find('.' + columnClass + ':first').find('.content:first')
+        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
         for (var i = 0, columnLength = model[columnModel].length; i < columnLength; i++) {
             var id = model[columnModel][i]['id'];
             if (!this.isIDUnique(id)) {
@@ -600,6 +608,14 @@ function AddonConnection_create() {
         }
     }
 
+    function redrawShowAnswers () {
+        connections.width = connections.width;
+        connections.clearCanvas();
+        for (var i = 0; i < presenter.lineStack.length(); i++) {
+            drawLine(presenter.lineStack.get(i), showAnswersColor)
+        }
+    }
+
     function drawLine(line, color) {
         var from = getElementSnapPoint(line.from);
         var to = getElementSnapPoint(line.to);
@@ -613,6 +629,10 @@ function AddonConnection_create() {
     }
 
     presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -644,6 +664,7 @@ function AddonConnection_create() {
 
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
+
         var errors = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -656,12 +677,14 @@ function AddonConnection_create() {
 
     presenter.getMaxScore = function () {
         if (isNotActivity) return 0;
+
         return presenter.correctConnections.length();
 
     };
 
     presenter.getScore = function () {
         if (isNotActivity) return 0;
+
         var score = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -730,18 +753,30 @@ function AddonConnection_create() {
 
 
     presenter.isSelected = function (leftIndex, rightIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var leftElement = getElementById(leftIndex);
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
         return (presenter.lineStack.hasLine(line).length > 0);
-    }
+    };
 
     presenter.isAttempted = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return (presenter.lineStack.stack.length > 0)
-    }
+    };
 
 
     presenter.markAsCorrect = function (leftIndex, rightIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var leftElement = getElementById(leftIndex);
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
@@ -752,6 +787,10 @@ function AddonConnection_create() {
     };
 
     presenter.markAsWrong = function (leftIndex, rightIndex) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var leftElement = getElementById(leftIndex);
         var rightElement = getElementById(rightIndex);
         var line = new Line(leftElement, rightElement);
@@ -789,10 +828,63 @@ function AddonConnection_create() {
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
-            'isAttempted' : presenter.isAttemptedCommand
+            'isAttempted' : presenter.isAttemptedCommand,
+            'showAnswers': presenter.showAnswers,
+            'hideAnswers': presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.tmpElements = [];
+        for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
+            presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
+        }
+
+        presenter.lineStack.clear();
+        redraw();
+
+        var elements = presenter.elements;
+        for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
+            var connects = elements[i]['connects'].split(',');
+            for (var j = 0; j < connects.length; j++) {
+                if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
+                    var pair = [elements[i]['id'], connects[j]];
+                    var line = new Line(
+                        getElementById(pair[0]),
+                        getElementById(pair[1])
+                    );
+                    presenter.lineStack.push(line);
+                }
+            }
+        }
+
+        redrawShowAnswers();
+        presenter.lineStack.clear();
+        isSelectionPossible = false;
+
+        for (var element = 0; element <  presenter.tmpElements.length; element++) {
+            var pairs =  presenter.tmpElements[element].split(':');
+            pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        redraw();
+        presenter.isShowAnswersActive = false;
+        isSelectionPossible = true;
     };
 
     return presenter;

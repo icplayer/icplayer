@@ -15,17 +15,21 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
+/**
+ * Posiada elementy, które należy ułożyć w odpowiedniej kolejności
+ * 
+ * @author Krzysztof Langner
+ *
+ */
+public class OrderingModule extends BasicModuleModel {
 
-public class OrderingModule extends BasicModuleModel{
-
-	private boolean 	isVertical = true;
-	private int 		maxScore = 1;
+	private boolean isVertical = true;
+	private int maxScore = 1;
 	private ArrayList<OrderingItem>	items = new ArrayList<OrderingItem>();
 	private IListProperty itemsProperty;
 	private String optionalOrder = "";
 	private boolean isActivity = true;
 
-	
 	public OrderingModule() {
 		super(DictionaryWrapper.get("ordering_module"));
 		
@@ -38,8 +42,7 @@ public class OrderingModule extends BasicModuleModel{
 		addPropertyOptionalOrder();
 		addPropertyIsActivity();
 	}
-	
-	
+
 	private void addItem(OrderingItem item) {
 	
 		items.add(item);
@@ -52,30 +55,24 @@ public class OrderingModule extends BasicModuleModel{
 		});
 	}
 
-
-	public OrderingItem getItem(int index){
+	public OrderingItem getItem(int index) {
 		return items.get(index);
 	}
-	
-	
-	public int getItemCount(){
+
+	public int getItemCount() {
 		return items.size();
 	}
-	
-	
+
 	public Boolean isVertical() {
 		return isVertical;
 	}
-
 
 	public String getOptionalOrder() {
 		return optionalOrder;
 	}
 
-
 	@Override
 	public void load(Element node, String baseUrl) {
-	
 		super.load(node, baseUrl);
 		
 		items.clear();
@@ -91,57 +88,50 @@ public class OrderingModule extends BasicModuleModel{
 		// Read item nodes
 		NodeList optionNodes = node.getElementsByTagName("item");
 		
-		for(int i = 0; i < optionNodes.getLength(); i++){
+		for(int i = 0; i < optionNodes.getLength(); i++) {
 
 			Element element = (Element)optionNodes.item(i);
 			String text = XMLUtils.getCharacterDataFromElement(element);
-			if(text == null){
-				text = XMLUtils.getText(element);
-				text = StringUtils.unescapeXML(text);
+			if (text == null) {
+				text = StringUtils.unescapeXML(XMLUtils.getText(element));
 			}
 		
-			OrderingItem item = new OrderingItem(i+1, text, getBaseURL());
+			OrderingItem item = new OrderingItem(i + 1, text, getBaseURL());
 			addItem(item);
 		}
 		
-		if(optionalOrder.length() > 0){
+		if (optionalOrder.length() > 0) {
 			setOptionalOrder();
 		}
 	}
 	
-	
 	private void setOptionalOrder() {
 
-		for(OrderingItem item : items){
+		for (OrderingItem item : items) {
 			item.clearAlternativeIndexes();
 		}
 		
-		try{
+		try {
 			String[] orders = optionalOrder.split(";");
-			for(int i = 0; i < orders.length; i++){
+			for (int i = 0; i < orders.length; i++) {
 	
 				String[] alternativeIndexes = orders[i].split(",");
-				for(int j = 0; j < items.size() && j < alternativeIndexes.length; j++){
-					
+				for (int j = 0; j < items.size() && j < alternativeIndexes.length; j++) {
 					int index = Integer.parseInt(alternativeIndexes[j])-1;
 					items.get(index).addAlternativeIndex(j+1);
 				}
 			}
 		}
-		catch(NumberFormatException e){
-		}
+		catch (NumberFormatException e) {}
 	}
-
 
 	public void removeAllItems() {
 		items.clear();
 	}
 
-
 	public void setVertical(boolean vertical) {
 		isVertical = vertical;
 	}
-
 
 	/**
 	 * Convert module into XML
@@ -154,20 +144,16 @@ public class OrderingModule extends BasicModuleModel{
 		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" + 
 				optionalOrder + "' isActivity='" + isActivity + "'/>";
 		
-		for(OrderingItem item : items){
+		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
 		}
-
-		xml += "</orderingModule>";
 		
-		return xml;
+		return xml + "</orderingModule>";
 	}
-
 
 	public int getMaxScore() {
 		return maxScore;
 	}
-
 
 	private void addPropertyIsVertical() {
 
@@ -177,7 +163,7 @@ public class OrderingModule extends BasicModuleModel{
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
 				
-				if(value!= isVertical){
+				if (value!= isVertical) {
 					isVertical = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -185,12 +171,7 @@ public class OrderingModule extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isVertical){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isVertical ? "True" : "False";
 			}
 			
 			@Override
@@ -214,8 +195,7 @@ public class OrderingModule extends BasicModuleModel{
 		itemsProperty = new IListProperty() {
 				
 			@Override
-			public void setValue(String newValue) {
-			}
+			public void setValue(String newValue) {}
 			
 			@Override
 			public String getValue() {
@@ -273,8 +253,8 @@ public class OrderingModule extends BasicModuleModel{
 
 	private void addItems(int count) {
 		
-		if(count > 0 && count < 50){
-			for(int i = 0; i < count; i++){
+		if (count > 0 && count < 50) {
+			for (int i = 0; i < count; i++) {
 				int index = items.size()+1;
 				String name = DictionaryWrapper.get("ordering_new_item");
 				addItem(new OrderingItem(index, name, getBaseURL()));
@@ -282,26 +262,25 @@ public class OrderingModule extends BasicModuleModel{
 		}
 	}
 	
-	private void removeItem(int index){
-		if(items.size() > 1){
+	private void removeItem(int index) {
+		if (items.size() > 1) {
 			items.remove(index);
 		}
 	}
 
 	private void moveItemUp(int index) {
-		if(index > 0){
+		if (index > 0) {
 			OrderingItem item = items.remove(index);
-			items.add(index-1, item);
+			items.add(index - 1, item);
 		}
 	}
 
 	private void moveItemDown(int index) {
-		if(index < items.size()-1){
+		if (index < items.size() - 1) {
 			OrderingItem item = items.remove(index);
-			items.add(index+1, item);
+			items.add(index + 1, item);
 		}
 	}
-
 	
 	private void addPropertyOptionalOrder() {
 
@@ -346,7 +325,7 @@ public class OrderingModule extends BasicModuleModel{
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
 				
-				if(value!= isActivity){
+				if (value != isActivity) {
 					isActivity = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -354,12 +333,7 @@ public class OrderingModule extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isActivity){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isActivity ? "True" : "False";
 			}
 			
 			@Override
@@ -376,6 +350,5 @@ public class OrderingModule extends BasicModuleModel{
 		
 		addProperty(property);	
 	}
-
 
 }

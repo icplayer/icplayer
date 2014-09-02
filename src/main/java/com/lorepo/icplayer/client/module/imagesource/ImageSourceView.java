@@ -99,5 +99,12 @@ public class ImageSourceView extends Image implements IDisplay {
 		setVisible(false);
 	}
 
+
+	@Override
+	public void getImageUrl() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

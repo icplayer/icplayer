@@ -84,7 +84,6 @@ public class PlayerServices implements IPlayerServices {
 		return playerController.getCurrentPageIndex();
 	}
 
-
 	@Override
 	public JavaScriptObject getAsJSObject() {
 		
@@ -94,7 +93,6 @@ public class PlayerServices implements IPlayerServices {
 		
 		return jsServiceImpl.getJavaScriptObject();
 	}
-
 
 	@Override
 	public IPresenter getModule(String moduleId) {
@@ -119,29 +117,24 @@ public class PlayerServices implements IPlayerServices {
 		return jsonServices;
 	}
 
-
 	@Override
 	public IStateService getStateService() {
 		return 	playerController.getStateService();
 	}
 
-
 	public void setJsonService(IJsonServices services) {
 		jsonServices = services;
 	}
-
 
 	@Override
 	public void sendAnalytics(String event, HashMap<String, String> params) {
 		playerController.sendAnalytics(event, params);
 	}
 
-
 	@Override
 	public boolean isBookMode() {
 		return playerController.isBookMode();
 	}
-
 
 	@Override
 	public boolean hasCover() {
