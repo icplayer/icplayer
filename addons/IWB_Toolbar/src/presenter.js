@@ -770,7 +770,7 @@ function AddonIWB_Toolbar_create(){
                     } else {
                         presenter.headerLoaded.then(function() {
                             $(event.target).css('top', presenter.$pagePanel.offset().top + parseInt(model['Top'], 10) + 'px');
-                            $(event.target).css('left', model['Left'] + 'px');
+                            $(event.target).css('left', presenter.$pagePanel.offset().left + parseInt(model['Left'], 10) + 'px');
                         });
                     }
                 },
