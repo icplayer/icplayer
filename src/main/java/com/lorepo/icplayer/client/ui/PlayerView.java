@@ -11,7 +11,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
@@ -223,13 +222,7 @@ public class PlayerView extends VerticalPanel{
 
 
 	public void showWaitDialog() {
-		waitDlg.setPopupPositionAndShow(new PositionCallback() {
-			public void setPosition(int offsetWidth, int offsetHeight) {
-				int left = getAbsoluteLeft() + (getOffsetWidth()-offsetHeight)/2;
-				int top = Math.max(getAbsoluteTop(), 0)+100;
-				waitDlg.setPopupPosition(left, top);
-			}
-		});
+		waitDlg.show();
 	}
 
 

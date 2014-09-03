@@ -4,7 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.HTML;
 
 public class WaitDialog extends DialogBox {
 
@@ -19,9 +19,9 @@ public class WaitDialog extends DialogBox {
     	setStyleName("ic_waitdlg");
 		setModal(true);
 		setAnimationEnabled(false);
-		Image image = new Image(RES_INSTANCE.wait_animation());
-		image.setStyleName("ic_waitImage");
-		setWidget(image);
+		HTML html = new HTML("<div></div>");
+		html.setStyleName("ic_waitImage");
+		setWidget(html);
 		center();
 	}
 }
