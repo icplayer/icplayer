@@ -4,7 +4,6 @@ function AddoneKeyboard_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
-    presenter.alreadyFilled = {};
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -233,6 +232,8 @@ function AddoneKeyboard_create(){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
+        presenter.$view = $(view);
+
         presenter.pageLoaded.then(function() {
             presenter.configuration = presenter.validateModel(model, isPreview);
 
@@ -393,6 +394,7 @@ function AddoneKeyboard_create(){
 
                     },
                     visible     : function(e, keyboard, el) {
+
                         var isVisibleInViewPort = getIsVisibleInViewPort(keyboard['$keyboard']);
 
                         while (!isVisibleInViewPort.vertical || !isVisibleInViewPort.horizontal) {
@@ -402,28 +404,19 @@ function AddoneKeyboard_create(){
 
                         keyboard['$keyboard'].draggable();
 
-                        if ( $(el).val().length == presenter.configuration.maxCharacters ) {
-                            presenter.alreadyFilled[$(el).attr('id')] = true;
-                        }
-
                     },
                     change      : function(e, keyboard, el) {
-                        if ( presenter.alreadyFilled[$(el).attr('id')] && keyboard.acceptedKeys.indexOf(keyboard.lastKey) >= 0) {
-                            $(el).val(keyboard.lastKey);
-                            presenter.alreadyFilled[$(el).attr('id')] = false;
-                        }
-
-                        if( $(el).val().length == presenter.configuration.maxCharacters ) {
+                        if( $(el).val().length >= presenter.configuration.maxCharacters ) {
                             keyboard.switchInput(true, true);
                         }
                     },
-                    beforeClose : function(e, keyboard, el, accepted) {},
+                    beforeClose : function(e, keyboard, el, accepted) {
+                    },
                     accepted    : function(e, keyboard, el) {},
                     canceled    : function(e, keyboard, el) {},
                     hidden      : function(e, keyboard, el) {
                     },
-
-                    switchInput : true, // called instead of base.switchInput
+                    switchInput : false, // called instead of base.switchInput
 
                     // this callback is called just before the "beforeClose" to check the value
                     // if the value is valid, return true and the keyboard will continue as it should
@@ -437,8 +430,10 @@ function AddoneKeyboard_create(){
                 });
 
                 $.each($(presenter.configuration.workWithViews).find('input'), function(){
-                    $(this).data('keyboard').startup();
+                    var keyboard = $(this).data('keyboard');
+                    keyboard.startup();
                 });
+
             }
         });
     }
