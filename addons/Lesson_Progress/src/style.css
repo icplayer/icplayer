@@ -1,0 +1,52 @@
+.lesson-progress-container .progress-bar-container.hidden, .lesson-progress-container .progress-box.hidden {
+    display: none;
+}
+
+.lesson-progress-container {
+    width: 100%;
+    height: 100%;
+
+}
+
+.lesson-progress-container .progress-bar-container {
+    width: 200px;
+    height: 50px;
+    position: relative;
+    border-radius: 5px;
+    border: 2px solid #02789F;
+    padding: 2px;
+    display: inline-block;
+    float: left;
+}
+
+.lesson-progress-container .progress-bar {
+    background-color: #3CC6CD;
+    position: absolute;
+    height: 50px;
+    border-radius: 5px;
+}
+
+.lesson-progress-container .progress-text {
+    line-height: 50px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+
+.lesson-progress-container .progress-box .text {
+    min-height: 35px;
+}
+
+.lesson-progress-container .progress-box {
+    line-height: 14px;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    padding: 3px;
+    border: 1px solid #02789F;
+    margin-left: 5px;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 10px;
+    float: left;
+}

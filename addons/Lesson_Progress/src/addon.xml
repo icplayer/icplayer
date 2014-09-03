@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Lesson_Progress' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property name="Show_Progress_Bar" displayName="Show Progress Bar" type="boolean" />
+        <property name="Show_Checks" displayName="Show Checks" type="boolean" />
+        <property name="Show_Correct_Answers" displayName="Show Correct Answers" type="boolean" />
+        <property name="Show_Errors" displayName="Show Errors" type="boolean" />
+        <property name="Show_Mistakes" displayName="Show Mistakes" type="boolean" />
+        <property name="Show_All_Answers" displayName="Show All Answers" type="boolean" />
+	</model>
+</addon>

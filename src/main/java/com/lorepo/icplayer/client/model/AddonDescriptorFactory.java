@@ -64,6 +64,7 @@ public class AddonDescriptorFactory {
         addDescriptor("Done", "Done", "reporting_menu");
         addDescriptor("Hierarchical_Lesson_Report", "Hierarchical Lesson Report", "reporting_menu");
         addDescriptor("Lesson_Error_Counter", "Lesson Error Counter", "reporting_menu");
+        addDescriptor("Lesson_Progress", "Lesson Progress", "reporting_menu");
         addDescriptor("Lesson_Score_Counter", "Lesson Score Counter", "reporting_menu");
         addDescriptor("Page_Rating", "Page Rating", "reporting_menu");
         addDescriptor("Page_Score_Counter", "Page Score Counter", "reporting_menu");
