@@ -1,3 +1,4 @@
+2014-09-03 Fixed lesson loading image position
 2014-09-03 Removed unexpected behavior when some one types in some characters from standard keyboard and then clicked on any button in eKeyboard module
 2014-09-02 Added random order properties to Connection module
 2014-09-02 Added responding to Show Answers events in Coloring, Connection, Text, Image Gap, Image Identification, Ordering and Text Selection
