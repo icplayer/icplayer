@@ -68,15 +68,6 @@
     cursor: crosshair;
 }
 
-.iwb-toolbar-mask.pen-mask, .iwb-toolbar-mask.marker-mask {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.iwb-toolbar-mask.floating-image-mask {
-    background-color: rgba(200, 200, 200, 0.1);
-    cursor: default;
-}
-
 .iwb-toolbar-mask.pen-mask {
     z-index: 999;
 }
@@ -353,4 +344,73 @@
 
 .iwb-toolbar-floating-image {
     display: none;
+}
+
+.iwb-toolbar-panel .button .tooltip {
+    display: none;
+    position: absolute;
+    top: -20px;
+    font-size: 8px;
+    line-height: 8px;
+    min-width: 30px;
+    padding: 3px;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+}
+
+.iwb-toolbar-panel .button.default .tooltip span:after {
+    content: 'Default Mode';
+}
+
+.iwb-toolbar-panel .button.close .tooltip span:after {
+    content: 'Close';
+}
+
+.iwb-toolbar-panel .button.open .tooltip span:after {
+    content: 'Open';
+}
+
+.iwb-toolbar-panel .button.zoom .tooltip span:after {
+    content: 'Zoom';
+}
+
+.iwb-toolbar-panel .button.pen .tooltip span:after {
+    content: 'Pen';
+}
+
+.iwb-toolbar-panel .button.marker .tooltip span:after {
+    content: 'Marker';
+}
+
+.iwb-toolbar-panel .button.eraser .tooltip span:after {
+    content: 'Eraser';
+}
+
+.iwb-toolbar-panel .button.note .tooltip span:after {
+    content: 'Add Note';
+}
+
+.iwb-toolbar-panel .button.hide-area .tooltip span:after {
+    content: 'Hide Area';
+}
+
+.iwb-toolbar-panel .button.stand-area .tooltip span:after {
+    content: 'Stand Area';
+}
+
+.iwb-toolbar-panel .button.reset .tooltip span:after {
+    content: 'Undo All';
+}
+
+.iwb-toolbar-panel .button.floating-image .tooltip span:after {
+    content: 'Floating Image';
+}
+
+.iwb-toolbar-panel .button.color .tooltip span:after {
+    content: 'Color';
+}
+
+.iwb-toolbar-panel .button.thickness .tooltip span:after {
+    content: 'Thickness';
 }

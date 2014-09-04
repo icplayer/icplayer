@@ -1132,8 +1132,10 @@ function AddonIWB_Toolbar_create(){
         $.each(elements, function(_, btn) {
             $(btn).hover(function() {
                 $(this).addClass('hovered');
+                $(this).find('.tooltip').show();
             }, function() {
                 $(this).removeClass('hovered');
+                $(this).find('.tooltip').hide();
             });
         });
     }
