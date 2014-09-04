@@ -10,29 +10,31 @@ TestCase("Player Utils", {
         };
 
         this.scoreService = {
-            getPageScore: function () {}
+            getPageScoreById: function () {}
         };
 
         sinon.stub(this.player, 'getPlayerServices');
         sinon.stub(this.playerServices, 'getScore');
         sinon.stub(this.playerServices, 'getPresentation');
-        sinon.stub(this.scoreService, 'getPageScore');
+        sinon.stub(this.scoreService, 'getPageScoreById');
 
         this.player.getPlayerServices.returns(this.playerServices);
         this.playerServices.getScore.returns(this.scoreService);
 
-        this.scoreService.getPageScore.withArgs('Page 1').returns({
+        this.scoreService.getPageScoreById.withArgs('Page1').returns({
             score: 1,
             maxScore: 4,
-            mistakeCount: 2,
-            checkCount: 2
+            mistakeCount: 3,
+            checkCount: 2,
+            errorCount: 2
         });
 
-        this.scoreService.getPageScore.withArgs('Page 2').returns({
+        this.scoreService.getPageScoreById.withArgs('Page2').returns({
             score: 2,
             maxScore: 3,
             mistakeCount: 1,
-            checkCount: 3
+            checkCount: 3,
+            errorCount: 1
         });
     },
 
@@ -92,13 +94,16 @@ TestCase("Player Utils", {
                     if (i == 0) {
                         return {
                             isReportable: function () { return false; },
-                            getName: function () { return "Page 1" }
+                            getName: function () { return "Page 1" },
+                            getId: function () { return "Page1" }
                         }
                     }
 
                     return {
                         isReportable: function () { return true; },
-                        getName: function () { return "Page 2" }
+                        isVisited: function () { return true; },
+                        getName: function () { return "Page 2" },
+                        getId: function () { return "Page2" }
                     }
                 }
             };
@@ -107,9 +112,9 @@ TestCase("Player Utils", {
         var score = playerUtils.getPresentationScore(presentation);
 
         assertEquals(0, score.minScore);
-        assertEquals(3, score.maxScore);
-        assertEquals(2, score.rawScore);
-        assertEquals(2 / 3, score.scaledScore);
+        assertEquals(1, score.maxScore);
+        assertEquals(2 / 3, score.rawScore);
+        assertEquals(0.66, score.scaledScore);
         assertEquals(1, score.errorsCount);
         assertEquals(3, score.checksCount);
     },
@@ -122,13 +127,16 @@ TestCase("Player Utils", {
                     if (i == 0) {
                         return {
                             isReportable: function () { return true; },
-                            getName: function () { return "Page 1" }
+                            isVisited: function () { return true; },
+                            getName: function () { return "Page 1" },
+                            getId: function () { return "Page1" }
                         }
                     }
 
                     return {
                         isReportable: function () { return true; },
-                        getName: function () { return "Page 2" }
+                        getName: function () { return "Page 2" },
+                        getId: function () { return "Page2" }
                     }
                 }
             };
@@ -137,9 +145,9 @@ TestCase("Player Utils", {
         var score = playerUtils.getPresentationScore(presentation);
 
         assertEquals(0, score.minScore);
-        assertEquals(7, score.maxScore);
-        assertEquals(3, score.rawScore);
-        assertEquals((1 / 4 + 2 / 3) / 2, score.scaledScore);
+        assertEquals(2, score.maxScore);
+        assertEquals((2 / 3 + 1 / 4), score.rawScore);
+        assertEquals(0.45, score.scaledScore);
         assertEquals(3, score.errorsCount);
         assertEquals(5, score.checksCount);
     }
