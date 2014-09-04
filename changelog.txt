@@ -1,3 +1,4 @@
+2014-09-04 Writing Calculation: fixed error in console.log
 2014-09-04 IWB Toolbar: now you can change tooltip text in css styles
 2014-09-04 Fixed problem with model validation in Connection module
 2014-09-03 Fixed IWB Toolbar position from the left side of the screen

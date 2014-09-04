@@ -95,6 +95,9 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.addAdditionalStyles = function() {
+        if (!presenter.model['Styles']) {
+            return;
+        }
         $.each(presenter.model['Styles'], function() {
             var columns = this['Column'],
                 rows = this['Row'];
@@ -148,6 +151,7 @@ function AddonWritingCalculations_create() {
 
     presenter.createView = function(convertedArray) {
         var viewWrapper = this.$view.find("#writing-calculations-wrapper"), columnItemIndex = 0;
+
         for(var rowIndex = 0; rowIndex < convertedArray.length; rowIndex++) {
             var rowWrapper = this.createRowWrapper(rowIndex),
                 cellIndex = 0;
