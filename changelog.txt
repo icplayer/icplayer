@@ -1,3 +1,4 @@
+2014-09-04 Fixed problem with model validation in Connection module
 2014-09-03 Fixed IWB Toolbar position from the left side of the screen
 2014-09-03 Fixed lesson loading image position
 2014-09-03 Removed unexpected behavior when some one types in some characters from standard keyboard and then clicked on any button in eKeyboard module

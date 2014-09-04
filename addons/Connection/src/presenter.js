@@ -256,8 +256,9 @@ function AddonConnection_create() {
 
         this.setSingleMode(model['Single connection mode']);
 
-        var isRandomLeft = (model['Random order left column'].toLowerCase() === 'true');
-        var isRandomRight = (model['Random order right column'].toLowerCase() === 'true');
+
+        var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
+        var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
 
         if(!isPreview){
             if(!isRandomLeft){
