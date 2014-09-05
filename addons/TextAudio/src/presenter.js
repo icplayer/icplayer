@@ -450,6 +450,7 @@ function AddonTextAudio_create(){
             this.audio.pause();
             this.audio.currentTime = 0;
         }
+        presenter.$view.find(".wrapper-addon-textaudio .textaudio-text :last-child").removeClass('active');
     };
 
     presenter.pause = function() {
