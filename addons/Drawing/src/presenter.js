@@ -8,12 +8,17 @@ function AddonDrawing_create() {
     presenter.mouse = {x: 0, y: 0};
     presenter.isStarted = false;
 
-    function convertZoomToNumber(val) {
+    function getZoom() {
+        var val = $('#_icplayer').css('zoom');
         if (val == "normal" || val == "") { // IE 11
-            return 1;
+            val = 1;
         }
 
-        return parseInt(val, 10);
+        val = parseInt(val, 10);
+        if (val == NaN || val == undefined) {
+                val = 1;
+            }
+        return val;
     }
 
     presenter.hexToRGBA = function(hex, opacity) {
@@ -129,10 +134,7 @@ function AddonDrawing_create() {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
-            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
-            if (presenter.zoom == "" || presenter.zoom == undefined) {
-                presenter.zoom = 1;
-            }
+            presenter.zoom = getZoom();
             presenter.isStarted = true;
             tmp_canvas.addEventListener('touchmove', presenter.onPaint);
             presenter.mouse.x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
@@ -151,10 +153,6 @@ function AddonDrawing_create() {
             e.preventDefault();
             e.stopPropagation();
 
-            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
-            if (presenter.zoom == "" || presenter.zoom == undefined) {
-                presenter.zoom = 1;
-            }
             var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
             var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
 
@@ -180,11 +178,6 @@ function AddonDrawing_create() {
         // MOUSE
         tmp_canvas.addEventListener('mousemove', function(e) {
             e.stopPropagation();
-
-            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
-            if (presenter.zoom == "" || presenter.zoom == undefined) {
-                presenter.zoom = 1;
-            }
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
             var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
@@ -216,7 +209,7 @@ function AddonDrawing_create() {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
-            presenter.zoom = convertZoomToNumber($('#_icplayer').css('zoom'));
+            presenter.zoom = getZoom();
             if (presenter.zoom == "" || presenter.zoom == undefined) {
                 presenter.zoom = 1;
             }
