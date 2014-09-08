@@ -46,7 +46,7 @@ TestCase('[Text Selection] States restoring', {
 
         this.presenter.setShowErrorsMode();
 
-        assertFalse(this.presenter.turnOffEventListeners.calledOnce);
+        assertTrue(this.presenter.turnOffEventListeners.calledOnce);
         assertFalse(isStarted);
     },
 

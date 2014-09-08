@@ -17,7 +17,8 @@ TestCase("[Text Selection] Model validation", {
 
     'test Text without correct or wrong': function() {
         var model = {
-            Text: "Lorem ipsum maka paka"
+            Text: "Lorem ipsum maka paka",
+            'Enable letters selections' : 'False'
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -29,7 +30,8 @@ TestCase("[Text Selection] Model validation", {
     'test wrong marker in "All selectable" mode': function() {
         var model = {
             Mode: "All selectable",
-            Text: "\\wrong{Lorem} ipsum maka paka"
+            Text: "\\wrong{Lorem} ipsum maka paka",
+            'Enable letters selections' : 'False'
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -40,7 +42,8 @@ TestCase("[Text Selection] Model validation", {
 
     'test empty word in marker': function() {
         var model = {
-            Text: "\\wrong{} Lorem ipsum \\correct{}"
+            Text: "\\wrong{} Lorem ipsum \\correct{}",
+            'Enable letters selections' : 'False'
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -52,7 +55,8 @@ TestCase("[Text Selection] Model validation", {
     'test number of marked correct in single select type' : function() {
         var model = {
             Text: "qwe zxc \\wrong{zxcasd}",
-            'Selection type': 'SINGLESELECT'
+            'Selection type': 'SINGLESELECT',
+            'Enable letters selections' : 'False'
         }
 
         var validatedModel = this.presenter.validateModel(model);
@@ -64,7 +68,8 @@ TestCase("[Text Selection] Model validation", {
     'test number of marked wrong in single select type' : function() {
         var model = {
             Text: "qwe zxc \\correct{zxcasd}",
-            'Selection type': 'SINGLESELECT'
+            'Selection type': 'SINGLESELECT',
+            'Enable letters selections' : 'False'
         }
 
         var validatedModel = this.presenter.validateModel(model);

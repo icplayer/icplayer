@@ -5,5 +5,6 @@
 		<property name='Mode' type='{Mark phrases to select, All selectable}'/>
 		<property name='Selection type' type='{Single select, Multiselect}'/>
 		<property name='Text' type='html' isLocalized="true"/>
+        <property name='Enable letters selections' type='boolean'/>
 	</model>
 </addon>

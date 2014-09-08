@@ -121,5 +121,79 @@ TestCase("[Text Selection] Support Functions", {
         var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
         assertEquals('<div class="text_selection"><span class="wrong selectable">super</span> <span class=" ">.</span> </div>', result.renderedPreview);
+    },
+
+    'test single letter' : function() {
+        var text = "\\correct{a}";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">a</span></div>', result.renderedPreview);
+
+    },
+
+    'test multi letters but marked only one' : function() {
+        var text = "\\correct{a}full";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">a</span><span class=\" \">full</span></div>', result.renderedPreview);
+
+    },
+
+    'test parse Letters with no markers': function() {
+        var text = "some text";
+        var result = this.presenter.parseCharacters(text, 'ALL_SELECTABLE', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span number=\"0\">some text</span></div>', result.renderedPreview);
+    },
+
+    'test parse Letters with markers': function() {
+        var text = "\\correct{s} \\wrong{t}";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">s</span><span class=\" \"> </span><span class=\"wrong selectable\">t</span></div>', result.renderedPreview);
+    },
+
+    'test parse Letters with markers without spaces': function() {
+        var text = "\\correct{s}\\wrong{t}\\correct{b}";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">s</span><span class=\"wrong selectable\">t</span><span class=\"correct selectable\">b</span></div>', result.renderedPreview);
+    },
+
+    'test parse Letters with markers with spaces': function() {
+        var text = "\\correct{s} \\wrong{t} \\correct{b}";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">s</span><span class=\" \"> </span><span class=\"wrong selectable\">t</span><span class=\" \"> </span><span class=\"correct selectable\">b</span></div>', result.renderedPreview);
+
+    },
+
+    'test parse Letters with markers with letters without markers': function() {
+        var text = "g\\correct{s}a\\wrong{t}7\\correct{b}f";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span number=\"0\">g</span><span class=\"correct selectable\">s</span><span class=\" \">a</span><span class=\"wrong selectable\">t</span><span class=\" \">7</span><span class=\"correct selectable\">b</span><span class=\" \">f</span></div>', result.renderedPreview);
+    },
+
+    'test parse Letters with markers with text': function() {
+        var text = "word\\correct{s}word2\\wrong{t}word3\\correct{b}word4";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span number=\"0\">word</span><span class=\"correct selectable\">s</span><span class=\" \">word2</span><span class=\"wrong selectable\">t</span><span class=\" \">word3</span><span class=\"correct selectable\">b</span><span class=\" \">word4</span></div>', result.renderedPreview);
+    },
+
+    'test parse Letters with markers with text with markers': function() {
+        var text = "word\\correct{s}\\wrong{word2}\\wrong{t}\\correct{word3}\\correct{b}word4";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span number=\"0\">word</span><span class=\"correct selectable\">s</span><span class=\"wrong selectable\">word2</span><span class=\"wrong selectable\">t</span><span class=\"correct selectable\">word3</span><span class=\"correct selectable\">b</span><span class=\" \">word4</span></div>', result.renderedPreview);
+    },
+
+    'test parse Letters with markers with text with markers and spaces': function() {
+        var text = "word\\correct{s}\\wrong{word2} \\wrong{t}\\correct{word3}\\correct{b}word4";
+        var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertEquals('<div class=\"text_selection\"><span number=\"0\">word</span><span class=\"correct selectable\">s</span><span class=\"wrong selectable\">word2</span><span class=\" \"> </span><span class=\"wrong selectable\">t</span><span class=\"correct selectable\">word3</span><span class=\"correct selectable\">b</span><span class=\" \">word4</span></div>', result.renderedPreview);
     }
+
 });
