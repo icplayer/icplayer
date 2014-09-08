@@ -1,3 +1,4 @@
+2014-09-08 Fixed isAttempted method in Coloring module
 2014-09-08 Fixed performance issue in Drawing addon
 2014-09-08 Added enabling letters selection in Text Selection module
 2014-09-05 Fixed deselecting text after completion of audio

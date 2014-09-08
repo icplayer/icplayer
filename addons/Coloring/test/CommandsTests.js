@@ -77,7 +77,7 @@ TestCase("Commands Tests", {
     },
 
     'test is attempted when user colored one area' : function() {
-        this.presenter.shouldBeTakenIntoConsideration.returns(true);
+        this.presenter.isColored = true;
         assertTrue(this.presenter.isAttempted());
     },
 
