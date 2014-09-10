@@ -1,3 +1,4 @@
+2014-09-10 Added show, hide and isVisible commands to Paragraph module
 2014-09-08 Fixed isAttempted method in Coloring module
 2014-09-08 Fixed performance issue in Drawing addon
 2014-09-08 Added enabling letters selection in Text Selection module

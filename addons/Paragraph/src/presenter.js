@@ -2,11 +2,33 @@ function AddonParagraph_create() {
     var presenter = function () {};
     var editorID;
     var editorDOM;
+    var isVisible;
+
+    presenter.executeCommand = function(name, params) {
+        if (!presenter.configuration.isValid) { return; }
+
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
+            'isVisible': presenter.isVisible
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
 
     presenter.DEFAULTS = {
         TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
         FONT_FAMILY: 'Verdana,Arial,Helvetica,sans-serif',
         FONT_SIZE: '11px'
+    };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        if (isVisible) {
+            presenter.$view.find(".paragraph-wrapper").show();
+        } else {
+            presenter.$view.find(".paragraph-wrapper").hide();
+        }
     };
 
     presenter.createPreview = function(view, model) {
@@ -46,6 +68,10 @@ function AddonParagraph_create() {
         height -= !isToolbarHidden ? 37 : 2;
 
         return {
+            ID: model["ID"],
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isValid: true,
+
             fontFamily: fontFamily,
             fontSize: fontSize,
             isToolbarHidden: isToolbarHidden,
@@ -85,6 +111,8 @@ function AddonParagraph_create() {
                 editor.on("NodeChange", presenter.onNodeChange);
             }
         });
+
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.setStyles = function () {
@@ -143,10 +171,9 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function() {
-       if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
+        if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
             return tinymce.get(editorID).getContent({format : 'raw'});
-        }
-        else {
+        } else {
             return '';
         }
     };
@@ -154,14 +181,27 @@ function AddonParagraph_create() {
     presenter.setState = function(state) {
     	if (editorID !== undefined) {
     		tinymce.get(editorID).setContent(state, {format : 'raw'});
-    	}
-    	else {
+    	} else {
     		presenter.configuration.state = state;
     	}
     };
 
     presenter.reset = function() {
         tinymce.get(editorID).setContent('');
+    };
+
+    presenter.show = function() {
+        isVisible = true;
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function() {
+        isVisible = false;
+        presenter.setVisibility(false);
+    };
+
+    presenter.isVisible = function() {
+        return isVisible;
     };
 
     return presenter;
