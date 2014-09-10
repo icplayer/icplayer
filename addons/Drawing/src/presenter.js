@@ -72,6 +72,30 @@ function AddonDrawing_create() {
         return false;
     };
 
+    presenter.onMobilePaint = function(e) {
+        var tmp_canvas;
+        if (presenter.configuration.isPencil) {
+            tmp_canvas = presenter.configuration.tmp_canvas;
+        } else {
+            tmp_canvas = presenter.configuration.canvas;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+        if (presenter.zoom !== 1) {
+            x = x * (1 / presenter.zoom);
+            y = y * (1 / presenter.zoom);
+        }
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+        presenter.onPaint(e);
+    }
+
     presenter.onPaint = function(e) {
         var tmp_canvas, tmp_ctx;
 
@@ -126,119 +150,96 @@ function AddonDrawing_create() {
             ctx = presenter.configuration.context;
 
         // TOUCH
-        tmp_canvas.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        if (MobileUtils.isEventSupported('touchstart')) {
+            tmp_canvas.addEventListener('touchstart', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-            if (!presenter.configuration.isPencil) {
-                presenter.configuration.context.globalCompositeOperation = "destination-out";
-            }
+                if (!presenter.configuration.isPencil) {
+                    presenter.configuration.context.globalCompositeOperation = "destination-out";
+                }
 
-            presenter.zoom = getZoom();
-            presenter.isStarted = true;
-            tmp_canvas.addEventListener('touchmove', presenter.onPaint);
-            presenter.mouse.x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
-            presenter.mouse.y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+                presenter.zoom = getZoom();
+                presenter.isStarted = true;
+                presenter.onMobilePaint(e);
+                tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
+            }, false);
 
-            if (presenter.zoom !== 1) {
-                presenter.mouse.x = presenter.mouse.x * (1 / presenter.zoom);
-                presenter.mouse.y = presenter.mouse.y * (1 / presenter.zoom);
-            }
+            tmp_canvas.addEventListener('touchend', function (e) {
+                e.stopPropagation();
 
-            presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
-            presenter.onPaint(e);
-        }, false);
+                tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
-        tmp_canvas.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+                presenter.points = [];
+            }, false);
+        } else {
+            // MOUSE
+            tmp_canvas.addEventListener('mousemove', function (e) {
+                e.stopPropagation();
 
-            var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
-            var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+                var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
 
-            if (presenter.zoom !== 1) {
-                x = x * (1 / presenter.zoom);
-                y = y * (1 / presenter.zoom);
-            }
+                if (presenter.zoom !== 1) {
+                    x = x * (1 / parseInt(presenter.zoom, 10));
+                    y = y * (1 / parseInt(presenter.zoom, 10));
+                }
 
-            presenter.mouse.x = x;
-            presenter.mouse.y = y;
-        }, false);
+                presenter.mouse.x = x;
+                presenter.mouse.y = y;
 
-        tmp_canvas.addEventListener('touchend', function(e) {
-            e.stopPropagation();
+            }, false);
 
-            tmp_canvas.removeEventListener('touchmove', presenter.onPaint(e), false);
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            $(tmp_canvas).on('mouseleave', function (e) {
+                e.stopPropagation();
 
-            presenter.points = [];
-        }, false);
+                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
-        // MOUSE
-        tmp_canvas.addEventListener('mousemove', function(e) {
-            e.stopPropagation();
+                presenter.points = [];
+            });
 
-            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+            tmp_canvas.addEventListener('mousedown', function (e) {
+                e.stopPropagation();
 
-            if (presenter.zoom !== 1) {
-                x = x * (1 / parseInt(presenter.zoom, 10));
-                y = y * (1 / parseInt(presenter.zoom, 10));
-            }
+                if (!presenter.configuration.isPencil) {
+                    presenter.configuration.context.globalCompositeOperation = "destination-out";
+                }
 
-            presenter.mouse.x = x;
-            presenter.mouse.y = y;
+                presenter.zoom = getZoom();
+                if (presenter.zoom == "" || presenter.zoom == undefined) {
+                    presenter.zoom = 1;
+                }
 
-        }, false);
+                tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
+                presenter.isStarted = true;
 
-        $(tmp_canvas).on('mouseleave', function(e) {
-            e.stopPropagation();
+                var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
 
-            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                if (presenter.zoom !== 1) {
+                    x = x * (1 / presenter.zoom);
+                    y = y * (1 / presenter.zoom);
+                }
 
-            presenter.points = [];
-        });
+                presenter.points.push({x: x, y: y});
 
-        tmp_canvas.addEventListener('mousedown', function(e) {
-            e.stopPropagation();
+                presenter.onPaint(e);
+            }, false);
 
-            if (!presenter.configuration.isPencil) {
-                presenter.configuration.context.globalCompositeOperation = "destination-out";
-            }
+            tmp_canvas.addEventListener('mouseup', function (e) {
+                e.stopPropagation();
 
-            presenter.zoom = getZoom();
-            if (presenter.zoom == "" || presenter.zoom == undefined) {
-                presenter.zoom = 1;
-            }
+                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
-            tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
-            presenter.isStarted = true;
-
-            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-            if (presenter.zoom !== 1) {
-                x = x * (1 / presenter.zoom);
-                y = y * (1 / presenter.zoom);
-            }
-
-            presenter.points.push({x: x, y: y});
-
-            presenter.onPaint(e);
-        }, false);
-
-        tmp_canvas.addEventListener('mouseup', function(e) {
-            e.stopPropagation();
-
-            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-            presenter.points = [];
-        }, false);
+                presenter.points = [];
+            }, false);
+        }
 
         tmp_canvas.addEventListener('click', function(e) {
             e.stopPropagation();
