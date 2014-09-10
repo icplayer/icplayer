@@ -330,7 +330,7 @@ function AddonIWB_Toolbar_create(){
         }
     }
 
-    function setBasicConfiguration(view) {
+    function setBasicConfiguration(view, model) {
         presenter.$view = $(view);
         presenter.$panel = $(view).find('.iwb-toolbar-panel');
         presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
@@ -344,6 +344,9 @@ function AddonIWB_Toolbar_create(){
         $('.ic_page:first').append(presenter.$panel);
         presenter.$pagePanel.css('cursor', 'initial');
         presenter.$view.disableSelection();
+        presenter.$removeConfirmationBox = presenter.$view.find('.confirmation-remove-note');
+        presenter.$removeConfirmationBox.attr('id', 'confirmationBox-' + model['ID']);
+        presenter.$pagePanel.find('.ic_page').append(presenter.$removeConfirmationBox);
     }
 
     function addEventHandlers() {
@@ -753,7 +756,7 @@ function AddonIWB_Toolbar_create(){
 
             Kinetic.pixelRatio = 1;
 
-            setBasicConfiguration(view);
+            setBasicConfiguration(view, model);
 
             addFloatingImages(model);
             createCanvases();
@@ -921,9 +924,16 @@ function AddonIWB_Toolbar_create(){
         }
 
         closeButton.on('click', function() {
-            if ( confirm('Are you sure to remove this note?') ) {
+            var confirmation = presenter.$removeConfirmationBox;
+            confirmation.css('top', $(window.top).scrollTop() + 10 + 'px');
+            confirmation.show();
+            confirmation.find('.no-button').click(function() {
+               confirmation.hide();
+            });
+            confirmation.find('.yes-button').click(function() {
                 note.remove();
-            }
+                confirmation.hide();
+            });
         });
 
         date.html(currentDate);
@@ -1157,7 +1167,7 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
         presenter.$pagePanel.enableSelection();
         presenter.$pagePanel.css('cursor', 'initial');
-        presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)').off('mousemove mousedown mouseup');
+//        presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)').off('mousemove mousedown mouseup');
         presenter.$pagePanel.find('.bottom-panel').hide();
 
         if (shouldClearCanvas) {

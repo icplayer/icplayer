@@ -303,6 +303,7 @@
     font-size: 0.8em;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    white-space: pre;
 }
 
 .iwb-toolbar-note textarea {
@@ -413,4 +414,53 @@
 
 .iwb-toolbar-panel .button.thickness .tooltip span:after {
     content: 'Thickness';
+}
+
+.confirmation-remove-note > span:after {
+     content: 'Are you sure to remove this note?';
+}
+
+.confirmation-remove-note .yes-button > span:after {
+    content: 'Yes';
+}
+
+.confirmation-remove-note .no-button > span:after {
+    content: 'No';
+}
+
+.confirmation-remove-note .no-button {
+    float: right;
+}
+
+.confirmation-remove-note .yes-button {
+    float: left;
+}
+
+.confirmation-remove-note .button {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #696969;
+    width: 50px;
+    text-align: center;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.confirmation-remove-note .ui-helper-clearfix {
+    margin-top: 10px;
+}
+
+.confirmation-remove-note {
+    min-height: 50px;
+    padding: 10px;
+    display: none;
+    width: 200px;
+    left: 50%;
+    margin-left: -100px;
+    position: absolute;
+    background-color: rgba(245, 245, 245, 0.7);
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    font-size: 0.7em;
+    z-index: 1002;
 }
