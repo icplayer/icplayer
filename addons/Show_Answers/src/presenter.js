@@ -70,12 +70,12 @@ function AddonShow_Answers_create(){
         presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
 
         if (!isPreview) {
-            presenter.handleClickAction();
+                presenter.handleClickAction();
         }
     }
 
     presenter.run = function(view, model) {
-        presenterLogic(view, model, false);
+            presenterLogic(view, model, false);
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -112,7 +112,7 @@ function AddonShow_Answers_create(){
 
     presenter.reset = function () {
         presenter.$button.text(presenter.configuration.text);
-        presenter.$wrapper.addClass('selected');
+        presenter.$wrapper.removeClass('selected');
         presenter.configuration.isSelected = false;
     };
 

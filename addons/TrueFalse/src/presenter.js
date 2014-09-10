@@ -51,7 +51,7 @@ function AddonTrueFalse_create() {
     };
 
     var workMode = function (reset) {
-        $(".tf_" + presenter.type + "_image").each(function () {
+        presenter.$view.find(".tf_" + presenter.type + "_image").each(function () {
             var image = $(this);
             image.removeClass("disabled wrong correct correct-answer");
             if (reset) {
