@@ -1,3 +1,4 @@
+2014-09-10 Fixed drawing issue on IE 11 mobile browser
 2014-09-10 Fixed drawing issue on Android 4.1.2 native browser
 2014-09-10 Fixed reaction on Check button in Show Answers module and reaction on Show Answers in True False module
 2014-09-10 Added show, hide and isVisible commands to Paragraph module
