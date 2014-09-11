@@ -1,3 +1,4 @@
+2014-09-11 Changed time format in note in IWB Toolbar module
 2014-09-11 Fixed problem with command stop on iPad in Text Audio module
 2014-09-11 Fixed problem with double lines on Android 4.1.2 in Connection module
 2014-09-11 Fixed drawing issue on Android 4.1.2 native browser in ShapeTracing module
