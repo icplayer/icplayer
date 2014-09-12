@@ -15,6 +15,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
+import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
+
 
 public class PlayerView extends VerticalPanel{
 
@@ -24,23 +26,21 @@ public class PlayerView extends VerticalPanel{
 	private PageView pageView2;
 	private PageView headerView;
 	private PageView footerView;
-	private WaitDialog	waitDlg;
+	private WaitDialog	waitDialog;
 	private NavigationButton nextPageButton = new NavigationButton("ic_navi_panel_next");
 	private NavigationButton prevPageButton = new NavigationButton("ic_navi_panel_prev");
 	private NavigationBar navigationBar;
-	
 	
 	public PlayerView(){
 		initUI();
 		DOM.sinkEvents(this.getElement(), Event.ONCLICK);
 	}
 
-
 	private void initUI() {
 		
 		setStyleName("ic_player");
 		
-		waitDlg = new WaitDialog();
+		waitDialog = new WaitDialog();
 		pageView1 = new PageView("ic_page");
 		contentPanel = new HorizontalPanel();
 		contentPanel.addStyleName("ic_content");
@@ -74,7 +74,6 @@ public class PlayerView extends VerticalPanel{
 			}
 		});
 	}
-	
 	
 	protected void nextPage() {
 		if(playerController != null){
@@ -220,16 +219,31 @@ public class PlayerView extends VerticalPanel{
 		return footerView;
 	}
 
-
 	public void showWaitDialog() {
-		waitDlg.show();
+		waitDialog.setPopupPositionAndShow(new PositionCallback() {
+	
+			public void setPosition(int offsetWidth, int offsetHeight) {
+				int playerHeight = getElement().getClientHeight();
+				int playerWidth = getElement().getClientWidth();
+				
+				Position playerPosition = new Position(getAbsoluteLeft(), getAbsoluteTop());
+				Dimensions clientDimensions = new Dimensions(Window.getClientWidth(), Window.getClientHeight());
+				Dimensions playerDimensions = new Dimensions(playerWidth, playerHeight);
+				Dimensions offsetDimensions = new Dimensions(offsetWidth, offsetHeight);
+				
+				Position popupPosition = PlayerViewUtils.calculatePopupPosition(playerPosition, clientDimensions, playerDimensions, offsetDimensions, getTopWindowInnerHeight());
+				waitDialog.setPopupPosition(popupPosition.getLeft(), popupPosition.getTop());
+			}
+		});
 	}
-
-
+	
+	native static int getTopWindowInnerHeight() /*-{
+		return $wnd.top.innerHeight;
+	}-*/;
+	
 	public void hideWaitDialog() {
-		waitDlg.hide();
+		waitDialog.hide();
 	}
-
 
 	public void showTwoPages() {
 		if(pageView2 == null){
