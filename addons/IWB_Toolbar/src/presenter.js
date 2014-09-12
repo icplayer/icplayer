@@ -350,7 +350,19 @@ function AddonIWB_Toolbar_create(){
     }
 
     function addEventHandlers() {
-        presenter.$pagePanel.on('click', function(e) {
+//        presenter.$pagePanel.on('click', function(e) {
+//            e.stopPropagation();
+//        });
+
+        presenter.$pagePanel.find('.iwb-toolbar-mask').click(function(e) {
+            e.stopPropagation();
+        });
+
+        presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
+            e.stopPropagation();
+        });
+
+        presenter.$panel.click(function(e) {
             e.stopPropagation();
         });
 
@@ -546,6 +558,9 @@ function AddonIWB_Toolbar_create(){
             var note = createNote();
 
             presenter.$pagePanel.find('.ic_page').append(note);
+            presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
+                e.stopPropagation();
+            });
         });
 
         presenter.$pagePanel.find('.default').click(function(e) {
@@ -924,14 +939,17 @@ function AddonIWB_Toolbar_create(){
             currentDate = dateObject.toLocaleDateString() + ', ' + time[0];
         }
 
-        closeButton.on('click', function() {
+        closeButton.on('click', function(e) {
+            e.stopPropagation();
             var confirmation = presenter.$removeConfirmationBox;
             confirmation.css('top', $(window.top).scrollTop() + 10 + 'px');
             confirmation.show();
-            confirmation.find('.no-button').click(function() {
+            confirmation.find('.no-button').click(function(e) {
+                e.stopPropagation();
                confirmation.hide();
             });
-            confirmation.find('.yes-button').click(function() {
+            confirmation.find('.yes-button').click(function(e) {
+                e.stopPropagation();
                 note.remove();
                 confirmation.hide();
             });
@@ -956,7 +974,7 @@ function AddonIWB_Toolbar_create(){
                 });
             }
         });
-
+        
         return note;
     }
 
