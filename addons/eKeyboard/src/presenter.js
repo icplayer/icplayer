@@ -406,7 +406,7 @@ function AddoneKeyboard_create(){
 
                     },
                     change      : function(e, keyboard, el) {
-                        if( $(el).val().length >= presenter.configuration.maxCharacters ) {
+                        if( $(el).val().length == presenter.configuration.maxCharacters ) {
                             keyboard.switchInput(true, true);
                         }
                     },
