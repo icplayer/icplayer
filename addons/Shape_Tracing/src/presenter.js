@@ -491,52 +491,54 @@ function AddonShape_Tracing_create() {
             e.stopPropagation();
         });
 
-        // TOUCH
-        ctx.on('touchstart', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            updateCursorPosition(e);
-            drawDot();
-            ctx.on('touchmove', draw);
-            if (presenter.data.isPencilActive) {
-                presenter.data.isStarted = true;
-                presenter.data.numberOfLines++;
-            } else {
-                resetAddon(false);
-            }
-        });
+        if (MobileUtils.isEventSupported('touchstart')) {
+            // TOUCH
+            ctx.on('touchstart', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                updateCursorPosition(e);
+                drawDot();
+                ctx.on('touchmove', draw);
+                if (presenter.data.isPencilActive) {
+                    presenter.data.isStarted = true;
+                    presenter.data.numberOfLines++;
+                } else {
+                    resetAddon(false);
+                }
+            });
 
-        ctx.on('touchend', function() {
-            ctx.off('touchmove', draw);
+            ctx.on('touchend', function () {
+                ctx.off('touchmove', draw);
 
-            if (presenter.data.isPencilActive) {
-                eventCreator();
-            }
-        });
+                if (presenter.data.isPencilActive) {
+                    eventCreator();
+                }
+            });
+        } else {
+            // MOUSE
+            ctx.on('mousedown', function (e) {
+                isDown = true;
+                e.stopPropagation();
+                updateCursorPosition(e);
+                drawDot();
+                ctx.on('mousemove', draw);
 
-        // MOUSE
-        ctx.on('mousedown', function(e) {
-            isDown = true;
-            e.stopPropagation();
-            updateCursorPosition(e);
-            drawDot();
-            ctx.on('mousemove', draw);
+                if (presenter.data.isPencilActive) {
+                    presenter.data.isStarted = true;
+                    presenter.data.numberOfLines++;
+                } else {
+                    resetAddon(false);
+                }
+            });
 
-            if (presenter.data.isPencilActive) {
-                presenter.data.isStarted = true;
-                presenter.data.numberOfLines++;
-            } else {
-                resetAddon(false);
-            }
-        });
-
-        ctx.on('mouseup mouseleave', function() {
-            ctx.off('mousemove', draw);
-            if (isDown && presenter.data.isPencilActive) {
-                eventCreator();
-                isDown = false;
-            }
-        });
+            ctx.on('mouseup mouseleave', function () {
+                ctx.off('mousemove', draw);
+                if (isDown && presenter.data.isPencilActive) {
+                    eventCreator();
+                    isDown = false;
+                }
+            });
+        }
     }
 
     function turnOffEventListeners() {

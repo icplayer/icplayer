@@ -1,4 +1,11 @@
+2014-09-11 Changed time format in note in IWB Toolbar module
+2014-09-11 Fixed problem with command stop on iPad in Text Audio module
+2014-09-11 Fixed problem with double lines on Android 4.1.2 in Connection module
+2014-09-11 Fixed drawing issue on Android 4.1.2 native browser in ShapeTracing module
 2014-09-10 Changed Default Confirmation Alert Box to Custom in IWB Toolbar module
+2014-09-10 Fixed drawing issue on IE 11 mobile browser in ShapeTracing addon
+2014-09-10 Fixed drawing issue on IE 11 mobile browser
+2014-09-10 Fixed drawing issue on Android 4.1.2 native browser
 2014-09-10 Fixed reaction on Check button in Show Answers module and reaction on Show Answers in True False module
 2014-09-10 Added show, hide and isVisible commands to Paragraph module
 2014-09-08 Fixed isAttempted method in Coloring module

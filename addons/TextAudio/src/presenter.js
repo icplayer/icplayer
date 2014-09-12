@@ -236,6 +236,7 @@ function AddonTextAudio_create(){
                 presenter.executeOnEndEvent();
                 presenter.sendOnEndEvent();
                 presenter.stop();
+                presenter.$view.find(".wrapper-addon-textaudio .textaudio-text :last-child").removeClass('active');
             }
         }, false);
 
@@ -271,6 +272,12 @@ function AddonTextAudio_create(){
     presenter.run = function(view, model){
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
+        presenter.isLoaded = false;
+        this.audio.addEventListener("loadeddata", function()
+            {
+                presenter.isLoaded = true;
+            }
+        );
         presenter.addonID = model.ID;
     };
 
@@ -440,17 +447,27 @@ function AddonTextAudio_create(){
 
     presenter.play = function() {
         if(this.audio.paused) {
+            presenter.isPlay = true;
             this.stop();
+            presenter.isPlay = false;
             this.audio.play();
         }
     };
 
     presenter.stop = function() {
-        if(!this.audio.paused) {
+        if(!this.audio.paused && presenter.isLoaded) {
             this.audio.pause();
             this.audio.currentTime = 0;
         }
-        presenter.$view.find(".wrapper-addon-textaudio .textaudio-text :last-child").removeClass('active');
+
+        if(!presenter.isLoaded && !presenter.isPlay){
+            this.audio.addEventListener("loadeddata", function()
+                {
+                    presenter.isLoaded = true;
+                    presenter.stop();
+                }
+            );
+        }
     };
 
     presenter.pause = function() {

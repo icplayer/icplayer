@@ -4,6 +4,9 @@
     bottom: 0; top: 0;
 
     cursor: crosshair;
+
+    -ms-touch-action: none;
+    touch-action: none;
 }
 
 .drawing .tmp_canvas:active {

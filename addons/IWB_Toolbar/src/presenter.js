@@ -920,7 +920,8 @@ function AddonIWB_Toolbar_create(){
             noteBody.html(savedNote.body);
         } else {
             var dateObject = new Date();
-            currentDate = dateObject.toLocaleDateString() + ', ' + dateObject.toLocaleTimeString()
+            var time = dateObject.toLocaleTimeString().match(/(\d{2}:\d{2}:\d{2})/);
+            currentDate = dateObject.toLocaleDateString() + ', ' + time[0];
         }
 
         closeButton.on('click', function() {
