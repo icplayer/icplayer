@@ -29,6 +29,7 @@ public class OrderingModule extends BasicModuleModel {
 	private IListProperty itemsProperty;
 	private String optionalOrder = "";
 	private boolean isActivity = true;
+	private boolean allElementsHasSameWidth = false;
 
 	public OrderingModule() {
 		super(DictionaryWrapper.get("ordering_module"));
@@ -41,6 +42,7 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyItems();
 		addPropertyOptionalOrder();
 		addPropertyIsActivity();
+		addPropertyAllElementHasSameWidth();
 	}
 
 	private void addItem(OrderingItem item) {
@@ -81,8 +83,9 @@ public class OrderingModule extends BasicModuleModel {
 		if(nodeList.getLength() > 0){
 			Element choice = (Element)nodeList.item(0);
 			isVertical = XMLUtils.getAttributeAsBoolean(choice, "isVertical");
-			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
 			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
+			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
+			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
 		}
 		
 		// Read item nodes
@@ -142,7 +145,7 @@ public class OrderingModule extends BasicModuleModel {
 		String xml = "<orderingModule " + getBaseXML() + ">" + getLayoutXML();
 		
 		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" + 
-				optionalOrder + "' isActivity='" + isActivity + "'/>";
+				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + Boolean.toString(allElementsHasSameWidth) + "' />";
 		
 		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
@@ -348,6 +351,44 @@ public class OrderingModule extends BasicModuleModel {
 
 		};
 		
+		addProperty(property);	
+	}
+	
+	public boolean doAllElementsHasSameWidth() {
+		return allElementsHasSameWidth;
+	}
+	
+	private void addPropertyAllElementHasSameWidth() {
+		IProperty property = new IBooleanProperty() {
+		
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value!= allElementsHasSameWidth){
+					allElementsHasSameWidth = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return allElementsHasSameWidth ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("All_elements_has_same_width");
+			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("All_elements_has_same_width");
+			}
+
+
+		};
+	
 		addProperty(property);	
 	}
 

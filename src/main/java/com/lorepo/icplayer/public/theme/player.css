@@ -478,16 +478,17 @@ hr, table, fieldset {
  * Ordering
  */
 
-.ic_ordering{
-	
-}
-
 .ic_ordering-item{
 	margin: 4px;
 	padding:4px;
 	border: 1px solid gray;
 	border-radius: 5px;
 	background-color:white;
+	box-sizing: border-box;
+}
+
+.ic_ordering-item img {
+	width: 100%;
 }
 
 .ic_ordering-item-correct{

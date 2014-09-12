@@ -16,6 +16,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 
+
 public class OrderingView extends Composite implements IDisplay {
 
 	private OrderingModule module;
@@ -40,8 +41,11 @@ public class OrderingView extends Composite implements IDisplay {
 		
 		createWidgetPanel();
 		
+		Integer itemWidth = module.getWidth() / module.getItemCount();
+		
 		for (int index = 0; index < module.getItemCount(); index++ ) {
-			ItemWidget itemWidget = new ItemWidget(module.getItem(index));
+			ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
+			itemWidget.setWidthWithoutMargin(itemWidth);
 			addWidget(itemWidget);
 		}
 		
@@ -54,6 +58,7 @@ public class OrderingView extends Composite implements IDisplay {
 			saveScore();
 			setVisible(module.isVisible());
 		}
+		
 		getElement().setId(module.getId());
 	}
 	
@@ -76,7 +81,7 @@ public class OrderingView extends Composite implements IDisplay {
 				onWidgetClicked(widget);
 			}
 		});
-
+		
 	}
 
 	private void onWidgetClicked(Widget widget) {

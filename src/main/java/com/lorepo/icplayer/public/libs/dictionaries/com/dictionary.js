@@ -222,6 +222,7 @@ var ice_dictionary = {
 	"is_activity" : "Is&nbsp;activity",
 	"is_disabled" : "Is&nbsp;disabled",
 	"randomOrder" : "Random&nbsp;Order",
+	"All_elements_has_same_width" : "Even width for all elements",
 	"case_sensitive" : "Case&nbsp;sensitive",
 	"optional_order" : "order",
 	"add_header_footer": "Replace headers",

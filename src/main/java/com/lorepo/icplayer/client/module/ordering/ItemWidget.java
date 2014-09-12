@@ -7,24 +7,38 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.Element;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
 import com.lorepo.icplayer.client.module.text.LinkWidget;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
+abstract class ComputedStyle { // safari fix
+	public static native int getStyle(Element el, String prop) /*-{
+		return parseInt($wnd.$(el).css(prop), 10);
+	}-*/;
+}
+
 public class ItemWidget extends HTML {
 
 	private OrderingItem item;
 	private ParserResult parserResult;
 	private EventBus eventBus;
+	private Integer widthWithoutMargin; // safari fix
+	private OrderingModule container; // safari fix
 	
-	public ItemWidget(OrderingItem item) {
+	public ItemWidget(OrderingItem item, OrderingModule container) {
+		this.container = container;
 		TextParser parser = new TextParser();
 		parserResult = parser.parse(item.getText());
 		setHTML(parserResult.parsedText);
 		this.item = item;
 		setStyleName("ic_ordering-item");
+	}
+	
+	public void setWidthWithoutMargin(Integer value) {
+		widthWithoutMargin = value;
 	}
 	
 	public int getIndex() {
@@ -38,6 +52,12 @@ public class ItemWidget extends HTML {
 	protected void onAttach() {
 		super.onAttach();
 		connectLinks(parserResult.linkInfos.iterator());
+		if (container.doAllElementsHasSameWidth()) { // safari fix
+			int marginLeft = ComputedStyle.getStyle(getElement(), "marginLeft");
+			int marginRight = ComputedStyle.getStyle(getElement(), "marginRight");
+			Integer width = widthWithoutMargin - marginLeft - marginRight;
+			setWidth(width.toString() + "px");
+		}
 	}
 	
 	public void connectLinks(Iterator<LinkInfo> it) {
