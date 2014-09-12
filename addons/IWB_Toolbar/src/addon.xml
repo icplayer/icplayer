@@ -5,5 +5,7 @@
         <property name="floatingImages" displayName="Floating Images" type="list">
             <property name="Image" type="file" />
         </property>
+        <property name="widthWhenOpened" displayName="Width When Opened" type="string" />
+        <property name="widthWhenClosed" displayName="Width When Closed" type="string" />
 	</model>
 </addon>

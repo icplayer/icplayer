@@ -17,10 +17,6 @@
     position: fixed;
 }
 
-.iwb-toolbar-panel .button, .iwb-toolbar-panel .button-separator {
-    display: none;
-}
-
 .iwb-toolbar-panel .button-separator {
     width: 1px;
     float: left;
@@ -49,6 +45,10 @@
     background-position: center;
     background-repeat: no-repeat;
     cursor: pointer;
+}
+
+.iwb-toolbar-panel .button.hidden, .iwb-toolbar-panel .button-separator.hidden {
+    display: none;
 }
 
 .iwb-toolbar-panel .button.first {

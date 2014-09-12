@@ -1,3 +1,6 @@
+2014-09-12 IWB Toolbar: now you can hide unnecessary buttons
+2014-09-12 Fixed problem with loading progress circle for other views than embed
+2014-09-12 Fixed problem with propagation in IWB Toolbar module
 2014-09-11 Changed time format in note in IWB Toolbar module
 2014-09-11 Fixed problem with command stop on iPad in Text Audio module
 2014-09-11 Fixed problem with double lines on Android 4.1.2 in Connection module

@@ -93,6 +93,7 @@ function AddonIWB_Toolbar_create(){
     };
 
     presenter.ERROR_CODES = {
+        'E01' : 'Width can NOT be negative.'
     };
 
     presenter.createPreview = function(view, model) {
@@ -104,14 +105,14 @@ function AddonIWB_Toolbar_create(){
 
             presenter.$panel.addClass('animationInProgress');
             presenter.$panel.children('.button-separator').hide();
-            presenter.$buttonsExceptOpen.hide();
+            presenter.$buttonsExceptOpen.addClass('hidden');
 
             presenter.$panel.animate({
-                'width' : 30 + 'px'
-//                    'left' : (parseInt(presenter.$panel.css('left'), 10) - 451) + 'px'
+                'width' : presenter.config.widthWhenClosed + 'px'
             }, 1000, function() {
                 presenter.$panel.children('.button.open').show();
                 presenter.$panel.removeClass('animationInProgress');
+                presenter.$panel.removeClass('opened');
             });
 
             window.savedPanel.isOpen = false;
@@ -120,24 +121,24 @@ function AddonIWB_Toolbar_create(){
 
     function openPanel(doAnimation) {
         window.savedPanel.isOpen = true;
-        presenter.$buttonsExceptOpen.css('width', presenter.buttonWidth);
+//        presenter.$buttonsExceptOpen.css('width', presenter.buttonWidth);
 
         function _show() {
-            presenter.$buttonsExceptOpen.show();
+            presenter.$buttonsExceptOpen.removeClass('hidden');
             presenter.$panel.children('.button.open').hide();
             presenter.$panel.children('.button-separator').show();
             presenter.$panel.removeClass('animationInProgress');
+            presenter.$panel.addClass('opened');
         }
 
         if (doAnimation) {
             presenter.$panel.addClass('animationInProgress');
-            var left = (parseInt(presenter.$panel.css('left'), 10) - 421);
             presenter.$panel.animate({
-                'width' : 457 + 'px'
-//                    'left' : (left <= 0 ? 0 : left) + 'px'
+                'width' : presenter.config.widthWhenOpened + 'px'
             }, 1000, _show);
         } else {
             _show();
+            presenter.$panel.css('width', window.savedPanel.widthWhenOpened + 'px');
         }
     }
 
@@ -333,6 +334,7 @@ function AddonIWB_Toolbar_create(){
     function setBasicConfiguration(view, model) {
         presenter.$view = $(view);
         presenter.$panel = $(view).find('.iwb-toolbar-panel');
+        presenter.$panel.attr('id', model['ID'] + '-panel');
         presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
         presenter.$icplayer = presenter.$panel.parents('.ic_player').parent();
         presenter.$defaultThicknessButton = presenter.$panel.find('.thickness-1');
@@ -347,10 +349,71 @@ function AddonIWB_Toolbar_create(){
         presenter.$removeConfirmationBox = presenter.$view.find('.confirmation-remove-note');
         presenter.$removeConfirmationBox.attr('id', 'confirmationBox-' + model['ID']);
         presenter.$pagePanel.find('.ic_page').append(presenter.$removeConfirmationBox);
+        presenter.config = validateModel(model);
+    }
+
+    function validateModel(model) {
+        var validated,
+            widthWhenOpened,
+            widthWhenClosed;
+
+        if (model['widthWhenOpened']) {
+            validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
+        } else {
+            validated = {
+                isValid: true,
+                value: 457
+            }
+        }
+
+        if (!validated.isValid) {
+            return {
+                'isValid' : false,
+                'errorCode' : 'E01'
+            }
+        }
+
+        widthWhenOpened = validated.value;
+
+        if (model['widthWhenClosed']) {
+            validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenClosed']);
+        } else {
+            validated = {
+                isValid: true,
+                value: 30
+            }
+        }
+
+        if (!validated.isValid) {
+            return {
+                'isValid' : false,
+                'errorCode' : 'E01'
+            }
+        }
+
+        widthWhenClosed = validated.value;
+
+        return {
+            'widthWhenClosed' : widthWhenClosed,
+            'widthWhenOpened' : widthWhenOpened,
+            'isValid' : true
+        }
     }
 
     function addEventHandlers() {
-        presenter.$pagePanel.on('click', function(e) {
+//        presenter.$pagePanel.on('click', function(e) {
+//            e.stopPropagation();
+//        });
+
+        presenter.$pagePanel.find('.iwb-toolbar-mask').click(function(e) {
+            e.stopPropagation();
+        });
+
+        presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
+            e.stopPropagation();
+        });
+
+        presenter.$panel.click(function(e) {
             e.stopPropagation();
         });
 
@@ -546,6 +609,9 @@ function AddonIWB_Toolbar_create(){
             var note = createNote();
 
             presenter.$pagePanel.find('.ic_page').append(note);
+            presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
+                e.stopPropagation();
+            });
         });
 
         presenter.$pagePanel.find('.default').click(function(e) {
@@ -758,6 +824,11 @@ function AddonIWB_Toolbar_create(){
 
             setBasicConfiguration(view, model);
 
+            if (!presenter.config.isValid) {
+                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, presenter.config.errorCode);
+                return;
+            }
+
             addFloatingImages(model);
             createCanvases();
 
@@ -768,12 +839,14 @@ function AddonIWB_Toolbar_create(){
                     $(event.target).addClass('running');
                     $(event.target).css('position', '');
                     if (window.savedPanel && window.savedPanel.position) {
-                        $(event.target).css('top', window.savedPanel.position.top + 'px');
-                        $(event.target).css('left', window.savedPanel.position.left + 'px');
+                        presenter.headerLoaded.then(function() {
+                            $(event.target).css('top', window.savedPanel.position.top + 'px');
+                            $(event.target).css('left', window.savedPanel.position.left + 'px');
+                        });
                     } else {
                         presenter.headerLoaded.then(function() {
-                            $(event.target).css('top', presenter.$pagePanel.offset().top + parseInt(model['Top'], 10) + 'px');
-                            $(event.target).css('left', presenter.$pagePanel.offset().left + parseInt(model['Left'], 10) + 'px');
+                            $(event.target).css('top', (presenter.$pagePanel.offset().top + parseInt(model['Top'], 10)) + 'px');
+                            $(event.target).css('left', (presenter.$pagePanel.offset().left + parseInt(model['Left'], 10)) + 'px');
                         });
                     }
                 },
@@ -789,6 +862,8 @@ function AddonIWB_Toolbar_create(){
             if (window.savedPanel && window.savedPanel.isOpen) {
     //            presenter.$toggleButton.addClass('clicked');
                 openPanel(false);
+            } else {
+                window.savedPanel.widthWhenOpened = presenter.config.widthWhenOpened;
             }
 
             addEventHandlers();
@@ -924,14 +999,17 @@ function AddonIWB_Toolbar_create(){
             currentDate = dateObject.toLocaleDateString() + ', ' + time[0];
         }
 
-        closeButton.on('click', function() {
+        closeButton.on('click', function(e) {
+            e.stopPropagation();
             var confirmation = presenter.$removeConfirmationBox;
             confirmation.css('top', $(window.top).scrollTop() + 10 + 'px');
             confirmation.show();
-            confirmation.find('.no-button').click(function() {
+            confirmation.find('.no-button').click(function(e) {
+                e.stopPropagation();
                confirmation.hide();
             });
-            confirmation.find('.yes-button').click(function() {
+            confirmation.find('.yes-button').click(function(e) {
+                e.stopPropagation();
                 note.remove();
                 confirmation.hide();
             });
@@ -956,7 +1034,7 @@ function AddonIWB_Toolbar_create(){
                 });
             }
         });
-
+        
         return note;
     }
 
