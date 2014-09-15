@@ -148,30 +148,25 @@ function AddonSlideshow_create() {
             showLoadingScreen("Loading audio file...");
         }
 
-        var mediaLoaded = false;
         buzz.defaults.autoplay = false;
         buzz.defaults.loop = false;
 
-        if (buzz.isMP3Supported() && presenter.configuration.audio.MP3 !== null) {
-            presenter.configuration.buzzAudio = new buzz.sound(presenter.configuration.audio.MP3);
-            mediaLoaded = true;
-        }
+        presenter.configuration.buzzAudio = new buzz.sound([
+            presenter.configuration.audio.MP3,
+            presenter.configuration.audio.OGG
+        ]);
 
-        if (!mediaLoaded && buzz.isOGGSupported() && presenter.configuration.audio.OGG !== null) {
-            presenter.configuration.buzzAudio = new buzz.sound(presenter.configuration.audio.OGG);
-            mediaLoaded = true;
-        }
-
-        if (!mediaLoaded)  return { isError:true, errorCode:"A_03" };
+        if (presenter.configuration.audio.MP3 === "" || presenter.configuration.audio.OGG === "")
+            return { isError: true, errorCode: "A_03" };
 
         presenter.configuration.buzzAudio.bind("error", function () {
             var errorMessage = "Error occurred while loading/playing audio.";
 
-            if (this.getErrorMessage()) errorMessage += " Reason: " + this.getErrorMessage();
+            if (this.getErrorMessage()) {
+                errorMessage += " Reason: " + this.getErrorMessage();
+            }
 
-            errorMessage += " Please try again.";
-
-            DOMElements.viewContainer.html(errorMessage);
+            DOMElements.viewContainer.html(errorMessage + " Please try again.");
         });
 
         presenter.configuration.buzzAudio.bind("loadedmetadata", function () {
@@ -200,13 +195,7 @@ function AddonSlideshow_create() {
 
                 switch (type) {
                     case presenter.TIME_LINE_TASK.TYPE.SLIDE:
-                        var showIndex;
-
-                        if (time !== 0) {
-                            showIndex = index;
-                        } else { // presentation stopped/ended
-                            showIndex = 0;
-                        }
+                        var showIndex = time !== 0 ? index : 0;
 
                         for (var j = 0; j < presenter.configuration.slides.domReferences.length; j++) {
                             var $slideElement = $(presenter.configuration.slides.domReferences[j]);
@@ -216,7 +205,6 @@ function AddonSlideshow_create() {
                                 } else {
                                     $slideElement.show();
                                 }
-
                             } else {
                                 if (isSlideAnimation) {
                                     $slideElement.hide("fade", {}, 2000);
@@ -1232,34 +1220,30 @@ function AddonSlideshow_create() {
         };
     };
 
+    function returnErrorObject() {
+        return { isError: true }
+    }
+
     // This function validates and converts timer in MM:SS format to number of seconds
     presenter.sanitizeTimer = function (timer) {
         if (!timer || timer.length === 0) {
-            return {
-                isError:true
-            };
+            return returnErrorObject();
         }
 
         var buzzedTimer = buzz.fromTimer(timer);
         if (typeof buzzedTimer === "string") {
             if (buzzedTimer.split(':', 1).length !== 2) {
-                return {
-                    isError:true
-                };
+                return returnErrorObject();
             }
 
             buzzedTimer = parseInt(buzzedTimer, 10);
             if (isNaN(buzzedTimer) || buzzedTimer < 0) {
-                return {
-                    isError:true
-                };
+                return returnErrorObject();
             }
         }
 
         if (buzzedTimer < 0) {
-            return {
-                isError:true
-            };
+            return returnErrorObject();
         }
 
         return {
@@ -1487,13 +1471,8 @@ function AddonSlideshow_create() {
     };
 
     presenter.validateModel = function (model, isPreview) {
-        
-        var audioValidationResult = null,
-        	animationValidationResult = null;
-
-		animationValidationResult = presenter.validateAnimation(model["Slide animation"], model["Text animation"]);
-		
-		audioValidationResult = presenter.validateAudio(model.Audio[0]);
+		var animationValidationResult = presenter.validateAnimation(model["Slide animation"], model["Text animation"]);
+		var audioValidationResult = presenter.validateAudio(model.Audio[0]);
 
 		if (audioValidationResult.isError) {
 			return {
