@@ -252,7 +252,7 @@ function AddoneKeyboard_create(){
                     }
                 }
 
-                $(presenter.configuration.workWithViews).find('input').keyboard({
+                var config = {
                     // *** choose layout ***
                     layout       : presenter.configuration.layoutType,
                     customLayout : presenter.configuration.customLayout,
@@ -375,7 +375,7 @@ function AddoneKeyboard_create(){
                     openOn       : presenter.configuration.openOnFocus ? 'focus' : '',
 
                     // When the character is added to the input
-                    keyBinding   : 'mousedown touchend',
+                    keyBinding   : 'mousedown',
 
                     // combos (emulate dead keys : http://en.wikipedia.org/wiki/Keyboard_layout#US-International)
                     // if user inputs `a the script converts it to à, ^o becomes ô, etc.
@@ -427,11 +427,17 @@ function AddoneKeyboard_create(){
                     // when the accept button is clicked, "isClosing" is true
                     validate    : function(keyboard, value, isClosing) { return true; }
 
-                });
+                };
+
+                if (MobileUtils.isEventSupported("touchend")) {
+                    config.keyBinding = "touchend"
+                }
+
+                $(presenter.configuration.workWithViews).find('input').keyboard(config);
 
                 $.each($(presenter.configuration.workWithViews).find('input'), function(){
                     var keyboard = $(this).data('keyboard');
-                    keyboard.startup();
+                    //keyboard.startup();
                 });
 
             }

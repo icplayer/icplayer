@@ -1,3 +1,4 @@
+2014-09-15 Fixed eKeyboard issues on Android devices
 2014-09-12 IWB Toolbar: fixed preview
 2014-09-12 [Ordering] Added new property: Even width for all elements, to avoid problems with images in Safari
 2014-09-12 IWB Toolbar: now you can hide unnecessary buttons
