@@ -16,6 +16,7 @@ function AddonImage_Viewer_Public_create() {
     presenter.totalPercentage = 0;
     presenter.lastReceivedEvent = null;
     presenter.isMouseDown = false;
+    presenter.eventBus = null;
 
     presenter.ERROR_CODES = {
         'IM_01': "Image must be uploaded to display Addon!",
@@ -416,7 +417,7 @@ function AddonImage_Viewer_Public_create() {
             }
 
             hideLoadingScreen();
-            presenter.$view.trigger("onLoadImageEnd", [preview]);
+                presenter.$view.trigger("onLoadImageEnd", [preview]);
         });
     }
 
@@ -615,8 +616,13 @@ function AddonImage_Viewer_Public_create() {
             presenter.$view.bind("onLoadImageEnd", function (event, isPreview) {
                 loadImagesCallback(isPreview);
             });
-
-            loadImage(preview);
+            if(!preview){
+                presenter.pageLoaded.then(function() {
+                    loadImage(preview);
+                });
+            }else{
+                loadImage(preview);
+            }
             presenter.setVisibility(presenter.configuration.defaultVisibility);
             if (presenter.configuration.defaultVisibility) {
                 presenter.displayLabels(1);
@@ -814,6 +820,9 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.run = function(view, model){
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
         this.upgradedModel = this.upgradeModel(model);
         presenterLogic(view, this.upgradedModel, false);
     };
@@ -1337,6 +1346,8 @@ function AddonImage_Viewer_Public_create() {
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
+        presenter.eventBus = controller.getEventBus();
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.isCurrentFrameCorrectlySelected = function () {
@@ -1430,6 +1441,12 @@ function AddonImage_Viewer_Public_create() {
         if(!presenter.configuration.correctFrames.isExerciseMode) return;
 
         removeCorrectnessClasses();
+    };
+
+    presenter.onEventReceived = function(eventName) {
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
+        }
     };
 
     return presenter;
