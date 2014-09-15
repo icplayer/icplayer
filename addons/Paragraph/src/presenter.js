@@ -41,6 +41,20 @@ function AddonParagraph_create() {
         presenter.initializeEditor(view, model);
     };
 
+    presenter.validateToolbar = function(controls) {
+        if (!controls) {
+            return presenter.DEFAULTS.TOOLBAR;
+        }
+        var allowedButtons = 'newdocument bold italic underline strikethrough alignleft aligncenter '+
+                             'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
+                             'cut copy paste bullist numlist outdent indent blockquote undo redo '+
+                             'removeformat subscript superscript'.split(' ');
+        controls = controls.split(' ');
+        return controls.filter(function(param){
+            return allowedButtons.indexOf(param) != -1
+        }).join(' ');
+    }
+
     /**
      * Parses model and set settings to default values if either of them is empty
      *
@@ -51,6 +65,7 @@ function AddonParagraph_create() {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
+            toolbar = presenter.validateToolbar(model['Custom toolbar']),
             height = model.Height,
             hasDefaultFontFamily = false,
             hasDefaultFontSize = false;
@@ -75,6 +90,7 @@ function AddonParagraph_create() {
             fontFamily: fontFamily,
             fontSize: fontSize,
             isToolbarHidden: isToolbarHidden,
+            toolbar: toolbar,
             textAreaHeight: height,
             hasDefaultFontFamily: hasDefaultFontFamily,
             hasDefaultFontSize: hasDefaultFontSize,
@@ -104,7 +120,7 @@ function AddonParagraph_create() {
             height: presenter.configuration.textAreaHeight,
             statusbar: false,
             menubar: false,
-            toolbar: presenter.DEFAULTS.TOOLBAR,
+            toolbar: presenter.configuration.toolbar,
             oninit: presenter.onInit,
             content_css: presenter.configuration.content_css,
             setup : function(editor) {

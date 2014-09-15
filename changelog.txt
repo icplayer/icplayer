@@ -1,3 +1,4 @@
+2014-09-15 Added "Custom toolbar" property to Paragraph module
 2014-09-15 Fixed Image Viewer issue in mexican lesson
 2014-09-15 Fixed eKeyboard issues on Android devices
 2014-09-12 IWB Toolbar: fixed preview

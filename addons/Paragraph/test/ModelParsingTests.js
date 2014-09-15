@@ -77,5 +77,37 @@ TestCase("[Paragraph] Model parsing", {
 
         assertTrue(validatedModel.isToolbarHidden);
         assertEquals(166, validatedModel.textAreaHeight);
+    },
+
+    'test custom toolbar available buttons': function() {
+        var model = {
+            'Custom toolbar': 'newdocument bold italic underline strikethrough alignleft aligncenter alignright ' +
+                              'alignjustify styleselect formatselect fontselect fontsizeselect cut copy paste ' +
+                              'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript'
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertEquals(model['Custom toolbar'], validatedModel.toolbar);
+    },
+
+    'test custom toolbar unavailable buttons removed silently': function() {
+        var model = {
+            'Custom toolbar': 'italic underline bold test fake button'
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertEquals('italic underline bold', validatedModel.toolbar);
+    },
+
+    'test blank custom toolbar': function() {
+        var model = {
+            'Custom toolbar': ''
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertEquals(this.presenter.DEFAULTS.TOOLBAR, validatedModel.toolbar);
     }
 });
