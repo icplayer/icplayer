@@ -50,6 +50,9 @@ function Addonmultiplegap_create(){
     };
 
     presenter.run = function(view, model) {
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
         presenter.createLogic(view, model);
     };
 
@@ -418,6 +421,7 @@ function Addonmultiplegap_create(){
         presenter.eventBus = presenter.playerController.getEventBus();
 
         presenter.eventBus.addEventListener('ItemSelected', presenter.eventListener);
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     function sendAllOKEvent () {
@@ -531,7 +535,9 @@ function Addonmultiplegap_create(){
             presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), state[i], false, true, true);
         }
 
-        MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.$view.find('.multiplegap_container')[0])});
+        presenter.pageLoaded.then(function() {
+            MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.$view.find('.multiplegap_container')[0])});
+        });
     };
 
     presenter.countItems = function() {
@@ -554,6 +560,12 @@ function Addonmultiplegap_create(){
         };
 
         return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.onEventReceived = function(eventName) {
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
+        }
     };
 
     return presenter;

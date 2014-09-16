@@ -1,3 +1,4 @@
+2014-09-16 Fixed problem with setting state in Multiple Gap module
 2014-09-15 Fixed issue with loading resources on IE11 in Slideshow module
 2014-09-15 Added "Custom toolbar" property to Paragraph module
 2014-09-15 Fixed Image Viewer issue in mexican lesson
