@@ -16,6 +16,7 @@ public class CheckButtonModule extends BasicModuleModel {
 
 	private String checkTitle = "";
 	private String unCheckTitle = "";
+	private String title = "";
 	
 	public CheckButtonModule() {
 		super(DictionaryWrapper.get("check_answers_button"));
@@ -35,8 +36,15 @@ public class CheckButtonModule extends BasicModuleModel {
 			if (childNode instanceof Element) {
 				if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element) {
 					Element childElement = (Element) childNode;
+					
+					title = XMLUtils.getAttributeAsString(childElement, "text");
 					checkTitle = XMLUtils.getAttributeAsString(childElement, "checkTitle");
 					unCheckTitle = XMLUtils.getAttributeAsString(childElement, "unCheckTitle");
+					
+					if (!title.equals("")) {
+						checkTitle = title;
+						unCheckTitle = title;
+					}
 				}
 			}
 		}
@@ -47,8 +55,8 @@ public class CheckButtonModule extends BasicModuleModel {
 	public String toXML() {
 		String encodedCheck = StringUtils.escapeHTML(checkTitle);
 		String encodedUnCheck = StringUtils.escapeHTML(unCheckTitle);
-
-		return "<checkModule " + getBaseXML() + ">" + getLayoutXML() + "<button checkTitle='" + encodedCheck + "' unCheckTitle='" + encodedUnCheck + "'/></checkModule>";
+		
+			return "<checkModule " + getBaseXML() + ">" + getLayoutXML() + "<button checkTitle='" + encodedCheck + "' unCheckTitle='" + encodedUnCheck + "'/></checkModule>";
 	}
 
 	public String getCheckTitle() {

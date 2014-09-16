@@ -19,4 +19,6 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public void addNameValidator(INameValidator validator);
 	public boolean isLocked();
 	public void lock(boolean state);
+	public String getButtonType();
+
 }

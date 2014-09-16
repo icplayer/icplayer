@@ -12,7 +12,6 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -24,13 +23,9 @@ import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
-/**
- * Model reprezentujący pojedyncza strone
- * 
- * @author Krzysztof Langner
- *
- */
 public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 
 	
@@ -249,13 +244,21 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		NodeList moduleNodeList = modulesNode.getChildNodes();
 		
 		for(int i = 0; i < moduleNodeList.getLength(); i++){
-
+			
 			Node node = moduleNodeList.item(i);
+			
 			if(node instanceof Element){
-				
 				IModuleModel module = moduleFactory.createModel(node.getNodeName());
+				
 				if(module != null){
 					module.load((Element) node, getBaseURL());
+
+					if(ModuleFactoryUtils.isCheckAnswersButton(module)) {
+						module = new CheckButtonModule();
+					};
+					
+					module.load((Element) node, getBaseURL());
+
 					this.modules.add(module);
 				}
 			}

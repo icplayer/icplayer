@@ -13,11 +13,6 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 
-/**
- * Klasa implementuje bazowe functionalności potrzebne wszystkim modułom
- * 
- * @author Krzysztof Langner
- */
 public abstract class BasicModuleModel extends StyledModule implements IModuleModel{
 
 	private String  moduleTypeName;
@@ -26,7 +21,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private boolean isLocked = false;
 	private String baseURL;
 	private INameValidator nameValidator;
-
+	private String buttonType;
 	
 	protected BasicModuleModel(String typeName){
 		
@@ -103,12 +98,25 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		NodeList nodes = element.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
+			
+			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
+				buttonType = StringUtils.unescapeXML(((Element) childNode).getAttribute("type"));
+				setButtonType(buttonType);
+			}
 			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
 				layout.load((Element) childNode);
 			}
 		}
 	}
 
+	
+	private void setButtonType(String type) {
+		this.buttonType = type;
+	}
+
+	public String getButtonType() {
+		return buttonType;
+	}
 	
 	protected String getBaseXML(){
 		

@@ -49,4 +49,22 @@ public class CheckButtonModuleTestCase {
 		assertEquals("check", module.getCheckTitle());
 		assertEquals("unCheck", module.getUnCheckTitle());
 	}
+	
+	
+	@Test
+	public void backwardCompatibilityForCheckAnswers() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/checkAnswersButton.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		CheckButtonModule module = new CheckButtonModule();
+		module.load(element, "");
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new CheckButtonModule();
+		module.load(element, "");
+		
+		assertEquals("Some title", module.getCheckTitle());
+		assertEquals("Some title", module.getUnCheckTitle());
+	}	
 }
