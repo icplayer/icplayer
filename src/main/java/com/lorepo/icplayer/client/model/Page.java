@@ -255,9 +255,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 
 					if(ModuleFactoryUtils.isCheckAnswersButton(module)) {
 						module = new CheckButtonModule();
+						module.load((Element) node, getBaseURL());
 					};
-					
-					module.load((Element) node, getBaseURL());
 
 					this.modules.add(module);
 				}
