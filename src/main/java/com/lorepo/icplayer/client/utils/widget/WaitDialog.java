@@ -22,5 +22,6 @@ public class WaitDialog extends DialogBox {
 		HTML html = new HTML("<div></div>");
 		html.setStyleName("ic_waitImage");
 		setWidget(html);
+		center();
 	}
 }
