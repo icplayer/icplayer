@@ -12,34 +12,34 @@
 	<stylesheet src="theme/player.css"/>
 	<stylesheet src="libs/jquery-ui.css"/>
 
-	<script src="libs/player-utils.js"/>
-	<script src="libs/buzz.js"/>
-	<script src="libs/jcanvas.min.js"/>
-	<script src="libs/jquery-ui.js"/>
-	<script src="libs/jquery-csv.js"/>
-	<script src="libs/jquery.dotimeout.js"/>
-	<script src="libs/jquery.imgpreload.js"/>
-	<script src="libs/jquery.mousewheel.js"/>
-	<script src="libs/js-expression-eval.js"/>
-	<script src="libs/raphael.js"/>
-	<script src="libs/raphael.free_transform.js"/>
-	<script src="libs/jquery.svg.min.js"/>
-	<script src="libs/jquery.svganim.min.js"/>
-	<script src="libs/jquery.svgdom.min.js"/>
-	<script src="libs/expression-evaluator.js"/>
-	<script src="libs/commons.js"/>
-	<script src="libs/dictionary.js"/>
-	<script src="libs/aop.min.js"/>
-	<script src="libs/scorm.js"/>
-	<script src="libs/scorm_1_2.js"/>
-	<script src="libs/tinymce.min.js"/>
-	<script src="libs/jsc3d.js" />
-	<script src="libs/htmlparser.js" />
-	<script src="libs/jquery.ui.touch-punch.min.js" />
-	<script src="libs/jquery.keyboard.min.js" />
-	<script src="libs/kinetic-v5.1.0.min.js" />
-	<script src="libs/swiffy_runtime.js" />
-	<script src="libs/sonic.js" />
+    <script src="libs/player-utils.js"/>
+    <script src="libs/buzz.min.js"/>
+    <script src="libs/jcanvas.min.js"/>
+    <script src="libs/jquery-ui.min.js"/>
+    <script src="libs/jquery-csv.js"/>
+    <script src="libs/jquery.dotimeout.js"/>
+    <script src="libs/jquery.imgpreload.js"/>
+    <script src="libs/jquery.mousewheel.js"/>
+    <script src="libs/js-expression-eval.js"/>
+    <script src="libs/raphael-min.js"/>
+    <script src="libs/raphael.free_transform.min.js"/>
+    <script src="libs/jquery.svg.min.js"/>
+    <script src="libs/jquery.svganim.min.js"/>
+    <script src="libs/jquery.svgdom.min.js"/>
+    <script src="libs/expression-evaluator.js"/>
+    <script src="libs/commons.js"/>
+    <script src="libs/dictionary.js"/>
+    <script src="libs/aop.min.js"/>
+    <script src="libs/scorm.min.js"/>
+    <script src="libs/scorm_1_2.min.js"/>
+    <script src="libs/tinymce.min.js"/>
+    <script src="libs/jsc3d.min.js" />
+    <script src="libs/htmlparser.min.js" />
+    <script src="libs/jquery.ui.touch-punch.min.js" />
+    <script src="libs/jquery.keyboard.min.js" />
+    <script src="libs/kinetic-v5.1.0.min.js" />
+    <script src="libs/swiffy_runtime.js" />
+    <script src="libs/sonic.js" />
 
   <script src="libs/eKeyboard_layouts/french.js" />
   <script src="libs/eKeyboard_layouts/german.js" />
@@ -51,29 +51,29 @@
 	<script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
 	<script src="libs/jqplot/jqplot.cursor.min.js"/>
 	<script src="libs/jqplot/jqplot.pointLabels.min.js"/>
-	
-	<script src="libs/RGraph_lib/RGraph.common.core.js"/>
-	<script src="libs/RGraph_lib/RGraph.bar.js"/>
-	<script src="libs/RGraph_lib/RGraph.gauge.js"/>
-	<script src="libs/RGraph_lib/RGraph.hbar.js"/>
-	<script src="libs/RGraph_lib/RGraph.hprogress.js"/>
-	<script src="libs/RGraph_lib/RGraph.line.js"/>
-	<script src="libs/RGraph_lib/RGraph.meter.js"/>
-	<script src="libs/RGraph_lib/RGraph.radar.js"/>
-	<script src="libs/RGraph_lib/RGraph.rose.js"/>
 
-	<script src="libs/TreeGrid/js/jquery.treegrid.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.common.core.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.bar.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.gauge.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.hbar.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.hprogress.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.line.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.meter.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.radar.min.js"/>
+    <script src="libs/RGraph_lib_min/RGraph.rose.min.js"/>
+
+	<script src="libs/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
 	<stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
 	
   <script src="libs/createjs/easeljs-0.4.1.min.js"/>
 	<script src="libs/createjs/tweenjs-0.2.0.min.js"/>
 	<script src="libs/createjs/movieclip-0.4.1.min.js"/>
-	<script src="libs/createjs/ypreloadjs.js"/>
-	<script src="libs/createjs/ysoundjs.js"/>
+	<script src="libs/createjs/ypreloadjs1.3.0.min.js"/>
+	<script src="libs/createjs/ysoundjs1.3.0.min.js"/>
 	
-	<script src="libs/ydp/ButtonDecorator.js"/>
-	<script src="libs/ydp/Delegate.js"/>
-	<script src="libs/ydp/Slider.js"/>
+	<script src="libs/ydp/ButtonDecorator.min.js"/>
+	<script src="libs/ydp/Delegate.min.js"/>
+	<script src="libs/ydp/Slider.min.js"/>
 
 	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 
