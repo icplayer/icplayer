@@ -238,7 +238,7 @@ public class PlayerView extends VerticalPanel{
 	}
 	
 	native static int getTopWindowInnerHeight() /*-{
-		return $wnd.top.innerHeight;
+		return $wnd.window.top[0].innerHeight == 0 ? $wnd.top.innerHeight : $wnd.window.top[0].innerHeight;
 	}-*/;
 	
 	public void hideWaitDialog() {

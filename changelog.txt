@@ -1,3 +1,4 @@
+2014-09-17 Fixed problem with Player not loading in iframe embeded lessons
 2014-09-16 [CheckAnswers] Fixed problem with backward compatibility checkAnswers modules
 2014-09-16 Fixed problem with setting state in Multiple Gap module
 2014-09-15 Fixed issue with loading resources on IE11 in Slideshow module
