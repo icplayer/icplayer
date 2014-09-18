@@ -26,17 +26,16 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
 import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
-public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
+public class Page extends BasicPropertyProvider implements IStyledModule, IPage {
 
-	
 	private IPlayerServices playerServices;
-	public enum LayoutType{
+	public enum LayoutType {
 		percentage,
 		pixels,
 		responsive
 	}
 	
-	public enum ScoringType{
+	public enum ScoringType {
 		percentage,
 		zeroOne,
 		minusErrors
@@ -49,9 +48,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	private ScoringType scoringType = ScoringType.percentage;
 	private String cssClass = "";
 	private String inlineStyles = "";
-	private ModuleList	modules = new ModuleList();
+	private ModuleList modules = new ModuleList();
 	/** base url to this document with ending '/' */
-	private String		baseURL = "";
+	private String baseURL = "";
 	private IStyleListener styleListener;
 	private boolean loaded = false;
 	private int width;
@@ -62,9 +61,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	IProperty propertyName;
 	private int index;
 	
-	
-	public Page(String name, String url){
-	
+	public Page(String name, String url) {
 		super("Page");
 		this.id = UUID.uuid(6);
 		this.name = name;
@@ -81,13 +78,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		this.playerServices = ps;	
 	}
 
-	
 	@Override
 	public String getBaseURL(){
 		return baseURL;
 	}
 
-	
 	/**
 	 * @return Pobranie linku względnego do strony.
 	 */
@@ -95,64 +90,50 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		return href;
 	}
 
-
 	public String getURL() {
 		return URLUtils.resolveURL(baseURL, href);
 	}
 
-
-	public LayoutType getLayout(){
+	public LayoutType getLayout() {
 		return layout;
 	}
 
-
-	public ScoringType getScoringType(){
+	public ScoringType getScoringType() {
 		return scoringType;
 	}
 	
-
 	@Override
-	public String getName(){
+	public String getName() {
 		return name;
 	}
 	
-	
-	public boolean isLoaded(){
+	public boolean isLoaded() {
 		return loaded;
 	}
 	
-	public void release(){
-		for(IModuleModel module : modules){
+	public void release() {
+		for (IModuleModel module : modules) {
 			module.release();
 		}
 		loaded = false;
 	}
 	
-	
 	public String toString(){
 		return "ID: " + name + ", href: " + href + " modules#: " + modules.size(); 
 	}
 
-
-
-	public void setName(String name){
-		
+	public void setName(String name) {
 		this.name = name; 
 		sendPropertyChangedEvent(propertyName);
 	}
-
 
 	/**
 	 * Ustawienie sposobu layoutowania strony
 	 * @param pos
 	 */
 	public void setLayout(LayoutType newLayout) {
-
 		layout = newLayout;
 	}
-
-
-
 
 	/**
 	 * Serialize page to XML format
@@ -191,7 +172,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		return XMLUtils.removeIllegalCharacters(xml);
 	}
 
-
 	public void reload(Element rootElement) {
 		load(rootElement, baseURL);
 		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
@@ -201,15 +181,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 	
 	@Override
 	public void load(Element rootElement, String url) {
-
 		modules.clear();
-		baseURL = url.substring(0, url.lastIndexOf("/")+1);
+		baseURL = url.substring(0, url.lastIndexOf("/") + 1);
 
 		loadPageAttributes(rootElement);
 		loadModules(rootElement);
 		loaded = true;
 	}
-
 
 	private void loadPageAttributes(Element rootElement) {
 		
@@ -221,30 +199,25 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		setStyleClass(rootElement.getAttribute("class"));
 		
 		String positioning = rootElement.getAttribute("layout");
-		if(positioning == null || positioning.isEmpty()){
+		if (positioning == null || positioning.isEmpty()) {
 			setLayout(LayoutType.percentage);
-		}
-		else if(positioning.equals(LayoutType.responsive.toString())){
+		} else if (positioning.equals(LayoutType.responsive.toString())) {
 			setLayout(LayoutType.responsive);
-		}
-		else{
+		} else {
 			setLayout(LayoutType.pixels);
 		}
 		
 		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
 		setScoreFromString(scoring);
-		
 	}
 
-	
 	private void loadModules(Element rootElement) {
 		
 		ModuleFactory moduleFactory = new ModuleFactory(null);
 		Element modulesNode = (Element)rootElement.getElementsByTagName("modules").item(0);
 		NodeList moduleNodeList = modulesNode.getChildNodes();
 		
-		for(int i = 0; i < moduleNodeList.getLength(); i++){
-			
+		for(int i = 0; i < moduleNodeList.getLength(); i++) {
 			Node node = moduleNodeList.item(i);
 			
 			if(node instanceof Element){
@@ -301,9 +274,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 			
 			@Override
 			public void setValue(String newValue) {
-				try{
+				try {
 					width = Integer.parseInt(newValue);
-				}catch(NumberFormatException e){
+				} catch(NumberFormatException e) {
 					width = 0;
 				}
 				sendPropertyChangedEvent(this);
@@ -311,12 +284,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 			
 			@Override
 			public String getValue() {
-				if(width > 0){
-					return Integer.toString(width);
-				}
-				else{
-					return "";
-				}
+				return width > 0 ? Integer.toString(width) : "";
 			}
 			
 			@Override
@@ -340,9 +308,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 			
 			@Override
 			public void setValue(String newValue) {
-				try{
+				try {
 					height = Integer.parseInt(newValue);
-				}catch(NumberFormatException e){
+				} catch (NumberFormatException e) {
 					height = 0;
 				}
 				sendPropertyChangedEvent(this);
@@ -350,12 +318,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 			
 			@Override
 			public String getValue() {
-				if(height > 0){
-					return Integer.toString(height);
-				}
-				else{
-					return "";
-				}
+				return height > 0 ? Integer.toString(height) : "";
 			}
 			
 			@Override
@@ -381,7 +344,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
 				
-				if(value!= reportable){
+				if (value != reportable) {
 					reportable = value;
 					sendPropertyChangedEvent(this);
 				}				
@@ -389,12 +352,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 			
 			@Override
 			public String getValue() {
-				if(reportable){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return reportable ? "True" : "False";
 			}
 			
 			@Override
@@ -447,18 +405,15 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		styleListener = listener;
 	}
 
-
 	@Override
 	public String getInlineStyle() {
 		return inlineStyles;
 	}
 
-
 	@Override
 	public String getStyleClass() {
 		return cssClass;
 	}
-
 
 	@Override
 	public void setInlineStyle(String inlineStyle) {
@@ -503,12 +458,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		return ids;
 	}
 	
-	public int getWidth(){
+	public int getWidth() {
 		return width;
 	}
 	
 	
-	public int getHeight(){
+	public int getHeight() {
 		return height;
 	}
 	
@@ -521,12 +476,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 		return reportable;
 	}
 	
-	
 	public String createUniquemoduleId(String baseName) {
-		
 		String name;
 		
-		for(int i = 1; i < 100; i++){
+		for(int i = 1; i < 100; i++) {
 		
 			name = baseName + i;
 			if( modules.getModuleById(name) == null ){
@@ -558,27 +511,22 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage{
 
 
 	public void setPreview(String preview) {
-
 		this.previewURL = preview;
 	}
-
 
 	@Override
 	public String getId() {
 		return id;
 	}
 
-
 	public void setId(String pageId) {
 		this.id = pageId;
 	}
-
 
 	public void setHeight(int height) {
 		this.height = height; 
 	}
 
-	
 	private void addPropertyScoreType() {
 
 		IProperty property = new IEnumSetProperty() {

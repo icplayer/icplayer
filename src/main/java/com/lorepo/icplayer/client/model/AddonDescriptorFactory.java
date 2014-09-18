@@ -118,8 +118,8 @@ public class AddonDescriptorFactory {
         addDescriptor("Slider", "Slider", "scripting_menu");
 
         // LEARN PEN
-        addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
         addDescriptor("LearnPen", "LearnPen Drawing", "learn_pen_menu");
+        //addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
     }
 
 	private void addDescriptor(String id, String name, String category) {

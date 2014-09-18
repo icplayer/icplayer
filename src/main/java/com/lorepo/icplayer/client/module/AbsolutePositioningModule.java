@@ -36,7 +36,6 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		layout = new LayoutDefinition();
 	}
 
-
 	protected void registerPositionProperties() {
 		addPropertyLayout();
 		addPropertyLeft();
@@ -46,7 +45,6 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		addPropertyRight();
 		addPropertyBottom();
 	}
-	
 	
 	@Override
 	public ILayoutDefinition getLayout(){
@@ -320,10 +318,8 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 	@Override
 	public void disableChangeEvent(boolean disable) {
-
 		disableChangeEvent = disable;
 	}
-
 
 	private void addPropertyRight() {
 

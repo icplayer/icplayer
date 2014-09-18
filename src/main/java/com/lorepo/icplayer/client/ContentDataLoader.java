@@ -20,75 +20,62 @@ import com.lorepo.icplayer.client.model.Page;
  * Załaduj dane contentu i wyślij sygnał gdy wszystkie będą załadowane
  * Jeżeli nie ma żadnych addonów do pobrania to sygnał wysyłany jest natychmiast.
  */
-public class ContentDataLoader{
+public class ContentDataLoader {
 
 	private String baseUrl;
 	private ILoadListener listener;
-	private int		count;
+	private int count;
 	private Collection<AddonDescriptor> descriptors;
 	private List<Page> pages = new ArrayList<Page>();
 	private List<String> libs = new ArrayList<String>();
 	private AddonDescriptorFactory localAddons;
-	
 	
 	public ContentDataLoader(String baseUrl) {
 		this.baseUrl = baseUrl;
 		localAddons = AddonDescriptorFactory.getInstance();
 	}
 
-	public void addPage(Page page){
+	public void addPage(Page page) {
 		pages.add(page);
 	}
 	
-	
-	public void addAddons(Collection<AddonDescriptor> descriptors){
-	
+	public void addAddons(Collection<AddonDescriptor> descriptors) {
 		this.descriptors = descriptors;
 	}
 
-	
-	public void load(ILoadListener listener){
-		
+	public void load(ILoadListener listener) {
 		this.listener = listener;
 		
-		if(descriptors.size() > 0 || pages.size() > 0){
-		
+		if (descriptors.size() > 0 || pages.size() > 0) {
 			count = descriptors.size() + pages.size();
 			
 			Iterator<AddonDescriptor> iterator = descriptors.iterator();
-			while(iterator.hasNext()){
+			while (iterator.hasNext()) {
 				loadDescriptor(iterator.next());
 			}
 
-			for(Page page : pages){
+			for (Page page : pages) {
 				loadPage(page);
 			}
-		}
-		else{
-			if(listener != null){
+		} else {
+			if (listener != null) {
 				listener.onFinishedLoading(this);
 			}
 		}
 	}
 
-	
 	private void loadDescriptor(final AddonDescriptor descriptor) {
-
 		String url;
-		
-		if(localAddons.isLocalAddon(descriptor.getAddonId())){
+		if (localAddons.isLocalAddon(descriptor.getAddonId())) {
 			url = URLUtils.resolveURL(GWT.getModuleBaseURL() + "addons/", descriptor.getAddonId() + ".xml");
-		}
-		else{
+		} else {
 			url = URLUtils.resolveURL(baseUrl, descriptor.getHref());
 		}
-		XMLLoader loader = new XMLLoader(descriptor);
 		
+		XMLLoader loader = new XMLLoader(descriptor);
 		loader.load(url, new ILoadListener() {
-			
 			@Override
 			public void onFinishedLoading(Object obj) {
-
 				DOMInjector.injectJavaScript(descriptor.getCode());
 				resourceLoaded();
 			}
@@ -101,12 +88,10 @@ public class ContentDataLoader{
 		});
 	}
 	
-	
 	protected void addLibrary(String libName) {
-		
 		libName = libName.toLowerCase();
-		for(String lib : libs){
-			if(lib.compareTo(libName) == 0){
+		for (String lib : libs) {
+			if (lib.compareTo(libName) == 0) {
 				return;
 			}
 		}
@@ -114,7 +99,6 @@ public class ContentDataLoader{
 		libs.add(libName);
 	}
 
-	
 	private void loadPage(Page page) {
 
 		XMLLoader reader = new XMLLoader(page);
@@ -124,7 +108,6 @@ public class ContentDataLoader{
 			
 			@Override
 			public void onFinishedLoading(Object obj) {
-				
 				resourceLoaded();
 			}
 
@@ -135,12 +118,11 @@ public class ContentDataLoader{
 		});
 	}
 	
-	
 	private void addCSSFromAddons() {
 
 		String css = "";
 		Iterator<AddonDescriptor> iterator = descriptors.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			css += iterator.next().getCSS();
 		}
 
@@ -149,7 +131,7 @@ public class ContentDataLoader{
 				"url(\'" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
 		css = css.replace("url(\"resources/", 
 				"url(\"" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
-		if(!css.isEmpty()){
+		if (!css.isEmpty()) {
 			DOMInjector.injectStyleAtStart(css);
 		}
 	}
@@ -171,10 +153,9 @@ public class ContentDataLoader{
 	}-*/; 
 	
 	
-	private void resourceLoaded(){
-		
+	private void resourceLoaded() {
 		count--;
-		if(count == 0){
+		if (count == 0) {
 			addCSSFromAddons();
 			loadLib();
 		}

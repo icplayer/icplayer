@@ -30,8 +30,7 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 
 public class PageController {
 
-	public interface IPageDisplay{
-
+	public interface IPageDisplay {
 		void addModuleView(IModuleView view, IModuleModel module);
 		void setPage(Page page);
 		void refreshMathJax();
@@ -41,11 +40,11 @@ public class PageController {
 	}
 	
 	private IPageDisplay pageView;
-	private Page	currentPage;
+	private Page currentPage;
 	private PlayerServices playerServiceImpl;
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
-	private ArrayList<IPresenter>	presenters;
+	private ArrayList<IPresenter> presenters;
 	private ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
@@ -57,11 +56,9 @@ public class PageController {
 		init(playerServiceImpl);
 	}
 	
-	
 	public PageController(IPlayerServices playerServices) {
 		init(playerServices);
 	}
-
 
 	private void init(IPlayerServices playerServices) {
 		presenters = new ArrayList<IPresenter>();
@@ -69,12 +66,10 @@ public class PageController {
 		moduleFactory = new ModuleFactory(playerService);
 	}
 
-
-	public void setView(IPageDisplay view){
+	public void setView(IPageDisplay view) {
 		pageView = view;
 	}
 
-	
 	protected void setModuleFactory(IModuleFactory factory) {
 		this.moduleFactory = factory;
 	}
@@ -86,23 +81,22 @@ public class PageController {
 					valueChanged(event);
 				}
 			});
-		}
-		else if (valueChangedHandler != null) {
+		} else if (valueChangedHandler != null) {
 			valueChangedHandler.removeHandler();
 			valueChangedHandler = null;
 		}
 	}
 	
-	public void setPage(Page page){
+	public void setPage(Page page) {
 		
-		if(playerServiceImpl != null){
+		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
 		currentPage = page;
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
-		if(playerService.getStateService() != null){
+		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
@@ -110,25 +104,21 @@ public class PageController {
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
-
 	protected void valueChanged(ValueChangedEvent event) {
 		Score.Result result = getCurrentScore();
-		if(result.errorCount == 0 && result.maxScore > 0 && result.score == result.maxScore){
+		if (result.errorCount == 0 && result.maxScore > 0 && result.score == result.maxScore) {
 			playerService.getEventBus().fireEvent(new CustomEvent("PageAllOk", new HashMap<String, String>()));
 		}
 	}
 
-
 	private void setViewSize(Page page) {
-		
-		if(page.getWidth() > 0){
+		if (page.getWidth() > 0) {
 			pageView.setWidth(page.getWidth());
 		}
-		if(page.getHeight() > 0){
+		if (page.getHeight() > 0) {
 			pageView.setHeight(page.getHeight());
 		}
 	}
-
 
 	private void initModules() {
 		
@@ -154,50 +144,35 @@ public class PageController {
 		}
 	}
 
-
 	public void checkAnswers() {
 		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
 	}
 
-
 	public void updateScore(boolean updateCounters) {
-		if(currentPage != null){
-
+		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();
-	
-			if(currentPage.isReportable()){
-				PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
-				PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
-				if(updateCounters){
-					playerService.getScoreService().setPageScore(currentPage, score.incrementCounters());
-				}
-				else{
-					playerService.getScoreService().setPageScore(currentPage, score);
-				}
-			}
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
+			playerService.getScoreService().setPageScore(currentPage, updateCounters ? score.incrementCounters() : score);
 		}
 	}
-
 
 	private Score.Result getCurrentScore() {
-		Score.Result result;
-		if(currentPage.getScoringType() == ScoringType.zeroOne){
-			result = Score.calculateZeroOneScore(presenters);
-		}else if(currentPage.getScoringType() == ScoringType.minusErrors){
-			result = Score.calculateMinusScore(presenters);
-		}else{
-			result = Score.calculatePercentageScore(presenters);
+		if (currentPage.getScoringType() == ScoringType.zeroOne) {
+			return Score.calculateZeroOneScore(presenters);
 		}
-		return result;
+		
+		if (currentPage.getScoringType() == ScoringType.minusErrors) {
+			return Score.calculateMinusScore(presenters);
+		}
+			
+		return Score.calculatePercentageScore(presenters);
 	}
 
-	
 	public void uncheckAnswers() {
-		
 		playerService.getEventBus().fireEvent(new WorkModeEvent());
 	}
-
 
 	public void reset() {
 		
@@ -213,29 +188,25 @@ public class PageController {
 
 	
 	public PageScore getPageScore() {
-
-		if(currentPage == null || !currentPage.isReportable()){
+		if (currentPage == null || !currentPage.isReportable()) {
 			return null;
 		}
 		
 		return playerService.getScoreService().getPageScore(currentPage.getId());
 	}
 
-
 	public void setPageState(HashMap<String, String> state) {
-		
-		for(IPresenter presenter : presenters){
-			if(presenter instanceof IStateful){
+		for (IPresenter presenter : presenters) {
+			if (presenter instanceof IStateful) {
 				IStateful statefulObj = (IStateful)presenter;
 				String key = currentPage.getId() + statefulObj.getSerialId(); 
 				String moduleState = state.get(key);
-				if(moduleState != null){
+				if (moduleState != null) {
 					statefulObj.setState(moduleState);
 				}				
 			}
 		}
 	}
-
 
 	public HashMap<String, String> getState() {
 		
@@ -253,9 +224,7 @@ public class PageController {
 		return pageState;
 	}
 
-
-	public void runScript(String script){
-
+	public void runScript(String script) {
 		try {
 			scriptingEngine.execute(script);
 		} catch (ScriptParserException e) {
@@ -263,12 +232,10 @@ public class PageController {
 		}
 	}
 	
-	
-	public IPresenter findModule(String id){
+	public IPresenter findModule(String id) {
 		
-		for(IPresenter presenter : presenters){
-		
-			if(presenter.getModel().getId().compareTo(id) == 0){
+		for (IPresenter presenter : presenters) {
+			if (presenter.getModel().getId().compareTo(id) == 0) {
 				return presenter;
 			}
 		}
@@ -276,23 +243,20 @@ public class PageController {
 		return null;
 	}
 
-
 	public IPage getPage() {
 		return currentPage;
 	}
 
-
 	public void closePage() {
-		if(playerServiceImpl != null){
+		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
-		if(currentPage != null){ 
+		if (currentPage != null) {
 			currentPage.release();
 			currentPage = null;
 		}
 		pageView.removeAllModules();
 	}
-
 
 	public IPlayerServices getPlayerServices() {
 		return playerService;
