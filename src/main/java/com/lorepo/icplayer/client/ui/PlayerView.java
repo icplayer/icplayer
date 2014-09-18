@@ -230,7 +230,6 @@ public class PlayerView extends VerticalPanel{
 				Dimensions clientDimensions = new Dimensions(Window.getClientWidth(), Window.getClientHeight());
 				Dimensions playerDimensions = new Dimensions(playerWidth, playerHeight);
 				Dimensions offsetDimensions = new Dimensions(offsetWidth, offsetHeight);
-				
 				Position popupPosition = PlayerViewUtils.calculatePopupPosition(playerPosition, clientDimensions, playerDimensions, offsetDimensions, getTopWindowInnerHeight());
 				waitDialog.setPopupPosition(popupPosition.getLeft(), popupPosition.getTop());
 			}
@@ -238,7 +237,13 @@ public class PlayerView extends VerticalPanel{
 	}
 	
 	native static int getTopWindowInnerHeight() /*-{
-		return $wnd.window.top[0].innerHeight == 0 ? $wnd.top.innerHeight : $wnd.window.top[0].innerHeight;
+		var height = 100;
+		try {
+			height = $wnd.window.top[0].innerHeight;
+		} catch(e) {
+			height = $wnd.window.top.innerHeight;
+		}
+		return height;
 	}-*/;
 	
 	public void hideWaitDialog() {
