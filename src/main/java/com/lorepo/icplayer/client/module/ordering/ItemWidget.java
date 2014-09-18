@@ -57,6 +57,7 @@ public class ItemWidget extends HTML {
 			int marginRight = ComputedStyle.getStyle(getElement(), "marginRight");
 			Integer width = widthWithoutMargin - marginLeft - marginRight;
 			setWidth(width.toString() + "px");
+			addStyleName("full-width");
 		}
 	}
 	
