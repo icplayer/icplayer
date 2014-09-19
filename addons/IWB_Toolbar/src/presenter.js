@@ -994,9 +994,8 @@ function AddonIWB_Toolbar_create(){
             currentDate = savedNote.date;
             noteBody.html(savedNote.body);
         } else {
-            var dateObject = new Date();
-            var time = dateObject.toLocaleTimeString().match(/(\d{2}:\d{2}:\d{2})/);
-            currentDate = dateObject.toLocaleDateString() + ', ' + time[0];
+            var today = Date.today();
+            currentDate = today.toString('d/M/yyyy') + ', ' + new Date().toString('HH:mm');
         }
 
         closeButton.on('click', function(e) {
@@ -1028,8 +1027,8 @@ function AddonIWB_Toolbar_create(){
             opacity: 0.35,
             create: function(event, _) {
                 $(event.target).css({
-                    'top' : savedNote ? savedNote.top : $(window.top).scrollTop() + 'px',
-                    'left' : savedNote ? savedNote.left : '0px',
+                    'top' : savedNote ? savedNote.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
+                    'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
                     'position' : 'absolute'
                 });
             }

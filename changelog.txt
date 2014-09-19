@@ -1,3 +1,4 @@
+2014-09-19 [IWB Toolbar] Unified date in notes, now notes appears always below panel
 2014-09-18 Fixed problem with width and height in Ordering module
 2014-09-17 Changed libraries to minified versions
 2014-09-17 Fixed problem with doubled properties in Editor
