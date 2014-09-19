@@ -1,3 +1,4 @@
+2014-09-19 Fixed show answers in Text module
 2014-09-19 Added new module: Pie Chart
 2014-09-19 [IWB Toolbar] Unified date in notes, now notes appears always below panel
 2014-09-18 Fixed problem with width and height in Ordering module

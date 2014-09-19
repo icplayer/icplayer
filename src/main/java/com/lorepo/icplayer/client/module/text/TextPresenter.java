@@ -170,39 +170,35 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		this.currentState = getState();
 		
-		for (int i = 0; i < view.getChildrenCount(); i++) {
-			TextElementDisplay child = view.getChild(i);
-			child.reset();
-			child.setStyleShowAnswers();
-		}
-		
-		isDropDown = module.getChoiceInfos().size() > 0;
-				
 		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
-		if (isDropDown) {
-			int dropDownCounter = 1;
-			for (InlineChoiceInfo choice : module.getChoiceInfos()) {
-				String id = module.getGapUniqueId() + '-' + dropDownCounter++;
-				Element elem = DOM.getElementById(id);
-				SelectElement sElem = (SelectElement) elem;
-				
-				int correctIndex = getOptionIndex(choice, choice.getAnswer());
-				if (correctIndex != -1)
-					sElem.setSelectedIndex(correctIndex + 1);
-			}
-		} else {
-			List<GapInfo> gapsInfos = module.getGapInfos();
-			for (int index = 0; index < view.getChildrenCount(); index++) {
-				TextElementDisplay gap = view.getChild(index);
-				
-				GapInfo gi = gapsInfos.get(index);
+		List<GapInfo> gapInfos = module.getGapInfos();
+		// gaps
+		for (GapInfo gi : gapInfos) {
+			Element elem = DOM.getElementById(gi.getId());
+			DOM.setElementPropertyBoolean((com.google.gwt.user.client.Element) elem, "disabled", true);
+			elem.addClassName("correct-answer");
+			
+			InputElement inputElement = (InputElement) elem;
 
-				// show only 1st answer
-				Iterator<String> answers = gi.getAnswers();
-				gap.setText(answers.hasNext() ? answers.next() : "");
-			}
+			// show only 1st answer
+			Iterator<String> answers = gi.getAnswers();
+			inputElement.setValue(answers.hasNext() ? answers.next() : "");
+		}
+		
+		// dropdowns
+		int dropDownCounter = gapInfos.size() + 1; // index of dropdowns should start after gaps
+		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
+			String id = module.getGapUniqueId() + '-' + dropDownCounter++;
+			Element elem = DOM.getElementById(id);
+			DOM.setElementPropertyBoolean((com.google.gwt.user.client.Element) elem, "disabled", true);
+			elem.addClassName("correct-answer");
+			SelectElement sElem = (SelectElement) elem;
+			
+			int correctIndex = getOptionIndex(choice, choice.getAnswer());
+			if (correctIndex != -1)
+				sElem.setSelectedIndex(correctIndex + 1);
 		}
 		
 		view.refreshMath();
@@ -213,9 +209,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
-			child.removeStyleHideAnswers();
 			child.setWorkMode();
-			child.setDisabled(module.isDisabled());
 		}
 		
 		reset();
@@ -223,14 +217,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.currentState = "";
 		this.isShowAnswersActive = false;
 		
-		//if () {
 		view.refreshMath();
-		//}
-		
-		for (int i = 0; i < view.getChildrenCount(); i++) {
-			TextElementDisplay child = view.getChild(i);
-			child.setDisabled(module.isDisabled());
-		}
 	}
 
 	protected void setWorkMode() {		
