@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='PieChart'>
+    <model>
+        <property name='Items' type='list'>
+            <property name='Name' type='string'/>
+            <property name='Color' type='string'/>
+            <property name='Starting percent' type='string'/>
+            <property name='Answer' type='string'/>
+        </property>
+        <property name='Step' type='string'/>
+        <property name='Show values' type='boolean'/>
+        <property name='Show names' type='boolean'/>
+        <property name='Is Activity' type='boolean'/>
+        <property name='Is Disabled' type='boolean'/>
+        <property name='Radius' type='string' displayName='Radius size'/>
+		<property name='Percents' type='string' displayName='Percents positions'/>
+    </model>
+</addon>
