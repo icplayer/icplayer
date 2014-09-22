@@ -168,8 +168,8 @@ function AddonAnimation_create (){
         elementWidth = Math.round(elementWidth);
         elementHeight = Math.round(elementHeight);
 
-        presenter.frames = new Array();
-        makeFrames = function() {
+        presenter.frames = [];
+        var makeFrames = function() {
             var ctx, i;
             try {
                 for (i=0; i < presenter.configuration.framesCount; i++) {
@@ -177,19 +177,18 @@ function AddonAnimation_create (){
                     canvas.setAttribute('width', elementWidth);
                     canvas.setAttribute('height', elementHeight);
                     ctx = canvas.getContext('2d');
-                    ctx.drawImage(animationImage, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
+                    drawImageIOSFix(ctx, animationImage, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
                     presenter.frames[i] = canvas;
                     $(canvas).remove();
-                    }
-            }
-            catch (e) {
+                }
+            } catch (e) {
                 if (e.name == "NS_ERROR_NOT_AVAILABLE") {
-                  makeFrames();
+                    makeFrames();
                 } else {
-                  throw e;
+                    throw e;
                 }
             }
-        }
+        };
         makeFrames();
 
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
@@ -211,7 +210,7 @@ function AddonAnimation_create (){
     function loadImages() {
         showLoadingScreen();
 
-        var img = $('<img src="'+ presenter.configuration.animation +'"/>').load(function(){
+        var img = $('<img src="'+ presenter.configuration.animation +'"/>').load(function() {
         	presenter.configuration.oryginal_width = this.width;
         	presenter.configuration.oryginal_height = this.height;
         	$(this).remove();
@@ -289,7 +288,7 @@ function AddonAnimation_create (){
             $(presenter.DOMElements.watermark).hide();
         }
         presenter.configuration.watermarkOptions.clicked = true;
-        $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, function(){
+        $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, function() {
             if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
                 return false;
             }
@@ -360,15 +359,14 @@ function AddonAnimation_create (){
             case presenter.ANIMATION_STATE.PAUSED:
             case presenter.ANIMATION_STATE.STOPPED:
                 presenter.playAnimation();
-
                 break;
+
             case presenter.ANIMATION_STATE.PLAYING:
                 presenter.pause();
-
                 break;
+
             case presenter.ANIMATION_STATE.ENDED:
                 presenter.stop();
-
                 break;
         }
     }
@@ -765,6 +763,7 @@ function AddonAnimation_create (){
         validatedOptions.clicked = false;
 
         var isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+
         return {
             isError: false,
             queueName: model.ID,
@@ -808,6 +807,39 @@ function AddonAnimation_create (){
         for (var i = 0, length = indexes.length; i < length; i++) {
             $(presenter.DOMElements.viewContainer).find('.animation-label:eq(' + indexes[i] + ')').css('visibility', 'visible');
         }
+    }
+
+    // This function is from https://github.com/stomita/ios-imagefile-megapixel
+    function detectVerticalSquash(img) {
+        var iw = img.naturalWidth, ih = img.naturalHeight;
+        var canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = ih;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        var data = ctx.getImageData(0, 0, 1, ih).data;
+        // search image edge pixel position in case it is squashed vertically.
+        var sy = 0;
+        var ey = ih;
+        var py = ih;
+        while (py > sy) {
+            var alpha = data[(py - 1) * 4 + 3];
+            if (alpha === 0) {
+                ey = py;
+            } else {
+                sy = py;
+            }
+            py = (ey + sy) >> 1;
+        }
+        var ratio = (py / ih);
+        return (ratio===0)?1:ratio;
+    }
+
+    function drawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
+        var vertSquashRatio = detectVerticalSquash(img);
+        ctx.drawImage(img, sx * vertSquashRatio, sy * vertSquashRatio,
+            sw * vertSquashRatio, sh * vertSquashRatio,
+            dx, dy, dw, dh );
     }
 
     return presenter;
