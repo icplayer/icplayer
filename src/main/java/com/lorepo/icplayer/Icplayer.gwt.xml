@@ -71,6 +71,8 @@
 	<script src="libs/createjs/movieclip-0.4.1.min.js"/>
 	<script src="libs/createjs/ypreloadjs1.3.0.min.js"/>
 	<script src="libs/createjs/ysoundjs1.3.0.min.js"/>
+
+    <script src="libs/edge2.0.1.268.js"/>
 	
 	<script src="libs/ydp/ButtonDecorator.min.js"/>
 	<script src="libs/ydp/Delegate.min.js"/>
