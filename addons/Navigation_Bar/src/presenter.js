@@ -271,9 +271,7 @@ function AddonNavigation_Bar_create() {
         var isElementInactive = presenter.currentIndex === 0;
         var elementStyle = isElementInactive ? "navigationbar-element-previous-inactive" : "navigationbar-element-previous";
 
-        var previousElementArrow = '<a href="#">' +
-            '<span class="' + elementStyle + '">&lt;</span>' +
-            '</a>';
+        var previousElementArrow = '<a href="#"><span class="' + elementStyle + '">&lt;</span></a>';
 
         if (presenter.configuration.hideHomeLastArrows) {
             presenter.$wrapper.append(previousElementArrow);
@@ -288,9 +286,7 @@ function AddonNavigation_Bar_create() {
         var isElementInactive = presenter.currentIndex === presenter.pageCount - 1;
         var elementStyle = isElementInactive ? "navigationbar-element-next-inactive" : "navigationbar-element-next";
 
-        var nextElementArrow = '<a href="#">' +
-            '<span class="' + elementStyle + '">&gt;</span>' +
-            '</a>';
+        var nextElementArrow = '<a href="#"><span class="' + elementStyle + '">&gt;</span></a>';
 
         previousElement.after(nextElementArrow);
     }
@@ -300,9 +296,7 @@ function AddonNavigation_Bar_create() {
         var elementStyle = isElementInactive ? "navigationbar-element-last-inactive" : "navigationbar-element-last";
 
         if (presenter.$view.has('[class*="navigationbar-element-last"]').length < 1) {
-            var reportElementArrow = '<a href="#">' +
-                '<span class="' + elementStyle + '">&gt;&gt;</span>' +
-                '</a>';
+            var reportElementArrow = '<a href="#"><span class="' + elementStyle + '">&gt;&gt;</span></a>';
 
             presenter.$wrapper.append(reportElementArrow);
         }
@@ -347,7 +341,7 @@ function AddonNavigation_Bar_create() {
 
     function generateIndexedElements(navigationBarMoved) {
         var firstElementSelector = presenter.configuration.showNextPrevArrows ? '[class*="navigationbar-element-previous"]' : '[class*="navigationbar-element-first"]';
-        var firstElement = presenter.$view.find(firstElementSelector).parent();
+        //var firstElement = presenter.$view.find(firstElementSelector).parent();
 
         var element; // Works as temporary indexed element
         var dottedElement; // Works as temporary dotted element
@@ -355,65 +349,31 @@ function AddonNavigation_Bar_create() {
         var dotsLeftTargetIndex;
         var dotsRightTargetIndex;
         var n = 0;
-        var nthChildCount = 0;
-        if (!presenter.configuration.hideHomeLastArrows) {
-            nthChildCount++;
-        }
-        if (presenter.configuration.showNextPrevArrows) {
-            nthChildCount++;
-        }
 
         if (maxElementCount >= presenter.pageCount) { // All pages will be displayed
             for (n = 1; n <= presenter.pageCount; n++) {
                 element = generateIndexElementStub(n, navigationBarMoved);
-
-                if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows && n === 1) {
-                    presenter.$wrapper.append(element);
-                } else {
-                    $(firstElement).after(element);
-                }
-
-                nthChildCount++;
-                firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
+                presenter.$wrapper.append(element);
             }
         } else {
             if (presenter.currentIndex < maxElementCount - 1) { // -1 for dotted element
                 for (n = 0; n < maxElementCount - 1; n++) {
                     element = generateIndexElementStub(n + 1, navigationBarMoved);
-
-                    if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows && n === 0) {
-                        presenter.$wrapper.append(element);
-                    } else {
-                        $(firstElement).after(element);
-                    }
-
-                    nthChildCount++;
-                    firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
+                    presenter.$wrapper.append(element);
                 }
 
                 // Dots are displayed on the right
                 dotsRightTargetIndex = maxElementCount - 1;
-                firstElement.after(generateDottedElement(DOTTED_SIDE.RIGHT));
+                presenter.$wrapper.append(generateDottedElement(DOTTED_SIDE.RIGHT));
             } else if (presenter.currentIndex > (presenter.pageCount - maxElementCount)) {
                 // Dots are displayed on the left -> -1 to max element count
                 dotsLeftTargetIndex = (presenter.pageCount - 1) - (maxElementCount - 2) - 1;
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
-
-                if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows) {
-                    presenter.$wrapper.append(dottedElement);
-                } else {
-                    firstElement.after(dottedElement);
-                }
-
-                nthChildCount++;
-                firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
+                presenter.$wrapper.append(dottedElement);
 
                 for (n = presenter.pageCount - maxElementCount + 1; n < presenter.pageCount; n++) {
                     element = generateIndexElementStub(n + 1, navigationBarMoved);
-                    $(firstElement).after(element);
-
-                    nthChildCount++;
-                    firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
+                    presenter.$wrapper.append(element);
                 }
             } else {
                 var numberOfElement = maxElementCount - 2;
@@ -424,27 +384,15 @@ function AddonNavigation_Bar_create() {
 
                 dotsLeftTargetIndex = startIndex - 1;
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
-
-                if (presenter.configuration.hideHomeLastArrows && !presenter.configuration.showNextPrevArrows) {
-                    presenter.$wrapper.append(dottedElement);
-                } else {
-                    firstElement.after(dottedElement);
-                }
-
-                nthChildCount++;
-                firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
+                presenter.$wrapper.append(dottedElement);
 
                 for (n = 0; n < numberOfElement; n++) {
                     var indexedElement = generateIndexElementStub(startIndex + 1 + n, navigationBarMoved);
-                    firstElement.after(indexedElement);
-
-                    nthChildCount++;
-                    firstElement = presenter.$wrapper.find('a:nth-child(' + nthChildCount + ')');
+                    presenter.$wrapper.append(indexedElement);
                 }
 
-
-                dotsRightTargetIndex = startIndex  + numberOfElement;
-                firstElement.after(generateDottedElement(DOTTED_SIDE.RIGHT));
+                dotsRightTargetIndex = startIndex + numberOfElement;
+                presenter.$wrapper.append(generateDottedElement(DOTTED_SIDE.RIGHT));
             }
         }
 
@@ -458,9 +406,10 @@ function AddonNavigation_Bar_create() {
         removeAllElements();
 
         generateHomeAndPreviousArrowsElements();
-        generateRaportAndNextArrowsElements();
 
         var dotsIndexes = generateIndexedElements(navigationBarMoved);
+
+        generateRaportAndNextArrowsElements();
 
         if (!preview) {
             handleMouseActions(dotsIndexes.leftIndex, dotsIndexes.rightIndex, elementWidth, elementHeight, preview, horizontalGap);
@@ -499,7 +448,7 @@ function AddonNavigation_Bar_create() {
 
     presenter.arePagesNamesCorrect = function (pageNames, length) {
         for (var i = 0; i < pageNames.length; i++) {
-            if(length > 1 && pageNames[i] == ""){
+            if (length > 1 && pageNames[i] == "") {
                 return false;
             }
             if (isNaN(pageNames[i])) {
@@ -515,7 +464,7 @@ function AddonNavigation_Bar_create() {
                     default:
                         return false;
                 }
-            }else{
+            } else {
                 if(length>1) {
                     if (pageNames[i] % 1 !== 0 || pageNames[i] <= 0) {
                         return false;
@@ -555,7 +504,7 @@ function AddonNavigation_Bar_create() {
             }
         }
 
-        return  validatedModel;
+        return validatedModel;
     };
 
     presenter.getArrowsCount = function () {
@@ -568,11 +517,11 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.addAdditionalStyleToPage = function (page, styleName, styleValue, clazz) {
-        if(isNaN(page)){
+        if (isNaN(page)) {
             presenter.$wrapper.find("span[class^='navigationbar-element-"+ page +"']").css(styleName, styleValue);
             presenter.$wrapper.find("span[class^='navigationbar-element-"+ page +"']").addClass(clazz);
 
-        }else {
+        } else {
             presenter.$wrapper.find("[data-page-number='" + page + "']").addClass(clazz);
             presenter.$wrapper.find("[data-page-number='" + page + "']").css(styleName, styleValue);
         }

@@ -1,3 +1,4 @@
+2014-09-23 Fixed issue with Navigation Bar on iPad with iOS8
 2014-09-22 Fixed issue with Animation on iPads
 2014-09-22 Fixed Connection module: hiding images does not occur anymore
 2014-09-19 Fixed show answers in Text module
