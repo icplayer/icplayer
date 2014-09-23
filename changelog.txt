@@ -1,3 +1,4 @@
+2014-09-23 Added close button to Page Rating module
 2014-09-23 Fixed issue with Navigation Bar on iPad with iOS8
 2014-09-22 Fixed issue with Animation on iPads
 2014-09-22 Fixed Connection module: hiding images does not occur anymore

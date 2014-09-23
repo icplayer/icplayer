@@ -33,6 +33,7 @@ function AddonPage_Rating_create() {
             }
         }
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        var buttonCloseVisible = ModelValidationUtils.validateBoolean(model['Close button visible']);
 
         return {
             isError: false,
@@ -43,7 +44,8 @@ function AddonPage_Rating_create() {
             length: model.Rates.length,
             title: model['Title Text'],
             comment: model['Comment Text'],
-            isVisible: isVisible
+            isVisible: isVisible,
+            closeButtonVisible: buttonCloseVisible
         }
     };
 
@@ -122,6 +124,10 @@ function AddonPage_Rating_create() {
     }
 
     presenter.updateView = function (isPreview){
+        if(presenter.configuration.closeButtonVisible){
+            presenter.$view.find('.page-rating-wrapper').prepend('<button type="button" class="page-rating-close-button">Close</button>');
+            presenter.$view.find(".page-rating-close-button").live("click", submitEventHandler);
+        }
         updateTitle(presenter.$view, presenter.configuration.title);
         updateRates(presenter.$view, presenter.configuration.rates, presenter.configuration.length, isPreview);
         updateComment(presenter.$view, presenter.configuration.comment, isPreview);

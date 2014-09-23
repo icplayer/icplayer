@@ -8,5 +8,6 @@
             <property name="Deselected" type="image"/>
 		    <property name="Selected" type="image"/>
 		</property>
+        <property name="Close button visible" type="boolean" isLocalized="true"/>
 	</model>
 </addon>
