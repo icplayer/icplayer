@@ -144,8 +144,8 @@ function AddonColoring_create(){
         var imageElement = $('<img>');
         imageElement.attr('src', presenter.configuration.imageFile);
 
-        var canvasElement = $('<canvas></canvas>'),
-            ctx = canvasElement[0].getContext('2d');
+        var canvasElement = $('<canvas></canvas>');
+            presenter.ctx = canvasElement[0].getContext('2d');
 
         imageElement.load(function() {
             canvasElement.attr('width', imageElement[0].width);
@@ -155,12 +155,12 @@ function AddonColoring_create(){
             presenter.canvasHeight = imageElement[0].height;
             presenter.canvas = canvasElement[0];
 
-            ctx.drawImage(imageElement[0], 0, 0);
+            presenter.ctx.drawImage(imageElement[0], 0, 0);
             presenter.imageHasBeenLoaded = true;
 
-            presenter.imageData = ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
+            presenter.imageData = presenter.ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
 
-            presenter.ctx = ctx;
+            //presenter.ctx = ctx;
             presenter.image = imageElement;
 
             var coloringContainer = presenter.$view.find('.coloring-container');
@@ -224,8 +224,6 @@ function AddonColoring_create(){
 
                 presenter.runEndedDeferred.resolve();
             }
-
-
         });
     }
 
@@ -679,7 +677,6 @@ function AddonColoring_create(){
                     errorsCount++;
                 }
             });
-
             return errorsCount;
         } else if (presenter.configuration.isActivity && presenter.savedErrorCount) {
             return 0;
@@ -757,7 +754,6 @@ function AddonColoring_create(){
             score: presenter.getScore(),
             errorCount: presenter.getErrorCount()
         };
-
         return JSON.stringify(state);
     };
 

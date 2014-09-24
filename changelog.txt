@@ -1,3 +1,4 @@
+2014-09-24 Loading content fixes in Coloring module
 2014-09-21 Added library for Edge Animation module
 2014-09-23 Added close button to Page Rating module
 2014-09-23 Fixed issue with Navigation Bar on iPad with iOS8
