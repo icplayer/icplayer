@@ -361,12 +361,10 @@ public class TextModel extends BasicModuleModel{
 	public List<GapInfo> getGapInfos() {
 		return gapInfos;
 	}
-
-
+	
 	public List<InlineChoiceInfo> getChoiceInfos() {
 		return choiceInfos;
 	}
-
 
 	public List<LinkInfo> getLinkInfos() {
 		return linkInfos;

@@ -16,6 +16,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -163,37 +164,35 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return -1;
 	}
 	
-	boolean isDropDown;
-	
 	private void showAnswers() {
 		if (!module.isActivity() || this.isShowAnswersActive) { return; }
 		
-		this.currentState = getState();
+		
+		for (int i = 0; i < view.getChildrenCount(); i++) {
+			TextElementDisplay child = view.getChild(i);
+			JavaScriptUtils.log(child.toString());
+			child.reset();
+			child.setStyleShowAnswers();
+		}
 		
 		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
-		List<GapInfo> gapInfos = module.getGapInfos();
-		// gaps
-		for (GapInfo gi : gapInfos) {
-			Element elem = DOM.getElementById(gi.getId());
-			DOM.setElementPropertyBoolean((com.google.gwt.user.client.Element) elem, "disabled", true);
-			elem.addClassName("correct-answer");
+		List<GapInfo> gapsInfos = module.getGapInfos();
+		for (int index = 0; index < gapsInfos.size(); index++) {
+			TextElementDisplay gap = view.getChild(index);
 			
-			InputElement inputElement = (InputElement) elem;
-
+			GapInfo gi = gapsInfos.get(index);
+			
 			// show only 1st answer
 			Iterator<String> answers = gi.getAnswers();
-			inputElement.setValue(answers.hasNext() ? answers.next() : "");
+			gap.setText(answers.hasNext() ? answers.next() : "");
 		}
 		
-		// dropdowns
-		int dropDownCounter = gapInfos.size() + 1; // index of dropdowns should start after gaps
+		int dropDownCounter = gapsInfos.size() + 1;
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			String id = module.getGapUniqueId() + '-' + dropDownCounter++;
 			Element elem = DOM.getElementById(id);
-			DOM.setElementPropertyBoolean((com.google.gwt.user.client.Element) elem, "disabled", true);
-			elem.addClassName("correct-answer");
 			SelectElement sElem = (SelectElement) elem;
 			
 			int correctIndex = getOptionIndex(choice, choice.getAnswer());
@@ -209,12 +208,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
+			child.reset();
+			child.removeStyleHideAnswers();
 			child.setWorkMode();
+			child.setDisabled(module.isDisabled());
 		}
 		
-		reset();
 		setState(this.currentState);
-		this.currentState = "";
 		this.isShowAnswersActive = false;
 		
 		view.refreshMath();
@@ -302,8 +302,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		for (String id : values.keySet()) {
 			String value = values.get(id);
-			if (module.hasMathGaps()) {
+			if (module.hasMathGaps() && !isShowAnswersActive) {
 				module.parsedText = module.parsedText.replace("{{value:" + id + "}}", value);
+			} else if (module.hasMathGaps()) {
+				InputElement elem = DOM.getElementById(id).cast();
+				elem.setValue(value);
 			} else {
 				view.setValue(id, value);
 			}
@@ -316,9 +319,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		savedDisabledState = stateDisabled;
 		
-		if (module.hasMathGaps()) {
+		if (module.hasMathGaps() && !isShowAnswersActive) {
 			view.setHTML(module.parsedText);
-		}
+		} 
 		
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 		
@@ -386,6 +389,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		consumedItems.clear();
 		values.clear();
 		updateScore();
+		
+		this.currentState = "";
 	}
 
 
@@ -789,6 +794,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 				
 				dfd.promise().done(function (_element) {
+					console.log("created");
 					x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});

@@ -1,3 +1,4 @@
+2014-09-25 Fixed ShowAnswers in Text module for all type of gaps
 2014-09-25 Added disable to Choice module when in ShowAnswers mode
 2014-09-24 Added toolbar separator support in Paragraph module ( | - pipe)
 2014-09-24 Removed cut, copy & paste buttons from toolbar in Paragraph module
