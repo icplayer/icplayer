@@ -1,3 +1,5 @@
+2014-09-24 Added toolbar separator support in Paragraph module ( | - pipe)
+2014-09-24 Removed cut, copy & paste buttons from toolbar in Paragraph module
 2014-09-24 Added new toolbar features in Paragraph module: forecolor and backcolor
 2014-09-24 Fixed hiding toolbar when toolbar buttons are in more than one line in Paragraph module
 2014-09-24 Loading content fixes in Coloring module

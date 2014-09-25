@@ -82,8 +82,8 @@ TestCase("[Paragraph] Model parsing", {
     'test custom toolbar available buttons': function() {
         var model = {
             'Custom toolbar': 'newdocument bold italic underline strikethrough alignleft aligncenter alignright ' +
-                              'alignjustify styleselect formatselect fontselect fontsizeselect cut copy paste ' +
-                              'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript'
+                              'alignjustify styleselect formatselect fontselect fontsizeselect ' +
+                              'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript |'
         };
 
         var validatedModel = this.presenter.parseModel(model);

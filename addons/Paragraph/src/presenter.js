@@ -47,8 +47,8 @@ function AddonParagraph_create() {
         }
         var allowedButtons = 'newdocument bold italic underline strikethrough alignleft aligncenter '+
                              'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
-                             'cut copy paste bullist numlist outdent indent blockquote undo redo '+
-                             'removeformat subscript superscript forecolor backcolor '.split(' ');
+                             'bullist numlist outdent indent blockquote undo redo '+
+                             'removeformat subscript superscript forecolor backcolor |'.split(' ');
         controls = controls.split(' ');
         return controls.filter(function(param){
             return allowedButtons.indexOf(param) != -1
