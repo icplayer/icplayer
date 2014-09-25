@@ -125,6 +125,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.isShowAnswersActive = true;
 
 		clearStylesAndSelection();
+		view.setEnabled(false);
 		
 		for(IOptionDisplay optionView : view.getOptions()){
 			ChoiceOption option = optionView.getModel();
@@ -132,6 +133,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			if (option.getValue() > 0) {
 				optionView.setDown(true);
 				optionView.setCorrectAnswerStyle();
+			} else {
+				optionView.setWrongStyle();
 			}
 		}
 		
@@ -145,8 +148,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		clearStylesAndSelection();
 		setState(this.currentState);
 		
-		this.currentState = "";
 		this.isShowAnswersActive = false;
+		setWorkMode();
+		
+		this.currentState = "";
 	}
 	
 	

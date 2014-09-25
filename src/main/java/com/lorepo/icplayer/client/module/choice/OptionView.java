@@ -138,7 +138,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	public void setCorrectAnswerStyle() {
 		addStyleDependentName("down-correct-answer");
 	}
-
+	
 	@Override
 	public void resetStyles() {
 		removeStyleDependentName("up-correct");
@@ -147,7 +147,6 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		removeStyleDependentName("down-correct-answer");
 		removeStyleDependentName("down-wrong");
 	}
-
 	
 	public void connectLinks(Iterator<LinkInfo> it) {
 		
