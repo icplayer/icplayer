@@ -48,7 +48,7 @@ function AddonParagraph_create() {
         var allowedButtons = 'newdocument bold italic underline strikethrough alignleft aligncenter '+
                              'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
                              'cut copy paste bullist numlist outdent indent blockquote undo redo '+
-                             'removeformat subscript superscript'.split(' ');
+                             'removeformat subscript superscript forecolor backcolor '.split(' ');
         controls = controls.split(' ');
         return controls.filter(function(param){
             return allowedButtons.indexOf(param) != -1
@@ -114,7 +114,13 @@ function AddonParagraph_create() {
 
         presenter.configuration = presenter.parseModel(model);
 
+        var plugins = undefined;
+        if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
+            presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
+            plugins = "textcolor";
+        }
         tinymce.init({
+            plugins: plugins,
             selector : selector,
             width: model['Width'],
             height: presenter.configuration.textAreaHeight,
@@ -153,6 +159,12 @@ function AddonParagraph_create() {
             }
     };
 
+    presenter.setIframeHeight = function(){
+        var toolbar_height = presenter.$view.find('.mce-toolbar').height(),
+            addon_height = presenter.$view.height();
+        presenter.$view.find('#' + editorID + '_ifr').height(addon_height - toolbar_height);
+    };
+
     presenter.onInit = function() {
         editorID = tinymce.activeEditor.id;
         editorDOM = tinymce.activeEditor.dom;
@@ -174,7 +186,11 @@ function AddonParagraph_create() {
         if (presenter.configuration.state !== undefined) {
         	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
         }
-        $('#' + editorID + '_ifr').height(presenter.configuration.textAreaHeight);
+
+        presenter.setIframeHeight();
+
+        presenter.$view.find('.mce-toolbar').on('resize', presenter.setIframeHeight);
+
         presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
     };
 
