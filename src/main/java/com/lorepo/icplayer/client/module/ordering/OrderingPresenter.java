@@ -81,6 +81,14 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 	}
 	
+	private boolean isShowAnswers() {
+		if (!module.isActivity()) {
+			return false;
+		}
+		
+		return this.isShowAnswersActive;
+	}
+	
 	private void showAnswers() {
 		if (!module.isActivity()) { return; }
 		
@@ -100,14 +108,12 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private void hideAnswers() {
 		if (!module.isActivity()) { return; }
 		
-		reset();
-		
-		setState(this.currentState);
-		
+		view.removeCorrectAnswersStyles();
 		this.isShowAnswersActive = false;
 
+		setState(this.currentState);
+
 		view.setWorkStatus(true);
-		view.removeCorrectAnswersStyles();
 	}
 	
 	@Override
@@ -117,7 +123,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public String getState() {
-		if (this.isShowAnswersActive) {
+		if (isShowAnswers()) {
 			hideAnswers();
 		}
 		
@@ -141,6 +147,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	// ------------------------------------------------------------------------
 	@Override
 	public int getErrorCount() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
 
 		int errors = 0;
 		if (view != null && isSolved && module.isActivity()) {
@@ -151,11 +160,11 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 	
 	private void setShowErrorsMode() {
-		this.isShowErrorsActive = true;
-		
-		if (this.isShowAnswersActive) {
+		if (isShowAnswers()) {
 			hideAnswers();
 		}
+		
+		this.isShowErrorsActive = true;
 		
 		isSolved = true;
 		if (view != null) {
@@ -164,6 +173,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void setWorkMode() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		this.isShowErrorsActive = false;
 		
 		if (view != null) {
@@ -172,6 +185,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void reset() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+		
 		isSolved = true;
 		if (view != null) {
 			view.reset();
@@ -180,11 +197,15 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public int getMaxScore() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		return module.isActivity() ? module.getMaxScore() : 0;
 	}
 
 	public int getScore() {
-		if (this.isShowAnswersActive) {
+		if (isShowAnswers()) {
 			hideAnswers();
 		}
 		
@@ -275,6 +296,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
     }
 	
 	private boolean isAttempted() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		return view.getInitialOrder() != view.getState();
 	}
 }
