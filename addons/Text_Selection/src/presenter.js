@@ -949,24 +949,40 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.show = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
 		presenter.setVisibility(true);
 		presenter.configuration.isVisible = true;
 	};
 
 	presenter.hide = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
 		presenter.setVisibility(false);
 		presenter.configuration.isVisible = false;
 	};
 
 	presenter.reset = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
         presenter.selected_elements = null;
-        presenter.hideAnswers();
+
 		presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
 		presenter.setWorkMode();
 		presenter.show();
 	};
 
 	presenter.getState = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
 		var numberSelected = [];
 
         if (presenter.selected_elements != null) presenter.selected_elements.addClass("selected");
@@ -1010,6 +1026,10 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.setShowErrorsMode = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
         presenter.is_work_mode = false;
 
         presenter.turnOffEventListeners();
@@ -1040,6 +1060,10 @@ function AddonText_Selection_create() {
 	};
 
 	presenter.setWorkMode = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
         presenter.is_work_mode = true;
 
 		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
@@ -1059,14 +1083,26 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.getErrorCount = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
 		return points(presenter.markers.markedWrong);
 	};
 
 	presenter.getMaxScore = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
 		return presenter.markers.markedCorrect.length;
 	};
 
 	presenter.getScore = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
 		return points(presenter.markers.markedCorrect);
 	};
 
@@ -1078,6 +1114,10 @@ function AddonText_Selection_create() {
     };
 
     presenter.isAttempted = function() {
+        if (presenter.is_show_answers) {
+            presenter.hideAnswers();
+        }
+
         return presenter.$view.find('.text_selection').find('.selected').length > 0;
     };
 
