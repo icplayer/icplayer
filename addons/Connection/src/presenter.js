@@ -461,13 +461,40 @@ function AddonConnection_create() {
             e.preventDefault();
             e.stopPropagation();
             if (presenter.lastEvent.type != e.type) {
+                presenter.isClicked = false;
                 clickLogic(this);
+                presenter.isClicked = true;
             }
+        });
+        element.on('mouseleave', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseenter', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseup', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mousedown', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseover', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseout', function (e) {
+            e.stopPropagation();
         });
 
         element.click(function (e) {
             e.stopPropagation();
-            clickLogic(this);
+            if(!presenter.isClicked){
+                clickLogic(this);
+            }
         });
     };
 
