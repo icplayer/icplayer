@@ -87,7 +87,6 @@ function AddonGlossary_create(){
         var presentationHeight = isMarginalPage ?  $('.ic_page').outerHeight() : $(presenter.$ICPage).outerHeight();
         var dialogWidth = $dialog.outerWidth();
         var dialogHeight = $dialog.outerHeight();
-
         var windowHeight = $(top.window).height();
         var scrollTop = $(top.window).scrollTop();
         var previewFrame = 0;
@@ -119,24 +118,42 @@ function AddonGlossary_create(){
             });
         }
 
+        function getAndroidVersion(ua) {
+            var ua = ua || navigator.userAgent;
+            var match = ua.match(/Android\s([0-9\.]*)/);
+            return match ? match[1] : false;
+        };
+
+        if(parseFloat(getAndroidVersion())=='4.1'){
+            if (window !== window.top) {
+                var ancestorData;
+                for (i=0; i<presenter.ancestorsData.length; i++)
+                {
+                    ancestorData = presenter.ancestorsData[i];
+                    $(ancestorData.wnd).scrollTop(ancestorData.offset);
+                }
+                presenter.ancestorsData = undefined;
+            }
+        }
+
         if (isPopup || isPreview) {
             popupLeft = presentationPosition.left;
             topPosition = parseInt((availableHeight - dialogHeight) / 2, 10);
         }
         else {
-            topPosition = parseInt((windowHeight - dialogHeight) / 2, 10) ;
+            topPosition = parseInt(( windowHeight - dialogHeight) / 2, 10) ;
         }
 
         var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) / 2, 10);
         var leftPosition = presentationPosition.left + presentationHorizontalOffset;
 
         // adjust top position if Player was embedded in iframe (i.e. EverTeach)
-        if (window !== top.window) {
+        if (window !== window.top) {
             var iframe = window.parent.document.getElementsByTagName('iframe');
             var iframeDialogHeight = parseInt($dialog.height(), 10);
             iframeDialogHeight += DOMOperationsUtils.calculateOuterDistances(DOMOperationsUtils.getOuterDimensions($dialog)).vertical;
 
-            topPosition -= scrollTop;
+            //topPosition -= scrollTop;
 
             if (topPosition < 0) {
                 topPosition = 0;
@@ -156,6 +173,7 @@ function AddonGlossary_create(){
             'font-size': '18px',
             'font-family': 'Trebuchet MS, Tahoma, Verdana, Arial, sans-serif'
         });
+
         $dialog.find('.ui-dialog-content').css({
             color: 'black'
         });
