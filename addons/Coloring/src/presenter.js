@@ -45,7 +45,7 @@ function AddonColoring_create(){
     };
 
     presenter.sendEvent = function(item, value, score) {
-    	if (!presenter.isShowAnswersActive) {
+    	if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
     		var eventData = presenter.createEventData(item, value, score);
     		presenter.eventBus.sendEvent('ValueChanged', eventData);
 
@@ -111,7 +111,7 @@ function AddonColoring_create(){
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
 
-            if(!presenter.isShowAnswersActive){
+            if(!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive){
                 floodFill(
                     presenter.click,
                     presenter.configuration.currentFillingColor,
@@ -609,6 +609,7 @@ function AddonColoring_create(){
                 }
             });
         }
+        presenter.setShowErrorsModeActive = true;
     };
 
     function displayIcon(area, isWrong) {
@@ -630,6 +631,7 @@ function AddonColoring_create(){
 
     presenter.setWorkMode = function(){
         presenter.$view.find('.icon-container').remove();
+        presenter.setShowErrorsModeActive = false;
     };
 
     presenter.clearCanvas = function() {
@@ -927,6 +929,8 @@ function AddonColoring_create(){
         if (!presenter.configuration.isActivity) {
             return;
         }
+        presenter.setShowErrorsModeActive = false;
+
         presenter.$view.find('.icon-container').remove();
         presenter.currentScore = presenter.getScore();
         presenter.currentErrorCount = presenter.getErrorCount();
