@@ -288,7 +288,7 @@ function AddonNavigation_Bar_create() {
 
         var nextElementArrow = '<a href="#"><span class="' + elementStyle + '">&gt;</span></a>';
 
-        previousElement.after(nextElementArrow);
+        presenter.$wrapper.append(nextElementArrow);
     }
 
     function generateReportArrowElement() {
@@ -312,13 +312,13 @@ function AddonNavigation_Bar_create() {
         }
     }
 
-    function generateRaportAndNextArrowsElements() {
-        if (!presenter.configuration.hideHomeLastArrows) {
-            generateReportArrowElement();
-        }
-
+    function generateReportAndNextArrowsElements() {
         if (presenter.configuration.showNextPrevArrows) {
             generateNextArrowElement();
+        }
+
+        if (!presenter.configuration.hideHomeLastArrows) {
+            generateReportArrowElement();
         }
     }
 
@@ -409,7 +409,7 @@ function AddonNavigation_Bar_create() {
 
         var dotsIndexes = generateIndexedElements(navigationBarMoved);
 
-        generateRaportAndNextArrowsElements();
+        generateReportAndNextArrowsElements();
 
         if (!preview) {
             handleMouseActions(dotsIndexes.leftIndex, dotsIndexes.rightIndex, elementWidth, elementHeight, preview, horizontalGap);

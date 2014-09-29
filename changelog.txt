@@ -1,3 +1,4 @@
+2014-09-29 Fixed placement of Next and Report buttons in Navigation Bar module
 2014-09-26 Fixed restoring user selection after CheckAnswers event in ShowAnswers mode in Text Selection module
 2014-09-26 Fixed handling Reset event while in ShowAnswers mode in Ordering module
 2014-09-26 Fixed double lines on Android.4.1.2 in Connection module
