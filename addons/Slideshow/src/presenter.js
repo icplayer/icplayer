@@ -464,8 +464,8 @@ function AddonSlideshow_create() {
         }
     }
 
-    function playButtonClickHandler(e) {
-        e.stopPropagation();
+    function playButtonClickHandler(event) {
+        event.stopPropagation();
 
         switch (presenter.configuration.audioState) {
             case presenter.AUDIO_STATE.PLAY:
@@ -490,8 +490,8 @@ function AddonSlideshow_create() {
                 changeButtonToPause();
                 break;
             case presenter.AUDIO_STATE.STOP_FROM_NAVIGATION:
-                stopButtonClickHandler();
-                playButtonClickHandler();
+                stopButtonClickHandler(event);
+                playButtonClickHandler(event);
                 break;
         }
     }
