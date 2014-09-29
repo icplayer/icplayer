@@ -13,7 +13,8 @@ function AddonNavigation_Bar_create() {
 
     presenter.ERROR_CODES = {
         'E_01': "Pages and Style or Class attribute in 'Styles' must be filled",
-        'E_04': "Pages attribute in Styles may contain only previous, next, first, last and positive integer page numbers"
+        'E_04': "Pages attribute in Styles may contain only previous, next, first, last and positive integer page numbers",
+        'P_01': "Cannot load module - HTML element doesn't exists"
     };
 
     function returnErrorObject(errorCode) {
@@ -552,13 +553,19 @@ function AddonNavigation_Bar_create() {
     function presenterLogic(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
-        var $element = presenter.$view.find('[class*="navigationbar-element-first"]:first');
+        var $element = presenter.$view.find('.navigationbar-element-first');
 
         presenter.configuration = presenter.validateModel(model);
         var arrowsCount = presenter.getArrowsCount();
 
         if(presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return;
+        }
+
+        // Quick and dirty workaround for problems with view not available when loading addon
+        if ($element.length == 0) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'P_01');
             return;
         }
 
