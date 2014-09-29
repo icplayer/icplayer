@@ -955,6 +955,10 @@ function AddonConnection_create() {
     };
 
     presenter.showAnswers = function () {
+        if(isNotActivity) {
+            return;
+        }
+
         presenter.isShowAnswersActive = true;
         presenter.tmpElements = [];
         for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
@@ -990,6 +994,9 @@ function AddonConnection_create() {
     };
 
     presenter.hideAnswers = function () {
+        if(isNotActivity) {
+            return;
+        }
         redraw();
         presenter.isShowAnswersActive = false;
         isSelectionPossible = true;

@@ -1,3 +1,4 @@
+2014-09-29 Fixed activity in Show Answers mode in Coloring, Connection and Image Identification modules.
 2014-09-29 Fixed problem with libraries and date in IWB Toolbar module.
 2014-09-29 Fixed problem with Play button in Slideshow module after changing slides
 2014-09-29 Fixed placement of Next and Report buttons in Navigation Bar module

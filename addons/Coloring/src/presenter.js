@@ -924,7 +924,7 @@ function AddonColoring_create(){
     };
 
     presenter.showAnswers = function () {
-        if (presenter.validateModel.isActivity) {
+        if (!presenter.configuration.isActivity) {
             return;
         }
         presenter.$view.find('.icon-container').remove();
@@ -959,7 +959,7 @@ function AddonColoring_create(){
     };
 
     presenter.hideAnswers = function () {
-        if (presenter.validateModel.isActivity) {
+        if (!presenter.configuration.isActivity) {
             return;
         }
 

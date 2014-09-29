@@ -430,6 +430,10 @@ function AddonImage_Identification_create(){
     }
 
     presenter.showAnswers = function () {
+        if(!presenter.configuration.isActivity){
+            return;
+        }
+
         presenter.isShowAnswersActive = true;
 
         presenter.configuration.isErrorCheckMode = true;
@@ -445,6 +449,10 @@ function AddonImage_Identification_create(){
     };
 
     presenter.hideAnswers = function () {
+        if(!presenter.configuration.isActivity){
+            return;
+        }
+
         presenter.configuration.isErrorCheckMode = false;
 
         applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);
