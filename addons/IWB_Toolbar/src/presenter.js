@@ -994,8 +994,14 @@ function AddonIWB_Toolbar_create(){
             currentDate = savedNote.date;
             noteBody.html(savedNote.body);
         } else {
-            var today = Date.today();
-            currentDate = today.toString('d/M/yyyy') + ', ' + new Date().toString('HH:mm');
+            var day = new Date().getDate(),
+                month = new Date().getMonth() + 1,
+                year = new Date().getFullYear(),
+                hours = new Date().getHours(),
+                minutes = new Date().getMinutes();
+
+            var time = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+            currentDate = day+'/'+month+'/'+year+ ', ' + time;
         }
 
         closeButton.on('click', function(e) {

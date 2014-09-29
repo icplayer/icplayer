@@ -15,7 +15,7 @@
     <script src="libs/player-utils.js"/>
     <script src="libs/buzz.min.js"/>
     <script src="libs/jcanvas.min.js"/>
-    <script src="libs/jquery-ui.min.js"/>
+    <script src="libs/jquery-ui.js"/>
     <script src="libs/jquery-csv.js"/>
     <script src="libs/jquery.dotimeout.js"/>
     <script src="libs/jquery.imgpreload.js"/>
@@ -30,8 +30,8 @@
     <script src="libs/commons.js"/>
     <script src="libs/dictionary.js"/>
     <script src="libs/aop.min.js"/>
-    <script src="libs/scorm.min.js"/>
-    <script src="libs/scorm_1_2.min.js"/>
+    <script src="libs/scorm.js"/>
+    <script src="libs/scorm_1_2.js"/>
     <script src="libs/tinymce.min.js"/>
     <script src="libs/jsc3d.min.js" />
     <script src="libs/htmlparser.min.js" />
@@ -40,7 +40,6 @@
     <script src="libs/kinetic-v5.1.0.min.js" />
     <script src="libs/swiffy_runtime.js" />
     <script src="libs/sonic.js" />
-    <script src="libs/date.js" />
 
   <script src="libs/eKeyboard_layouts/french.js" />
   <script src="libs/eKeyboard_layouts/german.js" />
