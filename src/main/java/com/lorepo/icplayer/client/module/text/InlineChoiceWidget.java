@@ -57,8 +57,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
 
-		int index = getSelectedIndex();
 		if(isActivity) {
+			int index = getSelectedIndex();
 
 			if(index > 0) {
 				if(getItemText(index).compareTo(choiceInfo.getAnswer()) == 0){
