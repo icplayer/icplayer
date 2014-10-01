@@ -443,11 +443,29 @@ function AddonConnection_create() {
         redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
+        $("canvas").parents("*").css("overflow", "visible");
     }
 
     presenter.registerListeners = function (view) {
 
         presenter.$connectionContainer = $(view).find('.connectionContainer');
+        presenter.$leftColumn = $(view).find('connectionLeftColumn');
+        presenter.$rightColumn = $(view).find('connectionRightColumn');
+
+        presenter.$connectionContainer.click(function (e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        presenter.$leftColumn.click(function (e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        presenter.$rightColumn.click(function (e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
 
         var element = $(view).find('.connectionItem');
 
@@ -466,6 +484,7 @@ function AddonConnection_create() {
                 presenter.isClicked = true;
             }
         });
+
         element.on('mouseleave', function (e) {
             e.stopPropagation();
         });
@@ -496,6 +515,7 @@ function AddonConnection_create() {
                 clickLogic(this);
             }
         });
+
     };
 
     presenter.setSingleMode = function (singleModeString) {
@@ -725,6 +745,7 @@ function AddonConnection_create() {
     }
 
     function drawLine(line, color) {
+        connections.width = connections.width;
         var from = getElementSnapPoint(line.from);
         var to = getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
