@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module rename-to='icplayer'>
-	<inherits name='com.google.gwt.user.User'/>
+    <inherits name='com.google.gwt.user.User'/>
 
-	<inherits name="com.google.gwt.http.HTTP" />
-	<inherits name="com.google.gwt.xml.XML" />
-	<inherits name="com.google.gwt.json.JSON" />
-	<inherits name='com.lorepo.icf.Properties'/>
-	<inherits name='com.lorepo.icf.Utils'/>
-	<inherits name='com.lorepo.icf.Scripting'/>
+    <inherits name="com.google.gwt.http.HTTP"/>
+    <inherits name="com.google.gwt.xml.XML"/>
+    <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name='com.lorepo.icf.Properties'/>
+    <inherits name='com.lorepo.icf.Utils'/>
+    <inherits name='com.lorepo.icf.Scripting'/>
 
-	<stylesheet src="theme/player.css"/>
-	<stylesheet src="libs/jquery-ui.css"/>
+    <stylesheet src="theme/player.css"/>
+    <stylesheet src="libs/jquery-ui.css"/>
 
     <script src="libs/player-utils.js"/>
     <script src="libs/buzz.min.js"/>
@@ -33,24 +33,24 @@
     <script src="libs/scorm.js"/>
     <script src="libs/scorm_1_2.js"/>
     <script src="libs/tinymce.min.js"/>
-    <script src="libs/jsc3d.min.js" />
-    <script src="libs/htmlparser.min.js" />
-    <script src="libs/jquery.ui.touch-punch.min.js" />
-    <script src="libs/jquery.keyboard.min.js" />
-    <script src="libs/kinetic-v5.1.0.min.js" />
-    <script src="libs/swiffy_runtime.js" />
-    <script src="libs/sonic.js" />
+    <script src="libs/jsc3d.min.js"/>
+    <script src="libs/htmlparser.min.js"/>
+    <script src="libs/jquery.ui.touch-punch.min.js"/>
+    <script src="libs/jquery.keyboard.min.js"/>
+    <script src="libs/kinetic-v5.1.0.min.js"/>
+    <script src="libs/swiffy_runtime.js"/>
+    <script src="libs/sonic.js"/>
 
-  <script src="libs/eKeyboard_layouts/french.js" />
-  <script src="libs/eKeyboard_layouts/german.js" />
-  <script src="libs/eKeyboard_layouts/polish.js" />
-  <script src="libs/eKeyboard_layouts/spanish.js" />
+    <script src="libs/eKeyboard_layouts/french.js"/>
+    <script src="libs/eKeyboard_layouts/german.js"/>
+    <script src="libs/eKeyboard_layouts/polish.js"/>
+    <script src="libs/eKeyboard_layouts/spanish.js"/>
 
-	<script src="libs/jqplot/jquery.jqplot.min.js"/>
-	<script src="libs/jqplot/jqplot.barRenderer.min.js"/>
-	<script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
-	<script src="libs/jqplot/jqplot.cursor.min.js"/>
-	<script src="libs/jqplot/jqplot.pointLabels.min.js"/>
+    <script src="libs/jqplot/jquery.jqplot.min.js"/>
+    <script src="libs/jqplot/jqplot.barRenderer.min.js"/>
+    <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+    <script src="libs/jqplot/jqplot.cursor.min.js"/>
+    <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
 
     <script src="libs/RGraph_lib_min/RGraph.common.core.min.js"/>
     <script src="libs/RGraph_lib_min/RGraph.bar.min.js"/>
@@ -62,24 +62,22 @@
     <script src="libs/RGraph_lib_min/RGraph.radar.min.js"/>
     <script src="libs/RGraph_lib_min/RGraph.rose.min.js"/>
 
-	<script src="libs/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
-	<stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
-	
-  <script src="libs/createjs/easeljs-0.4.1.min.js"/>
-	<script src="libs/createjs/tweenjs-0.2.0.min.js"/>
-	<script src="libs/createjs/movieclip-0.4.1.min.js"/>
-	<script src="libs/createjs/ypreloadjs1.3.0.min.js"/>
-	<script src="libs/createjs/ysoundjs1.3.0.min.js"/>
+    <script src="libs/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
+    <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
 
-    <script src="libs/edge2.0.1.268.js"/>
-	
-	<script src="libs/ydp/ButtonDecorator.min.js"/>
-	<script src="libs/ydp/Delegate.min.js"/>
-	<script src="libs/ydp/Slider.min.js"/>
+    <script src="libs/createjs/easeljs-0.4.1.min.js"/>
+    <script src="libs/createjs/tweenjs-0.2.0.min.js"/>
+    <script src="libs/createjs/movieclip-0.4.1.min.js"/>
+    <script src="libs/createjs/ypreloadjs1.3.0.min.js"/>
+    <script src="libs/createjs/ysoundjs1.3.0.min.js"/>
 
-	<entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
+    <script src="libs/ydp/ButtonDecorator.min.js"/>
+    <script src="libs/ydp/Delegate.min.js"/>
+    <script src="libs/ydp/Slider.min.js"/>
 
-	<source path='client'/>
-	
-	<set-property name="user.agent" value="safari,ie9,gecko1_8, opera"/>
+    <entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
+
+    <source path='client'/>
+
+    <set-property name="user.agent" value="safari,ie9,gecko1_8, opera"/>
 </module>
