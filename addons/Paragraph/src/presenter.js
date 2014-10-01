@@ -160,9 +160,14 @@ function AddonParagraph_create() {
     };
 
     presenter.setIframeHeight = function(){
-        var toolbar_height = presenter.$view.find('.mce-toolbar').height(),
-            addon_height = presenter.$view.height();
-        presenter.$view.find('#' + editorID + '_ifr').height(addon_height - toolbar_height);
+        var $editor = presenter.$view.find('#' + editorID + '_ifr'),
+            editorHeight = presenter.$view.height();
+
+        if (!presenter.configuration.isToolbarHidden) {
+            editorHeight -=  presenter.$view.find('.mce-toolbar').height();
+        }
+
+        $editor.height(editorHeight);
     };
 
     presenter.onInit = function() {
@@ -182,7 +187,7 @@ function AddonParagraph_create() {
         tinyMCE.activeEditor.dom.loadCSS(stylesheetFullPath);
 
         presenter.setStyles();
-        
+
         if (presenter.configuration.state !== undefined) {
         	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
         }
