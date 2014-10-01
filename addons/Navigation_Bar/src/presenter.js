@@ -551,7 +551,7 @@ function AddonNavigation_Bar_create() {
     };
 
     function presenterLogic(view, model, isPreview) {
-        presenter.$view = $(view);
+    	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
         var $element = presenter.$view.find('.navigationbar-element-first');
 
@@ -560,12 +560,6 @@ function AddonNavigation_Bar_create() {
 
         if(presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-            return;
-        }
-
-        // Quick and dirty workaround for problems with view not available when loading addon
-        if ($element.length == 0) {
-            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'P_01');
             return;
         }
 
