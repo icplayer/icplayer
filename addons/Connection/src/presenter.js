@@ -443,7 +443,6 @@ function AddonConnection_create() {
         redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
-        $("canvas").parents("*").css("overflow", "visible");
     }
 
     presenter.registerListeners = function (view) {
