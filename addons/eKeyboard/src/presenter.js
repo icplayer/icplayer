@@ -379,7 +379,7 @@ function AddoneKeyboard_create(){
 
                     // combos (emulate dead keys : http://en.wikipedia.org/wiki/Keyboard_layout#US-International)
                     // if user inputs `a the script converts it to à, ^o becomes ô, etc.
-                    useCombos    : true,
+                    useCombos    : false,
 
                     // *** Methods ***
                     // Callbacks - add code inside any of these callback functions as desired

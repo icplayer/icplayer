@@ -1,3 +1,4 @@
+2010-10-01 Fixed problem with apostrophes in gaps are being worked with eKeyboard
 2010-10-01 Fixed problem with gaps being enabled regardless of initial configuration after Reset in Text module
 2014-10-01 Fixed issiue with lines on Android 4.1.2 in Connection module
 2014-10-01 Fixed issues with loading Adobe Edge Animation JavaScript Runtime in Edge Animation module
