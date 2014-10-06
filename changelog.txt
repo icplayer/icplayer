@@ -1,3 +1,4 @@
+2010-10-06 Added Show Answers to Writing Calculations module
 2010-10-03 Fixed problem with Connection in editor preview
 2010-10-03 Fixed problem with apostrophes in gaps are being worked with eKeyboard
 2010-10-01 Fixed problem with gaps being enabled regardless of initial configuration after Reset in Text module
