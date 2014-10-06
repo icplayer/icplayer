@@ -138,6 +138,8 @@ function AddonTable_create() {
 
     presenter.run = function (view, model) {
         presenter.logic(view, model, false);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.setGapDisableProperties = function (index, isEnabled) {
@@ -156,6 +158,9 @@ function AddonTable_create() {
     };
 
     presenter.reset = function () {
+    	 if (presenter.isShowAnswersActive) {
+             presenter.hideAnswers();
+         }
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.removeMarkClassesFromAllGaps();
         presenter.resetIsEnabledProperty();
@@ -167,6 +172,9 @@ function AddonTable_create() {
     };
 
     presenter.getState = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         if (!presenter.configuration.isActivity || presenter.configuration.gaps.descriptions === undefined) {
             return;
         }
@@ -654,7 +662,10 @@ function AddonTable_create() {
 
     presenter.getMaxScore = function () {
         if (!presenter.configuration.isActivity) return 0;
-
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        
         var score = 0;
         $.each(presenter.configuration.gaps.descriptions, function (index, gap) {
             score += gap.score;
@@ -692,7 +703,10 @@ function AddonTable_create() {
 
     presenter.getScore = function () {
         if (!presenter.configuration.isActivity) return 0;
-
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        
         var score = 0,
             isCaseSensitive = presenter.configuration.isCaseSensitive,
             isPunctuationIgnored = presenter.configuration.isPunctuationIgnored;
@@ -708,7 +722,10 @@ function AddonTable_create() {
 
     presenter.getErrorCount = function () {
         if (!presenter.configuration.isActivity) return 0;
-
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        
         var errorCount = 0,
             isCaseSensitive = presenter.configuration.isCaseSensitive,
             isPunctuationIgnored = presenter.configuration.isPunctuationIgnored;
@@ -726,6 +743,10 @@ function AddonTable_create() {
             isPunctuationIgnored = presenter.configuration.isPunctuationIgnored,
             isActivity = presenter.configuration.isActivity;
 
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        
         $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
             $(gap).attr('disabled', 'disabled');
             if (!isActivity) return true;
@@ -775,7 +796,7 @@ function AddonTable_create() {
             score: "" + score
         };
     };
-
+    
     presenter.sendValueChangeEvent = function (gapIndex) {
         var gapDescription = presenter.configuration.gaps.descriptions[gapIndex],
             isCaseSensitive = presenter.configuration.isCaseSensitive,
@@ -786,6 +807,47 @@ function AddonTable_create() {
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
+    
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
 
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+    
+    presenter.showAnswers = function () {
+    	if (presenter.configuration.isActivity) {
+	        presenter.isShowAnswersActive = true;
+	        presenter.answers = [];
+	        
+        	$.each(presenter.$view.find('.ic_gap'), function (index, gap) {
+                var gapIndex = presenter.getGapIndex(gap);
+                var gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
+                $(gap).attr('disabled', 'disabled');
+                presenter.answers.push($(gap).val());
+                $(gap).val(/[^,]*/.exec(gapDescription.answers)[0]);
+                presenter.removeMarkClasses(gap);
+                $(gap).addClass('ic_gap-show-answers');
+            });
+        }
+    };
+    
+    presenter.hideAnswers = function () {
+    	if (presenter.configuration.isActivity) {
+	        presenter.isShowAnswersActive = false;
+	        presenter.setWorkMode();
+	        $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
+	            var gapIndex = presenter.getGapIndex(gap);
+	            var gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
+	            
+	            $(gap).val(presenter.answers[index]);
+	            $(gap).removeClass('ic_gap-show-answers');
+	        });
+    	}
+    };
+    
     return presenter;
 }
