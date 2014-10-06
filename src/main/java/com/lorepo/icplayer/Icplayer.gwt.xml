@@ -52,16 +52,6 @@
     <script src="libs/jqplot/jqplot.cursor.min.js"/>
     <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
 
-    <script src="libs/RGraph_lib_min/RGraph.common.core.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.bar.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.gauge.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.hbar.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.hprogress.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.line.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.meter.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.radar.min.js"/>
-    <script src="libs/RGraph_lib_min/RGraph.rose.min.js"/>
-
     <script src="libs/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
     <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
 
