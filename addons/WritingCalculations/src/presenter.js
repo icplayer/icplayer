@@ -40,6 +40,9 @@ function AddonWritingCalculations_create() {
 
     presenter.run = function(view, model) {
         presenterLogic(view, model);
+        eventBus = presenter.playerController.getEventBus();
+		eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -375,6 +378,10 @@ function AddonWritingCalculations_create() {
 
     presenter.setShowErrorsMode = function() {
         var inputs = $(this.$view).find(".writing-calculations-input");
+        
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         $.each(inputs, function(){
             var answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
 
@@ -425,6 +432,12 @@ function AddonWritingCalculations_create() {
 
     presenter.reset = function() {
         this.clean(true, true);
+        var inputs = $(this.$view).find(".writing-calculations-input");
+        if(typeof(presenter.userAnswers) !== "undefined") {
+            $.each(inputs, function(index){
+                presenter.userAnswers[index] = '';
+            });	
+        }
     };
 
     presenter.clean = function(removeMarks, removeValues) {
@@ -457,6 +470,9 @@ function AddonWritingCalculations_create() {
             incorrectAnswersCount : 0
         };
 
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         $.each(inputs, function () {
             var value = $(this).val();
             if (presenter.isInteger(value)) {
@@ -477,6 +493,9 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getState = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return JSON.stringify({
             "inputsData" : this.getInputsData()
         });
@@ -496,14 +515,23 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return this.getPoints("correct");
     };
 
     presenter.getMaxScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return this.getPoints("all");
     };
 
     presenter.getErrorCount = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return this.getPoints("incorrect");
     };
 
@@ -542,5 +570,44 @@ function AddonWritingCalculations_create() {
         this.playerController = controller;
     };
 
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+    
+    
+    presenter.showAnswers = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.userAnswers = [];
+        presenter.isShowAnswersActive = true;
+        presenter.clean(true,false);
+        var inputs = $(this.$view).find(".writing-calculations-input");
+        var correctAnswers = this.correctAnswersList;
+        
+        $.each(inputs, function(index){
+            $(this).addClass('writing-calculations_show-answers');
+            $(this).attr("disabled", true);
+            presenter.userAnswers.push($(this).val());
+            $(this).val(correctAnswers[index].value);
+        });
+    };
+    
+    presenter.hideAnswers = function () {
+        presenter.isShowAnswersActive = false;
+        var inputs = $(this.$view).find(".writing-calculations-input");
+        $.each(inputs, function(index){
+            $(this).val(presenter.userAnswers[index]);
+            $(this).removeClass('writing-calculations_show-answers');
+            $(this).attr("disabled", false);
+        });
+    };
+    
     return presenter;
 }
