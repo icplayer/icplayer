@@ -143,10 +143,6 @@ function AddonBasic_Math_Gaps_create(){
         return value.replace(new RegExp(escaped, 'g'), to);
     }
 
-    function log(message) {
-        console.log(message);
-    }
-
     presenter.errorCodes = {
         'E01' : 'Left side is not equal to Right side.',
         'E02' : 'A space can NOT be a decimal separator.',

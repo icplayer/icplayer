@@ -368,7 +368,6 @@ function AddonConnectingDots_create() {
                     if (presenter.draw < (presenter.points).length-1 && presenter.isDown === true) {
                         presenter.mouseSX = parseInt(e.pageX,10) - parseInt($div.offset().left,10);
                         presenter.mouseSY = parseInt(e.pageY,10) - parseInt($div.offset().top,10);
-                        //  console.log("["+presenter.mouseSX+", "+presenter.mouseSY+"]");
                         presenter.drawTempLine(presenter.draw,presenter.mouseSX,presenter.mouseSY);
                     }
                 }

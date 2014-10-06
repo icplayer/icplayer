@@ -263,10 +263,6 @@ function AddonColoring_create(){
         return true;
     };
 
-    function log(message) {
-        console.log(message);
-    }
-
     function getClickedAreaColor(x, y) {
         var data = presenter.ctx.getImageData(x, y, 1, 1).data,
             color = [];

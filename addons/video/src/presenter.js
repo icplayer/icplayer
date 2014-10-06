@@ -240,9 +240,7 @@ function Addonvideo_create() {
             }
             delete presenter.isHideExecuted;
         }, false);
-//        this.video.addEventListener('ended', function() {
-//            console.log('ended')
-//            console.log(presenter.isEnded)
+//        this.video.addEventListener('ended', function() {s
 //            if (!presenter.isEnded) {
 //                presenter.sendVideoEndedEvent();
 //                if (presenter.configuration.isFullScreen) {
