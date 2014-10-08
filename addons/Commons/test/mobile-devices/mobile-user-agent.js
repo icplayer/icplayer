@@ -51,5 +51,20 @@ TestCase("[Commons - Mobile devices] isMobileDevice", {
         var mobileagent = MobileUtils.isMobileUserAgent('Opera/9.80 (J2ME/MIDP; Opera Mini/9.80 (S60; SymbOS; Opera Mobi/23.348; U; en) Presto/2.5.25 Version/10.54');
 
         assertTrue(mobileagent);
+    },
+
+    'test android web browser': function() {
+        var android = "Mozilla/5.0 (Linux; U; Android 4.1.2; pl-pl; SM-T210 Build/JZO54K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
+        assertTrue(MobileUtils.isAndroidWebBrowser(android));
+    },
+
+    'test android version': function() {
+        var android = "Mozilla/5.0 (Linux; U; Android 4.1.2; pl-pl; SM-T210 Build/JZO54K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
+        assertEquals("4.1.2", MobileUtils.getAndroidVersion(android));
+    },
+
+    'test chrome web browser (isAndroidWebBrowser)': function() {
+        var chrome = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.21.25.101 Safari/537.36";
+        assertFalse(MobileUtils.isAndroidWebBrowser(chrome));
     }
 });

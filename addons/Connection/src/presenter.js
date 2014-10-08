@@ -256,7 +256,6 @@ function AddonConnection_create() {
 
         this.setSingleMode(model['Single connection mode']);
 
-
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
 
@@ -443,6 +442,13 @@ function AddonConnection_create() {
         redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
+
+        if (MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) {
+            var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+            if (["4.1.1", "4.1.2", "4.2.2", "4.3"].indexOf(android_ver) !== -1) {
+                $(presenter.view).find("canvas").parents("*").css("overflow", "visible");
+            }
+        }
     }
 
     presenter.registerListeners = function (view) {
@@ -807,7 +813,6 @@ function AddonConnection_create() {
         if (isNotActivity) return 0;
 
         return presenter.correctConnections.length();
-
     };
 
     presenter.getScore = function () {
@@ -878,7 +883,6 @@ function AddonConnection_create() {
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
-
 
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
@@ -975,7 +979,7 @@ function AddonConnection_create() {
     };
 
     presenter.showAnswers = function () {
-        if(isNotActivity) {
+        if (isNotActivity) {
             return;
         }
 

@@ -30,6 +30,40 @@
         },
 
         /**
+         Recognizes if userAgent is native mobile Android Web Browser
+         @method isAndroidWebBrowser
+
+         @return {Boolean} True if userAgent is native mobile Android Web Browser
+         */
+
+        isAndroidWebBrowser: function(userAgent) {
+            if (userAgent === undefined || !userAgent)
+                return false;
+
+            return userAgent.indexOf('Mozilla/5.0' > -1 &&
+                userAgent.indexOf('Android ') > -1 &&
+                userAgent.indexOf('AppleWebKit') > -1) &&
+                !(userAgent.indexOf('Chrome') > -1);
+        },
+
+        /**
+         @return {String} substring or empty string
+         */
+
+        getAndroidVersion: function(userAgent) {
+            if (userAgent === undefined || !userAgent) return "";
+
+            userAgent = userAgent.toString();
+            var start = userAgent.indexOf("Android") + "Android".length;
+
+            if (start === -1) return "";
+
+            var end = userAgent.indexOf(";", start);
+
+            return userAgent.substring(start, end).trim();
+        },
+
+        /**
          Recognizes if userAgent is Safari mobile device
          @method isSafariMobile
 
