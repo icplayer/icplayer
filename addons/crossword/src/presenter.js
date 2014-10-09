@@ -455,6 +455,21 @@ function Addoncrossword_create(){
 
     presenter.validate = function(mode) {
         var wordValid, i, j, k, l, score, markedCell;
+        var filled = false;
+        
+        if (presenter.isShowAnswersActive && mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
+            presenter.hideAnswers();
+	        for(var i = 0; i < presenter.rowCount; i++) {
+	            for(var j = 0; j < presenter.columnCount; j++) {
+	            	if(presenter.$view.find('.cell_' + i + 'x' + j + ' input').val() != '' && typeof(presenter.$view.find('.cell_' + i + 'x' + j + ' input').val()) !== "undefined" && presenter.crossword[i][j][0] !== '!') {
+	            		filled = true;
+	            	}
+	             }
+	        }
+	        if(!filled) {
+	        	return;
+	        }
+        }
 
         if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
             presenter.$view.find(".cell_letter input").attr('disabled', true);
@@ -555,6 +570,8 @@ function Addoncrossword_create(){
         presenter.preview = false;
         eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
+		eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -563,7 +580,19 @@ function Addoncrossword_create(){
     };
 
     presenter.reset = function() {
-        presenter.$view.find(".cell_letter input:not([disabled])").attr('value', '');
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    	for(var i = 0; i < presenter.rowCount; i++) {
+            for(var j = 0; j < presenter.columnCount; j++) {
+            	if(presenter.crossword[i][j][0] !== '!') {
+            		presenter.$view.find('.cell_' + i + 'x' + j + ' input').val('');
+            	}
+            	if(typeof(presenter.userAnswers) !== "undefined") {
+            		presenter.userAnswers[i][j] = '';
+            	}
+             }
+        }
         presenter.setWorkMode();
     };
 
@@ -578,16 +607,25 @@ function Addoncrossword_create(){
     };
 
     presenter.getScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
 
         return presenter.isAttempted() ? score : 0;
     };
 
     presenter.getMaxScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return presenter.maxScore;
     };
 
     presenter.getErrorCount = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE),
             errorCount = presenter.getMaxScore() - score;
 
@@ -597,7 +635,9 @@ function Addoncrossword_create(){
     presenter.getState = function() {
         var s = [];
         var cell;
-
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         for(var i = 0; i < presenter.rowCount; i++) {
             for(var j = 0; j < presenter.columnCount; j++) {
                 cell = presenter.$view.find('.cell_' + i + 'x' + j + ' input').attr('value');
@@ -652,5 +692,49 @@ function Addoncrossword_create(){
         eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+    	if(presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+    		if (presenter.isShowAnswersActive) {
+	            presenter.hideAnswers();
+	        }
+	        presenter.isShowAnswersActive = true;
+	        presenter.setWorkMode();
+	        presenter.userAnswers = new Array(presenter.rowCount);
+	        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
+	        presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
+	
+	        for(var i = 0; i < presenter.rowCount; i++) {
+	        	presenter.userAnswers[i] = new Array(presenter.columnCount);
+	            for(var j = 0; j < presenter.columnCount; j++) {
+	            	presenter.userAnswers[i][j] = presenter.$view.find('.cell_' + i + 'x' + j + ' input').val();
+	            	presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(presenter.crossword[i][j].replace(/[!]/g,""));
+	             }
+	        }
+    	}
+    };
+    
+    presenter.hideAnswers = function () {
+    	if(presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+    		presenter.isShowAnswersActive = false;
+	        presenter.$view.find(".cell_letter input").attr('disabled', false);
+	        presenter.$view.find(".cell_letter input").removeClass('crossword_cell_show-answers');
+	        for(var i = 0; i < presenter.rowCount; i++) {
+	            for(var j = 0; j < presenter.columnCount; j++) {
+	            	presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(presenter.userAnswers[i][j]);
+	             }
+	        }
+    	}
+    };
+    
     return presenter;
 }
