@@ -1,3 +1,4 @@
+2014-10-09 Added new version of Swiffy Animation module and swiffy library.
 2014-10-09 Added Show Answers to Crossword module
 2014-10-08 Fixed issue with double lines in Connection module
 2014-10-06 Removed console.log from Text module
