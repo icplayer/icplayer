@@ -677,7 +677,7 @@ function AddonTable_create() {
     presenter.isGapCorrect = function (gap, isCaseSensitive, isPunctuationIgnored) {
         var isCorrect = false;
         if ($("#" + gap.id).hasClass("ic_inlineChoice")) {
-            isCorrect = gap.value == gap.answers[0];
+            isCorrect = $('<option />').html(gap.value).text() == gap.answers[0];
         }
         else {
             $.each(gap.answers, function (index, element) {
