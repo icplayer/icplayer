@@ -1,6 +1,5 @@
 function AddonNavigation_Bar_create() {
     var presenter = function () { };
-
     presenter.eventBus = null;
 
     var NAVIGATION_PAGE = {
@@ -48,6 +47,7 @@ function AddonNavigation_Bar_create() {
         presenter.currentIndex = controller.getCurrentPageIndex();
         presenter.scoreService = controller.getScore();
         presenter.eventBus.addEventListener('PageLoaded', this);
+        presenter.eventBus.addEventListener('ValueChanged', this);
     };
 
     function goToPage(whereTo, index) {
@@ -482,7 +482,8 @@ function AddonNavigation_Bar_create() {
             styles: model['Styles'],
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
             hideHomeLastArrows: model.HideHomeLastArrows === 'True',
-            language: getLanguage(model)
+            language: getLanguage(model),
+            addClassNBPageOK: model.AddClassNBPageOK === 'True'
         };
 
         if (!model['Styles']) {
@@ -645,10 +646,13 @@ function AddonNavigation_Bar_create() {
             presenter.isPageOK();
         });
     };
-
+    
     presenter.onEventReceived = function(eventName) {
         if (eventName == 'PageLoaded') {
             presenter.pageLoadedDeferred.resolve();
+        }
+        if (eventName == "ValueChanged" && presenter.configuration.addClassNBPageOK) {
+        	presenter.isCurrentPageOk();
         }
     };
 

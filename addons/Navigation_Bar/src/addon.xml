@@ -10,5 +10,6 @@
             <property name="Class" type="string"/>
             <property name="Style" type="string"/>
         </property>
+        <property name='AddClassNBPageOK' type='boolean' displayName='Real-time navigationbar-page-ok'/>
 	</model>
 </addon>
