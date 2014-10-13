@@ -144,8 +144,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 			isVisible = true;
 		}
 	}
-	
-	
+
 	protected void hide() {
 		if (view != null) {
 			view.hide();
@@ -180,20 +179,20 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 
 		return jsObject;
 	}
-
+	
 	private native JavaScriptObject initJSObject(CheckButtonPresenter x) /*-{
-		var presenter = function() {}
+		var presenter = function() {};
 		
-		presenter.show = function() { 
-			x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::show()();
+		presenter.show = function() {
+			x.@com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter::show()();
 		}
 		
-		presenter.hide = function() { 
-			x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::hide()();
+		presenter.hide = function() {
+			x.@com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter::hide()();
 		}
 		
-		presenter.getView = function() { 
-			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::getView()();
+		presenter.getView = function() {
+			return x.@com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter::getView()();
 		}
 		
 		return presenter;

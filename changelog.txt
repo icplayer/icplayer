@@ -1,3 +1,4 @@
+2014-10-13 Fixed issue with getting JS representation of Check Button module
 2014-10-13 Fixed showing Layered Image module on IOS 8.0.2
 2014-10-09 Fixed issue with symbols in dropdown gaps for Table module
 2014-10-09 Fixed issue with double lines in Connection module

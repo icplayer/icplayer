@@ -22,18 +22,16 @@ public class PlayerApp{
 
 	/** Div id */
 	private String divId;
-	private	Content				contentModel;
-	private PlayerController	playerController;
+	private	Content contentModel;
+	private PlayerController playerController;
 	/** Score service impl */
-	private PlayerEntryPoint	entryPoint;
+	private PlayerEntryPoint entryPoint;
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
 	private boolean bookMode = false;
 	private boolean showCover = false;
 	private String analyticsId = null;
 	private ArrayList<Integer> pagesSubset = null;
-	private IPlayerServices playerServices;
-	
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
 		
@@ -59,7 +57,7 @@ public class PlayerApp{
 		startPageIndex = pageIndex;
 		contentModel = new Content();
 		if (pagesSubset != null) contentModel.setPageSubset(pagesSubset);
-		XMLLoader	reader = new XMLLoader(contentModel);
+		XMLLoader reader = new XMLLoader(contentModel);
 		reader.load(url, new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				initPlayer();
