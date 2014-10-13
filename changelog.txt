@@ -1,3 +1,4 @@
+2014-10-13 Added stopwatch, clock and changed view of panel in IWB Toolbar module
 2014-10-13 Added new property: Real-time navigationbar-page-ok to Navigation Bar
 2014-10-13 Fixed issue with getting JS representation of Check Button module
 2014-10-13 Fixed showing Layered Image module on IOS 8.0.2

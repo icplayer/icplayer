@@ -178,6 +178,22 @@
     background-image: url('resources/wb_panel_cursor_icon-active.svg');
 }
 
+.iwb-toolbar-panel .button.clock {
+    background-image: url('resources/wb_panel_clock_icon.svg');
+}
+
+.iwb-toolbar-panel .button.clock.clicked {
+    background-image: url('resources/wb_panel_clock_icon-active.svg');
+}
+
+.iwb-toolbar-panel .button.stopwatch {
+    background-image: url('resources/wb_panel_stopwatch_icon.svg');
+}
+
+.iwb-toolbar-panel .button.stopwatch.clicked {
+    background-image: url('resources/wb_panel_stopwatch_icon-active.svg');
+}
+
 .iwb-toolbar-panel .button.note {
     background-image: url('resources/wb_panel_note_icon.svg');
 }
@@ -282,6 +298,145 @@
     background-image: url('resources/wb_panel_ruller3_icon.svg');
 }
 
+.iwb-toolbar-stopwatch .stopwatch-buttons #start{
+    width: 20px;
+    height: 20px;
+    float: left;
+    margin-right: 10px;
+    background-image: url('http://test-4097.lorepocorporate.appspot.com/media/icplayer/addons/resources/start.png');
+    background-size: 20px;
+    background-position: 6px center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-buttons #stop{
+    width: 20px;
+    height: 20px;
+    float: left;
+    margin-right: 10px;
+    background-image: url('http://test-4097.lorepocorporate.appspot.com/media/icplayer/addons/resources/stop.png');
+    background-size: 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-buttons #clear{
+    width: 20px;
+    height: 20px;
+    float: left;
+    background-image: url('http://test-4097.lorepocorporate.appspot.com/media/icplayer/addons/resources/reset.png');
+    border-radius: 5px;
+    background-size: 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-buttons .button-clicked{
+    background-color: #51BB59;
+}
+
+.iwb-toolbar-stopwatch {
+    top: 0px;
+    width: 180px;
+    height: auto;
+    position: absolute;
+    background: #A6E9B9;
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-header {
+    height: 20px;
+    text-align: center;
+    background: url('resources/wb_panel_stopwatch_icon.svg') no-repeat;
+    background-size: 15px;
+    background-position: 2px;
+    cursor: move;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.iwb-toolbar-stopwatch .stopwatch-header .stopwatch-close{
+    width: 10%;
+    right: 5px;
+    float: right;
+    position: relative;
+    cursor: pointer;
+    text-align: right;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-header h4{
+    float: left;
+    margin-left: 50px;
+    color: #008000;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-buttons {
+    padding: 5px;
+    margin-left: 30px;
+    font-size: 0.8em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+    height: 30px;
+}
+
+.iwb-toolbar-stopwatch .stopwatch-buttons .stopwatch-button{
+    padding: 5px;
+    font-size: 1em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+}
+
+.iwb-toolbar-clock {
+    top: 0px;
+    width: 100px;
+    height: auto;
+    position: absolute;
+    background-color: #9ECDFF;
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.iwb-toolbar-clock .clock-header {
+    height: 20px;
+    background-image: url('resources/wb_panel_clock_icon.svg');
+    background-repeat: no-repeat;
+    background-size: 15px;
+    background-position: 2px;
+    cursor: move;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.iwb-toolbar-clock .clock-header .clock-close{
+    width: 10%;
+    right: 5px;
+    float: right;
+    position: relative;
+    cursor: pointer;
+    text-align: right;
+}
+
+.iwb-toolbar-clock .clock-body {
+    padding: 5px;
+    font-size: 16px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre;
+    text-align: center;
+    color: #006ED3;
+}
+
 .iwb-toolbar-note {
     top: 0px;
     width: 180px;
@@ -290,12 +445,17 @@
     background-color: rgba(255, 255, 155, 0.9);
     border-radius: 4px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 }
 
 .iwb-toolbar-note .note-header {
     height: 20px;
-    box-shadow: 0px 1px #b1b1b1;
     line-height: 20px;
+    background: url('resources/wb_panel_note_icon.svg') no-repeat;
+    background-size: 15px;
+    background-position: 3px;
+    cursor: move;
+    background-color: rgba(255, 204, 0, 0.5);
 }
 
 .iwb-toolbar-note .note-body {
@@ -323,11 +483,12 @@
 
 .iwb-toolbar-note .note-date {
     font-style: italic;
-    font-size: 0.6em;
+    font-size: 12px;
     width: 80%;
     position: relative;
-    left: 10px;
+    left: 23px;
     float: left;
+    color: #D58A00;
 }
 
 .iwb-toolbar-note .note-close {
@@ -388,6 +549,14 @@
     content: 'Eraser';
 }
 
+.iwb-toolbar-panel .button.clock .tooltip span:after {
+    content: 'Add Clock';
+}
+
+.iwb-toolbar-panel .button.stopwatch .tooltip span:after {
+    content: 'Add Stopwatch';
+}
+
 .iwb-toolbar-panel .button.note .tooltip span:after {
     content: 'Add Note';
 }
@@ -405,7 +574,7 @@
 }
 
 .iwb-toolbar-panel .button.floating-image .tooltip span:after {
-    content: 'Floating Image';
+    content: 'Rulers';
 }
 
 .iwb-toolbar-panel .button.color .tooltip span:after {
@@ -437,6 +606,60 @@
 }
 
 .confirmation-remove-note .button {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 50px;
+    text-align: center;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    background: #FFF;
+    color: #000;
+}
+
+.confirmation-remove-note .ui-helper-clearfix {
+    margin-top: 10px;
+}
+
+.confirmation-remove-note {
+    min-height: 50px;
+    padding: 10px;
+    display: none;
+    width: 170px;
+    left: 50%;
+    margin-left: -100px;
+    position: absolute;
+    background-color: #63BAFF;
+    color: #FFF;
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+    z-index: 1002;
+    padding: 30px 50px;
+    text-align: center;
+}
+
+.confirmation-remove-clock > span:after {
+    content: 'Are you sure to remove this clock?';
+}
+
+.confirmation-remove-clock .yes-button > span:after {
+    content: 'Yes';
+}
+
+.confirmation-remove-clock .no-button > span:after {
+    content: 'No';
+}
+
+.confirmation-remove-clock .no-button {
+    float: right;
+}
+
+.confirmation-remove-clock .yes-button {
+    float: left;
+}
+
+.confirmation-remove-clock .button {
     padding: 5px;
     border-radius: 5px;
     border: 1px solid #696969;
@@ -446,11 +669,11 @@
     cursor: pointer;
 }
 
-.confirmation-remove-note .ui-helper-clearfix {
+.confirmation-remove-clock .ui-helper-clearfix {
     margin-top: 10px;
 }
 
-.confirmation-remove-note {
+.confirmation-remove-clock {
     min-height: 50px;
     padding: 10px;
     display: none;
@@ -463,4 +686,59 @@
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
     font-size: 0.7em;
     z-index: 1002;
+}
+
+.confirmation-remove-stopwatch > span:after {
+    content: 'Are you sure to remove this stopwatch?';
+}
+
+.confirmation-remove-stopwatch .yes-button > span:after {
+    content: 'Yes';
+}
+
+.confirmation-remove-stopwatch .no-button > span:after {
+    content: 'No';
+}
+
+.confirmation-remove-stopwatch .no-button {
+    float: right;
+}
+
+.confirmation-remove-stopwatch .yes-button {
+    float: left;
+}
+
+.confirmation-remove-stopwatch .button {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #696969;
+    width: 50px;
+    text-align: center;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.confirmation-remove-stopwatch .ui-helper-clearfix {
+    margin-top: 10px;
+}
+
+.confirmation-remove-stopwatch {
+    min-height: 50px;
+    padding: 10px;
+    display: none;
+    width: 200px;
+    left: 50%;
+    margin-left: -100px;
+    position: absolute;
+    background-color: rgba(245, 245, 245, 0.7);
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    font-size: 0.7em;
+    z-index: 1002;
+}
+
+.ui-helper-clearfix:before, .ui-helper-clearfix:after {
+    content: "";
+    display: table;
+    height: 10px;
 }
