@@ -151,9 +151,17 @@ function AddonLayered_Image_create() {
             var showLayer = isPreview ? true : presenter.configuration.layers[i].showAtStart;
             setFlag(i, presenter.configuration.layers[i].showAtStart);
 
-            appendImage(presenter.configuration.layers[i].image, showLayer);
+            var imageElement = document.createElement('div');
+            $(imageElement).css('backgroundImage', 'url(' + presenter.configuration.layers[i].image + ')');
+            $(imageElement).addClass('layeredimage-image');
+            $(imageElement).attr('data-index', (i+1));
+            $(DOMElements.wrapper).append(imageElement);
 
-            var layer = $(DOMElements.wrapper.find('.layeredimage-image:nth-child(' + (i + 2) + ')')[0]);
+            if (!showLayer) {
+                $(imageElement).hide();
+            }
+
+            var layer = DOMElements.wrapper.find('div[data-index="'+ (i+1) +'"]');
             $(layer).css({
                 width: isScaledMode ? containerDimensions.horizontal + 'px' : containerWidth + 'px',
                 height: isScaledMode ? containerDimensions.vertical + 'px' : containerHeight + 'px'
@@ -313,7 +321,7 @@ function AddonLayered_Image_create() {
 
         setFlag(index - 1, true);
 
-        var layer = $(DOMElements.wrapper.find('.layeredimage-image:nth-child(' + (index + 1) + ')')[0]);
+        var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]');
         $(layer).show();
     };
 
@@ -328,7 +336,7 @@ function AddonLayered_Image_create() {
 
         setFlag(index - 1, false);
 
-        var layer = $(DOMElements.wrapper.find('.layeredimage-image:nth-child(' + (index + 1) + ')')[0]);
+        var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]');
         $(layer).hide();
     };
 
