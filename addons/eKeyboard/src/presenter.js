@@ -406,7 +406,11 @@ function AddoneKeyboard_create(){
 
                     },
                     change      : function(e, keyboard, el) {
-                        if( $(el).val().length == presenter.configuration.maxCharacters ) {
+                    	var max_chars = presenter.configuration.maxCharacters;
+                    	if ($(el).attr('size')) {
+                    		max_chars = $(el).attr('size');
+                    	}
+                        if( $(el).val().length ==  max_chars) {
                             keyboard.switchInput(true, true);
                         }
                     },
@@ -416,10 +420,37 @@ function AddoneKeyboard_create(){
                     canceled    : function(e, keyboard, el) {},
                     hidden      : function(e, keyboard, el) {
                     },
-                    switchInput : false, // called instead of base.switchInput
-
+                    // switchInput : false, // called instead of base.switchInput
+                    switchInput : function(keyboard, goToNext, isAccepted){
+                    	var base = keyboard, kb, stopped = false,
+                				all = $('button, input, textarea, a').filter(':enabled'),
+                				indx = all.index(base.$el) + (goToNext ? 1 : -1);
+                				base.$keyboard.show();
+                			if (indx > all.length - 1) {
+                				stopped = keyboard.stopAtEnd;
+                				indx = 0; // go to first input
+                			}
+                			if (indx < 0) {
+                				stopped = keyboard.stopAtEnd;
+                				indx = all.length - 1; // stop or go to last
+                			}
+                			if (!stopped) {
+                				isAccepted = base.close(isAccepted);
+                				if (!isAccepted) { return; }
+                				kb = all.eq(indx).data('keyboard');
+                				if (kb && kb.options.openOn.length) {
+                					//kb.focusOn();
+                					all.eq(indx).focus();
+                				} else {
+                					all.eq(indx).focus();
+                					base.$keyboard.show();
+                				}
+                			}
+                		
+                		return false;
+                	},
                     // this callback is called just before the "beforeClose" to check the value
-                    // if the value is valid, return true and the keyboard will continue as it should
+                    // if the value is valid, return true and the  will continue as it should
                     // (close if not always open, etc)
                     // if the value is not value, return false and the clear the keyboard value
                     // ( like this "keyboard.$preview.val('');" ), if desired
@@ -433,9 +464,8 @@ function AddoneKeyboard_create(){
                     config.keyBinding = "touchend"
                 }
 
-                $(presenter.configuration.workWithViews).find('input').keyboard(config);
-
-                $.each($(presenter.configuration.workWithViews).find('input'), function(){
+                $(presenter.configuration.workWithViews).find('input:enabled').keyboard(config);
+                $.each($(presenter.configuration.workWithViews).find('input:enabled'), function(){
                     var keyboard = $(this).data('keyboard');
                     //keyboard.startup();
                 });
@@ -502,7 +532,7 @@ function AddoneKeyboard_create(){
     presenter.open = function(moduleId, index) {
         var module = presenter.playerController.getModule(moduleId);
         try {
-            var input = $(module.getView()).find('input').get(parseInt(index, 10) - 1);
+            var input = $(module.getView()).find('input:enabled').get(parseInt(index, 10) - 1);
             $(input).data('keyboard').reveal();
         } catch (e) {
             alert(e.message);

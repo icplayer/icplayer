@@ -134,8 +134,12 @@ function Addoncrossword_create(){
         event.target.select();
         var length = $(event.target).val().length;
         setCaretPosition(event.target, length + 1);
-    };
-
+        if(length > 1) {
+        	$(event.target).val($(event.target).val().substring(1,2));
+        }
+        $(event.target).val($(event.target).val().toUpperCase());
+	};
+ 
     presenter.onCellInputMouseUp = function(event){
         event.preventDefault();
     };
@@ -194,7 +198,7 @@ function Addoncrossword_create(){
                     cell.addClass('cell_letter');
                     cellContainer.addClass('cell_container_letter');
 
-                    var input = $('<input type="text" maxlength="1" />');
+                    var input = $('<input type="text" maxlength="1" size="1"/>');
 
                     if (presenter.crossword[i][j][0] === '!') {
                         input
@@ -487,7 +491,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[i][k] != presenter.$view.find('.cell_' + i + 'x' + k + " input").attr('value') && presenter.crossword[i][k][0] !== '!') {
+                        if(presenter.crossword[i][k] != presenter.$view.find('.cell_' + i + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[i][k][0] !== '!') {
                             wordValid = false;
                         }
                     }
@@ -516,7 +520,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[k][j] != presenter.$view.find('.cell_' + k + 'x' + j + " input").attr('value') && presenter.crossword[k][j][0] !== '!') {
+                        if(presenter.crossword[k][j] != presenter.$view.find('.cell_' + k + 'x' + j + " input").attr('value').toUpperCase() && presenter.crossword[k][j][0] !== '!') {
                             wordValid = false;
                         }
                     }
