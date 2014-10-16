@@ -336,5 +336,5 @@ var ice_dictionary = {
     "Lesson_Error_Counter_info": "Enables to display summed number of errors of the entire lesson.",
     "Page_Score_Counter_info": "Shows the score and/or the max score for the lesson's page.",
     "Lesson_Score_Counter_info": "Shows the score and/or the max score for the whole lesson.",
-    "PieChart_info": "Allows to insert pie chart."
+    "PieChart_info": "Allows inserting a pie chart, where a student can change percentage values. "
 };
