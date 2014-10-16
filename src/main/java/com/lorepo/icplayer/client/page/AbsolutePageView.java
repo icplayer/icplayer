@@ -55,8 +55,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	public void refreshMathJax() {
 		MathJax.refreshMathJax(getElement());
 	}
-
-
+	
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module){
 

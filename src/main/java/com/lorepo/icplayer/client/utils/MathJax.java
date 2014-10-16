@@ -8,14 +8,13 @@ public class MathJax {
 	 * Refresh MathJax object if present
 	 */
 	public static native void refreshMathJax(Element e) /*-{
-
-		try{
-			$wnd.MathJax.CallBack.Queue().Push(function () {
+		try {
+			$wnd.MathJax.Callback.Queue().Push(function () {
 				$wnd.MathJax.Hub.Typeset(e);
 			});
-	  	}catch(err){
+	  	} catch(err) {
 	  		console.log("Error : " + err);
 		}
 	}-*/;
+	
 }
-

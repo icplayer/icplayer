@@ -103,4 +103,11 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		return order;
 	}
 
+
+	@Override
+	public void setVisibleVal(boolean val) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

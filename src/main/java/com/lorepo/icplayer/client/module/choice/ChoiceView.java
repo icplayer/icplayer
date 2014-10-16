@@ -8,10 +8,10 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
-import com.lorepo.icf.utils.RandomUtils;
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
 
@@ -67,14 +67,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 	    
 	private void makeOrder(boolean isPreview) {
-		if(!isPreview && module.isRandomOrder()) {
+		if (!isPreview && module.isRandomOrder()) {
 			List<Integer> tmp_order = RandomUtils.singlePermutation(module.getOptionCount());
 			order = new int[module.getOptionCount()];
 			for(int i = 0; i < module.getOptionCount(); i ++) {
 				order[i]=tmp_order.get(i);
 			}
-		}
-		else {
+		} else {
 			order = new int[module.getOptionCount()];
 			for(int i = 0; i < module.getOptionCount(); i ++) {
 				order[i]=i;
@@ -120,8 +119,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		setVisible(true);
 		refreshMath();
 	}
+	
+	@Override
+	public void setVisibleVal(boolean val) {
+		setVisible(val);
+	}
 
-	private void refreshMath() {
+	public void refreshMath() {
 		MathJax.refreshMathJax(getElement());
 	}
 

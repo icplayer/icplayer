@@ -46,6 +46,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public void show();
 		public void hide();
 		public int[] getOryginalOrder();
+		public void setVisibleVal(boolean val);
 	}
 	
 	private IDisplay view;
@@ -71,40 +72,38 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	private void connectHandlers() {
 		
-		if(playerServices != null){
-		
-			playerServices.getEventBus().addHandler(ShowErrorsEvent.TYPE, 
-					new ShowErrorsEvent.Handler() {
-						public void onShowErrors(ShowErrorsEvent event) {
-							setShowErrorsMode();
-						}
-					});
-
-			playerServices.getEventBus().addHandler(WorkModeEvent.TYPE, 
-					new WorkModeEvent.Handler() {
-						public void onWorkMode(WorkModeEvent event) {
-							setWorkMode();
-						}
-					});
-
-			playerServices.getEventBus().addHandler(ResetPageEvent.TYPE, 
-					new ResetPageEvent.Handler() {
-						public void onResetPage(ResetPageEvent event) {
-							reset();
-						}
-					});
+		if (playerServices != null) {
 			
-			playerServices.getEventBus().addHandler(CustomEvent.TYPE,
-					new CustomEvent.Handler() {
-						@Override
-						public void onCustomEventOccurred(CustomEvent event) {
-							if (event.eventName.equals("ShowAnswers")) {
-								showAnswers();
-							} else if (event.eventName.equals("HideAnswers")) {
-								hideAnswers();
-							}
-						}
-					});
+			EventBus eventBus = playerServices.getEventBus();
+		
+			eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+				public void onShowErrors(ShowErrorsEvent event) {
+					setShowErrorsMode();
+				}
+			});
+
+			eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
+				public void onWorkMode(WorkModeEvent event) {
+					setWorkMode();
+				}
+			});
+
+			eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
+				public void onResetPage(ResetPageEvent event) {
+					reset();
+				}
+			});
+			
+			eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+				@Override
+				public void onCustomEventOccurred(CustomEvent event) {
+					if (event.eventName.equals("ShowAnswers")) {
+						showAnswers();
+					} else if (event.eventName.equals("HideAnswers")) {
+						hideAnswers();
+					}
+				}
+			});
 		}
 	}
 	
@@ -163,19 +162,16 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if(module.isActivity()){
 			for(IOptionDisplay optionView : view.getOptions()){
 				ChoiceOption option = optionView.getModel();
-				if(optionView.isDown()){
+				if (optionView.isDown()) {
 					if(option.getValue() > 0){
 						optionView.setCorrectStyle();
-					}
-					else{
+					} else{
 						optionView.setWrongStyle();
 					}
-				}
-				else{
-					if(option.getValue() > 0){
+				} else {
+					if (option.getValue() > 0) {
 						optionView.setWrongStyle();
-					}
-					else{
+					} else {
 						optionView.setCorrectStyle();
 					}
 				}
@@ -212,7 +208,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		isDisabled = module.isDisabled();
 		view.setEnabled(!isDisabled);
-		if(module.isActivity()){
+		if (module.isActivity()) {
 			saveScore();
 		}
 	}
@@ -245,12 +241,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 		for(int i=0; i<oryginalOrder.length; i++){
 			IOptionDisplay option = view.getOptions().get(oryginalOrder[i]);
-			if(option.isDown()){
-				optionState += "1";
-			}
-			else{
-				optionState += "0";
-			}
+			optionState += option.isDown() ? '1' : '0';
 		}
 		
 		state.put("options", optionState);
@@ -264,12 +255,12 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	public void setState(String stateObj) {
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = json.decodeHashMap(stateObj);
-		if(state.containsKey("options")){
+		if (state.containsKey("options")) {
 			String optionState = state.get("options");
 			int index = 0;
 			
 			int[] oryginalOrder = view.getOryginalOrder();
-			for(int i=0; i<oryginalOrder.length; i++){
+			for (int i=0; i<oryginalOrder.length; i++) {
 				
 				index = oryginalOrder[i];
 				
@@ -284,19 +275,14 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			}
 		}
 
-		if(state.containsKey("isDisabled")){
+		if (state.containsKey("isDisabled")) {
 			isDisabled = Boolean.parseBoolean(state.get("isDisabled"));
 			view.setEnabled(!isDisabled);
 		}
 
-		if(state.containsKey("isVisible")){
+		if (state.containsKey("isVisible")) {
 			isVisible = Boolean.parseBoolean(state.get("isVisible"));
-			
-			if(isVisible) {
-				view.show();
-			} else {
-				view.hide();
-			}
+			view.setVisibleVal(isVisible);
 		}
 	}
 
@@ -451,32 +437,26 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public String executeCommand(String commandName, List<IType> _) {
 		
-		if(commandName.compareTo("enable") == 0){
+		if (commandName.compareTo("enable") == 0){
 			enable();
-		}
-		else if(commandName.compareTo("disable") == 0){
+		} else if (commandName.compareTo("disable") == 0){
 			disable();
-		}
-		else if(commandName.compareTo("show") == 0){
+		} else if (commandName.compareTo("show") == 0){
 			show();
-		}
-		else if(commandName.compareTo("hide") == 0){
+		} else if (commandName.compareTo("hide") == 0){
 			hide();
-		}
-		else if(commandName.compareTo("reset") == 0){
+		} else if (commandName.compareTo("reset") == 0){
 			reset();
 		}
 		
 		return "";
 	}
 
-
 	@Override
 	public String getName() {
 		return module.getId();
 	}
 
-	
 	public JavaScriptObject getAsJavaScript(){
 		
 		if(jsObject == null){
@@ -486,11 +466,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		return jsObject;
 	}
 
-	
 	private native JavaScriptObject initJSObject(ChoicePresenter x) /*-{
 
-		var presenter = function() {
-		}
+		var presenter = function() {};
 
 		presenter.disable = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::disable()();

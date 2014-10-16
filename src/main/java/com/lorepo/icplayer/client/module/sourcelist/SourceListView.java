@@ -81,13 +81,12 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		label.setStyleName("ic_sourceListItem");
 		if(module.isVertical()){
 			DOMUtils.applyInlineStyle(label.getElement(), "display: block;");
-		}
-		else{
+		} else {
 			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block;white-space: nowrap;");
 		}
 		labels.put(id, label);
 		add(label);
-		if(callMathJax){
+		if (callMathJax) {
 			MathJax.refreshMathJax(label.getElement());
 		}
 		
@@ -121,7 +120,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	@Override
 	public void removeItem(String id) {
 		Label label = labels.get(id);
-		if(label != null){
+		if (label != null) {
 			remove(label);
 		}
 	}

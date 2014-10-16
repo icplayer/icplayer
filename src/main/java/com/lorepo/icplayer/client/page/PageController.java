@@ -88,7 +88,6 @@ public class PageController {
 	}
 	
 	public void setPage(Page page) {
-		
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}

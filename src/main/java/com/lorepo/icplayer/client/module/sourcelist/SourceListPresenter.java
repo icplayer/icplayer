@@ -114,14 +114,12 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		loadItems(true);
 	}
 
-
 	protected void removeItem(String id) {
 		if(items.containsKey(id)){
 			view.removeItem(id);
 			items.remove(id);
 		}
 	}
-
 
 	private void loadItems(boolean callMathJax) {
 		items.clear();
@@ -208,7 +206,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	
 	private void refreshView() {
 		view.removeAll();
-		for(String id : items.keySet()){
+		for (String id : items.keySet()) {
 			String text = items.get(id);
 			view.addItem(id, text, false);
 		}

@@ -212,13 +212,15 @@ public class TextView extends HTML implements IDisplay{
 		getElement().getStyle().setProperty("visibility", "hidden");
 	}
 
-
 	@Override
-	public void show() {
+	public void show(boolean callRefreshMath) {
 		Element element = getElement();
-		if(element.getStyle().getVisibility().equals("hidden")){
+		if (element.getStyle().getVisibility().equals("hidden")) {
 			element.getStyle().setProperty("visibility", "visible");
-			refreshMath();
+			
+			if (callRefreshMath) {
+				refreshMath();
+			}
 		}
 	}
 	

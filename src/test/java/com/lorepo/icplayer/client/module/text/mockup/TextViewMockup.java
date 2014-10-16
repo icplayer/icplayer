@@ -108,7 +108,7 @@ public class TextViewMockup implements IDisplay {
 	}
 	
 	@Override
-	public void show() {
+	public void show(boolean b) {
 		// TODO Auto-generated method stub
 		
 	}

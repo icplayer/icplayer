@@ -30,7 +30,6 @@ public class ChoiceModel extends BasicModuleModel{
 	private boolean isActivity = true;
 	private boolean randomOrder = false;
 
-	
 	public ChoiceModel() {
 		super(DictionaryWrapper.get("choice_module"));
 		
@@ -44,13 +43,11 @@ public class ChoiceModel extends BasicModuleModel{
 		addPropertyRandomOrder();
 	}
 	
-	
 	public void addOption(ChoiceOption option) {
 	
-		if(isMulti && option.getValue() > 0){
+		if (isMulti && option.getValue() > 0) {
 			maxScore += option.getValue();
-		}
-		else if(option.getValue() > maxScore){
+		} else if (option.getValue() > maxScore) {
 			maxScore = option.getValue();
 		}
 		
@@ -59,12 +56,10 @@ public class ChoiceModel extends BasicModuleModel{
 			
 			@Override
 			public void onPropertyChanged(IProperty source) {
-
 				ChoiceModel.this.sendPropertyChangedEvent(optionsProperty);
 			}
 		});
 	}
-
 
 	/**
 	 * @return Option at given index
@@ -73,7 +68,6 @@ public class ChoiceModel extends BasicModuleModel{
 		return options.get(index);
 	}
 	
-	
 	/**
 	 * @return ilość opcji
 	 */
@@ -81,11 +75,9 @@ public class ChoiceModel extends BasicModuleModel{
 		return options.size();
 	}
 	
-	
 	public boolean isMulti() {
 		return isMulti;
 	}
-
 
 	@Override
 	public void load(Element node, String baseUrl) {
@@ -120,25 +112,20 @@ public class ChoiceModel extends BasicModuleModel{
 		
 	}
 
-
 	/**
 	 * Remove all options
 	 */
 	public void removeAllOptions() {
-	
 		options.clear();
 	}
-
 
 	/**
 	 * Set choice type
 	 * @param multi
 	 */
 	public void setMulti(boolean multi) {
-	
 		isMulti = multi;
 	}
-
 
 	/**
 	 * Convert module into XML
@@ -186,12 +173,7 @@ public class ChoiceModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isMulti){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isMulti ? "True" : "False";
 			}
 			
 			@Override
@@ -327,12 +309,7 @@ public class ChoiceModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isDisabled){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isDisabled ? "True" : "False";
 			}
 			
 			@Override
@@ -371,12 +348,7 @@ public class ChoiceModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(isActivity){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isActivity ? "True" : "False";
 			}
 			
 			@Override
@@ -414,12 +386,7 @@ public class ChoiceModel extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(randomOrder){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return randomOrder ? "True" : "False";
 			}
 			
 			@Override

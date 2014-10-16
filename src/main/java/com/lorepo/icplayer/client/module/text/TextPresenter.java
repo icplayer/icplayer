@@ -71,7 +71,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setValue(String id, String value);
 		void refreshMath();
 		void hide();
-		void show();
+		void show(boolean b);
 		Element getElement();
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 	}
@@ -343,7 +343,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 		
 		if (isVisible) {
-			view.show();
+			view.show(false);
 		} else {
 			view.hide();
 		}
@@ -390,7 +390,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		if (module.isVisible())
-			view.show();
+			view.show(true);
 		else
 			view.hide();
 		
@@ -969,7 +969,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		isVisible = true;
 		if(view != null) {
-			view.show();
+			view.show(true);
 		}
 	}
 	
