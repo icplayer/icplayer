@@ -639,17 +639,13 @@ function AddonIWB_Toolbar_create(){
 
         presenter.$pagePanel.find('.floating-image').click(function() {
             $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
-                console.log('click');
                 var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
-                console.log('display '+ display);
                 if(display == 'none'){
                     presenter.$floatingImageMask.show();
-                    console.log('none');
                 }else{
                     presenter.$floatingImageMask.hide();
                     presenter.$pagePanel.find('.floating-image').removeClass('clicked');
                     presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
-                    console.log('block');
                 }
             });
         });
@@ -843,6 +839,7 @@ function AddonIWB_Toolbar_create(){
     }
 
     function runLogic(view, model, isPreview) {
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         if (!isPreview) {
             presenter.headerLoadedDeferred = new $.Deferred();
             presenter.headerLoaded = presenter.headerLoadedDeferred.promise();
@@ -899,6 +896,9 @@ function AddonIWB_Toolbar_create(){
             }
 
             $(view).hide();
+            presenter.setVisibility(presenter.isVisible, false, view);
+        }else{
+            presenter.setVisibility(presenter.isVisible, true, view);
         }
     }
 
@@ -1523,17 +1523,28 @@ function AddonIWB_Toolbar_create(){
     }
 
     presenter.show = function() {
-        presenter.$panel.show();
+        presenter.setVisibility(true, false, presenter.$view);
+        presenter.isVisible = true;
     };
 
     presenter.hide = function() {
-        presenter.$panel.hide();
+        presenter.setVisibility(false, false, presenter.$view);
+        presenter.isVisible = false;
+    };
+
+    presenter.setVisibility = function (isVisible, isPreview, view) {
+        if(!isPreview){
+            presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
+        }else{
+            $(view).css('visibility', isVisible ? 'visible' : 'hidden');
+        }
     };
 
     presenter.executeCommand = function(name, params) {
         var commands = {
             'open' : presenter.open,
-            'hide' : presenter.hide
+            'hide' : presenter.hide,
+            'show' : presenter.show
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -1612,7 +1623,8 @@ function AddonIWB_Toolbar_create(){
             'minutes' : presenter.minutes,
             'hours' : presenter.hours,
             'stopClicked' : presenter.stopButtonClicked,
-            'startClicked' : presenter.startButtonClicked
+            'startClicked' : presenter.startButtonClicked,
+            'isVisible' : presenter.isVisible
         });
     };
 
@@ -1639,6 +1651,8 @@ function AddonIWB_Toolbar_create(){
         });
 
         drawSavedAreas();
+        presenter.isVisible = parsed.isVisible;
+        presenter.setVisibility(presenter.isVisible, false, presenter.$view);
     };
 
     function setDrawingState(image, ctx, data) {

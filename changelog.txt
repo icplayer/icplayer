@@ -1,3 +1,4 @@
+2014-10-16 Added handling property Is Visible in IWB Toolbar module
 2014-10-15 Added collaboration between crossword and eKeyboard modules
 2014-10-13 Added stopwatch, clock and changed view of panel in IWB Toolbar module
 2014-10-13 Added new property: Real-time navigationbar-page-ok to Navigation Bar
