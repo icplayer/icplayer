@@ -1,3 +1,4 @@
+2014-10-17 Fixed issue with pulling up collumn reduced to 0
 2014-10-16 Fixed issue with double rendered LaTeX in Choice
 2014-10-16 Added handling property Is Visible in IWB Toolbar module
 2014-10-15 Added collaboration between crossword and eKeyboard modules

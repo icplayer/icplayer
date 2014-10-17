@@ -56,7 +56,7 @@ function Addongraph_create(){
         var valueElement = valueContainer.find('.graph_value_element');
 
 
-        if(currentValue > 0) {
+        if(currentValue >= 0) {
             valueElement.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
             valueContainer.css({
                 bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
@@ -68,13 +68,6 @@ function Addongraph_create(){
             valueElement.removeClass('graph_value_element_positive').addClass('graph_value_element_negative');
             valueContainer.css({
                 height: parseFloat(currentValue * -1 / presenter.absoluteRange) * 100 + '%',
-                top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
-                bottom: ''
-            });
-        } else {
-            valueElement.removeClass('graph_value_element_positive').removeClass('graph_value_element_negative');
-            valueContainer.css({
-                height: 0,
                 top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
                 bottom: ''
             });
@@ -672,21 +665,21 @@ function Addongraph_create(){
             $container.css('height', columnContainerHeight + 'px');
         }
 
-        if ($container.height() < 1) {
-            if (isAboveXAxis($element)) {
-                $container.css({
-                    top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
-                    bottom: ''
-                });
-                $element.removeClass('graph_value_element_positive').addClass('graph_value_element_negative');
-            } else {
-                $container.css({
-                    bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
-                    top: ''
-                });
-                $element.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
-            }
-        }
+//        if ($container.height() < 1) {
+//            if (isAboveXAxis($element)) {
+//                $container.css({
+//                    top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
+//                    bottom: ''
+//                });
+//                $element.removeClass('graph_value_element_positive').addClass('graph_value_element_negative');
+//            } else {
+//                $container.css({
+//                    bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
+//                    top: ''
+//                });
+//                $element.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
+//            }
+//        }
     }
 
     function touchMoveCallback (event) {
