@@ -665,21 +665,21 @@ function Addongraph_create(){
             $container.css('height', columnContainerHeight + 'px');
         }
 
-//        if ($container.height() < 1) {
-//            if (isAboveXAxis($element)) {
-//                $container.css({
-//                    top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
-//                    bottom: ''
-//                });
-//                $element.removeClass('graph_value_element_positive').addClass('graph_value_element_negative');
-//            } else {
-//                $container.css({
-//                    bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
-//                    top: ''
-//                });
-//                $element.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
-//            }
-//        }
+        if ($container.height() < 1) {
+            if (isAboveXAxis($element)) {
+                $container.css({
+                    top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
+                    bottom: ''
+                });
+                $element.removeClass('graph_value_element_positive').addClass('graph_value_element_negative');
+            } else {
+                $container.css({
+                    bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
+                    top: ''
+                });
+                $element.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
+            }
+        }
     }
 
     function touchMoveCallback (event) {
