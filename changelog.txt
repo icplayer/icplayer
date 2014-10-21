@@ -1,3 +1,4 @@
+2014-10-21 Fixed problem with autoplaying in MultiAudio module
 2014-10-20 Improved Spanish translations
 2014-10-17 A return full functionality mouseMoveCallback in Graph module
 2014-10-17 Fixed issue with pulling up collumn reduced to 0 in Graph module

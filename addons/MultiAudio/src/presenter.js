@@ -315,14 +315,6 @@ function AddonMultiAudio_create(){
         }
 
         this.currentAudio = currentAudio;
-
-        $(this.audio).on('canplay', function() {
-            if(presenter.audio.currentTime < currentTime){
-                presenter.audio.currentTime = currentTime;
-                presenter.audio.play();
-                $(this).off('canplay');
-            }
-        });
     };
 
     presenter.validateFiles = function(files) {
