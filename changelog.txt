@@ -1,3 +1,4 @@
+2014-10-23 Fixed stopwatch on mLibro windows in IWB toolbar module
 2014-10-21 Fixed problem with autoplaying in MultiAudio module
 2014-10-20 Improved Spanish translations
 2014-10-17 A return full functionality mouseMoveCallback in Graph module
