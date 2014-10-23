@@ -13,7 +13,7 @@ function Addongraph_create(){
 
     presenter.$view             = null;
     presenter.configuration     = {};
-
+    var minimumValueGraph;
 
 
     presenter.ERROR_MESSAGES = {
@@ -54,7 +54,6 @@ function Addongraph_create(){
     presenter.redrawGraphValue = function(valueContainer) {
         var currentValue = parseFloat(valueContainer.attr('current-value'));
         var valueElement = valueContainer.find('.graph_value_element');
-
 
         if(currentValue >= 0) {
             valueElement.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
@@ -665,7 +664,7 @@ function Addongraph_create(){
             $container.css('height', columnContainerHeight + 'px');
         }
 
-        if ($container.height() < 1) {
+        if ($container.height() < 1 && minimumValueGraph < 0) {
             if (isAboveXAxis($element)) {
                 $container.css({
                     top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
@@ -730,6 +729,8 @@ function Addongraph_create(){
 
         // Y-axis minimum value
         var modelYAxisMinimumValue = model['Y axis minimum value'];
+        minimumValueGraph = model['Y axis minimum value'];
+        
         if (isDecimalSeparatorSet) {
             modelYAxisMinimumValue = modelYAxisMinimumValue.replace(decimalSeparator, '.');
         }

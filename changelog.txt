@@ -1,3 +1,4 @@
+2014-10-23 Fixed issue with pulling up collumns reduced to 0 on mobile devices in Graph module
 2014-10-23 Fixed problem with autoplaying after click on text fragment in TextAudio module
 2014-10-23 Added playing and end events to MultiAudio
 2014-10-23 Fixed issue with zoom, note and displaying elements in IWB Toolbar module
