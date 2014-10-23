@@ -116,16 +116,18 @@ function AddonTextAudio_create(){
         selectionId = parseInt(selectionId);
         if (slide_id >= 0 || selectionId >= 0) {
             var frame2go = presenter.configuration.slides[slide_id].Times[selectionId].start;
+            frame2go += 0.1;
             presenter.audio.currentTime = frame2go / presenter.fps;
         }
+        presenter.play();
     }
-
+    
     function make_slide(textWrapper, slide_id) {
-        if (slide_id<0) {
+    	if (slide_id<0) {
             textWrapper.html('')
         }
         else {
-            var html = '', i= 0, element;
+        	var html = '', i= 0, element;
             for (i=0;i<presenter.configuration.slides[slide_id].Text.length; i++) {
                 element = '<span class="textelement' + i + '" data-selectionId="' + i + '">' + presenter.configuration.slides[slide_id].Text[i] + '</span>';
                 html+=element;
@@ -133,11 +135,33 @@ function AddonTextAudio_create(){
             textWrapper.html(html);
             textWrapper.attr('data-slideId', slide_id);
             textWrapper.find("span[class^='textelement']").each(function(){
-                $(this).on('click', function(){
-                    var selectionId = $(this).attr('data-selectionId');
+
+        	$(this).on('click', function(e){
+            	e.stopPropagation();
+            	presenter.play();
+                var selectionId = $(this).attr('data-selectionId');
+                
+                if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
                     go_to(slide_id, selectionId);
-                })
-            })
+                } else {
+                	function fun() {
+            			slide_id = parseInt(slide_id);
+            	        selectionId = parseInt(selectionId);
+            	        if (slide_id >= 0 || selectionId >= 0) {
+            	            var frame2go = presenter.configuration.slides[slide_id].Times[selectionId].start;
+            	            presenter.audio.currentTime = frame2go / presenter.fps;
+            	        }
+            	        presenter.audio.removeEventListener("playing", fun, false);
+            		}
+                	if (!hasBeenStarted) {
+                		presenter.audio.addEventListener("playing", fun, false);
+                	} else {
+                		presenter.pause();
+                		go_to(slide_id, selectionId);
+                	}
+                }
+            });
+            });
         }
     }
 
@@ -164,7 +188,7 @@ function AddonTextAudio_create(){
         if (!compare_slide_data(slide_data, presenter.current_slide_data)) {
             var textWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-text");
             if (slide_data.slide_id != presenter.current_slide_data.slide_id) {
-                make_slide(textWrapper, slide_data.slide_id)
+                make_slide(textWrapper, slide_data.slide_id);
             }
             highlight_selection(textWrapper, slide_data.selection_id);
             presenter.current_slide_data = slide_data;
@@ -191,7 +215,7 @@ function AddonTextAudio_create(){
         if (!hasBeenStarted) {
             slide_data.selection_id = -1;
         }
-        change_slide_from_data(slide_data)
+        change_slide_from_data(slide_data);
     }
 
     function createView(view, model, isPreview){
@@ -265,10 +289,9 @@ function AddonTextAudio_create(){
         }
 
         $(audio).load();
-
         attachEventListeners(audio);
     }
-
+    
     presenter.run = function(view, model){
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
