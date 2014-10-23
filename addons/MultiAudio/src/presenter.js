@@ -20,12 +20,30 @@ function AddonMultiAudio_create(){
     presenter.createEventData = function (data) {
         return {
             source : presenter.addonID,
-            item : '',
+            item : data.currentItem,
             value : '' + data.currentTime,
             score : ''
         };
     };
 
+    presenter.createOnEndEventData = function (data) {
+        return {
+            source : presenter.addonID,
+            item : data.currentItem,
+            value : 'end',
+            score : ''
+        };
+    };
+    
+    presenter.createOnPlayingEventData = function (data) {
+        return {
+            source : presenter.addonID,
+            item : data.currentItem,
+            value : 'playing',
+            score : ''
+        };
+    };
+    
     presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
         eventBus.sendEvent('ValueChanged', eventData);
         currentTimeAlreadySent = currentTime;
@@ -37,12 +55,13 @@ function AddonMultiAudio_create(){
 
     presenter.onTimeUpdateSendEventCallback = function() {
         var currentTime = presenter.formatTime(presenter.getAudioCurrentTime());
+        var currentItem = presenter.currentAudio+1;
         if (currentTime !== currentTimeAlreadySent) { // to prevent duplicated value
-            var eventData = presenter.createEventData({'currentTime' : currentTime});
+            var eventData = presenter.createEventData({'currentTime' : currentTime, 'currentItem': currentItem});
             presenter.sendEventAndSetCurrentTimeAlreadySent(eventData, currentTime);
         }
     };
-
+    
     presenter.addAttributeLoop = function(audio) {
         $(audio).on("ended", function() {
             this.currentTime = 0;
@@ -57,11 +76,28 @@ function AddonMultiAudio_create(){
         audioWrapper.append(this.audio);
         return audioWrapper;
     };
-
+    
+    presenter.sendOnEndEvent = function () {
+        var currentItem = presenter.currentAudio+1;
+        var eventData = presenter.createOnEndEventData({'currentItem': currentItem});
+        eventBus.sendEvent('ValueChanged', eventData);
+    };
+    
+    presenter.sendOnPlayingEvent = function () {
+        var currentItem = presenter.currentAudio+1;
+        var eventData = presenter.createOnPlayingEventData({'currentItem': currentItem});
+        eventBus.sendEvent('ValueChanged', eventData);
+    };
+    
     presenter.createView = function(view, model){
         var interfaceType = model["Interface"];
         var audioWrapper = this.prepareAudio();
         this.audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+        this.audio.addEventListener('playing', presenter.sendOnPlayingEvent, false);
+        this.audio.addEventListener('ended', function() {
+                presenter.sendOnEndEvent();
+                presenter.stop();
+        }, false);
         this.audio.addEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
@@ -133,17 +169,14 @@ function AddonMultiAudio_create(){
         if(audio.canPlayType) {
             canPlayMp3 = !!audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
             canPlayOgg = !!audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
-
             if(canPlayMp3){
                 $(audio).attr("src", mp3File);
             } else if (canPlayOgg) {
                 $(audio).attr("src", oggFile);
             }
-
         } else {
             $(audio).append("Your browser doesn't support audio.");
         }
-
         audio.load();
     };
 
@@ -161,11 +194,9 @@ function AddonMultiAudio_create(){
         this.globalModel = model;
         this.globalView = $(view);
         this.createView(view, model);
-        
         if (!isPreview) {
         	this.loadFiles(this.audio, model);	
         }
-        
         this.visible = !!(model['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
     };

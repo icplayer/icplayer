@@ -1,3 +1,4 @@
+2014-10-23 Added playing and end events to MultiAudio
 2014-10-23 Fixed issue with zoom, note and displaying elements in IWB Toolbar module
 2014-10-23 Fixed stopwatch on mLibro windows in IWB toolbar module
 2014-10-21 Fixed problem with autoplaying in MultiAudio module
