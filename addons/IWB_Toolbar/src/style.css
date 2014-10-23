@@ -439,13 +439,15 @@
 
 .iwb-toolbar-note {
     top: 0px;
-    width: 180px;
-    min-height: 100px;
+    width: 185px;
+    min-height: 120px;
+    max-height: 350px;
     position: absolute;
     background-color: rgba(255, 255, 155, 0.9);
     border-radius: 4px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .iwb-toolbar-note .note-header {

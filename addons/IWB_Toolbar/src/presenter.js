@@ -550,47 +550,49 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.zoom').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
-
             changeCursor('zoom-in');
+            var zoomClicked = presenter.$panel.find('.zoom').hasClass('clicked');
 
             var lastEvent = null;
-            var modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)');
+            presenter.modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note)');
 
             presenter.$pagePanel.disableSelection();
 
-            modules.on('click mousedown mouseup', function(e) {
+            presenter.modules.on('click mousedown mouseup', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
             });
 
-            modules.find('a').on('click', function(e) {
+            presenter.modules.find('a').on('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
             });
 
-            modules.on('mousedown', function(e) {
+            presenter.modules.on('mousedown', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 lastEvent = e;
                 presenter.isMouseDown= true;
             });
 
-            modules.on('mouseup', function(e) {
+            presenter.modules.on('mouseup', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 presenter.isMouseDown = false;
 
                 if (lastEvent.type == 'mousedown' &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-panel') &&
-                    !$(e.currentTarget).hasClass('addon_IWB_Toolbar')) { // click
+                    !$(e.currentTarget).hasClass('addon_IWB_Toolbar') &&
+                    !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
+                    !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
+                    !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch')) { // click
 
                     zoomSelectedModule(e.currentTarget);
                 }
-
                 lastEvent = e;
             });
 
-            modules.on('mousemove', function(e) {
+            presenter.modules.on('mousemove', function(e) {
                 if (presenter.isMouseDown) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -1034,13 +1036,26 @@ function AddonIWB_Toolbar_create(){
         stopwatch.append(header);
         stopwatch.append(buttons);
 
+        var ic_page_height = $('.ic_page:last').height(),
+            panel_top = parseInt(presenter.$panel.css('top'), 10),
+            window_scroll = $(window).scrollTop(),
+            panel_outerHeight = presenter.$panel.outerHeight(true),
+            panel_differance = ic_page_height-panel_top-window_scroll,
+            top=0;
+
+        if(panel_differance < panel_outerHeight){
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top - 120
+        }else{
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top
+        }
+
         if(!presenter.stopwatchAdded){
             stopwatch.draggable({
                 containment: 'parent',
                 opacity: 0.35,
                 create: function(event, _) {
                     $(event.target).css({
-                        'top' : savedStopwatch ? savedStopwatch.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
+                        'top' : savedStopwatch ? savedStopwatch.top : top,
                         'left' : savedStopwatch ? savedStopwatch.left : presenter.$panel.css('left'),
                         'position' : 'absolute'
                     });
@@ -1141,13 +1156,26 @@ function AddonIWB_Toolbar_create(){
         clock.append(header);
         clock.append(clockBody);
 
+        var ic_page_height = $('.ic_page:last').height(),
+            panel_top = parseInt(presenter.$panel.css('top'), 10),
+            window_scroll = $(window).scrollTop(),
+            panel_outerHeight = presenter.$panel.outerHeight(true),
+            panel_differance = ic_page_height-panel_top-window_scroll,
+            top=0;
+
+        if(panel_differance < panel_outerHeight){
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top - 120
+        }else{
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top
+        }
+
         if(!presenter.clockAdded){
             clock.draggable({
                 containment: 'parent',
                 opacity: 0.35,
                 create: function(event, _) {
                     $(event.target).css({
-                        'top' : savedClock ? savedClock.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
+                        'top' : savedClock ? savedClock.top : top,
                         'left' : savedClock ? savedClock.left : presenter.$panel.css('left'),
                         'position' : 'absolute'
                     });
@@ -1225,17 +1253,31 @@ function AddonIWB_Toolbar_create(){
 
         applyNoteEditHandler(note, noteBody);
 
+
+        var ic_page_height = $('.ic_page:last').height(),
+            panel_top = parseInt(presenter.$panel.css('top'), 10),
+            window_scroll = $(window).scrollTop(),
+            panel_outerHeight = presenter.$panel.outerHeight(true),
+            panel_differance = ic_page_height-panel_top-window_scroll,
+            top=0;
+
+        if(panel_differance < panel_outerHeight){
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top - 120
+        }else{
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top
+        }
+
         note.draggable({
-            containment: 'parent',
-            opacity: 0.35,
-            create: function(event, _) {
-                $(event.target).css({
-                    'top' : savedNote ? savedNote.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
-                    'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
-                    'position' : 'absolute'
-                });
-            }
-        });
+                containment: 'parent',
+                opacity: 0.35,
+                create: function(event, _) {
+                    $(event.target).css({
+                        'top' : savedNote ? savedNote.top : top,
+                        'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
+                        'position' : 'absolute'
+                    });
+                }
+            });
         
         return note;
     }
@@ -1330,6 +1372,11 @@ function AddonIWB_Toolbar_create(){
         } else {
             reset(false, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
             presenter.$panel.find('.clicked').removeClass('clicked');
+            if(!$(button).hasClass('zoom')){
+                if(presenter.modules){
+                    presenter.modules.off('mouseup mousemove');
+                }
+            }
             if ( !$(button).hasClass('open') && !$(button).hasClass('close') ) {
                 $(button).toggleClass('clicked');
             }
@@ -1487,8 +1534,8 @@ function AddonIWB_Toolbar_create(){
 
         if (closePanel) {
 //            presenter.$toggleButton.removeClass('clicked');
-            presenter.$panel.hide();
-            window.savedPanel.isOpen = false;
+//            presenter.$panel.hide();
+//            window.savedPanel.isOpen = false;
         }
     }
 
@@ -1604,6 +1651,7 @@ function AddonIWB_Toolbar_create(){
     }
 
     presenter.getState = function(){
+        zoom.out();
         var notes = getSavedNotes(),
             clocks = getSavedClocks(),
             stopwatches = getSavedStopwatches(),
