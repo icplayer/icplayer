@@ -11,8 +11,12 @@
         <property name="errorsLabel" displayName="Errors Label" type="string" isLocalized="true" />
         <property name='mistakes' displayName="Show Mistakes" type='boolean' />
         <property name="mistakesLabel" displayName="Mistakes Label" type="string" isLocalized="true" />
-        <property name='total' displayName="Show Total" type='boolean' />
+        <property name='total' displayName="Show Total" type="boolean" />
         <property name="totalLabel" displayName="Total Label" type="string" isLocalized="true" />
         <property name="expandDepth" displayName="Depth of expand" type="string" />
+        <property name="classes" displayName="Row classes" type="text" />
+        <property name='showpagescore' displayName="Show page score" type="boolean" />
+        <property name='showmaxscorefield' displayName="Show max score field" type="boolean" />
+        <property name="scoredisabled" displayName="Disable score on pages" type="string" />
 	</model>
 </addon>
