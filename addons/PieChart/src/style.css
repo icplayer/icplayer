@@ -1,4 +1,4 @@
-.addon_PieChart{  
+.addon_PieChart_dev{
 }
 .piechart {
     border: 3px solid #ccc;
@@ -6,44 +6,44 @@
 }
 .disabled {
     opacity: 0.5;
-} 
+}
 .correct {
     border: 3px solid green;
-} 
+}
 .wrong {
     border: 3px solid red;
-} 
+}
 .graph {
     stroke: #000;
     stroke-width: 2px;
     fill-opacity: 0;
 }
 .line {
-	stroke-width: 20px;
+    stroke-width: 20px;
     stroke: #A52A2A;
     stroke-opacity: 0;
 }
 .item {
-	fill: red;
+    fill: red;
     background: red;
 }
 .item1 {
-	fill: #ffaaff;
+    fill: #ffaaff;
     background: #ffaaff;
 }
 .item2 {
-	fill: #ffaaaa;
+    fill: #ffaaaa;
     background: #ffaaaa;
 }
 .item3 {
-	fill: #00aaaa;
+    fill: #00aaaa;
     background: #00aaaa;
 }
 .legend {
     border:1px solid #000;
     padding: 5px;
     float: left;
-    margin: 10px;  
+    margin: 10px;
 }
 .legendItem {
     padding-bottom:2px;
