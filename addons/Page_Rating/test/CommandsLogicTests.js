@@ -1,4 +1,4 @@
-TestCase("Commands logic - hide/show", {
+TestCase("Commands logic", {
     setUp : function() {
         this.presenter = AddonPage_Rating_create();
         sinon.stub(this.presenter, 'setVisibility');
@@ -21,5 +21,17 @@ TestCase("Commands logic - hide/show", {
 
         assertTrue(this.presenter.setVisibility.calledOnce);
         assertFalse(this.presenter.configuration.isVisible);
+    },
+    
+    'test get unchecked rate' : function() {
+    	this.presenter.currentRate = 0;
+    	var rate = this.presenter.getRate();
+    	assertEquals('0', rate);
+    },
+    
+    'test get checked rate' : function() {
+    	this.presenter.currentRate = 3;
+    	var rate = this.presenter.getRate();
+    	assertEquals('3', rate);
     }
 });

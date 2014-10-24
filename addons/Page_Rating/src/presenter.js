@@ -1,17 +1,23 @@
 function AddonPage_Rating_create() {
     var presenter = function () { };
-
+    var eventBus;
     var selected_img = [],
     	deselected_img = [];
     
+    presenter.currentRate = 0;
+    presenter.playerController = null;
 	presenter.isElementSelected = null;
 	presenter.isModelError = false;
-
+    presenter.addonID = null;
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
+    };
+	
     presenter.ERROR_CODES = {
         'E_01': "You have to add at least 2 rates.",
         'E_02': "You did not add Selected or/and Deselected image for at least one rate."
     };
-
+    
     function returnErrorObject(errorCode) {
         return { isError: true, errorCode: errorCode };
     }
@@ -51,18 +57,33 @@ function AddonPage_Rating_create() {
 
     function submitEventHandler (e) {
         e.stopPropagation();
-
         presenter.hide();
     }
 
+    presenter.createRatingEventData = function (data) {
+        return {
+            source : presenter.addonID,
+            item : data.index,
+            value : data.selected ? "1" : "0",
+        };
+    };
+    
     function clickEventHandler (e) {
         e.stopPropagation();
 
     	var $image = $(this),
-            index = parseInt($image.data('index'), 10);
-   	
-        if( $image.attr("name") === "deselected" ) {
-        	if(presenter.isElementSelected !== null){
+            index = parseInt($image.data('index'), 10),
+    		eventData = presenter.createRatingEventData({'index' : index+1, 'selected' : $image.attr("name") === "deselected"});
+    	
+    	if($image.attr("name") === "deselected") {
+    		presenter.currentRate = index+1;
+    	} else {
+    		presenter.currentRate = 0;
+    	}
+    	eventBus.sendEvent('ValueChanged', eventData);
+
+    	if( $image.attr("name") === "deselected" ) {
+        	if(presenter.isElementSelected !== null) {
                 var $selectedImage = presenter.$view.find('img[data-index="'+ presenter.isElementSelected +'"]');
 
                 $selectedImage.attr({
@@ -71,9 +92,8 @@ function AddonPage_Rating_create() {
                 });
             }
               presenter.setSelectedImage(index);
-        }
-        else {
-        	if(presenter.isElementSelected === index){
+        } else {
+        	if(presenter.isElementSelected === index) {
                 $image.attr({
                     "src": deselected_img[index],
                     "name": "deselected"
@@ -83,6 +103,7 @@ function AddonPage_Rating_create() {
                 presenter.$view.find('.page-rating-submit-button').attr('disabled','disabled');
         	}
         }
+        
     }
     
     function updateTitle (view, title) {
@@ -147,7 +168,9 @@ function AddonPage_Rating_create() {
     };
 
     presenter.run = function (view, model) {
+        eventBus = presenter.playerController.getEventBus();
         presenter.presenterLogic(view, model, false);
+        presenter.addonID = model.ID;
     };
     
     presenter.createPreview = function (view, model) {
@@ -186,7 +209,8 @@ function AddonPage_Rating_create() {
     	return JSON.stringify({
     		commentValue: presenter.getCommentValue(),
     		isVisible: presenter.configuration.isVisible,
-    		selectedItem: presenter.isElementSelected
+    		selectedItem: presenter.isElementSelected,
+    		currentRate: presenter.currentRate
         });
     };
 
@@ -194,11 +218,13 @@ function AddonPage_Rating_create() {
         if (!state) return;
 
     	var parsedState = JSON.parse(state),
-            selectedItem = parsedState.selectedItem;
-
+            selectedItem = parsedState.selectedItem,
+            currentRate = parsedState.currentRate;
+            
+    		
         presenter.setCommentValue(parsedState.commentValue);
         presenter.setSelectedImage(selectedItem);
-
+        presenter.currentRate = currentRate ? currentRate : "0";
     	presenter.configuration.isVisible = parsedState.isVisible;
     	presenter.setVisibility(presenter.configuration.isVisible);
     };
@@ -206,7 +232,8 @@ function AddonPage_Rating_create() {
     presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'getRate': presenter.getRate
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -225,6 +252,10 @@ function AddonPage_Rating_create() {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
     };
+    
+    presenter.getRate = function() {
+		return presenter.currentRate;
+    }
         
     return presenter;
 }
