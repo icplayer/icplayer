@@ -104,6 +104,11 @@ function AddonTextAudio_create(){
             displayTimer(currentTime, duration);
         }
         change_slide(currentTime);
+        if(presenter.stopClicked){
+            presenter.$view.find('span').removeClass('active');
+            hasBeenStarted = false;
+            presenter.stopClicked = false;
+        }
     }
 
     function displayTimer(current, duration) {
@@ -470,6 +475,7 @@ function AddonTextAudio_create(){
 
     presenter.play = function() {
         if(this.audio.paused) {
+            presenter.stopClicked = false;
             presenter.isPlay = true;
             this.stop();
             presenter.isPlay = false;
@@ -479,6 +485,7 @@ function AddonTextAudio_create(){
 
     presenter.stop = function() {
         if(!this.audio.paused && presenter.isLoaded) {
+            presenter.stopClicked = true;
             this.audio.pause();
             this.audio.currentTime = 0;
         }
