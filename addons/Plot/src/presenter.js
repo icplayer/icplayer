@@ -1,6 +1,6 @@
 function AddonPlot_create(){
     function Plot() {
-        this.VERSION = '1.1.16';
+        this.VERSION = '1.1.17';
         this.STATE_CORRECT = 1;
         this.STATE_INCORRECT = 0;
         this.STATE_NOT_ACTIVITY = '';
@@ -1774,7 +1774,12 @@ function AddonPlot_create(){
         plot.convertValueToDisplay = presenter.convertValueToDisplay;
         plot.calculatePrecision();
 
-        $(view).find('.canvas:first').svg({
+        var canvas = $(view).find('.canvas:first');
+        canvas.click(function(e) {
+            e.stopPropagation();
+        });
+
+        canvas.svg({
             onLoad: presenter.onSvgCreate,
             settings: {
                 width: '100%',
