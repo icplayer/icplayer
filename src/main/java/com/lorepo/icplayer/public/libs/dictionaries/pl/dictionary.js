@@ -273,6 +273,7 @@ var ice_dictionary = {
 	"Page_Name_info" : "Addon służy do wyświetlania nazwy bieżącej strony. Doskonały do wykorzystania w szablonach.",
 	"Page_Rating_info" : "Umożliwia dodanie do prezentacji modułu oceny danej strony.",
 	"Paragraph_info" : "Pozwala użytkownikowi na wprowadzenie tekstu w dowolnej formie z zachowaniem formatowania WYSIWYG.",
+    "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and special chars.",
 	"Plot_info" : "Moduł ten pozwala na przedstawienie wykresów i tworzenie interaktywnych ćwiczeń matematycznych bazujących na układzie współrzędnych. Dzięki Addonowi Plot można rysować funkcje f(x) i f(y).",
 	"Points_To_Plot_info" : "Rozszerzenie do Addonu Plot; pozwala na tworzenie ćwiczeń opartych na zależnościach między wykresem a punktami, jak np. definiowanie punktów lub liczby punktów do zaznaczenia na wykresie.",
 	"Puzzle_info" : "Umożliwia wstawienie do prezentacji gry polegającej na ułożeniu poszczególnych elementów w obraz. Wystarczy wgrać obraz, a zostanie on automatycznie podzielony na elementy rozmieszczone w poszczególnych rzędach i kolumnach. Zadanie użytkownika polega na uporządkowaniu elementów i ułożeniu ich w jedną całość.",

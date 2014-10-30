@@ -45,6 +45,7 @@ public class AddonDescriptorFactory {
         addDescriptor("Math", "Math", "activities_menu");
         addDescriptor("multiplegap", "Multiple Gap", "activities_menu");
         addDescriptor("Paragraph", "Paragraph", "activities_menu");
+        addDescriptor("Paragraph_Keyboard", "Paragraph eKeyboard", "activities_menu");
         addDescriptor("PieChart", "Pie Chart", "activities_menu");
         addDescriptor("Plot", "Plot", "activities_menu");
         addDescriptor("Points_To_Plot", "Points To Plot", "activities_menu");

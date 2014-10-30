@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Paragraph_Keyboard' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Default font family" type="string" />
+		<property name="Default font size" type="string" />
+		<property name="Hide toolbar" type="boolean" />
+		<property name="Custom toolbar" type="string" />
+		<property name="Custom CSS" type="file" />
+        <property name="layoutType" displayName="Keyboard Layout Type"
+                  type="{French (Special Characters), German (Special Characters), Spanish (Special Characters), Custom}" />
+		<property name="keyboardLayout" displayName="Custom Keyboard Layout" type="text" />
+		<property name="keyboardPosition" displayName="Keyboard position" type="{Bottom, Top, Left, Right, Custom}" />
+	</model>
+</addon>

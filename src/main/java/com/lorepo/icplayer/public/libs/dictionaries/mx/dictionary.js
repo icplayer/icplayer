@@ -273,6 +273,7 @@ var ice_dictionary = {
 	"Page_Name_info" : "Muestra el nombre de la página actual. Perfecto para el uso en plantillas de presentaciones.",
 	"Page_Rating_info" : "Permite añadir calificación a una página.",
 	"Paragraph_info" : "Permite que los estudiantes a introducir un texto libre con el formateo básico.",
+    "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and special chars.",
 	"Plot_info" : "El módulo sistema de coordenadas permite a los usuarios preparar ejercicios con las gráficas de funciones. Sistema de coordenadas permite dibujar funciones f(x) y f(y).",
 	"Points_To_Plot_info" : "Addon para el módulo sistema de coordenadas. Permite crear ejercicios basados en relaciones entre puntos y la gráfica. Por ejemplo: Comprueba si el punto seleccionado pertenece a la gráfica.",
 	"Puzzle_info" : "Permite insertar un juego de puzzle a la presenttaion. Basta con cargar una imagen, que luego se divide automáticamente en elementos separados y poner un numero de filas y columnas. La tarea consiste en organizar los elementos en el orden correcto y formar la imagen de nuevo.",
