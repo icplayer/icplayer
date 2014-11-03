@@ -374,6 +374,18 @@ function AddonMath_create() {
         }
     };
 
+    presenter.isAttempted = function () {
+        var emptyGaps = presenter.getEmptyGaps(presenter.configuration.variables),
+            isAttempted;
+        if(emptyGaps.gaps.length == 0){
+            isAttempted = true;
+        }else{
+            isAttempted = false;
+        }
+
+        return isAttempted;
+    };
+
     presenter.getScore = function () {
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
@@ -414,7 +426,8 @@ function AddonMath_create() {
         if (presenter.isErrorMode) return;
 
         var commands = {
-            'evaluate': presenter.evaluate
+            'evaluate' : presenter.evaluate,
+            'isAttempted' : presenter.isAttempted
         };
 
         Commands.dispatch(commands, name, params, presenter);
