@@ -110,7 +110,7 @@ function AddonIWB_Toolbar_create(){
             presenter.$buttonsExceptOpen.addClass('hidden');
 
             presenter.$panel.animate({
-                'width' : presenter.config.widthWhenClosed + 'px'
+                'width' : presenter.config.widthWhenClosed-50 + 'px'
             }, 1000, function() {
                 presenter.$panel.children('.button.open').show();
                 presenter.$panel.removeClass('animationInProgress');
@@ -384,8 +384,8 @@ function AddonIWB_Toolbar_create(){
 
         widthWhenOpened = validated.value;
 
-        if (model['widthWhenClosed']) {
-            validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenClosed']);
+        if (model['Width']) {
+            validated = ModelValidationUtils.validatePositiveInteger(model['Width']);
         } else {
             validated = {
                 isValid: true,
@@ -430,8 +430,11 @@ function AddonIWB_Toolbar_create(){
             e.stopPropagation();
             e.preventDefault();
 
-            openPanel(true);
+            if(!presenter.isPanelOpened){
+                openPanel(true);
+            }
 
+            presenter.isPanelOpened = true;
         });
 
         presenter.$panel.find('.close').click(function(e) {
@@ -439,6 +442,7 @@ function AddonIWB_Toolbar_create(){
             e.preventDefault();
 
             closePanel();
+            presenter.isPanelOpened = false;
         });
 
         presenter.$pagePanel.find('.button').click(function(e) {
@@ -883,6 +887,7 @@ function AddonIWB_Toolbar_create(){
             });
 
             applyHovered([presenter.$panel.find('.button')]);
+            presenter.$panel.width(presenter.config.widthWhenClosed-50 + 'px');
 
             window.savedPanel = window.savedPanel || {};
 
@@ -902,6 +907,7 @@ function AddonIWB_Toolbar_create(){
             presenter.setVisibility(presenter.isVisible, false, view);
         }else{
             presenter.setVisibility(presenter.isVisible, true, view);
+            $(view).find('.iwb-toolbar-panel').width(model['Width']-50 + 'px');
         }
     }
 
