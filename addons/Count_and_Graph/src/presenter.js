@@ -166,7 +166,7 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.getState = function() {
-        if (!isStarted) return false;
+        if (!isStarted) return;
 
         var cols = [];
         for (var i=0; i<presenter.configuration.axisYMaximumValue; i++) {
