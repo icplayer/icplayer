@@ -747,6 +747,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		presenter.getGapValue = function(gapId){ 
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapText(I)(gapId);
 		};
+	
+		presenter.isGapAttempted = function(gapId){ 
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::isGapAttempted(I)(gapId);
+		};
 			
 		presenter.markGapAsCorrect = function(gapId){ 
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::markGapAsCorrect(I)(gapId);
@@ -856,6 +860,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		
 		return "[error]";
+	}
+	
+	private boolean isGapAttempted(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+		
+		if(view != null && index <= view.getChildrenCount()){
+			return view.getChild(index-1).isAttempted();
+		}
+		
+		return false;
 	}
 	
 	private void markGapAsCorrect(int index) {

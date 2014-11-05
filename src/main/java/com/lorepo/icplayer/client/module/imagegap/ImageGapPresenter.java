@@ -348,6 +348,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.getGapValue = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
 		}
+		presenter.isGapAttempted = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isGapAttempted()();
+		}
 		presenter.show = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::show()();
 		}
@@ -397,6 +400,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private String getImageId() {
 		return consumedItem == null ? "" : consumedItem.getId();
+	}
+	
+	private boolean isGapAttempted() {
+		return getImageId() != "";
 	}
 	
 	private void markGapAsCorrect() {

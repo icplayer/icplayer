@@ -40,7 +40,7 @@ TestCase("Commands logic - evaluate", {
         assertEquals(1, this.presenter.getEmptyGaps.callCount);
         assertTrue(this.presenter.executeEventCode.calledWith("PARTIAL"));
         assertEquals(0, this.presenter.evaluateAllExpressions.callCount);
-        assertTrue(this.presenter.markGapsEmptiness.calledOnce);
+        // assertTrue(this.presenter.markGapsEmptiness.calledOnce); ticket: #3856
     },
 
     'test expressions evaluates to true': function () {

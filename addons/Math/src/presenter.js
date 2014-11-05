@@ -229,6 +229,21 @@ function AddonMath_create() {
         }
     };
 
+    presenter.isGapAttempted = function (gapIdentifier) {
+        var decodedReference = presenter.decodeModuleReference(gapIdentifier);
+
+        if (!decodedReference.isValid) return undefined;
+
+        try {
+            var textModule = presenter.getModule(decodedReference.moduleID);
+            if (!textModule) return undefined;
+
+            return textModule.isGapAttempted(decodedReference.gapIndex);
+        } catch (exception) {
+            return undefined;
+        }
+    };
+
     presenter.convertExpression = function (expression, variables) {
         var convertedExpression = 'this.result = ' + expression,
             expressionVariables = presenter.selectVariablesFromExpression(expression, variables), i;
@@ -375,9 +390,9 @@ function AddonMath_create() {
     };
 
     presenter.isAttempted = function () {
-        var emptyGaps = presenter.getEmptyGaps(presenter.configuration.variables),
+        var notAttemptedGaps = presenter.getNotAttemptedGaps(presenter.configuration.variables),
             isAttempted;
-        if(emptyGaps.gaps.length == 0){
+        if(notAttemptedGaps.gaps.length == 0){
             isAttempted = true;
         }else{
             isAttempted = false;
@@ -451,6 +466,19 @@ function AddonMath_create() {
         }
 
         return { isValid: true, gaps: emptyGaps };
+    };
+
+    presenter.getNotAttemptedGaps = function (variables) {
+        var notAttemptedGaps = [], i, convertedVariable;
+
+        for (i = 0; i < variables.length; i++) {
+            convertedVariable = presenter.isGapAttempted(variables[i].value);
+            if (convertedVariable === undefined) return { isValid: false, errorMessage: getAlertMessage(variables[i]) };
+
+            if (convertedVariable === false) notAttemptedGaps.push(variables[i].name);
+        }
+
+        return { isValid: true, gaps: notAttemptedGaps };
     };
 
     return presenter;
