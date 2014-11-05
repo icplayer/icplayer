@@ -134,6 +134,7 @@ function AddonParagraph_create() {
             }
         });
 
+        isVisible = presenter.configuration.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
@@ -208,23 +209,38 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function() {
+        var tinymceState;
         if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
-            return tinymce.get(editorID).getContent({format : 'raw'});
+            tinymceState = tinymce.get(editorID).getContent({format : 'raw'});
         } else {
-            return '';
+            tinymceState = '';
         }
+
+        return JSON.stringify({
+            'tinymceState' : tinymceState,
+            'isVisible' : isVisible
+        });
     };
 
     presenter.setState = function(state) {
+        var parsedState = JSON.parse(state),
+            tinymceState = parsedState.tinymceState,
+            isVisibleState = parsedState.isVisible;
+
     	if (editorID !== undefined) {
-    		tinymce.get(editorID).setContent(state, {format : 'raw'});
+    		tinymce.get(editorID).setContent(tinymceState, {format : 'raw'});
     	} else {
-    		presenter.configuration.state = state;
+    		presenter.configuration.state = tinymceState;
     	}
+
+        isVisible = isVisibleState;
+        presenter.setVisibility(isVisible);
     };
 
     presenter.reset = function() {
         tinymce.get(editorID).setContent('');
+        presenter.setVisibility(presenter.configuration.isVisible);
+        isVisible = presenter.configuration.isVisible;
     };
 
     presenter.show = function() {
