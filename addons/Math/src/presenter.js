@@ -379,7 +379,6 @@ function AddonMath_create() {
 
         if (emptyGaps.gaps.length !== 0) {
             presenter.executeEventCode(presenter.configuration.onPartialEvent);
-//            presenter.markGapsEmptiness(emptyGaps.gaps); https://www.assembla.com/spaces/lorepo/tickets/cardwall#/ticket:3856
         } else {
             var separators = presenter.configuration.separators,
                 evaluationResult = presenter.evaluateAllExpressions(presenter.configuration.expressions,
