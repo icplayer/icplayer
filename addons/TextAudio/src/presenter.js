@@ -20,6 +20,8 @@ function AddonTextAudio_create() {
         selection_id: -1
     };
     presenter.playerController = null;
+    presenter.selectionId = undefined;
+    presenter.playedByClick = false;
     presenter.addonID = null;
     presenter.fps = 10;
 
@@ -31,7 +33,7 @@ function AddonTextAudio_create() {
         return presenter.upgradeEnableLoop(model);
     };
 
-    presenter.upgradeEnableLoop = function (model) {
+    presenter.upgradeEnableLoop = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
@@ -55,11 +57,11 @@ function AddonTextAudio_create() {
         };
     }
 
-    presenter.createTimeUpdateEventData = function (data) {
+    presenter.createTimeUpdateEventData = function(data) {
         return getEventObject(getSlideNumber(), data.currentTime, "");
     };
 
-    presenter.createOnEndEventData = function () {
+    presenter.createOnEndEventData = function() {
         return getEventObject("end", "", "");
     };
 
@@ -80,6 +82,7 @@ function AddonTextAudio_create() {
         minutes = (minutes >= 10) ? minutes : "0" + minutes;
         seconds = Math.floor(seconds % 60);
         seconds = (seconds >= 10) ? seconds : "0" + seconds;
+
         return minutes + ":" + seconds;
     }
 
@@ -89,12 +92,12 @@ function AddonTextAudio_create() {
         displayTimer(0, duration);
     }
 
-    presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
+    presenter.sendEventAndSetCurrentTimeAlreadySent = function(eventData, currentTime) {
         eventBus.sendEvent('ValueChanged', eventData);
         currentTimeAlreadySent = currentTime;
     };
 
-    presenter.sendOnEndEvent = function () {
+    presenter.sendOnEndEvent = function() {
         var eventData = presenter.createOnEndEventData();
         eventBus.sendEvent('ValueChanged', eventData);
     };
@@ -139,8 +142,8 @@ function AddonTextAudio_create() {
     }
     
     function make_slide(textWrapper, slide_id) {
-    	if (slide_id<0) {
-            textWrapper.html('')
+    	if (slide_id < 0) {
+            textWrapper.html('');
         } else {
         	var html = '', i, element;
             for (i=0; i<presenter.configuration.slides[slide_id].Text.length; i++) {
@@ -151,16 +154,23 @@ function AddonTextAudio_create() {
             textWrapper.attr('data-slideId', slide_id);
             textWrapper.find("span[class^='textelement']").each(function() {
                 $(this).on('click', function(e) {
+                    presenter.playedByClick = true;
                     e.stopPropagation();
                     presenter.play();
                     var selectionId = $(this).attr('data-selectionId');
+                    presenter.selectionId = parseInt(selectionId, 10);
+
+                    if ($(this).hasClass("tmp-active")) {
+                        $(this).removeClass("tmp-active");
+                        $(this).addClass("active");
+                    }
 
                     if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
                         go_to(slide_id, selectionId);
                     } else {
                         function fun() {
-                            slide_id = parseInt(slide_id);
-                            selectionId = parseInt(selectionId);
+                            slide_id = parseInt(slide_id, 10);
+                            selectionId = parseInt(selectionId, 10);
                             if (slide_id >= 0 || selectionId >= 0) {
                                 var frame2go = presenter.configuration.slides[slide_id].Times[selectionId].start;
                                 presenter.audio.currentTime = frame2go / presenter.fps;
@@ -180,13 +190,13 @@ function AddonTextAudio_create() {
     }
 
     function highlight_selection(textWrapper, selection_id) {
-        textWrapper.find('span').each(function(){
+        textWrapper.find('span').each(function() {
             if ($(this).hasClass('active')) {
                 $(this).removeClass('active');
             }
         });
-        if (selection_id>=0) {
-            textWrapper.find('span.textelement'+selection_id).addClass('active');
+        if (selection_id >= 0) {
+            textWrapper.find('span.textelement' + selection_id).addClass('active');
         }
     }
 
@@ -196,12 +206,32 @@ function AddonTextAudio_create() {
 
     function change_slide_from_data(slide_data) {
         if (!compare_slide_data(slide_data, presenter.current_slide_data)) {
+            var blockHighlight = false;
+
+            var currentSelId = presenter.current_slide_data.selection_id;
+            if (presenter.configuration.playPart && currentSelId !== -1 && presenter.selectionId === currentSelId) { //  && !(presenter.current_slide_data.slide_id !== -1 && slide_data.slide_id === -1)
+                presenter.pause();
+                blockHighlight = true;
+            }
+
             var textWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-text");
             if (slide_data.slide_id != presenter.current_slide_data.slide_id) {
                 make_slide(textWrapper, slide_data.slide_id);
             }
             highlight_selection(textWrapper, slide_data.selection_id);
+
+            if (blockHighlight) {
+                textWrapper.find('span').each(function() {
+                    if ($(this).hasClass('active')) {
+                        $(this).removeClass('active');
+                        $(this).addClass("tmp-active");
+                    }
+                });
+            }
+
             presenter.current_slide_data = slide_data;
+
+            presenter.playedByClick = false;
         }
     }
 
@@ -209,7 +239,6 @@ function AddonTextAudio_create() {
         currentTime = parseInt(currentTime * presenter.fps, 10);
 
         var frames_array = presenter.configuration.frames;
-
         var slide_data = {
             slide_id: currentTime < frames_array.length ? frames_array[currentTime].slide_id : -1,
             selection_id: currentTime < frames_array.length ? frames_array[currentTime].selection_id : 0
@@ -250,7 +279,7 @@ function AddonTextAudio_create() {
         if (!isPreview) {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
             audio.addEventListener('playing', function() { hasBeenStarted = true; }, false);
-            audio.addEventListener('play', function() { eventBus.sendEvent('ValueChanged', createOnPlayEventData()) }, false);
+            audio.addEventListener('play', function() { if (!presenter.playedByClick) presenter.selectionId = undefined; eventBus.sendEvent('ValueChanged', createOnPlayEventData()) }, false);
             audio.addEventListener('pause', function() { eventBus.sendEvent('ValueChanged', createOnPauseEventData()) }, false);
         }
 
@@ -275,7 +304,7 @@ function AddonTextAudio_create() {
         }, false);
     }
 
-    function loadFiles(){
+    function loadFiles() {
         var canPlayMp3 = false;
         var canPlayOgg = false;
         var audio = presenter.audio;
@@ -308,7 +337,7 @@ function AddonTextAudio_create() {
         presenter.addonID = model.ID;
     };
 
-    presenter.createPreview = function(view, model){
+    presenter.createPreview = function(view, model) {
         presenter.initialize(view, model, true);
     };
 
@@ -384,11 +413,11 @@ function AddonTextAudio_create() {
                 var entry_start = presenter.toFrames(entry[0]),
                     entry_end = presenter.toFrames(entry[1]);
                 slide_times[j] = {start:entry_start, end:entry_end};
-                if (entry_start>entry_end) {
+                if (entry_start > entry_end) {
                     validationResult.errorCode = 'M04';
                     return validationResult;
                 }
-                if (frames.length>entry_start) {
+                if (frames.length > entry_start) {
                     validationResult.errorData = entry_start;
                     validationResult.errorCode = 'M05';
                     return validationResult;
@@ -433,21 +462,22 @@ function AddonTextAudio_create() {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var validatedSlides = presenter.validateSlides(model.Slides);
 
-        if (!validatedSlides.errorCode) {
-            return {
-                isValid: true,
-                isVisible: isVisible,
-                isVisibleByDefault: isVisible,
-                onEndEventCode: model.onEnd,
-                enableLoop: ModelValidationUtils.validateBoolean(model.enableLoop),
-                displayTime: ModelValidationUtils.validateBoolean(model.displayTime),
-                defaultControls: ModelValidationUtils.validateBoolean(model.defaultControls),
-                slides: validatedSlides.value,
-                frames: validatedSlides.frames
-            };
-        } else {
+        if (validatedSlides.errorCode) {
             return getErrorObject(validatedSlides.errorCode);
         }
+
+        return {
+            isValid: true,
+            isVisible: isVisible,
+            isVisibleByDefault: isVisible,
+            onEndEventCode: model.onEnd,
+            enableLoop: ModelValidationUtils.validateBoolean(model.enableLoop),
+            displayTime: ModelValidationUtils.validateBoolean(model.displayTime),
+            defaultControls: ModelValidationUtils.validateBoolean(model.defaultControls),
+            slides: validatedSlides.value,
+            frames: validatedSlides.frames,
+            playPart: ModelValidationUtils.validateBoolean(model.playPart)
+        };
     };
 
     presenter.executeCommand = function(name, params) {
@@ -481,6 +511,20 @@ function AddonTextAudio_create() {
             presenter.stopClicked = true;
             this.audio.pause();
             this.audio.currentTime = 0;
+        }
+
+        if (!presenter.isLoaded && !presenter.isPlay) {
+            this.audio.addEventListener("loadeddata", function() {
+                presenter.isLoaded = true;
+                presenter.stop();
+            });
+        }
+    };
+
+    presenter.playPartStop = function() {
+        if (!this.audio.paused && presenter.isLoaded) {
+            presenter.stopClicked = true;
+            this.audio.pause();
         }
 
         if (!presenter.isLoaded && !presenter.isPlay) {

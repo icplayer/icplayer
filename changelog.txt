@@ -1,3 +1,4 @@
+2014-11-06 Added new property "Individual fragment playback" to Text Audio module
 2014-11-05 Fixed problem with isAttempted in Math module connected with dropdown gaps
 2014-11-04 Fixed problem with saving visibility in Paragraph and Paragraph Keyboard modules
 2014-11-04 Fixed problem with getting error Can not load page: null
