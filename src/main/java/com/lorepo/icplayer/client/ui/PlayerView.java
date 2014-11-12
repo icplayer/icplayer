@@ -30,6 +30,7 @@ public class PlayerView extends VerticalPanel{
 	private NavigationButton nextPageButton = new NavigationButton("ic_navi_panel_next");
 	private NavigationButton prevPageButton = new NavigationButton("ic_navi_panel_prev");
 	private NavigationBar navigationBar;
+	private boolean navigationPanelsAutomaticAppearance = true;
 	
 	public PlayerView(){
 		initUI();
@@ -99,9 +100,6 @@ public class PlayerView extends VerticalPanel{
 		event.stopPropagation();
 		
 		if (Event.ONCLICK == eventType) {
-			if(navigationBar == null){
-				navigationBar = new NavigationBar(playerController.getModel(), playerController);
-			}
 			toggleNavigationPanels();
 			event.stopPropagation();
 			event.preventDefault();
@@ -120,11 +118,27 @@ public class PlayerView extends VerticalPanel{
 	return $wnd.innerHeight;
 	}-*/;
 	
+	private void checkNavigationBar() {
+		if(navigationBar == null){
+			navigationBar = new NavigationBar(playerController.getModel(), playerController);
+		}
+	}
 	
 	private void toggleNavigationPanels() {
+		if (!navigationPanelsAutomaticAppearance) {
+			return;
+		}
+		checkNavigationBar();
 		if(navigationBar.isShowing()) {
 			hideNavigationPanels();
-		} else if(playerController.getModel().getPageCount() > 1) {
+		} else {
+			showNavigationPanels();
+		}
+	}
+	
+	public void showNavigationPanels() {
+		checkNavigationBar();
+		if(playerController.getModel().getPageCount() > 1) {
 			boolean isMobile = false;
 			if (Window.Navigator.getUserAgent().matches("(.*)Android(.*)") || Window.Navigator.getUserAgent().matches("(.*)iPad(.*)") || Window.Navigator.getUserAgent().matches("(.*)iPhone(.*)")) {
 				isMobile = true;
@@ -173,8 +187,10 @@ public class PlayerView extends VerticalPanel{
 			
 		}
 	}
-
 	public void hideNavigationPanels() {
+		if(navigationBar == null){
+			return;
+		}
 		prevPageButton.getElement().removeClassName("ic_navi_panel_animation");
 		nextPageButton.getElement().removeClassName("ic_navi_panel_animation");
 		
@@ -187,6 +203,10 @@ public class PlayerView extends VerticalPanel{
 			}
 		};
 		t.schedule(1);
+	}
+	
+	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear) {
+		navigationPanelsAutomaticAppearance = shouldAppear;
 	}
 
 	public void showHeader(){

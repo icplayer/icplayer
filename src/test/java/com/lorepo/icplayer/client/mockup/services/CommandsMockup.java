@@ -103,4 +103,23 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void showNavigationPanels() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void hideNavigationPanels() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

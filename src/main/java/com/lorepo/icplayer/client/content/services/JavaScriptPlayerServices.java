@@ -219,6 +219,18 @@ public class JavaScriptPlayerServices{
 			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
 			}
+			commands.setNavigationPanelsAutomaticAppearance = function(shouldAppear) {
+				if (typeof shouldAppear != "boolean") {
+					throw new TypeError(); 
+				}
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setNavigationPanelsAutomaticAppearance(Z)(shouldAppear);
+			}
+			commands.showNavigationPanels = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNavigationPanels()();
+			}
+			commands.hideNavigationPanels = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideNavigationPanels()();
+			}
 
 			return commands;
 		}
@@ -576,6 +588,18 @@ public class JavaScriptPlayerServices{
 
 	private void sendPageAllOkOnValueChanged(boolean sendEvent) {
 		playerServices.getCommands().sendPageAllOkOnValueChanged(sendEvent);
+	}
+	
+	private void setNavigationPanelsAutomaticAppearance(boolean shouldAppear) {
+		playerServices.getCommands().setNavigationPanelsAutomaticAppearance(shouldAppear);
+	}
+	
+	private void showNavigationPanels() {
+		playerServices.getCommands().showNavigationPanels();
+	}
+	
+	private void hideNavigationPanels() {
+		playerServices.getCommands().hideNavigationPanels();
 	}
 	
 	private void sendEvent(String eventName, JavaScriptObject eventData){

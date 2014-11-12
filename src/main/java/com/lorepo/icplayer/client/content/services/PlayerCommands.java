@@ -106,4 +106,21 @@ public class PlayerCommands implements IPlayerCommands {
 	public PageController getPageController() {
 		return pageController;
 	}
+	
+	@Override
+	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear) {
+		controller.getView().setNavigationPanelsAutomaticAppearance(shouldAppear);
+	}
+
+	@Override
+	public void showNavigationPanels() {
+		controller.getView().showNavigationPanels();
+		
+	}
+
+	@Override
+	public void hideNavigationPanels() {
+		controller.getView().hideNavigationPanels();
+		
+	}
 }

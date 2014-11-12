@@ -30,4 +30,7 @@ public interface IPlayerCommands {
 	
 	public void sendPageAllOkOnValueChanged(boolean sendEvent);
 	public PageController getPageController();
+	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear);
+	public void showNavigationPanels();
+	public void hideNavigationPanels();
 }

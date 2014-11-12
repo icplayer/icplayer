@@ -276,7 +276,7 @@ var ice_dictionary = {
 	"Page_Name_info": "Displays a current page name. Perfect for using in presentation templates.",
 	"Page_Rating_info": "Allows to add rating to a page.",
 	"Paragraph_info": "Allows a user to enter a free form text with basic WYSIWYG formatting.",
-    "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and special chars.",
+    "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and diacritical characters.",
 	"Plot_info": "Plot drawing/exercise module allows users to present plots and make plot/points based activities. Plot enables to draw functions: f(x) and f(y).",
 	"Points_To_Plot_info": "This addon is an extension of the Plot addon. It allows users to create activities based on points to plot relations, e.g. define the points or the number of points to be selected in the Plot activity.",
 	"Puzzle_info": "Allows to insert a puzzle game into a presentation. It is enough to upload an image which is later automatically divided into separate items put in rows and columns. A user’s task is to arrange the elements in the right order and make the image whole again.",
@@ -337,5 +337,5 @@ var ice_dictionary = {
     "Lesson_Error_Counter_info": "Enables to display summed number of errors of the entire lesson.",
     "Page_Score_Counter_info": "Shows the score and/or the max score for the lesson's page.",
     "Lesson_Score_Counter_info": "Shows the score and/or the max score for the whole lesson.",
-    "PieChart_info": "Allows to insert pie chart."
+    "PieChart_info": "Allows inserting a pie chart, where a student can change percentage values. "
 };
