@@ -1,3 +1,4 @@
+2014-11-13 Added isAllOK method and allOK event in Hangman module
 2014-11-12 New Player Commands: setNavigationPanelsAutomaticAppearance, showNavigationPanels, hideNavigationPanels
 2014-11-06 Added new property "Individual fragment playback" to Text Audio module
 2014-11-05 Fixed problem with isAttempted in Math module connected with dropdown gaps

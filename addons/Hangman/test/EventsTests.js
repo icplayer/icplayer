@@ -41,6 +41,15 @@ TestCase("Events creation", {
         assertEquals('1', eventData.item);
         assertEquals('B', eventData.value);
         assertEquals('0', eventData.score);
+    },
+
+    'test allOk event has been created': function () {
+        var eventData = this.presenter.createAllOKEventData();
+
+        assertEquals('Hangman1', eventData.source);
+        assertEquals('all', eventData.item);
+        assertEquals('', eventData.value);
+        assertEquals('', eventData.score);
     }
 });
 
@@ -68,6 +77,8 @@ TestCase("Events triggering", {
         sinon.stub(this.presenter, 'fillPhraseWithLetters');
         sinon.stub(this.presenter, 'disableRemainingLetters');
         sinon.stub(this.presenter, 'sendEventData');
+        sinon.stub(this.presenter, 'isAllOK');
+        sinon.stub(this.presenter, 'sendAllOKEvent');
     },
 
     tearDown: function() {
@@ -75,18 +86,32 @@ TestCase("Events triggering", {
         this.presenter.fillPhraseWithLetters.restore();
         this.presenter.disableRemainingLetters.restore();
         this.presenter.sendEventData.restore();
+        this.presenter.isAllOK.restore();
+        this.presenter.sendAllOKEvent.restore();
     },
 
-    'test user selected correct letter' : function() {
+    'test user selected correct letter and all phrases are correctly filled' : function() {
+        this.presenter.isAllOK.returns(true);
         this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1], true);
 
-        assertTrue(this.presenter.sendEventData.calledWith({source: 'Hangman1', item: '2', value: 'A', score: '1'}));
+        assertEquals({source: 'Hangman1', item: '2', value: 'A', score: '1'}, this.presenter.sendEventData.getCall(0).args[0]);
+        assertTrue(this.presenter.sendAllOKEvent.called);
+    },
+
+    'test user selected correct letter and phrases are not correctly filled' : function() {
+        this.presenter.isAllOK.returns(false);
+        this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1], true);
+
+        assertEquals({source: 'Hangman1', item: '2', value: 'A', score: '1'}, this.presenter.sendEventData.getCall(0).args[0]);
+        assertFalse(this.presenter.sendAllOKEvent.called);
     },
 
     'test user selected incorrect letter' : function() {
+        this.presenter.isAllOK.returns(false);
         this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);
 
-        assertTrue(this.presenter.sendEventData.calledWith({source: 'Hangman1', item: '2', value: 'B', score: '0'}));
+        assertEquals({source: 'Hangman1', item: '2', value: 'B', score: '0'}, this.presenter.sendEventData.getCall(0).args[0]);
+        assertFalse(this.presenter.sendAllOKEvent.called);
     },
 
     'test user selected incorrect letter and he runs of trials' : function() {

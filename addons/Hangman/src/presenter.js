@@ -1,9 +1,11 @@
 function AddonHangman_create() {
     var presenter = function () {};
     var playerController = null;
+    var eventBus;
 
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model, false);
+        eventBus = playerController.getEventBus();
     };
 
     presenter.createPreview = function (view, model) {
@@ -251,6 +253,9 @@ function AddonHangman_create() {
 
         if (sendEventAndCountError) {
             presenter.sendEventData(selectionEventData);
+            if (presenter.isAllOK()) {
+                presenter.sendAllOKEvent();
+            }
         }
         if (currentPhrase.errorCount === presenter.configuration.trialsCount) {
             presenter.sendEventData(presenter.createEndOfTrialsEventData());
@@ -258,7 +263,7 @@ function AddonHangman_create() {
         presenter.unbindAttachedHandlers($(this));
     };
 
-    function letterClickHandler(e) {
+    presenter.letterClickHandler = function (e) {
         e.stopPropagation();
         var sendEventAndCountError = !$(this).hasClass('selected');
         $(this).addClass('selected');
@@ -267,7 +272,7 @@ function AddonHangman_create() {
         var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
         presenter.addLetterSelectionToPhrase(currentPhrase, letter);
         presenter.onLetterSelectedAction(letter, currentPhrase, sendEventAndCountError);
-    }
+    };
 
     presenter.handleMouseActions = function () {
         var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
@@ -276,7 +281,7 @@ function AddonHangman_create() {
             var letter = $(this).text();
 
             if (!presenter.isLetterSelected(currentPhrase, letter)) {
-                $(this).click(letterClickHandler);
+                $(this).click(presenter.letterClickHandler);
             }
         });
     };
@@ -422,7 +427,8 @@ function AddonHangman_create() {
             'previousPhrase': presenter.previousPhrase,
             'switchPhrase': presenter.switchPhraseCommand,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'isAllOK': presenter.isAllOK
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -579,6 +585,23 @@ function AddonHangman_create() {
         if (playerController !== null) {
             playerController.getEventBus().sendEvent('ValueChanged', eventData);
         }
+    };
+
+    presenter.isAllOK = function () {
+        return presenter.getMaxScore() === presenter.getScore();
+    };
+
+    presenter.createAllOKEventData = function (){
+        return{
+            'source': presenter.configuration.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        }
+    };
+
+    presenter.sendAllOKEvent = function (){
+        eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData());
     };
 
     return presenter;

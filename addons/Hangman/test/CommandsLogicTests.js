@@ -200,3 +200,30 @@ TestCase("Commands logic - hide", {
         assertFalse(this.presenter.isVisible);
     }
 });
+
+TestCase("Commands logic - isAllOK", {
+    setUp: function () {
+        this.presenter = AddonHangman_create();
+        sinon.stub(this.presenter, 'getScore');
+        sinon.stub(this.presenter, 'getMaxScore');
+    },
+
+    tearDown : function() {
+        this.presenter.getScore.restore();
+        this.presenter.getMaxScore.restore();
+    },
+
+    'test isAllOk while all letters correctly selected': function () {
+        this.presenter.getScore.returns(2);
+        this.presenter.getMaxScore.returns(2);
+
+        assertTrue(this.presenter.isAllOK());
+    },
+
+    'test isAllOk while letters incorrectly selected': function () {
+        this.presenter.getScore.returns(1);
+        this.presenter.getMaxScore.returns(2);
+
+        assertFalse(this.presenter.isAllOK());
+    }
+});
