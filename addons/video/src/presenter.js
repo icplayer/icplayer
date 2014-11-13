@@ -364,7 +364,11 @@ function Addonvideo_create() {
 
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
-        if (video.currentTime == video.duration) {
+        
+        var currentTime = Math.round(video.currentTime * 100) / 100;
+        var videoDuration = Math.round(video.duration * 100) / 100;
+        
+        if (currentTime == videoDuration) {
             if (!presenter.isEnded) {
                 presenter.sendVideoEndedEvent();
                 if (presenter.configuration.isFullScreen) {
@@ -482,7 +486,6 @@ function Addonvideo_create() {
                     $video.append(source);
                 }
             }
-            this.video.load();
 
             // "ended" event doesn't work on Safari
             $(this.video).unbind('timeupdate');
@@ -507,6 +510,9 @@ function Addonvideo_create() {
 
                 $(this).unbind("canplay");
             });
+            // Android devices have problem with loading content.
+            this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
+            this.video.load();
         }
     };
 
@@ -712,7 +718,18 @@ function Addonvideo_create() {
         presenter.jumpToID(params[0]);
     };
 
+    presenter.onStalledEventHandler = function () {
+    	var video = this;
+
+        if (!presenter.commandsQueue.isQueueEmpty() && video.readyState >= 2) {
+        	presenter.isVideoLoaded = true;
+            presenter.commandsQueue.executeAllTasks();
+        }
+    }
+    
     presenter.play = function () {
+    	presenter.$view.find('.poster-wrapper').remove();
+    	
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('play', []);
             return;
