@@ -24,8 +24,9 @@ function AddonTextAudio_create() {
     presenter.playedByClick = false;
     presenter.addonID = null;
     presenter.fps = 10;
+    presenter.previousSelectionId = -1;
 
-    presenter.setPlayerController = function(controller) {
+        presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
 
@@ -191,25 +192,23 @@ function AddonTextAudio_create() {
 
     function highlight_selection(textWrapper, selection_id) {
         textWrapper.find('span').each(function() {
-            if ($(this).hasClass('active')) {
-                $(this).removeClass('active');
-            }
+            $(this).removeClass('active');
         });
         if (selection_id >= 0) {
             textWrapper.find('span.textelement' + selection_id).addClass('active');
         }
     }
 
-    function compare_slide_data(slide_data1, slide_data2) {
-        return !(slide_data1.slide_id != slide_data2.slide_id || slide_data1.selection_id != slide_data2.selection_id);
+    function areSlidesEqual(slide1, slide2) {
+        return slide1.slide_id == slide2.slide_id && slide1.selection_id == slide2.selection_id;
     }
 
     function change_slide_from_data(slide_data) {
-        if (!compare_slide_data(slide_data, presenter.current_slide_data)) {
+        if (!areSlidesEqual(slide_data, presenter.current_slide_data)) {
             var blockHighlight = false;
 
             var currentSelId = presenter.current_slide_data.selection_id;
-            if (presenter.configuration.playPart && currentSelId !== -1 && presenter.selectionId === currentSelId) { //  && !(presenter.current_slide_data.slide_id !== -1 && slide_data.slide_id === -1)
+            if (presenter.configuration.playPart && currentSelId !== -1 && presenter.selectionId === currentSelId) {
                 presenter.pause();
                 blockHighlight = true;
             }
@@ -236,28 +235,36 @@ function AddonTextAudio_create() {
     }
 
     function change_slide(currentTime) {
-        currentTime = parseInt(currentTime * presenter.fps, 10);
+        currentTime = Math.round(currentTime * presenter.fps);
 
         var frames_array = presenter.configuration.frames;
+        var isCurrentTimeInRange = currentTime < frames_array.length;
+
         var slide_data = {
-            slide_id: currentTime < frames_array.length ? frames_array[currentTime].slide_id : -1,
-            selection_id: currentTime < frames_array.length ? frames_array[currentTime].selection_id : 0
+            slide_id: isCurrentTimeInRange ? frames_array[currentTime].slide_id : -1,
+            selection_id: isCurrentTimeInRange ? frames_array[currentTime].selection_id : 0
         };
 
         if (!hasBeenStarted) {
             slide_data.selection_id = -1;
         }
 
+        var difference = slide_data.selection_id - presenter.previousSelectionId;
+        if (difference > 1 && !presenter.playedByClick) {
+            slide_data.selection_id -= difference - 1;
+        }
+
+        presenter.previousSelectionId = slide_data.selection_id;
         change_slide_from_data(slide_data);
     }
 
-    function createView(view, model, isPreview){
+    function createView(view, model, isPreview) {
         mp3File = model.mp3;
         oggFile = model.ogg;
 
-        var audio = new Audio(); //document.createElement("audio");
+        var audio = new Audio();
 
-        if (presenter.configuration.defaultControls){
+        if (presenter.configuration.defaultControls) {
             $(audio).attr("controls", "controls").attr("preload", "auto");
         }
 
@@ -374,9 +381,9 @@ function AddonTextAudio_create() {
         } else {
             seconds = parseInt(entry[1], 10);
         }
-        minutes = isNaN(minutes)? 0 : minutes;
-        seconds = isNaN(seconds)? 0 : seconds;
-        decyseconds = isNaN(decyseconds)? 0 : decyseconds;
+        minutes = isNaN(minutes) ? 0 : minutes;
+        seconds = isNaN(seconds) ? 0 : seconds;
+        decyseconds = isNaN(decyseconds) ? 0 : decyseconds;
 
         return ((minutes * 60 + seconds) * presenter.fps) + decyseconds;
     };
