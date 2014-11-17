@@ -1,3 +1,4 @@
+2014-11-17 Fixed problem with the second advent of Popup
 2014-11-14 Fixed issue with skipping words in Text Audio
 2014-11-13 Fixed problem with play action and ended event in Video module
 2014-11-13 Added isAllOK method and allOK event in Hangman module

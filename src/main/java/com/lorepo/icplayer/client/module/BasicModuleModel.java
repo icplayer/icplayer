@@ -54,7 +54,6 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	@Override
 	public void release() {
-		RootPanel.get(id).removeFromParent();
 	}
 	
 	/**
