@@ -507,7 +507,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         $('.hier_report').attr("style", "height: " + presenter.configuration.height + "px");
-        presenter.treeID = presenter.configuration.ID + isPreview ? "Preview" : "";
+        presenter.treeID = presenter.configuration.ID + (isPreview ? "Preview" : "");
         presenter.$view.find("div").first().attr('id', presenter.treeID);
 
         presenter.setVisibility(presenter.configuration.isVisible);
