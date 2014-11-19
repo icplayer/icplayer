@@ -261,11 +261,14 @@ public class PlayerController implements IPlayerController{
 
 	private void pageLoaded(Page page, PageController pageController) {
 		pageController.setPage(page);
+		HashMap<String, String> state = stateService.getStates();
 		if(headerController != null){
 			headerController.setPage(contentModel.getHeader());
+			headerController.setPageState(state);
 		}
 		if(footerController != null){
 			footerController.setPage(contentModel.getFooter());
+			footerController.setPageState(state);
 		}
 	}
 
@@ -304,6 +307,14 @@ public class PlayerController implements IPlayerController{
 		stateService.addState(state);
 		if(pageController2 != null){
 			state = pageController2.getState();
+			stateService.addState(state);
+		}
+		if(headerController != null) {
+			state = headerController.getState();
+			stateService.addState(state);
+		}
+		if(footerController != null) {
+			state = footerController.getState();
 			stateService.addState(state);
 		}
 	}
