@@ -6,5 +6,6 @@
             <property name="Image" type="file" />
         </property>
         <property name="widthWhenOpened" displayName="Width When Opened" type="string" />
+        <property name="Fixed Position" type="boolean"/>
 	</model>
 </addon>
