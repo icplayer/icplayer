@@ -1,3 +1,4 @@
+2014-11-26 Fixed problem with hiding in Video module
 2014-11-26 Fixed problem with images in Multiple gap and Image gap module
 2014-11-24 Added Vocabulary audio files properties to Text Audio
 2014-11-20 Added Fixed position property, changed displaying rulers and fixed double page view in IWB Toolbar module

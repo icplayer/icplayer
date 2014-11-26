@@ -365,8 +365,8 @@ function Addonvideo_create() {
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
         
-        var currentTime = Math.round(video.currentTime * 100) / 100;
-        var videoDuration = Math.round(video.duration * 100) / 100;
+        var currentTime = Math.ceil(video.currentTime);
+        var videoDuration = Math.floor(video.duration);
         
         if (currentTime == videoDuration) {
             if (!presenter.isEnded) {
