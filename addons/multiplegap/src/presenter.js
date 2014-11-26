@@ -68,13 +68,6 @@ function Addonmultiplegap_create(){
         presenter.$view = $(view);
         presenter.addonID = model.ID;
 
-//$.each(presenter.$view, function(index,value) {
-//	console.log(index+" : "+value);
-//	$.each(value, function(index,v) {
-//		console.log(index+" :: "+v);
-//	});
-//});
-//console.log("model: "+$(model));
         var container = $('<div class="multiplegap_container"></div>');
         container.click(function(event) {
 			event.stopPropagation();

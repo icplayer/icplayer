@@ -1,4 +1,5 @@
-2014-11-26 Fixed problem with images in multi gap and addon gap module
+2014-11-26 Removed console.log from Multiplegap module
+2014-11-26 Fixed problem with images in Multiple gap and Image gap module
 2014-11-24 Added Vocabulary audio files properties to Text Audio
 2014-11-20 Added Fixed position property, changed displaying rulers and fixed double page view in IWB Toolbar module
 2014-11-19 Player saves state of addons in header and footer
