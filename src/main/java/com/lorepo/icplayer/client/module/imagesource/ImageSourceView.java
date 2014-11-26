@@ -19,29 +19,25 @@ public class ImageSourceView extends Image implements IDisplay {
 	private boolean isDragged = false;
 	
 	public ImageSourceView(ImageSourceModule module, boolean isPreview) {
-		
 		this.module = module;
 		createUI(isPreview);
 		connectHandlers();
 	}
 
-	
 	private void createUI(boolean isPreview) {
-		
 		setStyleName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
 		String imageUrl = module.getUrl();
-		if(imageUrl.length() > 0){
+		if (imageUrl.length() > 0) {
 			setUrl(imageUrl);
 		}
 		
 		getElement().setId(module.getId());
-		if(!isPreview){
+		if (!isPreview) {
 			setVisible(module.isVisible());
 			JavaScriptUtils.makeDraggable(getElement());
 		}
 	}
-	
 	
 	private void connectHandlers() {
 		addClickHandler(new ClickHandler() {
@@ -62,13 +58,12 @@ public class ImageSourceView extends Image implements IDisplay {
 			@Override
 			public void onDragStart(DragStartEvent event) {
 				isDragged = true;
-				if(listener != null){
+				if (listener != null) {
 					listener.onClicked();
 				}
 			}
 		});
 	}
-
 
 	@Override
 	public void select() {
@@ -85,13 +80,10 @@ public class ImageSourceView extends Image implements IDisplay {
 		listener = l;
 	}
 
-
 	@Override
 	public void showImage() {
-
 		setVisible(true);
 	}
-
 
 	@Override
 	public void hideImage() {
@@ -99,12 +91,9 @@ public class ImageSourceView extends Image implements IDisplay {
 		setVisible(false);
 	}
 
-
 	@Override
 	public void getImageUrl() {
 		// TODO Auto-generated method stub
-		
 	}
 
-	
 }

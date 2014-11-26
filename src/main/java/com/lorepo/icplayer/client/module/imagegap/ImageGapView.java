@@ -8,7 +8,6 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter.IDisplay;
 
-
 public class ImageGapView extends Image implements IDisplay {
 
 	private static final String HOLLOW_IMAGE = "media/hollow.png";
@@ -33,7 +32,7 @@ public class ImageGapView extends Image implements IDisplay {
 	private void createUI(boolean isPreview) {
 		setStylePrimaryName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
-		if(!isPreview){
+		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
 		setImageUrl("");
@@ -60,21 +59,14 @@ public class ImageGapView extends Image implements IDisplay {
 
 	@Override
 	public void setImageUrl(String url) {
-		if (url.isEmpty()) {
-			setUrl(GWT.getModuleBaseURL() + HOLLOW_IMAGE);
-		} else {
-			setUrl(url);
-		}
+		setUrl(url.isEmpty() ? GWT.getModuleBaseURL() + HOLLOW_IMAGE : url);
 		resetStyles();
 	}
 
 	@Override
 	public void showAsError() {
-		if (getUrl().indexOf(HOLLOW_IMAGE) < 0) {
-			addStyleDependentName(WRONG_STYLE);
-		} else {
-			addStyleDependentName(EMPTY_STYLE);
-		}
+		String style = getUrl().indexOf(HOLLOW_IMAGE) < 0 ? WRONG_STYLE : EMPTY_STYLE;
+		addStyleDependentName(style);
 	}
 	
 	@Override
@@ -134,7 +126,7 @@ public class ImageGapView extends Image implements IDisplay {
 
 	@Override
 	public boolean isAttempted() {
-		return (getUrl().indexOf(HOLLOW_IMAGE) < 0);
+		return getUrl().indexOf(HOLLOW_IMAGE) < 0;
 	}
 
 }

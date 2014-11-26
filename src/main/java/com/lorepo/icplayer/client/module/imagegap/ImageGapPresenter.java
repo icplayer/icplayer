@@ -237,24 +237,29 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public String getState() {
-
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
-		if(consumedItem != null) {
+		if (consumedItem != null) {
 			state.put("consumed",  consumedItem.toString());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));
 		return json.toJSONString(state);
 	}
 
+	private String getImageURL(DraggableItem item) {
+		String moduleId = item.getId();
+		ImageSourcePresenter imageSource = (ImageSourcePresenter) this.playerServices.getModule(moduleId);
+
+		return imageSource.getImageUrl();
+	}
+	
 	@Override
 	public void setState(String stateObj) {
-		
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = json.decodeHashMap(stateObj);
 		if (state.containsKey("consumed")) {
 			consumedItem = DraggableItem.createFromString(state.get("consumed"));
-			view.setImageUrl(consumedItem.getValue());
+			view.setImageUrl(getImageURL(consumedItem));
 		}
 		if (state.containsKey("isVisible")) {
 			if (Boolean.parseBoolean(state.get("isVisible"))) {
@@ -305,7 +310,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		String value = "";
 		
 		if (commandName.compareTo("getimageid") == 0) {
-			if(consumedItem != null){
+			if (consumedItem != null) {
 				value = getImageId();
 			}
 		} else if(commandName.compareTo("show") == 0) {
@@ -328,8 +333,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		return model;
 	}
 	
-	public JavaScriptObject getAsJavaScript(){
-		
+	public JavaScriptObject getAsJavaScript() {
 		if (jsObject == null) {
 			jsObject = initJSObject(this);
 		}
@@ -339,8 +343,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
 
-		var presenter = function() {
-		}
+		var presenter = function() {};
 
 		presenter.getImageId = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();

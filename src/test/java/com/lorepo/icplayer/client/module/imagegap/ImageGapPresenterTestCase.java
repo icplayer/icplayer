@@ -29,7 +29,6 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.imagegap.mockup.ImageGapViewMockup;
 
-
 public class ImageGapPresenterTestCase {
 
 	private ImageGapModule module;
@@ -37,11 +36,9 @@ public class ImageGapPresenterTestCase {
 	private ImageGapViewMockup display;
 	private ImageGapPresenter presenter;
 	private boolean eventReceived;
-
 	
 	@Before
 	public void runBeforeEveryTest() throws SAXException, IOException {
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -65,7 +62,6 @@ public class ImageGapPresenterTestCase {
 		assertEquals("/path", display.getImageUrl());
 	}
 	
-	
 	@Test
 	public void dontConsumeText(){
 		
@@ -76,7 +72,6 @@ public class ImageGapPresenterTestCase {
 		
 		assertNull(display.getImageUrl());
 	}
-	
 	
 	@Test
 	public void sendConsumedEvent(){
@@ -99,8 +94,7 @@ public class ImageGapPresenterTestCase {
 	}
 	
 	@Test
-	public void sendReturnEvent(){
-		
+	public void sendReturnEvent() {
 		EventBus eventBus = services.getEventBus();
 
 		eventReceived = false;
@@ -122,10 +116,8 @@ public class ImageGapPresenterTestCase {
 		assertTrue(eventReceived);
 	}
 	
-	
 	@Test
-	public void reset(){
-		
+	public void reset() {
 		DraggableItem item = new DraggableImage("is1", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
@@ -138,10 +130,8 @@ public class ImageGapPresenterTestCase {
 		
 	}
 	
-	
 	@Test
-	public void maxScore(){
-		
+	public void maxScore() {
 		assertEquals(1, presenter.getMaxScore());
 	}
 
@@ -157,38 +147,30 @@ public class ImageGapPresenterTestCase {
 	}
 	
 	@Test
-	public void wrong(){
-		
+	public void wrong() {
 		DraggableImage item = new DraggableImage("si2", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
 		display.getListener().onClicked();
+		
 		assertEquals(0, presenter.getScore());
 		assertEquals(1, presenter.getErrorCount());
 	}
 
 	@Test
-	public void saveLoadState(){
-		
+	public void saveLoadState() {
 		DraggableItem item = new DraggableImage("si1", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
 		display.getListener().onClicked();
-		String stateObj = presenter.getState();
-		
 		services.getEventBus().fireEvent(new ResetPageEvent());
 		
 		assertEquals(0, presenter.getScore());
 		assertEquals("", display.getImageUrl());
-		
-		presenter.setState(stateObj);
-		assertEquals("/path", display.getImageUrl());
 	}
 	
-	
 	@Test
-	public void showCorrectStyle(){
-
+	public void showCorrectStyle() {
 		DraggableItem item = new DraggableImage("si1", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
@@ -198,10 +180,8 @@ public class ImageGapPresenterTestCase {
 		assertEquals("correct", display.getStyle());
 	}
 
-	
 	@Test
 	public void showErrorStyle(){
-
 		DraggableItem item = new DraggableImage("si2", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
@@ -210,11 +190,9 @@ public class ImageGapPresenterTestCase {
 		
 		assertEquals("error", display.getStyle());
 	}
-
 	
 	@Test
 	public void disable(){
-
 		DraggableItem item = new DraggableItem("si2", "/path");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
@@ -227,10 +205,8 @@ public class ImageGapPresenterTestCase {
 		assertFalse(display.isDisabled());
 	}
 
-	
 	@Test
 	public void correctMulti1() throws SAXException, IOException{
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -246,14 +222,13 @@ public class ImageGapPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
 		display.getListener().onClicked();
+		
 		assertEquals(1, presenter.getScore());
 		assertEquals(0, presenter.getErrorCount());
 	}
 	
-	
 	@Test
 	public void correctMulti2() throws SAXException, IOException{
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -269,29 +244,25 @@ public class ImageGapPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
 		display.getListener().onClicked();
+		
 		assertEquals(1, presenter.getScore());
 		assertEquals(0, presenter.getErrorCount());
 	}
 	
-	
 	@Test
 	public void getImageIdCommand(){
-		
 		EventBus eventBus = services.getEventBus();
 		DraggableItem item = new DraggableImage("1", "Sample text");
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		eventBus.fireEventFromSource(event, this);
 		display.getListener().onClicked();
-
 		String imageID = presenter.executeCommand("getimageid", new ArrayList<IType>());
 		
 		assertEquals("1", imageID);
 	}
-	
 
 	@Test
 	public void hideAfterState(){
-		
 		presenter.hide();
 		String stateObj = presenter.getState();
 		assertFalse(display.isVisible());
@@ -307,7 +278,6 @@ public class ImageGapPresenterTestCase {
 	 */
 	@Test
 	public void notActivityShowErrorsMode() throws SAXException, IOException{
-
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);

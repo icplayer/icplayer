@@ -12,7 +12,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
 /**
  * Obrazek żródłowy, który można przedragować do gapy
  * 
@@ -25,7 +24,6 @@ public class ImageSourceModule extends BasicModuleModel {
 	private String baseUrl = "";
 	private boolean removable = true;
 	
-	
 	public ImageSourceModule() {
 		super(DictionaryWrapper.get("image_source_module"));
 		
@@ -33,35 +31,29 @@ public class ImageSourceModule extends BasicModuleModel {
 		addPropertyRemovable();
 	}
 
-	
-	public String getUrl(){
-	
-		if(imagePath.isEmpty()){
+	public String getUrl() {
+		if (imagePath.isEmpty()) {
 			return GWT.getModuleBaseURL() + "media/no_image.gif";
-			
 		}
-		else if(imagePath.startsWith("http") || imagePath.startsWith("/")){
+		
+		if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
 			return imagePath;
 		}
-		else{
-			return baseUrl + imagePath;
-		}
+		
+		return baseUrl + imagePath;
 	}
-
 
 	@Override
 	public void load(Element node, String baseUrl) {
-	
 		super.load(node, baseUrl);
 		
 		this.baseUrl = baseUrl;
 		NodeList nodes = node.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
-			
+		
+		for (int i = 0; i < nodes.getLength(); i++) {
 			Node childNode = nodes.item(i);
-			if(childNode instanceof Element){
-				
-				if(childNode.getNodeName().compareTo("image") == 0 && childNode instanceof Element){
+			if (childNode instanceof Element) {
+				if (childNode.getNodeName().compareTo("image") == 0 && childNode instanceof Element) {
 					Element childElement = (Element) childNode;
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					removable = XMLUtils.getAttributeAsBoolean((Element)childNode, "removable", true);
@@ -70,13 +62,11 @@ public class ImageSourceModule extends BasicModuleModel {
 		}
 	}
 
-
 	/**
 	 * Convert module into XML
 	 */
 	@Override
 	public String toXML() {
-		
 		String removableString = removable ? "True":"False";
 		String xml = 
 				"<imageSourceModule " + getBaseXML() + ">" + getLayoutXML() + 
@@ -85,7 +75,6 @@ public class ImageSourceModule extends BasicModuleModel {
 		
 		return xml;
 	}
-	
 	
 	private void addPropertyImage() {
 
@@ -136,12 +125,7 @@ public class ImageSourceModule extends BasicModuleModel {
 			
 			@Override
 			public String getValue() {
-				if(removable){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return removable ? "True" : "False";
 			}
 			
 			@Override

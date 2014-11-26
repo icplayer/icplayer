@@ -39,15 +39,12 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	boolean visible = true;
 	private JavaScriptObject jsObject;
 	
-	
-	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services){
-
+	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
 		
 		connectHandlers();
 	}
-
 
 	private void connectHandlers() {
 	
@@ -55,7 +52,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
-				if(event.getSource() != ImageSourcePresenter.this){
+				if (event.getSource() != ImageSourcePresenter.this) {
 					deselectImage();
 				}
 			}
@@ -81,19 +78,16 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 	}
 
-	
 	private void itemConsumed(DraggableItem draggableItem) {
-	
 		deselectImage();
-		if(model.getId().compareTo(draggableItem.getId()) == 0 && model.isRemovable()){
+		if (model.getId().compareTo(draggableItem.getId()) == 0 && model.isRemovable()) {
 			view.hideImage();
 			visible = false;
 		}
 	}
 
 	private void itemReturned(DraggableItem draggableItem) {
-		
-		if(model.getId().compareTo(draggableItem.getId()) == 0){
+		if (model.getId().compareTo(draggableItem.getId()) == 0) {
 			view.showImage();
 			visible = true;
 		}
@@ -105,20 +99,17 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		view.showImage();
 	}
 
-
 	private void deselectImage() {
-
-		if(selected){
+		if (selected) {
 			selected = false;
 			view.deselect();
 		}
 	}
 
-
 	@Override
 	public void addView(IModuleView display) {
 		
-		if(display instanceof IDisplay){
+		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 			view.addListener(new IViewListener() {
 				public void onClicked() {
@@ -128,64 +119,54 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		}
 	}
 	
-	
-	private void imageClicked(){
-		
+	private void imageClicked() {
 		DraggableItem draggableItem = null;
 		
 		selected = !selected;
-		if(selected){
-			view.select();
+		if (selected) {
 			draggableItem = new DraggableImage(model.getId(), model.getUrl());
-		}
-		else{
+			view.select();
+		} else {
 			view.deselect();
 		}
 		
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
-		
 	}
-
 
 	@Override
 	public String getSerialId() {
 		return model.getId();
 	}
 
-
 	@Override
 	public String getState() {
 		return Boolean.toString(visible);
 	}
 
-
 	@Override
 	public void setState(String state) {
-		
 		visible = Boolean.parseBoolean(state);
-		if(!visible){
+		if (!visible) {
 			view.hideImage();
 		}
 	}
-
 
 	@Override
 	public IModuleModel getModel() {
 		return model;
 	}
 	
-	public JavaScriptObject getAsJavaScript(){
-		if(jsObject == null){
+	public JavaScriptObject getAsJavaScript() {
+		if (jsObject == null) {
 			jsObject = initJSObject(this);
 		}
 		return jsObject;
 	}
-
 	
 	private native JavaScriptObject initJSObject(ImageSourcePresenter x) /*-{
 	
-		var presenter = function(){}
+		var presenter = function() {};
 			
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getView()();
@@ -201,7 +182,6 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		return presenter;
 	}-*/;
-	
 	
 	private Element getView(){
 		return view.getElement();

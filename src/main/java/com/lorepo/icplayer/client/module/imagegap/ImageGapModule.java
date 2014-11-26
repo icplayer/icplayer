@@ -46,17 +46,14 @@ public class ImageGapModule extends BasicModuleModel {
 	
 	@Override
 	public void load(Element node, String baseUrl) {
-	
 		super.load(node, baseUrl);
 		
 		loadEvents(node);
 		
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
-			
 			Node childNode = nodes.item(i);
 			if (childNode instanceof Element) {
-				
 				if (childNode.getNodeName().compareTo("gap") == 0 && childNode instanceof Element) {
 					Element gapElement = (Element)childNode;
 					answerId = XMLUtils.getAttributeAsString(gapElement, "answerId");
@@ -175,7 +172,6 @@ public class ImageGapModule extends BasicModuleModel {
 		
 		addProperty(property);	
 	}
-
 
 	private void addPropertyEvent(final String eventName) {
 		
