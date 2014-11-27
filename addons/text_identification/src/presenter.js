@@ -3,11 +3,11 @@ function Addontext_identification_create(){
 
     var viewContainer;
     var isHoverEnabled = true;
-
+    
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.lastEvent = null;
-
+    
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
         SELECTED : "text-identification-element-selected",
@@ -117,7 +117,7 @@ function Addontext_identification_create(){
     };
 
     function presenterLogic(view, model, isPreview) {
-        presenter.registerMathJaxListener();
+        presenter.registerMathJaxListener(isPreview);
 
         viewContainer = $(view);
         presenter.$view = $(view);
@@ -198,7 +198,7 @@ function Addontext_identification_create(){
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.registerMathJaxListener = function () {
+    presenter.registerMathJaxListener = function (isPreview) {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
@@ -206,7 +206,7 @@ function Addontext_identification_create(){
         MathJax.Hub.Register.MessageHook("End Process", function (message) {
             // We're listening for "End Process" that was fired for ic_page into which addon was inserted.
             // This way we're not reacting on events from other page in Book View.
-            if ($(message[1]).hasClass('ic_page') && $(message[1]).is('#' + presenter.currentPageId)) {
+            if (isPreview || ($(message[1]).hasClass('ic_page') && $(message[1]).is('#' + presenter.currentPageId))) {
                 presenter.mathJaxProcessEndedDeferred.resolve();
             }
         });

@@ -1,3 +1,4 @@
+2014-11-27 Fixed problem with view of Text identification module in editor
 2014-11-27 Fixed problem with rewind to start movie in Video module
 2014-11-27 Added setPenColor and setDefaultPenThickness commands to IWB toolbar
 2014-11-27 Fixed problem with jumpTo in Multi Audio module
