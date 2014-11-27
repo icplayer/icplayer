@@ -356,19 +356,15 @@ function Addonvideo_create() {
         var currentTime = Math.floor(video.currentTime);
         var videoDuration = Math.floor(video.duration);
         var isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
-        var android_version =  MobileUtils.getAndroidVersion(navigator.userAgent).substring(0, 3);
-        
+
         if (currentTime == videoDuration) {
             presenter.sendVideoEndedEvent();
-            if (parseFloat(android_version, 10) < 4.2) {
-            	video.currentTime = 0;
-            	video.pause();
-            } else {
-            	presenter.reload();
-            	if(isFullScreen && document.webkitExitFullscreen) {
-            		document.webkitExitFullscreen();
-            	}
-            }
+            presenter.reload();
+
+        	if(isFullScreen && document.webkitExitFullscreen) {
+        		document.webkitExitFullscreen();
+        	}
+
             if (presenter.configuration.isFullScreen) {
                 fullScreenChange();
             }
