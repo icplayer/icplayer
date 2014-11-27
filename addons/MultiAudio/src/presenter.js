@@ -88,18 +88,18 @@ function AddonMultiAudio_create(){
         var eventData = presenter.createOnPlayingEventData({'currentItem': currentItem});
         eventBus.sendEvent('ValueChanged', eventData);
     };
-    
+
     presenter.createView = function(view, model){
         var interfaceType = model["Interface"];
         var audioWrapper = this.prepareAudio();
         this.audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
         this.audio.addEventListener('playing', presenter.sendOnPlayingEvent, false);
-        this.audio.addEventListener('ended', function() {
-                presenter.sendOnEndEvent();
-                presenter.stop();
-        }, false);
         this.audio.addEventListener('click', function(e) {
             e.stopPropagation();
+        }, false);
+        this.audio.addEventListener('ended', function() {
+            presenter.stop();
+            presenter.sendOnEndEvent();
         }, false);
 
         switch(interfaceType) {
@@ -177,7 +177,9 @@ function AddonMultiAudio_create(){
         } else {
             $(audio).append("Your browser doesn't support audio.");
         }
+
         audio.load();
+
     };
 
     presenter.run = function(view, model){
@@ -199,6 +201,40 @@ function AddonMultiAudio_create(){
         }
         this.visible = !!(model['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
+    };
+
+    presenter.changeFile = function(audio, model){
+        this.files = model["Files"];
+        var oggFile = this.files[this.currentAudio]["Ogg"];
+        var mp3File = this.files[this.currentAudio]["Mp3"];
+        var loop = !!(this.files[this.currentAudio]["Enable loop"] == "True");
+        var canPlayMp3 = false;
+        var canPlayOgg = false;
+
+        var validated = this.validateFiles(this.files[this.currentAudio]);
+
+        if (!validated) {
+            this.globalView.find(".wrapper-addon-audio").html(AUDIO_FILES_MISSING);
+        }
+
+        if (loop) {
+            presenter.addAttributeLoop(audio);
+        }
+
+        if(audio.canPlayType) {
+            canPlayMp3 = !!audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
+            canPlayOgg = !!audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
+            if(canPlayMp3){
+                $(audio).attr("src", mp3File);
+            } else if (canPlayOgg) {
+                $(audio).attr("src", oggFile);
+            }
+        } else {
+            $(audio).append("Your browser doesn't support audio.");
+        }
+
+        audio.pause();
+        audio.load();
     };
 
     presenter.executeCommand = function(name, params) {
@@ -268,7 +304,7 @@ function AddonMultiAudio_create(){
         var newAudio = parseInt(audioNumber, 10) - 1;
         if (0 <= newAudio && newAudio < this.files.length) {
             this.currentAudio = newAudio;
-            this.initialize(this.globalView, this.globalModel);
+            presenter.changeFile(this.audio, this.globalModel);
         }
     };
 
