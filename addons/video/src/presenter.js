@@ -11,7 +11,6 @@ function Addonvideo_create() {
     presenter.captions = [];
     presenter.configuration = {};
     presenter.captionDivs = [];
-    presenter.isEnded = false;
 
     var height;
 
@@ -232,7 +231,6 @@ function Addonvideo_create() {
         this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
         this.video.addEventListener('play', function() {
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
-            presenter.isEnded = false;
         }, false);
         this.video.addEventListener('pause', function() {
             if (!presenter.isHideExecuted) {
@@ -240,16 +238,6 @@ function Addonvideo_create() {
             }
             delete presenter.isHideExecuted;
         }, false);
-//        this.video.addEventListener('ended', function() {s
-//            if (!presenter.isEnded) {
-//                presenter.sendVideoEndedEvent();
-//                if (presenter.configuration.isFullScreen) {
-//                    fullScreenChange();
-//                }
-//                presenter.isEnded = true;
-//                presenter.stop();
-//            }
-//        }, false);
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {
@@ -365,18 +353,24 @@ function Addonvideo_create() {
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
         
-        var currentTime = Math.ceil(video.currentTime);
+        var currentTime = Math.floor(video.currentTime);
         var videoDuration = Math.floor(video.duration);
+        var isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
+        var android_version =  MobileUtils.getAndroidVersion(navigator.userAgent).substring(0, 3);
         
         if (currentTime == videoDuration) {
-            if (!presenter.isEnded) {
-                presenter.sendVideoEndedEvent();
-                if (presenter.configuration.isFullScreen) {
-                    fullScreenChange();
-                }
-                presenter.isEnded = true;
-                video.currentTime = 0;
-                video.pause();
+            presenter.sendVideoEndedEvent();
+            if (parseFloat(android_version, 10) < 4.2) {
+            	video.currentTime = 0;
+            	video.pause();
+            } else {
+            	presenter.reload();
+            	if(isFullScreen && document.webkitExitFullscreen) {
+            		document.webkitExitFullscreen();
+            	}
+            }
+            if (presenter.configuration.isFullScreen) {
+                fullScreenChange();
             }
         }
     }
