@@ -1,6 +1,18 @@
 function AddonIWB_Toolbar_create(){
 
+    function getCorrectObject(val) { return { isValid: true, value: val } }
+
+    function getErrorObject(ec) { return { isValid: false, errorCode: ec } }
+
     var presenter = function(){};
+
+    var DEFAULT_COLOR = '#0fa9f0';
+
+    presenter.data = {
+        defaultPenWidth: 1,
+        penColor: [DEFAULT_COLOR, DEFAULT_COLOR],
+        markerColor: ['#ffff99', '#ffff99']
+    };
 
     presenter.playerController = null;
     presenter.eventBus = null;
@@ -9,8 +21,8 @@ function AddonIWB_Toolbar_create(){
     presenter.notes = [];
     presenter.clocks = [];
     presenter.stopwatches = [];
-    presenter.currentLineColor = ['#0fa9f0', '#0fa9f0'];
-    presenter.currentLineWidth = 1;
+    presenter.currentLineColor = [DEFAULT_COLOR, DEFAULT_COLOR];
+    presenter.currentLineWidth = presenter.data.defaultPenWidth;
     presenter.isMouseDown = false;
     presenter.lastMousePosition = {};
     presenter.floatingImageGroups = {};
@@ -372,17 +384,11 @@ function AddonIWB_Toolbar_create(){
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            validated = {
-                isValid: true,
-                value: 538
-            }
+            validated = getCorrectObject(538);
         }
 
         if (!validated.isValid) {
-            return {
-                'isValid' : false,
-                'errorCode' : 'E01'
-            }
+            return getErrorObject('E01');
         }
 
         widthWhenOpened = validated.value;
@@ -390,17 +396,11 @@ function AddonIWB_Toolbar_create(){
         if (model['Width']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['Width']);
         } else {
-            validated = {
-                isValid: true,
-                value: 30
-            }
+            validated = getCorrectObject(30);
         }
 
         if (!validated.isValid) {
-            return {
-                'isValid' : false,
-                'errorCode' : 'E01'
-            }
+            return getErrorObject('E01');
         }
 
         widthWhenClosed = validated.value;
@@ -412,9 +412,10 @@ function AddonIWB_Toolbar_create(){
         }
 
         return {
+            'isValid' : true,
+
             'widthWhenClosed' : widthWhenClosed,
             'widthWhenOpened' : widthWhenOpened,
-            'isValid' : true,
             'panelPosition' : panelPosition
         }
     }
@@ -496,7 +497,7 @@ function AddonIWB_Toolbar_create(){
 
         presenter.$pagePanel.find('.pen').click(function() {
             presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
-            changeColor(['#0fa9f0', '#0fa9f0']);
+            changeColor(presenter.data.penColor);
             changeThickness(1);
             toggleMasks(
                 [presenter.$mask, presenter.$markerMask],
@@ -512,7 +513,7 @@ function AddonIWB_Toolbar_create(){
 
         presenter.$pagePanel.find('.marker').click(function() {
             presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
-            changeColor(['#ffff99', '#ffff99']);
+            changeColor(presenter.data.markerColor);
             changeThickness(10);
             toggleMasks(
                 [presenter.$mask, presenter.$markerMask],
@@ -1255,7 +1256,7 @@ function AddonIWB_Toolbar_create(){
         }else{
             presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
         }
-            var t;
+        var t;
 
         function add() {
             presenter.seconds++;
@@ -1431,7 +1432,6 @@ function AddonIWB_Toolbar_create(){
 
         applyNoteEditHandler(note, noteBody);
 
-
         var ic_page_height = presenter.$view.parent().height(),
             panel_top = parseInt(presenter.$panel.css('top'), 10),
             window_scroll = $(window).scrollTop(),
@@ -1456,16 +1456,16 @@ function AddonIWB_Toolbar_create(){
         }
 
         note.draggable({
-                containment: 'parent',
-                opacity: 0.35,
-                create: function(event, _) {
-                    $(event.target).css({
-                        'top' : savedNote ? savedNote.top : top,
-                        'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
-                        'position' : 'absolute'
-                    });
-                }
-            });
+            containment: 'parent',
+            opacity: 0.35,
+            create: function(event, _) {
+                $(event.target).css({
+                    'top' : savedNote ? savedNote.top : top,
+                    'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
+                    'position' : 'absolute'
+                });
+            }
+        });
         
         return note;
     }
@@ -1675,15 +1675,13 @@ function AddonIWB_Toolbar_create(){
         });
     }
 
-    presenter.run = function(view, model){
+    presenter.run = function(view, model) {
         runLogic(view, model, false);
     };
 
-    presenter.setShowErrorsMode = function(){
-    };
+    presenter.setShowErrorsMode = function() {};
 
-    presenter.setWorkMode = function(){
-    };
+    presenter.setWorkMode = function() {};
 
     function reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage) {
         //presenter.$panel.find('.clicked').removeClass('clicked');
@@ -1724,7 +1722,6 @@ function AddonIWB_Toolbar_create(){
             }
         }
 
-
         if (closePanel) {
 //            presenter.$toggleButton.removeClass('clicked');
 //            presenter.$panel.hide();
@@ -1747,7 +1744,7 @@ function AddonIWB_Toolbar_create(){
         } else {
             presenter.$panel.find('.button.thickness').css('background-image', presenter.$defaultThicknessButton.css('background-image'));
         }
-        presenter.currentLineWidth = size;
+        presenter.currentLineWidth = presenter.data.defaultPenWidth === 1 ? size : presenter.data.defaultPenWidth;
     }
 
     function clearCanvases() {
@@ -1784,7 +1781,10 @@ function AddonIWB_Toolbar_create(){
         var commands = {
             'open' : presenter.open,
             'hide' : presenter.hide,
-            'show' : presenter.show
+            'show' : presenter.show,
+            'setPenColor' : presenter.setPenColor,
+            'setMarkerColor' : presenter.setMarkerColor,
+            'setDefaultPenThickness' : presenter.setDefaultPenThickness
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -1793,15 +1793,15 @@ function AddonIWB_Toolbar_create(){
         reset(true, true, true, true, true);
     };
 
-    presenter.getErrorCount = function(){
+    presenter.getErrorCount = function() {
         return 0;
     };
 
-    presenter.getMaxScore = function(){
+    presenter.getMaxScore = function() {
         return 0;
     };
 
-    presenter.getScore = function(){
+    presenter.getScore = function() {
         return 0;
     };
 
@@ -1855,11 +1855,11 @@ function AddonIWB_Toolbar_create(){
         clearCanvases();
 
         return JSON.stringify({
-           'areas' : presenter.areas,
-           'notes' : notes,
-           'clocks' : clocks,
-           'stopwatches' : stopwatches,
-           'drawings' : drawings,
+            'areas' : presenter.areas,
+            'notes' : notes,
+            'clocks' : clocks,
+            'stopwatches' : stopwatches,
+            'drawings' : drawings,
             'seconds' : presenter.seconds,
             'minutes' : presenter.minutes,
             'hours' : presenter.hours,
@@ -1905,6 +1905,27 @@ function AddonIWB_Toolbar_create(){
         }
     }
 
+    presenter.setPenColor = function(color) {
+        color = color[0];
+        presenter.data.penColor = [color, color];
+        if (presenter.$pagePanel.find('.clicked').hasClass('pen')) {
+            presenter.currentLineColor = [color, color];
+        }
+    };
+
+    presenter.setMarkerColor = function(color) {
+        color = color[0];
+        presenter.data.markerColor = [color, color];
+        if (presenter.$pagePanel.find('.clicked').hasClass('marker')) {
+            presenter.currentLineColor = [color, color];
+        }
+    };
+
+    presenter.setDefaultPenThickness = function(lineWidth) {
+        presenter.data.defaultPenWidth = parseInt(lineWidth, 10);
+        changeThickness(presenter.data.defaultPenWidth);
+    };
+
     return presenter;
 }
 
@@ -1918,7 +1939,6 @@ function AddonIWB_Toolbar_create(){
  * Modified by Karol Gebert:
  * - removed pan function and all related functions
  * - added support for zooming elements in iframe
- *
  */
 var zoom = (function(){
 
@@ -2084,7 +2104,7 @@ var zoom = (function(){
 
                     magnify( options, options.scale );
 
-                    if( typeof options.callback === 'function' ) {
+                    if ( typeof options.callback === 'function' ) {
                         callbackTimeout = setTimeout( options.callback, TRANSITION_DURATION );
                     }
                 }
