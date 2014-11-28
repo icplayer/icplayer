@@ -835,11 +835,8 @@ function AddonAnimation_create (){
             var ratio = (py / ih);
         }
         catch (err) {
-            if (err.name == "SECURITY_ERR") {
-                return 1;
-            } else {
-                throw err;
-            }
+            // we expect Security error on SVG files
+            return 1;
         }
         return (ratio === 0) ? 1 : ratio;
     }
