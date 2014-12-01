@@ -1,3 +1,4 @@
+2014-12-01 Added changes to Swiffy Animation module
 2014-12-01 Fixed adding class navigationbar-page-ok in Navigation Bar module
 2014-11-28 Fixed problem with animation in SVG format
 2014-11-27 Added Show for pen and Show for marker properties in IWB toolbar

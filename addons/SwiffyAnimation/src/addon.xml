@@ -5,6 +5,7 @@
 			<property name="swiffyobject" type="file" displayName="Swiffy File"/>
 			<property name="autoPlay" type="boolean" displayName="Auto Play"/>
 			<property name="disableTransparentBackground" type="boolean" displayName="Disable Transparent Background"/>
+            <property name="doNotPreload" type="boolean" displayName="Do Not Preload"/>
 		</property>
 		<property name="initialAnimation" type="string" displayName="Initial Animation"/>
 	</model>

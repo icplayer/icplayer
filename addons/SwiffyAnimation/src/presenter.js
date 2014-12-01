@@ -3,19 +3,21 @@ function AddonSwiffyAnimation_create(){
     var presenter = function(){};
 
     presenter.run = function(view, model){
+        //console.log("--------------- run 1.2 ---------------");
         presenter.view = view;
-        presenter.model = model;
         presenter.$view = $(view);
+        presenter.model = model;
         presenter.Animations = model.Animations;
-        presenter.isVisible = model["Is Visible"] == 'True';
-        presenter.stage = [];
-        presenter.setVisibility(presenter.isVisible);
         presenter.swiffyContainer = $(view).find('.swiffyContainer')[0];
+        presenter.stage = [];
         presenter.swiffyObject = [];
+        presenter.swiffyItem = [];
+        presenter.animsLoaded = [];
         presenter.animsRunning = [];
-        presenter.loaded = false;
-        presenter.currentAnimationItem = null;
-        presenter.firstRun = 1;
+
+        presenter.isVisible = model["Is Visible"] == 'True';
+        presenter.setVisibility(presenter.isVisible);
+
         presenter.animationLoadedDeferred = [];
         presenter.animationLoaded = [];
 
@@ -28,6 +30,7 @@ function AddonSwiffyAnimation_create(){
         });
         $(presenter.loadingIconImg).attr('src',loadingSrc);
 
+        //determine presenter.currentAnimationItem
         if(model.initialAnimation === ""){
             model.initialAnimation = 1;
         } else {
@@ -40,8 +43,6 @@ function AddonSwiffyAnimation_create(){
             model.initialAnimation = parseInt(model.initialAnimation, 10);
         }
         presenter.currentAnimationItem = model.initialAnimation;
-
-        presenter.swiffyItem = [];
 
         //loop through Animations
         $(presenter.Animations).each(function(i, animation){
@@ -66,52 +67,76 @@ function AddonSwiffyAnimation_create(){
             presenter.swiffyItem[i] = $(view).find('.swiffyItem_'+i)[0];
             $(presenter.swiffyItem[i]).css('visibility', visibility);
 
-            if(presenter.firstRun == 1){
-                if(animation.autoPlay === 'True'){
-                    presenter.animsRunning[i] = true;
-                }else{
-                    presenter.animsRunning[i] = false;
-                }
+            //console.log("i: "+i+", animation.autoPlay: "+animation.autoPlay)
+            if(animation.autoPlay === 'True'){
+                presenter.animsRunning[i] = true;
+            }else{
+                presenter.animsRunning[i] = false;
             }
+            //console.log("presenter.animsRunning["+i+"]: "+presenter.animsRunning[i])
 
-            $.getScript(animation.swiffyobject, function(){
-                presenter.swiffyObject[i] = swiffyobject;
-                presenter.stage[i] = new swiffy.Stage(presenter.swiffyItem[i],presenter.swiffyObject[i]);
+            if(animation.doNotPreload !== 'True'){
+                //console.log('animation '+i+' has do not preload disabled, loading');
+                presenter.animsLoaded[i] = true;
 
-                if(animation.disableTransparentBackground === 'False'){
-                    presenter.stage[i].setBackground(null);
-                }
+                $.getScript(animation.swiffyobject, function(){
+                    presenter.swiffyObject[i] = swiffyobject;
+                    presenter.stage[i] = new swiffy.Stage(presenter.swiffyItem[i],presenter.swiffyObject[i]);
 
-                if(presenter.animsRunning[i] === true){
-                    presenter.stage[i].start();
-                }
+                    if(animation.disableTransparentBackground === 'False'){
+                        presenter.stage[i].setBackground(null);
+                    }
 
-                if(presenter.firstRun == 1){
-                    if(animation.autoPlay === 'True'){
+                    if(presenter.animsRunning[i] === true){
                         presenter.stage[i].start();
                     }
-                }
 
-                if(i == presenter.Animations.length-1){
-                    presenter.loaded = true;
-                }
+                    presenter.animationLoadedDeferred[i+1].resolve();
 
-                presenter.animationLoadedDeferred[i+1].resolve();
+                });//end getScript
+            }
 
-                //sprawdzić, czy wszystkie animacje się załadowały i schować loading icon
-                //console.log('presenter.Animations length: '+presenter.Animations.length+', i: '+i);
-                $(presenter.loadingIconImg).css('display','none');
-
-                //stop propagation
-                $(view).find('.swiffyContainer').click(function(e){
-                    e.stopImmediatePropagation();
-                    e.stopPropagation();
-                });
-
-            });//end getScript
+            //Last item, checking if all are loaded
+            if(presenter.Animations.length == i+1){
+                presenter.checkIfAllAnimationsAreLoaded();
+            }
 
         });//end loop
+
+        //stop propagation
+        $(view).find('.swiffyContainer')[0].click(function(e){
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+        });
     };
+
+    presenter.checkIfAllAnimationsAreLoaded = function(){
+        //console.log("checkIfAllAnimationsAreLoaded()");
+        presenter.loaded = false;
+
+        var count = 0;
+        var last = 1;
+        //loop through Animations
+        $(presenter.Animations).each(function(i, animation){
+            if(presenter.animsLoaded[i]){
+                count++;
+                last = i+1;
+            }
+        });
+
+        if(count > 0){
+            presenter.animationLoaded[last].then(function() {
+                //console.log("animationLoaded["+last+"]");
+                if(presenter.animsLoaded.length == last){
+                    presenter.loaded = true;
+                    //hide loading icon
+                    $(presenter.loadingIconImg).css('display','none');
+                }
+            });
+        }else{
+            $(presenter.loadingIconImg).css('display','none');
+        }
+    }
 
     presenter.createPreview = function (view, model) {
         //presenter.run(view,model);
@@ -147,6 +172,7 @@ function AddonSwiffyAnimation_create(){
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
+            'loadAnimation': presenter.loadAnimation,
             'start': presenter.start,
             'replay': presenter.replay,
             'setVars': presenter.setVars,
@@ -156,21 +182,63 @@ function AddonSwiffyAnimation_create(){
         Commands.dispatch(commands, name, params[0], presenter);
     };
 
+    presenter.loadAnimation = function(item){
+        var i = typeof item !== 'undefined' ? i = item - 1 : i = presenter.currentAnimationItem - 1;
+        var animation = presenter.Animations[i];
+
+        //console.log("i: "+i+", canvas: "+presenter.$view.find('.swiffyItem_'+i+' canvas')[0])
+        //console.log("presenter.animsRunning[i]: "+presenter.animsRunning[i]);
+
+        if(typeof presenter.$view.find('.swiffyItem_'+i+' canvas')[0] === 'undefined'){
+            //console.log('---warunki spełnione, ładuję '+i+' ---');
+
+            $(presenter.loadingIconImg).css('display','block');
+            presenter.animsLoaded[i] = true;
+
+            $.getScript(animation.swiffyobject, function(){
+                presenter.swiffyObject[i] = swiffyobject;
+                presenter.stage[i] = new swiffy.Stage(presenter.swiffyItem[i],presenter.swiffyObject[i]);
+
+                if(animation.disableTransparentBackground === 'False'){
+                    presenter.stage[i].setBackground(null);
+                }
+
+                if(presenter.animsRunning[i] === true){
+                    presenter.stage[i].start();
+                }
+
+                presenter.animationLoadedDeferred[i+1].resolve();
+
+                if(presenter.currentAnimationItem - 1 == i){
+                    $(presenter.loadingIconImg).css('display','none');
+                }
+
+                //stop propagation
+                presenter.$view.find('.swiffyContainer').click(function(e){
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                });
+            });//end getScript
+        }
+    };
+
     presenter.start = function(item){
+        //console.log('start '+i);
         var i = typeof item !== 'undefined' ? i = item - 1 : i = presenter.currentAnimationItem - 1;
         if(presenter.animsRunning[i] === false && typeof presenter.stage[i] !== 'undefined'){
             presenter.stage[i].start();
         }
-        presenter.animsRunning[i] = true;
+        if(presenter.animsLoaded[i] == true){
+            presenter.animsRunning[i] = true;
+        }
     };
 
     presenter.setVars = function(commands){
-        //console.log('setVars, presenter.currentAnimationItem = '+presenter.currentAnimationItem);
+        //console.log('setFlashVars');
         presenter.animationLoaded[presenter.currentAnimationItem].then(function() {
             commands = commands.split(",");
             var i = presenter.currentAnimationItem-1;
             presenter.stage[i].setFlashVars(commands[0]+'='+commands[1]);
-            //console.log('setFlashVars');
         });
     };
 
@@ -218,7 +286,6 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.reset = function(){
-        presenter.firstRun = 1;
         if(presenter.loaded === true){
             presenter.loaded = false;
             $(presenter.swiffyContainer).html("");
@@ -233,6 +300,7 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.getState = function(){
+        //console.log("---getState!");
         if(presenter.loaded === true){
             presenter.loaded = false;
             $(presenter.swiffyContainer).html("");
@@ -247,12 +315,13 @@ function AddonSwiffyAnimation_create(){
         return JSON.stringify({
             'currentAnimationItem' : presenter.currentAnimationItem,
             'animsRunning' : presenter.animsRunning,
+            'animsLoaded' : presenter.animsLoaded,
             'isVisible' : presenter.isVisible
         });
     };
 
     presenter.setState = function(state){
-        presenter.firstRun = 0;
+        //console.log("---setState!");
         var parsedState = JSON.parse(state);
 
         presenter.currentAnimationItem = parsedState.currentAnimationItem;
@@ -262,6 +331,16 @@ function AddonSwiffyAnimation_create(){
         presenter.setVisibility(presenter.isVisible);
 
         presenter.animsRunning = parsedState.animsRunning;
+        presenter.animsLoaded = parsedState.animsLoaded;
+
+        $(presenter.animsLoaded).each(function(i, loaded){
+
+            if(loaded && presenter.Animations[i].doNotPreload === 'True'){
+                var item = parseInt(i+1,10);
+                presenter.loadAnimation(item);
+            }
+        });
+
     };
 
     return presenter;
