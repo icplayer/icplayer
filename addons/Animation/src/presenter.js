@@ -811,28 +811,34 @@ function AddonAnimation_create (){
 
     // This function is from https://github.com/stomita/ios-imagefile-megapixel
     function detectVerticalSquash(img) {
-        var iw = img.naturalWidth, ih = img.naturalHeight;
-        var canvas = document.createElement('canvas');
-        canvas.width = 1;
-        canvas.height = ih;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        var data = ctx.getImageData(0, 0, 1, ih).data;
-        // search image edge pixel position in case it is squashed vertically.
-        var sy = 0;
-        var ey = ih;
-        var py = ih;
-        while (py > sy) {
-            var alpha = data[(py - 1) * 4 + 3];
-            if (alpha === 0) {
-                ey = py;
-            } else {
-                sy = py;
+        try {
+            var iw = img.naturalWidth, ih = img.naturalHeight;
+            var canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = ih;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            var data = ctx.getImageData(0, 0, 1, ih).data;
+            // search image edge pixel position in case it is squashed vertically.
+            var sy = 0;
+            var ey = ih;
+            var py = ih;
+            while (py > sy) {
+                var alpha = data[(py - 1) * 4 + 3];
+                if (alpha === 0) {
+                    ey = py;
+                } else {
+                    sy = py;
+                }
+                py = (ey + sy) >> 1;
             }
-            py = (ey + sy) >> 1;
+            var ratio = (py / ih);
         }
-        var ratio = (py / ih);
-        return (ratio===0)?1:ratio;
+        catch (err) {
+            // we expect Security error on SVG files
+            return 1;
+        }
+        return (ratio === 0) ? 1 : ratio;
     }
 
     function drawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {

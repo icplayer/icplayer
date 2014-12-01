@@ -375,11 +375,17 @@ function AddonIWB_Toolbar_create(){
         presenter.config = validateModel(model);
     }
 
+    presenter.SHOW_PANEL = {
+        '---': 'NONE',
+        'Color panel': 'COLOR',
+        'Thickness panel': 'THICKNESS',
+        DEFAULT: '---'
+    };
+
     function validateModel(model) {
         var validated,
             widthWhenOpened,
-            widthWhenClosed,
-            panelPosition;
+            widthWhenClosed;
 
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
@@ -405,18 +411,15 @@ function AddonIWB_Toolbar_create(){
 
         widthWhenClosed = validated.value;
 
-        if (model['Fixed Position'] == 'True'){
-            panelPosition = 'absolute';
-        }else{
-            panelPosition = 'fixed';
-        }
-
         return {
             'isValid' : true,
 
             'widthWhenClosed' : widthWhenClosed,
             'widthWhenOpened' : widthWhenOpened,
-            'panelPosition' : panelPosition
+            'panelPosition' : model['Fixed Position'] == 'True' ? 'absolute' : 'fixed',
+
+            'showForPen' : ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forPen),
+            'showForMarker' : ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker)
         }
     }
 
@@ -495,6 +498,29 @@ function AddonIWB_Toolbar_create(){
             setImagePosition();
         });
 
+        function showPanel(panel) {
+            var $colorPanel = presenter.$pagePanel.find('.bottom-panel-color');
+            var $thicknessPanel = presenter.$pagePanel.find('.bottom-panel-thickness');
+
+            var chosenPanel;
+            var ignoredPanel;
+
+            if (panel === 'COLOR') { chosenPanel = $colorPanel; ignoredPanel = $thicknessPanel; }
+            if (panel === 'THICKNESS') { chosenPanel = $thicknessPanel; ignoredPanel = $colorPanel; }
+
+            if (chosenPanel) {
+                if (chosenPanel.is(':visible')) {
+                    chosenPanel.hide();
+                } else {
+                    chosenPanel.show();
+
+                    if (ignoredPanel.is(':visible')) {
+                        ignoredPanel.hide();
+                    }
+                }
+            }
+        }
+
         presenter.$pagePanel.find('.pen').click(function() {
             presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
             changeColor(presenter.data.penColor);
@@ -509,6 +535,8 @@ function AddonIWB_Toolbar_create(){
             presenter.drawMode = presenter.DRAW_MODE.PEN;
 
             drawingLogic();
+
+            showPanel(presenter.config.showForPen);
         });
 
         presenter.$pagePanel.find('.marker').click(function() {
@@ -525,6 +553,8 @@ function AddonIWB_Toolbar_create(){
             presenter.drawMode = presenter.DRAW_MODE.MARKER;
 
             drawingLogic();
+
+            showPanel(presenter.config.showForMarker);
         });
 
         presenter.$pagePanel.find('.eraser').click(function(e) {
@@ -889,6 +919,7 @@ function AddonIWB_Toolbar_create(){
     }
 
     function runLogic(view, model, isPreview) {
+
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         if (!isPreview) {
             presenter.headerLoadedDeferred = new $.Deferred();
@@ -1690,9 +1721,6 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
         presenter.$pagePanel.enableSelection();
         presenter.$pagePanel.css('cursor', 'initial');
-//        presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)').off('mousemove mousedown mouseup');
-        presenter.$pagePanel.find('.bottom-panel-color').hide();
-        presenter.$pagePanel.find('.bottom-panel-thickness').hide();
 
         if (shouldClearCanvas) {
             changeColor(['#0fa9f0', '#0fa9f0']);
@@ -1726,6 +1754,9 @@ function AddonIWB_Toolbar_create(){
 //            presenter.$toggleButton.removeClass('clicked');
 //            presenter.$panel.hide();
 //            window.savedPanel.isOpen = false;
+//        presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)').off('mousemove mousedown mouseup');
+            presenter.$pagePanel.find('.bottom-panel-color').hide();
+            presenter.$pagePanel.find('.bottom-panel-thickness').hide();
         }
     }
 
