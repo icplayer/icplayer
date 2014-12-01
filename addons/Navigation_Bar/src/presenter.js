@@ -1,6 +1,7 @@
 function AddonNavigation_Bar_create() {
     var presenter = function () { };
     presenter.eventBus = null;
+    presenter.pagesOk = [];
 
     var NAVIGATION_PAGE = {
         FIRST: 0,
@@ -128,13 +129,30 @@ function AddonNavigation_Bar_create() {
                 }
             });
         });
+
     }
+
+    presenter.checkIfPagesOk = function () {
+        presenter.$view.find(".navigationbar-indexed-element").each(function () {
+            if($(this).hasClass('navigationbar-page-ok')){
+                var pageIndex = parseInt($(this).attr("data-page-number"), 10);
+                presenter.pagesOk.push(pageIndex);
+            }
+        });
+    };
+
+    presenter.addClassPageOK = function () {
+        for (var i=0; i < presenter.pagesOk.length; i++){
+            presenter.$wrapper.find("[data-page-number='" + presenter.pagesOk[i] + "']").addClass('navigationbar-page-ok');
+        }
+    };
 
     function handleDottedClickActions(dotsLeftIndex, dotsRightIndex, elementWidth, elementHeight, preview, horizontalGap) {
         presenter.$view.find(".dotted-element-left:first").click(function () {
             if (dotsLeftIndex === undefined || dotsLeftIndex < 0) {
                 dotsLeftIndex = 0;
             }
+
             removeAllElements();
             if (movedFromIndex == undefined) {
                 movedFromIndex = presenter.currentIndex;
@@ -142,6 +160,10 @@ function AddonNavigation_Bar_create() {
             presenter.currentIndex = dotsLeftIndex;
 
             generateElements(elementWidth, elementHeight, true, preview, horizontalGap);
+
+            presenter.addClassPageOK();
+
+            presenter.isPageOK();
 
             return false;
         });
@@ -158,6 +180,10 @@ function AddonNavigation_Bar_create() {
             presenter.currentIndex = dotsRightIndex;
 
             generateElements(elementWidth, elementHeight, true, preview, horizontalGap);
+
+            presenter.addClassPageOK();
+
+            presenter.isPageOK();
 
             return false;
         });
@@ -596,19 +622,29 @@ function AddonNavigation_Bar_create() {
         presenter.isCurrentPageOk();
     };
 
+    presenter.getPercentageScore = function (pageIndex) {
+        var id = presenter.presentation.getPage(pageIndex).getId();
+        var pageScore = presenter.scoreService.getPageScoreById(id);
+
+        return (pageScore.score/pageScore.maxScore) * 100;
+    };
+
     presenter.isCurrentPageOk = function () {
         if(presenter.presentation.getPage(presenter.currentIndex).isReportable()){
-            var id = presenter.presentation.getPage(presenter.currentIndex).getId();
-            var score = presenter.scoreService.getPageScoreById(id).score;
-            var maxScore = presenter.scoreService.getPageScoreById(id).maxScore;
-            var percentageScore = (score/maxScore) * 100;
+            var percentageScore = presenter.getPercentageScore(presenter.currentIndex);
             var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.currentIndex + 1) + "']");
 
             if(percentageScore == 100 || isNaN(percentageScore)){
                 $page.addClass("navigationbar-page-ok");
+                presenter.pagesOk.push(presenter.currentIndex + 1);
             }
             if(percentageScore < 100){
                 $page.removeClass("navigationbar-page-ok");
+                for(var k = presenter.pagesOk.length - 1; k >= 0; k--) {
+                    if(presenter.pagesOk[k] === (presenter.currentIndex + 1)) {
+                        presenter.pagesOk.splice(k, 1);
+                    }
+                }
             }
         }
     };
@@ -616,10 +652,7 @@ function AddonNavigation_Bar_create() {
     presenter.isPageOK = function () {
       for (var i=0; i<presenter.pageCount; i++){
           if(presenter.presentation.getPage(i).isReportable() && presenter.presentation.getPage(i).isVisited()){
-              var id = presenter.presentation.getPage(i).getId();
-              var score = presenter.scoreService.getPageScoreById(id).score;
-              var maxScore = presenter.scoreService.getPageScoreById(id).maxScore;
-              var percentageScore = (score/maxScore) * 100;
+              var percentageScore = presenter.getPercentageScore(i);
 
               if(isNaN(percentageScore)){
                   percentageScore = 100;
@@ -649,10 +682,13 @@ function AddonNavigation_Bar_create() {
     
     presenter.onEventReceived = function(eventName) {
         if (eventName == 'PageLoaded') {
+            presenter.currentIndex = presenter.playerController.getCurrentPageIndex();
+            presenter.pageIndex = presenter.currentIndex;
             presenter.pageLoadedDeferred.resolve();
         }
         if (eventName == "ValueChanged" && presenter.configuration.addClassNBPageOK) {
-        	presenter.isCurrentPageOk();
+            presenter.currentIndex = presenter.pageIndex;
+            presenter.isCurrentPageOk();
         }
     };
 
