@@ -1,3 +1,6 @@
+2014-11-28 Fixed problem with animation in SVG format
+2014-11-27 Added Show for pen and Show for marker properties in IWB toolbar
+2014-11-27 Fixed problem with rewind to start movie in Android 4.1 in Video module
 2014-11-27 Fixed problem with view of Text identification module in editor
 2014-11-27 Fixed problem with rewind to start movie in Video module
 2014-11-27 Added setPenColor and setDefaultPenThickness commands to IWB toolbar
