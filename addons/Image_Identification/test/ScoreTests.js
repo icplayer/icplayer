@@ -95,5 +95,23 @@ TestCase("Score", {
         assertEquals(0, maxScore);
         assertEquals(0, score);
         assertEquals(0, errors);
+    },
+
+    'test Score after setState should be 1': function() {
+        this.presenter.configuration = {
+            shouldBeSelected: true,
+            isActivity: true
+        };
+
+        var state = {isSelected: true, isVisible: true},
+            stateString = JSON.stringify(state);
+
+        this.presenter.$view = {bind:function(){}};
+
+        this.presenter.setState(stateString);
+
+        var score = this.presenter.getScore();
+
+        assertEquals(1, score);
     }
 });

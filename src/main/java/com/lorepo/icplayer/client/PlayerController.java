@@ -261,14 +261,11 @@ public class PlayerController implements IPlayerController{
 
 	private void pageLoaded(Page page, PageController pageController) {
 		pageController.setPage(page);
-		HashMap<String, String> state = stateService.getStates();
 		if(headerController != null){
 			headerController.setPage(contentModel.getHeader());
-			headerController.setPageState(state);
 		}
 		if(footerController != null){
 			footerController.setPage(contentModel.getFooter());
-			footerController.setPageState(state);
 		}
 	}
 
