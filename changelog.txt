@@ -1,3 +1,4 @@
+2014-12-03 Fixed problem with setting state in Image Viewer addon
 2014-12-02 Fixed problem with getting score from Image Identification addon
 2014-12-01 Added changes to Swiffy Animation module
 2014-12-01 Fixed adding class navigationbar-page-ok in Navigation Bar module

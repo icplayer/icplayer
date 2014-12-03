@@ -549,19 +549,11 @@ function AddonImage_Viewer_Public_create() {
                 attachEventHandlers();
             }
         }
-        presenter.$view.trigger("onLoadImageCallbackEnd");
+        presenter.imageLoadedDeferred.resolve();
     }
 
     function loadImageEndCallback() {
         var configuration = presenter.configuration;
-        var state = JSON.parse(configuration.savedState);
-        configuration.currentFrame = state.currentFrame;
-        configuration.currentVisibility = state.currentVisibility;
-        configuration.showWatermark = state.showWatermark;
-        configuration.showWatermarkbyDefault = state.showWatermarkbyDefault;
-        configuration.shouldCalcScore = state.shouldCalcScore;
-        configuration.isClickDisabled = state.isClickDisabled;
-        configuration.isClickDisabledbyDefault = state.isClickDisabledbyDefault;
 
         if(!configuration.showWatermark) {
             $(watermarkElement).remove();
@@ -822,6 +814,9 @@ function AddonImage_Viewer_Public_create() {
     presenter.run = function(view, model){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
 
         this.upgradedModel = this.upgradeModel(model);
         presenterLogic(view, this.upgradedModel, false);
@@ -1374,11 +1369,18 @@ function AddonImage_Viewer_Public_create() {
         });
     };
 
-    presenter.setState = function(state) {
-        presenter.configuration.savedState = state;
-        presenter.$view.bind("onLoadImageCallbackEnd", function () {
-            loadImageEndCallback();
-        });
+    presenter.setState = function(state_string) {
+        var configuration = presenter.configuration;
+        var state = JSON.parse(state_string);
+        configuration.currentFrame = state.currentFrame;
+        configuration.currentVisibility = state.currentVisibility;
+        configuration.showWatermark = state.showWatermark;
+        configuration.showWatermarkbyDefault = state.showWatermarkbyDefault;
+        configuration.shouldCalcScore = state.shouldCalcScore;
+        configuration.isClickDisabled = state.isClickDisabled;
+        configuration.isClickDisabledbyDefault = state.isClickDisabledbyDefault;
+
+        $.when(presenter.imageLoaded).then(loadImageEndCallback);
     };
 
     presenter.reset = function() {
