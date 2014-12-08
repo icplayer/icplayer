@@ -1,17 +1,21 @@
-function AddonIWB_Toolbar_create(){
+function AddonIWB_Toolbar_create() {
 
     function getCorrectObject(val) { return { isValid: true, value: val } }
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec } }
 
-    var presenter = function(){};
+    function addZero(val) { return (val > 9 ? '' : '0') + val; }
+
+    function getPoint(x, y) { return { x: x, y: y }; }
+
+    var presenter = function() {};
 
     var DEFAULT_COLOR = '#0fa9f0';
 
     presenter.data = {
         defaultPenWidth: 1,
-        penColor: [DEFAULT_COLOR, DEFAULT_COLOR],
-        markerColor: ['#ffff99', '#ffff99']
+        penColor: DEFAULT_COLOR,
+        markerColor: '#ffff99'
     };
 
     presenter.playerController = null;
@@ -21,7 +25,7 @@ function AddonIWB_Toolbar_create(){
     presenter.notes = [];
     presenter.clocks = [];
     presenter.stopwatches = [];
-    presenter.currentLineColor = [DEFAULT_COLOR, DEFAULT_COLOR];
+    presenter.currentLineColor = DEFAULT_COLOR;
     presenter.currentLineWidth = presenter.data.defaultPenWidth;
     presenter.isMouseDown = false;
     presenter.lastMousePosition = {};
@@ -53,27 +57,27 @@ function AddonIWB_Toolbar_create(){
 
     presenter.DRAWING_DATA = {
         'color' : {
-            'black' : ['#000', '#000'],
-            'white' : ['#fff', '#fff'],
-            'yellow' : ['#FFFF66', '#FFFF66'],
-            'red' : ['#cf304b', '#cf304b'],
-            'orange' : ['#FF9900', '#FF9900'],
-            'blue' : ['#0fa9f0', '#0fa9f0'],
-            'violet' : ['#990099', '#990099'],
-            'green' : ['#05fa98', '#05fa98']
+            'black': '#000',
+            'white': '#fff',
+            'yellow':'#FFFF66',
+            'red': '#cf304b',
+            'orange': '#FF9900',
+            'blue': '#0fa9f0',
+            'violet': '#990099',
+            'green': '#05fa98'
         },
         'thickness' : {
             'pen' : {
-                '1' : 1,
-                '2' : 3,
-                '3' : 5,
-                '4' : 7
+                '1': 1,
+                '2': 3,
+                '3': 5,
+                '4': 7
             },
             'marker' : {
-                '1' : 10,
-                '2' : 15,
-                '3' : 20,
-                '4' : 25
+                '1': 10,
+                '2': 15,
+                '3': 20,
+                '4': 25
             }
         }
     };
@@ -107,7 +111,7 @@ function AddonIWB_Toolbar_create(){
     };
 
     presenter.ERROR_CODES = {
-        'E01' : 'Width can NOT be negative.'
+        'E01': 'Width can NOT be negative.'
     };
 
     presenter.createPreview = function(view, model) {
@@ -116,13 +120,14 @@ function AddonIWB_Toolbar_create(){
 
     function closePanel() {
         if (!presenter.$panel.hasClass('animationInProgress')) {
+            presenter.$bottomPanels.addClass('closed-hide');
 
             presenter.$panel.addClass('animationInProgress');
             presenter.$panel.children('.button-separator').hide();
             presenter.$buttonsExceptOpen.addClass('hidden');
 
             presenter.$panel.animate({
-                'width' : presenter.config.widthWhenClosed-50 + 'px'
+                'width' : presenter.config.widthWhenClosed - 50 + 'px'
             }, 1000, function() {
                 presenter.$panel.children('.button.open').show();
                 presenter.$panel.removeClass('animationInProgress');
@@ -135,7 +140,6 @@ function AddonIWB_Toolbar_create(){
 
     function openPanel(doAnimation) {
         window.savedPanel.isOpen = true;
-//        presenter.$buttonsExceptOpen.css('width', presenter.buttonWidth);
 
         function _show() {
             presenter.$buttonsExceptOpen.removeClass('hidden');
@@ -143,6 +147,8 @@ function AddonIWB_Toolbar_create(){
             presenter.$panel.children('.button-separator').show();
             presenter.$panel.removeClass('animationInProgress');
             presenter.$panel.addClass('opened');
+            presenter.$bottomPanels.removeClass('closed-hide');
+            toggleMasks();
         }
 
         if (doAnimation) {
@@ -154,12 +160,13 @@ function AddonIWB_Toolbar_create(){
             _show();
             presenter.$panel.css('width', window.savedPanel.widthWhenOpened + 'px');
         }
+
     }
 
     presenter.IWBDraw = function(canvas, ctx, mousePosition) {
         var grad = ctx.createLinearGradient(0, 0, canvas[0].width, 0);
-        grad.addColorStop(0, presenter.currentLineColor[0]);
-        grad.addColorStop(1, presenter.currentLineColor[1]);
+        grad.addColorStop(0, presenter.currentLineColor);
+        grad.addColorStop(1, presenter.currentLineColor);
 
         ctx.lineWidth = presenter.currentLineWidth;
         ctx.strokeStyle = grad;
@@ -167,67 +174,39 @@ function AddonIWB_Toolbar_create(){
         ctx.lineJoin = 'round';
 
         ctx.beginPath();
-
         ctx.moveTo(presenter.lastMousePosition.x, presenter.lastMousePosition.y);
         ctx.lineTo(mousePosition.x, mousePosition.y);
-
         ctx.stroke();
     };
 
-    function fixTouch (touch) {
-        var winPageX = window.pageXOffset,
-            winPageY = window.pageYOffset,
-            x = touch.clientX,
-            y = touch.clientY;
-
-        if (touch.pageY === 0 && Math.floor(y) > Math.floor(touch.pageY) ||
-            touch.pageX === 0 && Math.floor(x) > Math.floor(touch.pageX)) {
-            // iOS4 clientX/clientY have the value that should have been
-            // in pageX/pageY. While pageX/page/ have the value 0
-            x = x - winPageX;
-            y = y - winPageY;
-        } else if (y < (touch.pageY - winPageY) || x < (touch.pageX - winPageX) ) {
-            // Some Android browsers have totally bogus values for clientX/Y
-            // when scrolling/zooming a page. Detectable since clientX/clientY
-            // should never be smaller than pageX/pageY minus page scroll
-            x = touch.pageX - winPageX;
-            y = touch.pageY - winPageY;
-        }
-
-        return {
-            x: x,
-            y: y
-        };
-    }
-
     function getCursorPosition(e) {
-        var client = {
-            x: typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX,
-            y: typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY
-        };
+        var canvas = presenter.canvas[0];
+        var rect = canvas.getBoundingClientRect();
 
-        if (e.type == 'touchmove' || e.type == 'touchstart') {
-            client = fixTouch(event.touches[0] || event.changedTouches[0]);
+        if (e.clientX) {
+            return getPoint(
+                parseInt(e.clientX - rect.left, 10),
+                parseInt(e.clientY - rect.top, 10)
+            );
         }
 
-        return {
-            x: parseInt(client.x, 10),
-            y: parseInt(client.y, 10)
-        };
-
+        var t = event.targetTouches[0] || event.touches[0] || event.changedTouches[0];
+        return getPoint(
+            parseInt(t.pageX - $(canvas).offset().left, 10),
+            parseInt(t.pageY - $(canvas).offset().top, 10)
+        );
     }
 
     function changeDrawingType(button) {
         var activeButton = presenter.$pagePanel.find('.clicked');
+
         if ($(button).parent().parent().hasClass('bottom-panel-thickness')) { // is changing thickness
             var thickness = $(button).attr('thickness'),
                 drawingType = activeButton.hasClass('pen') ? 'pen' : 'marker';
 
             changeThickness(presenter.DRAWING_DATA['thickness'][drawingType][thickness], button);
         } else {
-            var color = $(button).attr('color'),
-                drawingType = (activeButton.hasClass('pen') || activeButton.hasClass('hide-area') || activeButton.hasClass('stand-area'))   ? 'pen' : 'marker';
-
+            var color = $(button).attr('color');
             changeColor(presenter.DRAWING_DATA['color'][color], button);
         }
     }
@@ -277,7 +256,6 @@ function AddonIWB_Toolbar_create(){
     }
 
     function drawingLogic() {
-
         $(presenter.canvas).off('mousedown mousemove mouseup touchstart touchmove touchend');
         $(presenter.markerCanvas).off('mousedown mousemove mouseup touchstart touchmove touchend');
 
@@ -349,7 +327,6 @@ function AddonIWB_Toolbar_create(){
         presenter.$view = $(view);
         presenter.$panel = $(view).find('.iwb-toolbar-panel');
         presenter.$panel.attr('id', model['ID'] + '-panel');
-        //presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
         presenter.$icplayer = presenter.$panel.parents('.ic_player').parent();
         presenter.$defaultThicknessButton = presenter.$panel.find('.thickness-1');
@@ -372,6 +349,9 @@ function AddonIWB_Toolbar_create(){
         presenter.$removeConfirmationBoxStopwatch = presenter.$view.find('.confirmation-remove-stopwatch');
         presenter.$removeConfirmationBoxStopwatch.attr('id', 'confirmationBox-' + model['ID']);
         presenter.$pagePanel.find('.ic_page').append(presenter.$removeConfirmationBoxStopwatch);
+
+        presenter.$bottomPanels = $('.bottom-panel-color, .bottom-panel-thickness, .bottom-panel-floating-image');
+
         presenter.config = validateModel(model);
     }
 
@@ -428,18 +408,13 @@ function AddonIWB_Toolbar_create(){
         var leftPosition = parseInt((getCurrentImage().width() / 2) + presenter.$panel.position().left, 10);
 
         presenter.floatingImageLayer.draw();
-        getCurrentImage().setAbsolutePosition({x:leftPosition, y:topPosition});
-        getCurrentMoveIcon().setAbsolutePosition({x:leftPosition-10, y:topPosition-20});
-        getCurrentRotateIcon().setAbsolutePosition({x:leftPosition-10, y:topPosition-20});
+        getCurrentImage().setAbsolutePosition(getPoint(leftPosition, topPosition));
+        getCurrentMoveIcon().setAbsolutePosition(getPoint(leftPosition - 10, topPosition - 20));
+        getCurrentRotateIcon().setAbsolutePosition(getPoint(leftPosition - 10, topPosition - 20));
         presenter.floatingImageLayer.draw();
-
     }
 
     function addEventHandlers() {
-//        presenter.$pagePanel.on('click', function(e) {
-//            e.stopPropagation();
-//        });
-
         presenter.$pagePanel.find('.iwb-toolbar-mask').click(function(e) {
             e.stopPropagation();
         });
@@ -456,7 +431,7 @@ function AddonIWB_Toolbar_create(){
             e.stopPropagation();
             e.preventDefault();
 
-            if(!presenter.isPanelOpened){
+            if (!presenter.isPanelOpened) {
                 openPanel(true);
             }
 
@@ -474,10 +449,15 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.button').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
+
             changeButtonState(this);
 
-            if (isDependingOnDrawing(this) && isDrawingButtonActive() || isFloatingImageButton(this)) {
+            if (isDependingOnDrawing(this) && areDrawingButtonsActive() || isFloatingImageButton(this)) {
                 openBottomPanel(this);
+            }
+
+            if ($(this).hasClass('reset')) {
+                $(this).removeClass('clicked');
             }
         });
 
@@ -525,11 +505,7 @@ function AddonIWB_Toolbar_create(){
             presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
             changeColor(presenter.data.penColor);
             changeThickness(1);
-            toggleMasks(
-                [presenter.$mask, presenter.$markerMask],
-                presenter.DRAW_MODE.PEN,
-                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.STAND_AREA, presenter.DRAW_MODE.HIDE_AREA]
-            );
+            toggleMasks();
 
             presenter.ctx.globalCompositeOperation = 'source-over';
             presenter.drawMode = presenter.DRAW_MODE.PEN;
@@ -543,11 +519,7 @@ function AddonIWB_Toolbar_create(){
             presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
             changeColor(presenter.data.markerColor);
             changeThickness(10);
-            toggleMasks(
-                [presenter.$mask, presenter.$markerMask],
-                presenter.DRAW_MODE.MARKER,
-                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.STAND_AREA, presenter.DRAW_MODE.HIDE_AREA]
-            );
+            toggleMasks();
 
             presenter.markerCtx.globalCompositeOperation = 'source-over';
             presenter.drawMode = presenter.DRAW_MODE.MARKER;
@@ -560,16 +532,18 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.eraser').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
+
             if (presenter.ctx) {
                 presenter.ctx.globalCompositeOperation = 'destination-out';
             }
             if (presenter.markerCtx) {
                 presenter.markerCtx.globalCompositeOperation = 'destination-out';
             }
-            changeColor(['rgba(0, 0, 0, 1)', 'rgba(0, 0, 0, 1)']);
+            changeColor('rgba(0, 0, 0, 1)');
             changeThickness(20);
             presenter.drawMode = presenter.DRAW_MODE.ERASER;
             drawingLogic();
+            toggleMasks();
         });
 
         presenter.$pagePanel.find('.reset').click(function(e) {
@@ -577,40 +551,40 @@ function AddonIWB_Toolbar_create(){
             e.preventDefault();
 
             presenter.selectingCtx.clearRect(0, 0, presenter.$selectingMask.width(), presenter.$selectingMask.height());
-            presenter.ctx.clearRect(0, 0, presenter.$mask.width(), presenter.$mask.height());
+            presenter.ctx.clearRect(0, 0, presenter.$penMask.width(), presenter.$penMask.height());
             presenter.markerCtx.clearRect(0, 0, presenter.$markerMask.width(), presenter.$markerMask.height());
 
             presenter.areas = [];
             presenter.drawMode = presenter.DRAW_MODE.NONE;
+
+            reset(true, false, false, false, false);
         });
 
         presenter.$pagePanel.find('.hide-area').click(function(e) {
-            toggleMasks([presenter.$selectingMask],
-                presenter.DRAW_MODE.HIDE_AREA,
-                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.PEN, presenter.DRAW_MODE.MARKER, presenter.DRAW_MODE.ERASER]);
+            toggleMasks();
             drawAreaLogic(true);
 
             presenter.drawMode = presenter.DRAW_MODE.HIDE_AREA;
             presenter.$defaultColorButton = presenter.$panel.find('.color-black');
-            changeColor(['#000', '#000']);
+            changeColor('#000');
         });
 
         presenter.$pagePanel.find('.stand-area').click(function(e) {
-            toggleMasks([presenter.$selectingMask],
-                presenter.DRAW_MODE.STAND_AREA,
-                [presenter.DRAW_MODE.NONE, presenter.DRAW_MODE.PEN, presenter.DRAW_MODE.MARKER, presenter.DRAW_MODE.ERASER]);
+            toggleMasks();
             drawAreaLogic(false);
 
             presenter.drawMode = presenter.DRAW_MODE.STAND_AREA;
             presenter.$defaultColorButton = presenter.$panel.find('.color-black');
-            changeColor(['#000', '#000']);
+            changeColor('#000');
         });
 
         presenter.$pagePanel.find('.zoom').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
+
+            presenter.$bottomPanels.hide();
+
             changeCursor('zoom-in');
-            var zoomClicked = presenter.$panel.find('.zoom').hasClass('clicked');
 
             var lastEvent = null;
             presenter.modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note)');
@@ -671,10 +645,10 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.clock').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
-            presenter.$pagePanel.find('.clock').on('mousedown', function (){
+            presenter.$pagePanel.find('.clock').on('mousedown', function() {
                 presenter.$pagePanel.find('.clock').addClass('clicked');
             });
-            presenter.$pagePanel.find('.clock').on('mouseup', function (){
+            presenter.$pagePanel.find('.clock').on('mouseup', function() {
                 presenter.$pagePanel.find('.clock').removeClass('clicked');
             });
             createClock();
@@ -683,10 +657,10 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.stopwatch').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
-            presenter.$pagePanel.find('.stopwatch').on('mousedown', function (){
+            presenter.$pagePanel.find('.stopwatch').on('mousedown', function() {
                 presenter.$pagePanel.find('.stopwatch').addClass('clicked');
             });
-            presenter.$pagePanel.find('.stopwatch').on('mouseup', function (){
+            presenter.$pagePanel.find('.stopwatch').on('mouseup', function() {
                 presenter.$pagePanel.find('.stopwatch').removeClass('clicked');
             });
             createStopwatch();
@@ -701,10 +675,10 @@ function AddonIWB_Toolbar_create(){
             presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
                 e.stopPropagation();
             });
-            presenter.$pagePanel.find('.note').on('mousedown', function (){
+            presenter.$pagePanel.find('.note').on('mousedown', function() {
                 presenter.$pagePanel.find('.note').addClass('clicked');
             });
-            presenter.$pagePanel.find('.note').on('mouseup', function (){
+            presenter.$pagePanel.find('.note').on('mouseup', function() {
                 presenter.$pagePanel.find('.note').removeClass('clicked');
             });
 
@@ -713,16 +687,14 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.default').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
-
-//                changeButtonState(this);
         });
 
         presenter.$pagePanel.find('.floating-image').click(function() {
             $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
                 var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
-                if(display == 'none'){
+                if (display == 'none') {
                     presenter.$floatingImageMask.show();
-                }else{
+                } else {
                     presenter.$floatingImageMask.hide();
                     presenter.$pagePanel.find('.floating-image').removeClass('clicked');
                     presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
@@ -748,11 +720,11 @@ function AddonIWB_Toolbar_create(){
         }
     }
 
-    presenter.isLeft = function(center, startingPosition, currentPosition) {
-        return ((startingPosition.x - center.x)*(currentPosition.y - center.y) - (startingPosition.y - center.y)*(currentPosition.x - center.x)) >= 0;
+    presenter.isLeft = function(center, startPos, currentPos) {
+        return ((startPos.x - center.x)*(currentPos.y - center.y) - (startPos.y - center.y)*(currentPos.x - center.x)) >= 0;
     };
 
-    function Vector(imageCenterPosition, mousePosition){
+    function Vector(imageCenterPosition, mousePosition) {
         this.x = imageCenterPosition.x - mousePosition.x;
         this.y = imageCenterPosition.y - mousePosition.y;
         this.length = Math.sqrt(this.x * this.x + this.y * this.y);
@@ -785,7 +757,7 @@ function AddonIWB_Toolbar_create(){
                 }
             }
 
-            presenter.$floatingImageMask.off('mousedown touchstart mouseup touchend touchmove mousemove')
+            presenter.$floatingImageMask.off('mousedown touchstart mouseup touchend touchmove mousemove');
             presenter.$floatingImageMask.on('mousedown', rotateActionStartHandler);
             presenter.$floatingImageMask.on('touchstart', rotateActionStartHandler);
 
@@ -844,7 +816,7 @@ function AddonIWB_Toolbar_create(){
         presenter.floatingImageStage = stage;
         presenter.allImagesLoadedPromises = [];
 
-        for(var index = 0; index < 3; index++) {
+        for (var index = 0; index < 3; index++) {
             var imageObj = new Image(),
                 deferredImage = new $.Deferred();
 
@@ -869,9 +841,6 @@ function AddonIWB_Toolbar_create(){
                     });
 
                     applyDoubleTapHandler(group, applyOnDblClickHandler);
-//                    group.on('doubleTap', function() {
-//                        applyOnDblClickHandler();
-//                    });
 
                     var imageMoveObj = new Image();
                     $(imageMoveObj).load(function() {
@@ -953,10 +922,10 @@ function AddonIWB_Toolbar_create(){
                     } else {
                         var offsetTopPrev,
                             offsetLeftPrev;
-                        if(presenter.config.panelPosition == 'fixed'){
+                        if (presenter.config.panelPosition == 'fixed') {
                             offsetTopPrev = presenter.$pagePanel.offset().top;
                             offsetLeftPrev = presenter.$pagePanel.offset().left;
-                        }else{
+                        } else {
                             offsetTopPrev = $(presenter.$panel).position().top;
                             offsetLeftPrev = $(presenter.$panel).position().left;
                         }
@@ -965,10 +934,10 @@ function AddonIWB_Toolbar_create(){
                         presenter.headerLoaded.then(function() {
                             var offsetTop,
                                 offsetLeft;
-                            if(presenter.config.panelPosition == 'fixed'){
+                            if (presenter.config.panelPosition == 'fixed') {
                                 offsetTop = presenter.$pagePanel.offset().top;
                                 offsetLeft = presenter.$pagePanel.offset().left;
-                            }else{
+                            } else {
                                 offsetTop = '';
                                 offsetLeft = '';
                             }
@@ -983,44 +952,42 @@ function AddonIWB_Toolbar_create(){
             });
 
             applyHovered([presenter.$panel.find('.button')]);
-            presenter.$panel.width(presenter.config.widthWhenClosed-50 + 'px');
+            presenter.$panel.width(presenter.config.widthWhenClosed - 50 + 'px');
 
             window.savedPanel = window.savedPanel || {};
 
             if (window.savedPanel && window.savedPanel.isOpen) {
-    //            presenter.$toggleButton.addClass('clicked');
                 openPanel(false);
             } else {
                 window.savedPanel.widthWhenOpened = presenter.config.widthWhenOpened;
             }
 
             addEventHandlers();
-            if(presenter.isInFrame && presenter.config.panelPosition == 'fixed') {
+            if (presenter.isInFrame && presenter.config.panelPosition == 'fixed') {
                 addScrollHandler();
             }
             $(view).hide();
             presenter.setVisibility(presenter.isVisible, false, view);
-        }else{
+        } else {
             presenter.setVisibility(presenter.isVisible, true, view);
-            $(view).find('.iwb-toolbar-panel').width(model['Width']-50 + 'px');
+            $(view).find('.iwb-toolbar-panel').width(model['Width'] - 50 + 'px');
         }
     }
 
-    presenter.isOnScreen = function (element, windowElement){
-        var topWindow = $(windowElement.parent.document),
-            coordinates = {
-            top : topWindow.scrollTop(),
-            left : topWindow.scrollLeft()
+    presenter.isOnScreen = function (element, windowElement) {
+        var topWindow = $(windowElement.parent.document);
+        var coords = {
+            top: topWindow.scrollTop(),
+            left: topWindow.scrollLeft(),
+            right: topWindow.scrollLeft() + topWindow.width(),
+            bottom: topWindow.scrollTop() + topWindow.height()
         };
-
-        coordinates.right = coordinates.left + topWindow.width();
-        coordinates.bottom = coordinates.top + topWindow.height();
 
         var bounds = element.offset();
         bounds.right = bounds.left + element.outerWidth();
         bounds.bottom = bounds.top + element.outerHeight();
 
-        return !(coordinates.right < bounds.left || coordinates.left > bounds.right || coordinates.bottom < bounds.top || coordinates.top > bounds.bottom);
+        return !(coords.right < bounds.left || coords.left > bounds.right || coords.bottom < bounds.top || coords.top > bounds.bottom);
     };
 
     function addScrollHandler() {
@@ -1029,7 +996,7 @@ function AddonIWB_Toolbar_create(){
             panelTop = 0;
 
         $(window.parent.document).scroll(function() {
-            if(presenter.isOnScreen(presenter.$view.parent(), window)){
+            if (presenter.isOnScreen(presenter.$view.parent(), window)) {
             var containerHeight = presenter.$pagePanel.outerHeight(true),
                 scrollTop = $(this).scrollTop(),
                 min = presenter.$pagePanel.offset().top,
@@ -1039,7 +1006,7 @@ function AddonIWB_Toolbar_create(){
             panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
             lastScrollTop = scrollTop;
 
-                if(panelTop && (panelTop) > min && (panelTop) < max) {
+                if (panelTop && (panelTop) > min && (panelTop) < max) {
                     presenter.$panel.css({
                         'top' : (panelTop) + 'px'
                     });
@@ -1056,11 +1023,9 @@ function AddonIWB_Toolbar_create(){
         });
     }
 
-    function drawSketch () {
-        var canvas = presenter.$view.parent().find('.selecting').find('canvas');
-        var ctx = canvas[0].getContext('2d');
-
+    function drawSketch() {
         var sketch = presenter.$view.parent().find('.selecting');
+        var canvas = sketch.find('canvas');
         canvas.width = sketch.width;
         canvas.height = sketch.height;
 
@@ -1072,16 +1037,14 @@ function AddonIWB_Toolbar_create(){
 
         presenter.$view.parent().find('.selecting').append(tmp_canvas);
 
-        var mouse = {x: 0, y: 0};
-        var start_mouse = {x: 0, y: 0};
-
+        var mouse = getPoint(0, 0);
+        var start_mouse = getPoint(0, 0);
 
         /* Mouse Capturing Work */
         tmp_canvas.addEventListener('mousemove', function(e) {
             mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
             mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
         }, false);
-
 
         /* Drawing on Paint App */
         tmp_ctx.lineWidth = 1;
@@ -1106,14 +1069,13 @@ function AddonIWB_Toolbar_create(){
             tmp_canvas.removeEventListener('mousemove', onPaint, false);
 
             // Writing down to real canvas now
-            //ctx.drawImage(tmp_canvas, 0, 0);
+            // ctx.drawImage(tmp_canvas, 0, 0);
             // Clearing tmp canvas
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
         }, false);
 
         var onPaint = function() {
-
             // Tmp canvas is always cleared up before drawing.
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
@@ -1122,28 +1084,20 @@ function AddonIWB_Toolbar_create(){
             var width = Math.abs(mouse.x - start_mouse.x);
             var height = Math.abs(mouse.y - start_mouse.y);
             tmp_ctx.strokeRect(x, y, width, height);
-
         };
-
     }
-
 
     function drawAreaLogic(isHide) {
         drawSketch();
         presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('mousedown', function (event) {
             var pos = getCursorPosition(event.originalEvent);
-            presenter.startSelection = {
-                x: pos.x,
-                y: pos.y
-            };
+            presenter.startSelection = getPoint(pos.x, pos.y);
         });
 
         presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('mouseup', function (event) {
             var pos = getCursorPosition(event.originalEvent);
-            presenter.stopSelection = {
-                x: pos.x,
-                y: pos.y
-            };
+            presenter.stopSelection = getPoint(pos.x, pos.y);
+
             drawArea(isHide);
             presenter.areas.push({
                 isHide: isHide,
@@ -1185,18 +1139,18 @@ function AddonIWB_Toolbar_create(){
         context.globalCompositeOperation = 'source-over';
 
         if (isHide) {
-            drawHideArea(context, presenter.stopSelection.x, presenter.stopSelection.y, width, height, presenter.currentLineColor[0]);
+            drawHideArea(context, presenter.stopSelection.x, presenter.stopSelection.y, width, height, presenter.currentLineColor);
         } else {
-            drawStandArea(context, presenter.stopSelection.x, presenter.stopSelection.y, width, height, presenter.currentLineColor[0]);
+            drawStandArea(context, presenter.stopSelection.x, presenter.stopSelection.y, width, height, presenter.currentLineColor);
         }
     }
 
     function drawSavedAreas() {
         $.each(presenter.areas, function() {
             if (this.isHide) {
-                drawHideArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color[0]);
+                drawHideArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color);
             } else {
-                drawStandArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color[0]);
+                drawStandArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color);
             }
         });
     }
@@ -1235,21 +1189,21 @@ function AddonIWB_Toolbar_create(){
 
         var offsetTopelement,
             scrollTop;
-        if(presenter.config.panelPosition == 'fixed'){
+        if (presenter.config.panelPosition == 'fixed') {
             offsetTopelement = presenter.$pagePanel.offset().top;
             scrollTop = $(window).scrollTop();
-        }else{
+        } else {
             offsetTopelement = '';
             scrollTop = '';
         }
 
-        if(panel_differance < panel_outerHeight){
+        if (panel_differance < panel_outerHeight) {
             top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - presenter.$pagePanel.offset().top - 120
-        }else{
+        } else {
             top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - offsetTopelement
         }
 
-        if(!presenter.stopwatchAdded){
+        if (!presenter.stopwatchAdded) {
             stopwatch.draggable({
                 containment: 'parent',
                 opacity: 0.35,
@@ -1276,15 +1230,15 @@ function AddonIWB_Toolbar_create(){
         presenter.stopButtonClicked = stopClicked;
         presenter.startButtonClicked = startClicked;
 
-        if(seconds){
+        if (seconds) {
             presenter.seconds = seconds; presenter.minutes = minutes; presenter.hours = hours;
             h1.textContent = (presenter.hours ? (presenter.hours > 9 ? presenter.hours : "0" + presenter.hours) : "00") + ":" + (presenter.minutes ? (presenter.minutes > 9 ? presenter.minutes : "0" + presenter.minutes) : "00") + ":" + (presenter.seconds > 9 ? presenter.seconds : "0" + presenter.seconds);
 
-            if(!presenter.stopButtonClicked){
+            if (!presenter.stopButtonClicked) {
                 timer();
                 presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').addClass('button-clicked');
             }
-        }else{
+        } else {
             presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
         }
         var t;
@@ -1300,7 +1254,7 @@ function AddonIWB_Toolbar_create(){
                 }
             }
 
-            h1.textContent = (presenter.hours ? (presenter.hours > 9 ? presenter.hours : "0" + presenter.hours) : "00") + ":" + (presenter.minutes ? (presenter.minutes > 9 ? presenter.minutes : "0" + presenter.minutes) : "00") + ":" + (presenter.seconds > 9 ? presenter.seconds : "0" + presenter.seconds);
+            h1.textContent = (presenter.hours ? addZero(presenter.hours) : "00") + ":" + (presenter.minutes ? addZero(presenter.minutes) : "00") + ":" + addZero(presenter.seconds);
 
             timer();
         }
@@ -1315,7 +1269,7 @@ function AddonIWB_Toolbar_create(){
         }
 
         start.onclick = function(){
-            if(!presenter.startButtonClicked){
+            if (!presenter.startButtonClicked) {
                 clearClickedButtons();
                 presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').addClass('button-clicked');
                 timer();
@@ -1365,21 +1319,21 @@ function AddonIWB_Toolbar_create(){
 
         var offsetTopelement,
             scrollTop;
-        if(presenter.config.panelPosition == 'fixed'){
+        if (presenter.config.panelPosition == 'fixed') {
             offsetTopelement = presenter.$pagePanel.offset().top;
             scrollTop = $(window).scrollTop();
-        }else{
+        } else {
             offsetTopelement = '';
             scrollTop = '';
         }
 
-        if(panel_differance < panel_outerHeight){
+        if (panel_differance < panel_outerHeight) {
             top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - presenter.$pagePanel.offset().top - 120
-        }else{
+        } else {
             top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - offsetTopelement
         }
 
-        if(!presenter.clockAdded){
+        if (!presenter.clockAdded) {
             clock.draggable({
                 containment: 'parent',
                 opacity: 0.35,
@@ -1399,21 +1353,15 @@ function AddonIWB_Toolbar_create(){
         }
         presenter.clockAdded = true;
 
-        function getTime()
-        {
-            var hours = new Date().getHours(),
-                minutes = new Date().getMinutes(),
-                seconds = new Date().getSeconds();
-
-            return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ':' + (seconds < 10 ? "0" + seconds : seconds);
+        function getTime() {
+            var date = new Date();
+            return addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
         }
 
         presenter.$pagePanel.find('.iwb-toolbar-clock').find('.clock-body').html(getTime());
 
         setInterval(function() {
-
             presenter.$pagePanel.find('.iwb-toolbar-clock').find('.clock-body').html(getTime());
-
         }, 1000);
     }
 
@@ -1435,8 +1383,8 @@ function AddonIWB_Toolbar_create(){
                 hours = new Date().getHours(),
                 minutes = new Date().getMinutes();
 
-            var time = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
-            currentDate = day+'/'+month+'/'+year+ ', ' + time;
+            var time = addZero(hours) + ':' + addZero(minutes);
+            currentDate = day + '/' + month + '/' + year + ', ' + time;
         }
 
         closeButton.on('click', function(e) {
@@ -1446,7 +1394,7 @@ function AddonIWB_Toolbar_create(){
             confirmation.show();
             confirmation.find('.no-button').click(function(e) {
                 e.stopPropagation();
-               confirmation.hide();
+                confirmation.hide();
             });
             confirmation.find('.yes-button').click(function(e) {
                 e.stopPropagation();
@@ -1472,17 +1420,17 @@ function AddonIWB_Toolbar_create(){
 
         var offsetTopelement,
             scrollTop;
-        if(presenter.config.panelPosition == 'fixed'){
+        if (presenter.config.panelPosition == 'fixed') {
             offsetTopelement = presenter.$pagePanel.offset().top;
             scrollTop = $(window).scrollTop();
-        }else{
+        } else {
             offsetTopelement = '';
             scrollTop = '';
         }
 
-        if(panel_differance < panel_outerHeight){
+        if (panel_differance < panel_outerHeight) {
             top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - presenter.$pagePanel.offset().top - 120;
-        }else{
+        } else {
             top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - offsetTopelement;
         }
 
@@ -1533,10 +1481,12 @@ function AddonIWB_Toolbar_create(){
 
     function zoomSelectedModule(selectedModule) {
         if (presenter.$pagePanel.find('.zoomed').length > 0) {
+            presenter.$panel.show();
             zoom.out();
             $(selectedModule).parent().find('.zoomed').removeClass('zoomed');
             changeCursor('zoom-in');
         } else {
+            presenter.$panel.hide();
             zoom.to({
                 element: selectedModule
             });
@@ -1559,8 +1509,16 @@ function AddonIWB_Toolbar_create(){
         return $(button).hasClass('color') || $(button).hasClass('thickness');
     }
 
-    function isDrawingButtonActive() {
-        return presenter.$pagePanel.find('.button.pen.clicked, .button.marker.clicked, .button.hide-area.clicked, .button.stand-area.clicked').length > 0;
+    function isDrawingActive() {
+        return presenter.$pagePanel.find('.button.pen.clicked, .button.marker.clicked').length > 0;
+    }
+
+    function isAreaDrawingActive() {
+        return presenter.$pagePanel.find(', .button.hide-area.clicked, .button.stand-area.clicked').length > 0;
+    }
+
+    function areDrawingButtonsActive() {
+        return isDrawingActive() || isAreaDrawingActive();
     }
 
     function isFloatingImageButton(button) {
@@ -1568,14 +1526,11 @@ function AddonIWB_Toolbar_create(){
     }
 
     function shouldHideDrawingMasks(button) {
-        return !$(button).hasClass('pen') &&
-            !$(button).hasClass('marker') &&
-            !$(button).hasClass('eraser');
+        return !$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser');
     }
 
     function shouldHideSelectingMasks(button) {
-        return !$(button).hasClass('stand-area') &&
-            !$(button).hasClass('hide-area');
+        return !$(button).hasClass('stand-area') && !$(button).hasClass('hide-area');
     }
 
     function shouldHideFloatingImage(button) {
@@ -1584,22 +1539,21 @@ function AddonIWB_Toolbar_create(){
 
     function changeButtonState(button) {
         if (isDependingOnDrawing(button)) {
-            if (isDrawingButtonActive()) {
+            if (areDrawingButtonsActive()) {
                 presenter.$panel.find('.button.clicked-lighter').removeClass('clicked-lighter');
                 $(button).toggleClass('clicked-lighter');
             }
         } else {
             reset(false, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
-            //presenter.$panel.find('.clicked').removeClass('clicked');
-            if(!$(button).hasClass('zoom')){
-                if(presenter.modules){
+            if (!$(button).hasClass('zoom')) {
+                if (presenter.modules) {
                     presenter.modules.off('mouseup mousemove');
                 }
             }
-            if ( !$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('note') && !$(button).hasClass('clock') && !$(button).hasClass('stopwatch')) {
-                if($(button).hasClass('clicked')){
+            if (!$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('note') && !$(button).hasClass('clock') && !$(button).hasClass('stopwatch')) {
+                if ($(button).hasClass('clicked')) {
                     $(button).removeClass('clicked');
-                }else{
+                } else {
                     presenter.$panel.find('.clicked').removeClass('clicked');
                     $(button).addClass('clicked');
                 }
@@ -1613,15 +1567,18 @@ function AddonIWB_Toolbar_create(){
         $(button).toggleClass('clicked-lighter');
     }
 
-    function toggleMasks(masks, currentDrawingMode, oppositeDrawingModes) {
-        if (currentDrawingMode == presenter.drawMode || oppositeDrawingModes.indexOf(presenter.drawMode) >= 0) {
-            $.each(masks, function() {
-                if ($(this).is(':visible')) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
+    function toggleMasks() {
+        presenter.$penMask.hide();
+        presenter.$markerMask.hide();
+        presenter.$selectingMask.hide();
+
+        if (isDrawingActive() || presenter.$pagePanel.find('.eraser').hasClass('clicked')) {
+            presenter.$penMask.show();
+            presenter.$markerMask.show();
+        }
+
+        if (isAreaDrawingActive()) {
+            presenter.$selectingMask.show();
         }
     }
 
@@ -1642,9 +1599,9 @@ function AddonIWB_Toolbar_create(){
 
         createCanvas(
             function(mask) {
-                presenter.$mask = mask;
-                presenter.$mask.addClass('pen-mask');
-                return presenter.$mask;
+                presenter.$penMask = mask;
+                presenter.$penMask.addClass('pen-mask');
+                return presenter.$penMask;
             },
             function(ctx) {
                 presenter.ctx = ctx;
@@ -1683,12 +1640,6 @@ function AddonIWB_Toolbar_create(){
         setCanvas(canvas);
         setContext(canvas[0].getContext("2d"));
 
-        try {
-            presenter.canvasPosition = canvas[0].getBoundingClientRect(); // IE 11 has problem with this method http://bugs.jquery.com/ticket/4996
-        } catch(_) {
-            presenter.canvasPosition = { 'top' : canvas[0].offsetTop, 'left' : canvas[0].offsetLeft };
-        }
-
         $mask.append(canvas);
         canvas[0].width = $mask.width();
         canvas[0].height = $mask.height();
@@ -1715,7 +1666,6 @@ function AddonIWB_Toolbar_create(){
     presenter.setWorkMode = function() {};
 
     function reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage) {
-        //presenter.$panel.find('.clicked').removeClass('clicked');
         presenter.$panel.find('.clicked-lighter').removeClass('clicked-lighter');
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
@@ -1723,14 +1673,14 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.css('cursor', 'initial');
 
         if (shouldClearCanvas) {
-            changeColor(['#0fa9f0', '#0fa9f0']);
+            changeColor('#0fa9f0');
             changeThickness(1);
             clearCanvases();
         }
 
         if (shouldHideDrawingMasks) {
-            if (presenter.$mask) {
-                presenter.$mask.hide();
+            if (presenter.$penMask) {
+                presenter.$penMask.hide();
             }
             if (presenter.$markerMask) {
                 presenter.$markerMask.hide();
@@ -1751,10 +1701,6 @@ function AddonIWB_Toolbar_create(){
         }
 
         if (closePanel) {
-//            presenter.$toggleButton.removeClass('clicked');
-//            presenter.$panel.hide();
-//            window.savedPanel.isOpen = false;
-//        presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)').off('mousemove mousedown mouseup');
             presenter.$pagePanel.find('.bottom-panel-color').hide();
             presenter.$pagePanel.find('.bottom-panel-thickness').hide();
         }
@@ -1801,9 +1747,9 @@ function AddonIWB_Toolbar_create(){
     };
 
     presenter.setVisibility = function (isVisible, isPreview, view) {
-        if(!isPreview){
+        if (!isPreview) {
             presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
-        }else{
+        } else {
             $(view).css('visibility', isVisible ? 'visible' : 'hidden');
         }
     };
@@ -1820,30 +1766,23 @@ function AddonIWB_Toolbar_create(){
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.reset = function(){
+    presenter.reset = function() {
+        presenter.$pagePanel.find('.clicked').removeClass('clicked');
         reset(true, true, true, true, true);
     };
 
-    presenter.getErrorCount = function() {
-        return 0;
-    };
-
-    presenter.getMaxScore = function() {
-        return 0;
-    };
-
-    presenter.getScore = function() {
-        return 0;
-    };
+    presenter.getErrorCount = function() { return 0; };
+    presenter.getMaxScore = function() { return 0; };
+    presenter.getScore = function() { return 0; };
 
     function getSavedNotes() {
         var notes = [];
         $.each(presenter.$pagePanel.find('.iwb-toolbar-note'), function() {
             notes.push({
-                'top' : $(this).css('top'),
-                'left' : $(this).css('left'),
-                'date' : $(this).find('.note-date').html(),
-                'body' : $(this).find('.note-body').html()
+                'top': $(this).css('top'),
+                'left': $(this).css('left'),
+                'date': $(this).find('.note-date').html(),
+                'body': $(this).find('.note-body').html()
             });
             $(this).remove();
         });
@@ -1854,8 +1793,8 @@ function AddonIWB_Toolbar_create(){
         var clocks = [];
         $.each(presenter.$pagePanel.find('.iwb-toolbar-clock'), function() {
             clocks.push({
-                'top' : $(this).css('top'),
-                'left' : $(this).css('left')
+                'top': $(this).css('top'),
+                'left': $(this).css('left')
             });
             $(this).remove();
         });
@@ -1866,15 +1805,15 @@ function AddonIWB_Toolbar_create(){
         var stopwatches = [];
         $.each(presenter.$pagePanel.find('.iwb-toolbar-stopwatch'), function() {
             stopwatches.push({
-                'top' : $(this).css('top'),
-                'left' : $(this).css('left')
+                'top': $(this).css('top'),
+                'left': $(this).css('left')
             });
             $(this).remove();
         });
         return stopwatches;
     }
 
-    presenter.getState = function(){
+    presenter.getState = function() {
         zoom.out();
         var notes = getSavedNotes(),
             clocks = getSavedClocks(),
@@ -1900,7 +1839,7 @@ function AddonIWB_Toolbar_create(){
         });
     };
 
-    presenter.setState = function(state){
+    presenter.setState = function(state) {
         var parsed = JSON.parse(state);
         presenter.areas = parsed.areas;
         presenter.notes = parsed.notes;
@@ -1938,17 +1877,17 @@ function AddonIWB_Toolbar_create(){
 
     presenter.setPenColor = function(color) {
         color = color[0];
-        presenter.data.penColor = [color, color];
+        presenter.data.penColor = color;
         if (presenter.$pagePanel.find('.clicked').hasClass('pen')) {
-            presenter.currentLineColor = [color, color];
+            presenter.currentLineColor = color;
         }
     };
 
     presenter.setMarkerColor = function(color) {
         color = color[0];
-        presenter.data.markerColor = [color, color];
+        presenter.data.markerColor = color;
         if (presenter.$pagePanel.find('.clicked').hasClass('marker')) {
-            presenter.currentLineColor = [color, color];
+            presenter.currentLineColor = color;
         }
     };
 
@@ -2104,8 +2043,7 @@ var zoom = (function(){
             // to another element without zooming out first
             if( level !== 1 ) {
                 zoom.out();
-            }
-            else {
+            } else {
                 options.x = options.x || 0;
                 options.y = options.y || 0;
 
@@ -2122,11 +2060,11 @@ var zoom = (function(){
                 }
 
                 // If width/height values are set, calculate scale from those values
-                if( options.width !== undefined && options.height !== undefined ) {
+                if ( options.width !== undefined && options.height !== undefined ) {
                     options.scale = Math.max( Math.min( window.innerWidth / options.width, window.innerHeight / options.height ), 1 );
                 }
 
-                if( options.scale > 1 ) {
+                if ( options.scale > 1 ) {
                     options.x *= options.scale;
                     options.y *= options.scale;
 
@@ -2161,4 +2099,3 @@ var zoom = (function(){
     }
 
 })();
-

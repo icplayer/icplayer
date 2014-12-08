@@ -751,3 +751,7 @@
     bottom: 0; top: 0;
     cursor: crosshair;
 }
+
+.closed-hide {
+    display: none !important;
+}
