@@ -54,6 +54,23 @@ function AddonMultiAudio_create(){
     };
 
     presenter.onTimeUpdateSendEventCallback = function() {
+
+        var ua = navigator.userAgent;
+        if( ua.indexOf("Android") >= 0 )
+        {
+            var androidversion = parseFloat(ua.slice(ua.indexOf("Android")+8));
+            if (androidversion == 4.4)
+            {
+                var duration = parseInt(presenter.audio.duration, 10);
+                duration = isNaN(duration) ? 0 : duration;
+                var currentTime2 = parseInt(presenter.audio.currentTime, 10);
+
+                if(duration == currentTime2){
+                    presenter.sendOnEndEvent();
+                }
+            }
+        }
+
         var currentTime = presenter.formatTime(presenter.getAudioCurrentTime());
         var currentItem = presenter.currentAudio+1;
         if (currentTime !== currentTimeAlreadySent) { // to prevent duplicated value
@@ -101,6 +118,16 @@ function AddonMultiAudio_create(){
             presenter.stop();
             presenter.sendOnEndEvent();
         }, false);
+
+        if (!presenter.isLoaded) {
+            this.audio.addEventListener("loadeddata", function() {
+                presenter.isLoaded = true;
+
+                if (!presenter.commandsQueue.isQueueEmpty()) {
+                    presenter.commandsQueue.executeAllTasks();
+                }
+            });
+        }
 
         switch(interfaceType) {
             case "Default controls":
@@ -183,6 +210,8 @@ function AddonMultiAudio_create(){
     };
 
     presenter.run = function(view, model){
+        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
+
         this.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
@@ -201,40 +230,6 @@ function AddonMultiAudio_create(){
         }
         this.visible = !!(model['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
-    };
-
-    presenter.changeFile = function(audio, model){
-        this.files = model["Files"];
-        var oggFile = this.files[this.currentAudio]["Ogg"];
-        var mp3File = this.files[this.currentAudio]["Mp3"];
-        var loop = !!(this.files[this.currentAudio]["Enable loop"] == "True");
-        var canPlayMp3 = false;
-        var canPlayOgg = false;
-
-        var validated = this.validateFiles(this.files[this.currentAudio]);
-
-        if (!validated) {
-            this.globalView.find(".wrapper-addon-audio").html(AUDIO_FILES_MISSING);
-        }
-
-        if (loop) {
-            presenter.addAttributeLoop(audio);
-        }
-
-        if(audio.canPlayType) {
-            canPlayMp3 = !!audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
-            canPlayOgg = !!audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
-            if(canPlayMp3){
-                $(audio).attr("src", mp3File);
-            } else if (canPlayOgg) {
-                $(audio).attr("src", oggFile);
-            }
-        } else {
-            $(audio).append("Your browser doesn't support audio.");
-        }
-
-        audio.pause();
-        audio.load();
     };
 
     presenter.executeCommand = function(name, params) {
@@ -257,12 +252,22 @@ function AddonMultiAudio_create(){
     };
 
     presenter.play = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('play', []);
+            return;
+        }
+
         if (!this.audio.playing) {
             this.audio.play();
         }
     };
 
     presenter.stop = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('stop', []);
+            return;
+        }
+
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.audio.currentTime = 0;
@@ -304,7 +309,8 @@ function AddonMultiAudio_create(){
         var newAudio = parseInt(audioNumber, 10) - 1;
         if (0 <= newAudio && newAudio < this.files.length) {
             this.currentAudio = newAudio;
-            presenter.changeFile(this.audio, this.globalModel);
+            presenter.isLoaded = false;
+            presenter.loadFiles(this.audio, this.globalModel);
         }
     };
 
