@@ -57,6 +57,12 @@ function AddonImage_Viewer_Public_create() {
 
     presenter.configuration = {};
 
+    presenter.changeFrameData = {
+        isPreview: false,
+        isReverseOrder: false,
+        triggerEvent: false
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeFrom_01(model);
 
@@ -559,10 +565,12 @@ function AddonImage_Viewer_Public_create() {
             $(watermarkElement).remove();
         }
         presenter.setVisibility(configuration.currentVisibility);
-        presenter.changeFrame(false, false, false);
+        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent);
     }
 
     function presenterLogic(view, model, preview) {
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
         presenter.addonId = model.ID;
         presenter.$view = $(view);
         presenter.model = model;
@@ -687,7 +695,14 @@ function AddonImage_Viewer_Public_create() {
         if (validatedFrame.isValid && validatedFrame.value - 1 !== currentFrame) {
             var isReverseOrder = currentFrame > validatedFrame.value - 1;
             presenter.configuration.currentFrame = validatedFrame.value - 1;
-            presenter.changeFrame(false, isReverseOrder, true);
+
+            presenter.changeFrameData = {
+                isPreview: false,
+                isReverseOrder: isReverseOrder,
+                triggerEvent: true
+            };
+
+            $.when(presenter.imageLoaded).then(loadImageEndCallback);
         }
     };
 
@@ -814,9 +829,6 @@ function AddonImage_Viewer_Public_create() {
     presenter.run = function(view, model){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
-
-        presenter.imageLoadedDeferred = new jQuery.Deferred();
-        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
 
         this.upgradedModel = this.upgradeModel(model);
         presenterLogic(view, this.upgradedModel, false);

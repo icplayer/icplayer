@@ -1,3 +1,4 @@
+2014-12-16 Fixed problem with moveToFrame command in ImageViewer addon
 2014-12-11 Fixed formatting text with bolds, italics etc. in Text Selection module
 2014-12-10 Fixed issue with changing audio on iOS and android in Multi Audio module
 2014-12-08 Fixed issue with touch/mouse coordinates, issue with zoom and more in IWB toolbar
