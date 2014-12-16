@@ -512,6 +512,7 @@
 
 .iwb-toolbar-panel .button .tooltip {
     display: none;
+    opacity: 1;
     position: absolute;
     top: -20px;
     font-size: 8px;
@@ -754,4 +755,14 @@
 
 .closed-hide {
     display: none !important;
+}
+
+.ic_page_panel.iwb-zoom-in {
+    cursor: zoom-in;
+    cursor: -moz-zoom-in;
+    cursor: -webkit-zoom-in;
+}
+
+.ic_page_panel.iwb-zoom-out {
+    cursor: pointer;
 }

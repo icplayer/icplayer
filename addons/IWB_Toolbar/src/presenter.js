@@ -32,6 +32,9 @@ function AddonIWB_Toolbar_create() {
     presenter.floatingImageGroups = {};
     presenter.currentFloatingImageIndex = 0;
 
+    presenter.isZoomActive = false;
+    presenter.areZoomEventHandlersAttached = false;
+
     presenter.DEFAULT_FLOATING_IMAGE = {
         0: 'it_ruler.png',
         1: 'it_setsquare.png',
@@ -338,7 +341,7 @@ function AddonIWB_Toolbar_create() {
 
         presenter.$view.parent().append(presenter.$panel);
 
-        presenter.$pagePanel.css('cursor', 'initial');
+        changeCursor('default');
         presenter.$view.disableSelection();
         presenter.$removeConfirmationBox = presenter.$view.find('.confirmation-remove-note');
         presenter.$removeConfirmationBox.attr('id', 'confirmationBox-' + model['ID']);
@@ -582,26 +585,42 @@ function AddonIWB_Toolbar_create() {
             e.stopPropagation();
             e.preventDefault();
 
+            presenter.isZoomActive = !presenter.isZoomActive;
             presenter.$bottomPanels.hide();
 
-            changeCursor('zoom-in');
+            if (!presenter.isZoomActive) {
+                changeCursor('default');
+            } else {
+                changeCursor('zoom-in');
+            }
 
             var lastEvent = null;
             presenter.modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note)');
 
             presenter.$pagePanel.disableSelection();
 
+            if (presenter.areZoomEventHandlersAttached) {
+                // We cannot attach multiple times the same event handlers
+                return;
+            }
+
             presenter.modules.on('click mousedown mouseup', function(e) {
+                if (!presenter.isZoomActive) return;
+
                 e.stopPropagation();
                 e.preventDefault();
             });
 
             presenter.modules.find('a').on('click', function(e) {
+                if (!presenter.isZoomActive) return;
+
                 e.stopPropagation();
                 e.preventDefault();
             });
 
             presenter.modules.on('mousedown', function(e) {
+                if (!presenter.isZoomActive) return;
+
                 e.stopPropagation();
                 e.preventDefault();
                 lastEvent = e;
@@ -609,6 +628,8 @@ function AddonIWB_Toolbar_create() {
             });
 
             presenter.modules.on('mouseup', function(e) {
+                if (!presenter.isZoomActive) return;
+
                 e.stopPropagation();
                 e.preventDefault();
                 presenter.isMouseDown = false;
@@ -626,6 +647,8 @@ function AddonIWB_Toolbar_create() {
             });
 
             presenter.modules.on('mousemove', function(e) {
+                if (!presenter.isZoomActive) return;
+
                 if (presenter.isMouseDown) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -640,6 +663,8 @@ function AddonIWB_Toolbar_create() {
 
                 lastEvent = e;
             });
+
+            presenter.areZoomEventHandlersAttached = true;
         });
 
         presenter.$pagePanel.find('.clock').click(function(e) {
@@ -1491,17 +1516,20 @@ function AddonIWB_Toolbar_create() {
                 element: selectedModule
             });
             $(selectedModule).addClass('zoomed');
-            presenter.$pagePanel.css('cursor', 'pointer');
+            changeCursor('zoom-out');
         }
     }
 
     function changeCursor(type) {
-        if (type == 'zoom-in') {
-            presenter.$pagePanel.css({
-                'cursor' : 'zoom-in',
-                'cursor' : '-moz-zoom-in',
-                'cursor' : '-webkit-zoom-in'
-            });
+        presenter.$pagePanel.removeClass('iwb-zoom-in iwb-zoom-out');
+
+        switch (type) {
+            case 'zoom-in':
+                presenter.$pagePanel.addClass('iwb-zoom-in');
+                break;
+            case 'zoom-out':
+                presenter.$pagePanel.addClass('iwb-zoom-out');
+                break;
         }
     }
 
@@ -1537,19 +1565,28 @@ function AddonIWB_Toolbar_create() {
         return !$(button).hasClass('reset') && !$(button).hasClass('floating-image');
     }
 
+    function shouldClosePanelsOnReset(button) {
+        return !$(button).hasClass('pen') && !$(button).hasClass('marker');
+    }
+
+    function isZoomButton(button) {
+        return $(button).hasClass('zoom');
+    }
+
     function changeButtonState(button) {
+        if (!isZoomButton(button)) {
+            presenter.isZoomActive = false;
+        }
+
         if (isDependingOnDrawing(button)) {
             if (areDrawingButtonsActive()) {
                 presenter.$panel.find('.button.clicked-lighter').removeClass('clicked-lighter');
                 $(button).toggleClass('clicked-lighter');
             }
         } else {
-            reset(false, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
-            if (!$(button).hasClass('zoom')) {
-                if (presenter.modules) {
-                    presenter.modules.off('mouseup mousemove');
-                }
-            }
+            var shouldClosePanels = shouldClosePanelsOnReset(button);
+
+            reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
             if (!$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('note') && !$(button).hasClass('clock') && !$(button).hasClass('stopwatch')) {
                 if ($(button).hasClass('clicked')) {
                     $(button).removeClass('clicked');
@@ -1670,7 +1707,7 @@ function AddonIWB_Toolbar_create() {
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
         presenter.$pagePanel.enableSelection();
-        presenter.$pagePanel.css('cursor', 'initial');
+        changeCursor('default');
 
         if (shouldClearCanvas) {
             changeColor('#0fa9f0');
