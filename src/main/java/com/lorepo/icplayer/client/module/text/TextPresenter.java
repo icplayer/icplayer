@@ -537,9 +537,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onGapBlured(String gapId, Element element) {
 				gapBlured(gapId, element);
 			}
+
+			@Override
+			public void onDropdownClicked(String id) {
+				dropdownClicked(id);
+				
+			}
 		});
 	}
 
+	protected void dropdownClicked(String id) {
+		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "dropdownClicked", "");
+		playerServices.getEventBus().fireEvent(valueEvent);
+	}
+	
 	protected void valueChanged(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
 		if (newValue == gap.getPlaceHolder()) {

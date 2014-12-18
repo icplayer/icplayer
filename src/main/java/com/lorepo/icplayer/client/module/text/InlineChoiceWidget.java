@@ -4,6 +4,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
@@ -13,7 +15,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
-	
+	private String value = "";
+	private boolean clicked = false;
 	
 	public InlineChoiceWidget(InlineChoiceInfo gi, final ITextViewListener listener){
 		
@@ -31,7 +34,6 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 				@Override
 				public void onChange(ChangeEvent event) {
 					int index = getSelectedIndex();
-					String value = "";
 					if(index > 0){
 						value = StringUtils.unescapeXML(getValue(index));
 					}
@@ -41,13 +43,23 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 					listener.onValueChanged(choiceInfo.getId(), value);
 				}
 			});
+			
+			addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					event.stopPropagation();
+				}
+			});
+			
+			addTouchEndHandler(new TouchEndHandler() {
+				public void onTouchEnd(TouchEndEvent event) {
+					event.stopPropagation();
+					if (!clicked) {
+						listener.onDropdownClicked(choiceInfo.getId());
+						clicked = true;
+					}
+				}
+			});
 		}
-		
-		addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				event.stopPropagation();
-			}
-		});
 	}
 
 	public boolean hasId(String id){

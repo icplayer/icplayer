@@ -16,32 +16,32 @@ function AddonMultiAudio_create(){
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
+    
+    presenter.onEventReceived = function(eventName, eventData) {
+    	if(eventData.value == 'dropdownClicked') {
+     	   	this.audio.load();
+    	}
+    }
 
-    presenter.createEventData = function (data) {
-        return {
+    function getEventObject(_item, _value, _score) {
+    	return {
             source : presenter.addonID,
-            item : data.currentItem,
-            value : '' + data.currentTime,
-            score : ''
+            item : _item + '',
+            value : _value + '',
+            score : _score + ''
         };
+    }
+    
+    presenter.createEventData = function (data) {
+    	return getEventObject(data.currentItem, data.currentTime, '');
     };
 
     presenter.createOnEndEventData = function (data) {
-        return {
-            source : presenter.addonID,
-            item : data.currentItem,
-            value : 'end',
-            score : ''
-        };
+        return getEventObject(data.currentItem, 'end', '');
     };
     
     presenter.createOnPlayingEventData = function (data) {
-        return {
-            source : presenter.addonID,
-            item : data.currentItem,
-            value : 'playing',
-            score : ''
-        };
+        return getEventObject(data.currentItem, 'playing', '');
     };
     
     presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
@@ -215,6 +215,7 @@ function AddonMultiAudio_create(){
         this.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.createPreview = function(view, model){
@@ -293,7 +294,7 @@ function AddonMultiAudio_create(){
     function audioStarted(audio) {
         return audio.currentTime > 0;
     }
-
+    
     presenter.reset = function() {
         this.visible = this.defaultVisibility;
         if (this.visible) {
