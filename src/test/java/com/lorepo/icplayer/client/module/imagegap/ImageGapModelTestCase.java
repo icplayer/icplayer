@@ -126,6 +126,7 @@ public class ImageGapModelTestCase {
 		String xml = module.toXML();
 		element = xmlParser.parser(new StringInputStream(xml));
 		module = new ImageGapModule();
+
 		module.load(element, "");
 		
 		assertEquals("correct()", module.getEventCode("onCorrect"));
@@ -136,6 +137,8 @@ public class ImageGapModelTestCase {
 	
 	@Test
 	public void eventPropertEmpty() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("image_gap_on_empty")).thenReturn("onEmpty");
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -160,6 +163,8 @@ public class ImageGapModelTestCase {
 	
 	@Test
 	public void eventPropertCorrect() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("image_gap_on_correct")).thenReturn("onCorrect");
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -184,6 +189,8 @@ public class ImageGapModelTestCase {
 	
 	@Test
 	public void eventPropertWrong() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("image_gap_on_wrong")).thenReturn("onWrong");
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -208,6 +215,10 @@ public class ImageGapModelTestCase {
 	
 	@Test
 	public void eventPropertWrongNotNull() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("image_gap_on_correct")).thenReturn("onCorrect");
+		when(DictionaryWrapper.get("image_gap_on_wrong")).thenReturn("onWrong");
+		when(DictionaryWrapper.get("image_gap_on_empty")).thenReturn("onEmpty");
 		
 		ImageGapModule module = new ImageGapModule();
 

@@ -191,18 +191,33 @@ public class ImageGapModule extends BasicModuleModel {
 			
 			@Override
 			public String getName() {
-				return eventName;
+				return getEventTranslatedName(eventName);
 			}
 
 			@Override
 			public String getDisplayName() {
-				return eventName;
+				return getEventTranslatedName(eventName);
 			}
 		};
 		
 		addProperty(property);
 	}
 
+    private String getEventTranslatedName(final String eventName) {
+        String label = "image_gap_on_";
+
+        if (eventName.equals(EVENT_CORRECT)) {
+            label += "correct";
+        } else if (eventName.equals(EVENT_WRONG)) {
+            label += "wrong";
+        } else if (eventName.equals(EVENT_EMPTY)) {
+            label += "empty";
+        } else {
+            throw new IllegalArgumentException();
+        }
+
+        return DictionaryWrapper.get(label);
+    }
 
 	public String getEventCode(String eventName) {
 		return events.get(eventName);
