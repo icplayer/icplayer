@@ -175,6 +175,20 @@ function AddonLayered_Image_create() {
         if(presenter.savedState) {
             $(DOMElements.$view).trigger("onLoadImagesEnd");
         }
+
+        if(!isPreview){
+            if (!presenter.imagesAreLoaded && !presenter.savedState) {
+                executeTasks();
+            }
+        }
+    }
+
+    function executeTasks () {
+        presenter.imagesAreLoaded = true;
+
+        if (!presenter.commandsQueue.isQueueEmpty()) {
+            presenter.commandsQueue.executeAllTasks();
+        }
     }
 
     function setFlag(index, value) {
@@ -216,7 +230,7 @@ function AddonLayered_Image_create() {
         }
 
         $(DOMElements.$view).bind("onLoadImagesEnd", function() {
-            setStateCallback();
+            presenter.setStateCallback();
         });
 
         setElementsDimensions(width, height);
@@ -240,6 +254,8 @@ function AddonLayered_Image_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
+        presenter.imagesAreLoaded = false;
         presenterLogic(view, model, false);
     };
 
@@ -259,22 +275,28 @@ function AddonLayered_Image_create() {
         });
     };
 
-    function setStateCallback() {
+    presenter.setStateCallback = function() {
         for (var i = 0; i < presenter.savedState.flags.length; i++) {
             presenter.flags[i] = presenter.savedState.flags[i];
         }
 
         displayVisibleLayers(false);
 
-        if (presenter.savedState.isVisible) {
+        if (presenter.isVisbleState) {
             presenter.show();
         } else {
             presenter.hide();
         }
-    }
+
+        if (!presenter.imagesAreLoaded) {
+            executeTasks();
+        }
+    };
 
     presenter.setState = function(state) {
         this.savedState = JSON.parse(state);
+
+        presenter.isVisbleState = this.savedState.isVisible;
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -304,6 +326,7 @@ function AddonLayered_Image_create() {
     };
 
     function displayVisibleLayers(displayLayersWithShowAtStart) {
+        presenter.diplayingLayers = true;
         for (var i = 0; i < presenter.configuration.layers.length; i++) {
             var layerShouldBeDisplayed = displayLayersWithShowAtStart ? presenter.configuration.layers[i].showAtStart : presenter.flags[i];
             if(layerShouldBeDisplayed) {
@@ -312,10 +335,15 @@ function AddonLayered_Image_create() {
                 presenter.hideLayer(i + 1);
             }
         }
+        presenter.displayingLayers = false;
     }
 
     presenter.showLayer = function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
+            return;
+        }
+        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
+            presenter.commandsQueue.addTask('showLayer', [index]);
             return;
         }
 
@@ -333,6 +361,10 @@ function AddonLayered_Image_create() {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
             return;
         }
+        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
+            presenter.commandsQueue.addTask('hideLayer', [index]);
+            return;
+        }
 
         setFlag(index - 1, false);
 
@@ -346,6 +378,10 @@ function AddonLayered_Image_create() {
 
     presenter.toggleLayer = function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
+            return;
+        }
+        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
+            presenter.commandsQueue.addTask('toggleLayer', [index]);
             return;
         }
 
