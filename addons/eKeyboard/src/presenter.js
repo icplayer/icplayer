@@ -407,12 +407,14 @@ function AddoneKeyboard_create(){
                     },
                     change      : function(e, keyboard, el) {
                     	var max_chars = presenter.configuration.maxCharacters;
-                    	if ($(el).attr('size')) {
-                    		max_chars = $(el).attr('size');
+                    	if ($(el).attr('maxlength')) {
+                    		max_chars = $(el).attr('maxlength');
                     	}
-                        if( $(el).val().length ==  max_chars) {
+
+                        if( $(el).val().length ===  max_chars) {
                             keyboard.switchInput(true, true);
                         }
+                    	
                     },
                     beforeClose : function(e, keyboard, el, accepted) {
                     },
@@ -423,7 +425,7 @@ function AddoneKeyboard_create(){
                     // switchInput : false, // called instead of base.switchInput
                     switchInput : function(keyboard, goToNext, isAccepted){
                     	var base = keyboard, kb, stopped = false,
-                				all = $('button, input, textarea, a').filter(':enabled'),
+                				all = $('input, textarea').filter(':enabled'),
                 				indx = all.index(base.$el) + (goToNext ? 1 : -1);
                 				base.$keyboard.show();
                 			if (indx > all.length - 1) {
@@ -437,14 +439,7 @@ function AddoneKeyboard_create(){
                 			if (!stopped) {
                 				isAccepted = base.close(isAccepted);
                 				if (!isAccepted) { return; }
-                				kb = all.eq(indx).data('keyboard');
-                				if (kb && kb.options.openOn.length) {
-                					//kb.focusOn();
-                					all.eq(indx).focus();
-                				} else {
-                					all.eq(indx).focus();
-                					base.$keyboard.show();
-                				}
+                                all.eq(indx).focus();
                 			}
                 		
                 		return false;
