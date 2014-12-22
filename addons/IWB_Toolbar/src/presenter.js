@@ -481,29 +481,6 @@ function AddonIWB_Toolbar_create() {
             setImagePosition();
         });
 
-        function showPanel(panel) {
-            var $colorPanel = presenter.$pagePanel.find('.bottom-panel-color');
-            var $thicknessPanel = presenter.$pagePanel.find('.bottom-panel-thickness');
-
-            var chosenPanel;
-            var ignoredPanel;
-
-            if (panel === 'COLOR') { chosenPanel = $colorPanel; ignoredPanel = $thicknessPanel; }
-            if (panel === 'THICKNESS') { chosenPanel = $thicknessPanel; ignoredPanel = $colorPanel; }
-
-            if (chosenPanel) {
-                if (chosenPanel.is(':visible')) {
-                    chosenPanel.hide();
-                } else {
-                    chosenPanel.show();
-
-                    if (ignoredPanel.is(':visible')) {
-                        ignoredPanel.hide();
-                    }
-                }
-            }
-        }
-
         presenter.$pagePanel.find('.pen').click(function() {
             presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
             changeColor(presenter.data.penColor);
@@ -515,7 +492,7 @@ function AddonIWB_Toolbar_create() {
 
             drawingLogic();
 
-            showPanel(presenter.config.showForPen);
+            toggleBottomPanels();
         });
 
         presenter.$pagePanel.find('.marker').click(function() {
@@ -529,7 +506,7 @@ function AddonIWB_Toolbar_create() {
 
             drawingLogic();
 
-            showPanel(presenter.config.showForMarker);
+            toggleBottomPanels();
         });
 
         presenter.$pagePanel.find('.eraser').click(function(e) {
@@ -1487,21 +1464,21 @@ function AddonIWB_Toolbar_create() {
 
     function noteEditHandler(note, noteBody) {
         var currentValue = noteBody.html(),
-            textarea = $('<textarea></textarea>'),
-            buttonSave = $('<button class="save">Save</button>');
+            $textarea = $('<textarea></textarea>'),
+            $buttonSave = $('<button class="save">Save</button>');
 
-        buttonSave.on('click', function() {
-            var value = textarea.val();
+        $buttonSave.on('click', function() {
+            var value = $textarea.val();
             noteBody.html(value);
-            textarea.remove();
+            $textarea.remove();
             applyNoteEditHandler(note, noteBody);
         });
 
-        textarea.focus();
-        textarea.val(currentValue);
+        $textarea.focus();
+        $textarea.val(currentValue);
 
-        noteBody.html(textarea);
-        noteBody.append(buttonSave);
+        noteBody.html($textarea);
+        noteBody.append($buttonSave);
     }
 
     function zoomSelectedModule(selectedModule) {
@@ -1619,6 +1596,32 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
+    function toggleBottomPanels() {
+        var $thicknessPanel = presenter.$pagePanel.find('.bottom-panel-thickness');
+        var $colorPanel = presenter.$pagePanel.find('.bottom-panel-color');
+
+        $thicknessPanel.hide();
+        $colorPanel.hide();
+
+        function showPanel($panel) {
+            if ($panel === 'COLOR') {
+                $colorPanel.show();
+            } else if ($panel === 'THICKNESS') {
+                $thicknessPanel.show();
+            } else {
+                // NONE
+            }
+        }
+
+        if (presenter.$pagePanel.find('.pen').hasClass('clicked')) {
+            showPanel(presenter.config.showForPen);
+        }
+
+        if (presenter.$pagePanel.find('.marker').hasClass('clicked')) {
+            showPanel(presenter.config.showForMarker);
+        }
+    }
+
     function createCanvases() {
         createCanvas(
             function(mask) {
@@ -1709,6 +1712,11 @@ function AddonIWB_Toolbar_create() {
         presenter.$pagePanel.enableSelection();
         changeCursor('default');
 
+        if (closePanel) {
+            presenter.$pagePanel.find('.bottom-panel-color').hide();
+            presenter.$pagePanel.find('.bottom-panel-thickness').hide();
+        }
+
         if (shouldClearCanvas) {
             changeColor('#0fa9f0');
             changeThickness(1);
@@ -1735,11 +1743,6 @@ function AddonIWB_Toolbar_create() {
                 presenter.$floatingImageMask.hide();
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
             }
-        }
-
-        if (closePanel) {
-            presenter.$pagePanel.find('.bottom-panel-color').hide();
-            presenter.$pagePanel.find('.bottom-panel-thickness').hide();
         }
     }
 
