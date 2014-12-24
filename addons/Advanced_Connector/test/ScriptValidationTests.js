@@ -242,5 +242,85 @@ TestCase("Script validation", {
 
         assertFalse(validationResult.isError);
         assertEquals(expectedEvents, validationResult.events);
+    },
+
+    'test incorrect hyperlink': function() {
+        var script =
+            "EVENTSTART \
+            Source:TrueFalse1 \
+            SCRIPTSTART \
+            var textSource = presenter.playerController.getModule('TextSource'),\
+            textItem = presenter.playerController.getModule('TextItem'),\
+            textValue = presenter.playerController.getModule('TextValue'), \
+            new css /file end EVENTSTART url(file/serve/1234567890123456) blabla file serv \
+            \
+            textSource.setText(\'Source: \' + event.source); \
+            textItem.setText(\'Item: \' + event.item); \
+            textValue.setText(\'Value: \' + event.value); \
+            textScore.setText(\'Score: \' + event.score);\
+            SCRIPTEND \
+            EVENTEND";
+
+        assertTrue(this.presenter.checkScriptsResources(script));
+    },
+
+    'test correct hyperlink': function() {
+        var script =
+            "EVENTSTART \
+            Source:Slider \
+            SCRIPTSTART \
+            var textSource = presenter.playerController.getModule('TextSource'),\
+            textItem = presenter.playerController.getModule('TextItem'),\
+            textValue = presenter.playerController.getModule('TextValue'), \
+            textSource.setText(\'Source: \' + event.source); \
+            textItem.setText(\'Item: \' + event.item); \
+            textValue.setText(\'Value: \' + event.value); \
+            textScore.setText(\'Score: \' + event.score);\
+            new css /file end Addon1.load('http://mauthor.com/file/serve/1234567890123456'); \
+            SCRIPTEND \
+            EVENTEND";
+
+        assertFalse(this.presenter.checkScriptsResources(script));
+    },
+
+    'test incorrect hyperlink with quotation': function() {
+        var script =
+            "EVENTSTART \
+            Source:TrueFalse1 \
+            SCRIPTSTART \
+            var textSource = presenter.playerController.getModule('TextSource'),\
+            textItem = presenter.playerController.getModule('TextItem'),\
+            textValue = presenter.playerController.getModule('TextValue'), \
+            new css /file end EVENTSTART url('file/serve/1234567890123456') file serv \
+            \
+            textSource.setText(\'Source: \' + event.source); \
+            textItem.setText(\'Item: \' + event.item); \
+            textValue.setText(\'Value: \' + event.value); \
+            textScore.setText(\'Score: \' + event.score);\
+            SCRIPTEND \
+            EVENTEND";
+
+        assertTrue(this.presenter.checkScriptsResources(script));
+    },
+
+    'test incorrect hyperlink with equal sign': function() {
+        var script =
+            "EVENTSTART \
+            Source:TrueFalse1 \
+            SCRIPTSTART \
+            var textSource = presenter.playerController.getModule('TextSource'),\
+            textItem = presenter.playerController.getModule('TextItem'),\
+            textValue = presenter.playerController.getModule('TextValue'), \
+            new css /file end EVENTSTART var url = '/file/serve/1234567890123456' \
+            \
+            textSource.setText(\'Source: \' + event.source); \
+            textItem.setText(\'Item: \' + event.item); \
+            textValue.setText(\'Value: \' + event.value); \
+            textScore.setText(\'Score: \' + event.score);\
+            SCRIPTEND \
+            EVENTEND";
+
+        assertTrue(this.presenter.checkScriptsResources(script));
     }
+
 });

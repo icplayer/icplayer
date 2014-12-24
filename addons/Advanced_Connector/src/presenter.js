@@ -73,11 +73,22 @@ function AddonAdvanced_Connector_create() {
         $(view).css('visibility', 'hidden');
     };
 
+    presenter.checkScriptsResources = function(script) {
+        script = script.replace(/\s/g,'');
+        var regex = new RegExp("[\(|\=](\'|\")*(/)*file/serve/[0-9]*");
+
+        return regex.test(script);
+    };
+
     presenter.createPreview = function(view, model) {
         var validatedScript = presenter.validateScript(model.Scripts);
         if (validatedScript.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedScript.errorCode);
         }
+        if (presenter.checkScriptsResources(model.Scripts)) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'SV_09');
+        }
+
     };
 
     presenter.ERROR_CODES = {
@@ -88,7 +99,8 @@ function AddonAdvanced_Connector_create() {
         'SV_05': "Missing SCRIPTEND keyword or new line after it!",
         'SV_06': "Repeated event field value declaration!",
         'SV_07': "Repeated keyword!",
-        'SV_08': "Invalid identification. Should be Source,Item, Value or Score!"
+        'SV_08': "Invalid identification. Should be Source,Item, Value or Score!",
+        'SV_09': "Please pay attention to the correct linking resources"
     };
 
     function returnErrorResult(errorCode) {
