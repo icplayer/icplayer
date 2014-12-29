@@ -1,3 +1,4 @@
+2014-12-29 Fixed issue with checking answers in not activity mode in Connection module
 2014-12-29 Fixed issue with saving state in Slider module
 2014-12-29 Fixed issue with saving state in Layered Image module
 2014-12-29 Fixed issue with saving state in Image Viewer Button Controlled module

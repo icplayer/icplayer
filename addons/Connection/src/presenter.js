@@ -766,6 +766,7 @@ function AddonConnection_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+        if (isNotActivity) return 0;
 
         connections.width = connections.width;
         connections.clearCanvas();
