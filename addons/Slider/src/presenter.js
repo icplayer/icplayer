@@ -117,11 +117,10 @@ function AddonSlider_create () {
             }
 
             presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-            if(presenter.savedState){
-                presenter.$view.trigger('loadImagesEndCallback');
-            }
 
             presenter.imageElement = imageContainer;
+
+            presenter.imageLoadedDeferred.resolve();
         });
     }
 
@@ -342,6 +341,9 @@ function AddonSlider_create () {
     }
 
     function presenterLogic(view, model, preview) {
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
+
         presenter.addonID = model.ID;
         presenter.$view = $(view);
         onStepChangeEvent = model.onStepChange;
@@ -362,7 +364,6 @@ function AddonSlider_create () {
         presenter.configuration.newStep = presenter.configuration.initialStep;
         presenter.configuration.snapPoints = [];
 
-        presenter.$view.bind('loadImagesEndCallback', presenter.loadImagesCallback);
         loadImageElement(preview);
 
         presenter.$view.disableSelection();
@@ -765,15 +766,16 @@ function AddonSlider_create () {
     };
 
     presenter.setState = function(stateString) {
-        this.savedState = JSON.parse(stateString);
+        var state = JSON.parse(stateString);
+
+        presenter.configuration.currentStep = state['currentStep'];
+        presenter.configuration.isVisible = state['isVisible'];
+
+        $.when(presenter.imageLoaded).then(presenter.loadImagesCallback);
     };
 
     presenter.loadImagesCallback = function() {
         var elements = presenter.getContainerAndImageElements();
-        var state = presenter.savedState;
-
-        presenter.configuration.currentStep = state['currentStep'];
-        presenter.configuration.isVisible = state['isVisible'];
 
         presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
         presenter.setVisibility(presenter.configuration.isVisible);
