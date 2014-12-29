@@ -1158,141 +1158,145 @@ function AddonIWB_Toolbar_create() {
     }
 
     function createStopwatch(savedStopwatch, hours, minutes, seconds, stopClicked, startClicked) {
-        var stopwatch = $('<div class="iwb-toolbar-stopwatch"></div>'),
-            time = $('<h4 class="stopwatch-time"><time>00:00:00</time></h4>'),
-            header = $('<div class="stopwatch-header"></div>'),
-            buttons = $('<div class="stopwatch-buttons"></div>'),
-            startButton = $('<div id="start"></div>'),
-            stopButton = $('<div id="stop"></div>'),
-            clearButton = $('<div id="clear"></div>'),
-            closeButton = $('<div class="stopwatch-close">&times;</div>');
+        if(!presenter.stopwatchAdded){
+            var stopwatch = $('<div class="iwb-toolbar-stopwatch"></div>'),
+                time = $('<h4 class="stopwatch-time"><time>00:00:00</time></h4>'),
+                header = $('<div class="stopwatch-header"></div>'),
+                buttons = $('<div class="stopwatch-buttons"></div>'),
+                startButton = $('<div id="start"></div>'),
+                stopButton = $('<div id="stop"></div>'),
+                clearButton = $('<div id="clear"></div>'),
+                closeButton = $('<div class="stopwatch-close">&times;</div>');
 
-            closeButton.on('click', function(e) {
-                e.stopPropagation();
-                stopwatch.remove();
-                presenter.$panel.find('.stopwatch.clicked').removeClass('clicked');
-                presenter.stopwatchAdded = false;
-            });
+                closeButton.on('click', function(e) {
+                    e.stopPropagation();
+                    stopwatch.remove();
+                    presenter.$panel.find('.stopwatch.clicked').removeClass('clicked');
+                    presenter.stopwatchAdded = false;
+                    clearTimeout(t);
+                });
 
-        header.append(time);
-        header.append(closeButton);
-        buttons.append(startButton);
-        buttons.append(stopButton);
-        buttons.append(clearButton);
-        stopwatch.append(header);
-        stopwatch.append(buttons);
+            header.append(time);
+            header.append(closeButton);
+            buttons.append(startButton);
+            buttons.append(stopButton);
+            buttons.append(clearButton);
+            stopwatch.append(header);
+            stopwatch.append(buttons);
 
-        var ic_page_height = presenter.$view.parent().height(),
-            panel_top = parseInt(presenter.$panel.css('top'), 10),
-            window_scroll = $(window).scrollTop(),
-            panel_outerHeight = presenter.$panel.outerHeight(true),
-            panel_differance = ic_page_height-panel_top-window_scroll,
-            top=0;
+            var ic_page_height = presenter.$view.parent().height(),
+                panel_top = parseInt(presenter.$panel.css('top'), 10),
+                window_scroll = $(window).scrollTop(),
+                panel_outerHeight = presenter.$panel.outerHeight(true),
+                panel_differance = ic_page_height-panel_top-window_scroll,
+                top=0;
 
-        var offsetTopelement,
-            scrollTop;
-        if (presenter.config.panelPosition == 'fixed') {
-            offsetTopelement = presenter.$pagePanel.offset().top;
-            scrollTop = $(window).scrollTop();
-        } else {
-            offsetTopelement = '';
-            scrollTop = '';
-        }
+            var offsetTopelement,
+                scrollTop;
+            if (presenter.config.panelPosition == 'fixed') {
+                offsetTopelement = presenter.$pagePanel.offset().top;
+                scrollTop = $(window).scrollTop();
+            } else {
+                offsetTopelement = '';
+                scrollTop = '';
+            }
 
-        if (panel_differance < panel_outerHeight) {
-            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - presenter.$pagePanel.offset().top - 120
-        } else {
-            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - offsetTopelement
-        }
+            if (panel_differance < panel_outerHeight) {
+                top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - presenter.$pagePanel.offset().top - 120
+            } else {
+                top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + scrollTop - offsetTopelement
+            }
 
-        if (!presenter.stopwatchAdded) {
-            stopwatch.draggable({
-                containment: 'parent',
-                opacity: 0.35,
-                create: function(event, _) {
-                    $(event.target).css({
-                        'top' : savedStopwatch ? savedStopwatch.top : top,
-                        'left' : savedStopwatch ? savedStopwatch.left : presenter.$panel.css('left'),
-                        'position' : 'absolute'
-                    });
+            if (!presenter.stopwatchAdded) {
+                stopwatch.draggable({
+                    containment: 'parent',
+                    opacity: 0.35,
+                    create: function(event, _) {
+                        $(event.target).css({
+                            'top' : savedStopwatch ? savedStopwatch.top : top,
+                            'left' : savedStopwatch ? savedStopwatch.left : presenter.$panel.css('left'),
+                            'position' : 'absolute'
+                        });
+                    }
+                });
+
+                presenter.$pagePanel.find('.ic_page').append(stopwatch);
+                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').click(function(e) {
+                    e.stopPropagation();
+                });
+            }
+
+            var h1 = document.getElementsByClassName('stopwatch-time')[0],
+                start = document.getElementById('start'),
+                stop = document.getElementById('stop'),
+                clear = document.getElementById('clear');
+            presenter.stopButtonClicked = stopClicked;
+            presenter.startButtonClicked = startClicked;
+
+            if (seconds) {
+                presenter.seconds = seconds; presenter.minutes = minutes; presenter.hours = hours;
+                h1.textContent = (presenter.hours ? (presenter.hours > 9 ? presenter.hours : "0" + presenter.hours) : "00") + ":" + (presenter.minutes ? (presenter.minutes > 9 ? presenter.minutes : "0" + presenter.minutes) : "00") + ":" + (presenter.seconds > 9 ? presenter.seconds : "0" + presenter.seconds);
+
+                if (!presenter.stopButtonClicked) {
+                    timer();
+                    presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').addClass('button-clicked');
                 }
-            });
+            } else {
+                presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
+            }
 
-            presenter.$pagePanel.find('.ic_page').append(stopwatch);
-            presenter.$pagePanel.find('.iwb-toolbar-stopwatch').click(function(e) {
-                e.stopPropagation();
-            });
+            var t;
+
+            function add() {
+                presenter.seconds++;
+                if (presenter.seconds >= 60) {
+                    presenter.seconds = 0;
+                    presenter.minutes++;
+                    if (presenter.minutes >= 60) {
+                        presenter.minutes = 0;
+                        presenter.hours++;
+                    }
+                }
+
+                h1.textContent = (presenter.hours ? addZero(presenter.hours) : "00") + ":" + (presenter.minutes ? addZero(presenter.minutes) : "00") + ":" + addZero(presenter.seconds);
+
+                timer();
+            }
+            function timer() {
+                t = setTimeout(add, 1000);
+            }
+
+            function clearClickedButtons (){
+                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').removeClass('button-clicked');
+                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#stop').removeClass('button-clicked');
+                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#clear').removeClass('button-clicked');
+            }
+
+            start.onclick = function(){
+                if (!presenter.startButtonClicked) {
+                    clearClickedButtons();
+                    presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').addClass('button-clicked');
+                    timer();
+                    presenter.stopButtonClicked = false;
+                    presenter.startButtonClicked = true;
+                }
+            };
+            stop.onclick = function() {
+                clearClickedButtons();
+                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#stop').addClass('button-clicked');
+                clearTimeout(t);
+                presenter.stopButtonClicked = true;
+                presenter.startButtonClicked = false;
+            };
+            clear.onclick = function() {
+                clearClickedButtons();
+                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#clear').addClass('button-clicked');
+                h1.textContent = "00:00:00";
+                presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
+                presenter.stopButtonClicked = false;
+            }
         }
         presenter.stopwatchAdded = true;
-
-        var h1 = document.getElementsByClassName('stopwatch-time')[0],
-            start = document.getElementById('start'),
-            stop = document.getElementById('stop'),
-            clear = document.getElementById('clear');
-        presenter.stopButtonClicked = stopClicked;
-        presenter.startButtonClicked = startClicked;
-
-        if (seconds) {
-            presenter.seconds = seconds; presenter.minutes = minutes; presenter.hours = hours;
-            h1.textContent = (presenter.hours ? (presenter.hours > 9 ? presenter.hours : "0" + presenter.hours) : "00") + ":" + (presenter.minutes ? (presenter.minutes > 9 ? presenter.minutes : "0" + presenter.minutes) : "00") + ":" + (presenter.seconds > 9 ? presenter.seconds : "0" + presenter.seconds);
-
-            if (!presenter.stopButtonClicked) {
-                timer();
-                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').addClass('button-clicked');
-            }
-        } else {
-            presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
-        }
-        var t;
-
-        function add() {
-            presenter.seconds++;
-            if (presenter.seconds >= 60) {
-                presenter.seconds = 0;
-                presenter.minutes++;
-                if (presenter.minutes >= 60) {
-                    presenter.minutes = 0;
-                    presenter.hours++;
-                }
-            }
-
-            h1.textContent = (presenter.hours ? addZero(presenter.hours) : "00") + ":" + (presenter.minutes ? addZero(presenter.minutes) : "00") + ":" + addZero(presenter.seconds);
-
-            timer();
-        }
-        function timer() {
-            t = setTimeout(add, 1000);
-        }
-
-        function clearClickedButtons (){
-            presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').removeClass('button-clicked');
-            presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#stop').removeClass('button-clicked');
-            presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#clear').removeClass('button-clicked');
-        }
-
-        start.onclick = function(){
-            if (!presenter.startButtonClicked) {
-                clearClickedButtons();
-                presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#start').addClass('button-clicked');
-                timer();
-                presenter.stopButtonClicked = false;
-                presenter.startButtonClicked = true;
-            }
-        };
-        stop.onclick = function() {
-            clearClickedButtons();
-            presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#stop').addClass('button-clicked');
-            clearTimeout(t);
-            presenter.stopButtonClicked = true;
-            presenter.startButtonClicked = false;
-        };
-        clear.onclick = function() {
-            clearClickedButtons();
-            presenter.$pagePanel.find('.iwb-toolbar-stopwatch').find('#clear').addClass('button-clicked');
-            h1.textContent = "00:00:00";
-            presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
-            presenter.stopButtonClicked = false;
-        }
     }
 
     function createClock(savedClock) {

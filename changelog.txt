@@ -1,3 +1,4 @@
+2014-12-29 Fixed problem with stopwatch in IWB Toolbar module
 2014-12-29 Added new property Don't show pages to Table of Contents
 2014-12-24 Added information to pay ettention to the correct linking resources
 2014-12-22 Fixed issue with toggling bottom panels in IWB toolbar
