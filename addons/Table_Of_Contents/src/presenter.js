@@ -4,6 +4,16 @@ function AddonTable_Of_Contents_create(){
 
     var elementsHeights = {};
 
+    presenter.ERROR_CODES = {
+        E01: "Values in property 'Don't show' pages must be numeric",
+        E02: "Values in property 'Don't show' pages must be greater than 0",
+        E03: "Values in property 'Don't show' pages must be unique"
+    };
+
+    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
+
+    function getCorrectObject(v) { return { isValid: true, value: v }; }
+
     function setElementsDimensions(addonWidth, addonHeight) {
         var wrapper = presenter.$view.find('.table-of-contents:first')[0];
         var wrapperDimensions = DOMOperationsUtils.getOuterDimensions(wrapper);
@@ -60,7 +70,7 @@ function AddonTable_Of_Contents_create(){
         var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
 
         for (var i = 0; i < presenter.pages.length; i++) {
-            $list.append(generateElement(presenter.pages[i]));
+            $list.append(generateElement(presenter.pages[i].name));
         }
 
         return $list.outerHeight();
@@ -140,23 +150,36 @@ function AddonTable_Of_Contents_create(){
         var commander = presentationController.getCommands(),
             presentation = presentationController.getPresentation(),
             $list = presenter.$view.find('.table-of-contents-list ol'),
-            currentPageName = presentation.getPage(presentationController.getCurrentPageIndex()),
+            currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId(),
             pageName;
 
         $list.find('li a').each(function () {
             $(this).click(function (event) {
+                event.stopPropagation();
                 event.preventDefault();
                 pageName = $(this).text();
-                if (currentPageName !== pageName) commander.gotoPage(pageName);
+                for(var p in presenter.pages) {
+                    var page = presenter.pages[p];
+
+                    if (currentPageIndex !== page.index && pageName === page.name) {
+                        commander.gotoPageIndex(page.numberOfIndex);
+                    }
+                }
             });
         });
     }
 
     function handlePaginationMouseActions() {
-        var lists = presenter.$view.find('.table-of-contents .table-of-contents-list');
+        var lists = presenter.$view.find('.table-of-contents .table-of-contents-list'),
+        $pagination = presenter.$view.find('.table-of-contents-pagination');
+
+        $pagination.click(function (event) {
+            event.stopPropagation();
+        });
 
         presenter.$view.find('.table-of-contents-pagination a').each(function() {
             $(this).click(function(event) {
+                event.stopPropagation();
                 event.preventDefault();
                 displayPage(parseInt($(this).text(), 10) - 1);
             });
@@ -164,6 +187,12 @@ function AddonTable_Of_Contents_create(){
     }
 
     function presenterLogic(view, model, isPreview) {
+        presenter.configuration = presenter.validateModel(model);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return false;
+        }
+
         function reportInsufficientSpace() {
             presenter.$view.html('<strong>Available space is insufficient! Please enlarge addon dimensions.</strong>')
         }
@@ -194,14 +223,56 @@ function AddonTable_Of_Contents_create(){
         }
     }
 
+    function validatePages(unshownPages) {
+        var pages = unshownPages.split(';');
+        pages = pages.sort();
+
+        for(var i=0; i<pages.length; i++) {
+            var numberObject = ModelValidationUtils.validateInteger(pages[i]);
+
+            if (!numberObject.isValid && unshownPages.length > 0) {
+                return getErrorObject("E01");
+            }
+
+            if (pages[i] < 0) {
+                return getErrorObject("E02");
+            }
+
+            if (pages[i] === pages[i-1]) {
+                return getErrorObject("E03");
+            }
+        }
+        return getCorrectObject(pages);
+    }
+
+    presenter.validateModel = function(model) {
+            var pages = validatePages(model['DontShowPages']);
+            if (!pages.isValid) {
+                return getErrorObject(pages.errorCode);
+            }
+
+            return {
+                ID: model.ID,
+                isValid: true,
+                unshownPages : pages
+            };
+    };
+
     presenter.getPresentationPages = function() {
         var pages = [];
-
         var presentation = presentationController.getPresentation();
         var pageCount = presentation.getPageCount();
+        var unshownPages = presenter.configuration.unshownPages;
 
         for (var i = 0; i < pageCount; i++) {
-            pages.push(presentation.getPage(i).getName());
+            if ($.inArray(String(i+1), unshownPages.value) == -1) {
+                var page = {};
+                page.name = presentation.getPage(i).getName();
+                page.index = presentation.getPage(i).getId();
+                page.numberOfIndex = i;
+
+                pages.push(page);
+            }
         }
 
         return pages;
@@ -209,22 +280,36 @@ function AddonTable_Of_Contents_create(){
 
     function mockPresentationPages() {
         return [
-            "Page 01",
-            "Page 02",
-            "Page 03",
-            "Page 04",
-            "Page 05",
-            "Page 06",
-            "Page 07",
-            "Page 08",
-            "Page 09",
-            "Page 10",
-            "Page 11",
-            "Page 12",
-            "Page 13",
-            "Page 14",
-            "Page 15",
-            "Page 16"
+            {index:"fwrg4g1",
+             name:"Page 01",
+             numberOfIndex:"0"},
+            {index:"fwrg4g2",
+             name:"Page 02",
+             numberOfIndex:"1"},
+            {index:"fwrg4g3",
+             name:"Page 03",
+             numberOfIndex:"2"},
+            {index:"fwrg4g4",
+             name:"Page 04",
+             numberOfIndex:"3"},
+            {index:"fwrg4g5",
+             name:"Page 05",
+             numberOfIndex:"4"},
+            {index:"fwrg4g6",
+             name:"Page 06",
+             numberOfIndex:"5"},
+            {index:"fwrg4g7",
+             name:"Page 07",
+             numberOfIndex:"6"},
+            {index:"fwrg4g8",
+             name:"Page 08",
+             numberOfIndex:"7"},
+            {index:"fwrg4g9",
+             name:"Page 09",
+             numberOfIndex:"8"},
+            {index:"fwrg4g0",
+             name:"Page 10",
+             numberOfIndex:"9"}
         ];
     }
 

@@ -3,5 +3,6 @@
 <addon id='Table_Of_Contents' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name="Header" type="string" isLocalized="true" />
+        <property name="DontShowPages" displayName="Don't show pages" type="string" isLocalized="true" />
 	</model>
 </addon>

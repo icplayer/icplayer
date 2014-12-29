@@ -1,7 +1,7 @@
 TestCase("Display Page Pagination", {
     setUp: function () {
         this.presenter = AddonTable_Of_Contents_create();
-                this.presenter.pagination = {
+        this.presenter.pagination = {
             pages: [[]],
             size: 0
         };
@@ -20,4 +20,6 @@ TestCase("Display Page Pagination", {
         assertEquals(6, this.presenter.pageStartIndex(2));
         assertEquals(14, this.presenter.pageStartIndex(3));
     }
+
+
 });
