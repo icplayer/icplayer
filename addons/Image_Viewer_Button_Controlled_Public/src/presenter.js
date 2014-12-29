@@ -428,17 +428,12 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
         }
 
         presenter.setVisibility(presenter.configuration.defaultVisibility);
-        presenter.$view.trigger("onLoadImageCallbackEnd");
+
+        presenter.imageLoadedDeferred.resolve();
     }
 
     function loadImageEndCallback() {
         var configuration = presenter.configuration;
-        if (configuration.savedState) {
-            var state = JSON.parse(configuration.savedState);
-            configuration.currentFrame = state["currentFrame"];
-            configuration.currentVisibility = state["currentVisibility"];
-            configuration.flags = state["flags"];
-        }
 
         presenter.setVisibility(presenter.configuration.currentVisibility);
         presenter.changeFrame(viewerElement, configuration, true);
@@ -449,6 +444,9 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
     };
 
     function presenterLogic(view, model, preview) {
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
+
         presenter.$view = $(view);
         viewerElement = presenter.$view.find('.image-viewer:first');
         loadingScreen.element = presenter.$view.find('.image-viewer-loading-image:first')[0];
@@ -1015,13 +1013,14 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
     };
 
     presenter.setState = function(state) {
-        presenter.configuration.savedState = state;
-        loadImageEndCallback();
+        var savedState = JSON.parse(state);
 
-        // This callback is needed when setState will be called before full images load
-        presenter.$view.bind("onLoadImageCallbackEnd", function () {
-            loadImageEndCallback();
-        });
+        var configuration = presenter.configuration;
+        configuration.currentFrame = savedState["currentFrame"];
+        configuration.currentVisibility = savedState["currentVisibility"];
+        configuration.flags = savedState["flags"];
+
+        $.when(presenter.imageLoaded).then(loadImageEndCallback);
     };
 
     presenter.reset = function () {
