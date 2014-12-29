@@ -149,8 +149,9 @@ function AddonLayered_Image_create() {
 
         for (var i = 0; i < presenter.configuration.layers.length; i++) {
             var showLayer = isPreview ? true : presenter.configuration.layers[i].showAtStart;
-            setFlag(i, presenter.configuration.layers[i].showAtStart);
-
+            if(!presenter.savedState) {
+                setFlag(i, presenter.configuration.layers[i].showAtStart);
+            }
             var imageElement = document.createElement('div');
             $(imageElement).css('backgroundImage', 'url(' + presenter.configuration.layers[i].image + ')');
             $(imageElement).addClass('layeredimage-image');
@@ -172,9 +173,8 @@ function AddonLayered_Image_create() {
         }
 
         hideLoadingScreen();
-        if(presenter.savedState) {
-            $(DOMElements.$view).trigger("onLoadImagesEnd");
-        }
+
+        presenter.imageLoadedDeferred.resolve();
 
         if(!isPreview){
             if (!presenter.imagesAreLoaded && !presenter.savedState) {
@@ -219,6 +219,9 @@ function AddonLayered_Image_create() {
     };
 
     function presenterLogic(view, model, preview) {
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
+
         var width = model.Width;
         var height = model.Height;
 
@@ -228,10 +231,6 @@ function AddonLayered_Image_create() {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
             if (loadingSrc) $(DOMElements.loading).attr('src', loadingSrc);
         }
-
-        $(DOMElements.$view).bind("onLoadImagesEnd", function() {
-            presenter.setStateCallback();
-        });
 
         setElementsDimensions(width, height);
         $(DOMElements.baseImage).remove();
@@ -276,13 +275,9 @@ function AddonLayered_Image_create() {
     };
 
     presenter.setStateCallback = function() {
-        for (var i = 0; i < presenter.savedState.flags.length; i++) {
-            presenter.flags[i] = presenter.savedState.flags[i];
-        }
-
         displayVisibleLayers(false);
 
-        if (presenter.isVisbleState) {
+        if (presenter.isVisbleSaved) {
             presenter.show();
         } else {
             presenter.hide();
@@ -296,7 +291,13 @@ function AddonLayered_Image_create() {
     presenter.setState = function(state) {
         this.savedState = JSON.parse(state);
 
-        presenter.isVisbleState = this.savedState.isVisible;
+        presenter.isVisbleSaved = this.savedState.isVisible;
+
+        for (var i = 0; i < this.savedState.flags.length; i++) {
+            presenter.flags[i] = this.savedState.flags[i];
+        }
+
+        $.when(presenter.imageLoaded).then(presenter.setStateCallback);
     };
 
     presenter.setVisibility = function(isVisible) {

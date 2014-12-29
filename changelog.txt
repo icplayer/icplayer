@@ -1,3 +1,4 @@
+2014-12-29 Fixed issue with saving state in Layered Image module
 2014-12-29 Fixed issue with saving state in Image Viewer Button Controlled module
 2014-12-29 Fixed problem with stopwatch in IWB Toolbar module
 2014-12-29 Added new property Don't show pages to Table of Contents
