@@ -38,19 +38,12 @@ public class NavigationBar extends PopupPanel {
 		String baseUrl = contentModel.getPage(0).getBaseURL();
 				
 		for (int col = 0; col < pageCount; ++col) {
+
+			previewURL = NavigationBarUtils.getPagePreviewURL(contentModel.getPage(col).getPreview(), baseUrl);
 			
-			previewURL = contentModel.getPage(col).getPreview();
-			if (previewURL == null || previewURL == "")
-			{
-				buttonLabel = "" + (col + 1);
-			}
-			else
-			{
-				if (baseUrl.startsWith("file")) {
-					//for mLibro and offline content
-					previewURL = baseUrl + previewURL;
-				}
-				buttonLabel = "";
+			buttonLabel = "";
+			if (previewURL == null || previewURL == "") {
+				buttonLabel += (col + 1);
 			}
 			
 			GoToPageIndexButton goToPageButton = new GoToPageIndexButton(
