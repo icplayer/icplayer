@@ -1,4 +1,4 @@
-TestCase("Display Page Pagination", {
+TestCase("[Table Of Contents] Display Page Pagination", {
     setUp: function () {
         this.presenter = AddonTable_Of_Contents_create();
         this.presenter.pagination = {
@@ -20,6 +20,4 @@ TestCase("Display Page Pagination", {
         assertEquals(6, this.presenter.pageStartIndex(2));
         assertEquals(14, this.presenter.pageStartIndex(3));
     }
-
-
 });

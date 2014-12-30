@@ -223,14 +223,17 @@ function AddonTable_Of_Contents_create(){
         }
     }
 
-    function validatePages(unshownPages) {
-        var pages = unshownPages.split(';');
-        pages = pages.sort();
+    presenter.validateHiddenPages = function(hiddenPages) {
+        if (typeof(hiddenPages) == 'undefined') {
+            hiddenPages = '';
+        }
 
-        for(var i=0; i<pages.length; i++) {
+        var pages = hiddenPages.split(';').sort();
+
+        for (var i = 0; i < pages.length; i++) {
             var numberObject = ModelValidationUtils.validateInteger(pages[i]);
 
-            if (!numberObject.isValid && unshownPages.length > 0) {
+            if (!numberObject.isValid && hiddenPages.length > 0) {
                 return getErrorObject("E01");
             }
 
@@ -238,7 +241,7 @@ function AddonTable_Of_Contents_create(){
                 return getErrorObject("E02");
             }
 
-            if (pages[i] === pages[i-1]) {
+            if (pages[i] === pages[i - 1]) {
                 return getErrorObject("E03");
             }
         }
@@ -246,26 +249,25 @@ function AddonTable_Of_Contents_create(){
     }
 
     presenter.validateModel = function(model) {
-            var pages = validatePages(model['DontShowPages']);
-            if (!pages.isValid) {
-                return getErrorObject(pages.errorCode);
-            }
+        var pagesValidationResult = presenter.validateHiddenPages(model['DontShowPages']);
+        if (!pagesValidationResult.isValid) {
+            return pagesValidationResult;
+        }
 
-            return {
-                ID: model.ID,
-                isValid: true,
-                unshownPages : pages
-            };
+        return {
+            ID: model.ID,
+            isValid: true,
+            hiddenPages: pagesValidationResult.value
+        };
     };
 
     presenter.getPresentationPages = function() {
-        var pages = [];
-        var presentation = presentationController.getPresentation();
-        var pageCount = presentation.getPageCount();
-        var unshownPages = presenter.configuration.unshownPages;
+        var pages = [],
+            presentation = presentationController.getPresentation(),
+            pageCount = presentation.getPageCount();
 
         for (var i = 0; i < pageCount; i++) {
-            if ($.inArray(String(i+1), unshownPages.value) == -1) {
+            if ($.inArray(String(i+1), presenter.configuration.hiddenPages) == -1) {
                 var page = {};
                 page.name = presentation.getPage(i).getName();
                 page.index = presentation.getPage(i).getId();
