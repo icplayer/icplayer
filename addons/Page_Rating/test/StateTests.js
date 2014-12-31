@@ -49,7 +49,7 @@ TestCase("States tests", {
         this.presenter.isElementSelected = 1;
 
         this.getCommentValueStub = sinon.stub(this.presenter, 'getCommentValue');
-        this.getCommentValueStub.returns("some comment");
+        this.getCommentValueStub.returns();
 
         var expectedState = JSON.stringify({
             commentValue: 'some comment',

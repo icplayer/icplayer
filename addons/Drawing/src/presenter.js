@@ -16,8 +16,8 @@ function AddonDrawing_create() {
 
         val = parseInt(val, 10);
         if (val == NaN || val == undefined) {
-                val = 1;
-            }
+            val = 1;
+        }
         return val;
     }
 
@@ -324,7 +324,7 @@ function AddonDrawing_create() {
             presenter.turnOnEventListeners();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.setColor = function(color) {
@@ -399,6 +399,8 @@ function AddonDrawing_create() {
             return returnErrorObject(parsedOpacity.errorCode);
         }
 
+        var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+
         return {
             color: parsedColor.color,
             thickness: parsedThickness.thickness,
@@ -411,7 +413,8 @@ function AddonDrawing_create() {
             width: model.Width,
             height: model.Height,
             isValid: true,
-            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isVisible: isVisible,
+            isVisibleByDefault: isVisible,
             isExerciseStarted: false
         };
     };
@@ -523,6 +526,7 @@ function AddonDrawing_create() {
 
         presenter.setColor(presenter.model.Color);
         presenter.setThickness(presenter.model.Thickness);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.getState = function() {
@@ -574,6 +578,7 @@ function AddonDrawing_create() {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
             presenter.configuration.color = "rgba(0, 0, 0, 1)";
         }
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     return presenter;

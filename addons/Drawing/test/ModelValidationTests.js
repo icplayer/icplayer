@@ -146,6 +146,20 @@ TestCase("[Drawing] Model validation", {
 
         assertFalse(validatedModel.isValid);
         assertEquals('B03', validatedModel.errorCode);
+    },
+
+    'test correct model' : function() {
+        var model = {
+            Color: "Pink",
+            Thickness: "2",
+            Border: "5",
+            Opacity: 1,
+            'Is Visible': "False"
+        };
+
+        var validatedModel = this.presenter.validateModel(model);
+
+        assertTrue(validatedModel.isValid);
     }
 
 });
