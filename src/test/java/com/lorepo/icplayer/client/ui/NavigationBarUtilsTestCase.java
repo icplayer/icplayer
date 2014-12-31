@@ -21,16 +21,16 @@ public class NavigationBarUtilsTestCase {
 	
 	@Test
 	public void pagePreviewPointsToLocalSCORMResourceWithoutExtension() {
-		String previewURL = NavigationBarUtils.getPagePreviewURL("../resources/123456", "http:///localhost");
+		String previewURL = NavigationBarUtils.getPagePreviewURL("../resources/123456", "http://localhost");
 
 		assertEquals("../resources/123456", previewURL);
 	}
 	
 	@Test
 	public void pagePreviewPointsToLocalSCORMResourceWithExtension() {
-		String previewURL = NavigationBarUtils.getPagePreviewURL("../resources/123456.png", "http:///localhost");
+		String previewURL = NavigationBarUtils.getPagePreviewURL("../resources/123456.png", "http://localhost/");
 
-		assertEquals("resources/123456.png", previewURL);
+		assertEquals("http://localhost/../resources/123456.png", previewURL);
 	}
 	
 	@Test

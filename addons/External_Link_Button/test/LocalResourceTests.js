@@ -1,6 +1,23 @@
 TestCase("[External Link Button] Local resource", {
     setUp: function () {
         this.presenter = AddonExternal_Link_Button_create();
+
+        this.presenter.playerController = {
+            getCurrentPageIndex: function () {
+                return 0
+            },
+            getPresentation: function () {
+                return {
+                    getPage: function () {
+                        return {
+                            getBaseURL: function () {
+                                return 'http://www.mauthor.com/lesson/pages/';
+                            }
+                        };
+                    }
+                };
+            }
+        };
     },
     
     'test uri points to external resource without extension': function () {
@@ -30,6 +47,6 @@ TestCase("[External Link Button] Local resource", {
 
         this.presenter.fixLocalResourceURI();
 
-        assertEquals('resources/123456.png', this.presenter.configuration.URI);
+        assertEquals('http://www.mauthor.com/lesson/pages/../resources/123456.png', this.presenter.configuration.URI);
     }
 });

@@ -12,6 +12,12 @@ function AddonExternal_Link_Button_create() {
         BOTH: 3
     };
 
+    presenter.playerController = undefined;
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
+    };
+
     presenter.setElementsDimensions = function (model, wrapper, element) {
         var viewDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
         var viewDistances = DOMOperationsUtils.calculateOuterDistances(viewDimensions);
@@ -82,7 +88,11 @@ function AddonExternal_Link_Button_create() {
     };
 
     presenter.fixLocalResourceURI = function () {
-        presenter.configuration.URI = presenter.configuration.URI.substring(3);
+        var currentPageIndex = presenter.playerController.getCurrentPageIndex(),
+            currentPage = presenter.playerController.getPresentation().getPage(currentPageIndex),
+            pageBaseURL = currentPage.getBaseURL();
+
+        presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
     };
 
     presenter.presenterLogic = function (view, model) {
