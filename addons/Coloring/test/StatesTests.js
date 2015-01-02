@@ -21,6 +21,14 @@ TestCase("States Tests", {
             'isVisible' : false
         };
 
+        this.presenter.getScore = function() {
+            return 10;
+        };
+
+        this.presenter.getErrorCount = function() {
+            return 5;
+        };
+
         sinon.stub(this.presenter, 'shouldBeTakenIntoConsideration');
 
         this.presenter.$view = $('' +
@@ -46,7 +54,7 @@ TestCase("States Tests", {
 
         var state = this.presenter.getState();
 
-        assertEquals('{\"filledAreas\":[],\"currentFillingColor\":[255,50,255,255],\"isErase\":true,\"colorsThatCanBeFilled\":[[255,255,255,255]],\"isVisible\":false,\"isDisabled\":false}', state);
+        assertEquals('{\"filledAreas\":[],\"currentFillingColor\":[255,50,255,255],\"isErase\":true,\"colorsThatCanBeFilled\":[[255,255,255,255]],\"isVisible\":false,\"isDisabled\":false,\"score\":10,\"errorCount\":5}', state);
     },
 
     'test set state sets fields properly' : function() {
