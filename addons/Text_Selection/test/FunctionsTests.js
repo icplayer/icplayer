@@ -70,14 +70,14 @@ TestCase("[Text Selection] Support Functions", {
     	var text = "\\correct{some} \\wrong{text}";
     	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="correct selectable">some</span> <span class="wrong selectable">text</span> </div>', result.renderedPreview);
+    	assertEquals('<div class="text_selection"><span class="correct selectable">some</span> <span class="wrong selectable">text</span></div>', result.renderedPreview);
     },
 
     'test parse Words with markers with latex': function() {
     	var text = "\\wrong{\\(\\sqrt{x^{10}}\\)}";
     	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)</span> </div>', result.renderedPreview);
+    	assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)</span></div>', result.renderedPreview);
     },
 
     'test parse Words with markers with latex - extra space': function() {
@@ -113,14 +113,14 @@ TestCase("[Text Selection] Support Functions", {
         var text = "\\correct{affection}full";
         var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-        assertEquals('<div class="text_selection"><span class="correct selectable">affection</span> <span class=" ">full</span> </div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="correct selectable">affection</span> <span class=" ">full</span></div>', result.renderedPreview);
     },
 
     'test word with special sign after marker' : function() {
         var text = "\\wrong{super}.";
         var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-        assertEquals('<div class="text_selection"><span class="wrong selectable">super</span> <span class=" ">.</span> </div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="wrong selectable">super</span> <span class=" ">.</span></div>', result.renderedPreview);
     },
 
     'test single letter' : function() {
