@@ -1,6 +1,6 @@
 TestCase("[DrawingSmartPen] Model validation", {
     setUp: function() {
-        this.presenter = AddonDrawingSmartPen_create();
+        this.presenter = AddonLearnPen_create();
 
         this.presenter.data = {
             canvas: null,

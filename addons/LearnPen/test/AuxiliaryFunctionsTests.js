@@ -1,7 +1,7 @@
 TestCase("[DrawingSmartPen] Auxiliary functions", {
 
     setUp: function() {
-        this.presenter = AddonDrawingSmartPen_create();
+        this.presenter = AddonLearnPen_create();
     },
 
     'test converting hex to rgba' : function() {

@@ -1,4 +1,5 @@
-2014-01-02 Adapted tests to current version in MultiAudio module
+2014-01-02 Adapted tests to current module version in LearnPen module
+2014-01-02 Adapted tests to current module version in MultiAudio module
 2014-12-31 Fixed issue with visible state in Drawing module
 2014-12-30 Fixed issues with SCORM local resources in navigation bar and External Link Button module when lesson is run with external Player
 2014-12-30 Fixed issue with page preview URL pointing to SCORM local resource in navigation bar
