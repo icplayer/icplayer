@@ -47,14 +47,16 @@ TestCase("States tests", {
         this.presenter.configuration.isError = false;
         this.presenter.configuration.isVisible = true;
         this.presenter.isElementSelected = 1;
+        this.presenter.currentRate = 1;
 
         this.getCommentValueStub = sinon.stub(this.presenter, 'getCommentValue');
-        this.getCommentValueStub.returns();
+        this.getCommentValueStub.returns("some comment");
 
         var expectedState = JSON.stringify({
             commentValue: 'some comment',
             isVisible: true,
-            selectedItem: 1
+            selectedItem: 1,
+            currentRate: 1
         });
 
         assertEquals(expectedState, this.presenter.getState());
