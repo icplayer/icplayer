@@ -12,6 +12,10 @@ TestCase("[Custom Scoring] Model parsing", {
 
         assertTrue(parsedModel.isValid);
         assertEquals(0, parsedModel.scoring.maxScore);
+        assertEquals(0, parsedModel.scoring.score);
+        assertEquals(0, parsedModel.scoring.errors);
+        assertEquals(undefined, parsedModel.script);
+        assertEquals('Custom_Scoring1', parsedModel.addonID);
     },
 
     'test invalid max score': function () {
