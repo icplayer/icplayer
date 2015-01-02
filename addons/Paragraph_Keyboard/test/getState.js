@@ -18,7 +18,9 @@ TestCase("[Paragraph] getState method", {
             }
         };
 
-        assertEquals("Content", this.presenter.getState());
+        var state = JSON.parse(this.presenter.getState());
+
+        assertEquals("Content", state.tinymceState);
     },
 
     'test getState for incomplete editor': function () {
@@ -34,7 +36,9 @@ TestCase("[Paragraph] getState method", {
             }
         };
 
-        assertEquals("", this.presenter.getState());
+        var state = JSON.parse(this.presenter.getState());
+
+        assertEquals("", state.tinymceState);
     },
     'test getState for non existed editor': function () {
 
@@ -44,7 +48,9 @@ TestCase("[Paragraph] getState method", {
             }
         };
 
-        assertEquals("", this.presenter.getState());
+        var state = JSON.parse(this.presenter.getState());
+
+        assertEquals("", state.tinymceState);
     }
 });
 
