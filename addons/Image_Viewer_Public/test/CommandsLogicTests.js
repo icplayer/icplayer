@@ -1,4 +1,4 @@
-TestCase("Commands logic", {
+TestCase("[Image_Viewer_Public] Commands logic", {
     setUp: function() {
         this.presenter = AddonImage_Viewer_Public_create();
         this.presenter.configuration = {
@@ -20,6 +20,7 @@ TestCase("Commands logic", {
         this.presenter.$element = this.element;
 
         sinon.stub(this.presenter, 'changeFrame');
+        sinon.stub(this.presenter, 'setVisibility');
     },
 
     tearDown: function() {
