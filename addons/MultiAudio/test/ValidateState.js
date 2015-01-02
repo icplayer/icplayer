@@ -76,5 +76,5 @@ ValidateState.prototype.testSetState = function() {
     // Then
     assertFalse("", this.presenter.visible);
     assertEquals("", 3, this.presenter.currentAudio);
-    assertTrue("", $(this.presenter.audio).data('events')['canplay'] != undefined);
+    assertTrue("", $(this.presenter.audio).data('events','canplay') != undefined);
 };
