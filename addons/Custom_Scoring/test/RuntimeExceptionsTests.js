@@ -2,7 +2,7 @@ TestCase("Runtime exceptions catching", {
     setUp: function () {
         this.presenter = AddonCustom_Scoring_create();
         this.presenter.configuration = {
-            script: ''
+            script: 'exception'
         };
 
         sinon.stub(Helpers, 'alertErrorMessage');

@@ -10,8 +10,8 @@ TestCase("[Custom Scoring] Model parsing", {
 
         var parsedModel = this.presenter.parseModel(model);
 
-        assertFalse(parsedModel.isValid);
-        assertEquals('ERR_01', parsedModel.errorCode);
+        assertTrue(parsedModel.isValid);
+        assertEquals(0, parsedModel.scoring.maxScore);
     },
 
     'test invalid max score': function () {
