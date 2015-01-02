@@ -3,14 +3,14 @@ TestCase("Events test", {
         this.presenter = Addongamememo_create();
         sinon.stub(this.presenter, 'sendAllOKEvent');
         sinon.stub(this.presenter, 'isAllOK');
-        sinon.stub(this.presenter, 'cellsAndCardReveal');
+        sinon.stub(this.presenter, 'cardReveal');
 
     },
 
     tearDown : function() {
         this.presenter.sendAllOKEvent.restore();
         this.presenter.isAllOK.restore();
-        this.presenter.cellsAndCardReveal.restore();
+        this.presenter.cardReveal.restore();
     },
 
     'test AllOK event should be sent': function () {
@@ -19,7 +19,7 @@ TestCase("Events test", {
 
         this.presenter.addScoreAndSentEvent();
 
-        assertTrue(this.presenter.cellsAndCardReveal.called);
+        assertTrue(this.presenter.cardReveal.called);
         assertTrue(this.presenter.sendAllOKEvent.called);
     },
 
@@ -28,7 +28,7 @@ TestCase("Events test", {
 
         this.presenter.addScoreAndSentEvent();
 
-        assertTrue(this.presenter.cellsAndCardReveal.called);
+        assertTrue(this.presenter.cardReveal.called);
         assertFalse(this.presenter.sendAllOKEvent.called);
     }
 });
