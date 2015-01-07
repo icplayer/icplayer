@@ -1,4 +1,6 @@
+2015-01-07 Adapted tests to current module version in Video module
 2015-01-07 Fixed issue with removing class disable on switching to work mode in TrueFalse module
+2015-01-07 Adapted tests to current module version in Animated Lesson Progress module
 2015-01-02 Adapted tests to current module version in LearnPen Data module
 2015-01-02 Adapted tests to current module version in Custom Scoring module
 2015-01-02 Adapted tests to current module version in Image Viewer module

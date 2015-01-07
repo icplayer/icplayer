@@ -716,10 +716,14 @@ function Addonvideo_create() {
             presenter.commandsQueue.executeAllTasks();
         }
     }
-    
+
+    presenter.removeWaterMark = function () {
+        presenter.$view.find('.poster-wrapper').remove();
+    };
+
     presenter.play = function () {
-    	presenter.$view.find('.poster-wrapper').remove();
-    	
+        presenter.removeWaterMark();
+
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('play', []);
             return;
