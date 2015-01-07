@@ -1,3 +1,4 @@
+2014-01-07 Adapted tests to current module version in Animated Lesson Progress module
 2014-01-02 Adapted tests to current module version in LearnPen Data module
 2014-01-02 Adapted tests to current module version in Custom Scoring module
 2014-01-02 Adapted tests to current module version in Image Viewer module

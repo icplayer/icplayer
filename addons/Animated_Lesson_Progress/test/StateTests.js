@@ -1,6 +1,6 @@
 TestCase("States tests", {
     setUp: function () {
-        this.presenter = AddonAnimated_Page_Progress_create();
+        this.presenter = AddonAnimated_Lesson_Progress_create();
 
         sinon.stub(this.presenter, 'cleanView');
         sinon.stub(this.presenter, 'setViewImage');
@@ -25,14 +25,13 @@ TestCase("States tests", {
 
     'test set state on filled state': function () {
         var state = JSON.stringify({
-            displayedImage: 0,
             isVisible: true
         });
 
         this.presenter.setState(state);
 
-        assertTrue(this.presenter.cleanView.called);
-        assertTrue(this.presenter.setViewImage.calledWith(0));
+        assertFalse(this.presenter.cleanView.called);
+        assertFalse(this.presenter.setViewImage.calledWith(0));
         assertTrue(this.presenter.setVisibility.calledWith(true));
     },
 
@@ -48,7 +47,6 @@ TestCase("States tests", {
         this.presenter.displayedImage = 0;
 
         var expectedState = JSON.stringify({
-            displayedImage: 0,
             isVisible: true
         });
 
