@@ -58,6 +58,10 @@ function AddonTrueFalse_create() {
                 image.removeClass("down").addClass("up");
             }
         });
+
+        presenter.$view.find('.tf_radio_question').each(function() {
+            $(this).removeClass('disabled');
+        });
     };
 
     var markElements = function () {
