@@ -1455,15 +1455,22 @@ function AddonIWB_Toolbar_create() {
         return note;
     }
 
+
     function applyNoteEditHandler(note, noteBody) {
         note.on('dblclick', function() {
             noteEditHandler(note, noteBody);
             note.off('dblclick');
         });
 
-        applyDoubleTapHandler(note, function() {
-            noteEditHandler(note, noteBody);
-        });
+//        applyDoubleTapHandler(note, function() {
+//            noteEditHandler(note, noteBody);
+//        });
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            note.on('doubletap', function(e) {
+                noteEditHandler(note, noteBody);
+                note.off('doubletap');
+            });
+        }
     }
 
     function noteEditHandler(note, noteBody) {
@@ -1478,11 +1485,16 @@ function AddonIWB_Toolbar_create() {
             applyNoteEditHandler(note, noteBody);
         });
 
-        $textarea.focus();
+        $textarea.on('click', function (){
+            var val = $textarea.val();
+            $textarea.focus().val("").val(val);
+        });
+
         $textarea.val(currentValue);
 
         noteBody.html($textarea);
         noteBody.append($buttonSave);
+        $textarea.focus();
     }
 
     function zoomSelectedModule(selectedModule) {
