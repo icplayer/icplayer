@@ -1,3 +1,4 @@
+2015-01-08 Added ShowAnswers to Fractions module
 2015-01-08 Added ShowAnswers to Clock module
 2015-01-07 Adapted tests to current module version in Video module
 2015-01-07 Fixed issue with removing class disable on switching to work mode in TrueFalse module
