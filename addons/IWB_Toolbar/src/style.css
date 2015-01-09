@@ -588,6 +588,14 @@
     content: 'Thickness';
 }
 
+#tmp_canvas {
+    -ms-touch-action: none;
+}
+
+canvas {
+    -ms-touch-action: none;
+}
+
 .confirmation-remove-note > span:after {
      content: 'Are you sure to remove this note?';
 }

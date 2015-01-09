@@ -185,18 +185,32 @@ function AddonIWB_Toolbar_create() {
     function getCursorPosition(e) {
         var canvas = presenter.canvas[0];
         var rect = canvas.getBoundingClientRect();
+        var header = 0;
+        var scrollTop = 0;
+        var canvasOffsetLeft = $(canvas).offset().left;
+
+        if(presenter.standHideAreaClicked){
+            if($('.ic_header').length){
+                header = $('.ic_header').outerHeight(true);
+            }
+                scrollTop = $(window).scrollTop();
+            if(/MSIE/i.test(navigator.userAgent)){
+                scrollTop = 0;
+            }
+            canvasOffsetLeft = 0;
+        }
 
         if (e.clientX) {
             return getPoint(
                 parseInt(e.clientX - rect.left, 10),
-                parseInt(e.clientY - rect.top, 10)
+                parseInt(e.clientY - rect.top, 10) + scrollTop - header
             );
         }
 
         var t = event.targetTouches[0] || event.touches[0] || event.changedTouches[0];
         return getPoint(
-            parseInt(t.pageX - $(canvas).offset().left, 10),
-            parseInt(t.pageY - $(canvas).offset().top, 10)
+            parseInt(t.pageX - canvasOffsetLeft, 10),
+            parseInt(t.pageY - $(canvas).offset().top, 10) + scrollTop - header
         );
     }
 
@@ -1041,12 +1055,76 @@ function AddonIWB_Toolbar_create() {
 
         var mouse = getPoint(0, 0);
         var start_mouse = getPoint(0, 0);
+        var header = 0;
+
+        if($('.ic_header').length){
+            header = $('.ic_header').outerHeight(true);
+        }
 
         /* Mouse Capturing Work */
-        tmp_canvas.addEventListener('mousemove', function(e) {
-            mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-        }, false);
+        if( /Android|X11|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            tmp_canvas.addEventListener('touchmove', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                mouse.x = e.changedTouches[0].pageX;
+                mouse.y = e.changedTouches[0].pageY-header;
+            }, false);
+
+            tmp_canvas.addEventListener('touchstart', function(e) {
+                tmp_canvas.addEventListener('touchmove', onPaint, false);
+
+                e.stopPropagation();
+                e.preventDefault();
+                mouse.x = e.changedTouches[0].pageX;
+                mouse.y = e.changedTouches[0].pageY-header;
+
+                start_mouse.x = mouse.x;
+                start_mouse.y = mouse.y;
+
+                onPaint();
+            }, false);
+
+            tmp_canvas.addEventListener('touchend', function(e) {
+                tmp_canvas.removeEventListener('touchmove', onPaint, false);
+                e.stopPropagation();
+                e.preventDefault();
+                // Writing down to real canvas now
+                // ctx.drawImage(tmp_canvas, 0, 0);
+                // Clearing tmp canvas
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            }, false);
+        }else{
+            tmp_canvas.addEventListener('mousemove', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                mouse.x = typeof e.offsetX !== 'undefined' ?  e.offsetX : e.layerX;
+                mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+            }, false);
+
+            tmp_canvas.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                tmp_canvas.addEventListener('mousemove', onPaint, false);
+
+                mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+                start_mouse.x = mouse.x;
+                start_mouse.y = mouse.y;
+                onPaint();
+            }, false);
+
+            tmp_canvas.addEventListener('mouseup', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                tmp_canvas.removeEventListener('mousemove', onPaint, false);
+                // Writing down to real canvas now
+                // ctx.drawImage(tmp_canvas, 0, 0);
+                // Clearing tmp canvas
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            }, false);
+        }
 
         /* Drawing on Paint App */
         tmp_ctx.lineWidth = 1;
@@ -1054,28 +1132,6 @@ function AddonIWB_Toolbar_create() {
         tmp_ctx.lineCap = 'round';
         tmp_ctx.strokeStyle = 'black';
         tmp_ctx.fillStyle = 'black';
-
-        tmp_canvas.addEventListener('mousedown', function(e) {
-            tmp_canvas.addEventListener('mousemove', onPaint, false);
-
-            mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-            start_mouse.x = mouse.x;
-            start_mouse.y = mouse.y;
-
-            onPaint();
-        }, false);
-
-        tmp_canvas.addEventListener('mouseup', function() {
-            tmp_canvas.removeEventListener('mousemove', onPaint, false);
-
-            // Writing down to real canvas now
-            // ctx.drawImage(tmp_canvas, 0, 0);
-            // Clearing tmp canvas
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-        }, false);
 
         var onPaint = function() {
             // Tmp canvas is always cleared up before drawing.
@@ -1091,25 +1147,61 @@ function AddonIWB_Toolbar_create() {
 
     function drawAreaLogic(isHide) {
         drawSketch();
-        presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('mousedown', function (event) {
-            var pos = getCursorPosition(event.originalEvent);
-            presenter.startSelection = getPoint(pos.x, pos.y);
-        });
 
-        presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('mouseup', function (event) {
-            var pos = getCursorPosition(event.originalEvent);
-            presenter.stopSelection = getPoint(pos.x, pos.y);
-
-            drawArea(isHide);
-            presenter.areas.push({
-                isHide: isHide,
-                width: presenter.startSelection.x - presenter.stopSelection.x,
-                height: presenter.startSelection.y - presenter.stopSelection.y,
-                x: presenter.stopSelection.x,
-                y: presenter.stopSelection.y,
-                color: presenter.currentLineColor
+        if( /Android|X11|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('touchstart', function (event) {
+                presenter.standHideAreaClicked = true;
+                event.stopPropagation();
+                event.preventDefault();
+                var pos = getCursorPosition(event.originalEvent);
+                presenter.startSelection = getPoint(pos.x, pos.y);
             });
-        });
+
+            presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('touchend', function (event) {
+                var pos = getCursorPosition(event.originalEvent);
+
+                presenter.stopSelection = getPoint(pos.x, pos.y);
+
+                drawArea(isHide);
+                presenter.areas.push({
+                    isHide: isHide,
+                    width: presenter.startSelection.x - presenter.stopSelection.x,
+                    height: presenter.startSelection.y - presenter.stopSelection.y,
+                    x: presenter.stopSelection.x,
+                    y: presenter.stopSelection.y,
+                    color: presenter.currentLineColor
+                });
+                presenter.standHideAreaClicked = false;
+            });
+        }else{
+            presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('mousedown', function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                presenter.standHideAreaClicked = true;
+                var pos = getCursorPosition(event.originalEvent);
+                presenter.startSelection = getPoint(pos.x, pos.y);
+            });
+
+            presenter.$view.parent().find('.selecting').find('#tmp_canvas').on('mouseup', function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                var pos = getCursorPosition(event.originalEvent);
+                presenter.stopSelection = getPoint(pos.x, pos.y);
+
+                drawArea(isHide);
+                presenter.areas.push({
+                    isHide: isHide,
+                    width: presenter.startSelection.x - presenter.stopSelection.x,
+                    height: presenter.startSelection.y - presenter.stopSelection.y,
+                    x: presenter.stopSelection.x,
+                    y: presenter.stopSelection.y,
+                    color: presenter.currentLineColor
+                });
+                presenter.standHideAreaClicked = false;
+            });
+        }
     }
 
     function drawHideArea(context, x, y, width, height, color) {
