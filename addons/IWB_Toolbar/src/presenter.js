@@ -432,6 +432,13 @@ function AddonIWB_Toolbar_create() {
     }
 
     function addEventHandlers() {
+        var eventClickStart;
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            eventClickStart = 'touchstart';
+        }else{
+            eventClickStart = 'mousedown';
+        }
+
         presenter.$pagePanel.find('.iwb-toolbar-mask').click(function(e) {
             e.stopPropagation();
         });
@@ -444,7 +451,7 @@ function AddonIWB_Toolbar_create() {
             e.stopPropagation();
         });
 
-        presenter.$panel.find('.open').click(function(e) {
+        presenter.$panel.find('.open').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -455,7 +462,7 @@ function AddonIWB_Toolbar_create() {
             presenter.isPanelOpened = true;
         });
 
-        presenter.$panel.find('.close').click(function(e) {
+        presenter.$panel.find('.close').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -463,7 +470,7 @@ function AddonIWB_Toolbar_create() {
             presenter.isPanelOpened = false;
         });
 
-        presenter.$pagePanel.find('.button').click(function(e) {
+        presenter.$pagePanel.find('.button').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -478,7 +485,7 @@ function AddonIWB_Toolbar_create() {
             }
         });
 
-        presenter.$pagePanel.find('.button-drawing-details').click(function(e) {
+        presenter.$pagePanel.find('.button-drawing-details').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
             changeBottomButtonState(this);
@@ -486,7 +493,7 @@ function AddonIWB_Toolbar_create() {
             changeDrawingType(this);
         });
 
-        presenter.$pagePanel.find('.button-floating-image').click(function(e) {
+        presenter.$pagePanel.find('.button-floating-image').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
             changeBottomButtonState(this);
@@ -495,7 +502,7 @@ function AddonIWB_Toolbar_create() {
             setImagePosition();
         });
 
-        presenter.$pagePanel.find('.pen').click(function() {
+        presenter.$pagePanel.find('.pen').on(eventClickStart, function() {
             presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
             changeColor(presenter.data.penColor);
             changeThickness(1);
@@ -509,7 +516,7 @@ function AddonIWB_Toolbar_create() {
             toggleBottomPanels();
         });
 
-        presenter.$pagePanel.find('.marker').click(function() {
+        presenter.$pagePanel.find('.marker').on(eventClickStart, function() {
             presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
             changeColor(presenter.data.markerColor);
             changeThickness(10);
@@ -523,7 +530,7 @@ function AddonIWB_Toolbar_create() {
             toggleBottomPanels();
         });
 
-        presenter.$pagePanel.find('.eraser').click(function(e) {
+        presenter.$pagePanel.find('.eraser').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -540,7 +547,7 @@ function AddonIWB_Toolbar_create() {
             toggleMasks();
         });
 
-        presenter.$pagePanel.find('.reset').click(function(e) {
+        presenter.$pagePanel.find('.reset').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -554,7 +561,7 @@ function AddonIWB_Toolbar_create() {
             reset(true, false, false, false, false);
         });
 
-        presenter.$pagePanel.find('.hide-area').click(function(e) {
+        presenter.$pagePanel.find('.hide-area').on(eventClickStart, function(e) {
             toggleMasks();
             drawAreaLogic(true);
 
@@ -563,7 +570,7 @@ function AddonIWB_Toolbar_create() {
             changeColor('#000');
         });
 
-        presenter.$pagePanel.find('.stand-area').click(function(e) {
+        presenter.$pagePanel.find('.stand-area').on(eventClickStart, function(e) {
             toggleMasks();
             drawAreaLogic(false);
 
@@ -572,7 +579,7 @@ function AddonIWB_Toolbar_create() {
             changeColor('#000');
         });
 
-        presenter.$pagePanel.find('.zoom').click(function(e) {
+        presenter.$pagePanel.find('.zoom').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -658,7 +665,7 @@ function AddonIWB_Toolbar_create() {
             presenter.areZoomEventHandlersAttached = true;
         });
 
-        presenter.$pagePanel.find('.clock').click(function(e) {
+        presenter.$pagePanel.find('.clock').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
             presenter.$pagePanel.find('.clock').on('mousedown', function() {
@@ -670,7 +677,7 @@ function AddonIWB_Toolbar_create() {
             createClock();
         });
 
-        presenter.$pagePanel.find('.stopwatch').click(function(e) {
+        presenter.$pagePanel.find('.stopwatch').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
             presenter.$pagePanel.find('.stopwatch').on('mousedown', function() {
@@ -682,9 +689,9 @@ function AddonIWB_Toolbar_create() {
             createStopwatch();
         });
 
-        presenter.$pagePanel.find('.note').click(function(e) {
-            e.stopPropagation();
+        presenter.$pagePanel.find('.note').on(eventClickStart, function(e){
             e.preventDefault();
+            e.stopPropagation();
             var note = createNote();
 
             presenter.$pagePanel.find('.ic_page').append(note);
@@ -697,15 +704,15 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.note').on('mouseup', function() {
                 presenter.$pagePanel.find('.note').removeClass('clicked');
             });
-
         });
+
 
         presenter.$pagePanel.find('.default').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
         });
 
-        presenter.$pagePanel.find('.floating-image').click(function() {
+        presenter.$pagePanel.find('.floating-image').on(eventClickStart, function() {
             $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
                 var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
                 if (display == 'none') {
@@ -1485,16 +1492,23 @@ function AddonIWB_Toolbar_create() {
             currentDate = day + '/' + month + '/' + year + ', ' + time;
         }
 
+        var eventClickStart;
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            eventClickStart = 'touchstart';
+        }else{
+            eventClickStart = 'mousedown';
+        }
+
         closeButton.on('click', function(e) {
             e.stopPropagation();
             var confirmation = presenter.$removeConfirmationBox;
             confirmation.css('top', $(window).scrollTop() + 10 + 'px');
             confirmation.show();
-            confirmation.find('.no-button').click(function(e) {
+            confirmation.find('.no-button').on(eventClickStart, function(e) {
                 e.stopPropagation();
                 confirmation.hide();
             });
-            confirmation.find('.yes-button').click(function(e) {
+            confirmation.find('.yes-button').on(eventClickStart, function(e) {
                 e.stopPropagation();
                 note.remove();
                 confirmation.hide();
