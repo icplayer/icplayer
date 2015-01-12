@@ -1,5 +1,8 @@
 function AddonSlideshow_create() {
-    var presenter = function () {};
+
+    var presenter = function() {};
+
+    presenter.isPlaying = false;
 
     var DOMElements = {};
     presenter.configuration = {};
@@ -119,24 +122,6 @@ function AddonSlideshow_create() {
         $(DOMElements.controls.slider).css('left', (percentage * presenter.configuration.sliderSlideAreaLength) + 'px');
     }
 
-    function isAudioBufferedEnough(time) {
-        var buffered = presenter.configuration.buzzAudio.getBuffered();
-        if (buffered === undefined || buffered === null || buffered.length < 1) {
-            return false;
-        }
-
-        var bufferedEnd = 0;
-        for (var i = 0; i < buffered.length; i++) {
-            if (buffered[i].end) {
-                bufferedEnd = Math.max(buffered[i].end, bufferedEnd);
-            } else {
-                return false;
-            }
-        }
-
-        return bufferedEnd > time;
-    }
-
     function loadAudio(isPreview) {
         if (!buzz.isSupported()) return { isError:true, errorCode:"A_01" };
 
@@ -214,6 +199,15 @@ function AddonSlideshow_create() {
                             }
                         }
 
+                        setButtonActive(presenter.NAVIGATION_BUTTON.PREVIOUS);
+                        setButtonActive(presenter.NAVIGATION_BUTTON.NEXT);
+
+                        if (showIndex === 0) { // first
+                            setButtonInactive(presenter.NAVIGATION_BUTTON.PREVIOUS);
+                        } else if (showIndex === presenter.configuration.slides.count-1) { // last
+                            setButtonInactive(presenter.NAVIGATION_BUTTON.NEXT);
+                        }
+
                         break;
                     case presenter.TIME_LINE_TASK.TYPE.TEXT:
                         var show = presenter.configuration.timeLine[time][i].task === presenter.TIME_LINE_TASK.TASK.SHOW,
@@ -240,12 +234,14 @@ function AddonSlideshow_create() {
     }
 
     presenter.pauseAudioResource = function () {
+        presenter.isPlaying = false;
         if (presenter.configuration.audio.wasPlayed) {
             presenter.configuration.buzzAudio.pause();
         }
     };
 
     presenter.playAudioResource = function () {
+        presenter.isPlaying = true;
         presenter.configuration.audio.wasPlayed = true;
         presenter.configuration.buzzAudio.play();
     };
@@ -401,6 +397,7 @@ function AddonSlideshow_create() {
     }
 
     presenter.stopPresentation = function() {
+        $(DOMElements.controls.currentTime).text('00:00');
         updateProgressBar(0);
         presenter.configuration.audioState = presenter.AUDIO_STATE.STOP;
         presenter.pauseAudioResource();
@@ -408,7 +405,6 @@ function AddonSlideshow_create() {
         hideAllTexts();
         executeTasks(0, true);
         changeButtonToPlay();
-        $(DOMElements.controls.currentTime).text('00:00');
     };
 
     // Returns currently displayed index. If none slide is visible then this function returns -1
@@ -423,11 +419,19 @@ function AddonSlideshow_create() {
         return -1;
     }
 
+    function setTimeFromSlideIndex(slideIndex) {
+        var slide = presenter.configuration.slides.content[slideIndex];
+        var time = slide.start;
+        presenter.configuration.buzzAudio.setTime(time);
+    }
+
     function gotoNextSlide(withoutAnimation) {
         var currentSlideIndex = getCurrentSlideIndex();
 
         if (currentSlideIndex < presenter.configuration.slides.count - 1) {
-            gotoSlide(currentSlideIndex + 1, withoutAnimation);
+            var index = currentSlideIndex + 1;
+            gotoSlide(index, withoutAnimation);
+            setTimeFromSlideIndex(index);
         }
     }
 
@@ -435,7 +439,9 @@ function AddonSlideshow_create() {
         var currentSlideIndex = getCurrentSlideIndex();
 
         if (currentSlideIndex > 0) {
-            gotoSlide(currentSlideIndex - 1, withoutAnimation);
+            var index = currentSlideIndex - 1;
+            gotoSlide(index, withoutAnimation);
+            setTimeFromSlideIndex(index);
         }
     }
 
@@ -445,11 +451,16 @@ function AddonSlideshow_create() {
         var time = slide.start;
         executeTasks(time, withoutAnimation);
         $(DOMElements.controls.currentTime).text(buzz.toTimer(time, false));
+
         var activeTexts = presenter.findActiveTexts(presenter.configuration.timeLine, time);
         for (var i = 0; i < activeTexts.length; i++) {
             var textIndex = activeTexts[i];
             $(presenter.configuration.texts.domReferences[textIndex]).css('opacity', '1');
         }
+
+        updateProgressBar(time);
+        presenter.configuration.currentTime = time;
+        presenter.time = time;
 
         if (index > 0) {
             setButtonActive(presenter.NAVIGATION_BUTTON.PREVIOUS);
@@ -490,8 +501,17 @@ function AddonSlideshow_create() {
                 changeButtonToPause();
                 break;
             case presenter.AUDIO_STATE.STOP_FROM_NAVIGATION:
-                stopButtonClickHandler(event);
-                playButtonClickHandler(event);
+                if (presenter.isPlaying) {
+                    presenter.pauseAudioResource();
+                    presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
+                    changeButtonToPlay();
+                } else {
+                    presenter.configuration.buzzAudio.setTime(presenter.time);
+                    updateProgressBar(presenter.time);
+                    presenter.configuration.currentTime = presenter.time;
+                    presenter.playAudioResource();
+                    changeButtonToPause();
+                }
                 break;
         }
     }
@@ -525,7 +545,7 @@ function AddonSlideshow_create() {
         return $(element).index() - presenter.configuration.texts.count;
     }
 
-    function mouseDownCallback (eventData) {
+    function mouseDownCallback(eventData) {
         if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
 
         var currentIndex = getCurrentIndex(eventData.target), $slide;
@@ -553,7 +573,7 @@ function AddonSlideshow_create() {
 
     }
 
-    function touchStartCallback (event) {
+    function touchStartCallback(event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -723,7 +743,7 @@ function AddonSlideshow_create() {
         mouseMoveCallback(touch);
     }
 
-    function mouseClickCallback () {
+    function mouseClickCallback() {
         if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
 
         if (presenter.configuration.mouseData.isMouseDragged) {
@@ -734,23 +754,35 @@ function AddonSlideshow_create() {
     }
 
     function handleMouseActions() {
-        getControlButtonsDOMElements().play.click(playButtonClickHandler);
-        getControlButtonsDOMElements().stop.click(stopButtonClickHandler);
-        getControlButtonsDOMElements().previous.click(previousButtonClickHandler);
-        getControlButtonsDOMElements().next.click(nextButtonClickHandler);
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            getControlButtonsDOMElements().play.on('touchend', playButtonClickHandler);
+            getControlButtonsDOMElements().stop.on('touchend', stopButtonClickHandler);
+            getControlButtonsDOMElements().previous.on('touchend', previousButtonClickHandler);
+            getControlButtonsDOMElements().next.on('touchend', nextButtonClickHandler);
+        } else {
+            getControlButtonsDOMElements().play.click(playButtonClickHandler);
+            getControlButtonsDOMElements().stop.click(stopButtonClickHandler);
+            getControlButtonsDOMElements().previous.click(previousButtonClickHandler);
+            getControlButtonsDOMElements().next.click(nextButtonClickHandler);
+        }
 
-        DOMElements.container.find('.slideshow-container-slide').each(function () {
-            $(this).mousedown(mouseDownCallback);
-            this.ontouchstart = touchStartCallback;
-
-            $(this).mouseup(mouseUpCallback);
-            this.ontouchend = touchEndCallback;
-
-            $(this).mousemove(mouseMoveCallback);
-            this.ontouchmove = touchMoveCallback;
+        DOMElements.container.find('.slideshow-container-slide').each(function() {
+            if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+                this.ontouchstart = touchStartCallback;
+                this.ontouchend = touchEndCallback;
+                this.ontouchmove = touchMoveCallback;
+            } else {
+                $(this).mousedown(mouseDownCallback);
+                $(this).mouseup(mouseUpCallback);
+                $(this).mousemove(mouseMoveCallback);
+            }
         });
 
-        $(DOMElements.container.find('.slideshow-container-slide')).click(mouseClickCallback);
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            $(DOMElements.container.find('.slideshow-container-slide')).on('touchend', mouseClickCallback);
+        } else {
+            $(DOMElements.container.find('.slideshow-container-slide')).click(mouseClickCallback);
+        }
     }
 
     function changeButtonToPlay() {
@@ -788,8 +820,6 @@ function AddonSlideshow_create() {
 
         $(button).attr('class', isHover ? 'slideshow-controls-play-pause-mouse-hover' : 'slideshow-controls-play-pause');
         $(button).text('Pause');
-        setButtonInactive(presenter.NAVIGATION_BUTTON.PREVIOUS);
-        setButtonInactive(presenter.NAVIGATION_BUTTON.NEXT);
         presenter.checkBackgroundImageOfButtonElements([button]);
     }
 
@@ -1060,7 +1090,7 @@ function AddonSlideshow_create() {
 	            isMouseDragged : false
 	        };
 
-            view.addEventListener('DOMNodeRemoved',function(ev){
+            view.addEventListener('DOMNodeRemoved',function(ev) {
                 if (ev.target === this) {
                     presenter.stopPresentation();
                 }
@@ -1096,6 +1126,7 @@ function AddonSlideshow_create() {
 	        };
 
         	presenter.setVisibility(presenter.configuration.isVisible);
+            hideLoadingScreen();
         }
 
     }
@@ -1167,7 +1198,7 @@ function AddonSlideshow_create() {
     };
 
     presenter.show = function() {
-        if(presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY) {
+        if (presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY) {
             presenter.playAudioResource();
         }
         presenter.setVisibility(true);
@@ -1175,7 +1206,7 @@ function AddonSlideshow_create() {
     };
 
     presenter.hide = function() {
-        if(presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY) {
+        if (presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY) {
             presenter.pauseAudioResource();
         }
         presenter.setVisibility(false);
@@ -1183,7 +1214,7 @@ function AddonSlideshow_create() {
     };
 
     presenter.getState = function() {
-        if(presenter.configuration.isDomReferenceArrayComplete) {
+        if (presenter.configuration.isDomReferenceArrayComplete) {
             presenter.pauseAudioResource();
         }
 
@@ -1472,8 +1503,8 @@ function AddonSlideshow_create() {
 
     presenter.validateModel = function (model, isPreview) {
 		var animationValidationResult = presenter.validateAnimation(model["Slide animation"], model["Text animation"]);
-		var audioValidationResult = presenter.validateAudio(model.Audio[0]);
 
+		var audioValidationResult = presenter.validateAudio(model.Audio[0]);
 		if (audioValidationResult.isError) {
 			return {
 				isError : true,
