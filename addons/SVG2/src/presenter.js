@@ -11,11 +11,15 @@ function AddonSVG2_create(){
     };
 
     presenter.run = function(view, model){
+        presenter.$view = $(view);
         svgContainer = $(view).find('.svgContainer:first');
         errorContainer = $(view).find('.errorContainer');
         aspect = model['Skip aspect ratio'] == 'True';
         containerWidth = model['Width'];
         containerHeight = model['Height'];
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        presenter.isVisibleByDefault = presenter.isVisible;
+
         if(this.hasSVGSupport()) {
             if(model['SVG file'] != '') {
                 this.loadFile(model['SVG file']);
@@ -25,11 +29,12 @@ function AddonSVG2_create(){
         } else {
             this.onError(errorMessages.svgSupportMissing);
         }
+        presenter.setVisibility(presenter.isVisible);
     };
 
     presenter.createPreview = function(view, model) {
         presenter.run(view, model);
-    }
+    };
     //detection based on Modernizer library
     presenter.hasSVGSupport = function() {
         return !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect;
@@ -97,6 +102,45 @@ function AddonSVG2_create(){
         svgContainer.hide();
         errorContainer.find('.message').html(msg);
         errorContainer.show();
+    };
+
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.isVisible = false;
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.isVisible = true;
+    };
+
+    presenter.reset = function() {
+        presenter.isVisibleByDefault ? presenter.show() : presenter.hide();
+    };
+
+    presenter.getState = function () {
+        return JSON.stringify({
+            isVisible: presenter.isVisible
+        });
+    };
+
+    presenter.setState = function (state) {
+        var parsedState = JSON.parse(state);
+        presenter.isVisible = parsedState.isVisible;
+        presenter.setVisibility(presenter.isVisible);
     };
 
     return presenter;
