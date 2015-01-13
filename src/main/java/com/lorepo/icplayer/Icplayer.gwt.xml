@@ -39,7 +39,7 @@
     <script src="libs/jquery.ui.touch-punch.min.js"/>
     <script src="libs/jquery.keyboard.min.js"/>
     <script src="libs/kinetic-v5.1.0.min.js"/>
-    <script src="libs/swiffy-7.0.4.runtime.js"/>
+    <script src="libs/google-swiffy-7.1.1.js"/>
     <script src="libs/sonic.js"/>
 
     <script src="libs/eKeyboard_layouts/french.js"/>
