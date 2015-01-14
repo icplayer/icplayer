@@ -4,12 +4,28 @@ function AddonTextAudio_create() {
     function getCorrectObject(val) { return { isValid: true, value: val }; }
 
     var presenter = function() {};
-    var mp3File;
-    var oggFile;
+    var originalFile = {};
+    var vocabularyFile = {};
     var eventBus;
     var currentTimeAlreadySent;
     var hasBeenStarted = false;
     var isPlaying = false;
+    var AllowedClickBehaviors = {
+        'properties_based': 'Based on properties',
+        'play_from_the_moment': 'Play from the moment',
+        'play_interval': 'Play the interval',
+        'play_vocabulary_file': 'Play vocabulary audio file',
+        'play_vocabulary_interval': 'Play the interval from vocabulary file'
+    };
+
+    function transposeDict(dict) {
+        var transp = {};
+        for (var key in dict) {
+            if (dict.hasOwnProperty(key))
+                transp[dict[key]] = key;
+        }
+        return transp;
+    };
 
     presenter.buzzAudio = [];
 
@@ -78,15 +94,15 @@ function AddonTextAudio_create() {
     }
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeEnableLoop(model);
+        return presenter.upgradeClickAction(model);
     };
 
-    presenter.upgradeEnableLoop = function(model) {
+    presenter.upgradeClickAction = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (!upgradedModel["enableLoop"]) {
-            upgradedModel["enableLoop"] = "";
+        if (!upgradedModel["clickAction"]) {
+            upgradedModel["clickAction"] = AllowedClickBehaviors.properties_based;
         }
 
         return upgradedModel;
@@ -313,8 +329,8 @@ function AddonTextAudio_create() {
     }
 
     function createView(view, model, isPreview) {
-        mp3File = model.mp3;
-        oggFile = model.ogg;
+        originalFile.mp3 = model.mp3;
+        originalFile.ogg = model.ogg;
 
         var audio = new Audio();
 
@@ -385,9 +401,9 @@ function AddonTextAudio_create() {
             canPlayOgg = audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
 
             if (canPlayMp3) {
-                $(audio).attr("src", mp3File);
+                $(audio).attr("src", originalFile.mp3);
             } else if (canPlayOgg) {
-                $(audio).attr("src", oggFile);
+                $(audio).attr("src", originalFile.ogg);
             }
 
         } else {
@@ -574,11 +590,14 @@ function AddonTextAudio_create() {
     };
 
     presenter.validateModel = function (model) {
-        var validatedAudioFiles = null;
-        mp3File = model.mp3;
-        oggFile = model.ogg;
+        var validatedAudioFiles = null,
+            transposedBehaviors = transposeDict(AllowedClickBehaviors),
+            clickAction = transposedBehaviors[model.clickAction];
+        originalFile.mp3 = model.mp3;
+        originalFile.ogg = model.ogg;
 
-        if (!oggFile && !mp3File) {
+
+        if (!originalFile.ogg && !originalFile.mp3) {
             return getErrorObject('M01');
         }
 
@@ -590,11 +609,19 @@ function AddonTextAudio_create() {
 
         var playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles);
 
-        if (playSeparateFiles) {
+        if ((playSeparateFiles && clickAction=='properties_based') || clickAction=='play_vocabulary_file') {
             validatedAudioFiles = presenter.validateSeparateFiles(model.separateFiles);
             if (!validatedAudioFiles.isValid) return getErrorObject(validatedAudioFiles.errorCode);
         } else {
             validatedAudioFiles = getCorrectObject(false);
+        }
+
+        if (clickAction == 'play_vocabulary_interval') {
+            vocabularyFile.mp3 = model.vocabulary_mp3;
+            vocabularyFile.ogg = model.vocabulary_ogg;
+            if (!vocabularyFile.mp3 && !vocabularyFile.ogg) {
+                getErrorObject(validatedAudioFiles.errorCode);
+            }
         }
 
         return {
@@ -606,6 +633,7 @@ function AddonTextAudio_create() {
             defaultControls: ModelValidationUtils.validateBoolean(model.defaultControls),
             slides: validatedSlides.value,
             frames: validatedSlides.frames,
+            clickAction: clickAction,
             playPart: ModelValidationUtils.validateBoolean(model.playPart),
             separateFiles: validatedAudioFiles.value,
             playSeparateFiles: playSeparateFiles
