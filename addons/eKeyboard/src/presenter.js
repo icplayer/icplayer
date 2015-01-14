@@ -154,7 +154,8 @@ function AddoneKeyboard_create(){
             positionMy = presenter.validatePosition(model['positionMy'], true),
             positionAt = presenter.validatePosition(model['positionAt'], false),
             workWithIsValid = true,
-            workWithErrorCode = '';
+            workWithErrorCode = '',
+            customDisplay = model['customDisplay'];
 
         if (!isPreview) {
             $.each(workWithModules, function() {
@@ -214,6 +215,11 @@ function AddoneKeyboard_create(){
             customLayout = presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType];
             layoutType = 'custom';
         }
+
+        if (typeof(customDisplay) == 'undefined') {
+            customDisplay = '';
+        }
+
         return {
             'isError' : false,
             'workWithViews' : workWithViews,
@@ -224,7 +230,8 @@ function AddoneKeyboard_create(){
             'maxCharacters' : maxCharacters.value,
             'offset' : presenter.validateOffsetData(positionMy.value, positionAt.value),
             'openOnFocus' : !ModelValidationUtils.validateBoolean(model['noOpenOnFocus']),
-            'lockInput' : ModelValidationUtils.validateBoolean(model['lockStandardKeyboardInput'])
+            'lockInput' : ModelValidationUtils.validateBoolean(model['lockStandardKeyboardInput']),
+            'customDisplay' : customDisplay
         }
     };
 
@@ -251,6 +258,45 @@ function AddoneKeyboard_create(){
                         DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
                     }
                 }
+
+                if (presenter.configuration.customDisplay.length > 0) {
+                    try {
+                        eval('presenter.configuration.customDisplay = ' + presenter.configuration.customDisplay);
+                    } catch(e) {
+                        presenter.ERROR_CODES['evaluationError'] = e.message;
+                        DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
+                    }
+                }
+                presenter.configuration.customLayout.id = new Date().getTime();
+
+                var defaultDisplay = {
+                    a      : '\u2714:Accept (Shift-Enter)', // check mark - same action as accept
+                    accept : 'Accept:Accept (Shift-Enter)',
+                    alt    : 'AltGr:Alternate Graphemes',
+                    b      : '\u2190:Backspace',    // Left arrow (same as &larr;)
+                    bksp   : 'Bksp:Backspace',
+                    c      : '\u2716:Cancel (Esc)', // big X, close - same action as cancel
+                    cancel : 'Cancel:Cancel (Esc)',
+                    clear  : 'C:Clear',             // clear num pad
+                    combo  : '\u00f6:Toggle Combo Keys',
+                    dec    : '.:Decimal',           // decimal point for num pad (optional), change '.' to ',' for European format
+                    e      : '\u21b5:Enter',        // down, then left arrow - enter symbol
+                    enter  : 'Enter:Enter',
+                    left   : '\u2190',              // left arrow (move caret)
+                    lock   : '\u21ea Lock:Caps Lock', // caps lock
+                    next   : 'Next',
+                    prev   : 'Prev',
+                    right  : '\u2192',              // right arrow (move caret)
+                    s      : '\u21e7:Shift',        // thick hollow up arrow
+                    shift  : 'CapsLock:CapsLock',
+                    sign   : '\u00b1:Change Sign',  // +/- sign for num pad
+                    space  : '&nbsp;:Space',
+                    t      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
+                    tab    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
+                }
+
+                var customDisplay = presenter.configuration.customDisplay;
+                var display = $.extend(defaultDisplay, customDisplay);
 
                 var config = {
                     // *** choose layout ***
@@ -279,31 +325,7 @@ function AddoneKeyboard_create(){
                     stayOpen     : false,
 
                     // *** change keyboard language & look ***
-                    display : {
-                        'a'      : '\u2714:Accept (Shift-Enter)', // check mark - same action as accept
-                        'accept' : 'Accept:Accept (Shift-Enter)',
-                        'alt'    : 'AltGr:Alternate Graphemes',
-                        'b'      : '\u2190:Backspace',    // Left arrow (same as &larr;)
-                        'bksp'   : 'Bksp:Backspace',
-                        'c'      : '\u2716:Cancel (Esc)', // big X, close - same action as cancel
-                        'cancel' : 'Cancel:Cancel (Esc)',
-                        'clear'  : 'C:Clear',             // clear num pad
-                        'combo'  : '\u00f6:Toggle Combo Keys',
-                        'dec'    : '.:Decimal',           // decimal point for num pad (optional), change '.' to ',' for European format
-                        'e'      : '\u21b5:Enter',        // down, then left arrow - enter symbol
-                        'enter'  : 'Enter:Enter',
-                        'left'   : '\u2190',              // left arrow (move caret)
-                        'lock'   : '\u21ea Lock:Caps Lock', // caps lock
-                        'next'   : 'Next',
-                        'prev'   : 'Prev',
-                        'right'  : '\u2192',              // right arrow (move caret)
-                        's'      : '\u21e7:Shift',        // thick hollow up arrow
-                        'shift'  : 'CapsLock:CapsLock',
-                        'sign'   : '\u00b1:Change Sign',  // +/- sign for num pad
-                        'space'  : '&nbsp;:Space',
-                        't'      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
-                        'tab'    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-                    },
+                    display : display,
 
                     // Message added to the key title while hovering, if the mousewheel plugin exists
                     wheelMessage : 'Use mousewheel to see other keys',

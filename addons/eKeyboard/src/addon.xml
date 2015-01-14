@@ -11,5 +11,6 @@
         <property name="maxCharacters" displayName="Max Characters" type="string" />
         <property name="noOpenOnFocus" displayName="Don't Open On Focus" type="boolean" />
         <property name="lockStandardKeyboardInput" displayName="Lock Standard Keyboard Input" type="boolean" />
+        <property name="customDisplay" displayName="Custom Display" type="text" />
 	</model>
 </addon>
