@@ -596,7 +596,6 @@ function AddonTextAudio_create() {
         originalFile.mp3 = model.mp3;
         originalFile.ogg = model.ogg;
 
-
         if (!originalFile.ogg && !originalFile.mp3) {
             return getErrorObject('M01');
         }
@@ -607,9 +606,14 @@ function AddonTextAudio_create() {
             return getErrorObject(validatedSlides.errorCode);
         }
 
-        var playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles);
+        if (clickAction == 'properties_based') {
+            var playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles);
+            if (playSeparateFiles) {
+                clickAction = 'play_vocabulary_file';
+            }
+        }
 
-        if ((playSeparateFiles && clickAction=='properties_based') || clickAction=='play_vocabulary_file') {
+        if (clickAction=='play_vocabulary_file') {
             validatedAudioFiles = presenter.validateSeparateFiles(model.separateFiles);
             if (!validatedAudioFiles.isValid) return getErrorObject(validatedAudioFiles.errorCode);
         } else {
@@ -636,7 +640,7 @@ function AddonTextAudio_create() {
             clickAction: clickAction,
             playPart: ModelValidationUtils.validateBoolean(model.playPart),
             separateFiles: validatedAudioFiles.value,
-            playSeparateFiles: playSeparateFiles
+            playSeparateFiles: (clickAction == 'play_vocabulary_file')
         };
     };
 
