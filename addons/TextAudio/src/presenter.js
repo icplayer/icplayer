@@ -494,6 +494,16 @@ function AddonTextAudio_create() {
         return ((minutes * 60 + seconds) * presenter.fps) + decyseconds;
     };
 
+    presenter.timeEntry = function(slide_time) {
+        var entry = slide_time.split('-');
+            if (entry.length != 2) {
+                return {errorCode: 'M03', errorData: slide_time}
+            }
+
+            var entry_start = presenter.toFrames(entry[0]),
+                entry_end = presenter.toFrames(entry[1]);
+            return {start:entry_start, end:entry_end};
+    };
 
     presenter.validateSlides = function(slides) {
         var validationResult = {
@@ -516,17 +526,17 @@ function AddonTextAudio_create() {
             }
 
             for (var j=0; j<slide_times.length; j++) {
-                var entry = slide_times[j].split('-');
-
-                if (entry.length != 2) {
-                    validationResult.errorCode = 'M03';
-                    validationResult.errorData = slide_times[j];
+                var entry = slide_times[j];
+                slide_times[j] = presenter.timeEntry(entry);
+                if (slide_times[j].errorCode) {
+                    validationResult.errorCode = slide_times[j].errorCode;
+                    validationResult.errorData = entry;
                     return validationResult;
                 }
 
-                var entry_start = presenter.toFrames(entry[0]),
-                    entry_end = presenter.toFrames(entry[1]);
-                slide_times[j] = {start:entry_start, end:entry_end};
+                var entry_start = slide_times[j].start,
+                    entry_end = slide_times[j].end;
+
                 if (entry_start > entry_end) {
                     validationResult.errorCode = 'M04';
                     return validationResult;
@@ -597,13 +607,19 @@ function AddonTextAudio_create() {
             errorCode: false
         };
 
-        var vocIntervals = intervals.split('\n');
+        var vocIntervals = intervals.split('\n'),
+            i, intervals=[], time_range;
         if (vocIntervals.length != presenter.totalNumberOfParts) {
             returnObj.errorCode = 'VI02';
             return returnObj;
         }
 
-        return returnObj;
+        for (var i=0; i<vocIntervals.length; i++) {
+            time_range = presenter.timeEntry(vocIntervals[i]);
+            intervals.push(time_range);
+        }
+
+        return intervals;
     };
 
     presenter.validateModel = function (model) {
