@@ -607,9 +607,16 @@ function AddonTextAudio_create() {
         }
 
         if (clickAction == 'properties_based') {
+            var playPart = ModelValidationUtils.validateBoolean(model.playPart)
+            if (playPart) {
+                clickAction = 'play_interval';
+            }
             var playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles);
             if (playSeparateFiles) {
                 clickAction = 'play_vocabulary_file';
+            }
+            if (!playPart && !playSeparateFiles) {
+                clickAction = 'play_from_the_moment';
             }
         }
 
@@ -638,7 +645,7 @@ function AddonTextAudio_create() {
             slides: validatedSlides.value,
             frames: validatedSlides.frames,
             clickAction: clickAction,
-            playPart: ModelValidationUtils.validateBoolean(model.playPart),
+            playPart: (clickAction == 'play_interval'),
             separateFiles: validatedAudioFiles.value,
             playSeparateFiles: (clickAction == 'play_vocabulary_file')
         };
