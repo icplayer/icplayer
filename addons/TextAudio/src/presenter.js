@@ -50,7 +50,9 @@ function AddonTextAudio_create() {
         'M05': 'Duplicated text for second',
         'SAF01': 'Property Vocabulary audio files cannot be empty',
         'SAF02': 'Number of Vocabulary audio files and time items must be the same',
-        'SAF03': 'All values in property Vocabulary audio files has to be filled'
+        'SAF03': 'All values in property Vocabulary audio files has to be filled',
+        'VI01': 'At least one vocabulary audio file have to be set.',
+        'VI02': 'Number of parts in Vocabulary intervals have to be equal to sum of times periods defined in Slides property'
     };
 
     presenter.audio = {};
@@ -589,6 +591,21 @@ function AddonTextAudio_create() {
         return getCorrectObject(audioFiles);
     };
 
+    presenter.validateVocabularyIntervals = function(intervals) {
+        var returnObj = {
+            intervals: undefined,
+            errorCode: false
+        };
+
+        var vocIntervals = intervals.split('\n');
+        if (vocIntervals.length != presenter.totalNumberOfParts) {
+            returnObj.errorCode = 'VI02';
+            return returnObj;
+        }
+
+        return returnObj;
+    };
+
     presenter.validateModel = function (model) {
         var validatedAudioFiles = null,
             transposedBehaviors = transposeDict(AllowedClickBehaviors),
@@ -602,6 +619,7 @@ function AddonTextAudio_create() {
 
         presenter.totalNumberOfParts = 0;
         var validatedSlides = presenter.validateSlides(model.Slides);
+        var validatedVocabularyIntervals = presenter.validateVocabularyIntervals(model.vocabulary_intervals);
         if (validatedSlides.errorCode) {
             return getErrorObject(validatedSlides.errorCode);
         }
@@ -631,7 +649,10 @@ function AddonTextAudio_create() {
             vocabularyFile.mp3 = model.vocabulary_mp3;
             vocabularyFile.ogg = model.vocabulary_ogg;
             if (!vocabularyFile.mp3 && !vocabularyFile.ogg) {
-                getErrorObject(validatedAudioFiles.errorCode);
+                return getErrorObject('VI01');
+            }
+            if (validatedVocabularyIntervals.errorCode) {
+                return getErrorObject(validatedVocabularyIntervals.errorCode);
             }
         }
 
@@ -647,7 +668,8 @@ function AddonTextAudio_create() {
             clickAction: clickAction,
             playPart: (clickAction == 'play_interval'),
             separateFiles: validatedAudioFiles.value,
-            playSeparateFiles: (clickAction == 'play_vocabulary_file')
+            playSeparateFiles: (clickAction == 'play_vocabulary_file'),
+            vocabularyIntervals: validatedVocabularyIntervals.intervals
         };
     };
 
