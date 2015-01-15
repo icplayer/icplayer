@@ -21,9 +21,9 @@
         </property>
 
         <property name="clickAction" displayName="On Text Click Behavior" type="{Based on properties, Play from the moment, Play the interval, Play vocabulary audio file, Play the interval from vocabulary file}" />
-        <property name='vocabulary_mp3' type='file' />
-        <property name='vocabulary_ogg' type='file' />
-        <property name='Vocabulary intervals' type='text' isLocalized='true' />
+        <property name='vocabulary_mp3' displayName="Vocabulary mp3" type='file' />
+        <property name='vocabulary_ogg' displayName="Vocabulary ogg" type='file' />
+        <property name='vocabulary_intervals' displayName="Vocabulary intervals" type='text' isLocalized='true' />
 
         <property name='onEnd' displayName='On end' type='event' />
     </model>
