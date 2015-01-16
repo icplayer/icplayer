@@ -224,36 +224,45 @@ function AddonTextAudio_create() {
 
                     presenter.playedByClick = true;
                     presenter.selectionId = parseInt($(this).attr('data-selectionId'), 10);
+                    var interval_id = parseInt($(this).attr('data-intervalId'), 10);
 
-                    if (presenter.configuration.playSeparateFiles && !isPlaying) {
-                        presenter.pause();
-                        playSingleAudioPlayer(slide_id, presenter.selectionId);
-                        markItem(presenter.selectionId);
-                    } else {
-                        presenter.play();
-
-                        if ($(this).hasClass("tmp-active")) {
-                            $(this).removeClass("tmp-active");
-                            $(this).addClass("active");
-                        }
-
-                        if (MobileUtils.isSafariMobile(navigator.userAgent)) {
-                            function fun() {
-                                if (slide_id >= 0 || presenter.selectionId >= 0) {
-                                    var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
-                                    presenter.audio.currentTime = frame2go / presenter.fps;
-                                }
-                                presenter.audio.removeEventListener("playing", fun, false);
-                            }
-                            if (hasBeenStarted) {
+                    switch (presenter.configuration.clickAction) {
+                        case 'play_vocabulary_interval':
+                            alert(interval_id);
+                            break;
+                        case 'play_vocabulary_file':
+                            if (!isPlaying) {
                                 presenter.pause();
-                                go_to(slide_id, presenter.selectionId);
-                            } else {
-                                presenter.audio.addEventListener("playing", fun, false);
+                                playSingleAudioPlayer(slide_id, presenter.selectionId);
+                                markItem(presenter.selectionId);
+                                break;
                             }
-                        } else {
-                            go_to(slide_id, presenter.selectionId);
-                        }
+                        case 'play_interval':
+                        case 'play_from_the_moment':
+                            presenter.play();
+
+                            if ($(this).hasClass("tmp-active")) {
+                                $(this).removeClass("tmp-active");
+                                $(this).addClass("active");
+                            }
+
+                            if (MobileUtils.isSafariMobile(navigator.userAgent)) {
+                                function fun() {
+                                    if (slide_id >= 0 || presenter.selectionId >= 0) {
+                                        var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
+                                        presenter.audio.currentTime = frame2go / presenter.fps;
+                                    }
+                                    presenter.audio.removeEventListener("playing", fun, false);
+                                }
+                                if (hasBeenStarted) {
+                                    presenter.pause();
+                                    go_to(slide_id, presenter.selectionId);
+                                } else {
+                                    presenter.audio.addEventListener("playing", fun, false);
+                                }
+                            } else {
+                                go_to(slide_id, presenter.selectionId);
+                            }
                     }
                 });
             });
