@@ -210,9 +210,11 @@ function AddonTextAudio_create() {
     	if (slide_id < 0) {
             textWrapper.html('');
         } else {
-        	var html = '';
+        	var html = '', text, interval;
             for (var i=0; i<presenter.configuration.slides[slide_id].Text.length; i++) {
-                html += '<span class="textelement' + i + '" data-selectionId="' + i + '">' + presenter.configuration.slides[slide_id].Text[i] + '</span>';
+                text = presenter.configuration.slides[slide_id].Text[i];
+                interval = presenter.configuration.slides[slide_id].intervals[i];
+                html += '<span class="textelement' + i + '" data-selectionId="' + i + '" data-intervalId="' + interval + '">' + text + '</span>';
             }
             textWrapper.html(html);
             textWrapper.attr('data-slideId', slide_id);
@@ -514,11 +516,13 @@ function AddonTextAudio_create() {
             }],
             errorCode: false
         };
-        var frames = [];
+        var frames = [],
+            interval = 0;
         for (var i=0; i<slides.length; i++) {
             var slide = slides[i];
             var slide_texts = slide.Text.split('||');
             var slide_times = slide.Times.split('\n');
+            var slide_intervals=[];
 
             if (slide_texts.length != slide_times.length) {
                 validationResult.errorCode = 'M02';
@@ -560,10 +564,13 @@ function AddonTextAudio_create() {
                         selection_id: j
                     }
                 }
+                slide_intervals.push(interval);
+                interval++;
             }
 
             slide.Text = slide_texts;
             slide.Times= slide_times;
+            slide.intervals = slide_intervals;
             slides[i] = slide;
         }
         validationResult.isValid = true;
@@ -571,10 +578,7 @@ function AddonTextAudio_create() {
         validationResult.frames = frames;
 
         presenter.slidesLengths = [];
-        presenter.totalNumberOfParts = validationResult.value.reduce(function(total, slide) {
-            presenter.slidesLengths.push(slide.Text.length);
-            return total + slide.Text.length;
-        }, 0);
+        presenter.totalNumberOfParts = interval;
 
         return validationResult;
     };
