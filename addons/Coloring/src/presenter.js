@@ -126,7 +126,28 @@ function AddonColoring_create(){
                 presenter.configuration.colorsThatCanBeFilled.push(presenter.configuration.currentFillingColor)
             }
         }
+
     };
+
+    function recolorImage() {
+        var imageData = presenter.ctx.getImageData(0, 0,presenter.canvasWidth, presenter.canvasHeight);
+
+        for (var i=0;i<imageData.data.length;i+=4)
+        {
+            if(imageData.data[i]==0 &&
+                imageData.data[i+1]==0 &&
+                imageData.data[i+2]==0 &&
+                imageData.data[i+3]==255
+                ){
+                imageData.data[i]=55;
+                imageData.data[i+1]=55;
+                imageData.data[i+2]=55;
+                imageData.data[i+3]=255;
+            }
+        }
+
+        presenter.ctx.putImageData(imageData,0,0);
+    }
 
     function runLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
@@ -160,7 +181,6 @@ function AddonColoring_create(){
 
             presenter.imageData = presenter.ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
 
-            //presenter.ctx = ctx;
             presenter.image = imageElement;
 
             var coloringContainer = presenter.$view.find('.coloring-container');
@@ -222,6 +242,7 @@ function AddonColoring_create(){
                     }
                 });
 
+                recolorImage();
                 presenter.runEndedDeferred.resolve();
             }
         });
@@ -240,13 +261,11 @@ function AddonColoring_create(){
                 return true;
             }
         }
-
         return false;
     };
 
     presenter.compareArrays = function(array1, array2) {
         // if the other array is a falsy value, return
-
         if (!array2)
             return false;
 
@@ -255,7 +274,9 @@ function AddonColoring_create(){
             return false;
 
         for (var i = 0, l=array1.length; i < l; i++) {
-            if (array1[i] != array2[i]) {
+            if (array1[i] != array2[i] && (array1[i]+1) != array2[i] && (array1[i]-1) != array2[i]) {
+                //Due to the lossy nature of converting to and from premultiplied alpha color values,
+                // pixels that have just been set using putImageData() might be returned to an equivalent getImageData() as different values. http://www.w3.org/TR/2dcontext/#dom-context-2d-getimagedata
                 // Warning - two different object instances will never be equal: {x:20} != {x:20}
                 return false;
             }
@@ -504,10 +525,12 @@ function AddonColoring_create(){
 
     presenter.enable = function() {
         presenter.configuration.isDisabled = false;
+        $(presenter.canvas).off('click');
         $(presenter.canvas).on('click', function(e){
             presenter.clickLogic(e);
         });
 
+        $(presenter.canvas).off('touchstart');
         $(presenter.canvas).on('touchstart', function (e){
             e.stopPropagation();
             e.preventDefault();
@@ -515,6 +538,7 @@ function AddonColoring_create(){
             presenter.lastEvent = e;
         });
 
+        $(presenter.canvas).off('touchend');
         $(presenter.canvas).on('touchend', function (e){
             e.stopPropagation();
             e.preventDefault();
@@ -655,6 +679,7 @@ function AddonColoring_create(){
         }
 
         setColorsThatCanBeFilled();
+        recolorImage();
     };
 
     presenter.getErrorCount = function(){
@@ -942,6 +967,7 @@ function AddonColoring_create(){
         });
 
         presenter.clearCanvas();
+        recolorImage();
 
         var areas = presenter.configuration.areas;
 
@@ -964,7 +990,7 @@ function AddonColoring_create(){
         }
 
         presenter.clearCanvas();
-
+        recolorImage();
         $.each(presenter.tmpFilledAreas, function() {
             floodFill({
                     x: this.area.x,
