@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.utils.MathJax;
 
 
 public class OrderingView extends Composite implements IDisplay {
@@ -305,10 +306,12 @@ public class OrderingView extends Composite implements IDisplay {
 		
 	}
 	
+	@Override
 	public void setWorkStatus(boolean isWorkOn) {
 		workMode = isWorkOn;
 	}
 	
+	@Override
 	public void setCorrectAnswer() {
 		List<Integer> correctOrder = new ArrayList<Integer>();
 		for (int i=0; i<module.getItemCount(); i++) {
@@ -318,6 +321,7 @@ public class OrderingView extends Composite implements IDisplay {
 		placeItemsByOrder(correctOrder);
 	}
 	
+	@Override
 	public void setCorrectAnswersStyles() {
 		for (int i = 0; i < getWidgetCount(); i++) {
 			if (getWidget(i) instanceof ItemWidget) {
@@ -377,4 +381,16 @@ public class OrderingView extends Composite implements IDisplay {
 		this.listener = listener;
 	}
 	
+	private void refreshMath() {
+		MathJax.refreshMathJax(getElement());
+	}
+	
+	public void hide() {
+		setVisible(false);
+	}
+
+	public void show() {
+		setVisible(true);
+		refreshMath();
+	}
 }
