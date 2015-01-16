@@ -32,7 +32,7 @@ function AddonTextAudio_create() {
     function startTimeMeasurement() {
         isPlaying = true;
         if (!presenter.audioClock) {
-            presenter.audioClock = setInterval(function() { onTimeUpdateCallback(); }, 100);
+            presenter.audioClock = setInterval(function() { onTimeUpdateCallback(); }, 1000 / presenter.fps);
         }
     }
 
