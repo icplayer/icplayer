@@ -228,7 +228,10 @@ function AddonTextAudio_create() {
 
                     switch (presenter.configuration.clickAction) {
                         case 'play_vocabulary_interval':
-                            alert(interval_id);
+                            var frame = presenter.configuration.vocabularyIntervals[interval_id];
+                            presenter.vocabulary.setTime(frame.start / presenter.fps);
+                            presenter.vocabulary.play();
+                            markItem(presenter.selectionId);
                             break;
                         case 'play_vocabulary_file':
                             if (!isPlaying) {
@@ -418,6 +421,17 @@ function AddonTextAudio_create() {
             } else if (canPlayOgg) {
                 $(audio).attr("src", originalFile.ogg);
             }
+
+            if (presenter.configuration.clickAction=='play_vocabulary_interval') {
+                presenter.vocabulary = new buzz.sound([
+                    presenter.configuration.vocabulary_mp3,
+                    presenter.configuration.vocabulary_ogg
+                ]);
+                presenter.vocabulary.bind('ended', function() {
+                presenter.reset();
+            });
+            }
+
 
         } else {
             $(audio).append("Your browser doesn't support audio.");
@@ -632,7 +646,8 @@ function AddonTextAudio_create() {
             intervals.push(time_range);
         }
 
-        return intervals;
+        returnObj.intervals = intervals;
+        return returnObj;
     };
 
     presenter.validateModel = function (model) {
@@ -698,6 +713,8 @@ function AddonTextAudio_create() {
             playPart: (clickAction == 'play_interval'),
             separateFiles: validatedAudioFiles.value,
             playSeparateFiles: (clickAction == 'play_vocabulary_file'),
+            vocabulary_mp3: model.vocabulary_mp3,
+            vocabulary_ogg: model.vocabulary_ogg,
             vocabularyIntervals: validatedVocabularyIntervals.intervals
         };
     };
