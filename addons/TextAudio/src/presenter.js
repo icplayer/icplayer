@@ -177,6 +177,14 @@ function AddonTextAudio_create() {
     };
 
     function onTimeUpdateCallback() {
+        if (presenter.is_vocabulary_playing) {
+            if (presenter.vocabulary.getTime() * presenter.fps >= presenter.vocabulary_end) {
+                presenter.vocabulary.pause();
+                presenter.is_vocabulary_playing = false;
+                presenter.clearSelection();
+            }
+            return;
+        }
         var currentTime = presenter.audio.currentTime;
         if (presenter.configuration.displayTime) {
             var duration = parseInt(presenter.audio.duration, 10);
@@ -230,6 +238,8 @@ function AddonTextAudio_create() {
                         case 'play_vocabulary_interval':
                             var frame = presenter.configuration.vocabularyIntervals[interval_id];
                             presenter.vocabulary.setTime(frame.start / presenter.fps);
+                            presenter.vocabulary_end = frame.end;
+                            presenter.is_vocabulary_playing = true;
                             presenter.vocabulary.play();
                             markItem(presenter.selectionId);
                             break;
@@ -428,11 +438,18 @@ function AddonTextAudio_create() {
                     presenter.configuration.vocabulary_ogg
                 ]);
                 presenter.vocabulary.bind('ended', function() {
-                presenter.reset();
-            });
+                    presenter.clearSelection();
+                });
+                presenter.vocabulary.bind('play', function() {
+                    if (!presenter.playedByClick) {
+                        presenter.selectionId = undefined;
+                    }
+                    startTimeMeasurement();
+                }, false);
+                presenter.vocabulary.bind('pause', function() {
+                    stopTimeMeasurement();
+                }, false);
             }
-
-
         } else {
             $(audio).append("Your browser doesn't support audio.");
         }
@@ -449,7 +466,7 @@ function AddonTextAudio_create() {
             ]);
 
             localBuzz.bind('ended', function() {
-                presenter.reset();
+                presenter.clearSelection();
             });
 
             presenter.buzzAudio.push(localBuzz);
@@ -813,6 +830,10 @@ function AddonTextAudio_create() {
             presenter.hideAddon();
         }
     };
+
+    presenter.clearSelection = function(){
+        presenter.$view.find('.textaudio-text span.active').removeClass('active');
+    }
 
     presenter.getState = function() {
         return JSON.stringify({
