@@ -1,11 +1,13 @@
 package com.lorepo.icplayer.client.module.ordering;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -16,28 +18,44 @@ import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver {
 
 	public interface IDisplay extends IModuleView {
 		void addReorderListener(IReorderListener listener);
+		void setWorkStatus(boolean b);
+		void setCorrectAnswersStyles();
+		void setCorrectAnswer();
+		void removeCorrectAnswersStyles();
+		String getState();
+		void setState(String string);
+		int getErrorCount();
+		void setShowErrorsMode();
+		void setWorkMode();
+		void reset();
+		String getInitialOrder();
+		void show();
+		void hide();
 	}
 	
 	private OrderingModule	module;
 	private IPlayerServices playerServices;
-	private OrderingView view;
+	private IDisplay view;
 	private JavaScriptObject jsObject;
 	private boolean isSolved = false;
 	private String currentState = "";
 	private String currentState_view = "";
 	private boolean isShowAnswersActive = false;
 	private boolean isShowErrorsActive = false;
+	private boolean isVisible;
 
 	public OrderingPresenter(OrderingModule module, IPlayerServices services) {
 		
 		this.module = module;
 		this.playerServices = services;
+		this.setVisible(module.isVisible());
 		
 		connectHandlers();
 	}
@@ -120,6 +138,16 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	public String getSerialId() {
 		return module.getId();
 	}
+	
+	protected HashMap<String, String> prepareStateObject() {
+		HashMap<String, String> stateMap = new HashMap<String, String>();
+		
+		stateMap.put("order", view.getState());
+		stateMap.put("isSolved", Boolean.toString(isSolved()));
+		stateMap.put("isVisible", Boolean.toString(isVisible()));
+		
+		return stateMap;
+	}
 
 	@Override
 	public String getState() {
@@ -129,16 +157,40 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		
 		if (view == null)
 			return "";
-
-		return view.getState() + "@" + isSolved;
+		
+		IJsonServices json = playerServices.getJsonServices();
+		
+		return json.toJSONString(prepareStateObject());
+	}
+	
+	protected void setStateFromHashMap(HashMap<String, String> state) {
+		view.setState(state.get("order"));
+		setSolved(Boolean.parseBoolean(state.get("isSolved")));
+		
+		if (Boolean.parseBoolean(state.get("isVisible"))) {
+			show();
+		} else {
+			hide();
+		}
 	}
 
 	@Override
 	public void setState(String stateObj) {
-		String[] tokens = stateObj.split("@");
-		if (view != null && tokens.length == 2) {
-			view.setState(tokens[0]);
-			isSolved = Boolean.parseBoolean(tokens[1]);
+		if (view == null) {
+			return;
+		}
+		
+		if (stateObj.indexOf("@") != -1) {
+			String[] tokens = stateObj.split("@");
+			if (view != null && tokens.length == 2) {
+				view.setState(tokens[0]);
+				setSolved(Boolean.parseBoolean(tokens[1]));
+			}			
+		} else {
+			IJsonServices json = playerServices.getJsonServices();
+			HashMap<String, String> state = json.decodeHashMap(stateObj);
+			
+			setStateFromHashMap(state);
 		}
 	}
 	
@@ -152,7 +204,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 
 		int errors = 0;
-		if (view != null && isSolved && module.isActivity()) {
+		if (view != null && isSolved() && module.isActivity()) {
 			errors = view.getErrorCount();
 		}
 		
@@ -166,7 +218,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		
 		this.isShowErrorsActive = true;
 		
-		isSolved = true;
+		setSolved(true);
 		if (view != null) {
 			view.setShowErrorsMode();
 		}
@@ -189,7 +241,14 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 			hideAnswers();
 		}
 		
-		isSolved = true;
+		setSolved(true);
+		
+		if (module.isVisible()) {
+			show();
+		} else {
+			hide();
+		}
+		
 		if (view != null) {
 			view.reset();
 		}
@@ -215,8 +274,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public void addView(IModuleView view) {
 
-		if (view instanceof OrderingView) {
-			this.view = (OrderingView) view;
+		if (view instanceof IDisplay) {
+			this.view = (IDisplay) view;
 			this.view.addReorderListener(new IReorderListener() {
 				
 				@Override
@@ -255,13 +314,21 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 				return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::isAttempted()();
 			};
         }
+        
+        presenter.show = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::show()();
+		}
+
+		presenter.hide = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::hide()();
+		}
 		
 		return presenter;
 	}-*/;
 	
 
 	private void onValueChanged(int sourceIndex, int destIndex) {
-		isSolved = true;
+		setSolved(true);
 		String id = Integer.toString(sourceIndex+1);
 		String newValue = Integer.toString(destIndex+1);
 		String score = Integer.toString(getScore());
@@ -275,7 +342,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public String getName() {
-		return null;
+		return module.getId();
 	}
 
 	@Override
@@ -287,6 +354,14 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
         if (commandName.compareTo("isattempted") == 0 && module.isActivity()) {
             return String.valueOf(isAttempted());
         }
+        
+        if (commandName.compareTo("show") == 0){
+			show();
+		}
+        
+        if (commandName.compareTo("hide") == 0){
+			hide();
+		}
 		
 		return "";
 	}
@@ -301,5 +376,44 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 
 		return view.getInitialOrder() != view.getState();
+	}
+	
+	private void show(){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
+		setVisible(true);
+		if(view != null){
+			view.show();
+		}
+	}
+	
+	
+	private void hide(){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
+		setVisible(false);
+		if(view != null){
+			view.hide();
+		}
+	}
+
+	protected boolean isVisible() {
+		return isVisible;
+	}
+
+	protected void setVisible(boolean isVisible) {
+		this.isVisible = isVisible;
+	}
+
+	public boolean isSolved() {
+		return isSolved;
+	}
+
+	public void setSolved(boolean isSolved) {
+		this.isSolved = isSolved;
 	}
 }
