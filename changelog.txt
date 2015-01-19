@@ -1,3 +1,4 @@
+2015-01-19 Added translations of addons names
 2015-01-16 Added show and hide commands to Ordering module
 2015-01-16 Fixed sending multiple events after reset and coloring fields in Coloring module
 2015-01-16 Moved zoom library code outside IWB Toolbar module
