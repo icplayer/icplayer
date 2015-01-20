@@ -2,9 +2,9 @@
 
 <addon id='Text_Selection' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Mode' type='{Mark phrases to select, All selectable}'/>
-		<property name='Selection type' type='{Single select, Multiselect}'/>
-		<property name='Text' type='html' isLocalized="true"/>
-        <property name='Enable letters selections' type='boolean'/>
+		<property name='Mode' nameLabel="Text_Selection_property_mode" type='{Mark phrases to select, All selectable}'/>
+		<property name='Selection type' nameLabel="Text_Selection_property_selection_type" type='{Single select, Multiselect}'/>
+		<property name='Text' nameLabel="Text_Selection_property_text" type='html' isLocalized="true"/>
+        <property name='Enable letters selections' nameLabel="Text_Selection_property_enable_letters_selections" type='boolean'/>
 	</model>
 </addon>

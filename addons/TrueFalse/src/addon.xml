@@ -2,14 +2,14 @@
 
 <addon id='TrueFalse' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="isNotActivity" displayName="Is not an activity" type="boolean" />
-		<property name="Multi" type="boolean" />
-		<property name="Questions" type="list">
-			<property name="Question" type="html" isLocalized="true" />
-			<property name="Answer" type="string" />
+        <property name="isNotActivity" displayName="Is not an activity" nameLabel="TrueFalse_property_is_not_activity" type="boolean" />
+		<property name="Multi" nameLabel="TrueFalse_property_multi" type="boolean" />
+		<property name="Questions" nameLabel="TrueFalse_property_questions" type="list">
+			<property name="Question" nameLabel="TrueFalse_property_question" type="html" isLocalized="true" />
+			<property name="Answer" nameLabel="TrueFalse_property_answer" type="string" />
 		</property>
-		<property name="Choices" type="list">
-			<property name="Choice" type="html" isLocalized="true" />
+		<property name="Choices" nameLabel="TrueFalse_property_choices" type="list">
+			<property name="Choice" nameLabel="TrueFalse_property_choice" type="html" isLocalized="true" />
 		</property>
 	</model>
 </addon>

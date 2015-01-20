@@ -2,9 +2,9 @@
 
 <addon id='Image_Identification' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Image' type='image'/>
-		<property name="SelectionCorrect" type="boolean" />
-		<property name="Is not an activity" type="boolean" />
-		<property name="Block in error checking mode" type="boolean" />
+		<property name='Image' nameLabel="Image_Identification_property_image" type='image'/>
+		<property name="SelectionCorrect" nameLabel="Image_Identification_property_selection_correct" type="boolean" />
+		<property name="Is not an activity" nameLabel="Image_Identification_property_is_not_an_activity" type="boolean" />
+		<property name="Block in error checking mode" nameLabel="Image_Identification_property_block_in_error_checking_mode" type="boolean" />
 	</model>
 </addon>

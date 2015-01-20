@@ -2,18 +2,18 @@
 
 <addon id='gamememo' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Pairs' type='list'>
-			<property name="A (text)" type="string" isLocalized="true" />
-			<property name="A (image)" type="file" />
-			<property name="B (text)" type="string" isLocalized="true" />
-			<property name="B (image)" type="file" />
+		<property name='Pairs' nameLabel="gamememo_property_pairs" type='list'>
+			<property name="A (text)" nameLabel="gamememo_property_pair_a_text" type="string" isLocalized="true" />
+			<property name="A (image)" nameLabel="gamememo_property_pair_a_image" type="file" />
+			<property name="B (text)" nameLabel="gamememo_property_pair_b_text" type="string" isLocalized="true" />
+			<property name="B (image)" nameLabel="gamememo_property_pair_b_image" type="file" />
 		</property>
-		<property name="Columns" type="string" />
-		<property name="Rows" type="string" />
-		<property name="Use two styles for cards" type="boolean" />
-		<property name="Image for style A" type="image" />
-		<property name="Image for style B" type="image" />
-		<property name="Keep cards aspect ratio" type="boolean" />
-		<property name="Show cards for preview" type="boolean" />
+		<property name="Columns" nameLabel="gamememo_property_columns" type="string" />
+		<property name="Rows" nameLabel="gamememo_property_rows" type="string" />
+		<property name="Use two styles for cards" nameLabel="gamememo_property_use_two_styles_for_cards" type="boolean" />
+		<property name="Image for style A" nameLabel="gamememo_property_image_for_style_a" type="image" />
+		<property name="Image for style B" nameLabel="gamememo_property_image_for_style_b" type="image" />
+		<property name="Keep cards aspect ratio" nameLabel="gamememo_property_keep_cards_aspect_ratio" type="boolean" />
+		<property name="Show cards for preview" nameLabel="gamememo_property_show_cards_for_preview" type="boolean" />
 	</model>
 </addon>

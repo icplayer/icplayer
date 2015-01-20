@@ -1,32 +1,32 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Connection'>
+<addon id='Connection' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="isNotActivity" displayName="Is not an activity" type="boolean" />
-		<property name='Single connection mode' type='boolean'/>
-		<property name="Left column" type="list">
-			<property name="id" type="string" />
-			<property name="content" type="html" isLocalized="true" />
-			<property name="connects to" type="string" />
-			<property name="additional class" type="string" />
+        <property name="isNotActivity" displayName="Is not an activity" nameLabel="Connection_property_is_not_activity" type="boolean" />
+		<property name='Single connection mode' nameLabel="Connection_property_single_connection_mode" type='boolean'/>
+		<property name="Left column" nameLabel="Connection_property_left_column" type="list">
+			<property name="id" nameLabel="Connection_property_id" type="string" />
+			<property name="content" nameLabel="Connection_property_content" type="html" isLocalized="true" />
+			<property name="connects to" nameLabel="Connection_property_connects_to" type="string" />
+			<property name="additional class" nameLabel="Connection_property_additional_class" type="string" />
 		</property>
-		<property name="Right column" type="list">
-			<property name="id" type="string" />
-			<property name="content" type="html" isLocalized="true" />
-			<property name="connects to" type="string" />
-			<property name="additional class" type="string" />
+		<property name="Right column" nameLabel="Connection_property_right_column" type="list">
+			<property name="id" nameLabel="Connection_property_id" type="string" />
+			<property name="content" nameLabel="Connection_property_content" type="html" isLocalized="true" />
+			<property name="connects to" nameLabel="Connection_property_connects_to" type="string" />
+			<property name="additional class" nameLabel="Connection_property_additional_class" type="string" />
 		</property>
-		<property name="Columns width" type="list">
-			<property name="left" type="string" />
-			<property name="middle" type="string" />
-			<property name="right" type="string" />
+		<property name="Columns width" nameLabel="Connection_property_columns_width" type="list">
+			<property name="left" nameLabel="Connection_property_left" type="string" />
+			<property name="middle" nameLabel="Connection_property_middle" type="string" />
+			<property name="right" nameLabel="Connection_property_right" type="string" />
 		</property>
-		<property name="Default connection color" type="string" />
-		<property name="Correct connection color" type="string" />
-		<property name="Incorrect connection color" type="string" />
-		<property name="Connection thickness" type="string" />
-        <property name="Random order left column" type="boolean" />
-        <property name="Random order right column" type="boolean" />
-        <property name="Show answers line color" type="string" />
+		<property name="Default connection color" nameLabel="Connection_property_default_connection_color" type="string" />
+		<property name="Correct connection color" nameLabel="Connection_property_correct_connection_color" type="string" />
+		<property name="Incorrect connection color" nameLabel="Connection_property_incorrect_connection_color" type="string" />
+		<property name="Connection thickness" nameLabel="Connection_property_connection_thickness" type="string" />
+        <property name="Random order left column" nameLabel="Connection_property_random_order_left_column" type="boolean" />
+        <property name="Random order right column" nameLabel="Connection_property_random_order_right_column" type="boolean" />
+        <property name="Show answers line color" nameLabel="Connection_property_show_answers_line_color" type="string" />
 	</model>
 </addon>

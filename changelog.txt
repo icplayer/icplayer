@@ -1,3 +1,4 @@
+2015-01-20 Added translations of addons properties names
 2015-01-20 Fixed issue with ignore punctuation and accented letters in Text module
 2015-01-19 Added translations of addons names
 2015-01-16 Added show and hide commands to Ordering module
