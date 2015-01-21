@@ -52,7 +52,8 @@ function AddonTextAudio_create() {
         'SAF02': 'Number of Vocabulary audio files and time items must be the same',
         'SAF03': 'All values in property Vocabulary audio files has to be filled',
         'VI01': 'At least one vocabulary audio file have to be set.',
-        'VI02': 'Number of parts in Vocabulary intervals have to be equal to sum of times periods defined in Slides property'
+        'VI02': 'Number of parts in Vocabulary intervals have to be equal to sum of times periods defined in Slides property',
+        'VI03': 'Vocabulary time intervals are not set'
     };
 
     presenter.audio = {};
@@ -650,6 +651,11 @@ function AddonTextAudio_create() {
             intervals: undefined,
             errorCode: false
         };
+
+        if (intervals === undefined) {
+            returnObj.errorCode = 'VI03';
+            return returnObj;
+        }
 
         var vocIntervals = intervals.split('\n'),
             i, intervals=[], time_range;
