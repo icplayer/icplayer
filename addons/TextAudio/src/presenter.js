@@ -109,7 +109,7 @@ function AddonTextAudio_create() {
     presenter.upgradeClickAction = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
-        if (!upgradedModel["clickAction"]) {
+        if (!upgradedModel["clickAction"] || model.playSeparateFiles || model.playPart) {
             upgradedModel["clickAction"] = AllowedClickBehaviors.properties_based;
         }
         return upgradedModel;
