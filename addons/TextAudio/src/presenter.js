@@ -478,7 +478,7 @@ function AddonTextAudio_create() {
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.isLoaded = false;
-        if (this.audio.addEventListener === "function") {
+        if (presenter.configuration.isValid) {
             this.audio.addEventListener("loadeddata", function () {
                 presenter.isLoaded = true;
             });
@@ -857,6 +857,7 @@ function AddonTextAudio_create() {
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return false;
+        if (!presenter.configuration.isValid) return false;
 
         presenter.stop();
 
