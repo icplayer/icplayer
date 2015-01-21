@@ -97,17 +97,50 @@ function AddonTextAudio_create() {
     }
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeClickAction(model);
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        upgradedModel = presenter.upgradeClickAction(upgradedModel);
+        upgradedModel = presenter.upgradePlaySeperateFiles(upgradedModel);
+        upgradedModel = presenter.upgradePlayPart(upgradedModel);
+        upgradedModel = presenter.upgradePlayFromTheMoment(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeClickAction = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
-
         if (!upgradedModel["clickAction"]) {
             upgradedModel["clickAction"] = AllowedClickBehaviors.properties_based;
         }
+        return upgradedModel;
+    };
 
+    presenter.upgradePlaySeperateFiles = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        if (upgradedModel["clickAction"] == AllowedClickBehaviors.properties_based &&
+            ModelValidationUtils.validateBoolean(model.playSeparateFiles)) {
+            upgradedModel["clickAction"] = AllowedClickBehaviors.play_vocabulary_file;
+        }
+        return upgradedModel;
+    };
+
+    presenter.upgradePlayPart = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        if (upgradedModel["clickAction"] == AllowedClickBehaviors.properties_based &&
+            ModelValidationUtils.validateBoolean(model.playPart)) {
+            upgradedModel["clickAction"] = AllowedClickBehaviors.play_interval;
+        }
+        return upgradedModel;
+    };
+
+    presenter.upgradePlayFromTheMoment = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        if (upgradedModel["clickAction"] == AllowedClickBehaviors.properties_based) {
+            upgradedModel["clickAction"] = AllowedClickBehaviors.play_from_the_moment;
+        }
         return upgradedModel;
     };
 
