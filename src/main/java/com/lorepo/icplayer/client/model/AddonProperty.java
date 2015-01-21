@@ -57,7 +57,8 @@ public class AddonProperty {
 		
 		childProperties.clear();
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
-		displayName = XMLUtils.getAttributeAsString(rootElement, "displayName");
+		displayName = AddonPropertyUtils.loadDisplayNameFromXML(rootElement);
+
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
 		isLocalized = XMLUtils.getAttributeAsBoolean(rootElement, "isLocalized", false);
 

@@ -2,8 +2,8 @@
 
 <addon id='Puzzle' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Columns" type="string" />
-		<property name="Rows" type="string" />
-		<property name="Image" type="image" />
+		<property name="Columns" nameLabel="Puzzle_property_columns" type="string"/>
+		<property name="Rows" nameLabel="Puzzle_property_rows" type="string" />
+		<property name="Image" nameLabel="Puzzle_property_image" type="image" />
 	</model>
 </addon>
