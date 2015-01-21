@@ -478,9 +478,11 @@ function AddonTextAudio_create() {
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.isLoaded = false;
-        this.audio.addEventListener("loadeddata", function() {
-            presenter.isLoaded = true;
-        });
+        if (this.audio.addEventListener === "function") {
+            this.audio.addEventListener("loadeddata", function () {
+                presenter.isLoaded = true;
+            });
+        }
         presenter.addonID = model.ID;
     };
 
@@ -495,6 +497,12 @@ function AddonTextAudio_create() {
         presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            delete presenter.play;
+            delete presenter.stop;
+            delete presenter.pause;
+            delete presenter.show;
+            delete presenter.hide;
+            delete presenter.executeCommand;
             return;
         }
 
