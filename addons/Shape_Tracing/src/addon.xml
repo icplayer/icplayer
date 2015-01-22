@@ -13,5 +13,6 @@
         <property name="Pen Thickness" displayName="Thickness" type="string" />
         <property name="Opacity" type="string" />
         <property name="Border" type="string" />
+        <property name="Correct Answer Image" type="file" />
     </model>
 </addon>
