@@ -1,3 +1,4 @@
+2015-01-22 Changed visibility of drawing in IWB Toolbar module
 2015-01-20 Added translations of addons properties names
 2015-01-20 Fixed issue with ignore punctuation and accented letters in Text module
 2015-01-19 Added translations of addons names

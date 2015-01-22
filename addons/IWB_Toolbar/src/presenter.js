@@ -1694,6 +1694,14 @@ function AddonIWB_Toolbar_create() {
                     $(button).addClass('clicked');
                 }
             }
+
+            if (!$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser')){
+                presenter.$penMask.css('pointer-events', 'none');
+                presenter.$markerMask.css('pointer-events', 'none');
+            }else{
+                presenter.$penMask.css('pointer-events', 'auto');
+                presenter.$markerMask.css('pointer-events', 'auto');
+            }
             changeCurrentFloatingImage(presenter.currentFloatingImageIndex);
         }
     }
@@ -1704,8 +1712,8 @@ function AddonIWB_Toolbar_create() {
     }
 
     function toggleMasks() {
-        presenter.$penMask.hide();
-        presenter.$markerMask.hide();
+       // presenter.$penMask.hide();
+       // presenter.$markerMask.hide();
         presenter.$selectingMask.hide();
 
         if (isDrawingActive() || presenter.$pagePanel.find('.eraser').hasClass('clicked')) {
@@ -1848,10 +1856,10 @@ function AddonIWB_Toolbar_create() {
 
         if (shouldHideDrawingMasks) {
             if (presenter.$penMask) {
-                presenter.$penMask.hide();
+                //presenter.$penMask.hide();
             }
             if (presenter.$markerMask) {
-                presenter.$markerMask.hide();
+               // presenter.$markerMask.hide();
             }
         }
 
@@ -2027,6 +2035,11 @@ function AddonIWB_Toolbar_create() {
         drawSavedAreas();
         presenter.isVisible = parsed.isVisible;
         presenter.setVisibility(presenter.isVisible, false, presenter.$view);
+
+        presenter.$penMask.show();
+        presenter.$markerMask.show();
+        presenter.$penMask.css('pointer-events', 'none');
+        presenter.$markerMask.css('pointer-events', 'none');
     };
 
     function setDrawingState(image, ctx, data) {
