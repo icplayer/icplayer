@@ -270,12 +270,15 @@ function AddonTextAudio_create() {
 
                     switch (presenter.configuration.clickAction) {
                         case 'play_vocabulary_interval':
-                            var frame = presenter.configuration.vocabularyIntervals[interval_id];
-                            presenter.vocabulary.setTime(frame.start / presenter.fps);
-                            presenter.vocabulary_end = frame.end;
-                            presenter.is_vocabulary_playing = true;
-                            presenter.vocabulary.play();
-                            markItem(presenter.selectionId);
+                            if (!isPlaying) {
+                                var frame = presenter.configuration.vocabularyIntervals[interval_id];
+                                presenter.clearSelection();
+                                presenter.vocabulary.setTime(frame.start / presenter.fps);
+                                presenter.vocabulary_end = frame.end;
+                                presenter.is_vocabulary_playing = true;
+                                presenter.vocabulary.play();
+                                markItem(presenter.selectionId);
+                            }
                             break;
                         case 'play_vocabulary_file':
                             if (!isPlaying) {
