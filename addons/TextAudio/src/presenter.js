@@ -278,8 +278,8 @@ function AddonTextAudio_create() {
                                 presenter.is_vocabulary_playing = true;
                                 presenter.vocabulary.play();
                                 markItem(presenter.selectionId);
+                                break;
                             }
-                            break;
                         case 'play_vocabulary_file':
                             if (!isPlaying) {
                                 presenter.pause();
