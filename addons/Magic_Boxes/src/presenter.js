@@ -240,6 +240,10 @@ function AddonMagic_Boxes_create() {
     }
 
     presenter.reset = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
+
         presenter.isSelectionPossible = true;
 
         cleanAnswersStyles();
@@ -253,6 +257,10 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.setShowErrorsMode = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
+
         presenter.isSelectionPossible = false;
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
@@ -382,6 +390,9 @@ function AddonMagic_Boxes_create() {
         eventBus = playerController.getEventBus();
         presenter.addonID = model.ID;
         presenterLogic(view, model, false);
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.isWordInRow = function(grid, row, word) {
@@ -743,7 +754,9 @@ function AddonMagic_Boxes_create() {
         if (!presenter.isSelectionPossible) return;
 
         var commands = {
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -771,6 +784,104 @@ function AddonMagic_Boxes_create() {
             'value': value,
             'score': score
         };
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    function applyShowAnswerStyles() {
+        gridContainerWrapper.find(".selectable-element").each(function(index) {
+
+            var className;
+
+            if(goodSelectionIndexes[index] != -1){
+                className = 'selectable-element-show-answers';
+            }
+
+            $(this).addClass(className);
+        });
+    }
+
+    function cleanShowAnswersStyles() {
+        gridContainerWrapper.find(".selectable-element").each(function() {
+            if($(this).hasClass('selectable-element-show-answers')) {
+                $(this).removeClass('selectable-element-show-answers');
+            }
+        });
+    }
+
+    function checkIfSelected (row, column){
+        var index = row * presenter.configuration.columns + column;
+        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+
+        if(gridSelection[row][column]) {// is selected
+            if(element.hasClass('selectable-element-selected')) {
+                element.removeClass('selectable-element-selected');
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    }
+
+    function addClassToSelectedElement (row, column){
+        var index = row * presenter.configuration.columns + column;
+        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+            element.addClass('selectable-element-selected');
+    }
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+
+        presenter.isSelected = [];
+        presenter.setWorkMode();
+
+        for(var row1 = 0; row1 < presenter.configuration.rows; row1++) {
+            presenter.isSelected[row1] = [];
+            for(var column1 = 0; column1 < presenter.configuration.columns; column1++) {
+                presenter.isSelected[row1][column1] = 0;
+            }
+        }
+
+        for(var row = 0; row < presenter.configuration.rows; row++) {
+            for(var column = 0; column < presenter.configuration.columns; column++) {
+                if(checkIfSelected(row, column)){
+                    presenter.isSelected[row][column] = 1;
+                }
+            }
+        }
+
+        presenter.isSelectionPossible = false;
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+
+        goodSelectionIndexes = presenter.convertSelectionToIndexes(goodSelections, rows, columns);
+
+        applyShowAnswerStyles();
+    };
+
+    presenter.hideAnswers = function () {
+        cleanShowAnswersStyles();
+
+        for(var row = 0; row < presenter.configuration.rows; row++) {
+            for(var column = 0; column < presenter.configuration.columns; column++) {
+                if(presenter.isSelected[row][column] == 1){
+                    addClassToSelectedElement(row, column);
+                }
+            }
+        }
+
+        presenter.isSelectionPossible = true;
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
