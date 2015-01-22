@@ -47,3 +47,7 @@
 .selectable-element-selected-uncorrect {
     border-color: red;
 }
+
+.selectable-element-show-answers {
+    border-color: blue;
+}
