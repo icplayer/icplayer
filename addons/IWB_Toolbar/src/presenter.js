@@ -183,7 +183,14 @@ function AddonIWB_Toolbar_create() {
     };
 
     function getCursorPosition(e) {
-        var canvas = presenter.canvas[0];
+        var canvas;
+
+        if(e.target.id == "tmp_canvas") {
+            canvas = presenter.$view.parent().find('.selecting').find('#tmp_canvas')[0];
+        } else {
+            canvas = presenter.canvas[0];
+        }
+
         var rect = canvas.getBoundingClientRect();
         var header = 0;
         var scrollTop = 0;
@@ -193,7 +200,7 @@ function AddonIWB_Toolbar_create() {
             if($('.ic_header').length){
                 header = $('.ic_header').outerHeight(true);
             }
-                scrollTop = $(window).scrollTop();
+            scrollTop = $(window).scrollTop();
             if(/MSIE/i.test(navigator.userAgent)){
                 scrollTop = 0;
             }
@@ -203,14 +210,14 @@ function AddonIWB_Toolbar_create() {
         if (e.clientX) {
             return getPoint(
                 parseInt(e.clientX - rect.left, 10),
-                parseInt(e.clientY - rect.top, 10) + scrollTop - header
+                parseInt(e.clientY - rect.top, 10)
             );
         }
 
         var t = event.targetTouches[0] || event.touches[0] || event.changedTouches[0];
         return getPoint(
             parseInt(t.pageX - canvasOffsetLeft, 10),
-            parseInt(t.pageY - $(canvas).offset().top, 10) + scrollTop - header
+            parseInt(t.pageY - $(canvas).offset().top, 10)
         );
     }
 
@@ -1058,15 +1065,17 @@ function AddonIWB_Toolbar_create() {
         tmp_canvas.width = canvas.width();
         tmp_canvas.height = canvas.height();
 
+        var $tmpCanvas = $('#tmp_canvas');
+
+        if ($.contains(document, $tmpCanvas[0])) {
+            $tmpCanvas.remove();
+        }
+
         presenter.$view.parent().find('.selecting').append(tmp_canvas);
 
         var mouse = getPoint(0, 0);
         var start_mouse = getPoint(0, 0);
         var header = 0;
-
-        if($('.ic_header').length){
-            header = $('.ic_header').outerHeight(true);
-        }
 
         /* Mouse Capturing Work */
         if( /Android|X11|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -1074,8 +1083,8 @@ function AddonIWB_Toolbar_create() {
                 e.stopPropagation();
                 e.preventDefault();
 
-                mouse.x = e.changedTouches[0].pageX;
-                mouse.y = e.changedTouches[0].pageY-header;
+                mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
             }, false);
 
             tmp_canvas.addEventListener('touchstart', function(e) {
@@ -1083,8 +1092,8 @@ function AddonIWB_Toolbar_create() {
 
                 e.stopPropagation();
                 e.preventDefault();
-                mouse.x = e.changedTouches[0].pageX;
-                mouse.y = e.changedTouches[0].pageY-header;
+                mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
 
                 start_mouse.x = mouse.x;
                 start_mouse.y = mouse.y;
@@ -1186,7 +1195,7 @@ function AddonIWB_Toolbar_create() {
                 event.preventDefault();
 
                 presenter.standHideAreaClicked = true;
-                var pos = getCursorPosition(event.originalEvent);
+                var pos = getCursorPosition(event);
                 presenter.startSelection = getPoint(pos.x, pos.y);
             });
 
@@ -1194,7 +1203,8 @@ function AddonIWB_Toolbar_create() {
                 event.stopPropagation();
                 event.preventDefault();
 
-                var pos = getCursorPosition(event.originalEvent);
+                var pos = getCursorPosition(event);
+
                 presenter.stopSelection = getPoint(pos.x, pos.y);
 
                 drawArea(isHide);
