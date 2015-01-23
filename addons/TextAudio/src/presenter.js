@@ -277,6 +277,7 @@ function AddonTextAudio_create() {
                                 markItem(presenter.selectionId);
                                 break;
                             }
+                        case 'play_interval_or_vocabulary':
                         case 'play_vocabulary_file':
                             if (!isPlaying) {
                                 presenter.pause();
@@ -735,7 +736,7 @@ function AddonTextAudio_create() {
             return getErrorObject(validatedSlides.errorCode);
         }
 
-        if (clickAction=='play_vocabulary_file') {
+        if (clickAction == 'play_vocabulary_file' || clickAction == 'play_interval_or_vocabulary') {
             validatedAudioFiles = presenter.validateSeparateFiles(model.separateFiles);
             if (!validatedAudioFiles.isValid) return getErrorObject(validatedAudioFiles.errorCode);
         } else {
@@ -763,9 +764,9 @@ function AddonTextAudio_create() {
             slides: validatedSlides.value,
             frames: validatedSlides.frames,
             clickAction: clickAction,
-            playPart: (clickAction == 'play_interval'),
+            playPart: (clickAction == 'play_interval' || clickAction == 'play_interval_or_vocabulary'),
             separateFiles: validatedAudioFiles.value,
-            playSeparateFiles: (clickAction == 'play_vocabulary_file'),
+            playSeparateFiles: (clickAction == 'play_vocabulary_file' || clickAction == 'play_interval_or_vocabulary'),
             vocabulary_mp3: model.vocabulary_mp3,
             vocabulary_ogg: model.vocabulary_ogg,
             vocabularyIntervals: validatedVocabularyIntervals.intervals
