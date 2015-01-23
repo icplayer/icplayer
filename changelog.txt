@@ -1,3 +1,4 @@
+2015-01-23 Fixed issue with backward compatibility in IWB Toolbar module
 2015-01-22 Added Show Answers to Magic Boxes module
 2015-01-22 Added Show Answers to Shape Tracing module
 2015-01-22 Changed visibility of drawing in IWB Toolbar module

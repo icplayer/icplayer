@@ -2010,14 +2010,60 @@ function AddonIWB_Toolbar_create() {
         });
     };
 
+    /**
+     * We are omitting state properties as follows:
+     * - hours
+     * - minutes
+     * - seconds
+     * - stopClicked
+     * - startClicked
+     *
+     * Because they are used when creating stopwatches and we assume here that no stopwatches should be created
+     * (hence empty array of them).
+     */
+    presenter.upgradeStateForStopwatchesAndClocks = function(parsedState) {
+        if (parsedState.stopwatches == undefined) {
+            parsedState.stopwatches = [];
+        }
+        if (parsedState.clocks == undefined) {
+            parsedState.clocks = [];
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeStateForVisibility = function (parsedState) {
+        if (parsedState.isVisible == undefined) {
+            parsedState.isVisible = true;
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeState = function (parsedState) {
+        var upgradedState = presenter.upgradeStateForStopwatchesAndClocks(parsedState);
+
+        upgradedState = presenter.upgradeStateForVisibility(upgradedState);
+
+        return  upgradedState;
+    };
+
     presenter.setState = function(state) {
-        var parsed = JSON.parse(state);
-        presenter.areas = parsed.areas;
-        presenter.notes = parsed.notes;
-        presenter.clocks = parsed.clocks;
-        presenter.stopwatches = parsed.stopwatches;
-        setDrawingState(new Image(), presenter.ctx, parsed.drawings.pen);
-        setDrawingState(new Image(), presenter.markerCtx, parsed.drawings.marker);
+        if (!state) {
+            return;
+        }
+
+        var parsedState = JSON.parse(state);
+
+        parsedState = presenter.upgradeState(parsedState);
+
+        presenter.areas = parsedState.areas;
+        presenter.notes = parsedState.notes;
+        presenter.stopwatches = parsedState.stopwatches;
+        presenter.clocks = parsedState.clocks;
+
+        setDrawingState(new Image(), presenter.ctx, parsedState.drawings.pen);
+        setDrawingState(new Image(), presenter.markerCtx, parsedState.drawings.marker);
 
         $.each(presenter.notes, function() {
             var note = createNote(this);
@@ -2029,11 +2075,11 @@ function AddonIWB_Toolbar_create() {
         });
 
         $.each(presenter.stopwatches, function() {
-            createStopwatch(this, parsed.hours, parsed.minutes, parsed.seconds, parsed.stopClicked, parsed.startClicked);
+            createStopwatch(this, parsedState.hours, parsedState.minutes, parsedState.seconds, parsedState.stopClicked, parsedState.startClicked);
         });
 
         drawSavedAreas();
-        presenter.isVisible = parsed.isVisible;
+        presenter.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.isVisible, false, presenter.$view);
 
         presenter.$penMask.show();
