@@ -719,7 +719,7 @@ function AddonTextAudio_create() {
 
     presenter.validateModel = function (model) {
         var validatedAudioFiles = null,
-            transposedBehaviors = transposeDict(AllowedClickBehaviors),
+            transposedBehaviors = transposeDict(presenter.ALLOWED_CLICK_BEHAVIOUR),
             clickAction = transposedBehaviors[model.clickAction];
         originalFile.mp3 = model.mp3;
         originalFile.ogg = model.ogg;
