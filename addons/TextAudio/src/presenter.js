@@ -10,14 +10,20 @@ function AddonTextAudio_create() {
     var currentTimeAlreadySent;
     var hasBeenStarted = false;
     var isPlaying = false;
-    var isVocabularyPlaying = false;
-    var AllowedClickBehaviors = {
-        'properties_based': 'Based on properties',
-        'play_from_the_moment': 'Play from the moment',
-        'play_interval': 'Play the interval',
-        'play_vocabulary_file': 'Play vocabulary audio file',
-        'play_vocabulary_interval': 'Play the interval from vocabulary file'
+
+    /**
+     * play_interval_or_vocabulary - this option if for compatibility sake. If user had both
+     * 'Individual fragment playback' and 'Vocabulary audio files playback' options selected the result was
+     * different than can be now obtained by selecting one of the 'On Text Click Behavior' property option.
+     */
+    presenter.ALLOWED_CLICK_BEHAVIOUR = {
+        play_from_the_moment: 'Play from the moment',
+        play_interval: 'Play the interval',
+        play_vocabulary_file: 'Play vocabulary audio file',
+        play_vocabulary_interval: 'Play the interval from vocabulary file',
+        play_interval_or_vocabulary: 'Play interval from base file or vocabulary audio file'
     };
+    var isVocabularyPlaying = false;
 
     function transposeDict(dict) {
         var transp = {};
@@ -112,50 +118,29 @@ function AddonTextAudio_create() {
     }
 
     presenter.upgradeModel = function(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-        upgradedModel = presenter.upgradeClickAction(upgradedModel);
-        upgradedModel = presenter.upgradePlaySeperateFiles(upgradedModel);
-        upgradedModel = presenter.upgradePlayPart(upgradedModel);
-        upgradedModel = presenter.upgradePlayFromTheMoment(upgradedModel);
-        return upgradedModel;
+        return presenter.upgradeClickAction(model);
     };
 
     presenter.upgradeClickAction = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
-        if (!upgradedModel["clickAction"] || model.playSeparateFiles || model.playPart) {
-            upgradedModel["clickAction"] = AllowedClickBehaviors.properties_based;
-        }
-        return upgradedModel;
-    };
 
-    presenter.upgradePlaySeperateFiles = function(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-        if (upgradedModel["clickAction"] == AllowedClickBehaviors.properties_based &&
-            ModelValidationUtils.validateBoolean(model.playSeparateFiles)) {
-            upgradedModel["clickAction"] = AllowedClickBehaviors.play_vocabulary_file;
-        }
-        return upgradedModel;
-    };
+        if (model.playPart != undefined || model.playSeparateFiles != undefined || model.separateFiles != undefined) {
+            var playPart = ModelValidationUtils.validateBoolean(model.playPart),
+                playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles),
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment;
 
-    presenter.upgradePlayPart = function(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-        if (upgradedModel["clickAction"] == AllowedClickBehaviors.properties_based &&
-            ModelValidationUtils.validateBoolean(model.playPart)) {
-            upgradedModel["clickAction"] = AllowedClickBehaviors.play_interval;
-        }
-        return upgradedModel;
-    };
+            if (playPart && !playSeparateFiles) {
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_interval;
+            } else if (!playPart && playSeparateFiles) {
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_vocabulary_file;
+            } else if (playPart && playSeparateFiles) {
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_interval_or_vocabulary;
+            }
 
-    presenter.upgradePlayFromTheMoment = function(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-        if (upgradedModel["clickAction"] == AllowedClickBehaviors.properties_based) {
-            upgradedModel["clickAction"] = AllowedClickBehaviors.play_from_the_moment;
+            upgradedModel["clickAction"] = clickAction;
         }
+
         return upgradedModel;
     };
 

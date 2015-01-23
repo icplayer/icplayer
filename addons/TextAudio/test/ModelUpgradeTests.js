@@ -1,75 +1,59 @@
-var ModelUpgradeTests = AsyncTestCase('ModelUpgradeTests');
+TestCase('[TextAudio] Upgrade model', {
+    setUp: function () {
+        this.presenter = AddonTextAudio_create();
+    },
 
-ModelUpgradeTests.prototype.setUp = function() {
-    this.presenter = AddonTextAudio_create();
-};
+    'test both playPart and playSeparateFiles option are deselected but present': function () {
+        var model = {
+            playPart: 'False',
+            playSeparateFiles: 'False'
+        };
 
-ModelUpgradeTests.prototype.tearDown = function() {
-};
+        var upgradedModel = this.presenter.upgradeClickAction(model);
 
-ModelUpgradeTests.prototype.testOldPropertyPlayPart = function() {
-    var model = {
-        'mp3': '/some/file.mp3',
-        'ogg': '/some/file.ogg',
-        'playPart': "True"
-    };
-    var upgratedModel = this.presenter.upgradeModel(model);
-    assertEquals(upgratedModel.clickAction, 'Play the interval');
-};
+        assertEquals(this.presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment, upgradedModel.clickAction);
+    },
 
+    'test only playPart option is selected': function () {
+        var model = {
+            playPart: 'True',
+            playSeparateFiles: 'False'
+        };
 
-ModelUpgradeTests.prototype.testOldPropertyPlayTheInterval = function() {
+        var upgradedModel = this.presenter.upgradeClickAction(model);
 
-    var model = {
-        'mp3': '/some/file.mp3',
-        'ogg': '/some/file.ogg',
-        'playPart': "True",
-        'playSeparateFiles': "False"
-    };
+        assertEquals(this.presenter.ALLOWED_CLICK_BEHAVIOUR.play_interval, upgradedModel.clickAction);
+    },
 
-    var upgratedModel = this.presenter.upgradeModel(model);
+    'test only playSeparateFiles option is selected': function () {
+        var model = {
+            playPart: 'False',
+            playSeparateFiles: 'True'
+        };
 
-    assertEquals(upgratedModel.clickAction, 'Play the interval');
-};
+        var upgradedModel = this.presenter.upgradeClickAction(model);
 
+        assertEquals(this.presenter.ALLOWED_CLICK_BEHAVIOUR.play_vocabulary_file, upgradedModel.clickAction);
+    },
 
-ModelUpgradeTests.prototype.testOldPropertyPlaySeparateFiles = function() {
+    'test both playPart and playSeparateFiles option are selected': function () {
+        var model = {
+            playPart: 'True',
+            playSeparateFiles: 'True'
+        };
 
-    var model = {
-        'mp3': '/some/file.mp3',
-        'ogg': '/some/file.ogg',
-        'playPart': "True",
-        'playSeparateFiles': "True"
-    };
+        var upgradedModel = this.presenter.upgradeClickAction(model);
 
-    var upgratedModel = this.presenter.upgradeModel(model);
+        assertEquals(this.presenter.ALLOWED_CLICK_BEHAVIOUR.play_interval_or_vocabulary, upgradedModel.clickAction);
+    },
 
-    assertEquals(upgratedModel.clickAction, 'Play vocabulary audio file');
+    'test both playPart and playSeparateFiles are not present in model but separateFiles list is': function () {
+        var model = {
+            separateFiles: []
+        };
 
-    // even if playPart is False:
-    model.playPart = "False";
-    upgratedModel = this.presenter.upgradeModel(model);
+        var upgradedModel = this.presenter.upgradeClickAction(model);
 
-    assertEquals(upgratedModel.clickAction, 'Play vocabulary audio file');
-};
-
-
-ModelUpgradeTests.prototype.testOldPropertyPlayFromTheMoment = function() {
-
-    var model = {
-        'mp3': '/some/file.mp3',
-        'ogg': '/some/file.ogg',
-        'playPart': "False",
-        'playSeparateFiles': "False"
-    };
-
-    var upgratedModel = this.presenter.upgradeModel(model);
-
-    assertEquals(upgratedModel.clickAction, 'Play from the moment');
-
-    // even if addon was opened in Editor and got new properties
-    model.clickAction = 'Play the interval from vocabulary file';
-    upgratedModel = this.presenter.upgradeModel(model);
-
-    assertEquals(upgratedModel.clickAction, 'Play from the moment');
-};
+        assertEquals(this.presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment, upgradedModel.clickAction);
+    }
+});
