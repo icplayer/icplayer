@@ -10,6 +10,7 @@ function AddonTextAudio_create() {
     var currentTimeAlreadySent;
     var hasBeenStarted = false;
     var isPlaying = false;
+    var isVocabularyPlaying = false;
     var AllowedClickBehaviors = {
         'properties_based': 'Based on properties',
         'play_from_the_moment': 'Play from the moment',
@@ -40,6 +41,20 @@ function AddonTextAudio_create() {
         isPlaying = false;
         clearInterval(presenter.audioClock);
         presenter.audioClock = undefined;
+    }
+
+    function startVocabularyTimeMeasurement() {
+        isVocabularyPlaying = true;
+        if (!presenter.audioVocClock) {
+            presenter.audioVocClock = setInterval(function() { onTimeUpdateCallback(); }, 1000 / presenter.fps);
+        }
+    }
+
+    function stopVocabularyTimeMeasurement() {
+        isVocabularyPlaying = false;
+        clearInterval(presenter.audioVocClock);
+        presenter.audioVocClock = undefined;
+        presenter.clearSelection();
     }
 
     presenter.ERROR_CODES = {
@@ -211,11 +226,9 @@ function AddonTextAudio_create() {
     };
 
     function onTimeUpdateCallback() {
-        if (presenter.is_vocabulary_playing) {
+        if (isVocabularyPlaying) {
             if (presenter.vocabulary.getTime() * presenter.fps >= presenter.vocabulary_end) {
                 presenter.vocabulary.pause();
-                presenter.is_vocabulary_playing = false;
-                presenter.clearSelection();
             }
             return;
         }
@@ -270,12 +283,11 @@ function AddonTextAudio_create() {
 
                     switch (presenter.configuration.clickAction) {
                         case 'play_vocabulary_interval':
-                            if (presenter.is_vocabulary_playing || !isPlaying) {
+                            if (isVocabularyPlaying || !isPlaying) {
                                 var frame = presenter.configuration.vocabularyIntervals[interval_id];
                                 presenter.clearSelection();
                                 presenter.vocabulary.setTime(frame.start / presenter.fps);
                                 presenter.vocabulary_end = frame.end;
-                                presenter.is_vocabulary_playing = true;
                                 presenter.vocabulary.play();
                                 markItem(presenter.selectionId);
                                 break;
@@ -419,6 +431,9 @@ function AddonTextAudio_create() {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
             audio.addEventListener('playing', function() { hasBeenStarted = true; }, false);
             audio.addEventListener('play', function() {
+                if (isVocabularyPlaying) {
+                    presenter.vocabulary.pause();
+                }
                 if (!presenter.playedByClick) {
                     presenter.selectionId = undefined;
                 }
@@ -481,10 +496,10 @@ function AddonTextAudio_create() {
                     if (!presenter.playedByClick) {
                         presenter.selectionId = undefined;
                     }
-                    startTimeMeasurement();
+                    startVocabularyTimeMeasurement();
                 }, false);
                 presenter.vocabulary.bind('pause', function() {
-                    stopTimeMeasurement();
+                    stopVocabularyTimeMeasurement();
                 }, false);
             }
         } else {
