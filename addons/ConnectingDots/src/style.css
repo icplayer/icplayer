@@ -1,11 +1,15 @@
 .addon_ConnectingDots .connectingdots {
     border:3px solid #ccc;
     position:relative;
-    }      
-    
+    -ms-touch-action: none;
+    touch-action: none;
+}
+
 .addon_ConnectingDots .dot_container {
-    position:absolute; 
-    }
+    position:absolute;
+    min-height: 25px;
+    min-width: 25px;
+}
 
 .addon_ConnectingDots .dot {
     position:relative;
@@ -15,8 +19,8 @@
     border-radius:5px;
     float:left;
     margin:-5px -5px -5px -5px;
-    }
-    
+}
+
 .addon_ConnectingDots .image-start {
     position:absolute;
     width: 100%;
@@ -25,21 +29,25 @@
 .addon_ConnectingDots .image-end {
     position:absolute;
     width: 100%;
-    height: 100%; 
+    height: 100%;
 }
 .addon_ConnectingDots .dot_number {
     position:relative;
     float:left;
     cursor: default;
-    }
-    
+}
+
 .addon_ConnectingDots .line {
     height:1px;
     position:absolute;
     background-color:#000;
-
 }
-    
+.addon_ConnectingDots .line-show-answer {
+    height:1px;
+    position:absolute;
+    background-color:gray;
+}
+
 .addon_ConnectingDots .active .dot {
     background-color:#146CDD;
 }
@@ -50,7 +58,7 @@
 
 .addon_ConnectingDots .correct {
     border:3px solid #04B431;
-} 
+}
 
 .addon_ConnectingDots .wrong {
     border:3px solid #DF0101;

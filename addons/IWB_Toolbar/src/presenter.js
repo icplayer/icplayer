@@ -183,7 +183,14 @@ function AddonIWB_Toolbar_create() {
     };
 
     function getCursorPosition(e) {
-        var canvas = presenter.canvas[0];
+        var canvas;
+
+        if(e.target.id == "tmp_canvas") {
+            canvas = presenter.$view.parent().find('.selecting').find('#tmp_canvas')[0];
+        } else {
+            canvas = presenter.canvas[0];
+        }
+
         var rect = canvas.getBoundingClientRect();
         var header = 0;
         var scrollTop = 0;
@@ -193,7 +200,7 @@ function AddonIWB_Toolbar_create() {
             if($('.ic_header').length){
                 header = $('.ic_header').outerHeight(true);
             }
-                scrollTop = $(window).scrollTop();
+            scrollTop = $(window).scrollTop();
             if(/MSIE/i.test(navigator.userAgent)){
                 scrollTop = 0;
             }
@@ -203,14 +210,14 @@ function AddonIWB_Toolbar_create() {
         if (e.clientX) {
             return getPoint(
                 parseInt(e.clientX - rect.left, 10),
-                parseInt(e.clientY - rect.top, 10) + scrollTop - header
+                parseInt(e.clientY - rect.top, 10)
             );
         }
 
         var t = event.targetTouches[0] || event.touches[0] || event.changedTouches[0];
         return getPoint(
             parseInt(t.pageX - canvasOffsetLeft, 10),
-            parseInt(t.pageY - $(canvas).offset().top, 10) + scrollTop - header
+            parseInt(t.pageY - $(canvas).offset().top, 10)
         );
     }
 
@@ -1058,15 +1065,17 @@ function AddonIWB_Toolbar_create() {
         tmp_canvas.width = canvas.width();
         tmp_canvas.height = canvas.height();
 
+        var $tmpCanvas = $('#tmp_canvas');
+
+        if ($.contains(document, $tmpCanvas[0])) {
+            $tmpCanvas.remove();
+        }
+
         presenter.$view.parent().find('.selecting').append(tmp_canvas);
 
         var mouse = getPoint(0, 0);
         var start_mouse = getPoint(0, 0);
         var header = 0;
-
-        if($('.ic_header').length){
-            header = $('.ic_header').outerHeight(true);
-        }
 
         /* Mouse Capturing Work */
         if( /Android|X11|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -1074,8 +1083,8 @@ function AddonIWB_Toolbar_create() {
                 e.stopPropagation();
                 e.preventDefault();
 
-                mouse.x = e.changedTouches[0].pageX;
-                mouse.y = e.changedTouches[0].pageY-header;
+                mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
             }, false);
 
             tmp_canvas.addEventListener('touchstart', function(e) {
@@ -1083,8 +1092,8 @@ function AddonIWB_Toolbar_create() {
 
                 e.stopPropagation();
                 e.preventDefault();
-                mouse.x = e.changedTouches[0].pageX;
-                mouse.y = e.changedTouches[0].pageY-header;
+                mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
 
                 start_mouse.x = mouse.x;
                 start_mouse.y = mouse.y;
@@ -1186,7 +1195,7 @@ function AddonIWB_Toolbar_create() {
                 event.preventDefault();
 
                 presenter.standHideAreaClicked = true;
-                var pos = getCursorPosition(event.originalEvent);
+                var pos = getCursorPosition(event);
                 presenter.startSelection = getPoint(pos.x, pos.y);
             });
 
@@ -1194,7 +1203,8 @@ function AddonIWB_Toolbar_create() {
                 event.stopPropagation();
                 event.preventDefault();
 
-                var pos = getCursorPosition(event.originalEvent);
+                var pos = getCursorPosition(event);
+
                 presenter.stopSelection = getPoint(pos.x, pos.y);
 
                 drawArea(isHide);
@@ -2010,14 +2020,60 @@ function AddonIWB_Toolbar_create() {
         });
     };
 
+    /**
+     * We are omitting state properties as follows:
+     * - hours
+     * - minutes
+     * - seconds
+     * - stopClicked
+     * - startClicked
+     *
+     * Because they are used when creating stopwatches and we assume here that no stopwatches should be created
+     * (hence empty array of them).
+     */
+    presenter.upgradeStateForStopwatchesAndClocks = function(parsedState) {
+        if (parsedState.stopwatches == undefined) {
+            parsedState.stopwatches = [];
+        }
+        if (parsedState.clocks == undefined) {
+            parsedState.clocks = [];
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeStateForVisibility = function (parsedState) {
+        if (parsedState.isVisible == undefined) {
+            parsedState.isVisible = true;
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeState = function (parsedState) {
+        var upgradedState = presenter.upgradeStateForStopwatchesAndClocks(parsedState);
+
+        upgradedState = presenter.upgradeStateForVisibility(upgradedState);
+
+        return  upgradedState;
+    };
+
     presenter.setState = function(state) {
-        var parsed = JSON.parse(state);
-        presenter.areas = parsed.areas;
-        presenter.notes = parsed.notes;
-        presenter.clocks = parsed.clocks;
-        presenter.stopwatches = parsed.stopwatches;
-        setDrawingState(new Image(), presenter.ctx, parsed.drawings.pen);
-        setDrawingState(new Image(), presenter.markerCtx, parsed.drawings.marker);
+        if (!state) {
+            return;
+        }
+
+        var parsedState = JSON.parse(state);
+
+        parsedState = presenter.upgradeState(parsedState);
+
+        presenter.areas = parsedState.areas;
+        presenter.notes = parsedState.notes;
+        presenter.stopwatches = parsedState.stopwatches;
+        presenter.clocks = parsedState.clocks;
+
+        setDrawingState(new Image(), presenter.ctx, parsedState.drawings.pen);
+        setDrawingState(new Image(), presenter.markerCtx, parsedState.drawings.marker);
 
         $.each(presenter.notes, function() {
             var note = createNote(this);
@@ -2029,11 +2085,11 @@ function AddonIWB_Toolbar_create() {
         });
 
         $.each(presenter.stopwatches, function() {
-            createStopwatch(this, parsed.hours, parsed.minutes, parsed.seconds, parsed.stopClicked, parsed.startClicked);
+            createStopwatch(this, parsedState.hours, parsedState.minutes, parsedState.seconds, parsedState.stopClicked, parsedState.startClicked);
         });
 
         drawSavedAreas();
-        presenter.isVisible = parsed.isVisible;
+        presenter.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.isVisible, false, presenter.$view);
 
         presenter.$penMask.show();
