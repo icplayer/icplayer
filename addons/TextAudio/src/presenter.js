@@ -270,7 +270,7 @@ function AddonTextAudio_create() {
 
                     switch (presenter.configuration.clickAction) {
                         case 'play_vocabulary_interval':
-                            if (!isPlaying) {
+                            if (presenter.is_vocabulary_playing || !isPlaying) {
                                 var frame = presenter.configuration.vocabularyIntervals[interval_id];
                                 presenter.clearSelection();
                                 presenter.vocabulary.setTime(frame.start / presenter.fps);
