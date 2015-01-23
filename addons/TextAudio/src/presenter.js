@@ -719,6 +719,9 @@ function AddonTextAudio_create() {
     };
 
     presenter.validateModel = function (model) {
+        if (model.clickAction === '') {
+            model.clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment;
+        }
         var validatedAudioFiles = null,
             transposedBehaviors = transposeDict(presenter.ALLOWED_CLICK_BEHAVIOUR),
             clickAction = transposedBehaviors[model.clickAction];
