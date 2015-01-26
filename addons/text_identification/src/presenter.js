@@ -15,13 +15,14 @@ function Addontext_identification_create(){
         INCORRECT : "text-identification-element-incorrect",
         EMPTY : 'text-identification-element-empty',
         MOUSE_HOVER_SELECTED : "text-identification-element-mouse-hover-selected",
-        MOUSE_HOVER : "text-identification-element-mouse-hover"
+        MOUSE_HOVER : "text-identification-element-mouse-hover",
+        SHOW_ANSWERS : "text-identification-element-show-answers"
 
     };
 
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
-            CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.EMPTY + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED;
+            CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.EMPTY + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED+ " " + CSS_CLASSES.SHOW_ANSWERS;
     }
 
     presenter.executeUserEventCode = function () {
@@ -218,6 +219,9 @@ function Addontext_identification_create(){
 
     presenter.run = function(view, model){
         presenterLogic(view, model, false);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.reset = function() {
@@ -234,6 +238,10 @@ function Addontext_identification_create(){
     };
 
     presenter.setShowErrorsMode = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.configuration.isErrorCheckMode = true;
 
         if (presenter.isSelected()) {
@@ -272,6 +280,54 @@ function Addontext_identification_create(){
             'value' : presenter.isSelected() ? '1' : '0',
             'score' : presenter.configuration.shouldBeSelected ? '1' : '0'
         }
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    function applySelectionStyleShowAnswers (style){
+        var element = presenter.$view.find('div:first')[0];
+        $(element).addClass(style);
+    }
+
+    function applySelectionStyleHideAnswers (style){
+        var element = presenter.$view.find('div:first')[0];
+
+        $(element).removeClass(style);
+        $(element).removeClass(CSS_CLASSES.EMPTY).addClass(CSS_CLASSES.ELEMENT);
+    }
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+
+        presenter.configuration.isErrorCheckMode = true;
+
+        presenter.$view.find('.text-identification-element-incorrect').removeClass(CSS_CLASSES.INCORRECT).addClass("text-identification-element was-selected");
+        presenter.$view.find('.text-identification-element-correct').removeClass(CSS_CLASSES.CORRECT).addClass("text-identification-element was-selected");
+
+        if(presenter.configuration.shouldBeSelected){
+            applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
+        }else{
+            presenter.$view.find('.text-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("text-identification-element was-selected");
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.configuration.isErrorCheckMode = false;
+
+        applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);
+
+        var elementWasSelected = presenter.$view.find('.was-selected');
+        $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
