@@ -5,7 +5,6 @@
         <property name='defaultControls' displayName='Default controls' type='boolean' />
         <property name='displayTime' displayName='Display time' type='boolean' />
         <property name='enableLoop' displayName='Enable loop' type='boolean' />
-        <property name='playPart' displayName='Individual fragment playback' type='boolean' />
 
         <property name='Slides' type='list'>
             <property name='Text' type='html' isLocalized='true' />
@@ -14,11 +13,10 @@
         <property name='mp3' type='file' />
         <property name='ogg' type='file' />
 
-        <property name='playSeparateFiles' displayName='Vocabulary audio files playback' type='boolean' />
-        <property name='separateFiles' displayName='Vocabulary audio files' type='list'>
-            <property name='mp3' type='file' />
-            <property name='ogg' type='file' />
-        </property>
+        <property name="clickAction" displayName="On Text Click Behavior" type="{Play from the moment, Play the interval, Play the interval from vocabulary file}" />
+        <property name='vocabulary_mp3' displayName="Vocabulary mp3" type='file' />
+        <property name='vocabulary_ogg' displayName="Vocabulary ogg" type='file' />
+        <property name='vocabulary_intervals' displayName="Vocabulary intervals" type='text' isLocalized='true' />
 
         <property name='onEnd' displayName='On end' type='event' />
     </model>

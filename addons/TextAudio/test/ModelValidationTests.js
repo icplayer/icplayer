@@ -212,3 +212,54 @@ ModelValidationTests.prototype.testVocabularyAudioFilesEmpty = function() {
     assertTrue(validatedModel.isValid);
     assertFalse(validatedModel.separateFiles);
 };
+
+ModelValidationTests.prototype.testVocabularyIntervalsCorrect = function() {
+    var model = {
+        'mp3': '/some/file.mp3',
+        'Slides': [{
+            'Text': 'Lorem || ipsum',
+            'Times': "00:00-00:02" + "\n" + "00:02-00:05"
+        }],
+        'clickAction': 'Play the interval from vocabulary file',
+        'vocabulary_mp3': '/some/file.mp3',
+        'vocabulary_intervals': "00:01-00:02" + "\n" + "00:03-00:04"
+    };
+
+    var validatedModel = this.presenter.validateModel(model);
+
+    assertTrue(validatedModel.isValid);
+    assertEquals(validatedModel.vocabularyIntervals.length, 2);
+};
+
+ModelValidationTests.prototype.testVocabularyIntervalsWrong = function() {
+    var model = {
+        'mp3': '/some/file.mp3',
+        'Slides': [{
+            'Text': 'Lorem || ipsum',
+            'Times': "00:00-00:02" + "\n" + "00:02-00:05"
+        }],
+        'clickAction': 'Play the interval from vocabulary file',
+        'vocabulary_mp3': '/some/file.mp3',
+        'vocabulary_intervals': "00:01-00:02"
+    };
+
+    var validatedModel = this.presenter.validateModel(model);
+
+    assertFalse(validatedModel.isValid);
+};
+
+ModelValidationTests.prototype.testVocabularyIntervalsWithoutVocabularyFile = function() {
+    var model = {
+        'mp3': '/some/file.mp3',
+        'Slides': [{
+            'Text': 'Lorem || ipsum',
+            'Times': "00:00-00:02" + "\n" + "00:02-00:05"
+        }],
+        'clickAction': 'Play the interval from vocabulary file',
+        'vocabulary_intervals': "00:01-00:02" + "\n" + "00:03-00:04"
+    };
+
+    var validatedModel = this.presenter.validateModel(model);
+
+    assertFalse(validatedModel.isValid);
+};

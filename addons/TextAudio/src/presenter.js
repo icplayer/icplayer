@@ -4,19 +4,42 @@ function AddonTextAudio_create() {
     function getCorrectObject(val) { return { isValid: true, value: val }; }
 
     var presenter = function() {};
-    var mp3File;
-    var oggFile;
+    var originalFile = {};
+    var vocabularyFile = {};
     var eventBus;
     var currentTimeAlreadySent;
     var hasBeenStarted = false;
     var isPlaying = false;
+
+    /**
+     * play_interval_or_vocabulary - this option if for compatibility sake. If user had both
+     * 'Individual fragment playback' and 'Vocabulary audio files playback' options selected the result was
+     * different than can be now obtained by selecting one of the 'On Text Click Behavior' property option.
+     */
+    presenter.ALLOWED_CLICK_BEHAVIOUR = {
+        play_from_the_moment: 'Play from the moment',
+        play_interval: 'Play the interval',
+        play_vocabulary_file: 'Play vocabulary audio file',
+        play_vocabulary_interval: 'Play the interval from vocabulary file',
+        play_interval_or_vocabulary: 'Play interval from base file or vocabulary audio file'
+    };
+    var isVocabularyPlaying = false;
+
+    function transposeDict(dict) {
+        var transp = {};
+        for (var key in dict) {
+            if (dict.hasOwnProperty(key))
+                transp[dict[key]] = key;
+        }
+        return transp;
+    };
 
     presenter.buzzAudio = [];
 
     function startTimeMeasurement() {
         isPlaying = true;
         if (!presenter.audioClock) {
-            presenter.audioClock = setInterval(function() { onTimeUpdateCallback(); }, 100);
+            presenter.audioClock = setInterval(function() { onTimeUpdateCallback(); }, 1000 / presenter.fps);
         }
     }
 
@@ -24,6 +47,20 @@ function AddonTextAudio_create() {
         isPlaying = false;
         clearInterval(presenter.audioClock);
         presenter.audioClock = undefined;
+    }
+
+    function startVocabularyTimeMeasurement() {
+        isVocabularyPlaying = true;
+        if (!presenter.audioVocClock) {
+            presenter.audioVocClock = setInterval(function() { onTimeUpdateCallback(); }, 1000 / presenter.fps);
+        }
+    }
+
+    function stopVocabularyTimeMeasurement() {
+        isVocabularyPlaying = false;
+        clearInterval(presenter.audioVocClock);
+        presenter.audioVocClock = undefined;
+        presenter.clearSelection();
     }
 
     presenter.ERROR_CODES = {
@@ -34,7 +71,10 @@ function AddonTextAudio_create() {
         'M05': 'Duplicated text for second',
         'SAF01': 'Property Vocabulary audio files cannot be empty',
         'SAF02': 'Number of Vocabulary audio files and time items must be the same',
-        'SAF03': 'All values in property Vocabulary audio files has to be filled'
+        'SAF03': 'All values in property Vocabulary audio files has to be filled',
+        'VI01': 'At least one vocabulary audio file have to be set.',
+        'VI02': 'Number of parts in Vocabulary intervals have to be equal to sum of times periods defined in Slides property',
+        'VI03': 'Vocabulary time intervals are not set'
     };
 
     presenter.audio = {};
@@ -78,15 +118,27 @@ function AddonTextAudio_create() {
     }
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeEnableLoop(model);
+        return presenter.upgradeClickAction(model);
     };
 
-    presenter.upgradeEnableLoop = function(model) {
+    presenter.upgradeClickAction = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (!upgradedModel["enableLoop"]) {
-            upgradedModel["enableLoop"] = "";
+        if (model.playPart != undefined || model.playSeparateFiles != undefined || model.separateFiles != undefined) {
+            var playPart = ModelValidationUtils.validateBoolean(model.playPart),
+                playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles),
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment;
+
+            if (playPart && !playSeparateFiles) {
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_interval;
+            } else if (!playPart && playSeparateFiles) {
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_vocabulary_file;
+            } else if (playPart && playSeparateFiles) {
+                clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_interval_or_vocabulary;
+            }
+
+            upgradedModel["clickAction"] = clickAction;
         }
 
         return upgradedModel;
@@ -159,6 +211,12 @@ function AddonTextAudio_create() {
     };
 
     function onTimeUpdateCallback() {
+        if (isVocabularyPlaying) {
+            if (presenter.vocabulary.getTime() * presenter.fps >= presenter.vocabulary_end) {
+                presenter.vocabulary.pause();
+            }
+            return;
+        }
         var currentTime = presenter.audio.currentTime;
         if (presenter.configuration.displayTime) {
             var duration = parseInt(presenter.audio.duration, 10);
@@ -192,9 +250,11 @@ function AddonTextAudio_create() {
     	if (slide_id < 0) {
             textWrapper.html('');
         } else {
-        	var html = '';
+        	var html = '', text, interval;
             for (var i=0; i<presenter.configuration.slides[slide_id].Text.length; i++) {
-                html += '<span class="textelement' + i + '" data-selectionId="' + i + '">' + presenter.configuration.slides[slide_id].Text[i] + '</span>';
+                text = presenter.configuration.slides[slide_id].Text[i];
+                interval = presenter.configuration.slides[slide_id].intervals[i];
+                html += '<span class="textelement' + i + '" data-selectionId="' + i + '" data-intervalId="' + interval + '">' + text + '</span>';
             }
             textWrapper.html(html);
             textWrapper.attr('data-slideId', slide_id);
@@ -204,36 +264,53 @@ function AddonTextAudio_create() {
 
                     presenter.playedByClick = true;
                     presenter.selectionId = parseInt($(this).attr('data-selectionId'), 10);
+                    var interval_id = parseInt($(this).attr('data-intervalId'), 10);
 
-                    if (presenter.configuration.playSeparateFiles && !isPlaying) {
-                        presenter.pause();
-                        playSingleAudioPlayer(slide_id, presenter.selectionId);
-                        markItem(presenter.selectionId);
-                    } else {
-                        presenter.play();
-
-                        if ($(this).hasClass("tmp-active")) {
-                            $(this).removeClass("tmp-active");
-                            $(this).addClass("active");
-                        }
-
-                        if (MobileUtils.isSafariMobile(navigator.userAgent)) {
-                            function fun() {
-                                if (slide_id >= 0 || presenter.selectionId >= 0) {
-                                    var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
-                                    presenter.audio.currentTime = frame2go / presenter.fps;
-                                }
-                                presenter.audio.removeEventListener("playing", fun, false);
+                    switch (presenter.configuration.clickAction) {
+                        case 'play_vocabulary_interval':
+                            if (isVocabularyPlaying || !isPlaying) {
+                                var frame = presenter.configuration.vocabularyIntervals[interval_id];
+                                presenter.clearSelection();
+                                presenter.vocabulary.setTime(frame.start / presenter.fps);
+                                presenter.vocabulary_end = frame.end;
+                                presenter.vocabulary.play();
+                                markItem(presenter.selectionId);
+                                break;
                             }
-                            if (hasBeenStarted) {
+                        case 'play_interval_or_vocabulary':
+                        case 'play_vocabulary_file':
+                            if (!isPlaying) {
                                 presenter.pause();
-                                go_to(slide_id, presenter.selectionId);
-                            } else {
-                                presenter.audio.addEventListener("playing", fun, false);
+                                playSingleAudioPlayer(slide_id, presenter.selectionId);
+                                markItem(presenter.selectionId);
+                                break;
                             }
-                        } else {
-                            go_to(slide_id, presenter.selectionId);
-                        }
+                        case 'play_interval':
+                        case 'play_from_the_moment':
+                            presenter.play();
+
+                            if ($(this).hasClass("tmp-active")) {
+                                $(this).removeClass("tmp-active");
+                                $(this).addClass("active");
+                            }
+
+                            if (MobileUtils.isSafariMobile(navigator.userAgent)) {
+                                function fun() {
+                                    if (slide_id >= 0 || presenter.selectionId >= 0) {
+                                        var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
+                                        presenter.audio.currentTime = frame2go / presenter.fps;
+                                    }
+                                    presenter.audio.removeEventListener("playing", fun, false);
+                                }
+                                if (hasBeenStarted) {
+                                    presenter.pause();
+                                    go_to(slide_id, presenter.selectionId);
+                                } else {
+                                    presenter.audio.addEventListener("playing", fun, false);
+                                }
+                            } else {
+                                go_to(slide_id, presenter.selectionId);
+                            }
                     }
                 });
             });
@@ -313,8 +390,8 @@ function AddonTextAudio_create() {
     }
 
     function createView(view, model, isPreview) {
-        mp3File = model.mp3;
-        oggFile = model.ogg;
+        originalFile.mp3 = model.mp3;
+        originalFile.ogg = model.ogg;
 
         var audio = new Audio();
 
@@ -340,6 +417,9 @@ function AddonTextAudio_create() {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
             audio.addEventListener('playing', function() { hasBeenStarted = true; }, false);
             audio.addEventListener('play', function() {
+                if (isVocabularyPlaying) {
+                    presenter.vocabulary.pause();
+                }
                 if (!presenter.playedByClick) {
                     presenter.selectionId = undefined;
                 }
@@ -385,11 +465,29 @@ function AddonTextAudio_create() {
             canPlayOgg = audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
 
             if (canPlayMp3) {
-                $(audio).attr("src", mp3File);
+                $(audio).attr("src", originalFile.mp3);
             } else if (canPlayOgg) {
-                $(audio).attr("src", oggFile);
+                $(audio).attr("src", originalFile.ogg);
             }
 
+            if (presenter.configuration.clickAction=='play_vocabulary_interval') {
+                presenter.vocabulary = new buzz.sound([
+                    presenter.configuration.vocabulary_mp3,
+                    presenter.configuration.vocabulary_ogg
+                ]);
+                presenter.vocabulary.bind('ended', function() {
+                    presenter.clearSelection();
+                });
+                presenter.vocabulary.bind('play', function() {
+                    if (!presenter.playedByClick) {
+                        presenter.selectionId = undefined;
+                    }
+                    startVocabularyTimeMeasurement();
+                }, false);
+                presenter.vocabulary.bind('pause', function() {
+                    stopVocabularyTimeMeasurement();
+                }, false);
+            }
         } else {
             $(audio).append("Your browser doesn't support audio.");
         }
@@ -406,7 +504,7 @@ function AddonTextAudio_create() {
             ]);
 
             localBuzz.bind('ended', function() {
-                presenter.reset();
+                presenter.clearSelection();
             });
 
             presenter.buzzAudio.push(localBuzz);
@@ -417,9 +515,11 @@ function AddonTextAudio_create() {
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.isLoaded = false;
-        this.audio.addEventListener("loadeddata", function() {
-            presenter.isLoaded = true;
-        });
+        if (presenter.configuration.isValid) {
+            this.audio.addEventListener("loadeddata", function () {
+                presenter.isLoaded = true;
+            });
+        }
         presenter.addonID = model.ID;
     };
 
@@ -434,6 +534,12 @@ function AddonTextAudio_create() {
         presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            delete presenter.play;
+            delete presenter.stop;
+            delete presenter.pause;
+            delete presenter.show;
+            delete presenter.hide;
+            delete presenter.executeCommand;
             return;
         }
 
@@ -476,6 +582,16 @@ function AddonTextAudio_create() {
         return ((minutes * 60 + seconds) * presenter.fps) + decyseconds;
     };
 
+    presenter.timeEntry = function(slide_time) {
+        var entry = slide_time.split('-');
+            if (entry.length != 2) {
+                return {errorCode: 'M03', errorData: slide_time}
+            }
+
+            var entry_start = presenter.toFrames(entry[0]),
+                entry_end = presenter.toFrames(entry[1]);
+            return {start:entry_start, end:entry_end};
+    };
 
     presenter.validateSlides = function(slides) {
         var validationResult = {
@@ -486,11 +602,13 @@ function AddonTextAudio_create() {
             }],
             errorCode: false
         };
-        var frames = [];
+        var frames = [],
+            interval = 0;
         for (var i=0; i<slides.length; i++) {
             var slide = slides[i];
             var slide_texts = slide.Text.split('||');
             var slide_times = slide.Times.split('\n');
+            var slide_intervals=[];
 
             if (slide_texts.length != slide_times.length) {
                 validationResult.errorCode = 'M02';
@@ -498,17 +616,17 @@ function AddonTextAudio_create() {
             }
 
             for (var j=0; j<slide_times.length; j++) {
-                var entry = slide_times[j].split('-');
-
-                if (entry.length != 2) {
-                    validationResult.errorCode = 'M03';
-                    validationResult.errorData = slide_times[j];
+                var entry = slide_times[j];
+                slide_times[j] = presenter.timeEntry(entry);
+                if (slide_times[j].errorCode) {
+                    validationResult.errorCode = slide_times[j].errorCode;
+                    validationResult.errorData = entry;
                     return validationResult;
                 }
 
-                var entry_start = presenter.toFrames(entry[0]),
-                    entry_end = presenter.toFrames(entry[1]);
-                slide_times[j] = {start:entry_start, end:entry_end};
+                var entry_start = slide_times[j].start,
+                    entry_end = slide_times[j].end;
+
                 if (entry_start > entry_end) {
                     validationResult.errorCode = 'M04';
                     return validationResult;
@@ -532,10 +650,13 @@ function AddonTextAudio_create() {
                         selection_id: j
                     }
                 }
+                slide_intervals.push(interval);
+                interval++;
             }
 
             slide.Text = slide_texts;
             slide.Times= slide_times;
+            slide.intervals = slide_intervals;
             slides[i] = slide;
         }
         validationResult.isValid = true;
@@ -543,10 +664,7 @@ function AddonTextAudio_create() {
         validationResult.frames = frames;
 
         presenter.slidesLengths = [];
-        presenter.totalNumberOfParts = validationResult.value.reduce(function(total, slide) {
-            presenter.slidesLengths.push(slide.Text.length);
-            return total + slide.Text.length;
-        }, 0);
+        presenter.totalNumberOfParts = interval;
 
         return validationResult;
     };
@@ -573,28 +691,70 @@ function AddonTextAudio_create() {
         return getCorrectObject(audioFiles);
     };
 
-    presenter.validateModel = function (model) {
-        var validatedAudioFiles = null;
-        mp3File = model.mp3;
-        oggFile = model.ogg;
+    presenter.validateVocabularyIntervals = function(intervals) {
+        var returnObj = {
+            intervals: undefined,
+            errorCode: false
+        };
 
-        if (!oggFile && !mp3File) {
+        if (intervals === undefined) {
+            returnObj.errorCode = 'VI03';
+            return returnObj;
+        }
+
+        var vocIntervals = intervals.split('\n'),
+            i, intervals=[], time_range;
+        if (vocIntervals.length != presenter.totalNumberOfParts) {
+            returnObj.errorCode = 'VI02';
+            return returnObj;
+        }
+
+        for (var i=0; i<vocIntervals.length; i++) {
+            time_range = presenter.timeEntry(vocIntervals[i]);
+            intervals.push(time_range);
+        }
+
+        returnObj.intervals = intervals;
+        return returnObj;
+    };
+
+    presenter.validateModel = function (model) {
+        if (model.clickAction === '') {
+            model.clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment;
+        }
+        var validatedAudioFiles = null,
+            transposedBehaviors = transposeDict(presenter.ALLOWED_CLICK_BEHAVIOUR),
+            clickAction = transposedBehaviors[model.clickAction];
+        originalFile.mp3 = model.mp3;
+        originalFile.ogg = model.ogg;
+
+        if (!originalFile.ogg && !originalFile.mp3) {
             return getErrorObject('M01');
         }
 
         presenter.totalNumberOfParts = 0;
         var validatedSlides = presenter.validateSlides(model.Slides);
+        var validatedVocabularyIntervals = presenter.validateVocabularyIntervals(model.vocabulary_intervals);
         if (validatedSlides.errorCode) {
             return getErrorObject(validatedSlides.errorCode);
         }
 
-        var playSeparateFiles = ModelValidationUtils.validateBoolean(model.playSeparateFiles);
-
-        if (playSeparateFiles) {
+        if (clickAction == 'play_vocabulary_file' || clickAction == 'play_interval_or_vocabulary') {
             validatedAudioFiles = presenter.validateSeparateFiles(model.separateFiles);
             if (!validatedAudioFiles.isValid) return getErrorObject(validatedAudioFiles.errorCode);
         } else {
             validatedAudioFiles = getCorrectObject(false);
+        }
+
+        if (clickAction == 'play_vocabulary_interval') {
+            vocabularyFile.mp3 = model.vocabulary_mp3;
+            vocabularyFile.ogg = model.vocabulary_ogg;
+            if (!vocabularyFile.mp3 && !vocabularyFile.ogg) {
+                return getErrorObject('VI01');
+            }
+            if (validatedVocabularyIntervals.errorCode) {
+                return getErrorObject(validatedVocabularyIntervals.errorCode);
+            }
         }
 
         return {
@@ -606,9 +766,13 @@ function AddonTextAudio_create() {
             defaultControls: ModelValidationUtils.validateBoolean(model.defaultControls),
             slides: validatedSlides.value,
             frames: validatedSlides.frames,
-            playPart: ModelValidationUtils.validateBoolean(model.playPart),
+            clickAction: clickAction,
+            playPart: (clickAction == 'play_interval' || clickAction == 'play_interval_or_vocabulary'),
             separateFiles: validatedAudioFiles.value,
-            playSeparateFiles: playSeparateFiles
+            playSeparateFiles: (clickAction == 'play_vocabulary_file' || clickAction == 'play_interval_or_vocabulary'),
+            vocabulary_mp3: model.vocabulary_mp3,
+            vocabulary_ogg: model.vocabulary_ogg,
+            vocabularyIntervals: validatedVocabularyIntervals.intervals
         };
     };
 
@@ -707,6 +871,10 @@ function AddonTextAudio_create() {
         }
     };
 
+    presenter.clearSelection = function(){
+        presenter.$view.find('.textaudio-text span.active').removeClass('active');
+    }
+
     presenter.getState = function() {
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
@@ -715,6 +883,7 @@ function AddonTextAudio_create() {
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return false;
+        if (!presenter.configuration.isValid) return false;
 
         presenter.stop();
 
