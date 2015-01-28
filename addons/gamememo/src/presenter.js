@@ -224,11 +224,17 @@ function Addongamememo_create(){
     presenter.showCard = function(cell) {
         presenter.slideUpAnimation(cell.children(".front"));
         presenter.slideDownAnimation(cell.children(".back"));
+        if(!presenter.isShowAnswersActive){
+            cell.addClass('was-clicked');
+        }
     };
 
     presenter.hideCard = function(cell) {
         presenter.slideUpAnimation(cell.children(".back"));
         presenter.slideDownAnimation(cell.children(".front"));
+        if(!presenter.isShowAnswersActive){
+            cell.removeClass('was-clicked');
+        }
     };
 
     presenter.markCardMismatch = function(cell, heightProbeCell) {
@@ -510,6 +516,9 @@ function Addongamememo_create(){
         presenter.preview = false;
         eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -589,7 +598,9 @@ function Addongamememo_create(){
         if (presenter.configuration.isErrorMode) return;
 
         var commands = {
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -608,6 +619,40 @@ function Addongamememo_create(){
         };
 
         eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.setShowErrorsMode = function(){
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+
+        presenter.showCard(presenter.viewContainer.find('.cell'));
+        presenter.viewContainer.find('.cell').addClass('.cell-show-answers');
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.viewContainer.find('.cell').removeClass('.cell-show-answers');
+        presenter.viewContainer.find('.cell').find('.back').css('visibility', 'hidden');
+        presenter.viewContainer.find('.cell').find('.front').css('visibility', 'visible');
+
+        presenter.viewContainer.find('.was-clicked').find('.front').css('visibility', 'hidden');
+        presenter.viewContainer.find('.was-clicked').find('.back').css('visibility', 'visible');
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
