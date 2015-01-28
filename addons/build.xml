@@ -2,6 +2,8 @@
 <project name="icplayer-addons" default="copy" basedir=".">
 	<property name="addons.dest" location="../src/main/java/com/lorepo/icplayer/public/addons" />
 	<property name="addons.src" location="." />
+	<property name="addons.list.delimiter" value="|" />
+	<property name="addons.list.temp.file" value="addons.list.temp" />
 
 	<target name="copy">
 		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
@@ -12,8 +14,17 @@
 			<fileset dir="${addons.dest}"/>
 		</delete>
 
-        <loadfile property="addons.list" srcFile="addons.list"/>
-        <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
+
+		<copy file="addons.list" tofile="${addons.list.temp.file}" />
+		<replaceregexp file="${addons.list.temp.file}"
+					   match="\s*\r?\n"
+					   flags="g"
+					   replace="${addons.list.delimiter}">
+		</replaceregexp>
+
+
+        <loadfile property="addons.list" srcFile="${addons.list.temp.file}"/>
+        <for list="${addons.list}" param="addonid" delimiter="${addons.list.delimiter}">
             <sequential>
                 <echo>Copying @{addonid} addon</echo>
                 <copyAddon src="${addons.src}" dest="${addons.dest}" addon="@{addonid}"/>
@@ -23,6 +34,8 @@
             	</copy>
             </sequential>
         </for>
+
+		<delete file="${addons.list.temp.file}" failonerror="false" />
 	</target>
 
 </project>
