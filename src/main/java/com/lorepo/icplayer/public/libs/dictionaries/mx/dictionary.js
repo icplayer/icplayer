@@ -481,6 +481,7 @@ var ice_dictionary = {
 	"Basic_Math_Gaps_property_is_equation": "Is Equation Prop2",
 	"Basic_Math_Gaps_property_is_not_activity": "Is Not Activity Prop2",
 	"Basic_Math_Gaps_property_is_disabled": "Is Disabled Separator Prop2",
+	"Basic_Math_Gaps_property_gap_width": "Gap width Prop2",
 	"Lesson_Progress_info": "",
 	"Lesson_Progress_name": "Lesson Progress",
 	"Next_info": "Next module works in a way similar to Next Page button allowing to move on to the next page, however, it first checks whether all activities on a current page have been attempted and the Submit button has been used.",

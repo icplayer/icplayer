@@ -484,6 +484,7 @@ var ice_dictionary = {
 "Basic_Math_Gaps_property_is_equation": "Est une équation Prop2",
 "Basic_Math_Gaps_property_is_not_activity": "N'est pas un exercice Prop2",
 "Basic_Math_Gaps_property_is_disabled": "Est un séparateur inadapté Prop2",
+"Basic_Math_Gaps_property_gap_width": "Gap width Prop2",
 "Lesson_Progress_info": "",
 "Lesson_Progress_name": "Progression de la leçon",
 "Next_info": "Le module Suivant fonctionne de la même manière que le bouton Page suivante permettant de passer à la page suivante, cependant, il vérifie d'abord que tous les exercices de la page ont été faits et que le bouton Soumettre a été utilisé.",

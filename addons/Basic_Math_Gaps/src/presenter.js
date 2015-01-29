@@ -78,6 +78,12 @@ function AddonBasic_Math_Gaps_create(){
             e.stopPropagation();
         });
 
+        $(view).find('.basic-math-gaps-wrapper :input').each(function(){
+            if (presenter.configuration.gapWidth != '') {
+                $(this).css("width", presenter.configuration.gapWidth);
+            }
+        });
+
         presenter.setVisibility(presenter.configuration.isVisible);
 
     }
@@ -146,7 +152,8 @@ function AddonBasic_Math_Gaps_create(){
     presenter.errorCodes = {
         'E01' : 'Left side is not equal to Right side.',
         'E02' : 'A space can NOT be a decimal separator.',
-        'E03' : 'Gaps Definition can NOT be blank'
+        'E03' : 'Gaps Definition can NOT be blank',
+        'E04' : 'Gap width must be positive integer'
     };
 
     function getValueOfSingleElement(element, isGap, shouldParse) {
@@ -298,8 +305,8 @@ function AddonBasic_Math_Gaps_create(){
 
     };
 
-    function validateDecimalSeparator(separator) {
-        var spacePattern = /s+/;
+    presenter.validateDecimalSeparator = function(separator) {
+        var spacePattern = /(\s)/;
 
         if (spacePattern.test(separator)) {
             return {
@@ -312,7 +319,25 @@ function AddonBasic_Math_Gaps_create(){
             'isError' : false,
             'value' : separator.length > 0 ? separator : '.'
         };
-    }
+    };
+
+    presenter.validateGapWidth = function(gapWidth) {
+        if (typeof gapWidth == "undefined" || gapWidth == 0) {
+            gapWidth = '';
+        }
+
+        if (gapWidth < 0 || isNaN(gapWidth)) {
+            return {
+                'isError' : true,
+                'errorCode' : 'E04'
+            }
+        }
+
+        return {
+            'isError' : false,
+            'value' : gapWidth
+        }
+    };
 
     presenter.validateModel = function(model) {
         var validatedIsEquation = ModelValidationUtils.validateBoolean(model['isEquation']),
@@ -320,22 +345,22 @@ function AddonBasic_Math_Gaps_create(){
             validatedIsActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
             validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
 
-        var validatedDecimalSeparator = validateDecimalSeparator(model['decimalSeparator']);
+        var validatedDecimalSeparator = presenter.validateDecimalSeparator(model['decimalSeparator']);
 
         if (validatedDecimalSeparator.isError) {
-            return {
-                'isError' : true,
-                'errorCode' : validatedDecimalSeparator.errorCode
-            }
+            return validatedDecimalSeparator;
+        }
+
+        var validatedGapWidth = presenter.validateGapWidth(model['gapWidth']);
+
+        if (validatedGapWidth.isError) {
+            return validatedGapWidth;
         }
 
         var validatedGapsDefinition = presenter.validateGapsDefinition(model, validatedIsEquation, validatedDecimalSeparator.value);
 
         if (validatedGapsDefinition.isError) {
-            return {
-                'isError' : true,
-                'errorCode' : validatedGapsDefinition.errorCode
-            }
+            return validatedGapsDefinition;
         }
 
         return {
@@ -350,7 +375,8 @@ function AddonBasic_Math_Gaps_create(){
             'isDisabled' : validatedIsDisabled,
             'isVisibleByDefault' : validatedIsVisible,
             'isVisible' : validatedIsVisible,
-            'decimalSeparator' : validatedDecimalSeparator.value
+            'decimalSeparator' : validatedDecimalSeparator.value,
+            'gapWidth' : validatedGapWidth.value
         }
     };
 

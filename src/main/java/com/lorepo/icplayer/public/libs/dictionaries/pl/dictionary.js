@@ -481,6 +481,7 @@ var ice_dictionary = {
 	"Basic_Math_Gaps_property_is_equation" : "Jest równaniem Prop2",
 	"Basic_Math_Gaps_property_is_not_activity" : "Nie jest ćwiczeniem Prop2",
 	"Basic_Math_Gaps_property_is_disabled" : "Jest wyłączony Prop2",
+	"Basic_Math_Gaps_property_gap_width" : "Gap width Prop2",
 	"Lesson_Progress_info" : "",
 	"Lesson_Progress_name" : "Postęp lekcji",
 	"Next_info" : "Moduł Dalej działa podobnie jak przycisk Następna strona, jednak najpierw pozwala sprawdzić, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie i czy użyto przycisku Zgłoś gotowość.",
