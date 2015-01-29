@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='MenuPanel' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="MenuItems" displayName="Menu Items" nameLabel="MenuPanel_property_menu_items" type="list">
+            <property name="id" displayName="Id" nameLabel="MenuPanel_property_id" type="string" />
+            <property name="title" displayName="Title" nameLabel="MenuPanel_property_title" type="string" />
+            <property name="parentId" displayName="Parent Id" nameLabel="MenuPanel_property_parent_id" type="string" />
+
+            <property name="image" displayName="Image" nameLabel="MenuPanel_property_image" type="image" />
+
+            <property name="isExpanded" displayName="Is Expanded" nameLabel="MenuPanel_property_is_expanded" type="boolean" />
+            <property name="isSelected" displayName="Is Selected" nameLabel="MenuPanel_property_is_selected" type="boolean" />
+            <property name="isDisabled" displayName="Is Disabled" nameLabel="MenuPanel_property_is_disabled" type="boolean" />
+        </property>
+
+        <property name="HorizontalAlignment" nameLabel="MenuPanel_property_horizontal_alignment" type="{default,left,center,right}" />
+        <property name="VerticalAlignment" nameLabel="MenuPanel_property_vertical_alignment" type="{default,top,center,bottom}" />
+        <property name="autoExpand" nameLabel="MenuPanel_property_auto_expand" displayName="Auto Expand" type="boolean" />
+        <property name="Disable" nameLabel="MenuPanel_property_disable" type="boolean" />
+    </model>
+</addon>

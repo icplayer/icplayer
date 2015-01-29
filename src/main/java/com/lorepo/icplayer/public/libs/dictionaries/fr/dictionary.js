@@ -498,5 +498,19 @@ var ice_dictionary = {
 "eKeyboard_info": "Clavier de caractères spéciaux est un clavier virtuel permettant d'intégrer des caractères spéciaux dans des modules avec lesquels il est lié.",
 "eKeyboard_name": "Clavier de caractères spéciaux",
 "LearnPen_info": "Le module Dessin LearnPen permet aux utilisateurs de dessiner des images dans un canevas numérique en utilisant LearnPen.",
-"LearnPen_name": "Dessin LearnPen"
+"LearnPen_name": "Dessin LearnPen",
+"MenuPanel_info": "Allows users to create multiple double state buttons that can be organized in a hierarchical structure.",
+"MenuPanel_name": "Menu Panel",
+"MenuPanel_property_menu_items": "Menu Items",
+"MenuPanel_property_id": "Id",
+"MenuPanel_property_title": "Title",
+"MenuPanel_property_parent_id": "Parent Id",
+"MenuPanel_property_image": "Image",
+"MenuPanel_property_is_expanded": "Is Expanded",
+"MenuPanel_property_is_selected": "Is Selected",
+"MenuPanel_property_is_disabled": "Is Disabled",
+"MenuPanel_property_horizontal_alignment": "Horizontal Alignment",
+"MenuPanel_property_vertical_alignment": "Vertical Alignment",
+"MenuPanel_property_auto_expand": "Auto Expand",
+"MenuPanel_property_disable": "Disable"
 };
