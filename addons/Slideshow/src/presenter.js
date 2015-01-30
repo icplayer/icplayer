@@ -198,7 +198,6 @@ function AddonSlideshow_create() {
                                 }
                             }
                         }
-
                         setButtonActive(presenter.NAVIGATION_BUTTON.PREVIOUS);
                         setButtonActive(presenter.NAVIGATION_BUTTON.NEXT);
 
@@ -212,7 +211,6 @@ function AddonSlideshow_create() {
                     case presenter.TIME_LINE_TASK.TYPE.TEXT:
                         var show = presenter.configuration.timeLine[time][i].task === presenter.TIME_LINE_TASK.TASK.SHOW,
                             $textElement = $(presenter.configuration.texts.domReferences[index]);
-
                         if (show) {
                             if (isTextAnimation) {
                                 $textElement.css({'opacity': '1'}).effect('slide', {}, 500);
@@ -446,6 +444,7 @@ function AddonSlideshow_create() {
     }
 
     function gotoSlide(index, withoutAnimation) {
+        presenter.configuration.audioState = presenter.AUDIO_STATE.STOP_FROM_NAVIGATION;
         hideAllTexts();
         var slide = presenter.configuration.slides.content[index];
         var time = slide.start;
@@ -533,7 +532,6 @@ function AddonSlideshow_create() {
 
     function nextButtonClickHandler(e) {
         e.stopPropagation();
-
         var isActive = $(this).hasClass('slideshow-controls-next') || $(this).hasClass('slideshow-controls-next-mouse-hover');
         if (isActive) {
             gotoNextSlide(false);
@@ -546,7 +544,7 @@ function AddonSlideshow_create() {
     }
 
     function mouseDownCallback(eventData) {
-        if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
+        //if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
 
         var currentIndex = getCurrentIndex(eventData.target), $slide;
         var containerPadding = getContainerPadding();
@@ -604,7 +602,7 @@ function AddonSlideshow_create() {
     }
 
     function mouseUpCallback () {
-        if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
+        //if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
 
         presenter.configuration.mouseData.isMouseDown = false;
         var leftOffset = getContainerPadding().leftOffset,
@@ -648,6 +646,7 @@ function AddonSlideshow_create() {
                         presenter.configuration.mouseData.$imageElement.hide();
                         presenter.configuration.mouseData.$imageElement.css('left', leftOffset + 'px');
                         gotoSlide(currentIndex + 1, true);
+                        setTimeFromSlideIndex(currentIndex + 1);
                         cleanMouseData();
                     });
 
@@ -682,6 +681,7 @@ function AddonSlideshow_create() {
                         presenter.configuration.mouseData.$imageElement.hide();
                         presenter.configuration.mouseData.$imageElement.css('left', leftOffset + 'px');
                         gotoSlide(currentIndex - 1, true);
+                        setTimeFromSlideIndex(currentIndex - 1);
                         cleanMouseData();
                     });
 
@@ -707,7 +707,7 @@ function AddonSlideshow_create() {
     }
 
     function mouseMoveCallback (eventData) {
-        if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
+        //if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
         if (presenter.configuration.mouseData.isMouseDown !== true) return;
 
         var imageElement = $(eventData.target);
@@ -744,7 +744,7 @@ function AddonSlideshow_create() {
     }
 
     function mouseClickCallback() {
-        if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
+        //if (presenter.AUDIO_STATE.PLAY === presenter.configuration.audioState) return;
 
         if (presenter.configuration.mouseData.isMouseDragged) {
             presenter.configuration.mouseData.isMouseDragged = false;
