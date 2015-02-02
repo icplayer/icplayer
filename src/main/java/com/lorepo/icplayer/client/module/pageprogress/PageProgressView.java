@@ -53,6 +53,7 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	@Override
 	public void show() {
 		setVisible(true);
+		redraw();
 	}
 	
 	@Override

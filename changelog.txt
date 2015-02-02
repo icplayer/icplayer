@@ -1,3 +1,4 @@
+2015-02-02 Fixed PageProgress score alignment when command Show is executed after ShowErrosEvent
 2015-02-02 Added getItem() command to Source List module
 2015-01-29 Fixed swiping the slides in Slideshow module
 2015-01-29 Added Menu Panel module
