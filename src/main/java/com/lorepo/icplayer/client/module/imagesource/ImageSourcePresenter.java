@@ -200,6 +200,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	public String executeCommand(String commandName, List<IType> params) {
 		if(commandName.compareTo("reset") == 0) {
 			reset();
+		} else if (commandName.compareTo("getimageurl") == 0) {
+			return getImageUrl();
 		}
 		
 		return "";

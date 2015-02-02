@@ -8,6 +8,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.RandomUtils;
@@ -96,12 +97,14 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		}
 	}
 	
+	private String getItemPrefix() {
+		return model.getId() + "-";
+	}
 	
 	protected void returnItem(DraggableItem item) {
 
 		if(model.isRemovable()) {
-			String prefix = model.getId() + "-";
-			if(item.getId().startsWith(prefix)) {
+			if(item.getId().startsWith(getItemPrefix())) {
 				items.put(item.getId(), item.getValue());
 				view.addItem(item.getId(), item.getValue(), true);
 			}
@@ -139,7 +142,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		for(int i = 0; i < order.size(); i++) {
 			Integer index = order.get(i);
 			String itemText = model.getItem(index);
-			String id = model.getId() + "-" + (index+1);
+			String id = getItemPrefix() + (index+1);
 			items.put(id, itemText);
 			view.addItem(id, itemText, callMathJax);
 		}
@@ -237,17 +240,36 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::reset()();
 		};
 		
+		presenter.getText = function(id){ 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getText(I)(id);
+		};
+		
 		return presenter;
 	}-*/;
 	
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> params) {
+		
+		IStringType param = null;
 		
 		if(commandName.compareTo("reset") == 0) {
 			reset();
+		} else if (commandName.compareTo("gettext") == 0) {
+			if (params.size() > 0 && params.get(0) instanceof IStringType) {
+				param = (IStringType) params.get(0);
+				return getText(Integer.valueOf(param.getValue()));
+			}
 		}
 		
 		return "";
+	}
+	
+	private String getText(int index) {
+		if(view != null && index > 0 && index <= model.getItemCount()){
+			return model.getItem(index - 1);
+		}
+		
+		return "[error]";
 	}
 	
 	private Element getView(){
