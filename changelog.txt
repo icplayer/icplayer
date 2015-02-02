@@ -1,4 +1,4 @@
-2015-02-02 Added getText() command to Source List module
+2015-02-02 Added getItem() command to Source List module
 2015-01-29 Fixed swiping the slides in Slideshow module
 2015-01-29 Added Menu Panel module
 2015-01-29 Added new property Gap width to Basic Math Gaps module

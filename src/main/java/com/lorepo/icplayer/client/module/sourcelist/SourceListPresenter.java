@@ -240,8 +240,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::reset()();
 		};
 		
-		presenter.getText = function(id){ 
-			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getText(I)(id);
+		presenter.getItem = function(id){ 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getItem(I)(id);
 		};
 		
 		return presenter;
@@ -254,17 +254,17 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		
 		if(commandName.compareTo("reset") == 0) {
 			reset();
-		} else if (commandName.compareTo("gettext") == 0) {
+		} else if (commandName.compareTo("getitem") == 0) {
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
 				param = (IStringType) params.get(0);
-				return getText(Integer.valueOf(param.getValue()));
+				return getItem(Integer.valueOf(param.getValue()));
 			}
 		}
 		
 		return "";
 	}
 	
-	private String getText(int index) {
+	private String getItem(int index) {
 		if(view != null && index > 0 && index <= model.getItemCount()){
 			return model.getItem(index - 1);
 		}
