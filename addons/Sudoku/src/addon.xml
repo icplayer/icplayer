@@ -2,8 +2,8 @@
 
 <addon id='Sudoku' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Values" type="text" displayName="Rows Values" isLocalized="true" />
-        <property name="isDisable" type="boolean" />
-        <property name="isActivity" type="boolean" />
+        <property name="Values" type="text" displayName="Rows Values" nameLabel="Sudoku_property_values" isLocalized="true" />
+        <property name="isDisable" type="boolean" nameLabel="Sudoku_property_is_disabled"/>
+        <property name="isActivity" type="boolean" nameLabel="Sudoku_property_is_activity"/>
     </model>
 </addon>
