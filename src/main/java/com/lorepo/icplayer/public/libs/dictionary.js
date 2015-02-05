@@ -453,6 +453,8 @@ var ice_dictionary = {
 	"SwiffyAnimation_name" : "Swiffy Animation",
 	"Zoom_Image_info" : "Zoom Image enables to display two versions of images, one inside the addon's content and another one in popup.",
 	"Zoom_Image_name" : "Zoom Image",
+	"Zoom_Image_property_full_screen_image" : "Full Screen image",
+	"Zoom_Image_property_page_image" : "Page image",
 	"LearnPen_Data_info" : "Displays LearnPen Data from sensors in real time.",
 	"LearnPen_Data_name" : "LearnPen Data",
 	"Sudoku_info": "This addon allows users to create activities with sudoku.",

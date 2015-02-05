@@ -453,6 +453,8 @@ var ice_dictionary = {
 "SwiffyAnimation_name" : "Animation Swiffy",
 "Zoom_Image_info" : "Zoom Image permet d'afficher deux versions d'images, l'une à l'intérieur du module, l'autre dans une fenêtre pop-up.",
 "Zoom_Image_name" : "Zoom Image",
+"Zoom_Image_property_full_screen_image" : "Full Screen image",
+"Zoom_Image_property_page_image" : "Page image",
 "LearnPen_Data_info" : "Affiche les données LearnPen des capteurs en temps réel.",
 "LearnPen_Data_name" : "Données LearnPen",
 "Sudoku_info": "Ce module externe permet aux utilisateurs de créer des activités avec un sudoku.",

@@ -20,3 +20,24 @@ img.big {
     background: black !important;
     opacity: 0.7 !important;
 }
+
+.close-button-ui-dialog {
+    display: table;
+    top: 0;
+    right: 0;
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 5px;
+    text-align: center;
+    font-family: monospace;
+    cursor: pointer;
+    color: #FFF;
+}
+
+.close-cross-ui-dialog {
+    font-size: 15px;
+    display: table-cell;
+    vertical-align: middle;
+}

@@ -83,32 +83,81 @@ function AddonZoom_Image_create() {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
+    function calculateImageSize(image) {
+        var player = document.getElementById("_icplayer");
+        var dialog = {};
+        var x = image.width;
+        var y = image.height;
+        var xProportion = x / $(player).width();
+        var yProportion = y / $(player).height();
+
+        if (xProportion < 1 && yProportion < 1) {
+            dialog.width = x;
+            dialog.height = y;
+        } else if (xProportion > yProportion) {
+            dialog.width = $(player).width();
+            dialog.height = y / xProportion;
+        } else {
+            dialog.height = $(player).height();
+            dialog.width = x / yProportion;
+        }
+
+        return dialog;
+    }
+
     function turnOnEventListeners() {
         function createPopUp(e) {
             e.preventDefault();
             e.stopPropagation();
 
-            presenter.$image = $("<img class='big' src='" + presenter.configuration.bigImage + "'>");
-            presenter.$image.appendTo(presenter.$view);
+            var img = new Image();
+            img.onload = function() {
+                var dialog = calculateImageSize(this);
 
-            presenter.$image.dialog({
-                modal: true,
-                resizable: false,
-                draggable: false,
-                show: {
-                    effect: "fade",
-                    duration: 1000
-                },
-                position: {
-                    my: "center",
-                    at: "center",
-                    of: document.getElementById("_icplayer")
-                }
-            });
+                presenter.$image = $("<img class='big' src='" + img.src + "'>");
+                presenter.$image.appendTo(presenter.$view);
+                presenter.$image.dialog({
+                    height: dialog.height,
+                    width: dialog.width,
+                    modal: true,
+                    resizable: false,
+                    draggable: false,
+                    show: {
+                        effect: "fade",
+                        duration: 1000
+                    },
+                    position: {
+                        my: "center",
+                        at: "center",
+                        of: document.getElementById("_icplayer")
+                    },
+                    create: function(event, ui)
+                    {
+                    	var $close = $("<div>");
+                        $close.addClass('close-button-ui-dialog');
 
-            presenter.$image.removeAttr('style');
+                    	$close.on('click', function() {
+                    		presenter.$image.dialog( "close" );
+                    	});
 
-            presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
+                    	$(this).parents(".ui-dialog").append($close);
+
+                        var $closeCross= $("<div>");
+                        $closeCross.addClass('close-cross-ui-dialog');
+                        $closeCross.html('&times;');
+                        $(this).parents(".ui-dialog").children(".close-button-ui-dialog").append($closeCross);
+
+                        $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").css("display","none");
+                        $(this).parents(".ui-dialog").css("padding", 0);
+                        $(this).parents(".ui-dialog").css("border", 0);
+                        $(this).parents(".ui-dialog:first").find(".ui-dialog-content").css("padding", 0);
+                                      }
+                });
+                presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
+                presenter.$image.on(presenter.eventType, remove);
+            };
+
+            img.src = presenter.configuration.bigImage;
 
             function remove(e) {
                 e.preventDefault();
@@ -117,8 +166,6 @@ function AddonZoom_Image_create() {
                 $(".zoom-image-wraper").remove();
                 $(".big").remove();
             }
-
-            presenter.$image.on(presenter.eventType, remove);
         }
 
         presenter.$view.find(".icon").on(presenter.eventType, createPopUp)

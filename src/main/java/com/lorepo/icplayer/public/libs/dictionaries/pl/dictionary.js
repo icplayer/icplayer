@@ -450,6 +450,8 @@ var ice_dictionary = {
 	"SwiffyAnimation_name" : "Animacja Google Swiffy",
 	"Zoom_Image_info" : "Umożliwia wyświetlanie dwóch wersji obrazu – wewnątrz Addonu i na wyskakującym okienku.",
 	"Zoom_Image_name" : "Powiększany obraz",
+	"Zoom_Image_property_full_screen_image" : "Full Screen image",
+	"Zoom_Image_property_page_image" : "Page image",
 	"LearnPen_Data_info" : "W czasie rzeczywistym wyświetla dane dotyczące LearnPen uzyskane z czujników.",
 	"LearnPen_Data_name" : "Dane LearnPen",
 	"Sudoku_info" : "Umożliwia tworzenie ćwiczeń opartych na zasadach gier Sudoku.",
