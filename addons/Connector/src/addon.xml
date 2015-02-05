@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Connector'>
+<addon id='Connector' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Tasks' type='list'>
-			<property name="Source" type="string" />
-			<property name="Item" type="string" />
-			<property name="Value" type="string" />
-			<property name="Score" type="string" />
-			<property name="Script" type="text" />
+		<property name='Tasks' nameLabel="Connector_property_tasks" type='list'>
+			<property name="Source" nameLabel="Connector_property_source" type="string" />
+			<property name="Item" nameLabel="Connector_property_item" type="string" />
+			<property name="Value" nameLabel="Connector_property_value" type="string" />
+			<property name="Score" nameLabel="Connector_property_score" type="string" />
+			<property name="Script" nameLabel="Connector_property_script" type="text" />
 		</property>
 	</model>
 </addon>

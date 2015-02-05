@@ -2,12 +2,12 @@
 
 <addon id='Math' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Variables' type='text' />
-		<property name="Expressions" type="text" />
-		<property name="Decimal separator" type="string" />
-        <property name="Thousand separator" type="string"/>
-		<property name="onCorrect" type="event" />
-		<property name="onIncorrect" type="event" />
-		<property name="onPartiallyCompleted" type="event" />
+		<property name='Variables' nameLabel="Math_property_variables" type='text' />
+		<property name="Expressions" nameLabel="Math_property_expressions" type="text" />
+		<property name="Decimal separator" nameLabel="Math_property_decimal_separator" type="string" />
+        <property name="Thousand separator" nameLabel="Math_property_thousand_separator" type="string"/>
+		<property name="onCorrect" nameLabel="Math_property_on_correct" type="event" />
+		<property name="onIncorrect" nameLabel="Math_property_on_incorrect" type="event" />
+		<property name="onPartiallyCompleted" nameLabel="Math_property_on_partially_completed" type="event" />
 	</model>
 </addon>

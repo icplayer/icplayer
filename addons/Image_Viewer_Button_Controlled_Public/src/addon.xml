@@ -2,25 +2,25 @@
 
 <addon id='Image_Viewer_Button_Controlled_Public' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Image' type='file' />
-		<property name="Frames" type="string" />
-		<property name="Frame size" type="{Original, Keep aspect ratio, Stretch}" />
-		<property name="Sounds" type="list">
-			<property name="MP3 sound" type="file" />
-			<property name="OGG sound" type="file" />
-			<property name="AAC sound" type="file" />
+		<property name='Image' nameLabel="Image_Viewer_Button_Controlled_Public_property_image" type='file' />
+		<property name="Frames" nameLabel="Image_Viewer_Button_Controlled_Public_property_frames" type="string" />
+		<property name="Frame size" nameLabel="Image_Viewer_Button_Controlled_Public_property_frame_size" type="{Original, Keep aspect ratio, Stretch}" />
+		<property name="Sounds" nameLabel="Image_Viewer_Button_Controlled_Public_property_sounds" type="list">
+			<property name="MP3 sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_mp3_sound" type="file" />
+			<property name="OGG sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_ogg_sound" type="file" />
+			<property name="AAC sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_aac_sound" type="file" />
 		</property>
-		<property name="Frame names" type="list">
-			<property name="name" type="string" />
-			<property name="frame" type="string" />
+		<property name="Frame names" nameLabel="Image_Viewer_Button_Controlled_Public_property_frame_names" type="list">
+			<property name="name" nameLabel="Image_Viewer_Button_Controlled_Public_property_name" type="string" />
+			<property name="frame" nameLabel="Image_Viewer_Button_Controlled_Public_property_frames" type="string" />
 		</property>
-		<property name="isClickDisabled" type="boolean" />
-		<property name="Labels" type="list">
-			<property name="Text" type="string" isLocalized="true" />
-			<property name="Top" type="string" />
-			<property name="Left" type="string" />
-			<property name="Frames" type="string" />
+		<property name="isClickDisabled" nameLabel="Image_Viewer_Button_Controlled_Public_property_is_click_disabled" type="boolean" />
+		<property name="Labels" nameLabel="Image_Viewer_Button_Controlled_Public_property_labels" type="list">
+			<property name="Text" nameLabel="Image_Viewer_Button_Controlled_Public_property_text" type="string" isLocalized="true" />
+			<property name="Top" nameLabel="Image_Viewer_Button_Controlled_Public_property_top" type="string" />
+			<property name="Left" nameLabel="Image_Viewer_Button_Controlled_Public_property_left" type="string" />
+			<property name="Frames" nameLabel="Image_Viewer_Button_Controlled_Public_property_frames" type="string" />
 		</property>
-		<property name="Show frame" type="string" />
+		<property name="Show frame" nameLabel="Image_Viewer_Button_Controlled_Public_property_show_frame" type="string" />
 	</model>
 </addon>

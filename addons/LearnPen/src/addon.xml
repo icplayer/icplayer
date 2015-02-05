@@ -2,24 +2,24 @@
 
 <addon id="LearnPen" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="SmartPen" displayName="LearnPen" type="boolean" />
-        <property name="Colors" type="text" />
-        <property name="Thickness" type="text" />
-        <property name="Opacity" type="text" />
+        <property name="SmartPen" displayName="LearnPen" nameLabel="LearnPen_property_smart_pen" type="boolean" />
+        <property name="Colors" nameLabel="LearnPen_property_colors" type="text" />
+        <property name="Thickness" nameLabel="LearnPen_property_thickness" type="text" />
+        <property name="Opacity" nameLabel="LearnPen_property_opacity" type="text" />
 
-        <property name="Squeeze limits" type="string" />
-        <property name="Squeeze limits interpretation" type="{Separately, Together}" />
-        <property name="Pressure limits" type="string" />
+        <property name="Squeeze limits" nameLabel="LearnPen_property_squeeze_limits" type="string" />
+        <property name="Squeeze limits interpretation" nameLabel="LearnPen_property_squeeze_limits_interpretation" type="{Separately, Together}" />
+        <property name="Pressure limits" nameLabel="LearnPen_property_pressure_limits" type="string" />
 
-        <property name="Events" type="list">
-            <property name="Sensor" type="string" />
-            <property name="Reaction scope" type="string" />
-            <property name="Item" type="string" />
-            <property name="Value" type="string" />
-            <property name="Score" type="string" />
+        <property name="Events" nameLabel="LearnPen_property_events" type="list">
+            <property name="Sensor" nameLabel="LearnPen_property_sensor" type="string" />
+            <property name="Reaction scope" nameLabel="LearnPen_property_reaction_scope" type="string" />
+            <property name="Item" nameLabel="LearnPen_property_item" type="string" />
+            <property name="Value" nameLabel="LearnPen_property_value" type="string" />
+            <property name="Score" nameLabel="LearnPen_property_score" type="string" />
         </property>
 
-        <property name="Mirror" type="boolean" />
-        <property name="Background color" type="string" />
+        <property name="Mirror" nameLabel="LearnPen_property_mirror" type="boolean" />
+        <property name="Background color" nameLabel="LearnPen_property_background_color" type="string" />
 	</model>
 </addon>

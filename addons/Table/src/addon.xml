@@ -2,25 +2,25 @@
 
 <addon id='Table' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Rows' type='string' />
-		<property name="Columns" type="string" />
-		<property name="Table cells" type="list">
-			<property name="Row" type="string" />
-			<property name="Column" type="string" />
-			<property name="Content" type="html" isLocalized="true" />
-            <property name="CSS Class" type="string" />
-            <property name="CSS Style" type="string" />
+		<property name='Rows' nameLabel="Table_property_rows" type='string' />
+		<property name="Columns" nameLabel="Table_property_columns" type="string" />
+		<property name="Table cells" nameLabel="Table_property_table_cells" type="list">
+			<property name="Row" nameLabel="Table_property_row" type="string" />
+			<property name="Column" nameLabel="Table_property_column" type="string" />
+			<property name="Content" nameLabel="Table_property_content" type="html" isLocalized="true" />
+            <property name="CSS Class" nameLabel="Table_property_css_class" type="string" />
+            <property name="CSS Style" nameLabel="Table_property_css_style" type="string" />
 		</property>
-		<property name="Columns width" type="list">
-			<property name="Width" type="string" />
+		<property name="Columns width" nameLabel="Table_property_columns_width" type="list">
+			<property name="Width" nameLabel="Table_property_width" type="string" />
 		</property>
-		<property name="Rows height" type="list">
-			<property name="Height" type="string" />
+		<property name="Rows height" nameLabel="Table_property_rows_height" type="list">
+			<property name="Height" nameLabel="Table_property_height" type="string" />
 		</property>
-		<property name="Is not an activity" type="boolean" />
-		<property name="Is disabled" type="boolean" />
-		<property name="Case sensitive" type="boolean" />
-		<property name="Ignore punctuation" type="boolean" />
-		<property name="Gap width" type="string" />
+		<property name="Is not an activity" nameLabel="Table_property_is_not_an_activity" type="boolean" />
+		<property name="Is disabled" nameLabel="Table_property_is_disabled" type="boolean" />
+		<property name="Case sensitive" nameLabel="Table_property_case_sensitive" type="boolean" />
+		<property name="Ignore punctuation" nameLabel="Table_property_ignore_punctuation" type="boolean" />
+		<property name="Gap width" nameLabel="Table_property_gap_width" type="string" />
 	</model>
 </addon>

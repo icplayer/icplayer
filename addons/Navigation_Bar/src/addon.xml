@@ -2,14 +2,14 @@
 
 <addon id='Navigation_Bar' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='ShowNextPrevArrows' type='boolean' displayName="Show Next and Prev arrows"/>
-		<property name="HideHomeLastArrows" type="boolean" displayName="Hide Home and Last arrows"/>
-		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" />
-        <property displayName="Styles" name="Styles" type="list">
-            <property name="Pages" type="string"/>
-            <property name="Class" type="string"/>
-            <property name="Style" type="string"/>
+		<property name='ShowNextPrevArrows' type='boolean' displayName="Show Next and Prev arrows" nameLabel="Navigation_Bar_property_show_next_prev_arrows"/>
+		<property name="HideHomeLastArrows" type="boolean" displayName="Hide Home and Last arrows" nameLabel="Navigation_Bar_property_show_home_last_arrows"/>
+		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" nameLabel="Navigation_Bar_property_numericals"/>
+        <property displayName="Styles" name="Styles" type="list" nameLabel="Navigation_Bar_property_styles">
+            <property name="Pages" type="string" nameLabel="Navigation_Bar_property_pages"/>
+            <property name="Class" type="string" nameLabel="Navigation_Bar_property_class"/>
+            <property name="Style" type="string" nameLabel="Navigation_Bar_property_style"/>
         </property>
-        <property name='AddClassNBPageOK' type='boolean' displayName='Real-time navigationbar-page-ok'/>
+        <property name='AddClassNBPageOK' type='boolean' displayName='Real-time navigationbar-page-ok' nameLabel="Navigation_Bar_property_add_class_nb_page_ok"/>
 	</model>
 </addon>

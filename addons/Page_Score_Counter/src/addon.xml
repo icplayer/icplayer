@@ -2,6 +2,6 @@
 
 <addon id='Page_Score_Counter' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 <model>
-    <property name="DisplayMode" displayName="Display Mode" type="{Fraction (Score/Max Score),Score,Max Score}" />
+    <property name="DisplayMode" displayName="Display Mode" nameLabel="Page_Score_Counter_property_display_mode" type="{Fraction (Score/Max Score),Score,Max Score}" />
 </model>
 </addon>

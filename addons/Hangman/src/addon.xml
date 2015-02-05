@@ -2,10 +2,10 @@
 
 <addon id='Hangman' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Phrases" type="list">
-			<property name="Letters" type="string" isLocalized="true" />
-			<property name="Phrase" type="string" isLocalized="true" />
+		<property name="Phrases" nameLabel="Hangman_property_phrases" type="list">
+			<property name="Letters" nameLabel="Hangman_property_letters" type="string" isLocalized="true" />
+			<property name="Phrase" nameLabel="Hangman_property_phrase" type="string" isLocalized="true" />
 		</property>
-		<property name="Possible mistakes" type="string" />
+		<property name="Possible mistakes" nameLabel="Hangman_property_possible_mistakes" type="string" />
 	</model>
 </addon>

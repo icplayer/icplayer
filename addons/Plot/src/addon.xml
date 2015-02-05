@@ -2,55 +2,55 @@
 
 <addon id='Plot' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Expressions' type='list'>
-			<property name='id' type='string' isLocalized='false'/>
-			<property name='expression' type='string' isLocalized='false'/>
-			<property name='xMin' type='int' isLocalized='false'/>
-			<property name='xMax' type='int' isLocalized='false'/>
-			<property name='yMin' type='int' isLocalized='false'/>
-			<property name='yMax' type='int' isLocalized='false'/>
-			<property name='selectable' type='boolean' isLocalized='false'/>
-			<property name='correct' type='boolean' isLocalized='false'/>
-			<property name='y to x' type='boolean' isLocalized='false'/>
-			<property name='hidden' type='boolean' isLocalized='false'/>
-			<property name='color' type='string' isLocalized='false'/>
+		<property name='Expressions' nameLabel="Plot_property_expressions" type='list'>
+			<property name='id' nameLabel="Plot_property_id" type='string' isLocalized='false'/>
+			<property name='expression' nameLabel="Plot_property_expression" type='string' isLocalized='false'/>
+			<property name='xMin' nameLabel="Plot_property_x_min" type='int' isLocalized='false'/>
+			<property name='xMax' nameLabel="Plot_property_x_max" type='int' isLocalized='false'/>
+			<property name='yMin' nameLabel="Plot_property_y_min" type='int' isLocalized='false'/>
+			<property name='yMax' nameLabel="Plot_property_y_max" type='int' isLocalized='false'/>
+			<property name='selectable' nameLabel="Plot_property_selectable" type='boolean' isLocalized='false'/>
+			<property name='correct' nameLabel="Plot_property_correct" type='boolean' isLocalized='false'/>
+			<property name='y to x' nameLabel="Plot_property_y_to_x" type='boolean' isLocalized='false'/>
+			<property name='hidden' nameLabel="Plot_property_hidden" type='boolean' isLocalized='false'/>
+			<property name='color' nameLabel="Plot_property_color" type='string' isLocalized='false'/>
 		</property>
-		<property name='Variables' type='list'>
-			<property name='plot id' type='string' isLocalized='false'/>
-			<property name='variable' type='string' isLocalized='false'/>
-			<property name='value' type='string' isLocalized='false'/>
-			<property name='expected' type='string' isLocalized='false'/>
+		<property name='Variables' nameLabel="Plot_property_variables" type='list'>
+			<property name='plot id' nameLabel="Plot_property_plot_id" type='string' isLocalized='false'/>
+			<property name='variable' nameLabel="Plot_property_variable" type='string' isLocalized='false'/>
+			<property name='value' nameLabel="Plot_property_value" type='string' isLocalized='false'/>
+			<property name='expected' nameLabel="Plot_property_expected" type='string' isLocalized='false'/>
 		</property>
-		<property name='Points' type='list'>
-			<property name='x value' type='string' isLocalized='false'/>
-			<property name='y value' type='string' isLocalized='false'/>
-			<property name='selected' type='boolean' isLocalized='false'/>
-			<property name='correct' type='boolean' isLocalized='false'/>
-			<property name='not scored' type='boolean' isLocalized='false'/>
+		<property name='Points' nameLabel="Plot_property_points" type='list'>
+			<property name='x value' nameLabel="Plot_property_x_value" type='string' isLocalized='false'/>
+			<property name='y value' nameLabel="Plot_property_y_value" type='string' isLocalized='false'/>
+			<property name='selected' nameLabel="Plot_property_selected" type='boolean' isLocalized='false'/>
+			<property name='correct' nameLabel="Plot_property_correct" type='boolean' isLocalized='false'/>
+			<property name='not scored' nameLabel="Plot_property_not_scored" type='boolean' isLocalized='false'/>
 		</property>
-		<property name='xMin' type='int' isLocalized='false'/>
-		<property name='xMax' type='int' isLocalized='false'/>
-		<property name='yMin' type='int' isLocalized='false'/>
-		<property name='yMax' type='int' isLocalized='false'/>
-		<property name='Grid' type='boolean' isLocalized='false'/>
-		<property name='GridStepX' type='int' isLocalized='false'/>
-		<property name='GridStepY' type='int' isLocalized='false'/>
-		<property name='Arrowhead size' type='int' isLocalized='false'/>
-		<property name='Axis values' type='boolean' isLocalized='false'/>
-		<property name='Axis x values' type='string' isLocalized='false'/>
-		<property name='Axis y values' type='string' isLocalized='false'/>
-		<property name='X axis description' type='string' isLocalized='true'/>
-		<property name='Y axis description' type='string' isLocalized='true'/>
-		<property name='hide X axis' type='boolean' isLocalized='false'/>
-		<property name='hide Y axis' type='boolean' isLocalized='false'/>
-		<property name='Point active area size' type='int' isLocalized='false'/>
-		<property name='Point radius' type='int' isLocalized='false'/>
-		<property name='Point outline radius' type='int' isLocalized='false'/>
-		<property name='Max selected points' type='int' isLocalized='false'/>
-		<property name='Not activity' type='boolean' isLocalized='false'/>
-		<property name='Free points' type='boolean' isLocalized='false'/>
-		<property name='Asymptote DY' type='int' isLocalized='false'/>
-		<property name='Broadcast' type='string' isLocalized='false'/>
-		<property name="Decimal separator" type="string" isLocalized='false'/>
+		<property name='xMin' nameLabel="Plot_property_x_min" type='int' isLocalized='false'/>
+		<property name='xMax' nameLabel="Plot_property_x_max" type='int' isLocalized='false'/>
+		<property name='yMin' nameLabel="Plot_property_y_min" type='int' isLocalized='false'/>
+		<property name='yMax' nameLabel="Plot_property_y_max" type='int' isLocalized='false'/>
+		<property name='Grid' nameLabel="Plot_property_grid" type='boolean' isLocalized='false'/>
+		<property name='GridStepX' nameLabel="Plot_property_grid_step_x" type='int' isLocalized='false'/>
+		<property name='GridStepY' nameLabel="Plot_property_grid_step_y" type='int' isLocalized='false'/>
+		<property name='Arrowhead size' nameLabel="Plot_property_arrow_head_size" type='int' isLocalized='false'/>
+		<property name='Axis values' nameLabel="Plot_property_axis_values" type='boolean' isLocalized='false'/>
+		<property name='Axis x values' nameLabel="Plot_property_axis_x_values" type='string' isLocalized='false'/>
+		<property name='Axis y values' nameLabel="Plot_property_axis_y_values" type='string' isLocalized='false'/>
+		<property name='X axis description' nameLabel="Plot_property_x_axis_description" type='string' isLocalized='true'/>
+		<property name='Y axis description' nameLabel="Plot_property_y_axis_description" type='string' isLocalized='true'/>
+		<property name='hide X axis' nameLabel="Plot_property_hide_x_axis" type='boolean' isLocalized='false'/>
+		<property name='hide Y axis' nameLabel="Plot_property_hide_y_axis" type='boolean' isLocalized='false'/>
+		<property name='Point active area size' nameLabel="Plot_property_points_active_area_size" type='int' isLocalized='false'/>
+		<property name='Point radius' nameLabel="Plot_property_points_radius" type='int' isLocalized='false'/>
+		<property name='Point outline radius' nameLabel="Plot_property_points_outline_radius" type='int' isLocalized='false'/>
+		<property name='Max selected points' nameLabel="Plot_property_max_selected_points" type='int' isLocalized='false'/>
+		<property name='Not activity' nameLabel="Plot_property_not_activity" type='boolean' isLocalized='false'/>
+		<property name='Free points' nameLabel="Plot_property_free_points" type='boolean' isLocalized='false'/>
+		<property name='Asymptote DY' nameLabel="Plot_property_asymptote_dy" type='int' isLocalized='false'/>
+		<property name='Broadcast' nameLabel="Plot_property_broadcast" type='string' isLocalized='false'/>
+		<property name="Decimal separator" nameLabel="Plot_property_decimal_separator" type="string" isLocalized='false'/>
 	</model>
 </addon>

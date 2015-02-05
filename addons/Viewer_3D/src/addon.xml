@@ -2,14 +2,14 @@
 
 <addon id='Viewer_3D' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='OBJ File' type='file' />
-		<property name='MTL File' type='file' />
-		<property name="Initial Rotation X" type="string" />
-		<property name="Initial Rotation Y" type="string" />
-		<property name="Initial Rotation Z" type="string" />
-		<property name="Model Color" type="string" />
-		<property name="Background Color 1" type="string" />
-		<property name="Background Color 2" type="string" />
-		<property name="Render Mode" type="{Smooth,Points,Wireframe,Flat}" />
+		<property name='OBJ File' nameLabel="Viewer_3D_property_obj_file" type='file' />
+		<property name='MTL File' nameLabel="Viewer_3D_property_mtl_file" type='file' />
+		<property name="Initial Rotation X" nameLabel="Viewer_3D_property_initial_rotation_x" type="string" />
+		<property name="Initial Rotation Y" nameLabel="Viewer_3D_property_initial_rotation_y" type="string" />
+		<property name="Initial Rotation Z" nameLabel="Viewer_3D_property_initial_rotation_z" type="string" />
+		<property name="Model Color" nameLabel="Viewer_3D_property_model_color" type="string" />
+		<property name="Background Color 1" nameLabel="Viewer_3D_property_background_color_1" type="string" />
+		<property name="Background Color 2" nameLabel="Viewer_3D_property_background_color_2" type="string" />
+		<property name="Render Mode" nameLabel="Viewer_3D_property_render_mode" type="{Smooth,Points,Wireframe,Flat}" />
 	</model>
 </addon>

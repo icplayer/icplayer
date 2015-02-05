@@ -2,6 +2,6 @@
 
 <addon id='Completion_Progress' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Turn off automatic counting" type="boolean"/>
+        <property name="Turn off automatic counting" nameLabel="Completion_Progress_property_turn_off_automatic_counting" type="boolean"/>
     </model>
 </addon>

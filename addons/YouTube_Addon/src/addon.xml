@@ -2,8 +2,8 @@
 
 <addon id='YouTube_Addon' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='HTTPS' type='boolean'/>
-		<property name='ID' type='string'/>
-		<property name='URL' type='string'/>
+		<property name='HTTPS' nameLabel="YouTube_Addon_property_https" type='boolean'/>
+		<property name='ID' nameLabel="YouTube_Addon_property_id" type='string'/>
+		<property name='URL' nameLabel="YouTube_Addon_property_url" type='string'/>
 	</model>
 </addon>

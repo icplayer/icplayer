@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <addon id="SwiffyAnimation" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Animations" type="list">
-			<property name="swiffyobject" type="file" displayName="Swiffy File"/>
-			<property name="autoPlay" type="boolean" displayName="Auto Play"/>
-			<property name="disableTransparentBackground" type="boolean" displayName="Disable Transparent Background"/>
-            <property name="doNotPreload" type="boolean" displayName="Do Not Preload"/>
+		<property name="Animations" type="list" nameLabel="SwiffyAnimation_property_animations">
+			<property name="swiffyobject" type="file" displayName="Swiffy File" nameLabel="SwiffyAnimation_property_swiffy_object"/>
+			<property name="autoPlay" type="boolean" displayName="Auto Play" nameLabel="SwiffyAnimation_property_auto_play"/>
+			<property name="disableTransparentBackground" type="boolean" displayName="Disable Transparent Background" nameLabel="SwiffyAnimation_property_disable_transparent_background"/>
+            <property name="doNotPreload" type="boolean" displayName="Do Not Preload" nameLabel="SwiffyAnimation_property_do_not_preload"/>
 		</property>
-		<property name="initialAnimation" type="string" displayName="Initial Animation"/>
+		<property name="initialAnimation" type="string" displayName="Initial Animation" nameLabel="SwiffyAnimation_property_initial_animation"/>
 	</model>
 </addon>

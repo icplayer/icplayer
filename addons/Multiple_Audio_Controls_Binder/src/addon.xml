@@ -2,6 +2,6 @@
 
 <addon id='Multiple_Audio_Controls_Binder' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Connections' type='text' />
+		<property name='Connections' nameLabel="Multiple_Audio_Controls_Binder_property_connections" type='text' />
 	</model>
 </addon>

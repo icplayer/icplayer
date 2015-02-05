@@ -2,29 +2,29 @@
 
 <addon id='graph' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="isNotActivity" displayName="Is not an activity" type="boolean" />
-		<property name="X axis description" type="string" isLocalized="true" />
-		<property name="Show X axis bars descriptions" type="boolean" />
-		<property name="X axis bars descriptions" type="list">
-			<property name="Description" type="string" isLocalized="true" />
+        <property name="isNotActivity" displayName="Is not an activity" nameLabel="graph_property_is_not_activity" type="boolean" />
+		<property name="X axis description" nameLabel="graph_property_x_axis_description" type="string" isLocalized="true" />
+		<property name="Show X axis bars descriptions" nameLabel="graph_property_show_x_axis_bars_descriptions" type="boolean" />
+		<property name="X axis bars descriptions" nameLabel="graph_property_x_axis_bars_descriptions" type="list">
+			<property name="Description" nameLabel="graph_property_description" type="string" isLocalized="true" />
 		</property>
-		<property name="Show X axis series descriptions" type="boolean" />
-		<property name="X axis series descriptions" type="list">
-			<property name="Description" type="string" isLocalized="true" />
+		<property name="Show X axis series descriptions" nameLabel="graph_property_show_x_axis_series_descriptions" type="boolean" />
+		<property name="X axis series descriptions" nameLabel="graph_property_x_axis_series_descriptions" type="list">
+			<property name="Description" nameLabel="graph_property_description" type="string" isLocalized="true" />
 		</property>
-		<property name="Y axis description" type="string" isLocalized="true" />
-		<property name="Y axis maximum value" type="string" />
-		<property name="Y axis minimum value" type="string" />
-		<property name="Y axis grid step" type="string" />
-		<property name="Interactive" type="boolean" />
-		<property name="Interactive step" type="string" />
-		<property name="Data" type="text" />
-		<property name="Answers" type="list">
-			<property name="Answer" type="string" />
+		<property name="Y axis description" nameLabel="graph_property_y_axis_description" type="string" isLocalized="true" />
+		<property name="Y axis maximum value" nameLabel="graph_property_y_axis_maximum_value" type="string" />
+		<property name="Y axis minimum value" nameLabel="graph_property_y_axis_minimum_value" type="string" />
+		<property name="Y axis grid step" nameLabel="graph_property_y_axis_grid_step" type="string" />
+		<property name="Interactive" nameLabel="graph_property_interactive" type="boolean" />
+		<property name="Interactive step" nameLabel="graph_property_interactive_step" type="string" />
+		<property name="Data" nameLabel="graph_property_data" type="text" />
+		<property name="Answers" nameLabel="graph_property_answers" type="list">
+			<property name="Answer" nameLabel="graph_property_answer" type="string" />
 		</property>
-		<property name="Series colors" type="list">
-			<property name="Color" type="string" />
+		<property name="Series colors" nameLabel="graph_property_series_colors" type="list">
+			<property name="Color" nameLabel="graph_property_color" type="string" />
 		</property>
-		<property name="Decimal separator" type="string" />
+		<property name="Decimal separator" nameLabel="graph_property_decimal_separator" type="string" />
 	</model>
 </addon>

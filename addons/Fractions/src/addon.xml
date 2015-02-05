@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <addon id="Fractions" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Figure" type="{---,Rectangular,Circle}"/>
-		<property name="RectHorizontal" displayName="Rectangular horizontal parts" type="string" />
-		<property name="RectVertical" displayName="Rectangular vertical parts" type="string" />
+		<property name="Figure" nameLabel="Fractions_property_figure" type="{---,Rectangular,Circle}"/>
+		<property name="RectHorizontal" displayName="Rectangular horizontal parts" nameLabel="Fractions_property_rect_horizontal" type="string" />
+		<property name="RectVertical" displayName="Rectangular vertical parts" nameLabel="Fractions_property_rect_vertical" type="string" />
 		<property name="CircleParts" displayName="Circle parts" type="string" />
-		<property name="Correct" displayName="Number of correct parts" type="string" />
-		<property name="selectedParts" displayName="Selected parts" type="string" />
-		<property name="selectionColor" displayName="Selection color" type="string" />
-		<property name="emptyColor" displayName="Empty color" type="string" />
-		<property name="strokeColor" displayName="Stroke color" type="string" />
-		<property name="strokeWidth" displayName="Stroke width" type="string" />
-		<property name="isNotActivity" type="boolean"/>
-		<property name="isDisable" type="boolean"/>
+		<property name="Correct" displayName="Number of correct parts" nameLabel="Fractions_property_correct" type="string" />
+		<property name="selectedParts" displayName="Selected parts" nameLabel="Fractions_property_selected_parts" type="string" />
+		<property name="selectionColor" displayName="Selection color" nameLabel="Fractions_property_selection_color" type="string" />
+		<property name="emptyColor" displayName="Empty color" nameLabel="Fractions_property_empty_color" type="string" />
+		<property name="strokeColor" displayName="Stroke color" nameLabel="Fractions_property_stroke_color" type="string" />
+		<property name="strokeWidth" displayName="Stroke width" nameLabel="Fractions_property_stroke_width" type="string" />
+		<property name="isNotActivity" nameLabel="Fractions_property_is_not_activity" type="boolean"/>
+		<property name="isDisable" nameLabel="Fractions_property_is_disable" type="boolean"/>
 	</model>
 </addon>

@@ -2,12 +2,12 @@
 
 <addon id='Page_Rating' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Title Text" type="string"/>
-		<property name="Comment Text" type="string" />
-		<property name="Rates" type="list">
-            <property name="Deselected" type="image"/>
-		    <property name="Selected" type="image"/>
+		<property name="Title Text" nameLabel="Page_Rating_property_title_text" type="string"/>
+		<property name="Comment Text" nameLabel="Page_Rating_property_comment_text" type="string" />
+		<property name="Rates" nameLabel="Page_Rating_property_rates" type="list">
+            <property name="Deselected" nameLabel="Page_Rating_property_deselected" type="image"/>
+		    <property name="Selected" nameLabel="Page_Rating_property_selected" type="image"/>
 		</property>
-        <property name="Close button visible" type="boolean" isLocalized="true"/>
+        <property name="Close button visible" nameLabel="Page_Rating_property_close_button_visible" type="boolean" isLocalized="true"/>
 	</model>
 </addon>

@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <addon id="EdgeAnimation" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Animations" type="list">
-			<property name="compositionClass" type="string" displayName="Composition Class"/>
-			<property name="edgeFile" type="file" displayName="edge.js"/>
-			<property name="edgeActionsFile" type="file" displayName="edgeActions.js"/>
+		<property name="Animations" type="list" nameLabel="EdgeAnimation_property_animations">
+			<property name="compositionClass" type="string" displayName="Composition Class" nameLabel="EdgeAnimation_property_composition_class"/>
+			<property name="edgeFile" type="file" displayName="edge.js" nameLabel="EdgeAnimation_property_edge_file"/>
+			<property name="edgeActionsFile" type="file" displayName="edgeActions.js" nameLabel="EdgeAnimation_property_edge_actions_file"/>
 		</property>
-		<property name="Images" type="list">
-			<property name="animationItem" type="string" displayName="Animation Item Number"/>
-			<property name="elementId" type="string" displayName="Edge element IDs (csv)"/>
-			<property name="imageFile" type="image" displayName="Image File"/>
+		<property name="Images" type="list" nameLabel="EdgeAnimation_property_images">
+			<property name="animationItem" type="string" displayName="Animation Item Number" nameLabel="EdgeAnimation_property_animation_item"/>
+			<property name="elementId" type="string" displayName="Edge element IDs (csv)" nameLabel="EdgeAnimation_property_element_id"/>
+			<property name="imageFile" type="image" displayName="Image File" nameLabel="EdgeAnimation_property_image_file"/>
 		</property>
-		<property name="initialAnimation" type="string" displayName="Initial Animation"/>
-		<property name="Narration" type="narration"/>
+		<property name="initialAnimation" type="string" displayName="Initial Animation" nameLabel="EdgeAnimation_property_initial_animation"/>
+		<property name="Narration" type="narration" nameLabel="EdgeAnimation_property_narration"/>
 	</model>
 </addon>

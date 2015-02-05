@@ -2,12 +2,12 @@
 
 <addon id='Slider' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='ImageElement' type='image' />
-		<property name="Orientation" type="{Landscape, Portrait}" />
-		<property name="Stepwise" type="boolean" />
-		<property name="StepsCount" type="string" />
-		<property name="InitialStep" type="string" />
-		<property name="onStepChange" type="event" />
-		<property name="Block in error checking mode" type="boolean" />
+		<property name='ImageElement' nameLabel="Slider_property_image_element" type='image' />
+		<property name="Orientation" nameLabel="Slider_property_orientation" type="{Landscape, Portrait}" />
+		<property name="Stepwise" nameLabel="Slider_property_stepwise" type="boolean" />
+		<property name="StepsCount" nameLabel="Slider_property_steps_count" type="string" />
+		<property name="InitialStep" nameLabel="Slider_property_initial_step" type="string" />
+		<property name="onStepChange" nameLabel="Slider_property_on_step_change" type="event" />
+		<property name="Block in error checking mode" nameLabel="Slider_property_block_in_error_checking_mode" type="boolean" />
 	</model>
 </addon>

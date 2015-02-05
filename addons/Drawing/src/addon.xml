@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Drawing'>
+<addon id='Drawing' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Color' type='string'/>
-		<property name='Thickness' type='string'/>
-		<property name='Border' type='string'/>
-		<property name='Opacity' type='string'/>
+		<property name='Color' nameLabel="Drawing_property_color" type='string'/>
+		<property name='Thickness' nameLabel="Drawing_property_thickness" type='string'/>
+		<property name='Border' nameLabel="Drawing_property_border" type='string'/>
+		<property name='Opacity' nameLabel="Drawing_property_border" type='string'/>
 	</model>
 </addon>

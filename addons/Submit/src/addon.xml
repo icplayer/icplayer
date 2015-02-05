@@ -2,7 +2,7 @@
 
 <addon id='Submit' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="Text" type="string" isLocalized="true" />
-        <property name="TextSelected" displayName="Text Selected" type="string" isLocalized="true" />
+        <property name="Text" nameLabel="Submit_property_text" type="string" isLocalized="true" />
+        <property name="TextSelected" displayName="Text Selected" nameLabel="Submit_property_text_selected" type="string" isLocalized="true" />
 	</model>
 </addon>

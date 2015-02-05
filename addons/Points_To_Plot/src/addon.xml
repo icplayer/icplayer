@@ -2,12 +2,12 @@
 
 <addon id='Points_To_Plot' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Source' type='string' isLocalized='false'/>
-		<property name='Points to plot' type='list'>
-			<property name='plot id' type='string' isLocalized='false'/>
-			<property name='points' type='int' isLocalized='false'/>
-			<property name='strict points' type='string' isLocalized='false'/>
+		<property name='Source' nameLabel="Points_To_Plot_property_source" type='string' isLocalized='false'/>
+		<property name='Points to plot' nameLabel="Points_To_Plot_property_points_to_plot" type='list'>
+			<property name='plot id' nameLabel="Points_To_Plot_property_plot_id" type='string' isLocalized='false'/>
+			<property name='points' nameLabel="Points_To_Plot_property_points" type='int' isLocalized='false'/>
+			<property name='strict points' nameLabel="Points_To_Plot_property_strict_points" type='string' isLocalized='false'/>
 		</property>
-		<property name="Decimal separator" type="string" isLocalized='false'/>
+		<property name="Decimal separator" nameLabel="Points_To_Plot_property_decimal_separator" type="string" isLocalized='false'/>
 	</model>
 </addon>

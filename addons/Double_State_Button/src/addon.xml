@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Double_State_Button'>
+<addon id='Double_State_Button' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Text' type='string' isLocalized="true" />
-		<property name="Image" type="image" />
-		<property name="onSelected" type="event" />
-		<property name='Text selected' type='string' isLocalized="true" />
-		<property name="Image selected" type="image" />
-		<property name="onDeselected" type="event" />
-		<property name="isSelected" type="boolean" />
-		<property name="Disable" type="boolean" />
+		<property name='Text' nameLabel="Double_State_Button_property_text" type='string' isLocalized="true" />
+		<property name="Image" nameLabel="Double_State_Button_property_image" type="image" />
+		<property name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event" />
+		<property name='Text selected' nameLabel="Double_State_Button_property_text_selected" type='string' isLocalized="true" />
+		<property name="Image selected" nameLabel="Double_State_Button_property_image_selected" type="image" />
+		<property name="onDeselected" nameLabel="Double_State_Button_property_on_deselected" type="event" />
+		<property name="isSelected" nameLabel="Double_State_Button_property_is_selected" type="boolean" />
+		<property name="Disable" nameLabel="Double_State_Button_property_disable" type="boolean" />
 	</model>
 </addon>

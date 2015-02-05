@@ -2,13 +2,13 @@
 
 <addon id='IWB_Toolbar' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="floatingImages" displayName="Floating Images" type="list">
-            <property name="Image" type="file" />
+        <property name="floatingImages" displayName="Floating Images" nameLabel="IWB_Toolbar_property_floating_images" type="list">
+            <property name="Image" nameLabel="IWB_Toolbar_property_image" type="file" />
         </property>
-        <property name="widthWhenOpened" displayName="Width When Opened" type="string" />
-        <property name="Fixed Position" type="boolean"/>
+        <property name="widthWhenOpened" displayName="Width When Opened" nameLabel="IWB_Toolbar_property_width_when_opened" type="string" />
+        <property name="Fixed Position" nameLabel="IWB_Toolbar_property_fixed_position" type="boolean"/>
 
-        <property name="forPen" displayName="Show for pen" type="{---, Color panel, Thickness panel}" />
-        <property name="forMarker" displayName="Show for marker" type="{---, Color panel, Thickness panel}" />
+        <property name="forPen" displayName="Show for pen" nameLabel="IWB_Toolbar_property_for_pen" type="{---, Color panel, Thickness panel}" />
+        <property name="forMarker" displayName="Show for marker" nameLabel="IWB_Toolbar_property_for_marker" type="{---, Color panel, Thickness panel}" />
 	</model>
 </addon>

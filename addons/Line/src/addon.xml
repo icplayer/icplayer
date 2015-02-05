@@ -2,11 +2,11 @@
 
 <addon id='Line' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Rotation angle" type="string" />
-		<property name="Line width" type="string" />
-		<property name="Line color" type="string" />
-        <property name="Line opacity" type="string" />
-		<property name="Left line ending" type="{None, Round, Circle, Square}" />
-        <property name="Right line ending" type="{None, Round, Circle, Square}" />
+		<property name="Rotation angle" nameLabel="Line_property_rotation_angle" type="string" />
+		<property name="Line width" nameLabel="Line_property_line_width" type="string" />
+		<property name="Line color" nameLabel="Line_property_line_color" type="string" />
+        <property name="Line opacity" nameLabel="Line_property_line_opacity" type="string" />
+		<property name="Left line ending" nameLabel="Line_property_left_line_ending" type="{None, Round, Circle, Square}" />
+        <property name="Right line ending" nameLabel="Line_property_right_line_ending" type="{None, Round, Circle, Square}" />
 	</model>
 </addon>

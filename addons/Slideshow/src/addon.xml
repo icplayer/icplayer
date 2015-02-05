@@ -2,26 +2,26 @@
 
 <addon id='Slideshow' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Audio' type='list'>
-			<property name="MP3" type="file" />
-			<property name="OGG" type="file" />
+		<property name='Audio' nameLabel="Slideshow_property_audio" type='list'>
+			<property name="MP3" nameLabel="Slideshow_property_mp3" type="file" />
+			<property name="OGG" nameLabel="Slideshow_property_ogg" type="file" />
 		</property>
-		<property name="Slides" type="list">
-			<property name="Image" type="file" />
-			<property name="Start" type="string" />
+		<property name="Slides" nameLabel="Slideshow_property_slides" type="list">
+			<property name="Image" nameLabel="Slideshow_property_image" type="file" />
+			<property name="Start" nameLabel="Slideshow_property_start" type="string" />
 		</property>
-		<property name="Texts" type="list">
-			<property name="Text" type="string" isLocalized="true" />
-			<property name="Top" type="string" />
-			<property name="Left" type="string" />
-			<property name="Start" type="string" />
-			<property name="End" type="string" />
+		<property name="Texts" nameLabel="Slideshow_property_texts" type="list">
+			<property name="Text" nameLabel="Slideshow_property_text" type="string" isLocalized="true" />
+			<property name="Top" nameLabel="Slideshow_property_top" type="string" />
+			<property name="Left" nameLabel="Slideshow_property_left" type="string" />
+			<property name="Start" nameLabel="Slideshow_property_start" type="string" />
+			<property name="End" nameLabel="Slideshow_property_end" type="string" />
 		</property>
-		<property name="Slide animation" type="boolean" />
-		<property name="Text animation" type="boolean" />
-		<property name="Hide progressbar" type="boolean" />
-		<property name="Show slide" type="string" />
-		<property name="Group next and previous buttons" type="boolean" />
-		<property name="Narration" type="narration" />
+		<property name="Slide animation" nameLabel="Slideshow_property_slide_animation" type="boolean" />
+		<property name="Text animation" nameLabel="Slideshow_property_text_animation" type="boolean" />
+		<property name="Hide progressbar" nameLabel="Slideshow_property_hide_progressbar" type="boolean" />
+		<property name="Show slide" nameLabel="Slideshow_property_show_slide" type="string" />
+		<property name="Group next and previous buttons" nameLabel="Slideshow_property_group_next_and_previous_buttons" type="boolean" />
+		<property name="Narration" nameLabel="Slideshow_property_narration" type="narration" />
 	</model>
 </addon>

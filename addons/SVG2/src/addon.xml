@@ -2,7 +2,7 @@
 
 <addon id='SVG2' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='SVG file' type='file' />
-		<property name="Skip aspect ratio" type="boolean" />
+		<property name='SVG file' nameLabel="SVG2_property_svg_file" type='file' />
+		<property name="Skip aspect ratio" nameLabel="SVG2_property_skip_aspect_ration" type="boolean" />
 	</model>
 </addon>

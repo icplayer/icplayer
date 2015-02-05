@@ -2,17 +2,17 @@
 
 <addon id='feedback' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Responses" type="list">
-			<property name="Unique response ID" type="string" />
-			<property name="Status" type="string" />
-			<property name="Text" type="html" isLocalized="true" />
+		<property name="Responses" nameLabel="feedback_property_responses" type="list">
+			<property name="Unique response ID" nameLabel="feedback_property_unique_response_id" type="string" />
+			<property name="Status" nameLabel="feedback_property_status" type="string" />
+			<property name="Text" nameLabel="feedback_property_text" type="html" isLocalized="true" />
 		</property>
-		<property name="Default response" type="html" isLocalized="true" />
-		<property name="Preview response ID" type="string" />
-		<property name="Reset response on page change" type="boolean" />
-		<property name="Fade transitions" type="boolean" />
-		<property name="Center horizontally" type="boolean" />
-		<property name="Center vertically" type="boolean" />
-		<property name="Is not an activity" type="boolean" />
+		<property name="Default response" nameLabel="feedback_property_default_response" type="html" isLocalized="true" />
+		<property name="Preview response ID" nameLabel="feedback_property_preview_response_id" type="string" />
+		<property name="Reset response on page change" nameLabel="feedback_property_reset_response_on_page_change" type="boolean" />
+		<property name="Fade transitions" nameLabel="feedback_property_fade_transitions" type="boolean" />
+		<property name="Center horizontally" nameLabel="feedback_property_center_horizontally" type="boolean" />
+		<property name="Center vertically" nameLabel="feedback_property_center_vertically" type="boolean" />
+		<property name="Is not an activity" nameLabel="feedback_property_is_not_an_activity" type="boolean" />
 	</model>
 </addon>

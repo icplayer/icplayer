@@ -1,24 +1,24 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Animation'>
+<addon id='Animation' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Preview image" type="image" />
-		<property name="Animation" type="image" />
-		<property name="Frames count" type="string" />
-		<property name="Frame duration" type="string" />
-		<property name="Frame size" type="{Original, Keep aspect ratio, Stretch}"/>
-		<property name="Loop" type="boolean" />
-		<property name="Labels" type="list">
-			<property name="Text" type="string" isLocalized="true" />
-			<property name="Top" type="string" />
-			<property name="Left" type="string" />
-			<property name="Frames" type="string" />
+		<property name="Preview image" nameLabel="Animation_property_preview_image" type="image" />
+		<property name="Animation" nameLabel="Animation_property_animation" type="image" />
+		<property name="Frames count" nameLabel="Animation_property_frames_count" type="string" />
+		<property name="Frame duration" nameLabel="Animation_property_frame_duration" type="string" />
+		<property name="Frame size" nameLabel="Animation_property_frame_size" type="{Original, Keep aspect ratio, Stretch}"/>
+		<property name="Loop" nameLabel="Animation_property_loop" type="boolean" />
+		<property name="Labels" nameLabel="Animation_property_labels" type="list">
+			<property name="Text" nameLabel="Animation_property_text" type="string" isLocalized="true" />
+			<property name="Top" nameLabel="Animation_property_top" type="string" />
+			<property name="Left" nameLabel="Animation_property_left" type="string" />
+			<property name="Frames" nameLabel="Animation_property_frames" type="string" />
 		</property>
-		<property name="Show watermark" type="boolean" />
-		<property name="Watermark color" type="string" />
-		<property name="Watermark opacity" type="string" />
-		<property name="Watermark size" type="string" />
-		<property name="Don't reset on end" type="boolean" />
-		<property name="Is click disabled" type="boolean" />
+		<property name="Show watermark" nameLabel="Animation_property_show_watermark" type="boolean" />
+		<property name="Watermark color" nameLabel="Animation_property_watermark_color" type="string" />
+		<property name="Watermark opacity" nameLabel="Animation_property_watermark_opacity" type="string" />
+		<property name="Watermark size" nameLabel="Animation_property_watermark_size" type="string" />
+		<property name="Don't reset on end" nameLabel="Animation_property_do_not_reset_on_end" type="boolean" />
+		<property name="Is click disabled" nameLabel="Animation_property_is_click_disabled" type="boolean" />
 	</model>
 </addon>

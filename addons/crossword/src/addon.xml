@@ -1,20 +1,20 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='crossword'>
+<addon id='crossword' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Crossword' type='text' isLocalized="true" />
-		<property name='Columns' type='string' />
-		<property name='Rows' type='string' />
-		<property name="Cell width" type="string" />
-		<property name="Cell height" type="string" />
-		<property name="Blank cells border color" type="string" />
-		<property name="Blank cells border style" type="{solid, dotted, dashed}" />
-		<property name="Blank cells border width" type="string" />
-		<property name="Letter cells border color" type="string" />
-		<property name="Letter cells border style" type="{solid, dotted, dashed}" />
-		<property name="Letter cells border width" type="string" />
-		<property name="Word numbers" type="{both, horizontal, vertical, none}" />
-		<property name="Marked column index" type="string" />
-		<property name="Marked row index" type="string" />
+		<property name='Crossword' nameLabel="crossword_property_crossword" type='text' isLocalized="true" />
+		<property name='Columns' nameLabel="crossword_property_columns" type='string' />
+		<property name='Rows' nameLabel="crossword_property_rows" type='string' />
+		<property name="Cell width" nameLabel="crossword_property_cell_width" type="string" />
+		<property name="Cell height" nameLabel="crossword_property_cell_height" type="string" />
+		<property name="Blank cells border color" nameLabel="crossword_property_blank_cells_border_color" type="string" />
+		<property name="Blank cells border style" nameLabel="crossword_property_blank_cells_border_style" type="{solid, dotted, dashed}" />
+		<property name="Blank cells border width" nameLabel="crossword_property_blank_cells_border_width" type="string" />
+		<property name="Letter cells border color" nameLabel="crossword_property_letter_cells_border_color" type="string" />
+		<property name="Letter cells border style" nameLabel="crossword_property_letter_cells_border_style" type="{solid, dotted, dashed}" />
+		<property name="Letter cells border width" nameLabel="crossword_property_letter_cells_border_width" type="string" />
+		<property name="Word numbers" nameLabel="crossword_property_word_numbers" type="{both, horizontal, vertical, none}" />
+		<property name="Marked column index" nameLabel="crossword_property_marked_column_index" type="string" />
+		<property name="Marked row index" nameLabel="crossword_property_marked_row_index" type="string" />
 	</model>
 </addon>

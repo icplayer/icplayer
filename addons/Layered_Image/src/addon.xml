@@ -2,11 +2,11 @@
 
 <addon id='Layered_Image' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Base image' type='image' />
-		<property name="Layers" type="list">
-			<property name="Image" type="file" />
-			<property name="Show at start" type="boolean" />
+		<property name='Base image' nameLabel="Layered_Image_property_base_image" type='image' />
+		<property name="Layers" nameLabel="Layered_Image_property_layers" type="list">
+			<property name="Image" nameLabel="Layered_Image_property_image" type="file" />
+			<property name="Show at start" nameLabel="Layered_Image_property_show_at_start" type="boolean" />
 		</property>
-		<property name="Image size" type="{Original, Keep aspect ratio, Stretch}" />
+		<property name="Image size" nameLabel="Layered_Image_property_image_size" type="{Original, Keep aspect ratio, Stretch}" />
 	</model>
 </addon>

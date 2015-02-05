@@ -2,13 +2,13 @@
 
 <addon id='MultiAudio' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Files' type='list'>
-			<property name="ID" type="string" />
-			<property name="Mp3" type="file" />
-			<property name="Ogg" type="file" />
-			<property name="Enable loop" type="boolean" />
+		<property name='Files' nameLabel="MultiAudio_property_files" type='list'>
+			<property name="ID" nameLabel="MultiAudio_property_id" type="string" />
+			<property name="Mp3" nameLabel="MultiAudio_property_mp3" type="file" />
+			<property name="Ogg" nameLabel="MultiAudio_property_ogg" type="file" />
+			<property name="Enable loop" nameLabel="MultiAudio_property_enable_loop" type="boolean" />
 		</property>
-		<property name="Interface" type="{None, Default controls, Display time}"/>
-		<property name="Narration" type="narration" isLocalized="true"/>
+		<property name="Interface" nameLabel="MultiAudio_property_interface" type="{None, Default controls, Display time}"/>
+		<property name="Narration" nameLabel="MultiAudio_property_narration" type="narration" isLocalized="true"/>
 	</model>
 </addon>

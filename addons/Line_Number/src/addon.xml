@@ -2,14 +2,14 @@
 
 <addon id='Line_Number' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Decimal Separator" type="string" />
-        <property name="Min" type="string" />
-        <property name="Max" type="string" />
-        <property name="Ranges" type="text" />
-        <property name="Not Activity" type="boolean" />
-        <property name="Step" type="string" />
-        <property name="Show Axis X Values" type="boolean" />
-        <property name="Axis X Values" type="string" />
-        <property name="Disable" type="boolean" />
+        <property name="Decimal Separator" nameLabel="Line_Number_property_decimal_separator" type="string" />
+        <property name="Min" nameLabel="Line_Number_property_min" type="string" />
+        <property name="Max" nameLabel="Line_Number_property_max" type="string" />
+        <property name="Ranges" nameLabel="Line_Number_property_ranges" type="text" />
+        <property name="Not Activity" nameLabel="Line_Number_property_not_activity" type="boolean" />
+        <property name="Step" nameLabel="Line_Number_property_step" type="string" />
+        <property name="Show Axis X Values" nameLabel="Line_Number_property_show_axis_x_values" type="boolean" />
+        <property name="Axis X Values" nameLabel="Line_Number_property_axis_x_values" type="string" />
+        <property name="Disable" nameLabel="Line_Number_property_disable" type="boolean" />
     </model>
 </addon>

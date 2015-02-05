@@ -2,21 +2,21 @@
 
 <addon id='Hierarchical_Lesson_Report' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="titleLabel" displayName="Title Label" type="string" isLocalized="true" />
-        <property name='results' displayName="Show Results" type='boolean' />
-        <property name="resultsLabel" displayName="Results Label" type="string" isLocalized="true" />
-        <property name='checks' displayName="Show Checks" type='boolean' />
-        <property name="checksLabel" displayName="Checks Label" type="string" isLocalized="true" />
-        <property name='errors' displayName="Show Errors" type='boolean' />
-        <property name="errorsLabel" displayName="Errors Label" type="string" isLocalized="true" />
-        <property name='mistakes' displayName="Show Mistakes" type='boolean' />
-        <property name="mistakesLabel" displayName="Mistakes Label" type="string" isLocalized="true" />
-        <property name='total' displayName="Show Total" type="boolean" />
-        <property name="totalLabel" displayName="Total Label" type="string" isLocalized="true" />
-        <property name="expandDepth" displayName="Depth of expand" type="string" />
-        <property name="classes" displayName="Row classes" type="text" />
-        <property name='showpagescore' displayName="Show page score" type="boolean" />
-        <property name='showmaxscorefield' displayName="Show max score field" type="boolean" />
-        <property name="scoredisabled" displayName="Disable score on pages" type="string" />
+        <property name="titleLabel" displayName="Title Label" nameLabel="Hierarchical_Lesson_Report_property_title_label" type="string" isLocalized="true" />
+        <property name='results' displayName="Show Results" nameLabel="Hierarchical_Lesson_Report_property_results" type='boolean' />
+        <property name="resultsLabel" displayName="Results Label" nameLabel="Hierarchical_Lesson_Report_property_results_label" type="string" isLocalized="true" />
+        <property name='checks' displayName="Show Checks" nameLabel="Hierarchical_Lesson_Report_property_checks" type='boolean' />
+        <property name="checksLabel" displayName="Checks Label" nameLabel="Hierarchical_Lesson_Report_property_checks_label" type="string" isLocalized="true" />
+        <property name='errors' displayName="Show Errors" nameLabel="Hierarchical_Lesson_Report_property_errors" type='boolean' />
+        <property name="errorsLabel" displayName="Errors Label" nameLabel="Hierarchical_Lesson_Report_property_errors_label" type="string" isLocalized="true" />
+        <property name='mistakes' displayName="Show Mistakes" nameLabel="Hierarchical_Lesson_Report_property_mistakes" type='boolean' />
+        <property name="mistakesLabel" displayName="Mistakes Label" nameLabel="Hierarchical_Lesson_Report_property_mistakes_label" type="string" isLocalized="true" />
+        <property name='total' displayName="Show Total" nameLabel="Hierarchical_Lesson_Report_property_total" type="boolean" />
+        <property name="totalLabel" displayName="Total Label" nameLabel="Hierarchical_Lesson_Report_property_total_label" type="string" isLocalized="true" />
+        <property name="expandDepth" displayName="Depth of expand" nameLabel="Hierarchical_Lesson_Report_property_expand_depth" type="string" />
+        <property name="classes" displayName="Row classes" nameLabel="Hierarchical_Lesson_Report_property_classes" type="text" />
+        <property name='showpagescore' displayName="Show page score" nameLabel="Hierarchical_Lesson_Report_property_show_page_scores" type="boolean" />
+        <property name='showmaxscorefield' displayName="Show max score field" nameLabel="Hierarchical_Lesson_Report_property_show_max_score_fields" type="boolean" />
+        <property name="scoredisabled" displayName="Disable score on pages" nameLabel="Hierarchical_Lesson_Report_property_score_disabled" type="string" />
 	</model>
 </addon>

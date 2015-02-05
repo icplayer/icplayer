@@ -2,10 +2,10 @@
 
 <addon id='Paragraph' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Default font family" type="string" />
-		<property name="Default font size" type="string" />
-		<property name="Hide toolbar" type="boolean" />
-		<property name="Custom toolbar" type="string" />
-		<property name="Custom CSS" type="file" />
+		<property name="Default font family" nameLabel="Paragraph_property_default_font_family" type="string" />
+		<property name="Default font size" nameLabel="Paragraph_property_default_font_size" type="string" />
+		<property name="Hide toolbar" nameLabel="Paragraph_property_hide_toolbar" type="boolean" />
+		<property name="Custom toolbar" nameLabel="Paragraph_property_custom_toolbar" type="string" />
+		<property name="Custom CSS" nameLabel="Paragraph_property_custom_css" type="file" />
 	</model>
 </addon>

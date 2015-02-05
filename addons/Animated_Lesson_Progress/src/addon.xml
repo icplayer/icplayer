@@ -2,9 +2,9 @@
 
 <addon id='Animated_Lesson_Progress' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Ranges" type="list">
-            <property name="Score" type="string"/>
-		    <property name="Image" type="image"/>
+		<property name="Ranges" nameLabel="Animated_Lesson_Progress_property_ranges" type="list">
+            <property name="Score" nameLabel="Animated_Lesson_Progress_property_score" type="string"/>
+		    <property name="Image" nameLabel="Animated_Lesson_Progress_property_image" type="image"/>
 		</property>
 	</model>
 </addon>

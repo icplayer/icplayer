@@ -2,7 +2,7 @@
 
 <addon id='Magic_Boxes' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Grid' type='text' isLocalized="true" />
-		<property name='Answers' type='text' isLocalized="true" />
+		<property name='Grid' nameLabel="Magic_Boxes_property_grid" type='text' isLocalized="true" />
+		<property name='Answers' nameLabel="Magic_Boxes_property_answers" type='text' isLocalized="true" />
 	</model>
 </addon>

@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <addon id="PointsLines" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Points" type="text" displayName="Points' coordinates"/>
-		<property name="Indexes" type="text" displayName="Points' indexes"/>
-		<property name="Starting lines" type="text" displayName="Starting lines"/>
-		<property name="Lines" type="text" displayName="Answer"/>
-		<property name="Is activity" type="boolean"/>
-		<property name="Is disabled" type="boolean"/>
+		<property name="Points" type="text" displayName="Points' coordinates" nameLabel="PointsLines_property_points"/>
+		<property name="Indexes" type="text" displayName="Points' indexes" nameLabel="PointsLines_property_indexes"/>
+		<property name="Starting lines" type="text" displayName="Starting lines" nameLabel="PointsLines_property_starting_lines"/>
+		<property name="Lines" type="text" displayName="Answer" nameLabel="PointsLines_property_lines"/>
+		<property name="Is activity" type="boolean" nameLabel="PointsLines_property_is_activity"/>
+		<property name="Is disabled" type="boolean" nameLabel="PointsLines_property_is_disabled"/>
 	</model>
 </addon>

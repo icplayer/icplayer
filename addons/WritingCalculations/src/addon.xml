@@ -2,18 +2,18 @@
 
 <addon id='WritingCalculations' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name='Value' type='text' />
-        <property name='Signs' type='list'>
-            <property name='Addition' type='string' />
-            <property name='Subtraction' type='string' />
-            <property name='Division' type='string' />
-            <property name='Multiplication' type='string' />
+        <property name='Value' nameLabel="WritingCalculations_property_value" type='text' />
+        <property name='Signs' nameLabel="WritingCalculations_property_signs" type='list'>
+            <property name='Addition' nameLabel="WritingCalculations_property_addition" type='string' />
+            <property name='Subtraction' nameLabel="WritingCalculations_property_subtraction" type='string' />
+            <property name='Division' nameLabel="WritingCalculations_property_division" type='string' />
+            <property name='Multiplication' nameLabel="WritingCalculations_property_multiplication" type='string' />
         </property>
-        <property displayName="Styles" name="Styles" type="list">
-            <property name="Column" type="string"/>
-            <property name="Row" type="string"/>
-            <property name="Class" type="string"/>
-            <property name="Style" type="string"/>
+        <property displayName="Styles" name="Styles" nameLabel="WritingCalculations_property_styles" type="list">
+            <property name="Column" nameLabel="WritingCalculations_property_column" type="string"/>
+            <property name="Row" nameLabel="WritingCalculations_property_row" type="string"/>
+            <property name="Class" nameLabel="WritingCalculations_property_class" type="string"/>
+            <property name="Style" nameLabel="WritingCalculations_property_style" type="string"/>
         </property>
     </model>
 </addon>

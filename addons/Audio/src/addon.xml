@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Audio'>
+<addon id='Audio' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="mp3" type="file" />
-		<property name="ogg" type="file" />
-		<property name="defaultControls" type="boolean" />
-        <property name="useBrowserControls" type="boolean" />
-		<property name="displayTime" type="boolean" />
-		<property name="enableLoop" type="boolean" />
-		<property name="Narration" type="narration" isLocalized="true" />
-		<property name="onEnd" type="event"/>
+		<property name="mp3" nameLabel="Audio_property_mp3" type="file" />
+		<property name="ogg" nameLabel="Audio_property_ogg" type="file" />
+		<property name="defaultControls" nameLabel="Audio_property_default_controls" type="boolean" />
+        <property name="useBrowserControls" nameLabel="Audio_property_use_browser_controls" type="boolean" />
+		<property name="displayTime" nameLabel="Audio_property_display_time" type="boolean" />
+		<property name="enableLoop" nameLabel="Audio_property_enable_loop" type="boolean" />
+		<property name="Narration" nameLabel="Audio_property_narration" type="narration" isLocalized="true" />
+		<property name="onEnd" nameLabel="Audio_property_on_end" type="event"/>
 	</model>
 </addon>

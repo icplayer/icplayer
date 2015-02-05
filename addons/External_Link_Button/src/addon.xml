@@ -2,8 +2,8 @@
 
 <addon id='External_Link_Button' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Title" type="string" isLocalized="true" />
-		<property name="Image" type="image" />
-		<property name="URI" displayName="URL" type="string" />
+		<property name="Title" nameLabel="External_Link_Button_property_title" type="string" isLocalized="true" />
+		<property name="Image" nameLabel="External_Link_Button_property_image" type="image" />
+		<property name="URI" displayName="URL" nameLabel="External_Link_Button_property_uri" type="string" />
 	</model>
 </addon>

@@ -2,13 +2,13 @@
 
 <addon id='Standard_Shapes' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Shape' type='{Line, Square, Rectangle, Circle, Ellipse}' />
-		<property name="Rotation angle" type="string" />
-		<property name="Stroke width" type="string" />
-		<property name="Stroke color" type="string" />
-		<property name="Corners rounding" type="boolean" />
-		<property name="Line ending" type="{None, Circles, Arrows, None - Arrow, None - Circle, Circle - Arrow}" />
-		<property name="Stroke opacity" type="string" />
-		<property name="Fill color" type="string" />
+		<property name='Shape' nameLabel="Standard_Shapes_property_shape" type='{Line, Square, Rectangle, Circle, Ellipse}' />
+		<property name="Rotation angle" nameLabel="Standard_Shapes_property_rotation_angle" type="string" />
+		<property name="Stroke width" nameLabel="Standard_Shapes_property_stroke_width" type="string" />
+		<property name="Stroke color" nameLabel="Standard_Shapes_property_stroke_color" type="string" />
+		<property name="Corners rounding" nameLabel="Standard_Shapes_property_corners_rounding" type="boolean" />
+		<property name="Line ending" nameLabel="Standard_Shapes_property_line_ending" type="{None, Circles, Arrows, None - Arrow, None - Circle, Circle - Arrow}" />
+		<property name="Stroke opacity" nameLabel="Standard_Shapes_property_stroke_opacity" type="string" />
+		<property name="Fill color" nameLabel="Standard_Shapes_property_fill_color" type="string" />
 	</model>
 </addon>

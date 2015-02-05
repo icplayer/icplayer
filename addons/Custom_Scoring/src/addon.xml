@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Custom_Scoring'>
+<addon id='Custom_Scoring' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Script' type='text' />
-		<property name='Max Score' type='string' />
+		<property name='Script' nameLabel="Custom_Scoring_property_script" type='text' />
+		<property name='Max Score' nameLabel="Custom_Scoring_property_max_score" type='string' />
 	</model>
 </addon>

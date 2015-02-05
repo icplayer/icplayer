@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<addon id='PieChart'>
+<addon id='PieChart' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name='Items' type='list'>
-            <property name='Name' type='string'/>
-            <property name='Color' type='string'/>
-            <property name='Starting percent' type='string'/>
-            <property name='Answer' type='string'/>
+        <property name='Items' nameLabel="PieChart_property_items" type='list'>
+            <property name='Name' nameLabel="PieChart_property_name" type='string'/>
+            <property name='Color' nameLabel="PieChart_property_color" type='string'/>
+            <property name='Starting percent' nameLabel="PieChart_property_starting_percent" type='string'/>
+            <property name='Answer' nameLabel="PieChart_property_answer" type='string'/>
         </property>
-        <property name='Step' type='string'/>
-        <property name='Show values' type='boolean'/>
-        <property name='Show names' type='boolean'/>
-        <property name='Is Activity' type='boolean'/>
-        <property name='Is Disabled' type='boolean'/>
-        <property name='Radius' type='string' displayName='Radius size'/>
-		<property name='Percents' type='string' displayName='Percents positions'/>
+        <property name='Step' nameLabel="PieChart_property_step" type='string'/>
+        <property name='Show values' nameLabel="PieChart_property_show_values" type='boolean'/>
+        <property name='Show names' nameLabel="PieChart_property_show_names" type='boolean'/>
+        <property name='Is Activity' nameLabel="PieChart_property_is_activity" type='boolean'/>
+        <property name='Is Disabled' nameLabel="PieChart_property_is_disabled" type='boolean'/>
+        <property name='Radius' nameLabel="PieChart_property_radius" type='string' displayName='Radius size'/>
+		<property name='Percents' nameLabel="PieChart_property_percents" type='string' displayName='Percents positions'/>
     </model>
 </addon>

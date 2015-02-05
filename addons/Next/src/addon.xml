@@ -2,6 +2,6 @@
 
 <addon id='Next' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name="Text" type="string" isLocalized="true" />
+        <property name="Text" nameLabel="Next_property_text" type="string" isLocalized="true" />
 	</model>
 </addon>

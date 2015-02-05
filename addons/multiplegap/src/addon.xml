@@ -2,18 +2,18 @@
 
 <addon id='multiplegap' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Orientation' type='{horizontal, vertical}' />
-		<property name="Source type" type="{images, texts}" />
-		<property name="Items" type="list">
-			<property name="Answer ID" type="string" />
+		<property name='Orientation' nameLabel="multiplegap_property_orientation" type='{horizontal, vertical}' />
+		<property name="Source type" nameLabel="multiplegap_property_source_type" type="{images, texts}" />
+		<property name="Items" nameLabel="multiplegap_property_items" type="list">
+			<property name="Answer ID" nameLabel="multiplegap_property_answer_id" type="string" />
 		</property>
-		<property name="Item width" type="string" />
-		<property name="Item height" type="string" />
-		<property name="Item spacing" type="string" />
-		<property name="Stretch images?" type="boolean" />
-		<property name="Item horizontal align" type="{none, left, right, center}" />
-		<property name="Item vertical align" type="{none, top, bottom, center}" />
-		<property name="Maximum item count" type="string" />
-		<property name="Is not an activity" type="boolean" />
+		<property name="Item width" nameLabel="multiplegap_property_item_width" type="string" />
+		<property name="Item height" nameLabel="multiplegap_property_item_height" type="string" />
+		<property name="Item spacing" nameLabel="multiplegap_property_item_spacing" type="string" />
+		<property name="Stretch images?" nameLabel="multiplegap_property_stretch_images" type="boolean" />
+		<property name="Item horizontal align" nameLabel="multiplegap_property_item_horizontal_align" type="{none, left, right, center}" />
+		<property name="Item vertical align" nameLabel="multiplegap_property_item_vertical_align" type="{none, top, bottom, center}" />
+		<property name="Maximum item count" nameLabel="multiplegap_property_maximum_item_count" type="string" />
+		<property name="Is not an activity" nameLabel="multiplegap_property_is_not_an_activity" type="boolean" />
 	</model>
 </addon>

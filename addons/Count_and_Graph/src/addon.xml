@@ -1,20 +1,20 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Count_and_Graph'>
+<addon id='Count_and_Graph' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="X axis description" type="string" isLocalized="true" />
-        <property name="X axis data" type="list">
-            <property name="Answer" type="string" />
-            <property name="Color" type="string" />
-            <property name="Description" type="string" isLocalized="true" />
-            <property name="Description image" type="image" />
+        <property name="X axis description" nameLabel="Count_and_Graph_property_x_axis_description" type="string" isLocalized="true" />
+        <property name="X axis data" nameLabel="Count_and_Graph_property_x_axis_data" type="list">
+            <property name="Answer" nameLabel="Count_and_Graph_property_answer" type="string" />
+            <property name="Color" nameLabel="Count_and_Graph_property_color" type="string" />
+            <property name="Description" nameLabel="Count_and_Graph_property_description" type="string" isLocalized="true" />
+            <property name="Description image" nameLabel="Count_and_Graph_property_description_image" type="image" />
         </property>
-        <property name="Y axis description" type="string" isLocalized="true" />
-        <property name="Y axis maximum value" type="string" />
-        <property name="Y axis values" type="string" />
-        <property name="Bars width" type="string" />
-        <property name="Background color" type="string" />
-        <property name="Grid line color" type="string" />
-        <property name="Border" type="string" />
+        <property name="Y axis description" nameLabel="Count_and_Graph_property_y_axis_description" type="string" isLocalized="true" />
+        <property name="Y axis maximum value" nameLabel="Count_and_Graph_property_y_axis_minimum_value" type="string" />
+        <property name="Y axis values" nameLabel="Count_and_Graph_property_y_axis_values" type="string" />
+        <property name="Bars width" nameLabel="Count_and_Graph_property_bars_width" type="string" />
+        <property name="Background color" nameLabel="Count_and_Graph_property_background_color" type="string" />
+        <property name="Grid line color" nameLabel="Count_and_Graph_property_grid_line_color" type="string" />
+        <property name="Border" nameLabel="Count_and_Graph_property_border" type="string" />
     </model>
 </addon>

@@ -1,3 +1,4 @@
+2015-02-05 Added translations for almost all remaining addons properties names
 2015-02-05 Fixed problem with scaling enlarged image in Zoom Image module
 2015-02-04 Changed icon and translated property names in Sudoku module
 2015-02-02 Fixed PageProgress score alignment when command Show is executed after ShowErrosEvent

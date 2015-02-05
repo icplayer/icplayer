@@ -2,15 +2,15 @@
 
 <addon id='video' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Files' type='list'>
-			<property name="Ogg video" displayName="Ogv video" type="file" />
-			<property name="MP4 video" type="file" />
-			<property name="WebM video" type="file" />
-			<property name="Subtitles" type="text" isLocalized="true" />
-			<property name="Poster" type="image" />
-			<property name="ID" type="string" />
+		<property name='Files' nameLabel="video_property_files" type='list'>
+			<property name="Ogg video" displayName="Ogv video" nameLabel="video_property_ogg_video" type="file" />
+			<property name="MP4 video" nameLabel="video_property_mp4_video" type="file" />
+			<property name="WebM video" nameLabel="video_property_webm_video" type="file" />
+			<property name="Subtitles" nameLabel="video_property_subtitles" type="text" isLocalized="true" />
+			<property name="Poster" nameLabel="video_property_poster" type="image" />
+			<property name="ID" nameLabel="video_property_id" type="string" />
 		</property>
-		<property name="Show video" type="string" />
-		<property name="Narration" type="narration" isLocalized="true" />
+		<property name="Show video" nameLabel="video_property_show_video" type="string" />
+		<property name="Narration" nameLabel="video_property_narration" type="narration" isLocalized="true" />
 	</model>
 </addon>

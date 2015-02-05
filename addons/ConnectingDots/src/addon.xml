@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <addon id="ConnectingDots" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Dots" type="text" displayName="Dots' coordinates"/>
-		<property name="Indexes" type="text" displayName="Dots' indexes"/>
-		<property name="Is activity" type="boolean"/>
-		<property name="Time" type="string" displayName="Animation time"/>
-		<property name="Image A" type="image" displayName="Start image"/>
-		<property name="Image B" type="image" displayName="End image"/>
-		<property name="Is disabled" type="boolean"/>
+		<property name="Dots" type="text" displayName="Dots' coordinates" nameLabel="ConnectingDots_property_dots"/>
+		<property name="Indexes" type="text" displayName="Dots' indexes" nameLabel="ConnectingDots_property_indexes"/>
+		<property name="Is activity" type="boolean" nameLabel="ConnectingDots_property_is_activity"/>
+		<property name="Time" type="string" displayName="Animation time" nameLabel="ConnectingDots_property_time"/>
+		<property name="Image A" type="image" displayName="Start image" nameLabel="ConnectingDots_property_image_a"/>
+		<property name="Image B" type="image" displayName="End image" nameLabel="ConnectingDots_property_image_b"/>
+		<property name="Is disabled" type="boolean" nameLabel="ConnectingDots_property_is_disabled"/>
 	</model>
 </addon>
