@@ -2,22 +2,22 @@
 
 <addon id='TextAudio' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name='defaultControls' displayName='Default controls' type='boolean' />
-        <property name='displayTime' displayName='Display time' type='boolean' />
-        <property name='enableLoop' displayName='Enable loop' type='boolean' />
+        <property name='defaultControls' displayName='Default controls' nameLabel='TextAudio_property_default_controls' type='boolean' />
+        <property name='displayTime' displayName='Display time' nameLabel='TextAudio_property_display_time' type='boolean' />
+        <property name='enableLoop' displayName='Enable loop' nameLabel='TextAudio_property_enable_loop' type='boolean' />
 
-        <property name='Slides' type='list'>
-            <property name='Text' type='html' isLocalized='true' />
-            <property name='Times' type='text' isLocalized='true' />
+        <property name='Slides' nameLabel='TextAudio_property_slides' type='list'>
+            <property name='Text' nameLabel='TextAudio_property_text' type='html' isLocalized='true' />
+            <property name='Times' nameLabel='TextAudio_property_times' type='text' isLocalized='true' />
         </property>
-        <property name='mp3' type='file' />
-        <property name='ogg' type='file' />
+        <property name='mp3' nameLabel='TextAudio_property_mp3' type='file' />
+        <property name='ogg' nameLabel='TextAudio_property_ogg' type='file' />
 
-        <property name="clickAction" displayName="On Text Click Behavior" type="{Play from the moment, Play the interval, Play the interval from vocabulary file}" />
-        <property name='vocabulary_mp3' displayName="Vocabulary mp3" type='file' />
-        <property name='vocabulary_ogg' displayName="Vocabulary ogg" type='file' />
-        <property name='vocabulary_intervals' displayName="Vocabulary intervals" type='text' isLocalized='true' />
+        <property name="clickAction" displayName="On Text Click Behavior" nameLabel='TextAudio_property_click_action' type="{Play from the moment, Play the interval, Play the interval from vocabulary file}" />
+        <property name='vocabulary_mp3' displayName="Vocabulary mp3" nameLabel='TextAudio_property_vocabulary_mp3' type='file' />
+        <property name='vocabulary_ogg' displayName="Vocabulary ogg" nameLabel='TextAudio_property_vocabulary_ogg' type='file' />
+        <property name='vocabulary_intervals' displayName="Vocabulary intervals" nameLabel='TextAudio_property_vocabulary_intervals' type='text' isLocalized='true' />
 
-        <property name='onEnd' displayName='On end' type='event' />
+        <property name='onEnd' displayName='On end' nameLabel='TextAudio_property_vocabulary_on_end' type='event' />
     </model>
 </addon>

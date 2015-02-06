@@ -4,8 +4,7 @@ ModelValidationTests.prototype.setUp = function() {
     this.presenter = AddonTextAudio_create();
 };
 
-ModelValidationTests.prototype.tearDown = function() {
-};
+ModelValidationTests.prototype.tearDown = function() {};
 
 ModelValidationTests.prototype.testProperSlidesModel = function() {
     var model = {
