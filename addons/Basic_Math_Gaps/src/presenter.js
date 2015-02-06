@@ -453,6 +453,18 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
+    presenter.setClassWhenCheck = function(isAddClass) {
+        if (presenter.configuration.isEquation) {
+            var $container = presenter.$view.find('.basic-math-gaps-container');
+
+            if($container.hasClass('basic_math_gaps_check')) {
+                $container.removeClass("basic_math_gaps_check");
+            } else if (isAddClass) {
+                $container.addClass("basic_math_gaps_check");
+            }
+        }
+    };
+
     presenter.setShowErrorsMode = function(){
         var inputs = presenter.$view.find('input');
 
@@ -464,7 +476,9 @@ function AddonBasic_Math_Gaps_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
+        presenter.setClassWhenCheck(true);
+
         if (canNOTCheckScore() || areInputsAllEmpty(inputs)
             || (presenter.configuration.isEquation
             && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length)) {
@@ -509,6 +523,9 @@ function AddonBasic_Math_Gaps_create(){
         if (presenter.configuration.isDisabled) {
             return;
         }
+
+        presenter.setClassWhenCheck(false);
+
         var inputs = presenter.$view.find('input');
         inputs.attr('disabled', false);
         inputs.removeClass('correct wrong disabled');
