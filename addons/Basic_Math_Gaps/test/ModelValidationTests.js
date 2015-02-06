@@ -8,7 +8,7 @@ TestCase("[Basic Math Gaps] Gaps definition validation", {
             'gapsDefinition' : '[1] + [2] = 3'
         };
 
-        var validated = this.presenter.validateGapsDefinition(this.model, true);
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
 
         assertEquals(false, validated.isError);
         assertEquals(["1", "2"], validated.gapsValues);
@@ -19,7 +19,7 @@ TestCase("[Basic Math Gaps] Gaps definition validation", {
             gapsDefinition: '[1] + 3 = 3'
         };
 
-        var validated = this.presenter.validateGapsDefinition(this.model, true);
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
 
         assertEquals(true, validated.isError);
         assertEquals('E01', validated.errorCode);
@@ -30,7 +30,7 @@ TestCase("[Basic Math Gaps] Gaps definition validation", {
             'gapsDefinition' : '1 [<] 2'
         };
 
-        var validated = this.presenter.validateGapsDefinition(this.model, false);
+        var validated = this.presenter.validateGapsDefinition(this.model, false,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
 
         assertEquals(false, validated.isError);
         assertEquals(['<'], validated.gapsValues);
@@ -41,7 +41,7 @@ TestCase("[Basic Math Gaps] Gaps definition validation", {
             'gapsDefinition' : '[1/2] + [1/2] = 1'
         };
 
-        var validated = this.presenter.validateGapsDefinition(this.model, true);
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
         assertEquals(true, validated.allElements[0].isFraction);
     },
 
@@ -50,7 +50,7 @@ TestCase("[Basic Math Gaps] Gaps definition validation", {
             'gapsDefinition' : '1 [1/2] + [1/2] = 2'
         };
 
-        var validated = this.presenter.validateGapsDefinition(this.model, true);
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
         assertEquals(true, validated.allElements[0].isHiddenAdditionAfter);
     },
 
@@ -59,7 +59,7 @@ TestCase("[Basic Math Gaps] Gaps definition validation", {
             'gapsDefinition' : '1.2 + [2.2] = 3.4'
         };
 
-        var validated = this.presenter.validateGapsDefinition(this.model, true);
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
 
         assertEquals(false, validated.isError);
         assertEquals([2.2], validated.gapsValues);
@@ -130,6 +130,212 @@ TestCase("[Basic Math Gaps] Decimal separator validation", {
     }
 });
 
+TestCase("[Basic Math Gaps] Signs validation", {
+    setUp: function () {
+        this.presenter = AddonBasic_Math_Gaps_create();
+    },
+
+    'test correct filled property sign' : function() {
+        this.presenter.signs = [{
+            Addition: "a",
+            Subtraction: "s",
+            Division: "d",
+            Multiplication: "m"
+        }];
+        var signs = this.presenter.validateSigns(this.presenter.signs);
+
+        assertEquals({Addition: "a", Subtraction: "s", Division: "d", Multiplication: "m"}, signs.value);
+    },
+
+    'test not filled property sign' : function() {
+        this.presenter.signs = [{
+            Addition: "",
+            Subtraction: "",
+            Division: "",
+            Multiplication: ""
+        }];
+        var signs = this.presenter.validateSigns(this.presenter.signs);
+
+        assertEquals({Addition: "", Subtraction: "", Division: "", Multiplication: ""}, signs.value);
+    },
+
+    'test invalid signs' : function() {
+        this.presenter.signs = [{
+            Addition: "]",
+            Subtraction: "",
+            Division: "",
+            Multiplication: ""
+        }];
+        var signs = this.presenter.validateSigns(this.presenter.signs);
+
+        assertTrue(signs.isError);
+        assertEquals('E05', signs.errorCode);
+    },
+
+    'test multiple signs' : function() {
+        this.presenter.signs = [
+            {
+                Addition: "a",
+                Subtraction: "s",
+                Division: "d",
+                Multiplication: "m"
+            },
+            {
+                Addition: "m",
+                Subtraction: "d",
+                Division: "s",
+                Multiplication: "a"
+            }
+        ];
+        var signs = this.presenter.validateSigns(this.presenter.signs);
+
+        assertEquals({Addition: "a", Subtraction: "s", Division: "d", Multiplication: "m"}, signs.value);
+    },
+
+    'test multiple signs but not all configured in first one' : function() {
+        this.presenter.signs = [
+            {
+                Addition: "",
+                Subtraction: "s",
+                Division: "",
+                Multiplication: "m"
+            },
+            {
+                Addition: "m",
+                Subtraction: "d",
+                Division: "s",
+                Multiplication: "a"
+            }
+        ];
+        var signs = this.presenter.validateSigns(this.presenter.signs);
+
+        assertEquals({Addition: "", Subtraction: "s", Division: "", Multiplication: "m"}, signs.value);
+    },
+
+    'test when signs is undefined' : function() {
+
+        var signs = this.presenter.validateSigns(undefined);
+
+        assertEquals({Addition: "", Subtraction: "", Division: "", Multiplication: ""}, signs.value);
+    },
+
+    'test convert sign function' : function() {
+        this.presenter.signs = {
+                Addition: "a",
+                Subtraction: "s",
+                Division: "d",
+                Multiplication: "m"
+            }
+        ;
+        var convertedSigns = [];
+        var signs = ['+', '-', '/', '*'];
+
+        for (var i = 0; i < signs.length; i++) {
+            convertedSigns.push(this.presenter.convertSign(this.presenter.signs, signs[i]))
+        }
+
+        assertEquals(['a','s','d','m'], convertedSigns);
+    },
+
+    'test convert sign function without arithmetic symbols' : function() {
+        this.presenter.signs = {
+                Addition: "a",
+                Subtraction: "s",
+                Division: "d",
+                Multiplication: "m"
+            }
+        ;
+        var convertedSigns = [];
+        var signs = ['A', 'a', '5', '#',','];
+
+        for (var i = 0; i < signs.length; i++) {
+            convertedSigns.push(this.presenter.convertSign(this.presenter.signs, signs[i]))
+        }
+
+        assertEquals(['A', 'a', '5', '#',','], convertedSigns);
+    },
+
+    'test convert sign function when signs is undefined' : function() {
+
+        var convertedSigns = [];
+        var signs = ['A', 'a', '5', '#',','];
+
+        for (var i = 0; i < signs.length; i++) {
+            convertedSigns.push(this.presenter.convertSign(this.presenter.signs, signs[i]))
+        }
+
+        assertEquals(undefined, this.presenter.signs);
+        assertEquals(['A', 'a', '5', '#',','], convertedSigns);
+    },
+
+    'test reconvert sign function' : function() {
+        this.presenter.configuration = {
+            Signs: {
+                    Addition: "a",
+                    Subtraction: "s",
+                    Division: "d",
+                    Multiplication: "m"
+            }
+        };
+        var convertedSigns = [];
+        var signs = ['+', '-', '/', '*'];
+
+        for (var i = 0; i < signs.length; i++) {
+            convertedSigns.push(this.presenter.reconvertSign(this.presenter.configuration.Signs, signs[i]))
+        }
+
+        assertEquals(["+","-","/","*"], convertedSigns);
+    },
+
+    'test reconvert sign function with arithmetic symbols' : function() {
+        this.presenter.configuration = {
+            Signs: {
+                    Addition: "a",
+                    Subtraction: "s",
+                    Division: "d",
+                    Multiplication: "m"
+            }
+        };
+        var convertedSigns = [];
+        var signs = ['a', 's', 'd', 'm'];
+
+        for (var i = 0; i < signs.length; i++) {
+            convertedSigns.push(this.presenter.reconvertSign(this.presenter.configuration.Signs, signs[i]))
+        }
+
+        assertEquals(['+', '-', '/','*'], convertedSigns);
+    },
+
+    'test reconvert sign function when signs is undefined' : function() {
+
+        var convertedSigns = [];
+        var signs = ['A', 'a', '5', '#',','];
+
+        for (var i = 0; i < signs.length; i++) {
+            convertedSigns.push(this.presenter.reconvertSign(this.presenter.signs, signs[i]))
+        }
+
+        assertEquals(undefined, this.presenter.signs);
+        assertEquals(['A', 'a', '5', '#',','], convertedSigns);
+    },
+
+    'test reconvert expression' : function() {
+        this.presenter.configuration = {
+            Signs: {
+                    Addition: "d",
+                    Subtraction: "m",
+                    Division: "p",
+                    Multiplication: "r"
+            }
+        };
+        var splittedUserExpression = ['3','d','3','m', '0', '=', '6', 'r', '2', 'p', '2'];
+
+        var reconvertedExpression = this.presenter.reconvertExpression(splittedUserExpression);
+
+        assertEquals("3+3-0=6*2/2", reconvertedExpression);
+    }
+});
+
 TestCase("[Basic Math Gaps] Model validation", {
     setUp: function () {
         this.presenter = AddonBasic_Math_Gaps_create();
@@ -137,12 +343,14 @@ TestCase("[Basic Math Gaps] Model validation", {
         this.validateGapWidthStub = sinon.stub(this.presenter, 'validateGapWidth');
         this.validateGapsDefinitionStub = sinon.stub(this.presenter, 'validateGapsDefinition');
         this.validateDecimalSeparatorStub = sinon.stub(this.presenter, 'validateDecimalSeparator');
+        this.validateSignsStub = sinon.stub(this.presenter, 'validateSigns');
     },
 
     tearDown: function () {
         this.presenter.validateGapWidth.restore();
         this.presenter.validateGapsDefinition.restore();
         this.presenter.validateDecimalSeparator.restore();
+        this.presenter.validateSigns.restore();
     },
 
     'test decimal separator validation failed': function () {
@@ -158,6 +366,7 @@ TestCase("[Basic Math Gaps] Model validation", {
 
         assertTrue(this.validateDecimalSeparatorStub.called);
         assertFalse(this.validateGapWidthStub.called);
+        assertFalse(this.validateSignsStub.called);
         assertFalse(this.validateGapsDefinitionStub.called);
     },
 
@@ -178,7 +387,34 @@ TestCase("[Basic Math Gaps] Model validation", {
 
         assertTrue(this.validateDecimalSeparatorStub.called);
         assertTrue(this.validateGapWidthStub.called);
+        assertFalse(this.validateSignsStub.called);
         assertFalse(this.validateGapsDefinitionStub.called);
+    },
+
+    'test signs replacement validation failed': function () {
+        this.validateDecimalSeparatorStub.returns({
+            isError: false
+        });
+
+        this.validateGapWidthStub.returns({
+            isError: false
+        });
+
+        this.validateSignsStub.returns({
+            isError: true,
+            errorCode: 'E05'
+        });
+
+        var validatedModel = this.presenter.validateModel({});
+
+        assertTrue(validatedModel.isError);
+        assertEquals('E05', validatedModel.errorCode);
+
+        assertTrue(this.validateGapWidthStub.called);
+        assertTrue(this.validateDecimalSeparatorStub.called);
+        assertTrue(this.validateSignsStub.called);
+        assertFalse(this.validateGapsDefinitionStub.called);
+
     },
 
     'test gaps definition validation failed': function () {
@@ -187,6 +423,10 @@ TestCase("[Basic Math Gaps] Model validation", {
         });
 
         this.validateGapWidthStub.returns({
+            isError: false
+        });
+
+        this.validateSignsStub.returns({
             isError: false
         });
 
@@ -201,6 +441,7 @@ TestCase("[Basic Math Gaps] Model validation", {
         assertEquals('E02', validatedModel.errorCode);
 
         assertTrue(this.validateGapWidthStub.called);
+        assertTrue(this.validateSignsStub.called);
         assertTrue(this.validateGapsDefinitionStub.called);
         assertTrue(this.validateDecimalSeparatorStub.called);
     },
@@ -219,6 +460,11 @@ TestCase("[Basic Math Gaps] Model validation", {
         this.validateDecimalSeparatorStub.returns({
             isError: false,
             value: ','
+        });
+
+        this.validateSignsStub.returns({
+            isError: false,
+            value: {Addition: "a", Subtraction: "s", Division: "d", Multiplication: "m"}
         });
 
         this.model = {
@@ -240,5 +486,6 @@ TestCase("[Basic Math Gaps] Model validation", {
         assertEquals(true, validatedModel.isVisible);
         assertEquals(',', validatedModel.decimalSeparator);
         assertEquals(40, validatedModel.gapWidth);
+        assertEquals({Addition: "a", Subtraction: "s", Division: "d", Multiplication: "m"}, validatedModel.Signs);
     }
 });

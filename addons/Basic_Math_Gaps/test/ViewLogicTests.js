@@ -1,4 +1,4 @@
-TestCase("View Logic Tests", {
+TestCase("[Basic Math Gaps] View Logic Tests", {
     setUp: function () {
         this.presenter = AddonBasic_Math_Gaps_create();
         this.presenter.configuration = {

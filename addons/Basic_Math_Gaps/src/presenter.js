@@ -59,7 +59,6 @@ function AddonBasic_Math_Gaps_create(){
 
     function runLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
-        
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage($(view).find('.basic-math-gaps-container'), presenter.errorCodes, presenter.configuration.errorCode);
@@ -97,7 +96,7 @@ function AddonBasic_Math_Gaps_create(){
             inputs.focusout(function() {
                 var item = presenter.$view.find('input').index( this),
                     value = $(this).val(),
-                    score = $(this).val() == presenter.configuration.gapsValues[item];
+                    score = (($(this).val() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val()) == presenter.configuration.gapsValues[item]));
 
                 if (presenter.configuration.isEquation && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) { return; }
                 presenter.sendEvent(item, value, score);
@@ -153,7 +152,8 @@ function AddonBasic_Math_Gaps_create(){
         'E01' : 'Left side is not equal to Right side.',
         'E02' : 'A space can NOT be a decimal separator.',
         'E03' : 'Gaps Definition can NOT be blank',
-        'E04' : 'Gap width must be positive integer'
+        'E04' : 'Gap width must be positive integer',
+        'E05' : 'Sign must be other than =, [, ]'
     };
 
     function getValueOfSingleElement(element, isGap, shouldParse) {
@@ -182,9 +182,50 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         return false;
-    }
+    };
 
-    presenter.validateGapsDefinition = function(model, isEquation, separator) {
+    presenter.convertSign = function (signs, value) {
+        if (typeof (signs) == "undefined") {
+            signs = {Addition: "", Subtraction: "", Division: "", Multiplication: ""};
+        }
+
+        if (value === "*" && signs['Multiplication'] !== "") {
+            return signs['Multiplication'];
+        }
+        else if (value === "/" && signs['Division'] !== "") {
+            return signs['Division'];
+        }
+        else if (value === "+" && signs['Addition'] !== "") {
+            return signs['Addition'];
+        }
+        else if (value === "-" && signs['Subtraction'] !== "") {
+            return signs['Subtraction'];
+        }
+        else {
+            return value;
+        }
+    };
+
+    presenter.reconvertSign = function (signs, value) {
+        if (typeof (signs) == "undefined") {
+            return value;
+        }
+
+        switch(value) {
+            case signs['Multiplication']:
+                return "*";
+            case signs['Division']:
+                return "/";
+            case signs['Addition']:
+                return "+";
+            case signs['Subtraction']:
+                return "-";
+            default:
+                return value;
+        }
+    };
+
+    presenter.validateGapsDefinition = function(model, isEquation, separator, signs) {
     	if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -205,17 +246,20 @@ function AddonBasic_Math_Gaps_create(){
             gapsValues = [];
 
         $.each(splittedGapsBySpace, function(i) {
-            var value = splittedGapsBySpace[i],
+            var valueBeforeConvert = splittedGapsBySpace[i],
+                value = presenter.convertSign(signs, valueBeforeConvert),
                 isGap = isGapPattern.test(value),
                 isFraction = isFractionPattern.test(value),
                 singleElement = {
                     originalForm: value,
+                    beforeConvert: getValueOfSingleElement(valueBeforeConvert, isGap, false),
                     isGap: isGap,
                     isFraction: isFraction,
                     parsed: getValueOfSingleElement(value, isGap, true),
                     notParsed: getValueOfSingleElement(value, isGap, false),
                     isHiddenAdditionAfter: checkIsHiddenAddition(splittedGapsBySpace, i)
                 };
+
             if (isFraction) {
                 var numerator = value.split('/')[0],
                     denominator = value.split('/')[1],
@@ -267,12 +311,12 @@ function AddonBasic_Math_Gaps_create(){
             }
 
             if (isLeft) {
-                leftSide += singleElement.notParsed;
+                leftSide += singleElement.beforeConvert;
                 if (singleElement.isHiddenAdditionAfter) {
                     leftSide += '+';
                 }
             } else {
-                rightSide += singleElement.notParsed;
+                rightSide += singleElement.beforeConvert;
                 if (singleElement.isHiddenAdditionAfter) {
                     rightSide += '+';
                 }
@@ -339,6 +383,28 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
+    presenter.validateSigns = function(signs) {
+        if (typeof signs == "undefined") {
+            signs = [{Addition: "", Subtraction: "", Division: "", Multiplication: ""}];
+        }
+
+        var regexp = new RegExp("[\=\\[\\]]");
+
+        for (var i = 0; i < Object.keys(signs[0]).length; i++) {
+            if (regexp.test(signs[0][Object.keys(signs[0])[i]])) {
+                return {
+                    'isError' : true,
+                    'errorCode' : 'E05'
+                };
+            }
+        }
+
+        return {
+            'isError' : false,
+            'value' : signs[0]
+        }
+    };
+
     presenter.validateModel = function(model) {
         var validatedIsEquation = ModelValidationUtils.validateBoolean(model['isEquation']),
             validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']),
@@ -357,7 +423,13 @@ function AddonBasic_Math_Gaps_create(){
             return validatedGapWidth;
         }
 
-        var validatedGapsDefinition = presenter.validateGapsDefinition(model, validatedIsEquation, validatedDecimalSeparator.value);
+        var validatedSigns = presenter.validateSigns(model['Signs']);
+
+        if (validatedSigns.isError) {
+            return validatedSigns;
+        }
+
+        var validatedGapsDefinition = presenter.validateGapsDefinition(model, validatedIsEquation, validatedDecimalSeparator.value, validatedSigns.value);
 
         if (validatedGapsDefinition.isError) {
             return validatedGapsDefinition;
@@ -376,7 +448,8 @@ function AddonBasic_Math_Gaps_create(){
             'isVisibleByDefault' : validatedIsVisible,
             'isVisible' : validatedIsVisible,
             'decimalSeparator' : validatedDecimalSeparator.value,
-            'gapWidth' : validatedGapWidth.value
+            'gapWidth' : validatedGapWidth.value,
+            'Signs' : validatedSigns.value
         }
     };
 
@@ -420,7 +493,7 @@ function AddonBasic_Math_Gaps_create(){
 
             $.each(inputs, function(i) {
                 var shouldBeValue = presenter.configuration.gapsValues[i],
-                    currentValue = $(this).val();
+                    currentValue = presenter.reconvertSign(presenter.configuration.Signs, $(this).val());
 
                     if (shouldBeValue == currentValue) {
                         $(this).addClass('correct');
@@ -522,19 +595,19 @@ function AddonBasic_Math_Gaps_create(){
                 elements.push(container.find('.denominator').children());
             }
             $.each(elements, function() {
-                var element = $(this),
-                    value = null;
+                var $element = $(this),
+                    value = '';
 
-                if (element.is('input')) {
-                    value = element.val();
+                if ($element.is('input')) {
+                    value = $element.val() + ' ';
                 } else {
-                    value = element.html();
+                    value = $element.text() + ' ';
                 }
+
                 result += convertDecimalSeparator(value, presenter.configuration.decimalSeparator, '.');
             });
         });
-
-        return result;
+        return result.trim();
     }
 
     function areInputsAllEmpty(inputs) {
@@ -553,6 +626,18 @@ function AddonBasic_Math_Gaps_create(){
         return allEmpty;
     }
 
+    presenter.reconvertExpression = function(splittedUserExpression) {
+        var convertedSign,
+            reconvertedExpression = '';
+
+        $.each(splittedUserExpression, function(i) {
+            convertedSign = presenter.reconvertSign(presenter.configuration.Signs, splittedUserExpression[i]);
+            reconvertedExpression += convertedSign;
+        });
+
+        return reconvertedExpression;
+    };
+
     function validateScore() {
         var inputs = presenter.$view.find('input'),
             isValid = true,
@@ -560,7 +645,7 @@ function AddonBasic_Math_Gaps_create(){
 
         $.each(inputs, function(i) {
             var value = $(this).val();
-            if ( presenter.configuration.gapsValues[i] != value ) {
+            if (presenter.configuration.gapsValues[i] != presenter.reconvertSign(presenter.configuration.Signs, value)) {
                 isValid = false;
             } else if (value.length > 0) {
                 validGapsCount++;
@@ -568,13 +653,18 @@ function AddonBasic_Math_Gaps_create(){
         });
 
         var userExpression = getUserExpression(),
-            splitted = userExpression.split('='),
+            splitted,
+            splittedUserExpression = userExpression.split(' '),
             userExpressionValid = false;
+
+        var reconvertedExpression = presenter.reconvertExpression(splittedUserExpression);
+
+        splitted = reconvertedExpression.split('=');
 
         if (presenter.configuration.isEquation && splitted.length > 1 && filterInputs(function(element) { return $(element).val().length == 0; }).length == 0) {
             try {
                 var userExpressionLeft = splitted[0],
-                    userExpressionRight = userExpression.split('=')[1],
+                    userExpressionRight = splitted[1],
                     leftEvaluated = eval(userExpressionLeft).toFixed(2),
                     rightEvaluated = eval(userExpressionRight).toFixed(2),
                     isSameResultOnBothSides = leftEvaluated == rightEvaluated;
@@ -775,7 +865,7 @@ function AddonBasic_Math_Gaps_create(){
         	presenter.isShowAnswersActive = true;
         	presenter.userAnswers = [];
             $.each(inputs, function(i) {        
-                var shouldBeValue = presenter.configuration.gapsValues[i];
+                var shouldBeValue = presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[i]);
                 presenter.userAnswers.push($(this).val());
                 $(this).attr('disabled', true);
                 $(this).val(shouldBeValue);
