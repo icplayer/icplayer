@@ -60,6 +60,9 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         if (!isStarted) return false;
 
         turnOffEventListeners();
@@ -167,6 +170,9 @@ function AddonCount_and_Graph_create() {
 
     presenter.getState = function() {
         if (!isStarted) return;
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
 
         var cols = [];
         for (var i=0; i<presenter.configuration.axisYMaximumValue; i++) {
@@ -208,11 +214,17 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.hide = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
     };
 
     presenter.show = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
     };
@@ -221,7 +233,9 @@ function AddonCount_and_Graph_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'getValue': presenter.getValue
+            'getValue': presenter.getValue,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -366,6 +380,9 @@ function AddonCount_and_Graph_create() {
 
     presenter.run = function(view, model) {
         presenter.initialize(view, model, false);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -574,6 +591,56 @@ function AddonCount_and_Graph_create() {
         presenter.$view.find("div").attr('id', presenter.plotID);
         presenter.plotCountGraph = $.jqplot(presenter.plotID, createChartArray(), getChartOptions());
         turnOnEventListeners();
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.$view.find('.jqplot-target').addClass('count-and-graph-show-answers');
+        turnOffEventListeners();
+
+        presenter.colsTmp = [];
+
+        for (var i=0; i<presenter.configuration.axisYMaximumValue; i++) {
+            for (var l=0; l<presenter.configuration.columnsCount; l++) {
+                presenter.colsTmp.push(presenter.plotCountGraph.series[i].seriesColors[l]);
+            }
+        }
+
+        cleanGraph();
+
+        for (var j=0; j<presenter.configuration.columnsCount; j++) {
+            for(var k=0; k<presenter.configuration.answers[j]; k++){
+                presenter.plotCountGraph.series[k].seriesColors[j] = presenter.seriesColors[j];
+            }
+        }
+
+        presenter.plotCountGraph.replot();
+    };
+
+    presenter.hideAnswers = function () {
+        cleanGraph();
+
+        var g = 0;
+        for (var i=0; i<presenter.configuration.axisYMaximumValue; i++) {
+            for (var j=0; j<presenter.configuration.columnsCount; j++) {
+                presenter.plotCountGraph.series[i].seriesColors[j] = presenter.colsTmp[g++];
+            }
+        }
+        presenter.plotCountGraph.replot();
+
+        turnOnEventListeners();
+        presenter.$view.find('.jqplot-target').removeClass('count-and-graph-show-answers');
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
