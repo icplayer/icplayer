@@ -289,23 +289,26 @@ function AddonCount_and_Graph_create() {
             presenter.plotCountGraph.series[i].seriesColors[column] = "white";
         }
         // coloring column
-        var previous = presenter.selected[column];
-        var to = value > previous ? previous + 1 : previous - 1;
+        var previousValue = presenter.selected[column],
+            newValue = value > previousValue ? previousValue + 1 : previousValue - 1;
 
-        for (i=0; i<to; i++) {
+        isActiveColumns[column] = newValue !== 0;
+
+        for (i = 0; i < newValue; i++) {
             presenter.plotCountGraph.series[i].seriesColors[column] = presenter.seriesColors[column];
         }
-        var change = getStringChange(presenter.selected[column], to);
 
-        presenter.selected[column] = to;
-        if (presenter.selected[column] >= presenter.configuration.answers[column]) {
-            var isCorrect = presenter.configuration.answers[column] ===  presenter.selected[column];
+        presenter.selected[column] = newValue;
+
+        if (newValue >= presenter.configuration.answers[column]) {
+            var isCorrect = presenter.configuration.answers[column] ===  newValue;
+            var change = getStringChange(previousValue, newValue);
             presenter.sendEvent(isCorrect, column, change);
         }
 
-        if (presenter.getScore() === presenter.getMaxScore()) presenter.sendEventAllOk();
-
-        isActiveColumns[column] = to !== 0;
+        if (presenter.getScore() === presenter.getMaxScore()) {
+            presenter.sendEventAllOk();
+        }
     }
 
     function getStringTicks(from, to, step) {
