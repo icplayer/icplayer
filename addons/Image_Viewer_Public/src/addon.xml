@@ -3,7 +3,7 @@
 <addon id='Image_Viewer_Public' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Image' nameLabel="Image_Viewer_Public_property_image" type='file' />
-		<property name="Frames" nameLabel="Image_Viewer_Public_property_image" type="string" />
+		<property name="Frames" nameLabel="Image_Viewer_Public_property_frames" type="string" />
 		<property name="Frame size" nameLabel="Image_Viewer_Public_property_frame_size" type="{Original, Keep aspect ratio, Stretch}" />
 		<property name="Sounds" nameLabel="Image_Viewer_Public_property_sounds" type="list">
 			<property name="MP3 sound" nameLabel="Image_Viewer_Public_property_mp3_sound" type="file" />

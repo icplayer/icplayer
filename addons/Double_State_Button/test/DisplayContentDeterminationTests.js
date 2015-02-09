@@ -1,41 +1,41 @@
-DisplayContentDeterminationTests = TestCase("Display content determination");
+TestCase("[Double State Button] Display content determination", {
+    setUp: function () {
+        this.presenter = AddonDouble_State_Button_create();
+    },
 
-DisplayContentDeterminationTests.prototype.testNone = function() {
-    var presenter = AddonDouble_State_Button_create();
-    var text = presenter.validateString();
-    var image = presenter.validateString();
+    'test neither text nor image provided': function () {
+        var text = this.presenter.validateString(),
+            image = this.presenter.validateString();
 
-    var result = presenter.determineDisplayContent(text, image);
+        var result = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.NONE, result);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.NONE, result);
+    },
 
-DisplayContentDeterminationTests.prototype.testNone = function() {
-    var presenter = AddonDouble_State_Button_create();
-    var text = presenter.validateString("Some text");
-    var image = presenter.validateString();
+    'test text provided': function () {
+        var text = this.presenter.validateString("Some text"),
+            image = this.presenter.validateString();
 
-    var result = presenter.determineDisplayContent(text, image);
+        var result = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.TEXT, result);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.TEXT, result);
+    },
 
-DisplayContentDeterminationTests.prototype.testImage = function() {
-    var presenter = AddonDouble_State_Button_create();
-    var text = presenter.validateString();
-    var image = presenter.validateString("/file/serve/123456");
+    'test image provided': function () {
+        var text = this.presenter.validateString(),
+            image = this.presenter.validateString("/file/serve/123456");
 
-    var result = presenter.determineDisplayContent(text, image);
+        var result = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.IMAGE, result);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.IMAGE, result);
+    },
 
-DisplayContentDeterminationTests.prototype.testBoth = function() {
-    var presenter = AddonDouble_State_Button_create();
-    var text = presenter.validateString("Some text");
-    var image = presenter.validateString("/file/serve/123456");
+    'test both text and image provided': function () {
+        var text = this.presenter.validateString("Some text"),
+            image = this.presenter.validateString("/file/serve/123456");
 
-    var result = presenter.determineDisplayContent(text, image);
+        var result = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.BOTH, result);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.BOTH, result);
+    }
+});

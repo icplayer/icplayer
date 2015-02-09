@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Single State Button] Model validation", {
     setUp: function () {
         this.presenter = AddonSingle_State_Button_create();
     },

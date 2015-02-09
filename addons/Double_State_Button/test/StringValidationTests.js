@@ -1,28 +1,26 @@
-ModelValidationTests = TestCase("String validation");
+TestCase("[Double State Button] String validation", {
+    setUp: function () {
+        this.presenter = AddonDouble_State_Button_create();
+    },
 
-ModelValidationTests.prototype.testStringUndefined = function() {
-    var presenter = AddonDouble_State_Button_create();
+    'test string undefined': function () {
+        var validationResult = this.presenter.validateString(undefined);
 
-    var validationResult = presenter.validateString();
+        assertTrue(validationResult.isEmpty);
+        assertEquals("", validationResult.value);
+    },
 
-    assertTrue(validationResult.isEmpty);
-    assertEquals("", validationResult.value);
-};
+    'test string empty': function () {
+        var validationResult = this.presenter.validateString("");
 
-ModelValidationTests.prototype.testStringEmpty = function() {
-    var presenter = AddonDouble_State_Button_create();
+        assertTrue(validationResult.isEmpty);
+        assertEquals("", validationResult.value);
+    },
 
-    var validationResult = presenter.validateString("");
+    'test string not empty': function () {
+        var validationResult = this.presenter.validateString("/file/serve/234566");
 
-    assertTrue(validationResult.isEmpty);
-    assertEquals("", validationResult.value);
-};
-
-ModelValidationTests.prototype.testStringDefined = function() {
-    var presenter = AddonDouble_State_Button_create();
-
-    var validationResult = presenter.validateString("/file/serve/234566");
-
-    assertFalse(validationResult.isEmpty);
-    assertEquals("/file/serve/234566", validationResult.value);
-};
+        assertFalse(validationResult.isEmpty);
+        assertEquals("/file/serve/234566", validationResult.value);
+    }
+});

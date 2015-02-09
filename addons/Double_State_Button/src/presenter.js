@@ -269,6 +269,10 @@ function AddonDouble_State_Button_create(){
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
+        var eventBus = playerController.getEventBus();
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -436,6 +440,16 @@ function AddonDouble_State_Button_create(){
 
     presenter.setWorkMode = function () {
         presenter.configuration.isErrorMode = false;
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.configuration.isErrorMode = true;
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.configuration.isErrorMode = false;
+        }
     };
 
     return presenter;

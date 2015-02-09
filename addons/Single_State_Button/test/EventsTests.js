@@ -1,4 +1,4 @@
-TestCase("Event data creation", {
+TestCase("[Single State Button] Event data creation", {
     setUp : function() {
         this.presenter = AddonSingle_State_Button_create();
         this.presenter.addonID = 'SSB1';
@@ -14,7 +14,7 @@ TestCase("Event data creation", {
     }
 });
 
-TestCase("User event code execution", {
+TestCase("[Single State Button] User event code execution", {
     setUp : function() {
         this.presenter = AddonSingle_State_Button_create();
         this.presenter.configuration = {
@@ -61,7 +61,7 @@ TestCase("User event code execution", {
     }
 });
 
-TestCase("Button clicked event triggering", {
+TestCase("[Single State Button] Button clicked event triggering", {
     setUp : function() {
         this.presenter = AddonSingle_State_Button_create();
         this.presenter.addonID = 'SSB1';

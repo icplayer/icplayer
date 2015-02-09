@@ -1,65 +1,61 @@
-DisplayContentDeterminationTests = TestCase("Display content determination");
+TestCase("[Single State Button] Display content determination", {
+    setUp: function () {
+        this.presenter = AddonSingle_State_Button_create();
+    },
 
-DisplayContentDeterminationTests.prototype.testBoth = function() {
-    var presenter = AddonSingle_State_Button_create();
-    var text = {
-        isEmpty: false,
-        value: "Some value"
-    };
-    var image = {
-        isEmpty: false,
-        value: "Some value"
-    };
+    'test both text and image are provided': function () {
+        var text = {
+            isEmpty: false,
+            value: "Some value"
+        }, image = {
+            isEmpty: false,
+            value: "Some value"
+        };
 
-    var determinationResult = presenter.determineDisplayContent(text, image);
+        var determinationResult = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.BOTH, determinationResult);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.BOTH, determinationResult);
+    },
 
-DisplayContentDeterminationTests.prototype.testNone = function() {
-    var presenter = AddonSingle_State_Button_create();
-    var text = {
-        isEmpty: true,
-        value: ""
-    };
-    var image = {
-        isEmpty: true,
-        value: ""
-    };
+    'test neither text nor image are provided': function () {
+        var text = {
+            isEmpty: true,
+            value: ""
+        }, image = {
+            isEmpty: true,
+            value: ""
+        };
 
-    var determinationResult = presenter.determineDisplayContent(text, image);
+        var determinationResult = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.NONE, determinationResult);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.NONE, determinationResult);
+    },
 
-DisplayContentDeterminationTests.prototype.testTitle = function() {
-    var presenter = AddonSingle_State_Button_create();
-    var text = {
-        isEmpty: false,
-        value: "Some value"
-    };
-    var image = {
-        isEmpty: true,
-        value: ""
-    };
+    'test only text is provided': function () {
+        var text = {
+            isEmpty: false,
+            value: "Some value"
+        }, image = {
+            isEmpty: true,
+            value: ""
+        };
 
-    var determinationResult = presenter.determineDisplayContent(text, image);
+        var determinationResult = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.TITLE, determinationResult);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.TITLE, determinationResult);
+    },
 
-DisplayContentDeterminationTests.prototype.testImage = function() {
-    var presenter = AddonSingle_State_Button_create();
-    var text = {
-        isEmpty: true,
-        value: ""
-    };
-    var image = {
-        isEmpty: false,
-        value: "Some value"
-    };
+    'test only image is provided': function () {
+        var text = {
+            isEmpty: true,
+            value: ""
+        }, image = {
+            isEmpty: false,
+            value: "Some value"
+        };
 
-    var determinationResult = presenter.determineDisplayContent(text, image);
+        var determinationResult = this.presenter.determineDisplayContent(text, image);
 
-    assertEquals(presenter.DISPLAY_CONTENT_TYPE.IMAGE, determinationResult);
-};
+        assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.IMAGE, determinationResult);
+    }
+});

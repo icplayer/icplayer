@@ -1,26 +1,22 @@
-UpgradeModelValidation = TestCase("Upgrade model validation");
+TestCase("[Single State Button] Upgrade model validation", {
+    setUp: function () {
+        this.presenter = AddonSingle_State_Button_create();
+    },
 
-UpgradeModelValidation.prototype.setUp = function() {
-    this.presenter = AddonSingle_State_Button_create();
-    this.oldModel = {
-        Title: "Some text",
-        Image: "/file/server/123456",
-        onClick: "Empty script"
-    };
-};
+    'test upgrade disable': function () {
+        var oldModel = {
+            Title: "Some text",
+            Image: "/file/server/123456",
+            onClick: "Empty script"
+        }, expectedModel = {
+            Title: "Some text",
+            Image: "/file/server/123456",
+            onClick: "Empty script",
+            Disable: "False"
+        };
 
-UpgradeModelValidation.prototype.testUpgradeDisable = function() {
-    // Given
-    var expectedModel = {
-        Title: "Some text",
-        Image: "/file/server/123456",
-        onClick: "Empty script",
-        Disable: "False"
-    };
+        var upgradedModel = this.presenter.upgradeDisable(oldModel);
 
-    // When
-    var model = this.presenter.upgradeDisable(this.oldModel);
-
-    // Then
-    assertEquals("", expectedModel, model);
-};
+        assertEquals(expectedModel, upgradedModel);
+    }
+});

@@ -102,6 +102,11 @@ function AddonSingle_State_Button_create() {
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
+
+        var eventBus = presenter.playerController.getEventBus();
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -270,6 +275,16 @@ function AddonSingle_State_Button_create() {
 
     presenter.setWorkMode = function () {
         presenter.configuration.isErrorMode = false;
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.configuration.isErrorMode = true;
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.configuration.isErrorMode = false;
+        }
     };
 
     return presenter;

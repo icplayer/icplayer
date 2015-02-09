@@ -1,4 +1,4 @@
-TestCase('Show and hide tests', {
+TestCase('[Double State Button] Show and hide commands', {
     setUp : function() {
         this.presenter = AddonDouble_State_Button_create();
         this.presenter.$view = $('<div></div>');

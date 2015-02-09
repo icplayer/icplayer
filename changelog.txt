@@ -1,3 +1,4 @@
+2015-02-09 Fixed reacting to Show Answers events in Double State Button and Single State Button modules
 2015-02-09 Added getView(), show() and hide() commands to Error Counter module
 2015-02-06 Added parsing HTML in Text Audio module
 2015-02-06 Fixed issue with Show Answer in Shape Tracing module

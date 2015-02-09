@@ -1,4 +1,4 @@
-TestCase("Events creation", {
+TestCase("[Double State Button] Events creation", {
     setUp: function () {
         this.presenter = AddonDouble_State_Button_create();
         this.presenter.configuration = {
@@ -29,7 +29,7 @@ TestCase("Events creation", {
     }
 });
 
-TestCase("Events sending", {
+TestCase("[Double State Button] Events sending", {
     setUp: function () {
         this.presenter = AddonDouble_State_Button_create();
         this.presenter.configuration = {

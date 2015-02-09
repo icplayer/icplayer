@@ -1,4 +1,4 @@
-TestCase('Addon reset tests', {
+TestCase('[Single State Button] Reset command', {
     setUp : function() {
         this.presenter = AddonSingle_State_Button_create();
         this.presenter.$view = $('<div></div>');

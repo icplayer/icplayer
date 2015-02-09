@@ -1,4 +1,4 @@
-TestCase('States restoring', {
+TestCase('[Single State Button] States restoring', {
     setUp : function() {
         this.presenter = AddonSingle_State_Button_create();
         this.presenter.configuration = {};

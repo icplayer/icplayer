@@ -1,4 +1,4 @@
-TestCase("Click handler", {
+TestCase("[Single State Button] Click handler", {
     setUp: function () {
         this.presenter = AddonSingle_State_Button_create();
 

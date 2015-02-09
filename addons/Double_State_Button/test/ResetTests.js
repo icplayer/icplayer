@@ -1,4 +1,4 @@
-TestCase('Reset command', {
+TestCase('[Double State Button] Reset command', {
     setUp : function() {
         this.presenter = AddonDouble_State_Button_create();
         this.presenter.configuration = { isErrorMode: true };

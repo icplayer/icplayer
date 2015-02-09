@@ -1,4 +1,4 @@
-TestCase('Show and hide tests', {
+TestCase('[Single State Button] Show and hide commands', {
     setUp : function() {
         this.presenter = AddonSingle_State_Button_create();
         this.presenter.$view = $('<div></div>');
