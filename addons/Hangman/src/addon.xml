@@ -7,5 +7,6 @@
 			<property name="Phrase" nameLabel="Hangman_property_phrase" type="string" isLocalized="true" />
 		</property>
 		<property name="Possible mistakes" nameLabel="Hangman_property_possible_mistakes" type="string" />
+        <property name="isNotActivity" displayName="Is Not Activity" nameLabel="Hangman_property_is_not_activity" type="boolean" />
 	</model>
 </addon>

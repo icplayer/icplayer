@@ -40,6 +40,7 @@ function AddonHangman_create() {
         presenter.$phraseContainer = $(view).find('.hangman-phrase');
         presenter.$lettersContainer = $(view).find('.hangman-letters');
         presenter.isErrorCheckingMode = false;
+        presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity']));
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -253,11 +254,11 @@ function AddonHangman_create() {
 
         if (sendEventAndCountError) {
             presenter.sendEventData(selectionEventData);
-            if (presenter.isAllOK()) {
+            if (presenter.isAllOK() && presenter.isActivity) {
                 presenter.sendAllOKEvent();
             }
         }
-        if (currentPhrase.errorCount === presenter.configuration.trialsCount) {
+        if (currentPhrase.errorCount === presenter.configuration.trialsCount && presenter.isActivity) {
             presenter.sendEventData(presenter.createEndOfTrialsEventData());
         }
         presenter.unbindAttachedHandlers($(this));
@@ -487,7 +488,11 @@ function AddonHangman_create() {
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.phrases.length;
+        if(presenter.isActivity){
+            return presenter.configuration.phrases.length;
+        }else{
+            return 0;
+        }
     };
 
     presenter.isSelectionSufficient = function (neededLetters, selectedLetters) {
@@ -534,24 +539,36 @@ function AddonHangman_create() {
     };
 
     presenter.getScore = function () {
-        var phrases = presenter.getPhraseForScoring();
-        return presenter.getScoring(phrases).score;
+        if(presenter.isActivity){
+            var phrases = presenter.getPhraseForScoring();
+            return presenter.getScoring(phrases).score;
+        }else{
+            return 0;
+        }
     };
 
     presenter.getErrorCount = function () {
-        var phrases = presenter.getPhraseForScoring();
-        return presenter.getScoring(phrases).errors;
+        if(presenter.isActivity){
+            var phrases = presenter.getPhraseForScoring();
+            return presenter.getScoring(phrases).errors;
+        }else{
+            return 0;
+        }
     };
 
     presenter.setShowErrorsMode = function () {
         presenter.isErrorCheckingMode = true;
-        presenter.workModeState = presenter.getState();
-        presenter.showCorrect();
+        if(presenter.isActivity){
+            presenter.workModeState = presenter.getState();
+            presenter.showCorrect();
+        }
     };
 
     presenter.setWorkMode = function () {
         presenter.isErrorCheckingMode = false;
-        presenter.setState(presenter.workModeState);
+        if(presenter.isActivity){
+            presenter.setState(presenter.workModeState);
+        }
     };
 
     presenter.createBaseEventData = function () {

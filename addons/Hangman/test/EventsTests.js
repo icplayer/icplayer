@@ -53,7 +53,7 @@ TestCase("Events creation", {
     }
 });
 
-TestCase("Events triggering", {
+TestCase("Events triggering is Activity", {
     setUp : function() {
         this.presenter = AddonHangman_create();
         this.presenter.configuration = {
@@ -72,6 +72,7 @@ TestCase("Events triggering", {
             addonID: 'Hangman1'
         };
         this.presenter.currentPhrase = 1;
+        this.presenter.isActivity = true;
 
         sinon.stub(this.presenter, 'unbindAttachedHandlers');
         sinon.stub(this.presenter, 'fillPhraseWithLetters');
@@ -122,6 +123,71 @@ TestCase("Events triggering", {
         assertEquals({source: 'Hangman1', item: '2', value: 'EOT', score: ''}, this.presenter.sendEventData.getCall(1).args[0]);
     },
     
+    'test automatically selected letter' : function() {
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], false);
+        assertFalse(this.presenter.sendEventData.called);
+    }
+});
+
+TestCase("Events triggering is Not Activity", {
+    setUp : function() {
+        this.presenter = AddonHangman_create();
+        this.presenter.configuration = {
+            phrases: [{
+                letters: this.presenter.DEFAULT_LETTERS,
+                phrase: ['BABE'],
+                errorCount: 0,
+                selectedLetters: []
+            }, {
+                letters: this.presenter.DEFAULT_LETTERS,
+                phrase: ['HANGMAN'],
+                errorCount: 0,
+                selectedLetters: []
+            }],
+            trialsCount: 3,
+            addonID: 'Hangman1'
+        };
+        this.presenter.currentPhrase = 1;
+        this.presenter.isActivity = false;
+
+        sinon.stub(this.presenter, 'unbindAttachedHandlers');
+        sinon.stub(this.presenter, 'fillPhraseWithLetters');
+        sinon.stub(this.presenter, 'disableRemainingLetters');
+        sinon.stub(this.presenter, 'sendEventData');
+        sinon.stub(this.presenter, 'isAllOK');
+        sinon.stub(this.presenter, 'sendAllOKEvent');
+    },
+
+    tearDown: function() {
+        this.presenter.unbindAttachedHandlers.restore();
+        this.presenter.fillPhraseWithLetters.restore();
+        this.presenter.disableRemainingLetters.restore();
+        this.presenter.sendEventData.restore();
+        this.presenter.isAllOK.restore();
+        this.presenter.sendAllOKEvent.restore();
+    },
+
+    'test user selected correct letter and all phrases are correctly filled' : function() {
+        this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1], true);
+
+        assertTrue(this.presenter.sendEventData.called);
+        assertFalse(this.presenter.sendAllOKEvent.called);
+    },
+
+    'test user selected correct letter and phrases are not correctly filled' : function() {
+        this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1], true);
+
+        assertTrue(this.presenter.sendEventData.called);
+        assertFalse(this.presenter.sendAllOKEvent.called);
+    },
+
+    'test user selected incorrect letter' : function() {
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);
+
+        assertTrue(this.presenter.sendEventData.called);
+        assertFalse(this.presenter.sendAllOKEvent.called);
+    },
+
     'test automatically selected letter' : function() {
         this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], false);
         assertFalse(this.presenter.sendEventData.called);
