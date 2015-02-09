@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter.IDisplay;
@@ -20,6 +21,24 @@ public class PresenterTestCase {
 		@Override
 		public void setData(int errorCount, int mistakeCount) {
 			this.value = errorCount;
+		}
+
+		@Override
+		public void show() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void hide() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Element getElement() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

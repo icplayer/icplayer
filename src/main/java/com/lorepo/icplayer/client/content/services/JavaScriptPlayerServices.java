@@ -29,6 +29,7 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
+import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
@@ -41,11 +42,6 @@ import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
-/**
- * Implementacja serwisów udostępnianych przez playera jako obiekt JavaScript
- * @author Krzysztof Langner
- *
- */
 public class JavaScriptPlayerServices{
 
 	private static final String ITEM_SELECTED_EVENT_NAME = "ItemSelected";
@@ -408,12 +404,6 @@ public class JavaScriptPlayerServices{
 		eventListeners.add(listener);
 	}
 	
-	/**
-	 * Parsuje definicje w tekście
-	 * @return Hashmap z wartościami
-	 * - text - zmieniony tekst
-	 * - defCount - ilość linków z definicjami
-	 */
 	private String parseText(String text){
 		TextParser parser = new TextParser();
 		parser.skipGaps();
@@ -421,13 +411,6 @@ public class JavaScriptPlayerServices{
 		return result.parsedText;
 	}
 
-	/**
-	 * Parsing gaps and inline gaps
-	 * 
-	 * @return Hashmap with values - parsedText - string with replaced gaps
-	 *         definitions - gaps - hashmap with gaps structure - inLineGaps -
-	 *         hashmap with inline gaps structure
-	 */
 	private JavaScriptObject parseGaps(String text, JavaScriptObject options) {
 		TextParser parser = new TextParser();
 		Boolean isCaseSensitive = Boolean.valueOf(JavaScriptUtils.getArrayItemByKey(options, "isCaseSensitive"));
@@ -483,6 +466,8 @@ public class JavaScriptPlayerServices{
 			return ((PageProgressPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof CheckButtonPresenter) {
 			return ((CheckButtonPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ErrorCounterPresenter) {
+			return ((ErrorCounterPresenter) presenter).getAsJavaScript();
 		}
 		
 		return null;
