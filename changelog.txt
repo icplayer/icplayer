@@ -1,3 +1,4 @@
+2015-02-09 Revert parsing HTML in Text Audio module
 2015-02-09 Added Is Not Activity property in Hangman module
 2015-02-09 Fixed counting score in Count and Graph module
 2015-02-09 Fixed reacting to Show Answers events in Double State Button and Single State Button modules
