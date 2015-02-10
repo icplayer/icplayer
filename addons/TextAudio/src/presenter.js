@@ -10,6 +10,7 @@ function AddonTextAudio_create() {
     var currentTimeAlreadySent;
     var hasBeenStarted = false;
     var isPlaying = false;
+    var globalIntervalNumber = 0;
 
     /**
      * play_interval_or_vocabulary - this option if for compatibility sake. If user had both
@@ -32,7 +33,7 @@ function AddonTextAudio_create() {
                 transp[dict[key]] = key;
         }
         return transp;
-    };
+    }
 
     presenter.buzzAudio = [];
 
@@ -250,13 +251,7 @@ function AddonTextAudio_create() {
     	if (slide_id < 0) {
             textWrapper.html('');
         } else {
-        	var html = '', text, interval;
-            for (var i=0; i<presenter.configuration.slides[slide_id].Text.length; i++) {
-                text = presenter.configuration.slides[slide_id].Text[i];
-                interval = presenter.configuration.slides[slide_id].intervals[i];
-                html += '<span class="textelement' + i + '" data-selectionId="' + i + '" data-intervalId="' + interval + '">' + text + '</span>';
-            }
-            textWrapper.html(html);
+            textWrapper.html(presenter.configuration.slides[slide_id].html);
             textWrapper.attr('data-slideId', slide_id);
             textWrapper.find("span[class^='textelement']").each(function() {
                 $(this).on('click', function(e) {
@@ -593,6 +588,83 @@ function AddonTextAudio_create() {
             return {start:entry_start, end:entry_end};
     };
 
+    function parseSlideText(text) {
+        function getNumberOfCharsParts(text) {
+            var result = 0;
+            HTMLParser(text, { chars: function() {
+                result++;
+            } });
+
+            return result;
+        }
+
+        var resultHTML = "";
+
+        var elemNumber = 0;
+        var numberOfCharsParts = getNumberOfCharsParts(text);
+
+        var isOpen = false;
+
+        HTMLParser(text, {
+            start: function(tag, attrs, unary) {
+                resultHTML += "<" + tag;
+                for (var i=0; i<attrs.length; i++) {
+                    resultHTML += " " + attrs[i].name + '="' + attrs[i].escaped + '"';
+                }
+                resultHTML += (unary ? "/" : "") + ">";
+            },
+            end: function(tag) {
+                resultHTML += "</" + tag + ">";
+            },
+            chars: function(text) {
+                var spanTemplate = "";
+                var localParts = text.split('||');
+
+                for (var i=0; i<localParts.length; i++) {
+                    if (localParts.length === 1) { // only one
+                        if (isOpen) {
+                            resultHTML += localParts[i];
+                        } else {
+                            spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]';
+                            resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
+                            isOpen = true;
+                        }
+                    } else if (i === 0) { // first
+                        if (isOpen) {
+                            resultHTML += localParts[i] + '</span>';
+                            isOpen = false;
+                        } else {
+                            spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]';
+                            resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
+                            isOpen = true;
+                        }
+                    } else if (i === localParts.length-1) { // last
+                        if (isOpen) {
+                            resultHTML += '</span>';
+                        }
+                        spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]';
+                        resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
+                        isOpen = true;
+                    } else { // middle
+                        if (isOpen) {
+                            resultHTML += '</span>';
+                            isOpen = false;
+                        }
+                        spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]</span>';
+                        resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
+                    }
+                }
+
+                if (0 === --numberOfCharsParts) { // is last global elem
+                    resultHTML += "</span>";
+                    isOpen = false;
+                }
+            }
+        });
+
+        return resultHTML;
+    }
+
     presenter.validateSlides = function(slides) {
         var validationResult = {
             isValid: false,
@@ -607,8 +679,9 @@ function AddonTextAudio_create() {
         for (var i=0; i<slides.length; i++) {
             var slide = slides[i];
             var slide_texts = slide.Text.split('||');
+            var parsed_slide_texts = parseSlideText(slide.Text);
             var slide_times = slide.Times.split('\n');
-            var slide_intervals=[];
+            var slide_intervals = [];
 
             if (slide_texts.length != slide_times.length) {
                 validationResult.errorCode = 'M02';
@@ -657,6 +730,7 @@ function AddonTextAudio_create() {
             slide.Text = slide_texts;
             slide.Times= slide_times;
             slide.intervals = slide_intervals;
+            slide.html = parsed_slide_texts;
             slides[i] = slide;
         }
         validationResult.isValid = true;
@@ -703,7 +777,7 @@ function AddonTextAudio_create() {
         }
 
         var vocIntervals = intervals.split('\n'),
-            i, intervals=[], time_range;
+            intervals=[], time_range;
         if (vocIntervals.length != presenter.totalNumberOfParts) {
             returnObj.errorCode = 'VI02';
             return returnObj;
@@ -804,11 +878,10 @@ function AddonTextAudio_create() {
 
     presenter.play = function() {
         startTimeMeasurement();
-
-        if (this.audio.paused) {
+        if (presenter.audio.paused) {
             presenter.stopClicked = false;
             pauseZero();
-            this.audio.play();
+            presenter.audio.play();
         }
     };
 
@@ -871,9 +944,9 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.clearSelection = function(){
+    presenter.clearSelection = function() {
         presenter.$view.find('.textaudio-text span.active').removeClass('active');
-    }
+    };
 
     presenter.getState = function() {
         return JSON.stringify({
