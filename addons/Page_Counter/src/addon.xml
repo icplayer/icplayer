@@ -2,6 +2,11 @@
 
 <addon id='Page_Counter' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" />
+		<property name="Numericals" type="{Western Arabic,Eastern Arabic,Perso-Arabic}" nameLabel="Page_Counter_property_numericals"/>
+		<property name="startFrom" type="string" nameLabel="Page_Counter_property_start_from"/>
+		<property name="omittedPagesTexts" nameLabel="Page_Counter_property_omitted_pages_texts" type="list">
+			<property name="pages" type="string" nameLabel="Page_Counter_property_pages"/>
+			<property name="text" type="string" nameLabel="Page_Counter_property_text"/>
+		</property>
 	</model>
 </addon>
