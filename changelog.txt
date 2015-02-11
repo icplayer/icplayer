@@ -1,3 +1,4 @@
+2015-02-11 Fixed issue with playing vocabulary on second click in Text Audio module on iOS 8.1.3
 2015-02-11 Fixed issue with playing wrong words on first try in Text Audio module
 2015-02-10 Fixed parsing HTML in Text Audio module
 2015-02-10 Added "Start from" property in Page Counter module

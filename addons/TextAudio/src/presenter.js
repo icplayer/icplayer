@@ -216,6 +216,7 @@ function AddonTextAudio_create() {
     function onTimeUpdateCallback() {
         if (isVocabularyPlaying) {
             if (presenter.vocabulary.getTime() >= presenter.vocabulary_end) {
+                presenter.vocabulary.setTime(0);
                 presenter.vocabulary.pause();
             }
             return;
@@ -268,9 +269,10 @@ function AddonTextAudio_create() {
                             if (isVocabularyPlaying || !isPlaying) {
                                 var frame = presenter.configuration.vocabularyIntervals[interval_id];
                                 presenter.clearSelection();
+                                presenter.vocabulary.pause();
+                                presenter.vocabulary.play();
                                 presenter.vocabulary.setTime(frame.start / presenter.fps);
                                 presenter.vocabulary_end = frame.end / presenter.fps;
-                                presenter.vocabulary.play();
                                 markItem(presenter.selectionId);
                                 break;
                             }
