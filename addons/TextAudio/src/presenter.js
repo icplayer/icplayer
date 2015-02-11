@@ -65,7 +65,7 @@ function AddonTextAudio_create() {
     }
 
     presenter.ERROR_CODES = {
-    	'M01': 'This addon needs at least 1 audio file.',
+        'M01': 'This addon needs at least 1 audio file.',
         'M02': 'Number of texts in the slide should be the same as number of time entities',
         'M03': 'Incorrectly defined period of time',
         'M04': 'Entry ends before start',
@@ -105,7 +105,9 @@ function AddonTextAudio_create() {
     function playSingleAudioPlayer(slideId, elemId) {
         stopSingleAudioPlayer();
 
-        for (var i=0; i<slideId; i++) elemId += presenter.slidesLengths[i];
+        for (var i=0; i<slideId; i++)
+            elemId += presenter.slidesLengths[i];
+
         presenter.buzzAudio[elemId].play();
     }
 
@@ -146,7 +148,7 @@ function AddonTextAudio_create() {
     };
 
     function getSlideNumber() {
-         return presenter.current_slide_data.slide_id + 1;
+        return presenter.current_slide_data.slide_id + 1;
     }
 
     function getEventObject(_item, _value, _score) {
@@ -213,7 +215,7 @@ function AddonTextAudio_create() {
 
     function onTimeUpdateCallback() {
         if (isVocabularyPlaying) {
-            if (presenter.vocabulary.getTime() * presenter.fps >= presenter.vocabulary_end) {
+            if (presenter.vocabulary.getTime() >= presenter.vocabulary_end) {
                 presenter.vocabulary.pause();
             }
             return;
@@ -244,11 +246,11 @@ function AddonTextAudio_create() {
         }
         presenter.play();
     }
-    
+
     function make_slide(textWrapper, slide_id) {
         slide_id = parseInt(slide_id, 10);
 
-    	if (slide_id < 0) {
+        if (slide_id < 0) {
             textWrapper.html('');
         } else {
             textWrapper.html(presenter.configuration.slides[slide_id].html);
@@ -267,7 +269,7 @@ function AddonTextAudio_create() {
                                 var frame = presenter.configuration.vocabularyIntervals[interval_id];
                                 presenter.clearSelection();
                                 presenter.vocabulary.setTime(frame.start / presenter.fps);
-                                presenter.vocabulary_end = frame.end;
+                                presenter.vocabulary_end = frame.end / presenter.fps;
                                 presenter.vocabulary.play();
                                 markItem(presenter.selectionId);
                                 break;
@@ -309,6 +311,7 @@ function AddonTextAudio_create() {
                     }
                 });
             });
+
         }
     }
 
@@ -505,13 +508,13 @@ function AddonTextAudio_create() {
             presenter.buzzAudio.push(localBuzz);
         }
     }
-    
+
     presenter.run = function(view, model) {
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.isLoaded = false;
         if (presenter.configuration.isValid) {
-            this.audio.addEventListener("loadeddata", function () {
+            this.audio.addEventListener("loadeddata", function() {
                 presenter.isLoaded = true;
             });
         }
@@ -523,6 +526,10 @@ function AddonTextAudio_create() {
     };
 
     presenter.initialize = function(view, model, isPreview) {
+        buzz.defaults.preload = 'auto';
+        buzz.defaults.autoplay = false;
+        buzz.defaults.loop = false;
+
         presenter.$view = $(view);
 
         var upgradedModel = presenter.upgradeModel(model);
@@ -541,15 +548,11 @@ function AddonTextAudio_create() {
         presenter.isVisibleByDefault = presenter.configuration.isVisible;
 
         createView(view, upgradedModel, isPreview);
-        
+
         if (!isPreview) {
-        	loadFiles();
+            loadFiles();
 
             if (presenter.configuration.playSeparateFiles) {
-                buzz.defaults.preload = 'auto';
-                buzz.defaults.autoplay = false;
-                buzz.defaults.loop = false;
-
                 createSeparateAudioFiles(presenter.configuration.separateFiles);
             }
         }
@@ -579,13 +582,17 @@ function AddonTextAudio_create() {
 
     presenter.timeEntry = function(slide_time) {
         var entry = slide_time.split('-');
-            if (entry.length != 2) {
-                return {errorCode: 'M03', errorData: slide_time}
+        if (entry.length != 2) {
+            return {
+                errorCode: 'M03',
+                errorData: slide_time
             }
+        }
 
-            var entry_start = presenter.toFrames(entry[0]),
-                entry_end = presenter.toFrames(entry[1]);
-            return {start:entry_start, end:entry_end};
+        return {
+            start:presenter.toFrames(entry[0]),
+            end:presenter.toFrames(entry[1])
+        };
     };
 
     function parseSlideText(text) {
