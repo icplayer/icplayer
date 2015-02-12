@@ -5,6 +5,6 @@
 		<property name='Color' nameLabel="Drawing_property_color" type='string'/>
 		<property name='Thickness' nameLabel="Drawing_property_thickness" type='string'/>
 		<property name='Border' nameLabel="Drawing_property_border" type='string'/>
-		<property name='Opacity' nameLabel="Drawing_property_border" type='string'/>
+		<property name='Opacity' nameLabel="Drawing_property_opacity" type='string'/>
 	</model>
 </addon>
