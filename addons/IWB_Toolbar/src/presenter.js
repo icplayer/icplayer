@@ -1704,14 +1704,16 @@ function AddonIWB_Toolbar_create() {
                     $(button).addClass('clicked');
                 }
             }
-
-            if (!$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser')){
-                presenter.$penMask.css('pointer-events', 'none');
-                presenter.$markerMask.css('pointer-events', 'none');
-            }else{
-                presenter.$penMask.css('pointer-events', 'auto');
-                presenter.$markerMask.css('pointer-events', 'auto');
+            if (isSupportCSSPointerEvents()) {
+                if (!$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser')){
+                    presenter.$penMask.css('pointer-events', 'none');
+                    presenter.$markerMask.css('pointer-events', 'none');
+                }else{
+                    presenter.$penMask.css('pointer-events', 'auto');
+                    presenter.$markerMask.css('pointer-events', 'auto');
+                }
             }
+
             changeCurrentFloatingImage(presenter.currentFloatingImageIndex);
         }
     }
@@ -1721,9 +1723,18 @@ function AddonIWB_Toolbar_create() {
         $(button).toggleClass('clicked-lighter');
     }
 
+    function isSupportCSSPointerEvents () {
+        var myNav = navigator.userAgent.toLowerCase();
+        var version = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
+        return !(version == 9 || version == 10);
+    }
+
     function toggleMasks() {
-       // presenter.$penMask.hide();
-       // presenter.$markerMask.hide();
+        if (!isSupportCSSPointerEvents()) {
+            presenter.$penMask.hide();
+            presenter.$markerMask.hide();
+        }
+
         presenter.$selectingMask.hide();
 
         if (isDrawingActive() || presenter.$pagePanel.find('.eraser').hasClass('clicked')) {
@@ -1864,12 +1875,12 @@ function AddonIWB_Toolbar_create() {
             clearCanvases();
         }
 
-        if (shouldHideDrawingMasks) {
+        if (shouldHideDrawingMasks && !isSupportCSSPointerEvents()) {
             if (presenter.$penMask) {
-                //presenter.$penMask.hide();
+                presenter.$penMask.hide();
             }
             if (presenter.$markerMask) {
-               // presenter.$markerMask.hide();
+                presenter.$markerMask.hide();
             }
         }
 
@@ -2092,10 +2103,12 @@ function AddonIWB_Toolbar_create() {
         presenter.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.isVisible, false, presenter.$view);
 
-        presenter.$penMask.show();
-        presenter.$markerMask.show();
-        presenter.$penMask.css('pointer-events', 'none');
-        presenter.$markerMask.css('pointer-events', 'none');
+        if (isSupportCSSPointerEvents()) {
+            presenter.$penMask.show();
+            presenter.$markerMask.show();
+            presenter.$penMask.css('pointer-events', 'none');
+            presenter.$markerMask.css('pointer-events', 'none');
+        }
     };
 
     function setDrawingState(image, ctx, data) {
