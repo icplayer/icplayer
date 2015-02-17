@@ -40,6 +40,7 @@ function Addonmultiplegap_create(){
     presenter.items               = [];
 
     presenter.showErrorsMode      = false;
+    presenter.isShowAnswersActive = false;
 
     presenter.showErrorMessage = function(message) {
         presenter.$view.text(message);
@@ -54,6 +55,11 @@ function Addonmultiplegap_create(){
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
         presenter.createLogic(view, model);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('NotAllAttempted', this);
+        presenter.eventBus.addEventListener('Submitted', this);
     };
 
     presenter.validateModel = function (model) {
@@ -151,7 +157,7 @@ function Addonmultiplegap_create(){
 
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
-            if(presenter.showErrorsMode) return;
+            if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
 
             if(typeof(eventData.item) == "undefined") {
                 presenter.clearSelected();
@@ -199,7 +205,7 @@ function Addonmultiplegap_create(){
         e.stopPropagation();
         e.preventDefault();
 
-        if(presenter.showErrorsMode) return;
+        if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
 
         presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
     };
@@ -215,17 +221,24 @@ function Addonmultiplegap_create(){
     		return item;
     	}
     };
-    
+
     presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
         function getImageURL(elem) {
-    		return window.player.getPlayerServices().getModule(elem.item).getImageUrl();
+    		return presenter.playerController.getModule(elem.item).getImageUrl();
     	}
-    	
-        if(!force && presenter.selectedItem == null) return;
-        if(presenter.maximumItemCountReached()) return;
+
+        if(!presenter.isShowAnswersActive){
+            if(!force && presenter.selectedItem == null) return;
+            if(presenter.maximumItemCountReached()) return;
+        }
 
         var child;
-        var placeholder = $('<div class="placeholder"></div>');
+        var placeholder;
+        if(presenter.isShowAnswersActive){
+            placeholder = $('<div class="placeholder placeholder-show-answers"></div>');
+        }else{
+            placeholder = $('<div class="placeholder"></div>');
+        }
         placeholder.css({
             width: presenter.itemWidth + 'px',
             height: presenter.itemHeight + 'px'
@@ -255,6 +268,7 @@ function Addonmultiplegap_create(){
             case presenter.SOURCE_TYPES.IMAGES:
                 child = $('<img class="contents" alt="" />');
                 child.attr('src', getImageURL(item));
+
 
                 if(presenter.stretchImages) {
                     child.css({
@@ -375,7 +389,7 @@ function Addonmultiplegap_create(){
         e.stopPropagation();
         e.preventDefault();
 
-        if(presenter.showErrorsMode)
+        if(presenter.showErrorsMode || presenter.isShowAnswersActive)
             return;
 
         presenter.performRemoveDraggable($(e.target));
@@ -444,14 +458,23 @@ function Addonmultiplegap_create(){
     }
 
     presenter.getMaxScore = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
         return presenter.configuration.isActivity ? getItemsLength(presenter.items) : 0;
     };
 
     presenter.getScore = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
         return presenter.configuration.isActivity ? presenter.items.length - presenter.getInvalidItems().length : 0;
     };
 
     presenter.getErrorCount = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
         return presenter.configuration.isActivity ? presenter.countItems() - presenter.getScore() : 0;
     };
 
@@ -484,6 +507,9 @@ function Addonmultiplegap_create(){
     }
 
     presenter.setShowErrorsMode = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
         presenter.showErrorsMode = true;
         markInactive();
         if (!presenter.configuration.isActivity) return;
@@ -511,6 +537,10 @@ function Addonmultiplegap_create(){
     };
 
     presenter.reset = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
+
         presenter.$view.find('.placeholder').remove();
 
         presenter.setWorkMode();
@@ -519,9 +549,13 @@ function Addonmultiplegap_create(){
     };
     
     presenter.getState = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
+
         var state = [];
 
-        presenter.$view.find('.placeholder').each(function(i, placeholder) {
+        presenter.$view.find('.placeholder:not(.placeholder-show-answers)').each(function(i, placeholder) {
             state.push({
                 item : $(placeholder).attr('draggableItem'),
                 value : $(placeholder).attr('draggableValue'),
@@ -553,6 +587,10 @@ function Addonmultiplegap_create(){
     };
 
     presenter.isAttempted = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return presenter.countItems() > 0;
     };
 
@@ -569,6 +607,62 @@ function Addonmultiplegap_create(){
     presenter.onEventReceived = function(eventName) {
         if (eventName == 'PageLoaded') {
             presenter.pageLoadedDeferred.resolve();
+        }
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers" || eventName == "NotAllAttempted" || eventName == "Submitted") {
+            presenter.hideAnswers();
+        }
+    };
+
+    function getElementText(id, element) {
+        return presenter.playerController.getModule(id).getItem(element);
+    }
+
+    presenter.showAnswers = function () {
+        if (!presenter.configuration.isActivity) return;
+        presenter.isShowAnswersActive = true;
+        presenter.setWorkMode();
+
+        presenter.tmpState = [];
+        presenter.$view.find('.placeholder').each(function(i, placeholder) {
+            presenter.tmpState.push({
+                item : $(placeholder).attr('draggableItem'),
+                value : $(placeholder).attr('draggableValue'),
+                type : $(placeholder).attr('draggableType')
+            });
+        });
+
+        presenter.$view.find('.placeholder').remove();
+
+        for(var i=0; i<presenter.items.length; i++){
+            var itemId = presenter.items[i];
+
+            if (itemId.indexOf("Image") >= 0){
+                presenter.performAcceptDraggable('<div></div>', {type:'string', value: '', item: itemId}, false, false, false);
+            }else{
+                var elementId = itemId.split('-')[0],
+                elementIndex = itemId.split('-')[1],
+                value = getElementText(elementId, elementIndex);
+
+                presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: itemId}, false, false, false);
+            }
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        if(presenter.isShowAnswersActive){
+            presenter.$view.find('.placeholder-show-answers').remove();
+
+            for(var i = 0; i < presenter.tmpState.length; i++) {
+                presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), presenter.tmpState[i], false, false, false);
+            }
+
+            presenter.$view.find('.placeholder-show-answers').removeClass('placeholder-show-answers');
+            presenter.isShowAnswersActive = false;
         }
     };
 
