@@ -20,3 +20,14 @@
 .wrapper-addon-textaudio span.active {
     color: #cc0000;
 }
+
+.text-audio-loading-area {
+    width: 100%;
+    height: 100%;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url("/media/images/loading.gif") no-repeat center;
+    background-size: 20%;
+}

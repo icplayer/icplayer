@@ -11,6 +11,19 @@ function AddonTextAudio_create() {
     var hasBeenStarted = false;
     var isPlaying = false;
     var globalIntervalNumber = 0;
+    var isVocabularyAudioLoaded = false;
+
+    function showLoadingArea(clickAction) {
+        if (clickAction === 'play_vocabulary_interval' && presenter.buzzAudio.length === 0 && !MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            presenter.$view.find('div.text-audio-loading-area').css('display','block');
+        }
+    }
+
+    function hideLoadingArea() {
+        var $loadingArea = presenter.$view.find('div.text-audio-loading-area');
+        $loadingArea.css('display','none');
+        $loadingArea.remove();
+    }
 
     /**
      * play_interval_or_vocabulary - this option if for compatibility sake. If user had both
@@ -102,13 +115,14 @@ function AddonTextAudio_create() {
         }
     }
 
-    function playSingleAudioPlayer(slideId, elemId) {
+    function playSingleAudioPlayer(slideId, elementID) {
         stopSingleAudioPlayer();
 
-        for (var i=0; i<slideId; i++)
-            elemId += presenter.slidesLengths[i];
+        for (var i=0; i<slideId; i++) {
+            elementID += presenter.slidesLengths[i];
+        }
 
-        presenter.buzzAudio[elemId].play();
+        presenter.buzzAudio[elementID].play();
     }
 
     function markItem(selectionId) {
@@ -260,19 +274,28 @@ function AddonTextAudio_create() {
                 $(this).on('click', function(e) {
                     e.stopPropagation();
 
+                    var isVocabularyInterval = presenter.configuration.clickAction == 'play_vocabulary_interval';
+                    var isLoaded = isVocabularyAudioLoaded || presenter.buzzAudio.length !== 0;
+                    if (isVocabularyInterval && !MobileUtils.isMobileUserAgent(navigator.userAgent) && !isLoaded) {
+                        return false;
+                    }
+
                     presenter.playedByClick = true;
                     presenter.selectionId = parseInt($(this).attr('data-selectionId'), 10);
-                    var interval_id = parseInt($(this).attr('data-intervalId'), 10);
 
                     switch (presenter.configuration.clickAction) {
                         case 'play_vocabulary_interval':
                             if (isVocabularyPlaying || !isPlaying) {
-                                var frame = presenter.configuration.vocabularyIntervals[interval_id];
+                                var intervalId = parseInt($(this).attr('data-intervalId'), 10);
+                                var frame = presenter.configuration.vocabularyIntervals[intervalId];
+
+                                if (isPlaying) {
+                                    presenter.vocabulary.stop();
+                                }
                                 presenter.clearSelection();
-                                presenter.vocabulary.pause();
-                                presenter.vocabulary.play();
                                 presenter.vocabulary.setTime(frame.start / presenter.fps);
                                 presenter.vocabulary_end = frame.end / presenter.fps;
+                                presenter.vocabulary.play();
                                 markItem(presenter.selectionId);
                                 break;
                             }
@@ -313,7 +336,6 @@ function AddonTextAudio_create() {
                     }
                 });
             });
-
         }
     }
 
@@ -470,11 +492,16 @@ function AddonTextAudio_create() {
                 $(audio).attr("src", originalFile.ogg);
             }
 
-            if (presenter.configuration.clickAction=='play_vocabulary_interval') {
+            if (presenter.configuration.clickAction == 'play_vocabulary_interval') {
                 presenter.vocabulary = new buzz.sound([
                     presenter.configuration.vocabulary_mp3,
                     presenter.configuration.vocabulary_ogg
                 ]);
+                presenter.vocabulary.bind('canplaythrough', function() {
+                    presenter.vocabulary.unbind('canplaythrough');
+                    isVocabularyAudioLoaded = true;
+                    hideLoadingArea();
+                }, false);
                 presenter.vocabulary.bind('ended', function() {
                     presenter.clearSelection();
                 });
@@ -557,6 +584,8 @@ function AddonTextAudio_create() {
             if (presenter.configuration.playSeparateFiles) {
                 createSeparateAudioFiles(presenter.configuration.separateFiles);
             }
+
+            showLoadingArea(presenter.configuration.clickAction);
         }
     };
 
@@ -592,8 +621,8 @@ function AddonTextAudio_create() {
         }
 
         return {
-            start:presenter.toFrames(entry[0]),
-            end:presenter.toFrames(entry[1])
+            start: presenter.toFrames(entry[0]),
+            end: presenter.toFrames(entry[1])
         };
     };
 
@@ -958,6 +987,11 @@ function AddonTextAudio_create() {
     };
 
     presenter.getState = function() {
+        presenter.stop();
+        if (presenter.vocabulary !== undefined) {
+            presenter.vocabulary.stop();
+        }
+
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
         });
