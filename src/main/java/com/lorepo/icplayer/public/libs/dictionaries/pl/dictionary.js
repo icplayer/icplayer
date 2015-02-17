@@ -346,7 +346,7 @@ var ice_dictionary = {
 	"Count_and_Graph_property_description": "Opis",
 	"Count_and_Graph_property_description_image": "Obraz opisu",
 	"Count_and_Graph_property_y_axis_description": "Opis osi Y",
-	"Count_and_Graph_property_y_axis_minimum_value": "Min. wartość osi Y",
+	"Count_and_Graph_property_y_axis_maximum_value": "Min. wartość osi Y",
 	"Count_and_Graph_property_y_axis_values": "Wartości osi Y",
 	"Count_and_Graph_property_bars_width": "Szerokość słupków",
 	"Count_and_Graph_property_background_color": "Kolor tła",

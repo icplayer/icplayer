@@ -349,7 +349,7 @@ var ice_dictionary = {
     "Count_and_Graph_property_description": "Description",
     "Count_and_Graph_property_description_image": "Image de la description",
     "Count_and_Graph_property_y_axis_description": "Descritpion de l'axe Y",
-    "Count_and_Graph_property_y_axis_minimum_value": "Valeur minimum de l'axe Y",
+    "Count_and_Graph_property_y_axis_maximum_value": "Valeur minimum de l'axe Y",
     "Count_and_Graph_property_y_axis_values": "Valeur de l'axe Y",
     "Count_and_Graph_property_bars_width": "Largeur des barres",
     "Count_and_Graph_property_background_color": "Couleur du fond",
