@@ -263,8 +263,24 @@ function AddonDouble_State_Button_create(){
         Commands.dispatch(commands, name, [], presenter);
     };
 
+    function isIE9 () {
+        var myNav = navigator.userAgent.toLowerCase();
+        var version = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
+        return (version == 9);
+    }
+
     presenter.setVisibility = function(isVisible) {
-        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        if(isIE9()){
+            if(isVisible){
+                presenter.$view.css('display', 'block');
+                presenter.$view.css("visibility","visible");
+            }else{
+                presenter.$view.css('display', 'none');
+                presenter.$view.css("visibility", "hidden");
+            }
+        }else{
+            presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        }
     };
 
     presenter.setPlayerController = function(controller) {
