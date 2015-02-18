@@ -19,5 +19,6 @@
         <property name='vocabulary_intervals' displayName="Vocabulary intervals" nameLabel='TextAudio_property_vocabulary_intervals' type='text' isLocalized='true' />
 
         <property name='onEnd' displayName='On end' nameLabel='TextAudio_property_vocabulary_on_end' type='event' />
+        <property name='isClickDisabled' displayName='Is Click Disabled' nameLabel='TextAudio_property_is_click_disabled' type='boolean' />
     </model>
 </addon>

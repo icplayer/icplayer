@@ -311,6 +311,7 @@ var ice_dictionary = {
 "TextAudio_property_vocabulary_ogg": "Vocabularaire ogg",
 "TextAudio_property_vocabulary_intervals": "Vocabularaire intervalles",
 "TextAudio_property_vocabulary_on_end": "A la fin",
+    "TextAudio_property_is_click_disabled": "Is Click Disabled",
     "Connection_info": "Permet de créer une activité avec deux colonnes d'éléments (textes ou images) que l'on devra associer. Il est possible de paramétrer des connexions uniques ou multiples (un élément peut être relié à plusieurs).",
     "Connection_name": "Connexion",
     "Connection_property_is_not_activity": "N'est pas un exercice",

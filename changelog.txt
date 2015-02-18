@@ -1,3 +1,4 @@
+2015-02-18 Added property Is Click Disabled in Text Audio module
 2015-02-18 Fixed rendering LaTeX in Double State Button module
 2015-02-18 Fixed CSS classes in Connecting Dots module
 2015-02-18 Added new property Keep state and position to IWB Toolbar

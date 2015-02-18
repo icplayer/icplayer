@@ -271,71 +271,74 @@ function AddonTextAudio_create() {
             textWrapper.html(presenter.configuration.slides[slide_id].html);
             textWrapper.attr('data-slideId', slide_id);
             textWrapper.find("span[class^='textelement']").each(function() {
-                $(this).on('click', function(e) {
-                    e.stopPropagation();
+                if(!presenter.configuration.isClickDisabled){
+                    $(this).on('click', function(e) {
+                        e.stopPropagation();
 
-                    var isVocabularyInterval = presenter.configuration.clickAction == 'play_vocabulary_interval';
-                    var isLoaded = isVocabularyAudioLoaded || presenter.buzzAudio.length !== 0;
-                    if (isVocabularyInterval && !MobileUtils.isMobileUserAgent(navigator.userAgent) && !isLoaded) {
-                        return false;
-                    }
+                        var isVocabularyInterval = presenter.configuration.clickAction == 'play_vocabulary_interval';
+                        var isLoaded = isVocabularyAudioLoaded || presenter.buzzAudio.length !== 0;
+                        if (isVocabularyInterval && !MobileUtils.isMobileUserAgent(navigator.userAgent) && !isLoaded) {
+                            return false;
+                        }
 
-                    presenter.playedByClick = true;
-                    presenter.selectionId = parseInt($(this).attr('data-selectionId'), 10);
+                        presenter.playedByClick = true;
+                        presenter.selectionId = parseInt($(this).attr('data-selectionId'), 10);
 
-                    switch (presenter.configuration.clickAction) {
-                        case 'play_vocabulary_interval':
-                            if (isVocabularyPlaying || !isPlaying) {
-                                var intervalId = parseInt($(this).attr('data-intervalId'), 10);
-                                var frame = presenter.configuration.vocabularyIntervals[intervalId];
+                        switch (presenter.configuration.clickAction) {
+                            case 'play_vocabulary_interval':
+                                if (isVocabularyPlaying || !isPlaying) {
+                                    var intervalId = parseInt($(this).attr('data-intervalId'), 10);
+                                    var frame = presenter.configuration.vocabularyIntervals[intervalId];
 
-                                if (isPlaying) {
-                                    presenter.vocabulary.stop();
-                                }
-                                presenter.clearSelection();
-                                presenter.vocabulary.setTime(frame.start / presenter.fps);
-                                presenter.vocabulary_end = frame.end / presenter.fps;
-                                presenter.vocabulary.play();
-                                markItem(presenter.selectionId);
-                                break;
-                            }
-                        case 'play_interval_or_vocabulary':
-                        case 'play_vocabulary_file':
-                            if (!isPlaying) {
-                                presenter.pause();
-                                playSingleAudioPlayer(slide_id, presenter.selectionId);
-                                markItem(presenter.selectionId);
-                                break;
-                            }
-                        case 'play_interval':
-                        case 'play_from_the_moment':
-                            presenter.play();
-
-                            if ($(this).hasClass("tmp-active")) {
-                                $(this).removeClass("tmp-active");
-                                $(this).addClass("active");
-                            }
-
-                            if (MobileUtils.isSafariMobile(navigator.userAgent)) {
-                                function fun() {
-                                    if (slide_id >= 0 || presenter.selectionId >= 0) {
-                                        var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
-                                        presenter.audio.currentTime = frame2go / presenter.fps;
+                                    if (isPlaying) {
+                                        presenter.vocabulary.stop();
                                     }
-                                    presenter.audio.removeEventListener("playing", fun, false);
+                                    presenter.clearSelection();
+                                    presenter.vocabulary.setTime(frame.start / presenter.fps);
+                                    presenter.vocabulary_end = frame.end / presenter.fps;
+                                    presenter.vocabulary.play();
+                                    markItem(presenter.selectionId);
+                                    break;
                                 }
-                                if (hasBeenStarted) {
+                            case 'play_interval_or_vocabulary':
+                            case 'play_vocabulary_file':
+                                if (!isPlaying) {
                                     presenter.pause();
-                                    go_to(slide_id, presenter.selectionId);
-                                } else {
-                                    presenter.audio.addEventListener("playing", fun, false);
+                                    playSingleAudioPlayer(slide_id, presenter.selectionId);
+                                    markItem(presenter.selectionId);
+                                    break;
                                 }
-                            } else {
-                                go_to(slide_id, presenter.selectionId);
-                            }
-                    }
-                });
+                            case 'play_interval':
+                            case 'play_from_the_moment':
+                                presenter.play();
+
+                                if ($(this).hasClass("tmp-active")) {
+                                    $(this).removeClass("tmp-active");
+                                    $(this).addClass("active");
+                                }
+
+                                if (MobileUtils.isSafariMobile(navigator.userAgent)) {
+                                    function fun() {
+                                        if (slide_id >= 0 || presenter.selectionId >= 0) {
+                                            var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
+                                            presenter.audio.currentTime = frame2go / presenter.fps;
+                                        }
+                                        presenter.audio.removeEventListener("playing", fun, false);
+                                    }
+                                    if (hasBeenStarted) {
+                                        presenter.pause();
+                                        go_to(slide_id, presenter.selectionId);
+                                    } else {
+                                        presenter.audio.addEventListener("playing", fun, false);
+                                    }
+                                } else {
+                                    go_to(slide_id, presenter.selectionId);
+                                }
+                        }
+                    });
+                }
             });
+
         }
     }
 
@@ -884,7 +887,8 @@ function AddonTextAudio_create() {
             playSeparateFiles: (clickAction == 'play_vocabulary_file' || clickAction == 'play_interval_or_vocabulary'),
             vocabulary_mp3: model.vocabulary_mp3,
             vocabulary_ogg: model.vocabulary_ogg,
-            vocabularyIntervals: validatedVocabularyIntervals.intervals
+            vocabularyIntervals: validatedVocabularyIntervals.intervals,
+            isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled)
         };
     };
 
