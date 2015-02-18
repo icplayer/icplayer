@@ -1,10 +1,12 @@
-TestCase("States tests", {
+TestCase("[Animated Page Progress] States tests", {
     setUp: function () {
         this.presenter = AddonAnimated_Page_Progress_create();
 
         sinon.stub(this.presenter, 'cleanView');
         sinon.stub(this.presenter, 'setViewImage');
         sinon.stub(this.presenter, 'setVisibility');
+        sinon.stub(this.presenter, 'isCommonsPage');
+        sinon.stub(this.presenter, 'getCurrentPageIndex');
 
         this.presenter.configuration = {};
     },
@@ -13,6 +15,8 @@ TestCase("States tests", {
         this.presenter.cleanView.restore();
         this.presenter.setViewImage.restore();
         this.presenter.setVisibility.restore();
+        this.presenter.isCommonsPage.restore();
+        this.presenter.getCurrentPageIndex.restore();
     },
 
     'test set state on empty state': function () {

@@ -1,13 +1,10 @@
 function AddonAnimated_Page_Progress_create() {
     var presenter = function () { };
 
-    var range_img = [],
-        range_max_score = [];
-
     var playerController;
     var eventBus;
-    presenter.displayedImage = null;
 
+    presenter.displayedImage = null;
     presenter.ERROR_CODES = {
         'E_01': "All ranges must be in ascending order",
         'E_02': "Last range must equal 100",
@@ -20,49 +17,51 @@ function AddonAnimated_Page_Progress_create() {
         return { isError: true, errorCode: errorCode };
     }
 
-    presenter.sanitizeModel = function (model)  {
+    presenter.sanitizeModel = function (model) {
+        var rangeImage = [], rangeMaxScore = [], i;
 
-        for (var ranges_prop=0; ranges_prop < model.Ranges.length; ranges_prop++){
-            range_img[ranges_prop] = model.Ranges[ranges_prop].Image;
-            range_max_score[ranges_prop] = parseFloat(model.Ranges[ranges_prop].Score);
+        for (i = 0; i < model.Ranges.length; i++) {
+            rangeImage[i] = model.Ranges[i].Image;
+            rangeMaxScore[i] = parseFloat(model.Ranges[i].Score);
         }
 
-        for (var i=0; i< model.Ranges.length; i++){
-            if(!model.Ranges[i].Score){
+        for (i = 0; i < model.Ranges.length; i++) {
+            if (!model.Ranges[i].Score) {
                 return returnErrorObject('E_05');
             }
-            if(range_max_score[i]> range_max_score[i+1]){
+            if (rangeMaxScore[i] > rangeMaxScore[i + 1]) {
                 return returnErrorObject('E_01');
             }
-            if(range_max_score[i] < 0){
+            if (rangeMaxScore[i] < 0) {
                 return returnErrorObject('E_03');
             }
         }
 
-        if(range_max_score[model.Ranges.length-1] != 100){
+        if (rangeMaxScore[model.Ranges.length - 1] != 100) {
             return returnErrorObject('E_02');
         }
 
-        if(range_max_score[0] != 0){
+        if (rangeMaxScore[0] != 0) {
             return returnErrorObject('E_04');
         }
 
-        var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
-
         return {
             isError: false,
-            Ranges: {
-                Image: range_img,
-                deselected: range_max_score
+            ranges: {
+                images: rangeImage,
+                maxScores: rangeMaxScore
             },
             length: model.Ranges.length,
-            isVisible: isVisible,
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             initialImage: model['Initial image']
         }
     };
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
+        var currentPageIndex = playerController.getCurrentPageIndex();
+        presenter.pageID = playerController.getPresentation().getPage(currentPageIndex).getId();
+        presenter.scoreService = playerController.getScore();
     };
 
     presenter.cleanView = function () {
@@ -87,40 +86,48 @@ function AddonAnimated_Page_Progress_create() {
         presenter.displayedImage = rate;
     };
 
-    presenter.countPercentageScore = function () {
-        var scoreService = playerController.getScore(),
-            pageScore = scoreService.getPageScoreById(presenter.pageID),
-            score = pageScore.score,
-            maxScore = pageScore.maxScore;
+    presenter.getRange = function (pageScore) {
+        var score = pageScore.score,
+            maxScore = pageScore.maxScore,
+            percentageScore = (score / maxScore) * 100,
+            maxScores = presenter.configuration.ranges.maxScores;
 
-        presenter.percentageScore = (score/maxScore) * 100;
-
-        if(isNaN(presenter.percentageScore)){
-            presenter.percentageScore = 0;
+        if (isNaN(percentageScore)) {
+            percentageScore = 0;
         }
 
-        for (var i=0; i<range_max_score.length; i++){
-            if(presenter.percentageScore == 0){
-                presenter.cleanView();
-                presenter.setViewImage(0);
+        for (var i = 0; i < maxScores.length; i++) {
+            if (percentageScore == 0) {
+                return 0;
             }
-            if(presenter.percentageScore <= range_max_score[i+1] && presenter.percentageScore > range_max_score[i]){
-                presenter.cleanView();
-                presenter.setViewImage(i+1);
+            if (percentageScore == 100 && maxScores[i] == 100) {
+                return i;
+            }
+            if (percentageScore >= maxScores[i] && percentageScore < maxScores[i + 1]) {
+                return i;
             }
         }
     };
 
+    presenter.changeRange = function () {
+        var pageScore = presenter.scoreService.getPageScoreById(presenter.pageID),
+            range = presenter.getRange(pageScore);
+
+        presenter.cleanView();
+        presenter.setViewImage(range);
+    };
+
     presenter.appendImages = function (length) {
-        var $wrapper = presenter.$view.find('.animated-page-progress-wrapper');
+        var $wrapper = presenter.$view.find('.animated-page-progress-wrapper'),
+            images = presenter.configuration.ranges.images;
 
         for (var i = 0; i < length; i++) {
             var $rate = $(document.createElement('div'));
 
             $rate.addClass('animated-page-progress-rate rate-' + (i + 1)).css('display', 'none');
 
-            if (range_img[i] != "") {
-                $rate.css('background-image', 'url(' + range_img[i] + ')');
+            if (images[i] != "") {
+                $rate.css('background-images', 'url(' + images[i] + ')');
             }
 
             $wrapper.append($rate);
@@ -147,14 +154,13 @@ function AddonAnimated_Page_Progress_create() {
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.configuration = presenter.sanitizeModel(model);
-        presenter.pageID = $(view).parent('.ic_page').attr('id');
 
         if(presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
-        presenter.appendImages(range_img.length);
+        presenter.appendImages(presenter.configuration.ranges.images.length);
 
         if (!isPreview) {
             presenter.eventListener();
@@ -165,7 +171,7 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.onEventReceived = function (eventName) {
         if (eventName == "ValueChanged") {
-            presenter.countPercentageScore();
+            presenter.changeRange();
         }
     };
 
@@ -181,25 +187,68 @@ function AddonAnimated_Page_Progress_create() {
         presenter.presenterLogic(view, model, true);
     };
 
+    presenter.isCommonsPage = function() {
+        return presenter.pageID != presenter.$view.parent().attr("id");
+    };
+
+    presenter.getCurrentPageIndex = function() {
+        return playerController.getCurrentPageIndex();
+    };
 
     presenter.getState = function () {
         if (presenter.configuration.isError) {
             return "";
         }
 
-    	return JSON.stringify({
-            displayedImage: presenter.displayedImage,
-            isVisible: presenter.configuration.isVisible
-        });
+        var currentPageIndex = presenter.getCurrentPageIndex();
+
+        if(presenter.isCommonsPage()) {
+            if (typeof presenter.states == "undefined") {
+                presenter.states = {};
+                presenter.pageState = {};
+            }
+
+            presenter.pageState = {
+                displayedImage: presenter.displayedImage,
+                isVisible: presenter.configuration.isVisible
+            };
+
+            presenter.states[currentPageIndex] = presenter.pageState;
+
+            return JSON.stringify(presenter.states);
+        } else {
+            return JSON.stringify({
+                pageIndex: currentPageIndex,
+                displayedImage: presenter.displayedImage,
+                isVisible: presenter.configuration.isVisible
+            });
+        }
     };
 
     presenter.setState = function (state) {
-       if (!state) return;
+        if (!state) return;
 
-    	var parsedState = JSON.parse(state);
+        var currentPageIndex = presenter.getCurrentPageIndex(),
+            displayedImage,
+            parsedState;
+
+        presenter.states = JSON.parse(state);
+
+        if(presenter.isCommonsPage()) {
+            parsedState = presenter.states[currentPageIndex];
+        } else {
+            parsedState = presenter.states;
+        }
+
+        if (typeof parsedState == "undefined") {
+            parsedState = '';
+            displayedImage = presenter.configuration.initialImage ? "initial" : 0;
+        } else {
+            displayedImage = parsedState.displayedImage;
+        }
 
         presenter.cleanView();
-        presenter.setViewImage(parsedState.displayedImage);
+        presenter.setViewImage(displayedImage);
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };

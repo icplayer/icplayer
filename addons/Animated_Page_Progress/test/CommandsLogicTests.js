@@ -1,4 +1,4 @@
-TestCase("Commands logic - hide/show", {
+TestCase("[Animated Page Progress] Commands logic - hide/show", {
     setUp : function() {
         this.presenter = AddonAnimated_Page_Progress_create();
         sinon.stub(this.presenter, 'setVisibility');
