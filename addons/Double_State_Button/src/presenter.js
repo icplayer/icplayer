@@ -228,19 +228,25 @@ function AddonDouble_State_Button_create(){
 
     presenter.updateLaTeX = function () {
         var textElement = presenter.$view.find('.doublestate-button-text')[0];
-        MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(textElement)});
+        presenter.mathJaxProcessEnded.then(function () {
+                MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(textElement)});
+        });
     };
 
     presenter.select = function () {
-        presenter.configuration.isSelected = true;
-        presenter.setElementSelection();
-        presenter.updateLaTeX();
+        if(!presenter.configuration.isSelected){
+            presenter.configuration.isSelected = true;
+            presenter.setElementSelection();
+            presenter.updateLaTeX();
+        }
     };
 
     presenter.deselect = function () {
-        presenter.configuration.isSelected = false;
-        presenter.setElementSelection();
-        presenter.updateLaTeX();
+        if(presenter.configuration.isSelected){
+            presenter.configuration.isSelected = false;
+            presenter.setElementSelection();
+            presenter.updateLaTeX();
+        }
     };
 
     presenter.isSelected = function () {
@@ -263,29 +269,39 @@ function AddonDouble_State_Button_create(){
         Commands.dispatch(commands, name, [], presenter);
     };
 
-    function isIE9 () {
-        var myNav = navigator.userAgent.toLowerCase();
-        var version = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
-        return (version == 9);
-    }
+    presenter.isIE9 = function (userAgent) {
+        userAgent = userAgent.toLowerCase();
+
+        if (userAgent.indexOf('msie') != -1) {
+            return parseInt(userAgent.split('msie')[1], 10) == 9;
+        }
+
+        return false;
+    };
 
     presenter.setVisibility = function(isVisible) {
-        if(isIE9()){
-            if(isVisible){
-                presenter.$view.css('display', 'block');
-                presenter.$view.css("visibility","visible");
-            }else{
-                presenter.$view.css('display', 'none');
-                presenter.$view.css("visibility", "hidden");
-            }
-        }else{
-            presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        if(presenter.isIE9(navigator.userAgent)) {
+            presenter.$view.css('display', isVisible ? 'block' : "none");
         }
+
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
         var eventBus = playerController.getEventBus();
+
+        var mathJaxDeferred = new jQuery.Deferred();
+        presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
+        presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
+
+        MathJax.Hub.Register.MessageHook("End Process", function (message) {
+            if ($(message[1]).hasClass('ic_page')) {
+                if(presenter.mathJaxProcessEndedDeferred.state() != 'resolved'){
+                    presenter.mathJaxProcessEndedDeferred.resolve();
+                }
+            }
+        });
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
@@ -300,38 +316,48 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.show = function() {
-        this.setVisibility(true);
-        presenter.configuration.isVisible = true;
-        presenter.setElementSelection();
-        presenter.updateLaTeX();
+        if (!presenter.configuration.isVisible) {
+            presenter.setVisibility(true);
+            presenter.configuration.isVisible = true;
+            presenter.setElementSelection();
+            presenter.updateLaTeX();
+        }
     };
 
     presenter.hide = function() {
-        this.setVisibility(false);
-        presenter.configuration.isVisible = false;
-        presenter.setElementSelection();
-        presenter.updateLaTeX();
+        if (presenter.configuration.isVisible) {
+            presenter.setVisibility(false);
+            presenter.configuration.isVisible = false;
+            presenter.setElementSelection();
+            presenter.updateLaTeX();
+        }
     };
 
     presenter.enable = function() {
-        this.toggleDisable(false);
-        presenter.setElementSelection();
-        presenter.updateLaTeX();
+        if (presenter.configuration.isDisabled) {
+            presenter.toggleDisable(false);
+            presenter.setElementSelection();
+            presenter.updateLaTeX();
+        }
     };
 
     presenter.disable = function() {
-        this.toggleDisable(true);
-        presenter.setElementSelection();
-        presenter.updateLaTeX();
+        if (!presenter.configuration.isDisabled) {
+            presenter.toggleDisable(true);
+            presenter.setElementSelection();
+            presenter.updateLaTeX();
+        }
     };
 
     presenter.toggleDisable = function(disable) {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+
         if(disable) {
             element.addClass("disable");
         } else {
             element.removeClass("disable");
         }
+
         presenter.configuration.isDisabled = disable;
     };
 
