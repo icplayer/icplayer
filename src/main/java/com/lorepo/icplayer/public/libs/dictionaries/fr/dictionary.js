@@ -1013,6 +1013,7 @@ var ice_dictionary = {
     "IWB_Toolbar_property_fixed_position": "Position fixe",
     "IWB_Toolbar_property_for_pen": "Afficher pour le stylo",
     "IWB_Toolbar_property_for_marker": "Afficher pour le marqueur",
+	"IWB_Toolbar_property_keep_state_and_position": "Keep state and position",
     "SVG2_info": "Le module SVG permet d'insérer une image SVG dans une présentation.",
     "SVG2_name": "SVG",
     "SVG2_property_svg_file": "Fichier SVG",
