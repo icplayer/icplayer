@@ -572,9 +572,7 @@ function Addonvideo_create() {
             $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
                 //var captions = $(presenter.videoContainer[0]).find("div.captions");
-                $.each(presenter.captionDivs, function() {
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, this])();
-                });
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.captionDivs])();
             });
         }
     };
