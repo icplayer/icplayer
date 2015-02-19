@@ -1,3 +1,4 @@
+2015-02-19 Fixed problem with Show Answers in Image Gap module
 2015-02-19 Fixed problem with Show Answers in Text module
 2015-02-19 Fixed rendering LaTeX in Video module
 2015-02-18 Fixed issue with working module on header in Animated Progress module
