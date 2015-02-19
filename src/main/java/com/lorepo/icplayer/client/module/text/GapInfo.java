@@ -30,7 +30,7 @@ public class GapInfo {
 		answer = StringUtils.unescapeXML(answer);
 		answer = answer.replaceAll("&nbsp;", " ");
 		
-		answers.add(isCaseSensitive ? answer : answer.toLowerCase());
+		answers.add(answer);
 		if(isIgnorePunctuation) { answer = removePunctuation(answer); }
 		checkAnswers.add(isCaseSensitive ? answer : answer.toLowerCase());
 	}
