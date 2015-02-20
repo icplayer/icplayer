@@ -35,10 +35,7 @@ public class InlineChoiceInfo {
 	 * @param text
 	 */
 	public void addDistractor(String text){
-		
-		
 		for(int index = 0; index < distractors.size(); index ++){
-			
 			String distractor = distractors.get(index);
 			if(distractor.compareTo(text) > 0){
 				distractors.add(index, text);
@@ -49,6 +46,9 @@ public class InlineChoiceInfo {
 		distractors.add(text);
 	}
 	
+	public void addDistractorInOrder(String text){
+		distractors.add(text);
+	}
 	
 	
 	/**

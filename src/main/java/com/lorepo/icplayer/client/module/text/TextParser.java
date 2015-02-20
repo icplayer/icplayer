@@ -373,7 +373,7 @@ public class TextParser {
 					
 					for (int i = 0; i < answers.length; i++) {
 						String dist = answers[i].trim();
-						info.addDistractor(dist);
+						info.addDistractorInOrder(dist);
 						String itemValue = StringUtils.escapeXML(dist);
 						replaceText += "<option value='" + itemValue + "'>" + dist
 								+ "</option>";
