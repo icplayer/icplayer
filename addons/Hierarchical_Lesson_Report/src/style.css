@@ -65,7 +65,7 @@
     text-align: center;
 }
 
-.hier_report-page-non-max-score, hier_report-page-max-score {
+.hier_report-page-non-max-score, .hier_report-page-max-score {
     width: 10%;
     text-align: center;
 }
