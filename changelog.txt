@@ -1,3 +1,4 @@
+2015-02-23 Fixed displaying double image on Android in Viewer 3D module
 2015-02-20 Changed loading gif size in Text Audio module
 2015-02-20 Fixed issue with Show Answers in Dropdown gap in Text module
 2015-02-19 Fixed problem with Show Answers in Image Gap module

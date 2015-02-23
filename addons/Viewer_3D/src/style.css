@@ -5,6 +5,8 @@ div.Viewer_3D_frame {
 }
 
 div.viewer-3d-wrapper {
+    overflow: hidden;
+    overflow-x: visible;
     -ms-touch-action: none;
     touch-action: none;
 }
