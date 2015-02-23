@@ -1,7 +1,27 @@
 function Addongraph_create(){
+
+    /*
+    *KNOWN ISSUES:
+    *       Invalid properties values (Data, Y grid step, Y max, Y min values):
+    *           addon graph uses functions with errors - parseInt & parseFloat. It creates situations where user could
+    *           type in properties fields digits with strings, and graph still shows up as valid. Changing validation to
+    *           be too much accurate can break backward compatibility
+    *
+    *       Answers greater than Y max / lower than Y min:
+    *           Answers validation is invalid. It allows create graphs where answer is greater or lower than YMax/YMin.
+    *           Changing this validation can break backward compatibility, graph addon have to allow such invalid situations.
+    *
+    *       Y grid step greater than Y max:
+    *           Y grid step validation is also invalid. Allows situations where grid is greater then Y max, it should
+    *           just show nothing, no grid & no Y axis values.
+    *
+    *       Model validation flow:
+    *          Logic of parsing & validating properties requires some properties be checked and parsed at first.
+    *          Don't changeflow of model validation.
+    *
+    */
     var presenter = function(){};
 
-    presenter.seriesColors      = [];
     presenter.drawingXPosition  = null;
     presenter.absoluteRange     = null;
     presenter.chartInner        = null;
@@ -33,7 +53,13 @@ function Addongraph_create(){
         ANSWER_NOT_NUMERIC:               "Answer \"%answer%\" is not numeric",
         ANSWERS_AMOUNT_INVALID:           "Amount of answers (%answers%) has to be equal amount of bars (%bars%)",
         AXIS_X_SERIES_DESCRIPTIONS_AMOUNT_INVALID: "Amount of X axis series descriptions (%descriptions%) has to be equal to amount of series (%series%)",
-        AXIS_X_BARS_DESCRIPTIONS_AMOUNT_INVALID:   "Amount of X axis bars descriptions (%descriptions%) has to be equal to amount of bars (%bars%)"
+        AXIS_X_BARS_DESCRIPTIONS_AMOUNT_INVALID:   "Amount of X axis bars descriptions (%descriptions%) has to be equal to amount of bars (%bars%)",
+        YAV_01: "Y axis values have to be float numbers.",
+        YAV_02: "Cyclic value can't be zero number in Y axis values property.",
+        YAV_03: "Y axis values can't be greater than Y maximum value.",
+        YAV_04: "Y axis values can't be lower than Y minimum value.",
+        YAV_05: "Cyclic value can't be negative number in Y axis values property.",
+        YAV_06: "Y axis values can't have duplicated numbers"
     };
 
     presenter.showErrorMessage = function(message, substitutions) {
@@ -693,6 +719,21 @@ function Addongraph_create(){
         mouseMoveCallback(touch);
     }
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeAxisYValues(model);
+    };
+
+    presenter.upgradeAxisYValues = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model["Y axis values"] == undefined) {
+            upgradedModel["Y axis values"] = "";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.run = function(view, model) {
         presenter.initialize(view, model, false);
     };
@@ -701,24 +742,10 @@ function Addongraph_create(){
         presenter.initialize(view, model, true);
     };
 
-    presenter.validateModel = function (model) {
-        var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        var decimalSeparator = model["Decimal separator"],
-            isDecimalSeparatorSet = !ModelValidationUtils.isStringEmpty(decimalSeparator);
-
-        // Data
-        var data = $.csv2Array(model['Data']);
-
-        if (isDecimalSeparatorSet) {
-            for (var i= 0; i < data.length; i++) {
-                for (var j= 0; j < data[i].length; j++) {
-                    data[i][j] = data[i][j].replace(decimalSeparator, '.');
-                }
-            }
-        }
-
+    presenter.validateAxisYMaximumValue = function (model, isDecimalSeparatorSet, decimalSeparator) {
         // Y-axis maximum value
         var modelYAxisMaximumValue = model['Y axis maximum value'];
+
         if (isDecimalSeparatorSet) {
             modelYAxisMaximumValue = modelYAxisMaximumValue.replace(decimalSeparator, '.');
         }
@@ -727,10 +754,14 @@ function Addongraph_create(){
             return { isValid: false, errorCode: 'AXIS_Y_MAXIMUM_VALUE_NOT_NUMERIC' };
         }
 
-        // Y-axis minimum value
+        return {isValid: true, value: axisYMaximumValue.parsedValue};
+    };
+
+    presenter.validateAxisYMinimumValue = function (model, isDecimalSeparatorSet, decimalSeparator) {
+        //Y-axis minimum value
         var modelYAxisMinimumValue = model['Y axis minimum value'];
         minimumValueGraph = model['Y axis minimum value'];
-        
+
         if (isDecimalSeparatorSet) {
             modelYAxisMinimumValue = modelYAxisMinimumValue.replace(decimalSeparator, '.');
         }
@@ -739,14 +770,21 @@ function Addongraph_create(){
             return { isValid: false, errorCode: 'AXIS_Y_MINIMUM_VALUE_NOT_NUMERIC' };
         }
 
-        if((axisYMaximumValue.parsedValue > 0 && axisYMinimumValue.parsedValue > 0) ||
-            (axisYMaximumValue.parsedValue < 0 && axisYMinimumValue.parsedValue < 0)) {
+        return {isValid: true, value: axisYMinimumValue.parsedValue};
+    };
+
+    presenter.validateAxisYRange = function (axisYMaximumValue, axisYMinimumValue) {
+        if((axisYMaximumValue > 0 && axisYMinimumValue > 0) ||
+            (axisYMaximumValue < 0 && axisYMinimumValue < 0)) {
 
             return { isValid: false, errorCode: 'AXIS_Y_DOES_NOT_INCLUDE_ZERO' };
         }
 
-        // Y-axis grid step
-        var modelYAxisGridStep = model['Y axis grid step'];
+        return {isValid: true};
+    };
+
+    presenter.validateAxisYGridStep = function (model, isDecimalSeparatorSet, decimalSeparator) {
+         var modelYAxisGridStep = model['Y axis grid step'];
         if (isDecimalSeparatorSet) {
             modelYAxisGridStep = modelYAxisGridStep.replace(decimalSeparator, '.');
         }
@@ -756,9 +794,13 @@ function Addongraph_create(){
             return { isValid: false, errorCode: 'AXIS_Y_GRID_STEP_NOT_NUMERIC' };
         }
 
-        // Interactive (step) mode
-        var isInteractive = ModelValidationUtils.validateBoolean(model['Interactive']),
-            interactiveStep;
+        return { isValid: true, value: axisYGridStep.parsedValue};
+
+    };
+
+    presenter.validateInteractiveStep = function (model, isDecimalSeparatorSet, decimalSeparator) {
+        var isInteractive = ModelValidationUtils.validateBoolean(model['Interactive']);
+        var interactiveStep;
 
         if(isInteractive) {
             var modelInteractiveStep = model['Interactive step'];
@@ -778,36 +820,508 @@ function Addongraph_create(){
             interactiveStep = interactiveStep.parsedValue;
         }
 
-        var isNotActivity = false;
-        if (model['isNotActivity'] != undefined){
-            isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
+        return {isValid: true, interactiveStep: interactiveStep, isInteractive: isInteractive};
+    };
+
+
+    presenter.validateModel = function (model) {
+        var decimalSeparator = model["Decimal separator"];
+        var isDecimalSeparatorSet = !ModelValidationUtils.isStringEmpty(decimalSeparator);
+
+        var validatedAxisYMaximumValue = presenter.validateAxisYMaximumValue(model, isDecimalSeparatorSet, decimalSeparator);
+        if(!validatedAxisYMaximumValue.isValid) {
+            return validatedAxisYMaximumValue;
         }
-        else {
+
+        var validatedAxisYMinimumValue = presenter.validateAxisYMinimumValue(model, isDecimalSeparatorSet, decimalSeparator);
+        if (!validatedAxisYMinimumValue.isValid) {
+            return validatedAxisYMinimumValue;
+        }
+
+        var validatedAxisYRange = presenter.validateAxisYRange(validatedAxisYMaximumValue.value, validatedAxisYMinimumValue.value);
+        if (!validatedAxisYRange.isValid) {
+            return validatedAxisYRange;
+        }
+
+        // Y-axis grid step
+        var validatedAxisYGridStep = presenter.validateAxisYGridStep(model, isDecimalSeparatorSet, decimalSeparator);
+        if (!validatedAxisYGridStep.isValid) {
+            return validatedAxisYGridStep;
+        }
+
+        // Interactive (step) mode
+        var validatedInteractiveStep = presenter.validateInteractiveStep(model, isDecimalSeparatorSet,
+            decimalSeparator);
+
+        if (!validatedInteractiveStep.isValid) {
+            return validatedInteractiveStep;
+        }
+        var isInteractive = validatedInteractiveStep.isInteractive;
+
+        var isNotActivity;
+        try {
+            isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
+        } catch (_) {
             isNotActivity = false;
+        }
+        var parsedColors = presenter.parseColors(model);
+
+        var graphConfiguration = {
+            "isDecimalSeparatorSet": isDecimalSeparatorSet,
+            "decimalSeparator": decimalSeparator,
+            "Series colors": parsedColors,
+            "axisYMaximumValue": validatedAxisYMaximumValue.value,
+            "axisYMinimumValue": validatedAxisYMinimumValue.value
+        };
+        // Data
+        var validatedData = presenter.validateData(model, graphConfiguration);
+
+        if(!validatedData.isValid) {
+            return validatedData
+        }
+
+        var validatedAxisXBarsDescriptions = presenter.validateAxisXBarsDescriptions(model, validatedData.value.barsCount);
+
+        if(!validatedAxisXBarsDescriptions.isValid) {
+            return validatedAxisXBarsDescriptions
+        }
+
+        var validatedAxisXSeriesDescriptions = presenter.validateAxisXSeriesDescriptions(model, validatedData.value.validRows);
+        if (!validatedAxisXSeriesDescriptions.isValid) {
+            return validatedAxisXSeriesDescriptions;
+        }
+
+        if (isInteractive) {
+            var validatedAnswers = presenter.validateAnswers(model['Answers'], validatedData.value.barsCount);
+            if (!validatedAnswers.isValid) {
+                return validatedAnswers;
+            }
+            var results = presenter.parseResults(validatedData.value.parsedData, validatedAnswers.answers);
+
+        } else {
+            var validatedAnswers = {answers: []};
+            var results = [];
+        }
+
+        var validatedAxisYValues = presenter.validateAxisYValues(model, validatedAxisYMaximumValue.value,
+            validatedAxisYMinimumValue.value, isDecimalSeparatorSet);
+
+        if (!validatedAxisYValues.isValid) {
+            return validatedAxisYValues;
         }
 
         return {
             isValid: true,
             ID: model.ID,
-            isVisible: isVisible,
-            isVisibleByDefault: isVisible,
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             isNotActivity: isNotActivity,
             shouldCalcScore: false,
             decimalSeparator: decimalSeparator,
             isDecimalSeparatorSet: isDecimalSeparatorSet,
-            axisYMaximumValue: axisYMaximumValue.parsedValue,
-            axisYMinimumValue: axisYMinimumValue.parsedValue,
-            axisYGridStep: axisYGridStep.parsedValue,
-            data: data,
-            results: [],
+            axisYMaximumValue: validatedAxisYMaximumValue.value,
+            axisYMinimumValue: validatedAxisYMinimumValue.value,
+            axisYGridStep: validatedAxisYGridStep.value,
+            data: validatedData.value.parsedData,
             isInteractive: isInteractive,
-            interactiveStep: interactiveStep,
+            interactiveStep: validatedInteractiveStep.interactiveStep,
             mouseData: {
                 isMouseDown : false,
                 oldPosition : { y : 0 },
                 isMouseDragged : false
+            },
+            showXAxisBarsDescriptions: validatedAxisXBarsDescriptions.value.showXAxisBarsDescriptions,
+            axisXBarsDescriptions: validatedAxisXBarsDescriptions.value.axisXBarsDescriptions,
+            showXAxisSeriesDescriptions: validatedAxisXSeriesDescriptions.value.showXAxisSeriesDescriptions,
+            axisXSeriesDescriptions: validatedAxisXSeriesDescriptions.value.axisXSeriesDescriptions,
+            seriesColors: parsedColors,
+            barsCount: validatedData.value.barsCount,
+            columnsCount: validatedData.value.columnsCount,
+            validRows: validatedData.value.validRows,
+            results: results,
+            answers: validatedAnswers.answers,
+            axisYValues: {fixedValues: validatedAxisYValues.fixedValues, cyclicValues: validatedAxisYValues.cyclicValues}
+        };
+    };
+
+    presenter.parseResults = function (data, answers) {
+        var results = [];
+
+        var k = 0;
+        var i, j;
+
+        for (i=0; i < data.length; i++) {
+            var a = [];
+            for (j = 0; j < data[i].length; j++) {
+                a.push(parseInt(answers[k++]) ===  parseInt(data[i][j]));
+            }
+
+            results.push(a);
+        }
+
+        return results;
+    };
+
+    presenter.parseAxisXBarsDescriptions = function (model, showXAxisBarsDescriptions) {
+        var i;
+        var xAxisBarsDescriptions = [];
+
+        if (showXAxisBarsDescriptions && typeof(model['X axis bars descriptions']) != 'undefined') {
+            for (i = 0; i < model['X axis bars descriptions'].length; i++) {
+                xAxisBarsDescriptions.push(model['X axis bars descriptions'][i]['Description']);
+            }
+        }
+
+        return xAxisBarsDescriptions;
+    };
+
+    presenter.parseAxisXSeriesDescriptions = function (model,showXAxisSeriesDescriptions) {
+        var xAxisSeriesDescriptions = [];
+        var i;
+        if (showXAxisSeriesDescriptions && typeof(model['X axis series descriptions']) != 'undefined') {
+            for (i = 0; i < model['X axis series descriptions'].length; i++) {
+                xAxisSeriesDescriptions.push(model['X axis series descriptions'][i]['Description']);
+            }
+        }
+
+        return xAxisSeriesDescriptions;
+    };
+
+    presenter.validateData = function(model, graphConfiguration) {
+
+        var parsedData = presenter.parseData(model, graphConfiguration.isDecimalSeparatorSet, graphConfiguration.decimalSeparator);
+
+        // Read data
+        var currentValue;
+        var maximumValue = null;
+        var minimumValue = null;
+        var row, column;
+        var validRows = 0;
+        var columnsCount = null;
+        var barsCount = 0;
+
+        // Validate data and find maximum value
+        for (row = 0; row < parsedData.length; row++) {
+            // Ensure that rows have valid syntax
+            if (parsedData[row] === null) {
+                return {isValid: false, errorCode: "DATA_ROW_MALFORMED", errorMessageSubstitutions: { row: row + 1 }};
+            }
+
+            // Skip empty rows
+            if (parsedData[row].length === 0) {
+                continue;
+            }
+            validRows++;
+            // Ensure that rows have valid amount of columns
+            if (parsedData[row].length < 1) {
+                return {isValid: false, errorCode: "DATA_ROW_NOT_ENOUGH_COLUMNS", errorMessageSubstitutions: { row: row + 1 }};
+            }
+
+            if (columnsCount === null) {
+                columnsCount = parsedData[row].length;
+            } else if (columnsCount != parsedData[row].length) {
+                return {isValid: false, errorCode: "DATA_ROW_DIFFERENT_COLUMNS_COUNT", errorMessageSubstitutions:  { row: row + 1 }};
+            }
+
+            // Save min/max value and ensure that data is numeric
+            for (column = 0; column < parsedData[row].length; column++) {
+                currentValue = parseFloat(parsedData[row][column]);
+
+                if (isNaN(currentValue)) {
+                    return {isValid: false, errorCode: "DATA_ROW_VALUE_NOT_NUMERIC", errorMessageSubstitutions: { row: row + 1, column: column, value: parsedData[row][column] }};
+                }
+
+                if (maximumValue === null || currentValue > maximumValue) {
+                    maximumValue = currentValue;
+                }
+
+                if (minimumValue === null || currentValue < minimumValue) {
+                    minimumValue = currentValue;
+                }
+
+                parsedData[row][column] = currentValue;
+            }
+            // Count amount of bars
+            barsCount += parsedData[row].length;
+        }
+
+        if (graphConfiguration.axisYMaximumValue < maximumValue) {
+            return {isValid: false, errorCode: 'AXIS_Y_MAXIMUM_VALUE_TOO_SMALL', errorMessageSubstitutions: { value: maximumValue, range: graphConfiguration.axisYMaximumValue }};
+        }
+
+        if (graphConfiguration.axisYMinimumValue > minimumValue) {
+            return {isValid: false, errorCode: "AXIS_Y_MINIMUM_VALUE_TOO_BIG", errorMessageSubstitutions:  { value: minimumValue, range: graphConfiguration.axisYMinimumValue}};
+        }
+
+        if (graphConfiguration["Series colors"].length != columnsCount) {
+            return {isValid: false, errorCode: "SERIES_COLORS_AMOUNT_INVALID"}
+        }
+
+        return {
+            isValid: true,
+            value: {
+                maximumValue: maximumValue,
+                minimumValue: minimumValue,
+                validRows: validRows,
+                barsCount: barsCount,
+                columnsCount: columnsCount,
+                parsedData: parsedData
             }
         };
+    };
+
+    presenter.parseColors = function(model) {
+        var colors = [];
+
+        var i;
+        for (i = 0; i < model['Series colors'].length; i++) {
+            colors.push(model['Series colors'][i]['Color']);
+        }
+
+        return colors;
+    };
+
+    presenter.parseData = function(model, isDecimalSeparatorSet, decimalSeparator) {
+        var data = $.csv2Array(model['Data']);
+
+        try {
+            if (isDecimalSeparatorSet) {
+                for (var i= 0; i < data.length; i++) {
+                    for (var j= 0; j < data[i].length; j++) {
+                        data[i][j] = data[i][j].replace(decimalSeparator, '.');
+                    }
+                }
+            }
+        } catch ( _ ) {
+            //when user inputs invalid csv syntax in data property, data is null
+            //it creates error which shows popup in lesson & editor
+            //this error is validated in validateData
+            return data
+        }
+
+        return data;
+    };
+
+    presenter.validateAxisXBarsDescriptions = function(model, barsCount) {
+        var showXAxisBarsDescriptions = typeof(model['Show X axis bars descriptions']) != 'undefined' &&
+            model['Show X axis bars descriptions'] === 'True';
+
+        var parsedXAxisBarsDescriptions = presenter.parseAxisXBarsDescriptions(model, showXAxisBarsDescriptions);
+
+        if (showXAxisBarsDescriptions && parsedXAxisBarsDescriptions.length != barsCount) {
+            return {isValid: false, errorCode: "AXIS_X_BARS_DESCRIPTIONS_AMOUNT_INVALID",
+                errorMessageSubstitutions:{ bars: barsCount, descriptions: parsedXAxisBarsDescriptions.length }};
+        }
+
+        return {
+            isValid: true,
+            value: {
+                showXAxisBarsDescriptions: showXAxisBarsDescriptions,
+                axisXBarsDescriptions: parsedXAxisBarsDescriptions
+            }
+        };
+    };
+
+    presenter.validateAxisXSeriesDescriptions = function(model, validRows) {
+        var showXAxisSeriesDescriptions = typeof(model['Show X axis series descriptions']) != 'undefined' &&
+            model['Show X axis series descriptions'] === 'True';
+        var parsedXAxisSeriesDescriptions = presenter.parseAxisXSeriesDescriptions(model, showXAxisSeriesDescriptions);
+
+        if (showXAxisSeriesDescriptions && parsedXAxisSeriesDescriptions.length != validRows) {
+            return {isValid: false, errorCode: "AXIS_X_SERIES_DESCRIPTIONS_AMOUNT_INVALID",
+                errorMessageSubstitutions: { series: validRows, descriptions: parsedXAxisSeriesDescriptions.length }};
+        }
+
+        return {
+            isValid: true,
+            value: {
+                showXAxisSeriesDescriptions: showXAxisSeriesDescriptions,
+                axisXSeriesDescriptions: parsedXAxisSeriesDescriptions
+            }
+        }
+    };
+
+    presenter.isFloat = function (value) {
+        value = value.trim();
+        if (ModelValidationUtils.isStringEmpty(value)) {
+            return false;
+        }
+
+        if (value.charAt(0) == "+") {
+            return false;
+        }
+
+        var too_many_zeroes = /^0{2,}/;
+        if (too_many_zeroes.test(value)) {
+            return false;
+        }
+
+        if ( value == "-0") {
+            return false;
+        }
+
+        if (value.charAt(0) == "-") {
+            value = value.slice(1, value.length);
+        }
+
+        var i, commas_number = 0;
+        var digits = /[0-9]/;
+
+        for(i = 0; i < value.length; i++) {
+            if (value.charAt(i) == ".") {
+                if (commas_number == 1) {
+                    return false;
+                }
+                commas_number ++;
+            } else {
+                if (digits.test(value.charAt(i))) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+    presenter.checkIfValueInAxisRange = function (value, yMax, yMin) {
+        if (value > yMax) {
+            return {isValid: false, errorCode: "YAV_03"};
+        }
+
+        if (value < yMin) {
+            return {isValid: false, errorCode: "YAV_04"};
+        }
+
+        return {isValid: true, value: value};
+    };
+
+    presenter.checkCyclicValue = function (value, yMax, yMin) {
+        if (!presenter.isFloat(value)) {
+            return {isValid: false, errorCode: "YAV_01"};
+        }
+
+        value = parseFloat(value);
+
+        if (value == 0) {
+            return {isValid: false, errorCode: "YAV_02"};
+        }
+
+        if (value < 0) {
+            return {isValid: false, errorCode: "YAV_05"};
+        }
+
+
+        var validatedValue = presenter.checkIfValueInAxisRange(value, yMax, yMin);
+
+        return validatedValue;
+    };
+
+    presenter.checkFixedValue = function (value, yMax, yMin) {
+        if (!presenter.isFloat(value)) {
+            return {isValid: false, errorCode: "YAV_01"};
+        } else {
+            var validatedValue = presenter.checkIfValueInAxisRange(parseFloat(value), yMax, yMin);
+        }
+
+        return validatedValue;
+    };
+
+    presenter.createAxisYValues = function (fixedValues, cyclicValues, yMax, yMin) {
+        var values = [];
+        var i;
+
+        if (fixedValues == undefined && cyclicValues == undefined) {
+            cyclicValues = [presenter.configuration.axisYGridStep];
+        }
+
+        if (fixedValues != undefined) {
+            for(i = 0; i < fixedValues.length; i++) {
+                values.push(fixedValues[i]);
+            }
+        }
+
+        if (cyclicValues != undefined) {
+
+            for(i = 0; i < cyclicValues.length; i++) {
+                var step = cyclicValues[i];
+                var value;
+                for(value = step; value <= yMax; value += step) {
+                    values.push(value);
+                }
+
+                for(value = -step; value >= yMin; value -= step) {
+                    values.push(value);
+                }
+            }
+        }
+
+        return values;
+    };
+
+    presenter.validateAxisYValues = function(model, yMax, yMin, isDecimalSeparatorSet) {
+        var values = model["Y axis values"];
+        var i;
+
+        var parsedAxisYValues = {isValid: true, fixedValues: undefined, cyclicValues: undefined};
+
+        if (ModelValidationUtils.isStringEmpty(values.trim())) {
+            return parsedAxisYValues;
+        }
+
+        values = values.split(";");
+
+        if(isDecimalSeparatorSet) {
+            for(i = 0; i < values.length; i++) {
+                values[i] = values[i].replace(model["Decimal separator"], '.');
+            }
+        }
+
+        for(i = 0; i < values.length; i++) {
+            var value = values[i].trim();
+            var endChar = value.length - 1;
+            var validatedValue;
+
+            if(value.charAt(endChar) == "*") {
+                validatedValue = presenter.checkCyclicValue(value.slice(0, endChar), yMax, yMin);
+
+                if (!validatedValue.isValid) {
+                    return validatedValue;
+                }
+
+                if (parsedAxisYValues.cyclicValues == undefined) {
+                    parsedAxisYValues.cyclicValues = [];
+                }
+
+                if (parsedAxisYValues.cyclicValues.indexOf(validatedValue.value) == -1) {
+                    parsedAxisYValues.cyclicValues.push(validatedValue.value);
+                    continue;
+                }
+
+                return {isValid: false, errorCode: "YAV_06"};
+
+            } else {
+                validatedValue = presenter.checkFixedValue(value, yMax, yMin);
+
+                if (!validatedValue.isValid) {
+                    return validatedValue;
+                }
+
+                if (parsedAxisYValues.fixedValues == undefined) {
+                    parsedAxisYValues.fixedValues = [];
+                }
+
+                if (parsedAxisYValues.fixedValues.indexOf(validatedValue.value) == -1) {
+                    parsedAxisYValues.fixedValues.push(validatedValue.value);
+                    continue;
+                }
+
+                return {isValid: false, errorCode: "YAV_06"};
+            }
+        }
+
+        return parsedAxisYValues;
     };
 
     presenter.validateAnswers = function (answers, barsCount) {
@@ -838,37 +1352,57 @@ function Addongraph_create(){
         };
     };
 
-    presenter.drawGridDescriptions = function (innerContainer) {
+    presenter.drawGrid = function (grid) {
+        var axisYGridStep = presenter.configuration.axisYGridStep;
+        var drawingGridStep = presenter.chartInner.height() * axisYGridStep / presenter.absoluteRange;
+        var i;
+
+
+        for (i = axisYGridStep; i <= presenter.configuration.axisYMaximumValue; i += axisYGridStep) {
+            var currentGridBlock = $('<div class="graph_grid_block graph_grid_block_above"></div>');
+            grid.append(currentGridBlock);
+            currentGridBlock.css({
+                height: (drawingGridStep - parseInt(currentGridBlock.css('borderTopWidth'))) + 'px',
+                bottom: presenter.drawingXPosition - drawingGridStep + (drawingGridStep * i / axisYGridStep)
+            });
+        }
+
+
+        for (i = -1 * axisYGridStep; i >= presenter.configuration.axisYMinimumValue; i -= axisYGridStep) {
+            currentGridBlock = $('<div class="graph_grid_block graph_grid_block_below"></div>');
+            grid.append(currentGridBlock);
+            currentGridBlock.css({
+                height: (drawingGridStep - parseInt(currentGridBlock.css('borderBottomWidth'))) + 'px',
+                bottom: presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep)
+            });
+        }
+
+        return grid;
+    };
+
+    presenter.createGridDescriptions = function (innerContainer) {
         var gridDescription, gridDescriptionText;
         var maximumGridDescriptionWidth = null;
         var currentGridDescriptionWidth;
+        var i;
 
-        var axisYGridStep = presenter.configuration.axisYGridStep;
+        var fixedValues = presenter.configuration.axisYValues.fixedValues;
+        var cyclicValues = presenter.configuration.axisYValues.cyclicValues;
+        var yMax = presenter.configuration.axisYMaximumValue;
+        var yMin = presenter.configuration.axisYMinimumValue;
+        var values = presenter.createAxisYValues(fixedValues, cyclicValues, yMax, yMin);
 
-        for (i = axisYGridStep; i <= presenter.configuration.axisYMaximumValue; i += axisYGridStep) {
+
+        for (i = 0; i < values.length; i++) {
             gridDescription = $('<div class="graph_grid_description"></div>');
-            gridDescription.addClass('graph_grid_description_' + ("" + i).toString().replace('.', '_'));
-            gridDescriptionText = "" + i;
+            gridDescription.addClass('graph_grid_description_' + ("" + values[i]).toString().replace('.', '_'));
+            gridDescriptionText = "" + values[i];
             if (presenter.configuration.isDecimalSeparatorSet) {
                 gridDescriptionText = gridDescriptionText.replace('.', presenter.configuration.decimalSeparator);
             }
             gridDescription.text(gridDescriptionText);
             innerContainer.append(gridDescription);
-            currentGridDescriptionWidth = gridDescription.width();
-            if (maximumGridDescriptionWidth === null || currentGridDescriptionWidth > maximumGridDescriptionWidth) {
-                maximumGridDescriptionWidth = currentGridDescriptionWidth;
-            }
-        }
 
-        for (i = -1 * axisYGridStep; i >= presenter.configuration.axisYMinimumValue; i -= axisYGridStep) {
-            gridDescription = $('<div class="graph_grid_description"></div>');
-            gridDescription.addClass('graph_grid_description_' + ("" + i).toString().replace('.', '_'));
-            gridDescriptionText = "" + i;
-            if (presenter.configuration.isDecimalSeparatorSet) {
-                gridDescriptionText = gridDescriptionText.replace('.', presenter.configuration.decimalSeparator);
-            }
-            gridDescription.text(gridDescriptionText);
-            innerContainer.append(gridDescription);
             currentGridDescriptionWidth = gridDescription.width();
             if (maximumGridDescriptionWidth === null || currentGridDescriptionWidth > maximumGridDescriptionWidth) {
                 maximumGridDescriptionWidth = currentGridDescriptionWidth;
@@ -877,153 +1411,58 @@ function Addongraph_create(){
 
         presenter.$view.find('.graph_grid_description').css('width', maximumGridDescriptionWidth + 'px');
 
-        return { maximumGridDescriptionWidth: maximumGridDescriptionWidth };
+        return { maximumGridDescriptionWidth: maximumGridDescriptionWidth , axisYValues: values};
+    };
+
+    presenter.positionAxisYValues = function (values, xAxisDescriptionMargin) {
+        var i, containerHeight = presenter.chartInner.height();
+
+        for (i = 0; i < values.length; i++) {
+            //rescale every value to 0 - positive, and calculate what percentage of height they are
+            var descriptionElementHeight = (values[i] - presenter.configuration.axisYMinimumValue) ;
+            descriptionElementHeight = (descriptionElementHeight / presenter.absoluteRange) * containerHeight;
+
+            presenter.$view.find('.graph_grid_description_' + String(values[i]).toString().replace('.', '_')).each(function (index, element) {
+                $(element).css({
+                    bottom: (descriptionElementHeight - ($(element).height() / 2) + xAxisDescriptionMargin) + 'px'
+                });
+            });
+        }
+    };
+
+    presenter.deleteCommands = function () {
+        delete presenter.getMaxScore;
+        delete presenter.getScore;
+        delete presenter.setState;
+        delete presenter.getState;
+        delete presenter.getValue;
     };
 
     presenter.initialize = function(view, model, isPreview) {
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        var validatedModel = presenter.validateModel(upgradedModel);
 
-        if (!presenter.configuration.isValid) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES[presenter.configuration.errorCode]);
+        presenter.configuration = validatedModel;
+
+        if (!validatedModel.isValid) {
+            presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.errorCode], validatedModel.errorMessageSubstitutions);
+            presenter.deleteCommands();
             return;
         }
+
+        // Read data
+        var i, j;
+        var validRows = presenter.configuration.validRows;
+        var columnsCount = presenter.configuration.columnsCount;
 
         presenter.setVisibility(presenter.configuration.isVisible);
 
+        var showXAxisBarsDescriptions = presenter.configuration.showXAxisBarsDescriptions;
+        var showXAxisSeriesDescriptions = presenter.configuration.showXAxisSeriesDescriptions;
 
-
-        // Read data
-        var currentValue;
-        var maximumValue = null;
-        var minimumValue = null;
-        var i;
-        var j;
-        var validRows = 0;
-        var columnsCount = null;
-        var barsCount = 0;
-
-        // Validate data and find maximum value
-        for (i = 0; i < presenter.configuration.data.length; i++) {
-            // Ensure that rows have valid syntax
-            if (presenter.configuration.data[i] === null) {
-                presenter.showErrorMessage(presenter.ERROR_MESSAGES.DATA_ROW_MALFORMED, { row: i + 1 });
-                return;
-            }
-
-            // Skip empty rows
-            if (presenter.configuration.data[i].length === 0) {
-                continue;
-            }
-            validRows++;
-
-            // Ensure that rows have valid amount of columns
-            if (presenter.configuration.data[i].length < 1) {
-                presenter.showErrorMessage(presenter.ERROR_MESSAGES.DATA_ROW_NOT_ENOUGH_COLUMNS, { row: i + 1 });
-                return;
-            }
-
-            if (columnsCount === null) {
-                columnsCount = presenter.configuration.data[i].length;
-            } else if (columnsCount != presenter.configuration.data[i].length) {
-                presenter.showErrorMessage(presenter.ERROR_MESSAGES.DATA_ROW_DIFFERENT_COLUMNS_COUNT, { row: i + 1 });
-                return;
-            }
-
-            // Save min/max value and ensure that data is numeric
-            for (j = 0; j < presenter.configuration.data[i].length; j++) {
-                currentValue = parseFloat(presenter.configuration.data[i][j]);
-
-                if (isNaN(currentValue)) {
-                    presenter.showErrorMessage(presenter.ERROR_MESSAGES.DATA_ROW_VALUE_NOT_NUMERIC, { row: i + 1, column: j, value: presenter.configuration.data[i][j] });
-                    return;
-                }
-
-                if (maximumValue === null || currentValue > maximumValue) {
-                    maximumValue = currentValue;
-                }
-
-                if (minimumValue === null || currentValue < minimumValue) {
-                    minimumValue = currentValue;
-                }
-            }
-
-            // Count amount of bars
-            barsCount += presenter.configuration.data[i].length;
-        }
-
-        if (presenter.configuration.axisYMaximumValue < maximumValue) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.AXIS_Y_MAXIMUM_VALUE_TOO_SMALL, { value: maximumValue, range: presenter.configuration.axisYMaximumValue });
-            return;
-        }
-
-        if (presenter.configuration.axisYMinimumValue > minimumValue) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.AXIS_Y_MINIMUM_VALUE_TOO_BIG, { value: minimumValue, range: presenter.configuration.axisYMinimumValue });
-            return;
-        }
-
-
-        if (model['Series colors'].length != columnsCount) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.SERIES_COLORS_AMOUNT_INVALID);
-            return;
-        }
-
-
-        var showXAxisBarsDescriptions = typeof(model['Show X axis bars descriptions']) != 'undefined' && model['Show X axis bars descriptions'] === 'True';
-        var showXAxisSeriesDescriptions = typeof(model['Show X axis series descriptions']) != 'undefined' && model['Show X axis series descriptions'] === 'True';
-
-        var xAxisBarsDescriptions = [];
-        if (showXAxisBarsDescriptions && typeof(model['X axis bars descriptions']) != 'undefined') {
-            for (i = 0; i < model['X axis bars descriptions'].length; i++) {
-                xAxisBarsDescriptions.push(model['X axis bars descriptions'][i]['Description']);
-            }
-        }
-
-        var xAxisSeriesDescriptions = [];
-        if (showXAxisSeriesDescriptions && typeof(model['X axis series descriptions']) != 'undefined') {
-            for (i = 0; i < model['X axis series descriptions'].length; i++) {
-                xAxisSeriesDescriptions.push(model['X axis series descriptions'][i]['Description']);
-            }
-        }
-
-
-        if (showXAxisBarsDescriptions && xAxisBarsDescriptions.length != barsCount) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.AXIS_X_BARS_DESCRIPTIONS_AMOUNT_INVALID, { bars: barsCount, descriptions: xAxisBarsDescriptions.length });
-            return;
-        }
-
-        if (showXAxisSeriesDescriptions && xAxisSeriesDescriptions.length != validRows) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.AXIS_X_SERIES_DESCRIPTIONS_AMOUNT_INVALID, { series: validRows, descriptions: xAxisSeriesDescriptions.length });
-            return;
-        }
-
-
-        for (i = 0; i < model['Series colors'].length; i++) {
-            presenter.seriesColors.push(model['Series colors'][i]['Color']);
-        }
-
-        presenter.configuration.answers = [];
-
-        if (presenter.configuration.isInteractive) {
-            var validatedAnswers = presenter.validateAnswers(model['Answers'], barsCount);
-            if (!validatedAnswers.isValid) {
-                presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedAnswers.errorCode], validatedAnswers.errorMessageSubstitutions);
-                return;
-            }
-
-            presenter.configuration.answers = validatedAnswers.answers;
-            presenter.configuration.results = [];
-
-            var k = 0;
-            for (i=0; i<presenter.configuration.data.length; i++) {
-                var a = [];
-                for (j=0; j<presenter.configuration.data[i].length; j++) {
-                    a.push(parseInt(presenter.configuration.answers[k++]) ===  parseInt(presenter.configuration.data[i][j]));
-                }
-                presenter.configuration.results.push(a);
-            }
-
-        }
+        var xAxisBarsDescriptions = presenter.configuration.axisXBarsDescriptions;
+        var xAxisSeriesDescriptions = presenter.configuration.axisXSeriesDescriptions;
 
         if (isPreview) presenter.configuration.isInteractive = false;
 
@@ -1054,8 +1493,10 @@ function Addongraph_create(){
         });
         innerContainer.append(chartOuter);
 
-        // Draw grid descriptions and adjust them to the right
-        var maximumGridDescriptionWidth = presenter.drawGridDescriptions(innerContainer).maximumGridDescriptionWidth;
+        // Create axis Y Values
+        var gridDescriptionsObject = presenter.createGridDescriptions(innerContainer);
+        var maximumGridDescriptionWidth = gridDescriptionsObject.maximumGridDescriptionWidth;
+        var axisYValues = gridDescriptionsObject.axisYValues;
 
         // Draw inner chart container and set its position using
         // Y axis descriptions' width plus 4px margin
@@ -1079,47 +1520,15 @@ function Addongraph_create(){
         // Calculate position of axis X, grid & interactive step
         presenter.absoluteRange = presenter.configuration.axisYMaximumValue - presenter.configuration.axisYMinimumValue;
         var absoluteXPosition = presenter.absoluteRange - presenter.configuration.axisYMaximumValue;
-        var axisYGridStep = presenter.configuration.axisYGridStep;
 
         presenter.drawingXPosition = presenter.chartInner.height() * absoluteXPosition / presenter.absoluteRange;
-        var drawingGridStep = presenter.chartInner.height() * axisYGridStep / presenter.absoluteRange;
-
 
         // Move Y axis descriptions to the right place and draw grid
         var grid = $('<div class="graph_grid"></div>');
         presenter.chartInner.append(grid);
 
-        var currentGridBlock;
-        for (i = axisYGridStep; i <= presenter.configuration.axisYMaximumValue; i += axisYGridStep) {
-            currentGridBlock = $('<div class="graph_grid_block graph_grid_block_above"></div>');
-            grid.append(currentGridBlock);
-            currentGridBlock.css({
-                height: (drawingGridStep - parseInt(currentGridBlock.css('borderTopWidth'))) + 'px',
-                bottom: presenter.drawingXPosition - drawingGridStep + (drawingGridStep * i / axisYGridStep)
-            });
-
-            presenter.$view.find('.graph_grid_description_' + String(i).toString().replace('.', '_')).each(function (index, element) {
-                $(element).css({
-                    bottom: (presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep) - $(element).height() / 2 + xAxisDescriptionMargin) + 'px'
-                });
-            });
-        }
-
-
-        for (i = -1 * axisYGridStep; i >= presenter.configuration.axisYMinimumValue; i -= axisYGridStep) {
-            currentGridBlock = $('<div class="graph_grid_block graph_grid_block_below"></div>');
-            grid.append(currentGridBlock);
-            currentGridBlock.css({
-                height: (drawingGridStep - parseInt(currentGridBlock.css('borderBottomWidth'))) + 'px',
-                bottom: presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep)
-            });
-
-            presenter.$view.find('.graph_grid_description_' + String(i).toString().replace('.', '_')).each(function (index, element) {
-                $(element).css({
-                    bottom: (presenter.drawingXPosition + (drawingGridStep * i / axisYGridStep) - $(element).height() / 2 + xAxisDescriptionMargin) + 'px'
-                });
-            });
-        }
+        grid = presenter.drawGrid(grid);
+        presenter.positionAxisYValues(axisYValues, xAxisDescriptionMargin);
 
         // Draw axis X
         presenter.axisXLine = $('<div class="graph_axis_x_line graph_axis_line"></div>');
@@ -1149,7 +1558,6 @@ function Addongraph_create(){
         }
 
         var columnWidth = (100.0 / columnsCount) + '%';
-
 
         var series = $('<div class="graph_series"></div>');
         presenter.axisXLine.before(series);
@@ -1205,7 +1613,7 @@ function Addongraph_create(){
                     valueElement.click(presenter.decreaseGraphValue);
                 }
 
-                valueElement.css('backgroundColor', presenter.seriesColors[j]);
+                valueElement.css('backgroundColor', presenter.configuration.seriesColors[j]);
 
                 valueContainer.attr('current-value', presenter.configuration.data[i][j]);
                 valueContainer.attr('value-id', i + ' ' + j);

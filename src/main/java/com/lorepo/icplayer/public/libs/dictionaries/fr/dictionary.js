@@ -423,6 +423,7 @@ var ice_dictionary = {
     "graph_property_y_axis_maximum_value": "Valeur maximum de l'axe Y",
     "graph_property_y_axis_minimum_value": "Valeur minimum de l'axe Y",
     "graph_property_y_axis_grid_step": "Palier de la grille de l'axe Y",
+    "graph_property_y_axis_values": "Y axis values",
     "graph_property_interactive": "Interactif",
     "graph_property_interactive_step": "Palier interactif",
     "graph_property_data": "Données",

@@ -1,4 +1,4 @@
-TestCase("Maximum interactive point", {
+TestCase("[Graph] Maximum interactive point", {
     setUp: function () {
         this.presenter = Addongraph_create();
         this.presenter.configuration = {
@@ -25,7 +25,7 @@ TestCase("Maximum interactive point", {
     }
 });
 
-TestCase("Minimum interactive point", {
+TestCase("[Graph] Minimum interactive point", {
     setUp: function () {
         this.presenter = Addongraph_create();
         this.presenter.configuration = {

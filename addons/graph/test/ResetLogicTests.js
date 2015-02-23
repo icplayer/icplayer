@@ -1,4 +1,4 @@
-TestCase("Reset logic", {
+TestCase("[Graph] Reset logic", {
     setUp: function () {
         this.presenter = Addongraph_create();
         this.presenter.configuration = {};

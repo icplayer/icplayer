@@ -1,4 +1,4 @@
-TestCase("Initial data retrieval tests", {
+TestCase("[Graph] Initial data retrieval tests", {
     setUp: function () {
         this.presenter = Addongraph_create();
         this.presenter.configuration = {

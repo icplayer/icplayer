@@ -16,6 +16,7 @@
 		<property name="Y axis maximum value" nameLabel="graph_property_y_axis_maximum_value" type="string" />
 		<property name="Y axis minimum value" nameLabel="graph_property_y_axis_minimum_value" type="string" />
 		<property name="Y axis grid step" nameLabel="graph_property_y_axis_grid_step" type="string" />
+        <property name="Y axis values" nameLabel="graph_property_y_axis_values" type="string" />
 		<property name="Interactive" nameLabel="graph_property_interactive" type="boolean" />
 		<property name="Interactive step" nameLabel="graph_property_interactive_step" type="string" />
 		<property name="Data" nameLabel="graph_property_data" type="text" />

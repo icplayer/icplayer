@@ -1,4 +1,4 @@
-TestCase("Answers validation", {
+TestCase("[Graph] Answers validation", {
     setUp: function () {
         this.presenter = Addongraph_create();
         this.presenter.configuration = {

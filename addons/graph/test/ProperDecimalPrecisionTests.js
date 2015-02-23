@@ -1,4 +1,4 @@
-TestCase("Numbers sum with precision", {
+TestCase("[Graph] Numbers sum with precision", {
     setUp: function () {
         this.presenter = Addongraph_create();
     },

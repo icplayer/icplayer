@@ -1,4 +1,4 @@
-TestCase("Event sending", {
+TestCase("[Graph] Event sending", {
     setUp: function () {
         this.presenter = Addongraph_create();
         this.presenter.configuration = {

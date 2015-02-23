@@ -1,4 +1,4 @@
-TestCase("Which point", {
+TestCase("[Graph] Which point", {
     setUp: function () {
         this.presenter = Addongraph_create();
     },

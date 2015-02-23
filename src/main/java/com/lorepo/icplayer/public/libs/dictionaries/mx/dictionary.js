@@ -420,6 +420,7 @@ var ice_dictionary = {
 	"graph_property_y_axis_maximum_value": "Valor máximo en el eje Y",
 	"graph_property_y_axis_minimum_value": "Valor mínimo en el eje Y",
 	"graph_property_y_axis_grid_step": "Lapso de la rejilla eje Y",
+    "graph_property_y_axis_values": "Y axis values",
 	"graph_property_interactive": "Interactivo",
 	"graph_property_interactive_step": "Lapso interactivo",
 	"graph_property_data": "Datos",
