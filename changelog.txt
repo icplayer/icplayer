@@ -1,3 +1,4 @@
+2015-02-23 Added French special characters to eKeyboard module
 2015-02-23 Fixed CSS styles in Hierarchical Lesson Report module
 2015-02-23 Added new property "Y axis values" in Graph module
 2015-02-23 Fixed displaying double image on Android in Viewer 3D module
