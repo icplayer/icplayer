@@ -420,7 +420,7 @@ var ice_dictionary = {
 	"graph_property_y_axis_maximum_value": "Maks. wartość osi Y",
 	"graph_property_y_axis_minimum_value": "Min. wartość osi Y",
 	"graph_property_y_axis_grid_step": "Skok siatki osi Y",
-    "graph_property_y_axis_values": "Y axis values",
+        "graph_property_y_axis_values": "Wartości osi Y",
 	"graph_property_interactive": "Interaktywny",
 	"graph_property_interactive_step": "Skok interaktywny",
 	"graph_property_data": "Dane",
