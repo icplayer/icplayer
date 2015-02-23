@@ -21,10 +21,6 @@ public class TextParser {
 		public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
 	}
 
-	/**
-	 * Base id Na podstawie tego będą tworzone ID inputu i select poprzez
-	 * dodanie "-1"
-	 */
 	private String baseId = "";
 	private int idCounter = 1;
 	private boolean useDraggableGaps = false;
@@ -76,7 +72,6 @@ public class TextParser {
 			srcText = srcText.replaceAll("\\s+", " ");
 			if (!skipGaps) {
 				parserResult.parsedText = parseGaps(srcText);
-				parserResult.parsedText = parseFilledGaps(parserResult.parsedText);
 				if (!useMathGaps) {
 					parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
 				}
@@ -190,10 +185,12 @@ public class TextParser {
 			idCounter++;
 			replaceText = "<input id='" + id + "' type='edit' size='"
 					+ answer.length() + "' class='ic_gap'/>";
+
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
 					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
+
 				gi.addAnswer(answers[i]);
 			}
 			parserResult.gapInfos.add(gi);
@@ -259,7 +256,6 @@ public class TextParser {
 	}
 
 	private String matchDraggableGap(String expression) {
-
 		String replaceText = null;
 
 		int index = expression.indexOf(":");
@@ -453,72 +449,57 @@ public class TextParser {
 		return parsedText;
 	}
 
-	private String parseFilledGaps(String srcText) {
-
-		String input = srcText;
-		String output = "";
-		int index = -1;
-		String replaceText;
-		
-		while ((index = input.indexOf("\\filledGap{")) >= 0) {
-
-			output += input.substring(0, index);
-			input = input.substring(index + 11);
-			index = findClosingBracket(input);
-			if (index < 0) {
-				return output + "\\filledGap{" + input;
-			}
-
-			String expression = input.substring(0, index);
-			input = input.substring(index + 1);
-
-			replaceText = matchFilledGap(expression);
-
-			if (replaceText == null) {
-				replaceText = "#ERR#";
-			}
-
-			output += replaceText;
-		}
-
-		output += input;
-
-		return output;
-	}
-
 	private String parseGaps(String srcText) {
-
+		final String pattern = "\\\\gap\\{|\\\\filledGap\\{";
 		String input = srcText;
 		String output = "";
-		int index = -1;
 		String replaceText;
+		int index = -1;
+		RegExp regExp = RegExp.compile(pattern);
+		MatchResult matchResult;
 		
-		while ((index = input.indexOf("\\gap{")) >= 0) {
-
-			output += input.substring(0, index);
-			input = input.substring(index + 5);
+		while ((matchResult = regExp.exec(input)) != null) {
+			if (matchResult.getGroupCount() <= 0) {
+				break;
+			}
+			
+			String group = matchResult.getGroup(0);
+			output += input.substring(0, matchResult.getIndex());
+			input = input.substring(matchResult.getIndex() + group.length());
 			index = findClosingBracket(input);
-			if (index < 0) {
-				return output + "\\gap{" + input;
-			}
 
-			String expression = "1:" + input.substring(0, index);
-			input = input.substring(index + 1);
+			if (group.compareTo("\\filledGap{") == 0) {
+				if (index < 0) {
+					return output + "\\filledGap{" + input;
+				}
 
-			if (useDraggableGaps) {
-				replaceText = matchDraggableGap(expression);
-			} else if (useMathGaps && isBetweenBrackets(srcText)) {
-				replaceText = matchMathGap(expression);
+				String expression = input.substring(0, index);
+				input = input.substring(index + 1);
+				replaceText = matchFilledGap(expression);
 			} else {
-				replaceText = matchGap(expression);
-			}
+				if (index < 0) {
+					return output + "\\gap{" + input;
+				}
 
+				String expression = "1:" + input.substring(0, index);
+				input = input.substring(index + 1);
+
+				if (useDraggableGaps) {
+					replaceText = matchDraggableGap(expression);
+				} else if (useMathGaps && isBetweenBrackets(srcText)) {
+					replaceText = matchMathGap(expression);
+				} else {
+					replaceText = matchGap(expression);
+				}
+			}
+			
 			if (replaceText == null) {
 				replaceText = "#ERR#";
 			}
 
 			output += replaceText;
 		}
+
 
 		output += input;
 
