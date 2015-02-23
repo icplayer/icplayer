@@ -55,6 +55,7 @@ function AddonShape_Tracing_create() {
         presenter.data.numberOfDescentsFromShape = 0;
         presenter.data.pencilThickness = presenter.configuration.penThickness;
         presenter.data.incorrect = false;
+        presenter.configuration.opacity = presenter.opacityByDefault;
         initPointsArray();
         isOutsideShape = false;
 
@@ -503,6 +504,7 @@ function AddonShape_Tracing_create() {
         grad.addColorStop(0, presenter.configuration.color);
         grad.addColorStop(1, presenter.configuration.color);
         ctx.lineWidth = presenter.data.pencilThickness;
+        ctx.globalAlpha = presenter.configuration.opacity;
 
         ctx.beginPath();
         ctx.moveTo(presenter.cursorPosition.pre_x, presenter.cursorPosition.pre_y);
@@ -793,6 +795,7 @@ function AddonShape_Tracing_create() {
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
         presenter.data.pencilThickness = presenter.configuration.penThickness;
+        presenter.opacityByDefault = presenter.configuration.opacity;
 
         presenter.initActivePointsPositions();
 
@@ -852,6 +855,10 @@ function AddonShape_Tracing_create() {
         presenter.configuration.color = parseColor(color).value;
     };
 
+    presenter.setOpacity = function(opacity) {
+        presenter.configuration.opacity = parseOpacity(opacity).value;
+    };
+
     presenter.setEraserOn = function() {
         presenter.data.isPencilActive = false;
     };
@@ -883,7 +890,8 @@ function AddonShape_Tracing_create() {
             "setThickness": presenter.setThickness,
             "showAnswers": presenter.showAnswers,
             "hideAnswers": presenter.hideAnswers,
-            "setColor": presenter.setColor
+            "setColor": presenter.setColor,
+            "setOpacity": presenter.setOpacity
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -980,7 +988,8 @@ function AddonShape_Tracing_create() {
             numberOfDescentsFromShape: presenter.data.numberOfDescentsFromShape,
             isAllPointsChecked: presenter.data.isAllPointsChecked,
             pointsArray: presenter.pointsArray,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isVisible,
+            opacity: presenter.configuration.opacity
         });
     };
 
@@ -992,8 +1001,17 @@ function AddonShape_Tracing_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForOpacity = function (parsedState) {
+        if (parsedState.opacity == undefined) {
+            parsedState.opacity = 0.9;
+        }
+
+        return parsedState;
+    };
+
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForVisibility(parsedState);
+        upgradedState = presenter.upgradeStateForOpacity(upgradedState);
 
         return  upgradedState;
     };
@@ -1014,6 +1032,7 @@ function AddonShape_Tracing_create() {
         presenter.data.isAllPointsChecked = JSON.parse(state).isAllPointsChecked;
         presenter.pointsArray = JSON.parse(state).pointsArray;
         presenter.configuration.isVisible = parsedState.isVisible;
+        presenter.configuration.opacity = parsedState.opacity;
 
         var savedImg = new Image();
         savedImg.onload = function() {

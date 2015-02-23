@@ -94,7 +94,7 @@ function AddonDrawing_create() {
         presenter.mouse.x = x;
         presenter.mouse.y = y;
         presenter.onPaint(e);
-    }
+    };
 
     presenter.onPaint = function(e) {
         var tmp_canvas, tmp_ctx;
@@ -112,6 +112,7 @@ function AddonDrawing_create() {
         tmp_ctx.lineCap = 'round';
         tmp_ctx.strokeStyle = presenter.configuration.color;
         tmp_ctx.fillStyle = presenter.configuration.color;
+        tmp_ctx.globalAlpha = presenter.configuration.opacity;
 
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
 
@@ -296,6 +297,7 @@ function AddonDrawing_create() {
 
         presenter.configuration.isPencil = true;
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
+        presenter.opacityByDefault = presenter.configuration.opacity;
 
         presenter.$view.find('.drawing').append("<canvas class='canvas'>element canvas is not supported by your browser</canvas>");
 
@@ -305,7 +307,6 @@ function AddonDrawing_create() {
         presenter.configuration.context = presenter.configuration.canvas[0].getContext("2d");
 
         $(presenter.$view.find('.drawing')[0]).css('opacity', presenter.configuration.opacity);
-
         resizeCanvas();
 
         presenter.configuration.tmp_canvas = document.createElement('canvas');
@@ -343,6 +344,12 @@ function AddonDrawing_create() {
         if (presenter.configuration.isPencil) {
             presenter.configuration.thickness = presenter.configuration.pencilThickness;
         }
+    };
+
+    presenter.setOpacity = function(opacity) {
+        if (typeof opacity === "object") opacity = opacity[0];
+
+        presenter.configuration.opacity = presenter.parseOpacity(opacity).opacity;
     };
 
     presenter.setEraserOn = function() {
@@ -500,7 +507,8 @@ function AddonDrawing_create() {
             'setColor': presenter.setColor,
             'setThickness': presenter.setThickness,
             'setEraserOn': presenter.setEraserOn,
-            'setEraserThickness': presenter.setEraserThickness
+            'setEraserThickness': presenter.setEraserThickness,
+            'setOpacity': presenter.setOpacity
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -527,6 +535,7 @@ function AddonDrawing_create() {
         presenter.setColor(presenter.model.Color);
         presenter.setThickness(presenter.model.Thickness);
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.configuration.opacity = presenter.opacityByDefault;
     };
 
     presenter.getState = function() {
@@ -547,14 +556,33 @@ function AddonDrawing_create() {
             pencilThickness: pencilThickness,
             eraserThickness: eraserThickness,
             data: data,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isVisible,
+            opacity: presenter.configuration.opacity
         });
+    };
+
+    presenter.upgradeStateForOpacity = function (parsedState) {
+        if (parsedState.opacity == undefined) {
+            parsedState.opacity = 0.9;
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeState = function (parsedState) {
+        var upgradedState = presenter.upgradeStateForOpacity(parsedState);
+
+        return  upgradedState;
     };
 
     presenter.setState = function(state) {
         if (ModelValidationUtils.isStringEmpty(state)) {
             return;
         }
+
+        var parsedState = JSON.parse(state);
+
+        parsedState = presenter.upgradeState(parsedState);
 
         var data = JSON.parse(state).data,
             isPencil = JSON.parse(state).isPencil,
@@ -571,6 +599,7 @@ function AddonDrawing_create() {
         presenter.configuration.isVisible = JSON.parse(state).isVisible;
         presenter.configuration.isPencil = isPencil;
         presenter.isStarted = true;
+        presenter.configuration.opacity = parsedState.opacity;
 
         if (isPencil) {
             presenter.setColor(color);
