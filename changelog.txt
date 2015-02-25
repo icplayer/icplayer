@@ -1,3 +1,4 @@
+2015-02-25 Added Show Answers to Sudoku module
 2015-02-23 Fixed issue with disableGap command in Text module
 2015-02-23 Added new command setOpacity to Shape Tracing and Drawing modules
 2015-02-23 Added French special characters to eKeyboard module

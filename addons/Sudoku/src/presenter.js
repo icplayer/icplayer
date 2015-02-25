@@ -1,4 +1,5 @@
 function AddonSudoku_create(){
+
     var presenter = function(){};
 
     presenter.isActivity = false;
@@ -10,6 +11,8 @@ function AddonSudoku_create(){
     presenter.isErrorCheckingMode = false;
     presenter.cells = [];
     presenter.currentAnswer = [];
+        presenter.eventBus = '';
+        presenter.isShowAnswerMode = false;
 
     function displayText() {
         var textToDisplay = presenter.model['Text to be displayed'],
@@ -24,8 +27,8 @@ function AddonSudoku_create(){
 
 
 
-    presenter.executeCommand = function(name, params) {
-        switch(name.toLowerCase()) {
+presenter.executeCommand = function(name, params) {
+       switch(name.toLowerCase()) {
             case 'enable'.toLowerCase():
                 presenter.enable();
                 break;
@@ -257,6 +260,10 @@ function AddonSudoku_create(){
 
         presenter.Values = model.Values;
         var score = '';
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+
         if(presenter.validate(view,model)){
             presenter.init(view, model);
 
@@ -336,11 +343,12 @@ function AddonSudoku_create(){
     };
 
     presenter.isAttempted = function(){
-        if(presenter.isActivity){
-            return presenter.initialViewNumbers == presenter.currentViewNumbers ? false: true;
-        } else{
-            return true;
-        }
+    presenter.hideAnswers();
+    if(presenter.isActivity){
+        return presenter.initialViewNumbers == presenter.currentViewNumbers ? false: true;
+    } else{
+        return true;
+    }
 
     };
 
@@ -584,6 +592,7 @@ function AddonSudoku_create(){
     };
 
     presenter.disable = function(){
+        presenter.hideAnswers();
         presenter.isDisable = true;
         presenter.$view.find('input.active').attr( "readonly", "readonly" );
         presenter.$view.find('input.cell').addClass('disable');
@@ -591,6 +600,7 @@ function AddonSudoku_create(){
     };
 
     presenter.enable = function(){
+        presenter.hideAnswers();
         presenter.isDisable = false;
         presenter.$view.find('input.active').removeAttr("readonly");
         presenter.$view.find('input.cell').removeClass('disable');
@@ -601,11 +611,13 @@ function AddonSudoku_create(){
     };
 
     presenter.show = function() {
+        presenter.hideAnswers();
         presenter.setVisibility(true);
         presenter.isVisible = true;
     };
 
     presenter.hide = function() {
+        presenter.hideAnswers();
         presenter.setVisibility(false);
         presenter.isVisible = false;
     };
@@ -696,8 +708,10 @@ function AddonSudoku_create(){
     };
 
     presenter.reset = function () {
+        presenter.hideAnswers();
         presenter.setWorkMode();
         presenter.isErrorCheckingMode = false;
+        presenter.isShowAnswerMode = false;
         presenter.clearSudoku();
 
         presenter.drawInitial(presenter.Values);
@@ -726,7 +740,9 @@ function AddonSudoku_create(){
     };
 
 
-    presenter.getScore = function () {
+presenter.getScore = function () {
+
+    	presenter.hideAnswers();
 
         if(presenter.isActivity === true) {
             var correct = 0;
@@ -748,6 +764,8 @@ function AddonSudoku_create(){
     };
 
     presenter.getErrorCount = function () {
+
+    	presenter.hideAnswers();
 
         if(presenter.isActivity === true) {
             var errors = 0;
@@ -774,7 +792,11 @@ function AddonSudoku_create(){
     };
 
     presenter.setShowErrorsMode = function () {
+
         presenter.isErrorCheckingMode = true;
+
+
+		presenter.hideAnswers();
 
         if(presenter.isActivity === true) {
 
@@ -787,6 +809,7 @@ function AddonSudoku_create(){
     };
 
     presenter.setWorkMode = function () {
+
         presenter.isErrorCheckingMode = false;
         presenter.$view.find("input.active").removeClass("check");
 
@@ -820,6 +843,53 @@ function AddonSudoku_create(){
     presenter.triggerFrameChangeEvent = function(value, id, score) {
         var eventData = presenter.createEventData(value, id, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.showAnswers = function () {
+
+        presenter.setWorkMode();
+
+        if(presenter.isActivity === true) {
+            presenter.isShowAnswerMode = true;
+            presenter.isErrorCheckingMode = true;
+
+            presenter.$view.find("input.active").attr( "readonly", "readonly" );
+            presenter.$view.find("input.active").addClass("showAnswers");
+
+            for(j=1;j<=9;j++){
+                for(i=1;i<=9;i++){
+                        $(presenter.cells[j-1][i-1]).attr("value", presenter.correctAnswer[j-1][i-1]);
+                    }
+                }
+        }
+    };
+
+    presenter.hideAnswers = function () {
+
+        if(presenter.isActivity === true && presenter.isShowAnswerMode == true) {
+            presenter.isErrorCheckingMode = false;
+            presenter.$view.find("input.active").removeClass("showAnswers");
+            presenter.$view.find("input.active").removeAttr("readonly");
+
+            for(j=1;j<=9;j++){
+                for(i=1;i<=9;i++){
+                        $(presenter.cells[j-1][i-1]).attr("value", presenter.currentAnswer[j-1][i-1]);
+                    }
+                }
+        }
+
+
+    };
+
+    presenter.onEventReceived = function (eventName) {
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
     };
 
     return presenter;
