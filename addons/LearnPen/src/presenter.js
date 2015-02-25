@@ -1,6 +1,33 @@
 function AddonLearnPen_create() {
     var presenter = function() {};
 
+    // work-around for double line in android browser
+    function setOverflowWorkAround(turnOn) {
+
+        if (!MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) { return false; }
+
+        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+        if (["4.1.1", "4.1.2", "4.2.2", "4.3"].indexOf(android_ver) !== -1) {
+
+            presenter.$view.parents("*").each(function() {
+                var overflow = null;
+                if (turnOn) {
+                    $(this).attr("data-overflow", $(this).css("overflow"));
+                    $(this).css("overflow", "visible");
+                } else {
+                    overflow = $(this).attr("data-overflow");
+                    if (overflow !== "") {
+                        $(this)[0].removeAttribute("data-overflow");
+                        $(this).css("overflow", overflow);
+                    }
+                }
+            });
+
+        }
+
+        return true;
+    }
+
     // constant values
     var val = {
         maxThickness: 40,
@@ -40,10 +67,11 @@ function AddonLearnPen_create() {
     var eventBus;
 
     function updateZoomMultiplier() {
-        presenter.data.zoom = $('#_icplayer').css('zoom');
-        if (presenter.data.zoom === '' || presenter.data.zoom === undefined) {
-            presenter.data.zoom = 1;
+        var zoom = $('#_icplayer').css('zoom');
+        if (zoom === '' || zoom === undefined || zoom === "normal") {
+            zoom = 1;
         }
+        presenter.data.zoom = parseInt(zoom, 10);
     }
 
     presenter.hexToRGBA = function(hex, opacity) {
@@ -179,8 +207,14 @@ function AddonLearnPen_create() {
 
         presenter.position.pre_x = presenter.position.x;
         presenter.position.pre_y = presenter.position.y;
-        presenter.position.x = parseInt((e.pageX - presenter.data.canvas.offset().left) / presenter.data.zoom, 10);
-        presenter.position.y = parseInt((e.pageY - presenter.data.canvas.offset().top) / presenter.data.zoom, 10);
+
+        if (MobileUtils.isEventSupported('touchstart')) {
+            presenter.position.x = parseInt(event.changedTouches[0].pageX - $(presenter.data.canvas).offset().left, 10);
+            presenter.position.y = parseInt(event.changedTouches[0].pageY - $(presenter.data.canvas).offset().top, 10);
+        } else {
+            presenter.position.x = parseInt((e.pageX - presenter.data.canvas.offset().left) / presenter.data.zoom, 10);
+            presenter.position.y = parseInt((e.pageY - presenter.data.canvas.offset().top) / presenter.data.zoom, 10);
+        }
     }
 
     function resizeCanvas() {
@@ -229,8 +263,8 @@ function AddonLearnPen_create() {
             presenter.turnOnEventListeners();
         }
 
-        // work-around for double line in android browser
-        presenter.data.canvas.parents("*").css("overflow", "visible");
+//        setOverflowWorkAround(true);
+//        presenter.$view.parents("*").css("overflow", "visible");
 
         presenter.setVisibility(presenter.configuration.isVisible);
     }
@@ -242,7 +276,7 @@ function AddonLearnPen_create() {
     function returnCorrectObject(v) {
         return { isValid: true, value: v };
     }
-    // {Separately, Together}
+
     presenter.SQ_LIMITS_INTERPRETATION = {
         'Separately': 'SEPARATELY',
         'Together': 'TOGETHER',
@@ -327,65 +361,66 @@ function AddonLearnPen_create() {
         ctx.lineCap = 'round';
 
         // TOUCH events
-        canvas.on('touchend', function() {
-            canvas.off('touchmove', presenter.onPainting);
-            sendEvent();
-        });
+        if (MobileUtils.isEventSupported('touchstart')) {
+            canvas.on('touchend', function() {
+                canvas.off('touchmove', presenter.onPainting);
+                sendEvent();
+                setOverflowWorkAround(false);
+            });
 
-        canvas.on('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            presenter.data.isStarted = true;
-            presenter.noDraw = false;
+            canvas.on('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                presenter.data.isStarted = true;
+                presenter.noDraw = false;
 
-            updateZoomMultiplier();
-            presenter.drawPoint();
+                updateZoomMultiplier();
+                presenter.drawPoint();
+                canvas.on('touchmove', presenter.onPainting);
+                setOverflowWorkAround(true);
+            });
+        } else { // MOUSE events
+            canvas.on('mouseup', function() {
+                canvas.off('mousemove', presenter.onPainting);
 
-            canvas.on('touchmove', presenter.onPainting);
-        });
-
-        // MOUSE events
-        canvas.on('mouseup', function() {
-            canvas.off('mousemove', presenter.onPainting);
-
-            sendEvent();
-            isDown = false;
-            presenter.mouseleave = false;
-        });
-
-        canvas.on('mouseleave', function() {
-            canvas.off('mousemove', presenter.onPainting);
-
-            if(isDown) {
                 sendEvent();
                 isDown = false;
-                presenter.mouseleave = true;
-            }
-        });
+                presenter.mouseleave = false;
+                setOverflowWorkAround(false);
+            });
 
-        canvas.on('mousedown', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            //updateDrawingData(e);
-            presenter.data.isStarted = true;
-            presenter.noDraw = false;
-            isDown = true;
+            canvas.on('mouseleave', function() {
+                canvas.off('mousemove', presenter.onPainting);
 
-            updateZoomMultiplier();
-            presenter.drawPoint(e);
+                if(isDown) {
+                    sendEvent();
+                    isDown = false;
+                    presenter.mouseleave = true;
+                }
+                setOverflowWorkAround(false);
+            });
 
-            canvas.on('mousemove', presenter.onPainting);
-        });
+            canvas.on('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                //updateDrawingData(e);
+                presenter.data.isStarted = true;
+                presenter.noDraw = false;
+                isDown = true;
+
+                updateZoomMultiplier();
+                presenter.drawPoint(e);
+
+                canvas.on('mousemove', presenter.onPainting);
+                setOverflowWorkAround(true);
+            });
+        }
 
         function createGradient(pre_x, pre_y, x, y) {
             var grad = presenter.data.context.createLinearGradient(pre_x, pre_y, x, y);
-            if (presenter.data.isPencil) {
-                grad.addColorStop(0, presenter.drawingData.pre_color);
-                grad.addColorStop(1, presenter.drawingData.color);
-            } else {
-                grad.addColorStop(0, "rgba(0,0,0,1)");
-                grad.addColorStop(1, "rgba(0,0,0,1)");
-            }
+
+            grad.addColorStop(0, presenter.data.isPencil ? presenter.drawingData.pre_color : "rgba(0,0,0,1)");
+            grad.addColorStop(1, presenter.data.isPencil ? presenter.drawingData.color : "rgba(0,0,0,1)");
 
             return grad;
         }
@@ -407,8 +442,8 @@ function AddonLearnPen_create() {
                 ctx.stroke();
 
                 if (presenter.configuration.isMirror) {
-                    var w = presenter.data.canvas[0].width - presenter.position.x,
-                        pre_w = presenter.data.canvas[0].width - presenter.position.pre_x;
+                    var w = presenter.data.canvas[0].width - presenter.position.x;
+                    var pre_w = presenter.data.canvas[0].width - presenter.position.pre_x;
 
                     ctx.beginPath();
                     ctx.moveTo(pre_w, presenter.position.pre_y);
@@ -482,7 +517,7 @@ function AddonLearnPen_create() {
         });
     }
 
-    presenter.parseColors = function(colors, isSmartPen) {
+    presenter.parseColors = function(colors, isLearnPen) {
         function checkColor(colors) {
             if (colors[0] === '#' && !(colors.length === 7 || colors.length === 4)) {
                 return returnErrorObject("C02");
@@ -503,7 +538,7 @@ function AddonLearnPen_create() {
             return returnErrorObject("C01");
         }
 
-        if (isSmartPen) {
+        if (isLearnPen) {
 
             var parsedFunction = prepareFunctionsValues(colors);
             if (!parsedFunction.isValid) {
@@ -530,11 +565,7 @@ function AddonLearnPen_create() {
 
     presenter.parseThickness = function(thickness, isSmartPen) {
         if (ModelValidationUtils.isStringEmpty(thickness)) {
-            if (isSmartPen) {
-                return returnErrorObject("T01");
-            } else {
-                return returnCorrectObject(val.defaultThickness);
-            }
+            return isSmartPen ? returnErrorObject("T01") : returnCorrectObject(val.defaultThickness);
         }
 
         if (isSmartPen) {
@@ -565,14 +596,7 @@ function AddonLearnPen_create() {
 
     presenter.parseOpacity = function(opacity, isSmartPen) {
         if (ModelValidationUtils.isStringEmpty(opacity)) {
-            if (isSmartPen) {
-                return returnCorrectObject({
-                    sensor: "ALL",
-                    values: [[100, 1]]
-                });
-            } else {
-                return returnCorrectObject(1);
-            }
+            return returnCorrectObject(isSmartPen ? { sensor: "ALL", values: [[100, 1]] } : 1);
         }
 
         if (isSmartPen) {
@@ -860,8 +884,6 @@ function AddonLearnPen_create() {
 
         presenter.data.isStarted = false;
         presenter.data.lineCounter = 0;
-
-        //presenter.$view.find(".drawing").css("overflow", "hidden");
     };
 
 //     presenter.getErrorCount = function() {};
