@@ -60,6 +60,7 @@ function AddonShape_Tracing_create() {
         isOutsideShape = false;
 
         presenter.configuration.color = presenter.data.startColor;
+        presenter.beforeEraserColor = isPencilActive ? presenter.configuration.color : presenter.beforeEraserColor;
 
         if (!presenter.configuration.isShowShapeImage && presenter.configuration.isShowShapeImageOnCheck) {
             presenter.layer.hide();
@@ -523,7 +524,6 @@ function AddonShape_Tracing_create() {
     function turnOnEventListeners() {
         var ctx = presenter.$view.find(".drawing");
         var isDown = false;
-
         ctx.on('click', function(e) {
             e.stopPropagation();
         });
@@ -853,6 +853,7 @@ function AddonShape_Tracing_create() {
     presenter.setColor = function(color) {
         presenter.data.isPencilActive = true;
         presenter.configuration.color = parseColor(color).value;
+        presenter.beforeEraserColor = presenter.configuration.color;
     };
 
     presenter.setOpacity = function(opacity) {
@@ -860,7 +861,16 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.setEraserOn = function() {
+        presenter.beforeEraserColor = presenter.configuration.color;
         presenter.data.isPencilActive = false;
+    };
+
+    presenter.setEraserOff = function () {
+        if(presenter.beforeEraserColor == undefined){
+            presenter.setColor(presenter.configuration.color);
+        }else{
+            presenter.setColor(presenter.beforeEraserColor);
+        }
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -891,7 +901,8 @@ function AddonShape_Tracing_create() {
             "showAnswers": presenter.showAnswers,
             "hideAnswers": presenter.hideAnswers,
             "setColor": presenter.setColor,
-            "setOpacity": presenter.setOpacity
+            "setOpacity": presenter.setOpacity,
+            "setEraserOff": presenter.setEraserOff
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -976,7 +987,6 @@ function AddonShape_Tracing_create() {
 
         return countScore();
     };
-
     presenter.getState = function() {
         return JSON.stringify({
             imgData: presenter.$view.find(".drawing")[0].toDataURL("image/png"),
@@ -989,7 +999,8 @@ function AddonShape_Tracing_create() {
             isAllPointsChecked: presenter.data.isAllPointsChecked,
             pointsArray: presenter.pointsArray,
             isVisible: presenter.configuration.isVisible,
-            opacity: presenter.configuration.opacity
+            opacity: presenter.configuration.opacity,
+            beforeEraserColor: presenter.beforeEraserColor
         });
     };
 
@@ -1009,9 +1020,18 @@ function AddonShape_Tracing_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForBeforeEraserColor = function (parsedState) {
+        if (parsedState.beforeEraserColor == undefined) {
+            parsedState.beforeEraserColor = presenter.data.startColor;
+        }
+
+        return parsedState;
+    };
+
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForVisibility(parsedState);
         upgradedState = presenter.upgradeStateForOpacity(upgradedState);
+        upgradedState = presenter.upgradeStateForBeforeEraserColor(upgradedState);
 
         return  upgradedState;
     };
@@ -1042,6 +1062,7 @@ function AddonShape_Tracing_create() {
             if (!JSON.parse(state).isPencilActive) {
                 presenter.setEraserOn();
             }
+            presenter.beforeEraserColor = parsedState.beforeEraserColor;
         };
         savedImg.src = JSON.parse(state).imgData;
         presenter.setVisibility(presenter.configuration.isVisible);

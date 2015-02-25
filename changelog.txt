@@ -1,3 +1,4 @@
+2015-02-25 Added new command setEraserOff to Shape Tracing and Drawing modules
 2015-02-25 Fixed issue with Step property in Line Number module.
 2015-02-25 Added Show Answers to Sudoku module
 2015-02-23 Fixed issue with disableGap command in Text module

@@ -335,6 +335,7 @@ function AddonDrawing_create() {
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
         presenter.configuration.context.globalCompositeOperation = "source-over";
         presenter.configuration.color = presenter.parseColor(color).color;
+        presenter.beforeEraserColor = presenter.configuration.color;
     };
 
     presenter.setThickness = function(thickness) {
@@ -352,13 +353,21 @@ function AddonDrawing_create() {
         presenter.configuration.opacity = presenter.parseOpacity(opacity).opacity;
     };
 
+    presenter.setEraserOff = function () {
+        if(presenter.beforeEraserColor == undefined){
+            presenter.setColor(presenter.configuration.color);
+        }else{
+            presenter.setColor(presenter.beforeEraserColor);
+        }
+    };
+
     presenter.setEraserOn = function() {
         presenter.configuration.isPencil = false;
 
         presenter.configuration.thickness = presenter.configuration.eraserThickness;
 
         presenter.configuration.context.globalCompositeOperation = "destination-out";
-        presenter.configuration.color = "rgba(0, 0, 0, 1)";
+        presenter.beforeEraserColor = presenter.configuration.color;
     };
 
     presenter.setEraserThickness = function(thickness) {
@@ -508,7 +517,8 @@ function AddonDrawing_create() {
             'setThickness': presenter.setThickness,
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
-            'setOpacity': presenter.setOpacity
+            'setOpacity': presenter.setOpacity,
+            'setEraserOff': presenter.setEraserOff
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -536,6 +546,7 @@ function AddonDrawing_create() {
         presenter.setThickness(presenter.model.Thickness);
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.configuration.opacity = presenter.opacityByDefault;
+        presenter.beforeEraserColor = presenter.configuration.color;
     };
 
     presenter.getState = function() {
@@ -608,6 +619,7 @@ function AddonDrawing_create() {
             presenter.configuration.color = "rgba(0, 0, 0, 1)";
         }
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.beforeEraserColor = color;
     };
 
     return presenter;
