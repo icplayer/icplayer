@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Line number] Model validation", {
     setUp: function () {
         this.presenter = AddonLine_Number_create();
         this.model = {
@@ -147,7 +147,7 @@ TestCase("Model validation", {
     }
 });
 
-TestCase("Model validation - ranges", {
+TestCase("[Line number] Model validation - ranges", {
     setUp: function () {
         this.presenter = AddonLine_Number_create();
     },
@@ -338,6 +338,21 @@ TestCase("Model validation - ranges", {
         var result = this.presenter.isMultiplication(axisXValues);
 
         assertFalse(result);
+    }
+
+});
+
+TestCase("[Line number] Step property validation", {
+
+    setUp: function () {
+        this.presenter = AddonLine_Number_create();
+    },
+
+    'invalid 0 value': function () {
+        var validationResult = this.presenter.validateStep({"Step": 0}, ".", 20);
+
+        assertTrue(validationResult.isError);
+        assertEquals("STEP03", validationResult.errorCode);
     }
 
 });

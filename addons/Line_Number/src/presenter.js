@@ -25,6 +25,7 @@ function AddonLine_Number_create() {
         'RAN02' : 'One or more ranges are invalid. Please make sure, that all ranges start/end can be displayed on X axis.',
         'STEP01' : 'The value in Step property is invalid.',
         'STEP02' : 'The value in Step does not fit the separator.',
+        'STEP03' : 'The value in step property have to be greater than 0',
         'VAL01' : 'One or more X axis values are invalid.',
         'VAL02' : 'One or more X axis do not fit the separator.',
         'OOR01' : 'Can not resolve which range is currently selected.',
@@ -1584,29 +1585,10 @@ function AddonLine_Number_create() {
         var ranges = presenter.validateRanges(model['Ranges'], separator.value);
 
         var validatedIsActivity = !ModelValidationUtils.validateBoolean(model['Not Activity']);
-        var validatedStep = { value : 1, precision : 0 };
 
-        if ( model['Step'] ) {
-            validatedStep = presenter.validateValueWithSeparator( model['Step'], separator.value );
-
-            var precision = validatedStep.precision;
-
-            if (!validatedStep.isValid) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'STEP02'
-                }
-            }
-
-            validatedStep = ModelValidationUtils.validateFloatInRange(validatedStep.value, 50, 0);
-            validatedStep.precision = precision;
-
-            if (!validatedStep.isValid) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'STEP01'
-                }
-            }
+        var validatedStep = presenter.validateStep(model, separator, max);
+        if (validatedStep.isError) {
+            return validatedStep;
         }
 
         var validatedAxisXValues = [];
@@ -1701,6 +1683,42 @@ function AddonLine_Number_create() {
             isDisabledByDefault: isDisabled,
             separator: separator.value
         }
+    };
+
+    presenter.validateStep = function (model, separator, max) {
+        var validatedStep = { value : 1, precision : 0 };
+
+        if ( model['Step'] ) {
+            validatedStep = presenter.validateValueWithSeparator( model['Step'], separator.value );
+
+            var precision = validatedStep.precision;
+
+            if (!validatedStep.isValid) {
+                return {
+                    'isError' : true,
+                    'errorCode' : 'STEP02'
+                }
+            }
+
+            validatedStep = ModelValidationUtils.validateFloatInRange(validatedStep.value, max, 0);
+            validatedStep.precision = precision;
+
+            if(validatedStep.value == 0) {
+                return {
+                    isError: true,
+                    errorCode: 'STEP03'
+                };
+            }
+
+            if (!validatedStep.isValid) {
+                return {
+                    'isError' : true,
+                    'errorCode' : 'STEP01'
+                }
+            }
+        }
+
+        return validatedStep;
     };
 
     presenter.isMultiplication = function (value) {

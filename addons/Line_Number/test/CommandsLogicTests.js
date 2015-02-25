@@ -1,4 +1,4 @@
-TestCase("Commands logic", {
+TestCase("[Line number] Commands logic", {
     setUp: function () {
         this.presenter = AddonLine_Number_create();
         this.presenter.configuration = {

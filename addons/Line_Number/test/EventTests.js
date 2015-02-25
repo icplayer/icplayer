@@ -1,4 +1,4 @@
-TestCase("Events Tests", {
+TestCase("[Line number] Events Tests", {
     setUp: function () {
         this.presenter = AddonLine_Number_create();
         this.presenter.configuration.separator = '.';

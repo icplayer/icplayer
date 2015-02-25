@@ -1,4 +1,4 @@
-TestCase("Decimal Separator Tests", {
+TestCase("[Line number] Decimal Separator Tests", {
     setUp: function () {
         this.presenter = AddonLine_Number_create();
 

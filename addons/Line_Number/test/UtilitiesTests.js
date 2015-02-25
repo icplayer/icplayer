@@ -1,4 +1,4 @@
-TestCase("Utilities Tests", {
+TestCase("[Line number] Utilities Tests", {
 
     setUp: function () {
         this.presenter = AddonLine_Number_create();
