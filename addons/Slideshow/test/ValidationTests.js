@@ -1,4 +1,4 @@
-TestCase("Validation", {
+TestCase("[Slideshow] Validation", {
     setUp: function() {
         this.presenter = AddonSlideshow_create();
         this.model = {
@@ -141,5 +141,59 @@ TestCase("Validation", {
 
         assertFalse(validationResult.isError);
         assertTrue(validationResult.groupNextAndPrevious);
+    }
+});
+
+TestCase("[Slideshow]  Move To params validation", {
+    setUp: function () {
+        this.presenter = AddonSlideshow_create();
+        this.stubs = {
+            getCurrentSlideIndex: sinon.stub(this.presenter, 'getCurrentSlideIndex')
+        }
+    },
+
+    tearDown: function () {
+        this.presenter.getCurrentSlideIndex.restore();
+    },
+
+    'test proper user input': function () {
+        this.stubs.getCurrentSlideIndex.returns(3);
+        this.presenter.configuration = {slides: {count: 6}};
+        var validatedParams = this.presenter.validateMoveToParams(["5"]);
+
+        assertTrue(validatedParams.isValid);
+        assertEquals(4, validatedParams.number);
+    },
+
+    'test invalid user input, non digit': function () {
+        this.stubs.getCurrentSlideIndex.returns(3);
+        this.presenter.configuration = {slides: {count: 6}};
+        var validatedParams = this.presenter.validateMoveToParams(["awsd;fklhjlawq34"]);
+
+        assertFalse(validatedParams.isValid);
+    },
+
+    'test invalid user input, too many arguments': function () {
+        this.stubs.getCurrentSlideIndex.returns(3);
+        this.presenter.configuration = {slides: {count: 6}};
+        var validatedParams = this.presenter.validateMoveToParams(["34", "12"]);
+
+        assertFalse(validatedParams.isValid);
+    },
+
+    'test invalid user input, greater index than amount of slides': function () {
+        this.stubs.getCurrentSlideIndex.returns(3);
+        this.presenter.configuration = {slides: {count: 6}};
+        var validatedParams = this.presenter.validateMoveToParams(["10"]);
+
+        assertFalse(validatedParams.isValid);
+    },
+
+    'test invalid user input, negative number': function () {
+        this.stubs.getCurrentSlideIndex.returns(3);
+        this.presenter.configuration = {slides: {count: 6}};
+        var validatedParams = this.presenter.validateMoveToParams(["-2"]);
+
+        assertFalse(validatedParams.isValid);
     }
 });

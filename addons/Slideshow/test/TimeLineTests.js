@@ -1,4 +1,4 @@
-TimeLineTests = TestCase("Time Line");
+TimeLineTests = TestCase("[Slideshow] Time Line");
 
 TimeLineTests.prototype.testProperTimeLineSlides = function() {
     var presenter = AddonSlideshow_create();

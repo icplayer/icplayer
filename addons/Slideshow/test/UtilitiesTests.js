@@ -1,4 +1,4 @@
-UtilitiesTests = TestCase("Utilities Tests");
+UtilitiesTests = TestCase("[Slideshow] Utilities Tests");
 
 UtilitiesTests.prototype.setUp = function() {
     this.presenter = AddonSlideshow_create();

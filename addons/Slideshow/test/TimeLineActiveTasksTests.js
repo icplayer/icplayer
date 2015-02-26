@@ -1,4 +1,4 @@
-TimeLineActiveTextsTests = TestCase("Time Line Active Texts");
+TimeLineActiveTextsTests = TestCase("[Slideshow] Time Line Active Texts");
 
 TimeLineActiveTextsTests.prototype.testActiveTextsEmpty = function() {
     var presenter = AddonSlideshow_create();

@@ -1,4 +1,4 @@
-AudioValidationTests = TestCase("Audio Configuration");
+AudioValidationTests = TestCase("[Slideshow] Audio Configuration");
 
 AudioValidationTests.prototype.testProperConfig = function() {
     var presenter = AddonSlideshow_create();

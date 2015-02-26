@@ -1,4 +1,4 @@
-PositiveIntegerValidationTests = TestCase("Positive integer validation tests");
+PositiveIntegerValidationTests = TestCase("[Slideshow] Positive integer validation tests");
 
 PositiveIntegerValidationTests.prototype.testUndefinedValues = function()  {
     var presenter = AddonSlideshow_create();

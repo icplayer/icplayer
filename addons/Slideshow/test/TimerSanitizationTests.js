@@ -1,4 +1,4 @@
-TimerSanitizationTests = TestCase("Timer sanitization");
+TimerSanitizationTests = TestCase("[Slideshow] Timer sanitization");
 
 TimerSanitizationTests.prototype.testInvalidSeparator = function() {
     var presenter = AddonSlideshow_create();

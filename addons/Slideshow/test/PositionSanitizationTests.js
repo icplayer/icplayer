@@ -1,4 +1,4 @@
-PositionSanitizationTests = TestCase("Position sanitization");
+PositionSanitizationTests = TestCase("[Slideshow] Position sanitization");
 
 PositionSanitizationTests.prototype.testProperFormat = function() {
     var presenter = AddonSlideshow_create();

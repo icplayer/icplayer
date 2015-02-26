@@ -1,4 +1,4 @@
-AnimationValidationTests = TestCase("Animation validation");
+AnimationValidationTests = TestCase("[Slideshow] Animation validation");
 
 AnimationValidationTests.prototype.testUndefined = function() {
     var presenter = AddonSlideshow_create();

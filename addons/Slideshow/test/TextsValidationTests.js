@@ -1,4 +1,4 @@
-TextsValidationTests = TestCase("Texts validation");
+TextsValidationTests = TestCase("[Slideshow] Texts validation");
 
 TextsValidationTests.prototype.testProperConfig = function() {
     var presenter = AddonSlideshow_create();

@@ -1,3 +1,4 @@
+2015-02-26 Added new commands moveTo, next, previous, play, pause, stop in Slideshow module
 2015-02-26 Fixed issue with opacity in Drawing module
 2015-02-25 Fixed issue with layout when LearnPen Drawing module is on page
 2015-02-25 Added new command setEraserOff to Shape Tracing and Drawing modules

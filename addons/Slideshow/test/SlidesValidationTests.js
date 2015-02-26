@@ -1,4 +1,4 @@
-SlidesValidationTests = TestCase("Slides validation");
+SlidesValidationTests = TestCase("[Slideshow] Slides validation");
 
 SlidesValidationTests.prototype.testProperConfig = function() {
     var presenter = AddonSlideshow_create();
