@@ -846,6 +846,8 @@ var ice_dictionary = {
 	"Fractions_property_stroke_width": "Ancho del trazo",
 	"Fractions_property_is_not_activity": "No es una actividad",
 	"Fractions_property_is_disable": "Esta deshabilitado",
+    "Fractions_property_is_select": "Image for selected parts",
+    "Fractions_property_is_deselect": "Image for deselected parts",
 	"Hierarchical_Lesson_Report_info": "Permite a los usuarios a insertar un Informe Jerárquico de la Lección. Además de las características que proporciona el módulo de Informe de la Lección, Informe Jerárquico también soporta la estructura jerárquica de una leccion y presenta los resultados sumados para cada capitulo.",
 	"Hierarchical_Lesson_Report_name": "Informe Jerárquico de la lección ",
 	"Hierarchical_Lesson_Report_property_title_label": "Titulo",

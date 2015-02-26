@@ -13,5 +13,7 @@
 		<property name="strokeWidth" displayName="Stroke width" nameLabel="Fractions_property_stroke_width" type="string" />
 		<property name="isNotActivity" nameLabel="Fractions_property_is_not_activity" type="boolean"/>
 		<property name="isDisable" nameLabel="Fractions_property_is_disable" type="boolean"/>
+        <property name="imageDeselect" displayName="Image for deselected parts" nameLabel="Fractions_property_is_deselect" type="image"/>
+        <property name="imageSelect" displayName="Image for selected parts" nameLabel="Fractions_property_is_select" type="image"/>
 	</model>
 </addon>

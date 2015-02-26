@@ -849,6 +849,8 @@ var ice_dictionary = {
     "Fractions_property_stroke_width": "Largeur du trait",
     "Fractions_property_is_not_activity": "N'est pas un exercice",
     "Fractions_property_is_disable": "Est désactivé",
+    "Fractions_property_is_select": "Image for selected parts",
+    "Fractions_property_is_deselect": "Image for deselected parts",
     "Hierarchical_Lesson_Report_info": "Permet aux utilisateurs d'insérer un rapport de leçon préprogrammée dans une présentation. Outre les fonctionnalités proposées par le module Rapport de leçon, le Rapport de leçon hiérarchisé prend également en charge la structure hiérarchique de la leçon et affiche le récapitulatif des résultats pour tous les chapitres de la présentation.",
     "Hierarchical_Lesson_Report_name": "Rapport de leçon hiérachisé",
     "Hierarchical_Lesson_Report_property_title_label": "Etiquette Titre",

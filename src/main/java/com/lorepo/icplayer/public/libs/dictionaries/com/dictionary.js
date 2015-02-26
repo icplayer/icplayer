@@ -853,6 +853,8 @@ var ice_dictionary = {
 	"Fractions_property_stroke_width": "Stroke width",
 	"Fractions_property_is_not_activity": "Is not an activity",
 	"Fractions_property_is_disable": "Is disabled",
+    "Fractions_property_is_select": "Image for selected parts",
+    "Fractions_property_is_deselect": "Image for deselected parts",
     "Hierarchical_Lesson_Report_info": "Enables users to insert a ready-made hierarchical lesson report into a presentation. Apart from the features provided by the common Lesson Report module, Hierarchical Lesson Report also supports hierarchical lesson structure and displays summary values for all presentation chapters.",
 	"Hierarchical_Lesson_Report_name": "Hierarchical Lesson Report",
 	"Hierarchical_Lesson_Report_property_title_label": "Title Label",
