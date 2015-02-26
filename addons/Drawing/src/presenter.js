@@ -102,6 +102,7 @@ function AddonDrawing_create() {
         if (presenter.configuration.isPencil) {
             tmp_canvas = presenter.configuration.tmp_canvas;
             tmp_ctx = presenter.configuration.tmp_ctx;
+            tmp_ctx.globalAlpha = presenter.configuration.opacity;
         } else {
             tmp_canvas = presenter.configuration.canvas;
             tmp_ctx = presenter.configuration.context;
@@ -112,7 +113,6 @@ function AddonDrawing_create() {
         tmp_ctx.lineCap = 'round';
         tmp_ctx.strokeStyle = presenter.configuration.color;
         tmp_ctx.fillStyle = presenter.configuration.color;
-        tmp_ctx.globalAlpha = presenter.configuration.opacity;
 
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
 
