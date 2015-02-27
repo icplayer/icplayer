@@ -96,6 +96,7 @@ public class TextView extends HTML implements IDisplay{
 		int gapWidth = module.getGapWidth();
 		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
+
 			if (gi.getPlaceHolder() == "") {
 				continue;
 			}
@@ -105,7 +106,6 @@ public class TextView extends HTML implements IDisplay{
 					gap.setWidth(gapWidth + "px");
 				}
 				gap.setDisabled(module.isDisabled());
-				textElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
