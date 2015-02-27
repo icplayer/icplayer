@@ -41,12 +41,19 @@
             } else {
                 var src = '${protocol}://www.youtube.com/embed/${video_id}';
                 src = src.replace("${video_id}", decodedVideoID.videoID);
- 
+
                 //Protocol (HTTP or HTTPS)
+                var myProtocol = window.location.protocol;
+                myProtocol = myProtocol.replace(":","");
                 var httsStr = model.HTTPS;
                 var protocol = httsStr === 'True' ? 'https' : 'http';
-                src = src.replace("${protocol}", protocol);
- 
+
+                if (myProtocol == 'https' || protocol == 'http') {
+                    src = src.replace("${protocol}", myProtocol);
+                } else {
+                    src = src.replace("${protocol}", protocol);
+                }
+
                 var iframe = document.createElement('iframe');
                 $(iframe).attr('frameborder', '0');
                 $(iframe).attr('src', src);
