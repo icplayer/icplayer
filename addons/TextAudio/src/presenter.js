@@ -1,3 +1,4 @@
+// #0013
 function AddonTextAudio_create() {
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -629,22 +630,19 @@ function AddonTextAudio_create() {
         };
     };
 
-    function parseSlideText(text) {
-        function getNumberOfCharsParts(text) {
-            var result = 0;
-            HTMLParser(text, { chars: function() {
-                result++;
-            } });
+    presenter.parseSlideText = function(text) {
 
-            return result;
+        function createNewSpan(n1, n2, text) {
+            var $span = $('<span></span>');
+            $span.addClass('textelement' + n1);
+            $span.attr('data-selectionid', n1);
+            $span.attr('data-intervalid', n2);
+            $span.html(text);
+            return $span.prop("outerHTML");
         }
 
-        var resultHTML = "";
-
         var elemNumber = 0;
-        var numberOfCharsParts = getNumberOfCharsParts(text);
-
-        var isOpen = false;
+        var resultHTML = "";
 
         HTMLParser(text, {
             start: function(tag, attrs, unary) {
@@ -658,53 +656,23 @@ function AddonTextAudio_create() {
                 resultHTML += "</" + tag + ">";
             },
             chars: function(text) {
-                var spanTemplate = "";
                 var localParts = text.split('||');
 
                 for (var i=0; i<localParts.length; i++) {
-                    if (localParts.length === 1) { // only one
-                        if (isOpen) {
-                            resultHTML += localParts[i];
-                        } else {
-                            spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]';
-                            resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
-                            isOpen = true;
-                        }
-                    } else if (i === 0) { // first
-                        if (isOpen) {
-                            resultHTML += localParts[i] + '</span>';
-                            isOpen = false;
-                        } else {
-                            spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]';
-                            resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
-                            isOpen = true;
-                        }
-                    } else if (i === localParts.length-1) { // last
-                        if (isOpen) {
-                            resultHTML += '</span>';
-                        }
-                        spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]';
-                        resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
-                        isOpen = true;
-                    } else { // middle
-                        if (isOpen) {
-                            resultHTML += '</span>';
-                            isOpen = false;
-                        }
-                        spanTemplate = '<span class="textelement[1]" data-selectionId="[1]" data-intervalId="[2]">[TEXT]</span>';
-                        resultHTML += spanTemplate.replace(/\[1\]/g, "" + elemNumber++).replace(/\[2\]/g, "" + globalIntervalNumber++).replace("[TEXT]", localParts[i]);
+                    if (localParts[i] !== '') {
+                        resultHTML += createNewSpan(elemNumber, globalIntervalNumber, localParts[i]);
                     }
-                }
 
-                if (0 === --numberOfCharsParts) { // is last global elem
-                    resultHTML += "</span>";
-                    isOpen = false;
+                    if (i !== localParts.length-1) {
+                        elemNumber++;
+                        globalIntervalNumber++;
+                    }
                 }
             }
         });
 
         return resultHTML;
-    }
+    };
 
     presenter.validateSlides = function(slides) {
         var validationResult = {
@@ -720,7 +688,7 @@ function AddonTextAudio_create() {
         for (var i=0; i<slides.length; i++) {
             var slide = slides[i];
             var slide_texts = slide.Text.split('||');
-            var parsed_slide_texts = parseSlideText(slide.Text);
+            var parsed_slide_texts = presenter.parseSlideText(slide.Text);
             var slide_times = slide.Times.split('\n');
             var slide_intervals = [];
 

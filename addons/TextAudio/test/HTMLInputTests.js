@@ -1,23 +1,41 @@
-var ModelValidationTests = AsyncTestCase('HTMLInputTests');
+TestCase('[TextAudio] HTML Input Tests', {
+    setUp: function () {
+        this.presenter = AddonTextAudio_create();
+    },
 
-ModelValidationTests.prototype.setUp = function() {
-    this.presenter = AddonTextAudio_create();
-};
+    'test HTML input 1': function() {
+        var text = 'Lorem || Ipsum';
+        var expected = '<span class="textelement0" data-selectionid="0" data-intervalid="0">Lorem </span><span class="textelement1" data-selectionid="1" data-intervalid="1"> Ipsum</span>';
 
-ModelValidationTests.prototype.tearDown = function() {};
+        var result = this.presenter.parseSlideText(text);
 
-ModelValidationTests.prototype.testParseHTML = function() {
-    var model = {
-        'mp3': '/some/file.mp3',
-        'Slides': [
-            {
-                'Text': 'Lorem|| Ipsum|| Dolor',
-                'Times': "00:00-00:02\n00:02-00:04\n00:04-00:06"
-            }
-        ]
-    };
+        assertEquals(result, expected);
+    },
 
-    var validatedModel = this.presenter.validateModel(model);
+    'test HTML input 2': function() {
+        var text = '<font color="#0000ff">c</font>||<font color="#0000ff">m</font>||<font color="#ff0000">a</font>';
+        var expected = '<font color="#0000ff"><span class="textelement0" data-selectionid="0" data-intervalid="0">c</span></font><font color="#0000ff"><span class="textelement1" data-selectionid="1" data-intervalid="1">m</span></font><font color="#ff0000"><span class="textelement2" data-selectionid="2" data-intervalid="2">a</span></font>';
 
-    assertTrue(validatedModel.isValid);
-};
+        var result = this.presenter.parseSlideText(text);
+
+        assertEquals(result, expected);
+    },
+
+    'test HTML input 3': function() {
+        var text = '<div>Introduction ||&nbsp;</div><div>Landmarks || stand || out</div>';
+        var expected = '<div><span class="textelement0" data-selectionid="0" data-intervalid="0">Introduction </span><span class="textelement1" data-selectionid="1" data-intervalid="1">&nbsp;</span></div><div><span class="textelement1" data-selectionid="1" data-intervalid="1">Landmarks </span><span class="textelement2" data-selectionid="2" data-intervalid="2"> stand </span><span class="textelement3" data-selectionid="3" data-intervalid="3"> out</span></div>';
+
+        var result = this.presenter.parseSlideText(text);
+
+        assertEquals(result, expected);
+    },
+
+    'test HTML input 4': function() {
+        var text = '<font color="#0000ff"><b><i><u>c</u></i></b></font>';
+        var expected = '<font color="#0000ff"><b><i><u><span class="textelement0" data-selectionid="0" data-intervalid="0">c</span></u></i></b></font>';
+
+        var result = this.presenter.parseSlideText(text);
+
+        assertEquals(result, expected);
+    }
+});
