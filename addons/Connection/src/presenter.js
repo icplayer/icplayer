@@ -38,7 +38,6 @@ function AddonConnection_create() {
         RIGHT: 1
     };
 
-
     presenter.upgradeModel = function (model) {
         return presenter.upgradeFrom_01(model);
     };
@@ -442,13 +441,6 @@ function AddonConnection_create() {
         redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
-
-        if (MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) {
-            var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
-            if (["4.1.1", "4.1.2", "4.2.2", "4.3"].indexOf(android_ver) !== -1) {
-                $(presenter.view).find("canvas").parents("*").css("overflow", "visible");
-            }
-        }
     }
 
     presenter.registerListeners = function (view) {
@@ -652,6 +644,9 @@ function AddonConnection_create() {
         var rightColumnWidth = $(view).find('.connectionRightColumn:first').outerWidth(true);
         var width = model['Width'] - leftColumnWidth - rightColumnWidth;
 
+        presenter.height = height;
+        presenter.width = width;
+
         var context = connections[0].getContext('2d');
         context.canvas.width = width;
         context.canvas.height = height;
@@ -735,7 +730,30 @@ function AddonConnection_create() {
 
     function redraw() {
         connections.width = connections.width;
-        connections.clearCanvas();
+
+        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+        if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
+            $(presenter.view).find('.connections').remove();
+            var canvas2 = $('<canvas></canvas>');
+            canvas2.addClass('connections');
+            $(presenter.view).find('.connectionMiddleColumn').append(canvas2);
+
+            var context = canvas2[0].getContext('2d');
+            context.canvas.width = presenter.width;
+            context.canvas.height = presenter.height;
+            canvas2.css({
+                width: presenter.width + 'px',
+                height: presenter.height + 'px'
+            });
+            canvas2.translateCanvas({
+                x: 0.5, y: 0.5
+            });
+
+            connections = $(presenter.view).find('.connections');
+        }else{
+            connections.clearCanvas();
+        }
+
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
         }
