@@ -1,4 +1,6 @@
 function Addonvideo_create() {
+
+
     var presenter = function() {};
 
     presenter.currentMovie = 0;
@@ -713,24 +715,39 @@ function Addonvideo_create() {
         	presenter.isVideoLoaded = true;
             presenter.commandsQueue.executeAllTasks();
         }
-    }
+    };
 
     presenter.removeWaterMark = function () {
         presenter.$view.find('.poster-wrapper').remove();
     };
 
+    presenter.loadVideoAtPlayOnMobiles = function () {
+        if (MobileUtils.isSafariMobile(navigator.userAgent)) {
+            if(!presenter.isVideoLoaded) {
+                this.video.load();
+            }
+        }
+    };
+
     presenter.play = function () {
         presenter.removeWaterMark();
+
+        presenter.loadVideoAtPlayOnMobiles();
 
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('play', []);
             return;
         }
 
-        if (this.video.paused) this.video.play();
+        if (this.video.paused) {
+            this.video.play();
+        }
     };
 
+
+
     presenter.stop = function () {
+
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('stop', []);
             return;
