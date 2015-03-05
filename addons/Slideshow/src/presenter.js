@@ -503,12 +503,16 @@ function AddonSlideshow_create() {
             presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
             changeButtonToPlay();
         } else {
+            presenter.playAudioAction();
+        }
+    };
+
+    presenter.playAudioAction = function () {
             presenter.configuration.buzzAudio.setTime(presenter.time);
             updateProgressBar(presenter.time);
             presenter.configuration.currentTime = presenter.time;
             presenter.playAudioResource();
             changeButtonToPause();
-        }
     };
 
     function playButtonClickHandler(event) {
@@ -1252,12 +1256,12 @@ function AddonSlideshow_create() {
             presenter.goToSlide(validatedParams.number, false);
             presenter.setTimeFromSlideIndex(validatedParams.number);
 
-            onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
+            presenter.onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
         }
     };
 
-    function onSlideChangeAudioStateSetting(previousAudioState, wasPlayed) {
-        if (previousAudioState !== presenter.AUDIO_STATE.PLAY) {
+    presenter.onSlideChangeAudioStateSetting = function (previousAudioState, wasPlayed) {
+        if (previousAudioState != presenter.AUDIO_STATE.PLAY) {
             presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
             presenter.configuration.audio.wasPlayed = wasPlayed;
             return;
@@ -1265,7 +1269,7 @@ function AddonSlideshow_create() {
 
         presenter.configuration.audioState = presenter.AUDIO_STATE.PLAY;
         presenter.configuration.audio.wasPlayed = wasPlayed;
-    }
+    };
 
     presenter.next = function () {
         var previousAudioState = presenter.configuration.audioState;
@@ -1273,7 +1277,7 @@ function AddonSlideshow_create() {
 
         goToNextSlide(false);
 
-        onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
+        presenter.onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
     };
 
     presenter.previous = function () {
@@ -1282,10 +1286,11 @@ function AddonSlideshow_create() {
 
         goToPreviousSlide(false);
 
-        onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
+        presenter.onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
     };
 
     presenter.play = function () {
+
         switch (presenter.configuration.audioState) {
             case presenter.AUDIO_STATE.STOP:
                 presenter.switchSlideShowStopToPlay();
@@ -1294,7 +1299,9 @@ function AddonSlideshow_create() {
                 presenter.switchSlideShowPauseToPlay();
                 break;
             case presenter.AUDIO_STATE.STOP_FROM_NAVIGATION:
-                presenter.switchSlideShowStopToPlay();
+                if(!presenter.isPlaying) {
+                    presenter.playAudioAction();
+                }
                 break;
         }
     };
@@ -1306,8 +1313,7 @@ function AddonSlideshow_create() {
     };
 
     presenter.stop = function () {
-        if(presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY ||
-        presenter.configuration.audioState == presenter.AUDIO_STATE.PAUSE) {
+        if(presenter.configuration.audioState != presenter.AUDIO_STATE.STOP) {
             presenter.stopPresentation();
         }
     };

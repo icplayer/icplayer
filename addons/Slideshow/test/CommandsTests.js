@@ -78,14 +78,14 @@ TestCase("[Slideshow] Commands play/stop", {
             stopPresentation: sinon.stub(this.presenter, 'stopPresentation'),
             switchSlideShowStopToPlay: sinon.stub(this.presenter, 'switchSlideShowStopToPlay'),
             switchSlideShowPauseToPlay: sinon.stub(this.presenter, 'switchSlideShowPauseToPlay'),
-            switchSlideShowToPlay: sinon.stub(this.presenter, 'switchSlideShowToPlay')
+            playAudioAction: sinon.stub(this.presenter, 'playAudioAction')
         };
     },
 
     tearDown: function () {
         this.presenter.stopPresentation.restore();
         this.presenter.switchSlideShowStopToPlay.restore();
-        this.presenter.switchSlideShowToPlay.restore();
+        this.presenter.playAudioAction.restore();
         this.presenter.switchSlideShowPauseToPlay.restore();
     },
 
@@ -131,7 +131,7 @@ TestCase("[Slideshow] Commands play/stop", {
 
         assertTrue(this.stubs.switchSlideShowStopToPlay.called);
         assertFalse(this.stubs.switchSlideShowPauseToPlay.called);
-        assertFalse(this.stubs.switchSlideShowToPlay.called);
+        assertFalse(this.stubs.playAudioAction.called);
     },
 
     'test play command, audio in pause state': function () {
@@ -143,7 +143,7 @@ TestCase("[Slideshow] Commands play/stop", {
 
         assertFalse(this.stubs.switchSlideShowStopToPlay.called);
         assertTrue(this.stubs.switchSlideShowPauseToPlay.called);
-        assertFalse(this.stubs.switchSlideShowToPlay.called);
+        assertFalse(this.stubs.playAudioAction.called);
     },
 
     'test play command, audio stop from navigation state': function () {
@@ -153,9 +153,9 @@ TestCase("[Slideshow] Commands play/stop", {
 
         this.presenter.play();
 
-        assertTrue(this.stubs.switchSlideShowStopToPlay.called);
+        assertTrue(this.stubs.playAudioAction.called);
         assertFalse(this.stubs.switchSlideShowPauseToPlay.called);
-        assertFalse(this.stubs.switchSlideShowToPlay.called);
+        assertFalse(this.stubs.switchSlideShowStopToPlay.called);
     }
 });
 

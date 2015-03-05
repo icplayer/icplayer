@@ -1,3 +1,4 @@
+2015-03-05 Fixed issue with commands play/stop/next/previous in Slideshow module
 2015-03-05 Fixed issue with using play command on iOS 7 and iOS 8 in Video module
 2015-03-04 Fixed issue with double lines in Android 4.1.1, 4.1.2, 4.2.2, 4.3, 4.4.2 in Connection module
 2015-03-02 Fixed issues with parsing HTML in Text Audio module
