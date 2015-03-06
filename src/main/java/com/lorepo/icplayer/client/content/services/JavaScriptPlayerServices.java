@@ -141,51 +141,33 @@ public class JavaScriptPlayerServices{
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
 
 		var playerServices = function() {
-		}
+		};
 
 		playerServices.getPresentation = function() {
 			var model = function() {};
 
 			model.getPageCount = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageCount()();
-			}
+			};
 
-			model.getPage = function(index) {
-				var page = function() {
-				}
-				page.getName = function() {
-					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageName(I)(index);
-				}
-				page.getId = function() {
-					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageId(I)(index);
-				}
-				page.getBaseURL = function() {
-					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getBaseURL(I)(index);
-				}
-				page.isReportable = function() {
-					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageReportable(I)(index);
-				}
-				page.isVisited = function() {
-					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPageVisited(I)(index);
-				}
-				page.getModules = function() {
-					return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModules(I)(index);
-				}
+            model.getPage = function(index) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageByIndex(I)(index);
+			};
 
-				return page;
-			}
+            model.getPageById = function(id) {
+                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageById(Ljava/lang/String;)(id);
+            };
 
 			model.getTableOfContents = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTableOfContents()();
-			}
+			};
 
 			return model;
-		}
+		};
 
 		playerServices.getCurrentPageIndex = function() {
-			var index = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentPageIndex()();
-			return index;
-		}
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentPageIndex()();
+		};
 
 		playerServices.getCommands = function() {
 			var commands = function() {
@@ -193,43 +175,42 @@ public class JavaScriptPlayerServices{
 
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
-			}
-			commands.gotoPageIndex = function(index) {
+			};               			commands.gotoPageIndex = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageIndex(I)(index);
-			}
+			};
 			commands.gotoPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
-			}
+			};
 			commands.executeEventCode = function(code) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::executeEventCode(Ljava/lang/String;)(code);
-			}
+			};
 			commands.getTimeElapsed = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTimeElapsed()();
-			}
+			};
 			commands.checkAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::checkAnswers()();
-			}
+			};
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
-			}
+			};
 			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
-			}
+			};
 			commands.setNavigationPanelsAutomaticAppearance = function(shouldAppear) {
 				if (typeof shouldAppear != "boolean") {
 					throw new TypeError(); 
 				}
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setNavigationPanelsAutomaticAppearance(Z)(shouldAppear);
-			}
+			};
 			commands.showNavigationPanels = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNavigationPanels()();
-			}
+			};
 			commands.hideNavigationPanels = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideNavigationPanels()();
-			}
+			};
 
 			return commands;
-		}
+		};
 
 		playerServices.getEventBus = function() {
 			var commands = function() {
@@ -237,13 +218,13 @@ public class JavaScriptPlayerServices{
 
 			commands.addEventListener = function(name, listener) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, listener);
-			}
+			};
 
 			commands.sendEvent = function(name, data) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
-			}
+			};
 			return commands;
-		}
+		};
 
 		playerServices.getTextParser = function() {
 			var commands = function() {
@@ -251,7 +232,7 @@ public class JavaScriptPlayerServices{
 
 			commands.parse = function(text) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseText(Ljava/lang/String;)(text);
-			}
+			};
 
 			commands.parseGaps = function(text, options) {
 				if (typeof options == 'undefined') {
@@ -265,7 +246,7 @@ public class JavaScriptPlayerServices{
 				}
 
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseGaps(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(text, options);
-			}
+			};
 
 			commands.connectLinks = function(node) {
 				node
@@ -274,28 +255,28 @@ public class JavaScriptPlayerServices{
 								function(e) {
 									e.preventDefault();
 									e.stopPropagation();
-									var name = 'Definition'
+									var name = 'Definition' ;
 									var data = {
 										'word' : $wnd.$(this).html()
-									}
+									};
 									x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
 								});
-			}
+			};
 
 			return commands;
-		}
+		};
 
 		playerServices.getModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
-		}
+		};
 	
 		playerServices.getHeaderModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(id);
-		}
+		};
 		
 		playerServices.getFooterModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
-		}
+		};
 		
 		playerServices.getScore = function() {
 			var score = function() {
@@ -303,79 +284,52 @@ public class JavaScriptPlayerServices{
 
 			score.getMaxScore = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getMaxScore()();
-			}
+			};
 
 			score.getTotalScore = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTotalScore()();
-			}
+			};
 
 			score.getPageScore = function(name) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScore(Ljava/lang/String;)(name);
-			}
+			};
 
 			score.getPageScoreById = function(pageId) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(pageId);
-			}
+			};
 
 			return score;
-		}
+		};
 
 		playerServices.getStaticFilesPath = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getStaticFilesPath()();
-		}
+		};
 
 		playerServices.isBookMode = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isBookMode()();
-		}
+		};
 
 		playerServices.hasCover = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hasCover()();
-		}
+		};
 
 		return playerServices;
 	}-*/;
-	
+
+    private JavaScriptObject getPageByIndex(int index) {
+        return playerServices.getModel().getPage(index).toJavaScript();
+    }
+
+    private JavaScriptObject getPageById(String id) {
+        return playerServices.getModel().getPageById(id).toJavaScript();
+    }
+
 	private int getCurrentPageIndex(){
 		return playerServices.getCurrentPageIndex();
 	}
 
 	private int getPageCount(){
 		return playerServices.getModel().getPageCount();
-	}
-
-	private String getPageName(int index){
-		return playerServices.getModel().getPage(index).getName();
-	}
-
-	private String getPageId(int index){
-		return playerServices.getModel().getPage(index).getId();
-	}
-	
-	private String getBaseURL(int index){
-		return playerServices.getModel().getPage(index).getBaseURL();
-	}
-
-	private boolean isPageReportable(int index){
-		return playerServices.getModel().getPage(index).isReportable();
-	}
-	
-	private boolean isPageVisited(int index){
-		if (playerServices.getCurrentPageIndex() == index) {
-			return true;
-		}
-		
-		String pageId = playerServices.getModel().getPage(index).getId();
-
-		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
-	}
-	
-	private JavaScriptObject getModules(int index) {
-		JavaScriptObject model = JavaScriptObject.createArray();
-
-		for(String id : playerServices.getModel().getPage(index).getModulesList()) {
-			JavaScriptUtils.addElementToJSArray(model, id);
-		}
-		return model;
 	}
 	
 	private void gotoPage(String pageName){

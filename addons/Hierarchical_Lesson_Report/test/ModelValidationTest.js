@@ -1,4 +1,4 @@
-TestCase("Model Validation Test Case", {
+TestCase("[Hierarchical Lesson Report] Model validation", {
     setUp: function () {
         this.presenter = AddonHierarchical_Lesson_Report_create();
 

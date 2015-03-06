@@ -2,13 +2,6 @@ function AddonHierarchical_Lesson_Report_create() {
     var presenter = function () {};
     var presentationController;
     var pageIndex = 0;
-    var totalChecks = 0;
-    var totalErrors = 0;
-    var totalMistakes = 0;
-    var totalPoints = 0;
-    var totalMaxScore = 0;
-
-    var isPreview = false;
 
     presenter.ERROR_MESSAGES = {
         EXPAND_DEPTH_NOT_NUMERIC: "Depth of expand is not proper",
@@ -32,7 +25,9 @@ function AddonHierarchical_Lesson_Report_create() {
         } else {
             var messageSubst = message;
             for (var key in substitutions) {
-                messageSubst = messageSubst.replace('%' + key + '%', substitutions[key]);
+                if (substitutions.hasOwnProperty(key)) {
+                    messageSubst = messageSubst.replace('%' + key + '%', substitutions[key]);
+                }
             }
             errorContainer = '<p>' + messageSubst + '</p>';
         }
@@ -44,13 +39,11 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     presenter.run = function (view, model) {
-        isPreview = false;
-        presenter.initialize(view, model);
+        presenter.initialize(view, model, false);
     };
 
     presenter.createPreview = function (view, model) {
-        isPreview = true;
-        presenter.initialize(view, model);
+        presenter.initialize(view, model, true);
     };
 
     function addHeader() {
@@ -64,6 +57,14 @@ function AddonHierarchical_Lesson_Report_create() {
         $("<tr></tr>").prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
     }
 
+    presenter.calculateLessonScaledScore = function () {
+        if (presenter.lessonScore.pageCount == 0) {
+            return 0;
+        }
+
+        return Math.floor((presenter.lessonScore.scaledScore / presenter.lessonScore.pageCount) * 100) / 100;
+    };
+
     function addFooter() {
         var row = document.createElement('tr');
         $(row).appendTo($("#" + presenter.treeID).find('table'));
@@ -74,12 +75,9 @@ function AddonHierarchical_Lesson_Report_create() {
         if (presenter.configuration.showResults) {
             var score = resetScore();
 
-            if (!isPreview)  {
-                var playerUtils = new PlayerUtils({});
-                playerUtils.scoreService = presentationController.getScore();
-                var totalScore = playerUtils.getPresentationScore(presentationController.getPresentation());
+            if (!presenter.isPreview)  {
                 score = {
-                    score: totalScore.scaledScore,
+                    score: presenter.calculateLessonScaledScore(),
                     count: 1
                 }
             }
@@ -87,19 +85,19 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         if (presenter.configuration.showChecks) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-checks").html(totalChecks);
+            $("<td></td>").appendTo($(row)).addClass("hier_report-checks").html(presenter.lessonScore.checks);
         }
 
         if (presenter.configuration.showMistakes) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-mistakes").html(totalMistakes);
+            $("<td></td>").appendTo($(row)).addClass("hier_report-mistakes").html(presenter.lessonScore.mistakes);
         }
 
         if (presenter.configuration.showErrors) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-errors").html(totalErrors);
+            $("<td></td>").appendTo($(row)).addClass("hier_report-errors").html(presenter.lessonScore.errors);
         }
 
         if (presenter.configuration.showPageScore) {
-            var content = totalPoints + "<span class='hier_report-separator'>/</span>" + totalMaxScore;
+            var content = presenter.lessonScore.score + "<span class='hier_report-separator'>/</span>" + presenter.lessonScore.maxScore;
             $("<td></td>").appendTo($(row)).addClass("hier_report-page-score").html(content);
         }
 
@@ -153,26 +151,45 @@ function AddonHierarchical_Lesson_Report_create() {
     function createScoreCells(row, pageId, index, isChapter) {
         var isScoreEnable = presenter.configuration.disabledScorePages.indexOf(index) === -1;
         var score = resetScore();
-        if (!isPreview) score = presentationController.getScore().getPageScoreById(pageId);
-        var points = 0;
+        if (!presenter.isPreview) {
+            score = presentationController.getScore().getPageScoreById(pageId);
+        }
+
+        var pageScore = 0;
 
         if (!isChapter) {
-            points = score.score;
+            pageScore = score.score;
         	score.count = 1;
         	score.score = score.maxScore !== 0 ? score.score / score.maxScore : 0;
         }
 
         if (isScoreEnable) {
+            var pageScaledScore = 0;
+
             if (presenter.configuration.showResults) {
                 createProgressCell(row, score, index, isChapter);
             }
+
+            presenter.lessonScore.pageCount++;
+            presenter.lessonScore.checks += score.checkCount;
+            presenter.lessonScore.mistakes += score.mistakeCount;
+            presenter.lessonScore.errors += score.errorCount;
+            presenter.lessonScore.score += pageScore;
+            presenter.lessonScore.maxScore += score.maxScore;
+
+            if (score.maxScore) {
+                pageScaledScore = pageScore / score.maxScore;
+            } else if (!presenter.isPreview) {
+                pageScaledScore = presentationController.getPresentation().getPageById(pageId).isVisited() ? 1 : 0;
+            }
+
+            presenter.lessonScore.scaledScore += pageScaledScore;
 
             if (presenter.configuration.showChecks) {
                 var checksCell = document.createElement('td');
                 $(checksCell).appendTo($(row))
                     .addClass("hier_report-checks")
                     .html(score.checkCount);
-                totalChecks += score.checkCount;
             }
 
             if (presenter.configuration.showMistakes) {
@@ -180,7 +197,6 @@ function AddonHierarchical_Lesson_Report_create() {
                 $(mistakesCell).appendTo($(row))
                     .addClass("hier_report-mistakes")
                     .html(score.mistakeCount);
-                totalMistakes += score.mistakeCount;
             }
 
             if (presenter.configuration.showErrors) {
@@ -188,19 +204,16 @@ function AddonHierarchical_Lesson_Report_create() {
                 $(errorsCell).appendTo($(row))
                     .addClass("hier_report-errors")
                     .html(score.errorCount);
-                totalErrors += score.errorCount;
             }
 
             if (presenter.configuration.showPageScore) {
                 $("<td></td>").appendTo($(row))
                     .addClass("hier_report-page-score")
-                    .html(points + "<span class='hier_report-separator'>/</span>" + score.maxScore);
-                totalPoints += points;
-                totalMaxScore += score.maxScore;
+                    .html(pageScore + "<span class='hier_report-separator'>/</span>" + score.maxScore);
             }
 
             if (presenter.configuration.showMaxScoreField) {
-                var className = (points === score.maxScore && score.maxScore !== 0 ? "page-max-score" : "page-non-max-score");
+                var className = (pageScore === score.maxScore && score.maxScore !== 0 ? "page-max-score" : "page-non-max-score");
                 $("<td></td>").appendTo($(row)).addClass("hier_report-" + className);
             }
         } else {
@@ -497,8 +510,19 @@ function AddonHierarchical_Lesson_Report_create() {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.initialize = function (view, model) {
+    presenter.initialize = function (view, model, isPreview) {
         presenter.$view = $(view);
+        presenter.isPreview = isPreview;
+        presenter.lessonScore = {
+            pageCount: 0,
+            checks: 0,
+            errors: 0,
+            mistakes: 0,
+            score: 0,
+            maxScore: 0,
+            scaledScore: 0
+        };
+
 
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {

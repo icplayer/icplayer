@@ -403,6 +403,16 @@ public class Content implements IXMLSerializable, IContent {
 		return pages.getAllPages().get(index);
 	}
 
+    @Override
+    public IPage getPageById(String id) {
+        for (IPage page : pages.getAllPages()) {
+            if (page.getId().equals(id)) {
+                return page;
+            }
+        }
+
+        return null;
+    }
 
 	@Override
 	public IAddonDescriptor getAddonDescriptor(String addonId) {
