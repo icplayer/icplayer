@@ -16,59 +16,32 @@ TestCase('[Double State Button] State restoring', {
         this.presenter.toggleDisable.restore();
     },
 
-    'test set state to isVisible' : function() {
+    'test after restoring state addon should be visible' : function() {
         this.presenter.setState(JSON.stringify({ isVisible: true, isSelected: true, isDisabled: true }));
 
         assertTrue(this.presenter.show.calledOnce);
         assertFalse(this.presenter.hide.calledOnce);
-        assertTrue(this.presenter.toggleDisable.calledOnce);
-        assertTrue(this.presenter.setElementSelection.calledOnce);
 
-        assertTrue(this.presenter.configuration.isVisible);
+        assertTrue(this.presenter.toggleDisable.calledWith(true));
+
+        assertTrue(this.presenter.setElementSelection.called);
         assertTrue(this.presenter.configuration.isSelected);
-        assertTrue(this.presenter.configuration.isVisible);
+
     },
 
-    'test set state to isVisible and not selected' : function() {
-        this.presenter.setState(JSON.stringify({ isVisible: true, isSelected: false, isDisabled: true }));
+    'test after restoring state addon should be hidden' : function() {
+        this.presenter.setState(JSON.stringify({ isVisible: false, isSelected: false, isDisabled: false }));
 
-        assertTrue(this.presenter.show.calledOnce);
-        assertFalse(this.presenter.hide.calledOnce);
-        assertTrue(this.presenter.toggleDisable.calledOnce);
-        assertTrue(this.presenter.setElementSelection.calledOnce);
+        assertFalse(this.presenter.show.calledOnce);
+        assertTrue(this.presenter.hide.calledOnce);
 
-        assertTrue(this.presenter.configuration.isVisible);
+        assertTrue(this.presenter.toggleDisable.calledWith(false));
+
+        assertTrue(this.presenter.setElementSelection.called);
         assertFalse(this.presenter.configuration.isSelected);
-        assertTrue(this.presenter.configuration.isDisabled);
     },
 
-    'test set state to invisible' : function() {
-        this.presenter.setState(JSON.stringify({ isVisible: false, isSelected: true, isDisabled: true }));
-
-        assertFalse(this.presenter.show.calledOnce);
-        assertTrue(this.presenter.hide.calledOnce);
-        assertTrue(this.presenter.toggleDisable.calledOnce);
-        assertTrue(this.presenter.setElementSelection.calledOnce);
-
-        assertFalse(this.presenter.configuration.isVisible);
-        assertTrue(this.presenter.configuration.isSelected);
-        assertTrue(this.presenter.configuration.isDisabled);
-    },
-
-    'test set state to invisible and isDisabled on false' : function() {
-        this.presenter.setState(JSON.stringify({ isVisible: false, isSelected: true, isDisabled: false }));
-
-        assertFalse(this.presenter.show.calledOnce);
-        assertTrue(this.presenter.hide.calledOnce);
-        assertTrue(this.presenter.toggleDisable.calledOnce);
-        assertTrue(this.presenter.setElementSelection.calledOnce);
-
-        assertFalse(this.presenter.configuration.isVisible);
-        assertTrue(this.presenter.configuration.isSelected);
-        assertFalse(this.presenter.configuration.isDisabled);
-    },
-
-    'test set state called with empty string' : function() {
+    'test empty state' : function() {
         this.presenter.setState("");
 
         assertFalse(this.presenter.show.calledOnce);

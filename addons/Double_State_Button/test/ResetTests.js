@@ -23,7 +23,6 @@ TestCase('[Double State Button] Reset command', {
 
         this.presenter.reset();
 
-        assertFalse(this.presenter.configuration.isVisible);
         assertFalse(this.presenter.show.calledOnce);
         assertTrue(this.presenter.hide.calledOnce);
         assertFalse(this.presenter.configuration.isErrorMode);
@@ -35,7 +34,6 @@ TestCase('[Double State Button] Reset command', {
 
         this.presenter.reset();
 
-        assertTrue(this.presenter.configuration.isVisible);
         assertTrue(this.presenter.show.calledOnce);
         assertFalse(this.presenter.hide.calledOnce);
         assertFalse(this.presenter.configuration.isErrorMode);
@@ -47,7 +45,6 @@ TestCase('[Double State Button] Reset command', {
 
         this.presenter.reset();
 
-        assertFalse(this.presenter.configuration.isVisible);
         assertFalse(this.presenter.show.calledOnce);
         assertTrue(this.presenter.hide.calledOnce);
         assertFalse(this.presenter.configuration.isErrorMode);
@@ -59,7 +56,6 @@ TestCase('[Double State Button] Reset command', {
 
         this.presenter.reset();
 
-        assertTrue(this.presenter.configuration.isVisible);
         assertTrue(this.presenter.show.calledOnce);
         assertFalse(this.presenter.hide.calledOnce);
         assertFalse(this.presenter.configuration.isErrorMode);
@@ -101,7 +97,8 @@ TestCase('[Double State Button] Reset command', {
 
         this.presenter.reset();
 
-        assertFalse(this.presenter.configuration.isVisible);
+        assertFalse(this.presenter.show.calledOnce);
+        assertTrue(this.presenter.hide.calledOnce);
         assertFalse(this.presenter.configuration.isErrorMode);
     },
 

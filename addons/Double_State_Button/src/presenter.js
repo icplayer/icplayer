@@ -367,8 +367,7 @@ function AddonDouble_State_Button_create(){
 
         presenter.setElementSelection();
 
-        presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
-        if (presenter.configuration.isVisible) {
+        if (presenter.configuration.isVisibleByDefault) {
             presenter.show();
         } else {
             presenter.hide();
@@ -386,21 +385,22 @@ function AddonDouble_State_Button_create(){
         });
     };
 
-    presenter.setState = function(stateString) {
-        if (ModelValidationUtils.isStringEmpty(stateString)) return;
+    presenter.setState = function(state) {
+        if (ModelValidationUtils.isStringEmpty(state)) {
+            return;
+        }
 
-        var state = JSON.parse(stateString);
-        presenter.configuration.isSelected = state.isSelected;
-        presenter.configuration.isDisabled = state.isDisabled;
-        presenter.configuration.isVisible = state.isVisible;
+        var parsedState = JSON.parse(state);
 
-        if (presenter.configuration.isVisible) {
+        if (parsedState.isVisible) {
             presenter.show();
         } else {
             presenter.hide();
         }
 
-        presenter.toggleDisable(presenter.configuration.isDisabled);
+        presenter.toggleDisable(parsedState.isDisabled);
+
+        presenter.configuration.isSelected = parsedState.isSelected;
         presenter.setElementSelection();
     };
 

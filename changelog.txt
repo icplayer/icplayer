@@ -1,3 +1,4 @@
+2015-03-06 Fixed issue with state in Double State Button module
 2015-03-06 Fixed calculating results for just part of lesson in Hierarchical Lesson Report module
 2015-03-05 Fixed issue with commands play/stop/next/previous in Slideshow module
 2015-03-05 Fixed issue with using play command on iOS 7 and iOS 8 in Video module
