@@ -73,28 +73,35 @@ function AddonFractions_create(){
         return Counter === (presenter.initialMarks)/2 ? false : true;
     };
 
-    presenter.init = function(view, model){
+    function getDefaultImageURL(isPreview) {
+        var urlPrefix = isPreview ? '/media/iceditor/' : presenter.playerController.getStaticFilesPath();
+
+        return urlPrefix + "addons/resources/fractions-default-image.png"
+    }
+
+    presenter.init = function(view, model, isPreview){
         presenter.$view = $(view);
         presenter.model = model;
         correctAnswer = model.Correct;
-        presenter.imageDeselect = model.imageDeselect;
-        presenter.imageSelect = model.imageSelect;
 
         presenter.imageSelectChecker = false;
         presenter.imageDeselectChecker = false;
 
-        if(presenter.imageSelect.length > 0){
-            presenter.imageSelectChecker = true;
+        if (model['imageSelect'] == undefined || model['imageSelect'].length == 0) {
+            //if(presenter.imageSelect != 'undefined'){
+            presenter.imageSelect = getDefaultImageURL(isPreview);
         } else{
-
-            presenter.imageSelect = "/file/serve/5155531189649408";
+            presenter.imageSelectChecker = true;
+            presenter.imageSelect = model.imageSelect;
         }
 
-        if(presenter.imageDeselect.length > 0){
-            presenter.imageDeselectChecker = true;
+        if (model['imageDeselect'] == undefined || model['imageDeselect'].length == 0) {
+            //if(presenter.imageDeselect != 'undefined'){
+            //if(presenter.imageDeselect.length > 0){
+            presenter.imageDeselect = getDefaultImageURL(isPreview);
         } else{
-
-            presenter.imageDeselect = "/file/serve/5155531189649408";
+            presenter.imageDeselectChecker = true;
+            presenter.imageDeselect = model.imageDeselect;
         }
 
         if(model.selectedParts.length > 0) {
@@ -392,7 +399,7 @@ function AddonFractions_create(){
         presenter.$view = $(view);
         presenter.model = model;
 
-        presenter.init(view, model);
+        presenter.init(view, model, false);
 
         presenter.isVisible = model["Is Visible"] == 'True';
         presenter.wasVisible = model["Is Visible"] == 'True';
@@ -433,7 +440,7 @@ function AddonFractions_create(){
         var $myDiv =  presenter.$view.find('path');
         if(presenter.isDrawn) $($myDiv).remove();
 
-        presenter.init(view, model);
+        presenter.init(view, model, true);
 
         presenter.isVisible = model["Is Visible"] == 'True';
         presenter.setVisibility(presenter.isVisible);
