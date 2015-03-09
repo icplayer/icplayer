@@ -416,16 +416,15 @@ function AddonIWB_Toolbar_create() {
         widthWhenClosed = validated.value;
 
         return {
-            'isValid' : true,
+            'isValid': true,
 
-            'widthWhenClosed' : widthWhenClosed,
-            'widthWhenOpened' : widthWhenOpened,
-            'panelPosition' : model['Fixed Position'] == 'True' ? 'absolute' : 'fixed',
+            'widthWhenClosed': widthWhenClosed,
+            'widthWhenOpened': widthWhenOpened,
+            'panelPosition': model['Fixed Position'] == 'True' ? 'absolute' : 'fixed',
 
-            'showForPen' : ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forPen),
-            'showForMarker' : ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker),
-            'isKeepStateAndPosition' : ModelValidationUtils.validateBoolean(model['keepStateAndPosition'])
-        }
+            'showForPen': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forPen),
+            'showForMarker': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker)
+        };
     }
 
     function setImagePosition() {
@@ -919,6 +918,7 @@ function AddonIWB_Toolbar_create() {
     }
 
     function runLogic(view, model, isPreview) {
+        presenter.model = model;
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isKeepStateAndPosition = ModelValidationUtils.validateBoolean(model['keepStateAndPosition']);
@@ -2090,21 +2090,22 @@ function AddonIWB_Toolbar_create() {
         return parsedState;
     };
 
-    presenter.upgradeStateForKeepStateAndPosition = function (parsedState) {
-        if (parsedState.isKeepStateAndPosition == undefined) {
-            parsedState.isKeepStateAndPosition = true;
-        }
-
-        return parsedState;
-    };
-
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForStopwatchesAndClocks(parsedState);
 
         upgradedState = presenter.upgradeStateForVisibility(upgradedState);
-        upgradedState = presenter.upgradeStateForKeepStateAndPosition(upgradedState);
 
         return  upgradedState;
+    };
+
+    presenter.shouldRestoreStateAndPosition = function (model, state) {
+        var keepStateAndPosition = model['keepStateAndPosition'];
+
+        if (keepStateAndPosition == undefined || state.position == undefined) {
+            return false;
+        }
+
+        return keepStateAndPosition == 'False';
     };
 
     presenter.setState = function(state) {
@@ -2121,7 +2122,7 @@ function AddonIWB_Toolbar_create() {
         presenter.stopwatches = parsedState.stopwatches;
         presenter.clocks = parsedState.clocks;
 
-        if (!presenter.config.isKeepStateAndPosition) {
+        if (presenter.shouldRestoreStateAndPosition(presenter.model, parsedState)) {
             if (parsedState.openedPanel) {
                 openPanel(false);
             }

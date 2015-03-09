@@ -8,17 +8,14 @@ TestCase("[IWB Toolbar] State", {
     'test upgrade state': function () {
         var stopwatchesAndClocksUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForStopwatchesAndClocks');
         var visibilityUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForVisibility');
-        var keepStateAndPositionUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForKeepStateAndPosition');
 
         this.presenter.upgradeState({});
 
         assertTrue(stopwatchesAndClocksUpgradeStub.called);
         assertTrue(visibilityUpgradeStub.called);
-        assertTrue(keepStateAndPositionUpgradeStub.called);
 
         this.presenter.upgradeStateForStopwatchesAndClocks.restore();
         this.presenter.upgradeStateForVisibility.restore();
-        this.presenter.upgradeStateForKeepStateAndPosition.restore();
     },
 
     'test upgrade state when there are no stopwatches and clocks related fields': function () {
@@ -118,56 +115,41 @@ TestCase("[IWB Toolbar] State", {
         assertEquals([4, 5, 6], upgradedState.clocks);
     },
 
-    'test upgrade state when there is not Keep state and position related field': function () {
-        var state = {
-            "areas": [],
-            "notes": [],
-            "drawings": {
-                "pen": this.base64Image,
-                "marker": this.base64Image
-            },
-            "stopwatches": [1, 2, 3],
-            "clocks": [4, 5, 6],
-            "isVisible": true
+    'test individual state should not be restored for compatibility reasons': function () {
+        // If neither 'keepStateAndPosition' model property nor state 'position' property is present, addon should
+        // work as before introducing 'Keep state and position' option.
+        var model = {
+            keepStateAndPosition: undefined
+        }, state = {
+            position: undefined
         };
 
-        var upgradedState = this.presenter.upgradeStateForKeepStateAndPosition(state);
-
-        assertTrue(upgradedState.isKeepStateAndPosition);
-
-        // Sanity check for not upgraded properties
-        assertEquals([], upgradedState.areas);
-        assertEquals([], upgradedState.notes);
-        assertEquals(this.base64Image, upgradedState.drawings.pen);
-        assertEquals(this.base64Image, upgradedState.drawings.marker);
-        assertEquals([1, 2, 3], upgradedState.stopwatches);
-        assertEquals([4, 5, 6], upgradedState.clocks);
+        assertFalse(this.presenter.shouldRestoreStateAndPosition(model, state));
     },
 
-    'test upgrade state when there is Keep state and position related field': function () {
-        var state = {
-            "areas": [],
-            "notes": [],
-            "drawings": {
-                "pen": this.base64Image,
-                "marker": this.base64Image
-            },
-            "stopwatches": [1, 2, 3],
-            "clocks": [4, 5, 6],
-            "isVisible": false,
-            "isKeepStateAndPosition": false
+    'test individual state should not be restored because of Keep state and position property': function () {
+        var model = {
+            keepStateAndPosition: 'True'
+        }, state = {
+            position: {
+                top: 0,
+                left: 0
+            }
         };
 
-        var upgradedState = this.presenter.upgradeStateForKeepStateAndPosition(state);
+        assertFalse(this.presenter.shouldRestoreStateAndPosition(model, state));
+    },
 
-        assertFalse(upgradedState.isKeepStateAndPosition);
+    'test individual state should be restored': function () {
+        var model = {
+            keepStateAndPosition: 'False'
+        }, state = {
+            position: {
+                top: 0,
+                left: 0
+            }
+        };
 
-        // Sanity check for not upgraded properties
-        assertEquals([], upgradedState.areas);
-        assertEquals([], upgradedState.notes);
-        assertEquals(this.base64Image, upgradedState.drawings.pen);
-        assertEquals(this.base64Image, upgradedState.drawings.marker);
-        assertEquals([1, 2, 3], upgradedState.stopwatches);
-        assertEquals([4, 5, 6], upgradedState.clocks);
+        assertTrue(this.presenter.shouldRestoreStateAndPosition(model, state));
     }
 });
