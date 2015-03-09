@@ -1,3 +1,4 @@
+2015-03-09 Fixed issue with setting opacity, drawing and double lines in Android 4.1.1, 4.1.2, 4.2.2, 4.3, 4.4.2 in Shape Tracing module
 2015-03-09 Fixed issue with restoring state in IWB Toolbar module
 2015-03-06 Fixed issue with restoring state in older content that uses Fractions module
 2015-03-06 Fixed issue with state in Double State Button module

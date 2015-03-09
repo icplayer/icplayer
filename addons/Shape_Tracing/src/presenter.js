@@ -458,8 +458,8 @@ function AddonShape_Tracing_create() {
     };
 
     function checkCorrectness() {
-        var x = parseInt(presenter.cursorPosition.x, 10);
-        var y = parseInt(presenter.cursorPosition.y, 10);
+        var x = parseInt(presenter.mouse.x, 10);
+        var y = parseInt(presenter.mouse.y, 10);
         if (presenter.isShapeCoveredInCircle(x, y, presenter.data.pencilThickness / 2)) {
             isOutsideShape = false;
         } else {
@@ -497,6 +497,70 @@ function AddonShape_Tracing_create() {
         }
     }
 
+    presenter.onMobilePaint = function(e) {
+        var tmp_canvas;
+            tmp_canvas = presenter.configuration.tmp_canvas;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+        presenter.onPaint(e);
+    };
+
+    presenter.onPaint = function(e) {
+        var tmp_canvas, tmp_ctx;
+
+        tmp_canvas = presenter.configuration.tmp_canvas;
+        tmp_ctx = presenter.configuration.tmp_ctx;
+        tmp_ctx.globalAlpha = presenter.configuration.opacity;
+
+        tmp_ctx.lineWidth = presenter.data.pencilThickness;
+        tmp_ctx.lineJoin = 'round';
+        tmp_ctx.lineCap = 'round';
+        tmp_ctx.strokeStyle = presenter.configuration.color;
+        tmp_ctx.fillStyle = presenter.configuration.color;
+
+        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+
+        if (presenter.points.length < 3) {
+            var b = presenter.points[0];
+            tmp_ctx.beginPath();
+            tmp_ctx.arc(b.x, b.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+            tmp_ctx.fill();
+            tmp_ctx.closePath();
+        } else {
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            tmp_ctx.beginPath();
+            tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
+
+            for (var i = 1; i < presenter.points.length - 2; i++) {
+                var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
+                var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
+
+                tmp_ctx.quadraticCurveTo(presenter.points[i].x, presenter.points[i].y, c, d);
+            }
+
+            tmp_ctx.quadraticCurveTo(
+                presenter.points[i].x,
+                presenter.points[i].y,
+                presenter.points[i + 1].x,
+                presenter.points[i + 1].y
+            );
+            tmp_ctx.stroke();
+        }
+
+        if (presenter.data.isPencilActive) {
+            // active only on drawing, disable when eraser
+            checkCorrectness();
+        }
+    };
+
     function draw(e) {
         updateCursorPosition(e);
 
@@ -521,67 +585,160 @@ function AddonShape_Tracing_create() {
         }
     }
 
-    function turnOnEventListeners() {
-        var ctx = presenter.$view.find(".drawing");
-        var isDown = false;
-        ctx.on('click', function(e) {
-            e.stopPropagation();
-        });
+    presenter.points = [];
+    presenter.mouse = {x: 0, y: 0};
 
-        if (MobileUtils.isEventSupported('touchstart')) {
-            // TOUCH
-            ctx.on('touchstart', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-                updateCursorPosition(e);
-                drawDot();
-                ctx.on('touchmove', draw);
-                if (presenter.data.isPencilActive) {
-                    presenter.data.isStarted = true;
-                    presenter.data.numberOfLines++;
+    // work-around for double line in android browser
+    function setOverflowWorkAround(turnOn) {
+
+        if (!MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) { return false; }
+
+        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+        if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
+
+            presenter.$view.parents("*").each(function() {
+                var overflow = null;
+                if (turnOn) {
+                    $(this).attr("data-overflow", $(this).css("overflow"));
+                    $(this).css("overflow", "visible");
                 } else {
-                    resetAddon(false);
+                    overflow = $(this).attr("data-overflow");
+                    if (overflow !== "") {
+                        $(this).css("overflow", overflow);
+                    }
+                    $(this).removeAttr("data-overflow");
                 }
             });
 
-            ctx.on('touchend', function () {
-                ctx.off('touchmove', draw);
-
-                if (presenter.data.isPencilActive) {
-                    eventCreator();
-                }
-            });
-        } else {
-            // MOUSE
-            ctx.on('mousedown', function (e) {
-                isDown = true;
-                e.stopPropagation();
-                updateCursorPosition(e);
-                drawDot();
-                ctx.on('mousemove', draw);
-
-                if (presenter.data.isPencilActive) {
-                    presenter.data.isStarted = true;
-                    presenter.data.numberOfLines++;
-                } else {
-                    resetAddon(false);
-                }
-            });
-
-            ctx.on('mouseup mouseleave', function () {
-                ctx.off('mousemove', draw);
-                if (isDown && presenter.data.isPencilActive) {
-                    eventCreator();
-                    isDown = false;
-                }
-            });
         }
+
+        return true;
     }
 
+    function turnOnEventListeners () {
+        presenter.tmp_canvas = presenter.configuration.tmp_canvas;
+        presenter.tmp_ctx = presenter.configuration.tmp_ctx;
+        presenter.ctx = presenter.configuration.context;
+        presenter.isDown = false;
+
+        // TOUCH
+        if (MobileUtils.isEventSupported('touchstart')) {
+            presenter.tmp_canvas.addEventListener('touchstart', presenter.onTouchStartCallback, false);
+
+            presenter.tmp_canvas.addEventListener('touchend', presenter.onTouchEndEventCallback, false);
+        } else {
+            // MOUSE
+            presenter.tmp_canvas.addEventListener('mousemove', presenter.onMouseMoveCallback, false);
+
+            $(presenter.tmp_canvas).on('mouseleave', presenter.onMouseUpCallback);
+
+            presenter.tmp_canvas.addEventListener('mousedown', presenter.onMouseDownCallback, false);
+
+
+            presenter.tmp_canvas.addEventListener('mouseup', presenter.onMouseUpCallback, false);
+
+        }
+
+        presenter.tmp_canvas.addEventListener('click', function(e) {
+            e.stopPropagation();
+        }, false);
+    }
+
+    presenter.onMouseDownCallback = function (e) {
+        e.stopPropagation();
+
+        setOverflowWorkAround(true);
+
+        if (presenter.data.isPencilActive) {
+            presenter.tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
+        }
+
+        var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+        var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+        presenter.points.push({x: x, y: y});
+
+        if (presenter.data.isPencilActive) {
+            presenter.onPaint(e);
+        }
+        if (presenter.data.isPencilActive) {
+            presenter.data.isStarted = true;
+            presenter.data.numberOfLines++;
+        } else {
+            resetAddon(false);
+        }
+    };
+
+    presenter.onTouchStartCallback = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setOverflowWorkAround(true);
+
+        if (presenter.data.isPencilActive) {
+            presenter.onMobilePaint(e);
+            presenter.tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
+        }
+        if (presenter.data.isPencilActive) {
+            presenter.data.isStarted = true;
+            presenter.data.numberOfLines++;
+        } else {
+            resetAddon(false);
+        }
+    };
+
+    presenter.onTouchEndEventCallback = function (e) {
+        e.stopPropagation();
+
+        setOverflowWorkAround(false);
+
+        presenter.tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
+        presenter.ctx.drawImage(presenter.tmp_canvas, 0, 0);
+        presenter.tmp_ctx.clearRect(0, 0, presenter.tmp_canvas.width, presenter.tmp_canvas.height);
+
+        presenter.points = [];
+
+        if (presenter.data.isPencilActive) {
+            eventCreator();
+        }
+    };
+
+    presenter.onMouseMoveCallback = function (e) {
+        e.stopPropagation();
+
+        var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+        var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+    };
+
+    presenter.onMouseUpCallback = function (e) {
+        e.stopPropagation();
+
+        setOverflowWorkAround(false);
+
+        presenter.tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+        presenter.ctx.drawImage(presenter.tmp_canvas, 0, 0);
+        presenter.tmp_ctx.clearRect(0, 0, presenter.tmp_canvas.width, presenter.tmp_canvas.height);
+
+        presenter.points = [];
+
+        if (presenter.isDown && presenter.data.isPencilActive) {
+            eventCreator();
+            presenter.isDown = false;
+        }
+    };
+
     function turnOffEventListeners() {
-        var drawing = presenter.$view.find(".drawing");
-        drawing.off("touchstart touchend touchmove");
-        drawing.off("mousedown mouseup mouseleave mousemove");
+        if (MobileUtils.isEventSupported('touchstart')) {
+            presenter.tmp_canvas.removeEventListener('touchstart', presenter.onTouchStartCallback, false);
+            presenter.tmp_canvas.removeEventListener('touchend', presenter.onTouchEndEventCallback, false);
+        }else{
+            presenter.tmp_canvas.removeEventListener('mouseup', presenter.onMouseUpCallback, false);
+            presenter.tmp_canvas.removeEventListener('mousedown', presenter.onMouseDownCallback, false);
+            presenter.tmp_canvas.removeEventListener('mousemove', presenter.onMouseMoveCallback, false);
+        }
     }
 
     presenter.ERROR_CODES = {
@@ -785,6 +942,8 @@ function AddonShape_Tracing_create() {
         presenter.data.width = parseInt(model["Width"], 10);
         presenter.data.height = parseInt(model["Height"], 10);
 
+        presenter.$view.find('.shape-tracing-wrapper').append("<canvas class='drawing'>element canvas is not supported by your browser</canvas>");
+
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -808,6 +967,18 @@ function AddonShape_Tracing_create() {
         presenter.$view.find("div.background").attr('id', presenter.data.divID + "_background");
         presenter.$view.find("div.shape").attr('id', presenter.data.divID + "_shape");
         presenter.$view.find("div.correctImage").attr('id', presenter.data.divID + "_correctImage");
+
+        presenter.configuration.canvas = presenter.$view.find('.drawing');
+        presenter.configuration.context = presenter.configuration.canvas[0].getContext("2d");
+
+        presenter.configuration.tmp_canvas = document.createElement('canvas');
+        presenter.configuration.tmp_ctx = presenter.configuration.tmp_canvas.getContext('2d');
+        $(presenter.configuration.tmp_canvas).addClass('tmp_canvas');
+        presenter.configuration.tmp_canvas.width = presenter.configuration.canvas.width();
+        presenter.configuration.tmp_canvas.height = presenter.configuration.canvas.height();
+
+        presenter.$view.find('.shape-tracing-wrapper')[0].appendChild(presenter.configuration.tmp_canvas);
+
 
         presenter.$view.css('opacity', presenter.configuration.opacity);
 

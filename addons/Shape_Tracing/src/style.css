@@ -5,6 +5,7 @@
 }
 
 .addon_Shape_Tracing .outer .drawing,
+.addon_Shape_Tracing .outer .tmp_canvas,
 .addon_Shape_Tracing .outer .background,
 .addon_Shape_Tracing .outer .shape {
     position: absolute;
@@ -25,6 +26,10 @@
     cursor: crosshair;
 }
 
+.addon_Shape_Tracing .outer .tmp_canvas {
+    cursor: crosshair;
+}
+
 .shape-tracing-wrapper.outer {
     position: relative;
     width: 100%;
@@ -32,6 +37,7 @@
 }
 
 .shape-tracing-wrapper.outer .drawing,
+.shape-tracing-wrapper.outer .tmp_canvas,
 .shape-tracing-wrapper.outer .background,
 .shape-tracing-wrapper.outer .shape {
     position: absolute;
@@ -49,5 +55,9 @@
 }
 
 .shape-tracing-wrapper.outer .drawing {
+    cursor: crosshair;
+}
+
+.shape-tracing-wrapper.outer .tmp_canvas {
     cursor: crosshair;
 }
