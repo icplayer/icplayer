@@ -324,6 +324,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			markGapAsWrong();
 		} else if(commandName.compareTo("markgapasempty") == 0) {
 			markGapAsEmpty();
+		} else if(commandName.compareTo("reset") == 0) {
+			reset();
 		}
 		
 		return value;
@@ -361,6 +363,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 		presenter.hide = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::hide()();
+		}
+		
+		presenter.reset = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::reset()();
 		}
 
 		presenter.markGapAsCorrect = function() {
