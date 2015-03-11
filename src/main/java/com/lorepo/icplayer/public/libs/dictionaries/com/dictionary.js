@@ -62,6 +62,7 @@ var ice_dictionary = {
 	"page_saved" : "Page saved.",
 	"saving_changes" : "Saving changes",
 	"cant_save_page" : "Can't save page: ",
+	"cant_save_page_Forbidden": "Can't save page. Probably you have been logged out.",
 	"properties" : "Properties",
 	"module_title" : "Module: ",
 	"text_editor" : "Text Editor",
