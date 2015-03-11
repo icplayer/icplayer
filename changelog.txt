@@ -1,3 +1,5 @@
+2015-03-11 Added show() and hide() commands to Multiple Gap module
+2015-03-11 Fixed problem with reacting to ShowAnswers event in Multiple Gap module connected to Image Source modules
 2015-03-09 Added reset command in Image Gap module
 2015-03-09 Fixed issue with setting opacity, drawing and double lines in Android 4.1.1, 4.1.2, 4.2.2, 4.3, 4.4.2 in Shape Tracing module
 2015-03-09 Fixed issue with restoring state in IWB Toolbar module

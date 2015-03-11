@@ -1,4 +1,13 @@
 function Addonmultiplegap_create(){
+    /*
+     * KNOWN ISSUES:
+     *     Invalid properties values (Item width, Item height, Item spacing, Maximum item count):
+     *          When addon validated model it checks only value of those properties by numerical values. If parsed
+      *         value is not a number - no error message is showed - that's because calculated values from those
+      *         properties are only used in CSS. Invalid CSS value set with jQuery will simply not be added to
+      *         DOM element, but it won't brake anything. Changing this behaviour will break backward compatibility!
+     */
+
     var presenter = function(){};
 
     presenter.ORIENTATIONS = {
@@ -11,11 +20,11 @@ function Addonmultiplegap_create(){
         TEXTS: 1
     };
 
-    presenter.ERROR_MESSAGES = {
-        INVALID_ITEM_WIDTH         : "Item width has to be greater than 0",
-        INVALID_ITEM_HEIGHT        : "Item height has to be greater than 0",
-        INVALID_ITEM_SPACING       : "Item spacing has to be greater or equal than 0",
-        INVALID_MAXIMUM_ITEM_COUNT : "Maximum item count has to be greater or equal than 1"
+    presenter.ERROR_CODES = {
+        INVALID_ITEM_WIDTH: "Item width has to be greater than 0",
+        INVALID_ITEM_HEIGHT: "Item height has to be greater than 0",
+        INVALID_ITEM_SPACING: "Item spacing has to be greater or equal than 0",
+        INVALID_MAXIMUM_ITEM_COUNT: "Maximum item count has to be greater or equal than 1"
     };
 
     presenter.eventBus            = null;
@@ -25,52 +34,85 @@ function Addonmultiplegap_create(){
 
     presenter.selectedItem        = null;
 
-    presenter.sourceType          = null;
-    presenter.orientation         = null;
-
-    presenter.maximumItemCount    = 1;
-    presenter.itemWidth           = null;
-    presenter.itemHeight          = null;
-    presenter.itemSpacing         = null;
-    presenter.stretchImages       = false;
-
-    presenter.itemHorizontalAlign = null;
-    presenter.itemVerticalAlign   = null;
-
     presenter.items               = [];
 
     presenter.showErrorsMode      = false;
     presenter.isShowAnswersActive = false;
 
-    presenter.showErrorMessage = function(message) {
-        presenter.$view.text(message);
-    };
-
     presenter.createPreview = function(view, model) {
-        presenter.createLogic(view, model);
+        presenter.createLogic(view, model, true);
     };
 
     presenter.run = function(view, model) {
-        presenter.pageLoadedDeferred = new $.Deferred();
-        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
-
-        presenter.createLogic(view, model);
-
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
-        presenter.eventBus.addEventListener('NotAllAttempted', this);
-        presenter.eventBus.addEventListener('Submitted', this);
+        presenter.createLogic(view, model, false);
     };
 
-    presenter.validateModel = function (model) {
+    presenter.validateItems = function (model) {
+        var itemWidth = parseInt(model['Item width']);
+        if (!isNaN(itemWidth) && itemWidth <= 0) {
+            return {isError: true, errorCode: 'INVALID_ITEM_WIDTH'};
+        }
+
+        var itemHeight = parseInt(model['Item height']);
+        if (!isNaN(itemHeight) && itemHeight <= 0) {
+            return {isError: true, errorCode: 'INVALID_ITEM_HEIGHT'};
+        }
+
+        var itemSpacing = parseInt(model['Item spacing']);
+        if (!isNaN(itemSpacing) && itemSpacing < 0) {
+            return {isError: true, errorCode: 'INVALID_ITEM_SPACING'};
+        }
+
+        var maximumItemCount = parseInt(model['Maximum item count']);
+        if (!isNaN(maximumItemCount) && maximumItemCount < 1) {
+            return {isError: true, errorCode: 'INVALID_MAXIMUM_ITEM_COUNT'};
+        }
+
         return {
             isError: false,
-            ID: model.ID,
-            isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity'])
+            value: {
+                width: itemWidth,
+                height: itemHeight,
+                spacing: itemSpacing,
+                maximumCount: maximumItemCount,
+                horizontalAlign: model['Item horizontal align'],
+                verticalAlign: model['Item vertical align']
+            }
         };
     };
 
-    presenter.createLogic = function(view, model) {
+    presenter.validateModel = function (model) {
+        var orientation = presenter.ORIENTATIONS.HORIZONTAL;
+        if (model['Orientation'] === "vertical") {
+            orientation = presenter.ORIENTATIONS.VERTICAL;
+        }
+
+        var sourceType = presenter.SOURCE_TYPES.IMAGES;
+        if (model['Source type'] == "texts") {
+            sourceType = presenter.SOURCE_TYPES.TEXTS;
+        }
+
+        var validatedItems = presenter.validateItems(model);
+        if (validatedItems.isError) {
+            return validatedItems;
+        }
+
+        var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+
+        return {
+            isError: false,
+            ID: model.ID,
+            isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity']),
+            isVisible: isVisible,
+            isVisibleByDefault: isVisible,
+            orientation: orientation,
+            sourceType: sourceType,
+            stretchImages: model['Stretch images?'] == 'True',
+            items: validatedItems.value
+        };
+    };
+
+    presenter.createLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.addonID = model.ID;
 
@@ -84,53 +126,41 @@ function Addonmultiplegap_create(){
         container.append(placeholders);
 
         presenter.configuration = presenter.validateModel(model);
+        if (presenter.configuration.isError) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
 
-        switch(model['Orientation']) {
-            default:
-            case 'horizontal':
-                presenter.orientation = presenter.ORIENTATIONS.HORIZONTAL;
-                container.addClass("multiplegap_horizontal");
-                break;
+            delete presenter.executeCommand;
+            delete presenter.countItems;
+            delete presenter.isAllOK;
+            delete presenter.isAttempted;
+            delete presenter.show;
+            delete presenter.hide;
+            delete presenter.getMaxScore;
+            delete presenter.getScore;
+            delete presenter.getErrorCount;
+            delete presenter.setShowErrorsMode;
+            delete presenter.setWorkMode;
+            delete presenter.reset;
+            delete presenter.getState;
+            delete presenter.setState;
 
-            case 'vertical':
-                presenter.orientation = presenter.ORIENTATIONS.VERTICAL;
-                container.addClass("multiplegap_vertical");
-                break;
+            return;
         }
 
+        if (!isPreview) {
+            presenter.pageLoadedDeferred = new $.Deferred();
+            presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        switch(model['Source type']) {
-            default:
-            case 'images':
-                presenter.sourceType = presenter.SOURCE_TYPES.IMAGES;
-                container.addClass("multiplegap_images");
-                break;
-
-            case 'texts':
-                presenter.sourceType = presenter.SOURCE_TYPES.TEXTS;
-                container.addClass("multiplegap_texts");
-                break;
+            presenter.eventBus.addEventListener('ItemSelected', presenter.eventListener);
+            presenter.eventBus.addEventListener('PageLoaded', this);
+            presenter.eventBus.addEventListener('ShowAnswers', this);
+            presenter.eventBus.addEventListener('HideAnswers', this);
+            presenter.eventBus.addEventListener('NotAllAttempted', this);
+            presenter.eventBus.addEventListener('Submitted', this);
         }
 
-        presenter.itemWidth = parseInt(model['Item width']);
-        if(presenter.itemWidth <= 0)
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.INVALID_ITEM_WIDTH);
-
-        presenter.itemHeight = parseInt(model['Item height']);
-        if(presenter.itemHeight <= 0)
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.INVALID_ITEM_HEIGHT);
-
-        presenter.itemSpacing = parseInt(model['Item spacing']);
-        if(presenter.itemSpacing < 0)
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES.INVALID_ITEM_SPACING);
-
-        presenter.maximumItemCount = parseInt(model['Maximum item count']);
-        if(presenter.maximumItemCount < 1)
-            presenter.showErrorMessage(presenter.INVALID_MAXIMUM_ITEM_COUNT);
-
-        presenter.stretchImages = model['Stretch images?'] == 'True';
-        presenter.itemHorizontalAlign = model['Item horizontal align'];
-        presenter.itemVerticalAlign = model['Item vertical align'];
+        container.addClass("multiplegap_" + (presenter.configuration.orientation == presenter.ORIENTATIONS.HORIZONTAL ? "horizontal" : "vertical"));
+        container.addClass("multiplegap_" + (presenter.configuration.sourceType == presenter.SOURCE_TYPES.TEXTS ? "texts" : "images" ));
 
         container.css({
             width: presenter.$view.css('width'),
@@ -153,6 +183,10 @@ function Addonmultiplegap_create(){
         }
 
         presenter.$view.append(container);
+
+        if (!presenter.configuration.isVisibleByDefault) {
+            presenter.hide();
+        }
     };
 
     presenter.eventListener = {
@@ -162,17 +196,17 @@ function Addonmultiplegap_create(){
             if(typeof(eventData.item) == "undefined") {
                 presenter.clearSelected();
 
-            } else if(presenter.sourceType == presenter.SOURCE_TYPES.IMAGES && eventData.type == "image") {
+            } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES && eventData.type == "image") {
                 presenter.saveSelected(eventData);
 
-            } else if(presenter.sourceType == presenter.SOURCE_TYPES.TEXTS && eventData.type == "string") {
+            } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.TEXTS && eventData.type == "string") {
                 presenter.saveSelected(eventData);
             }
         }
     };
 
     presenter.selectorRootClass = function() {
-        switch(presenter.sourceType) {
+        switch(presenter.configuration.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
                 return ".multiplegap_images";
 
@@ -211,7 +245,7 @@ function Addonmultiplegap_create(){
     };
 
     presenter.maximumItemCountReached = function() {
-        return presenter.countItems() >= presenter.maximumItemCount;
+        return presenter.countItems() >= presenter.configuration.items.maximumCount;
     };
 
     presenter.parseItemValue = function (item) {
@@ -222,11 +256,23 @@ function Addonmultiplegap_create(){
     	}
     };
 
-    presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
-        function getImageURL(elem) {
-    		return presenter.playerController.getModule(elem.item).getImageUrl();
-    	}
+    presenter.getImageURL = function (elem) {
+        var imageSourceModule = presenter.playerController.getModule(elem.item);
 
+        if (imageSourceModule == null || !imageSourceModule.hasOwnProperty('getImageUrl')) {
+            return '';
+        }
+
+        return imageSourceModule.getImageUrl();
+    };
+
+    presenter.updateLaTeX = function (element) {
+        MathJax.CallBack.Queue().Push(function () {
+            MathJax.Hub.Typeset(element)
+        });
+    };
+
+    presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
         if(!presenter.isShowAnswersActive){
             if(!force && presenter.selectedItem == null) return;
             if(presenter.maximumItemCountReached()) return;
@@ -240,40 +286,39 @@ function Addonmultiplegap_create(){
             placeholder = $('<div class="placeholder"></div>');
         }
         placeholder.css({
-            width: presenter.itemWidth + 'px',
-            height: presenter.itemHeight + 'px'
+            width: presenter.configuration.items.width + 'px',
+            height: presenter.configuration.items.height + 'px'
         });
 
         var i = presenter.countItems();
 
-        switch(presenter.orientation) {
+        switch(presenter.configuration.orientation) {
             case presenter.ORIENTATIONS.HORIZONTAL:
                 placeholder.css({
                     top: 0,
-                    left: (i == 0 ? 0 : presenter.itemWidth * i + presenter.itemSpacing * i) + 'px'
+                    left: (i == 0 ? 0 : presenter.configuration.items.width * i + presenter.configuration.items.spacing * i) + 'px'
                 });
                 break;
 
             case presenter.ORIENTATIONS.VERTICAL:
                 placeholder.css({
                     left: 0,
-                    top: (i == 0 ? 0 : presenter.itemHeight * i + presenter.itemSpacing * i) + 'px'
+                    top: (i == 0 ? 0 : presenter.configuration.items.height * i + presenter.configuration.items.spacing * i) + 'px'
                 });
                 break;
         }
 
         presenter.$view.find('.multiplegap_placeholders').append(placeholder);
 
-        switch(presenter.sourceType) {
+        switch(presenter.configuration.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
                 child = $('<img class="contents" alt="" />');
-                child.attr('src', getImageURL(item));
+                child.attr('src', presenter.getImageURL(item));
 
-
-                if(presenter.stretchImages) {
+                if(presenter.configuration.stretchImages) {
                     child.css({
-                        width: presenter.itemWidth + 'px',
-                        height: presenter.itemHeight + 'px'
+                        width: presenter.configuration.items.width + 'px',
+                        height: presenter.configuration.items.height + 'px'
                     });
                 }
                 break;
@@ -293,14 +338,14 @@ function Addonmultiplegap_create(){
             .append(child);
 
         if (!isState) {
-            MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(child[0])});
+            presenter.updateLaTeX(child[0]);
         }
 
         var placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding,
             placeholderVerticalPadding = placeholderPadding.left + placeholderPadding.right,
             placeholderHorizontalPadding = placeholderPadding.top + placeholderPadding.bottom;
 
-        switch(presenter.itemHorizontalAlign) {
+        switch(presenter.configuration.items.horizontalAlign) {
             case 'left':
                 child.css({
                     position: 'absolute',
@@ -309,7 +354,7 @@ function Addonmultiplegap_create(){
                 break;
             case 'center':
 
-                switch(presenter.sourceType) {
+                switch(presenter.configuration.sourceType) {
                     case presenter.SOURCE_TYPES.TEXTS:
                         child.css({
                             position: 'absolute',
@@ -321,7 +366,7 @@ function Addonmultiplegap_create(){
                     case presenter.SOURCE_TYPES.IMAGES:
                         child.css({
                             position: 'absolute',
-                            left: Math.round((presenter.itemWidth - placeholderHorizontalPadding - parseInt(child.css('width'))) / 2) + 'px'
+                            left: Math.round((presenter.configuration.items.width - placeholderHorizontalPadding - parseInt(child.css('width'))) / 2) + 'px'
                         });
                         break;
                 }
@@ -334,7 +379,7 @@ function Addonmultiplegap_create(){
                 break;
         }
 
-        switch(presenter.itemVerticalAlign) {
+        switch(presenter.configuration.items.horizontalAlign) {
             case 'top':
                 child.css({
                     position: 'absolute',
@@ -344,7 +389,7 @@ function Addonmultiplegap_create(){
             case 'center':
                 child.css({
                     position: 'absolute',
-                    top: Math.round((presenter.itemHeight - placeholderVerticalPadding - parseInt(child.css('height'))) / 2) + 'px'
+                    top: Math.round((presenter.configuration.items.height - placeholderVerticalPadding - parseInt(child.css('height'))) / 2) + 'px'
                 });
                 break;
             case 'bottom':
@@ -399,16 +444,16 @@ function Addonmultiplegap_create(){
         var placeholder = handler.parent();
 
         presenter.$view.find('.placeholder').each(function(i, element) {
-            switch(presenter.orientation) {
+            switch(presenter.configuration.orientation) {
                 case presenter.ORIENTATIONS.HORIZONTAL:
                     if(parseInt($(element).css('left')) > parseInt(placeholder.css('left'))) {
-                        $(element).css('left', (parseInt($(element).css('left')) - presenter.itemWidth - presenter.itemSpacing) + 'px');
+                        $(element).css('left', (parseInt($(element).css('left')) - presenter.configuration.items.width - presenter.configuration.items.spacing) + 'px');
                     }
                     break;
 
                 case presenter.ORIENTATIONS.VERTICAL:
                     if(parseInt($(element).css('top')) > parseInt(placeholder.css('top'))) {
-                        $(element).css('top', (parseInt($(element).css('top')) - presenter.itemHeight - presenter.itemSpacing) + 'px');
+                        $(element).css('top', (parseInt($(element).css('top')) - presenter.configuration.items.height - presenter.configuration.items.spacing) + 'px');
                     }
                     break;
 
@@ -437,9 +482,6 @@ function Addonmultiplegap_create(){
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
-
-        presenter.eventBus.addEventListener('ItemSelected', presenter.eventListener);
-        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     function sendAllOKEvent () {
@@ -546,6 +588,12 @@ function Addonmultiplegap_create(){
         presenter.setWorkMode();
 
         presenter.clearSelected();
+
+        if (presenter.configuration.isVisibleByDefault) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
     };
     
     presenter.getState = function() {
@@ -553,29 +601,62 @@ function Addonmultiplegap_create(){
             presenter.hideAnswers();
         }
 
-        var state = [];
-
-        presenter.$view.find('.placeholder:not(.placeholder-show-answers)').each(function(i, placeholder) {
-            state.push({
+        var placeholders = jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function(placeholder) {
+            return {
                 item : $(placeholder).attr('draggableItem'),
                 value : $(placeholder).attr('draggableValue'),
                 type : $(placeholder).attr('draggableType')
-            });
+            };
         });
 
-        return JSON.stringify(state);
+        return JSON.stringify({
+            placeholders: placeholders,
+            isVisible: presenter.configuration.isVisible
+        });
     };
 
-    presenter.setState = function(serializedState) {
-        var state = JSON.parse(serializedState);
+    presenter.upgradeState = function (parsedState) {
+        return presenter.upgradeStateForVisibility(parsedState);
+    };
 
-        for(var i = 0; i < state.length; i++) {
-            presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), state[i], false, true, true);
+    presenter.upgradeStateForVisibility = function (parsedState) {
+        if (parsedState.constructor == Array) {
+            // Before introducing show and hide commands, whole state was an array of
+            // entered by user elements (called placeholders).
+            return {
+                placeholders: parsedState,
+                isVisible: true
+            };
+        }
+
+        return parsedState;
+    };
+
+    presenter.setState = function(state) {
+        if (!state) {
+            return;
+        }
+
+        var parsedState = JSON.parse(state),
+            upgradedState = presenter.upgradeState(parsedState);
+
+        for(var i = 0; i < upgradedState.placeholders.length; i++) {
+            presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), upgradedState.placeholders[i], false, true, true);
+        }
+
+        if (upgradedState.isVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
         }
 
         presenter.pageLoaded.then(function() {
-            MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.$view.find('.multiplegap_container')[0])});
+            presenter.updateLaTeX(presenter.getContainerElement());
         });
+    };
+
+    presenter.getContainerElement = function () {
+        return presenter.$view.find('.multiplegap_container')[0];
     };
 
     presenter.countItems = function() {
@@ -594,11 +675,32 @@ function Addonmultiplegap_create(){
         return presenter.countItems() > 0;
     };
 
+    presenter.setVisibility = function (isVisible) {
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+    };
+
+    presenter.hide = function () {
+        if (presenter.configuration.isVisible) {
+            presenter.setVisibility(false);
+            presenter.configuration.isVisible = false;
+        }
+    };
+
+    presenter.show = function () {
+        if (!presenter.configuration.isVisible) {
+            presenter.setVisibility(true);
+            presenter.configuration.isVisible = true;
+            presenter.updateLaTeX(presenter.getContainerElement());
+        }
+    };
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'countItems': presenter.countItems,
             'isAllOK': presenter.isAllOK,
-            'isAttempted' : presenter.isAttempted
+            'isAttempted' : presenter.isAttempted,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -618,9 +720,15 @@ function Addonmultiplegap_create(){
         }
     };
 
-    function getElementText(id, element) {
-        return presenter.playerController.getModule(id).getItem(element);
-    }
+    presenter.getElementText = function (id, element) {
+        var module = presenter.playerController.getModule(id);
+
+        if (module == null || !module.hasOwnProperty('getItem')) {
+            return '';
+        }
+
+        return module.getItem(element);
+    };
 
     presenter.showAnswers = function () {
         if (!presenter.configuration.isActivity) return;
@@ -639,16 +747,16 @@ function Addonmultiplegap_create(){
         presenter.$view.find('.placeholder').remove();
 
         for(var i=0; i<presenter.items.length; i++){
-            var itemId = presenter.items[i];
+            var moduleID = presenter.items[i];
 
-            if (itemId.indexOf("Image") >= 0){
-                presenter.performAcceptDraggable('<div></div>', {type:'string', value: '', item: itemId}, false, false, false);
+            if (presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES){
+                presenter.performAcceptDraggable('<div></div>', {type:'string', value: '', item: moduleID}, false, false, false);
             }else{
-                var elementId = itemId.split('-')[0],
-                elementIndex = itemId.split('-')[1],
-                value = getElementText(elementId, elementIndex);
+                var elementId = moduleID.split('-')[0],
+                elementIndex = moduleID.split('-')[1],
+                value = presenter.getElementText(elementId, elementIndex);
 
-                presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: itemId}, false, false, false);
+                presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
             }
         }
     };
