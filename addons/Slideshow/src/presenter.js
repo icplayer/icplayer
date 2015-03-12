@@ -136,10 +136,17 @@ function AddonSlideshow_create() {
         buzz.defaults.autoplay = false;
         buzz.defaults.loop = false;
 
-        presenter.configuration.buzzAudio = new buzz.sound([
-            presenter.configuration.audio.MP3,
-            presenter.configuration.audio.OGG
-        ]);
+        if (buzz.isOGGSupported()) {
+            presenter.configuration.buzzAudio = new buzz.sound([
+                presenter.configuration.audio.OGG
+            ]);
+        }
+
+        if (buzz.isMP3Supported()) {
+            presenter.configuration.buzzAudio = new buzz.sound([
+                presenter.configuration.audio.MP3
+            ]);
+        }
 
         if (presenter.configuration.audio.MP3 === "" || presenter.configuration.audio.OGG === "")
             return { isError: true, errorCode: "A_03" };
