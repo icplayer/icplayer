@@ -1,3 +1,4 @@
+2015-03-12 Fixed issue with clicking on Android 4.4.2 in Image Identification module
 2015-03-12 Fixed issue with playing audio on Firefox 19 in Slideshow module
 2015-03-12 Fixed Show Answers mode in Table module
 2015-03-11 Added show() and hide() commands to Multiple Gap module

@@ -52,27 +52,39 @@ function AddonImage_Identification_create(){
             }
         );
 
-        element.on('touchstart', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
+        if (MobileUtils.isEventSupported('touchstart')) {
+            element.on('touchstart', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-            presenter.lastEvent = e;
-        });
+                presenter.lastEvent = e;
+            });
 
-        element.on('touchend', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
+            element.on('touchend', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-            if ( presenter.lastEvent.type != e.type ) {
-                clickLogic();
-            }
-        });
+                if ( presenter.lastEvent.type != e.type ) {
+                    clickLogic();
+                }
+            });
+        }else{
+            element.on('mousedown', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-        element.click(function(e) {
-            e.stopPropagation();
-            clickLogic();
-        });
+                presenter.lastEvent = e;
+            });
 
+            element.on ('mouseup', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if ( presenter.lastEvent.type != e.type ) {
+                    clickLogic();
+                }
+            });
+        }
     };
 
     function setViewDimensions(model) {
