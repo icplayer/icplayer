@@ -828,7 +828,7 @@ function AddonTable_create() {
                 var gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
                 $(gap).attr('disabled', 'disabled');
                 presenter.answers.push($(gap).val());
-                $(gap).val(/[^,]*/.exec(gapDescription.answers)[0]);
+                $(gap).val(gapDescription.answers[0]);
                 presenter.removeMarkClasses(gap);
                 $(gap).addClass('ic_gap-show-answers');
             });
