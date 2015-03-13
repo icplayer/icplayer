@@ -30,17 +30,24 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		StyleUtils.applyInlineStyle(this, module);
 		String imageUrl = module.getUrl();
 		add(image);
+
 		if(imageUrl.length() > 0){
 			image.addLoadHandler(new LoadHandler() {
-				
 				@Override
 				public void onLoad(LoadEvent event) {
-					setImageSize();
+					if (!isVisible()) { //if not visible make it, just to work on IE9, 10
+						setVisible(true);
+						setImageSize();
+						setVisible(false);
+					} else {
+						setImageSize();
+					}
 				}
 			});
+			
 			image.setUrl(imageUrl);
 		}
-		
+
 		setImageSize();
 		if(!isPreview){
 			setVisible(module.isVisible());
@@ -50,7 +57,6 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 	
 	private void setImageSize() {
-
 		if(module.getDisplayMode() == DisplayMode.stretch){
 			image.setPixelSize(module.getWidth(), module.getHeight());
 		}
@@ -64,12 +70,11 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 	
 	private void keepAspect(int width, int height) {
-		
 		if(image.getWidth() > 0 && image.getHeight() > 0){
 		
 			float aspectX = width/(float)image.getWidth();
 			float aspectY = height/(float)image.getHeight();
-	
+
 			if(aspectX < aspectY){
 				int newHeight = (int) (image.getHeight()*aspectX);
 				image.setPixelSize(width, newHeight);
