@@ -645,6 +645,7 @@ function AddonShape_Tracing_create() {
     }
 
     presenter.onMouseDownCallback = function (e) {
+        presenter.isDown = true;
         e.stopPropagation();
 
         setOverflowWorkAround(true);

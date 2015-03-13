@@ -1,3 +1,4 @@
+2015-03-13 Fixed issue with sending events in Shape Tracing module
 2015-03-12 Fixed issue with clicking on Android 4.4.2 in Image Identification module
 2015-03-12 Fixed issue with playing audio on Firefox 19 in Slideshow module
 2015-03-12 Fixed Show Answers mode in Table module
