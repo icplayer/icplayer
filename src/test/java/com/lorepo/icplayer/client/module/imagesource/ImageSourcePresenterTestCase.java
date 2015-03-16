@@ -192,25 +192,6 @@ public class ImageSourcePresenterTestCase {
 	}
 
 	@Test
-	public void saveLoadState() {
-
-		display.click();
-		
-		draggableItem = new DraggableItem(module.getId(), "test");
-		ItemConsumedEvent event = new ItemConsumedEvent(draggableItem);
-		services.getEventBus().fireEventFromSource(event, this);
-
-		assertFalse(display.isVisible());
-		String state = presenter.getState();
-		
-		services.getEventBus().fireEvent(new ResetPageEvent());
-		assertTrue(display.isVisible());
-
-		presenter.setState(state);
-		assertFalse(display.isVisible());
-	}
-	
-	@Test
 	public void dontRemoveNotRemovable() throws SAXException, IOException {
 
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");

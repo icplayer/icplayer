@@ -81,19 +81,19 @@ public class ImageSourceView extends Image implements IDisplay {
 	}
 
 	@Override
-	public void showImage() {
+	public void getImageUrl() {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public void show() {
 		setVisible(true);
 	}
 
-	@Override
-	public void hideImage() {
-		deselect();
-		setVisible(false);
-	}
 
 	@Override
-	public void getImageUrl() {
-		// TODO Auto-generated method stub
+	public void hide() {
+		setVisible(false);
 	}
 
 }

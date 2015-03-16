@@ -45,16 +45,6 @@ public class ImageSourceViewMockup implements IDisplay {
 	}
 
 	@Override
-	public void showImage() {
-		isVisible = true;
-	}
-
-	@Override
-	public void hideImage() {
-		isVisible = false;
-	}
-
-	@Override
 	public Element getElement() {
 		// TODO Auto-generated method stub
 		return null;
@@ -64,5 +54,15 @@ public class ImageSourceViewMockup implements IDisplay {
 	public void getImageUrl() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void show() {
+		isVisible = true;
+	}
+
+	@Override
+	public void hide() {
+		isVisible = false;
 	}
 }

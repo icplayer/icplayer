@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.imagesource;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -7,6 +8,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -23,10 +26,10 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 public class ImageSourcePresenter implements IPresenter, IStateful, ICommandReceiver{
 
 	public interface IDisplay extends IModuleView{
+		public void show();
+		public void hide();
 		public void select();
 		public void deselect();
-		public void showImage();
-		public void hideImage();
 		public void addListener(IViewListener l);
 		public void getImageUrl();
 		public Element getElement();
@@ -36,12 +39,14 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	private IDisplay view;
 	private IPlayerServices playerServices;
 	boolean selected = false;
-	boolean visible = true;
+	boolean isImageVisible = true;
+	private boolean isModuleVisible;
 	private JavaScriptObject jsObject;
 	
 	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
+		this.isModuleVisible = model.isVisible();
 		
 		connectHandlers();
 	}
@@ -81,22 +86,31 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	private void itemConsumed(DraggableItem draggableItem) {
 		deselectImage();
 		if (model.getId().compareTo(draggableItem.getId()) == 0 && model.isRemovable()) {
-			view.hideImage();
-			visible = false;
+			view.hide();
+			isImageVisible = false;
 		}
 	}
 
 	private void itemReturned(DraggableItem draggableItem) {
 		if (model.getId().compareTo(draggableItem.getId()) == 0) {
-			view.showImage();
-			visible = true;
+			isImageVisible = true;
+			
+			if (isModuleVisible) {
+				view.show();
+			}
 		}
 	}
 
 	private void reset() {
 		deselectImage();
-		visible = true;
-		view.showImage();
+		isImageVisible = true;
+		isModuleVisible = model.isVisible();
+		
+		if (isModuleVisible && isImageVisible) {
+			view.show();
+		} else {
+			view.hide();
+		}
 	}
 
 	private void deselectImage() {
@@ -141,14 +155,34 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 
 	@Override
 	public String getState() {
-		return Boolean.toString(visible);
+		HashMap<String, String> state = new HashMap<String, String>();
+		state.put("isImageVisible", Boolean.toString(isImageVisible));
+		state.put("isModuleVisible", Boolean.toString(isModuleVisible));
+		
+		return JSONUtils.toJSONString(state);
 	}
 
 	@Override
 	public void setState(String state) {
-		visible = Boolean.parseBoolean(state);
-		if (!visible) {
-			view.hideImage();
+		if (state == null || state.equals("")) {
+			return;
+		}
+		
+		if (state.equals("true") || state.equals("false")) {
+			isImageVisible = Boolean.parseBoolean(state);
+			isModuleVisible = true;
+		} else {
+			HashMap<String, String> decodedState = JSONUtils.decodeHashMap(state);
+			isImageVisible = Boolean.parseBoolean(decodedState.get("isImageVisible"));
+			isModuleVisible = Boolean.parseBoolean(decodedState.get("isModuleVisible"));
+		}
+		
+		if (isImageVisible && isModuleVisible) {
+			JavaScriptUtils.log("Show");
+			view.show();
+		} else {
+			JavaScriptUtils.log("Hide");
+			view.hide();
 		}
 	}
 
@@ -168,6 +202,14 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	
 		var presenter = function() {};
 			
+		presenter.show = function(){ 
+			x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::show()();
+		};
+			
+		presenter.hide = function(){ 
+			x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::hide()();
+		};
+		
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getView()();
 		};
@@ -182,6 +224,24 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		return presenter;
 	}-*/;
+	
+	private void show(){
+		isModuleVisible = true;
+
+		if (view != null) {
+			if (isImageVisible) {
+				view.show();
+			}
+		}
+	}
+	
+	
+	private void hide(){
+		isModuleVisible = false;
+		if (view != null) {
+			view.hide();
+		}
+	}
 	
 	private Element getView(){
 		return view.getElement();
@@ -198,7 +258,11 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
-		if(commandName.compareTo("reset") == 0) {
+		if(commandName.compareTo("show") == 0) {
+			show();
+		} else if (commandName.compareTo("hide") == 0) {
+			hide();
+		} else if (commandName.compareTo("reset") == 0) {
 			reset();
 		} else if (commandName.compareTo("getimageurl") == 0) {
 			return getImageUrl();

@@ -1,3 +1,4 @@
+2015-03-16 Added show() and hide() commands to Image Source module.
 2015-03-16 Fixed issue with custom class in Check Answers module
 2015-03-13 Fixed issue with mode Keep Aspect on IE9, 10 in Image module
 2015-03-13 Fixed issue with sending events in Shape Tracing module
