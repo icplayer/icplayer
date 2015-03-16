@@ -58,10 +58,12 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	
 	private void updateStyle() {
 		if (isShowErrorsMode) {
-			setStyleName("ic_button_uncheck");
+			StyleUtils.setButtonStyleName("ic_button_uncheck", this, module);
+
 			getUpFace().setText(module.getUnCheckTitle());
 		} else {
-			setStyleName("ic_button_check");
+			StyleUtils.setButtonStyleName("ic_button_check", this, module);
+
 			getUpFace().setText(module.getCheckTitle());
 		}
 	}

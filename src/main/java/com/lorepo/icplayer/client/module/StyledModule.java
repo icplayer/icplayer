@@ -3,11 +3,7 @@ package com.lorepo.icplayer.client.module;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
 
-/**
- * Klasa implementuje bazowe functionalności potrzebne wszystkim modułom
- * 
- * @author Krzysztof Langner
- */
+
 class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 
 	private IStyleListener styleListener;

@@ -18,12 +18,6 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
 
-/**
- * Prostokątny obszar o podanym kolorze i rodzaju ramki
- * 
- * @author Krzysztof Langner
- *
- */
 public class TextModel extends BasicModuleModel{
 
 	public String parsedText;

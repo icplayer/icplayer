@@ -7,11 +7,7 @@ import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-/**
- * Check answers
- * @author Krzysztof Langner
- *
- */
+
 class CheckAnswersButton extends PushButton{
 
 	private IPlayerServices playerServices;
