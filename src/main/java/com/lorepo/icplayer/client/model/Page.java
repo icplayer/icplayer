@@ -620,10 +620,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		String pageId;
 		int index = 0;
-
-		int tocLength = playerServices.getModel().getPageCount();
+		int pageCount = playerServices.getModel().getPageCount();
 		
-		for (int i = 0; i < tocLength; i++) {
+		for (int i = 0; i < pageCount; i++) {
 			if (playerServices.getModel().getPage(i).getId() == id) {
 				index = i;
 				break;

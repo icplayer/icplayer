@@ -12,4 +12,5 @@ public interface IPage extends IContentNode{
 	public String getId();
 	public String getHref();
 	public List<String> getModulesList();
+	public void setPlayerServices(IPlayerServices ps);
 }
