@@ -1,4 +1,4 @@
-TestCase("Commands Tests", {
+TestCase("[Coloring] Commands Tests", {
     setUp: function () {
         this.presenter = AddonColoring_create();
         this.model = {

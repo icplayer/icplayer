@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Coloring] Model validation", {
     setUp: function () {
         this.presenter = AddonColoring_create();
         this.model = {
@@ -6,19 +6,6 @@ TestCase("Model validation", {
             'Tolerance' : '50',
             'DefaultFillingColor' : ''
         };
-        this.presenter.configuration = {
-            'tolerance' : 50
-        };
-    },
-
-    'test compareColors true': function () {
-        var compareResult = this.presenter.compareArrays([255, 255, 255, 255], [255, 255, 255, 255]);
-        assertEquals(true, compareResult);
-    },
-
-    'test compareColors false': function () {
-        var compareResult = this.presenter.compareArrays([255, 255, 255, 255], [250, 154, 200, 250]);
-        assertEquals(false, compareResult);
     },
 
     'test validate areas wrong color format' : function() {
@@ -52,6 +39,106 @@ TestCase("Model validation", {
             validated = this.presenter.validateModel(this.model);
 
         assertEquals(expectedColor, validated.defaultFillingColor);
+    }
+
+});
+
+TestCase("[Coloring] Transparent areas validation", {
+    setUp: function () {
+        this.presenter = AddonColoring_create();
+
+    },
+
+    'test detecting proper transparent areas': function () {
+        var model = {
+            Areas: '55; 150; 255 200 255 255\n' +
+            '200; 300; transparent\n' +
+            '150; 300; transparent\n' +
+            '500; 50; 50 30 40 60'
+        };
+
+        var expectedData = [
+            {isError: false, x: 55, y: 150, colorToFill: [255, 200, 255, 255], type: this.presenter.AREA_TYPE.NORMAL},
+            {isError: false, x: 200, y: 300, colorToFill: [-1, -1, -1, -1], type: this.presenter.AREA_TYPE.TRANSPARENT},
+            {isError: false, x: 150, y: 300, colorToFill: [-1, -1, -1, -1], type: this.presenter.AREA_TYPE.TRANSPARENT},
+            {isError: false, x: 500, y: 50, colorToFill: [50, 30, 40, 60], type: this.presenter.AREA_TYPE.NORMAL}
+        ];
+
+        var validatedAreas = this.presenter.validateAreas(model.Areas);
+
+        assertFalse(validatedAreas.isError);
+        assertTrue(validatedAreas.isValid);
+        assertEquals(4, validatedAreas.items.length);
+        assertEquals(expectedData, validatedAreas.items);
+    }
+});
+
+TestCase("[Coloring] Parsing transparent area validation", {
+    setUp: function () {
+        this.presenter = AddonColoring_create();
+    },
+
+    'test parsing valid input': function () {
+        var splittedAreaArray = ["200", "300", "transparent"];
+        var expectedArea = {
+            isError: false,
+            x: 200,
+            y: 300,
+            colorToFill: [-1, -1, -1, -1],
+            type: this.presenter.AREA_TYPE.TRANSPARENT
+        };
+
+        var parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+
+        assertFalse(parsingResult.isError);
+        assertEquals(expectedArea, parsingResult);
+
+        splittedAreaArray = ["133", "522", "transparent"];
+        expectedArea = {
+            isError: false,
+            x: 133,
+            y: 522,
+            colorToFill: [-1, -1, -1, -1],
+            type: this.presenter.AREA_TYPE.TRANSPARENT
+        };
+
+        parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+        assertFalse(parsingResult.isError);
+        assertEquals(expectedArea, parsingResult);
+    },
+
+    'test parsing invalid input, not numbers co-ordinates': function () {
+        var splittedAreaArray = ["wqeqwdsadsa200", "300", "transparent"];
+
+        var parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+
+        assertFalse(parsingResult.isValid);
+        assertTrue(parsingResult.isError);
+        assertEquals('A01', parsingResult.errorCode);
+
+        splittedAreaArray = ["133", "zxvcxzvxz522", "transparent"];
+        parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+
+        assertTrue(parsingResult.isError);
+        assertFalse(parsingResult.isValid);
+        assertEquals('A01', parsingResult.errorCode);
+    },
+
+    'test parsing invalid input, negative co-ordinates': function () {
+        var splittedAreaArray = ["-23", "77", "transparent"];
+
+        var parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+
+        assertFalse(parsingResult.isValid);
+        assertTrue(parsingResult.isError);
+        assertEquals('A01', parsingResult.errorCode);
+
+        splittedAreaArray = ["23", "-77", "transparent"];
+        parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+
+        assertTrue(parsingResult.isError);
+        assertFalse(parsingResult.isValid);
+        assertEquals('A01', parsingResult.errorCode);
     }
 
 });

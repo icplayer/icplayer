@@ -1,4 +1,4 @@
-TestCase("Functionality Tests", {
+TestCase("[Coloring] Functionality Tests", {
     setUp: function () {
         this.presenter = AddonColoring_create();
         this.model = {
@@ -17,12 +17,14 @@ TestCase("Functionality Tests", {
         };
 
         sinon.stub(this.presenter, 'clearCanvas');
+        sinon.stub(this.presenter, 'recolorImage');
 
         this.presenter.$view = $('<div></div>');
     },
 
     tearDown : function() {
         this.presenter.clearCanvas.restore();
+        this.presenter.recolorImage.restore();
     },
 
     'test reset restores last used color when is erase is true' : function() {
@@ -57,6 +59,4 @@ TestCase("Functionality Tests", {
 
         assertFalse(result);
     }
-
-
 });
