@@ -1,0 +1,112 @@
+.figure {
+    -ms-touch-action: none;
+    touch-action: none;
+}
+.figure.disabled{
+}
+.canvas {
+    position:absolute;
+}
+.chart{
+    position:absolute;
+}
+.chart.disabled{
+    background: rgba(0,0,0,0.1);
+}
+.point {
+    fill: black;
+    stroke-width: 20px;
+    stroke: #A52A2A;
+    stroke-opacity: 0;
+    cursor:pointer;
+}
+
+.point.selected {
+    fill: #0099CC;
+}
+
+.grid {
+    stroke:#7A8B8B;
+    stroke-width:1;
+    stroke-dasharray: 5, 5;
+    stroke-linecap: round;
+}
+.line {
+    stroke:#05B8CC;
+    stroke-width:4;
+    stroke-linecap: round;
+}
+.line.nonremovable {
+    stroke: black;
+}
+.line.correct{
+    stroke: green;
+}
+.line.wrong{
+    stroke: red;
+}
+.line.show-answers{
+    stroke: gray;
+}
+.figure .icon-container {
+    border: 1px solid #111111;
+    border-radius: 50%;
+    font-size: 10px;
+    height: 6px;
+    line-height: 6px;
+    padding: 2px;
+    position: absolute;
+    width: 6px;
+    font-weight: bold;
+}
+.coordinates {
+    width: 35px;
+    height: 22px;
+    border: 1px solid #696969;
+    border-radius: 3px;
+    position: absolute;
+    top: -34px;
+    left: 0px;
+    font-size: 9px;
+    padding: 5px;
+    line-height: 11px;
+}
+.figure .icon-container.wrong {
+    background-color: #ff5599;
+}
+.figure .icon-container.correct {
+    background-color: #55ff99;
+}
+.figure .icon-container.correct:after {
+    content: 'v';
+}
+.figure .icon-container.wrong:after {
+    content: 'x';
+}
+.figure.deflines:before {
+    content: 'Starting lines are incorrect!';
+}
+.figure.answerlines:before {
+    content: 'Answer lines are incorrect!';
+}
+.figure.radius:before {
+    content: 'Radius is incorrect!';
+}
+.figure.nonremanswer:before {
+    content: 'At least one of the answers is a nonremovable starting line!';
+}
+.figure.colorerror:before {
+    content: 'Error in the color definition!';
+}
+.figure.startingcolor:before {
+    content: 'Error in the starting color definition!';
+}
+.figure.answerfigure:before {
+    content: 'Error in the answer figure definition!';
+}
+.figure.grid:before {
+    content: 'Enter a correct grid step!';
+}
+.figure.defcolorerror:before {
+    content: 'Enter a correct default color!';
+}

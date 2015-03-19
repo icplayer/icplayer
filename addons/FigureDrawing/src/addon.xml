@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='FigureDrawing' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="3DGrid" type="boolean" nameLabel="FigureDrawing_property_3d_grid" />
+        <property name="ShowGrid" type="boolean" nameLabel="FigureDrawing_property_show_grid" />
+        <property name="Grid" type="string" nameLabel="FigureDrawing_property_grid_step"/>
+        <property name="Radius" type="string" nameLabel="FigureDrawing_property_point_radius"/>
+        <property name="StartingLines" type="text" nameLabel="FigureDrawing_property_starting_lines" />
+        <property name="Answer" type="text" nameLabel="FigureDrawing_property_answer" />
+        <property name="IsActivity" type="boolean" nameLabel="FigureDrawing_property_is_activity" />
+        <property name="IsDisabled" type="boolean" nameLabel="FigureDrawing_property_is_disabled" />
+        <property name="Coloring" type="boolean" nameLabel="FigureDrawing_property_coloring" />
+        <property name="DefColor" type="string" nameLabel="FigureDrawing_property_default_color" />
+        <property name="StartingColors" type="text" nameLabel="FigureDrawing_property_starting_colors" />
+        <property name="AnswerColors" type="list" nameLabel="FigureDrawing_property_answer_colors">
+            <property name="Figure" type="string" nameLabel="FigureDrawing_property_figure" />
+            <property name="Color" type="string" nameLabel="FigureDrawing_property_point_and_color" />
+        </property>
+        <property name="BlockColoring" type="boolean" nameLabel="FigureDrawing_property_block_coloring" />
+        <property name="ShowAns" type="boolean" nameLabel="FigureDrawing_property_show_answers_in_editor" />
+    </model>
+</addon>

@@ -37,6 +37,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Count_and_Graph", "activities_menu");
 		addDescriptor("crossword", "activities_menu");
 		addDescriptor("Fractions", "activities_menu");
+		addDescriptor("FigureDrawing", "activities_menu");
 		addDescriptor("graph", "activities_menu");
 		addDescriptor("Hangman", "activities_menu");
 		addDescriptor("Image_Identification", "activities_menu");
