@@ -1,4 +1,3 @@
-// #0013
 function AddonTextAudio_create() {
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -136,7 +135,9 @@ function AddonTextAudio_create() {
     }
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeClickAction(model);
+    	var upgradedModel = presenter.upgradeControls(model);
+    	
+        return presenter.upgradeClickAction(upgradedModel);
     };
 
     presenter.upgradeClickAction = function(model) {
@@ -162,6 +163,22 @@ function AddonTextAudio_create() {
         return upgradedModel;
     };
 
+    presenter.upgradeControls = function(model) {
+    	var upgradedModel = {};
+    	
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (typeof upgradedModel['controls'] == "undefined") {
+        	if (upgradedModel['defaultControls'] == "True") {
+        		upgradedModel['controls'] = "Browser";
+        	} else {
+        		upgradedModel['controls'] = "None";
+        	}
+        }
+        
+        return upgradedModel;
+    };
+    
     function getSlideNumber() {
         return presenter.current_slide_data.slide_id + 1;
     }
@@ -208,6 +225,11 @@ function AddonTextAudio_create() {
         var duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
         displayTimer(0, duration);
+
+        if (presenter.configuration.controls === "Custom"){
+            var player_time = presenter.$view.find('.textaudio-player-time');
+            player_time.html('0:00 / ' + formatTime(duration))
+        }
     }
 
     presenter.sendEventAndSetCurrentTimeAlreadySent = function(eventData, currentTime) {
@@ -228,6 +250,8 @@ function AddonTextAudio_create() {
         }
     };
 
+    presenter.mouseData = {};
+    
     function onTimeUpdateCallback() {
         if (isVocabularyPlaying) {
             if (presenter.vocabulary.getTime() >= presenter.vocabulary_end) {
@@ -237,16 +261,74 @@ function AddonTextAudio_create() {
             return;
         }
         var currentTime = presenter.audio.currentTime;
+        var duration = parseInt(presenter.audio.duration, 10);
+        duration = isNaN(duration) ? 0 : duration;
+        
         if (presenter.configuration.displayTime) {
-            var duration = parseInt(presenter.audio.duration, 10);
-            duration = isNaN(duration) ? 0 : duration;
             displayTimer(currentTime, duration);
         }
+        if (presenter.configuration.controls === "Custom"){
+            var player_time = presenter.$view.find('.textaudio-player-time');
+            player_time.html(formatTime(currentTime) + ' / ' + formatTime(duration));
+            var progress_bar = presenter.$view.find('.textaudio-progress-bar'),
+                slider = progress_bar.find('.textaudio-slider-btn'),
+                bar = progress_bar.find('.textaudio-bar'),
+                bar_width = progress_bar.width() * currentTime / duration;
+            bar.width(Math.round(bar_width));
+            slider.css('left', Math.round(bar_width));
+        }
+        
         change_slide(currentTime);
         if (presenter.stopClicked) {
             presenter.$view.find('span').removeClass('active');
             hasBeenStarted = false;
             presenter.stopClicked = false;
+        }
+    }
+
+    function change_volume_class(volume_btn, volume_class) {
+        if (volume_btn.hasClass(volume_class)) {
+            return;
+        }
+        for (i=0; i<=3; i++) {
+            if (volume_btn.hasClass('textaudio-volume'+i)) {
+                volume_btn.removeClass('textaudio-volume'+i);
+            }
+        }
+        volume_btn.addClass(volume_class);
+    }
+
+    function onVolumeChanged() {
+        if (presenter.configuration.controls === "Custom"){
+            var layer = presenter.$view.find('.textaudio-volume-layer'),
+                control = layer.find('.textaudio-volume-control'),
+                volume_btn = presenter.$view.find('.textaudio-volume-btn'),
+                volume = presenter.audio.volume,
+                volume_class = '';
+            control.css('left', volume * layer.width());
+            if (volume < 0.1) {
+                volume_class = 'textaudio-volume0';
+                if (volume > 0) {
+                    presenter.audio.volume = 0;
+                }
+            } else if (volume < 0.4) {
+                volume_class = 'textaudio-volume1';
+            } else if (volume < 0.7) {
+                volume_class = 'textaudio-volume2';
+            } else {
+                volume_class = 'textaudio-volume3';
+            }
+            change_volume_class(volume_btn, volume_class);
+        }
+    }
+
+    function playPauseCallback() {
+        var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
+        if (playpause_btn.hasClass('textaudio-pause-btn')) {
+            presenter.pause();
+        }
+        else {
+            presenter.play();
         }
     }
 
@@ -415,14 +497,178 @@ function AddonTextAudio_create() {
         change_slide_from_data(slide_data);
     }
 
+    function progressMouseDownCallback(event) {
+        if ($(event.target).hasClass('textaudio-slider-btn')) {
+            presenter.mouseData.oldPosition = event.pageX;
+            presenter.mouseData.isMouseDragged = true;
+            presenter.mouseData.playedBeforeDragging = !presenter.audio.paused;
+            if (!presenter.audio.paused) {
+                presenter.pause();
+            }
+        }
+    }
+
+    function progressMouseUpCallback() {
+        if (presenter.mouseData.isMouseDragged) {
+            var progress_bar = presenter.$view.find('.textaudio-progress-bar'),
+                bar = progress_bar.find('.textaudio-bar'),
+                duration = presenter.audio.duration;
+            duration = isNaN(duration) ? 0 : duration;
+            var currentTime = duration * bar.width() / progress_bar.width();
+            presenter.audio.currentTime = currentTime;
+            presenter.mouseData.isMouseDragged = false;
+            presenter.mouseData.oldPosition = 0;
+            if (presenter.mouseData.playedBeforeDragging) {
+                presenter.play();
+            }
+        }
+    }
+
+    function progressMouseMoveCallback(event) {
+        if (presenter.mouseData.isMouseDragged){
+            var relativeDistance = event.pageX - presenter.mouseData.oldPosition,
+                bar_width = 0,
+                progress_bar = presenter.$view.find('.textaudio-progress-bar'),
+                bar = progress_bar.find('.textaudio-bar'),
+                slider = progress_bar.find('.textaudio-slider-btn'),
+                oldWidth = bar.width();
+            if (oldWidth + relativeDistance < progress_bar.width()) {
+                bar_width = oldWidth + relativeDistance;
+            }
+            else {
+                bar_width = progress_bar.width();
+            }
+            bar.width(bar_width);
+            slider.css('left',Math.round(bar_width));
+            presenter.mouseData.oldPosition = event.pageX;
+        }
+    }
+
+    function isMoreThanOneFingerGesture(event) {
+        var touch, touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+        if (event.hasOwnProperty('touches'))
+            touchPoints = event.touches;
+        return touchPoints.length> 1;
+    }
+
+    function progressTouchStartCallback(event) {
+        if (isMoreThanOneFingerGesture(event)) return;
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+
+        if (event.hasOwnProperty('touches'))
+            touch = event.touches[0];
+        else
+            touch = touchPoints[0];
+        progressMouseDownCallback(touch);
+    }
+
+
+    function progressTouchEndCallback() {
+        progressMouseUpCallback();
+    }
+
+
+    function progressTouchMoveCallback(event) {
+        if (isMoreThanOneFingerGesture(event)) return;
+
+        var touch;
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+
+        if (event.hasOwnProperty('touches'))
+            touch = event.touches[0];
+        else
+            touch = touchPoints[0];
+        progressMouseMoveCallback(touch);
+    }
+
+    function attachProgressListeners($progress_wrapper, customplayer) {
+        presenter.isMobileDevice = MobileUtils.isMobileUserAgent(navigator.userAgent) || MobileUtils.isEventSupported('touchend');
+        if (MobileUtils.isWindowsMobile(window.navigator)) {
+            $progress_wrapper[0].addEventListener("MSPointerDown", progressTouchStartCallback, false);
+            $progress_wrapper[0].addEventListener("MSPointerUp", progressTouchEndCallback, false);
+            $progress_wrapper[0].addEventListener("MSPointerMove", progressTouchMoveCallback, false);
+        }
+        else if (presenter.isMobileDevice) {
+            $progress_wrapper[0].ontouchstart=progressTouchStartCallback;
+            customplayer[0].ontouchend=progressTouchEndCallback;
+            $progress_wrapper[0].ontouchmove=progressTouchMoveCallback;
+        }
+        else {
+            $progress_wrapper.on('mousedown', progressMouseDownCallback);
+            $progress_wrapper.on('mouseup', progressMouseUpCallback);
+            $progress_wrapper.on('mousemove', progressMouseMoveCallback);
+        }
+    }
+
+    function toogleVolumeLayer(){
+        onVolumeChanged();
+        presenter.$view.find('.textaudio-volume-layer').toggle();
+        presenter.$view.find('.textaudio-player-time').toggle();
+    }
+
+    function createHtmlPlayer(view) {
+        var audioWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-player");
+        var customplayer = $('<div>');
+        customplayer.addClass('textaudioplayer');
+
+        var playpause_btn = $('<div>');
+        playpause_btn.addClass('textaudio-play-pause-btn');
+        playpause_btn.addClass('textaudio-play-btn');
+        playpause_btn.on('click', playPauseCallback);
+        customplayer.append(playpause_btn);
+
+        var stop_btn = $('<div>');
+        stop_btn.addClass('textaudio-stop-btn');
+        stop_btn.on('click', presenter.stop);
+        customplayer.append(stop_btn);
+
+        var progress_wrapper = $('<div>');
+        progress_wrapper.addClass('textaudio-progress-bar');
+        var progress_bar = $('<div>');
+        progress_bar.addClass('textaudio-bar');
+        var progress_slider = $('<div>');
+        progress_slider.addClass('textaudio-slider-btn');
+        attachProgressListeners(progress_wrapper, customplayer);
+
+        progress_wrapper.append(progress_bar);
+        progress_wrapper.append(progress_slider);
+        customplayer.append(progress_wrapper)
+
+        if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
+            var volume_btn = $('<div>');
+            volume_btn.addClass('textaudio-volume-btn');
+            volume_btn.on('click', toogleVolumeLayer);
+            customplayer.append(volume_btn);
+
+            var volume_layer = $('<div>');
+            volume_layer.addClass('textaudio-volume-layer');
+            volume_layer.append($('<div class="textaudio-volume-control-background">'));
+            volume_layer.append($('<div class="textaudio-volume-control">'));
+            volume_layer.on('click', function (e) {
+                presenter.audio.volume = e.offsetX / $(this).width();
+            });
+            volume_layer.hide();
+            customplayer.append(volume_layer);
+        }
+
+        var player_time = $('<div>');
+        player_time.addClass('textaudio-player-time');
+        player_time.text('00:00 / --:--');
+        customplayer.append(player_time);
+
+        audioWrapper.append(customplayer);
+    }
+    
     function createView(view, model, isPreview) {
         originalFile.mp3 = model.mp3;
         originalFile.ogg = model.ogg;
 
         var audio = new Audio();
 
-        if (presenter.configuration.defaultControls) {
+        if (presenter.configuration.controls === "Browser") {
             $(audio).attr("controls", "controls").attr("preload", "auto");
+        } else if (presenter.configuration.controls === "Custom") {
+            createHtmlPlayer();
         }
 
         var currentTime = document.createElement("span");
@@ -462,6 +708,9 @@ function AddonTextAudio_create() {
     }
 
     function attachEventListeners(audio) {
+        audio.addEventListener('loadeddata', onLoadedMetadataCallback, false);
+        audio.addEventListener('timeupdate', onTimeUpdateCallback, false);
+        audio.addEventListener('volumechange', onVolumeChanged, false);
         audio.addEventListener('ended', function() {
             if (presenter.configuration.enableLoop) {
                 this.currentTime = 0;
@@ -846,7 +1095,7 @@ function AddonTextAudio_create() {
             onEndEventCode: model.onEnd,
             enableLoop: ModelValidationUtils.validateBoolean(model.enableLoop),
             displayTime: ModelValidationUtils.validateBoolean(model.displayTime),
-            defaultControls: ModelValidationUtils.validateBoolean(model.defaultControls),
+            controls: model.controls,
             slides: validatedSlides.value,
             frames: validatedSlides.frames,
             clickAction: clickAction,
@@ -892,10 +1141,25 @@ function AddonTextAudio_create() {
             presenter.stopClicked = false;
             pauseZero();
             presenter.audio.play();
+            if (presenter.configuration.controls === "Custom") {
+                var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
+                playpause_btn.removeClass('textaudio-play-btn');
+                playpause_btn.addClass('textaudio-pause-btn');
+            }
         }
     };
 
     presenter.stop = function() {
+        if (presenter.configuration.controls === "Custom" && presenter.isLoaded) {
+            var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
+            presenter.stopClicked = true;
+            playpause_btn.addClass('textaudio-play-btn');
+            playpause_btn.removeClass('textaudio-pause-btn');
+            if (presenter.audio.paused) {
+                presenter.stopClicked = true;
+                presenter.audio.currentTime = 0;
+            }
+        }
         removeMarkFromItems();
         pauseZero();
         if (!presenter.isLoaded) {
@@ -921,6 +1185,11 @@ function AddonTextAudio_create() {
 
         if (!this.audio.paused) {
             this.audio.pause();
+            if (presenter.configuration.controls === "Custom") {
+                var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
+                playpause_btn.removeClass('textaudio-pause-btn');
+                playpause_btn.addClass('textaudio-play-btn');
+            }
         }
     };
 

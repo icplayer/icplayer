@@ -1,3 +1,4 @@
+2015-03-20 Added new controls in TextAudio module
 2015-03-19 Added Figure Drawing module
 2015-03-18 Added new area type and fixed issue with show answers in Coloring module
 2015-03-17 Fixed issue with preview of editor in Hierarchical Lesson Report

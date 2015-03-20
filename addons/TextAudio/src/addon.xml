@@ -2,7 +2,7 @@
 
 <addon id='TextAudio' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-        <property name='defaultControls' displayName='Default controls' nameLabel='TextAudio_property_default_controls' type='boolean' />
+        <property name="controls" displayName="Controls" nameLabel='TextAudio_property_controls' type="{None, Browser, Custom}" />
         <property name='displayTime' displayName='Display time' nameLabel='TextAudio_property_display_time' type='boolean' />
         <property name='enableLoop' displayName='Enable loop' nameLabel='TextAudio_property_enable_loop' type='boolean' />
 
