@@ -43,6 +43,7 @@ function AddonFigureDrawing_create(){
             case 'allLinesDrawn'.toLowerCase():
                 presenter.allLinesDrawn();
                 break;
+                break;
         }
     };
     presenter.allLinesDrawn = function() {
@@ -175,7 +176,7 @@ function AddonFigureDrawing_create(){
                 }
                 splittedByDash = this.split('-');
                 point = splittedByDash[0].split(';');
-                if (isNaN(point[0]) || isNaN(point[1]) || point[0] > presenter.pointsX+1 || point[1] > presenter.pointsY+1) {
+                if (isNaN(point[0]) || isNaN(point[1]) || (point[0] > presenter.pointsX+1 && !presenter.grid3D) || (point[0] > 2*presenter.pointsX+1 && presenter.grid3D) || point[1] > presenter.pointsY+1) {
                     draw ? presenter.error = 'deflines' : presenter.error = 'answerlines';
                     return false;
                 }
@@ -190,7 +191,7 @@ function AddonFigureDrawing_create(){
                     nonremovable = false;
                     point[1] = point[1].substr(0,point[1].length-1);
                 };
-                if (isNaN(point[0]) || isNaN(point[1]) || point[0] > presenter.pointsX+1 || point[1] > presenter.pointsY+1) {
+                if (isNaN(point[0]) || isNaN(point[1]) || (point[0] > presenter.pointsX+1 && !presenter.grid3D) || point[1] > presenter.pointsY+1 || (point[0] > 2*presenter.pointsX+1 && presenter.grid3D)) {
                     draw ? presenter.error = 'deflines' : presenter.error = 'answerlines';
                     return false;
                 }
@@ -208,17 +209,20 @@ function AddonFigureDrawing_create(){
     function validateAnswersColor(list) {
         presenter.answersColors = [];
         var points, color = [], tmpPoint, helpString, tmpData, i, j, k;
-        var re = /^(\d+;\d+-)+(\d+;\d)$/;
+        var re = /^(\d+;\d+-)+(\d+;\d+)$/;
         var re2 = /^\d+;\d+;\d{1,3} \d{1,3} \d{1,3}$/;
         var testing;
         for (i = 0; i < list.length; i++) {
             points = [];
             if (tmpPoint == '') {
+                //console.log('error1');
                 presenter.error = 'answerfigure';
                 return false;
             }
             testing = re.test(list[i]['Figure']);
+            //console.log(list[i]['Figure']);
             if (!testing) {
+                //console.log('error2');
                 presenter.error = 'answerfigure';
                 return false;
             }
@@ -244,6 +248,7 @@ function AddonFigureDrawing_create(){
                 color: color[2]+' '+color[3]+' '+color[4]+' '+color[5],
             };
             if (tmpPoint[0] != tmpPoint[j]) {
+                //console.log('error3');
                 presenter.error = 'answerfigure';
                 return false;
             }
@@ -595,6 +600,7 @@ function AddonFigureDrawing_create(){
                         y = parseInt($(this).attr('cy'),10);
                         point2 = new Point(row, column, x, y);
                         presenter.drawLine(point1,point2,false,true,false,true);
+                        if (presenter.coloring) presenter.redrawCanvas(false);
                         presenter.$view.find('.point').removeClass('selected');
                         presenter.selected.isSelected = false;
                         //if blockColoring mode check if is OK
@@ -605,7 +611,6 @@ function AddonFigureDrawing_create(){
                             presenter.triggerEvent(item,value,score);
                             if (presenter.blockColoring) presenter.setColorMode();
                         }
-                        if (presenter.coloring) presenter.redrawCanvas(false);
                     }
                 }
             }
@@ -677,20 +682,22 @@ function AddonFigureDrawing_create(){
             presenter.showAnswersInEditor = ModelValidationUtils.validateBoolean(presenter.model['ShowAns']);
             if (presenter.activity && presenter.showAnswersInEditor)
                 presenter.showAnswers();
-            var coordinatesContainer = $('<div></div>'),
-                xContainer = $('<div>x: <span class="value"></span></div>'),
-                yContainer = $('<div>y: <span class="value"></span></div>');
-            coordinatesContainer.addClass('coordinates');
-            coordinatesContainer.append(xContainer).append(yContainer);
-            presenter.figure.append(coordinatesContainer);
-            presenter.figure.on('mousemove', function(e) {
-                coordinations.x = e.originalEvent.pageX || e.originalEvent.touches[0].pageX;
-                coordinations.y = e.originalEvent.pageY || e.originalEvent.touches[0].pageY;
-                presenter.mouseSX = parseInt(coordinations.x,10) - parseInt(presenter.figure.offset().left,10);
-                presenter.mouseSY = parseInt(coordinations.y,10) - parseInt(presenter.figure.offset().top,10);
-                xContainer.find('.value').html(presenter.mouseSX);
-                yContainer.find('.value').html(presenter.mouseSY);
-            });
+            if (presenter.coloring) {
+                var coordinatesContainer = $('<div></div>'),
+                    xContainer = $('<div>x: <span class="value"></span></div>'),
+                    yContainer = $('<div>y: <span class="value"></span></div>');
+                coordinatesContainer.addClass('coordinates');
+                coordinatesContainer.append(xContainer).append(yContainer);
+                presenter.figure.append(coordinatesContainer);
+                presenter.figure.on('mousemove', function(e) {
+                    coordinations.x = e.originalEvent.pageX || e.originalEvent.touches[0].pageX;
+                    coordinations.y = e.originalEvent.pageY || e.originalEvent.touches[0].pageY;
+                    presenter.mouseSX = parseInt(coordinations.x,10) - parseInt(presenter.figure.offset().left,10);
+                    presenter.mouseSY = parseInt(coordinations.y,10) - parseInt(presenter.figure.offset().top,10);
+                    xContainer.find('.value').html(presenter.mouseSX);
+                    yContainer.find('.value').html(presenter.mouseSY);
+                });
+            }
         };
         if (presenter.error) {
             presenter.figure.addClass(presenter.error);

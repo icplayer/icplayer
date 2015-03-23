@@ -1,3 +1,4 @@
+2015-03-23 Fixed issue with lines interpretation in Figure Drawing module properties
 2015-03-20 Fixed issue with Chapters in Hierarchical Lesson Report module
 2015-03-20 Added new controls in TextAudio module
 2015-03-19 Added Figure Drawing module
