@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.HashMap;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
@@ -87,7 +88,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		labels.put(id, label);
 		add(label);
 		if (callMathJax) {
-			MathJax.refreshMathJax(label.getElement());
+			refreshMath(label.getElement());
 		}
 		
 		label.addClickHandler(new ClickHandler() {
@@ -139,6 +140,24 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	public void removeAll() {
 		labels.clear();
 		clear();
+	}
+
+
+	public void refreshMath(Element element) {
+		MathJax.refreshMathJax(element);
+	}
+	
+	@Override
+	public void show() {
+		setVisible(true);
+		refreshMath(getElement());
+	}
+
+
+	@Override
+	public void hide() {
+		setVisible(false);
+		refreshMath(getElement());
 	}
 
 }

@@ -37,6 +37,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void deselectItem(String id);
 		public void addListener(IViewListener l);
 		public Element getElement();
+		public void show();
+		public void hide();
 	}
 	
 	private IDisplay view;
@@ -45,12 +47,14 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private String selectedId;
 	private HashMap<String, String> items = new HashMap<String, String>();
 	private JavaScriptObject jsObject;
+	private boolean isVisible;
 	
 	
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
 
 		this.playerServices = services;
 		this.model = model;
+		this.isVisible = model.isVisible();
 		
 		connectHandlers();
 	}
@@ -115,6 +119,13 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	protected void reset() {
 		deselectCurrentItem();
 		loadItems(true);
+		
+		isVisible = this.model.isVisible();
+		if (isVisible) {
+			view.show();
+		} else {
+			view.hide();
+		}
 	}
 
 	protected void removeItem(String id) {
@@ -197,14 +208,37 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	@Override
 	public String getState() {
-		return JSONUtils.toJSONString(items);
+		HashMap<String, String> state = new HashMap<String, String>();
+		state.put("isVisible", Boolean.toString(isVisible));
+		state.put("items", JSONUtils.toJSONString(items));
+		
+		return JSONUtils.toJSONString(state);
 	}
 
 
 	@Override
 	public void setState(String state) {
-		items = JSONUtils.decodeHashMap(state);
+		if (state == null || state.equals("")) {
+			return;
+		}
+		
+		HashMap<String, String> decodedState = JSONUtils.decodeHashMap(state);
+		
+		if (decodedState.containsKey("isVisible")) {
+			isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
+			items = JSONUtils.decodeHashMap(decodedState.get("items"));
+		} else {
+			isVisible = true;
+			items = decodedState;
+		}
+
 		refreshView();
+		
+		if (isVisible) {
+			view.show();
+		} else {
+			view.hide();
+		}
 	}
 	
 	private void refreshView() {
@@ -240,6 +274,14 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::reset()();
 		};
 		
+		presenter.show = function() {
+			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::show()();
+		}
+
+		presenter.hide = function() {
+			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::hide()();
+		}
+		
 		presenter.getItem = function(id){ 
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getItem(I)(id);
 		};
@@ -259,6 +301,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 				param = (IStringType) params.get(0);
 				return getItem(Integer.valueOf(param.getValue()));
 			}
+		} else if (commandName.compareTo("show") == 0){
+			show();
+		} else if (commandName.compareTo("hide") == 0){
+			hide();
 		}
 		
 		return "";
@@ -307,5 +353,20 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	public void onValueChange(IOptionDisplay option, boolean selected) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private void show(){
+		isVisible = true;
+		if(view != null){
+			view.show();
+		}
+	}
+	
+	
+	private void hide(){
+		isVisible = false;
+		if(view != null){
+			view.hide();
+		}
 	}
 }
