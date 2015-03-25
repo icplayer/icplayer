@@ -10,12 +10,6 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-/**
- * Prostokątny obszar o podanym kolorze i rodzaju ramki
- * 
- * @author Krzysztof Langner
- *
- */
 
 public class ButtonModule extends BasicModuleModel {
 
@@ -124,10 +118,6 @@ public class ButtonModule extends BasicModuleModel {
 		addPropertiesFromType();
 	}
 
-	/**
-	 * Nie wszystkie typy przycisków mają te same property.
-	 * Funkcja ta dokłada odpowiednie property na podstawie typy przycisku
-	 */
 	private void addPropertiesFromType() {
 		if(type == ButtonType.popup) {
 			addPropertyPage();
@@ -294,4 +284,10 @@ public class ButtonModule extends BasicModuleModel {
 		
 		return name + " " + super.getProviderName();
 	}
+	
+	@Override
+	public String getClassNamePrefix() {
+		return getType().toString();
+	}
+
 }
