@@ -9,6 +9,7 @@
         <property name='Slides' nameLabel='TextAudio_property_slides' type='list'>
             <property name='Text' nameLabel='TextAudio_property_text' type='html' isLocalized='true' />
             <property name='Times' nameLabel='TextAudio_property_times' type='text' isLocalized='true' />
+            <property name='positionAndDimentions' displayName="Position and Dimentions" nameLabel='TextAudio_property_position_and_dimentions' type='text' isLocalized='true' />
         </property>
         <property name='mp3' nameLabel='TextAudio_property_mp3' type='file' />
         <property name='ogg' nameLabel='TextAudio_property_ogg' type='file' />
@@ -20,5 +21,6 @@
 
         <property name='onEnd' displayName='On end' nameLabel='TextAudio_property_vocabulary_on_end' type='event' />
         <property name='isClickDisabled' displayName='Is Click Disabled' nameLabel='TextAudio_property_is_click_disabled' type='boolean' />
+        <property name="showSlides" displayName="Show Slides" nameLabel='TextAudio_property_show_slides' type="{Show current slide, Show all slides}" />
     </model>
 </addon>

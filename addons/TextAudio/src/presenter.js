@@ -267,6 +267,8 @@ function AddonTextAudio_create() {
         if (presenter.configuration.displayTime) {
             displayTimer(currentTime, duration);
         }
+
+
         if (presenter.configuration.controls === "Custom"){
             var player_time = presenter.$view.find('.textaudio-player-time');
             player_time.html(formatTime(currentTime) + ' / ' + formatTime(duration));
@@ -277,8 +279,13 @@ function AddonTextAudio_create() {
             bar.width(Math.round(bar_width));
             slider.css('left', Math.round(bar_width));
         }
-        
-        change_slide(currentTime);
+
+        if(presenter.configuration.showSlides == "Show all slides"){
+            change_slide_all(currentTime);
+        }else{
+            change_slide(currentTime);
+        }
+
         if (presenter.stopClicked) {
             presenter.$view.find('span').removeClass('active');
             hasBeenStarted = false;
@@ -345,13 +352,46 @@ function AddonTextAudio_create() {
         presenter.play();
     }
 
+    function setPositionAndDimentions (element, slide_id) {
+        element.css('position', 'absolute');
+        element.css('left', presenter.configuration.slides[slide_id].positionAndDimentions[0]+ 'px');
+        element.css('top', presenter.configuration.slides[slide_id].positionAndDimentions[1]+ 'px');
+        element.css('width', presenter.configuration.slides[slide_id].positionAndDimentions[2]+ 'px');
+        element.css('height', presenter.configuration.slides[slide_id].positionAndDimentions[3]+ 'px');
+    }
+
+    function removePositionAndDimentions (element) {
+        element.css('position', '');
+        element.css('left', '');
+        element.css('top', '');
+        element.css('width', '');
+        element.css('height', '');
+    }
+
     function make_slide(textWrapper, slide_id) {
         slide_id = parseInt(slide_id, 10);
-
         if (slide_id < 0) {
             textWrapper.html('');
         } else {
-            textWrapper.html(presenter.configuration.slides[slide_id].html);
+            if(presenter.configuration.showSlides == "Show all slides" && slide_id >=1){
+                var textElement = $('<div class="textaudio-text"></div>');
+                textElement.addClass('slide-id-'+slide_id);
+                presenter.$view.find('.wrapper-addon-textaudio').append(textElement);
+                textWrapper = presenter.$view.find('.slide-id-'+slide_id);
+            }
+            if(presenter.configuration.showSlides == "Show all slides"){
+                textWrapper.append(presenter.configuration.slides[slide_id].html);
+                if(presenter.configuration.slides[slide_id].positionAndDimentions != '' && presenter.configuration.slides[slide_id].positionAndDimentions != undefined){
+                    setPositionAndDimentions(textWrapper, slide_id);
+                }
+            }else{
+                textWrapper.html(presenter.configuration.slides[slide_id].html);
+                if(presenter.configuration.slides[slide_id].positionAndDimentions != '' && presenter.configuration.slides[slide_id].positionAndDimentions != undefined){
+                    setPositionAndDimentions(textWrapper, slide_id);
+                }else{
+                    removePositionAndDimentions(textWrapper);
+                }
+            }
             textWrapper.attr('data-slideId', slide_id);
             textWrapper.find("span[class^='textelement']").each(function() {
                 if(!presenter.configuration.isClickDisabled){
@@ -438,6 +478,71 @@ function AddonTextAudio_create() {
         return slide1.slide_id == slide2.slide_id && slide1.selection_id == slide2.selection_id;
     }
 
+    function highlight_selection_all(textWrapper, selection_id) {
+        presenter.$view.find('.textaudio-text').find('span').each(function() {
+            $(this).removeClass('active');
+        });
+
+        if(presenter.currentSlide >= 1){
+            textWrapper = presenter.$view.find('.slide-id-'+presenter.currentSlide);
+        }
+
+        if (selection_id >= 0) {
+            textWrapper.find('span.textelement' + selection_id).addClass('active');
+        }
+    }
+
+    function change_slide_all(currentTime) {
+        currentTime = Math.round(currentTime * presenter.fps);
+        var frames_array = presenter.configuration.frames;
+        var isCurrentTimeInRange = currentTime < frames_array.length;
+        var slide_data = {
+            slide_id: isCurrentTimeInRange ? frames_array[currentTime].slide_id : -1,
+            selection_id: isCurrentTimeInRange ? frames_array[currentTime].selection_id : 0
+        };
+        presenter.currentSlide = slide_data.slide_id;
+        if (!hasBeenStarted) {
+            slide_data.selection_id = -1;
+        }
+        var difference = slide_data.selection_id - presenter.previousSelectionId;
+        if (difference > 1 && !presenter.playedByClick) {
+            slide_data.selection_id -= difference - 1;
+        }
+        presenter.previousSelectionId = slide_data.selection_id;
+        change_slide_from_data_all(slide_data);
+    }
+
+    function change_slide_from_data_all(slide_data) {
+        var textWrapper = presenter.$view.find(".slide-id-0");
+        if (!areSlidesEqual(slide_data, presenter.current_slide_data)) {
+            var blockHighlight = false;
+            var currentSelId = presenter.current_slide_data.selection_id;
+            if (presenter.configuration.playPart && currentSelId !== -1 && presenter.selectionId === currentSelId) {
+                presenter.pause();
+                blockHighlight = true;
+            }
+            if (slide_data.slide_id != presenter.current_slide_data.slide_id && !presenter.slidesMade) {
+                make_slide(textWrapper, slide_data.slide_id);
+            }
+            highlight_selection_all(textWrapper, slide_data.selection_id);
+
+            if (blockHighlight) {
+                textWrapper.find('span').each(function() {
+                    if ($(this).hasClass('active')) {
+                        $(this).removeClass('active');
+                        $(this).addClass("tmp-active");
+                    }
+                });
+            }
+            presenter.current_slide_data = slide_data;
+            presenter.playedByClick = false;
+        } else {
+            if (presenter.$view.find('.active').length === 0) {
+                highlight_selection_all(textWrapper, slide_data.selection_id);
+            }
+        }
+    }
+
     function change_slide_from_data(slide_data) {
         var textWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-text");
 
@@ -496,6 +601,8 @@ function AddonTextAudio_create() {
         presenter.previousSelectionId = slide_data.selection_id;
         change_slide_from_data(slide_data);
     }
+
+    presenter.slidesMade = false;
 
     function progressMouseDownCallback(event) {
         if ($(event.target).hasClass('textaudio-slider-btn')) {
@@ -658,7 +765,7 @@ function AddonTextAudio_create() {
 
         audioWrapper.append(customplayer);
     }
-    
+
     function createView(view, model, isPreview) {
         originalFile.mp3 = model.mp3;
         originalFile.ogg = model.ogg;
@@ -683,7 +790,23 @@ function AddonTextAudio_create() {
             audio.addEventListener('loadeddata', onLoadedMetadataCallback, false);
         }
 
-        change_slide(0);
+        if(presenter.configuration.showSlides == "Show all slides"){
+            var frames_array = presenter.configuration.frames;
+            for (var i = 0; i< frames_array.length; i++){
+                if(frames_array[i].slide_id >= 0){
+                    var slide_data = {
+                        slide_id: frames_array[i].slide_id,
+                        selection_id: frames_array[i].selection_id
+                    };
+                    change_slide_from_data_all(slide_data);
+                }
+            }
+            presenter.$view.find('.textaudio-text span').removeClass('active');
+        }else{
+            change_slide(0);
+        }
+
+        presenter.slidesMade = true;
 
         if (!isPreview) {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
@@ -928,7 +1051,8 @@ function AddonTextAudio_create() {
             isValid: false,
             value: [{
                 Text: [''],
-                Times: [{start: 0, end: 0}]
+                Times: [{start: 0, end: 0}],
+                PosAndDim: ['']
             }],
             errorCode: false
         };
@@ -940,6 +1064,13 @@ function AddonTextAudio_create() {
             var parsed_slide_texts = presenter.parseSlideText(slide.Text);
             var slide_times = slide.Times.split('\n');
             var slide_intervals = [];
+            var posAndDims;
+
+            if(slide.positionAndDimentions != '' && slide.positionAndDimentions != undefined){
+                posAndDims = slide.positionAndDimentions.split(';');
+            }else{
+                posAndDims = '';
+            }
 
             if (slide_texts.length != slide_times.length) {
                 validationResult.errorCode = 'M02';
@@ -990,6 +1121,7 @@ function AddonTextAudio_create() {
             slide.intervals = slide_intervals;
             slide.html = parsed_slide_texts;
             slides[i] = slide;
+            slide.positionAndDimentions = posAndDims;
         }
         validationResult.isValid = true;
         validationResult.value = slides;
@@ -1089,6 +1221,10 @@ function AddonTextAudio_create() {
             }
         }
 
+        if(model.showSlides == undefined){
+            model.showSlides = "Show current slide";
+        }
+
         return {
             isValid: true,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
@@ -1105,7 +1241,8 @@ function AddonTextAudio_create() {
             vocabulary_mp3: model.vocabulary_mp3,
             vocabulary_ogg: model.vocabulary_ogg,
             vocabularyIntervals: validatedVocabularyIntervals.intervals,
-            isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled)
+            isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled),
+            showSlides: model.showSlides
         };
     };
 

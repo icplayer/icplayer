@@ -310,6 +310,8 @@ var ice_dictionary = {
 	"TextAudio_property_vocabulary_intervals": "Przedziały w słowach",
 	"TextAudio_property_vocabulary_on_end": "Na koniec",
     "TextAudio_property_is_click_disabled": "Klikanie wyłączone",
+    "TextAudio_property_show_slides": "Show slides",
+    "TextAudio_property_position_and_dimentions": "Position and dimentions",
 	"Connection_info" : "Pozwala na utworzenie ćwiczenia składającego się z dwóch kolumn z elementami (tekstem lub obrazkami) do połączenia. Ćwiczenie może działać w trybie łączenia pojedynczego lub wielokrotnego (każdy element można wykorzystać w kilku połączeniach).",
 	"Connection_name" : "Ćwiczenie łączenia",
 	"Connection_property_is_not_activity" : "Nie jest ćwiczeniem",

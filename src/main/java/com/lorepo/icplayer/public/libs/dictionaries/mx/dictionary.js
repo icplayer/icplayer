@@ -310,6 +310,8 @@ var ice_dictionary = {
 	"TextAudio_property_vocabulary_intervals": "Intervalos del vocabulario",
 	"TextAudio_property_vocabulary_on_end": "Actualizado",
     "TextAudio_property_is_click_disabled": "Presione para deshabilitar",
+    "TextAudio_property_show_slides": "Show slides",
+    "TextAudio_property_position_and_dimentions": "Position and dimentions",
 	"Connection_info" : "Permite crear actividades con dos columnas de ítems (textos o imágenes) emparejados. La actividad puede configurarse con una o múltiples conexiones de forma que cada ítem puede tener varias parejas.",
 	"Connection_name": "Conexión",
 	"Connection_property_is_not_activity": "No es una actividad",
