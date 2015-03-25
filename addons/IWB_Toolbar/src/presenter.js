@@ -15,7 +15,9 @@ function AddonIWB_Toolbar_create() {
     presenter.data = {
         defaultPenWidth: 1,
         penColor: DEFAULT_COLOR,
-        markerColor: '#ffff99'
+        markerColor: '#ffff99',
+        markerThickness: 10,
+        eraserThickness: 20
     };
 
     presenter.playerController = null;
@@ -166,12 +168,42 @@ function AddonIWB_Toolbar_create() {
 
     }
 
+    function setOverflowWorkAround(turnOn) {
+
+        if (!MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) { return false; }
+
+        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+        if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
+
+            presenter.$pagePanel.find('.iwb-toolbar-mask').parents("*").each(function() {
+                var overflow = null;
+                if (turnOn) {
+                    $(this).attr("data-overflow", $(this).css("overflow"));
+                    $(this).css("overflow", "visible");
+                } else {
+                    overflow = $(this).attr("data-overflow");
+                    if (overflow !== "") {
+                        $(this).css("overflow", overflow);
+                    }
+                    $(this).removeAttr("data-overflow");
+                }
+            });
+
+        }
+
+        return true;
+    }
+
     presenter.IWBDraw = function(canvas, ctx, mousePosition) {
         var grad = ctx.createLinearGradient(0, 0, canvas[0].width, 0);
         grad.addColorStop(0, presenter.currentLineColor);
         grad.addColorStop(1, presenter.currentLineColor);
 
-        ctx.lineWidth = presenter.currentLineWidth;
+        if (presenter.drawMode == presenter.DRAW_MODE.ERASER){
+            ctx.lineWidth = presenter.currentEraserThickness;
+        }else{
+            ctx.lineWidth = presenter.currentLineWidth;
+        }
         ctx.strokeStyle = grad;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -279,20 +311,182 @@ function AddonIWB_Toolbar_create() {
         });
     }
 
+    presenter.onMobilePaint = function(e) {
+        var tmp_canvas;
+        tmp_canvas = presenter.tmp_canvas;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+        presenter.onPaint(e);
+    };
+
+    presenter.onPaint = function(e) {
+        var tmp_canvas, tmp_ctx;
+        tmp_canvas = presenter.tmp_canvas;
+        tmp_ctx = presenter.tmp_ctx;
+        tmp_ctx.globalAlpha = 0.4;
+
+        tmp_ctx.lineWidth = presenter.currentMarkerThickness;
+        tmp_ctx.lineJoin = 'round';
+        tmp_ctx.lineCap = 'round';
+        tmp_ctx.strokeStyle = presenter.currentLineColor;
+        tmp_ctx.fillStyle = presenter.currentLineColor;
+
+        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+
+        if (presenter.points.length < 3) {
+            var b = presenter.points[0];
+            tmp_ctx.beginPath();
+            tmp_ctx.arc(b.x, b.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+            tmp_ctx.fill();
+            tmp_ctx.closePath();
+        } else {
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            tmp_ctx.beginPath();
+            tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
+
+            for (var i = 1; i < presenter.points.length - 2; i++) {
+                var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
+                var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
+
+                tmp_ctx.quadraticCurveTo(presenter.points[i].x, presenter.points[i].y, c, d);
+            }
+
+            tmp_ctx.quadraticCurveTo(
+                presenter.points[i].x,
+                presenter.points[i].y,
+                presenter.points[i + 1].x,
+                presenter.points[i + 1].y
+            );
+            tmp_ctx.stroke();
+        }
+    };
+
+    presenter.points = [];
+    presenter.mouse = {x: 0, y: 0};
+
+    presenter.onTouchStartCallback = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setOverflowWorkAround(true);
+
+            presenter.onMobilePaint(e);
+            presenter.tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
+
+    };
+
+    presenter.onTouchEndEventCallback = function (e) {
+        e.stopPropagation();
+
+        setOverflowWorkAround(false);
+
+        presenter.tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
+        presenter.markerCtx.drawImage(presenter.tmp_canvas, 0, 0);
+        presenter.tmp_ctx.clearRect(0, 0, presenter.tmp_canvas.width, presenter.tmp_canvas.height);
+
+        presenter.points = [];
+    };
+
+    function markerDrawingLogic () {
+
+        if (MobileUtils.isEventSupported('touchstart')) {
+            presenter.tmp_canvas.removeEventListener('touchstart', presenter.onTouchStartCallback, false);
+            presenter.tmp_canvas.removeEventListener('touchend', presenter.onTouchEndEventCallback, false);
+        }else{
+            presenter.tmp_canvas.removeEventListener('mousemove', mouseMoveHandler, false);
+            presenter.tmp_canvas.removeEventListener('mousedown', mouseDownHandler, false);
+            presenter.tmp_canvas.removeEventListener('mouseup', mouseUpHandler, false);
+        }
+
+        if (MobileUtils.isEventSupported('touchstart')) {
+            presenter.tmp_canvas.addEventListener('touchstart', presenter.onTouchStartCallback, false);
+            presenter.tmp_canvas.addEventListener('touchend', presenter.onTouchEndEventCallback, false);
+        } else {
+            // MOUSE
+            presenter.tmp_canvas.addEventListener('mousemove', mouseMoveHandler, false);
+            $(presenter.tmp_canvas).on('mouseleave', mouseUpHandler);
+            presenter.tmp_canvas.addEventListener('mousedown', mouseDownHandler, false);
+            presenter.tmp_canvas.addEventListener('mouseup', mouseUpHandler, false);
+        }
+
+        function mouseDownHandler(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            presenter.isMouseDown = true;
+            setOverflowWorkAround(true);
+
+            presenter.tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
+
+            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+            presenter.points.push({x: x, y: y});
+        }
+
+        function mouseMoveHandler(e) {
+            if (presenter.isMouseDown) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (presenter.drawMode == presenter.DRAW_MODE.MARKER) {
+                    var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+                    var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+                    presenter.mouse.x = x;
+                    presenter.mouse.y = y;
+                }
+            }
+        }
+
+        function mouseUpHandler(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            presenter.isMouseDown = false;
+            setOverflowWorkAround(false);
+
+            presenter.tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+            presenter.markerCtx.drawImage(presenter.tmp_canvas, 0, 0);
+            presenter.tmp_ctx.clearRect(0, 0, presenter.tmp_canvas.width, presenter.tmp_canvas.height);
+
+            presenter.points = [];
+        }
+    }
+
     function drawingLogic() {
+        if (MobileUtils.isEventSupported('touchstart')) {
+            presenter.tmp_canvas.removeEventListener('touchstart', presenter.onTouchStartCallback, false);
+            presenter.tmp_canvas.removeEventListener('touchend', presenter.onTouchEndEventCallback, false);
+        }else{
+            presenter.tmp_canvas.removeEventListener('mousemove', mouseMoveHandler, false);
+            presenter.tmp_canvas.removeEventListener('mousedown', mouseDownHandler, false);
+            presenter.tmp_canvas.removeEventListener('mouseup', mouseUpHandler, false);
+        }
+
         $(presenter.canvas).off('mousedown mousemove mouseup touchstart touchmove touchend');
         $(presenter.markerCanvas).off('mousedown mousemove mouseup touchstart touchmove touchend');
 
         var lastEvent = null;
 
-        $(presenter.canvas).on('mousedown', mouseDownHandler);
-        $(presenter.canvas).on('touchstart', function(e) {
-            mouseDownHandler(e)
-        });
-        $(presenter.markerCanvas).on('mousedown', mouseDownHandler);
-        $(presenter.markerCanvas).on('touchstart', function(e) {
-            mouseDownHandler(e)
-        });
+        if (MobileUtils.isEventSupported('touchstart')) {
+            $(presenter.canvas).on('touchstart', function(e) {
+                mouseDownHandler(e)
+            });
+            $(presenter.markerCanvas).on('touchstart', function(e) {
+                mouseDownHandler(e)
+            });
+        }else{
+            $(presenter.canvas).on('mousedown', mouseDownHandler);
+
+            $(presenter.markerCanvas).on('mousedown', mouseDownHandler);
+        }
 
         function mouseDownHandler(e) {
             e.stopPropagation();
@@ -300,16 +494,22 @@ function AddonIWB_Toolbar_create() {
             lastEvent = e;
             presenter.lastMousePosition = getCursorPosition(e);
             presenter.isMouseDown = true;
+            setOverflowWorkAround(true);
         }
 
-        $(presenter.canvas).on('mousemove', mouseMoveHandler);
-        $(presenter.canvas).on('touchmove', function(e) {
-            mouseMoveHandler(e);
-        });
-        $(presenter.markerCanvas).on('mousemove', mouseMoveHandler);
-        $(presenter.markerCanvas).on('touchmove', function(e) {
-            mouseMoveHandler(e);
-        });
+        if (MobileUtils.isEventSupported('touchstart')) {
+            $(presenter.markerCanvas).on('touchmove', function(e) {
+                mouseMoveHandler(e);
+            });
+
+            $(presenter.canvas).on('touchmove', function(e) {
+                mouseMoveHandler(e);
+            });
+        }else{
+            $(presenter.markerCanvas).on('mousemove', mouseMoveHandler);
+
+            $(presenter.canvas).on('mousemove', mouseMoveHandler);
+        }
 
         function mouseMoveHandler(e) {
             if (presenter.isMouseDown) {
@@ -329,14 +529,18 @@ function AddonIWB_Toolbar_create() {
             lastEvent = e;
         }
 
-        $(presenter.canvas).on('mouseup', mouseUpHandler);
-        $(presenter.canvas).on('touchend', function(e) {
-            mouseUpHandler(e);
-        });
-        $(presenter.markerCanvas).on('mouseup', mouseUpHandler);
-        $(presenter.markerCanvas).on('touchend', function(e) {
-            mouseUpHandler(e);
-        });
+        if (MobileUtils.isEventSupported('touchstart')) {
+            $(presenter.canvas).on('touchend', function(e) {
+                mouseUpHandler(e);
+            });
+
+            $(presenter.markerCanvas).on('touchend', function(e) {
+                mouseUpHandler(e);
+            });
+        }else{
+            $(presenter.canvas).on('mouseup', mouseUpHandler);
+            $(presenter.markerCanvas).on('mouseup', mouseUpHandler);
+        }
 
         function mouseUpHandler(e) {
             e.stopPropagation();
@@ -344,6 +548,7 @@ function AddonIWB_Toolbar_create() {
             lastEvent = e;
 
             presenter.isMouseDown = false;
+            setOverflowWorkAround(false);
         }
     }
 
@@ -510,6 +715,7 @@ function AddonIWB_Toolbar_create() {
         });
 
         presenter.$pagePanel.find('.pen').on(eventClickStart, function() {
+            presenter.$pagePanel.find('.tmp_canvas').hide();
             presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
             changeColor(presenter.data.penColor);
             changeThickness(1);
@@ -524,20 +730,22 @@ function AddonIWB_Toolbar_create() {
         });
 
         presenter.$pagePanel.find('.marker').on(eventClickStart, function() {
+            presenter.$pagePanel.find('.tmp_canvas').show();
             presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
             changeColor(presenter.data.markerColor);
-            changeThickness(10);
+            changeThickness(presenter.data.markerThickness);
             toggleMasks();
 
             presenter.markerCtx.globalCompositeOperation = 'source-over';
             presenter.drawMode = presenter.DRAW_MODE.MARKER;
 
-            drawingLogic();
+            markerDrawingLogic();
 
             toggleBottomPanels();
         });
 
         presenter.$pagePanel.find('.eraser').on(eventClickStart, function(e) {
+            presenter.$pagePanel.find('.tmp_canvas').hide();
             e.stopPropagation();
             e.preventDefault();
 
@@ -548,7 +756,7 @@ function AddonIWB_Toolbar_create() {
                 presenter.markerCtx.globalCompositeOperation = 'destination-out';
             }
             changeColor('rgba(0, 0, 0, 1)');
-            changeThickness(20);
+            changeThickness(presenter.data.eraserThickness);
             presenter.drawMode = presenter.DRAW_MODE.ERASER;
             drawingLogic();
             toggleMasks();
@@ -569,6 +777,7 @@ function AddonIWB_Toolbar_create() {
         });
 
         presenter.$pagePanel.find('.hide-area').on(eventClickStart, function(e) {
+            presenter.$pagePanel.find('.tmp_canvas').hide();
             toggleMasks();
             drawAreaLogic(true);
 
@@ -578,6 +787,7 @@ function AddonIWB_Toolbar_create() {
         });
 
         presenter.$pagePanel.find('.stand-area').on(eventClickStart, function(e) {
+            presenter.$pagePanel.find('.tmp_canvas').hide();
             toggleMasks();
             drawAreaLogic(false);
 
@@ -587,6 +797,7 @@ function AddonIWB_Toolbar_create() {
         });
 
         presenter.$pagePanel.find('.zoom').on(eventClickStart, function(e) {
+            presenter.$pagePanel.find('.tmp_canvas').hide();
             e.stopPropagation();
             e.preventDefault();
 
@@ -938,6 +1149,10 @@ function AddonIWB_Toolbar_create() {
             addFloatingImages(model);
             createCanvases();
 
+            presenter.tmp_canvas = document.createElement('canvas');
+            presenter.tmp_ctx = presenter.tmp_canvas.getContext('2d');
+            $(presenter.tmp_canvas).addClass('tmp_canvas');
+
             presenter.$panel.draggable({
                 containment: 'parent',
                 opacity: 0.35,
@@ -1019,6 +1234,12 @@ function AddonIWB_Toolbar_create() {
             }
             $(view).hide();
             presenter.setVisibility(presenter.isVisible, false, view);
+
+            var width = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].width;
+            var height = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].height;
+            presenter.tmp_canvas.width = width;
+            presenter.tmp_canvas.height = height;
+            presenter.$pagePanel.find('.marker-mask').append(presenter.tmp_canvas);
         } else {
             presenter.setVisibility(presenter.isVisible, true, view);
             $(view).find('.iwb-toolbar-panel').width(model['Width'] - 50 + 'px');
@@ -1917,6 +2138,8 @@ function AddonIWB_Toolbar_create() {
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
             }
         }
+        setOverflowWorkAround(true);
+        setOverflowWorkAround(false);
     }
 
     function changeColor(color, button) {
@@ -1935,6 +2158,9 @@ function AddonIWB_Toolbar_create() {
             presenter.$panel.find('.button.thickness').css('background-image', presenter.$defaultThicknessButton.css('background-image'));
         }
         presenter.currentLineWidth = presenter.data.defaultPenWidth === 1 ? size : presenter.data.defaultPenWidth;
+
+        presenter.currentMarkerThickness = presenter.data.markerThickness === 10 ? size : presenter.data.markerThickness;
+        presenter.currentEraserThickness = presenter.data.eraserThickness === 20 ? size : presenter.data.eraserThickness;
     }
 
     function clearCanvases() {
@@ -1974,7 +2200,9 @@ function AddonIWB_Toolbar_create() {
             'show' : presenter.show,
             'setPenColor' : presenter.setPenColor,
             'setMarkerColor' : presenter.setMarkerColor,
-            'setDefaultPenThickness' : presenter.setDefaultPenThickness
+            'setDefaultPenThickness' : presenter.setDefaultPenThickness,
+            'setMarkerThickness': presenter.setMarkerThickness,
+            'setEraserThickness': presenter.setEraserThickness
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -2161,6 +2389,9 @@ function AddonIWB_Toolbar_create() {
             presenter.$penMask.css('pointer-events', 'none');
             presenter.$markerMask.css('pointer-events', 'none');
         }
+
+        setOverflowWorkAround(true);
+        setOverflowWorkAround(false);
     };
 
     function setDrawingState(image, ctx, data) {
@@ -2191,6 +2422,16 @@ function AddonIWB_Toolbar_create() {
     presenter.setDefaultPenThickness = function(lineWidth) {
         presenter.data.defaultPenWidth = parseInt(lineWidth, 10);
         changeThickness(presenter.data.defaultPenWidth);
+    };
+
+    presenter.setMarkerThickness = function (thickness){
+        presenter.data.markerThickness = parseInt(thickness, 10);
+        changeThickness(presenter.data.markerThickness);
+    };
+
+    presenter.setEraserThickness = function (thickness){
+        presenter.data.eraserThickness = parseInt(thickness, 10);
+        changeThickness(presenter.data.eraserThickness);
     };
 
     return presenter;
