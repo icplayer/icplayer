@@ -1,3 +1,4 @@
+2015-03-26 Fixed issue with playing event on Android 5.0 devices in Multi Audio module
 2015-03-25 Added Show slides property and positioning in Text Audio module
 2015-03-25 Fixed drawing logic, double events and added setEraserThickness, setMarkerThickness commands in IWB Toolbar module
 2015-03-23 Updated Google Swiffy library to ver. 7.2

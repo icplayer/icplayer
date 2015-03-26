@@ -103,20 +103,51 @@ function AddonMultiAudio_create(){
     presenter.sendOnPlayingEvent = function () {
         var currentItem = presenter.currentAudio+1;
         var eventData = presenter.createOnPlayingEventData({'currentItem': currentItem});
-        eventBus.sendEvent('ValueChanged', eventData);
+            eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.playingEventSent = false;
     presenter.createView = function(view, model){
         var interfaceType = model["Interface"];
         var audioWrapper = this.prepareAudio();
-        this.audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
-        this.audio.addEventListener('playing', presenter.sendOnPlayingEvent, false);
+        this.audio.addEventListener('timeupdate', function() {
+            presenter.onTimeUpdateSendEventCallback();
+
+            var ua = navigator.userAgent;
+            if( ua.indexOf("Android") >= 0 )
+            {
+                var androidversion = parseFloat(ua.slice(ua.indexOf("Android")+8));
+                if (androidversion == 5)
+                {
+                    if(presenter.audio.currentTime > 0 && !presenter.playingEventSent){
+                        presenter.sendOnPlayingEvent();
+                        presenter.playingEventSent = true;
+                    }
+                }
+            }
+        }, false);
+        this.audio.addEventListener('playing', function () {
+            var ua = navigator.userAgent;
+            if( ua.indexOf("Android") >= 0 ){
+                var androidversion = parseFloat(ua.slice(ua.indexOf("Android")+8));
+                if (androidversion == 5){
+                    //do nothing
+                }else{
+                    presenter.sendOnPlayingEvent();
+                }
+            }else{
+                presenter.sendOnPlayingEvent();
+            }
+        }, false);
+        this.audio.addEventListener('play', function () {
+        }, false);
         this.audio.addEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
         this.audio.addEventListener('ended', function() {
             presenter.stop();
             presenter.sendOnEndEvent();
+            presenter.playingEventSent = false;
         }, false);
 
         if (!presenter.isLoaded) {
@@ -272,6 +303,7 @@ function AddonMultiAudio_create(){
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.audio.currentTime = 0;
+            presenter.playingEventSent = false;
         }
     };
 
@@ -317,6 +349,7 @@ function AddonMultiAudio_create(){
 
     presenter.jumpToCommand = function(params) {
         presenter.jumpTo(params[0]);
+        presenter.playingEventSent = false;
     };
 
     presenter.previous = function() {
