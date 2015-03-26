@@ -43,7 +43,6 @@ function AddonFigureDrawing_create(){
             case 'allLinesDrawn'.toLowerCase():
                 presenter.allLinesDrawn();
                 break;
-                break;
         }
     };
     presenter.allLinesDrawn = function() {
@@ -74,7 +73,10 @@ function AddonFigureDrawing_create(){
     };
     presenter.setColor = function(color) {
         presenter.isEraser = false;
-        presenter.currentColor = validateColor(color,false);
+        var color = validateColor(color,false,false);
+        if (color != false)
+            presenter.currentColor = color;
+        //console.log(presenter.currentColor);
     };
     presenter.setEraserOn = function() {
         presenter.isEraser = true;
@@ -150,7 +152,7 @@ function AddonFigureDrawing_create(){
                     presenter.error = 'startingcolor';
                     return '';
                 }
-                colors = validateColor(point[2],false);
+                colors = validateColor(point[2],false,true);
                 answer.push([parseInt(point[0]),parseInt(point[1]),colors[0],colors[1],colors[2],colors[3]]);
             }
         });
@@ -215,14 +217,11 @@ function AddonFigureDrawing_create(){
         for (i = 0; i < list.length; i++) {
             points = [];
             if (tmpPoint == '') {
-                //console.log('error1');
                 presenter.error = 'answerfigure';
                 return false;
             }
             testing = re.test(list[i]['Figure']);
-            //console.log(list[i]['Figure']);
             if (!testing) {
-                //console.log('error2');
                 presenter.error = 'answerfigure';
                 return false;
             }
@@ -245,20 +244,23 @@ function AddonFigureDrawing_create(){
                 lines: points,
                 x: color[0],
                 y: color[1],
-                color: color[2]+' '+color[3]+' '+color[4]+' '+color[5],
+                color: color[2]+' '+color[3]+' '+color[4]+' '+color[5]
             };
             if (tmpPoint[0] != tmpPoint[j]) {
-                //console.log('error3');
                 presenter.error = 'answerfigure';
                 return false;
             }
             presenter.answersColors.push(tmpData);
         }
     }
-    function validateColor(color,isDefault){
+    function validateColor(color,isDefault,isEditor){
         var rgb = color.split(' ');
-        if (isNaN(rgb[0]) || isNaN(rgb[1]) || isNaN(rgb[2]) || rgb[0] < 0 || rgb[0] > 255 || rgb[1]<0 || rgb[1]>255 || rgb[2]<0 || rgb[2]>255 || rgb.length != 3)
-            (isDefault) ? (presenter.error = 'defcolorerror') : (presenter.error = 'colorerror');
+        if (isNaN(rgb[0]) || isNaN(rgb[1]) || isNaN(rgb[2]) || rgb[0] < 0 || rgb[0] > 255 || rgb[1]<0 || rgb[1]>255 || rgb[2]<0 || rgb[2]>255 || rgb.length != 3) {
+            if (isEditor)
+                (isDefault) ? (presenter.error = 'defcolorerror') : (presenter.error = 'colorerror');
+            else
+                return false;
+        };
         rgb.push('255');
         return rgb;
     };
@@ -273,7 +275,7 @@ function AddonFigureDrawing_create(){
         column: 0,
         x: 0,
         y: 0,
-        isSelected: false,
+        isSelected: false
     }
     var gcd = function(a, b) {
         if (!b) {
@@ -408,13 +410,14 @@ function AddonFigureDrawing_create(){
                     y = firstPoint.y + stepY * presenter.grid;
                 }
                 tmpPoint = new Point(row, column, x, y);
-                if (presenter.$view.find('#line_'+firstPoint.column+'_'+firstPoint.row+'_'+tmpPoint.column+'_'+tmpPoint.row).length <= 0 && draw) {
+                line = 'line_'+firstPoint.column+'_'+firstPoint.row+'_'+tmpPoint.column+'_'+tmpPoint.row;
+                if (presenter.$view.find('#'+line).length <= 0 && draw) {
                     drawOneLine(firstPoint, tmpPoint, nonremovable);
-                    line = 'line_'+firstPoint.column+'_'+firstPoint.row+'_'+tmpPoint.column+'_'+tmpPoint.row
+
                     if (score == 1 && ($.inArray(line,presenter.AnswerLines) == -1))
                         score = 0;
                 }
-                if (!draw && !((line.length > 0) && line.attr('class') == 'line nonremovable'))
+                if (!draw && !((presenter.$view.find('#'+line).length > 0) && presenter.$view.find('#'+line).attr('class') == 'line nonremovable'))
                     presenter.AnswerLines.push('line_'+firstPoint.column+'_'+firstPoint.row+'_'+tmpPoint.column+'_'+tmpPoint.row);
                 if (coloranswers)
                     presenter.tmpLine.push('line_'+firstPoint.column+'_'+firstPoint.row+'_'+tmpPoint.column+'_'+tmpPoint.row);
@@ -447,7 +450,7 @@ function AddonFigureDrawing_create(){
         presenter.blockColoring = ModelValidationUtils.validateBoolean(presenter.model['BlockColoring']);
         presenter.answersColors = [];
         if (presenter.coloring && !presenter.error) {
-            presenter.defaultColor = validateColor(presenter.model['DefColor'],true);
+            presenter.defaultColor = validateColor(presenter.model['DefColor'],true,true);
             presenter.startingColors = validateStartingColor(presenter.model['StartingColors']);
         };
         return true;
