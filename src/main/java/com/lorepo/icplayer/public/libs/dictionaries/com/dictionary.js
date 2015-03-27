@@ -1,4 +1,9 @@
 var ice_dictionary = {
+	"error_forbidden" : "You don't have permission to edit this content",
+	"error_not_found": "Content not found",
+	"error_server_error": "Server error. Please try again later",
+	"error_unknown_error": "Unknown error. Please try again later",
+	"content_saved": "Lesson saved",
 	"editor_title" : "Multiplatform Interactive Content Editor",
 	"save" : "Save",
 	"saved" : "Saved",
