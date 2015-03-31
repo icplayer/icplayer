@@ -1,5 +1,19 @@
 function AddonIWB_Toolbar_create() {
 
+    /*
+     * KNOWN ISSUES:
+     *       Drawing with zoom:
+     *          Because zoom option (provided with zoom.js library) is based on CSS properties 'zoom' and
+     *          '-moz-transform' drawing in such mode is not possible. IWB Toolbar panel is hidden when user activates
+     *          zoom option and it's displayed again after zooming out.
+     *
+     *       Preventing modules and addons click handlers execution in zoom mode:
+     *          Each module and addon can register unlimited number of click handlers to its internal elements. When
+     *          zoom mode is activated, IWB Toolbar needs to prevent execution of those handlers. For instance,
+     *          TextAudio binds a handler to span elements. Those handlers needs to be removed for as long as zoom
+      *         mode is active and reinstated when zoom mode is deactivated.
+     */
+
     function getCorrectObject(val) { return { isValid: true, value: val } }
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec } }
@@ -33,6 +47,7 @@ function AddonIWB_Toolbar_create() {
     presenter.lastMousePosition = {};
     presenter.floatingImageGroups = {};
     presenter.currentFloatingImageIndex = 0;
+    presenter.textAudioEvents = [];
 
     presenter.isZoomActive = false;
     presenter.areZoomEventHandlersAttached = false;
@@ -643,6 +658,54 @@ function AddonIWB_Toolbar_create() {
         presenter.floatingImageLayer.draw();
     }
 
+    presenter.disableTextAudioEventHandlers = function () {
+        function preventClickAction(event) {
+            if (!presenter.isZoomActive) return;
+
+            event.stopPropagation();
+            event.preventDefault();
+        }
+
+        presenter.textAudioEvents = [];
+
+        // Removes (temporally) event handlers from both words and custom controls.
+        presenter.modules.find('.wrapper-addon-textaudio .textaudio-text span, .wrapper-addon-textaudio .textaudio-player div').each(function (_, element) {
+            // This jQuery API is no longer available in version 1.8+ versions!
+            var events = jQuery(element).data('events'),
+                handlers = [];
+
+            if (!events || !events['click']) {
+                return true; // jQuery.each() continue statement
+            }
+
+            $.each(events['click'], function (_, event) {
+                handlers.push(event.handler);
+            });
+
+            presenter.textAudioEvents.push({
+                element: element,
+                handlers: handlers
+            });
+
+            $(element).unbind('click');
+            $(element).on('click', preventClickAction);
+        });
+    };
+
+    presenter.restoreTextAudioEventHandlers = function () {
+        $.each(presenter.textAudioEvents, function (_, textAudioEvent) {
+            var $element = $(textAudioEvent.element);
+
+            $element.unbind('click');
+
+            $.each(textAudioEvent.handlers, function (_, handler) {
+                $element.on('click', handler);
+            });
+        });
+
+        presenter.textAudioEvents = [];
+    };
+
     function addEventHandlers() {
         var eventClickStart;
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
@@ -815,6 +878,12 @@ function AddonIWB_Toolbar_create() {
 
             presenter.$pagePanel.disableSelection();
 
+            if (presenter.isZoomActive) {
+                presenter.disableTextAudioEventHandlers();
+            } else {
+                presenter.restoreTextAudioEventHandlers();
+            }
+
             if (presenter.areZoomEventHandlersAttached) {
                 // We cannot attach multiple times the same event handlers
                 return;
@@ -827,12 +896,14 @@ function AddonIWB_Toolbar_create() {
                 e.preventDefault();
             });
 
-            presenter.modules.find('a').on('click', function(e) {
+            function preventClickAction(event) {
                 if (!presenter.isZoomActive) return;
 
-                e.stopPropagation();
-                e.preventDefault();
-            });
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            presenter.modules.find('a').on('click', preventClickAction);
 
             presenter.modules.on('mousedown', function(e) {
                 if (!presenter.isZoomActive) return;
@@ -1927,6 +1998,7 @@ function AddonIWB_Toolbar_create() {
     function changeButtonState(button) {
         if (!isZoomButton(button)) {
             presenter.isZoomActive = false;
+            presenter.restoreTextAudioEventHandlers();
         }
 
         if (isDependingOnDrawing(button)) {
@@ -2138,6 +2210,7 @@ function AddonIWB_Toolbar_create() {
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
             }
         }
+
         setOverflowWorkAround(true);
         setOverflowWorkAround(false);
     }
