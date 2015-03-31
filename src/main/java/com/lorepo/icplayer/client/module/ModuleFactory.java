@@ -42,6 +42,7 @@ import com.lorepo.icplayer.client.module.report.ReportModule;
 import com.lorepo.icplayer.client.module.report.ReportPresenter;
 import com.lorepo.icplayer.client.module.report.ReportView;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
+import com.lorepo.icplayer.client.module.shape.ShapePresenter;
 import com.lorepo.icplayer.client.module.shape.ShapeView;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
@@ -214,6 +215,9 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if(module instanceof ReportModule){
 			return new ReportPresenter((ReportModule) module, services);
+		}
+		else if(module instanceof ShapeModule){
+			return new ShapePresenter((ShapeModule) module, services);
 		}
 		else if(module instanceof SourceListModule){
 			return new SourceListPresenter((SourceListModule) module, services);
