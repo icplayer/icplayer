@@ -46,29 +46,33 @@ function AddonFigureDrawing_create(){
         }
     };
     presenter.allLinesDrawn = function() {
-        var i, j, line, line2, color, counter = 0, errorCounter = presenter.$view.find('.line').not('.nonremovable').length, numberOfAnswers = presenter.AnswerLines.length;
+        var answer = true;
         if (presenter.activity && !presenter.error) {
+            var i, j, line, line2, color, counter = 0, errorCounter = presenter.$view.find('.line').not('.nonremovable').length, numberOfAnswers = presenter.AnswerLines.length;
             for (i = 0; i <= numberOfAnswers; i++) {
                 line = presenter.$view.find('#'+presenter.AnswerLines[i]);
                 if (line.length > 0) {
-                    counter++
+                    counter++;
                     errorCounter--;
                 }
             }
+            if (counter != numberOfAnswers || errorCounter != 0)
+                answer = false;
         };
-        if (counter == numberOfAnswers && errorCounter == 0)
-            return true
-        else
-            return false;
+        return answer;
     };
-    presenter.setDrawMode = function(color) {
+    presenter.setDrawMode = function() {
         presenter.drawingMode = true;
+        presenter.$view.find('.figure').addClass('drawing_mode');
+        presenter.$view.find('.figure').removeClass('coloring_mode');
     };
     presenter.setColorMode = function() {
-        if (presenter.coloring && (!presenter.blockColoring || presenter.allLinesDrawn())) {
+        if (presenter.coloring && (!presenter.blockColoring || presenter.allLinesDrawn() || !presenter.drawingMode)) {
             presenter.drawingMode = false;
-            presenter.selected.isSelected = false;
+            presenter.$view.find('.figure').addClass('coloring_mode');
             presenter.$view.find('.selected').removeClass('selected');
+            presenter.$view.find('.figure').removeClass('drawing_mode');
+            presenter.selected.isSelected = false;
         }
     };
     presenter.setColor = function(color) {
@@ -76,7 +80,6 @@ function AddonFigureDrawing_create(){
         var color = validateColor(color,false,false);
         if (color != false)
             presenter.currentColor = color;
-        //console.log(presenter.currentColor);
     };
     presenter.setEraserOn = function() {
         presenter.isEraser = true;
@@ -244,7 +247,7 @@ function AddonFigureDrawing_create(){
                 lines: points,
                 x: color[0],
                 y: color[1],
-                color: color[2]+' '+color[3]+' '+color[4]+' '+color[5]
+                color: color[2]+' '+color[3]+' '+color[4]+' '+color[5],
             };
             if (tmpPoint[0] != tmpPoint[j]) {
                 presenter.error = 'answerfigure';
@@ -275,7 +278,7 @@ function AddonFigureDrawing_create(){
         column: 0,
         x: 0,
         y: 0,
-        isSelected: false
+        isSelected: false,
     }
     var gcd = function(a, b) {
         if (!b) {
@@ -433,6 +436,7 @@ function AddonFigureDrawing_create(){
         presenter.model = model;
         presenter.addonID = model.ID;
         presenter.figure = presenter.$view.find('.figure');
+        presenter.setDrawMode();
         presenter.activity = ModelValidationUtils.validateBoolean(presenter.model['IsActivity']);
         presenter.disabled = ModelValidationUtils.validateBoolean(presenter.model['IsDisabled']);
         presenter.initDisabled = presenter.disabled;
@@ -549,7 +553,6 @@ function AddonFigureDrawing_create(){
             presenter.drawGrid();
             validateLines(presenter.StartingLines,true,false);
             presenter.updateVisibility();
-            presenter.drawingMode = true;
 
             var coordinations = {x:0, y:0};
             var tmpColor, i;
@@ -578,9 +581,9 @@ function AddonFigureDrawing_create(){
         var point1, point2;
 
         presenter.$view.find('.point').on('mousedown touchstart', function(e){
-            e.stopPropagation();
-            e.preventDefault();
             if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && timeClick) {
+                e.stopPropagation();
+                e.preventDefault();
                 if (e.type != 'mousedown') timeClick = false;
                 setTimeout(function(){timeClick = true;},400);
                 if (!presenter.selected.isSelected) {
@@ -607,7 +610,7 @@ function AddonFigureDrawing_create(){
                         presenter.$view.find('.point').removeClass('selected');
                         presenter.selected.isSelected = false;
                         //if blockColoring mode check if is OK
-                        if (presenter.allLinesDrawn()) {
+                        if (presenter.activity && presenter.allLinesDrawn()) {
                             var item = 'lines';
                             var value = '';
                             var score = '';
@@ -730,6 +733,7 @@ function AddonFigureDrawing_create(){
         if (presenter.coloring) presenter.redrawCanvas(false);
         presenter.isEraser = false;
         presenter.currentColor = presenter.defaultColor;
+        presenter.setDrawMode();
     };
     presenter.getErrorCount = function(){
         var errorCounter = 0, i, lineCounter, color;
@@ -860,6 +864,10 @@ function AddonFigureDrawing_create(){
         presenter.currentColor = JSON.parse(state).color;
         presenter.coloredAreas = JSON.parse(state).coloredAreas;
         presenter.drawingMode = JSON.parse(state).mode;
+        if (presenter.drawingMode)
+            presenter.setDrawMode()
+        else
+            presenter.setColorMode();
         if (presenter.disabled)
             presenter.disable()
         else
