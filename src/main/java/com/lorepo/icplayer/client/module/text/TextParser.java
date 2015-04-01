@@ -255,6 +255,27 @@ public class TextParser {
 		return replaceText;
 	}
 
+	private String matchDraggableFilledGap(String expression) {
+
+		String replaceText = null;
+
+		int index = expression.indexOf("|");
+		if (index > 0) {
+			String placeholder = expression.substring(0, index).trim();
+			String answer = expression.substring(index + 1).trim();
+			String id = baseId + "-" + idCounter;
+			idCounter++;
+			replaceText = "<input id='" + id + "' type='edit' size='"
+					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap ic_draggableGapEmpty' placeholder='" + placeholder +"' />";
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
+			gi.setPlaceHolder(placeholder);
+			gi.addAnswer(answer);
+			parserResult.gapInfos.add(gi);
+		}
+
+		return replaceText;
+	}
+	
 	private String matchDraggableGap(String expression) {
 		String replaceText = null;
 
@@ -475,7 +496,13 @@ public class TextParser {
 
 				String expression = input.substring(0, index);
 				input = input.substring(index + 1);
-				replaceText = matchFilledGap(expression);
+				
+				if (useDraggableGaps) {
+					replaceText = matchDraggableFilledGap(expression);
+				} else {
+					replaceText = matchFilledGap(expression);
+				}
+				
 			} else {
 				if (index < 0) {
 					return output + "\\gap{" + input;

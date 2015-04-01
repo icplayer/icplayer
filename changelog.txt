@@ -1,3 +1,4 @@
+2015-04-01 Fixed issue with draggable filledGap in Text module
 2015-03-31 Fixed playing words in TextAudio while zooming using IWB Toolbard module
 2015-03-31 Added getView() command to Shape module
 2015-03-31 Fixed issue with crashing browser on iOS in eKeyboard module

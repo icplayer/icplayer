@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.text;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
@@ -17,17 +18,21 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean disabled = false;
 	private boolean isWorkMode = true;
 	private String answerText = "";
+	private boolean isFilledGap = false;
 	
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		
 		super(DOM.getElementById(gi.getId()));
-		
+
 		gapInfo = gi;
+		Element element = getElement();
+		this.isFilledGap = element.getAttribute("class").contains("ic_filled_gap");
+		removeStyleName(getStyleName());
+
 		setStylePrimaryName(EMPTY_GAP_STYLE);
-		
 		onAttach();
 		setText("");
-		
+
 		if (listener != null) {
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -80,6 +85,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	}
 	
 	public void setText(String text) {
+		
 		if (text.isEmpty()) {
 			super.setHTML(EMPTY_TEXT);
 			setStylePrimaryName(EMPTY_GAP_STYLE);
@@ -89,6 +95,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			super.setHTML(markup);
 			answerText = StringUtils.removeAllFormatting(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
+		}
+		
+		if (isFilledGap) {
+			addStyleName("ic_filled_gap");
 		}
 	}
 
