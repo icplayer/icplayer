@@ -236,12 +236,23 @@ function AddoneKeyboard_create(){
     };
 
     function runLogic(view, model, isPreview) {
+        presenter.$view = $(view);
+
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        presenter.$view = $(view);
+        var mathJaxDeferred = new jQuery.Deferred(),
+            mathJaxProcessEnded = mathJaxDeferred.promise();
 
-        presenter.pageLoaded.then(function() {
+        MathJax.Hub.Register.MessageHook("End Process", function (message) {
+            if ($(message[1]).hasClass('ic_page')) {
+                if(mathJaxDeferred.state() != 'resolved'){
+                    mathJaxDeferred.resolve();
+                }
+            }
+        });
+
+        $.when(presenter.pageLoaded, mathJaxProcessEnded).then(function() {
             presenter.configuration = presenter.validateModel(model, isPreview);
 
             if (presenter.configuration.isError) {
