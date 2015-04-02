@@ -363,7 +363,7 @@ function AddoneKeyboard_create(){
                     lockInput: presenter.configuration.lockInput,
 
                     // Prevent keys not in the displayed keyboard from being typed in
-                    restrictInput: true,
+                    restrictInput: false,
 
                     // Check input against validate function, if valid the accept button is clickable;
                     // if invalid, the accept button is disabled.
