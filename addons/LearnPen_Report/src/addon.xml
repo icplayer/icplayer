@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="LearnPen_Report" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="isDisable" nameLabel="LearnPen_Report_property_is_disable" type="boolean" />
+        <property name="correctRange" nameLabel="LearnPen_Report_property_correct_range" type="string" />
+        <property name="graphType" nameLabel="LearnPen_Report_property_graph_type" type="{Pie chart, Circle in circle, Four circles}" />
+        <property name="sensor" nameLabel="LearnPen_Report_property_sensor" type="{All, Squeeze, Pressure}" />
+        <property name="colors" nameLabel="LearnPen_Report_property_colors" type="text" />
+        <property name="dataUpdateInterval" nameLabel="LearnPen_Report_property_update_interval" type="string" />
+        <property name="calculateFromLastValues" nameLabel="LearnPen_Report_property_get_last_values" type="string" />
+    </model>
+</addon>

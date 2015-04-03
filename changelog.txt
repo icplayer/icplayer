@@ -1,4 +1,5 @@
-2015-04-02 Fixed isue with zoom on IE 10 in IWB Toolbar module
+2015-04-03 Added new Addon LearnPen Report
+2015-04-02 Fixed issue with zoom on IE 10 in IWB Toolbar module
 2015-04-02 Fixed issue with input restriction in eKeyboard module
 2015-04-01 Fixed issue with eKeyboard cooperating with math gaps in eKeyboard module
 2015-04-01 Fixed issue with allLinesDrawn() command and added styles for different modes in Figure Drawing module
