@@ -5,7 +5,7 @@
 }
 
 .addon_Shape_Tracing .outer .drawing,
-.addon_Shape_Tracing .outer .tmp_canvas,
+.addon_Shape_Tracing .outer .drawing-main,
 .addon_Shape_Tracing .outer .background,
 .addon_Shape_Tracing .outer .shape {
     position: absolute;
@@ -22,11 +22,8 @@
     touch-action: none;
 }
 
-.addon_Shape_Tracing .outer .drawing {
-    cursor: crosshair;
-}
-
-.addon_Shape_Tracing .outer .tmp_canvas {
+.addon_Shape_Tracing .outer .drawing,
+.addon_Shape_Tracing .outer .drawing-main {
     cursor: crosshair;
 }
 
@@ -37,7 +34,7 @@
 }
 
 .shape-tracing-wrapper.outer .drawing,
-.shape-tracing-wrapper.outer .tmp_canvas,
+.shape-tracing-wrapper.outer .drawing-main,
 .shape-tracing-wrapper.outer .background,
 .shape-tracing-wrapper.outer .shape {
     position: absolute;
@@ -46,6 +43,7 @@
     -ms-touch-action: none;
     touch-action: none;
 }
+
 .shape-tracing-wrapper.outer .correctImage {
     position: absolute;
     width: 100%;
@@ -54,10 +52,7 @@
     touch-action: none;
 }
 
-.shape-tracing-wrapper.outer .drawing {
-    cursor: crosshair;
-}
-
-.shape-tracing-wrapper.outer .tmp_canvas {
+.shape-tracing-wrapper.outer .drawing,
+.shape-tracing-wrapper.outer .drawing-main {
     cursor: crosshair;
 }

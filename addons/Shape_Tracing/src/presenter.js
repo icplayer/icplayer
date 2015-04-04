@@ -1,6 +1,58 @@
 function AddonShape_Tracing_create() {
 
-    var presenter = function(){};
+    function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
+
+    function returnCorrectObject(v) { return { isValid: true, value: v }; }
+
+    function getDistance(p1, p2) {
+        return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+    }
+
+    Array.prototype.last = Array.prototype.last || function() {
+        return this.length === 0 ? null : this[this.length - 1];
+    };
+
+    Array.prototype.removeNeighbourDuplicates = Array.prototype.removeNeighbourDuplicates || function() {
+        var result = [], last = null;
+
+        for (var i=0; i<this.length; i++) {
+            if (this[i] !== last) {
+                result.push(this[i]);
+                last = this[i];
+            }
+        }
+
+        return result;
+    };
+
+    var presenter = function() {};
+
+    // work-around for double line in android browser
+    function setOverflowWorkAround(turnOn) {
+
+        if (!MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) { return false; }
+
+        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+        if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
+
+            presenter.$view.parents("*").each(function() {
+                var overflow = null;
+                if (turnOn) {
+                    $(this).attr("data-overflow", $(this).css("overflow"));
+                    $(this).css("overflow", "visible");
+                } else {
+                    overflow = $(this).attr("data-overflow");
+                    if (overflow !== "") {
+                        $(this).css("overflow", overflow);
+                    }
+                    $(this).removeAttr("data-overflow");
+                }
+            });
+
+        }
+
+        return true;
+    }
 
     presenter.data = {
         divID: "",
@@ -20,9 +72,17 @@ function AddonShape_Tracing_create() {
         isShowErrorOn: false,
         incorrect: false,
         isAllOk: false,
+        drawingOpacity: 1,
 
         pencilThickness: 0
     };
+
+    var canvasData = {
+        main: { canvas: null, context: null },
+        temp: { canvas: null, context: null }
+    };
+
+    var points = [];
 
     presenter.cursorPosition = {
         pre_x: 0,
@@ -31,9 +91,51 @@ function AddonShape_Tracing_create() {
         y: 0
     };
 
+    var LINE_END_SIGN = 'Up';
+    var DOT_SIGN = 'Dot';
+
     var eventBus;
     var isOutsideShape = false;
+    var directionPoints = [];
+
     presenter.pointsArray = [];
+    presenter.pointsHistory = [];
+
+    // direction from p1 to p2
+    function calculateDrawingDirection(p1, p2) {
+        var deltaY = p1.y - p2.y;
+        var deltaX = p1.x - p2.x;
+        var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+
+        /* ANGLES:
+         *
+         *          N (90°)
+         *          ↑
+         * (0°) W ←   → E (180°, -180°)
+         *          ↓
+         *          S (-90°)
+         */
+
+        if (angle >= 112 && angle < 157) {
+            return 'NE';
+        } else if (angle >= 67 && angle < 112) {
+            return 'N';
+        } else if (angle >= 22 && angle < 67) {
+            return 'NW';
+        } else if (angle >= -22 && angle < 22) {
+            return 'W';
+        } else if (angle >= -67 && angle < -22) {
+            return 'SW';
+        } else if (angle >= -112 && angle < -67) {
+            return 'S';
+        } else if (angle >= -157 && angle < -112) {
+            return 'SE';
+        } else {
+            return 'E';
+        }
+
+        return false;
+    }
 
     function initPointsArray() {
         for (var i=0; i<presenter.configuration.points.length; i++) {
@@ -41,11 +143,36 @@ function AddonShape_Tracing_create() {
         }
     }
 
+    function initCanvasData() {
+        canvasData.main.canvas = presenter.$view.find('.drawing-main')[0];
+        canvasData.main.context = canvasData.main.canvas.getContext('2d');
+        canvasData.temp.canvas = presenter.$view.find('.drawing')[0];
+        canvasData.temp.context = canvasData.temp.canvas.getContext('2d');
+    }
+
+    function resetCanvas() {
+        turnOffEventListeners();
+        $(canvasData.main.canvas).remove();
+        $(canvasData.temp.canvas).remove();
+
+        var $main = $('<canvas></canvas>').addClass('drawing-main');
+        var $temp = $('<canvas></canvas>').addClass('drawing');
+
+        presenter.$view.find('.shape-tracing-wrapper').append($main);
+        presenter.$view.find('.shape-tracing-wrapper').append($temp);
+
+        initCanvasData();
+        resizeCanvas(canvasData.main.canvas);
+        resizeCanvas(canvasData.temp.canvas);
+        turnOnEventListeners();
+    }
+
     function resetAddon(isPencilActive) {
         turnOffEventListeners();
         turnOnEventListeners();
 
-        presenter.$view.find(".drawing")[0].getContext("2d").clearRect(0, 0, presenter.data.width, presenter.data.height);
+        canvasData.temp.context.clearRect(0, 0, presenter.data.width, presenter.data.height);
+        canvasData.main.context.clearRect(0, 0, presenter.data.width, presenter.data.height);
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
         presenter.data.isPencilActive = isPencilActive;
@@ -55,41 +182,47 @@ function AddonShape_Tracing_create() {
         presenter.data.numberOfDescentsFromShape = 0;
         presenter.data.pencilThickness = presenter.configuration.penThickness;
         presenter.data.incorrect = false;
-        presenter.configuration.opacity = presenter.opacityByDefault;
-        initPointsArray();
+        directionPoints = [];
+        presenter.pointsHistory = [];
         isOutsideShape = false;
+        points = [];
+
+        initPointsArray();
 
         presenter.configuration.color = presenter.data.startColor;
-        presenter.beforeEraserColor = isPencilActive ? presenter.configuration.color : presenter.beforeEraserColor;
 
         if (!presenter.configuration.isShowShapeImage && presenter.configuration.isShowShapeImageOnCheck) {
             presenter.layer.hide();
         }
 
-        presenter.$view.find(".drawing").removeClass("correct wrong");
+        $(canvasData.temp.canvas).removeClass("correct wrong");
         presenter.setVisibility(presenter.visibleByDefault);
         presenter.configuration.isVisible = presenter.visibleByDefault;
+
+        resetCanvas();
+
+        setOverflowWorkAround(true);
+        setOverflowWorkAround(false);
+    }
+
+    function createEventObject(_item, _value, _score) {
+        return {
+            'source': presenter.configuration.ID,
+            'item': '' + _item,
+            'value': '' + _value,
+            'score': '' + _score
+        };
     }
 
     function eventCreator() {
         function sendEventScore(isCorrect) {
             presenter.data.isAllOk = isCorrect;
-            eventBus.sendEvent('ValueChanged', {
-                'source': presenter.configuration.ID,
-                'item': 'allOk',
-                'value': '',
-                'score': isCorrect ? '1' : '0'
-            });
+            eventBus.sendEvent('ValueChanged', createEventObject('allOk', '', isCorrect ? '1' : '0'));
         }
 
         function sendEventValue(isCorrect) {
             presenter.data.isAllOk = isCorrect;
-            eventBus.sendEvent('ValueChanged', {
-                'source': presenter.configuration.ID,
-                'item': '',
-                'value': isCorrect ? '1' : '0',
-                'score': ''
-            });
+            eventBus.sendEvent('ValueChanged', createEventObject('', isCorrect ? '1' : '0', ''));
         }
 
         var pointsLength = presenter.configuration.points.length;
@@ -205,13 +338,7 @@ function AddonShape_Tracing_create() {
 
     function colorNameToHex(color) {
         var colors = {"aliceblue":"#f0f8ff","antiquewhite":"#faebd7","aqua":"#00ffff","aquamarine":"#7fffd4","azure":"#f0ffff","beige":"#f5f5dc","bisque":"#ffe4c4","black":"#000000","blanchedalmond":"#ffebcd","blue":"#0000ff","blueviolet":"#8a2be2","brown":"#a52a2a","burlywood":"#deb887","cadetblue":"#5f9ea0","chartreuse":"#7fff00","chocolate":"#d2691e","coral":"#ff7f50","cornflowerblue":"#6495ed","cornsilk":"#fff8dc","crimson":"#dc143c","cyan":"#00ffff","darkblue":"#00008b","darkcyan":"#008b8b","darkgoldenrod":"#b8860b","darkgray":"#a9a9a9","darkgreen":"#006400","darkkhaki":"#bdb76b","darkmagenta":"#8b008b","darkolivegreen":"#556b2f","darkorange":"#ff8c00","darkorchid":"#9932cc","darkred":"#8b0000","darksalmon":"#e9967a","darkseagreen":"#8fbc8f","darkslateblue":"#483d8b","darkslategray":"#2f4f4f","darkturquoise":"#00ced1","darkviolet":"#9400d3","deeppink":"#ff1493","deepskyblue":"#00bfff","dimgray":"#696969","dodgerblue":"#1e90ff","firebrick":"#b22222","floralwhite":"#fffaf0","forestgreen":"#228b22","fuchsia":"#ff00ff","gainsboro":"#dcdcdc","ghostwhite":"#f8f8ff","gold":"#ffd700","goldenrod":"#daa520","gray":"#808080","green":"#008000","greenyellow":"#adff2f","honeydew":"#f0fff0","hotpink":"#ff69b4","indianred ":"#cd5c5c","indigo ":"#4b0082","ivory":"#fffff0","khaki":"#f0e68c","lavender":"#e6e6fa","lavenderblush":"#fff0f5","lawngreen":"#7cfc00","lemonchiffon":"#fffacd","lightblue":"#add8e6","lightcoral":"#f08080","lightcyan":"#e0ffff","lightgoldenrodyellow":"#fafad2","lightgrey":"#d3d3d3","lightgreen":"#90ee90","lightpink":"#ffb6c1","lightsalmon":"#ffa07a","lightseagreen":"#20b2aa","lightskyblue":"#87cefa","lightslategray":"#778899","lightsteelblue":"#b0c4de","lightyellow":"#ffffe0","lime":"#00ff00","limegreen":"#32cd32","linen":"#faf0e6","magenta":"#ff00ff","maroon":"#800000","mediumaquamarine":"#66cdaa","mediumblue":"#0000cd","mediumorchid":"#ba55d3","mediumpurple":"#9370d8","mediumseagreen":"#3cb371","mediumslateblue":"#7b68ee","mediumspringgreen":"#00fa9a","mediumturquoise":"#48d1cc","mediumvioletred":"#c71585","midnightblue":"#191970","mintcream":"#f5fffa","mistyrose":"#ffe4e1","moccasin":"#ffe4b5","navajowhite":"#ffdead","navy":"#000080","oldlace":"#fdf5e6","olive":"#808000","olivedrab":"#6b8e23","orange":"#ffa500","orangered":"#ff4500","orchid":"#da70d6","palegoldenrod":"#eee8aa","palegreen":"#98fb98","paleturquoise":"#afeeee","palevioletred":"#d87093","papayawhip":"#ffefd5","peachpuff":"#ffdab9","peru":"#cd853f","pink":"#ffc0cb","plum":"#dda0dd","powderblue":"#b0e0e6","purple":"#800080","red":"#ff0000","rosybrown":"#bc8f8f","royalblue":"#4169e1","saddlebrown":"#8b4513","salmon":"#fa8072","sandybrown":"#f4a460","seagreen":"#2e8b57","seashell":"#fff5ee","sienna":"#a0522d","silver":"#c0c0c0","skyblue":"#87ceeb","slateblue":"#6a5acd","slategray":"#708090","snow":"#fffafa","springgreen":"#00ff7f","steelblue":"#4682b4","tan":"#d2b48c","teal":"#008080","thistle":"#d8bfd8","tomato":"#ff6347","turquoise":"#40e0d0","violet":"#ee82ee","wheat":"#f5deb3","white":"#ffffff","whitesmoke":"#f5f5f5","yellow":"#ffff00","yellowgreen":"#9acd32"};
-
-        var parsedColor;
-        if(Array.isArray(color)){
-            parsedColor = color[0];
-        }else{
-            parsedColor = color;
-        }
+        var parsedColor = Array.isArray(color) ? color[0] : color;
 
         if (typeof colors[parsedColor.toLowerCase()] !== 'undefined') {
             return colors[parsedColor.toLowerCase()];
@@ -277,13 +404,12 @@ function AddonShape_Tracing_create() {
     }
 
     function cursorCoordinates() {
-        drawBoxMouseData(50, 37);
+        drawBoxMouseData(52, 37);
 
         presenter.$view.find(".drawing").on('mousemove', function(e) {
             e.stopPropagation();
 
-            var x = e.offsetX,
-                y = e.offsetY;
+            var x = e.offsetX, y = e.offsetY;
 
             presenter.text.setText(prepearText(x, y));
             presenter.layerBG.draw();
@@ -317,7 +443,6 @@ function AddonShape_Tracing_create() {
                     drawActivePoints();
                 }
             };
-            //backgroundImage.crossOrigin = "anonymous";
             backgroundImage.src = presenter.configuration.backgroundImage;
         } else {
             if (isPreview) {
@@ -359,41 +484,38 @@ function AddonShape_Tracing_create() {
                 }
             }
         };
-        //image.crossOrigin = "anonymous";
         image.src = presenter.configuration.shapeImage;
     }
 
     function drawCorrectAnswerImage(isPreview) {
         presenter.stageCorrect = new Kinetic.Stage({
-        container: presenter.data.divID + "_correctImage",
-        height: presenter.data.height,
-        width: presenter.data.width
+            container: presenter.data.divID + "_correctImage",
+            height: presenter.data.height,
+            width: presenter.data.width
         });
         presenter.correctAnswerlayer = new Kinetic.Layer();
         var correctImage = new Image();
         correctImage.onload = function() {
             var correctImg = new Kinetic.Image({
-            x: 0,
-            y: 0,
-            image: correctImage,
-            height: presenter.data.height,
-            width: presenter.data.width
-        });
+                x: 0, y: 0,
+                image: correctImage,
+                height: presenter.data.height,
+                width: presenter.data.width
+            });
 
-        presenter.correctAnswerlayer.add(correctImg);
-        presenter.stageCorrect.add(presenter.correctAnswerlayer);
+            presenter.correctAnswerlayer.add(correctImg);
+            presenter.stageCorrect.add(presenter.correctAnswerlayer);
 
-        calculateBorderCoordinates();
-    };
-    correctImage.src = presenter.configuration.correctAnswerImage;
-    //presenter.correctAnswerlayer.hide();&#13;
-}
+            calculateBorderCoordinates();
+        };
+        correctImage.src = presenter.configuration.correctAnswerImage;
+    }
 
     function updateCursorPosition(e) {
         presenter.cursorPosition.pre_x = presenter.cursorPosition.x;
         presenter.cursorPosition.pre_y = presenter.cursorPosition.y;
 
-        var canvas = presenter.$view.find(".drawing")[0];
+        var canvas = canvasData.temp.canvas;
         var rect = canvas.getBoundingClientRect();
 
         if (e.clientX === undefined) {
@@ -402,6 +524,17 @@ function AddonShape_Tracing_create() {
         } else {
             presenter.cursorPosition.x = parseInt((e.clientX - rect.left) / presenter.data.zoom, 10);
             presenter.cursorPosition.y = parseInt((e.clientY - rect.top) / presenter.data.zoom, 10);
+        }
+
+        directionPoints.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
+    }
+
+    function upDateCheckPointsHistory(x, y) {
+        var point = presenter.data.activePointsPositions[y][x];
+        var lastPointInArray = presenter.pointsHistory.last();
+
+        if (point !== lastPointInArray) {
+            presenter.pointsHistory.push(point);
         }
     }
 
@@ -438,6 +571,8 @@ function AddonShape_Tracing_create() {
             for (var j=x-r; j<=x+r; j++) {
                 if (i > 0 && j > 0 && j < presenter.data.width && i < presenter.data.height) {
                     if (r * r <= (x-j) * (x-j) + (y-i) * (y-i)) {
+                        upDateCheckPointsHistory(x, y);
+
                         // if points' order does matter
                         if (presenter.configuration.isCheckPointsOrder) {
                             if (presenter.data.activePointsPositions[i][j] === presenter.data.currentPointNumber) {
@@ -458,8 +593,8 @@ function AddonShape_Tracing_create() {
     };
 
     function checkCorrectness() {
-        var x = parseInt(presenter.mouse.x, 10);
-        var y = parseInt(presenter.mouse.y, 10);
+        var x = parseInt(presenter.cursorPosition.x, 10);
+        var y = parseInt(presenter.cursorPosition.y, 10);
         if (presenter.isShapeCoveredInCircle(x, y, presenter.data.pencilThickness / 2)) {
             isOutsideShape = false;
         } else {
@@ -476,108 +611,48 @@ function AddonShape_Tracing_create() {
         }
     }
 
-    function drawDot() {
-        if (presenter.data.isPencilActive) {
-            var ctx = presenter.$view.find(".drawing")[0].getContext("2d");
-            var grad = ctx.createLinearGradient(0, 0, presenter.data.width, 0);
-            grad.addColorStop(0, presenter.configuration.color);
-            grad.addColorStop(1, presenter.configuration.color);
-            ctx.lineWidth = presenter.data.pencilThickness;
-
-            ctx.beginPath();
-            ctx.moveTo(presenter.cursorPosition.x, presenter.cursorPosition.y);
-            ctx.lineTo(presenter.cursorPosition.x, presenter.cursorPosition.y + 1);
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = grad;
-            ctx.stroke();
-
-            // active only on drawing, disable when eraser
-            checkCorrectness();
-        }
-    }
-
-    presenter.onMobilePaint = function(e) {
-        var tmp_canvas;
-            tmp_canvas = presenter.configuration.tmp_canvas;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
-        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
-
-        presenter.mouse.x = x;
-        presenter.mouse.y = y;
-        presenter.onPaint(e);
-    };
-
-    presenter.onPaint = function(e) {
-        var tmp_canvas, tmp_ctx;
-
-        tmp_canvas = presenter.configuration.tmp_canvas;
-        tmp_ctx = presenter.configuration.tmp_ctx;
-        tmp_ctx.globalAlpha = presenter.configuration.opacity;
-
-        tmp_ctx.lineWidth = presenter.data.pencilThickness;
-        tmp_ctx.lineJoin = 'round';
-        tmp_ctx.lineCap = 'round';
-        tmp_ctx.strokeStyle = presenter.configuration.color;
-        tmp_ctx.fillStyle = presenter.configuration.color;
-
-        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
-
-        if (presenter.points.length < 3) {
-            var b = presenter.points[0];
-            tmp_ctx.beginPath();
-            tmp_ctx.arc(b.x, b.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-            tmp_ctx.fill();
-            tmp_ctx.closePath();
-        } else {
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-            tmp_ctx.beginPath();
-            tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
-
-            for (var i = 1; i < presenter.points.length - 2; i++) {
-                var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
-                var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
-
-                tmp_ctx.quadraticCurveTo(presenter.points[i].x, presenter.points[i].y, c, d);
-            }
-
-            tmp_ctx.quadraticCurveTo(
-                presenter.points[i].x,
-                presenter.points[i].y,
-                presenter.points[i + 1].x,
-                presenter.points[i + 1].y
-            );
-            tmp_ctx.stroke();
-        }
-
-        if (presenter.data.isPencilActive) {
-            // active only on drawing, disable when eraser
-            checkCorrectness();
-        }
-    };
-
     function draw(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
         updateCursorPosition(e);
 
-        var ctx = presenter.$view.find(".drawing")[0].getContext("2d");
-        var grad = ctx.createLinearGradient(0, 0, presenter.data.width, 0);
-        grad.addColorStop(0, presenter.configuration.color);
-        grad.addColorStop(1, presenter.configuration.color);
-        ctx.lineWidth = presenter.data.pencilThickness;
-        ctx.globalAlpha = presenter.configuration.opacity;
+        var ctx = canvasData.temp.context;
+        var can = canvasData.temp.canvas;
 
-        ctx.beginPath();
-        ctx.moveTo(presenter.cursorPosition.pre_x, presenter.cursorPosition.pre_y);
-        ctx.lineTo(presenter.cursorPosition.x, presenter.cursorPosition.y);
-        ctx.lineCap = 'round';
+        ctx.globalAlpha = presenter.data.drawingOpacity;
+        ctx.lineWidth = presenter.data.pencilThickness;
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = grad;
-        ctx.stroke();
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = presenter.configuration.color;
+        ctx.fillStyle = presenter.configuration.color;
+
+        points.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
+
+        if (points.length < 3) {
+            ctx.beginPath();
+            ctx.arc(points[0].x, points[0].y, presenter.data.pencilThickness / 2, 0, Math.PI * 2, !0);
+            ctx.fill();
+            ctx.closePath();
+        } else {
+            ctx.clearRect(0, 0, can.width, can.height);
+
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+
+            for (var i=1; i<points.length-2; i++) {
+                var x = (points[i].x + points[i + 1].x) / 2;
+                var y = (points[i].y + points[i + 1].y) / 2;
+
+                ctx.quadraticCurveTo(points[i].x, points[i].y, x, y);
+            }
+
+            ctx.quadraticCurveTo(
+                points[i].x, points[i].y,
+                points[i + 1].x, points[i + 1].y
+            );
+            ctx.stroke();
+        }
 
         if (presenter.data.isPencilActive) {
             // active only on drawing, disable when eraser
@@ -585,161 +660,96 @@ function AddonShape_Tracing_create() {
         }
     }
 
-    presenter.points = [];
-    presenter.mouse = {x: 0, y: 0};
+    function turnOnEventListeners() {
+        var $canvas = $(canvasData.temp.canvas);
+        var isDown = false;
+        var isWorkaroundOn = false;
 
-    // work-around for double line in android browser
-    function setOverflowWorkAround(turnOn) {
+        $canvas.on('click', function(e) {
+            e.stopPropagation();
+        });
 
-        if (!MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) { return false; }
+        if (MobileUtils.isEventSupported('touchstart')) { // TOUCH
 
-        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
-        if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
+            $canvas.on('touchstart', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.data.numberOfLines++;
 
-            presenter.$view.parents("*").each(function() {
-                var overflow = null;
-                if (turnOn) {
-                    $(this).attr("data-overflow", $(this).css("overflow"));
-                    $(this).css("overflow", "visible");
+                if (presenter.data.isPencilActive) {
+                    presenter.data.isStarted = true;
+                    setOverflowWorkAround(true);
+                    draw(e);
                 } else {
-                    overflow = $(this).attr("data-overflow");
-                    if (overflow !== "") {
-                        $(this).css("overflow", overflow);
-                    }
-                    $(this).removeAttr("data-overflow");
+                    resetAddon(false);
                 }
             });
 
-        }
+            $canvas.on('touchmove', function(e) {
+                if (presenter.data.isPencilActive) {
+                    presenter.data.isStarted = true;
+                    if (!isWorkaroundOn) {
+                        setOverflowWorkAround(true);
+                    }
+                    draw(e);
+                } else {
+                    resetAddon(false);
+                }
 
-        return true;
+            });
+
+            $canvas.on('touchend', function() {
+                if (presenter.data.isPencilActive) {
+                    eventCreator();
+                }
+
+                canvasData.main.context.drawImage(canvasData.temp.canvas, 0, 0);
+                canvasData.temp.context.clearRect(0, 0, canvasData.temp.canvas.width, canvasData.temp.canvas.height);
+
+                points = [];
+                directionPoints.push('Up');
+
+                setOverflowWorkAround(false);
+                isWorkaroundOn = false;
+            });
+        } else { // MOUSE
+            $canvas.on('mousedown', function(e) {
+                e.stopPropagation();
+                isDown = true;
+                draw(e);
+                $canvas.on('mousemove', draw);
+
+                if (presenter.data.isPencilActive) {
+                    presenter.data.isStarted = true;
+                    presenter.data.numberOfLines++;
+                } else {
+                    resetAddon(false);
+                }
+            });
+
+            $canvas.on('mouseup mouseleave', function() {
+                $canvas.off('mousemove', draw);
+                if (isDown && presenter.data.isPencilActive) {
+                    eventCreator();
+                    isDown = false;
+                }
+
+                canvasData.main.context.drawImage(canvasData.temp.canvas, 0, 0);
+                canvasData.temp.context.clearRect(0, 0, canvasData.temp.canvas.width, canvasData.temp.canvas.height);
+
+                points = [];
+            });
+
+            $canvas.on('mouseup', function() {
+                directionPoints.push('Up');
+            });
+        }
     }
-
-    function turnOnEventListeners () {
-        presenter.tmp_canvas = presenter.configuration.tmp_canvas;
-        presenter.tmp_ctx = presenter.configuration.tmp_ctx;
-        presenter.ctx = presenter.configuration.context;
-        presenter.isDown = false;
-
-        // TOUCH
-        if (MobileUtils.isEventSupported('touchstart')) {
-            presenter.tmp_canvas.addEventListener('touchstart', presenter.onTouchStartCallback, false);
-
-            presenter.tmp_canvas.addEventListener('touchend', presenter.onTouchEndEventCallback, false);
-        } else {
-            // MOUSE
-            presenter.tmp_canvas.addEventListener('mousemove', presenter.onMouseMoveCallback, false);
-
-            $(presenter.tmp_canvas).on('mouseleave', presenter.onMouseUpCallback);
-
-            presenter.tmp_canvas.addEventListener('mousedown', presenter.onMouseDownCallback, false);
-
-
-            presenter.tmp_canvas.addEventListener('mouseup', presenter.onMouseUpCallback, false);
-
-        }
-
-        presenter.tmp_canvas.addEventListener('click', function(e) {
-            e.stopPropagation();
-        }, false);
-    }
-
-    presenter.onMouseDownCallback = function (e) {
-        presenter.isDown = true;
-        e.stopPropagation();
-
-        setOverflowWorkAround(true);
-
-        if (presenter.data.isPencilActive) {
-            presenter.tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
-        }
-
-        var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-        var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-        presenter.points.push({x: x, y: y});
-
-        if (presenter.data.isPencilActive) {
-            presenter.onPaint(e);
-        }
-        if (presenter.data.isPencilActive) {
-            presenter.data.isStarted = true;
-            presenter.data.numberOfLines++;
-        } else {
-            resetAddon(false);
-        }
-    };
-
-    presenter.onTouchStartCallback = function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        setOverflowWorkAround(true);
-
-        if (presenter.data.isPencilActive) {
-            presenter.onMobilePaint(e);
-            presenter.tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
-        }
-        if (presenter.data.isPencilActive) {
-            presenter.data.isStarted = true;
-            presenter.data.numberOfLines++;
-        } else {
-            resetAddon(false);
-        }
-    };
-
-    presenter.onTouchEndEventCallback = function (e) {
-        e.stopPropagation();
-
-        setOverflowWorkAround(false);
-
-        presenter.tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
-        presenter.ctx.drawImage(presenter.tmp_canvas, 0, 0);
-        presenter.tmp_ctx.clearRect(0, 0, presenter.tmp_canvas.width, presenter.tmp_canvas.height);
-
-        presenter.points = [];
-
-        if (presenter.data.isPencilActive) {
-            eventCreator();
-        }
-    };
-
-    presenter.onMouseMoveCallback = function (e) {
-        e.stopPropagation();
-
-        var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-        var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-        presenter.mouse.x = x;
-        presenter.mouse.y = y;
-    };
-
-    presenter.onMouseUpCallback = function (e) {
-        e.stopPropagation();
-
-        setOverflowWorkAround(false);
-
-        presenter.tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-        presenter.ctx.drawImage(presenter.tmp_canvas, 0, 0);
-        presenter.tmp_ctx.clearRect(0, 0, presenter.tmp_canvas.width, presenter.tmp_canvas.height);
-
-        presenter.points = [];
-
-        if (presenter.isDown && presenter.data.isPencilActive) {
-            eventCreator();
-            presenter.isDown = false;
-        }
-    };
 
     function turnOffEventListeners() {
-        if (MobileUtils.isEventSupported('touchstart')) {
-            presenter.tmp_canvas.removeEventListener('touchstart', presenter.onTouchStartCallback, false);
-            presenter.tmp_canvas.removeEventListener('touchend', presenter.onTouchEndEventCallback, false);
-        }else{
-            presenter.tmp_canvas.removeEventListener('mouseup', presenter.onMouseUpCallback, false);
-            presenter.tmp_canvas.removeEventListener('mousedown', presenter.onMouseDownCallback, false);
-            presenter.tmp_canvas.removeEventListener('mousemove', presenter.onMouseMoveCallback, false);
-        }
+        var $canvas = $(canvasData.temp.canvas);
+        $canvas.off("touchstart touchend touchmove");
+        $canvas.off("mousedown mouseup mouseleave mousemove");
     }
 
     presenter.ERROR_CODES = {
@@ -758,14 +768,6 @@ function AddonShape_Tracing_create() {
 
         B01: "Property Border hat to be between 0 and 5"
     };
-
-    function returnErrorObject(ec) {
-        return { isValid: false, errorCode: ec };
-    }
-
-    function returnCorrectObject(v) {
-        return { isValid: true, value: v };
-    }
 
     function parseImage(img) {
         if (ModelValidationUtils.isStringWithPrefixEmpty(img, "/file/")) {
@@ -903,8 +905,6 @@ function AddonShape_Tracing_create() {
             return returnErrorObject(validatedBorder.errorCode);
         }
 
-        var correctAnswerImg = model["Correct Answer Image"];
-
         return {
             shapeImage: validatedShapeImage.value,
             isShowShapeImage: ModelValidationUtils.validateBoolean(model["Show Shape image"]),
@@ -918,20 +918,20 @@ function AddonShape_Tracing_create() {
             penThickness: validatedThickness_Pen.value,
             opacity: validatedOpacity.value,
             border: validatedBorder.value,
-            correctAnswerImage: correctAnswerImg,
+            correctAnswerImage: model["Correct Answer Image"],
+            numberOfPoints: validatedPoints.value.length,
 
-            ID: model["ID"],
+            ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isValid: true
         }
     };
 
-    function resizeCanvas() {
-        var con = presenter.$view.find('.drawing').parent(),
-            canvas = presenter.$view.find('.drawing')[0];
+    function resizeCanvas(elem) {
+        var container = $(elem).parent();
 
-        canvas.width = con.width();
-        canvas.height = con.height();
+        elem.width = container.width();
+        elem.height = container.height();
     }
 
     presenter.presenterLogic = function(view, model, isPreview) {
@@ -943,8 +943,6 @@ function AddonShape_Tracing_create() {
         presenter.data.width = parseInt(model["Width"], 10);
         presenter.data.height = parseInt(model["Height"], 10);
 
-        presenter.$view.find('.shape-tracing-wrapper').append("<canvas class='drawing'>element canvas is not supported by your browser</canvas>");
-
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -955,7 +953,6 @@ function AddonShape_Tracing_create() {
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
         presenter.data.pencilThickness = presenter.configuration.penThickness;
-        presenter.opacityByDefault = presenter.configuration.opacity;
 
         presenter.initActivePointsPositions();
 
@@ -969,25 +966,17 @@ function AddonShape_Tracing_create() {
         presenter.$view.find("div.shape").attr('id', presenter.data.divID + "_shape");
         presenter.$view.find("div.correctImage").attr('id', presenter.data.divID + "_correctImage");
 
-        presenter.configuration.canvas = presenter.$view.find('.drawing');
-        presenter.configuration.context = presenter.configuration.canvas[0].getContext("2d");
-
-        presenter.configuration.tmp_canvas = document.createElement('canvas');
-        presenter.configuration.tmp_ctx = presenter.configuration.tmp_canvas.getContext('2d');
-        $(presenter.configuration.tmp_canvas).addClass('tmp_canvas');
-        presenter.configuration.tmp_canvas.width = presenter.configuration.canvas.width();
-        presenter.configuration.tmp_canvas.height = presenter.configuration.canvas.height();
-
-        presenter.$view.find('.shape-tracing-wrapper')[0].appendChild(presenter.configuration.tmp_canvas);
-
-
         presenter.$view.css('opacity', presenter.configuration.opacity);
 
-        resizeCanvas();
+        initCanvasData();
+
+        resizeCanvas(canvasData.main.canvas);
+        resizeCanvas(canvasData.temp.canvas);
+
         drawBackGroundImage(isPreview);
         drawShapeImage(isPreview);
 
-        if(presenter.configuration.correctAnswerImage && !isPreview){
+        if (presenter.configuration.correctAnswerImage && !isPreview) {
             drawCorrectAnswerImage(isPreview);
         }
 
@@ -998,7 +987,7 @@ function AddonShape_Tracing_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.visibleByDefault = presenter.configuration.isVisible;
 
-        presenter.$view.find('.correctImage').css('display', 'none');
+        presenter.$view.find('div.correctImage').css('display', 'none');
 
         return false;
     };
@@ -1025,24 +1014,14 @@ function AddonShape_Tracing_create() {
     presenter.setColor = function(color) {
         presenter.data.isPencilActive = true;
         presenter.configuration.color = parseColor(color).value;
-        presenter.beforeEraserColor = presenter.configuration.color;
-    };
-
-    presenter.setOpacity = function(opacity) {
-        presenter.configuration.opacity = parseOpacity(opacity).value;
     };
 
     presenter.setEraserOn = function() {
-        presenter.beforeEraserColor = presenter.configuration.color;
         presenter.data.isPencilActive = false;
     };
 
-    presenter.setEraserOff = function () {
-        if(presenter.beforeEraserColor == undefined){
-            presenter.setColor(presenter.configuration.color);
-        }else{
-            presenter.setColor(presenter.beforeEraserColor);
-        }
+    presenter.setEraserOff = function() {
+        presenter.data.isPencilActive = true;
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -1059,6 +1038,119 @@ function AddonShape_Tracing_create() {
         presenter.configuration.isVisible = false;
     };
 
+    presenter.setOpacity = function(opacity) {
+        presenter.data.drawingOpacity = parseOpacity(opacity[0]).value;
+    };
+
+    presenter.descentsFromShape = function() {
+        return presenter.data.numberOfDescentsFromShape;
+    };
+
+    presenter.numberOfLines = function() {
+        return presenter.data.numberOfLines;
+    };
+
+    presenter.pointsMissed = function() {
+        var points = presenter.pointsHistory.filter(function(p) { return p !== 0 });
+        var result = [];
+
+        for (var i=1; i<presenter.configuration.numberOfPoints+1; i++) {
+            if (points.indexOf(i) === -1) {
+                result.push(i);
+            }
+        }
+
+        return result.length;
+    };
+
+    function parseLinesToDots(points, distance) {
+        function getLineFromIndex(points, index) {
+            var result = [];
+
+            for (var i=index; i<points.length; i++) {
+                if (points[i] === LINE_END_SIGN) {
+                    return result;
+                } else {
+                    result.push(points[i]);
+                }
+            }
+
+            return result;
+        }
+
+        var result = [], i = 0;
+
+        while (i < points.length) {
+            var line = getLineFromIndex(points, i);
+
+            if (line.length === 1 || getDistance(line[0], line.last()) < distance) {
+                result.push(DOT_SIGN);
+            } else {
+                result = result.concat(line);
+            }
+
+            result.push(LINE_END_SIGN);
+
+            i += line.length + 1;
+        }
+
+        return result;
+    }
+
+    presenter.getDirections = function() {
+        function hasUndefinedValue() {
+            for (var i=0; i<arguments.length; i++) {
+                if (arguments[i] === undefined) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (directionPoints.length === 0) {
+            return [];
+        }
+
+        var MIN_DISTANCE = 8;
+        directionPoints = parseLinesToDots(directionPoints.removeNeighbourDuplicates(), MIN_DISTANCE);
+
+        var result = [], i = 0,
+            p1 = directionPoints[0],
+            p2 = directionPoints[1];
+
+        while (i < directionPoints.length-1) {
+            while (p1 === LINE_END_SIGN || p1 === DOT_SIGN) {
+                result.push(p1);
+                i++;
+                p1 = directionPoints[i];
+                p2 = directionPoints[i + 1];
+            }
+
+            if (hasUndefinedValue(p1, p2)) {
+                break;
+            }
+
+            if (getDistance(p1, p2) > MIN_DISTANCE) {
+                result.push(calculateDrawingDirection(p1, p2));
+                p1 = directionPoints[i + 1];
+            }
+
+            p2 = directionPoints[i + 2];
+
+            while (p2 === LINE_END_SIGN || p2 === DOT_SIGN) {
+                result.push(p2);
+                i++;
+                p1 = directionPoints[i];
+                p2 = directionPoints[i + 1];
+            }
+
+            i++;
+        }
+
+        return result.removeNeighbourDuplicates();
+    };
+
     presenter.executeCommand = function(name, params) {
         if (!presenter.configuration.isValid) {
             return;
@@ -1069,12 +1161,12 @@ function AddonShape_Tracing_create() {
             "show": presenter.show,
             "hide": presenter.hide,
             "setEraserOn": presenter.setEraserOn,
+            "setEraserOff": presenter.setEraserOff,
             "setThickness": presenter.setThickness,
             "showAnswers": presenter.showAnswers,
             "hideAnswers": presenter.hideAnswers,
             "setColor": presenter.setColor,
-            "setOpacity": presenter.setOpacity,
-            "setEraserOff": presenter.setEraserOff
+            "setOpacity": presenter.setOpacity
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1108,14 +1200,7 @@ function AddonShape_Tracing_create() {
         turnOffEventListeners();
 
         if (presenter.data.isStarted) {
-            var $drawing = presenter.$view.find(".drawing");
-
-            if (countScore() === 1) {
-                $drawing.addClass("correct");
-            } else {
-                $drawing.addClass("wrong");
-            }
-
+            $(canvasData.temp.canvas).addClass(countScore() === 1 ? "correct" : "wrong");
             if (!presenter.configuration.isShowShapeImage && presenter.configuration.isShowShapeImageOnCheck) {
                 presenter.layer.show();
             }
@@ -1130,7 +1215,7 @@ function AddonShape_Tracing_create() {
             presenter.layer.hide();
         }
 
-        presenter.$view.find(".drawing").removeClass("correct wrong");
+        $(canvasData.temp.canvas).removeClass("correct wrong");
     };
 
     presenter.reset = function() {
@@ -1159,9 +1244,10 @@ function AddonShape_Tracing_create() {
 
         return countScore();
     };
+
     presenter.getState = function() {
         return JSON.stringify({
-            imgData: presenter.$view.find(".drawing")[0].toDataURL("image/png"),
+            imgData: canvasData.main.canvas.toDataURL("image/png"),
             isPencilActive: presenter.data.isPencilActive,
             color: presenter.configuration.color,
 
@@ -1171,41 +1257,38 @@ function AddonShape_Tracing_create() {
             isAllPointsChecked: presenter.data.isAllPointsChecked,
             pointsArray: presenter.pointsArray,
             isVisible: presenter.configuration.isVisible,
-            opacity: presenter.configuration.opacity,
-            beforeEraserColor: presenter.beforeEraserColor
+            directionPoints: directionPoints
         });
     };
 
-    presenter.upgradeStateForVisibility = function (parsedState) {
-        if (parsedState.isVisible == undefined) {
-            parsedState.isVisible = true;
+    presenter.upgradeStateForVisibility = function(state) {
+        if (state.isVisible === undefined) {
+            state.isVisible = true;
         }
 
-        return parsedState;
+        return state;
     };
 
-    presenter.upgradeStateForOpacity = function (parsedState) {
-        if (parsedState.opacity == undefined) {
-            parsedState.opacity = 0.9;
+    presenter.upgradeStateForOpacity = function(state) {
+        if (state.opacity === undefined) {
+            state.opacity = 0.9;
         }
 
-        return parsedState;
+        return state;
     };
 
-    presenter.upgradeStateForBeforeEraserColor = function (parsedState) {
-        if (parsedState.beforeEraserColor == undefined) {
-            parsedState.beforeEraserColor = presenter.data.startColor;
+    presenter.upgradeStateForDirectionPoints = function(state) {
+        if (state.directionPoints === undefined) {
+            state.directionPoints = [];
         }
-
-        return parsedState;
     };
 
     presenter.upgradeState = function (parsedState) {
-        var upgradedState = presenter.upgradeStateForVisibility(parsedState);
-        upgradedState = presenter.upgradeStateForOpacity(upgradedState);
-        upgradedState = presenter.upgradeStateForBeforeEraserColor(upgradedState);
+        parsedState = presenter.upgradeStateForVisibility(parsedState);
+        parsedState = presenter.upgradeStateForOpacity(parsedState);
+        parsedState = presenter.upgradeStateForDirectionPoints(parsedState);
 
-        return  upgradedState;
+        return parsedState;
     };
 
     presenter.setState = function(state) {
@@ -1213,28 +1296,28 @@ function AddonShape_Tracing_create() {
             return;
         }
 
-        var parsedState = JSON.parse(state);
-
-        parsedState = presenter.upgradeState(parsedState);
+        var parsedState = presenter.upgradeState(JSON.parse(state));
 
         presenter.data.isStarted = true; // state is non empty => exercise is started
-        presenter.data.currentPointNumber = JSON.parse(state).currentPointNumber;
-        presenter.data.numberOfLines = JSON.parse(state).numberOfLines;
-        presenter.data.numberOfDescentsFromShape = JSON.parse(state).numberOfDescentsFromShape;
-        presenter.data.isAllPointsChecked = JSON.parse(state).isAllPointsChecked;
-        presenter.pointsArray = JSON.parse(state).pointsArray;
+        presenter.data.currentPointNumber = parsedState.currentPointNumber;
+        presenter.data.numberOfLines = parsedState.numberOfLines;
+        presenter.data.numberOfDescentsFromShape = parsedState.numberOfDescentsFromShape;
+        presenter.data.isAllPointsChecked = parsedState.isAllPointsChecked;
+        presenter.pointsArray = parsedState.pointsArray;
         presenter.configuration.isVisible = parsedState.isVisible;
-        presenter.configuration.opacity = parsedState.opacity;
+        directionPoints = parsedState.directionPoints;
 
         var savedImg = new Image();
         savedImg.onload = function() {
-            presenter.$view.find(".drawing")[0].getContext("2d").drawImage(savedImg, 0, 0);
+            canvasData.main.context.drawImage(savedImg, 0, 0);
 
             presenter.configuration.color = JSON.parse(state).color;
             if (!JSON.parse(state).isPencilActive) {
                 presenter.setEraserOn();
             }
-            presenter.beforeEraserColor = parsedState.beforeEraserColor;
+
+            setOverflowWorkAround(true);
+            setOverflowWorkAround(false);
         };
         savedImg.src = JSON.parse(state).imgData;
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -1254,35 +1337,32 @@ function AddonShape_Tracing_create() {
         }
     };
 
-    presenter.showAnswers = function () {
+    presenter.showAnswers = function() {
         presenter.isShowAnswersActive = true;
         presenter.setWorkMode();
         turnOffEventListeners();
 
-        presenter.$view.find(".drawing").css('display', 'none');
-
-        if(presenter.configuration.correctAnswerImage){
+        if (presenter.configuration.correctAnswerImage) {
             presenter.layer.hide();
             presenter.$view.find('.correctImage').css('display', 'block');
-        }else{
+        } else {
             presenter.layer.show();
         }
 
         presenter.$view.find('.background').addClass('shape-tracing-show-answers');
     };
 
-    presenter.hideAnswers = function () {
+    presenter.hideAnswers = function() {
         presenter.$view.find('.background').removeClass('shape-tracing-show-answers');
 
-        if(presenter.correctAnswerlayer){
+        if (presenter.correctAnswerlayer) {
             presenter.$view.find('.correctImage').css('display', 'none');
         }
         if (presenter.configuration.isShowShapeImage) {
             presenter.layer.show();
-        }else{
+        } else {
             presenter.layer.hide();
         }
-        presenter.$view.find(".drawing").css('display', 'block');
         turnOffEventListeners();
         turnOnEventListeners();
         presenter.isShowAnswersActive = false;
