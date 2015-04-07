@@ -126,7 +126,7 @@ function Addonvideo_create() {
                 transformation = 'scale(' + scale + ')';
                 $(element).css({
                     position: 'fixed',
-                    zIndex: 999999,
+                    zIndex: 9999999999,
                     top: (newTop + offsetY + translateY) + 'px',
                     left: (newLeft + offsetX + translateX) + 'px',
                     '-moz-transform': transformation,
@@ -323,7 +323,7 @@ function Addonvideo_create() {
                     transformation = 'scale(' + scale + ')';
                     $(caption.element).css({
                         position: 'fixed',
-                        zIndex: 999999,
+                        zIndex: 9999999999,
                         top: (newTop + offsetY + translateY) + 'px',
                         left: (newLeft + offsetX + translateX) + 'px',
                         'transform': transformation,
