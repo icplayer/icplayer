@@ -72,12 +72,14 @@ TestCase("Commands logic - switchPhrase", {
         sinon.stub(this.presenter, 'removeChildrenElements');
         sinon.stub(this.presenter, 'drawElementsAndAttachMouseHandlers');
         sinon.stub(this.presenter, 'applySelection');
+        sinon.stub(this.presenter, 'addMarkedLetter');
     },
 
     tearDown: function () {
         this.presenter.removeChildrenElements.restore();
         this.presenter.drawElementsAndAttachMouseHandlers.restore();
         this.presenter.applySelection.restore();
+        this.presenter.addMarkedLetter.restore();
     },
 
     'test phrase number is not a number': function () {
@@ -141,6 +143,7 @@ TestCase("Commands logic - reset", {
         sinon.stub(this.presenter, 'drawElementsAndAttachMouseHandlers');
         sinon.stub(this.presenter, 'applySelection');
         sinon.stub(this.presenter, 'setVisibility');
+        sinon.stub(this.presenter, 'addMarkedLetter');
     },
 
     tearDown: function () {
@@ -148,6 +151,7 @@ TestCase("Commands logic - reset", {
         this.presenter.drawElementsAndAttachMouseHandlers.restore();
         this.presenter.applySelection.restore();
         this.presenter.setVisibility.restore();
+        this.presenter.addMarkedLetter.restore();
     },
 
     'test reset command call': function () {

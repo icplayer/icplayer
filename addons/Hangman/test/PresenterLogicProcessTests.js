@@ -16,6 +16,7 @@ TestCase("Presenter logic process", {
         sinon.stub(this.presenter, 'showCorrect');
         sinon.stub(this.presenter, 'assignVariablesToPresenter');
         sinon.stub(DOMOperationsUtils, 'showErrorMessage');
+        sinon.stub(this.presenter, 'addMarkedLetter');
 
         this.viewElement = $('<div></div>');
     },
@@ -26,6 +27,7 @@ TestCase("Presenter logic process", {
         this.presenter.handleMouseActions.restore();
         this.presenter.showCorrect.restore();
         this.presenter.assignVariablesToPresenter.restore();
+        this.presenter.addMarkedLetter.restore();
 
         DOMOperationsUtils.showErrorMessage.restore();
     },

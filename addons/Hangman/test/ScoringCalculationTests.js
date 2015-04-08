@@ -108,6 +108,68 @@ TestCase("Scoring calculation", {
         assertEquals({score: 1, errors: 0}, score);
     },
 
+    'test user selected all needed letters in phrase with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['!HAN!GMA!N'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6,12]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertEquals({score: 1, errors: 0}, score);
+    },
+
+    'test user did not select all needed letters in phrase with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!AN!G!MA!N'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertEquals({score: 0, errors: 1}, score);
+    },
+
+    'test user selected all needed letters in one phrase but not in second in phrases with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HA!NG!MA!N'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6,12]
+        }, {
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!AN!GMA!N'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertEquals({score: 1, errors: 1}, score);
+    },
+
+    'test user selected all needed letters in all phrases in phrases with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!AN!GMA!N'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6,12]
+        }, {
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!A!NG!MA!N'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6,12]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertEquals({score: 2, errors: 0}, score);
+    },
+
     'test user did not select all needed letters': function () {
         var phrases = [{
             letters: this.presenter.DEFAULT_LETTERS,

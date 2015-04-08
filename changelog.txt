@@ -1,3 +1,4 @@
+2015-04-08 Added possibility to add tips in Hangman module
 2015-04-08 Fixed issue with css classes in Line Number module
 2015-04-07 Fixed issue with hidden label in Video module
 2015-04-04 Added new commands: descentsFromShape, numberOfLines, pointsMissed and getDirections to Shape Tracing module

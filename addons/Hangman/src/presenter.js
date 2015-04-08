@@ -52,12 +52,16 @@ function AddonHangman_create() {
 
         presenter.assignVariablesToPresenter(view, model);
         presenter.drawElementsAndAttachMouseHandlers(0, isPreview);
+
+        presenter.addMarkedLetter(isPreview);
     };
 
     presenter.ERROR_CODES = {
         'L_01': "Letters definition incorrect!",
         'W_01': "Words definition cannot be empty!",
         'W_02': "Words definition consist letters that are not specified!",
+        'W_03': "You cannot type more than one exclamation mark next to each other!",
+        'W_04': "Words definition cannot contain only exclemation marks!",
         'P_01': "At least one phrase must be specified!",
         'T_01': "Number possible mistakes incorrect!"
     };
@@ -112,15 +116,40 @@ function AddonHangman_create() {
             var word = wordsArray[i];
 
             for (var j = 0; j < word.length; j++) {
-                if (letters.indexOf(word[j].toUpperCase()) === -1)  return false;
+                if (letters.indexOf(word[j].toUpperCase()) === -1 && word[j] != '!')  return false;
             }
         }
 
         return true;
     };
 
+    presenter.isCorrectCountOfEcxlamationMarks = function(letters, words) {
+        var wordsArray = words.split(' ');
+
+        for (var i = 0; i < wordsArray.length; i++) {
+            var word = wordsArray[i];
+
+            for (var j = 0; j < word.length; j++) {
+                if (word[j] == '!' && word[j+1] == '!')  return false;
+            }
+        }
+
+        return true;
+    };
+
+    presenter.isOnlyExclamationMark = function(letters, words) {
+        var wordsArray = words.split(' ');
+
+        for (var i = 0; i < wordsArray.length; i++) {
+            var word = wordsArray[i];
+            if(word == '!') return false;
+        }
+
+        return true;
+    };
+
     presenter.sanitizePhrase = function (phrase) {
-        if (ModelValidationUtils.isStringEmpty(phrase)) return returnErrorObject('W_01');
+        if (ModelValidationUtils.isStringEmpty(phrase.trim())) return returnErrorObject('W_01');
 
         var phraseArray = [];
         var splittedPhrase = phrase.trim().split(' ');
@@ -148,6 +177,8 @@ function AddonHangman_create() {
 
             var letters = presenter.convertStringArray(phrases[i].Letters);
             if (!presenter.wordsMatchLetters(letters, phrases[i].Phrase)) return returnErrorObject('W_02');
+            if (!presenter.isCorrectCountOfEcxlamationMarks(letters, phrases[i].Phrase)) return returnErrorObject('W_03');
+            if (!presenter.isOnlyExclamationMark(letters, phrases[i].Phrase)) return returnErrorObject('W_04');
 
             var sanitisedPhrase = presenter.sanitizePhrase(phrases[i].Phrase);
             if (sanitisedPhrase.isError) return sanitisedPhrase;
@@ -205,10 +236,18 @@ function AddonHangman_create() {
         $element.addClass('hangman-phrase-word');
 
         for (var j = 0; j < word.length; j++) {
-            var $letter = generateLetter();
-            $letter.addClass('empty');
+            var $letter;
+            if(word[j].indexOf('!') > -1){
+                var $elementLetter = $(document.createElement('div'));
+                $elementLetter.addClass('hangman-letter');
+                $elementLetter.text('!'+word[j+1]);
+                $element.append($elementLetter);
+            }else{
+                $letter = generateLetter();
+                $letter.addClass('empty');
 
-            $element.append($letter);
+                $element.append($letter);
+            }
         }
 
         return $element;
@@ -221,9 +260,9 @@ function AddonHangman_create() {
     };
 
     presenter.disableRemainingLetters = function () {
-        presenter.$lettersContainer.find('.hangman-letter').each(function () {
-            if (!$(this).hasClass('selected')) {
-                $(this).unbind('click');
+        presenter.$lettersContainer.find('.hangman-letter').each(function (_, element) {
+            if (!$(element).hasClass('selected')) {
+                $(element).unbind('click');
             }
         });
     };
@@ -278,11 +317,11 @@ function AddonHangman_create() {
     presenter.handleMouseActions = function () {
         var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
 
-        presenter.$lettersContainer.find('.hangman-letter').each(function () {
-            var letter = $(this).text();
+        presenter.$lettersContainer.find('.hangman-letter').each(function (_, element) {
+            var letter = $(element).text();
 
             if (!presenter.isLetterSelected(currentPhrase, letter)) {
-                $(this).click(presenter.letterClickHandler);
+                $(element).click(presenter.letterClickHandler);
             }
         });
     };
@@ -337,25 +376,36 @@ function AddonHangman_create() {
     presenter.showCorrect = function () {
         var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
         var neededLetters = presenter.getNeededLetters(currentPhrase.phrase);
-
+        var $letter;
         for (var i = 0; i < neededLetters.length; i++) {
-            var $letter = presenter.findLetterElement(neededLetters[i]);
+            if(neededLetters[i].indexOf('!') > -1){
+                $letter = $('<div>'+neededLetters[i]+'</div>');
+                $letter.addClass('hangman-letter');
+            }else{
+                $letter = presenter.findLetterElement(neededLetters[i]);
+            }
 
             if (!presenter.isLetterSelected(currentPhrase, neededLetters[i])) {
                 $letter.addClass('selected');
                 if (presenter.isErrorCheckingMode) {
-                    $letter.addClass('incorrect');
+                    if(!$letter.hasClass('hangman-tip')){
+                        $letter.addClass('incorrect');
+                    }
                 }
                 presenter.addLetterSelectionToPhrase(currentPhrase, $letter.text());
                 presenter.onLetterSelectedAction(neededLetters[i], currentPhrase, false);
             } else if (presenter.isErrorCheckingMode) {
-                $letter.addClass('correct');
+                if(!$letter.hasClass('hangman-tip')){
+                    $letter.addClass('correct');
+                }
             }
         }
 
         if (presenter.isErrorCheckingMode) {
-            presenter.$lettersContainer.find('.hangman-letter.selected:not(.correct):not(.incorrect)').each(function () {
-                $(this).addClass('incorrect');
+            presenter.$lettersContainer.find('.hangman-letter.selected:not(.correct):not(.incorrect)').each(function (_, element) {
+                if(!$(element).hasClass('hangman-tip')){
+                    $(element).addClass('incorrect');
+                }
             });
         }
     };
@@ -373,7 +423,11 @@ function AddonHangman_create() {
         for (var i = 0; i < phrase.length; i++) {
             for (var j = 0; j < phrase[i].length; j++) {
                 if (letters.indexOf(phrase[i][j]) === -1) {
-                    letters.push(phrase[i][j]);
+                    if(phrase[i][j] == '!'){
+                        letters.push('!' + phrase[i][j+1]);
+                    }else{
+                        letters.push(phrase[i][j]);
+                    }
                 }
             }
         }
@@ -401,6 +455,8 @@ function AddonHangman_create() {
         presenter.currentPhrase = phraseNumber - 1;
         presenter.drawElementsAndAttachMouseHandlers(phraseNumber - 1, false);
         presenter.applySelection();
+
+        presenter.addMarkedLetter(false);
     };
 
     presenter.switchPhrase = function (phraseNumber) {
@@ -436,8 +492,8 @@ function AddonHangman_create() {
     };
 
     presenter.removeChildrenElements = function ($element) {
-        $element.children().each(function () {
-            $(this).remove();
+        $element.children().each(function (_, element) {
+            $(element).remove();
         });
     };
 
@@ -452,6 +508,7 @@ function AddonHangman_create() {
         presenter.switchPhrase(1);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.setVisibility(presenter.isVisible);
+        presenter.addMarkedLetter(false);
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -475,6 +532,35 @@ function AddonHangman_create() {
         });
     };
 
+    presenter.addMarkedLetter = function (isPreview) {
+        presenter.$view.find('.hangman-letter:contains(!)').next().css('display', 'none');
+        var exclamationLetters = [];
+
+        if(!isPreview){
+            presenter.$view.find('.hangman-letter:contains(!)').each(function(_, element) {
+                var text = $(this).text();
+                var correctText = text.substring(1,2);
+                exclamationLetters.push(correctText);
+                $(element).text(correctText);
+            });
+
+            for(var i = 0; i< presenter.configuration.phrases[presenter.currentPhrase].letters.length; i++){
+                var merge = presenter.configuration.phrases[presenter.currentPhrase].phrase.join(),
+                    letter = presenter.configuration.phrases[presenter.currentPhrase].letters[i],
+                    count = merge.split(letter).length - 1,
+                    exclMerge = exclamationLetters.join(),
+                    exclCount = exclMerge.split(letter).length - 1;
+
+                if(count == exclCount && count > 0 && exclCount > 0){
+                    var $letter = presenter.$view.find('.hangman-letters').find('.hangman-letter:contains('+letter+')');
+                    $letter.addClass('selected');
+                    $letter.addClass('hangman-tip');
+                    presenter.addLetterSelectionToPhrase(presenter.configuration.phrases[presenter.currentPhrase], $letter.text());
+                }
+            }
+        }
+    };
+
     presenter.setState = function (stringifiedState) {
         var state = JSON.parse(stringifiedState);
         var phrases = presenter.configuration.phrases;
@@ -485,6 +571,8 @@ function AddonHangman_create() {
         }
 
         presenter.switchPhrase(state.currentPhrase + 1);
+
+        presenter.addMarkedLetter(false)
     };
 
     presenter.getMaxScore = function () {
@@ -514,6 +602,10 @@ function AddonHangman_create() {
 
         for (var i = 0; i < phrases.length; i++) {
             neededLetters = presenter.getNeededLetters(phrases[i].phrase);
+
+            for(var k = neededLetters.length; k--;){
+                if (neededLetters[k].indexOf('!') > -1) neededLetters.splice(k, 1);
+            }
 
             neededLettersIndexes = [];
             for (var j = 0; j < neededLetters.length; j++) {

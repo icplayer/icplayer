@@ -27,6 +27,30 @@ TestCase("Phrases conversion", {
         assertEquals('W_01', sanitationResult.errorCode);
     },
 
+    'test phrase with white space': function () {
+        var phrases = [{
+            Letters: 'h,a,n,g,m',
+            Phrase: ' '
+        }];
+
+        var sanitationResult = this.presenter.sanitizePhrases(phrases);
+
+        assertTrue(sanitationResult.isError);
+        assertEquals('W_01', sanitationResult.errorCode);
+    },
+
+    'test phrase only with exclamation mark': function () {
+        var phrases = [{
+            Letters: 'h,a,n,g,m',
+            Phrase: '!'
+        }];
+
+        var sanitationResult = this.presenter.sanitizePhrases(phrases);
+
+        assertTrue(sanitationResult.isError);
+        assertEquals('W_04', sanitationResult.errorCode);
+    },
+
     'test letters definition problem': function () {
         var phrases = [{
             Letters: 'A,BA',
@@ -49,6 +73,18 @@ TestCase("Phrases conversion", {
 
         assertTrue(sanitationResult.isError);
         assertEquals('W_02', sanitationResult.errorCode);
+    },
+
+    'test word consist two exclemation marks before one letter': function () {
+        var phrases = [{
+            Letters: 'h,a,n,g,m',
+            Phrase: 'Ha!!ngm!an'
+        }];
+
+        var sanitationResult = this.presenter.sanitizePhrases(phrases);
+
+        assertTrue(sanitationResult.isError);
+        assertEquals('W_03', sanitationResult.errorCode);
     },
 
     'test valid single phrase': function () {

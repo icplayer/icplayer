@@ -28,5 +28,15 @@ TestCase("Words to letters matching", {
         var isModelValid = this.presenter.wordsMatchLetters(letters, words);
 
         assertTrue(isModelValid);
+    },
+
+    'test model is valid with exclamation marks': function () {
+        var letters = ['H', 'A', 'N', 'G', 'M'];
+        var words = "!Han!gman";
+
+        var isModelValid = this.presenter.wordsMatchLetters(letters, words);
+
+        assertTrue(isModelValid);
     }
+
 });
