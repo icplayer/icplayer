@@ -447,7 +447,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			hide();
 		} else if (commandName.compareTo("reset") == 0){
 			reset();
-		}
+		} else if(commandName.compareTo("isallok") == 0){
+            return String.valueOf(isAllOK());
+        }
 		
 		return "";
 	}
@@ -466,9 +468,17 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		return jsObject;
 	}
 
+	public boolean isAllOK() {
+		return getScore() == getMaxScore() && getErrorCount() == 0;
+	}
+	
 	private native JavaScriptObject initJSObject(ChoicePresenter x) /*-{
 
 		var presenter = function() {};
+
+		presenter.isAllOK = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isAllOK()();
+		}
 
 		presenter.disable = function() {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::disable()();
