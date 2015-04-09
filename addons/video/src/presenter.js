@@ -87,12 +87,18 @@ function Addonvideo_create() {
             videoFSWidth = screenWidth,
             videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth),
             scale = videoFSWidth / moduleWidth,
-            offsetX, offsetY, element, translateX, translateY, transformation;
+            xProportion = screenWidth / moduleWidth,
+            yProportion = screenHeight / moduleHeight,
+            offsetX, offsetY, element, transformation;
 
-        if (videoFSHeight > screenHeight) {
+        if (yProportion < xProportion) {
             videoFSHeight = screenHeight;
-            videoFSWidth = parseInt(moduleWidth * screenHeight / moduleHeight);
+            videoFSWidth = parseInt(moduleWidth * yProportion);
             scale = videoFSWidth / moduleWidth;
+        } else {
+            videoFSWidth = screenWidth;
+            videoFSHeight = parseInt(moduleHeight * xProportion);
+            scale = videoFSHeight / moduleHeight;
         }
 
         offsetX = screenWidth - videoFSWidth;
@@ -109,13 +115,9 @@ function Addonvideo_create() {
 
                 top = parseInt($(element).css('top'), 10);
                 left = parseInt($(element).css('left'), 10);
-                translateX = ($(element).width() / 4) * scale;
-                translateX = Math.round(translateX * 100) / 100;
-                translateY = ($(element).height() / 4) * scale;
-                translateY = Math.round(translateY * 100) / 100;
 
-                newTop = parseInt(videoFSHeight * (top / moduleHeight), 10);
-                newLeft = parseInt(videoFSWidth * (left / moduleWidth), 10);
+                newTop = parseInt(top * scale, 10);
+                newLeft = parseInt(left * scale, 10);
 
                 $(element).attr({
                     oldTop: top,
@@ -125,13 +127,16 @@ function Addonvideo_create() {
                 });
                 transformation = 'scale(' + scale + ')';
                 $(element).css({
+                    '-webkit-transform-origin': 'top left',
+                    '-moz-transform-origin': 'top left',
+                    '-ms-transform-origin': 'top left',
+                    'transform-origin': 'top left',
                     position: 'fixed',
                     zIndex: 9999999999,
-                    top: (newTop + offsetY + translateY) + 'px',
-                    left: (newLeft + offsetX + translateX) + 'px',
+                    top: (newTop + offsetY / 2) + 'px',
+                    left: (newLeft + offsetX / 2) + 'px',
                     '-moz-transform': transformation,
                     '-webkit-transform': transformation,
-                    '-o-transform': transformation,
                     '-ms-transform': transformation,
                     'transform': transformation
                 });
@@ -146,11 +151,11 @@ function Addonvideo_create() {
                     left: newLeft + 'px',
                     position: 'absolute',
                     zIndex: '',
-                    '-moz-transform': transformation,
-                    '-webkit-transform': transformation,
-                    '-o-transform': transformation,
-                    '-ms-transform': transformation,
-                    'transform': transformation
+                    '-moz-transform': '',
+                    '-webkit-transform': '',
+                    '-o-transform': '',
+                    '-ms-transform': '',
+                    'transform': ''
                 });
 
                 $(element).removeAttr('oldWidth oldHeight oldTop oldLeft');
