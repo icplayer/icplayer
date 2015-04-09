@@ -1281,6 +1281,8 @@ function AddonShape_Tracing_create() {
         if (state.directionPoints === undefined) {
             state.directionPoints = [];
         }
+
+        return state;
     };
 
     presenter.upgradeState = function (parsedState) {
