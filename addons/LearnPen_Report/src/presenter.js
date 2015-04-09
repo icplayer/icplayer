@@ -66,6 +66,8 @@ function AddonLearnPen_Report_create() {
         DEFAULT: 'Pie chart'
     };
 
+    presenter.filteredDataCount = 0;
+
     presenter.ERROR_CODES = {
         R01: "Number of arguments in Correct range is different then 2",
         R02: "All values in Correct range has to be numeric",
@@ -88,13 +90,46 @@ function AddonLearnPen_Report_create() {
 
         var learnPenData = window.LearnPen;
 
-        // range of a, b, c and p: <0, 1000>
-        return {
+
+        var filteredData = {
+            isValid: false,
             a: learnPenData ? toPercent(learnPenData.getA()) : 0, //Math.floor(Math.random() * 100),
             b: learnPenData ? toPercent(learnPenData.getB()) : 0, //Math.floor(Math.random() * 100),
             c: learnPenData ? toPercent(learnPenData.getC()) : 0, //Math.floor(Math.random() * 100),
             p: learnPenData ? toPercent(learnPenData.getP()) : 0  //Math.floor(Math.random() * 100)
+        };
+
+        if(learnPenData) {
+            filteredData = filterData(learnPenData)
         }
+
+        return filteredData;
+    }
+
+    function filterData(learnPenData) {
+        function toPercent(val) { return parseInt(val / 10, 10); }
+
+        function isDataNotNoise(element, index, array) {
+            return element >= 200;
+        }
+
+        var a = learnPenData.getA();
+        var b = learnPenData.getB();
+        var c = learnPenData.getC();
+        var p = learnPenData.getP();
+
+        var isValid = [a, b, c].some(isDataNotNoise);
+        if(!isValid) {
+            isValid = (p >= 200);
+        }
+
+        return {
+            isValid: isValid,
+            a: toPercent(a),
+            b: toPercent(b),
+            c: toPercent(c),
+            p: toPercent(p)
+        };
     }
 
     function getValues() {
@@ -106,12 +141,17 @@ function AddonLearnPen_Report_create() {
     }
 
     function updateSensorDataHistory(data) {
-        if (data.a === 0 && data.b === 0 && data.c === 0 && data.p === 0) {
-            if (presenter.data.sensorsDataHistory.length === 0) {
-                presenter.data.sensorsDataHistory.push(data);
-            }
-        } else {
+        if (data.isValid) {
+            presenter.filteredDataCount = 0;
             presenter.data.sensorsDataHistory.push(data);
+        }
+
+        if (presenter.configuration.calculateFromLastValues > 0) {
+            if(!data.isValid) {
+                if (presenter.filteredDataCount < presenter.configuration.calculateFromLastValues)
+                    presenter.filteredDataCount += 1;
+                    presenter.data.sensorsDataHistory.push(data);
+            }
         }
     }
 
@@ -213,7 +253,7 @@ function AddonLearnPen_Report_create() {
 
     function validateInterval(interval) {
         if (ModelValidationUtils.isStringEmpty(interval)) {
-            return getCorrectObject(500);
+            return getCorrectObject(100);
         }
 
         if (isInteger(interval)) {
@@ -222,7 +262,7 @@ function AddonLearnPen_Report_create() {
             return getErrorObject('I01');
         }
 
-        if (interval < 50 || interval > 2000) {
+        if (interval < 0 || interval > 2000) {
             return getErrorObject('I02');
         }
 
