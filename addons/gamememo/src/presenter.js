@@ -333,10 +333,6 @@ function Addongamememo_create(){
     };
 
     presenter.addScoreAndSentEvent = function () {
-//        var cells = presenter.cardClickedFirst.parent().find(".cell");
-//
-//        presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
-//        presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
         presenter.cardReveal();
 
         presenter.score++;
@@ -346,8 +342,38 @@ function Addongamememo_create(){
         }
     };
 
+    presenter.createBaseEventData = function () {
+        return {
+            source: presenter.ID ,
+            item: "",
+            value: "",
+            score: ""
+        };
+    };
+
+    presenter.createItemEventData = function (firstID, secondID, isCorrect) {
+        var eventData = presenter.createBaseEventData();
+        var firstId = parseInt(firstID)+1;
+        var secondId = parseInt(secondID)+1;
+
+        eventData.item = firstId+"-"+secondId;
+        eventData.score = isCorrect ? "1" : "0";
+        eventData.value = '1';
+
+        return eventData;
+    };
+
+    presenter.sendEventData = function (eventData) {
+        if (playerController !== null) {
+            playerController.getEventBus().sendEvent('ValueChanged', eventData);
+        }
+    };
+
     presenter.onCardClicked = function(e) {
         e.stopPropagation();
+
+        var eventData;
+        var cardId = $(e.target).parent().find('.card').attr('card_id');
 
         if(presenter.useTwoStyles) {
             var clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
@@ -359,7 +385,6 @@ function Addongamememo_create(){
         switch(presenter.state) {
             case presenter.STATES.READY:
                 presenter.handleCardClickedFirst($(e.target).parent());
-
                 break;
 
             case presenter.STATES.CLICKED_FIRST:
@@ -375,20 +400,14 @@ function Addongamememo_create(){
                     presenter.errorCount++;
                     presenter.markCardMismatch(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));
                     presenter.markCardMismatch(presenter.cardClickedSecond.find(".card"), presenter.cardClickedFirst.find(".card"));
+
+                    eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId,  false);
+                    presenter.sendEventData(eventData);
                 } else {
-//                    var cells = presenter.cardClickedFirst.parent().find(".cell");
-//
-//                    presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
-//                    presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
-//
-//                    presenter.score++;
-//
-//                    if (presenter.isAllOK()) {
-//                        presenter.sendAllOKEvent();
-//                    }
+                    eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId, true);
+                    presenter.sendEventData(eventData);
 
                     presenter.addScoreAndSentEvent();
-
                 }
 
                 if(presenter.useTwoStyles) {
