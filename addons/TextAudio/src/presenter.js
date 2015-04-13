@@ -965,7 +965,24 @@ function AddonTextAudio_create() {
         }
     };
 
+    presenter.roundTimeEntry = function (time_entry) {
+        var time = time_entry.split(':'),
+            number = time[1],
+            rounded = Math.round( number * 10 ) / 10,
+            fixed = rounded.toFixed(1);
+
+        fixed = fixed.split('.');
+        if(fixed[0].length < 2){
+            fixed[0] = '0'+fixed[0];
+        }
+        fixed = fixed[0]+'.'+fixed[1];
+
+        return time[0]+':'+fixed;
+    };
+
     presenter.toFrames = function(time_entry) {
+        time_entry =  presenter.roundTimeEntry(time_entry);
+
         var entry = time_entry.split(':');
         var minutes = parseInt(entry[0], 10);
         var seconds = 0;
