@@ -7,11 +7,11 @@
 }
 
 .addon_Line_Number .outer .infinity-left {
-    left: 0px;
+    left: 0;
 }
 
 .addon_Line_Number .outer .infinity-right {
-    right: 0px;
+    right: 0;
 }
 
 .addon_Line_Number .outer {

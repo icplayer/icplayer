@@ -1,4 +1,32 @@
 function AddonLine_Number_create() {
+    /*
+        KNOWN ISSUES:
+            PROPERTIES:
+                Axis X Values:
+                    0* - due to backward compatybility it should be treaten as 1*
+
+            (04.13.2015) CLICK & DRAWING RANGES LOGIC:
+                Due to logic of drawing ranges, presenter.configuration.max should be set before creating steps as a max
+                value from field values. Changing this logic will break user click logic, which will not draw range to
+                infinity right.
+
+
+     */
+
+    Array.prototype.max = function () {
+        if (this.length == 0) {
+            throw "Empty array";
+        }
+
+        var max = this[0];
+        this.forEach(function (elem){
+            if (elem > max) {
+                max = elem;
+            }
+        });
+
+        return max;
+    };
 
     var presenter = function () {};
 
@@ -20,7 +48,7 @@ function AddonLine_Number_create() {
         'MAX02' : 'Max value must be a number',
         'MAX03' : 'Max value does not fit the separator.',
         'MAX04' : 'Max value must be within xAxisValues. Suggested value: {{lastValue}} or {{lastValuePlusStep}}.',
-        'MIN/MAX01' : 'Min value cannot be lower than Max value.',
+        'MIN/MAX01' : 'Min value cannot be greater than Max value.',
         'RAN01' : 'One or more ranges are invalid.',
         'RAN02' : 'One or more ranges are invalid. Please make sure, that all ranges start/end can be displayed on X axis.',
         'STEP01' : 'The value in Step property is invalid.',
@@ -29,7 +57,12 @@ function AddonLine_Number_create() {
         'VAL01' : 'One or more X axis values are invalid.',
         'VAL02' : 'One or more X axis do not fit the separator.',
         'OOR01' : 'Can not resolve which range is currently selected.',
-        'DSE01' : 'Semicolon is a reserved symbol.'
+        'DSE01' : 'Semicolon is a reserved symbol.',
+        'AXV_01': "Axis X cyclic values have to be greater or equal than 0.",
+        'AXV_02': "Axis X fixed values have to be greater or equal than Min.",
+        'AXV_03': "Axis X fixed values have to be lower or equal than Max.",
+        'AXV_04': "Axis X Values property can have only number values.",
+        'AXV_05': "Axis X Valuese property cant have duplicates."
     };
 
     presenter.CLICKED_POSITION = {
@@ -55,11 +88,12 @@ function AddonLine_Number_create() {
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$view.disableSelection();
-        presenter.configuration = presenter.readConfiguration(model);
+        presenter.configuration = presenter.validateModel(model);
+
         presenter.configuration.isPreview = isPreview;
 
         if ( presenter.configuration.isError ) {
-            return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode)
+            return DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, presenter.configuration.errorCode);
         }
 
         presenter.createSteps();
@@ -160,71 +194,9 @@ function AddonLine_Number_create() {
         return parseFloat(value.toFixed(presenter.configuration.step.precision));
     }
 
-    function getXAxisValues() {
-        var configuration = presenter.configuration,
-            xAxisValues = [], i,
-            stepValue = configuration.step.parsedValue || configuration.step.value,
-            minClosestEven = 0,
-            maxClosestEven = 0;
-
-        if (stepValue === 2) {
-            minClosestEven = configuration.min > 0 && configuration.min%2 !== 0 ? (configuration.min - configuration.min%2) + 2 : configuration.min - configuration.min%2;
-            maxClosestEven = (configuration.max > 0 && configuration.max%2 !== 0 ? (configuration.max - configuration.max%2) + 2 : configuration.max - configuration.max%2) - stepValue;
-            for (i = minClosestEven; i <= maxClosestEven; i = parseValueWithStepPrecision(i + stepValue)) {
-                xAxisValues.push(i);
-            }
-        } else if (stepValue > 2) {
-            for (i = configuration.min; i <= configuration.max; i += stepValue) {
-                xAxisValues.push(i);
-                maxClosestEven = i;
-            }
-        } else {
-            for (i = configuration.min; i <= configuration.max; i = parseValueWithStepPrecision(i + stepValue)) {
-                xAxisValues.push(i);
-            }
-        }
-
-        if ( xAxisValues.indexOf(0) == -1 && configuration.min < 0 && configuration.max > 0 ) {
-            xAxisValues.push(0);
-        }
-
-        var sorted = xAxisValues.sort( function( a, b ){ return a - b });
-
-        configuration.min = xAxisValues[0];
-        configuration.max = xAxisValues[xAxisValues.length - 1];
-
-        var allRanges = presenter.configuration.otherRanges.concat(presenter.configuration.shouldDrawRanges);
-
-        $.each(allRanges, function() {
-
-            if ( (sorted.indexOf(this.start.value) == -1 || sorted.indexOf(this.end.value) == -1)
-                && (!isValueInfinity(this.start.value) && !isValueInfinity(this.end.value) )) {
-
-                presenter.configuration.isError = true;
-                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'RAN02');
-
-                return false;
-            }
-
-            return true;
-        });
-
-        var lastElement = stepValue >= 2 ? maxClosestEven : configuration.max;
-        if ( sorted.indexOf(lastElement) == -1 ) {
-            presenter.configuration.isError = true;
-            var lastValue = sorted[sorted.length - 1];
-            var errorMessage = presenter.errorCodes['MAX04'].replace('{{lastValue}}', ('' + lastValue) );
-            errorMessage = errorMessage.replace('{{lastValuePlusStep}}', ('' + (lastValue + stepValue)) );
-            presenter.errorCodes['MAX04'] = errorMessage;
-            DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'MAX04');
-        }
-
-        return sorted;
-    }
-
     function setClickedRanges(e) {
         var ranges = presenter.configuration.drawnRangesData.ranges,
-            value = parseRangeStartOrEnd($(e).attr('value'));
+            value = parseRangeStartOrEnd($(e).attr('value'), presenter.configuration.separator);
 
         presenter.configuration.mouseData.clickedRanges = [];
 
@@ -271,7 +243,7 @@ function AddonLine_Number_create() {
         }
 
         $.each(range.values, function() {
-            var value = parseRangeStartOrEnd(this);
+            var value = parseRangeStartOrEnd(this, presenter.configuration.separator);
             var index = presenter.configuration.drawnRangesData.values.indexOf(value);
             presenter.configuration.drawnRangesData.values.splice(index, 1);
         });
@@ -568,9 +540,13 @@ function AddonLine_Number_create() {
         return selectedRange;
     }
 
-    function clickLogic(eventTarget) {
+    function isLineNumberDisabled () {
+        return ((presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) ||
+                 presenter.configuration.isDisabled);
+    }
 
-        if ((presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) || presenter.configuration.isDisabled) {
+    function clickLogic(eventTarget) {
+        if (isLineNumberDisabled()) {
             return;
         }
 
@@ -585,7 +561,8 @@ function AddonLine_Number_create() {
 
         if (isFirstClick()) {
             if (firstClick.position == presenter.CLICKED_POSITION.NONE) {
-                var value = parseRangeStartOrEnd(presenter.configuration.mouseData.clicks[0].element.attr('value'));
+                var value = parseRangeStartOrEnd(presenter.configuration.mouseData.clicks[0].element.attr('value'),
+                                                 presenter.configuration.separator);
                 presenter.singleDot = {
                     value: value,
                     element: firstClick.element
@@ -618,8 +595,8 @@ function AddonLine_Number_create() {
                 element: null
             };
             var secondClick = presenter.configuration.mouseData.clicks[1];
-            var firstValue = parseRangeStartOrEnd(firstClick.element.attr('value'));
-            var secondValue = parseRangeStartOrEnd(secondClick.element.attr('value'));
+            var firstValue = parseRangeStartOrEnd(firstClick.element.attr('value'), presenter.configuration.separator);
+            var secondValue = parseRangeStartOrEnd(secondClick.element.attr('value'), presenter.configuration.separator);
             var newRange;
 
             if (areBothClicksNone()) {
@@ -791,9 +768,7 @@ function AddonLine_Number_create() {
             } else {
                 resetClicks();
             }
-
         }
-
     }
 
     function removeRangesBetweenRange(range) {
@@ -821,7 +796,7 @@ function AddonLine_Number_create() {
     }
 
     function getRangeByValue(value) {
-        value = parseRangeStartOrEnd(value);
+        value = parseRangeStartOrEnd(value, presenter.configuration.separator);
         var ranges = [];
 
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
@@ -863,13 +838,13 @@ function AddonLine_Number_create() {
         }
         return {
             element: parseElement(element),
-            value: parseRangeStartOrEnd(value),
+            value: parseRangeStartOrEnd(value, presenter.configuration.separator),
             include: include
         }
     }
 
     presenter.isMouseAboveExistingRange = function(e) {
-        var value = parseRangeStartOrEnd($(e).attr('value'));
+        var value = parseRangeStartOrEnd($(e).attr('value'), presenter.configuration.separator);
         return $.inArray( value, presenter.configuration.drawnRangesData.values ) >= 0;
     };
 
@@ -1002,9 +977,9 @@ function AddonLine_Number_create() {
         if (isEndInfinity && isStartInfinity) {
             width = difference + (presenter.configuration.stepWidth * 2) + 'px';
         } else if (isEndInfinity) {
-            width = difference + presenter.configuration.stepWidth + 'px';
+            width = (difference + presenter.configuration.stepWidth) + 'px';
         } else if (isStartInfinity) {
-            width = difference + presenter.configuration.stepWidth + 2 + 'px';
+            width = (difference + presenter.configuration.stepWidth + 2) + 'px';
         } else {
             width = difference + 2 + 'px';
         }
@@ -1038,18 +1013,15 @@ function AddonLine_Number_create() {
             endValue = presenter.configuration.max;
         }
 
-        var stepValue = presenter.configuration.step.parsedValue || presenter.configuration.step.value;
+        var stepValue = presenter.configuration.step;
 
-        //for ( var i = startValue; i <= endValue; i = parseValueWithStepPrecision(i + stepValue) ) {
         for ( var i = startValue; i <= endValue; i += stepValue ) {
-
             range.values.push(i);
 
             if (shouldAddToDrawn) {
                 presenter.configuration.drawnRangesData.values.push(i);
             }
         }
-
     }
 
     function addEndRangeImages(range, startElement, endElement, isStartInfinity, isEndInfinity) {
@@ -1093,35 +1065,174 @@ function AddonLine_Number_create() {
         return imageContainer;
     }
 
-    presenter.createSteps = function () {
-        var xAxisValues = getXAxisValues();
-        presenter.configuration.stepWidth = calculateStepWidth(xAxisValues);
-        var isDrawOnlyChosen = presenter.configuration.axisXValues.length > 0;
+    presenter.getElementPosition = function (value, axisXWidth, absoluteXRange, axisMin) {
+        return ((value - axisMin) / absoluteXRange) * (axisXWidth - (presenter.configuration.stepWidth * 2));
+    };
 
-        for (var i = 0; i < xAxisValues.length; i++) {
-            var stepLine = $('<div></div>');
-            stepLine.addClass('stepLine');
-            var text = $('<div></div>');
-            text.addClass('stepText');
-            text.html( transformValueToDisplayVersion( xAxisValues[i], true ) );
-            text.css('left', - (( xAxisValues[i] + '' )).length * (4) + 'px');
+    function getStepText(element) {
+        var $text = $('<div></div>');
+        $text.addClass('stepText');
+        $text.html( transformValueToDisplayVersion( element, true ) );
+        $text.css('left', - ((element.toString())).length * (4) + 'px');
 
-            if (isDrawOnlyChosen && presenter.configuration.showAxisXValues) {
-                if ($.inArray(xAxisValues[i], presenter.configuration.axisXValues) !== -1) {
-                    stepLine.append(text);
-                }
-            } else if (presenter.configuration.showAxisXValues) {
-                stepLine.append(text);
+        return $text;
+    }
+
+    function getStepLine() {
+        var $stepLine = $('<div></div>');
+        $stepLine.addClass('stepLine');
+
+        return $stepLine
+    }
+
+    function appendTextToStepLine($stepLine, element) {
+        var $text = getStepText(element);
+
+        $stepLine.append($text);
+    }
+
+    function appendStepLineToAxis($stepLine) {
+        presenter.$view.find('.x-axis').append($stepLine);
+    }
+
+    function positionStepLineOnAxis($stepLine, element, configuration) {
+        var position = presenter.getElementPosition(element, configuration.axisXWidth, configuration.axisAbsoluteRange,
+                                                    configuration.axisMin);
+
+        $stepLine.css({
+            'left': (position + presenter.configuration.stepWidth) + 'px'
+        });
+    }
+
+    function isMultiplicationOfCyclicValues (value) {
+        function isMultiplication (element) { return (this % element) == 0;}
+
+        var elementIndex = presenter.configuration.axisXFieldValues.indexOf(value);
+
+        return (presenter.configuration.axisXValues.cyclicValues.filter(isMultiplication, elementIndex).length > 0);
+    }
+
+    function checkCustomValues(element) {
+        var isCustomValue = false;
+
+        isCustomValue = isMultiplicationOfCyclicValues(element);
+
+        if(!isCustomValue) {
+            isCustomValue = (presenter.configuration.axisXValues.fixedValues.indexOf(element) != -1)
+        }
+
+        return isCustomValue;
+    }
+
+    function shouldAppendTextToStepLine(element, configuration) {
+        if (configuration.showAxisXValues) {
+            if(configuration.customValuesSet) {
+                return checkCustomValues(element)
             }
 
-            stepLine.css('left', presenter.configuration.stepWidth * (i + 1));
-            createClickArea(stepLine, xAxisValues[i]);
-            presenter.$view.find('.x-axis').append(stepLine);
+            return true;
         }
 
-        if (!presenter.configuration.isPreview && !presenter.configuration.isDisabled) { //  && presenter.configuration.isActivity
-            bindClickAreaListeners( presenter.$view.find('.clickArea') );
+        return false;
+    }
+
+    presenter.createStep = function (element) {
+        //function for array.forEach, this is binded to object with lineNumber configuration
+        /*
+            this = {axisXWidth: float, axisMin: float, axisAbsoluteRange: float}
+        */
+
+        var $stepLine = getStepLine();
+        positionStepLineOnAxis($stepLine, element, this);
+
+        if(shouldAppendTextToStepLine(element, this)) {
+            appendTextToStepLine($stepLine, element);
         }
+
+        createClickArea($stepLine, element);
+
+        appendStepLineToAxis($stepLine);
+    };
+
+    presenter.createAxisXCustomValues = function () {
+        var min = presenter.configuration.min;
+        var max = presenter.configuration.max;
+
+        var values = presenter.configuration.axisXValues.fixedValues.concat([]);
+        var cyclicValues = presenter.configuration.axisXValues.cyclicValues;
+
+        function createValues (element) {
+            var precision = presenter.getNumberPrecision(element);
+            var step = element;
+            var values = [];
+
+            for(var i = step; i <= max; i += step) {
+                values.push(presenter.changeNumberToPrecision(i, precision));
+            }
+
+            for(i = step * -1; i >= min; i -= step ) {
+                values.push(presenter.changeNumberToPrecision(i, precision));
+            }
+
+            return values;
+        }
+
+        cyclicValues = cyclicValues.map(createValues);
+        for(var i = 0; i < cyclicValues.length; i++) {
+            values = values.concat(cyclicValues[i]);
+        }
+
+        values = values.filter(function (element){
+            if (this.indexOf(element) == -1) {
+                this.push(element);
+                return true;
+            }
+
+            return false;
+        }, []);
+
+        if(values.indexOf(0) == -1) values.push(0);
+
+        return values;
+    };
+
+    presenter.getAxisConfigurationForCreatingSteps = function () {
+        var configuration = {
+            axisXWidth: presenter.$view.find('.x-axis').width(),
+            axisMin: presenter.configuration.min,
+            axisAbsoluteRange: presenter.configuration.max - presenter.configuration.min,
+            showAxisXValues: presenter.configuration.showAxisXValues
+        };
+
+        if (presenter.configuration.isCustomAxisXValuesSet) {
+            configuration.customValuesSet = presenter.configuration.isCustomAxisXValuesSet;
+            configuration.customValues = presenter.createAxisXCustomValues();
+        }
+
+        return configuration;
+    };
+
+    presenter.setStepWidthInConfiguration = function () {
+        presenter.configuration.stepWidth = calculateStepWidth(presenter.configuration.axisXFieldValues);
+    };
+
+    function setMaxValueInConfiguration () {
+        presenter.configuration.max = presenter.configuration.axisXFieldValues.max();
+    }
+
+    presenter.setOnClickAreaListeners = function () {
+        if (!presenter.configuration.isPreview && !presenter.configuration.isDisabled) {
+            bindClickAreaListeners(presenter.$view.find('.clickArea'));
+        }
+    };
+
+    presenter.createSteps = function () {
+        setMaxValueInConfiguration();
+        presenter.setStepWidthInConfiguration();
+
+        presenter.configuration.axisXFieldValues.forEach(presenter.createStep, presenter.getAxisConfigurationForCreatingSteps());
+
+        presenter.setOnClickAreaListeners();
     };
 
     function transformValueToDisplayVersion(value, shouldReplaceMinus) {
@@ -1134,8 +1245,8 @@ function AddonLine_Number_create() {
     }
 
     function checkIsMinLowerThanMax(min, max) {
-        var parsedMin = parseRangeStartOrEnd(min);
-        var parsedMax = parseRangeStartOrEnd(max);
+        var parsedMin = parseRangeStartOrEnd(min, presenter.configuration.separator);
+        var parsedMax = parseRangeStartOrEnd(max, presenter.configuration.separator);
         return parsedMin < parsedMax;
     }
 
@@ -1394,7 +1505,7 @@ function AddonLine_Number_create() {
         }
     }
 
-    function parseRangeStartOrEnd (value) {
+    function parseRangeStartOrEnd (value, separator) {
 
         if ( value == '-INF' || value == -Infinity ) {
             return -Infinity;
@@ -1403,31 +1514,21 @@ function AddonLine_Number_create() {
             return Infinity;
         }
         else {
-            var parsedValue = presenter.parseValueWithSeparator(value, presenter.configuration.separator);
+            var parsedValue = presenter.parseValueWithSeparator(value, separator);
             return parseFloat( parsedValue );
         }
     }
 
     presenter.validateDecimalSeparator = function (decimalSeparator) {
         if ( ModelValidationUtils.isStringEmpty(decimalSeparator) ) {
-            return {
-                value: '.',
-                isValid: true
-            }
+            return {value: '.', isValid: true};
         }
 
         if ( $.trim(decimalSeparator) == ';' ) {
-            return {
-                value: null,
-                isValid: false,
-                errorCode: 'DSE01'
-            }
+            return {value: null, isValid: false, errorCode: 'DSE01'};
         }
 
-        return {
-            value: decimalSeparator,
-            isValid: true
-        }
+        return {value: decimalSeparator, isValid: true};
     };
 
     presenter.validateRanges = function (ranges, separator) {
@@ -1458,8 +1559,8 @@ function AddonLine_Number_create() {
             var brackets = regexResult.match(/[\(\)<>]+/g);
             var onlyNumbersAndCommas = regexResult.replace(/[ \(\)<>]*/g, '');
             var onlyNumbers = onlyNumbersAndCommas.split(';');
-            var min = parseRangeStartOrEnd(onlyNumbers[0]);
-            var max = parseRangeStartOrEnd(onlyNumbers[1]);
+            var min = parseRangeStartOrEnd(onlyNumbers[0], separator);
+            var max = parseRangeStartOrEnd(onlyNumbers[1], separator);
             var minInclude = brackets[0] == '<' || min == -Infinity;
             var maxInclude = brackets[1] == '>' || max == Infinity;
             var shouldDrawRange = onlyNumbers[2] == '1';
@@ -1489,11 +1590,66 @@ function AddonLine_Number_create() {
         });
 
         return {
+            isValid: true,
             isError: isError,
             errorCode: errorCode,
             shouldDrawRanges : validatedShouldDrawRanges,
             otherRanges : validatedOtherRanges
         };
+    };
+
+    presenter.validateRangesWithAxisXField = function (ranges, axisXFieldValues) {
+        var allRanges = ranges.otherRanges.concat(ranges.shouldDrawRanges);
+
+
+        function checkRange(range) {
+            if ( (axisXFieldValues.indexOf(range.start.value) == -1 || axisXFieldValues.indexOf(range.end.value) == -1)
+                && (!isValueInfinity(range.start.value) && !isValueInfinity(range.end.value) )) {
+
+                presenter.configuration.isError = true;
+                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'RAN02');
+
+                return false;
+            }
+
+            return true;
+        }
+
+        if (!allRanges.every(checkRange)) {
+            return presenter.getErrorObject("RAN02");
+        }
+
+        var lastElement = presenter.maxFromArray(axisXFieldValues);
+        if ( axisXFieldValues.indexOf(lastElement) == -1 ) {
+            presenter.configuration.isError = true;
+            DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, 'MAX04');
+        }
+
+        return {isValid: true, value: allRanges};
+    };
+
+    presenter.maxFromArray = function (array_of_numbers) {
+        if (array_of_numbers.length == 0) {throw "ValueError: maxFromArray() arg is an empty array";}
+
+        var max = array_of_numbers[0];
+
+        for(var i = 0; i < array_of_numbers.length; i++){
+            if (array_of_numbers[i] > max) {max = array_of_numbers[i];}
+        }
+
+        return max;
+    };
+
+    presenter.minFromArray = function (array_of_numbers) {
+        if (array_of_numbers.length == 0) {throw "ValueError: minFromArray() arg is an empty array";}
+
+        var min = array_of_numbers[0];
+
+        for(var i = 0; i < array_of_numbers.length; i++){
+            if (array_of_numbers[i] < min) {min = array_of_numbers[i];}
+        }
+
+        return min;
     };
 
     function escapeRegexSpecialCharacters(value) {
@@ -1532,117 +1688,101 @@ function AddonLine_Number_create() {
         return (value + '').replace(separator, '.');
     };
 
-    presenter.readConfiguration = function(model) {
+    presenter.getErrorObject = function (errorCode) {
+        return {isValid: false, errorCode: errorCode, isError: true};
+    };
+
+    presenter.validateMin = function (model, separator) {
+        if(ModelValidationUtils.isStringEmpty(model['Min'])) {
+            return presenter.getErrorObject("MIN01");
+        }
+
+        var validatedMinWithSeparator = presenter.validateValueWithSeparator(model['Min'], separator);
+        if(!validatedMinWithSeparator.isValid) {
+            return presenter.getErrorObject("MIN03");
+        }
+
+        validatedMinWithSeparator = ModelValidationUtils.validateFloat( validatedMinWithSeparator.value );
+        if ( !validatedMinWithSeparator.isValid) {
+            return presenter.getErrorObject("MIN02");
+        }
+
+
+        return {isValid: true, value: validatedMinWithSeparator.parsedValue};
+    };
+
+    presenter.validateMax = function (model, separator) {
+        if( ModelValidationUtils.isStringEmpty(model['Max']) ) {
+            return presenter.getErrorObject("MAX01");
+        }
+
+        var validatedMaxWithSeparator = presenter.validateValueWithSeparator(model['Max'], separator);
+
+        if(!validatedMaxWithSeparator.isValid) {
+            return presenter.getErrorObject("MAX03");
+        }
+
+        validatedMaxWithSeparator = ModelValidationUtils.validateFloat( validatedMaxWithSeparator.value );
+        if ( !validatedMaxWithSeparator.isValid ) {
+            return presenter.getErrorObject("MAX02");
+        }
+
+        return {isValid: true, value: validatedMaxWithSeparator.parsedValue};
+    };
+
+    presenter.validateModel = function(model) {
         var separator = presenter.validateDecimalSeparator(model['Decimal Separator']);
 
         if (!separator.isValid) {
-            return { 'isError' : true, 'errorCode' : 'DSE01' };
+            return presenter.getErrorObject("DSE01");
         }
 
-        presenter.configuration.separator = separator.value;
-
-        if( ModelValidationUtils.isStringEmpty(model['Min']) ) {
-            return { 'isError' : true, 'errorCode' : 'MIN01' };
-        }
-
-        if( ModelValidationUtils.isStringEmpty(model['Max']) ) {
-            return { 'isError' : true, 'errorCode' : 'MAX01' };
-        }
-
-        var min, max, validatedMin, validatedMax;
-
-        var validatedMinWithSeparator = presenter.validateValueWithSeparator(model['Min'], separator.value);
-
-        if ( !validatedMinWithSeparator.isValid ) {
-            return { 'isError' : true, 'errorCode' : 'MIN03' };
-        }
-
-        var validatedMaxWithSeparator = presenter.validateValueWithSeparator(model['Max'], separator.value);
-
-        if ( !validatedMaxWithSeparator.isValid ) {
-            return { 'isError' : true, 'errorCode' : 'MAX03' };
-        }
-
-        validatedMin = ModelValidationUtils.validateFloat( validatedMinWithSeparator.value );
-        validatedMax = ModelValidationUtils.validateFloat( validatedMaxWithSeparator.value );
-
+        var validatedMin = presenter.validateMin(model, separator.value);
         if ( !validatedMin.isValid ) {
-            return { 'isError': true, 'errorCode': 'MIN02' };
+            return validatedMin;
         }
 
-        min = validatedMin.parsedValue;
-
+        var validatedMax = presenter.validateMax(model, separator.value);
         if ( !validatedMax.isValid ) {
-            return { 'isError': true, 'errorCode': 'MAX02' };
+            return validatedMax;
         }
 
-        max = validatedMax.parsedValue;
-
-        if( !checkIsMinLowerThanMax(min, max) ) {
-            return { 'isError' : true, 'errorCode' : 'MIN/MAX01' };
+        if( !checkIsMinLowerThanMax(validatedMin.value, validatedMax.value) ) {
+            return presenter.getErrorObject("MIN/MAX01");
         }
 
-        var ranges = presenter.validateRanges(model['Ranges'], separator.value);
-
-        var validatedIsActivity = !ModelValidationUtils.validateBoolean(model['Not Activity']);
-
-        var validatedStep = presenter.validateStep(model, separator, max);
-        if (validatedStep.isError) {
+        var validatedStep = presenter.validateStep(model, separator, validatedMax.value, validatedMin.value);
+        if (!validatedStep.isValid) {
             return validatedStep;
         }
 
-        var validatedAxisXValues = [];
-        var axisXValues = model['Axis X Values'];
+        var axisXFieldValues = presenter.createAxisXFieldValues(validatedMin.value, validatedMax.value, validatedStep.value);
 
-        if (axisXValues !== '') {
-
-            if ( presenter.isMultiplication(axisXValues) ) {
-
-                var multi = parseInt(axisXValues.split('*')[0], 10);
-                var step = validatedStep.parsedValue || validatedStep.value;
-                var j = 0;
-
-                for (var i = min; i <= max; i = parseFloat((i + step).toFixed(validatedStep.precision)), j++) {
-
-                    if (j % multi == 0) {
-                        validatedAxisXValues.push(i);
-                    }
-
-                }
-
-            } else {
-
-                var splittedValues = model['Axis X Values'].split(';');
-
-                for (var i = 0; i < splittedValues.length; i++) {
-                    var value = splittedValues[i].replace(' ', '');
-
-                    var validatedValue = presenter.validateValueWithSeparator(value, separator.value);
-
-                    if (!validatedValue.isValid) {
-                        return {
-                            'isError' : true,
-                            'errorCode' : 'VAL02'
-                        }
-                    }
-
-                    validatedValue = ModelValidationUtils.validateFloatInRange(validatedValue.value, max, min);
-
-                    if (!validatedValue.isValid) {
-                        return {
-                            'isError' : true,
-                            'errorCode' : 'VAL01'
-                        }
-                    }
-
-                    validatedAxisXValues.push(validatedValue.parsedValue);
-                }
-
-            }
-
+        var validatedRanges = presenter.validateRanges(model["Ranges"], separator.value);
+        if(!validatedRanges.isValid) {
+            return validatedRanges;
         }
 
-        var validatedShowAxisXValues = ModelValidationUtils.validateBoolean(model['Show Axis X Values']);
+        var validatedRangesWithAxisXField = presenter.validateRangesWithAxisXField(validatedRanges, axisXFieldValues);
+        if (!validatedRangesWithAxisXField.isValid) {
+            return validatedRangesWithAxisXField;
+        }
+
+        var validatedIsActivity = !ModelValidationUtils.validateBoolean(model['Not Activity']);
+
+        var addonConfiguration = {
+            isDecimalSeparatorSet: !ModelValidationUtils.isStringEmpty(separator.value),
+            decimalSeparator: separator.value,
+            max: validatedMax.value,
+            min: validatedMin.value
+        };
+
+        var validatedAxisXValues = presenter.validateAxisXValues(model, addonConfiguration);
+
+        if(!validatedAxisXValues.isValid) {
+            return validatedAxisXValues;
+        }
+
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         var isDisabled = ModelValidationUtils.validateBoolean(model['Disable']);
 
@@ -1651,15 +1791,16 @@ function AddonLine_Number_create() {
         }
 
         return {
+            isValid: true,
             isError : false,
-            min : min,
-            max : max,
-            shouldDrawRanges : ranges.shouldDrawRanges,
-            otherRanges : ranges.otherRanges,
+            min : validatedMin.value,
+            max : validatedMax.value,
+            shouldDrawRanges : validatedRanges.shouldDrawRanges,
+            otherRanges : validatedRanges.otherRanges,
             isActivity : validatedIsActivity,
-            step : validatedStep,
-            showAxisXValues : validatedShowAxisXValues,
-            axisXValues : validatedAxisXValues,
+            step : validatedStep.value,
+            showAxisXValues : ModelValidationUtils.validateBoolean(model['Show Axis X Values']),
+            axisXValues : validatedAxisXValues.value,
             mouseData : {
                 clickedRanges : [],
                 clicks : [],
@@ -1681,44 +1822,196 @@ function AddonLine_Number_create() {
             isInitialDraw : true,
             isDisabled: isDisabled,
             isDisabledByDefault: isDisabled,
-            separator: separator.value
+            separator: separator.value,
+            axisXFieldValues: axisXFieldValues,
+            allRanges: validatedRangesWithAxisXField.value,
+            isCustomAxisXValuesSet: validatedAxisXValues.isCustomAxisXValuesSet
+        };
+    };
+
+    presenter.isZeroInRange = function (min, max) {
+        if (min <= 0 && max >= 0) {return true;}
+        if (min < 0 && max == 0) {return true;}
+        if (min == 0 && max > 0) {return true;}
+        return false;
+    };
+
+    function getAxisXValuesErrors(fixedValues, cyclicValues, addonConfiguration) {
+        if((fixedValues.filter(isNaN).length + cyclicValues.filter(isNaN).length) > 0) {
+            return presenter.getErrorObject("AXV_04");
+        }
+
+        if(!cyclicValues.every(function (value) {return (value >= 0)})) {
+            return presenter.getErrorObject("AXV_01");
+        }
+
+        if(!fixedValues.every(function (value) {return (value >= addonConfiguration.min);})) {
+            return presenter.getErrorObject("AXV_02");
+        }
+
+        if(!fixedValues.every(function (value) {return (value <= addonConfiguration.max);})) {
+            return presenter.getErrorObject("AXV_03");
+        }
+
+        return {isValid: true};
+    }
+
+    function parseAxisXValuesFromModel(model, addonConfiguration) {
+        return model["Axis X Values"].split(";").map(function (element) {
+            element.trim();
+            if (addonConfiguration.isDecimalSeparatorSet) {
+                return element.replace(addonConfiguration.decimalSeparator, ".");
+            }
+
+            return element;
+        });
+    }
+
+    function filterCyclicValues (value) {
+        return (value.charAt(value.length - 1) == "*");
+    }
+
+    function filterFixedValuesBasedOnCyclic (element) {
+        return (this.indexOf(element) == -1);
+    }
+
+    presenter.validateAxisXValues = function (model, addonConfiguration) {
+
+        if(ModelValidationUtils.isStringEmpty(model["Axis X Values"])) {
+            return {isValid: true, isCustomAxisXValuesSet: false, value: {}};
+        }
+
+        var values = parseAxisXValuesFromModel(model, addonConfiguration);
+
+        var cyclicValues = values.filter(filterCyclicValues);
+
+        var fixedValues = values.filter(filterFixedValuesBasedOnCyclic, cyclicValues).map(Number);
+
+        cyclicValues = cyclicValues.map(function (value) {
+            return Number(value.slice(0, value.length -1));
+        });
+
+        var axisXValuesErrors = getAxisXValuesErrors(fixedValues, cyclicValues, addonConfiguration);
+        if (!axisXValuesErrors.isValid) {
+            return axisXValuesErrors;
+        }
+
+        cyclicValues = cyclicValues.map(function (value) {
+            if(value == 0) {return 1};
+            return value;
+        });
+
+        function isDuplicate(value) {
+            return (this.filter(function (currentValue) {return (value == currentValue);}).length == 1);
+        }
+
+        if((!cyclicValues.every(isDuplicate, cyclicValues)) || (!fixedValues.every(isDuplicate, fixedValues))) {
+            return presenter.getErrorObject("AXV_05");
+        }
+
+        return {isValid: true, isCustomAxisXValuesSet: true, value: {cyclicValues: cyclicValues, fixedValues: fixedValues}};
+    };
+
+    presenter.createAxisXFieldValues = function (min, max, step) {
+        var precision = [presenter.getNumberPrecision(step), presenter.getNumberPrecision(min), presenter.getNumberPrecision(max)].max();
+        var values = [];
+        var i;
+
+        function changePrecision(value) {return presenter.changeNumberToPrecision(value, precision);}
+
+        for (i = min; i <= max; i += step) {values.push(i);}
+
+        if(presenter.isZeroInRange(min, max)) {
+            if(values.indexOf(0) == -1) {
+                values.push(0);
+            }
+
+        }
+
+        var valuesWithChangedPrecision = values.map(changePrecision);
+        var sortedValues = valuesWithChangedPrecision.sort(function (a, b){
+           return a - b;
+        });
+
+        return sortedValues;
+    };
+
+    presenter.getNumberPrecision = function (value) {
+        value = value.toString();
+        value = value.split(".");
+
+        var len;
+        try {
+            len = value[1].length;
+        } catch (_){
+            len = 0;
+        }
+
+        return len;
+    };
+
+    presenter.changeNumberToPrecision = function (value, precision) {
+        //toFixed value rounds up to closest number eg. 23.6xx.toFixed(0) -> 24, when we want get 23
+        if (precision == 0) {return parseInt(value)};
+        return Number(value.toFixed(precision));
+    };
+
+    presenter.findStartingPointInField = function (min, max, step) {
+        var precision = presenter.getNumberPrecision(step);
+        var startingPoint;
+        if (min > 0) {
+            if (min % step == 0) {
+                return {startingPoint: min, fieldEnd: max};
+            }
+
+            startingPoint = ((parseInt(min / step) * step) + step);
+            return {startingPoint: presenter.changeNumberToPrecision(startingPoint, precision), fieldEnd: max};
+        }
+
+        if(min < 0) {
+            if (max % step == -0) {
+                return {startingPoint: max, fieldEnd: min};
+            }
+
+            startingPoint = ((parseInt(max / step) *  step) - step);
+            return {startingPoint: presenter.changeNumberToPrecision(startingPoint, precision), fieldEnd: min};
         }
     };
 
-    presenter.validateStep = function (model, separator, max) {
-        var validatedStep = { value : 1, precision : 0 };
-
-        if ( model['Step'] ) {
-            validatedStep = presenter.validateValueWithSeparator( model['Step'], separator.value );
-
-            var precision = validatedStep.precision;
-
-            if (!validatedStep.isValid) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'STEP02'
-                }
-            }
-
-            validatedStep = ModelValidationUtils.validateFloatInRange(validatedStep.value, max, 0);
-            validatedStep.precision = precision;
-
-            if(validatedStep.value == 0) {
-                return {
-                    isError: true,
-                    errorCode: 'STEP03'
-                };
-            }
-
-            if (!validatedStep.isValid) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'STEP01'
-                }
-            }
+    presenter.abs = function (value) {
+        if(value < 0) {
+            return value * -1;
         }
 
-        return validatedStep;
+        return value;
+    };
+
+    presenter.validateStep = function (model, separator, max, min) {
+        if(ModelValidationUtils.isStringEmpty(model['Step'])) {
+            return {isValid: true, value : 1, precision : 0};
+        }
+
+        var validatedStep = presenter.validateValueWithSeparator( model['Step'], separator.value );
+
+        var precision = validatedStep.precision;
+
+        if (!validatedStep.isValid) {
+            return presenter.getErrorObject('STEP02');
+        }
+
+        validatedStep = ModelValidationUtils.validateFloatInRange(validatedStep.value,
+            presenter.maxFromArray([max, min].map(presenter.abs)), 0);
+        validatedStep.precision = precision;
+
+        if(validatedStep.value == 0) {
+            return presenter.getErrorObject("STEP03");
+        }
+
+        if (!validatedStep.isValid) {
+            return presenter.getErrorObject("STEP01");
+        }
+
+        return {isValid: true, value: validatedStep.parsedValue, precision: validatedStep.precision};
     };
 
     presenter.isMultiplication = function (value) {

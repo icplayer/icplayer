@@ -1,3 +1,4 @@
+2015-04-14 Fixed issue with positioning axis elements and fixed issue with axis x values property in Line Number module
 2015-04-14 Fixed issue with PopupPanelGlass in PopupPage
 2015-04-13 Added sending event after pair matching in Memo Game module
 2015-04-13 Fixed issue with rounding times in Text Audio module
