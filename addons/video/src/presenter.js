@@ -224,6 +224,7 @@ function Addonvideo_create() {
         presenter.isCurrentlyVisible = true;
         var upgradedModel = this.upgradeModel(model);
         presenter.files = upgradedModel.Files;
+        presenter.defaultControls = !ModelValidationUtils.validateBoolean(upgradedModel['Hide default controls']);
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$view = $(view);
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
@@ -471,6 +472,9 @@ function Addonvideo_create() {
         var $video = $(this.video);
         var files = this.files;
         this.addAttributePoster($video, files[this.currentMovie].Poster);
+        if(!presenter.defaultControls) {
+            $video.removeAttr('controls');
+        }
         if(presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {

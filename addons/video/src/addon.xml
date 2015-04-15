@@ -12,5 +12,6 @@
 		</property>
 		<property name="Show video" nameLabel="video_property_show_video" type="string" />
 		<property name="Narration" nameLabel="video_property_narration" type="narration" isLocalized="true" />
+        <property name="Hide default controls" nameLabel="video_property_hide_default_controls" type="boolean" />
 	</model>
 </addon>

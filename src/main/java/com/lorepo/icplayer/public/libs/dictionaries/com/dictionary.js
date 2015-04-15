@@ -1,4 +1,4 @@
-var ice_dictionary = {
+﻿var ice_dictionary = {
 	"error_forbidden" : "You don't have permission to edit this content",
 	"error_not_found": "Content not found",
 	"error_server_error": "Server error. Please try again later",
@@ -777,6 +777,7 @@ var ice_dictionary = {
 	"video_property_id": "ID",
 	"video_property_show_video": "Show video",
 	"video_property_narration": "Narration",
+	"video_property_hide_default_controls": "Hide default controls",
 	"WritingCalculations_info": "Allows to create math activities that involve writing calculations: multiplication, division, addition, or subtraction.",
 	"WritingCalculations_name": "Writing Calculations",
 	"WritingCalculations_property_value": "Value",

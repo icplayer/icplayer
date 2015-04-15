@@ -1,4 +1,4 @@
-var ice_dictionary = {
+﻿var ice_dictionary = {
 	"error_forbidden" : "Usted no cuenta con los privilegios para editar este contenido",
 	"error_not_found": "Contenido no encontrado",
 	"error_server_error": "Error en el servidor. Favor de intentarlo más tarde",
@@ -774,6 +774,7 @@ var ice_dictionary = {
 	"video_property_id": "ID",
 	"video_property_show_video": "Mostrar vídeo",
 	"video_property_narration": "Narración",
+	"video_property_hide_default_controls": "Hide default controls",
 	"WritingCalculations_info": "Permite la creación de actividades de matemáticas que involucran cálculos de escritura: la multiplicación, división, adición o sustracción.",
 	"WritingCalculations_name": "Operaciones Aritméticas",
 	"WritingCalculations_property_value": "Valor",

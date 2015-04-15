@@ -1,4 +1,4 @@
-var ice_dictionary = {
+﻿var ice_dictionary = {
 	"error_forbidden" : "Vous n'avez pas l'autorisation d'éditer ce contenu",
 "error_not_found": "Contenu non trouvé",
 "error_server_error": "Erreur serveur. Merci de réessayer plus tard",
@@ -777,6 +777,7 @@ var ice_dictionary = {
     "video_property_id": "ID",
     "video_property_show_video": "Afficher la vidéo",
     "video_property_narration": "Narration",
+    "video_property_hide_default_controls": "Hide default controls",
     "WritingCalculations_info": "Permet de créer des activités de maths qui incluent des opérations : multiplication, division, addition et soustraction.",
     "WritingCalculations_name": "Ecrire des calculs",
     "WritingCalculations_property_value": "Valeur",
