@@ -823,6 +823,7 @@ var ice_dictionary = {
 	"Text_Selection_property_selection_type": "Selection type",
 	"Text_Selection_property_text": "Text",
 	"Text_Selection_property_enable_letters_selections": "Enable letters selections",
+    "Text_Selection_property_is_not_activity": "Is Not Activity",
 	"Drawing_info": "Allows users to draw lines and create free-form images. To make the addon work, simply define Color, Thickness and Border in the addon’s Properties menu.  Users will then draw lines based on the specified properties.",
 	"Drawing_name": "Drawing",
 	"Drawing_property_color": "Color",

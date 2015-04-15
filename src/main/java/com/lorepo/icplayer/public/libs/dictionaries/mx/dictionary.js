@@ -820,6 +820,7 @@ var ice_dictionary = {
 	"Text_Selection_property_selection_type": "Tipo de selección",
 	"Text_Selection_property_text": "Texto",
 	"Text_Selection_property_enable_letters_selections": "Habilitar selección de letras",
+    "Text_Selection_property_is_not_activity": "Is Not Activity",
 	"Drawing_info": "Permite a los usuarios a dibujar líneas y crear las imágenes de forma libre. Para que el addon funcione, simplemente hay que definir el color, el grosor y el borde en el menú lateral del addon. Los usuarios van a dibujar las imágenes basados en las propiedades especificadas.",
 	"Drawing_name": "Dibujo",
 	"Drawing_property_color": "Color",

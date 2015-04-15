@@ -819,6 +819,7 @@ var ice_dictionary = {
 	"Text_Selection_property_selection_type" : "Typ zaznaczania",
 	"Text_Selection_property_text" : "Tekst",
 	"Text_Selection_property_enable_letters_selections" : "Włącz zaznaczanie liter",
+    "Text_Selection_property_is_not_activity": "Is Not Activity",
 	"Drawing_info" : "Umożliwia rysowanie linii i tworzenie dowolnych kształtów na ekranie prezentacji. Aby Addon działał poprawnie, wystarczy zdefiniować kilka opcji w menu Właściwości.",
 	"Drawing_name" : "Rysowanie",
 	"Drawing_property_color": "Kolor",

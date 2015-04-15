@@ -26,7 +26,7 @@ function AddonText_Selection_create() {
         var eventData = presenter.createEventData(item, value, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
 
-        if (presenter.isAllOK() && checkIsAllOK) sendAllOKEvent();
+        if (presenter.isAllOK() && checkIsAllOK && presenter.configuration.isActivity) sendAllOKEvent();
     };
 
     function sendAllOKEvent() {
@@ -427,7 +427,8 @@ function AddonText_Selection_create() {
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
 			isExerciseStarted: false,
 			areEventListenersOn: true,
-            addonID: model['ID']
+            addonID: model['ID'],
+            isActivity: !(ModelValidationUtils.validateBoolean(model['isNotActivity']))
 		};
 	};
 
@@ -1065,52 +1066,56 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.setShowErrorsMode = function() {
-        if (presenter.is_show_answers) {
-            presenter.hideAnswers();
+        if(presenter.configuration.isActivity){
+            if (presenter.is_show_answers) {
+                presenter.hideAnswers();
+            }
+
+            presenter.is_work_mode = false;
+
+            presenter.turnOffEventListeners();
+
+            if (!presenter.configuration.isExerciseStarted) return false;
+
+            if (presenter.is_show_answers) presenter.hideAnswers();
+
+            var i;
+
+            var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
+                return this.getAttribute('number');
+            }).get();
+
+            var numbersCorrect = presenter.markers.markedCorrect;
+            var numbersWrong   = presenter.markers.markedWrong;
+
+            var correctSelected = intersection(numbersSelected, numbersCorrect);
+
+            for (i=0; i<correctSelected.length; i++) {
+                presenter.$view.find('.text_selection').find("span[number='" + correctSelected[i] + "']").addClass('correct');
+            }
+
+            var selectedWrong = intersection(numbersSelected, numbersWrong);
+            for (i=0; i<selectedWrong.length; i++) {
+                presenter.$view.find('.text_selection').find("span[number='" + selectedWrong[i] + "']").addClass('wrong');
+            }
         }
-
-        presenter.is_work_mode = false;
-
-        presenter.turnOffEventListeners();
-
-        if (!presenter.configuration.isExerciseStarted) return false;
-
-        if (presenter.is_show_answers) presenter.hideAnswers();
-
-        var i;
-
-		var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function() {
-			return this.getAttribute('number');
-		}).get();
-
-		var numbersCorrect = presenter.markers.markedCorrect;
-		var numbersWrong   = presenter.markers.markedWrong;
-
-		var correctSelected = intersection(numbersSelected, numbersCorrect);
-
-		for (i=0; i<correctSelected.length; i++) {
-			presenter.$view.find('.text_selection').find("span[number='" + correctSelected[i] + "']").addClass('correct');
-		}
-
-		var selectedWrong = intersection(numbersSelected, numbersWrong);
-		for (i=0; i<selectedWrong.length; i++) {
-			presenter.$view.find('.text_selection').find("span[number='" + selectedWrong[i] + "']").addClass('wrong');
-		}
 	};
 
 	presenter.setWorkMode = function() {
-        if (presenter.is_show_answers) {
-            presenter.hideAnswers();
+        if(presenter.configuration.isActivity){
+            if (presenter.is_show_answers) {
+                presenter.hideAnswers();
+            }
+
+            presenter.is_work_mode = true;
+
+            presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
+            presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
+
+            presenter.selected_elements = presenter.$view.find('.text_selection').find('.selected');
+            presenter.turnOffEventListeners();
+            presenter.turnOnEventListeners();
         }
-
-        presenter.is_work_mode = true;
-
-		presenter.$view.find('.text_selection').find('.correct').removeClass('correct');
-		presenter.$view.find('.text_selection').find('.wrong').removeClass('wrong');
-
-        presenter.selected_elements = presenter.$view.find('.text_selection').find('.selected');
-        presenter.turnOffEventListeners();
-        presenter.turnOnEventListeners();
 	};
 
 	function points(selector) {
@@ -1122,27 +1127,36 @@ function AddonText_Selection_create() {
 	}
 
 	presenter.getErrorCount = function() {
-        if (presenter.is_show_answers) {
-            presenter.hideAnswers();
+        if(presenter.configuration.isActivity){
+            if (presenter.is_show_answers) {
+                presenter.hideAnswers();
+            }
+            return points(presenter.markers.markedWrong);
+        }else{
+            return 0;
         }
-
-		return points(presenter.markers.markedWrong);
 	};
 
 	presenter.getMaxScore = function() {
-        if (presenter.is_show_answers) {
-            presenter.hideAnswers();
+        if(presenter.configuration.isActivity){
+            if (presenter.is_show_answers) {
+                presenter.hideAnswers();
+            }
+            return presenter.markers.markedCorrect.length;
+        }else{
+            return 0;
         }
-
-		return presenter.markers.markedCorrect.length;
 	};
 
 	presenter.getScore = function() {
-        if (presenter.is_show_answers) {
-            presenter.hideAnswers();
+        if(presenter.configuration.isActivity){
+            if (presenter.is_show_answers) {
+                presenter.hideAnswers();
+            }
+            return points(presenter.markers.markedCorrect);
+        }else{
+            return 0;
         }
-
-		return points(presenter.markers.markedCorrect);
 	};
 
     presenter.isAllOK = function() {
@@ -1161,6 +1175,8 @@ function AddonText_Selection_create() {
     };
 
     presenter.showAnswers = function() {
+        if(presenter.configuration.isActivity){ return; }
+
         if (presenter.is_show_answers) { return false; }
 
         if (!presenter.is_work_mode) { presenter.setWorkMode(); }
@@ -1184,6 +1200,8 @@ function AddonText_Selection_create() {
     };
 
     presenter.hideAnswers = function() {
+        if(presenter.configuration.isActivity){ return; }
+
         if (!presenter.is_show_answers) { return false; }
 
         presenter.turnOnEventListeners();

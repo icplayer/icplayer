@@ -823,6 +823,7 @@ var ice_dictionary = {
     "Text_Selection_property_selection_type": "Type de sélection",
     "Text_Selection_property_text": "Texte",
     "Text_Selection_property_enable_letters_selections": "Permet la sélection de lettres",
+    "Text_Selection_property_is_not_activity": "Is Not Activity",
     "Drawing_info": "Permet aux utilisateurs de dessiner des lignes et créent des images libres. Pour que le module externe fonctionne, il suffit de définir la couleur, l'épaisseur et le type de bordure dans le menu Propriétés du module. Les utilisateurs pourront ensuite tracer des lignes sur la base des propriétés spécifiées.",
     "Drawing_name": "Dessin",
     "Drawing_property_color": "Couleur",
