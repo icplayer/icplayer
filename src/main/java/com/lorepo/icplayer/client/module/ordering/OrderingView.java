@@ -3,8 +3,14 @@ package com.lorepo.icplayer.client.module.ordering;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -27,6 +33,11 @@ public class OrderingView extends Composite implements IDisplay {
 	private IReorderListener listener;
 	private boolean workMode = true;
 	private String initialOrder = "";
+	private JavaScriptObject jsObject = null;
+	private boolean isTouched = false;
+	private boolean isMouseUp = false;
+	private boolean isDragging = false;
+
 	
 	public OrderingView(OrderingModule module, IPlayerServices services) {
 		this.module = module;
@@ -37,7 +48,27 @@ public class OrderingView extends Composite implements IDisplay {
 	public String getInitialOrder() {
 		return initialOrder;
 	}
+	
+	public JavaScriptObject getAsJavaScript() {
+		
+		if (jsObject == null) {
+			jsObject = initJSObject(this, module.isVertical());
+		}
+		return jsObject;
+	}
 
+	private native JavaScriptObject initJSObject(OrderingView x, boolean isVertical) /*-{
+		var view = function(){};
+		view.markStart = function(startIndex) {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markStart(I)(startIndex);
+		};
+		view.markEnd = function(endIndex) {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markEnd(I)(endIndex);
+		}
+		view.axis = isVertical ? "y" : "x";
+		return view;
+	}-*/;
+	
 	private void createUI(OrderingModule module) {
 		
 		createWidgetPanel();
@@ -61,7 +92,45 @@ public class OrderingView extends Composite implements IDisplay {
 		}
 		
 		getElement().setId(module.getId());
+		getAsJavaScript();
+		makeSortable(getElement(), jsObject);
 	}
+	
+	private native void makeSortable(Element e, JavaScriptObject jsObject)/*-{
+		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
+		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
+		var forceHide = false;
+		$wnd.$(e).find(selector).sortable({
+			placeholder: "ic_ordering-placeholder",
+			axis: jsObject.axis,
+			helper : 'clone',
+			cursorAt: { left: 5 },
+			start: function(event, ui) {
+				jsObject.markStart(ui.item.index());
+				ui.helper.html(ui.item.html());
+				ui.placeholder.html(ui.helper.html());
+				
+				if (ui.item.is(":visible")) {
+					forceHide = true;
+					ui.item.style("display", "none", "important");
+				}
+				if (jsObject.axis == "y") {
+					ui.helper.find('td').width(ui.placeholder.find('td').width());
+					ui.helper.find('td').height(ui.placeholder.find('td').height());
+				} else {
+					ui.helper.width(ui.placeholder.width());
+					ui.helper.height(ui.placeholder.height());
+				}
+			},
+			stop: function(event, ui) {
+				jsObject.markEnd(ui.item.index());
+				if (forceHide) {
+					ui.item.style("display", displayType, "important");
+				}
+			}
+		});
+		$wnd.$(e).disableSelection();
+	}-*/;
 	
 	private void createWidgetPanel() {
 		innerCellPanel = module.isVertical() ? new VerticalPanel() : new HorizontalPanel();
@@ -79,9 +148,41 @@ public class OrderingView extends Composite implements IDisplay {
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 				event.preventDefault();
+				if (isTouched || isMouseUp || isDragging) {
+					return;
+				}
 				onWidgetClicked(widget);
 			}
 		});
+
+		widget.addTouchEndHandler(new TouchEndHandler() {
+			
+			@Override
+			public void onTouchEnd(TouchEndEvent event) {
+				if (isDragging) {
+					return;
+				}
+				isTouched = true;
+				onWidgetClicked(widget);
+			}
+		});
+
+		
+		widget.addMouseUpHandler(new MouseUpHandler() {
+
+			@Override
+			public void onMouseUp(MouseUpEvent event) {
+				if (isTouched || isDragging) {
+					return;
+				}
+				isMouseUp = true;
+				onWidgetClicked(widget);
+			}
+			
+		});
+
+		
+		
 		
 	}
 
@@ -138,7 +239,40 @@ public class OrderingView extends Composite implements IDisplay {
 			}
 		}
 	}
+	
+	public void markStart(int startIndex) {
+		if (selectedWidget != null) {
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
+		selectedWidget = innerCellPanel.getWidget(startIndex);
+		selectedWidget.addStyleName("ic_drag-source");
+		isDragging = true;
+	}
 
+	public void markEnd(int destIndex) {
+		int sourceIndex = innerCellPanel.getWidgetIndex(selectedWidget);
+		moveWidget(sourceIndex, destIndex);
+		selectedWidget.removeStyleName("ic_drag-source");
+		selectedWidget = null;
+		onValueChanged(sourceIndex, destIndex);
+		isDragging = false;
+	}
+	
+	private void moveWidget(int startIndex, int endIndex) {
+		if (startIndex != endIndex) {
+			Widget draggedWidget = innerCellPanel.getWidget(startIndex);
+			innerCellPanel.remove(draggedWidget);
+			if (innerCellPanel instanceof VerticalPanel) {
+				VerticalPanel vp = (VerticalPanel) innerCellPanel;
+				vp.insert(draggedWidget, endIndex);
+			} else if (innerCellPanel instanceof HorizontalPanel) {
+				HorizontalPanel hp = (HorizontalPanel) innerCellPanel;
+				hp.insert(draggedWidget, endIndex);
+			}
+		}
+	}
+	
 	private void onValueChanged(int sourceIndex, int destIndex) {
 		if (listener != null) {
 			listener.onItemMoved(sourceIndex, destIndex);

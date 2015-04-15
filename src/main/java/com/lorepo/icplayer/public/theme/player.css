@@ -499,6 +499,10 @@ hr, table, fieldset {
 	border: 1px solid red;
 }
 
+.ic_ordering-placeholder {
+	vertical-align: top;
+	opacity: 0.4;
+}
 
 /**
  * Page counters

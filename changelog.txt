@@ -1,3 +1,4 @@
+2015-04-15 Added drag&drop feature to Ordering module
 2015-04-15 Added property Hide default controls to Video module
 2015-04-15 Added Is Not Activity property to Text Selection module
 2015-04-14 Fixed issue with positioning axis elements and fixed issue with axis x values property in Line Number module
