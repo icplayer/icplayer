@@ -57,7 +57,7 @@ TestCase("[Text Selection] Model validation", {
             Text: "qwe zxc \\wrong{zxcasd}",
             'Selection type': 'SINGLESELECT',
             'Enable letters selections' : 'False'
-        }
+        };
 
         var validatedModel = this.presenter.validateModel(model);
 
@@ -70,7 +70,7 @@ TestCase("[Text Selection] Model validation", {
             Text: "qwe zxc \\correct{zxcasd}",
             'Selection type': 'SINGLESELECT',
             'Enable letters selections' : 'False'
-        }
+        };
 
         var validatedModel = this.presenter.validateModel(model);
 

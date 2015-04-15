@@ -500,6 +500,8 @@ function AddonText_Selection_create() {
             stack = 0,
             counted = null;
 
+        text = presenter.removeNonBreakingSpacesInWith(text, ' ');
+
 		HTMLParser(text.replace(/&nbsp;/, ' '), {
 			start: function(tag, attrs, unary) {
 				renderedPreview += "<" + tag;
@@ -701,6 +703,8 @@ function AddonText_Selection_create() {
 			return returnErrorObject('M05');
 		}
 
+        renderedRun = presenter.deselectSpansWithOnlySpaces(renderedRun);
+
 		return {
 			isValid: true,
 			renderedPreview: '<div class="text_selection">' + renderedPreview + '</div>',
@@ -709,6 +713,42 @@ function AddonText_Selection_create() {
 			markedCorrect: markedCorrect
 		};
 	};
+
+    presenter.deselectSpansWithOnlySpaces = function (htmlString) {
+        var $text = jQuery(htmlString);
+
+        var textWithDeselectedSpaces = "";
+        $text.each(function (index, value) {
+            var $element = $(this);
+            if($element.hasClass("selectable")) {
+                if($element.text().trim() == "") {
+                    $element.removeClass("selectable");
+                }
+            }
+            textWithDeselectedSpaces += $(this).context.outerHTML;
+        });
+
+        return textWithDeselectedSpaces;
+    };
+
+
+    presenter.removeNonBreakingSpacesInWith = function (text, changeTo) {
+        var textWithoutSpaces = "";
+
+        while(true) {
+            var nbspIndex = text.indexOf("&nbsp;");
+            if(nbspIndex == -1) {
+                textWithoutSpaces += text;
+                break
+            }
+
+            textWithoutSpaces = textWithoutSpaces + text.slice(0, nbspIndex) + changeTo;
+            text = text.slice(nbspIndex + 6, text.length);
+        }
+
+        return textWithoutSpaces;
+    };
+
 
     presenter.parseWords = function(text, mode, selection_type) {
         var i,
@@ -728,6 +768,8 @@ function AddonText_Selection_create() {
             stack = 0,
             counted = null;
 
+        text = presenter.removeNonBreakingSpacesInWith(text, " ");
+
         HTMLParser(text.replace(/&nbsp;/, ' '), {
             start: function(tag, attrs, unary) {
                 renderedPreview += "<" + tag;
@@ -746,6 +788,7 @@ function AddonText_Selection_create() {
                 renderedRun     += "</" + tag + ">";
             },
             chars: function(text) {
+
                 words = text.split(' ');
 
                 for (i = 0; i < words.length; i++) {
