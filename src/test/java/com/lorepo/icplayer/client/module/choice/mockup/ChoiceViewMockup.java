@@ -110,4 +110,11 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		
 	}
 
+
+	@Override
+	public void getOrderedOptions() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

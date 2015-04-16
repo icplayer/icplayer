@@ -1,3 +1,4 @@
+2015-04-16 Fixed issue with isOptionSelected method for Random Mode in Choice module
 2015-04-15 Fixed issue with parsing text in Text Selection module
 2015-04-15 Deleted changes in css classes in Line Number module
 2015-04-15 Added drag&drop feature to Ordering module

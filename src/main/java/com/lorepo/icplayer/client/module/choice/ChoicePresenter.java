@@ -47,6 +47,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public void hide();
 		public int[] getOryginalOrder();
 		public void setVisibleVal(boolean val);
+		public void getOrderedOptions();
 	}
 	
 	private IDisplay view;

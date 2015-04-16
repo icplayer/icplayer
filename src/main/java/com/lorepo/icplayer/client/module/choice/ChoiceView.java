@@ -17,7 +17,8 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
-	private ArrayList<IOptionDisplay>	optionWidgets = new ArrayList<IOptionDisplay>();
+	private ArrayList<IOptionDisplay> optionWidgets = new ArrayList<IOptionDisplay>();
+	private ArrayList<IOptionDisplay> orderedWidgets = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
 	private int[] order;
 	
@@ -52,6 +53,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			optionsPanel.add((Widget)widget);
 		}
 
+		getOrderedOptions();
 		optionsPanel.setSize("100%", "100%");
 		add(optionsPanel);
 		setWidgetPosition(optionsPanel, 0, 0);
@@ -81,9 +83,19 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 
+	public void getOrderedOptions() {
+		for (int i = 0; i < order.length; i++) {
+			for (int j = 0; j < order.length; j++) {
+				if (order[j] == i) {
+					orderedWidgets.add(optionWidgets.get(j));
+				}
+			}
+		}
+	}
+	
 	@Override
 	public List<IOptionDisplay> getOptions() {
-		return optionWidgets;
+		return orderedWidgets;
 	}
 
 	@Override
