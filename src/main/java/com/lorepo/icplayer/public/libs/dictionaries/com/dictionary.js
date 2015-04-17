@@ -946,7 +946,7 @@
 	"SwiffyAnimation_info" : "Enables users to embed animations and other projects created in Adobe Flash program and converted with Google Swiffy plugin. First, it is necessary to configure certain properties in the addon’s side menu, including Animations (where you add Swiffy file) and Initial animation. The only way to control swiffy animations is to use the addon’s setVars command.",
 	"SwiffyAnimation_name" : "Swiffy Animation",
 	"SwiffyAnimation_property_animations" : "Animations",
-	"SwiffyAnimation_property_swiffy_object" : "Sqiffy File",
+	"SwiffyAnimation_property_swiffy_object" : "Swiffy File",
 	"SwiffyAnimation_property_auto_play" : "Auto Play",
 	"SwiffyAnimation_property_disable_transparent_background" : "Disable Transparent Background",
 	"SwiffyAnimation_property_do_not_preload" : "Do Not Preload",
