@@ -4,7 +4,7 @@
 	<model>
         <property name="workWith" displayName="Work With" nameLabel="eKeyboard_property_work_with" type="text" />
         <property name="layoutType" displayName="Layout Type" nameLabel="eKeyboard_property_layout_type"
-                  type="{Numeric, French (Special Characters), German (Special Characters), Spanish (Special Characters), Custom}" />
+                  type="{Numeric, French (Special Characters), German (Special Characters), Italian (Special Characters), Spanish (Special Characters), Custom}" />
         <property name="customLayout" displayName="Custom Layout" nameLabel="eKeyboard_property_custom_layout" type="text" />
         <property name="positionMy" displayName="Position My" nameLabel="eKeyboard_property_position_my" type="string" />
         <property name="positionAt" displayName="Position At" nameLabel="eKeyboard_property_position_at" type="string" />

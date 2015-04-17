@@ -17,6 +17,10 @@ function AddoneKeyboard_create(){
         'spanish (special characters)' : "{ \
             'default': ['\u00e1 \u00e9 \u00ed \u00f3 \u00fa \u00f1 \u00e7 \u00fc \u00a1 \u00bf \u00ba \u00aa {shift}'], \
             'shift': ['\u00c1 \u00c9 \u00cd \u00d3 \u00da \u00d1 \u00c7 \u00dc {empty} {empty} {empty} {empty} {shift}'] \
+        }",
+        'italian (special characters)' : "{ \
+            'default': ['\u00e0 \u00e8 \u00e9 \u00ec \u00f2 \u00f9 {shift}'], \
+            'shift': ['\u00c0 \u00c8 \u00c9 \u00cc \u00d2 \u00d9 {shift}'] \
         }"
     };
 
