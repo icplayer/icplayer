@@ -139,6 +139,9 @@ public class TextModel extends BasicModuleModel{
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
+		if (parsedText.equals("#ERROR#")) {
+			return;
+		}
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
