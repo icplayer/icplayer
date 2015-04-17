@@ -965,19 +965,16 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.roundTimeEntry = function (time_entry) {
-        var time = time_entry.split(':'),
-            number = time[1],
-            rounded = Math.round( number * 10 ) / 10,
-            fixed = rounded.toFixed(1);
+    presenter.roundTimeEntry = function(time_entry) {
+        var time = time_entry.replace(',', '.').split(':'),
+            minutes = time[0],
+            seconds = parseFloat(time[1]).toFixed(1).split('.');
 
-        fixed = fixed.split('.');
-        if(fixed[0].length < 2){
-            fixed[0] = '0'+fixed[0];
+        if (seconds[0].length < 2) {
+            seconds[0] = '0' + seconds[0];
         }
-        fixed = fixed[0]+'.'+fixed[1];
 
-        return time[0]+':'+fixed;
+        return minutes + ':' + seconds[0] + '.' + seconds[1];
     };
 
     presenter.toFrames = function(time_entry) {

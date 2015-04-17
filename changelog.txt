@@ -1,3 +1,4 @@
+2015-04-17 Fixed issue with rounding seconds in TextAudio module
 2015-04-17 Fixed issue with showing boundaries in editor and scoring in Chrome in Shape Tracing module
 2015-04-16 Fixed issue with isOptionSelected method for Random Mode in Choice module
 2015-04-15 Fixed issue with parsing text in Text Selection module
