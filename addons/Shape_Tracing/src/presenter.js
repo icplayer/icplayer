@@ -297,8 +297,8 @@ function AddonShape_Tracing_create() {
 
     function calculateBorderCoordinates() {
         function isBoundaryColor(r, g, b, a) {
-            //return (r < 200 && g < 200 && b < 200) && a === 255;
-            return (r !== 255 || g !== 255 || b !== 255) && a === 255;
+            return (r < 250 && g < 250 && b < 250) && a === 255;
+//            return (r !== 255 || g !== 255 || b !== 255) && a === 255;
         }
 
         //var ctx = presenter.layer.getContext('2d');
@@ -318,7 +318,7 @@ function AddonShape_Tracing_create() {
     }
 
     function showFoundBoundaryPoints() {
-        var ctx = presenter.layer.getContext('2d');
+        var ctx = presenter.layerBG.getContext('2d');
         var imgData = ctx.getImageData(0, 0, presenter.data.width, presenter.data.height);
 
         for (var i=0; i<presenter.data.height; i++) {
