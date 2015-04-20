@@ -10,8 +10,8 @@ import com.lorepo.icplayer.client.framework.module.IStyledModule;
  *
  */
 public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyProvider{
-	public String 	getModuleTypeName();
-	public String	getId();
+	public String getModuleTypeName();
+	public String getId();
 	public void setId(String id);
 	public void release();
 	public void load(Element node, String baseUrl);
@@ -20,5 +20,6 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public boolean isLocked();
 	public void lock(boolean state);
 	public String getButtonType();
-
+	public boolean isModuleInEditorVisible();
+	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility);
 }

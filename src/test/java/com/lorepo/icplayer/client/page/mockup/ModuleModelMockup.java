@@ -12,6 +12,7 @@ public class ModuleModelMockup implements IModuleModel {
 	
 	private String buttonType = "";
 	private String moduleTypeName = "";
+	private boolean isModuleInEditorVisible = true;
 
 	@Override
 	public void addStyleListener(IStyleListener listener) {
@@ -227,6 +228,16 @@ public class ModuleModelMockup implements IModuleModel {
 	@Override
 	public String getButtonType() {
 		return buttonType;
+	}
+	
+	@Override
+	public boolean isModuleInEditorVisible() {
+		return this.isModuleInEditorVisible;
+	}
+	
+	@Override
+	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
+		this.isModuleInEditorVisible = moduleInEditorVisibility;
 	}
 
 }

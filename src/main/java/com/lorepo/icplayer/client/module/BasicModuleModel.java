@@ -22,6 +22,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
+	private boolean isModuleVisibleInEditor = true;
 	
 	protected BasicModuleModel(String typeName){
 		super(typeName);
@@ -80,6 +81,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
 		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
 		isLocked = XMLUtils.getAttributeAsBoolean(element, "isLocked", false);
+		isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true);
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
@@ -119,7 +121,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop()  +
 				"' width='" + getWidth() + "' height='" + getHeight() + "' " +
 				"right='" + getRight() + "' bottom='" + getBottom() + "' " +
-				"isVisible='" + isVisible + "' isLocked='" + isLocked +"'";
+				"isVisible='" + isVisible + "' isLocked='" + isLocked +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor +"'";
 		
 		if (!getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
@@ -215,6 +217,14 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	public String getBaseURL() {
 		return baseURL;
+	}
+	
+	public boolean isModuleInEditorVisible() {
+		return this.isModuleVisibleInEditor;
+	}
+	
+	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
+		this.isModuleVisibleInEditor = moduleInEditorVisibility;
 	}
 	
 	@Override
