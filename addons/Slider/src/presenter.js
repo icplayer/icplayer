@@ -688,7 +688,15 @@ function AddonSlider_create () {
 
     presenter.calculateRelativeDistanceX = function(imageElement, container, eventData, pastEventData, imageElementData) {
         var left = parseInt($(imageElement).css('left'), 10);
-        var horizontal = eventData.pageX - pastEventData.oldPosition.x;
+        var horizontal = Math.round(eventData.pageX - pastEventData.oldPosition.x);
+
+        var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+        if(isIE){
+            if(horizontal > 8 && window.screen.deviceXDPI>96){
+                horizontal = horizontal/1.5;
+            }
+        }
 
         if (left + horizontal < 0 || left + horizontal > imageElementData.maxLeft) {
             horizontal = 0;

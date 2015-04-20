@@ -1,3 +1,4 @@
+2015-04-20 Fixed issue with moving slider on zoomed page in Slider module
 2015-04-17 Fixed issue with gap causing crashing of Editor in Text module
 2015-04-17 Added Italian language to eKeyboard module
 2015-04-17 Fixed issue with rounding seconds in TextAudio module
