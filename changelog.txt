@@ -1,3 +1,4 @@
+2015-04-21 Fixed issue with ShowAnswers in Text module
 2015-04-21 Fixed issue with parsing of mathgaps having editable syntax in Text module
 2015-04-20 Fixed issue with moving slider on zoomed page in Slider module
 2015-04-17 Fixed issue with gap causing crashing of Editor in Text module

@@ -186,6 +186,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		List<GapInfo> gapsInfos = module.getGapInfos();
+		
 		for (int index = 0; index < gapsInfos.size(); index++) {
 			TextElementDisplay gap = view.getChild(index);
 			
@@ -196,10 +197,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			gap.setText(answers.hasNext() ? answers.next() : "");
 		}
 		
-		int dropDownCounter = gapsInfos.size() + 1;
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
-			String id = module.getGapUniqueId() + '-' + dropDownCounter++;
-			Element elem = DOM.getElementById(id);
+			Element elem = DOM.getElementById(choice.getId());
 			SelectElement sElem = (SelectElement) elem;
 			
 			int correctIndex = getOptionIndex(choice, choice.getAnswer());
