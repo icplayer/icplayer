@@ -157,15 +157,6 @@ public class TextParser {
 		}
 		return false;
 	}
-	
-	private static boolean isBetweenBrackets(String text) {
-		int endIndex = text.indexOf("\\)");
-		if (endIndex > 0) {
-			int startIndex = text.indexOf("\\(");
-			return startIndex >= 0 && startIndex < endIndex;
-		}
-		return false;
-	}
 
 	/**
 	 * Replace expression with gap
@@ -476,6 +467,7 @@ public class TextParser {
 		String output = "";
 		String replaceText;
 		int index = -1;
+		boolean isRefactored = false;
 		RegExp regExp = RegExp.compile(pattern);
 		MatchResult matchResult;
 		
@@ -483,7 +475,7 @@ public class TextParser {
 			if (matchResult.getGroupCount() <= 0) {
 				break;
 			}
-			
+
 			String group = matchResult.getGroup(0);
 			output += input.substring(0, matchResult.getIndex());
 			input = input.substring(matchResult.getIndex() + group.length());
@@ -513,8 +505,12 @@ public class TextParser {
 
 				if (useDraggableGaps) {
 					replaceText = matchDraggableGap(expression);
-				} else if (useMathGaps && isBetweenBrackets(srcText)) {
+				} else if (useMathGaps) {
 					replaceText = matchMathGap(expression);
+					if (!isRefactored && !output.trim().startsWith("\\(")) {
+						replaceText = "\\(" + replaceText;
+						isRefactored = true;
+					}
 				} else {
 					replaceText = matchGap(expression);
 				}
@@ -524,13 +520,14 @@ public class TextParser {
 				replaceText = "#ERR#";
 			}
 
-			output += replaceText;
+			output = output + replaceText;
 		}
 
+		if (isRefactored) {
+			output = output + "\\)";
+		}
 
-		output += input;
-
-		return output;
+		return output + input;
 	}
 
 	private static int findClosingBracket(String input) {
