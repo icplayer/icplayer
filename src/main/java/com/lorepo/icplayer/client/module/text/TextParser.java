@@ -461,6 +461,15 @@ public class TextParser {
 		return parsedText;
 	}
 
+	private static boolean isBetweenBrackets(String text) {
+		int endIndex = text.indexOf("\\)");
+		if (endIndex > 0) {
+			int startIndex = text.indexOf("\\(");
+			return startIndex >= 0 && startIndex < endIndex;
+		}
+		return false;
+	}
+	
 	private String parseGaps(String srcText) {
 		final String pattern = "\\\\gap\\{|\\\\filledGap\\{";
 		String input = srcText;
@@ -507,7 +516,7 @@ public class TextParser {
 					replaceText = matchDraggableGap(expression);
 				} else if (useMathGaps) {
 					replaceText = matchMathGap(expression);
-					if (!isRefactored && !output.trim().startsWith("\\(")) {
+					if (!isRefactored && !isBetweenBrackets(srcText)) {
 						replaceText = "\\(" + replaceText;
 						isRefactored = true;
 					}
