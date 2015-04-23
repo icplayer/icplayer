@@ -608,7 +608,7 @@
 	"Paragraph_property_hide_toolbar": "Ukryj pasek narzędzi",
 	"Paragraph_property_custom_toolbar": "Niestandardowy pasek narzędzi",
 	"Paragraph_property_custom_css": "Niestandardowy CSS",
-    "Paragraph_property_placeholder_text": "Placeholder text",
+    "Paragraph_property_placeholder_text": "Tekst zastępczy",
 	"Paragraph_Keyboard_info" : "Pozwala użytkownikowi na wprowadzenie tekstu w dowolnej formie z zachowaniem formatowania WYSIWYG i wykorzystaniem znaków diakrytycznych.",
 	"Paragraph_Keyboard_name" : "Paragraf z e-Klawiaturą",
 	"Paragraph_Keyboard_property_default_font_family": "Domyślna rodzina czcionek",
