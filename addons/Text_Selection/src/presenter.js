@@ -1218,7 +1218,9 @@ function AddonText_Selection_create() {
     };
 
     presenter.showAnswers = function() {
-        if(presenter.configuration.isActivity){ return; }
+        if(!presenter.configuration.isActivity){
+            return;
+        }
 
         if (presenter.is_show_answers) { return false; }
 
@@ -1243,7 +1245,9 @@ function AddonText_Selection_create() {
     };
 
     presenter.hideAnswers = function() {
-        if(presenter.configuration.isActivity){ return; }
+        if(!presenter.configuration.isActivity){
+            return;
+        }
 
         if (!presenter.is_show_answers) { return false; }
 

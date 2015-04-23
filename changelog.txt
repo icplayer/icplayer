@@ -1,3 +1,4 @@
+2015-04-23 Fixed issue with Show Answers in Not Activity mode in Text Selection module
 2015-04-21 Fixed issue with math Gaps in Text module
 2015-04-21 Fixed issue with ShowAnswers in Text module
 2015-04-21 Fixed issue with parsing of mathgaps having editable syntax in Text module
