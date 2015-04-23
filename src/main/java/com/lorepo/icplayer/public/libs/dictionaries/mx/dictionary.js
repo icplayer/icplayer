@@ -609,6 +609,7 @@
 	"Paragraph_property_hide_toolbar": "Ocultar barra de herramientas ",
 	"Paragraph_property_custom_toolbar": "Barra de herramientas personalizada",
 	"Paragraph_property_custom_css": "CSS personalizado",
+    "Paragraph_property_placeholder_text": "Placeholder text",
 	"Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and special chars.",
 	"Paragraph_Keyboard_name": "Párrafo de teclado",
 	"Paragraph_Keyboard_property_default_font_family": "Familia de fuentes predeterminada",

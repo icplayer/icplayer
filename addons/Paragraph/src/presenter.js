@@ -4,6 +4,8 @@ function AddonParagraph_create() {
     var editorDOM;
     var isVisible;
 
+    presenter.placeholder = null;
+
     presenter.executeCommand = function(name, params) {
         if (!presenter.configuration.isValid) { return; }
 
@@ -53,7 +55,7 @@ function AddonParagraph_create() {
         return controls.filter(function(param){
             return allowedButtons.indexOf(param) != -1
         }).join(' ');
-    }
+    };
 
     /**
      * Parses model and set settings to default values if either of them is empty
@@ -61,7 +63,7 @@ function AddonParagraph_create() {
      * @param model
      * @returns {{fontFamily: *, fontSize: *}}
      */
-    presenter.parseModel = function (model) {
+    presenter.validateModel = function (model) {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
@@ -86,7 +88,6 @@ function AddonParagraph_create() {
             ID: model["ID"],
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             isValid: true,
-
             fontFamily: fontFamily,
             fontSize: fontSize,
             isToolbarHidden: isToolbarHidden,
@@ -94,7 +95,10 @@ function AddonParagraph_create() {
             textAreaHeight: height,
             hasDefaultFontFamily: hasDefaultFontFamily,
             hasDefaultFontSize: hasDefaultFontSize,
-            content_css: model['Custom CSS']
+            content_css: model['Custom CSS'],
+            isPlaceholderSet: !ModelValidationUtils.isStringEmpty(model["Placeholder Text"]),
+            placeholderText: model["Placeholder Text"],
+            width: model['Width']
         };
     };
 
@@ -105,37 +109,160 @@ function AddonParagraph_create() {
      * for prototype purpose. Also the set of controls is static and it could be be moved to
      * configuration.
      */
-    presenter.initializeEditor = function(view, model) {
-        presenter.$view = $(view);
-        presenter.model = model;
-
-        presenter.$view.find('.paragraph-wrapper').attr('id', model.ID + '-wrapper');
-        var selector = '#' + model.ID + '-wrapper .paragraph_field';
-
-        presenter.configuration = presenter.parseModel(model);
-
-        var plugins = undefined;
+    presenter.getPlugins = function () {
+        var plugins = [];
         if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
             presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
-            plugins = "textcolor";
+            plugins.push("textcolor");
         }
-        tinymce.init({
-            plugins: plugins,
+
+        if(presenter.configuration.isPlaceholderSet) {
+            plugins.push("placeholder");
+        }
+
+        var pluginsArrayString = "";
+        plugins.forEach(function (element) {
+            pluginsArrayString += " " + element;
+        });
+
+        return pluginsArrayString.trim();
+    };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradePlaceholderText(model);
+    };
+
+    presenter.upgradePlaceholderText = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model["Placeholder Text"] == undefined) {
+            upgradedModel["Placeholder Text"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.initializeEditor = function(view, model) {
+        presenter.$view = $(view);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+
+        presenter.$view.on('click', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
+        var selector = '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
+
+        presenter.configuration.plugins = presenter.getPlugins();
+        presenter.addPlugins();
+
+        tinymce.init(presenter.getTinymceInitConfiguration(selector));
+
+        isVisible = presenter.configuration.isVisible;
+        presenter.setVisibility(presenter.configuration.isVisible);
+
+    };
+
+    presenter.getTinymceInitConfiguration = function (selector) {
+        var config = {
+            plugins: presenter.configuration.plugins,
             selector : selector,
-            width: model['Width'],
+            width: presenter.configuration.width,
             height: presenter.configuration.textAreaHeight,
             statusbar: false,
             menubar: false,
             toolbar: presenter.configuration.toolbar,
             oninit: presenter.onInit,
             content_css: presenter.configuration.content_css,
-            setup : function(editor) {
-                editor.on("NodeChange", presenter.onNodeChange);
-            }
-        });
+            setup: presenter.setup
+        };
 
-        isVisible = presenter.configuration.isVisible;
-        presenter.setVisibility(presenter.configuration.isVisible);
+        return config;
+    };
+
+    presenter.addPlugins = function () {
+        if(presenter.configuration.isPlaceholderSet) {
+            presenter.addPlaceholderPlugin();
+        }
+    };
+
+    presenter.addPlaceholderPlugin = function () {
+        tinymce.PluginManager.add('placeholder', function(editor) {
+            editor.on('init', function () {
+                presenter.placeholder = new presenter.placeholderElement(editor);
+
+                editor.on('blur', onBlur);
+                editor.on('focus', onFocus);
+
+                function onFocus() {
+                   if(presenter.placeholder.isSet) {
+                       presenter.placeholder.removePlaceholder();
+                       presenter.placeholder.shouldBeSet = (presenter.placeholder.getEditorContent() == "");
+                   }
+                }
+
+                function onBlur() {
+                    if (presenter.placeholder.shouldBeSet) {
+
+                        presenter.placeholder.addPlaceholder();
+                    } else {
+                        presenter.placeholder.removePlaceholder();
+                    }
+                }
+            });
+        });
+    };
+
+    presenter.placeholderElement = function(editor){
+        this.isSet = true;
+        this.shouldBeSet = false;
+        this.placeholderText = presenter.configuration.placeholderText;
+        this.contentAreaContainer = tinymce.activeEditor.getBody();
+
+        tinymce.DOM.setStyle(this.contentAreaContainer, 'position', 'relative');
+
+        this.attrs = {style: {position: 'absolute', top:'5px', left:0, color: '#888', padding: '1%', width:'98%', overflow: 'hidden'} };
+
+        this.el = tinymce.DOM.add( this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+        tinymce.DOM.addClass(this.el, "placeholder");
+    };
+
+    presenter.placeholderElement.prototype.addPlaceholder = function() {
+        this.el = tinymce.DOM.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+        tinymce.DOM.addClass(this.el, "placeholder");
+        this.isSet = true;
+    };
+
+    presenter.placeholderElement.prototype.setPlaceholderAfterEditorChange = function () {
+        if (this.getEditorContent() == "") {
+            this.shouldBeSet = true;
+        } else {
+            this.shouldBeSet = false;
+            this.removePlaceholder();
+        }
+    };
+
+    presenter.placeholderElement.prototype.removePlaceholder = function () {
+        this.isSet = false;
+        tinymce.DOM.remove(this.el);
+    };
+
+    presenter.placeholderElement.prototype.getEditorContent = function () {
+        return tinymce.get(editorID).getContent();
+    };
+
+    presenter.onTinymceChange = function (editor, event) {
+        if (presenter.configuration.isPlaceholderSet) {
+            presenter.placeholder.setPlaceholderAfterEditorChange();
+        }
+    };
+
+    presenter.setup = function (ed) {
+        ed.on("NodeChange", presenter.onNodeChange);
+        ed.on("keyup", presenter.onTinymceChange);
     };
 
     presenter.setStyles = function () {
@@ -180,12 +307,16 @@ function AddonParagraph_create() {
             presenter.$view.find('.mce-edit-area').css('border-top-width', '0');
         }
 
+        presenter.window = tinymce.get(editorID).contentWindow;
         $(editorDOM.select('html')).click(function () {
-            editorDOM.select('body')[0].focus();
+            presenter.window.focus();
+            $(tinymce.get(editorID).contentDocument).find('body').focus();
         });
 
         var stylesheetFullPath = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "addons/resources/style.css");
         tinyMCE.activeEditor.dom.loadCSS(stylesheetFullPath);
+
+        tinymce.activeEditor.dom.setStyle(tinymce.activeEditor.dom.select('body'), 'height', '100%');
 
         presenter.setStyles();
 
@@ -235,17 +366,34 @@ function AddonParagraph_create() {
 
         isVisible = isVisibleState;
         presenter.setVisibility(isVisible);
+
+        setPlaceholderInSetState(tinymceState);
     };
 
+    function setPlaceholderInSetState (tinymceState) {
+        if (presenter.configuration.isPlaceholderSet) {
+            if(editorID != undefined) {
+                if (tinymceState.indexOf("class=\"placeholder\"") != -1) {
+                    tinymce.get(editorID).setContent("");
+                    presenter.placeholder = new presenter.placeholderElement(tinymce.get(editorID));
+                }
+            }
+        }
+    }
+
     presenter.reset = function() {
-        tinymce.get(editorID).setContent('');
         presenter.setVisibility(presenter.configuration.isVisible);
         isVisible = presenter.configuration.isVisible;
+
+        var selector = '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
+
+        tinymce.activeEditor = tinymce.init(presenter.getTinymceInitConfiguration(selector));
     };
 
     presenter.show = function() {
         isVisible = true;
         presenter.setVisibility(true);
+        clearInterval(presenter.timerId);
     };
 
     presenter.hide = function() {

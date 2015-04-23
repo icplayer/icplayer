@@ -6,7 +6,7 @@ TestCase("[Paragraph] Model parsing", {
     'test default font values': function() {
         var model = {};
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals('Verdana,Arial,Helvetica,sans-serif', validatedModel.fontFamily);
         assertEquals('11px', validatedModel.fontSize);
@@ -17,7 +17,7 @@ TestCase("[Paragraph] Model parsing", {
             'Default font family': 'cursive'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals('cursive', validatedModel.fontFamily);
         assertEquals('11px', validatedModel.fontSize);
@@ -28,7 +28,7 @@ TestCase("[Paragraph] Model parsing", {
             'Default font size': '14px'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals('Verdana,Arial,Helvetica,sans-serif', validatedModel.fontFamily);
         assertEquals('14px', validatedModel.fontSize);
@@ -40,7 +40,7 @@ TestCase("[Paragraph] Model parsing", {
             'Default font size': '14px'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals('cursive', validatedModel.fontFamily);
         assertEquals('14px', validatedModel.fontSize);
@@ -51,7 +51,7 @@ TestCase("[Paragraph] Model parsing", {
             'Custom CSS': '/file/serve/123'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals('/file/serve/123', validatedModel.content_css);
     },
@@ -61,7 +61,7 @@ TestCase("[Paragraph] Model parsing", {
             'Height': 168
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertFalse(validatedModel.isToolbarHidden);
         assertEquals(131, validatedModel.textAreaHeight);
@@ -73,7 +73,7 @@ TestCase("[Paragraph] Model parsing", {
             'Hide toolbar': 'True'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertTrue(validatedModel.isToolbarHidden);
         assertEquals(166, validatedModel.textAreaHeight);
@@ -86,7 +86,7 @@ TestCase("[Paragraph] Model parsing", {
                               'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript |'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals(model['Custom toolbar'], validatedModel.toolbar);
     },
@@ -96,7 +96,7 @@ TestCase("[Paragraph] Model parsing", {
             'Custom toolbar': 'italic underline bold test fake button'
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals('italic underline bold', validatedModel.toolbar);
     },
@@ -106,7 +106,7 @@ TestCase("[Paragraph] Model parsing", {
             'Custom toolbar': ''
         };
 
-        var validatedModel = this.presenter.parseModel(model);
+        var validatedModel = this.presenter.validateModel(model);
 
         assertEquals(this.presenter.DEFAULTS.TOOLBAR, validatedModel.toolbar);
     }
