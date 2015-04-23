@@ -52,6 +52,9 @@ function AddonIWB_Toolbar_create() {
     presenter.isZoomActive = false;
     presenter.areZoomEventHandlersAttached = false;
 
+    var activeButton = '';
+    var isRecklicked = false;
+
     presenter.DEFAULT_FLOATING_IMAGE = {
         0: 'it_ruler.png',
         1: 'it_setsquare.png',
@@ -276,9 +279,11 @@ function AddonIWB_Toolbar_create() {
                 drawingType = activeButton.hasClass('pen') ? 'pen' : 'marker';
 
             changeThickness(presenter.DRAWING_DATA['thickness'][drawingType][thickness], button);
+            presenter.buttonThickness = button;
         } else {
             var color = $(button).attr('color');
             changeColor(presenter.DRAWING_DATA['color'][color], button);
+            presenter.buttonColor = button;
         }
     }
 
@@ -706,6 +711,515 @@ function AddonIWB_Toolbar_create() {
         presenter.textAudioEvents = [];
     };
 
+
+    function penClickHandler (button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        presenter.$pagePanel.find('.tmp_canvas').hide();
+        presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
+        changeColor(presenter.data.penColor);
+        changeThickness(1);
+        toggleMasks();
+
+        presenter.ctx.globalCompositeOperation = 'source-over';
+        presenter.drawMode = presenter.DRAW_MODE.PEN;
+
+        drawingLogic();
+
+        toggleBottomPanels();
+    }
+
+    function markerClickHandler(button){
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        presenter.$pagePanel.find('.tmp_canvas').show();
+        presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
+        changeColor(presenter.data.markerColor);
+        changeThickness(presenter.data.markerThickness);
+        toggleMasks();
+
+        presenter.markerCtx.globalCompositeOperation = 'source-over';
+        presenter.drawMode = presenter.DRAW_MODE.MARKER;
+
+        markerDrawingLogic();
+
+        toggleBottomPanels();
+        presenter.markerClicked = true;
+    }
+
+    function zoomClickHandler(button){
+        panelView(button);
+        presenter.$pagePanel.find('.tmp_canvas').hide();
+
+        presenter.isZoomActive = !presenter.isZoomActive;
+        presenter.$bottomPanels.hide();
+
+        if (!presenter.isZoomActive) {
+            changeCursor('default');
+        } else {
+            changeCursor('zoom-in');
+        }
+
+        var lastEvent = null;
+        presenter.modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note)');
+
+        presenter.$pagePanel.disableSelection();
+
+        if (presenter.isZoomActive) {
+            presenter.disableTextAudioEventHandlers();
+        } else {
+            presenter.restoreTextAudioEventHandlers();
+        }
+
+        if (presenter.areZoomEventHandlersAttached) {
+            // We cannot attach multiple times the same event handlers
+            return;
+        }
+
+        presenter.modules.on('click mousedown mouseup', function(e) {
+            if (!presenter.isZoomActive) return;
+
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+        function preventClickAction(event) {
+            if (!presenter.isZoomActive) return;
+
+            event.stopPropagation();
+            event.preventDefault();
+        }
+
+        presenter.modules.find('a').on('click', preventClickAction);
+
+        presenter.modules.on('mousedown', function(e) {
+            if (!presenter.isZoomActive) return;
+
+            e.stopPropagation();
+            e.preventDefault();
+            lastEvent = e;
+            presenter.isMouseDown= true;
+        });
+
+        presenter.modules.on('mouseup', function(e) {
+            if (!presenter.isZoomActive) return;
+
+            e.stopPropagation();
+            e.preventDefault();
+            presenter.isMouseDown = false;
+
+            if ((lastEvent.type == 'mousedown'|| lastEvent.type == 'mousemove') &&
+                !$(e.currentTarget).hasClass('iwb-toolbar-panel') &&
+                !$(e.currentTarget).hasClass('addon_IWB_Toolbar') &&
+                !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
+                !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
+                !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch')) { // click
+
+                zoomSelectedModule(e.currentTarget);
+            }
+            lastEvent = e;
+        });
+
+        presenter.modules.on('mousemove', function(e) {
+            if (!presenter.isZoomActive) return;
+
+            if (presenter.isMouseDown) {
+                e.stopPropagation();
+                e.preventDefault();
+                var currentScrollX = $(window).scrollLeft(),
+                    currentScrollY = $(window).scrollTop(),
+                    differenceX = lastEvent.clientX - e.clientX,
+                    differenceY = lastEvent.clientY - e.clientY;
+
+                $(window).scrollLeft(currentScrollX + differenceX);
+                $(window).scrollTop(currentScrollY + differenceY);
+            }
+
+            lastEvent = e;
+        });
+
+        presenter.areZoomEventHandlersAttached = true;
+    }
+
+    function eraserClickHandler(button){
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.$pagePanel.find('.tmp_canvas').hide();
+
+        if (presenter.ctx) {
+            presenter.ctx.globalCompositeOperation = 'destination-out';
+        }
+        if (presenter.markerCtx) {
+            presenter.markerCtx.globalCompositeOperation = 'destination-out';
+        }
+        changeColor('rgba(0, 0, 0, 1)');
+        changeThickness(presenter.data.eraserThickness);
+        presenter.drawMode = presenter.DRAW_MODE.ERASER;
+        drawingLogic();
+        toggleMasks();
+    }
+
+    function hideAreaClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.$pagePanel.find('.tmp_canvas').hide();
+        toggleMasks();
+        drawAreaLogic(true);
+
+        presenter.drawMode = presenter.DRAW_MODE.HIDE_AREA;
+        presenter.$defaultColorButton = presenter.$panel.find('.color-black');
+        changeColor('#000');
+    }
+
+    function standAreaClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.$pagePanel.find('.tmp_canvas').hide();
+        toggleMasks();
+        drawAreaLogic(false);
+
+        presenter.drawMode = presenter.DRAW_MODE.STAND_AREA;
+        presenter.$defaultColorButton = presenter.$panel.find('.color-black');
+        changeColor('#000');
+    }
+
+    function resetClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.selectingCtx.clearRect(0, 0, presenter.$selectingMask.width(), presenter.$selectingMask.height());
+        presenter.ctx.clearRect(0, 0, presenter.$penMask.width(), presenter.$penMask.height());
+        presenter.markerCtx.clearRect(0, 0, presenter.$markerMask.width(), presenter.$markerMask.height());
+
+        presenter.areas = [];
+        presenter.drawMode = presenter.DRAW_MODE.NONE;
+
+        reset(true, false, false, false, false);
+    }
+
+    function noteClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        var note = createNote();
+
+        presenter.$pagePanel.find('.ic_page').append(note);
+        presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
+            e.stopPropagation();
+        });
+        presenter.$pagePanel.find('.note').on('mousedown', function() {
+            presenter.$pagePanel.find('.note').addClass('clicked');
+        });
+        presenter.$pagePanel.find('.note').on('mouseup', function() {
+            presenter.$pagePanel.find('.note').removeClass('clicked');
+        });
+    }
+
+    function floatingImageClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
+            var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
+            if (display == 'none') {
+                presenter.$floatingImageMask.show();
+            } else {
+                presenter.$floatingImageMask.hide();
+                presenter.$pagePanel.find('.floating-image').removeClass('clicked');
+                presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
+            }
+            setImagePosition();
+        });
+    }
+
+    function clockClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.$pagePanel.find('.clock').on('mousedown', function() {
+            presenter.$pagePanel.find('.clock').addClass('clicked');
+        });
+        presenter.$pagePanel.find('.clock').on('mouseup', function() {
+            presenter.$pagePanel.find('.clock').removeClass('clicked');
+        });
+        createClock();
+    }
+
+    function stopwatchClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.$pagePanel.find('.stopwatch').on('mousedown', function() {
+            presenter.$pagePanel.find('.stopwatch').addClass('clicked');
+        });
+        presenter.$pagePanel.find('.stopwatch').on('mouseup', function() {
+            presenter.$pagePanel.find('.stopwatch').removeClass('clicked');
+        });
+        createStopwatch();
+    }
+
+    var activeFunction;
+
+    function closeClickHandler(button) {
+        if(presenter.shouldSaveColor == 'pen' || presenter.shouldSaveColor == 'stand-area' || presenter.shouldSaveColor == 'hide-area'){
+            presenter.closePenColor = presenter.currentLineColor;
+            presenter.closePenThickness = presenter.currentLineWidth;
+
+            presenter.isCloseColor = true;
+        }else if(presenter.shouldSaveColor == 'marker'){
+            presenter.closePenColor = presenter.currentLineColor;
+            presenter.closePenThickness = presenter.currentMarkerThickness;
+
+            presenter.isCloseColor = true;
+        }
+        else{
+            presenter.isCloseColor = false;
+        }
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        presenter.$panel.find('.clicked').removeClass('clicked');
+        closePanel();
+        presenter.isPanelOpened = false;
+        if(activeButton != 'open'){
+            activeFunction = activeButton;
+        }
+    }
+
+    function openClickHandler(button){
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+        if (!presenter.isPanelOpened) {
+            openPanel(true);
+        }
+
+        if(activeFunction){
+            if(activeFunction != 'clock' && activeFunction != 'stopwatch' && activeFunction != 'note' && activeFunction != 'reset'){
+                if(!presenter.recklick){
+                    presenter.functionButton = presenter.$pagePanel.find('.'+activeFunction);
+                    buttonsLogic[activeFunction].onOpen(presenter.functionButton);
+                }
+                isRecklicked = false;
+            }
+        }
+
+        presenter.isPanelOpened = true;
+
+        if(presenter.isCloseColor){
+            changeColor(presenter.closePenColor, presenter.buttonColor);
+            changeThickness(presenter.closePenThickness, presenter.buttonThickness);
+        }else{
+            changeColor('#000', presenter.$bottomPanels.find('.color-black'));
+            changeThickness(1, presenter.$bottomPanels.find('.thickness-1'));
+        }
+    }
+
+    function panelView(button) {
+        var shouldClosePanels = shouldClosePanelsOnReset(button);
+
+        reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
+        if (!$(button).hasClass('open') && !$(button).hasClass('close')) {
+            if ($(button).hasClass('clicked')) {
+                $(button).removeClass('clicked');
+            } else {
+                presenter.$panel.find('.clicked').removeClass('clicked');
+                $(button).addClass('clicked');
+            }
+        }
+        if (isSupportCSSPointerEvents()) {
+            if (!$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser')){
+                presenter.$penMask.css('pointer-events', 'none');
+                presenter.$markerMask.css('pointer-events', 'none');
+            }else{
+                presenter.$penMask.css('pointer-events', 'auto');
+                presenter.$markerMask.css('pointer-events', 'auto');
+            }
+        }
+        changeCurrentFloatingImage(presenter.currentFloatingImageIndex);
+    }
+
+    function colorClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        if (areDrawingButtonsActive()) {
+            presenter.$panel.find('.button.clicked-lighter').removeClass('clicked-lighter');
+            $(button).toggleClass('clicked-lighter');
+        }
+    }
+
+    function thicknessClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        if (areDrawingButtonsActive()) {
+            presenter.$panel.find('.button.clicked-lighter').removeClass('clicked-lighter');
+            $(button).toggleClass('clicked-lighter');
+        }
+    }
+
+    function defaultClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        panelView(button);
+    }
+
+    function penUnclickHandler(button){
+        reset(true, false, 1, true, true);
+        if ($(button).hasClass('clicked')) {
+            $(button).removeClass('clicked');
+        } else {
+            presenter.$panel.find('.clicked').removeClass('clicked');
+            $(button).addClass('clicked');
+        }
+
+        presenter.$penMask.css('pointer-events', 'none');
+        presenter.$markerMask.css('pointer-events', 'none');
+        presenter.penClicked = false;
+    }
+
+    function markerUnclickHandler(button){
+        reset(true, false, 1, true, true);
+        if ($(button).hasClass('clicked')) {
+            $(button).removeClass('clicked');
+        } else {
+            presenter.$panel.find('.clicked').removeClass('clicked');
+            $(button).addClass('clicked');
+        }
+
+        presenter.$penMask.css('pointer-events', 'none');
+        presenter.$markerMask.css('pointer-events', 'none');
+        presenter.markerClicked = false;
+    }
+
+    var buttonsLogic = {
+        'pen' : {
+            'onOpen': penClickHandler,
+            'onReclicked': penUnclickHandler
+        },
+        'marker' : {
+            'onOpen': markerClickHandler,
+            'onReclicked': markerUnclickHandler
+        },
+        'default' : {
+            'onOpen': defaultClickHandler,
+            'onReclicked': defaultClickHandler
+        },
+        'color' : {
+            'onOpen': colorClickHandler,
+            'onReclicked': colorClickHandler
+        },
+        'thickness' : {
+            'onOpen': thicknessClickHandler,
+            'onReclicked': thicknessClickHandler
+        },
+        'zoom' : {
+            'onOpen': zoomClickHandler,
+            'onReclicked': zoomClickHandler
+        },
+        'eraser' : {
+            'onOpen': eraserClickHandler,
+            'onReclicked': eraserClickHandler
+        },
+        'hide-area' : {
+            'onOpen': hideAreaClickHandler,
+            'onReclicked': hideAreaClickHandler
+        },
+        'stand-area' : {
+            'onOpen': standAreaClickHandler,
+            'onClose': '',
+            'onReclicked': standAreaClickHandler
+        },
+        'reset' : {
+            'onOpen': resetClickHandler,
+            'onReclicked': resetClickHandler
+        },
+        'note' : {
+            'onOpen': noteClickHandler,
+            'onReclicked': noteClickHandler
+        },
+        'floating-image' : {
+            'onOpen': floatingImageClickHandler,
+            'onReclicked': floatingImageClickHandler
+        },
+        'clock' : {
+            'onOpen': clockClickHandler,
+            'onReclicked': clockClickHandler
+        },
+        'stopwatch' : {
+            'onOpen': stopwatchClickHandler,
+            'onReclicked': stopwatchClickHandler
+        },
+        'close' : {
+            'onOpen': closeClickHandler
+        },
+        'open' : {
+            'onOpen': openClickHandler
+        }
+    };
+
+    function clickHandlers (button) {
+        var buttonName = $(button).data("name"),
+            sameButton = presenter.$pagePanel.find('.clicked').data("name") == $(button).data("name");
+
+        if(activeButton != '' && buttonsLogic[activeButton].onClose){
+            buttonsLogic[activeButton].onClose(button);
+        }
+
+        if(activeButton == 'open' && presenter.buttonClicked && !presenter.recklick && sameButton){
+            activeButton = buttonName;
+        }
+
+        if(buttonName == activeButton){
+            if(!isRecklicked){
+                if(buttonsLogic[activeButton].onReclicked){
+                    buttonsLogic[activeButton].onReclicked(button);
+                }
+                isRecklicked = true;
+                if(!$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('reset')) presenter.recklick = true;
+            }else{
+                buttonsLogic[$(button).attr("data-name")].onOpen(button);
+                isRecklicked = false;
+                if(!$(button).hasClass('open') && !$(button).hasClass('close')&& !$(button).hasClass('reset')) presenter.recklick = false;
+            }
+        }else{
+            buttonsLogic[$(button).attr("data-name")].onOpen(button);
+            isRecklicked = false;
+            if(!$(button).hasClass('open') && !$(button).hasClass('close')&& !$(button).hasClass('reset')) presenter.recklick = false;
+        }
+
+        if(!$(button).hasClass('color') && !$(button).hasClass('thickness')){
+            activeButton = $(button).attr("data-name");
+        }
+    }
+
+    presenter.buttonClicked = false;
+
     function addEventHandlers() {
         var eventClickStart;
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
@@ -726,37 +1240,32 @@ function AddonIWB_Toolbar_create() {
             e.stopPropagation();
         });
 
-        presenter.$panel.find('.open').on(eventClickStart, function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            if (!presenter.isPanelOpened) {
-                openPanel(true);
+        presenter.$pagePanel.find('.button').on(eventClickStart, function(e) {
+            if($(this).hasClass('yes-button') || $(this).hasClass('no-button')){
+                return;
             }
 
-            presenter.isPanelOpened = true;
-        });
-
-        presenter.$panel.find('.close').on(eventClickStart, function(e) {
             e.stopPropagation();
             e.preventDefault();
-
-            closePanel();
-            presenter.isPanelOpened = false;
-        });
-
-        presenter.$pagePanel.find('.button').on(eventClickStart, function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            changeButtonState(this);
-
+            clickHandlers(this);
             if (isDependingOnDrawing(this) && areDrawingButtonsActive() || isFloatingImageButton(this)) {
                 openBottomPanel(this);
             }
-
             if ($(this).hasClass('reset')) {
                 $(this).removeClass('clicked');
+            }
+
+            if(!$(this).hasClass('open') && !$(this).hasClass('note') && !$(this).hasClass('stopwatch') && !$(this).hasClass('clock') && !$(this).hasClass('close')){
+                presenter.buttonClicked = true;
+            }
+            if($(this).hasClass('reset') || $(this).hasClass('default') || $(this).hasClass('note') || $(this).hasClass('stopwatch') || $(this).hasClass('clock')){
+                presenter.buttonClicked = false;
+            }
+
+            var btnName = $(this).data("name");
+
+            if(btnName != 'open' && btnName != 'close' && btnName != 'color' && btnName != 'thickness'){
+                presenter.shouldSaveColor = btnName;
             }
         });
 
@@ -775,244 +1284,6 @@ function AddonIWB_Toolbar_create() {
 
             changeCurrentFloatingImage(parseInt($(this).attr('index'), 10));
             setImagePosition();
-        });
-
-        presenter.$pagePanel.find('.pen').on(eventClickStart, function() {
-            presenter.$pagePanel.find('.tmp_canvas').hide();
-            presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
-            changeColor(presenter.data.penColor);
-            changeThickness(1);
-            toggleMasks();
-
-            presenter.ctx.globalCompositeOperation = 'source-over';
-            presenter.drawMode = presenter.DRAW_MODE.PEN;
-
-            drawingLogic();
-
-            toggleBottomPanels();
-        });
-
-        presenter.$pagePanel.find('.marker').on(eventClickStart, function() {
-            presenter.$pagePanel.find('.tmp_canvas').show();
-            presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
-            changeColor(presenter.data.markerColor);
-            changeThickness(presenter.data.markerThickness);
-            toggleMasks();
-
-            presenter.markerCtx.globalCompositeOperation = 'source-over';
-            presenter.drawMode = presenter.DRAW_MODE.MARKER;
-
-            markerDrawingLogic();
-
-            toggleBottomPanels();
-        });
-
-        presenter.$pagePanel.find('.eraser').on(eventClickStart, function(e) {
-            presenter.$pagePanel.find('.tmp_canvas').hide();
-            e.stopPropagation();
-            e.preventDefault();
-
-            if (presenter.ctx) {
-                presenter.ctx.globalCompositeOperation = 'destination-out';
-            }
-            if (presenter.markerCtx) {
-                presenter.markerCtx.globalCompositeOperation = 'destination-out';
-            }
-            changeColor('rgba(0, 0, 0, 1)');
-            changeThickness(presenter.data.eraserThickness);
-            presenter.drawMode = presenter.DRAW_MODE.ERASER;
-            drawingLogic();
-            toggleMasks();
-        });
-
-        presenter.$pagePanel.find('.reset').on(eventClickStart, function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            presenter.selectingCtx.clearRect(0, 0, presenter.$selectingMask.width(), presenter.$selectingMask.height());
-            presenter.ctx.clearRect(0, 0, presenter.$penMask.width(), presenter.$penMask.height());
-            presenter.markerCtx.clearRect(0, 0, presenter.$markerMask.width(), presenter.$markerMask.height());
-
-            presenter.areas = [];
-            presenter.drawMode = presenter.DRAW_MODE.NONE;
-
-            reset(true, false, false, false, false);
-        });
-
-        presenter.$pagePanel.find('.hide-area').on(eventClickStart, function(e) {
-            presenter.$pagePanel.find('.tmp_canvas').hide();
-            toggleMasks();
-            drawAreaLogic(true);
-
-            presenter.drawMode = presenter.DRAW_MODE.HIDE_AREA;
-            presenter.$defaultColorButton = presenter.$panel.find('.color-black');
-            changeColor('#000');
-        });
-
-        presenter.$pagePanel.find('.stand-area').on(eventClickStart, function(e) {
-            presenter.$pagePanel.find('.tmp_canvas').hide();
-            toggleMasks();
-            drawAreaLogic(false);
-
-            presenter.drawMode = presenter.DRAW_MODE.STAND_AREA;
-            presenter.$defaultColorButton = presenter.$panel.find('.color-black');
-            changeColor('#000');
-        });
-
-        presenter.$pagePanel.find('.zoom').on(eventClickStart, function(e) {
-            presenter.$pagePanel.find('.tmp_canvas').hide();
-            e.stopPropagation();
-            e.preventDefault();
-
-            presenter.isZoomActive = !presenter.isZoomActive;
-            presenter.$bottomPanels.hide();
-
-            if (!presenter.isZoomActive) {
-                changeCursor('default');
-            } else {
-                changeCursor('zoom-in');
-            }
-
-            var lastEvent = null;
-            presenter.modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note)');
-
-            presenter.$pagePanel.disableSelection();
-
-            if (presenter.isZoomActive) {
-                presenter.disableTextAudioEventHandlers();
-            } else {
-                presenter.restoreTextAudioEventHandlers();
-            }
-
-            if (presenter.areZoomEventHandlersAttached) {
-                // We cannot attach multiple times the same event handlers
-                return;
-            }
-
-            presenter.modules.on('click mousedown mouseup', function(e) {
-                if (!presenter.isZoomActive) return;
-
-                e.stopPropagation();
-                e.preventDefault();
-            });
-
-            function preventClickAction(event) {
-                if (!presenter.isZoomActive) return;
-
-                event.stopPropagation();
-                event.preventDefault();
-            }
-
-            presenter.modules.find('a').on('click', preventClickAction);
-
-            presenter.modules.on('mousedown', function(e) {
-                if (!presenter.isZoomActive) return;
-
-                e.stopPropagation();
-                e.preventDefault();
-                lastEvent = e;
-                presenter.isMouseDown= true;
-            });
-
-            presenter.modules.on('mouseup', function(e) {
-                if (!presenter.isZoomActive) return;
-
-                e.stopPropagation();
-                e.preventDefault();
-                presenter.isMouseDown = false;
-
-                if (lastEvent.type == 'mousedown' &&
-                    !$(e.currentTarget).hasClass('iwb-toolbar-panel') &&
-                    !$(e.currentTarget).hasClass('addon_IWB_Toolbar') &&
-                    !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
-                    !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
-                    !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch')) { // click
-
-                    zoomSelectedModule(e.currentTarget);
-                }
-                lastEvent = e;
-            });
-
-            presenter.modules.on('mousemove', function(e) {
-                if (!presenter.isZoomActive) return;
-
-                if (presenter.isMouseDown) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    var currentScrollX = $(window).scrollLeft(),
-                        currentScrollY = $(window).scrollTop(),
-                        differenceX = lastEvent.clientX - e.clientX,
-                        differenceY = lastEvent.clientY - e.clientY;
-
-                    $(window).scrollLeft(currentScrollX + differenceX);
-                    $(window).scrollTop(currentScrollY + differenceY);
-                }
-
-                lastEvent = e;
-            });
-
-            presenter.areZoomEventHandlersAttached = true;
-        });
-
-        presenter.$pagePanel.find('.clock').on(eventClickStart, function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            presenter.$pagePanel.find('.clock').on('mousedown', function() {
-                presenter.$pagePanel.find('.clock').addClass('clicked');
-            });
-            presenter.$pagePanel.find('.clock').on('mouseup', function() {
-                presenter.$pagePanel.find('.clock').removeClass('clicked');
-            });
-            createClock();
-        });
-
-        presenter.$pagePanel.find('.stopwatch').on(eventClickStart, function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            presenter.$pagePanel.find('.stopwatch').on('mousedown', function() {
-                presenter.$pagePanel.find('.stopwatch').addClass('clicked');
-            });
-            presenter.$pagePanel.find('.stopwatch').on('mouseup', function() {
-                presenter.$pagePanel.find('.stopwatch').removeClass('clicked');
-            });
-            createStopwatch();
-        });
-
-        presenter.$pagePanel.find('.note').on(eventClickStart, function(e){
-            e.preventDefault();
-            e.stopPropagation();
-            var note = createNote();
-
-            presenter.$pagePanel.find('.ic_page').append(note);
-            presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
-                e.stopPropagation();
-            });
-            presenter.$pagePanel.find('.note').on('mousedown', function() {
-                presenter.$pagePanel.find('.note').addClass('clicked');
-            });
-            presenter.$pagePanel.find('.note').on('mouseup', function() {
-                presenter.$pagePanel.find('.note').removeClass('clicked');
-            });
-        });
-
-
-        presenter.$pagePanel.find('.default').click(function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-        });
-
-        presenter.$pagePanel.find('.floating-image').on(eventClickStart, function() {
-            $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
-                var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
-                if (display == 'none') {
-                    presenter.$floatingImageMask.show();
-                } else {
-                    presenter.$floatingImageMask.hide();
-                    presenter.$pagePanel.find('.floating-image').removeClass('clicked');
-                    presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
-                }
-                setImagePosition();
-            });
         });
     }
 
@@ -1993,43 +2264,6 @@ function AddonIWB_Toolbar_create() {
 
     function isZoomButton(button) {
         return $(button).hasClass('zoom');
-    }
-
-    function changeButtonState(button) {
-        if (!isZoomButton(button)) {
-            presenter.isZoomActive = false;
-            presenter.restoreTextAudioEventHandlers();
-        }
-
-        if (isDependingOnDrawing(button)) {
-            if (areDrawingButtonsActive()) {
-                presenter.$panel.find('.button.clicked-lighter').removeClass('clicked-lighter');
-                $(button).toggleClass('clicked-lighter');
-            }
-        } else {
-            var shouldClosePanels = shouldClosePanelsOnReset(button);
-
-            reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
-            if (!$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('note') && !$(button).hasClass('clock') && !$(button).hasClass('stopwatch')) {
-                if ($(button).hasClass('clicked')) {
-                    $(button).removeClass('clicked');
-                } else {
-                    presenter.$panel.find('.clicked').removeClass('clicked');
-                    $(button).addClass('clicked');
-                }
-            }
-            if (isSupportCSSPointerEvents()) {
-                if (!$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser')){
-                    presenter.$penMask.css('pointer-events', 'none');
-                    presenter.$markerMask.css('pointer-events', 'none');
-                }else{
-                    presenter.$penMask.css('pointer-events', 'auto');
-                    presenter.$markerMask.css('pointer-events', 'auto');
-                }
-            }
-
-            changeCurrentFloatingImage(presenter.currentFloatingImageIndex);
-        }
     }
 
     function changeBottomButtonState(button) {
