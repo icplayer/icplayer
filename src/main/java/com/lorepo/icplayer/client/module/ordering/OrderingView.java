@@ -23,11 +23,10 @@ import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-
 public class OrderingView extends Composite implements IDisplay {
 
-	private OrderingModule module;
-	private IPlayerServices playerServices;
+	private final OrderingModule module;
+	private final IPlayerServices playerServices;
 	protected CellPanel innerCellPanel;
 	private Widget selectedWidget;
 	private IReorderListener listener;
@@ -38,19 +37,18 @@ public class OrderingView extends Composite implements IDisplay {
 	private boolean isMouseUp = false;
 	private boolean isDragging = false;
 
-	
 	public OrderingView(OrderingModule module, IPlayerServices services) {
 		this.module = module;
 		this.playerServices = services;
 		createUI(module);
 	}
-	
+
+	@Override
 	public String getInitialOrder() {
 		return initialOrder;
 	}
-	
+
 	public JavaScriptObject getAsJavaScript() {
-		
 		if (jsObject == null) {
 			jsObject = initJSObject(this, module.isVertical());
 		}
@@ -66,36 +64,36 @@ public class OrderingView extends Composite implements IDisplay {
 			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markEnd(I)(endIndex);
 		}
 		view.axis = isVertical ? "y" : "x";
+
 		return view;
 	}-*/;
-	
+
 	private void createUI(OrderingModule module) {
-		
 		createWidgetPanel();
-		
+
 		Integer itemWidth = module.getWidth() / module.getItemCount();
-		
+
 		for (int index = 0; index < module.getItemCount(); index++ ) {
 			ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
 			itemWidget.setWidthWithoutMargin(itemWidth);
 			addWidget(itemWidget);
 		}
-		
+
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
 		StyleUtils.applyInlineStyle(this, module);
-		
+
 		if (playerServices != null) {
 			randomizeViewItems();
 			saveScore();
 			setVisible(module.isVisible());
 		}
-		
+
 		getElement().setId(module.getId());
 		getAsJavaScript();
 		makeSortable(getElement(), jsObject);
 	}
-	
+
 	private native void makeSortable(Element e, JavaScriptObject jsObject)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
@@ -109,7 +107,7 @@ public class OrderingView extends Composite implements IDisplay {
 				jsObject.markStart(ui.item.index());
 				ui.helper.html(ui.item.html());
 				ui.placeholder.html(ui.helper.html());
-				
+
 				if (ui.item.is(":visible")) {
 					forceHide = true;
 					ui.item.style("display", "none", "important");
@@ -131,19 +129,19 @@ public class OrderingView extends Composite implements IDisplay {
 		});
 		$wnd.$(e).disableSelection();
 	}-*/;
-	
+
 	private void createWidgetPanel() {
 		innerCellPanel = module.isVertical() ? new VerticalPanel() : new HorizontalPanel();
 	}
 
 	private void addWidget(final ItemWidget widget) {
-		
+
 		innerCellPanel.add(widget);
 		if (playerServices != null) {
 			widget.setEventBus(playerServices.getEventBus());
 		}
 		widget.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
@@ -156,7 +154,7 @@ public class OrderingView extends Composite implements IDisplay {
 		});
 
 		widget.addTouchEndHandler(new TouchEndHandler() {
-			
+
 			@Override
 			public void onTouchEnd(TouchEndEvent event) {
 				if (isDragging) {
@@ -167,7 +165,7 @@ public class OrderingView extends Composite implements IDisplay {
 			}
 		});
 
-		
+
 		widget.addMouseUpHandler(new MouseUpHandler() {
 
 			@Override
@@ -178,12 +176,9 @@ public class OrderingView extends Composite implements IDisplay {
 				isMouseUp = true;
 				onWidgetClicked(widget);
 			}
-			
+
 		});
 
-		
-		
-		
 	}
 
 	private void onWidgetClicked(Widget widget) {
@@ -212,9 +207,9 @@ public class OrderingView extends Composite implements IDisplay {
 		int hiIndex;
 		Widget firstWidget;
 		Widget secondWidget;
-		
+
 		if (srcIndex != destIndex) {
-			
+
 			if (srcIndex < destIndex) {
 				loIndex = srcIndex;
 				hiIndex = destIndex;
@@ -222,7 +217,7 @@ public class OrderingView extends Composite implements IDisplay {
 				loIndex = destIndex;
 				hiIndex = srcIndex;
 			}
-			
+
 			firstWidget = innerCellPanel.getWidget(loIndex);
 			secondWidget = innerCellPanel.getWidget(hiIndex);
 			innerCellPanel.remove(firstWidget);
@@ -239,7 +234,7 @@ public class OrderingView extends Composite implements IDisplay {
 			}
 		}
 	}
-	
+
 	public void markStart(int startIndex) {
 		if (selectedWidget != null) {
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -258,7 +253,7 @@ public class OrderingView extends Composite implements IDisplay {
 		onValueChanged(sourceIndex, destIndex);
 		isDragging = false;
 	}
-	
+
 	private void moveWidget(int startIndex, int endIndex) {
 		if (startIndex != endIndex) {
 			Widget draggedWidget = innerCellPanel.getWidget(startIndex);
@@ -272,7 +267,7 @@ public class OrderingView extends Composite implements IDisplay {
 			}
 		}
 	}
-	
+
 	private void onValueChanged(int sourceIndex, int destIndex) {
 		if (listener != null) {
 			listener.onItemMoved(sourceIndex, destIndex);
@@ -280,37 +275,37 @@ public class OrderingView extends Composite implements IDisplay {
 	}
 
 	public void randomizeViewItems() {
-		
+
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
 		List<Integer> order = RandomUtils.singlePermutation(innerCellPanel.getWidgetCount());
-		
+
 		while (innerCellPanel.getWidgetCount() > 0) {
 			widgets.add(innerCellPanel.getWidget(0));
 			innerCellPanel.remove(0);
 		}
-		
+
 		for (int i = 0; i < order.size(); i++) {
 			Integer index = order.get(i);
 			innerCellPanel.add(widgets.get(index));
 		}
-		
+
 		initialOrder = getState();
 	}
-	
+
 	public void orderChildren(String[] indexes) {
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
 		while (innerCellPanel.getWidgetCount() > 0) {
 			widgets.add(innerCellPanel.getWidget(0));
 			innerCellPanel.remove(0);
 		}
-		
+
 		for (int i = 0; i < indexes.length; i++) {
-	
+
 			int index = Integer.parseInt(indexes[i]);
 			for (Widget widget : widgets) {
-				
+
 				if (widget instanceof ItemWidget) {
-					
+
 					ItemWidget itemWidget = (ItemWidget) widget;
 					if (itemWidget.getIndex() == index) {
 						innerCellPanel.add(itemWidget);
@@ -328,14 +323,15 @@ public class OrderingView extends Composite implements IDisplay {
 	public Widget getWidget(int index) {
 		return innerCellPanel.getWidget(index);
 	}
-	
+
+	@Override
 	public String getState() {
 		String state = "";
-		
+
 		for (int i = 0; i < getWidgetCount(); i++) {
-			
+
 			if (getWidget(i) instanceof ItemWidget) {
-				
+
 				ItemWidget itemWidget = (ItemWidget) getWidget(i);
 				if (i > 0) {
 					state += ",";
@@ -343,10 +339,11 @@ public class OrderingView extends Composite implements IDisplay {
 				state += Integer.toString( itemWidget.getIndex() );
 			}
 		}
-		
+
 		return state;
 	}
-	
+
+	@Override
 	public void setState(String state) {
 		if (!state.isEmpty()) {
 			String[] indexes = state.split(",");
@@ -354,42 +351,40 @@ public class OrderingView extends Composite implements IDisplay {
 			saveScore();
 		}
 	}
-	
+
 	// ------------------------------------------------------------------------
 	// IActivity
 	// ------------------------------------------------------------------------
+	@Override
 	public int getErrorCount() {
-
-		int errors = 0;
-
 		int index = 1;
+
 		for (int i = 0; i < getWidgetCount(); i++) {
-			
+
 			if (getWidget(i) instanceof ItemWidget) {
-				
+
 				ItemWidget itemWidget = (ItemWidget) getWidget(i);
 				if(!itemWidget.isCorrect(index)) {
-					errors = 1;
-					break;
+					return 1;
 				}
 				index++;
 			}
 		}
-		
-		return errors;
-	}
-	
-	public void setShowErrorsMode() {
 
+		return 0;
+	}
+
+	@Override
+	public void setShowErrorsMode() {
 		workMode = false;
-		
+
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
-				
+
 				if (getWidget(i) instanceof ItemWidget) {
-					
+
 					ItemWidget itemWidget = (ItemWidget) getWidget(i);
-	
+
 					if (itemWidget.isCorrect(i+1)) {
 						itemWidget.addStyleName("ic_ordering-item-correct");
 					} else {
@@ -397,64 +392,64 @@ public class OrderingView extends Composite implements IDisplay {
 					}
 				}
 			}
-		}		
+		}
 	}
 
+	@Override
 	public void setWorkMode() {
-
 		workMode = true;
-		
+
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
-				
+
 				if (getWidget(i) instanceof ItemWidget) {
 					ItemWidget itemWidget = (ItemWidget) getWidget(i);
 					itemWidget.removeStyleName("ic_ordering-item-correct");
 					itemWidget.removeStyleName("ic_ordering-item-wrong");
 				}
 			}
-		}		
+		}
 	}
-	
+
 	public void placeItemsByOrder(List<Integer> order) {
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
-		
+
 		while (innerCellPanel.getWidgetCount() > 0) {
 			widgets.add(innerCellPanel.getWidget(0));
 			innerCellPanel.remove(0);
 		}
-		
+
 		for (int i = 0; i < order.size(); i++) {
 			Integer index = order.get(i) + 1;
-			
+
 			for (int j = 0; j < widgets.size(); j ++) {
 				Widget widget = widgets.get(j);
 				ItemWidget iWidget = (ItemWidget) widget;
-				
+
 				if (index.equals(iWidget.getIndex())) {
 					innerCellPanel.add(widget);
 					break;
 				}
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public void setWorkStatus(boolean isWorkOn) {
 		workMode = isWorkOn;
 	}
-	
+
 	@Override
 	public void setCorrectAnswer() {
 		List<Integer> correctOrder = new ArrayList<Integer>();
 		for (int i=0; i<module.getItemCount(); i++) {
 			correctOrder.add(module.getItem(i).getIndex() - 1);
 		}
-		
+
 		placeItemsByOrder(correctOrder);
 	}
-	
+
 	@Override
 	public void setCorrectAnswersStyles() {
 		for (int i = 0; i < getWidgetCount(); i++) {
@@ -464,7 +459,8 @@ public class OrderingView extends Composite implements IDisplay {
 			}
 		}
 	}
-	
+
+	@Override
 	public void removeCorrectAnswersStyles() {
 		for (int i = 0; i < getWidgetCount(); i++) {
 			if (getWidget(i) instanceof ItemWidget) {
@@ -474,10 +470,10 @@ public class OrderingView extends Composite implements IDisplay {
 		}
 	}
 
+	@Override
 	public void reset() {
-
 		workMode = true;
-		
+
 		randomizeViewItems();
 		for (int i = 0; i < getWidgetCount(); i++) {
 			Widget widget = getWidget(i);
@@ -486,7 +482,7 @@ public class OrderingView extends Composite implements IDisplay {
 		}
 
 		removeCorrectAnswersStyles();
-		
+
 		saveScore();
 	}
 
@@ -497,7 +493,7 @@ public class OrderingView extends Composite implements IDisplay {
 	public int getScore() {
 		return getMaxScore() - getErrorCount();
 	}
-	
+
 	/**
 	 * Update module score
 	 * @param value
@@ -507,22 +503,24 @@ public class OrderingView extends Composite implements IDisplay {
 			IScoreService scoreService = playerServices.getScoreService();
 			scoreService.setScore(module.getId(), 0, module.getMaxScore());
 			scoreService.setScore(module.getId(), getScore(), module.getMaxScore());
-		}		
+		}
 	}
 
 	@Override
 	public void addReorderListener(IReorderListener listener) {
 		this.listener = listener;
 	}
-	
+
 	private void refreshMath() {
 		MathJax.refreshMathJax(getElement());
 	}
-	
+
+	@Override
 	public void hide() {
 		setVisible(false);
 	}
 
+	@Override
 	public void show() {
 		setVisible(true);
 		refreshMath();

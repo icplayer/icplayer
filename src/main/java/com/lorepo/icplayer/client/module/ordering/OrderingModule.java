@@ -15,17 +15,11 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-/**
- * Posiada elementy, które należy ułożyć w odpowiedniej kolejności
- * 
- * @author Krzysztof Langner
- *
- */
 public class OrderingModule extends BasicModuleModel {
 
 	private boolean isVertical = true;
-	private int maxScore = 1;
-	private ArrayList<OrderingItem>	items = new ArrayList<OrderingItem>();
+	private final int maxScore = 1;
+	private final ArrayList<OrderingItem> items = new ArrayList<OrderingItem>();
 	private IListProperty itemsProperty;
 	private String optionalOrder = "";
 	private boolean isActivity = true;
@@ -33,11 +27,11 @@ public class OrderingModule extends BasicModuleModel {
 
 	public OrderingModule() {
 		super(DictionaryWrapper.get("ordering_module"));
-		
+
 		addItem(new OrderingItem(1, "1", getBaseURL()));
 		addItem(new OrderingItem(2, "2", getBaseURL()));
 		addItem(new OrderingItem(3, "3", getBaseURL()));
-		
+
 		addPropertyIsVertical();
 		addPropertyItems();
 		addPropertyOptionalOrder();
@@ -46,10 +40,10 @@ public class OrderingModule extends BasicModuleModel {
 	}
 
 	private void addItem(OrderingItem item) {
-	
+
 		items.add(item);
 		item.addPropertyListener(new IPropertyListener() {
-			
+
 			@Override
 			public void onPropertyChanged(IProperty source) {
 				OrderingModule.this.sendPropertyChangedEvent(itemsProperty);
@@ -76,7 +70,7 @@ public class OrderingModule extends BasicModuleModel {
 	@Override
 	public void load(Element node, String baseUrl) {
 		super.load(node, baseUrl);
-		
+
 		items.clear();
 		// Read ordering node
 		NodeList nodeList = node.getElementsByTagName("ordering");
@@ -87,10 +81,10 @@ public class OrderingModule extends BasicModuleModel {
 			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
 			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
 		}
-		
+
 		// Read item nodes
 		NodeList optionNodes = node.getElementsByTagName("item");
-		
+
 		for(int i = 0; i < optionNodes.getLength(); i++) {
 
 			Element element = (Element)optionNodes.item(i);
@@ -98,26 +92,26 @@ public class OrderingModule extends BasicModuleModel {
 			if (text == null) {
 				text = StringUtils.unescapeXML(XMLUtils.getText(element));
 			}
-		
+
 			OrderingItem item = new OrderingItem(i + 1, text, getBaseURL());
 			addItem(item);
 		}
-		
+
 		if (optionalOrder.length() > 0) {
 			setOptionalOrder();
 		}
 	}
-	
+
 	private void setOptionalOrder() {
 
 		for (OrderingItem item : items) {
 			item.clearAlternativeIndexes();
 		}
-		
+
 		try {
 			String[] orders = optionalOrder.split(";");
 			for (int i = 0; i < orders.length; i++) {
-	
+
 				String[] alternativeIndexes = orders[i].split(",");
 				for (int j = 0; j < items.size() && j < alternativeIndexes.length; j++) {
 					int index = Integer.parseInt(alternativeIndexes[j])-1;
@@ -141,16 +135,16 @@ public class OrderingModule extends BasicModuleModel {
 	 */
 	@Override
 	public String toXML() {
-		
+
 		String xml = "<orderingModule " + getBaseXML() + ">" + getLayoutXML();
-		
-		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" + 
+
+		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" +
 				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + Boolean.toString(allElementsHasSameWidth) + "' />";
-		
+
 		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
 		}
-		
+
 		return xml + "</orderingModule>";
 	}
 
@@ -161,22 +155,22 @@ public class OrderingModule extends BasicModuleModel {
 	private void addPropertyIsVertical() {
 
 		IProperty property = new IBooleanProperty() {
-				
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
 				if (value!= isVertical) {
 					isVertical = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isVertical ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("ordering_is_vertical");
@@ -188,7 +182,7 @@ public class OrderingModule extends BasicModuleModel {
 			}
 
 		};
-		
+
 		addProperty(property);
 	}
 
@@ -196,15 +190,15 @@ public class OrderingModule extends BasicModuleModel {
 	private void addPropertyItems() {
 
 		itemsProperty = new IListProperty() {
-				
+
 			@Override
 			public void setValue(String newValue) {}
-			
+
 			@Override
 			public String getValue() {
 				return Integer.toString(items.size());
 			}
-			
+
 			@Override
 			public String getName() {
 				return "Item";
@@ -249,13 +243,13 @@ public class OrderingModule extends BasicModuleModel {
 				sendPropertyChangedEvent(this);
 			}
 		};
-		
+
 		addProperty(itemsProperty);
 	}
 
 
 	private void addItems(int count) {
-		
+
 		if (count > 0 && count < 50) {
 			for (int i = 0; i < count; i++) {
 				int index = items.size()+1;
@@ -264,7 +258,7 @@ public class OrderingModule extends BasicModuleModel {
 			}
 		}
 	}
-	
+
 	private void removeItem(int index) {
 		if (items.size() > 1) {
 			items.remove(index);
@@ -284,23 +278,23 @@ public class OrderingModule extends BasicModuleModel {
 			items.add(index + 1, item);
 		}
 	}
-	
+
 	private void addPropertyOptionalOrder() {
 
 		IProperty property = new IStringListProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				optionalOrder = newValue.replace("\n", ";");
 				setOptionalOrder();
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return optionalOrder.replace(";", "\n");
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("optional_order");
@@ -311,34 +305,33 @@ public class OrderingModule extends BasicModuleModel {
 				return DictionaryWrapper.get("optional_order");
 			}
 		};
-		
+
 		addProperty(property);
 	}
-
 
 	public boolean isActivity() {
 		return isActivity;
 	}
 
 	private void addPropertyIsActivity() {
-		
+
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
 				if (value != isActivity) {
 					isActivity = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isActivity ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("is_activity");
@@ -350,46 +343,45 @@ public class OrderingModule extends BasicModuleModel {
 			}
 
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
-	
+
 	public boolean doAllElementsHasSameWidth() {
 		return allElementsHasSameWidth;
 	}
-	
+
 	private void addPropertyAllElementHasSameWidth() {
 		IProperty property = new IBooleanProperty() {
-		
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
 				if(value!= allElementsHasSameWidth){
 					allElementsHasSameWidth = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return allElementsHasSameWidth ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("All_elements_has_same_width");
 			}
-			
+
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("All_elements_has_same_width");
 			}
 
-
 		};
-	
-		addProperty(property);	
+
+		addProperty(property);
 	}
 
 }

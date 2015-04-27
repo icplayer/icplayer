@@ -6,8 +6,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
 import com.lorepo.icplayer.client.module.text.LinkWidget;
@@ -22,12 +22,12 @@ abstract class ComputedStyle { // safari fix
 
 public class ItemWidget extends HTML {
 
-	private OrderingItem item;
-	private ParserResult parserResult;
+	private final OrderingItem item;
+	private final ParserResult parserResult;
 	private EventBus eventBus;
 	private Integer widthWithoutMargin; // safari fix
-	private OrderingModule container; // safari fix
-	
+	private final OrderingModule container; // safari fix
+
 	public ItemWidget(OrderingItem item, OrderingModule container) {
 		this.container = container;
 		TextParser parser = new TextParser();
@@ -36,11 +36,11 @@ public class ItemWidget extends HTML {
 		this.item = item;
 		setStyleName("ic_ordering-item");
 	}
-	
+
 	public void setWidthWithoutMargin(Integer value) {
 		widthWithoutMargin = value;
 	}
-	
+
 	public int getIndex() {
 		return item.getIndex();
 	}
@@ -48,7 +48,8 @@ public class ItemWidget extends HTML {
 	public boolean isCorrect(int position) {
 		return item.isCorrect(position);
 	}
-	
+
+	@Override
 	protected void onAttach() {
 		super.onAttach();
 		connectLinks(parserResult.linkInfos.iterator());
@@ -60,16 +61,16 @@ public class ItemWidget extends HTML {
 			addStyleName("full-width");
 		}
 	}
-	
+
 	public void connectLinks(Iterator<LinkInfo> it) {
-		
+
 		if (eventBus != null) {
 			while (it.hasNext()) {
 				final LinkInfo info = it.next();
 				if (DOM.getElementById(info.getId()) != null) {
 					LinkWidget widget = new LinkWidget(info);
 					widget.addClickHandler(new ClickHandler() {
-						
+
 						@Override
 						public void onClick(ClickEvent event) {
 							event.preventDefault();
@@ -80,7 +81,7 @@ public class ItemWidget extends HTML {
 					});
 				}
 			}
-		}		
+		}
 	}
 
 	public void setEventBus(EventBus eventBus) {
