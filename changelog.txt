@@ -1,3 +1,4 @@
+2015-04-29 Added saving color and thickness after closing the tool in IWB Toolbar module
 2015-04-29 Added 'correct' and 'wrong' classes in Check mode in Connection module
 2015-04-29 Added LearnPen Data module
 2015-04-27 Added reset command to Ordering module

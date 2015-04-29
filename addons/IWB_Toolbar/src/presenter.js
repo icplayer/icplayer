@@ -54,6 +54,8 @@ function AddonIWB_Toolbar_create() {
 
     var activeButton = '';
     var isRecklicked = false;
+    var activeFunction;
+    presenter.wasSetState = true;
 
     presenter.DEFAULT_FLOATING_IMAGE = {
         0: 'it_ruler.png',
@@ -711,6 +713,11 @@ function AddonIWB_Toolbar_create() {
         presenter.textAudioEvents = [];
     };
 
+    presenter.penLineColor = presenter.data.penColor;
+    presenter.penLineWidth = 1;
+
+    presenter.markerLineColor = presenter.data.markerColor;
+    presenter.markerLineWidth = presenter.data.markerThickness;
 
     function penClickHandler (button) {
         presenter.isZoomActive = false;
@@ -722,8 +729,16 @@ function AddonIWB_Toolbar_create() {
 
         presenter.$pagePanel.find('.tmp_canvas').hide();
         presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
-        changeColor(presenter.data.penColor);
-        changeThickness(1);
+
+        changeColor(presenter.penLineColor);
+        changeThickness(presenter.penLineWidth);
+        if(presenter.penColorBackground){
+            presenter.$panel.find('.button.color').css('background-image', presenter.penColorBackground);
+        }
+        if(presenter.penThicknessBackground){
+            presenter.$panel.find('.button.thickness').css('background-image', presenter.penThicknessBackground);
+        }
+
         toggleMasks();
 
         presenter.ctx.globalCompositeOperation = 'source-over';
@@ -744,8 +759,14 @@ function AddonIWB_Toolbar_create() {
 
         presenter.$pagePanel.find('.tmp_canvas').show();
         presenter.$defaultColorButton = presenter.$panel.find('.color-yellow');
-        changeColor(presenter.data.markerColor);
-        changeThickness(presenter.data.markerThickness);
+        changeColor(presenter.markerLineColor);
+        changeThickness(presenter.markerLineWidth);
+        if(presenter.markerColorBackground){
+            presenter.$panel.find('.button.color').css('background-image', presenter.markerColorBackground);
+        }
+        if(presenter.markerThicknessBackground){
+            presenter.$panel.find('.button.thickness').css('background-image', presenter.markerThicknessBackground);
+        }
         toggleMasks();
 
         presenter.markerCtx.globalCompositeOperation = 'source-over';
@@ -755,6 +776,13 @@ function AddonIWB_Toolbar_create() {
 
         toggleBottomPanels();
         presenter.markerClicked = true;
+    }
+
+    function markerCloseHandler () {
+        presenter.markerLineColor = presenter.currentLineColor;
+        presenter.markerLineWidth = presenter.currentLineWidth;
+        presenter.markerColorBackground = presenter.$panel.find('.button.color').css('background-image');
+        presenter.markerThicknessBackground = presenter.$panel.find('.button.thickness').css('background-image');
     }
 
     function zoomClickHandler(button){
@@ -979,8 +1007,6 @@ function AddonIWB_Toolbar_create() {
         createStopwatch();
     }
 
-    var activeFunction;
-
     function closeClickHandler(button) {
         if(presenter.shouldSaveColor == 'pen' || presenter.shouldSaveColor == 'stand-area' || presenter.shouldSaveColor == 'hide-area'){
             presenter.closePenColor = presenter.currentLineColor;
@@ -1029,12 +1055,20 @@ function AddonIWB_Toolbar_create() {
 
         presenter.isPanelOpened = true;
 
-        if(presenter.isCloseColor){
-            changeColor(presenter.closePenColor, presenter.buttonColor);
-            changeThickness(presenter.closePenThickness, presenter.buttonThickness);
+        if(presenter.isSavedState){
+            if(presenter.isCloseColor){
+                changeColor(presenter.closePenColor, presenter.buttonColor);
+                changeThickness(presenter.closePenThickness, presenter.buttonThickness);
+            }
+            presenter.isSavedState = false;
         }else{
-            changeColor('#000', presenter.$bottomPanels.find('.color-black'));
-            changeThickness(1, presenter.$bottomPanels.find('.thickness-1'));
+            if(presenter.isCloseColor){
+                changeColor(presenter.closePenColor, presenter.buttonColor);
+                changeThickness(presenter.closePenThickness, presenter.buttonThickness);
+            }else{
+                changeColor('#000', presenter.$bottomPanels.find('.color-black'));
+                changeThickness(1, presenter.$bottomPanels.find('.thickness-1'));
+            }
         }
     }
 
@@ -1100,6 +1134,12 @@ function AddonIWB_Toolbar_create() {
 
         presenter.$penMask.css('pointer-events', 'none');
         presenter.$markerMask.css('pointer-events', 'none');
+
+        presenter.penLineColor = presenter.currentLineColor;
+        presenter.penLineWidth = presenter.currentLineWidth;
+        presenter.colorBackground = presenter.$panel.find('.button.color').css('background-image');
+        presenter.penThicknessBackground = presenter.$panel.find('.button.thickness').css('background-image');
+
         presenter.penClicked = false;
     }
 
@@ -1114,16 +1154,30 @@ function AddonIWB_Toolbar_create() {
 
         presenter.$penMask.css('pointer-events', 'none');
         presenter.$markerMask.css('pointer-events', 'none');
+
+        presenter.markerLineColor = presenter.currentLineColor;
+        presenter.markerLineWidth = presenter.currentLineWidth;
+        presenter.markerColorBackground = presenter.$panel.find('.button.color').css('background-image');
+        presenter.markerThicknessBackground = presenter.$panel.find('.button.thickness').css('background-image');
         presenter.markerClicked = false;
+    }
+
+    function penCloseHandler () {
+        presenter.penLineColor = presenter.currentLineColor;
+        presenter.penLineWidth = presenter.currentLineWidth;
+        presenter.penColorBackground = presenter.$panel.find('.button.color').css('background-image');
+        presenter.penThicknessBackground = presenter.$panel.find('.button.thickness').css('background-image');
     }
 
     var buttonsLogic = {
         'pen' : {
             'onOpen': penClickHandler,
+            'onClose': penCloseHandler,
             'onReclicked': penUnclickHandler
         },
         'marker' : {
             'onOpen': markerClickHandler,
+            'onClose': markerCloseHandler,
             'onReclicked': markerUnclickHandler
         },
         'default' : {
@@ -1247,6 +1301,9 @@ function AddonIWB_Toolbar_create() {
 
             e.stopPropagation();
             e.preventDefault();
+            if(presenter.isSavedState){
+                presenter.buttonClicked = true;
+            }
             clickHandlers(this);
             if (isDependingOnDrawing(this) && areDrawingButtonsActive() || isFloatingImageButton(this)) {
                 openBottomPanel(this);
@@ -2399,6 +2456,33 @@ function AddonIWB_Toolbar_create() {
     presenter.run = function(view, model) {
         runLogic(view, model, false);
         zoom.init();
+        if(presenter.isKeepStateAndPosition){
+            if(window.savedPanel.tools){
+                activeFunction = window.savedPanel.tools.activeFunction;
+                presenter.closePenColor = window.savedPanel.tools.stateColor;
+                presenter.closePenThickness = window.savedPanel.tools.stateThickness;
+                presenter.buttonColor = presenter.$bottomPanels.find('[color*='+window.savedPanel.tools.buttonColor+']')[0];
+                presenter.buttonThickness = presenter.$bottomPanels.find('[thickness*='+window.savedPanel.tools.buttonThickness+']')[0];
+                presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
+                presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
+                    if(activeFunction){
+                        if(activeFunction != 'clock' && activeFunction != 'stopwatch' && activeFunction != 'note' && activeFunction != 'reset' && activeFunction != 'open'){
+                            if(!presenter.recklick){
+                                presenter.functionButton = presenter.$pagePanel.find('.'+activeFunction);
+                                if(window.savedPanel.isOpen){
+                                    buttonsLogic[activeFunction].onOpen(presenter.functionButton);
+                                    presenter.functionButton.addClass('clicked');
+                                }
+                            }
+                            isRecklicked = false;
+                        }
+                    }
+                if(presenter.isCloseColor){
+                    changeColor(presenter.closePenColor, presenter.buttonColor);
+                    changeThickness(presenter.closePenThickness, presenter.buttonThickness);
+                }
+            }
+        }
     };
 
     presenter.setShowErrorsMode = function() {};
@@ -2576,7 +2660,60 @@ function AddonIWB_Toolbar_create() {
                 'pen' : presenter.canvas ? presenter.canvas[0].toDataURL('image/png') : null,
                 'marker' : presenter.markerCanvas ? presenter.markerCanvas[0].toDataURL('image/png') : null
             };
+
         clearCanvases();
+
+        var stateColor;
+        var stateThickness;
+        if(openedPanel){
+            if(presenter.shouldSaveColor == 'pen' || presenter.shouldSaveColor == 'stand-area' || presenter.shouldSaveColor == 'hide-area'){
+                presenter.closePenColor = presenter.currentLineColor;
+                presenter.closePenThickness = presenter.currentLineWidth;
+
+                presenter.isCloseColor = true;
+            }else if(presenter.shouldSaveColor == 'marker'){
+                presenter.closePenColor = presenter.currentLineColor;
+                presenter.closePenThickness = presenter.currentMarkerThickness;
+
+                presenter.isCloseColor = true;
+            }
+            else{
+                presenter.isCloseColor = false;
+            }
+
+            if(activeButton != 'open'){
+                activeFunction = activeButton;
+            }
+        }
+
+        if(presenter.shouldSaveColor == 'pen' || presenter.shouldSaveColor == 'stand-area' || presenter.shouldSaveColor == 'hide-area'){
+            stateColor = presenter.closePenColor;
+            stateThickness = presenter.closePenThickness;
+        }else if(presenter.shouldSaveColor == 'marker'){
+            stateColor = presenter.closePenColor;
+            stateThickness = presenter.closePenThickness;
+        }else{
+            stateColor = '';
+            stateThickness = '';
+        }
+
+        if(presenter.isKeepStateAndPosition){
+            if(window.savedPanel.tools){
+                if(!activeFunction || activeFunction == 'open' || activeFunction == 'close'){
+                    activeFunction = window.savedPanel.tools.activeFunction;
+                }
+            }
+        }
+
+        window.savedPanel.tools = {
+            'activeFunction': activeFunction,
+            'stateColor': stateColor,
+            'stateThickness': stateThickness,
+            'isCloseColor': presenter.isCloseColor,
+            'buttonColor': $(presenter.buttonColor).attr("color"),
+            'buttonThickness': $(presenter.buttonThickness).attr("thickness"),
+            'shouldSaveColor': presenter.shouldSaveColor
+        };
 
         return JSON.stringify({
             'areas' : presenter.areas,
@@ -2591,7 +2728,14 @@ function AddonIWB_Toolbar_create() {
             'startClicked' : presenter.startButtonClicked,
             'isVisible' : presenter.isVisible,
             'position' : position,
-            'openedPanel' : openedPanel
+            'openedPanel' : openedPanel,
+            'activeFunction': activeFunction,
+            'stateColor': stateColor,
+            'stateThickness': stateThickness,
+            'isCloseColor': presenter.isCloseColor,
+            'buttonColor': $(presenter.buttonColor).attr("color"),
+            'buttonThickness': $(presenter.buttonThickness).attr("thickness"),
+            'shouldSaveColor': presenter.shouldSaveColor
         });
     };
 
@@ -2625,10 +2769,38 @@ function AddonIWB_Toolbar_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForSavingTools = function (parsedState){
+        if(parsedState.activeFunction == undefined){
+            parsedState.activeFunction = '';
+        }
+        if(parsedState.buttonColor == undefined){
+            parsedState.buttonColor = '';
+        }
+        if(parsedState.buttonThickness == undefined){
+            parsedState.buttonThickness = '';
+        }
+        if(parsedState.isCloseColor == undefined){
+            parsedState.isCloseColor = false;
+        }
+        if(parsedState.shouldSaveColor == undefined){
+            parsedState.shouldSaveColor = '';
+        }
+        if(parsedState.stateColor == undefined){
+            parsedState.stateColor = '#000';
+        }
+        if(parsedState.stateThickness == undefined){
+            parsedState.stateThickness = 1;
+        }
+
+        return parsedState;
+    };
+
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForStopwatchesAndClocks(parsedState);
 
         upgradedState = presenter.upgradeStateForVisibility(upgradedState);
+
+        upgradedState = presenter.upgradeStateForSavingTools(upgradedState);
 
         return  upgradedState;
     };
@@ -2693,12 +2865,71 @@ function AddonIWB_Toolbar_create() {
         if (isSupportCSSPointerEvents()) {
             presenter.$penMask.show();
             presenter.$markerMask.show();
-            presenter.$penMask.css('pointer-events', 'none');
-            presenter.$markerMask.css('pointer-events', 'none');
+            if(presenter.isKeepStateAndPosition){
+                if(window.savedPanel.tools.activeFunction == 'pen' || window.savedPanel.tools.activeFunction == 'marker'){
+                    if(window.savedPanel.isOpen){
+                        presenter.$penMask.css('pointer-events', 'auto');
+                        presenter.$markerMask.css('pointer-events', 'auto');
+                    }else{
+                        presenter.$penMask.css('pointer-events', 'none');
+                        presenter.$markerMask.css('pointer-events', 'none');
+                    }
+                }else{
+                    presenter.$penMask.css('pointer-events', 'none');
+                    presenter.$markerMask.css('pointer-events', 'none');
+                }
+            }else{
+                presenter.$penMask.css('pointer-events', 'none');
+                presenter.$markerMask.css('pointer-events', 'none');
+            }
+        }
+
+        if(presenter.isKeepStateAndPosition){
+            activeFunction = window.savedPanel.tools.activeFunction;
+            presenter.closePenColor = window.savedPanel.tools.stateColor;
+            presenter.closePenThickness = window.savedPanel.tools.stateThickness;
+            presenter.buttonColor = presenter.$bottomPanels.find('[color*='+window.savedPanel.tools.buttonColor+']')[0];
+            presenter.buttonThickness = presenter.$bottomPanels.find('[thickness*='+window.savedPanel.tools.buttonThickness+']')[0];
+            presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
+            presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
+        }else{
+            activeFunction = parsedState.activeFunction;
+            presenter.closePenColor = parsedState.stateColor;
+            presenter.closePenThickness = parsedState.stateThickness;
+            presenter.buttonColor = presenter.$bottomPanels.find('[color*='+parsedState.buttonColor+']')[0];
+            presenter.buttonThickness = presenter.$bottomPanels.find('[thickness*='+parsedState.buttonThickness+']')[0];
+            presenter.isCloseColor = parsedState.isCloseColor;
+            presenter.shouldSaveColor = parsedState.shouldSaveColor;
+        }
+        if(activeFunction){
+            activeButton = activeFunction;
+        }
+
+        presenter.isSavedState = true;
+
+        if(!presenter.isKeepStateAndPosition){
+        if(parsedState.openedPanel){
+            if(activeFunction){
+                if(activeFunction != 'clock' && activeFunction != 'stopwatch' && activeFunction != 'note' && activeFunction != 'reset' && activeFunction != 'open'){
+                    if(!presenter.recklick){
+                        presenter.functionButton = presenter.$pagePanel.find('.'+activeFunction);
+                        buttonsLogic[activeFunction].onOpen(presenter.functionButton);
+                    }
+                    isRecklicked = false;
+                }
+            }
+        }
+
+            if(presenter.isCloseColor){
+                changeColor(presenter.closePenColor, presenter.buttonColor);
+                changeThickness(presenter.closePenThickness, presenter.buttonThickness);
+            }
         }
 
         setOverflowWorkAround(true);
         setOverflowWorkAround(false);
+
+        presenter.wasSetState = true;
     };
 
     function setDrawingState(image, ctx, data) {

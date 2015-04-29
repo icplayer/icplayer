@@ -8,14 +8,17 @@ TestCase("[IWB Toolbar] State", {
     'test upgrade state': function () {
         var stopwatchesAndClocksUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForStopwatchesAndClocks');
         var visibilityUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForVisibility');
+        var savingToolsUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForSavingTools');
 
         this.presenter.upgradeState({});
 
         assertTrue(stopwatchesAndClocksUpgradeStub.called);
         assertTrue(visibilityUpgradeStub.called);
+        assertTrue(savingToolsUpgradeStub.called);
 
         this.presenter.upgradeStateForStopwatchesAndClocks.restore();
         this.presenter.upgradeStateForVisibility.restore();
+        this.presenter.upgradeStateForSavingTools.restore();
     },
 
     'test upgrade state when there are no stopwatches and clocks related fields': function () {
@@ -151,5 +154,27 @@ TestCase("[IWB Toolbar] State", {
         };
 
         assertTrue(this.presenter.shouldRestoreStateAndPosition(model, state));
+    },
+
+    'test state saving tool': function () {
+        var state = {
+            'activeFunction': 'pen',
+            'stateColor': undefined,
+            'stateThickness': 1,
+            'isCloseColor': true,
+            'buttonColor': undefined,
+            'buttonThickness': undefined,
+            'shouldSaveColor': 'pen'
+        };
+
+        var upgradedState = this.presenter.upgradeStateForSavingTools(state);
+
+        assertEquals('pen', upgradedState.activeFunction);
+        assertEquals('#000', upgradedState.stateColor);
+        assertEquals(1, upgradedState.stateThickness);
+        assertEquals(true, upgradedState.isCloseColor);
+        assertEquals('', upgradedState.buttonColor);
+        assertEquals('', upgradedState.buttonThickness);
+        assertEquals('pen', upgradedState.shouldSaveColor);
     }
 });
