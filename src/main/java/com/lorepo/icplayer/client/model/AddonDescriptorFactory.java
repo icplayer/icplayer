@@ -124,7 +124,7 @@ public class AddonDescriptorFactory {
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");
-		//addDescriptor("LearnPen_Data", "learn_pen_menu");
+		addDescriptor("LearnPen_Data", "learn_pen_menu");
 		addDescriptor("LearnPen_Report", "learn_pen_menu");
 
 	}

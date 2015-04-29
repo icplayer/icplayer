@@ -1,20 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Smart_Pen_Data'>
+<addon id="LearnPen_Data" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name='Is Disable' type='boolean' />
-        <property name='Chart type' type='{Gauge, Horizontal progress bar, Bars, Horizontal Bars, Line, Radar, Rose}' />
-        <property name='1st label' type='string' />
-        <property name='2nd label' type='string' />
-        <property name='3rd label' type='string' />
-        <property name='4th label' type='string' />
-        <property name='Background color' type='string' />
-        <property name='Text color' type='string' />
-        <property name='1st color' type='string' />
-        <property name='2nd color' type='string' />
-        <property name='3rd color' type='string' />
-        <property name='4th color' type='string' />
-        <property name='Refresh time' type='string' />
-        <property name='Mode' type='{All, Sum from squeezes, Sum from squeezes + pressure, Max from squeezes, Max from squeezes + pressure, Pressure, Squeeze A, Squeeze B, Squeeze C}' />
+        <property name="isDisable" nameLabel="LearnPen_Data_property_is_disable" type="boolean" />
+        <property name="stepsAndColors" nameLabel="LearnPen_Data_property_colors_and_steps" type="text" />
+        <property name="refreshTime" nameLabel="LearnPen_Data_property_refresh_time" type="string" />
     </model>
 </addon>

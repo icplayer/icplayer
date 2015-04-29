@@ -1,4 +1,32 @@
-/* https://code.google.com/p/android/issues/detail?id=35474 */
-.addon_Smart_Pen_Data {
-    overflow: hidden;
+.row {
+    height: 25%;
+    width: 100%;
+}
+
+.sensor-a, .sensor-b, .sensor-c {
+    margin-bottom: 5%;
+    height: 15%;
+}
+
+.sensor-p {
+    height: 20%;
+}
+
+.box {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+    float: left;
+
+    border: 1px solid white;
+
+    width: 8.3%;
+    height: 100%;
+
+    opacity: 0.5;
+}
+
+.on-mode {
+    opacity: 1;
 }
