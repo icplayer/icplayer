@@ -640,7 +640,8 @@ function AddonPuzzle_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'isAllOK': presenter.isAllOK,
-            'getLoadedPromise': presenter.getLoadedPromise
+            'getLoadedPromise': presenter.getLoadedPromise,
+            'reset': presenter.reset
         };
 
         return Commands.dispatch(commands, name, params, presenter);
