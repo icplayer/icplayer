@@ -1,3 +1,4 @@
+2015-04-30 Added drag&drop feature to Connection module
 2015-04-30 Added Reset command to Puzzle module
 2015-04-29 Added saving color and thickness after closing the tool in IWB Toolbar module
 2015-04-29 Added 'correct' and 'wrong' classes in Check mode in Connection module

@@ -38,6 +38,7 @@ function AddonConnection_create() {
         RIGHT: 1
     };
 
+
     presenter.upgradeModel = function (model) {
         return presenter.upgradeFrom_01(model);
     };
@@ -230,7 +231,6 @@ function AddonConnection_create() {
         addonID = model.ID;
 
         presenter.initialize(presenter.view, presenter.model, false);
-        presenter.registerListeners(presenter.view);
 
         presenter.parseDefinitionLinks();
 
@@ -306,6 +306,7 @@ function AddonConnection_create() {
         } else {
             presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
+                presenter.registerListeners(presenter.view);
             });
         }
 
@@ -465,6 +466,7 @@ function AddonConnection_create() {
         });
 
         var element = $(view).find('.connectionItem');
+        var draggedElementColumn;
 
         element.on('touchstart', function (e) {
             e.preventDefault();
@@ -472,6 +474,94 @@ function AddonConnection_create() {
             presenter.lastEvent = e;
         });
 
+        var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+        if (["4.1.1", "4.2.2", "4.4.2"].indexOf(android_ver) === -1 || window.navigator.userAgent.indexOf('Chrome') > 0) {
+            element.each(function(){
+                var e = $(this);
+                e.draggable({
+                    revert: "invalid",
+                    opacity: 0.7,
+                    helper: "clone",
+                    cursorAt: {
+                        left: Math.round(e.find('.inner').width()/2),
+                        top: Math.round(e.find('.inner').height()/2)
+                    },
+                    start: function (event, ui) {
+                        if (!isSelectionPossible) {
+                            event.stopPropagation();
+                            event.preventDefault();
+                            return;
+                        }
+                        $(element).removeClass('selected');
+                        selectedItem = null;
+                        ui.helper.zIndex(100);
+                        clickLogic(this);
+                        ui.helper.find('.icon').remove();
+                        ui.helper.width($(this).find('.inner').width());
+                        ui.helper.height($(this).find('.inner').height());
+                        if ($(this).parents('.connectionLeftColumn').length) {
+                            draggedElementColumn = 'left';
+                        } else {
+                            draggedElementColumn = 'right';
+                        }
+                    },
+                    stop: function (event, ui) {
+                        ui.helper.zIndex(0);
+                        ui.helper.remove();
+                        redraw();
+                    }
+                });
+
+                e.droppable({
+                    drop: function (event, ui) {
+                        $(this).removeClass('selected');
+                        clickLogic(this);
+                        ui.draggable.removeClass('selected');
+                        if (presenter.lastEvent) {
+                            presenter.lastEvent.type = "touchend";
+                        }
+                    },
+                    over: function (event, ui) {
+                        var elementColumn;
+                        if ($(this).parents('.connectionLeftColumn').length) {
+                            elementColumn = 'left';
+                        } else {
+                            elementColumn = 'right';
+                        }
+                        if (elementColumn != draggedElementColumn) {
+                            $(this).addClass('selected');
+                        }
+                    },
+                    out: function (event, ui) {
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
+        } else {
+            element.on('mouseleave', function (e) {
+                e.stopPropagation();
+            });
+
+            element.on('mouseenter', function (e) {
+                e.stopPropagation();
+            });
+
+            element.on('mouseup', function (e) {
+                e.stopPropagation();
+            });
+
+            element.on('mousedown', function (e) {
+                e.stopPropagation();
+            });
+
+            element.on('mouseover', function (e) {
+                e.stopPropagation();
+            });
+
+            element.on('mouseout', function (e) {
+                e.stopPropagation();
+            });
+        }
         element.on('touchend', function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -480,30 +570,6 @@ function AddonConnection_create() {
                 clickLogic(this);
                 presenter.isClicked = true;
             }
-        });
-
-        element.on('mouseleave', function (e) {
-            e.stopPropagation();
-        });
-
-        element.on('mouseenter', function (e) {
-            e.stopPropagation();
-        });
-
-        element.on('mouseup', function (e) {
-            e.stopPropagation();
-        });
-
-        element.on('mousedown', function (e) {
-            e.stopPropagation();
-        });
-
-        element.on('mouseover', function (e) {
-            e.stopPropagation();
-        });
-
-        element.on('mouseout', function (e) {
-            e.stopPropagation();
         });
 
         element.click(function (e) {
