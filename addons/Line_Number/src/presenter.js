@@ -13,21 +13,6 @@ function AddonLine_Number_create() {
 
      */
 
-    Array.prototype.max = function () {
-        if (this.length == 0) {
-            throw "Empty array";
-        }
-
-        var max = this[0];
-        this.forEach(function (elem){
-            if (elem > max) {
-                max = elem;
-            }
-        });
-
-        return max;
-    };
-
     var presenter = function () {};
 
     var eventBus,
@@ -38,6 +23,21 @@ function AddonLine_Number_create() {
     presenter.singleDot = {
         value: -1,
         element: null
+    };
+
+    presenter.maxElement = function (array) {
+        if (array.length == 0) {
+            throw "Empty array";
+        }
+
+        var max = array[0];
+        array.forEach(function (elem){
+            if (elem > max) {
+                max = elem;
+            }
+        });
+
+        return max;
     };
 
     presenter.errorCodes = {
@@ -74,6 +74,9 @@ function AddonLine_Number_create() {
 
     presenter.run = function(view, model) {
         presenter.presenterLogic(view, model, false);
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function (view, model) {
@@ -546,7 +549,7 @@ function AddonLine_Number_create() {
     }
 
     function clickLogic(eventTarget) {
-        if (isLineNumberDisabled()) {
+        if (isLineNumberDisabled() || presenter.isShowAnswersActive) {
             return;
         }
 
@@ -731,14 +734,14 @@ function AddonLine_Number_create() {
                 }
 
                 presenter.$view.find('.currentSelectedRange').removeClass('currentSelectedRange');
-                if (!(presenter.configuration.drawnRangesData.ranges[index] === undefined)) {
+                if (!(presenter.configuration.drawnRangesData.ranges[index] === undefined) && !presenter.isShowAnswersActive) {
                     var rangeString = presenter.convertRangeToString(presenter.configuration.drawnRangesData.ranges[index]);
                     var eventData = presenter.createEventData(rangeString, false, checkIsRangeCorrect(presenter.configuration.drawnRangesData.ranges[index]));
 
                     eventBus.sendEvent('ValueChanged', eventData);
                 }
 
-                if ( presenter.allRangesCorrect() ) {
+                if ( presenter.allRangesCorrect() && !presenter.isShowAnswersActive) {
                     var eventData = presenter.createAllOKEventData();
                     eventBus.sendEvent('ValueChanged', eventData);
                 }
@@ -749,7 +752,7 @@ function AddonLine_Number_create() {
                 var firstClickRange = getRangeByValue( firstValue );
                 var secondClickRange = getRangeByValue( secondValue );
 
-                if ( compareRanges(firstClickRange, secondClickRange) ) {
+                if ( compareRanges(firstClickRange, secondClickRange)) {
                     presenter.removeRange(firstClickRange, true);
 
                     var rangeString = presenter.convertRangeToString(firstClickRange);
@@ -1062,6 +1065,11 @@ function AddonLine_Number_create() {
 
         imageContainer.addClass(include ? 'include' : 'exclude');
         element.append(imageContainer);
+
+        if(!presenter.hideAnswerClicked && !presenter.isShowAnswersActive){
+            presenter.parentLeft = imageContainer.parent().css('left');
+        }
+
         return imageContainer;
     }
 
@@ -1217,7 +1225,7 @@ function AddonLine_Number_create() {
     };
 
     function setMaxValueInConfiguration () {
-        presenter.configuration.max = presenter.configuration.axisXFieldValues.max();
+        presenter.configuration.max = presenter.maxElement(presenter.configuration.axisXFieldValues);//max()
     }
 
     presenter.setOnClickAreaListeners = function () {
@@ -1251,6 +1259,10 @@ function AddonLine_Number_create() {
     }
 
     presenter.getState = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         $.each(presenter.configuration.drawnRangesData.ranges, function() {
             this.start.element = null;
             this.end.element = null;
@@ -1301,6 +1313,10 @@ function AddonLine_Number_create() {
     };
 
     presenter.reset = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
 
         $.each(rangesToRemove, function() {
@@ -1319,9 +1335,15 @@ function AddonLine_Number_create() {
 
         // removing all single dots
         presenter.$view.find('.rangeImage').remove();
+        presenter.leftShowAnswers = false;
+        presenter.parentLeft = false;
     };
 
     presenter.setShowErrorsMode = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
             // change single dot to point on axis
             if (presenter.singleDot.value != -1) {
@@ -1387,6 +1409,10 @@ function AddonLine_Number_create() {
     };
 
     presenter.getScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         resetClicks();
 
         if (!presenter.configuration.isActivity) {
@@ -1398,6 +1424,10 @@ function AddonLine_Number_create() {
     };
 
     presenter.getMaxScore = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (!presenter.configuration.isActivity) {
             return 0;
         }
@@ -1406,6 +1436,10 @@ function AddonLine_Number_create() {
     };
 
     presenter.getErrorCount = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (!presenter.configuration.isActivity) {
             return 0;
         }
@@ -1462,7 +1496,7 @@ function AddonLine_Number_create() {
     function addToDrawnRanges ( range ) {
         presenter.configuration.drawnRangesData.ranges.push( range );
 
-        if ( !presenter.configuration.isPreview && !presenter.configuration.isInitialDraw ) {
+        if ( !presenter.configuration.isPreview && !presenter.configuration.isInitialDraw && !presenter.isShowAnswersActive) {
             var rangeString = presenter.convertRangeToString(range);
             var isRangeCorrect = checkIsRangeCorrect(range);
             var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
@@ -1913,7 +1947,7 @@ function AddonLine_Number_create() {
     };
 
     presenter.createAxisXFieldValues = function (min, max, step) {
-        var precision = [presenter.getNumberPrecision(step), presenter.getNumberPrecision(min), presenter.getNumberPrecision(max)].max();
+        var precision = presenter.maxElement([presenter.getNumberPrecision(step), presenter.getNumberPrecision(min), presenter.getNumberPrecision(max)]);   //max()
         var values = [];
         var i;
 
@@ -2025,7 +2059,9 @@ function AddonLine_Number_create() {
             'hide': presenter.hide,
             'drawRange' : presenter.drawRange,
             'enable': presenter.enable,
-            'disable': presenter.disable
+            'disable': presenter.disable,
+            'showAnswers': presenter.showAnswers,
+            'hideAnswers': presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -2058,6 +2094,10 @@ function AddonLine_Number_create() {
     };
 
     presenter.enable = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.setDisableState(false);
 
         bindClickAreaListeners( presenter.$view.find('.clickArea') );
@@ -2066,6 +2106,9 @@ function AddonLine_Number_create() {
     };
 
     presenter.disable = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
 
         presenter.setDisableState(true);
 
@@ -2073,6 +2116,10 @@ function AddonLine_Number_create() {
     };
 
     presenter.drawRange = function (rangeList) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         rangeList = [].concat(rangeList);
         var rangeString = rangeList.join('\n\r');
         var validatedRanges = presenter.validateRanges(rangeString);
@@ -2106,6 +2153,81 @@ function AddonLine_Number_create() {
             'value': '',
             'score': ''
         };
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if(!presenter.configuration.isActivity){
+            return;
+        }
+
+        presenter.isShowAnswersActive = true;
+
+        presenter.setWorkMode();
+
+        presenter.currentRanges = jQuery.extend(true ,{}, presenter.configuration.drawnRangesData);
+
+        presenter.leftShowAnswers = presenter.parentLeft;
+        if(presenter.leftShowAnswers){
+            presenter.$view.find('.rangeImage').each(function () {
+                if(parseInt($(this).parent()[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
+                    presenter.rangeShowAnswers = $(this);
+                }
+            });
+        }
+
+        presenter.$view.find('.rangeImage').remove();
+
+        var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
+
+        $.each(rangesToRemove, function() {
+            presenter.removeRange(this, true);
+        });
+
+        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
+        presenter.drawRanges(presenter.configuration.otherRanges);
+
+        $.each(presenter.configuration.drawnRangesData.ranges, function() {
+            getSelectedRange(this).addClass('show-answers');
+        });
+    };
+
+    presenter.hideAnswers = function () {
+        if(!presenter.configuration.isActivity){
+            return;
+        }
+        presenter.hideAnswerClicked = true;
+
+        var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
+
+        $.each(rangesToRemove, function() {
+            presenter.removeRange(this, true);
+        });
+
+        presenter.redrawRanges(presenter.currentRanges.ranges);
+
+        presenter.$view.find('.show-answers').removeClass('show-answers');
+
+        if(presenter.leftShowAnswers){
+            presenter.$view.find('.stepLine').each(function () {
+                if(parseInt($(this)[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
+                    $(this).append(presenter.rangeShowAnswers);
+                }
+            });
+        }
+
+        presenter.hideAnswerClicked = false;
+        presenter.isShowAnswersActive = false;
+
     };
 
 
