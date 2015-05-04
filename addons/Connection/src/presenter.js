@@ -860,19 +860,19 @@ function AddonConnection_create() {
                 drawLine(presenter.lineStack.get(i), correctConnection);
                 var fromElementCorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).from[0].id);
                 var toElementCorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).to[0].id);
-                $(fromElementCorrect).addClass('correct');
-                $(toElementCorrect).addClass('correct');
+                $(fromElementCorrect).addClass('connectionItem-correct');
+                $(toElementCorrect).addClass('connectionItem-correct');
             } else {
                 drawLine(presenter.lineStack.get(i), incorrectConnection);
                 var fromElementIncorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).from[0].id);
                 var toElementIncorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).to[0].id);
-                $(fromElementIncorrect).addClass('wrong');
-                $(toElementIncorrect).addClass('wrong');
+                $(fromElementIncorrect).addClass('connectionItem-wrong');
+                $(toElementIncorrect).addClass('connectionItem-wrong');
             }
         }
         $(presenter.view).find('.connectionItem').each(function () {
-           if($(this).hasClass('correct') && $(this).hasClass('wrong')){
-               $(this).removeClass('correct');
+           if($(this).hasClass('connectionItem-correct') && $(this).hasClass('connectionItem-wrong')){
+               $(this).removeClass('connectionItem-correct');
            }
         });
         presenter.$connectionContainer.find('.selected').removeClass('selected');
@@ -884,8 +884,8 @@ function AddonConnection_create() {
         presenter.gatherCorrectConnections();
         redraw();
         $(presenter.view).find('.connectionItem').each(function () {
-            $(this).removeClass('correct');
-            $(this).removeClass('wrong');
+            $(this).removeClass('connectionItem-correct');
+            $(this).removeClass('connectionItem-wrong');
         });
         isSelectionPossible = true;
     };
@@ -895,8 +895,8 @@ function AddonConnection_create() {
         isSelectionPossible = true;
         presenter.$connectionContainer.find('.selected').removeClass('selected');
         $(presenter.view).find('.connectionItem').each(function () {
-            $(this).removeClass('correct');
-            $(this).removeClass('wrong');
+            $(this).removeClass('connectionItem-correct');
+            $(this).removeClass('connectionItem-wrong');
         });
 
         redraw();
