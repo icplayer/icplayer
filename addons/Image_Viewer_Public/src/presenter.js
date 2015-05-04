@@ -159,6 +159,7 @@ function AddonImage_Viewer_Public_create() {
 
         if (presenter.configuration.isClickDisabled) return;
         if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         if (presenter.mouseData.isMouseDragged) {
             presenter.mouseData.isMouseDragged = false;
@@ -196,6 +197,7 @@ function AddonImage_Viewer_Public_create() {
     function mouseDownCallback(event) {
         if (presenter.configuration.isClickDisabled) return;
         if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         presenter.mouseData.isMouseDown = true;
         presenter.mouseData.oldPosition.x = event.pageX;
@@ -217,6 +219,7 @@ function AddonImage_Viewer_Public_create() {
             delete presenter.mouseData.originalBackgroundPosition;
             return;
         }
+        if(presenter.isShowAnswersActive) return;
 
         var originalAnimation = presenter.configuration.animation;
         presenter.configuration.animation = presenter.ANIMATION.Linear;
@@ -302,6 +305,7 @@ function AddonImage_Viewer_Public_create() {
     function mouseMoveCallback(event) {
         if (presenter.configuration.isClickDisabled) return;
         if (presenter.configuration.isErrorMode && presenter.configuration.correctFrames.isExerciseMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         if (presenter.mouseData.isMouseDown) {
             presenter.mouseData.isMouseDragged = true;
@@ -423,7 +427,7 @@ function AddonImage_Viewer_Public_create() {
             }
 
             hideLoadingScreen();
-                presenter.$view.trigger("onLoadImageEnd", [preview]);
+            presenter.$view.trigger("onLoadImageEnd", [preview]);
         });
     }
 
@@ -664,6 +668,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.next = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var currentFrame = presenter.configuration.currentFrame,
             framesCount = presenter.configuration.frames;
 
@@ -673,6 +681,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.previous = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var currentFrame = presenter.configuration.currentFrame,
             framesCount = presenter.configuration.frames;
 
@@ -686,6 +698,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.moveToFrameCommand = function(params) {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var framesCount = presenter.configuration.frames,
             currentFrame = presenter.configuration.currentFrame,
             validatedFrame = ModelValidationUtils.validateIntegerInRange(params[0], framesCount, 1);
@@ -760,14 +776,22 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.setClickDisabled = function() {
-    	presenter.configuration.isClickDisabled = true;
-    	hideWatermarkIfVisible();
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        presenter.configuration.isClickDisabled = true;
+        hideWatermarkIfVisible();
     };
     presenter.setClickEnabled = function() {
-    	presenter.configuration.isClickDisabled = false;
-    	if (presenter.configuration.showWatermarkbyDefault) {
-    		showWatermarkIfNotVisible();
-    	}
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        presenter.configuration.isClickDisabled = false;
+        if (presenter.configuration.showWatermarkbyDefault) {
+            showWatermarkIfNotVisible();
+        }
     };
 
     presenter.executeCommand = function(name, params) {
@@ -809,16 +833,28 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.markAsCorrect = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.$element.addClass('correct');
         presenter.$element.removeClass('wrong');
     };
 
     presenter.markAsWrong = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.$element.addClass('wrong');
         presenter.$element.removeClass('correct');
     };
 
     presenter.getCurrentFrame = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return presenter.configuration.currentFrame + 1;
     };
 
@@ -832,6 +868,9 @@ function AddonImage_Viewer_Public_create() {
 
         this.upgradedModel = this.upgradeModel(model);
         presenterLogic(view, this.upgradedModel, false);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.validateAnimation = function (animation) {
@@ -1346,7 +1385,7 @@ function AddonImage_Viewer_Public_create() {
 
     presenter.triggerFrameChangeEvent = function(frameNumber) {
         var eventData = this.createEventData(frameNumber);
-        if (playerController != null) {
+        if (playerController != null && !presenter.isShowAnswersActive) {
             playerController.getEventBus().sendEvent('ValueChanged', eventData);
         }
     };
@@ -1374,7 +1413,7 @@ function AddonImage_Viewer_Public_create() {
             currentFrame : this.configuration.currentFrame,
             currentVisibility : this.configuration.currentVisibility,
             showWatermark : ($(watermarkElement).is(':visible')) ? true : false,
-            showWatermarkbyDefault : this.configuration.showWatermarkbyDefault, 
+            showWatermarkbyDefault : this.configuration.showWatermarkbyDefault,
             isClickDisabled: presenter.configuration.isClickDisabled,
             isClickDisabledbyDefault : presenter.configuration.isClickDisabledbyDefault,
             shouldCalcScore: presenter.configuration.shouldCalcScore
@@ -1396,6 +1435,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.reset = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.isErrorMode = false;
 
@@ -1407,7 +1450,7 @@ function AddonImage_Viewer_Public_create() {
         if (shouldShowWatermark()) {
             showWatermarkIfNotVisible();
         }
-        
+
         presenter.configuration.isClickDisabled = presenter.configuration.isClickDisabledbyDefault;
 
         var isVisible = presenter.configuration.currentVisibility = presenter.configuration.defaultVisibility;
@@ -1416,6 +1459,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.getScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (!presenter.configuration.correctFrames.isExerciseMode) return 0;
         if (!presenter.configuration.shouldCalcScore) return 0;
 
@@ -1423,6 +1470,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.getErrorCount = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (!presenter.configuration.correctFrames.isExerciseMode) { return 0; }
         if (!presenter.configuration.shouldCalcScore) return 0;
 
@@ -1430,11 +1481,19 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.getMaxScore = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if(!presenter.configuration.correctFrames.isExerciseMode) { return 0; }
         return 1;
     };
 
     presenter.setShowErrorsMode = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.configuration.isErrorMode = true;
         presenter.configuration.shouldCalcScore = true;
 
@@ -1461,6 +1520,59 @@ function AddonImage_Viewer_Public_create() {
         if (eventName == 'PageLoaded') {
             presenter.pageLoadedDeferred.resolve();
         }
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.moveToFrameCommandShowAnswers = function(params) {
+        var framesCount = presenter.configuration.frames,
+            currentFrame = presenter.configuration.currentFrame,
+            validatedFrame = ModelValidationUtils.validateIntegerInRange(params[0], framesCount, 1);
+
+        presenter.configuration.shouldCalcScore = true;
+
+        if (validatedFrame.isValid && validatedFrame.value - 1 !== currentFrame) {
+            var isReverseOrder = currentFrame > validatedFrame.value - 1;
+            presenter.configuration.currentFrame = validatedFrame.value - 1;
+
+            presenter.changeFrameData = {
+                isPreview: false,
+                isReverseOrder: isReverseOrder,
+                triggerEvent: true
+            };
+
+            $.when(presenter.imageLoaded).then(loadImageEndCallback);
+        }
+    };
+
+    presenter.moveToFrameShowAnswers = function (frame) {
+        presenter.moveToFrameCommandShowAnswers([frame]);
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+
+        if(presenter.configuration.correctFrames.frames){
+            presenter.setWorkMode();
+            presenter.currentFrameShowAnswers = presenter.configuration.currentFrame;
+            presenter.moveToFrameShowAnswers(presenter.configuration.correctFrames.frames[0]+1);
+            presenter.$element.addClass('show-answers');
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        if(presenter.currentFrameShowAnswers != undefined){
+            presenter.moveToFrameShowAnswers(presenter.currentFrameShowAnswers+1);
+            presenter.$element.removeClass('show-answers');
+        }
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
