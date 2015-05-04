@@ -237,11 +237,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
 		String optionState = "";
-		
-		int[] oryginalOrder = view.getOryginalOrder();
 
-		for(int i=0; i<oryginalOrder.length; i++){
-			IOptionDisplay option = view.getOptions().get(oryginalOrder[i]);
+		for(int i = 0; i < view.getOptions().size(); i++){
+			IOptionDisplay option = view.getOptions().get(i);
 			optionState += option.isDown() ? '1' : '0';
 		}
 		
@@ -258,14 +256,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		HashMap<String, String> state = json.decodeHashMap(stateObj);
 		if (state.containsKey("options")) {
 			String optionState = state.get("options");
-			int index = 0;
-			
-			int[] oryginalOrder = view.getOryginalOrder();
-			for (int i=0; i<oryginalOrder.length; i++) {
+
+			for (int i = 0; i < view.getOptions().size(); i++) {
 				
-				index = oryginalOrder[i];
-				
-				IOptionDisplay option = view.getOptions().get(index);
+				IOptionDisplay option = view.getOptions().get(i);
 				
 				if(optionState.length() < i+1){
 					break;
