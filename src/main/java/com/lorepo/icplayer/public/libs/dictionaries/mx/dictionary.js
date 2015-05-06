@@ -895,6 +895,7 @@
 	"Hierarchical_Lesson_Report_property_show_page_scores": "Mostrar página de calificaciones",
 	"Hierarchical_Lesson_Report_property_show_max_score_fields": "Mostrar campo de calificación máxima",
 	"Hierarchical_Lesson_Report_property_score_disabled": "Deshabilitar calificaciones en las páginas",
+	"Hierarchical_Lesson_Report_property_unvisited_page_scores_label": "Unvisited page scores label",
 	"ConnectingDots_info": "Permite hacer un rompecabezas que contiene una secuencia de puntos numerados que al estar seleccionados forman una línea que conecta los puntos. El addon se puede utilizar con éxito como una actividad interactiva o una simulación, con la posibilidad de poner una imagen de fondo.",
 	"ConnectingDots_name": "Conectando puntos",
 	"ConnectingDots_property_dots": "Coordenadas de los puntos",
