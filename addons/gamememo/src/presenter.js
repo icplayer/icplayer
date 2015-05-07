@@ -201,64 +201,109 @@ function Addongamememo_create(){
 
         return {
             isError: false,
-            ID: model.ID
+            ID: model.ID,
+            pairs: model['Pairs']
         };
     };
 
-    presenter.slideUpAnimation = function ($element) {
+    presenter.slideUpAnimation = function ($element, successFunction) {
         var distance = $element.outerHeight();
-        $element.animate({bottom: (distance + 'px')}, 300, function () {
+        $element.animate({bottom: (distance + 'px')}, 200, function () {
             $(this).css({
                 visibility: 'hidden',
                 bottom: 0
-            })
+            });
+
+            successFunction();
         });
     };
 
-    presenter.slideDownAnimation = function ($element) {
+    presenter.slideDownAnimation = function ($element, successFunction) {
         var distance = $element.outerHeight();
         $element.css({'bottom': (distance + 'px'), visibility: 'visible'})
-                .animate({bottom: 0}, 300);
+                .animate({bottom: 0}, 200);
         };
 
     presenter.showCard = function(cell) {
-        presenter.slideUpAnimation(cell.children(".front"));
-        presenter.slideDownAnimation(cell.children(".back"));
+        var successFunction = function () {
+            presenter.slideDownAnimation(cell.children(".back"));
+        };
+
+        presenter.slideUpAnimation(cell.children(".front"), successFunction);
+
         if(!presenter.isShowAnswersActive){
             cell.addClass('was-clicked');
         }
     };
 
     presenter.hideCard = function(cell) {
-        presenter.slideUpAnimation(cell.children(".back"));
-        presenter.slideDownAnimation(cell.children(".front"));
+        var successFunction = function () {
+            presenter.slideDownAnimation(cell.children(".front"));
+        };
+
+        presenter.slideUpAnimation(cell.children(".back"), successFunction);
+
         if(!presenter.isShowAnswersActive){
             cell.removeClass('was-clicked');
         }
     };
 
-    presenter.markCardMismatch = function(cell, heightProbeCell) {
-        var mark = $('<div class="mismatch_mark">&times;</div>');
+    function getMarkDiv(markType, height) {
+        var factory = {
+            "tick": function () {
+                return $('<div class="tick_mark">&check;</div>');
+            },
+
+            "mismatch": function () {
+                return $('<div class="mismatch_mark">&times;</div>');
+            }
+        };
+
+        var mark = factory[markType]();
+
         mark.css({
             opacity: 0.8,
-            fontSize: Math.round(parseInt(heightProbeCell.parent().css('height')) * 0.95) + 'px'
+            fontSize: Math.round(parseInt(height) * 0.95) + 'px'
         });
-        cell.parent().append(mark);
 
-        mark.css('top', Math.round(parseInt(mark.css('height')) * -0.08) + 'px');
-        mark.fadeOut(1300, function() {
+        return mark;
+    }
+
+    function fadeOutMark (mark, time) {
+        mark.fadeOut(time, function () {
             mark.remove();
         });
+    }
+
+    function setMarkHeight (mark) {
+        mark.css('top', Math.round(parseInt(mark.css('height')) * -0.08) + 'px');
+    }
+
+    presenter.markCardMismatch = function(cell, heightProbeCell) {
+        var mark = getMarkDiv("mismatch", heightProbeCell.parent().css('height'));
+
+        cell.parent().append(mark);
+
+        setMarkHeight(mark);
+        fadeOutMark(mark, 1300)
+    };
+
+    presenter.markCardTick = function(cell, heightProbeCell) {
+        var mark = getMarkDiv("tick", heightProbeCell.parent().css('height'));
+        cell.parent().append(mark);
+
+        setMarkHeight(mark);
+        fadeOutMark(mark, 1300)
     };
 
 
-    presenter.prepareGrid = function(model) {
+    presenter.prepareGrid = function() {
         var cards = [];
         var serializedCards = [];
         var card;
         var serializedCard;
 
-        var pairs = model['Pairs'];
+        var pairs = presenter.configuration.pairs;
 
         for(var n = 0; n <= 1; n++) {
             for(var j = 0; j < pairs.length; j++) {
@@ -404,6 +449,9 @@ function Addongamememo_create(){
                     eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId,  false);
                     presenter.sendEventData(eventData);
                 } else {
+                    presenter.markCardTick(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));
+                    presenter.markCardTick(presenter.cardClickedSecond.find(".card"), presenter.cardClickedFirst.find(".card"));
+
                     eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId, true);
                     presenter.sendEventData(eventData);
 
@@ -520,12 +568,12 @@ function Addongamememo_create(){
         presenter.viewContainer = $(view);
         presenter.model = model;
 
-        var configuration = presenter.readConfiguration(model);
+        presenter.configuration = presenter.readConfiguration(model);
         presenter.ID = model.ID;
-        if(configuration.isError) {
-            presenter.showErrorMessage(configuration.errorMessage, configuration.errorMessageSubstitutions);
+        if(presenter.configuration.isError) {
+            presenter.showErrorMessage(presenter.configuration.errorMessage, presenter.configuration.errorMessageSubstitutions);
         } else {
-            presenter.prepareGrid(model);
+            presenter.prepareGrid();
             presenter.createGrid();
         }
 
@@ -594,9 +642,9 @@ function Addongamememo_create(){
         presenter.cardClickedFirstId = null;
         presenter.cardClickedSecondId = null;
 
-        presenter.shuffleCards();
-        presenter.concealAllCards();
+        presenter.prepareGrid();
         presenter.createGrid();
+        presenter.concealAllCards();
     };
 
     presenter.getErrorCount = function() {
@@ -641,6 +689,106 @@ function Addongamememo_create(){
     };
 
     presenter.setShowErrorsMode = function(){
+        presenter.turnOffUserInteraction();
+
+        markCardsWithCorrectWrongStyle(filterClickedCards(getClickedCards()), true);
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
+
+    function getClickedCards() {
+        return filterClickedCards(presenter.viewContainer.find('.cell.was-clicked'));
+    }
+
+    function filterClickedCards(clickedCards) {
+        var filteredArray = [];
+        for(var i = 0; i < clickedCards.length; i++) {
+            filteredArray.push(clickedCards[i]);
+        }
+
+        return filteredArray;
+    }
+
+    function filterCardsById (cardsArray, id) {
+        return cardsArray.filter(function (element) {
+                return ($(element).find("[card_id]").attr("card_id") ==  id);
+        });
+    }
+
+    function getStyleAction (isAdding) {
+        if (isAdding) {
+            return function (element, style) {
+                $(element).addClass(style);
+            };
+        }
+
+        return function (element, style) {
+            $(element).removeClass(style);
+        };
+    }
+
+    function markCardsWithCorrectWrongStyle (clickedCards, isAdding) {
+        var styleAction = getStyleAction(isAdding);
+
+
+        function styleWithCorrect(element) {
+            styleAction(element, "cell-correct");
+        }
+
+        function styleWithWrong(element) {
+            styleAction(element, "cell-wrong");
+        }
+
+        var usedIds = [];
+
+        clickedCards.map(function (element) {
+            var id = $(element).find("[card_id]").attr("card_id");
+
+            if (usedIds.indexOf(id) == -1) {
+
+                var cardsById = filterCardsById(clickedCards, id);
+
+                if (cardsById.length == 2) {
+                    cardsById.map(styleWithCorrect);
+                } else {
+                    cardsById.map(styleWithWrong);
+                }
+                usedIds.push(id);
+            }
+        });
+    }
+
+    function getClickablePartOfCards() {
+        return presenter.viewContainer.find(".front.placeholder");
+    }
+
+    function unbindOnCardsCollection (cardsCollection) {
+        for(var i = 0; i < cardsCollection.length; i++) {
+            $(cardsCollection[i]).unbind();
+        }
+    }
+
+    function bindClickInteractionOnCardsCollection (cardsCollection) {
+        for(var i = 0; i < cardsCollection.length; i++) {
+            $(cardsCollection[i]).click(presenter.onCardClicked);
+        }
+    }
+
+    presenter.turnOffUserInteraction = function () {
+        unbindOnCardsCollection(getClickablePartOfCards());
+    };
+
+    presenter.turnOnUserInteraction = function () {
+        bindClickInteractionOnCardsCollection(getClickablePartOfCards());
+    };
+
+    presenter.setWorkMode = function () {
+        presenter.turnOnUserInteraction();
+
+        markCardsWithCorrectWrongStyle(getClickedCards(), false);
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }

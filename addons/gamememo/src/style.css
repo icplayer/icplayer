@@ -73,3 +73,18 @@
     cursor: default;
     line-height: normal;
 }
+
+.gamememo_container div.tick_mark {
+    color: #11cc11;
+    font-weight: bold;
+    font-size: 64pt;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    vertical-align: middle;
+    margin-top: -0.15ex;
+    cursor: default;
+    line-height: normal;
+}

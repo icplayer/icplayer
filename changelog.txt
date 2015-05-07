@@ -1,3 +1,4 @@
+2015-05-07 Fixed issue with reset button on IE and issue with missing labels in "memo game" module
 2015-05-06 Fixed issue with scores and their view in Hierarchical Lesson Report
 2015-05-06 Fixed issue with compatibility Drawing and IWB in IWBToolbar module
 2015-05-04 Added Show Answers mode in Line Number module
