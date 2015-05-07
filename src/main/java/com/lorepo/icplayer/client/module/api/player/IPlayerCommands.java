@@ -3,12 +3,6 @@ package com.lorepo.icplayer.client.module.api.player;
 import com.lorepo.icplayer.client.page.PageController;
 
 
-
-/**
- * Interface implementowany przez przez Player i podawany do modułów
- * @author Krzysztof Langner
- *
- */
 public interface IPlayerCommands {
 
 	public void checkAnswers();

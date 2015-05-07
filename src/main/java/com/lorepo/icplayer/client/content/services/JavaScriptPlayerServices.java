@@ -435,22 +435,17 @@ public class JavaScriptPlayerServices{
 	}
 
 	private int getTotalScore(){
-		playerServices.getCommands().updateCurrentPageScore();
 		return playerServices.getScoreService().getTotalScore();
 	}
 
 	private JavaScriptObject getPageScore(String pageName){
-		
-		playerServices.getCommands().updateCurrentPageScore();
-		PageScore score = playerServices.getScoreService().getPageScore(pageName);
+		PageScore score = playerServices.getScoreService().getPageScoreByName(pageName);
 		JavaScriptObject model = scoreToJs(score);
 		
 		return model;
 	}
 
 	private JavaScriptObject getPageScoreById(String id){
-		
-		playerServices.getCommands().updateCurrentPageScore();
 		PageScore score = playerServices.getScoreService().getPageScoreById(id);
 		JavaScriptObject model = scoreToJs(score);
 		

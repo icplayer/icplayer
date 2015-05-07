@@ -16,11 +16,6 @@ import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.page.PageController;
 
-/**
- * Implementacja serwisów udostępnianych przez playera
- * @author Krzysztof Langner
- *
- */
 public class PlayerServices implements IPlayerServices {
 
 	private PlayerCommands		playerCommands;

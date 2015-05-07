@@ -140,6 +140,10 @@ public class PlayerApp{
 		return playerController.getPlayerServices();
 	}
 	
+	public void updateScore() {
+		playerController.updateScore();
+	}
+	
 
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);

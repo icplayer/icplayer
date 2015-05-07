@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
+import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -17,7 +18,7 @@ public class PlayerControllerMockup implements IPlayerController {
 	private StateService	stateService;
 
 	public PlayerControllerMockup() {
-		scoreService = new ScoreService(true);
+		scoreService = new ScoreService(ScoreType.last);
 		stateService = new StateService();
 	}
 	

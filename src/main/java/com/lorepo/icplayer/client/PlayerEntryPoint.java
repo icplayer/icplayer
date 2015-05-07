@@ -55,6 +55,9 @@ public class PlayerEntryPoint implements EntryPoint {
 		  player.onPageLoaded = function(listener){
 		  	x.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
 		  }
+		  player.forceScoreUpdate = function(listener){
+		  	x.@com.lorepo.icplayer.client.PlayerEntryPoint::forceScoreUpdate()();
+		  }
 
 		  return player;
 		}
@@ -126,7 +129,11 @@ public class PlayerEntryPoint implements EntryPoint {
 		if(pageIndex < 0){
 			pageIndex = 0;
 		}
-		theApplication.load(url, pageIndex);
+		theApplication.load(url, pageIndex); 
+	}
+	
+	private void forceScoreUpdate() {
+		theApplication.updateScore();
 	}
 
 	

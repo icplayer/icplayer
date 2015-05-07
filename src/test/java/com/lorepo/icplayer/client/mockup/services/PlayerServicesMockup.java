@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
@@ -15,11 +16,6 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 
-/**
- * Implementacja serwisów udostępnianych przez playera
- * @author Krzysztof Langner
- *
- */
 public class PlayerServicesMockup implements IPlayerServices {
 
 	private EventBus		eventBus;
@@ -28,15 +24,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private IContent		contentModel;
 	private IJsonServices	jsonMockup;
 	
-	/**
-	 * constructor
-	 */
 	public PlayerServicesMockup() {
 	
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
-		scoreService = new ScoreService(true);
+		scoreService = new ScoreService(ScoreType.last);
 		jsonMockup = new JsonMockup();
 	}
 	

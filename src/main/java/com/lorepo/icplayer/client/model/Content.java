@@ -34,7 +34,6 @@ public class Content implements IXMLSerializable, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	private IPlayerServices playerServices;
 	
 	public Content(){
 		
