@@ -1,5 +1,5 @@
 TestCase("Model validation", {
-    setUp: function () {
+    setUp: function() {
         this.presenter = Addoncrossword_create();
 
         this.model = {
