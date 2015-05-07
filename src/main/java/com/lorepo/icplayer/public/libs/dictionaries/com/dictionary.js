@@ -447,6 +447,7 @@
     "Hangman_property_phrase": "Phrase",
     "Hangman_property_possible_mistakes": "Possible mistakes",
     "Hangman_property_is_not_activity": "Is Not Activity",
+    "Hangman_property_keyboard_letters_order": "Keyboard letters order",
 	"Image_Identification_info": "Allows to insert a multiple image selection activity into a presentation, where each element works in a single selection mode.",
 	"Image_Identification_name": "Image Identification",
 	"Image_Identification_property_image": "Image",

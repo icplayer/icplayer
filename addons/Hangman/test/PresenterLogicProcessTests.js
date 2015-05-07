@@ -1,4 +1,4 @@
-TestCase("Presenter logic process", {
+TestCase("[Hangman] Presenter logic process", {
     setUp: function () {
         this.presenter = AddonHangman_create();
 

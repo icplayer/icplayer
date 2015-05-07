@@ -1,4 +1,4 @@
-TestCase("Phrase sanitation", {
+TestCase("[Hangman] Phrase sanitation", {
     setUp: function () {
         this.presenter = AddonHangman_create();
     },

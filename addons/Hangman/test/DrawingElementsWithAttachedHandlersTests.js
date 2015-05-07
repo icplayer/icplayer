@@ -1,4 +1,4 @@
-TestCase("Drawing elements with attached handlers", {
+TestCase("[Hangman] Drawing elements with attached handlers", {
     setUp: function () {
         this.presenter = AddonHangman_create();
 

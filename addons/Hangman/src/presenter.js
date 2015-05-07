@@ -17,8 +17,41 @@ function AddonHangman_create() {
     };
 
     presenter.drawElements = function (phraseNumber) {
-        presenter.drawLetters(presenter.configuration.phrases[phraseNumber].letters);
+        var lettersInOrder = presenter.getLettersInOrder(presenter.configuration.phrases[phraseNumber].letters);
+        presenter.configuration.lettersInCustomOrder = lettersInOrder;
+        presenter.drawLetters(lettersInOrder);
         presenter.drawPhrase(presenter.$view.find('.hangman-phrase'), presenter.configuration.phrases[phraseNumber].phrase);
+    };
+
+    presenter.getLettersInOrder = function (letters) {
+        if(presenter.configuration.isCustomKeyboardLettersOrderSet) {
+            return presenter.changeLettersOrder(letters);
+        }
+
+        return letters;
+    };
+
+    presenter.getLettersFromKeyboardOrder = function (letters) {
+        var lettersFromKeyboardOrder = [];
+
+        presenter.configuration.keyboardLettersOrder.map(function (element) {
+            if (letters.indexOf(element) != -1) {
+                this.push(element);
+            }
+        }, lettersFromKeyboardOrder);
+
+        return lettersFromKeyboardOrder
+    };
+
+    presenter.getRestOfLetters = function (orderedLetters, letters) {
+        return orderedLetters.concat(letters.filter(function (element) {
+            return this.indexOf(element) == -1;
+        }, orderedLetters));
+    };
+
+    presenter.changeLettersOrder = function (letters) {
+        var orderedLetters = presenter.getLettersFromKeyboardOrder(letters);
+        return presenter.getRestOfLetters(orderedLetters, letters);
     };
 
     presenter.drawElementsAndAttachMouseHandlers = function (phraseNumber, isPreview) {
@@ -43,10 +76,39 @@ function AddonHangman_create() {
         presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity']));
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeKeyboardLettersOrder(model);
+    };
+
+    presenter.upgradeKeyboardLettersOrder = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model["Keyboard Letters Order"] == undefined) {
+            upgradedModel["Keyboard Letters Order"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.deleteCommands = function () {
+        delete presenter.setState;
+        delete presenter.getState;
+        delete presenter.getScore;
+        delete presenter.getMaxScore;
+        delete presenter.reset;
+        delete presenter.nextPhrase;
+        delete presenter.previousPhrase;
+        delete presenter.isAllOk;
+    };
+
     presenter.presenterLogic = function (view, model, isPreview) {
-        presenter.configuration = presenter.sanitizeModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+
+        presenter.configuration = presenter.sanitizeModel(upgradedModel);
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            presenter.deleteCommands();
             return;
         }
 
@@ -63,7 +125,9 @@ function AddonHangman_create() {
         'W_03': "You cannot type more than one exclamation mark next to each other!",
         'W_04': "Words definition cannot contain only exclemation marks!",
         'P_01': "At least one phrase must be specified!",
-        'T_01': "Number possible mistakes incorrect!"
+        'T_01': "Number possible mistakes incorrect!",
+        'KLO_01': "Letters in property Keyboard Letters Order incorrect.",
+        'KLO_02': "Letters cant duplicate in Keyboard Letters Order property."
     };
 
     presenter.DEFAULT_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
@@ -73,10 +137,9 @@ function AddonHangman_create() {
         return { isError: true, errorCode: errorCode };
     }
 
-    presenter.isStringArrayValid = function (list) {
-        var splittedList = list.split(',');
-        for (var i = 0, length = splittedList.length; i < length; i++) {
-            var letter = splittedList[i].toUpperCase().trim();
+    presenter.isArrayWithLettersValid = function (arrayWithLetters) {
+        for (var i = 0, length = arrayWithLetters.length; i < length; i++) {
+            var letter = arrayWithLetters[i].toUpperCase().trim();
             if (letter) {
                 if (letter.length > 1) {
                     return false;
@@ -171,7 +234,7 @@ function AddonHangman_create() {
         var sanitisedPhrases = [];
 
         for (var i = 0; i < phrases.length; i++) {
-            if (!presenter.isStringArrayValid(phrases[i].Letters)) return returnErrorObject('L_01');
+            if (!presenter.isArrayWithLettersValid(phrases[i].Letters.split(","))) return returnErrorObject('L_01');
 
             if (ModelValidationUtils.isStringEmpty(phrases[i].Phrase)) return returnErrorObject('W_01');
 
@@ -194,19 +257,72 @@ function AddonHangman_create() {
         return {isError: false, phrases: sanitisedPhrases };
     };
 
+    presenter.validateTrialsCount = function (model) {
+        var validatedInt = ModelValidationUtils.validatePositiveInteger(model['Possible mistakes']);
+        if (!validatedInt.isValid) {
+            return { isValid: false, errorCode: "T_01", isError: true};
+        }
+
+        return validatedInt;
+    };
+
     presenter.sanitizeModel = function (model) {
         var sanitisedPhrases = presenter.sanitizePhrases(model.Phrases);
 
         if (sanitisedPhrases.isError) return sanitisedPhrases;
 
-        var trialsCount = ModelValidationUtils.validatePositiveInteger(model['Possible mistakes']);
-        if (!trialsCount.isValid) return returnErrorObject('T_01');
+        var validatedTrialsCount = presenter.validateTrialsCount(model);
+        if (!validatedTrialsCount.isValid) return validatedTrialsCount;
+
+        var validatedKeyboardLettersOrder = presenter.validateKeyboardLettersOrder(model);
+        if (validatedKeyboardLettersOrder.isError) {
+            return validatedKeyboardLettersOrder;
+        }
 
         return {
             isError: false,
             phrases: sanitisedPhrases.phrases,
-            trialsCount: trialsCount.value,
-            addonID: model.ID
+            trialsCount: validatedTrialsCount.value,
+            addonID: model.ID,
+            keyboardLettersOrder: validatedKeyboardLettersOrder.value,
+            isCustomKeyboardLettersOrderSet: validatedKeyboardLettersOrder.isCustomKeyboardLettersOrderSet,
+            lettersInCustomOrder: []
+        };
+    };
+
+    function isNotDuplicated(value) {
+        return (this.filter(function (currentValue) {
+                return (value == currentValue);
+            }).length == 1
+        );
+    }
+
+    presenter.validateKeyboardLettersOrder = function (model) {
+        var keyboardLettersOrder = model["Keyboard Letters Order"];
+        if (ModelValidationUtils.isStringEmpty(keyboardLettersOrder.trim())) {
+            return {
+                isError: false,
+                value: [],
+                isCustomKeyboardLettersOrderSet: false
+            };
+        }
+
+        var preparedData = keyboardLettersOrder.split(",").map(function (element) {
+            return element.trim().toUpperCase();
+        });
+
+        if (!presenter.isArrayWithLettersValid(preparedData)) {
+            return returnErrorObject("KLO_01");
+        }
+
+        if (!preparedData.every(isNotDuplicated, preparedData)) {
+            return returnErrorObject("KLO_02");
+        }
+
+        return {
+            isError: false,
+            value: preparedData,
+            isCustomKeyboardLettersOrderSet: true
         };
     };
 
@@ -362,13 +478,24 @@ function AddonHangman_create() {
         return index + occurrence.index;
     };
 
-    presenter.addLetterSelectionToPhrase = function (phrase, letter) {
+    presenter.getIndexOfLetterInPhrase = function (phrase, letter) {
         var index = phrase.letters.indexOf(letter);
+
+        if (presenter.configuration.isCustomKeyboardLettersOrderSet) {
+            index = presenter.configuration.lettersInCustomOrder.indexOf(letter);
+        }
+
+        return index;
+    };
+
+    presenter.addLetterSelectionToPhrase = function (phrase, letter) {
+        var index = presenter.getIndexOfLetterInPhrase(phrase, letter);
+
         phrase.selectedLetters.push(index);
     };
 
     presenter.isLetterSelected = function (phrase, letter) {
-        var index = phrase.letters.indexOf(letter);
+        var index = presenter.getIndexOfLetterInPhrase(phrase, letter);
 
         return phrase.selectedLetters.indexOf(index) !== -1;
     };
@@ -431,6 +558,7 @@ function AddonHangman_create() {
                 }
             }
         }
+
         return letters;
     };
 
@@ -596,6 +724,27 @@ function AddonHangman_create() {
         return true;
     };
 
+    presenter.getLettersIndexesForScoring = function (neededLetters, phrase) {
+        var neededLettersIndexes = [];
+
+        if (presenter.configuration.isCustomKeyboardLettersOrderSet) {
+            neededLetters.map(function (element) {
+                var index = presenter.configuration.lettersInCustomOrder.indexOf(element);
+                neededLettersIndexes.push(index);
+            }, neededLettersIndexes);
+
+            return neededLettersIndexes
+        } else {
+
+            for (var j = 0; j < neededLetters.length; j++) {
+                neededLettersIndexes.push(phrase.letters.indexOf(neededLetters[j]));
+            }
+
+            return neededLettersIndexes;
+        }
+
+    };
+
     presenter.getScoring = function (phrases) {
         var neededLetters = [], neededLettersIndexes = [];
         var score = 0, errors = 0;
@@ -607,10 +756,7 @@ function AddonHangman_create() {
                 if (neededLetters[k].indexOf('!') > -1) neededLetters.splice(k, 1);
             }
 
-            neededLettersIndexes = [];
-            for (var j = 0; j < neededLetters.length; j++) {
-                neededLettersIndexes.push(phrases[i].letters.indexOf(neededLetters[j]));
-            }
+            neededLettersIndexes = presenter.getLettersIndexesForScoring(neededLetters, phrases[i]);
 
             if (presenter.isSelectionSufficient(neededLettersIndexes, phrases[i].selectedLetters)) {
                 score++;

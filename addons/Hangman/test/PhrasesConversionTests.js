@@ -1,4 +1,4 @@
-TestCase("Phrases conversion", {
+TestCase("[Hangman] Phrases conversion", {
     setUp: function () {
         this.presenter = AddonHangman_create();
     },

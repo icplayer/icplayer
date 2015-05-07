@@ -1,4 +1,4 @@
-TestCase("Commands dispatching", {
+TestCase("[Hangman] Commands dispatching", {
     setUp: function () {
         this.presenter = AddonHangman_create();
 
@@ -24,7 +24,7 @@ TestCase("Commands dispatching", {
     }
 });
 
-TestCase("Commands logic - next and previous phrases", {
+TestCase("[Hangman] Commands logic - next and previous phrases", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.presenter.currentPhrase = 0;
@@ -49,7 +49,7 @@ TestCase("Commands logic - next and previous phrases", {
     }
 });
 
-TestCase("Commands logic - switchPhrase", {
+TestCase("[Hangman] Commands logic - switchPhrase", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.presenter.configuration = {
@@ -117,7 +117,7 @@ TestCase("Commands logic - switchPhrase", {
     }
 });
 
-TestCase("Commands logic - reset", {
+TestCase("[Hangman] Commands logic - reset", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.presenter.currentPhrase = 1;
@@ -180,7 +180,7 @@ TestCase("Commands logic - reset", {
     }
 });
 
-TestCase("Commands logic - hide", {
+TestCase("[Hangman] Commands logic - hide", {
     setUp : function() {
         this.presenter = AddonHangman_create();
         sinon.stub(this.presenter, 'setVisibility');
@@ -205,7 +205,7 @@ TestCase("Commands logic - hide", {
     }
 });
 
-TestCase("Commands logic - isAllOK", {
+TestCase("[Hangman] Commands logic - isAllOK", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         sinon.stub(this.presenter, 'getScore');

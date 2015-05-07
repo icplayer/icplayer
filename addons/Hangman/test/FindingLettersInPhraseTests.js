@@ -1,4 +1,4 @@
-TestCase("Finding letters in phrase", {
+TestCase("[Hangman] Finding letters in phrase", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.phrase = ['PHRASE', 'AND', 'SOME', 'TEXT'];

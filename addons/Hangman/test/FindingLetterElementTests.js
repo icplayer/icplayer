@@ -1,4 +1,4 @@
-TestCase("Finding letter element", {
+TestCase("[Hangman] Finding letter element", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         /*:DOC += <div id="hagnman-letters-finding-container"><div class="hangman-letter">A</div><div class="hangman-letter">B</div></div>*/

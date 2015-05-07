@@ -1,4 +1,4 @@
-TestCase("Words to letters matching", {
+TestCase("[Hangman] Words to letters matching", {
     setUp: function () {
         this.presenter = AddonHangman_create();
     },

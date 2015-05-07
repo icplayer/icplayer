@@ -1,4 +1,4 @@
-TestCase("Events creation", {
+TestCase("[Hangman] Events creation", {
     setUp : function() {
         this.presenter = AddonHangman_create();
         this.presenter.configuration = {
@@ -53,7 +53,7 @@ TestCase("Events creation", {
     }
 });
 
-TestCase("Events triggering is Activity", {
+TestCase("[Hangman] Events triggering is Activity", {
     setUp : function() {
         this.presenter = AddonHangman_create();
         this.presenter.configuration = {
@@ -129,7 +129,7 @@ TestCase("Events triggering is Activity", {
     }
 });
 
-TestCase("Events triggering is Not Activity", {
+TestCase("[Hangman] Events triggering is Not Activity", {
     setUp : function() {
         this.presenter = AddonHangman_create();
         this.presenter.configuration = {

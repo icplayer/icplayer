@@ -1,4 +1,4 @@
-TestCase("Getting phrase for scoring", {
+TestCase("[Hangman] Getting phrase for scoring", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.presenter.isErrorCheckingMode = false;
@@ -56,7 +56,7 @@ TestCase("Getting phrase for scoring", {
     }
 });
 
-TestCase("Selection array sufficiency check", {
+TestCase("[Hangman] Selection array sufficiency check", {
     setUp: function () {
         this.presenter = AddonHangman_create();
     },
@@ -90,9 +90,12 @@ TestCase("Selection array sufficiency check", {
 
 });
 
-TestCase("Scoring calculation", {
+TestCase("[Hangman] Scoring calculation", {
     setUp: function () {
         this.presenter = AddonHangman_create();
+        this.presenter.configuration = {
+            isCustomKeyboardLettersOrderSet: false
+        };
     },
 
     'test user selected all needed letters': function () {
@@ -228,6 +231,208 @@ TestCase("Scoring calculation", {
         }];
 
         var score = this.presenter.getScoring(phrases);
+
+        assertEquals({score: 1, errors: 0}, score);
+    }
+});
+
+TestCase("[Hangman] Scoring calculation with custom keyboard letters order", {
+    setUp: function () {
+        this.presenter = AddonHangman_create();
+        this.presenter.configuration = {
+            isCustomKeyboardLettersOrderSet: true,
+            lettersInCustomOrder: ["H", "A", "N", "G", "M", "B", "C", "F", "E", "I"]
+        };
+
+        this.spies = {
+            getLettersIndexesForScoring: sinon.spy(this.presenter, 'getLettersIndexesForScoring'),
+            isSelectionSufficient: sinon.spy(this.presenter, 'isSelectionSufficient')
+        };
+    },
+
+    tearDown: function () {
+        this.presenter.getLettersIndexesForScoring.restore();
+        this.presenter.isSelectionSufficient.restore();
+    },
+
+    'test user selected all needed letters': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 1, errors: 0}, score);
+    },
+
+    'test user selected all needed letters in phrase with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['!HAN!GMA!N'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 1, errors: 0}, score);
+    },
+
+    'test user did not select all needed letters in phrase with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!AN!G!MA!N'],
+            errorCount: 1,
+            selectedLetters: [1, 2, 3]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 0, errors: 1}, score);
+    },
+
+    'test user selected all needed letters in one phrase but not in second in phrases with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HA!NG!MA!N'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }, {
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!AN!GMA!N'],
+            errorCount: 1,
+            selectedLetters: [1, 2, 3]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 1, errors: 1}, score);
+    },
+
+    'test user selected all needed letters in all phrases in phrases with exclamation marks': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!AN!GMA!N'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }, {
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['H!A!NG!MA!N'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 2, errors: 0}, score);
+    },
+
+    'test user did not select all needed letters': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 0, errors: 1}, score);
+    },
+
+    'test user selected all needed letters in one phrase but not in second': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }, {
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 1, errors: 1}, score);
+    },
+
+    'test user selected all needed letters in all phrases': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }, {
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [0, 1, 2, 3, 4]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
+
+        assertEquals({score: 2, errors: 0}, score);
+    },
+
+    'test user selected all needed letters and few others': function () {
+        var phrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [1, 2, 3, 4, 0, 5, 6, 7]
+        }];
+
+        var score = this.presenter.getScoring(phrases);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.called);
+        assertTrue(this.spies.isSelectionSufficient.called);
+
+        assertTrue(this.spies.getLettersIndexesForScoring.calledBefore(this.spies.isSelectionSufficient));
 
         assertEquals({score: 1, errors: 0}, score);
     }

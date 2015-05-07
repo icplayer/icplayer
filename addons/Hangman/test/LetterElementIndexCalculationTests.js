@@ -1,4 +1,4 @@
-TestCase("Letter element index calculation", {
+TestCase("[Hangman] Letter element index calculation", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.phrase = ['PHRASE', 'AND', 'SOME', 'TEXT'];

@@ -1,18 +1,18 @@
-TestCase("String array validation", {
+TestCase("[Hangman] String array validation", {
     setUp: function() {
         this.presenter = AddonHangman_create();
     },
 
     'test valid list representation': function () {
-        assertTrue(this.presenter.isStringArrayValid('A,B,C,D,E'));
+        assertTrue(this.presenter.isArrayWithLettersValid(['A','B','C','D','E']));
     },
 
     'test invalid list representation': function () {
-        assertFalse(this.presenter.isStringArrayValid('A,B,CZ,D,E'));
+        assertFalse(this.presenter.isArrayWithLettersValid(['A','B','CZ','D','E']));
     }
 });
 
-TestCase("String array conversion", {
+TestCase("[Hangman] String array conversion", {
     setUp: function() {
         this.presenter = AddonHangman_create();
     },

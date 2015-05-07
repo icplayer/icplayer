@@ -444,6 +444,7 @@
 	"Hangman_property_phrase": "Wyrażenie",
 	"Hangman_property_possible_mistakes": "Dopuszczalna liczba pomyłek",
     "Hangman_property_is_not_activity": "Nie jest ćwiczeniem",
+    "Hangman_property_keyboard_letters_order": "Keyboard letters order",
 	"Image_Identification_info" : "Pozwala na wstawienie do prezentacji ćwiczenia składającego się z kilku obrazków do wyboru. Każdy element działa w trybie pojedynczej selekcji.",
 	"Image_Identification_name" : "Wybór obrazków",
 	"Image_Identification_property_image" : "Obraz",
