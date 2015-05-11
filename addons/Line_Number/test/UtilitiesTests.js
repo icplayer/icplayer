@@ -293,7 +293,7 @@ TestCase("[Line number] Create axis X custom values", {
         assertTrue(expectedResult.every(this.inArray, result));
     },
 
-    'test creating only from int cyclic values': function () {
+    'test creating only from int cyclic values 1': function () {
         this.presenter.configuration = {
             axisXValues: {cyclicValues: [2], fixedValues: []},
             min: -10,
@@ -307,7 +307,7 @@ TestCase("[Line number] Create axis X custom values", {
         assertTrue(expectedResult.every(this.inArray, result));
     },
 
-    'test creating only from int cyclic values': function () {
+    'test creating only from int cyclic values 2': function () {
         this.presenter.configuration = {
             axisXValues: {cyclicValues: [2, 3], fixedValues: []},
             min: -10,
@@ -348,5 +348,16 @@ TestCase("[Line number] Create axis X custom values", {
         var result = this.presenter.createAxisXCustomValues();
 
         assertTrue(expectedResult.every(this.inArray, result));
+    },
+
+    'test maxElement': function() {
+        assertEquals(4, this.presenter.maxElement([1, 2, 3, 4]));
+        assertEquals(3, this.presenter.maxElement([1, 2, 3]));
+        assertEquals(Infinity, this.presenter.maxElement([Infinity, -4 , 0]));
+        assertEquals(Infinity, this.presenter.maxElement([-Infinity, Infinity]));
+
+        assertEquals('4', this.presenter.maxElement(['1', '2', '3', '4']));
+
+        //assertException(this.presenter.maxElement([]), "Empty array");
     }
 });

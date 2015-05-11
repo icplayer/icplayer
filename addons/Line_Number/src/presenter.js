@@ -13,7 +13,7 @@ function AddonLine_Number_create() {
 
      */
 
-    var presenter = function () {};
+    var presenter = function() {};
 
     var eventBus,
         playerController;
@@ -30,14 +30,7 @@ function AddonLine_Number_create() {
             throw "Empty array";
         }
 
-        var max = array[0];
-        array.forEach(function (elem){
-            if (elem > max) {
-                max = elem;
-            }
-        });
-
-        return max;
+        return Math.max.apply(null, array);
     };
 
     presenter.errorCodes = {
@@ -193,10 +186,6 @@ function AddonLine_Number_create() {
         return xAxisWidth / (xAxisValues.length + 1);
     }
 
-    function parseValueWithStepPrecision(value) {
-        return parseFloat(value.toFixed(presenter.configuration.step.precision));
-    }
-
     function setClickedRanges(e) {
         var ranges = presenter.configuration.drawnRangesData.ranges,
             value = parseRangeStartOrEnd($(e).attr('value'), presenter.configuration.separator);
@@ -338,8 +327,8 @@ function AddonLine_Number_create() {
         var clickArea = $('<div></div>');
         var selectedRange = $('<div></div>');
 
-        selectedRange.addClass('selectedRange');
         clickArea.addClass('clickArea');
+        selectedRange.addClass('selectedRange');
 
         $(element).append(clickArea);
         clickArea.attr('value', value);
@@ -813,19 +802,13 @@ function AddonLine_Number_create() {
         if (ranges.length == 2) {
 
             if (presenter.configuration.mouseData.twoClickedRangesCount == 1) {
-
                 return ranges[0];
-
             } else if (presenter.configuration.mouseData.twoClickedRangesCount == 2) {
-
                 return ranges[1];
-
             }
 
         } else if (ranges.length == 1) {
-
             return ranges[0];
-
         } else {
 
             presenter.configuration.isError = true;
@@ -956,14 +939,21 @@ function AddonLine_Number_create() {
             }
 
             addToDrawnRanges(this);
-
             setRangeValues(this, true);
-
             addEndRangeImages(this, startElement, endElement, isStartInfinity, isEndInfinity);
-
         });
 
     };
+
+    function addEndRangeImages(range, startElement, endElement, isStartInfinity, isEndInfinity) {
+        if (!isEndInfinity) {
+            addEndRangeImage(endElement, range.end.include);
+        }
+
+        if (!isStartInfinity) {
+            addEndRangeImage(startElement, range.start.include);
+        }
+    }
 
     function addInfinityClass(isStartInfinity, isEndInfinity, range) {
         if ( isStartInfinity && isEndInfinity ) {
@@ -1027,18 +1017,6 @@ function AddonLine_Number_create() {
         }
     }
 
-    function addEndRangeImages(range, startElement, endElement, isStartInfinity, isEndInfinity) {
-
-        if ( !isEndInfinity ) {
-            addEndRangeImage( endElement, range.end.include );
-        }
-
-        if ( !isStartInfinity ) {
-            addEndRangeImage( startElement, range.start.include );
-        }
-
-    }
-
     function convertNdashToMinus(value) {
         return new String(value).replace('&ndash;', '-');
     }
@@ -1055,16 +1033,15 @@ function AddonLine_Number_create() {
             transformValueToDisplayVersion(endValue, false) + endInclude;
     };
 
-    function addEndRangeImage(element, include) {
-
-        var currentImages = element.find('.rangeImage');
+    function addEndRangeImage($element, include) {
+        var currentImages = $element.find('.rangeImage');
         currentImages.remove();
 
         var imageContainer = $('<div></div>');
         imageContainer.addClass('rangeImage');
 
         imageContainer.addClass(include ? 'include' : 'exclude');
-        element.append(imageContainer);
+        $element.append(imageContainer);
 
         if(!presenter.hideAnswerClicked && !presenter.isShowAnswersActive){
             presenter.parentLeft = imageContainer.parent().css('left');
@@ -1121,11 +1098,9 @@ function AddonLine_Number_create() {
     }
 
     function checkCustomValues(element) {
-        var isCustomValue = false;
+        var isCustomValue = isMultiplicationOfCyclicValues(element);
 
-        isCustomValue = isMultiplicationOfCyclicValues(element);
-
-        if(!isCustomValue) {
+        if (!isCustomValue) {
             isCustomValue = (presenter.configuration.axisXValues.fixedValues.indexOf(element) != -1)
         }
 
@@ -1286,7 +1261,7 @@ function AddonLine_Number_create() {
             this.end.element = presenter.$view.find('.clickArea[value="' + this.end.value + '"]').parent();
         });
 
-        $.each(presenter.configuration.shouldDrawRanges, function () {
+        $.each(presenter.configuration.shouldDrawRanges, function() {
             presenter.removeRange(this, true);
         });
 
@@ -1318,12 +1293,15 @@ function AddonLine_Number_create() {
         }
 
         var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
-
         $.each(rangesToRemove, function() {
             presenter.removeRange(this, true);
         });
 
-        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
+        // removing all single dots
+        presenter.$view.find('.rangeImage').remove();
+
+        var initRanges = presenter.validateRanges(presenter.configuration.ranges, presenter.configuration.separator);
+        presenter.drawRanges(initRanges.shouldDrawRanges);
 
         presenter.configuration.mouseData.clicks = [];
 
@@ -1333,8 +1311,6 @@ function AddonLine_Number_create() {
         presenter.configuration.isShowErrorsMode = false;
         presenter.configuration.isDisabled = presenter.configuration.isDisabledByDefault;
 
-        // removing all single dots
-        presenter.$view.find('.rangeImage').remove();
         presenter.leftShowAnswers = false;
         presenter.parentLeft = false;
     };
@@ -1503,7 +1479,7 @@ function AddonLine_Number_create() {
             eventBus.sendEvent('ValueChanged', eventData);
 
             if ( presenter.allRangesCorrect() ) {
-                var eventData = presenter.createAllOKEventData();
+                eventData = presenter.createAllOKEventData();
                 eventBus.sendEvent('ValueChanged', eventData);
             }
         }
@@ -1635,7 +1611,6 @@ function AddonLine_Number_create() {
     presenter.validateRangesWithAxisXField = function (ranges, axisXFieldValues) {
         var allRanges = ranges.otherRanges.concat(ranges.shouldDrawRanges);
 
-
         function checkRange(range) {
             if ( (axisXFieldValues.indexOf(range.start.value) == -1 || axisXFieldValues.indexOf(range.end.value) == -1)
                 && (!isValueInfinity(range.start.value) && !isValueInfinity(range.end.value) )) {
@@ -1766,7 +1741,6 @@ function AddonLine_Number_create() {
 
     presenter.validateModel = function(model) {
         var separator = presenter.validateDecimalSeparator(model['Decimal Separator']);
-
         if (!separator.isValid) {
             return presenter.getErrorObject("DSE01");
         }
@@ -1859,15 +1833,13 @@ function AddonLine_Number_create() {
             separator: separator.value,
             axisXFieldValues: axisXFieldValues,
             allRanges: validatedRangesWithAxisXField.value,
-            isCustomAxisXValuesSet: validatedAxisXValues.isCustomAxisXValuesSet
+            isCustomAxisXValuesSet: validatedAxisXValues.isCustomAxisXValuesSet,
+            ranges: model["Ranges"]
         };
     };
 
-    presenter.isZeroInRange = function (min, max) {
-        if (min <= 0 && max >= 0) {return true;}
-        if (min < 0 && max == 0) {return true;}
-        if (min == 0 && max > 0) {return true;}
-        return false;
+    presenter.isZeroInRange = function(min, max) {
+        return (min <= 0 && max >= 0) || (min < 0 && max == 0) || (min == 0 && max > 0);
     };
 
     function getAxisXValuesErrors(fixedValues, cyclicValues, addonConfiguration) {
@@ -1953,24 +1925,23 @@ function AddonLine_Number_create() {
 
         function changePrecision(value) {return presenter.changeNumberToPrecision(value, precision);}
 
-        for (i = min; i <= max; i += step) {values.push(i);}
+        for (i = min; i <= max; i += step) {
+            values.push(i);
+        }
 
-        if(presenter.isZeroInRange(min, max)) {
-            if(values.indexOf(0) == -1) {
+        if (presenter.isZeroInRange(min, max)) {
+            if (values.indexOf(0) == -1) {
                 values.push(0);
             }
 
         }
 
-        var valuesWithChangedPrecision = values.map(changePrecision);
-        var sortedValues = valuesWithChangedPrecision.sort(function (a, b){
+        return values.map(changePrecision).sort(function(a, b) {
            return a - b;
         });
-
-        return sortedValues;
     };
 
-    presenter.getNumberPrecision = function (value) {
+    presenter.getNumberPrecision = function(value) {
         value = value.toString();
         value = value.split(".");
 
@@ -1986,7 +1957,9 @@ function AddonLine_Number_create() {
 
     presenter.changeNumberToPrecision = function (value, precision) {
         //toFixed value rounds up to closest number eg. 23.6xx.toFixed(0) -> 24, when we want get 23
-        if (precision == 0) {return parseInt(value)};
+        if (precision == 0) {
+            return parseInt(value, 10);
+        }
         return Number(value.toFixed(precision));
     };
 
@@ -2013,7 +1986,7 @@ function AddonLine_Number_create() {
     };
 
     presenter.abs = function (value) {
-        if(value < 0) {
+        if (value < 0) {
             return value * -1;
         }
 
@@ -2230,6 +2203,5 @@ function AddonLine_Number_create() {
 
     };
 
-
     return presenter;
-}       
+}

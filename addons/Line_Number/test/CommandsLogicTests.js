@@ -13,7 +13,8 @@ TestCase("[Line number] Commands logic", {
             isVisibleByDefault : true,
             isShowErrorsMode : true,
             isDisabled : true,
-            isDisabledByDefault : false
+            isDisabledByDefault : false,
+            ranges : '<-2; 1); 1'
         };
         this.presenter.$view = $('<div></div>');
 
