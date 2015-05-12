@@ -1,4 +1,90 @@
+.main_container {
+    position: relative;
+    background-color: transparent;
+    margin: 5px;
+}
+
+.upper_container {
+    position: relative;
+}
+
+.bottom_container {
+
+}
+
+.graph_container {
+    position: absolute;
+    opacity: 0.8;
+    top: 0px;
+    left: 30px;
+    box-shadow: 3px 0 15px -4px #333;
+}
+
+.column {
+    background-color: white;
+    position: absolute;
+    opacity: 0.9;
+    top: 0.5px;
+    box-shadow: 3px 0 15px -4px #333, -3px 0 8px -4px #333;
+}
+
+.jqplot-xaxis-label {
+    position: absolute;
+}
+
+.jqplot-xaxis {
+    position: relative;
+}
+
+.jqplot-xaxis-tick {
+    position: absolute;
+    font-size: 8px;
+    text-align: center;
+    heigth: 20px;
+    top: 10px;
+}
+
 .countGraph_image {
+    position: absolute;
     width: 30px;
     height: 30px;
+    margin-left: -15px;
+}
+
+.axis_x_dash {
+    position: absolute;
+    height: 5px;
+    width: 1px;
+    background-color: black;
+}
+
+.jqplot-yaxis-label {
+    position: absolute;
+    left: 0px;
+    width: 30px;
+    height: 30px;
+}
+
+.jqplot-yaxis-tick {
+    position: absolute;
+    font-size: 10px;
+    left: 10px;
+    height: 15px;
+    vertical-align: middle;
+}
+
+.jqplot-yaxis {
+    position: absolute;
+    background-color: white;
+    opacity: 0.8;
+    top: 0px;
+    left: 0px;
+}
+
+.axis_y_dash {
+    position: absolute;
+    left: 26px;
+    height: 2px;
+    width: 8px;
+    background-color: black;
 }
