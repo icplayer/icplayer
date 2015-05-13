@@ -67,22 +67,22 @@ public class PagePopupPanel extends DialogBox {
 		Style glassStyle = getGlassElement().getStyle();
 		
 		int top;
-		
-		if(parentWidget.getAbsoluteTop() > Window.getScrollTop()){
+		if (parentWidget.getAbsoluteTop() > Window.getScrollTop()) {
 			top = parentWidget.getAbsoluteTop();
-		}
-		else{
+		} else {
 			top = Window.getScrollTop();
 		}
 		
-		int height = pageWidget.getElement().getClientHeight() + top;
-		
+		int height = getElement().getClientHeight();
+
 		if (height < Window.getClientHeight()) {
 			height = Window.getClientHeight();
 		}
 		
-		glassStyle.setProperty("top", 0+"px");
-		glassStyle.setProperty("height", height+"px");
+		height += top;
+		
+		glassStyle.setProperty("top", 0 + "px");
+		glassStyle.setProperty("height", height + "px");
 		center();
 	}
 	
