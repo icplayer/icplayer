@@ -147,7 +147,7 @@ public class ModuleFactory implements IModuleFactory{
 			return new ErrorCounterView((ErrorCounterModule) module, isPreview);
 		}
 		else if(module instanceof ImageModule){
-			return new ImageView((ImageModule) module, isPreview);
+			return new ImageView((ImageModule) module, isPreview, services);
 		}
 		else if(module instanceof ImageSourceModule){
 			return new ImageSourceView((ImageSourceModule) module, isPreview);

@@ -8,6 +8,7 @@ import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
@@ -26,9 +27,6 @@ public class PlayerServices implements IPlayerServices {
 	private IJsonServices	jsonServices = new JsonServices();
 	
 	
-	/**
-	 * constructor
-	 */
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 	
 		this.playerController = controller;
@@ -42,6 +40,12 @@ public class PlayerServices implements IPlayerServices {
 	public IScoreService getScoreService() {
 
 		return 	playerController.getScoreService();
+	}
+	
+	@Override
+	public IAssetsService getAssetsService() {
+
+		return 	playerController.getAssetsService();
 	}
 
 	@Override
