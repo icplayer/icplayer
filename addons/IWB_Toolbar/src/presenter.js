@@ -2494,6 +2494,13 @@ function AddonIWB_Toolbar_create() {
                 }
             }
         }
+
+        /**
+         * We're adding addon class to its panel as a way of ensuring custom class styling applies.
+         * Normally addon has custom class set by Player, but in our case the view is hidden and visible part
+         * (panel) is not a child of it.
+         */
+        presenter.$panel.addClass(document.getElementById(model["ID"]).className);
     };
 
     presenter.setShowErrorsMode = function() {};
