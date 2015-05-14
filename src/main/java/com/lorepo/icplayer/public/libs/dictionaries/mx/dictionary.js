@@ -746,6 +746,7 @@
 	"Table_property_case_sensitive": "distingue mayúsculas y minúsculas",
 	"Table_property_ignore_punctuation": "Ignora la puntuación",
 	"Table_property_gap_width": "Anchura del espacio",
+    "Table_property_gap_type": "Gap type",
 	"Table_Of_Contents_info": "Muestra tabla de contenidos de la presentación con los enlaces a las páginas correspondientes.",
 	"Table_Of_Contents_name": "Índice",
 	"Table_Of_Contents_property_header": "Cabezal",

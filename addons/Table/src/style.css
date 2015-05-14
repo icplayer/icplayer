@@ -25,3 +25,7 @@
 .table-addon-wrapper table tr td {
     border: 1px solid black;
 }
+
+.table-addon-wrapper .gapFilled{
+    cursor: pointer;
+}

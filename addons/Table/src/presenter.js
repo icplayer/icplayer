@@ -32,6 +32,7 @@ function AddonTable_create() {
             };
 
         var textParserResult = presenter.textParser.parseGaps(presenter.$view.html(), textParserOptions);
+
         var parsedText = textParserResult.parsedText;
 
         var simpleGaps = textParserResult.gaps;
@@ -58,6 +59,11 @@ function AddonTable_create() {
                 isEnabled: !isDisabled
             });
         });
+
+        if(presenter.configuration.gapType == "draggable"){
+            parsedText = parsedText.replace(/input/g, 'span');
+        }
+
         presenter.$view.html(parsedText);
         return parseResult;
     };
@@ -136,10 +142,102 @@ function AddonTable_create() {
         presenter.logic(view, model, true);
     };
 
+    presenter.selectedItem = null;
+
+    presenter.eventListener = {
+        onEventReceived: function(eventName, eventData) {
+            if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
+
+            if(typeof(eventData.item) == "undefined") {
+
+            } else if(eventData.type == "string") {
+                presenter.selectedItem = eventData;
+            }
+        }
+    };
+
     presenter.run = function (view, model) {
         presenter.logic(view, model, false);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('ItemSelected', presenter.eventListener);
+
+
+        if(presenter.configuration.gapType == 'draggable'){
+            presenter.$view.find('input').attr("disabled", "true");
+
+            var handler = $(view).find('span');
+
+            $(handler).on('click', function (e){
+
+                if($(this).text() != ''){
+                    presenter.removeDraggable(e);
+                }else{
+                    presenter.acceptDraggable(e);
+                }
+            });
+
+            handler.droppable({drop: function(event, ui) {
+                event.stopPropagation();
+                event.preventDefault();
+                presenter.acceptDraggable(event, ui);
+            }});
+        }
+    };
+
+    presenter.acceptDraggable = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if(presenter.isShowAnswersActive) return;
+
+        if($(e.target).text() != ''){
+            presenter.removeDraggable(e);
+        }
+
+        if(presenter.selectedItem != null){
+            presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
+        }
+    };
+
+    presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
+        $(handler).text(item.value);
+
+        var gapIndex = presenter.getGapIndex(handler);
+        presenter.configuration.gaps.descriptions[gapIndex].value = $(handler).text();
+        presenter.sendValueChangeEvent(gapIndex);
+        $(handler).addClass('gapFilled');
+        $(handler)
+            .attr({
+                draggableValue: item.value,
+                draggableItem: item.item,
+                draggableType: item.type
+            });
+
+        presenter.eventBus.sendEvent('ItemConsumed', item);
+
+        presenter.selectedItem = null;
+    };
+
+    presenter.removeDraggable = function (e) {
+        if(presenter.isShowAnswersActive) return;
+
+        $(e.target).text('');
+        $(e.target).removeClass('gapFilled');
+
+        var gapIndex = presenter.getGapIndex(e.target);
+        presenter.configuration.gaps.descriptions[gapIndex].value = '';
+        presenter.sendValueChangeEvent(gapIndex);
+
+        presenter.eventBus.sendEvent('ItemReturned', {
+            value: $(e.target).attr('draggableValue'),
+            item: $(e.target).attr('draggableItem'),
+            type: $(e.target).attr('draggableType')
+        });
+
+        $(e.target).removeAttr('draggableValue');
+        $(e.target).removeAttr('draggableItem');
+        $(e.target).removeAttr('draggableType');
     };
 
     presenter.setGapDisableProperties = function (index, isEnabled) {
@@ -169,6 +267,16 @@ function AddonTable_create() {
             return "";
         });
         presenter.restoreGapValues(emptyGapsValues);
+
+        if(presenter.configuration.gapType == "draggable"){
+            presenter.$view.find('span').each(function (){
+                $(this).text('');
+                $(this).removeAttr('draggableValue');
+                $(this).removeAttr('draggableItem');
+                $(this).removeAttr('draggableType');
+                $(this).removeClass('gapFilled');
+            });
+        }
     };
 
     presenter.getState = function () {
@@ -183,9 +291,24 @@ function AddonTable_create() {
             return { value: gap.value, isEnabled: gap.isEnabled };
         });
 
+        var spans;
+        if(presenter.configuration.gapType == "draggable"){
+            spans = jQuery.map(presenter.$view.find('span'), function(spans) {
+                return {
+                    item : $(spans).attr('draggableItem'),
+                    value : $(spans).attr('draggableValue'),
+                    type : $(spans).attr('draggableType'),
+                    id:  $(spans).attr('id')
+                };
+            });
+        }else{
+            spans = null;
+        }
+
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible,
-            gaps: gaps
+            gaps: gaps,
+            spans: spans
         });
     };
 
@@ -193,7 +316,15 @@ function AddonTable_create() {
         $.each(gapValues, function (index, value) {
             presenter.configuration.gaps.descriptions[index].value = gapValues[index];
             var gapIndex = presenter.configuration.addonID + "-" + (index + 1);
-            $("#" + gapIndex).val(gapValues[index]);
+            if(presenter.configuration.gapType == "draggable"){
+                if($("#" + gapIndex).is('select')){
+                    $("#" + gapIndex).val(gapValues[index]);
+                }else{
+                    $("#" + gapIndex).text(gapValues[index]);
+                }
+            }else{
+                $("#" + gapIndex).val(gapValues[index]);
+            }
         });
     };
 
@@ -212,6 +343,21 @@ function AddonTable_create() {
         $.each(state.gaps, function (index, gap) {
             presenter.setGapDisableProperties(index, gap.isEnabled);
         });
+
+        if(state.spans != null){
+            for(var i= 0; i< state.spans.length; i++){
+                if(state.spans[i].value != undefined){
+                    var element = presenter.$view.find('#'+state.spans[i].id);
+                    $(element)
+                        .attr({
+                            draggableValue: state.spans[i].value,
+                            draggableItem: state.spans[i].item,
+                            draggableType: state.spans[i].type
+                        });
+                    $(element).addClass('gapFilled');
+                }
+            }
+        }
     };
 
     /**
@@ -481,7 +627,8 @@ function AddonTable_create() {
             isDisabled: ModelValidationUtils.validateBoolean(model["Is disabled"]),
             isPunctuationIgnored: ModelValidationUtils.validateBoolean(model["Ignore punctuation"]),
             isCaseSensitive: ModelValidationUtils.validateBoolean(model["Case sensitive"]),
-            gapWidth: gapWidth
+            gapWidth: gapWidth,
+            gapType: model["Gap Type"]
         };
     };
 
@@ -786,6 +933,10 @@ function AddonTable_create() {
             if (gapDescription.isEnabled) $(gap).removeAttr('disabled');
             presenter.removeMarkClasses(gap);
         });
+
+        if(presenter.configuration.gapType == "draggable"){
+            presenter.$view.find('input').attr("disabled", "true");
+        }
     };
 
     presenter.createEventData = function (item, value, score) {
@@ -827,8 +978,18 @@ function AddonTable_create() {
                 var gapIndex = presenter.getGapIndex(gap);
                 var gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
                 $(gap).attr('disabled', 'disabled');
-                presenter.answers.push($(gap).val());
-                $(gap).val(gapDescription.answers[0]);
+                if(presenter.configuration.gapType == "draggable"){
+                    if($(this).is('select')){
+                        presenter.answers.push($(gap).val());
+                        $(gap).val(gapDescription.answers[0]);
+                    }else{
+                        presenter.answers.push($(gap).text());
+                        $(gap).text(gapDescription.answers[0]);
+                    }
+                }else{
+                    presenter.answers.push($(gap).val());
+                    $(gap).val(gapDescription.answers[0]);
+                }
                 presenter.removeMarkClasses(gap);
                 $(gap).addClass('ic_gap-show-answers');
             });
@@ -842,8 +1003,16 @@ function AddonTable_create() {
 	        $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
 	            var gapIndex = presenter.getGapIndex(gap);
 	            var gapDescription = presenter.configuration.gaps.descriptions[gapIndex];
-	            
-	            $(gap).val(presenter.answers[index]);
+
+                if(presenter.configuration.gapType == "draggable"){
+                    if($(this).is('select')){
+                        $(gap).val(presenter.answers[index]);
+                    }else{
+                        $(gap).text(presenter.answers[index]);
+                    }
+                }else{
+	                $(gap).val(presenter.answers[index]);
+                }
 	            $(gap).removeClass('ic_gap-show-answers');
 	        });
     	}

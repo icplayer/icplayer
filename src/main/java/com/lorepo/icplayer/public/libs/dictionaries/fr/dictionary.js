@@ -749,6 +749,7 @@
     "Table_property_case_sensitive": "Sensible à la casse",
     "Table_property_ignore_punctuation": "Ignorer la ponctuation",
     "Table_property_gap_width": "Largeur du champ",
+    "Table_property_gap_type": "Gap type",
     "Table_Of_Contents_info": "Affiche la table des matières ainsi que des liens vers les pages correspondantes de la présentation.",
     "Table_Of_Contents_name": "Table des matières",
     "Table_Of_Contents_property_header": "En-tête",

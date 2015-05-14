@@ -1,3 +1,4 @@
+2015-05-14 Added handling draggable gaps in Table module
 2015-05-13 Added Assets Service and handling SVG files in Image module
 2015-05-13 Fixed issue with height of PagePopupPanel glass
 2015-05-13 Fixed issue with adding custom class to panel in IWB Toolbar module
