@@ -2,7 +2,6 @@ package com.lorepo.icplayer.client.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -156,12 +155,6 @@ public class Content implements IXMLSerializable, IContent {
 	public IAsset getAsset(int index){
 		
 		return assets.get(index);
-	}
-	
-	@Override
-	public List<IAsset> getAssets(){
-		
-		return assets;
 	}
 
 	

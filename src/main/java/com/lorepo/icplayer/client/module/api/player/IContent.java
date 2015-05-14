@@ -1,8 +1,5 @@
 package com.lorepo.icplayer.client.module.api.player;
 
-import java.util.List;
-
-import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.Page;
 
 public interface IContent {
@@ -15,5 +12,4 @@ public interface IContent {
     public String getBaseUrl();
     public IChapter getTableOfContents();
     public IChapter getCommonPages();
-    public List<IAsset> getAssets();
 }
