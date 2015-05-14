@@ -43,6 +43,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public void markGapAsWrong();
 		public boolean isAttempted();
 		public Element getElement();
+		public void makeDraggable(ImageGapPresenter imageGapPresenter);
+		public boolean getDisabled();
 	}
 	
 	private ImageGapModule model;
@@ -54,6 +56,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private boolean isVisible;
 	private boolean isShowAnswersActive = false;
 	private String currentState = "";
+	private HashMap<String, String> currentEventData;
 	
 	public ImageGapPresenter(ImageGapModule model, IPlayerServices services) {
 		this.model = model;
@@ -197,6 +200,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			String score = Integer.toString(getScore());
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", consumedItem.getId(), score);
 			playerServices.getEventBus().fireEvent(valueEvent);
+			view.makeDraggable(this);
 		}
 
 	}
@@ -261,6 +265,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (state.containsKey("consumed")) {
 			consumedItem = DraggableItem.createFromString(state.get("consumed"));
 			view.setImageUrl(getImageURL(consumedItem));
+			view.makeDraggable(this);
 		}
 		if (state.containsKey("isVisible")) {
 			if (Boolean.parseBoolean(state.get("isVisible"))) {
@@ -386,9 +391,48 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.getView = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getView()();
 		}
+		presenter.itemDragged = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::itemDragged()();
+		}
+		presenter.itemStopped = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::itemStopped()();
+		}
+		presenter.isDragPossible = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isDragPossible()();
+		}
 
 		return presenter;
 	}-*/;
+	
+	private HashMap<String, String> prepareEventData() {
+		if (consumedItem != null) {
+			HashMap<String, String> eventData = new HashMap<String, String>();
+			eventData.put("item", consumedItem.getId());
+			eventData.put("type", "image");
+			eventData.put("value", consumedItem.getValue());
+			currentEventData = eventData;
+		}
+		return currentEventData;
+	}
+	
+	
+	private void itemDragged() {
+		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
+		viewClicked();
+		playerServices.getEventBus().fireEvent(dragEvent);
+	}
+	
+	private void itemStopped() {
+		CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData());
+		playerServices.getEventBus().fireEvent(stopEvent);
+	}
+	
+	private boolean isDragPossible() {
+		if (this.isShowAnswersActive || view.getDisabled()) {
+			return false;
+		}
+		return true;
+	}
 	
 	private Element getView() {
 		return view.getElement();

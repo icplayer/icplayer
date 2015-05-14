@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
@@ -19,11 +20,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean isWorkMode = true;
 	private String answerText = "";
 	private boolean isFilledGap = false;
+	private JavaScriptObject jsObject = null;
+	private ITextViewListener listener;
 	
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		
 		super(DOM.getElementById(gi.getId()));
 
+		this.listener = listener;
 		gapInfo = gi;
 		Element element = getElement();
 		this.isFilledGap = element.getAttribute("class").contains("ic_filled_gap");
@@ -52,6 +56,46 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		return (gapInfo.getId().compareTo(id) == 0);
 	}
 
+	public JavaScriptObject getAsJavaScript() {
+		if (jsObject == null) {
+			jsObject = initJSObject(this);
+		}
+		return jsObject;
+	}
+	
+	private native JavaScriptObject initJSObject(DraggableGapWidget x) /*-{
+		var view = function(){};
+		view.itemDragged = function() {
+			return x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::itemDragged()();
+		};
+		view.itemStopped = function() {
+			return x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::itemStopped()();
+		};
+		view.isDragPossible = function() {
+			return x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::isDragPossible()();
+		};
+		return view;
+	}-*/;
+	
+	private void itemDragged() {
+		if (listener != null) {
+			listener.onGapDragged(gapInfo.getId());
+		}
+	}
+	
+	private void itemStopped() {
+		if (listener != null) {
+			listener.onGapStopped(gapInfo.getId());
+		}
+	}
+	
+	private boolean isDragPossible() {
+		if (!isWorkMode || this.disabled) {
+			return false;
+		}
+		return true;
+	}
+	
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
 
@@ -95,6 +139,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			super.setHTML(markup);
 			answerText = StringUtils.removeAllFormatting(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
+			JavaScriptUtils.makeDroppedDraggable(getElement(), getAsJavaScript());
 		}
 		
 		if (isFilledGap) {

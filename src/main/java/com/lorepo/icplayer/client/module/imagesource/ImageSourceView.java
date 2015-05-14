@@ -59,7 +59,7 @@ public class ImageSourceView extends Image implements IDisplay {
 			public void onDragStart(DragStartEvent event) {
 				isDragged = true;
 				if (listener != null) {
-					listener.onClicked();
+					listener.onDragged();
 				}
 			}
 		});

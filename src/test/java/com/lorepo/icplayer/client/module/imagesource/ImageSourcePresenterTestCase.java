@@ -107,7 +107,7 @@ public class ImageSourcePresenterTestCase {
 		assertEquals("media/river.jpg", draggableItem.getValue());
 		
 		display.click();
-		assertNull(draggableItem);
+		assertNull(draggableItem.getId());
 	}
 
 	@Test

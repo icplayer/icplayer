@@ -38,6 +38,7 @@ function Addonmultiplegap_create(){
 
     presenter.showErrorsMode      = false;
     presenter.isShowAnswersActive = false;
+    presenter.placeholders2drag = [];
 
     presenter.createPreview = function(view, model) {
         presenter.createLogic(view, model, true);
@@ -193,7 +194,7 @@ function Addonmultiplegap_create(){
         onEventReceived: function(eventName, eventData) {
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
 
-            if(typeof(eventData.item) == "undefined") {
+            if(typeof(eventData.item) == "undefined" || eventData.item === null) {
                 presenter.clearSelected();
 
             } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES && eventData.type == "image") {
@@ -224,6 +225,8 @@ function Addonmultiplegap_create(){
         $(presenter.selectorRootClass() + ' .handler_disabled')
             .click(presenter.removeDraggable)
             .removeClass('handler_disabled');
+
+        $(presenter.selectorRootClass() + '>.handler').hide();
     };
 
     presenter.saveSelected = function(eventData) {
@@ -428,6 +431,103 @@ function Addonmultiplegap_create(){
         $(presenter.selectorRootClass() + '>.handler').hide();
 
         presenter.clearSelected();
+
+        if (isState) {
+            presenter.placeholders2drag.push(placeholder);
+        } else {
+            presenter.makePlaceholderDraggable(placeholder);
+        }
+    };
+
+    presenter.makePlaceholderDraggable = function(placeholder) {
+        placeholder.draggable({
+            revert : false,
+            helper: function() {
+                presenter.itemDragged(placeholder);
+                return getDraggedSrc(placeholder).clone().show();
+            },
+            cursorAt: calculateCursorPosition(placeholder),
+            appendTo: getDraggedSrc(placeholder) === placeholder ? 'parent' : '.ic_page',
+            start : function(event, ui) {
+                if (!presenter.isDragPossible()) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    return;
+                }
+                ui.helper.zIndex(100);
+            },
+            stop : function(event, ui) {
+                ui.helper.zIndex(0);
+                ui.helper.remove();
+                presenter.itemStopped(placeholder);
+                ui.helper.remove();
+            }
+        });
+    };
+
+    var getDraggedSrc = function(placeholder) {
+        if (placeholder.parents('.multiplegap_container').css("overflow") == "hidden") {
+            if (presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES) {
+                return $("[id='" + placeholder.attr('draggableitem') + "']");
+            } else {
+                var item_id = placeholder.attr('draggableitem');
+                var container_id = item_id.replace(/\-[0-9]+$/, '');
+                return $(presenter.playerController.getModule(container_id).getItemView(item_id));
+            }
+        } else {
+            return placeholder;
+        }
+    };
+
+    var calculateCursorPosition = function(placeholder) {
+        var obj = getDraggedSrc(placeholder);
+        var position;
+        if (obj === placeholder) {
+            position = {
+                left: Math.round(obj.outerWidth() / 2),
+                top: Math.round(obj.outerHeight() / 2)
+            };
+        } else {
+            var src = obj.clone();
+            src.width(obj.width());
+            src.height(obj.height());
+            $('.ic_page').append(src);
+            position = {
+                left:  Math.round(src.outerWidth()/2),
+                top: Math.round(src.outerHeight()/2)
+            };
+            src.remove();
+        }
+        return position;
+    };
+
+    presenter.isDragPossible = function() {
+        if (presenter.showErrorsMode || presenter.isShowAnswersActive) {
+            return false;
+        }
+        return true;
+    };
+
+    presenter.itemDragged = function(placeholder) {
+        var evnt = {
+            source: presenter.configuration.ID,
+            value: placeholder.attr('draggableValue'),
+            item: placeholder.attr('draggableItem'),
+            type: placeholder.attr('draggableType')
+        };
+        presenter.performRemoveDraggable(placeholder.find('.handler'), true);
+        presenter.eventBus.sendEvent('itemDragged', evnt);
+    };
+
+    presenter.itemStopped = function(placeholder) {
+        var evnt = {
+            source: presenter.configuration.ID,
+            value: placeholder.attr('draggableValue'),
+            item: placeholder.attr('draggableItem'),
+            type: placeholder.attr('draggableType')
+        };
+        presenter.eventBus.sendEvent('itemStopped', evnt);
+        placeholder.remove();
     };
 
     presenter.removeDraggable = function(e) {
@@ -460,7 +560,14 @@ function Addonmultiplegap_create(){
             }
         });
 
-        placeholder.remove();
+        if (arguments[1]) {
+            placeholder.hide();
+            if (placeholder.is(":visible")) {
+                placeholder.style("display", "none", "important");
+            }
+        } else {
+            placeholder.remove();
+        }
 
         presenter.eventBus.sendEvent('ItemReturned', {
             value: placeholder.attr('draggableValue'),
@@ -652,6 +759,10 @@ function Addonmultiplegap_create(){
 
         presenter.pageLoaded.then(function() {
             presenter.updateLaTeX(presenter.getContainerElement());
+            for (var i=0; i<presenter.placeholders2drag.length; i++) {
+                var placeholder = presenter.placeholders2drag[i];
+                presenter.makePlaceholderDraggable(placeholder);
+            }
         });
     };
 
@@ -660,7 +771,7 @@ function Addonmultiplegap_create(){
     };
 
     presenter.countItems = function() {
-        return presenter.$view.find('.placeholder').length;
+        return presenter.$view.find('.placeholder:visible').length;
     };
 
     presenter.isAttemptedCommand = function() {

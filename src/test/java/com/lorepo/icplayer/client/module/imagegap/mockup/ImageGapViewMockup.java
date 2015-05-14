@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.imagegap.mockup;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.imagegap.IViewListener;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapModule;
+import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter.IDisplay;
 
 public class ImageGapViewMockup implements IDisplay {
@@ -107,5 +108,17 @@ public class ImageGapViewMockup implements IDisplay {
 	public void showCorrectAnswers() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void makeDraggable(ImageGapPresenter imageGapPresenter) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean getDisabled() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

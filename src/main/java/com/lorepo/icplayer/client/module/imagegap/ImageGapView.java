@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module.imagegap;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
@@ -103,6 +105,11 @@ public class ImageGapView extends Image implements IDisplay {
 	}
 
 	@Override
+	public boolean getDisabled() {
+		return this.disabled;
+	}
+	
+	@Override
 	public void show() {
 		setVisible(true);		
 	}
@@ -128,5 +135,9 @@ public class ImageGapView extends Image implements IDisplay {
 	public boolean isAttempted() {
 		return getUrl().indexOf(HOLLOW_IMAGE) < 0;
 	}
-
+	
+	public void makeDraggable(ImageGapPresenter presenter) {
+		JavaScriptUtils.makeDroppedDraggable(getElement(), presenter.getAsJavaScript());
+	}
+	
 }

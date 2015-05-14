@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.sourcelist;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
@@ -11,12 +12,14 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -39,6 +42,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public Element getElement();
 		public void show();
 		public void hide();
+		public Element getItem(String id);
+		public Set<String> getCurrentLabels();
 	}
 	
 	private IDisplay view;
@@ -81,6 +86,22 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		eventBus.addHandler(ItemReturnedEvent.TYPE, new ItemReturnedEvent.Handler() {
 			public void onItemReturned(ItemReturnedEvent event) {
 				returnItem(event.getItem());
+			}
+		});
+		
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
+			public void onCustomEventOccurred(CustomEvent event) {
+				String gotItem = event.getData().get("item");
+				if (!gotItem.startsWith(getItemPrefix())) {
+					return;
+				}
+				if (event.eventName == "itemDragged") {
+					selectItem(gotItem);
+				} else if (event.eventName == "itemStopped") {
+					deselectCurrentItem();
+					playerServices.getEventBus().fireEventFromSource(new ItemSelectedEvent(null), this);
+				}
 			}
 		});
 		
@@ -242,10 +263,13 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 	
 	private void refreshView() {
-		view.removeAll();
-		for (String id : items.keySet()) {
-			String text = items.get(id);
-			view.addItem(id, text, false);
+		
+		Set<String> currentLabels = view.getCurrentLabels();
+		
+		for (String labelId : currentLabels) {
+			if (!items.keySet().contains(labelId)) {
+				view.removeItem(labelId);
+			}
 		}
 	}
 
@@ -286,6 +310,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getItem(I)(id);
 		};
 		
+		presenter.getItemView = function(id){ 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getItemView(Ljava/lang/String;)(id);
+		};
+		
 		return presenter;
 	}-*/;
 	
@@ -320,6 +348,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	
 	private Element getView(){
 		return view.getElement();
+	}
+	
+	private Element getItemView(String id){
+		return view.getItem(id);
 	}
 
 	@Override

@@ -12,4 +12,6 @@ public interface ITextViewListener {
 	public void onGapFocused(String controlId, Element element);
 	public void onGapBlured(String gapId, Element element);
 	public void onDropdownClicked(String id);
+	public void onGapDragged(String gapId);
+	public void onGapStopped(String gapId);
 }

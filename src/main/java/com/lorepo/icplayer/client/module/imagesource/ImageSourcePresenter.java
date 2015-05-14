@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
@@ -81,6 +82,22 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			}
 		});
 		
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
+			public void onCustomEventOccurred(CustomEvent event) {
+				String gotItem = event.getData().get("item");
+				if (gotItem != getSerialId()) {
+					return;
+				}
+				if (event.eventName == "itemDragged") {
+					imageClicked();
+				} else if (event.eventName == "itemStopped") {
+					deselectImage();
+					ItemSelectedEvent e = new ItemSelectedEvent(null);
+					playerServices.getEventBus().fireEventFromSource(e, this);
+				}
+			}
+		});
 	}
 
 	private void itemConsumed(DraggableItem draggableItem) {
@@ -129,12 +146,15 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 				public void onClicked() {
 					imageClicked();
 				}
+				public void onDragged() {
+					imageDragged();
+				}
 			});
 		}
 	}
 	
 	private void imageClicked() {
-		DraggableItem draggableItem = null;
+		DraggableItem draggableItem = new DraggableImage(null, null);
 		
 		selected = !selected;
 		if (selected) {
@@ -143,6 +163,15 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		} else {
 			view.deselect();
 		}
+		
+		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
+		playerServices.getEventBus().fireEventFromSource(event, this);
+	}
+	
+	private void imageDragged() {
+		selected = true;
+		DraggableItem draggableItem = new DraggableImage(model.getId(), model.getUrl());
+		view.select();
 		
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -115,6 +116,14 @@ public class SourceListView extends FlowPanel implements IDisplay{
         if(!isPreview){
     		JavaScriptUtils.makeDraggable(label.getElement());
         }
+	}
+	
+	public Element getItem(String id) {
+		return labels.get(id).getElement();
+	}
+	
+	public Set<String> getCurrentLabels() {
+		return labels.keySet();
 	}
 
 

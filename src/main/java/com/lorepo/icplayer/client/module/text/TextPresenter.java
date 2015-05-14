@@ -90,6 +90,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isShowErrorsMode = false;
 	private String currentState = "";
 	private HashMap<String, GapInfo> gapInfos = new HashMap<String, GapInfo>();
+	private HashMap<String, String> currentEventData;
 	
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -541,6 +542,31 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onDropdownClicked(String id) {
 				dropdownClicked(id);
 				
+			}
+			
+			private HashMap<String, String> prepareEventData(String gapId) {
+				DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
+				if (previouslyConsumedItem != null) {
+					HashMap<String, String> eventData = new HashMap<String, String>();
+					eventData.put("item", previouslyConsumedItem.getId());
+					eventData.put("type", "string");
+					eventData.put("value", previouslyConsumedItem.getValue());
+					currentEventData = eventData;
+				}
+				return currentEventData;
+			}
+
+			@Override
+			public void onGapDragged(String gapId) {
+				CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData(gapId));
+				gapClicked(gapId);
+				playerServices.getEventBus().fireEvent(dragEvent);
+			}
+
+			@Override
+			public void onGapStopped(String gapId) {
+				CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData(gapId));
+				playerServices.getEventBus().fireEvent(stopEvent);
 			}
 		});
 	}
