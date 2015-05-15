@@ -201,7 +201,7 @@ public class OrderingModule extends BasicModuleModel {
 
 			@Override
 			public String getName() {
-				return "Item";
+				return DictionaryWrapper.get("ordering_item");
 			}
 
 			@Override
@@ -222,7 +222,7 @@ public class OrderingModule extends BasicModuleModel {
 
 			@Override
 			public String getDisplayName() {
-				return "Item";
+				return DictionaryWrapper.get("ordering_item");
 			}
 
 			@Override

@@ -901,6 +901,8 @@
     "Hierarchical_Lesson_Report_property_show_max_score_fields": "Afficher le champ Score maximum",
     "Hierarchical_Lesson_Report_property_score_disabled": "Désactiver le score dans les pages",
 	"Hierarchical_Lesson_Report_property_unvisited_page_scores_label": "Unvisited page scores label",
+	"Hierarchical_Lesson_Report_property_max_score_award_label": "Max score award label",
+	"Hierarchical_Lesson_Report_property_page_scores_label": "Page scores label",
     "ConnectingDots_info": "Permet de relier des points qui composent un dessin ou une forme. Le module externe peut être utilisé en animation interactive ou en activité à part entière.",
     "ConnectingDots_name": "Relier des points",
     "ConnectingDots_property_dots": "Coordonnées des points",

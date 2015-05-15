@@ -905,6 +905,8 @@
 	"Hierarchical_Lesson_Report_property_show_max_score_fields": "Show max score award",
 	"Hierarchical_Lesson_Report_property_score_disabled": "Disable score on pages",
 	"Hierarchical_Lesson_Report_property_unvisited_page_scores_label": "Unvisited page scores label",
+	"Hierarchical_Lesson_Report_property_max_score_award_label": "Max score award label",
+	"Hierarchical_Lesson_Report_property_page_scores_label": "Page scores label",
 	"ConnectingDots_info": "Enables to make a puzzle containing a sequence of numbered dots which on selection form a line that connect the points. The addon may be successfully used as an interactive activity or a simulation, with or without an image background of your choice.",
 	"ConnectingDots_name": "Connecting Dots",
 	"ConnectingDots_property_dots": "Dots' coordinates",

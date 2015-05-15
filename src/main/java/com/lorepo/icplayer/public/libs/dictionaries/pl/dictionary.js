@@ -897,6 +897,8 @@
 	"Hierarchical_Lesson_Report_property_show_max_score_fields": "Pokaż pole Wynik maks.",
 	"Hierarchical_Lesson_Report_property_score_disabled": "Wyłącz punktację na stronie",
 	"Hierarchical_Lesson_Report_property_unvisited_page_scores_label": "Etykieta Punktacja na nieodwiedzonych stronach",
+	"Hierarchical_Lesson_Report_property_max_score_award_label": "Max score award label",
+	"Hierarchical_Lesson_Report_property_page_scores_label": "Page scores label",
 	"ConnectingDots_info" : "Pozwala na utworzenie ćwiczenia, w którym użytkownik ma za zadanie połączenie kropek (punktów) i uformowanie z nich linii. Addon daje możliwość dodania obrazu jako tła.",
 	"ConnectingDots_name" : "Łączenie punktów",
 	"ConnectingDots_property_dots": "Współrzędne punktów",
