@@ -182,6 +182,7 @@ function AddonShape_Tracing_create() {
         presenter.data.numberOfDescentsFromShape = 0;
         presenter.data.pencilThickness = presenter.configuration.penThickness;
         presenter.data.incorrect = false;
+        presenter.data.isAllOk = false;
         directionPoints = [];
         presenter.pointsHistory = [];
         isOutsideShape = false;
@@ -1250,11 +1251,11 @@ function AddonShape_Tracing_create() {
             imgData: canvasData.main.canvas.toDataURL("image/png"),
             isPencilActive: presenter.data.isPencilActive,
             color: presenter.configuration.color,
-
             currentPointNumber: presenter.data.currentPointNumber,
             numberOfLines: presenter.data.numberOfLines,
             numberOfDescentsFromShape: presenter.data.numberOfDescentsFromShape,
             isAllPointsChecked: presenter.data.isAllPointsChecked,
+            isAllOk: presenter.data.isAllOk,
             pointsArray: presenter.pointsArray,
             isVisible: presenter.configuration.isVisible,
             directionPoints: directionPoints
@@ -1305,6 +1306,7 @@ function AddonShape_Tracing_create() {
         presenter.data.numberOfLines = parsedState.numberOfLines;
         presenter.data.numberOfDescentsFromShape = parsedState.numberOfDescentsFromShape;
         presenter.data.isAllPointsChecked = parsedState.isAllPointsChecked;
+        presenter.data.isAllOk = parsedState.isAllOk || false;
         presenter.pointsArray = parsedState.pointsArray;
         presenter.configuration.isVisible = parsedState.isVisible;
         directionPoints = parsedState.directionPoints;
