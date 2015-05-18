@@ -8,21 +8,18 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class PlayerEntryPoint implements EntryPoint {
 
-	private PlayerApp	theApplication;
+	private PlayerApp theApplication;
 	private JavaScriptObject pageLoadedListener;
 	private JavaScriptObject statusChangedListener;
-	
-	
+
 	/**
 	 * This is the entry point method.
 	 */
+	@Override
 	public void onModuleLoad() {
-		
 		initJavaScriptAPI(this);
-		
 	}
-	
-	
+
 	/**
 	 * Init Javascript API
 	 */
@@ -96,17 +93,16 @@ public class PlayerEntryPoint implements EntryPoint {
 
 		// Call App loaded function
 		if(typeof $wnd.icOnAppLoaded == 'function') {
-		  $wnd.icOnAppLoaded();	
+		  $wnd.icOnAppLoaded();
 		}
 		else if(typeof $wnd.qpOnAppLoaded == 'function') {
-		  $wnd.qpOnAppLoaded();	
+		  $wnd.qpOnAppLoaded();
 		}
 	}-*/;
 
-	
 	/**
 	 * createPlayer js interface
-	 * 
+	 *
 	 * @param node_id
 	 *            wrap this node
 	 */
@@ -114,34 +110,29 @@ public class PlayerEntryPoint implements EntryPoint {
 		theApplication = new PlayerApp(node_id, this);
 		return JavaScriptObject.createFunction();
 	}
-	
-	
+
 	private JavaScriptObject createBookPlayer(String node_id, boolean useCover) {
 		theApplication = new PlayerApp(node_id, this);
 		theApplication.setBookMode();
 		theApplication.showCover(useCover);
 		return JavaScriptObject.createFunction();
 	}
-	
-	
+
 	private void load(String url, int pageIndex) {
-		
-		if(pageIndex < 0){
+		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
-		theApplication.load(url, pageIndex); 
+		theApplication.load(url, pageIndex);
 	}
-	
+
 	private void forceScoreUpdate() {
 		theApplication.updateScore();
 	}
 
-	
 	private void setAnalytics(String id) {
 		theApplication.setAnalytics(id);
 	}
 
-	
 	private void setState(String state) {
 		theApplication.setState(state);
 	}
@@ -150,38 +141,31 @@ public class PlayerEntryPoint implements EntryPoint {
 		theApplication.setPages(pagesSub);
 	}
 
-	
 	private String getState() {
-		
 		return theApplication.getState();
 	}
 
-	
 	private JavaScriptObject getPlayerServices() {
-		
 		return theApplication.getPlayerServices().getAsJSObject();
 	}
 
-	
 	private static native void firePageLoaded(JavaScriptObject callback) /*-{
-		if(callback != null){
+		if (callback != null) {
 			callback();
+		}
+	}-*/;
+
+	private static native void fireStatusChanged(JavaScriptObject callback, String type, String source, String value) /*-{
+		if (callback != null) {
+			callback(type, source, value);
 		}
 	}-*/;
 
 	public void onPageLoaded() {
 		firePageLoaded(pageLoadedListener);
-		int currentPageIndex = theApplication.getPlayerServices().getCurrentPageIndex(); 
-		String source = Integer.toString(currentPageIndex+1);
+		final int currentPageIndex = theApplication.getPlayerServices().getCurrentPageIndex();
+		String source = Integer.toString(currentPageIndex + 1);
 		fireStatusChanged(statusChangedListener, "PageLoaded", source, "");
 	}
-
-	
-	private static native void fireStatusChanged(JavaScriptObject callback, String type, String source, String value) /*-{
-		if(callback != null){
-			callback(type, source, value);
-		}
-	}-*/;
-
 
 }

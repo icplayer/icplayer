@@ -1,3 +1,4 @@
+2015-05-13 Fixed issue with capturing events from all pages
 2015-05-14 Added drag feature to elements dropped to modules: Text, ImageGap & MultipleGap
 2015-05-14 Added handling draggable gaps in Table module
 2015-05-13 Fixed issue with height of PagePopupPanel glass

@@ -6,21 +6,14 @@ import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent.Handler;
 
-/**
- * Event wysyłany gdy strona zostanie załadowana
- * 
- * @author Krzysztof Langner
- *
- */
 public class PageLoadedEvent extends GwtEvent<Handler> {
 
 	public final String pageName;
-	
+	public static Type<Handler> TYPE = new Type<Handler>();
+
 	public interface Handler extends EventHandler {
 		void onPageLoaded(PageLoadedEvent event);
 	}
-	
-	public static Type<Handler> TYPE = new Type<Handler>();
 
 	public PageLoadedEvent(String name) {
 		pageName = name;
@@ -35,7 +28,7 @@ public class PageLoadedEvent extends GwtEvent<Handler> {
 	protected void dispatch(Handler handler) {
 		handler.onPageLoaded(this);
 	}
-	
+
 	public HashMap<String, String> getData() {
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("source", pageName);

@@ -3,7 +3,9 @@ package com.lorepo.icplayer.client.content.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -43,7 +45,7 @@ import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
-public class JavaScriptPlayerServices{
+public class JavaScriptPlayerServices {
 
 	private static final String ITEM_SELECTED_EVENT_NAME = "ItemSelected";
 	private static final String ITEM_CONSUMED_EVENT_NAME = "ItemConsumed";
@@ -52,87 +54,113 @@ public class JavaScriptPlayerServices{
 	private static final String DEFINITION_EVENT_NAME = "Definition";
 	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
 	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
-	
-	private IPlayerServices playerServices;
-	private JavaScriptObject	jsObject;
-	private JavaScriptObject	presentationObject;
-	private HashMap<String, List<JavaScriptObject>> listeners = new HashMap<String, List<JavaScriptObject>>();
-	
+
+	private final IPlayerServices playerServices;
+	private final JavaScriptObject jsObject;
+	private JavaScriptObject presentationObject;
+	private final HashMap<String, List<JavaScriptObject>> listeners = new HashMap<String, List<JavaScriptObject>>();
+	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
+
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
-		
 		jsObject = initJSObject(this);
 		connectEventHandlers();
 	}
-	
-	public void resetEventListeners(){
+
+	public void resetEventListeners() {
 		listeners.clear();
 		connectEventHandlers();
 	}
 
-	public JavaScriptObject getJavaScriptObject(){
+	public JavaScriptObject getJavaScriptObject() {
 		return jsObject;
 	}
 
 	private void connectEventHandlers() {
-		
+
 		EventBus eventBus = playerServices.getEventBus();
-		
+
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
+			@Override
 			public void onItemSelected(ItemSelectedEvent event) {
 				fireEvent(ITEM_SELECTED_EVENT_NAME, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(ItemConsumedEvent.TYPE, new ItemConsumedEvent.Handler() {
+			@Override
 			public void onItemConsumed(ItemConsumedEvent event) {
 				fireEvent(ITEM_CONSUMED_EVENT_NAME, event.getData());
 			}
 		});
-	
+
 		eventBus.addHandler(ItemReturnedEvent.TYPE, new ItemReturnedEvent.Handler() {
+			@Override
 			public void onItemReturned(ItemReturnedEvent event) {
 				fireEvent(ITEM_RETURNED_EVENT_NAME, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+			@Override
 			public void onScoreChanged(ValueChangedEvent event) {
 				fireEvent(VALUE_CHANGED_EVENT_NAME, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(DefinitionEvent.TYPE, new DefinitionEvent.Handler() {
+			@Override
 			public void onDefinitionClicked(DefinitionEvent event) {
 				fireEvent(DEFINITION_EVENT_NAME, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(PageLoadedEvent.TYPE, new PageLoadedEvent.Handler() {
+			@Override
 			public void onPageLoaded(PageLoadedEvent event) {
 				fireEvent(PAGE_LOADED_EVENT_NAME, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
 				fireEvent(event.eventName, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+			@Override
 			public void onShowErrors(ShowErrorsEvent event) {
 				fireEvent(SHOW_ERRORS_EVENT_NAME, new HashMap<String, String>());
 			}
 		});
-		
+
 	}
 
 	private void fireEvent(String eventName, HashMap<String, String> data) {
-		
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
+
 		if (eventListeners != null) {
-			JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
+			final JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
+
+			if (eventName == "PageLoaded") {
+				final HashMap<String, String> pageLoadedData = new HashMap<String, String>();
+				pageLoadedData.putAll(data);
+
+				for (String eventSource : pageLoadedListeners.keySet()) {
+					pageLoadedData.put("source", eventSource);
+					final JavaScriptObject pageLoadedEventData = JavaScriptUtils.createHashMap(pageLoadedData);
+
+					for (JavaScriptObject listener : pageLoadedListeners.get(eventSource)) {
+						onEvent(listener, eventName, pageLoadedEventData);
+					}
+
+					pageLoadedListeners.get(eventSource).clear();
+				}
+				pageLoadedListeners.put(data.get("source"), new ArrayList<JavaScriptObject>());
+			}
+
 			for (JavaScriptObject listener : eventListeners) {
 				onEvent(listener, eventName, jsData);
 			}
@@ -141,8 +169,7 @@ public class JavaScriptPlayerServices{
 
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
 
-		var playerServices = function() {
-		};
+		var playerServices = function() {};
 
 		playerServices.getPresentation = function() {
 			var model = function() {};
@@ -151,13 +178,13 @@ public class JavaScriptPlayerServices{
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageCount()();
 			};
 
-            model.getPage = function(index) {
+			model.getPage = function(index) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageByIndex(I)(index);
 			};
 
-            model.getPageById = function(id) {
-                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageById(Ljava/lang/String;)(id);
-            };
+			model.getPageById = function(id) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageById(Ljava/lang/String;)(id);
+			};
 
 			model.getTableOfContents = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTableOfContents()();
@@ -199,7 +226,7 @@ public class JavaScriptPlayerServices{
 			};
 			commands.setNavigationPanelsAutomaticAppearance = function(shouldAppear) {
 				if (typeof shouldAppear != "boolean") {
-					throw new TypeError(); 
+					throw new TypeError();
 				}
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setNavigationPanelsAutomaticAppearance(Z)(shouldAppear);
 			};
@@ -241,7 +268,7 @@ public class JavaScriptPlayerServices{
 						isCaseSensitive: false
 					};
 				}
-				
+
 				if (!('isCaseSensitive' in options)) {
 					options.isCaseSensitive = false;
 				}
@@ -270,15 +297,15 @@ public class JavaScriptPlayerServices{
 		playerServices.getModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
 		};
-	
+
 		playerServices.getHeaderModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(id);
 		};
-		
+
 		playerServices.getFooterModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
 		};
-		
+
 		playerServices.getScore = function() {
 			var score = function() {
 			};
@@ -317,13 +344,13 @@ public class JavaScriptPlayerServices{
 		return playerServices;
 	}-*/;
 
-    private JavaScriptObject getPageByIndex(int index) {
-        return playerServices.getModel().getPage(index).toJavaScript();
-    }
+	private JavaScriptObject getPageByIndex(int index) {
+		return playerServices.getModel().getPage(index).toJavaScript();
+	}
 
-    private JavaScriptObject getPageById(String id) {
-        return playerServices.getModel().getPageById(id).toJavaScript();
-    }
+	private JavaScriptObject getPageById(String id) {
+		return playerServices.getModel().getPageById(id).toJavaScript();
+	}
 
 	private int getCurrentPageIndex(){
 		return playerServices.getCurrentPageIndex();
@@ -332,7 +359,7 @@ public class JavaScriptPlayerServices{
 	private int getPageCount(){
 		return playerServices.getModel().getPageCount();
 	}
-	
+
 	private void gotoPage(String pageName){
 		playerServices.getCommands().gotoPage(pageName);
 	}
@@ -344,21 +371,27 @@ public class JavaScriptPlayerServices{
 	private void gotoPageId(String pageId){
 		playerServices.getCommands().gotoPageId(pageId);
 	}
-	
+
 	private void executeEventCode(String code){
 		playerServices.getCommands().executeEventCode(code);
 	}
 
-	private void addEventListener(String eventName, JavaScriptObject listener){
-
+	private void addEventListener(String eventName, JavaScriptObject listener) {
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
-		if(eventListeners == null){
+		if (eventListeners == null) {
 			eventListeners = new ArrayList<JavaScriptObject>();
 			listeners.put(eventName, eventListeners);
 		}
+
+		if (eventName == "PageLoaded") {
+			for (String eventSource : pageLoadedListeners.keySet()) {
+				pageLoadedListeners.get(eventSource).add(listener);
+			}
+		}
+
 		eventListeners.add(listener);
 	}
-	
+
 	private String parseText(String text){
 		TextParser parser = new TextParser();
 		parser.skipGaps();
@@ -382,22 +415,22 @@ public class JavaScriptPlayerServices{
 
 		return model;
 	}
-	
+
 	private JavaScriptObject getHeaderModule(String id){
 		IPresenter presenter = playerServices.getHeaderModule(id);
 		return getModulePresentationJSObject(presenter);
 	}
-	
+
 	private JavaScriptObject getFooterModule(String id){
 		IPresenter presenter = playerServices.getFooterModule(id);
 		return getModulePresentationJSObject(presenter);
 	}
-	
+
 	private JavaScriptObject getModule(String id) {
 		IPresenter presenter = playerServices.getModule(id);
 		return getModulePresentationJSObject(presenter);
 	}
-	
+
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
 		if (presenter instanceof AddonPresenter) {
 			return ((AddonPresenter) presenter).getJavaScriptObject();
@@ -426,7 +459,7 @@ public class JavaScriptPlayerServices{
 		} else if (presenter instanceof ShapePresenter) {
 			return ((ShapePresenter) presenter).getAsJavaScript();
 		}
-		
+
 		return null;
 	}
 
@@ -441,14 +474,14 @@ public class JavaScriptPlayerServices{
 	private JavaScriptObject getPageScore(String pageName){
 		PageScore score = playerServices.getScoreService().getPageScoreByName(pageName);
 		JavaScriptObject model = scoreToJs(score);
-		
+
 		return model;
 	}
 
 	private JavaScriptObject getPageScoreById(String id){
 		PageScore score = playerServices.getScoreService().getPageScoreById(id);
 		JavaScriptObject model = scoreToJs(score);
-		
+
 		return model;
 	}
 
@@ -461,7 +494,7 @@ public class JavaScriptPlayerServices{
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
 		return model;
 	}
-	
+
 	private static JavaScriptObject inLineChoiceToJs(List<InlineChoiceInfo> choiceInfos) {
 		JavaScriptObject model = JavaScriptObject.createArray();
 
@@ -469,16 +502,16 @@ public class JavaScriptPlayerServices{
 			JavaScriptObject gap = JavaScriptObject.createArray();
 			JavaScriptUtils.addPropertyToJSArray(gap, "id", choiceInfos.get(i).getId());
 			JavaScriptUtils.addPropertyToJSArray(gap, "answer", choiceInfos.get(i).getAnswer());
-			JavaScriptUtils.addPropertyToJSArray(gap, "value", (int) choiceInfos.get(i).getValue());
-			
+			JavaScriptUtils.addPropertyToJSArray(gap, "value", choiceInfos.get(i).getValue());
+
 			JavaScriptObject distractors = JavaScriptObject.createArray();
 			Iterator<String> gapDistractors = choiceInfos.get(i).getDistractors();
-			
+
 			while (gapDistractors.hasNext()) {
 				String dist = gapDistractors.next();
 				JavaScriptUtils.addElementToJSArray(distractors, dist);
 			}
-			
+
 			JavaScriptUtils.addObjectAsPropertyToJSArray(gap, "distractors", distractors);
 			JavaScriptUtils.addObjectToJSArray(model, gap);
 		}
@@ -491,16 +524,16 @@ public class JavaScriptPlayerServices{
 		for (int i = 0; i < gapInfos.size(); i++) {
 			JavaScriptObject gap = JavaScriptObject.createArray();
 			JavaScriptUtils.addPropertyToJSArray(gap, "id", gapInfos.get(i).getId());
-			JavaScriptUtils.addPropertyToJSArray(gap, "value", (int) gapInfos.get(i).getValue());
+			JavaScriptUtils.addPropertyToJSArray(gap, "value", gapInfos.get(i).getValue());
 
 			JavaScriptObject answersArray = JavaScriptObject.createArray();
 			Iterator<String> answers = gapInfos.get(i).getAnswers();
-			
+
 			while (answers.hasNext()) {
 				String dist = answers.next();
 				JavaScriptUtils.addElementToJSArray(answersArray, dist);
 			}
-			
+
 			JavaScriptUtils.addObjectAsPropertyToJSArray(gap, "answers", answersArray);
 			JavaScriptUtils.addObjectToJSArray(model, gap);
 		}
@@ -514,7 +547,7 @@ public class JavaScriptPlayerServices{
 	private int getTimeElapsed(){
 		return (int)playerServices.getCommands().getTimeElapsed();
 	}
-	
+
 	private void checkAnswers() {
 		playerServices.getCommands().checkAnswers();
 	}
@@ -526,36 +559,36 @@ public class JavaScriptPlayerServices{
 	private void sendPageAllOkOnValueChanged(boolean sendEvent) {
 		playerServices.getCommands().sendPageAllOkOnValueChanged(sendEvent);
 	}
-	
+
 	private void setNavigationPanelsAutomaticAppearance(boolean shouldAppear) {
 		playerServices.getCommands().setNavigationPanelsAutomaticAppearance(shouldAppear);
 	}
-	
+
 	private void showNavigationPanels() {
 		playerServices.getCommands().showNavigationPanels();
 	}
-	
+
 	private void hideNavigationPanels() {
 		playerServices.getCommands().hideNavigationPanels();
 	}
-	
+
 	private void sendEvent(String eventName, JavaScriptObject eventData){
 
 		DraggableItem item;
 		GwtEvent<?> event = null;
-		
+
 		String source = JavaScriptUtils.getArrayItemByKey(eventData, "source");
 		String type = JavaScriptUtils.getArrayItemByKey(eventData, "type");
 		String id = JavaScriptUtils.getArrayItemByKey(eventData, "item");
 		String value = JavaScriptUtils.getArrayItemByKey(eventData, "value");
 		String score = JavaScriptUtils.getArrayItemByKey(eventData, "score");
-		
+
 		if(type.compareTo("image") == 0) {
 			item = new DraggableImage(id, value);
 		} else {
 			item = new DraggableText(id, value);
 		}
-	
+
 		if (ITEM_CONSUMED_EVENT_NAME.compareTo(eventName) == 0) {
 			event = new ItemConsumedEvent(item);
 		} else if (ITEM_RETURNED_EVENT_NAME.compareTo(eventName) == 0) {
@@ -571,7 +604,7 @@ public class JavaScriptPlayerServices{
 			String jsonString = JavaScriptUtils.toJsonString(eventData);
 			event = new CustomEvent(eventName, (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonString));
 		}
-		
+
 		if (event != null) {
 			playerServices.getEventBus().fireEventFromSource(event, this);
 		}
@@ -584,14 +617,14 @@ public class JavaScriptPlayerServices{
 	private boolean isBookMode() {
 		return playerServices.isBookMode();
 	}
-	
+
 	private boolean hasCover() {
 		return playerServices.hasCover();
 	}
-	
+
 	private JavaScriptObject getTableOfContents() {
 		IChapter toc = playerServices.getModel().getTableOfContents();
 		return toc.toJavaScript();
 	}
-	
+
 }
