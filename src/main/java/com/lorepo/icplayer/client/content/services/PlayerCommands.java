@@ -47,9 +47,14 @@ public class PlayerCommands implements IPlayerCommands {
 
 	@Override
 	public void reset() {
-		pageController.reset();
+		pageController.resetPageScore();
+		pageController.sendResetEvent();
 	}
-
+	
+	@Override
+	public void resetPageScore() {
+		pageController.resetPageScore();
+	}
 	
 	@Override
 	public PageScore getCurrentPageScore() {
@@ -92,8 +97,8 @@ public class PlayerCommands implements IPlayerCommands {
 
 
 	@Override
-	public void updateCurrentPageScore() {
-		pageController.updateScore(false);
+	public void updateCurrentPageScore(boolean incrementCheckCounter) {
+		pageController.updateScore(incrementCheckCounter);
 	}
 
 

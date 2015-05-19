@@ -142,7 +142,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		userReadyToDraggableItem = null;
 	}
 
-	private void setShowErrorsMode() {
+	@Override
+	public void setShowErrorsMode() {
 		if (this.isShowAnswersActive) hideAnswers();
 		
 		view.setDisabled(true);
@@ -155,12 +156,14 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 	}
 
-	private void setWorkMode() {
+	@Override
+	public void setWorkMode() {
 		view.resetStyles();
 		view.setDisabled(false);
 	}
 
-	private void reset() {
+	@Override
+	public void reset() {
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.setImageUrl("");

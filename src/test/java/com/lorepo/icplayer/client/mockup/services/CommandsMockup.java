@@ -70,7 +70,7 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public void updateCurrentPageScore() {
+	public void updateCurrentPageScore(boolean incrementCheckCounter) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -120,6 +120,10 @@ public class CommandsMockup implements IPlayerCommands {
 	public void hideNavigationPanels() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void resetPageScore() {
 	}
 	
 }

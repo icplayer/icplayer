@@ -117,7 +117,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		}
 	}
 
-	private void reset() {
+	@Override
+	public void reset() {
 		deselectImage();
 		isImageVisible = true;
 		isModuleVisible = model.isVisible();
@@ -295,6 +296,16 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		}
 		
 		return "";
+	}
+
+	@Override
+	public void setShowErrorsMode() {
+		// Module is not an activity
+	}
+
+	@Override
+	public void setWorkMode() {
+		// Module is not an activity
 	}
 	
 }

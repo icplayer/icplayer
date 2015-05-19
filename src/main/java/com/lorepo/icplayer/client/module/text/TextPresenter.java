@@ -229,7 +229,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.refreshMath();
 	}
 
-	protected void setWorkMode() {
+	@Override
+	public void setWorkMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -241,7 +242,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.isShowErrorsMode = false;
 	}
 
-	protected void setShowErrorsMode() {
+	@Override
+	public void setShowErrorsMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -383,8 +385,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return errorCount;
 	}
 
-	
-	protected void reset() {
+	@Override
+	public void reset() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}

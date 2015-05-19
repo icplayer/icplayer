@@ -59,7 +59,7 @@ public class ScoreServiceTestCase {
 		assertEquals(7, scoreService.getTotalScore());
 		assertEquals(13, scoreService.getTotalMaxScore());
 
-		Mockito.verify(mockedCommands, Mockito.times(0)).updateCurrentPageScore();
+		Mockito.verify(mockedCommands, Mockito.times(0)).updateCurrentPageScore(false);
 	}
 	
 	@Test
@@ -78,7 +78,7 @@ public class ScoreServiceTestCase {
 		assertEquals(7, scoreService.getTotalScore());
 		assertEquals(13, scoreService.getTotalMaxScore());
 
-		Mockito.verify(mockedCommands, Mockito.times(1)).updateCurrentPageScore();
+		Mockito.verify(mockedCommands, Mockito.times(1)).updateCurrentPageScore(false);
 	}
 	
 	@Test
@@ -104,7 +104,7 @@ public class ScoreServiceTestCase {
 
 		assertEquals(3, pageScore.getScore(), 0.1);
 		assertEquals(5, pageScore.getMaxScore(), 0.1);
-		Mockito.verify(mockedCommands, Mockito.times(0)).updateCurrentPageScore();
+		Mockito.verify(mockedCommands, Mockito.times(0)).updateCurrentPageScore(false);
 
 	}
 
@@ -132,7 +132,7 @@ public class ScoreServiceTestCase {
 		assertEquals(4, pageScore.getScore(), 0.1);
 		assertEquals(8, pageScore.getMaxScore(), 0.1);
 		
-		Mockito.verify(mockedCommands, Mockito.times(2)).updateCurrentPageScore();
+		Mockito.verify(mockedCommands, Mockito.times(2)).updateCurrentPageScore(false);
 
 	}
 	

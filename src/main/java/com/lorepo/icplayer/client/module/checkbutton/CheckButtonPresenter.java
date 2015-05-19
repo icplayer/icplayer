@@ -152,7 +152,8 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		}
 	}
 	
-	private void reset() {
+	@Override
+	public void reset() {
 		if (model.isVisible()) {
 			view.show();
 		} else {
@@ -162,12 +163,14 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		view.setDisabled(false);
 	}
 	
-	private void setShowErrorsMode() {
+	@Override
+	public void setShowErrorsMode() {
 		view.setShowErrorsMode(true);
 		view.setDisabled(true);
 	}
 
-	private void setWorkMode() {
+	@Override
+	public void setWorkMode() {
 		view.setShowErrorsMode(false);
 		view.setDisabled(false);
 	}

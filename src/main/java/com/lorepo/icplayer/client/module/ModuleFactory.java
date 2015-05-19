@@ -32,6 +32,12 @@ import com.lorepo.icplayer.client.module.imagegap.ImageGapView;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourceModule;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourceView;
+import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckModule;
+import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
+import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckView;
+import com.lorepo.icplayer.client.module.limitedreset.LimitedResetModule;
+import com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter;
+import com.lorepo.icplayer.client.module.limitedreset.LimitedResetView;
 import com.lorepo.icplayer.client.module.ordering.OrderingModule;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
 import com.lorepo.icplayer.client.module.ordering.OrderingView;
@@ -79,6 +85,12 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if(xmlNodeName.compareTo("checkModule") == 0){
 			module = new CheckButtonModule();
+		}
+		else if(xmlNodeName.compareTo("limitedCheckModule") == 0){
+			module = new LimitedCheckModule();
+		}
+		else if(xmlNodeName.compareTo("limitedResetModule") == 0){
+			module = new LimitedResetModule();
 		}
 		else if(xmlNodeName.compareTo("choiceModule") == 0){
 			module = new ChoiceModel();
@@ -137,6 +149,12 @@ public class ModuleFactory implements IModuleFactory{
 		else if(module instanceof CheckButtonModule){
 			return new CheckButtonView((CheckButtonModule)module, services);
 		}
+		else if(module instanceof LimitedCheckModule){
+			return new LimitedCheckView((LimitedCheckModule)module, services);
+		}
+		else if(module instanceof LimitedResetModule){
+			return new LimitedResetView((LimitedResetModule)module, services);
+		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterView((CheckCounterModule) module, isPreview);
 		}
@@ -188,6 +206,12 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if (module instanceof CheckButtonModule) {
 			return new CheckButtonPresenter((CheckButtonModule) module, services);
+		}
+		else if (module instanceof LimitedCheckModule) {
+			return new LimitedCheckPresenter((LimitedCheckModule) module, services);
+		}
+		else if (module instanceof LimitedResetModule) {
+			return new LimitedResetPresenter((LimitedResetModule) module, services);
 		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterPresenter((CheckCounterModule) module, services);

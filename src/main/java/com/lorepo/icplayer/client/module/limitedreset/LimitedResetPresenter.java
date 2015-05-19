@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.module.button;
+package com.lorepo.icplayer.client.module.limitedreset;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,31 +12,30 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 
-public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver {
+public class LimitedResetPresenter implements IPresenter, IStateful, ICommandReceiver {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
 		public void hide();
-		void setErrorCheckingMode(boolean isErrorCheckingMode);
-		boolean isErrorCheckingMode();
-		void setDisabled(boolean isDisabled);
 		public Element getElement();
+		void setDisabled(boolean isDisabled);
+		public void setShowAnswersMode(boolean b);
 	}
 	
-	private ButtonModule model;
+	private LimitedResetModule model;
 	private IDisplay view;
 	private IPlayerServices playerServices;
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
 	
-	public ButtonPresenter(ButtonModule model, IPlayerServices services) {
+	public LimitedResetPresenter(LimitedResetModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
 		this.isVisible = model.isVisible();
@@ -61,14 +60,39 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				setWorkMode();
+			}
+		});
+		
+		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
+			public void onCustomEventOccurred(CustomEvent event) {
+				if (event.eventName.equals("ShowAnswers")) {
+					view.setShowAnswersMode(true);
+					view.setDisabled(false);
+				} else if (event.eventName.equals("HideAnswers")) {
+					view.setShowAnswersMode(false);
+				}
 			}
 		});
 	}
-	
+
 	@Override
 	public String getName() {
 		return model.getId();
+	}
+
+	@Override
+	public String executeCommand(String commandName, List<IType> params) {
+		String value = "";
+		
+		if (commandName.compareTo("show") == 0) {
+			show();
+		} else if(commandName.compareTo("hide") == 0) {
+			hide();
+		}
+		
+		return value;
 	}
 
 	@Override
@@ -81,7 +105,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
 
-		state.put("isVisible", Boolean.toString(isVisible));		
+		state.put("isVisible", Boolean.toString(isVisible));
 		
 		return json.toJSONString(state);
 	}
@@ -93,19 +117,18 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		
 		if (decodedState.containsKey("isVisible")) {
 			isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
-			if (!isVisible){
-				hide();
-			}
-			else{
+			if (isVisible) {
 				show();
+			} else {
+				hide();
 			}
 		}
 	}
 
 	@Override
-	public void addView(IModuleView display) {
-		if (display instanceof IDisplay){
-			view = (IDisplay) display;
+	public void addView(IModuleView view) {
+		if (view instanceof IDisplay) {
+			this.view = (IDisplay) view;
 		}
 	}
 
@@ -113,18 +136,24 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	public IModuleModel getModel() {
 		return model;
 	}
+
+	@Override
+	public void setShowErrorsMode() {
+		if (view != null) {
+			view.setDisabled(true);
+		}
+	}
+
+	@Override
+	public void setWorkMode() {
+		if (view != null) {
+			view.setDisabled(false);
+		}
+	}
 	
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
-		String value = "";
-		
-		if (commandName.compareTo("show") == 0) {
-			show();
-		} else if(commandName.compareTo("hide") == 0) {
-			hide();
-		}
-		
-		return value;
+	public void reset() {
+		// Module is not an activity
 	}
 	
 	protected void show() {
@@ -133,42 +162,14 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 			isVisible = true;
 		}
 	}
-	
-	
+
 	protected void hide() {
 		if (view != null) {
 			view.hide();
 			isVisible = false;
 		}
 	}
-	
-	@Override
-	public void reset() {
-		if (model.isVisible()) {
-			view.show();
-		} else{
-			view.hide();
-		}
-		view.setErrorCheckingMode(false);
-		view.setDisabled(false);
-	}
-	
-	@Override
-	public void setShowErrorsMode() {
-		if(model.getType() != ButtonType.popup){
-			view.setErrorCheckingMode(true);
-			view.setDisabled(true);
-		}
-	}
 
-	@Override
-	public void setWorkMode() {
-		if(model.getType() != ButtonType.popup){
-			view.setErrorCheckingMode(false);
-			view.setDisabled(false);
-		}
-	}
-	
 	public JavaScriptObject getAsJavaScript() {
 		if (jsObject == null) {
 			jsObject = initJSObject(this);
@@ -176,26 +177,30 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 
 		return jsObject;
 	}
-
-	private native JavaScriptObject initJSObject(ButtonPresenter x) /*-{
-		var presenter = function() {}
+	
+	private native JavaScriptObject initJSObject(LimitedResetPresenter x) /*-{
+		var presenter = function() {};
 		
-		presenter.show = function() { 
-			x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::show()();
+		presenter.show = function() {
+			x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::show()();
 		}
 		
-		presenter.hide = function() { 
-			x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::hide()();
+		presenter.hide = function() {
+			x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::hide()();
 		}
 		
-		presenter.getView = function() { 
-			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::getView()();
+		presenter.getView = function() {
+			return x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::getView()();
 		}
 		
 		return presenter;
 	}-*/;
 	
-	private Element getView(){
-		return view.getElement();
+	private Element getView() {
+		if (view != null) {
+			return view.getElement();
+		}
+		
+		return null;
 	}
 }

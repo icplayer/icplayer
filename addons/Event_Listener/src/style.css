@@ -1,7 +1,6 @@
 .event-listener-body,
 .event-listener-header,
-.event-listener-clear,
-.event-listener-filters {
+.event-listener-clear {
     text-align: center;
     font-weight: bold;
     border: 2px dashed #999999;
@@ -11,7 +10,7 @@
 }
 
 .event-listener-header {
-    height: 10%;
+    height: 5%;
 }
 
 .event-listener-body {
@@ -36,9 +35,4 @@
     border-top-width: 0;
     border-bottom-width: 0;
     cursor: pointer;
-}
-
-.event-listener-filters{
-    border-top-width: 0;
-    color: black;
 }

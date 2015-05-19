@@ -136,8 +136,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		}
 	}
 
-	
-	protected void reset() {
+	@Override
+	public void reset() {
 		deselectCurrentItem();
 		loadItems(true);
 		
@@ -400,5 +400,17 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		if(view != null){
 			view.hide();
 		}
+	}
+
+
+	@Override
+	public void setShowErrorsMode() {
+		// Module is not an activity
+	}
+
+
+	@Override
+	public void setWorkMode() {
+		// Module is not an activity
 	}
 }

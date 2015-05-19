@@ -8,7 +8,8 @@ public interface IPlayerCommands {
 	public void checkAnswers();
 	public void uncheckAnswers();
 	public void reset();
-	public void updateCurrentPageScore();
+	public void updateCurrentPageScore(boolean incrementCheckCounter);
+	public void resetPageScore();
 	public PageScore getCurrentPageScore();
 	public long getTimeElapsed();
 

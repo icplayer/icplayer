@@ -51,8 +51,8 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		});
 	}
 	
-	
-	protected void reset() {
+	@Override
+	public void reset() {
 
 		isVisible = module.isVisible();
 		if(view != null){
@@ -175,4 +175,13 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 	}
 
 
+	@Override
+	public void setShowErrorsMode() {
+		// Module is not an activity
+	}
+
+	@Override
+	public void setWorkMode() {
+		// Module is not an activity	
+	}
 }

@@ -210,7 +210,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return errors;
 	}
 
-	private void setShowErrorsMode() {
+	@Override
+	public void setShowErrorsMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -223,7 +224,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 	}
 
-	private void setWorkMode() {
+	@Override
+	public void setWorkMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -235,7 +237,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 	}
 
-	private void reset() {
+	@Override
+	public void reset() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}

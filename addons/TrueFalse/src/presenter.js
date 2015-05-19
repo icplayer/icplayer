@@ -349,6 +349,10 @@ function AddonTrueFalse_create() {
     };
 
     presenter.setState = function (state) {
+        if (!state) {
+            return;
+        }
+
         var i = 0;
         var selectedElements = JSON.parse(state);
 

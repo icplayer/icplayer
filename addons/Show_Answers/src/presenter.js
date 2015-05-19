@@ -70,7 +70,8 @@ function AddonShow_Answers_create(){
         presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
 
         if (!isPreview) {
-                presenter.handleClickAction();
+            presenter.handleClickAction();
+            presenter.eventBus.addEventListener('HideAnswers', presenter);
         }
     }
 
@@ -81,6 +82,12 @@ function AddonShow_Answers_create(){
     presenter.setVisibility = function (isVisible) {
         presenter.configuration.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "HideAnswers") {
+            presenter.reset();
+        }
     };
 
     presenter.show = function() {

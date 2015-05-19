@@ -4,4 +4,7 @@ public interface IPresenter {
 
 	public void addView(IModuleView view);
 	public IModuleModel getModel();
+	public void setShowErrorsMode();
+	public void setWorkMode();
+	public void reset();
 }

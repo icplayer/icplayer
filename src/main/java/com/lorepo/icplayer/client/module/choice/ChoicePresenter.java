@@ -147,15 +147,14 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		clearStylesAndSelection();
 		setState(this.currentState);
-		
 		this.isShowAnswersActive = false;
 		setWorkMode();
 		
 		this.currentState = "";
 	}
 	
-	
-	private void setShowErrorsMode() {
+	@Override
+	public void setShowErrorsMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -182,7 +181,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		view.setEnabled(false);
 	}	
 	
-	private void setWorkMode() {
+	@Override
+	public void setWorkMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -196,8 +196,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		view.setEnabled(!isDisabled);
 	}	
 	
-	
-	private void reset() {
+	@Override
+	public void reset() {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -252,6 +252,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	@Override
 	public void setState(String stateObj) {
+		if (stateObj == "" || stateObj.equals("")) {
+			return;
+		}
+		
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = json.decodeHashMap(stateObj);
 		if (state.containsKey("options")) {

@@ -92,7 +92,8 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 		}
 	}
 
-	private void reset() {
+	@Override
+	public void reset() {
 		if (module.isVisible()) {
 			show();
 		} else {
@@ -219,5 +220,16 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 				hide();
 			}
 		}
+	}
+
+
+	@Override
+	public void setShowErrorsMode() {
+		// Module is not an activity
+	}
+
+	@Override
+	public void setWorkMode() {
+		// Module is not an activity
 	}
 }

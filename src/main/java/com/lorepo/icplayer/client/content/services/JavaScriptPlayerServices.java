@@ -35,6 +35,8 @@ import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
+import com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
 import com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter;
 import com.lorepo.icplayer.client.module.shape.ShapePresenter;
@@ -454,6 +456,10 @@ public class JavaScriptPlayerServices {
 			return ((PageProgressPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof CheckButtonPresenter) {
 			return ((CheckButtonPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof LimitedCheckPresenter) {
+			return ((LimitedCheckPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof LimitedResetPresenter) {
+			return ((LimitedResetPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ErrorCounterPresenter) {
 			return ((ErrorCounterPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ShapePresenter) {

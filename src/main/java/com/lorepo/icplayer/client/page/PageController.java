@@ -173,7 +173,7 @@ public class PageController {
 		playerService.getEventBus().fireEvent(new WorkModeEvent());
 	}
 
-	public void reset() {
+	public void resetPageScore() {
 		
 		if(currentPage.isReportable()){
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
@@ -182,6 +182,9 @@ public class PageController {
 				playerService.getScoreService().setPageScore(currentPage, score);
 			}
 		}
+	}
+	
+	public void sendResetEvent() {
 		playerService.getEventBus().fireEvent(new ResetPageEvent());
 	}
 

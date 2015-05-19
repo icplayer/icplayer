@@ -260,6 +260,13 @@ hr, table, fieldset {
 	cursor: pointer; 	
 }
 
+.ic_button_limited_reset {
+	background-image	:url('images/reset.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
 .ic_button_popup{
 	background-image	:url('images/popup.png');
 	background-repeat	:no-repeat;
@@ -286,6 +293,20 @@ hr, table, fieldset {
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
+}
+
+.ic_button_limited_check {
+	background-image	:url('images/check.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
+}
+
+.ic_button_limited_uncheck {
+	background-image	:url('images/uncheck.png');
+	background-repeat	:no-repeat;
+	background-position	:center; 	
+	cursor: pointer;
 }
 
 .ic_gap,

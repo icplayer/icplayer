@@ -2,6 +2,22 @@ function AddonAdvanced_Connector_create() {
     var presenter = function () {};
     var event;
 
+    presenter.STANDARD_EVENTS = [
+        'ValueChanged',
+        'Definition',
+        'ItemSelected',
+        'ItemConsumed',
+        'ItemReturned',
+        'PageLoaded',
+        'PageAllOk',
+        'ShowAnswers',
+        'HideAnswers',
+        'Done',
+        'AllAttempted',
+        'NotAllAttempted',
+        'LimitedCheck'
+    ];
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
     };
@@ -35,9 +51,7 @@ function AddonAdvanced_Connector_create() {
     };
 
     function isCustomEvent(eventName) {
-        var standardEvents = ['ValueChanged', 'Definition', 'ItemSelected', 'ItemConsumed', 'ItemReturned', 'PageLoaded'];
-
-        return $.inArray(eventName, standardEvents) == -1 ? true : false;
+        return $.inArray(eventName, presenter.STANDARD_EVENTS) == -1;
     }
 
     presenter.run = function(view, model) {
@@ -56,12 +70,9 @@ function AddonAdvanced_Connector_create() {
         eventBus = presenter.playerController.getEventBus();
         presenter.events = validatedScript.events;
 
-        eventBus.addEventListener('ValueChanged', this);
-        eventBus.addEventListener('Definition', this);
-        eventBus.addEventListener('ItemSelected', this);
-        eventBus.addEventListener('ItemConsumed', this);
-        eventBus.addEventListener('ItemReturned', this);
-        eventBus.addEventListener('PageLoaded', this);
+        $.each(presenter.STANDARD_EVENTS, function(_, name) {
+            eventBus.addEventListener(name, presenter);
+        });
 
         $.each(presenter.events, function() {
             if (isCustomEvent(this.Name) && (customEventListeners.indexOf(this.Name) == -1) ){

@@ -69,4 +69,19 @@ public class CheckCounterPresenter implements IPresenter{
 	public IModuleModel getModel() {
 		return module;
 	}
+
+	@Override
+	public void setShowErrorsMode() {
+		// Module is not an activity
+	}
+
+	@Override
+	public void setWorkMode() {
+		// Module is not an activity		
+	}
+
+	@Override
+	public void reset() {
+		// Module is not an activity
+	}
 }

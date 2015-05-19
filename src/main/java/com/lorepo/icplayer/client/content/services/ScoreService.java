@@ -55,7 +55,7 @@ public class ScoreService implements IScoreService {
 		ScoreType scoreType = getScoreType();
 		
 		if (scoreType.equals(ScoreType.last)) {
-			playerServices.getCommands().updateCurrentPageScore();
+			playerServices.getCommands().updateCurrentPageScore(false);
 		}
 		
 		int total = 0;
@@ -132,7 +132,7 @@ public class ScoreService implements IScoreService {
 	@Override
 	public PageScore getPageScoreById(String pageId) {
 		if (scoreType.equals(ScoreType.last)) {
-			playerServices.getCommands().updateCurrentPageScore();
+			playerServices.getCommands().updateCurrentPageScore(false);
 		}
 
 		PageScore score = pageScores.get(pageId);

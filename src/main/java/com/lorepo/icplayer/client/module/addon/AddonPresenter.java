@@ -57,22 +57,29 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		EventBus eventBus = services.getEventBus();
 		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
 			public void onShowErrors(ShowErrorsEvent event) {
-				setShowErrorsMode(jsObject, addonDescriptor.getAddonId());
+				setShowErrorsMode();
 			}
 		});
 
 		eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
 			public void onWorkMode(WorkModeEvent event) {
-				setWorkMode(jsObject, addonDescriptor.getAddonId());
+				setWorkMode();
 			}
 		});
 
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset(jsObject, addonDescriptor.getAddonId());
+				reset();
 			}
 		});
 	}
+	
+	@Override
+	public void setShowErrorsMode() {
+		setShowErrorsMode(jsObject, addonDescriptor.getAddonId());
+	}
+
+
 	
 	private native void setShowErrorsMode(JavaScriptObject obj, String addonId) /*-{
 	
@@ -86,6 +93,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  	}		
 	}-*/;
 
+	@Override
+	public void setWorkMode() {
+		setWorkMode(jsObject, addonDescriptor.getAddonId());
+	}
 	
 	private native void setWorkMode(JavaScriptObject obj, String addonId) /*-{
 	
@@ -98,6 +109,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in setWorkMode(): \n" + err);
 	  	}		
 	}-*/;
+	
+	@Override
+	public void reset() {
+		reset(jsObject, addonDescriptor.getAddonId());
+	}
 
 	private native void reset(JavaScriptObject obj, String addonId) /*-{
 	
