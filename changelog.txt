@@ -1,3 +1,4 @@
+2015-05-19 Fixed issue with fire PageLoaded events from previous pages
 2015-05-19 Added handling HideAnswers event in Show Answers module
 2015-05-19 Fixed handling HideAnswers events in Choice and True/False modules
 2015-05-19 Added new modules - Limited Check and Limited Reset

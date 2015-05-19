@@ -18,61 +18,47 @@ import com.lorepo.icplayer.client.page.PageController;
 
 public class PlayerServices implements IPlayerServices {
 
-	private PlayerCommands		playerCommands;
-	private ResettableEventBus	eventBus;
-	private IPlayerController 	playerController;
-	private PageController		pageController;
-	private JavaScriptPlayerServices	jsServiceImpl;
-	private IJsonServices	jsonServices = new JsonServices();
-	
-	
-	/**
-	 * constructor
-	 */
+	private final PlayerCommands playerCommands;
+	private final ResettableEventBus eventBus;
+	private final IPlayerController playerController;
+	private final PageController pageController;
+	private JavaScriptPlayerServices jsServiceImpl;
+	private IJsonServices jsonServices = new JsonServices();
+
 	public PlayerServices(IPlayerController controller, PageController pageController) {
-	
 		this.playerController = controller;
 		this.pageController = pageController;
 		eventBus = new ResettableEventBus(new SimpleEventBus());
 		playerCommands = new PlayerCommands(pageController, playerController);
 	}
 
-
 	@Override
 	public IScoreService getScoreService() {
-
 		return 	playerController.getScoreService();
 	}
 
 	@Override
 	public IPlayerCommands getCommands() {
-		
 		return playerCommands;
 	}
-
 
 	@Override
 	public EventBus getEventBus() {
 		return eventBus;
 	}
 
-
-	public void resetEventBus(){
-
+	public void resetEventBus() {
 		eventBus.removeHandlers();
-
-		if(jsServiceImpl != null){
+		if (jsServiceImpl != null) {
+			jsServiceImpl.clearPageLoadedListeners();
 			jsServiceImpl.resetEventListeners();
 		}
-		
 	}
-
 
 	@Override
 	public IContent getModel() {
 		return playerController.getModel();
 	}
-
 
 	@Override
 	public int getCurrentPageIndex() {
@@ -81,29 +67,24 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public JavaScriptObject getAsJSObject() {
-		
-		if(jsServiceImpl == null){
+		if (jsServiceImpl == null) {
 			jsServiceImpl = new JavaScriptPlayerServices(this);
 		}
-		
 		return jsServiceImpl.getJavaScriptObject();
 	}
 
 	@Override
 	public IPresenter getModule(String moduleId) {
-		
 		return pageController.findModule(moduleId);
 	}
 
 	@Override
 	public IPresenter getHeaderModule(String moduleId) {
-		
 		return playerController.findHeaderModule(moduleId);
 	}
-	
+
 	@Override
 	public IPresenter getFooterModule(String moduleId) {
-		
 		return playerController.findFooterModule(moduleId);
 	}
 

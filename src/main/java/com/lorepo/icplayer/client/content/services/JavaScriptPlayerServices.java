@@ -140,13 +140,17 @@ public class JavaScriptPlayerServices {
 
 	}
 
+	public void clearPageLoadedListeners() {
+		pageLoadedListeners.clear();
+	}
+
 	private void fireEvent(String eventName, HashMap<String, String> data) {
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
 
 		if (eventListeners != null) {
 			final JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
 
-			if (eventName == "PageLoaded") {
+			if (eventName == PAGE_LOADED_EVENT_NAME) {
 				final HashMap<String, String> pageLoadedData = new HashMap<String, String>();
 				pageLoadedData.putAll(data);
 
@@ -385,7 +389,7 @@ public class JavaScriptPlayerServices {
 			listeners.put(eventName, eventListeners);
 		}
 
-		if (eventName == "PageLoaded") {
+		if (eventName == PAGE_LOADED_EVENT_NAME) {
 			for (String eventSource : pageLoadedListeners.keySet()) {
 				pageLoadedListeners.get(eventSource).add(listener);
 			}
@@ -493,8 +497,8 @@ public class JavaScriptPlayerServices {
 
 	private static JavaScriptObject scoreToJs(PageScore score) {
 		JavaScriptObject model = JavaScriptObject.createArray();
-		JavaScriptUtils.addPropertyToJSArray(model, "score", (int)score.getScore());
-		JavaScriptUtils.addPropertyToJSArray(model, "maxScore", (int)score.getMaxScore());
+		JavaScriptUtils.addPropertyToJSArray(model, "score", (int) score.getScore());
+		JavaScriptUtils.addPropertyToJSArray(model, "maxScore", (int) score.getMaxScore());
 		JavaScriptUtils.addPropertyToJSArray(model, "checkCount", score.getCheckCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "errorCount", score.getErrorCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
