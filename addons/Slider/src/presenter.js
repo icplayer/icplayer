@@ -200,6 +200,7 @@ function AddonSlider_create () {
     }
 
     function mouseClickCallback (eventData) {
+
         eventData.stopPropagation();
 
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
@@ -242,33 +243,36 @@ function AddonSlider_create () {
             var relativeDistance;
 
             if ( presenter.configuration.orientation == presenter.ORIENTATION.LANDSCAPE ) {
-
                 relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, mouseData, imageElementData);
-                var left = relativeDistance.left;
                 mouseData.oldPosition.x = eventData.pageX;
 
+                mousePositions.x = mousePositions.x > 0 ? mousePositions.x : 0;
+                mousePositions.x = mousePositions.x < imageElementData.maxLeft ? mousePositions.x : imageElementData.maxLeft;
+
                 $(imageElement).css({
-                    left: (left + relativeDistance.horizontal) + 'px'
+                    left: (mousePositions.x + relativeDistance.horizontal) + 'px'
                 });
 
             } else {
-
                 relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, mouseData, imageElementData);
-                var top = relativeDistance.top;
+
+                mousePositions.y = mousePositions.y > 0 ? mousePositions.y : 0;
+                mousePositions.y = mousePositions.y < imageElementData.maxTop ? mousePositions.y : imageElementData.maxTop;
+
                 mouseData.oldPosition.y = eventData.pageY;
 
                 $(imageElement).css({
-                    top: (top + relativeDistance.vertical) + 'px'
+                    top: (mousePositions.y + relativeDistance.vertical) + 'px'
                 });
 
             }
 
             presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
+        eventData.preventDefault();
     }
 
     function touchMoveCallback (event) {
-        event.preventDefault();
         event.stopPropagation();
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
@@ -278,6 +282,7 @@ function AddonSlider_create () {
     }
 
     function handleMouseDrag(addonContainer) {
+        var icplayer = $('#_icplayer');
         presenter.isWindowsMobile = false;
 
         if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
@@ -304,8 +309,8 @@ function AddonSlider_create () {
         }
 
         $(imageElement).mousedown(mouseDownCallback);
-        $(imageElement).mousemove(mouseMoveCallback);
-        $(imageElement).mouseup(mouseUpCallback);
+        icplayer.mousemove(mouseMoveCallback);
+        icplayer.mouseup(mouseUpCallback);
         imageElement.ontouchend = touchEndCallback;
 
         $(addonContainer).click(mouseClickCallback);
@@ -367,11 +372,6 @@ function AddonSlider_create () {
         loadImageElement(preview);
 
         presenter.$view.disableSelection();
-
-        presenter.$view.on('mouseleave', function() {
-            mouseData.isMouseDown = false;
-        });
-
     }
 
     function drawBurret() {
