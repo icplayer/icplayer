@@ -110,6 +110,7 @@ public class ScoreService implements IScoreService {
 		PageScore pageScore = pageScores.get(page.getId());
 
 		if (getScoreType().equals(ScoreType.last) || pageScore == null) {
+			
 			pageScores.put(page.getId(), score);
 			pagesNamesToIds.put(page.getName(), page.getId());
 		}
@@ -140,7 +141,7 @@ public class ScoreService implements IScoreService {
 		if (score == null) {
 			score = new PageScore();
 		}
-
+		
 		return score;
 	}
 

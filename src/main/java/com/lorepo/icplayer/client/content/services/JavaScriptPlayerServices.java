@@ -62,6 +62,8 @@ public class JavaScriptPlayerServices {
 	private JavaScriptObject presentationObject;
 	private final HashMap<String, List<JavaScriptObject>> listeners = new HashMap<String, List<JavaScriptObject>>();
 	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
+	private final Map<String, List<JavaScriptObject>> pageLoadedListenersDelayed = new LinkedHashMap<String, List<JavaScriptObject>>();
+	private HashMap<String, List<JavaScriptObject>> listenersDelayed = new HashMap<String, List<JavaScriptObject>>();
 
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
@@ -71,6 +73,7 @@ public class JavaScriptPlayerServices {
 
 	public void resetEventListeners() {
 		listeners.clear();
+		listenersDelayed.clear();
 		connectEventHandlers();
 	}
 
@@ -142,14 +145,14 @@ public class JavaScriptPlayerServices {
 
 	public void clearPageLoadedListeners() {
 		pageLoadedListeners.clear();
+		pageLoadedListenersDelayed.clear();
 	}
 
 	private void fireEvent(String eventName, HashMap<String, String> data) {
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
-
+		final JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
+		
 		if (eventListeners != null) {
-			final JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
-
 			if (eventName == PAGE_LOADED_EVENT_NAME) {
 				final HashMap<String, String> pageLoadedData = new HashMap<String, String>();
 				pageLoadedData.putAll(data);
@@ -169,6 +172,30 @@ public class JavaScriptPlayerServices {
 
 			for (JavaScriptObject listener : eventListeners) {
 				onEvent(listener, eventName, jsData);
+			}
+		}
+		
+		List<JavaScriptObject> eventListenersDelayed = listenersDelayed.get(eventName);
+		if (eventListenersDelayed != null) {
+			if (eventName == PAGE_LOADED_EVENT_NAME) {
+				final HashMap<String, String> pageLoadedDataDelayed = new HashMap<String, String>();
+				pageLoadedDataDelayed.putAll(data);
+
+				for (String eventSource : pageLoadedListenersDelayed.keySet()) {
+					pageLoadedDataDelayed.put("source", eventSource);
+					final JavaScriptObject pageLoadedEventDataDelayed = JavaScriptUtils.createHashMap(pageLoadedDataDelayed);
+
+					for (JavaScriptObject listener : pageLoadedListenersDelayed.get(eventSource)) {
+						onEvent(listener, eventName, pageLoadedEventDataDelayed);
+					}
+
+					pageLoadedListenersDelayed.get(eventSource).clear();
+				}
+				pageLoadedListenersDelayed.put(data.get("source"), new ArrayList<JavaScriptObject>());
+			}
+			
+			for (JavaScriptObject listenerDelayed : eventListenersDelayed) {
+				onEvent(listenerDelayed, eventName, jsData);
 			}
 		}
 	}
@@ -250,8 +277,12 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
-			commands.addEventListener = function(name, listener) {
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, listener);
+			commands.addEventListener = function(name, listener, isDelayed) {
+				if(isDelayed == undefined){
+					isDelayed = false;
+				}
+				
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;Z)(name, listener, isDelayed);
 			};
 
 			commands.sendEvent = function(name, data) {
@@ -382,20 +413,38 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().executeEventCode(code);
 	}
 
-	private void addEventListener(String eventName, JavaScriptObject listener) {
-		List<JavaScriptObject> eventListeners = listeners.get(eventName);
-		if (eventListeners == null) {
-			eventListeners = new ArrayList<JavaScriptObject>();
-			listeners.put(eventName, eventListeners);
-		}
-
-		if (eventName == PAGE_LOADED_EVENT_NAME) {
-			for (String eventSource : pageLoadedListeners.keySet()) {
-				pageLoadedListeners.get(eventSource).add(listener);
+	private void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {
+		if (isDelayed) {
+			List<JavaScriptObject> eventListenersDelayed = listenersDelayed.get(eventName);
+			
+			if (eventListenersDelayed == null) {
+				eventListenersDelayed = new ArrayList<JavaScriptObject>();
+				listenersDelayed.put(eventName, eventListenersDelayed);
 			}
+			
+			if (eventName == PAGE_LOADED_EVENT_NAME) {
+				for (String eventSource : pageLoadedListenersDelayed.keySet()) {
+					pageLoadedListenersDelayed.get(eventSource).add(listener);
+				}
+			}
+			
+			eventListenersDelayed.add(listener);
+		} else {
+		
+			List<JavaScriptObject> eventListeners = listeners.get(eventName);
+			if (eventListeners == null) {
+				eventListeners = new ArrayList<JavaScriptObject>();
+				listeners.put(eventName, eventListeners);
+			}
+		
+			if (eventName == PAGE_LOADED_EVENT_NAME) {
+				for (String eventSource : pageLoadedListeners.keySet()) {
+					pageLoadedListeners.get(eventSource).add(listener);
+				}
+			}
+		
+			eventListeners.add(listener);
 		}
-
-		eventListeners.add(listener);
 	}
 
 	private String parseText(String text){

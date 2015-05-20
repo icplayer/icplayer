@@ -1,3 +1,4 @@
+2015-05-20 Added isDelayed property to eventBus addEventListener API
 2015-05-20 Added getModulesScore() command to Limited Check module
 2015-05-20 Fixed issue with dragging element to the same MultipleGap
 2015-05-20 Fixed issue with Reset in Coloring module

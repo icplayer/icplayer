@@ -148,7 +148,7 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.eventListener = function () {
         eventBus = playerController.getEventBus();
-        eventBus.addEventListener('ValueChanged', this);
+        eventBus.addEventListener('ValueChanged', this, true);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
