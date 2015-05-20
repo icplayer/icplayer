@@ -12,6 +12,14 @@ TestCase("[Basic Math Gaps] Score Tests", {
             'hasBeenStarted' : true
         };
 
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+        var inputGap = new this.presenter.ElementGapObject(5);
+        var inputGap2 = new this.presenter.ElementGapObject(10);
+        this.presenter.gapsContainer.addGap(inputGap);
+        this.presenter.gapsContainer.addGap(inputGap2);
+
+
         this.presenter.$view = $(
             '<div class="basic-math-gaps-wrapper">' +
                 '<div class="basic-math-gaps-container">' +
@@ -116,6 +124,7 @@ TestCase("[Basic Math Gaps] Score Tests", {
 
     'test getMaxScore will return 0 when addon is NOT activity' : function() {
         this.presenter.configuration.isActivity = false;
+
 
         var maxScore = this.presenter.getMaxScore();
 

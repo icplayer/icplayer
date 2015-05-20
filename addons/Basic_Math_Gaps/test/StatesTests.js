@@ -4,6 +4,12 @@ TestCase("[Basic Math Gaps] States Tests", {
         this.presenter.configuration = {
             'isVisible' : true
         };
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.stubs = {
+            getSources: sinon.stub(this.presenter.gapsContainer, 'getSources')
+        };
     },
 
     'test getState works properly' : function() {
@@ -18,9 +24,11 @@ TestCase("[Basic Math Gaps] States Tests", {
                 '</div>' +
             '</div>');
 
+        this.stubs.getSources.returns([]);
+
         var stateString = this.presenter.getState();
 
-        assertEquals('{\"values\":[\"1\",\"2\"],\"isVisible\":true}', stateString);
+        assertEquals('{\"values\":[\"1\",\"2\"],\"sources\":[],\"isVisible\":true}', stateString);
     },
 
     'test setState works properly' : function() {

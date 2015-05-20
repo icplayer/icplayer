@@ -3,8 +3,10 @@ function AddonBasic_Math_Gaps_create(){
     var presenter = function(){};
 
     presenter.eventBus = null;
-
     presenter.playerController = null;
+    presenter.gapsContainer = null;
+    presenter.widgetsFactory = null;
+    presenter.lastDraggedItem = null;
 
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
@@ -15,61 +17,50 @@ function AddonBasic_Math_Gaps_create(){
         runLogic(view, model, true);
     };
 
-    function createFraction(id, gapDef) {
-        var container = $('<span class="fraction-container"></span>'),
-            numerator = $('<span class="numerator"></span>'),
-            denominator = $('<span class="denominator"></span>'),
-            input = $('<input type="text" value="" id="' + id + '" />');
-
-        if (presenter.configuration.isDisabled) {
-            input.attr('disabled', 'disabled');
-            input.addClass('disabled');
-        }
-
-        if (!gapDef.fraction.numerator.isGap && !gapDef.fraction.denominator.isGap && gapDef.isGap) {
-            numerator.append($(input).clone().attr('id', input.attr('id') + '-numerator'));
-            denominator.append($(input).clone().attr('id', input.attr('id') + '-denominator'));
-        } else {
-
-            if (gapDef.fraction.numerator.isGap) {
-                numerator.append($(input).clone().attr('id', input.attr('id') + '-numerator'));
-            } else {
-                numerator.append($('<span class="element">' + gapDef.fraction.numerator.parsed + '</span>'));
-            }
-
-            if (gapDef.fraction.denominator.isGap) {
-                denominator.append($(input).clone().attr('id', input.attr('id') + '-denominator'));
-            } else {
-                denominator.append($('<span class="element">' + gapDef.fraction.denominator.parsed + '</span>'));
-            }
-
-        }
-
-        container.append(numerator).append(denominator);
-        return container;
-    }
-
     presenter.run = function(view, model){
         runLogic(view, model, false);
 
-        eventBus = this.playerController.getEventBus();
-		eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        presenter.setOnEventListeners();
+    };
+
+    presenter.setOnEventListeners = function () {
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('ItemSelected', this);
+    };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeGapType(model);
+    };
+
+    presenter.upgradeGapType = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.gapType == undefined) {
+            upgradedModel["gapType"] = "Editable";
+        }
+
+        return upgradedModel;
     };
 
     function runLogic(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+
+
+        presenter.$view = $(view);
+        presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (presenter.configuration.isError) {
-            DOMOperationsUtils.showErrorMessage($(view).find('.basic-math-gaps-container'), presenter.errorCodes, presenter.configuration.errorCode);
+            DOMOperationsUtils.showErrorMessage(presenter.$view.find('.basic-math-gaps-container'), presenter.errorCodes, presenter.configuration.errorCode);
             return;
         }
 
-        presenter.$view = $(view);
+        presenter.gapsContainer = new presenter.GapsContainerObject();
+        presenter.widgetsFactory = new presenter.ObjectFactory();
 
-        if (!presenter.configuration.isError) {
-            displayGaps(model);
-        }
+
+        presenter.createGaps();
 
         if (!isPreview) presenter.addFocusOutEventListener();
 
@@ -77,64 +68,51 @@ function AddonBasic_Math_Gaps_create(){
             e.stopPropagation();
         });
 
-        $(view).find('.basic-math-gaps-wrapper :input').each(function(){
+        presenter.setWrapperCss();
+
+        presenter.setVisibility(presenter.configuration.isVisible);
+    }
+
+    presenter.createGaps = function () {
+        presenter.widgetsFactory.produce(
+            presenter.ObjectFactory.PRODUCTION_TYPE.GAP_CONTAINER,
+            presenter.configuration.gapsDefinition
+        );
+
+        if (presenter.configuration.isDisabled) {
+            presenter.gapsContainer.block();
+        }
+    };
+
+    presenter.setWrapperCss = function () {
+        presenter.$view.find('.basic-math-gaps-wrapper :input').each(function(){
             if (presenter.configuration.gapWidth != '') {
                 $(this).css("width", presenter.configuration.gapWidth);
             }
         });
-
-        presenter.setVisibility(presenter.configuration.isVisible);
-
-    }
-
-    presenter.addFocusOutEventListener = function (isPreview) {
-        if(!isPreview && !presenter.configuration.isDisabled) {
-            presenter.eventBus = presenter.playerController.getEventBus();
-
-            var inputs = presenter.$view.find('input');
-
-            inputs.focusout(function() {
-                var item = presenter.$view.find('input').index( this),
-                    value = $(this).val(),
-                    score = (($(this).val() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val()) == presenter.configuration.gapsValues[item]));
-
-                if (presenter.configuration.isEquation && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) { return; }
-                presenter.sendEvent(item, value, score);
-            });
-        }
     };
 
-    function displayGaps(model) {
-        var container = presenter.$view.find('.basic-math-gaps-container'),
-            hasFractions = false;
-
-        $.each(presenter.configuration.gapsDefinition, function(i) {
-            var id = model.ID + '-' + i;
-            if (this.isFraction) {
-                var fraction = createFraction(id, this);
-                container.append(fraction);
-                hasFractions = true;
-
-            } else if (this.isGap) {
-                var gap = $('<input type="text" value="" id="' + id + '" />');
-                if (presenter.configuration.isDisabled) {
-                    gap.attr('disabled', 'disabled');
-                    gap.addClass('disabled');
-                }
-                container.append(gap);
-            } else {
-                var element = $('<span class="element">' + this.originalForm + '</span>');
-                container.append(element);
-            }
-            if (this.isHiddenAdditionAfter) {
-                container.append($('<span class="hidden-addition">+</span>'));
-            }
-        });
-
-        if (hasFractions) {
-            container.addClass('hasFractions');
+    presenter.addFocusOutEventListener = function () {
+        if(presenter.configuration.isDisabled) {
+            return;
         }
-    }
+
+        presenter._addFocusOutEventListener();
+
+    };
+
+    presenter._addFocusOutEventListener = function () {
+        var inputs = presenter.$view.find('input');
+
+        inputs.focusout(function() {
+            var item = presenter.$view.find('input').index( this),
+                value = $(this).val(),
+                score = (($(this).val() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val()) == presenter.configuration.gapsValues[item]));
+
+            if (presenter.configuration.isEquation && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) { return; }
+            presenter.sendEvent(item, value, score);
+        });
+    };
 
     function escapeRegexSpecialCharacters(value) {
         return (value + '').replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // escape regex special characters
@@ -249,16 +227,21 @@ function AddonBasic_Math_Gaps_create(){
             var valueBeforeConvert = splittedGapsBySpace[i],
                 value = presenter.convertSign(signs, valueBeforeConvert),
                 isGap = isGapPattern.test(value),
-                isFraction = isFractionPattern.test(value),
-                singleElement = {
-                    originalForm: value,
-                    beforeConvert: getValueOfSingleElement(valueBeforeConvert, isGap, false),
-                    isGap: isGap,
-                    isFraction: isFraction,
-                    parsed: getValueOfSingleElement(value, isGap, true),
-                    notParsed: getValueOfSingleElement(value, isGap, false),
-                    isHiddenAdditionAfter: checkIsHiddenAddition(splittedGapsBySpace, i)
-                };
+                isFraction = isFractionPattern.test(value);
+
+            var gapType = isGap ? presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP :
+                presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP;
+
+            var singleElement = {
+                gapType: gapType,
+                originalForm: value,
+                beforeConvert: getValueOfSingleElement(valueBeforeConvert, isGap, false),
+                isGap: isGap,
+                isFraction: isFraction,
+                parsed: getValueOfSingleElement(value, isGap, true),
+                notParsed: getValueOfSingleElement(value, isGap, false),
+                isHiddenAdditionAfter: checkIsHiddenAddition(splittedGapsBySpace, i)
+            };
 
             if (isFraction) {
                 var numerator = value.split('/')[0],
@@ -290,6 +273,8 @@ function AddonBasic_Math_Gaps_create(){
                         notParsed: getValueOfSingleElement(denominator, isDenominatorGap, false)
                     }
                 };
+
+                singleElement.gapType = presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP;
 
                 if(isNumeratorGap) {
                     gapsValues.push(singleElement.fraction.numerator.notParsed);
@@ -336,7 +321,6 @@ function AddonBasic_Math_Gaps_create(){
                     'errorCode' : 'E01'
                 }
             }
-
         }
 
         return {
@@ -405,7 +389,16 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
+    presenter.validateGapType = function (model) {
+        if(model.gapType === "Draggable") {
+            return { value: true };
+        }
+
+        return { value: false };
+    };
+
     presenter.validateModel = function(model) {
+
         var validatedIsEquation = ModelValidationUtils.validateBoolean(model['isEquation']),
             validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']),
             validatedIsActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
@@ -435,6 +428,8 @@ function AddonBasic_Math_Gaps_create(){
             return validatedGapsDefinition;
         }
 
+        var validatedGapType = presenter.validateGapType(model);
+
         return {
             'isError' : false,
             'gapsDefinition' : validatedGapsDefinition.allElements,
@@ -449,6 +444,7 @@ function AddonBasic_Math_Gaps_create(){
             'isVisible' : validatedIsVisible,
             'decimalSeparator' : validatedDecimalSeparator.value,
             'gapWidth' : validatedGapWidth.value,
+            'isDraggable': validatedGapType.value,
             'Signs' : validatedSigns.value
         }
     };
@@ -465,14 +461,14 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
-    presenter.setShowErrorsMode = function(){
+    presenter._setShowErrorsModeEditable = function(inputs){
         var inputs = presenter.$view.find('input');
 
         $.each(inputs, function() {
             $(this).attr('disabled', 'disabled');
             $(this).addClass('disabled');
         });
-        
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -502,7 +498,6 @@ function AddonBasic_Math_Gaps_create(){
             }
 
             $(container).addClass('correct');
-
         } else {
 
             $.each(inputs, function(i) {
@@ -519,28 +514,78 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
+    presenter.setShowErrorsMode = function () {
+        if (presenter.configuration.isDraggable) {
+            presenter._setShowErrorsModeDraggable();
+        } else {
+            presenter._setShowErrorsModeEditable();
+        }
+    };
+
+    presenter._setShowErrorsModeDraggable = function () {
+        presenter.gapsContainer.block();
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        presenter.setClassWhenCheck(true);
+
+        if (!presenter.configuration.isActivity || presenter.gapsContainer.areAllGapsEmpty()) {
+            return;
+        }
+
+        var validated = validateScore();
+
+        if (presenter.configuration.isEquation) {
+
+            var container = presenter.$view.find('.basic-math-gaps-container');
+
+            if (!validated.userExpressionValid) {
+                $(container).addClass('wrong');
+                return;
+            }
+
+            if ( !isEquationCorrect(validated) ) {
+                $(container).addClass('wrong');
+                return;
+            }
+
+            $(container).addClass('correct');
+        } else {
+            presenter.gapsContainer.setShowErrorsModeClasses();
+        }
+    };
+
     presenter.setWorkMode = function(){
         if (presenter.configuration.isDisabled) {
             return;
         }
 
-        presenter.setClassWhenCheck(false);
+        if (presenter.configuration.isDraggable) {
+            presenter.gapsContainer.setWorkModeClasses();
+            presenter.gapsContainer.unblock();
+        } else {
+            presenter.setClassWhenCheck(false);
 
-        var inputs = presenter.$view.find('input');
-        inputs.attr('disabled', false);
-        inputs.removeClass('correct wrong disabled');
-        presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
+            var inputs = presenter.$view.find('input');
+            inputs.attr('disabled', false);
+            inputs.removeClass('correct wrong disabled');
+            presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
+        }
+
     };
 
     presenter.reset = function(){
         if (presenter.configuration.isDisabled) {
             return;
         }
-        
-        var inputs = presenter.$view.find('input');
-        inputs.attr('disabled', false);
-        inputs.removeClass('correct wrong disabled');
-        inputs.val('');
+
+        presenter.$view.find('.basic-math-gaps-container').empty();
+
+        presenter.gapsContainer.reset();
+        presenter.createGaps();
+
         if(typeof(presenter.userAnswers) !== "undefined") {
         	presenter.userAnswers.splice(0,presenter.userAnswers.length);
         }
@@ -589,10 +634,11 @@ function AddonBasic_Math_Gaps_create(){
     	if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+
         if (presenter.configuration.isEquation && presenter.configuration.isActivity) {
             return 1;
         } else if (presenter.configuration.isActivity) {
-            return presenter.$view.find('input').length;
+            return presenter.gapsContainer.getMaxScore();
         } else {
             return 0;
         }
@@ -655,14 +701,27 @@ function AddonBasic_Math_Gaps_create(){
         return reconvertedExpression;
     };
 
-    function validateScore() {
-        var inputs = presenter.$view.find('input'),
-            isValid = true,
-            validGapsCount = 0;
+    function getValuesArray () {
+        if (presenter.configuration.isDraggable) {
+            return getValuesFromSpans();
+        }
 
-        $.each(inputs, function(i) {
-            var value = $(this).val();
-            if (presenter.configuration.gapsValues[i] != presenter.reconvertSign(presenter.configuration.Signs, value)) {
+        return getValuesFromAllGaps();
+    }
+
+    function getValuesFromSpans() {
+        return presenter.gapsContainer.getValues();
+    }
+
+    function validateScore() {
+
+        var valuesArray = getValuesArray();
+
+        var isValid = true;
+        var validGapsCount = 0;
+
+        valuesArray.forEach(function (value, index) {
+            if (presenter.configuration.gapsValues[index] != presenter.reconvertSign(presenter.configuration.Signs, value)) {
                 isValid = false;
             } else if (value.length > 0) {
                 validGapsCount++;
@@ -708,18 +767,14 @@ function AddonBasic_Math_Gaps_create(){
         return !presenter.configuration.isActivity || presenter.configuration.isDisabled;
     }
 
-    presenter.getScore = function(){
+    presenter._getScore = function(){
     	if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
-        }
-        if ( canNOTCheckScore() || areInputsAllEmpty()) {
-            return 0;
         }
 
         var validated = validateScore();
 
         if (presenter.configuration.isEquation) {
-
             if (!validated.userExpressionValid) {
                 return 0;
             }
@@ -731,11 +786,33 @@ function AddonBasic_Math_Gaps_create(){
             return 1;
 
         } else {
-
             return validated.validGapsCount;
-
         }
     };
+
+    presenter.getScore = function () {
+        if (canNOTCheckScore()) {
+            return 0;
+        }
+
+        if (!presenter.configuration.isDraggable) {
+            if (areInputsAllEmpty()) {
+                return 0;
+            }
+        }
+
+        var score = presenter._getScore();
+
+        return score;
+    };
+
+    function getValuesFromAllGaps() {
+        if (presenter.configuration.isDraggable) {
+            return presenter.gapsContainer.getValues();
+        }
+
+        return getValuesFromAllInputs();
+    }
 
     function getValuesFromAllInputs() {
         var values = [];
@@ -753,24 +830,52 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.getState = function(){
         var state = {
-            'values' : getValuesFromAllInputs(),
+            'values' : getValuesFromAllGaps(),
+            'sources': presenter.gapsContainer.getSources(),
             'isVisible' : presenter.configuration.isVisible,
             'isDisabled' : presenter.configuration.isDisabled
         };
+
     	if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
         return JSON.stringify(state);
     };
 
+    presenter.upgradeState = function (state) {
+        if (state.sources == undefined) {
+             return presenter.upgradeSources(state);
+        }
+
+        return state;
+    };
+
+    presenter.upgradeSources = function (state) {
+        var upgradedState = {};
+        jQuery.extend(true, upgradedState, state); // Deep copy of model object
+
+        upgradedState["sources"] = upgradedState.values.map(function () {
+            return "";
+        });
+
+        return upgradedState;
+    };
+
     presenter.setState = function(stateString){
         var state = JSON.parse(stateString);
 
-        setValuesForAllInputs(state.values);
-        presenter.configuration.isVisible = state.isVisible;
-        presenter.configuration.isDisabled = state.isDisabled;
+        var upgradedState = presenter.upgradeState(state);
 
-        presenter.setVisibility(state.isVisible);
+        if (presenter.configuration.isDraggable) {
+            presenter.gapsContainer.setState(upgradedState.values);
+        } else {
+            setValuesForAllInputs(upgradedState.values);
+        }
+
+        presenter.configuration.isVisible = upgradedState.isVisible;
+        presenter.configuration.isDisabled = upgradedState.isDisabled;
+
+        presenter.setVisibility(upgradedState.isVisible);
     };
 
     presenter.show = function() {
@@ -789,18 +894,41 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.disable = function() {
         presenter.configuration.isDisabled = true;
-        $.each(presenter.$view.find('input'), function(i) {
-            $(this).attr('disabled', 'disabled');
-            $(this).addClass('disabled');
+
+        if (presenter.configuration.isDraggable) {
+            presenter.gapsContainer.block();
+        } else {
+            presenter.setInputsDisabledOption(true);
+        }
+    };
+
+    presenter.getDisabledOption = function (booleanValue) {
+        if (booleanValue) {
+            return 'disabled';
+        }
+
+        return false;
+    };
+
+    presenter.setInputsDisabledOption = function (booleanValue) {
+        $.each(presenter.$view.find('input'), function() {
+            $(this).attr('disabled', presenter.getDisabledOption(booleanValue));
+
+            if (booleanValue) {
+                $(this).addClass('disabled');
+            } else {
+                $(this).removeClass('disabled');
+            }
         });
     };
 
     presenter.enable = function() {
         presenter.configuration.isDisabled = false;
-        $.each(presenter.$view.find('input'), function(i) {
-            $(this).attr('disabled', false);
-            $(this).removeClass('disabled');
-        });
+        if (presenter.configuration.isDraggable) {
+            presenter.gapsContainer.unblock();
+        } else {
+            presenter.setInputsDisabledOption(false);
+        }
     };
 
     presenter.isAllOK = function() {
@@ -862,7 +990,7 @@ function AddonBasic_Math_Gaps_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
@@ -870,39 +998,978 @@ function AddonBasic_Math_Gaps_create(){
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
+
+        if (eventName == "ItemSelected") {
+            var draggedItem = presenter.widgetsFactory.produce(
+                presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGED_ITEM, eventData
+            );
+
+            presenter.lastDraggedItem = draggedItem;
+        }
     };
     
     presenter.showAnswers = function () {
-    	if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-    	if (presenter.configuration.isActivity) {
-    		presenter.setWorkMode();
-        	var inputs = presenter.$view.find('input');
-        	presenter.isShowAnswersActive = true;
-        	presenter.userAnswers = [];
-            $.each(inputs, function(i) {        
-                var shouldBeValue = presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[i]);
-                presenter.userAnswers.push($(this).val());
-                $(this).attr('disabled', true);
-                $(this).val(shouldBeValue);
-                $(this).addClass('bmg_show-answers');
-            });
-    	}
+
+        if (presenter.configuration.isActivity) {
+            presenter.setWorkMode();
+            presenter.isShowAnswersActive = true;
+            presenter.gapsContainer.block();
+            presenter.gapsContainer.showAnswers();
+        }
     };
     
     presenter.hideAnswers = function () {
-    	var inputs = presenter.$view.find('input');
         presenter.isShowAnswersActive = false;
-        
-        $.each(inputs, function(i) {
-        	if(typeof(presenter.userAnswers) !== "undefined") {
-            	$(this).val(presenter.userAnswers[i]);
-        	}
-            $(this).attr('disabled', false);
-            $(this).removeClass('bmg_show-answers');
+        presenter.gapsContainer.unblock();
+        presenter.gapsContainer.hideAnswers();
+    };
+
+    presenter.parseItemValue = function (item) {
+    	if(item.indexOf("**") > -1 || item.indexOf("__") > -1){
+    		return item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/__(.*?)__/g, "<i>$1</i>").replace(/__(.*?)_/g, "<i>$1_</i>").replace(/\*\*(.*?)\*/g, "<b>$1*</b>").replace(/_(.*?)__/g, "_$1").replace(/\*(.*?)\*\*/g, "*$1");
+    	}else{
+    		return item;
+    	}
+    };
+
+    presenter.GapsContainerObject = function () {
+        this._gaps = {};
+        this._gapsOrderArray = [];
+    };
+
+    presenter.GapsContainerObject.prototype.getGapById = function (id) {
+        return this._gaps[id];
+    };
+
+    presenter.GapsContainerObject.prototype.triggerGapDropHandler = function (id) {
+        this.getGapById(id).actualGap.dropHandler();
+    };
+
+    presenter.GapsContainerObject.prototype.triggerGapClickHandler = function (id) {
+        this.getGapById(id).actualGap.clickHandler();
+    };
+
+    presenter.GapsContainerObject.prototype.getValues = function () {
+        return this._gapsOrderArray.map(function (element) {
+            return this._gaps[element].actualGap.getValue();
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.getMaxScore = function () {
+        return this._gapsOrderArray.length;
+    };
+
+    presenter.GapsContainerObject.prototype.getSources = function () {
+        return this._gapsOrderArray.map(function (gapID){
+            return this._gaps[gapID].actualGap.getSource();
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.getScoreForEventByGapID = function (gapID, value) {
+        var index = this._gapsOrderArray.indexOf(gapID);
+
+        var scoreBoolean = (value === presenter.configuration.gapsValues[index] ||
+        (presenter.reconvertSign(presenter.configuration.Signs, value) == presenter.configuration.gapsValues[index]));
+
+        if (scoreBoolean) {
+            return 1;
+        }
+
+        return 0;
+    };
+
+    presenter.GapsContainerObject.prototype.getGapIndexByID = function (gapID) {
+        return (this._gapsOrderArray.indexOf(gapID) + 1);
+    };
+
+    presenter.GapsContainerObject.prototype.areAllGapsEmpty = function () {
+        var reducedValue = this.getValues().reduce(function (previousElement, currentElement) {
+            return previousElement + currentElement;
+        });
+
+        return (reducedValue === "");
+    };
+
+    presenter.GapsContainerObject.prototype.showAnswers = function () {
+        this._gapsOrderArray.map(function (gapID) {
+            return this._gaps[gapID];
+        }, this).forEach(function (gap, index) {
+            gap.actualGap.setValue(
+                presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[index])
+            );
+
+            gap.$actualView.addClass('bmg_show-answers');
         });
     };
+
+    presenter.GapsContainerObject.prototype.hideAnswers = function () {
+        this._gapsOrderArray.forEach(function (gapID) {
+            this._gaps[gapID].actualGap.hideAnswers();
+            this._gaps[gapID].$actualView.removeClass('bmg_show-answers');
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.setShowErrorsModeClasses = function () {
+        this._gapsOrderArray.forEach(function (gapID, index) {
+            var gap = this._gaps[gapID];
+
+            var shouldBeValue = presenter.configuration.gapsValues[index];
+            var currentValue = presenter.reconvertSign(presenter.configuration.Signs, gap.actualGap.getValue());
+
+
+            if (shouldBeValue == currentValue) {
+                gap.$actualView.addClass('correct');
+            } else {
+                gap.$actualView.addClass('wrong');
+            }
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.setWorkModeClasses = function () {
+        presenter.setClassWhenCheck(false);
+        presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
+
+
+        this._gapsOrderArray.forEach(function (gapID) {
+            var gap = this._gaps[gapID];
+            gap.$actualView.removeClass('correct wrong disabled')
+
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.block = function () {
+        this._gapsOrderArray.forEach(function (element) {
+            this._gaps[element].actualGap.block();
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.unblock = function () {
+        this._gapsOrderArray.forEach(function (element) {
+            this._gaps[element].actualGap.unblock();
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.reset = function () {
+        delete this._gaps;
+        delete this._gapsOrderArray;
+
+        this._gaps = {};
+        this._gapsOrderArray = [];
+    };
+
+    presenter.GapsContainerObject.prototype.showActualView = function (id) {
+        var handlerGaps = this.getGapById(id);
+
+        var $viewToReplace = handlerGaps.actualGap.getView();
+
+
+        handlerGaps.$actualView.replaceWith($viewToReplace).remove();
+        handlerGaps.$actualView = $viewToReplace;
+
+        handlerGaps.actualGap.connectEventsToReplacedView($viewToReplace);
+    };
+
+    presenter.GapsContainerObject.prototype.addGap = function (gap) {
+        var id = gap.getId();
+
+        this._gapsOrderArray.push(id);
+
+        this._gaps[id] = {
+            baseGap: gap,
+            actualGap: gap,
+            $actualView: gap.getView()
+        };
+    };
+
+    presenter.GapsContainerObject.prototype.setState = function (valuesArray) {
+        this._gapsOrderArray.forEach(function (element, index) {
+            if (valuesArray[index] == "") {
+                this._replaceWithEmptyGap(index);
+            } else {
+                this._replaceWithDraggableGap(valuesArray[index], "", index);
+            }
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype._replaceWithEmptyGap = function (index) {
+        var gapID = this._gapsOrderArray[index];
+
+        var gap = this._gaps[gapID];
+
+
+        var data = {
+            id: gap.actualGap.getId(),
+            width: presenter.configuration.gapWidth,
+            float: gap.actualGap.getFloat()
+        };
+
+
+        var producedEmptyGap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP, data);
+
+        this.replaceActualGapWithId(gapID, producedEmptyGap);
+        this.showActualView(gapID);
+    };
+
+    presenter.GapsContainerObject.prototype._replaceWithDraggableGap = function (value, source, index) {
+        var gapID = this._gapsOrderArray[index];
+
+        var gap = this._gaps[gapID];
+
+
+        var data = {
+            id: gap.actualGap.getId(),
+            className: gap.actualGap.getClassName(),
+            value: value,
+            source: source,
+            width: presenter.configuration.gapWidth,
+            float: gap.actualGap.getFloat()
+        };
+
+
+        var producedGap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
+
+        this.replaceActualGapWithId(gapID, producedGap);
+        this.showActualView(gapID);
+    };
+
+    presenter.GapsContainerObject.prototype.addFractionGap = function (gap) {
+        this.addGap(gap.getNumerator());
+        this.addGap(gap.getDenominator());
+    };
+
+    presenter.GapsContainerObject.prototype.replaceActualGapWithId = function (id, newGap) {
+        this._gaps[id].actualGap = newGap;
+    };
+
+    presenter.GapsContainerObject.prototype.replaceActualGapWithBaseById = function (id) {
+        var baseGap = this._gaps[id].baseGap;
+
+        this._gaps[id].actualGap = baseGap;
+    };
+
+    presenter.GapObject = function (id, width, float, value, source, className) {
+        this.id = id;
+        this._className = className || "";
+        this.width = width || 30;
+        this._float = float || true;
+        this._source = source || "";
+        this._value = value || "";
+        this._$view = this._createView();
+        this._connectEvents(this._$view);
+    };
+
+    presenter.GapObject.prototype.getWidth = function () {
+        return this.width;
+    };
+
+    presenter.GapObject.prototype.getFloat = function () {
+        return this._float;
+    };
+
+    presenter.GapObject.prototype.getClassName = function () {
+        return this._className;
+    };
+
+    presenter.GapObject.prototype.getSource = function () {
+        return this._source;
+    };
+
+    presenter.GapObject.prototype._createView = function () {
+        var $inputGap = $('<input type="text" value="" id="' + this.id + '" />');
+
+        return $inputGap;
+    };
+
+    presenter.GapObject.prototype.setValue = function (value) {
+        this._userAnswer = this._$view.val();
+        this._$view.val(value);
+    };
+
+    presenter.GapObject.prototype.hideAnswers = function () {
+        this._$view.val(this._userAnswer);
+    };
+
+    presenter.GapObject.prototype.setDisabledAttributeAndClass = function () {
+        this._$view.attr('disabled', 'disabled');
+        this._$view.addClass('disabled');
+    };
+
+    presenter.GapObject.prototype.getId = function () {
+        return this.id;
+    };
+
+    presenter.GapObject.prototype._connectEvents = function ($view) {
+        $view.click(function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+        });
+    };
+
+    presenter.GapObject.prototype.block = function () {
+        this._$view.attr('disabled', true);
+    };
+
+    presenter.GapObject.prototype.unblock = function () {
+        this._$view.attr('disabled', false);
+    };
+
+    presenter.GapObject.prototype.connectEventsToReplacedView = function ($view) {
+        this._connectEvents($view);
+    };
+
+    presenter.GapObject.prototype.getValue = function () {
+        return this._$view.val();
+    };
+
+    presenter.GapObject.prototype.setDroppableDisabledOption = function (booleanValue) {
+        this._$view.droppable( "option", "disabled", booleanValue);
+    };
+
+    presenter.GapObject.prototype.clickHandler = function () {
+    };
+
+    presenter.GapObject.prototype.dropHandler = function () {
+        presenter.lastDraggedItem.fillGap(this);
+    };
+
+    presenter.GapObject.prototype.getView = function () {
+        return this._$view;
+    };
+
+    presenter.GapObject.prototype.sendItemReturnedEvent = function () {
+        var eventData = {
+            'item': this._source,
+            'value': this._value,
+            type: this._type
+        };
+
+        presenter.eventBus.sendEvent('ItemReturned', eventData);
+    };
+
+    presenter.GapObject.prototype.sendValueChangedEvent = function () {
+        presenter.eventBus.sendEvent('ValueChanged', {
+            source: presenter.configuration.addonID,
+            value: this._value,
+            score: presenter.gapsContainer.getScoreForEventByGapID(this.id, this._value),
+            item: presenter.gapsContainer.getGapIndexByID(this.id)
+        });
+
+        if (presenter.isAllOK() && !presenter.configuration.isEquation) sendAllOKEvent();
+    };
+
+
+    presenter.ElementGapObject = function (value) {
+        this._value = value;
+        this._$view = this._createView();
+    };
+
+    presenter.ElementGapObject.prototype = Object.create(presenter.GapObject.prototype);
+    presenter.ElementGapObject.prototype.constructor = presenter.ElementGapObject;
+
+    presenter.ElementGapObject.prototype._createView = function () {
+        return $('<span class="element">' + this._value + '</span>');
+    };
+
+    presenter.ElementGapObject.prototype.setDisabledAttributeAndClass = function () {};
+
+
+    presenter.DraggableEmptyGap = function (id, width, float) {
+        presenter.GapObject.call(this, id, width, float);
+    };
+
+    presenter.DraggableEmptyGap.prototype = Object.create(presenter.GapObject.prototype);
+    presenter.DraggableEmptyGap.prototype.constructor = presenter.DraggableEmptyGap;
+
+    presenter.DraggableEmptyGap.prototype._createView = function () {
+        var $span = $('<span></span>');
+        $span.attr('id', this.id);
+        $span.addClass("ui-droppable");
+        $span.addClass("ui-widget-content");
+        $span.css({
+            width: this.width + "px",
+            display: "inline-block",
+            height: "20px"
+        });
+
+        if (this._float) {
+            $span.css({
+                float: 'left'
+            });
+        }
+
+        return $span;
+    };
+
+    presenter.DraggableEmptyGap.prototype.getValue = function () {
+        return "";
+    };
+
+    presenter.DraggableEmptyGap.prototype.setValue = function (value) {
+        this._$view.html(value);
+    };
+
+    presenter.DraggableEmptyGap.prototype.hideAnswers = function () {
+        this._$view.html("");
+    };
+
+    presenter.DraggableEmptyGap.prototype._connectEvents = function ($view) {
+        $view.droppable({
+            drop: function (event, ui) {
+                event.stopPropagation();
+                event.preventDefault();
+                var id = $(this).attr("id");
+                presenter.gapsContainer.triggerGapDropHandler(id);
+            }
+        });
+    };
+
+    presenter.DraggableEmptyGap.prototype.block = function () {
+        this.setDroppableDisabledOption(true);
+    };
+
+    presenter.DraggableEmptyGap.prototype.unblock = function () {
+        this.setDroppableDisabledOption(false);
+    };
+
+
+    presenter.DraggableMathGapObject = function (id, width, float, value, source, className) {
+        presenter.GapObject.call(this, id, width, float, value, source, className);
+        this._type = "string";
+    };
+
+
+    presenter.DraggableMathGapObject.prototype = Object.create(presenter.GapObject.prototype);
+    presenter.DraggableMathGapObject.prototype.constructor = presenter.DraggableMathGapObject;
+    presenter.DraggableMathGapObject.prototype.parent = presenter.GapObject.prototype;
+
+    presenter.DraggableMathGapObject.prototype.getValue = function () {
+        return this._value;
+    };
+
+    presenter.DraggableMathGapObject.prototype.setValue = function (value) {
+        this._$view.html(value);
+    };
+
+    presenter.DraggableMathGapObject.prototype.hideAnswers = function () {
+        this._$view.html(this._value);
+    };
+
+    presenter.DraggableMathGapObject.prototype._createView = function () {
+        var $span = $('<span></span>');
+        $span.attr('id', this.id);
+        $span.addClass(this._className);
+        $span.addClass("ui-draggable");
+        $span.addClass("ui-widget-content");
+        $span.css({
+            width: this.width + "px",
+            display: "inline-block",
+            'text-align': "center"
+        });
+
+        $span.text(this._value);
+        $span.draggable({
+            revert: true,
+            revertDuration: 300
+        });
+
+        if (this._float) {
+            $span.css({
+                float: 'left'
+            });
+        }
+
+        return $span;
+    };
+
+    presenter.DraggableMathGapObject.prototype._connectEvents = function ($view) {
+        this.bindClickHandler($view);
+
+        $view.droppable({
+            drop: function (event, ui) {
+                event.stopPropagation();
+                event.preventDefault();
+                var id = $(this).attr("id");
+                presenter.gapsContainer.triggerGapDropHandler(id);
+            }
+        });
+    };
+
+
+
+    presenter.DraggableMathGapObject.prototype.bindClickHandler = function ($view) {
+        $view.click(function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            var id = $(this).attr("id");
+            presenter.gapsContainer.triggerGapClickHandler(id);
+        });
+    };
+
+    presenter.DraggableMathGapObject.prototype.block = function () {
+        this._$view.unbind("click");
+        this.setDroppableDisabledOption(true);
+    };
+
+    presenter.DraggableMathGapObject.prototype.unblock = function () {
+        this.bindClickHandler(this._$view);
+        this.setDroppableDisabledOption(false);
+    };
+
+    presenter.DraggableMathGapObject.prototype.clickHandler = function () {
+        this.sendItemReturnedEvent();
+        presenter.gapsContainer.replaceActualGapWithBaseById(this.id);
+
+        presenter.gapsContainer.showActualView(this.id)
+    };
+
+
+    presenter.FractionGapObject = function (id) {
+        this._id = id;
+        this._$mainContainer;
+        this._$numeratorContainer;
+        this._$denominatorContainer;
+        this._numerator;
+        this._denominator;
+        this._numeratorValue;
+        this._denominatorValue;
+
+        this._createContainers();
+    };
+
+    presenter.FractionGapObject.prototype = Object.create(presenter.GapObject.prototype);
+    presenter.FractionGapObject.prototype.parent = presenter.GapObject.prototype;
+    presenter.FractionGapObject.prototype.constructor = presenter.FractionGapObject;
+
+    presenter.FractionGapObject.prototype._createContainers = function () {
+        this._$mainContainer = $('<span class="fraction-container"></span>');
+        this._$numeratorContainer = $('<span class="numerator"></span>');
+        this._$denominatorContainer = $('<span class="denominator"></span>');
+    };
+
+    presenter.FractionGapObject.prototype.createElementNumerator = function (value) {
+        this._numerator = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP, value);
+
+        this._numeratorValue = value;
+    };
+
+    presenter.FractionGapObject.prototype.createElementDenominator = function (value) {
+        this._denominator = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP, value);
+
+        this._denominatorValue = value;
+    };
+
+    presenter.FractionGapObject.prototype.createGapNumerator = function (type) {
+         this._numerator = presenter.widgetsFactory.produce(type, this._getNominatorProductionData());
+    };
+
+    presenter.FractionGapObject.prototype.createGapDenominator = function (type) {
+         this._denominator = presenter.widgetsFactory.produce(type, this._getDenominatorProductionData());
+    };
+
+    presenter.FractionGapObject.prototype.changeCSSFloatProperty = function () {
+        this._numerator.getView().css({
+            float: 'none'
+        });
+
+        this._denominator.getView().css({
+            float: 'none'
+        });
+    };
+
+    presenter.FractionGapObject.prototype._getNominatorProductionData = function () {
+        return {
+            id: this._id + "-numerator",
+            width: presenter.configuration.gapWidth
+        };
+    };
+
+    presenter.FractionGapObject.prototype._getDenominatorProductionData = function () {
+        return {
+            id: this._id + "-denominator",
+            width: presenter.configuration.gapWidth
+        };
+    };
+
+    presenter.FractionGapObject.prototype.addDisabledAttributeAndClassNumerator = function () {
+        this._numerator.setDisabledAttributeAndClass();
+    };
+
+    presenter.FractionGapObject.prototype.addDisabledAttributeAndClassDenominator = function () {
+        this._denominator.setDisabledAttributeAndClass();
+    };
+
+    presenter.FractionGapObject.prototype.getView = function () {
+        return this._$mainContainer;
+    };
+
+    presenter.FractionGapObject.prototype.joinNumeratorDenominator = function () {
+        this._$numeratorContainer.append(this._numerator.getView());
+        this._$denominatorContainer.append(this._denominator.getView());
+
+        this._$mainContainer.append(this._$numeratorContainer).append(this._$denominatorContainer);
+    };
+
+    presenter.FractionGapObject.prototype.getNumerator = function () {
+        return this._numerator;
+    };
+
+    presenter.FractionGapObject.prototype.getDenominator = function () {
+        return this._denominator;
+    };
+
+
+    presenter.ObjectFactory = function () {
+        this.gapsFactory = new presenter.GapsFactoryObject();
+        this.draggedItemFactory = new presenter.DraggedItemFactoryObject();
+        this.gapsContainerFactory = new presenter.GapsContainerFactoryObject();
+    };
+
+    presenter.ObjectFactory.PRODUCTION_TYPE = {
+        EDITABLE_INPUT_GAP: 0,
+        FRACTION_GAP: 1,
+        ELEMENT_GAP: 2,
+        DRAGGED_ITEM: 3,
+        DRAGGABLE_MATH_GAP: 4,
+        GAP_CONTAINER: 5,
+        DRAGGABLE_EMPTY_GAP: 6
+    };
+
+    presenter.ObjectFactory.prototype.produce = function (type, data) {
+        var producedItem;
+
+        switch (type) {
+            case presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP:
+                producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
+                producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP, data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP:
+                producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP, data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP:
+                producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP:
+                producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP, data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGED_ITEM:
+                producedItem = this.draggedItemFactory.produce(data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.GAP_CONTAINER:
+                producedItem = this.gapsContainerFactory.produce(data);
+                break;
+        }
+        
+        return producedItem;
+    };
+
+    presenter.FractionBuilderObject = function () {
+
+    };
+
+    presenter.FractionBuilderObject.prototype = Object.create(presenter.ObjectFactory.prototype);
+    presenter.FractionBuilderObject.prototype.constructor = presenter.FractionBuilderObject;
+
+    presenter.FractionBuilderObject.prototype.produce = function (data) {
+        var fraction = this._produceFractionObject(data);
+
+        this._setNumerator(fraction, data);
+        this._setDenominator(fraction, data);
+
+        this._setDisabled(fraction);
+        fraction.changeCSSFloatProperty();
+
+        fraction.joinNumeratorDenominator();
+
+        return fraction;
+    };
+
+    presenter.FractionBuilderObject.prototype._setDisabled = function (fraction) {
+        if (presenter.configuration.isDisabled) {
+            fraction.addDisabledAttributeAndClassDenominator();
+            fraction.addDisabledAttributeAndClassNumerator();
+        }
+    };
+
+    presenter.FractionBuilderObject.prototype._produceFractionObject = function (data) {
+        return new presenter.FractionGapObject(data.fractionID);
+    };
+
+    presenter.FractionBuilderObject.prototype._setNumerator = function (fraction, data) {
+        if (data.fraction.numerator.isGap) {
+            if (presenter.configuration.isDraggable) {
+                fraction.createGapNumerator(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP);
+            } else {
+                fraction.createGapNumerator(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP);
+            }
+        } else {
+            fraction.createElementNumerator(data.fraction.numerator.parsed);
+        }
+    };
+
+    presenter.FractionBuilderObject.prototype._setDenominator = function (fraction, data) {
+        if (data.fraction.denominator.isGap) {
+            if (presenter.configuration.isDraggable) {
+                fraction.createGapDenominator(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP);
+            } else {
+                fraction.createGapDenominator(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP);
+            }
+        } else {
+            fraction.createElementDenominator(data.fraction.denominator.parsed);
+        }
+    };
+
+    presenter.GapsFactoryObject = function () {
+        this._fractionBuilder = new presenter.FractionBuilderObject();
+    };
+
+    presenter.GapsFactoryObject.prototype = Object.create(presenter.ObjectFactory.prototype);
+    presenter.GapsFactoryObject.prototype.constructor = presenter.GapsFactoryObject;
+
+    presenter.GapsFactoryObject.prototype.produce = function (type, data) {
+        switch (type) {
+            case presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP:
+                return this.produceEditableInputGap(data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
+                return this.produceFractionGap(data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP:
+                return this.produceDraggableMathGap(data);
+            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP:
+                return this.produceDraggableEmptyGap(data);
+                break;
+            case presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP:
+                return this.produceElementGap(data);
+                break;
+        }
+    };
+
+    presenter.GapsFactoryObject.prototype.produceEditableInputGap = function (data) {
+        return new presenter.GapObject(data.id, data.width);
+    };
+
+    presenter.GapsFactoryObject.prototype.produceDraggableMathGap = function (data) {
+        return new presenter.DraggableMathGapObject(
+            data.id,  data.width, data.float, data.value, data.source, data.className
+        );
+    };
+
+    presenter.GapsFactoryObject.prototype.produceElementGap = function (value) {
+        return new presenter.ElementGapObject(value);
+    };
+
+    presenter.GapsFactoryObject.prototype.produceDraggableEmptyGap = function (data) {
+        return new presenter.DraggableEmptyGap( data.id, data.width, data.float);
+    };
+
+    presenter.GapsFactoryObject.prototype.produceFractionGap = function (data) {
+        return this._fractionBuilder.produce(data);
+    };
+
+    presenter.GapsContainerFactoryObject = function () {};
+
+    presenter.GapsContainerFactoryObject.prototype = Object.create(presenter.ObjectFactory.prototype);
+    presenter.GapsContainerFactoryObject.prototype.constructor = presenter.GapsContainerFactoryObject;
+
+    presenter.GapsContainerFactoryObject.prototype.produce = function (data) {
+        var container = presenter.$view.find('.basic-math-gaps-container');
+        var hasFractions = false;
+
+        data.forEach(function (element, index) {
+            var item;
+
+            switch (element.gapType) {
+                case presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP:
+                    item = this._produceNormalGap(this._getNormalGapData(index));
+                    presenter.gapsContainer.addGap(item);
+                    break;
+                case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
+                    item = this._produceFractionGap(element, this._getElementId(index));
+                    presenter.gapsContainer.addFractionGap(item);
+                    hasFractions = true;
+                    break;
+                case presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP:
+                    item = this._produceElementGap(element);
+                    break;
+            }
+
+            container.append(item.getView());
+
+            if (element.isHiddenAdditionAfter) {
+                container.append($('<span class="hidden-addition">+</span>'));
+            }
+
+        }, this);
+
+        if (hasFractions) {
+            container.addClass('hasFractions');
+        }
+    };
+
+    presenter.GapsContainerFactoryObject.prototype._produceNormalGap = function (data) {
+        var gap;
+
+        data.float = true;
+
+        if (presenter.configuration.isDraggable) {
+            gap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP, data);
+        } else {
+            gap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, data);
+        }
+
+        if (presenter.configuration.isDisabled) {
+            gap.setDisabledAttributeAndClass();
+        }
+
+        return gap;
+    };
+
+    presenter.GapsContainerFactoryObject.prototype._getNormalGapData = function (index) {
+        return {
+            id: this._getElementId(index),
+            width: presenter.configuration.gapWidth,
+            float: true
+        };
+    };
+
+    presenter.GapsContainerFactoryObject.prototype._produceElementGap = function (data) {
+        return presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP, data.originalForm);
+    };
+
+    presenter.GapsContainerFactoryObject.prototype._getElementId = function (index) {
+        return (presenter.configuration.addonID + "-" + index);
+    };
+
+    presenter.GapsContainerFactoryObject.prototype._produceFractionGap = function (data, id) {
+        data.fractionID = id;
+
+        return presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP, data);
+    };
     
+    presenter.DraggedItemFactoryObject = function () {};
+    
+    presenter.DraggedItemFactoryObject.prototype = Object.create(presenter.ObjectFactory.prototype);
+    presenter.DraggedItemFactoryObject.prototype.constructor = presenter.DraggedItemFactoryObject;
+    presenter.DraggedItemFactoryObject.prototype.produce = function (data) {
+        data = this._validateEventData(data);
+
+        switch (data.type) {
+            case "string":
+                return this.produceTextItem(data);
+                break;
+            default:
+                return this.produceNullItem();
+                break;
+        }
+    };
+
+    presenter.DraggedItemFactoryObject.prototype._validateEventData = function (data) {
+        if (data.type === undefined) {
+            data.type = "NullObject";
+            return data;
+        }
+
+        if (data.value === undefined) {
+            data.type = "NullObject";
+            return data;
+        }
+
+        if (data.item === undefined) {
+            data.type = "NullObject";
+            return data;
+        }
+
+        return data;
+    };
+    
+    presenter.DraggedItemFactoryObject.prototype.produceTextItem = function (data) {
+        return new presenter.TextItem(data.item, data.value, data.item);
+    };
+
+    presenter.DraggedItemFactoryObject.prototype.produceNullItem = function () {
+        return new presenter.NullItemObject();
+    };
+
+    presenter.DraggedItem = function (parent, value, source) {
+        this.parent = parent;
+        this.value = value;
+        this.source = source;
+        this._type = "";
+    };
+
+    presenter.DraggedItem.prototype.getView = function () {
+        return this._$view;
+    };
+
+    presenter.DraggedItem.prototype.sendItemConsumedEvent = function () {
+        var eventData = {
+            'item': this.source,
+            'value': this.value,
+            type: this._type
+        };
+
+        presenter.eventBus.sendEvent('ItemConsumed', eventData);
+    };
+
+    presenter.DraggedItem.prototype.fillGap = function () {
+        return "NotImplementedError";
+    };
+    
+    presenter.NullItemObject = function () {};
+
+    presenter.NullItemObject.prototype = Object.create(presenter.DraggedItem.prototype);
+    presenter.NullItemObject.prototype.sendItemConsumedEvent = function () {};
+
+    presenter.NullItemObject.prototype.fillGap = function (gapToFill) {
+
+    };
+
+    presenter.TextItem = function (parent, value, source) {
+        presenter.DraggedItem.call(this, parent, value, source);
+        this._type = "string";
+    };
+
+    presenter.TextItem.prototype = Object.create(presenter.DraggedItem.prototype);
+    presenter.TextItem.prototype.parent = presenter.DraggedItem.prototype;
+    presenter.TextItem.prototype.constructor = presenter.TextItem;
+
+    presenter.TextItem.prototype.fillGap = function (gapToFill) {
+        this.sendItemConsumedEvent();
+
+        var gapID = gapToFill.getId();
+
+
+        var fillingGap = this.getFillingGap(
+            gapID,
+            gapToFill.getClassName(),
+            gapToFill.getWidth(),
+            gapToFill.getFloat()
+        );
+
+        presenter.gapsContainer.replaceActualGapWithId(gapID, fillingGap);
+        presenter.gapsContainer.showActualView(gapID);
+        fillingGap.sendValueChangedEvent();
+    };
+
+    presenter.TextItem.prototype.getFillingGap = function (id, className, width, float) {
+        return presenter.widgetsFactory.produce(
+            presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP,
+            {
+                id: id,
+                className: className,
+                width: width,
+                value: presenter.parseItemValue(this.value),
+                source: this.source,
+                float: float
+            }
+        );
+    };
+
     return presenter;
 }

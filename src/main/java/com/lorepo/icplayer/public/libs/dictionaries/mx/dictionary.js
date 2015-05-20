@@ -1032,6 +1032,7 @@
 	"Basic_Math_Gaps_property_gap_signs_subtraction": "Resta",
 	"Basic_Math_Gaps_property_gap_signs_division": "División",
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Multiplicación",
+    "Basic_Math_Gaps_property_gap_type": "Gap Type",
 	"Lesson_Progress_info": "",
 	"Lesson_Progress_name": "Progreso de la lección",
 	"Lesson_Progress_property_show_progress_bar": "Mostrar barra de progreso",

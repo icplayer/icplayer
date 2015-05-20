@@ -6,6 +6,7 @@ TestCase("[Basic Math Gaps] Events Tests", {
             'isDisabled' : false,
             'gapsValues' : ['1', '2']
         };
+
         sinon.stub(this.presenter, 'sendEvent');
         this.presenter.playerController = {
             getEventBus: function() {
@@ -30,7 +31,7 @@ TestCase("[Basic Math Gaps] Events Tests", {
                 '</div>' +
             '</div>');
 
-        this.presenter.addFocusOutEventListener(false);
+        this.presenter.addFocusOutEventListener();
 
         var input = this.presenter.$view.find('#input1');
 
@@ -52,12 +53,46 @@ TestCase("[Basic Math Gaps] Events Tests", {
                 '</div>' +
             '</div>');
 
-        this.presenter.addFocusOutEventListener(false);
+        this.presenter.addFocusOutEventListener();
 
         var input = this.presenter.$view.find('#input1');
 
         $(input).trigger('focusout');
 
         assertFalse(this.presenter.sendEvent.calledOnce);
+    }
+});
+
+TestCase("[Basic Math Gaps] Receiving ItemSelected event", {
+    setUp: function () {
+        this.presenter = AddonBasic_Math_Gaps_create();
+        this.presenter.widgetsFactory = new this.presenter.ObjectFactory();
+
+        this.stubs = {
+            produce: sinon.stub(this.presenter.widgetsFactory, 'produce')
+        };
+
+        this.DRAGGED_ITEM_TYPE = this.presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGED_ITEM;
+    },
+
+    'test dragged item factory should receive producing task': function () {
+        var data = {
+            testData: "yupikajej"
+        };
+
+        this.presenter.onEventReceived("ItemSelected", data);
+
+        assertTrue(this.stubs.produce.calledOnce);
+        assertTrue(this.stubs.produce.calledWith(this.DRAGGED_ITEM_TYPE, data));
+    },
+
+    'test last produced dragged item should be remembered': function () {
+        var expectedItem = "asdfasfasjkfaw 3";
+
+        this.stubs.produce.returns(expectedItem);
+
+        this.presenter.onEventReceived("ItemSelected", "asl;kdhjfvapw3");
+
+        assertEquals(expectedItem, this.presenter.lastDraggedItem);
     }
 });

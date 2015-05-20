@@ -344,6 +344,7 @@ TestCase("[Basic Math Gaps] Model validation", {
         this.validateGapsDefinitionStub = sinon.stub(this.presenter, 'validateGapsDefinition');
         this.validateDecimalSeparatorStub = sinon.stub(this.presenter, 'validateDecimalSeparator');
         this.validateSignsStub = sinon.stub(this.presenter, 'validateSigns');
+        this.validateGapTypeStub = sinon.stub(this.presenter, 'validateGapType');
     },
 
     tearDown: function () {
@@ -467,12 +468,15 @@ TestCase("[Basic Math Gaps] Model validation", {
             value: {Addition: "a", Subtraction: "s", Division: "d", Multiplication: "m"}
         });
 
+        this.validateGapTypeStub.returns({value: false});
+
         this.model = {
             'ID': 'Basic_Math_Gap_1',
             'Is Visible': 'True',
             'isEquation': 'True',
             'isNotActivity': 'True',
-            'isDisabled': 'True'
+            'isDisabled': 'True',
+            'gapType': "Editable"
         };
 
         var validatedModel = this.presenter.validateModel(this.model);
@@ -487,5 +491,58 @@ TestCase("[Basic Math Gaps] Model validation", {
         assertEquals(',', validatedModel.decimalSeparator);
         assertEquals(40, validatedModel.gapWidth);
         assertEquals({Addition: "a", Subtraction: "s", Division: "d", Multiplication: "m"}, validatedModel.Signs);
+        assertFalse(validatedModel.isDraggable);
+    }
+});
+
+TestCase("[Basic_Math_Gaps] Gap type validation", {
+    setUp: function () {
+        this.presenter = AddonBasic_Math_Gaps_create();
+    },
+
+    'test if gap type draggable it should return true': function () {
+        var expectedResult = {
+            value: true
+        };
+
+        var validatedGapType = this.presenter.validateGapType({gapType: "Draggable"});
+
+        assertEquals(expectedResult, validatedGapType);
+    },
+
+    'test if gap type editable it should return false': function () {
+        var expectedResult = {
+            value: false
+        };
+
+        var validatedGapType = this.presenter.validateGapType({gapType: "Editable"});
+
+        assertEquals(expectedResult, validatedGapType);
+    }
+});
+
+TestCase("[Basic_Math_Gaps] [Gaps Definition] Gap type validation", {
+    setUp: function () {
+        this.presenter = AddonBasic_Math_Gaps_create();
+    },
+
+    'test gaps should have editable input gap type and non-gaps element gap': function () {
+        this.model = {
+            'gapsDefinition' : '[1] + [2] = 3'
+        };
+
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
+
+        assertEquals(this.presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, validated.allElements[0].gapType);
+        assertEquals(this.presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP, validated.allElements[1].gapType);
+    },
+
+    'test fractions should have fraction gap type' : function() {
+        this.model = {
+            'gapsDefinition' : '[1/2] + [1/2] = 1'
+        };
+
+        var validated = this.presenter.validateGapsDefinition(this.model, true,'.',{Addition: "", Subtraction: "", Division: "", Multiplication: ""});
+        assertEquals(this.presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP, validated.allElements[0].gapType);
     }
 });
