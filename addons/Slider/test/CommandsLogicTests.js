@@ -36,7 +36,7 @@ CommandsLogicTestsUtils = {
     }
 };
 
-TestCase("moveTo command logic", {
+TestCase("[Slider] moveTo command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -92,7 +92,7 @@ TestCase("moveTo command logic", {
     }
 });
 
-TestCase("moveToInitialStep command logic", {
+TestCase("[Slider] moveToInitialStep command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -125,7 +125,7 @@ TestCase("moveToInitialStep command logic", {
     }
 });
 
-TestCase("moveToLast command logic", {
+TestCase("[Slider] moveToLast command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -158,7 +158,7 @@ TestCase("moveToLast command logic", {
     }
 });
 
-TestCase("moveToFirst command logic", {
+TestCase("[Slider] moveToFirst command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -191,7 +191,7 @@ TestCase("moveToFirst command logic", {
     }
 });
 
-TestCase("nextStep command logic", {
+TestCase("[Slider] nextStep command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -225,7 +225,7 @@ TestCase("nextStep command logic", {
     }
 });
 
-TestCase("previousStep command logic", {
+TestCase("[Slider] previousStep command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -259,7 +259,7 @@ TestCase("previousStep command logic", {
     }
 });
 
-TestCase("getCurrentStep command logic", {
+TestCase("[Slider] getCurrentStep command logic", {
     'test current step equals 5': function() {
         var presenter = AddonSlider_create();
         presenter.configuration = {
@@ -283,7 +283,7 @@ TestCase("getCurrentStep command logic", {
     }
 });
 
-TestCase("Reset command logic", {
+TestCase("[Slider] Reset command logic", {
     setUp: CommandsLogicTestsUtils.setUp,
     tearDown: CommandsLogicTestsUtils.tearDown,
 
@@ -322,7 +322,7 @@ TestCase("Reset command logic", {
     }
 });
 
-TestCase("Command params helper method", {
+TestCase("[Slider] Command params helper method", {
     setUp: function () {
         this.presenter = AddonSlider_create();
     },

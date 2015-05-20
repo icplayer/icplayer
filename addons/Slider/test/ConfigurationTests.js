@@ -1,4 +1,4 @@
-TestCase("Configuration", {
+TestCase("[Slider] Configuration", {
     setUp: function () {
         this.presenter = AddonSlider_create();
     },

@@ -21,7 +21,7 @@ function AddonSlider_create () {
 
     presenter.addonID = '';
 
-    var mouseData = {
+    presenter.mouseData = {
         isMouseDown : false,
         oldPosition : {
             x : 0,
@@ -148,14 +148,15 @@ function AddonSlider_create () {
         var tempElement = document.createElement('p');
         elementContainer.append(tempElement);
         $(elementContainer).find('p:first').remove();
+
     };
 
     function mouseDownCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
-        mouseData.isMouseDown = true;
-        mouseData.oldPosition.x = eventData.pageX;
-        mouseData.oldPosition.y = eventData.pageY;
+        presenter.mouseData.isMouseDown = true;
+        presenter.mouseData.oldPosition.x = eventData.pageX;
+        presenter.mouseData.oldPosition.y = eventData.pageY;
     }
 
     function touchStartCallback (event) {
@@ -168,15 +169,25 @@ function AddonSlider_create () {
         mouseDownCallback(touch);
     }
 
-    function mouseUpCallback () {
-        if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
+    presenter.mouseUpEventDispatcher = function (event) {
+        if (presenter.mouseData.isMouseDown) {
+            presenter.mouseUpHandler(event);
+        } else {
+            return;
+        }
+    };
+
+    presenter.mouseUpHandler = function (event) {
+        if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) {
+            return;
+        }
 
         $(presenter.imageElement).removeClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_CLICK);
 
         var addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
         var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
 
-        mouseData.isMouseDown = false;
+        presenter.mouseData.isMouseDown = false;
         if (presenter.configuration.newStep !== presenter.configuration.currentStep) {
             presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
@@ -189,14 +200,13 @@ function AddonSlider_create () {
         if (presenter.configuration.stepwise) {
             presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
         }
-
-    }
+    };
 
     function touchEndCallback (event) {
         event.preventDefault();
         event.stopPropagation();
 
-        mouseUpCallback();
+        presenter.mouseUpEventDispatcher();
     }
 
     function mouseClickCallback (eventData) {
@@ -211,8 +221,8 @@ function AddonSlider_create () {
         $(presenter.imageElement).addClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_CLICK);
         $(presenter.imageElement).removeClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER);
 
-        if (mouseData.isMouseDragged) {
-            mouseData.isMouseDragged = false;
+        if (presenter.mouseData.isMouseDragged) {
+            presenter.mouseData.isMouseDragged = false;
             return;
         }
 
@@ -237,14 +247,14 @@ function AddonSlider_create () {
         var addonContainer = presenter.$addonContainer;
         var imageElement = presenter.imageElement;
 
-        if (mouseData.isMouseDown) {
-            mouseData.isMouseDragged = true;
+        if (presenter.mouseData.isMouseDown) {
+            presenter.mouseData.isMouseDragged = true;
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
 
             if ( presenter.configuration.orientation == presenter.ORIENTATION.LANDSCAPE ) {
-                relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, mouseData, imageElementData);
-                mouseData.oldPosition.x = eventData.pageX;
+                relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
+                presenter.mouseData.oldPosition.x = eventData.pageX;
 
                 mousePositions.x = mousePositions.x > 0 ? mousePositions.x : 0;
                 mousePositions.x = mousePositions.x < imageElementData.maxLeft ? mousePositions.x : imageElementData.maxLeft;
@@ -254,12 +264,12 @@ function AddonSlider_create () {
                 });
 
             } else {
-                relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, mouseData, imageElementData);
+                relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
 
                 mousePositions.y = mousePositions.y > 0 ? mousePositions.y : 0;
                 mousePositions.y = mousePositions.y < imageElementData.maxTop ? mousePositions.y : imageElementData.maxTop;
 
-                mouseData.oldPosition.y = eventData.pageY;
+                presenter.mouseData.oldPosition.y = eventData.pageY;
 
                 $(imageElement).css({
                     top: (mousePositions.y + relativeDistance.vertical) + 'px'
@@ -293,10 +303,10 @@ function AddonSlider_create () {
 
         $(imageElement).hover(
             function() {
-                $(this).toggleClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER, !mouseData.isMouseDown);
+                $(this).toggleClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER, !presenter.mouseData.isMouseDown);
             },
             function() {
-                $(this).toggleClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER, mouseData.isMouseDown);
+                $(this).toggleClass(CLASSES_NAMES.ELEMENT_IMAGE.MOUSE_HOVER, presenter.mouseData.isMouseDown);
             }
         );
 
@@ -310,7 +320,7 @@ function AddonSlider_create () {
 
         $(imageElement).mousedown(mouseDownCallback);
         icplayer.mousemove(mouseMoveCallback);
-        icplayer.mouseup(mouseUpCallback);
+        icplayer.mouseup(presenter.mouseUpEventDispatcher);
         imageElement.ontouchend = touchEndCallback;
 
         $(addonContainer).click(mouseClickCallback);
@@ -542,13 +552,15 @@ function AddonSlider_create () {
         var triggerEvent = presenter.parseAdditionalTriggerEventParam(params, 0);
 
         if (presenter.configuration.currentStep + 1 <= presenter.configuration.stepsCount) {
-            if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
+            if (triggerEvent)
+                presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
             presenter.configuration.currentStep++;
             presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
 
             presenter.triggerOnStepChangeUserEvent();
-            if (triggerEvent) presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
+            if (triggerEvent)
+                presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
         }
     };
 

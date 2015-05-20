@@ -1,4 +1,4 @@
-TestCase("Steps count conversion", {
+TestCase("[Slider] Steps count conversion", {
     setUp: function () {
         this.presenter = AddonSlider_create();
     },
