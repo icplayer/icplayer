@@ -124,7 +124,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
 				if(event.getItem() instanceof DraggableText){
-					draggableItem = event.getItem();
+					if (event.getItem().getId() == null) {
+						draggableItem = null;
+					} else {
+						draggableItem = event.getItem();
+					}
 				}
 			}
 		});
@@ -561,7 +565,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			@Override
 			public void onGapDragged(String gapId) {
 				CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData(gapId));
-				gapClicked(gapId);
+				removeFromGap(gapId);
 				playerServices.getEventBus().fireEvent(dragEvent);
 			}
 
@@ -569,6 +573,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onGapStopped(String gapId) {
 				CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData(gapId));
 				playerServices.getEventBus().fireEvent(stopEvent);
+			}
+
+			@Override
+			public void onGapDropped(String id) {
+				if (consumedItems.get(id) != null) {
+					removeFromGap(id);
+				}
+				insertToGap(id);
 			}
 		});
 	}
@@ -610,30 +622,45 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void gapClicked(String gapId) {
 		
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
+
+		if (previouslyConsumedItem != null) {
+			removeFromGap(gapId);
+		} else if (draggableItem != null) {
+			insertToGap(gapId);
+		}
+		
+	}
+
+	protected void insertToGap(String gapId) {
+
+		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
+		String value = StringUtils.removeAllFormatting(draggableItem.getValue());
+		view.setValue(gapId, draggableItem.getValue());
+		view.refreshMath();
+		consumedItems.put(gapId, draggableItem);
+		values.put(gapId, value);
+		fireItemConsumedEvent();
+		String score = Integer.toString(getItemScore(gapId));
+		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
+		playerServices.getEventBus().fireEvent(valueEvent);
+		
+	}
+	
+	protected void removeFromGap(String gapId) {
+		
+		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 		
 		String value = "";
 		String score = "0";
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		if (previouslyConsumedItem != null) {
-			consumedItems.remove(gapId);
-			values.remove(gapId);
-			view.setValue(gapId, "");
-			fireItemReturnedEvent(previouslyConsumedItem);
-			ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
-			playerServices.getEventBus().fireEvent(valueEvent);
-		} else if (draggableItem != null) {
-			value = StringUtils.removeAllFormatting(draggableItem.getValue());
-			view.setValue(gapId, draggableItem.getValue());
-			view.refreshMath();
-			consumedItems.put(gapId, draggableItem);
-			values.put(gapId, value);
-			fireItemConsumedEvent();
-			score = Integer.toString(getItemScore(gapId));
-			ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
-			playerServices.getEventBus().fireEvent(valueEvent);
-		}
-		
+		consumedItems.remove(gapId);
+		values.remove(gapId);
+		view.setValue(gapId, "");
+		fireItemReturnedEvent(previouslyConsumedItem);
+		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
+		playerServices.getEventBus().fireEvent(valueEvent);
 	}
+	
 	
 	protected void gapFocused(String gapId, Element element) {
 		InputElement input = InputElement.as(element);

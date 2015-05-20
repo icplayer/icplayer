@@ -12,7 +12,6 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -21,6 +20,8 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
@@ -44,6 +45,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void hide();
 		public Element getItem(String id);
 		public Set<String> getCurrentLabels();
+		public void setPresenter(SourceListPresenter p);
 	}
 	
 	private IDisplay view;
@@ -53,6 +55,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private HashMap<String, String> items = new HashMap<String, String>();
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
+	private boolean canDrag = true;
 	
 	
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
@@ -68,6 +71,18 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private void connectHandlers() {
 	
 		EventBus eventBus = playerServices.getEventBus();
+		
+		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+			public void onShowErrors(ShowErrorsEvent event) {
+				setShowErrorsMode();
+			}
+		});
+
+		eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
+			public void onWorkMode(WorkModeEvent event) {
+				setWorkMode();
+			}
+		});
 		
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
@@ -92,6 +107,11 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
+				if (event.eventName == "ShowAnswers") {
+					canDrag = false;
+				} else if (event.eventName == "HideAnswers") {
+					canDrag = true;
+				}
 				String gotItem = event.getData().get("item");
 				if (!gotItem.startsWith(getItemPrefix())) {
 					return;
@@ -100,7 +120,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 					selectItem(gotItem);
 				} else if (event.eventName == "itemStopped") {
 					deselectCurrentItem();
-					playerServices.getEventBus().fireEventFromSource(new ItemSelectedEvent(null), this);
+					ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
+					playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
 				}
 			}
 		});
@@ -180,9 +201,9 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		}
 	}
 
-
-	private void selectItem(String id) {
-		DraggableItem draggableItem = null;
+	
+	private void clickItem(String id) {
+		DraggableItem draggableItem = new DraggableText(null, null);
 		String oldSelection = selectedId;
 		deselectCurrentItem();
 		
@@ -191,6 +212,17 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			view.selectItem(id);
 			draggableItem = new DraggableText(selectedId, items.get(selectedId));
 		}
+		
+		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
+		playerServices.getEventBus().fireEventFromSource(event, this);
+	}
+
+
+	private void selectItem(String id) {
+		deselectCurrentItem();
+		selectedId = id;
+		view.selectItem(id);
+		DraggableItem draggableItem = new DraggableText(selectedId, items.get(selectedId));
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
 	}
@@ -209,11 +241,21 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		
 		if(display instanceof IDisplay){
 			view = (IDisplay) display;
+			view.setPresenter(this);
 			view.addListener(new IViewListener() {
 				public void onItemCliked(String id) {
+					if (!canDrag) {
+						return;
+					}
+					clickItem(id);
+				}
+				
+				public void onItemDragged(String id) {
+					if (!canDrag) {
+						return;
+					}
 					selectItem(id);
 				}
-		
 			});
 			
 			loadItems(false);
@@ -314,6 +356,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::getItemView(Ljava/lang/String;)(id);
 		};
 		
+		presenter.isDragPossible = function(){ 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::isDragPossible()();
+		};
+		
 		return presenter;
 	}-*/;
 	
@@ -352,6 +398,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	
 	private Element getItemView(String id){
 		return view.getItem(id);
+	}
+	
+	private boolean isDragPossible() {
+		return canDrag;
 	}
 
 	@Override
@@ -406,11 +456,13 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	@Override
 	public void setShowErrorsMode() {
 		// Module is not an activity
+		canDrag = false;
 	}
 
 
 	@Override
 	public void setWorkMode() {
 		// Module is not an activity
+		canDrag = true;
 	}
 }

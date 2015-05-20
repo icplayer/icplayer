@@ -14,4 +14,5 @@ public interface ITextViewListener {
 	public void onDropdownClicked(String id);
 	public void onGapDragged(String gapId);
 	public void onGapStopped(String gapId);
+	public void onGapDropped(String id);
 }

@@ -121,4 +121,10 @@ public class ImageGapViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void makeDroppable(ImageGapPresenter imageGapPresenter) {
+		// TODO Auto-generated method stub
+		
+	}
 }

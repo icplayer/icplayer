@@ -17,14 +17,16 @@ public class ImageSourceView extends Image implements IDisplay {
 	private ImageSourceModule module;
 	private IViewListener listener;
 	private boolean isDragged = false;
+	private boolean isPreview;
 	
 	public ImageSourceView(ImageSourceModule module, boolean isPreview) {
 		this.module = module;
-		createUI(isPreview);
+		this.isPreview = isPreview;
+		createUI();
 		connectHandlers();
 	}
 
-	private void createUI(boolean isPreview) {
+	private void createUI() {
 		setStyleName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
 		String imageUrl = module.getUrl();
@@ -35,7 +37,12 @@ public class ImageSourceView extends Image implements IDisplay {
 		getElement().setId(module.getId());
 		if (!isPreview) {
 			setVisible(module.isVisible());
-			JavaScriptUtils.makeDraggable(getElement());
+		}
+	}
+	
+	public void makeDraggable(ImageSourcePresenter p) {
+		if (!isPreview) {
+			JavaScriptUtils.makeDraggable(getElement(), p.getAsJavaScript());
 		}
 	}
 	

@@ -39,7 +39,6 @@ public class ImageGapView extends Image implements IDisplay {
 		}
 		setImageUrl("");
 		getElement().setId(module.getId());
-		JavaScriptUtils.makeDropable(getElement());
 	}
 	
 	private void connectHandlers() {
@@ -138,6 +137,10 @@ public class ImageGapView extends Image implements IDisplay {
 	
 	public void makeDraggable(ImageGapPresenter presenter) {
 		JavaScriptUtils.makeDroppedDraggable(getElement(), presenter.getAsJavaScript());
+	}
+	
+	public void makeDroppable(ImageGapPresenter presenter) {
+		JavaScriptUtils.makeDropable(getElement(), presenter.getAsJavaScript());
 	}
 	
 }

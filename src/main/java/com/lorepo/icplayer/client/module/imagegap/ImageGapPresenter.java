@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -45,6 +46,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public Element getElement();
 		public void makeDraggable(ImageGapPresenter imageGapPresenter);
 		public boolean getDisabled();
+		public void makeDroppable(ImageGapPresenter imageGapPresenter);
 	}
 	
 	private ImageGapModule model;
@@ -91,7 +93,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
 				if (event.getItem() instanceof DraggableImage) {
-					readyToDraggableItem = event.getItem();
+					if (event.getItem().getId() == null) {
+						readyToDraggableItem = null;
+					} else {
+						readyToDraggableItem = event.getItem();
+					}
 				}
 			}
 		});
@@ -185,18 +191,31 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 					viewClicked();
 				}
 			});
+			view.makeDroppable(this);
 		}
 	}
 	
 	private void viewClicked() {
 		
 		if (consumedItem != null) {
+			removeItem();
+		} else {
+			insertItem();
+		}
+	}
+	
+	private void removeItem() {
+		if (consumedItem != null) {
 			view.setImageUrl("");
 			fireItemReturnedEvent(consumedItem);
 			consumedItem = null;
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", "", "0");
 			playerServices.getEventBus().fireEvent(valueEvent);
-		} else if (readyToDraggableItem != null) {
+		}
+	}
+	
+	private void insertItem() {
+		if (readyToDraggableItem != null) {
 			view.setImageUrl(readyToDraggableItem.getValue());
 			consumedItem = readyToDraggableItem;
 			fireItemConsumedEvent();
@@ -205,7 +224,6 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			playerServices.getEventBus().fireEvent(valueEvent);
 			view.makeDraggable(this);
 		}
-
 	}
 	
 	private void setCorrectImage() {
@@ -403,6 +421,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.isDragPossible = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isDragPossible()();
 		}
+		presenter.dropHandler = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::dropHandler()();
+		}
 
 		return presenter;
 	}-*/;
@@ -421,7 +442,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	
 	private void itemDragged() {
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
-		viewClicked();
+		removeItem();
 		playerServices.getEventBus().fireEvent(dragEvent);
 	}
 	
@@ -435,6 +456,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			return false;
 		}
 		return true;
+	}
+	
+	private void dropHandler() {
+		removeItem();
+		insertItem();
 	}
 	
 	private Element getView() {

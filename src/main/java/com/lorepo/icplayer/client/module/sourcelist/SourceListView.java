@@ -26,6 +26,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private IViewListener listener;
 	private boolean isDragged = false;
 	private boolean isPreview = false;
+	private SourceListPresenter presenter = null;
 	
 	public SourceListView(SourceListModule module, boolean isPreview){
 
@@ -53,9 +54,14 @@ public class SourceListView extends FlowPanel implements IDisplay{
 
 
 	private void fireClickEvent(String id) {
-
 		if(listener != null){
 			listener.onItemCliked(id);
+		}
+	}
+	
+	private void itemDragged(String id) {
+		if(listener != null){
+			listener.onItemDragged(id);
 		}
 	}
 
@@ -109,13 +115,17 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			@Override
 			public void onDragStart(DragStartEvent event) {
 				isDragged = true;
-				fireClickEvent(id);
+				itemDragged(id);
 			}
 		});
 		
         if(!isPreview){
-    		JavaScriptUtils.makeDraggable(label.getElement());
+    		JavaScriptUtils.makeDraggable(label.getElement(), presenter.getAsJavaScript());
         }
+	}
+	
+	public void setPresenter(SourceListPresenter p) {
+		presenter = p;
 	}
 	
 	public Element getItem(String id) {

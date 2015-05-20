@@ -15,6 +15,8 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
@@ -33,6 +35,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		public void addListener(IViewListener l);
 		public void getImageUrl();
 		public Element getElement();
+		public void makeDraggable(ImageSourcePresenter imageSourcePresenter);
 	}
 	
 	private ImageSourceModule model;
@@ -42,6 +45,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	boolean isImageVisible = true;
 	private boolean isModuleVisible;
 	private JavaScriptObject jsObject;
+	private boolean canDrag = true;
 	
 	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services) {
 		this.model = model;
@@ -54,6 +58,18 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	private void connectHandlers() {
 	
 		EventBus eventBus = playerServices.getEventBus();
+		
+		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+			public void onShowErrors(ShowErrorsEvent event) {
+				setShowErrorsMode();
+			}
+		});
+
+		eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
+			public void onWorkMode(WorkModeEvent event) {
+				setWorkMode();
+			}
+		});
 		
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
@@ -84,16 +100,19 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
+				if (event.eventName == "ShowAnswers") {
+					canDrag = false;
+				} else if (event.eventName == "HideAnswers") {
+					canDrag = true;
+				}
 				String gotItem = event.getData().get("item");
 				if (gotItem != getSerialId()) {
 					return;
 				}
 				if (event.eventName == "itemDragged") {
-					imageClicked();
+					imageSelected();
 				} else if (event.eventName == "itemStopped") {
-					deselectImage();
-					ItemSelectedEvent e = new ItemSelectedEvent(null);
-					playerServices.getEventBus().fireEventFromSource(e, this);
+					imageDeselected();
 				}
 			}
 		});
@@ -144,28 +163,45 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			view = (IDisplay) display;
 			view.addListener(new IViewListener() {
 				public void onClicked() {
+					if (!canDrag) {
+						return;
+					}
 					imageClicked();
 				}
 				public void onDragged() {
+					if (!canDrag) {
+						return;
+					}
 					imageDragged();
 				}
 			});
+			view.makeDraggable(this);
 		}
 	}
 	
 	private void imageClicked() {
-		DraggableItem draggableItem = new DraggableImage(null, null);
-		
 		selected = !selected;
 		if (selected) {
-			draggableItem = new DraggableImage(model.getId(), model.getUrl());
-			view.select();
+			imageSelected();
 		} else {
-			view.deselect();
+			imageDeselected();
 		}
-		
+	}
+	
+	private void imageSelected() {
+		selected = true;
+		DraggableItem draggableItem = new DraggableImage(model.getId(), model.getUrl());
+		view.select();
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
+	}
+	
+	private void imageDeselected() {
+		selected = false;
+		DraggableItem draggableItem = new DraggableImage(null, null);
+		view.deselect();
+		ItemSelectedEvent deselectItemEvent = new ItemSelectedEvent(draggableItem);
+		playerServices.getEventBus().fireEventFromSource(deselectItemEvent, this);
 	}
 	
 	private void imageDragged() {
@@ -249,6 +285,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getImageUrl()();
 		}
 		
+		presenter.isDragPossible = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::isDragPossible()();
+		}
+		
 		return presenter;
 	}-*/;
 	
@@ -283,6 +323,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		return model.getUrl();
 	}
 	
+	private boolean isDragPossible() {
+		return canDrag;
+	}
+	
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
 		if(commandName.compareTo("show") == 0) {
@@ -301,11 +345,13 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	@Override
 	public void setShowErrorsMode() {
 		// Module is not an activity
+		canDrag = false;
 	}
 
 	@Override
 	public void setWorkMode() {
 		// Module is not an activity
+		canDrag = true;
 	}
 	
 }

@@ -49,7 +49,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			});
 		}
 		
-		JavaScriptUtils.makeDropable(getElement());
+		JavaScriptUtils.makeDropable(getElement(), getAsJavaScript());
 	}
 	
 	public boolean hasId(String id) {
@@ -74,6 +74,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		view.isDragPossible = function() {
 			return x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::isDragPossible()();
 		};
+		view.dropHandler = function() {
+			x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::dropHandler()();
+		}
 		return view;
 	}-*/;
 	
@@ -94,6 +97,13 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			return false;
 		}
 		return true;
+	}
+	
+	
+	private void dropHandler() {
+		if (listener != null && !disabled && isWorkMode) {
+			listener.onGapDropped(gapInfo.getId());
+		}
 	}
 	
 	@Override

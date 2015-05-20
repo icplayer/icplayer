@@ -109,7 +109,7 @@ public class SourceListPresenterTestCase {
 		assertEquals("C", draggableItem.getValue());
 		
 		display.click("sl1-3");
-		assertNull(draggableItem);
+		assertNull(draggableItem.getId());
 	}
 	
 	@Test

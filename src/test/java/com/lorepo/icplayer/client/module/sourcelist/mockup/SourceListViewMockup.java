@@ -3,9 +3,11 @@ package com.lorepo.icplayer.client.module.sourcelist.mockup;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.sourcelist.IViewListener;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
+import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
 
 public class SourceListViewMockup implements IDisplay {
@@ -97,6 +99,12 @@ public class SourceListViewMockup implements IDisplay {
 	public Set<String> getCurrentLabels() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setPresenter(SourceListPresenter p) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
