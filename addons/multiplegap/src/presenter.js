@@ -771,7 +771,7 @@ function Addonmultiplegap_create(){
     };
 
     presenter.countItems = function() {
-        return presenter.$view.find('.placeholder:visible').length;
+        return presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging').length;
     };
 
     presenter.isAttemptedCommand = function() {

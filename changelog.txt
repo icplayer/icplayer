@@ -1,3 +1,4 @@
+2015-05-20 Fixed issue with dragging element to the same MultipleGap
 2015-05-20 Fixed issue with Reset in Coloring module
 2015-05-20 Fixed issue with dragging to filled gaps Text and ImageGap modules
 2015-05-19 Fixed issue with fire PageLoaded events from previous pages
