@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.limitedcheck;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 
@@ -37,4 +38,16 @@ public class TotalScore {
 		
 		return totalScore;
 	}
+	
+	public JavaScriptObject toJavaScriptObject() {
+		return createJSObject(this);
+	}
+	
+	private native JavaScriptObject createJSObject(TotalScore x) /*-{
+		return {
+			'score': x.@com.lorepo.icplayer.client.module.limitedcheck.TotalScore::score,
+			'errors': x.@com.lorepo.icplayer.client.module.limitedcheck.TotalScore::errors,
+			'maxScore': x.@com.lorepo.icplayer.client.module.limitedcheck.TotalScore::maxScore
+		};
+	}-*/;
 }

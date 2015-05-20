@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.limitedcheck;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 		public boolean isShowErrorsMode();
 		public void setShowAnswersMode(boolean b);
 		void setDisabled(boolean isDisabled);
+		public ArrayList<IPresenter> getModulesPresenters();
 	}
 	
 	private LimitedCheckModule model;
@@ -95,6 +97,11 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 			show();
 		} else if(commandName.compareTo("hide") == 0) {
 			hide();
+		} else if(commandName.compareTo("getmodulesscore") == 0) {
+			JavaScriptObject modulesScore = getModulesScore();
+			if (modulesScore != null) {
+				value = modulesScore.toString();
+			}
 		}
 		
 		return value;
@@ -201,6 +208,10 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 			return x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::getView()();
 		}
 		
+		presenter.getModulesScore = function() {
+			return x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::getModulesScore()();
+		}
+		
 		return presenter;
 	}-*/;
 	
@@ -209,6 +220,17 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 			return view.getElement();
 		}
 		
+		return null;
+	}
+	
+	private JavaScriptObject getModulesScore() {
+		if (view != null) {
+			ArrayList<IPresenter> modulesPresenters = view.getModulesPresenters();
+			TotalScore score = TotalScore.getFromPresenters(modulesPresenters);
+
+			return score.toJavaScriptObject();
+		}
+
 		return null;
 	}
 }

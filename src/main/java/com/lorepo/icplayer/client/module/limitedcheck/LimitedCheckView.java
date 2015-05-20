@@ -73,7 +73,7 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 
 		playerServices.getCommands().updateCurrentPageScore(true);
 
-		getModules();
+		presenters = getModulesPresenters();
 		changeModulesMode();
 		TotalScore totalScore = TotalScore.getFromPresenters(presenters);
 		
@@ -84,12 +84,12 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 		isShowErrorsMode = false;
 		updateStyle();
 		
-		getModules();
+		presenters = getModulesPresenters();
 		changeModulesMode();
 	}
 	
-	private void getModules() {
-		presenters = new ArrayList<IPresenter>();
+	public ArrayList<IPresenter> getModulesPresenters() {
+		ArrayList<IPresenter> presenters = new ArrayList<IPresenter>();
 		
 		for (String moduleID : module.getModules()) {
 			IPresenter presenter = playerServices.getModule(moduleID);
@@ -98,6 +98,8 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 				presenters.add(presenter);
 			}
 		}
+		
+		return presenters;
 	}
 	
 	private void changeModulesMode() {
