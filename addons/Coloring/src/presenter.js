@@ -754,7 +754,7 @@ function AddonColoring_create(){
         presenter.$view.find('.icon-container').remove();
         presenter.isColored = false;
         presenter.isShowAnswersActive = false;
-
+        presenter.setShowErrorsModeActive = false;
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
 
