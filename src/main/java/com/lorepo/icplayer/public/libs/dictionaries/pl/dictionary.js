@@ -1031,7 +1031,7 @@
 	"Basic_Math_Gaps_property_gap_signs_subtraction": "Odejmowanie",
 	"Basic_Math_Gaps_property_gap_signs_division": "Dzielenie",
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Mnożenie",
-    "Basic_Math_Gaps_property_gap_type": "Gap Type",
+    "Basic_Math_Gaps_property_gap_type": "Typ luki",
 	"Lesson_Progress_info" : "",
 	"Lesson_Progress_name" : "Postęp lekcji",
 	"Lesson_Progress_property_show_progress_bar": "Pokaż pasek postępu",
