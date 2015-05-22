@@ -161,6 +161,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	public void reset() {
 		deselectCurrentItem();
 		loadItems(true);
+		canDrag = true;
 		
 		isVisible = this.model.isVisible();
 		if (isVisible) {

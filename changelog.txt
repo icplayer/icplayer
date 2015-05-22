@@ -1,3 +1,4 @@
+2015-05-22 Fixed issue with reset in ImageSource and SourceList modules
 2015-05-20 Added new property gap type and drag feature in "Basic Math Gaps" module
 2015-05-20 Fixed issue with nextStep command in Slider module
 2015-05-20 Added isDelayed property to eventBus addEventListener API
