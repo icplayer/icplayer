@@ -366,6 +366,19 @@ function AddonImage_Viewer_Public_create() {
         return presenter.configuration.showWatermark && !presenter.configuration.isClickDisabled;
     }
 
+    function calculateWidth (containerWidth, imageWidth) {
+        var differenceContainerElement = containerWidth - (imageWidth / presenter.configuration.frames);
+        var differenceImage = differenceContainerElement * presenter.configuration.frames;
+
+        var scaleWidth = imageWidth + differenceImage;
+
+        return {
+            scaleWidth: scaleWidth,
+            differenceContainerElement: differenceContainerElement,
+            elementWidth: (imageWidth / presenter.configuration.frames) + differenceContainerElement
+        }
+    }
+
     function loadImage(preview) {
         var tempImageElement = document.createElement('img');
         $(tempImageElement).addClass('image-viewer-hidden-image');
@@ -389,11 +402,17 @@ function AddonImage_Viewer_Public_create() {
                     elementHeight = imageHeight;
                     break;
                 case 'SCALED':
-                    elementWidth = containerDimensions.horizontal;
+                    var calculatedWidthScale = calculateWidth(containerWidth, imageWidth);
+                    $(this).width(calculatedWidthScale.scaleWidth);
+
+                    elementWidth = calculatedWidthScale.elementWidth;
                     elementHeight = containerDimensions.vertical;
                     break;
                 case 'STRETCHED':
-                    elementWidth = containerWidth;
+                    var calculatedWidthStretched = calculateWidth(containerWidth, imageWidth);
+                    $(this).width(calculatedWidthStretched.scaleWidth);
+
+                    elementWidth = calculatedWidthStretched.elementWidth;
                     elementHeight = containerHeight;
                     break;
             }
