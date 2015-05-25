@@ -109,10 +109,14 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			public void onCustomEventOccurred(CustomEvent event) {
 				if (event.eventName == "ShowAnswers") {
 					canDrag = false;
+					return;
 				} else if (event.eventName == "HideAnswers") {
 					canDrag = true;
+					return;
 				}
+				
 				String gotItem = event.getData().get("item");
+				
 				if (!gotItem.startsWith(getItemPrefix())) {
 					return;
 				}
