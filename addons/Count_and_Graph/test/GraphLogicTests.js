@@ -597,7 +597,8 @@ TestCase("[Count_and_Graph] [Graph Object] Error count", {
 
         this.stubs = {
             getMaxScore: sinon.stub(this.graph, 'getMaxScore'),
-            getScore: sinon.stub(this.graph, 'getScore')
+            getScore: sinon.stub(this.graph, 'getScore'),
+            isAttempted: sinon.stub(this.graph, 'isAttempted')
         };
     },
 
@@ -607,6 +608,7 @@ TestCase("[Count_and_Graph] [Graph Object] Error count", {
     },
 
     'test error count should be diffrence between max score and score': function () {
+        this.stubs.isAttempted.returns(true);
         this.stubs.getMaxScore.returns(3);
         this.stubs.getScore.returns(3);
 

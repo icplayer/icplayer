@@ -101,6 +101,8 @@ TestCase("[Count_and_Graph] Error count", {
         this.column3 = new this.presenter.columnObject(_, _, _, _, 3);
 
         this.presenter.graph._columns = [this.column1, this.column2, this.column3];
+
+        sinon.stub(this.presenter.graph, 'isAttempted');
     },
 
     'test when all columns marked correctly it should be 0': function () {
@@ -116,6 +118,27 @@ TestCase("[Count_and_Graph] Error count", {
         this.column2._topSelectedBarNumber = 1;
         this.column3._topSelectedBarNumber = -1;
 
+        this.presenter.graph.isAttempted.returns(true);
+
         assertEquals(2, this.presenter.getErrorCount());
+    },
+
+    'test when addon is attempted': function () {
+        this.column1._topSelectedBarNumber = 2;
+        this.column2._topSelectedBarNumber = 4;
+        this.column3._topSelectedBarNumber = 3;
+
+        this.presenter.graph.isAttempted.returns(true);
+
+        assertEquals(3, this.presenter.getErrorCount());
+    },
+    'test when addon is not attempted': function () {
+        this.column1._topSelectedBarNumber = -1;
+        this.column2._topSelectedBarNumber = 1;
+        this.column3._topSelectedBarNumber = -1;
+
+        this.presenter.graph.isAttempted.returns(false);
+
+        assertEquals(0, this.presenter.getErrorCount());
     }
 });

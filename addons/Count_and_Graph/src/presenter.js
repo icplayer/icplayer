@@ -848,6 +848,10 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.graphObject.prototype.getErrorCount = function () {
+        if(!this.isAttempted()) {
+            return 0;
+        }
+
         return (this.getMaxScore() - this.getScore());
     };
 
@@ -1800,6 +1804,12 @@ function AddonCount_and_Graph_create() {
 
     presenter.getScore = function () {
         return presenter.graph.getScore();
+    };
+
+    presenter.graphObject.prototype.isAttempted = function () {
+        return !this._columns.every(function(column) {
+            return column.getState() == 0;
+        });
     };
 
     presenter.getErrorCount = function () {
