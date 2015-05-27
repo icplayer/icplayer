@@ -174,7 +174,7 @@ public class ModuleFactory implements IModuleFactory{
 			return new ImageGapView((ImageGapModule) module, isPreview);
 		}
 		else if(module instanceof OrderingModule){
-			return new OrderingView((OrderingModule) module, services);
+			return new OrderingView((OrderingModule) module, services, isPreview);
 		}
 		else if(module instanceof PageProgressModule){
 			return new PageProgressView((PageProgressModule) module, isPreview);

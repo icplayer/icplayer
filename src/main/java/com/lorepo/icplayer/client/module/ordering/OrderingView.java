@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -37,10 +38,10 @@ public class OrderingView extends Composite implements IDisplay {
 	private boolean isMouseUp = false;
 	private boolean isDragging = false;
 
-	public OrderingView(OrderingModule module, IPlayerServices services) {
+	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
 		this.module = module;
 		this.playerServices = services;
-		createUI(module);
+		createUI(module, isPreview);
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class OrderingView extends Composite implements IDisplay {
 		return view;
 	}-*/;
 
-	private void createUI(OrderingModule module) {
+	private void createUI(OrderingModule module, boolean isPreview) {
 		createWidgetPanel();
 
 		Integer itemWidth = module.getWidth() / module.getItemCount();
@@ -91,7 +92,9 @@ public class OrderingView extends Composite implements IDisplay {
 
 		getElement().setId(module.getId());
 		getAsJavaScript();
-		makeSortable(getElement(), jsObject);
+		if(!isPreview){
+			makeSortable(getElement(), jsObject);
+		}
 	}
 
 	private native void makeSortable(Element e, JavaScriptObject jsObject)/*-{
