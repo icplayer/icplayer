@@ -1,22 +1,23 @@
 .wrapper-cell, .writing-calculations-input {
-    float:left;
-    width:50px;
+    float: left;
+    width: 50px;
     height: 25px;
     line-height: 25px;
-    padding:0;
+    padding: 0;
     text-align: center;
-    font-size:12px;
+    font-size: 12px;
     margin: 1px 0;
 }
 
 .writing-calculations-input {
     width: 25px;
-    float:none;
+    float: none;
     height: 23px;
+    text-align: center !important;
 }
 
 .wrapper-row {
-    float:left;
+    float: left;
 }
 
 .writing-calculations-input.incorrect {

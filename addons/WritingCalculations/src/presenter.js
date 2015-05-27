@@ -6,6 +6,7 @@ function AddonWritingCalculations_create() {
     presenter.correctAnswersList = [];
     presenter.array = [];
     presenter.playerController = null;
+    var eventBus;
 
     presenter.ELEMENT_TYPE = {
         "NUMBER" : 1,
@@ -41,7 +42,7 @@ function AddonWritingCalculations_create() {
     presenter.run = function(view, model) {
         presenterLogic(view, model);
         eventBus = presenter.playerController.getEventBus();
-		eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
     };
 
@@ -128,11 +129,12 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.bindValueChangeEvent = function() {
-        presenter.$view.find(".writing-calculations-input").on('click', function(event) {
+        var $input = presenter.$view.find(".writing-calculations-input");
+        $input.on('click', function(event) {
             event.stopPropagation();
         });
 
-        presenter.$view.find(".writing-calculations-input").on("change", function(event){
+        $input.on("change", function(event) {
             event.stopPropagation();
 
             var value = event.target.value;
