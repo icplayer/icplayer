@@ -140,7 +140,21 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.createPreview = function(view, model) {
-        runLogic(view, model, true);
+        setVisibilityStateAndPosition(model);
+
+        presenter.setVisibility(presenter.isVisible, true, view);
+        $(view).find('.iwb-toolbar-panel').width(model['Width'] - 50 + 'px');
+
+        var moduleClasses = $(view).attr('class');
+
+        if (moduleClasses.indexOf('addon_IWB_Toolbar') < 0){
+            var moduleCustomClass =  moduleClasses.replace('ice_module', '');
+            $(view).find('.iwb-toolbar-panel').addClass(moduleCustomClass);
+            $(view).removeClass(moduleCustomClass);
+        }else{
+            $(view).find('.iwb-toolbar-panel').addClass('addon_IWB_Toolbar');
+            $(view).removeClass('addon_IWB_Toolbar');
+        }
     };
 
     function closePanel() {
@@ -1538,122 +1552,11 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
-    function runLogic(view, model, isPreview) {
+    function setVisibilityStateAndPosition(model) {
         presenter.model = model;
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isKeepStateAndPosition = ModelValidationUtils.validateBoolean(model['keepStateAndPosition']);
-        if (!isPreview) {
-            presenter.headerLoadedDeferred = new $.Deferred();
-            presenter.headerLoaded = presenter.headerLoadedDeferred.promise();
-
-            Kinetic.pixelRatio = 1;
-
-            setBasicConfiguration(view, model);
-
-            if (!presenter.config.isValid) {
-                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, presenter.config.errorCode);
-                return;
-            }
-
-            addFloatingImages(model);
-            createCanvases();
-
-            presenter.iwb_tmp_canvas = document.createElement('canvas');
-            presenter.tmp_ctx = presenter.iwb_tmp_canvas.getContext('2d');
-            $(presenter.iwb_tmp_canvas).addClass('iwb_tmp_canvas');
-
-            presenter.$panel.draggable({
-                containment: 'parent',
-                opacity: 0.35,
-                create: function (event, _) {
-                    $(event.target).addClass('running');
-                    $(event.target).css('position', presenter.config.panelPosition);
-                    if (window.savedPanel && window.savedPanel.position) {
-                        if (presenter.isKeepStateAndPosition) {
-                            if (presenter.config.panelPosition == 'fixed') {
-                                $(event.target).css('top', window.savedPanel.position.top + presenter.$pagePanel.offset().top + 'px');
-                                $(event.target).css('left', window.savedPanel.position.left + presenter.$pagePanel.offset().left + 'px');
-                            } else {
-                                $(event.target).css('top', window.savedPanel.position.top + 'px');
-                                $(event.target).css('left', window.savedPanel.position.left + 'px');
-                            }
-                        } else {
-                            if (presenter.config.panelPosition == 'fixed') {
-                                $(event.target).css('top', (parseInt(model['Top'], 10)) + presenter.$pagePanel.offset().top + 'px');
-                                $(event.target).css('left', (parseInt(model['Left'], 10)) + presenter.$pagePanel.offset().left + 'px');
-
-                            } else {
-                                $(event.target).css('top', (parseInt(model['Top'], 10)) + 'px');
-                                $(event.target).css('left', (parseInt(model['Left'], 10)) + 'px');
-                            }
-                        }
-                    } else {
-                        var offsetTopPrev,
-                            offsetLeftPrev;
-                        if (presenter.config.panelPosition == 'fixed') {
-                            offsetTopPrev = presenter.$pagePanel.offset().top;
-                            offsetLeftPrev = presenter.$pagePanel.offset().left;
-                        } else {
-                            offsetTopPrev = $(presenter.$panel).position().top;
-                            offsetLeftPrev = $(presenter.$panel).position().left;
-                        }
-                        $(event.target).css('top', (offsetTopPrev + parseInt(model['Top'], 10)) + 'px');
-                        $(event.target).css('left', (offsetLeftPrev + parseInt(model['Left'], 10)) + 'px');
-                        presenter.headerLoaded.then(function () {
-                            var offsetTop,
-                                offsetLeft;
-                            if (presenter.config.panelPosition == 'fixed') {
-                                offsetTop = presenter.$pagePanel.offset().top;
-                                offsetLeft = presenter.$pagePanel.offset().left;
-                            } else {
-                                offsetTop = '';
-                                offsetLeft = '';
-                            }
-                            $(event.target).css('top', (offsetTop + parseInt(model['Top'], 10)) + 'px');
-                            $(event.target).css('left', (offsetLeft + parseInt(model['Left'], 10)) + 'px');
-                        });
-                    }
-                },
-                stop: function (event, ui) {
-                    var top = ui.position.top;
-                    var left = ui.position.left;
-
-                    if (presenter.config.panelPosition == 'fixed') {
-                        window.savedPanel.position = { top: top - presenter.$pagePanel.offset().top, left: left - presenter.$pagePanel.offset().left};
-                    } else {
-                        window.savedPanel.position = { top: top, left: left};
-                    }
-                }
-            });
-
-            applyHovered([presenter.$panel.find('.button')]);
-            presenter.$panel.width(presenter.config.widthWhenClosed - 50 + 'px');
-
-            window.savedPanel = window.savedPanel || {};
-
-            if (window.savedPanel && window.savedPanel.isOpen && presenter.isKeepStateAndPosition) {
-                openPanel(false);
-            } else {
-                window.savedPanel.widthWhenOpened = presenter.config.widthWhenOpened;
-            }
-
-            addEventHandlers();
-            if (presenter.isInFrame && presenter.config.panelPosition == 'fixed') {
-                addScrollHandler();
-            }
-            $(view).hide();
-            presenter.setVisibility(presenter.isVisible, false, view);
-
-            var width = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].width;
-            var height = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].height;
-            presenter.iwb_tmp_canvas.width = width;
-            presenter.iwb_tmp_canvas.height = height;
-            presenter.$pagePanel.find('.marker-mask').append(presenter.iwb_tmp_canvas);
-        } else {
-            presenter.setVisibility(presenter.isVisible, true, view);
-            $(view).find('.iwb-toolbar-panel').width(model['Width'] - 50 + 'px');
-        }
     }
 
     presenter.isOnScreen = function (element, windowElement) {
@@ -2465,7 +2368,122 @@ function AddonIWB_Toolbar_create() {
     }
 
     presenter.run = function(view, model) {
-        runLogic(view, model, false);
+        setVisibilityStateAndPosition(model);
+
+        presenter.headerLoadedDeferred = new $.Deferred();
+        presenter.headerLoaded = presenter.headerLoadedDeferred.promise();
+
+        Kinetic.pixelRatio = 1;
+
+        setBasicConfiguration(view, model);
+
+        if (!presenter.config.isValid) {
+            DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, presenter.config.errorCode);
+            return;
+        }
+
+        addFloatingImages(model);
+        createCanvases();
+
+        presenter.iwb_tmp_canvas = document.createElement('canvas');
+        presenter.tmp_ctx = presenter.iwb_tmp_canvas.getContext('2d');
+        $(presenter.iwb_tmp_canvas).addClass('iwb_tmp_canvas');
+
+        presenter.$panel.draggable({
+            containment: 'parent',
+            opacity: 0.35,
+            create: function (event, _) {
+                $(event.target).addClass('running');
+                $(event.target).css('position', presenter.config.panelPosition);
+                if (window.savedPanel && window.savedPanel.position) {
+                    if (presenter.isKeepStateAndPosition) {
+                        if (presenter.config.panelPosition == 'fixed') {
+                            $(event.target).css('top', window.savedPanel.position.top + presenter.$pagePanel.offset().top + 'px');
+                            $(event.target).css('left', window.savedPanel.position.left + presenter.$pagePanel.offset().left + 'px');
+                        } else {
+                            $(event.target).css('top', window.savedPanel.position.top + 'px');
+                            $(event.target).css('left', window.savedPanel.position.left + 'px');
+                        }
+                    } else {
+                        if (presenter.config.panelPosition == 'fixed') {
+                            $(event.target).css('top', (parseInt(model['Top'], 10)) + presenter.$pagePanel.offset().top + 'px');
+                            $(event.target).css('left', (parseInt(model['Left'], 10)) + presenter.$pagePanel.offset().left + 'px');
+
+                        } else {
+                            $(event.target).css('top', (parseInt(model['Top'], 10)) + 'px');
+                            $(event.target).css('left', (parseInt(model['Left'], 10)) + 'px');
+                        }
+                    }
+                } else {
+                    var offsetTopPrev,
+                        offsetLeftPrev;
+                    if (presenter.config.panelPosition == 'fixed') {
+                        offsetTopPrev = presenter.$pagePanel.offset().top;
+                        offsetLeftPrev = presenter.$pagePanel.offset().left;
+                    } else {
+                        offsetTopPrev = $(presenter.$panel).position().top;
+                        offsetLeftPrev = $(presenter.$panel).position().left;
+                    }
+                    $(event.target).css('top', (offsetTopPrev + parseInt(model['Top'], 10)) + 'px');
+                    $(event.target).css('left', (offsetLeftPrev + parseInt(model['Left'], 10)) + 'px');
+                    presenter.headerLoaded.then(function () {
+                        var offsetTop,
+                            offsetLeft;
+                        if (presenter.config.panelPosition == 'fixed') {
+                            offsetTop = presenter.$pagePanel.offset().top;
+                            offsetLeft = presenter.$pagePanel.offset().left;
+                        } else {
+                            offsetTop = '';
+                            offsetLeft = '';
+                        }
+                        $(event.target).css('top', (offsetTop + parseInt(model['Top'], 10)) + 'px');
+                        $(event.target).css('left', (offsetLeft + parseInt(model['Left'], 10)) + 'px');
+                    });
+                }
+            },
+            stop: function (event, ui) {
+                var top = ui.position.top;
+                var left = ui.position.left;
+
+                if (presenter.config.panelPosition == 'fixed') {
+                    window.savedPanel.position = { top: top - presenter.$pagePanel.offset().top, left: left - presenter.$pagePanel.offset().left};
+                } else {
+                    window.savedPanel.position = { top: top, left: left};
+                }
+            }
+        });
+
+        applyHovered([presenter.$panel.find('.button')]);
+        presenter.$panel.width(presenter.config.widthWhenClosed - 50 + 'px');
+
+        window.savedPanel = window.savedPanel || {};
+
+        if (window.savedPanel && window.savedPanel.isOpen && presenter.isKeepStateAndPosition) {
+            openPanel(false);
+        } else {
+            window.savedPanel.widthWhenOpened = presenter.config.widthWhenOpened;
+        }
+
+        addEventHandlers();
+        if (presenter.isInFrame && presenter.config.panelPosition == 'fixed') {
+            addScrollHandler();
+        }
+        $(view).hide();
+        presenter.setVisibility(presenter.isVisible, false, view);
+
+        var width = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].width;
+        var height = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].height;
+        presenter.iwb_tmp_canvas.width = width;
+        presenter.iwb_tmp_canvas.height = height;
+        presenter.$pagePanel.find('.marker-mask').append(presenter.iwb_tmp_canvas);
+
+        /**
+         * We're adding addon class to its panel as a way of ensuring custom class styling applies.
+         * Normally addon has custom class set by Player, but in our case the view is hidden and visible part
+         * (panel) is not a child of it.
+         */
+        presenter.$panel.addClass(document.getElementById(model["ID"]).className);
+
         zoom.init();
         if(presenter.isKeepStateAndPosition){
             if(window.savedPanel.tools){
@@ -2494,13 +2512,6 @@ function AddonIWB_Toolbar_create() {
                 }
             }
         }
-
-        /**
-         * We're adding addon class to its panel as a way of ensuring custom class styling applies.
-         * Normally addon has custom class set by Player, but in our case the view is hidden and visible part
-         * (panel) is not a child of it.
-         */
-        presenter.$panel.addClass(document.getElementById(model["ID"]).className);
     };
 
     presenter.setShowErrorsMode = function() {};
