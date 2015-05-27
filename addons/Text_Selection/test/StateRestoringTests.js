@@ -1,8 +1,14 @@
 TestCase('[Text Selection] States restoring', {
     setUp : function() {
         this.presenter = AddonText_Selection_create();
-        this.presenter.configuration = { isExerciseStarted: false };
-        this.presenter.markers = { markedCorrect: [], markedWrong: [] };
+        this.presenter.configuration = {
+            isExerciseStarted: false,
+            isActivity: true
+        };
+        this.presenter.markers = {
+            markedCorrect: [],
+            markedWrong: []
+        };
 
         sinon.stub(this.presenter, 'show');
         sinon.stub(this.presenter, 'hide');

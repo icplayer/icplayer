@@ -1,3 +1,4 @@
+2015-05-27 Fixed issue with text parsing and state in Text Selection module
 2015-05-25 Fixed counting errors in Count and Graph module
 2015-05-25 Fixed issue with ShowAnswers in SourceList module
 2015-05-25 Fixed issue with changing frames in Image Viewer module

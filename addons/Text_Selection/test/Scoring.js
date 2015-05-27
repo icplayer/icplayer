@@ -3,57 +3,43 @@ TestCase('[Text Selection] scoring tests', {
         this.presenter = AddonText_Selection_create();
         this.presenter.$view = $('<div><div class="text_selection"></div></div>');
 
-        this.presenter.$view
-        .find('.text_selection').append($('<span number="4" class="selected">a</span>'))
-        .find('.text_selection').append($('<span number="5" class="selected">b</span>'))
-        .find('.text_selection').append($('<span number="6" class="selected">c</span>'));
+        this.presenter.$view.find('.text_selection')
+            .append($('<span number="4" class="selected">a</span>'))
+            .append($('<span number="5" class="selected">b</span>'))
+            .append($('<span number="6" class="selected">c</span>'));
+
+        this.presenter.configuration = {
+            isActivity: true
+        };
     },
 
     'test getErrorCount noerrors' : function() {
-        this.presenter.markers = { markedWrong: [1,2,3] };
-
-        var errors = this.presenter.getErrorCount();
-
-        assertEquals(0, errors);
+        this.presenter.markers = { markedWrong: [1, 2, 3] };
+        assertEquals(0, this.presenter.getErrorCount());
     },
 
     'test getErrorCount one error' : function() {
-        this.presenter.markers = { markedWrong: [1,2,4] };
-        
-        var errors = this.presenter.getErrorCount();
-
-        assertEquals(1, errors);
+        this.presenter.markers = { markedWrong: [1, 2, 4] };
+        assertEquals(1, this.presenter.getErrorCount());
     },
 
     'test getMaxScore equals zero' : function() {
         this.presenter.markers = { markedCorrect: [] };
-
-        var maxScore = this.presenter.getMaxScore();
-
-        assertEquals(0, maxScore);
+        assertEquals(0, this.presenter.getMaxScore());
     },
 
     'test getMaxScore equals one' : function() {
         this.presenter.markers = { markedCorrect: [1] };
-
-        var maxScore = this.presenter.getMaxScore();
-
-        assertEquals(1, maxScore);
+        assertEquals(1, this.presenter.getMaxScore());
     },
 
     'test getScore equals zero' : function() {
-        this.presenter.markers = { markedCorrect: [1,2,3] };
-
-        var score = this.presenter.getScore();
-
-        assertEquals(0, score);
+        this.presenter.markers = { markedCorrect: [1, 2, 3] };
+        assertEquals(0, this.presenter.getScore());
     },
 
     'test getScore equals one' : function() {
-        this.presenter.markers = { markedCorrect: [1,2,4] };
-        
-        var score = this.presenter.getScore();
-
-        assertEquals(1, score);
+        this.presenter.markers = { markedCorrect: [1, 2, 4] };
+        assertEquals(1, this.presenter.getScore());
     }
 });

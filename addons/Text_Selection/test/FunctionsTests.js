@@ -60,78 +60,94 @@ TestCase("[Text Selection] Support Functions", {
     },
 
     'test parse Words with no markers': function() {
-    	var text = "some text";
-    	var result = this.presenter.parseWords(text, 'ALL_SELECTABLE', 'MULTISELECT');
+        var text = "some text";
+        var result = this.presenter.parseWords(text, 'ALL_SELECTABLE', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span number="0">some</span><span left="0" right="1"> </span><span number="1">text</span><span left="1" right="2"> </span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class=\"text_selection\">some text</div>', result.renderedPreview);
+        assertEquals('<div class=\"text_selection\"><span class="selectable" number="0">some</span><span left="0" right="1"> </span><span class="selectable" number="1">text</span></div>', result.renderedRun);
     },
 
     'test parse Words with markers': function() {
-    	var text = "\\correct{some} \\wrong{text}";
-    	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+        var text = "\\correct{some} \\wrong{text}";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="correct selectable">some</span> <span class="wrong selectable">text</span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="correct selectable">some</span> <span class="wrong selectable">text</span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">some</span><span left="0" right="1"> </span><span class="selectable" number="1">text</span></div>', result.renderedRun);
     },
 
     'test parse Words with markers with latex': function() {
-    	var text = "\\wrong{\\(\\sqrt{x^{10}}\\)}";
-    	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+        var text = "\\wrong{\\(\\sqrt{x^{10}}\\)}";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)</span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)</span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">\\(\\sqrt{x^{10}}\\)</span></div>', result.renderedRun);
     },
 
     'test parse Words with markers with latex - extra space': function() {
-    	var text = "\\wrong{\\(\\sqrt{x^{10}}\\) }";
-    	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+        var text = "\\wrong{\\(\\sqrt{x^{10}}\\) }";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)<span left=\"0\" right=\"1\"> </span></span><span left=\"1\" right=\"2\"> </span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\) </span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">\\(\\sqrt{x^{10}}\\) </span></div>', result.renderedRun);
     },
 
     'test parse Words with markers with latex - spaces all over the place': function() {
-    	var text = "\\wrong{ \\(\\sqrt{ {x ^{ 10 } } } \\) }";
-    	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+        var text = "\\wrong{ \\(\\sqrt{ {x ^{ 10 } } } \\) }";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class=\"wrong selectable\"><span left=\"0\" right=\"1\"> </span>\\(\\sqrt{ {x ^{ 10 } } } \\) </span><span left=\"1\" right=\"2\"> </span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class=\"wrong selectable\"> \\(\\sqrt{ {x ^{ 10 } } } \\) </span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class=\"selectable\" number="0"> \\(\\sqrt{ {x ^{ 10 } } } \\) </span></div>', result.renderedRun);
     },
 
     'test parse Words with markers with latex - spaces all over the place another example': function() {
-    	var text = "\\correct{\\(\\frac{ 2 } { \\sqrt{3}}\\)}";
-    	var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+        var text = "\\correct{\\(\\frac{ 2 } { \\sqrt{3}}\\)}";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-    	assertEquals('<div class="text_selection"><span class=\"correct selectable\">\\(\\frac{<span left=\"0\" right=\"1\"> </span>2 } { \\sqrt{3}}\\)</span><span left=\"1\" right=\"2\"> </span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class=\"correct selectable\">\\(\\frac{ 2 } { \\sqrt{3}}\\)</span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class=\"selectable\" number="0">\\(\\frac{ 2 } { \\sqrt{3}}\\)</span></div>', result.renderedRun);
     },
 
-    'test count brackets' : function() {
-    	var text = "\\wrong{\\(\\sqrt{x^{10}}\\)";
-    	var result = this.presenter.countBrackets(text);
+    'test count brackets': function() {
+        var text = "\\wrong{\\(\\sqrt{x^{10}}\\)";
+        var result = this.presenter.countBrackets(text);
 
-    	assertEquals(3, result.open);
-    	assertEquals(2, result.close);
+        assertEquals(3, result.open);
+        assertEquals(2, result.close);
     },
 
-    'test multi word but marked only one' : function() {
+    'test multi word but marked only one': function() {
         var text = "\\correct{affection}full";
         var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-        assertEquals('<div class="text_selection"><span class="correct selectable">affection</span> <span class=" ">full</span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="correct selectable">affection</span>full</div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">affection</span>full</div>', result.renderedRun);
     },
 
-    'test word with special sign after marker' : function() {
+    'test word with special sign after marker': function() {
         var text = "\\wrong{super}.";
         var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
-        assertEquals('<div class="text_selection"><span class="wrong selectable">super</span> <span class=" ">.</span></div>', result.renderedPreview);
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="wrong selectable">super</span>.</div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">super</span><span left=\"0\" right=\"1\">.</span></div>', result.renderedRun);
     },
 
-    'test single letter' : function() {
+    'test single letter': function() {
         var text = "\\correct{a}";
         var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
 
+        assertTrue(result.isValid);
         assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">a</span></div>', result.renderedPreview);
-
     },
 
-    'test multi letters but marked only one' : function() {
+    'test multi letters but marked only one': function() {
         var text = "\\correct{a}full";
         var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
 
@@ -194,6 +210,42 @@ TestCase("[Text Selection] Support Functions", {
         var result = this.presenter.parseCharacters(text, 'MARK_PHRASES', 'MULTISELECT');
 
         assertEquals('<div class=\"text_selection\"><span number=\"0\">word</span><span class=\"correct selectable\">s</span><span class=\"wrong selectable\">word2</span><span class=\" \"> </span><span class=\"wrong selectable\">t</span><span class=\"correct selectable\">word3</span><span class=\"correct selectable\">b</span><span class=\" \">word4</span></div>', result.renderedPreview);
+    },
+
+    'test parseWords with bold 1': function() {
+        var text = "\\correct{<b>Te</b> xt}";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="correct selectable"><b>Te</b> xt</span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>Te</b> xt</span></div>', result.renderedRun);
+    },
+
+    'test parseWords with bold 2': function() {
+        var text = "\\correct{<b>Te </b>xt}";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="correct selectable"><b>Te </b>xt</span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>Te </b>xt</span></div>', result.renderedRun);
+    },
+
+    'test space after bold': function() {
+        var text = "\\correct{<b>t</b>est}";
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertTrue(result.isValid);
+        assertEquals('<div class="text_selection"><span class="correct selectable"><b>t</b>est</span></div>', result.renderedPreview);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>t</b>est</span></div>', result.renderedRun);
+    },
+
+    'test mathjax with allselectable': function() {
+        var text =  '\\correct{some} text \\(\\sqrt{x^{10}}\\)';
+        var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
+
+        assertTrue(result.isValid);
+        assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">some</span> text \\(\\sqrt{x^{10}}\\)</div>', result.renderedPreview);
+        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">some</span><span left=\"0\" right=\"1\"> </span>text<span left=\"1\" right=\"2\"> </span>\\(\\sqrt{x^{10}}\\)</div>', result.renderedRun);
     }
 
 });

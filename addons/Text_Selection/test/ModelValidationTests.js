@@ -49,7 +49,7 @@ TestCase("[Text Selection] Model validation", {
         var validatedModel = this.presenter.validateModel(model);
 
         assertFalse(validatedModel.isValid);
-        assertEquals('M04', validatedModel.errorCode);
+        assertEquals('M02', validatedModel.errorCode);
     },
 
     'test number of marked correct in single select type' : function() {
