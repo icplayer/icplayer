@@ -1,6 +1,6 @@
 function AddonZoom_Image_create() {
 
-    var presenter = function(){};
+    var presenter = function() {};
 
     function setSmallImage(url) {
         var $image = $('<img class="small">');
@@ -42,7 +42,7 @@ function AddonZoom_Image_create() {
             bigImage: validatedBigImage.value,
             smallImage: validatedSmallImage.value,
 
-            ID: model["ID"],
+            ID: model.ID,
             width: parseInt(model["Width"], 10),
             height: parseInt(model["Height"], 10),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
@@ -84,21 +84,21 @@ function AddonZoom_Image_create() {
     };
 
     function calculateImageSize(image) {
-        var player = document.getElementById("_icplayer");
+        var $player = $('#_icplayer');
         var dialog = {};
         var x = image.width;
         var y = image.height;
-        var xProportion = x / $(player).width();
-        var yProportion = y / $(player).height();
+        var xProportion = x / $player.width();
+        var yProportion = y / $player.height();
 
         if (xProportion < 1 && yProportion < 1) {
             dialog.width = x;
             dialog.height = y;
         } else if (xProportion > yProportion) {
-            dialog.width = $(player).width();
+            dialog.width = $player.width();
             dialog.height = y / xProportion;
         } else {
-            dialog.height = $(player).height();
+            dialog.height = $player.height();
             dialog.width = x / yProportion;
         }
 
@@ -112,13 +112,13 @@ function AddonZoom_Image_create() {
 
             var img = new Image();
             img.onload = function() {
-                var dialog = calculateImageSize(this);
+                var dialogSize = calculateImageSize(this);
 
                 presenter.$image = $("<img class='big' src='" + img.src + "'>");
                 presenter.$image.appendTo(presenter.$view);
                 presenter.$image.dialog({
-                    height: dialog.height,
-                    width: dialog.width,
+                    height: dialogSize.height,
+                    width: dialogSize.width,
                     modal: true,
                     resizable: false,
                     draggable: false,
@@ -131,27 +131,26 @@ function AddonZoom_Image_create() {
                         at: "center",
                         of: document.getElementById("_icplayer")
                     },
-                    create: function(event, ui)
-                    {
-                    	var $close = $("<div>");
-                        $close.addClass('close-button-ui-dialog');
+                    create: function() {
+                        var $close = $('<div class="close-button-ui-dialog">');
+                        $close.on('click', function() {
+                            presenter.$image.dialog('close');
+                        });
 
-                    	$close.on('click', function() {
-                    		presenter.$image.dialog( "close" );
-                    	});
+                        $(this).parents(".ui-dialog").append($close);
 
-                    	$(this).parents(".ui-dialog").append($close);
-
-                        var $closeCross= $("<div>");
-                        $closeCross.addClass('close-cross-ui-dialog');
+                        var $closeCross= $('<div class="close-cross-ui-dialog">');
                         $closeCross.html('&times;');
                         $(this).parents(".ui-dialog").children(".close-button-ui-dialog").append($closeCross);
 
-                        $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").css("display","none");
+                        $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").css("display", "none");
                         $(this).parents(".ui-dialog").css("padding", 0);
                         $(this).parents(".ui-dialog").css("border", 0);
                         $(this).parents(".ui-dialog:first").find(".ui-dialog-content").css("padding", 0);
-                                      }
+                    },
+                    open: function() {
+                        $('.ui-widget-overlay').on(presenter.eventType, remove);
+                    }
                 });
                 presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
                 presenter.$image.on(presenter.eventType, remove);
@@ -167,8 +166,7 @@ function AddonZoom_Image_create() {
                 $(".big").remove();
             }
         }
-
-        presenter.$view.find(".icon").on(presenter.eventType, createPopUp)
+        presenter.$view.find(".icon").on(presenter.eventType, createPopUp);
     }
 
 //    presenter.setShowErrorsMode = function() {};

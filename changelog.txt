@@ -1,3 +1,4 @@
+2015-05-28 Added new way to close full screen image in Zoom Image module
 2015-05-28 Added commutativy property to Writing Calculations module
 2015-05-28 Added commands show and hide to Shape module
 2015-05-27 Fixed issue with input align in Writing Calculations module
