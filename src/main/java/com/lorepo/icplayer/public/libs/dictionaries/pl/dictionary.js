@@ -801,6 +801,7 @@
 	"WritingCalculations_property_row": "Rząd",
 	"WritingCalculations_property_class": "Klasa",
 	"WritingCalculations_property_style": "Styl",
+	"WritingCalculations_property_commutativity": "Commutativity",
 	"Vimeo_info" : "Pozwala na wgranie filmu Vimeo do prezentacji. Aby Addon działał poprawnie, wystarczy podać numer ID filmu Vimeo w menu Właściwości.",
 	"Vimeo_name" : "Vimeo",
 	"Vimeo_property_movie_id": "ID filmu",

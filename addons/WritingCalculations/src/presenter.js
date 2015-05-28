@@ -6,6 +6,8 @@ function AddonWritingCalculations_create() {
     presenter.correctAnswersList = [];
     presenter.array = [];
     presenter.playerController = null;
+    presenter.answers = [];
+    presenter.isCommutativity;
     var eventBus;
 
     presenter.ELEMENT_TYPE = {
@@ -52,6 +54,7 @@ function AddonWritingCalculations_create() {
 
     function presenterLogic(view, model) {
         presenter.array = presenter.convertStringToArray(model.Value);
+        presenter.isCommutativity = ModelValidationUtils.validateBoolean(model['Commutativity']) || false;
         presenter.$view = $(view);
         presenter.model = presenter.upgradeModel(model);
         presenter.signs = presenter.readSigns( presenter.model['Signs'][0] );
@@ -147,8 +150,15 @@ function AddonWritingCalculations_create() {
                 isCorrect = 1;
             }
 
-            presenter.triggerValueChangeEvent(value, item, isCorrect);
-            if(presenter.allAnswersCorrect()) {
+            if (presenter.isCommutativity && presenter.isAllFilled()) {
+                presenter.triggerValueChangeEvent("", "all", presenter.isAllCorrectlyFilled() ? 1 : 0);
+            }
+
+            if (!presenter.isCommutativity) {
+                presenter.triggerValueChangeEvent(value, item, isCorrect);
+            }
+
+            if(!presenter.isCommutativity && presenter.allAnswersCorrect()) {
                 presenter.triggerValueChangeEvent("", "all", "");
             }
         });
@@ -156,29 +166,46 @@ function AddonWritingCalculations_create() {
 
     presenter.createView = function(convertedArray) {
         var viewWrapper = this.$view.find("#writing-calculations-wrapper"), columnItemIndex = 0;
-
         for(var rowIndex = 0; rowIndex < convertedArray.length; rowIndex++) {
             var rowWrapper = this.createRowWrapper(rowIndex),
                 cellIndex = 0;
 
             columnItemIndex = 0;
-
             for(var index = 0; index < convertedArray[rowIndex].length; index++) {
                 var element, row = convertedArray[rowIndex],
                     isGap = row[index] == '[';
-
+                var correctAnswer = {};
                 if( isGap ) {
                     element = row.slice(index, index + 3);
                     presenter.verifyElementRange(element);
-                    var correctAnswer = {
+                    correctAnswer = {
                         rowIndex: rowIndex + 1,
                         cellIndex: ++columnItemIndex,
                         value: this.getValueOfElement(element)
                     };
+
+                    if (presenter.answers[rowIndex] === undefined) {
+                        presenter.answers[rowIndex] = [];
+                    }
+
+                    presenter.answers[rowIndex].push(correctAnswer.value);
+
                     this.correctAnswersList.push(correctAnswer);
                     index += 2;
                 } else {
                     element = row[index];
+                    correctAnswer = {
+                        rowIndex: rowIndex + 1,
+                        cellIndex: ++columnItemIndex,
+                        value: this.getValueOfElement(element)
+                    };
+                    if (!isNaN(parseInt(element, 10))) {
+                        if (presenter.answers[rowIndex] === undefined) {
+                            presenter.answers[rowIndex] = [];
+                        }
+
+                        presenter.answers[rowIndex].push(element);
+                    }
                 }
                 var elementType = this.getElementType(element);
 
@@ -189,7 +216,7 @@ function AddonWritingCalculations_create() {
 
                 this.transformElement(createdElement, element, elementType);
 
-                if ( elementType == this.ELEMENT_TYPE.EMPTY_BOX ) {
+                if ( elementType == this.ELEMENT_TYPE.EMPTY_BOX || elementType == this.ELEMENT_TYPE.NUMBER) {
                     this.addPosition(createdElement, correctAnswer);
                 }
 
@@ -202,6 +229,7 @@ function AddonWritingCalculations_create() {
 
             viewWrapper.append(rowWrapper);
         }
+
     };
 
     function addCellClass(createdElement, cellIndex) {
@@ -215,7 +243,8 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.addPosition = function(element, position) {
-        var input = $(element).find(".writing-calculations-input")[0];
+        var input = $(element).find(".writing-calculations-input, .container-number")[0];
+
         $(input).attr({
             "row" : position.rowIndex,
             "cell" : position.cellIndex
@@ -378,23 +407,158 @@ function AddonWritingCalculations_create() {
         return answer.value === correctAnswer.value && answer.rowIndex === correctAnswer.rowIndex && answer.cellIndex === correctAnswer.cellIndex;
     };
 
+    presenter.getInputs = function() {
+        return $(this.$view).find(".writing-calculations-input");
+    };
+
+    presenter.isAllFilled = function() {
+        var inputs = presenter.getInputs();
+
+        for (var i = 0; i < inputs.length; i++) {
+            if ($(inputs[i]).val().length == 0) return false;
+        }
+
+        return true;
+    };
+
     presenter.setShowErrorsMode = function() {
         var inputs = $(this.$view).find(".writing-calculations-input");
-        
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        $.each(inputs, function(){
-            var answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
 
-            if (ModelValidationUtils.isStringEmpty($(this).val())) {
-                presenter.markEmpty($(this));
-            } else if( presenter.isCorrect(answer) ) {
-                presenter.markCorrect($(this));
+        if (!presenter.isCommutativity) {
+            $.each(inputs, function(){
+                var answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
+
+                if (ModelValidationUtils.isStringEmpty($(this).val())) {
+                    presenter.markEmpty($(this));
+                } else if( presenter.isCorrect(answer) ) {
+                    presenter.markCorrect($(this));
+                } else {
+                    presenter.markIncorrect($(this));
+                }
+            });
+        } else if (presenter.isAllFilled()) {
+            var isCorrect = presenter.isAllCorrectlyFilled();
+
+            if (isCorrect) {
+                presenter.$view.addClass('correct');
             } else {
-                presenter.markIncorrect($(this));
+                presenter.$view.addClass('wrong');
+            }
+
+            disableAllInputs(inputs);
+        } else {
+            disableAllInputs(inputs);
+        }
+    };
+
+    function disableAllInputs(inputs) {
+        $(inputs).attr("disabled", "disabled");
+    }
+
+    presenter.compareAnswers = function(correctAnswers, userAnswers) {
+        var answers = $.extend(true, [], userAnswers);
+
+        correctAnswers = $.extend(true, [], correctAnswers);
+
+        var userResult = answers.pop(),
+            declaredResult = correctAnswers.pop();
+
+        var cleanedAnswers = [],
+            cleanedCorrectAnswers = [],
+            logicalFoundArray = [],
+            found = false,
+            result = true,
+            i;
+
+        for (i = 0; i <= answers.length; i++) {
+            if (answers[i] !== undefined) {
+                cleanedAnswers.push(answers[i]);
+            }
+
+            if (correctAnswers[i] !== undefined) {
+                cleanedCorrectAnswers.push(correctAnswers[i]);
+            }
+        }
+
+        for (i = 0; i < cleanedCorrectAnswers.length; i++) {
+            found = presenter.wasRowFound(cleanedCorrectAnswers[i], cleanedAnswers);
+            logicalFoundArray.push(found);
+        }
+
+        jQuery.each(logicalFoundArray, function (_, element) {
+            if (!element) {
+                result = false;
+                return false; // jQuery.each break statement
             }
         });
+
+        result = result && presenter.compareResults(userResult, declaredResult);
+
+        return result;
+    };
+
+
+    presenter.compareResults = function(userResult, declaredResult) {
+        return userResult.toString() === declaredResult.toString();
+    };
+
+    /*
+     This method get one of correctAnswers row
+     and comparing it with each givenAnswers rows.
+
+     Takes: correctAnswers as all correct values in one row
+     and givenAnswers as answers in all rows given by user.
+
+     Returns: boolean value if declared row in correctAnswers
+     was found in givenAnswers.
+     */
+    presenter.wasRowFound = function(correctAnswers, givenAnswers) {
+        var wasRowFound = false;
+
+        for (var j = 0; j < givenAnswers.length; j++) { //answers given by user
+            if (givenAnswers[j] !== undefined && correctAnswers.toString() === givenAnswers[j].toString()) {
+                delete givenAnswers[j];
+                wasRowFound = true;
+                break;
+            } else {
+                wasRowFound = false;
+            }
+        }
+
+        return wasRowFound;
+    };
+
+    presenter.getAllAnswers = function(elements) {
+        var answers = [];
+
+        $.each(elements, function(){
+            if ($(this).hasClass('writing-calculations-input')) {
+                if (answers[$(this).attr("row") - 1] === undefined) {
+                    answers[$(this).attr("row") - 1] = [$(this).val()];
+                } else {
+                    answers[$(this).attr("row") - 1].push($(this).val());
+                }
+            } else if ($(this).hasClass('container-number')) {
+                if (answers[$(this).attr("row") - 1] === undefined) {
+                    answers[$(this).attr("row") - 1] = [$(this).html()];
+                } else {
+                    answers[$(this).attr("row") - 1].push($(this).html());
+                }
+            }
+        });
+
+        return answers;
+    };
+
+    presenter.isAllCorrectlyFilled = function() {
+        var elements = $(this.$view).find('.container-number, .writing-calculations-input');
+        var answers = presenter.getAllAnswers(elements);
+
+        return presenter.compareAnswers(presenter.answers, answers);
     };
 
     presenter.createAnswer = function(row, cell, value) {
@@ -438,7 +602,7 @@ function AddonWritingCalculations_create() {
         if(typeof(presenter.userAnswers) !== "undefined") {
             $.each(inputs, function(index){
                 presenter.userAnswers[index] = '';
-            });	
+            });
         }
     };
 
@@ -452,6 +616,11 @@ function AddonWritingCalculations_create() {
                 presenter.removeValue($(this));
             }
         });
+        if (presenter.$view.hasClass('wrong')) {
+            presenter.$view.removeClass('wrong');
+        } else if (presenter.$view.hasClass('correct')) {
+            presenter.$view.removeClass('correct');
+        }
     };
 
     presenter.removeMark = function(element) {
@@ -539,15 +708,33 @@ function AddonWritingCalculations_create() {
 
     presenter.getPoints = function(type) {
         var inputsData = this.getInputsData();
-        switch (type) {
-            case 'correct':
-                return inputsData.correctAnswersCount;
-            case 'incorrect':
-                return inputsData.incorrectAnswersCount;
-            case 'all':
-                return inputsData.values.length;
-            default:
-                return 0;
+
+        if (presenter.isCommutativity) {
+            switch (type) {
+                case 'correct':
+                    return presenter.isAllCorrectlyFilled() ? 1 : 0;
+                case 'incorrect':
+                    if (presenter.isAllFilled()) {
+                        return presenter.isAllCorrectlyFilled() ? 0 : 1;
+                    } else {
+                        return 0;
+                    }
+                case 'all':
+                    return 1;
+                default:
+                    return 0;
+            }
+        } else {
+            switch (type) {
+                case 'correct':
+                    return inputsData.correctAnswersCount;
+                case 'incorrect':
+                    return inputsData.incorrectAnswersCount;
+                case 'all':
+                    return inputsData.values.length;
+                default:
+                    return 0;
+            }
         }
     };
 
@@ -581,8 +768,8 @@ function AddonWritingCalculations_create() {
             presenter.hideAnswers();
         }
     };
-    
-    
+
+
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -592,7 +779,7 @@ function AddonWritingCalculations_create() {
         presenter.clean(true,false);
         var inputs = $(this.$view).find(".writing-calculations-input");
         var correctAnswers = this.correctAnswersList;
-        
+
         $.each(inputs, function(index){
             $(this).addClass('writing-calculations_show-answers');
             $(this).attr("disabled", true);
@@ -600,7 +787,7 @@ function AddonWritingCalculations_create() {
             $(this).val(correctAnswers[index].value);
         });
     };
-    
+
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
         var inputs = $(this.$view).find(".writing-calculations-input");
@@ -610,6 +797,6 @@ function AddonWritingCalculations_create() {
             $(this).attr("disabled", false);
         });
     };
-    
+
     return presenter;
 }

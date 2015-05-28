@@ -15,5 +15,6 @@
             <property name="Class" nameLabel="WritingCalculations_property_class" type="string"/>
             <property name="Style" nameLabel="WritingCalculations_property_style" type="string"/>
         </property>
+        <property displayName="Commutativity" name="Commutativity" nameLabel="WritingCalculations_property_commutativity" type="boolean" />
     </model>
 </addon>

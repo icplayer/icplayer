@@ -1,4 +1,4 @@
-TestCase("Scores Methods Tests", {
+TestCase("[Writing Calculations] Scores Methods Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
         this.presenter.correctAnswersList = [

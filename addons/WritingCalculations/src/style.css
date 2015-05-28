@@ -61,3 +61,11 @@
 .wrapper-cell {
     min-height: 3px;
 }
+
+.wrong {
+    border: 1px solid #ff1111;
+}
+
+.correct {
+    border: 1px solid #00bb00;
+}
