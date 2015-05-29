@@ -1,6 +1,5 @@
 function AddonConnection_create() {
-    var presenter = function () {
-    };
+    var presenter = function() {};
 
     var playerController;
     var eventBus; // Modules communication
@@ -37,7 +36,6 @@ function AddonConnection_create() {
         LEFT: 0,
         RIGHT: 1
     };
-
 
     presenter.upgradeModel = function (model) {
         return presenter.upgradeFrom_01(model);
@@ -100,7 +98,6 @@ function AddonConnection_create() {
             function getID(element) {
                 // innerWrapper -> td -> tr -> tbody -> table (which has id attribute)
                 var rawID = $(element).find('.innerWrapper').parent().parent().parent().parent().attr('id');
-
                 return rawID.split('connection-')[1];
             }
 
@@ -115,7 +112,6 @@ function AddonConnection_create() {
                 if ((this.ids[i][0] == pair[0] && this.ids[i][1] == pair[1]) ||
                     (this.ids[i][0] == pair[1] && this.ids[i][1] == pair[0])) {
                     this.ids.splice(i, 1);
-
                     break;
                 }
             }
@@ -258,21 +254,21 @@ function AddonConnection_create() {
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
 
-        if(!isPreview){
-            if(!isRandomLeft){
+        if (isPreview) {
+            this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
+            this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
+        } else {
+            if (!isRandomLeft) {
                 this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
-            }else{
+            } else {
                 this.loadRandomElementsLeft(view, model, 'connectionLeftColumn', 'Left column', false);
             }
 
-            if(!isRandomRight){
+            if (!isRandomRight) {
                 this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
-            }else{
+            } else {
                 this.loadRandomElementsRight(view, model, 'connectionRightColumn', 'Right column', true);
             }
-        }else{
-            this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
-            this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
         }
 
         this.setColumnsWidth(view, model["Columns width"]);
@@ -362,7 +358,7 @@ function AddonConnection_create() {
     };
 
     presenter.sendEvent = function (fromID, toID, value, score) {
-    	if(!presenter.isShowAnswersActive) {
+        if(!presenter.isShowAnswersActive) {
         var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
         eventBus.sendEvent('ValueChanged', eventData);
             if (presenter.isAllOK()) sendAllOKEvent();
@@ -846,7 +842,7 @@ function AddonConnection_create() {
         });
     }
 
-    presenter.setShowErrorsMode = function () {
+    presenter.setShowErrorsMode = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -871,7 +867,7 @@ function AddonConnection_create() {
             }
         }
         $(presenter.view).find('.connectionItem').each(function () {
-           if($(this).hasClass('connectionItem-correct') && $(this).hasClass('connectionItem-wrong')){
+           if ($(this).hasClass('connectionItem-correct') && $(this).hasClass('connectionItem-wrong')) {
                $(this).removeClass('connectionItem-correct');
            }
         });
@@ -890,7 +886,11 @@ function AddonConnection_create() {
         isSelectionPossible = true;
     };
 
-    presenter.reset = function () {
+    presenter.reset = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.lineStack.clear();
         isSelectionPossible = true;
         presenter.$connectionContainer.find('.selected').removeClass('selected');
@@ -1124,7 +1124,7 @@ function AddonConnection_create() {
     };
 
     presenter.hideAnswers = function () {
-        if(isNotActivity) {
+        if (isNotActivity) {
             return;
         }
         redraw();

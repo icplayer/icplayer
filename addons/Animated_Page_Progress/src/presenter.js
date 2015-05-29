@@ -1,5 +1,5 @@
 function AddonAnimated_Page_Progress_create() {
-    var presenter = function () { };
+    var presenter = function () {};
 
     var playerController;
     var eventBus;
@@ -155,7 +155,7 @@ function AddonAnimated_Page_Progress_create() {
         presenter.$view = $(view);
         presenter.configuration = presenter.sanitizeModel(model);
 
-        if(presenter.configuration.isError){
+        if (presenter.configuration.isError){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
