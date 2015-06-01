@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.imagegap;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -34,11 +33,16 @@ public class ImageGapView extends Image implements IDisplay {
 	private void createUI(boolean isPreview) {
 		setStylePrimaryName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
+		if (isPreview && module.isDisabled()) {
+			StyleUtils.addStateDisableClass(this);
+		}
+
 		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
 		setImageUrl("");
 		getElement().setId(module.getId());
+		
 	}
 	
 	private void connectHandlers() {
@@ -98,8 +102,10 @@ public class ImageGapView extends Image implements IDisplay {
 		this.disabled = disable;
 		if (disabled) {
 			addStyleDependentName(DISABLED_STYLE);
+			removeDroppable(getElement());
 		} else {
-			removeStyleDependentName(DISABLED_STYLE);	
+			removeStyleDependentName(DISABLED_STYLE);
+			reDroppableElement(getElement());
 		}
 	}
 
@@ -142,5 +148,13 @@ public class ImageGapView extends Image implements IDisplay {
 	public void makeDroppable(ImageGapPresenter presenter) {
 		JavaScriptUtils.makeDropable(getElement(), presenter.getAsJavaScript());
 	}
+	
+	public native static void removeDroppable(Element e) /*-{
+		$wnd.$(e).droppable( "option", "disabled", true );
+	}-*/;
+	
+	public native static void reDroppableElement(Element e) /*-{
+		$wnd.$(e).droppable( "option", "disabled", false );
+	}-*/;
 	
 }

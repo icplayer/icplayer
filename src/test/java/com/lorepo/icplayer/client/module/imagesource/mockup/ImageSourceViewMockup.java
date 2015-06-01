@@ -72,4 +72,16 @@ public class ImageSourceViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void setDisabled(boolean disable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getDisabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

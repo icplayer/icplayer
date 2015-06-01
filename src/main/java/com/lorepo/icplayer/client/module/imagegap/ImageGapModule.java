@@ -28,6 +28,8 @@ public class ImageGapModule extends BasicModuleModel {
 	
 	private String answerId = "";
 	private boolean isActivity = true;
+	private boolean isDisabled = false;
+	
 	private HashMap<String, String>  events = new HashMap<String, String>();
 	
 	public ImageGapModule() {
@@ -38,6 +40,7 @@ public class ImageGapModule extends BasicModuleModel {
 		addPropertyEvent(EVENT_CORRECT);
 		addPropertyEvent(EVENT_WRONG);
 		addPropertyEvent(EVENT_EMPTY);
+		addPropertyIsDisabled();
 	}
 	
 	public String getAnswerId() {
@@ -58,6 +61,7 @@ public class ImageGapModule extends BasicModuleModel {
 					Element gapElement = (Element)childNode;
 					answerId = XMLUtils.getAttributeAsString(gapElement, "answerId");
 					isActivity = XMLUtils.getAttributeAsBoolean(gapElement, "isActivity", true);
+					isDisabled = XMLUtils.getAttributeAsBoolean(gapElement, "isDisabled", false);
 					break;
 				}
 			}
@@ -97,7 +101,7 @@ public class ImageGapModule extends BasicModuleModel {
 		xml += eventToXML(EVENT_WRONG);
 		xml += eventToXML(EVENT_EMPTY);
 		xml += "</events>";
-		xml += "<gap answerId='" + answerId + "' isActivity='" + isActivity + "'/>";
+		xml += "<gap answerId='" + answerId + "' isActivity='" + isActivity + "' isDisabled='" + isDisabled + "'/>";
 		xml += "</imageGapModule>";
 		
 		return xml;
@@ -172,6 +176,40 @@ public class ImageGapModule extends BasicModuleModel {
 		
 		addProperty(property);	
 	}
+	
+	private void addPropertyIsDisabled() {
+		
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if (value!= isDisabled) {
+					isDisabled = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return isDisabled ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_gap_is_disabled");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_gap_is_disabled");
+			}
+
+		};
+		
+		addProperty(property);	
+	}
 
 	private void addPropertyEvent(final String eventName) {
 		
@@ -225,6 +263,10 @@ public class ImageGapModule extends BasicModuleModel {
 
 	public boolean isActivity() {
 		return isActivity;
+	}
+	
+	public boolean isDisabled() {
+		return isDisabled;
 	}
 
 }

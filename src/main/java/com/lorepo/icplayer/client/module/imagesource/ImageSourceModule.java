@@ -23,11 +23,13 @@ public class ImageSourceModule extends BasicModuleModel {
 	private String imagePath = "";
 	private String baseUrl = "";
 	private boolean removable = true;
+	private boolean isDisabled = false;
 	
 	public ImageSourceModule() {
 		super(DictionaryWrapper.get("image_source_module"));
 		
 		addPropertyImage();
+		addPropertyIsDisabled();
 		addPropertyRemovable();
 	}
 
@@ -57,6 +59,7 @@ public class ImageSourceModule extends BasicModuleModel {
 					Element childElement = (Element) childNode;
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					removable = XMLUtils.getAttributeAsBoolean((Element)childNode, "removable", true);
+					isDisabled = XMLUtils.getAttributeAsBoolean((Element)childNode, "isDisabled", false);
 				}
 			}
 		}
@@ -70,10 +73,48 @@ public class ImageSourceModule extends BasicModuleModel {
 		String removableString = removable ? "True":"False";
 		String xml = 
 				"<imageSourceModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "'/>" +
+				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "' isDisabled='" + isDisabled + "'/>" +
 				"</imageSourceModule>";
 		
 		return xml;
+	}
+	
+	private void addPropertyIsDisabled() {
+		
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if (value!= isDisabled) {
+					isDisabled = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return isDisabled ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_source_is_disabled");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_source_is_disabled");
+			}
+
+		};
+		
+		addProperty(property);	
+	}
+	
+	public boolean isDisabled() {
+		return isDisabled;
 	}
 	
 	private void addPropertyImage() {

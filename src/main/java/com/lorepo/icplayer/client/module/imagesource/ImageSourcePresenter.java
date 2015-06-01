@@ -9,6 +9,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -36,6 +37,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		public void getImageUrl();
 		public Element getElement();
 		public void makeDraggable(ImageSourcePresenter imageSourcePresenter);
+		public void setDisabled(boolean disable);
+		boolean getDisabled();
 	}
 	
 	private ImageSourceModule model;
@@ -138,6 +141,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 
 	@Override
 	public void reset() {
+		view.setDisabled(false);
 		deselectImage();
 		isImageVisible = true;
 		isModuleVisible = model.isVisible();
@@ -148,6 +152,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		} else {
 			view.hide();
 		}
+		
+		view.setDisabled(model.isDisabled());
 	}
 
 	private void deselectImage() {
@@ -177,6 +183,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 				}
 			});
 			view.makeDraggable(this);
+			view.setDisabled(model.isDisabled());
 		}
 	}
 	
@@ -224,6 +231,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("isImageVisible", Boolean.toString(isImageVisible));
 		state.put("isModuleVisible", Boolean.toString(isModuleVisible));
+		state.put("isDisabled", Boolean.toString(view.getDisabled()));
 		
 		return JSONUtils.toJSONString(state);
 	}
@@ -247,6 +255,17 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			view.show();
 		} else {
 			view.hide();
+		}
+		
+		HashMap<String, String> stateHash = JSONUtils.decodeHashMap(state);
+		if(stateHash.containsKey("isDisabled")){
+			if(Boolean.parseBoolean(stateHash.get("isDisabled"))){
+				view.setDisabled(true);
+			}else{
+				view.setDisabled(false);
+			}
+		}else{
+			view.setDisabled(false);
 		}
 	}
 
@@ -288,6 +307,14 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		presenter.isDragPossible = function() {
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::isDragPossible()();
+		}
+		
+		presenter.disable = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::disable()();
+		}
+		
+		presenter.enable = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::enable()();
 		}
 		
 		return presenter;
@@ -338,6 +365,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			reset();
 		} else if (commandName.compareTo("getimageurl") == 0) {
 			return getImageUrl();
+		}else if (commandName.compareTo("disable") == 0) {
+			disable();
+		}else if (commandName.compareTo("enable") == 0) {
+			enable();
 		}
 		
 		return "";
@@ -355,4 +386,11 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		canDrag = true;
 	}
 	
+	public void disable() {
+		view.setDisabled(true);
+	}
+	
+	public void enable(){
+		view.setDisabled(false);
+	}
 }

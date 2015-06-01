@@ -59,6 +59,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private boolean isShowAnswersActive = false;
 	private String currentState = "";
 	private HashMap<String, String> currentEventData;
+	private boolean workModeDisabled = false;
+	private boolean isShowErrorsMode = false;
+	private boolean showAnswersModeDisabled = false;
 	
 	public ImageGapPresenter(ImageGapModule model, IPlayerServices services) {
 		this.model = model;
@@ -127,7 +130,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		
 		this.isShowAnswersActive = true;
 		userReadyToDraggableItem = readyToDraggableItem;
-
+		
+		showAnswersModeDisabled = view.getDisabled();
 		this.currentState = getState();
 		view.resetStyles();
 		view.setDisabled(true);
@@ -151,7 +155,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void setShowErrorsMode() {
 		if (this.isShowAnswersActive) hideAnswers();
-		
+		isShowErrorsMode = true;
+		workModeDisabled = view.getDisabled();
 		view.setDisabled(true);
 		if (model.isActivity()) {
 			if (getScore() > 0) {
@@ -165,7 +170,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void setWorkMode() {
 		view.resetStyles();
-		view.setDisabled(false);
+		view.setDisabled(workModeDisabled);
+		isShowErrorsMode = false;
 	}
 
 	@Override
@@ -173,7 +179,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.setImageUrl("");
-		view.setDisabled(false);
+		view.setDisabled(model.isDisabled());
 		
 		if (model.isVisible()) {
 			view.show();
@@ -192,6 +198,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				}
 			});
 			view.makeDroppable(this);
+			view.setDisabled(model.isDisabled());
 		}
 	}
 	
@@ -269,6 +276,14 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			state.put("consumed",  consumedItem.toString());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));
+		if (isShowErrorsMode){
+			state.put("isDisabled", Boolean.toString(workModeDisabled));
+		}else if (this.isShowAnswersActive) {
+			state.put("isDisabled", Boolean.toString(showAnswersModeDisabled));
+		}else{
+			state.put("isDisabled", Boolean.toString(view.getDisabled()));
+		}
+		
 		return json.toJSONString(state);
 	}
 
@@ -293,6 +308,14 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				show();
 			} else {
 				hide();
+			}
+		}
+		
+		if(state.containsKey("isDisabled")){
+			if(Boolean.parseBoolean(state.get("isDisabled"))){
+				view.setDisabled(true);
+			}else{
+				view.setDisabled(false);
 			}
 		}
 	}
@@ -350,11 +373,23 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			markGapAsWrong();
 		} else if(commandName.compareTo("markgapasempty") == 0) {
 			markGapAsEmpty();
+		} else if(commandName.compareTo("disable") == 0) {
+			disable();
+		} else if(commandName.compareTo("enable") == 0) {
+			enable();
 		} else if(commandName.compareTo("reset") == 0) {
 			reset();
 		}
 		
 		return value;
+	}
+	
+	public void disable() {
+		view.setDisabled(true);
+	}
+	
+	public void enable(){
+		view.setDisabled(false);
 	}
 
 	@Override
@@ -423,6 +458,12 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		presenter.dropHandler = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::dropHandler()();
+		}
+		presenter.disable = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::disable()();
+		}
+		presenter.enable = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::enable()();
 		}
 
 		return presenter;

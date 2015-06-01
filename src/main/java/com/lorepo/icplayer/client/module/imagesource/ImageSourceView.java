@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.imagesource;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
@@ -13,11 +14,13 @@ public class ImageSourceView extends Image implements IDisplay {
 
 	private static final String DEFAULT_STYLE = "ic_sourceImage";
 	private static final String SELECTED_STYLE = "selected";
+	private static final String DISABLED_STYLE = "disabled";
 	
 	private ImageSourceModule module;
 	private IViewListener listener;
 	private boolean isDragged = false;
 	private boolean isPreview;
+	private boolean disabled = false;
 	
 	public ImageSourceView(ImageSourceModule module, boolean isPreview) {
 		this.module = module;
@@ -29,6 +32,10 @@ public class ImageSourceView extends Image implements IDisplay {
 	private void createUI() {
 		setStyleName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
+		if (isPreview && module.isDisabled()) {
+			StyleUtils.addStateDisableClass(this);
+		}
+
 		String imageUrl = module.getUrl();
 		if (imageUrl.length() > 0) {
 			setUrl(imageUrl);
@@ -39,6 +46,31 @@ public class ImageSourceView extends Image implements IDisplay {
 			setVisible(module.isVisible());
 		}
 	}
+	
+	@Override
+	public boolean getDisabled() {
+		return this.disabled;
+	}
+	
+	@Override
+	public void setDisabled(boolean disable) {
+		this.disabled = disable;
+		if (disabled) {
+			addStyleDependentName(DISABLED_STYLE);
+			removeDraggable(getElement());
+		} else {
+			removeStyleDependentName(DISABLED_STYLE);
+			reDraggableElement(getElement());
+		}
+	}
+	
+	public native static void removeDraggable(Element e) /*-{
+		$wnd.$(e).draggable( "option", "disabled", true );
+	}-*/;
+
+	public native static void reDraggableElement(Element e) /*-{
+		$wnd.$(e).draggable( "option", "disabled", false );
+	}-*/;
 	
 	public void makeDraggable(ImageSourcePresenter p) {
 		if (!isPreview) {
@@ -53,7 +85,7 @@ public class ImageSourceView extends Image implements IDisplay {
 				event.stopPropagation();
 				event.preventDefault();
 				if (!isDragged) {
-					if (listener != null) {
+					if (listener != null && !disabled) {
 						listener.onClicked();
 					}
 				}
@@ -65,7 +97,7 @@ public class ImageSourceView extends Image implements IDisplay {
 			@Override
 			public void onDragStart(DragStartEvent event) {
 				isDragged = true;
-				if (listener != null) {
+				if (listener != null && !disabled) {
 					listener.onDragged();
 				}
 			}

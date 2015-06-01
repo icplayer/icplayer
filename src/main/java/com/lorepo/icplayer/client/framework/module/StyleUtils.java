@@ -38,4 +38,12 @@ public class StyleUtils {
 			button.setStyleName(style);
 		}
 	}
+	
+	
+	/**
+	 * This method sets class from jquery-ui library to keep conventions
+	 */
+	public static void addStateDisableClass (Widget widget) {
+		widget.getElement().addClassName("ui-state-disabled");
+	}
 }
