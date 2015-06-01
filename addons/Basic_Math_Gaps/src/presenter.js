@@ -581,14 +581,14 @@ function AddonBasic_Math_Gaps_create(){
             return;
         }
 
-        presenter.$view.find('.basic-math-gaps-container').empty();
-
+        presenter.setWorkMode();
         presenter.gapsContainer.reset();
-        presenter.createGaps();
+
 
         if(typeof(presenter.userAnswers) !== "undefined") {
         	presenter.userAnswers.splice(0,presenter.userAnswers.length);
         }
+
         presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -1153,11 +1153,9 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.GapsContainerObject.prototype.reset = function () {
-        delete this._gaps;
-        delete this._gapsOrderArray;
-
-        this._gaps = {};
-        this._gapsOrderArray = [];
+        this._gapsOrderArray.forEach(function (gapID) {
+            this._gaps[gapID].actualGap.reset();
+        }, this);
     };
 
     presenter.GapsContainerObject.prototype.showActualView = function (id) {
@@ -1263,6 +1261,10 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.GapObject.prototype.getWidth = function () {
         return this.width;
+    };
+
+    presenter.GapObject.prototype.reset = function () {
+        return this.setValue("");
     };
 
     presenter.GapObject.prototype.getFloat = function () {
@@ -1454,6 +1456,12 @@ function AddonBasic_Math_Gaps_create(){
         this._$view.html(value);
     };
 
+    presenter.DraggableMathGapObject.prototype.reset = function (value) {
+        this.setValue("");
+        this._$view.draggable("disable");
+    };
+
+
     presenter.DraggableMathGapObject.prototype.hideAnswers = function () {
         this._$view.html(this._value);
     };
@@ -1462,6 +1470,7 @@ function AddonBasic_Math_Gaps_create(){
         var $span = $('<span></span>');
         $span.attr('id', this.id);
         $span.addClass(this._className);
+        $span.addClass("gap-object");
         $span.addClass("ui-draggable");
         $span.addClass("ui-widget-content");
         $span.css({
@@ -1497,8 +1506,6 @@ function AddonBasic_Math_Gaps_create(){
             }
         });
     };
-
-
 
     presenter.DraggableMathGapObject.prototype.bindClickHandler = function ($view) {
         $view.click(function (event) {

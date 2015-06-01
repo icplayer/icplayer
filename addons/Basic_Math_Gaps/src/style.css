@@ -66,3 +66,7 @@
 .basic-math-gaps-wrapper .basic-math-gaps-container.correct {
     border: 1px solid #00bb00;
 }
+
+.basic-math-gaps-wrapper .gap-object {
+    height: 20px;
+}
