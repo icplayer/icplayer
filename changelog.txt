@@ -1,3 +1,4 @@
+2015-06-02 Fixed issue with duplicating gaps when elements from Multiple gap are dragged in Editor
 2015-06-02 Added new command isOrderCorrect to Shape Tracing module
 2015-06-01 Added enable, disable commands and isDisabled property in Image Gap and Image Source modules
 2015-06-01 Fixed issue with check and reset in Basic Math Gaps module

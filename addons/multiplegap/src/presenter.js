@@ -447,7 +447,7 @@ function Addonmultiplegap_create(){
                 return getDraggedSrc(placeholder).clone().show();
             },
             cursorAt: calculateCursorPosition(placeholder),
-            appendTo: getDraggedSrc(placeholder) === placeholder ? 'parent' : '.ic_page',
+            appendTo: getDraggedSrc(placeholder) === placeholder ? 'parent' : placeholder.parents('.ic_page:first'),
             start : function(event, ui) {
                 if (!presenter.isDragPossible()) {
                     event.stopPropagation();
@@ -491,7 +491,7 @@ function Addonmultiplegap_create(){
             var src = obj.clone();
             src.width(obj.width());
             src.height(obj.height());
-            $('.ic_page').append(src);
+            presenter.$view.parents('.ic_page:first').append(src);
             position = {
                 left:  Math.round(src.outerWidth()/2),
                 top: Math.round(src.outerHeight()/2)
