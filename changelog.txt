@@ -1,3 +1,4 @@
+2015-06-02 Added new command isOrderCorrect to Shape Tracing module
 2015-06-01 Added enable, disable commands and isDisabled property in Image Gap and Image Source modules
 2015-06-01 Fixed issue with check and reset in Basic Math Gaps module
 2015-05-29 Fixed issue with blocking scoring after show answers and reset in Connection module

@@ -1,5 +1,7 @@
 function AddonShape_Tracing_create() {
 
+    var NO_POINT = 0;
+
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     function returnCorrectObject(v) { return { isValid: true, value: v }; }
@@ -566,6 +568,7 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.isPositionInDefinedPoint = function(x, y, r) {
+
         r = parseInt(r, 10);
 
         for (var i=y-r; i<=y+r; i++) {
@@ -604,6 +607,7 @@ function AddonShape_Tracing_create() {
                 isOutsideShape = true;
             }
         }
+
         if (presenter.isPositionInDefinedPoint(x, y, presenter.data.pencilThickness / 2)) {
             presenter.data.currentPointNumber++;
             if (presenter.data.currentPointNumber > presenter.configuration.points.length) {
@@ -1052,7 +1056,7 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.pointsMissed = function() {
-        var points = presenter.pointsHistory.filter(function(p) { return p !== 0 });
+        var points = presenter.pointsHistory.filter(function(p) { return p !== NO_POINT });
         var result = [];
 
         for (var i=1; i<presenter.configuration.numberOfPoints+1; i++) {
@@ -1152,6 +1156,31 @@ function AddonShape_Tracing_create() {
         return result.removeNeighbourDuplicates();
     };
 
+    function getDrawnUniqueValues() {
+        var uniqueValues = [];
+        var points = presenter.pointsHistory.filter(function(p) { return p !== NO_POINT });
+
+        for (var i = 0; i < points.length; i++) {
+            if (uniqueValues.indexOf(points[i]) === -1) {
+                uniqueValues.push(points[i]);
+            }
+        }
+
+        return uniqueValues;
+    }
+
+    presenter.isOrderCorrect = function() {
+        var drawnPoints = getDrawnUniqueValues();
+
+        for (var i = 0; i < drawnPoints.length; i++) {
+            if (drawnPoints[i] !== i + 1) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     presenter.executeCommand = function(name, params) {
         if (!presenter.configuration.isValid) {
             return;
@@ -1167,7 +1196,8 @@ function AddonShape_Tracing_create() {
             "showAnswers": presenter.showAnswers,
             "hideAnswers": presenter.hideAnswers,
             "setColor": presenter.setColor,
-            "setOpacity": presenter.setOpacity
+            "setOpacity": presenter.setOpacity,
+            "isOrderCorrect": presenter.isOrderCorrect
         };
 
         Commands.dispatch(commands, name, params, presenter);
