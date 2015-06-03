@@ -793,8 +793,12 @@ function AddonText_Selection_create() {
         var isEmptyWord = false;
         var isWrongMarker = false;
 
-        // GROUPS 1: \correct{[content]} 2: \wrong{[content]} 3: [tags] 4: [content] 5; [white_spaces]
-        var mainRex = /\\correct\{([^}]*)}|\\wrong\{([^}]*)}|(<[\w="'\h\/ ]+>)|([\w\{}\/\\\[\]]+)|([\s?.,;!¡¿。、·]+)/g;
+        // content1     => all except '}' sign
+        // tags         => all between < >
+        // word         => all except spaces and punctuation
+        // white_spaces => spaces and punctuation
+        // GROUPS 1: \correct{[content1]} 2: \wrong{[content1]} 3: [<tags>] 4: [word] 5; [white_spaces]
+        var mainRex = /\\correct\{([^}]+)?}|\\wrong\{([^}]+)?}|(<[^>]+?>)|([^\s\.,-\/#!$%\^&\*;:{}=\-_`~()]+)|([\s\.,-\/#!$%\^&\*;:{}=\-_`~()]+)/g;
 
         var match = mainRex.exec(text);
         while (match !== null) {
@@ -829,8 +833,8 @@ function AddonText_Selection_create() {
                             previewHTML += match[4];
                             runHTML += match[4];
                         }
-                        spanIndex++;
                     }
+                    spanIndex++;
                 }
             } else { // spaces
                 previewHTML += match[5];

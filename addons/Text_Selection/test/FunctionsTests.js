@@ -136,7 +136,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="wrong selectable">super</span>.</div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0">super</span><span left=\"0\" right=\"1\">.</span></div>', result.renderedRun);
+        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">super</span><span left=\"0\" right=\"1\">.</span></div>', result.renderedRun);
     },
 
     'test single letter': function() {
