@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -152,6 +153,13 @@ public class PlayerControllerMockup implements IPlayerController {
 	
 	@Override
 	public IPresenter findHeaderModule(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public IAssetsService getAssetsService() {
 		// TODO Auto-generated method stub
 		return null;
 	}

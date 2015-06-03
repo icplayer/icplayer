@@ -365,6 +365,17 @@ public class JavaScriptPlayerServices {
 
 			return score;
 		};
+		
+		playerServices.getAssets = function() {
+			var assets = function() {
+			};
+
+			assets.getContentType = function(href) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentType(Ljava/lang/String;)(href);
+			};
+
+			return assets;
+		};
 
 		playerServices.getStaticFilesPath = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getStaticFilesPath()();
@@ -381,9 +392,13 @@ public class JavaScriptPlayerServices {
 		return playerServices;
 	}-*/;
 
-	private JavaScriptObject getPageByIndex(int index) {
-		return playerServices.getModel().getPage(index).toJavaScript();
+	private String getContentType(String href){		
+		return playerServices.getAssetsService().getContentType(href);
 	}
+	
+    private JavaScriptObject getPageByIndex(int index) {
+        return playerServices.getModel().getPage(index).toJavaScript();
+    }
 
 	private JavaScriptObject getPageById(String id) {
 		return playerServices.getModel().getPageById(id).toJavaScript();
