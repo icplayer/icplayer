@@ -318,7 +318,7 @@ function AddoneKeyboard_create(){
                     $('input').attr("readonly", true);
                 }
 
-                $(presenter.configuration.workWithViews).find('input:enabled').keyboard({
+                $(presenter.configuration.workWithViews).find('input').keyboard({
                     // *** choose layout ***
                     layout: presenter.configuration.layoutType,
                     customLayout: presenter.configuration.customLayout,
