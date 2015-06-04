@@ -30,7 +30,7 @@ TestCase("[LearnPen_Report] Model validation", {
         assertEquals({ start : 33, end : 66 }, validatedModel.range);
         assertEquals("SQUEEZE", validatedModel.sensor);
         assertEquals({ above: "red", correct: "green", below: "yellow" }, validatedModel.colors);
-        assertEquals(500, validatedModel.updateTime);
+        assertEquals(100, validatedModel.updateTime);
     },
 
     'test RANGE wrong number of elements': function() {
@@ -99,7 +99,7 @@ TestCase("[LearnPen_Report] Model validation", {
         assertEquals("I01", validatedModel.errorCode);
     },
 
-    'test INTERVAL value above 2000 or below 50': function() {
+    'test INTERVAL value above 2000 or below 0': function() {
         var validatedModel;
 
         this.model.dataUpdateInterval = "2001";
@@ -107,7 +107,7 @@ TestCase("[LearnPen_Report] Model validation", {
         assertFalse(validatedModel.isValid);
         assertEquals("I02", validatedModel.errorCode);
 
-        this.model.dataUpdateInterval = "49";
+        this.model.dataUpdateInterval = "-1";
         validatedModel = this.presenter.validateModel(this.model);
         assertFalse(validatedModel.isValid);
         assertEquals("I02", validatedModel.errorCode);

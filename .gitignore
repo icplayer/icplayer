@@ -8,6 +8,7 @@
 /test
 /build.properties
 /.idea
-/.icplayer.iml
+**/*.iml
 /addons/addons.list.temp
 .DS_Store
+**/test-reports

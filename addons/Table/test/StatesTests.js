@@ -13,7 +13,8 @@ TestCase("State saving", {
     'test no gaps': function () {
         var expectedState = JSON.stringify({
             isVisible: true,
-            gaps: []
+            gaps: [],
+            spans: null
         });
 
         var state = this.presenter.getState();
@@ -36,7 +37,8 @@ TestCase("State saving", {
                 { value: "", isEnabled: true },
                 { value: "", isEnabled: true },
                 { value: "", isEnabled: true }
-            ]
+            ],
+            spans: null
         });
 
         var state = this.presenter.getState();
@@ -59,7 +61,8 @@ TestCase("State saving", {
                 { value: "", isEnabled: true },
                 { value: "another value", isEnabled: true },
                 { value: "", isEnabled: true }
-            ]
+            ],
+            spans: null
         });
 
         var state = this.presenter.getState();
@@ -82,7 +85,8 @@ TestCase("State saving", {
                 { value: "", isEnabled: false },
                 { value: "", isEnabled: false },
                 { value: "", isEnabled: true }
-            ]
+            ],
+            spans: null
         });
 
         var state = this.presenter.getState();
