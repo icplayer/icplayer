@@ -17,7 +17,6 @@ public interface IPlayerServices {
 	public int getCurrentPageIndex();
 	public IPlayerCommands	getCommands();
 	public IScoreService	getScoreService();
-	public IAssetsService	getAssetsService();
 	public IStateService 	getStateService();
 	public IJsonServices	getJsonServices();
 	public JavaScriptObject getAsJSObject();

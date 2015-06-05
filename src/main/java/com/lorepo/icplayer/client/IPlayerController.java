@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client;
 import java.util.HashMap;
 
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -13,7 +12,6 @@ public interface IPlayerController {
 
 	IContent getModel();
 	IScoreService getScoreService();
-	IAssetsService getAssetsService();
 	int getCurrentPageIndex();
 	IStateService getStateService();
 	void switchToPage(String pageName);

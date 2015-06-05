@@ -1,21 +1,10 @@
 package com.lorepo.icplayer.client.module.image;
 
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.Style.Position;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Image;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.image.ImageModule.DisplayMode;
 import com.lorepo.icplayer.client.module.image.ImagePresenter.IDisplay;
 
@@ -24,96 +13,42 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 	private ImageModule module;
 	private Image image;
-	private IPlayerServices playerServices;
-	boolean isSvg = false;
 	
 	
-	public ImageView(ImageModule module, boolean isPreview, IPlayerServices services) {
+	public ImageView(ImageModule module, boolean isPreview) {
+	
 		this.module = module;
-		this.playerServices = services;
 
 		createUI(isPreview);
 	}
-	
+
+
 	private void createUI(boolean isPreview) {
-		String imageUrl = module.getUrl();
-
-		if(!isPreview){
-			String contentType = playerServices.getAssetsService().getContentType(imageUrl);
-			isSvg = contentType.toLowerCase().contains("image/svg+xml");
-		}else{
-			isSvg = false;
-		}
-			
-		if(isSvg){
-			setStyleName("ic_image");
-			StyleUtils.applyInlineStyle(this, module);
-			
-			RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, imageUrl);
-			try {
-				requestBuilder.sendRequest(null, new RequestCallback() {
-					
-					@Override
-					public void onResponseReceived(Request request, Response response) {	
-						getElement().setInnerHTML(response.getText().replace("]>", ""));
-						NodeList<Element> elem = getElement().getElementsByTagName("svg");
-						
-						if(module.getDisplayMode() == DisplayMode.stretch){
-							String originalWidth = elem.getItem(0).getAttribute("width").replace("px", "").replace("%", "");
-							String originalHeight = elem.getItem(0).getAttribute("height").replace("px", "").replace("%", "");
-							elem.getItem(0).setAttribute("width", module.getWidth()+"px");
-							elem.getItem(0).setAttribute("height", module.getHeight()+"px");
-							
-							if(!elem.getItem(0).hasAttribute("viewBox")){
-								elem.getItem(0).setAttribute("viewBox", "0 0 "+originalWidth+" "+originalHeight);
-							}
-							
-						}
-						else if(module.getDisplayMode() == DisplayMode.keepAspect){		
-							String originalWidth = elem.getItem(0).getAttribute("width").replace("px", "").replace("%", "");
-							String originalHeight = elem.getItem(0).getAttribute("height").replace("px", "").replace("%", "");					
-							elem.getItem(0).setAttribute("width", module.getWidth()+"px");
-							elem.getItem(0).setAttribute("height", module.getHeight()+"px");
-							
-							if(!elem.getItem(0).hasAttribute("viewBox")){
-								elem.getItem(0).setAttribute("viewBox", "0 0 "+originalWidth+" "+originalHeight);
-							}
-						}
-					}
-					
-					@Override
-					public void onError(Request request, Throwable exception) {					
-					}
-				});
-			} catch (RequestException e) {
-				e.printStackTrace();
-			}
-		}else{			
-			image = new Image();
-			setStyleName("ic_image");
-			StyleUtils.applyInlineStyle(this, module);
-			add(image);
-			
-			if(imageUrl.length() > 0){
-				image.addLoadHandler(new LoadHandler() {
-					@Override
-					public void onLoad(LoadEvent event) {
-						if (!isVisible()) { //if not visible make it, just to work on IE9, 10
-							setVisible(true);
-							setImageSize();
-							setVisible(false);
-						} else {
-							setImageSize();
-						}
-					}
-				});
-				
-				image.setUrl(imageUrl);
-			}
-			setImageSize();
-		}
-
 		
+		image = new Image();
+		setStyleName("ic_image");
+		StyleUtils.applyInlineStyle(this, module);
+		String imageUrl = module.getUrl();
+		add(image);
+
+		if(imageUrl.length() > 0){
+			image.addLoadHandler(new LoadHandler() {
+				@Override
+				public void onLoad(LoadEvent event) {
+					if (!isVisible()) { //if not visible make it, just to work on IE9, 10
+						setVisible(true);
+						setImageSize();
+						setVisible(false);
+					} else {
+						setImageSize();
+					}
+				}
+			});
+			
+			image.setUrl(imageUrl);
+		}
+
+		setImageSize();
 		if(!isPreview){
 			setVisible(module.isVisible());
 		}
@@ -153,6 +88,7 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		}
 	}
 
+
 	private void center() {
 
 		int left = (getOffsetWidth()-image.getWidth())/2;
@@ -166,9 +102,7 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 		setVisible(true);
 		if(module.getDisplayMode() == DisplayMode.keepAspect){
-			if(!isSvg){
-				center();
-			}
+			center();
 		}
 	}
 

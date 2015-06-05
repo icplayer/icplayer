@@ -17,14 +17,12 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLLoader;
-import com.lorepo.icplayer.client.content.services.AssetsService;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -43,7 +41,6 @@ public class PlayerController implements IPlayerController{
 	private	PlayerView			playerView;
 	private long				timeStart = 0;
 	private ScoreService		scoreService;
-	private AssetsService		assetsService;
 	private StateService		stateService;
 	private ILoadListener		pageLoadListener;
 	private PagePopupPanel		popupPanel;
@@ -61,8 +58,6 @@ public class PlayerController implements IPlayerController{
 		sessionId = UUID.uuid();
 		scoreService = new ScoreService(contentModel.getScoreType());
 		stateService = new StateService();
-		assetsService = new AssetsService(contentModel);
-
 		createPageControllers(bookMode);
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 	}
@@ -340,10 +335,6 @@ public class PlayerController implements IPlayerController{
 
 	public IScoreService getScoreService() {
 		return scoreService;
-	}
-	
-	public IAssetsService getAssetsService() {
-		return assetsService;
 	}
 
 
