@@ -793,12 +793,13 @@ function AddonText_Selection_create() {
         var isEmptyWord = false;
         var isWrongMarker = false;
 
-        // content1     => all except '}' sign
-        // tags         => all between < >
-        // word         => all except spaces and punctuation
-        // white_spaces => spaces and punctuation
-        // GROUPS 1: \correct{[content1]} 2: \wrong{[content1]} 3: [<tags>] 4: [word] 5; [white_spaces]
-        var mainRex = /\\correct\{([^}]+)?}|\\wrong\{([^}]+)?}|(<[^>]+?>)|([^\s\.,-\/#!$%\^&\*;:{}=\-_`~()]+)|([\s\.,-\/#!$%\^&\*;:{}=\-_`~()]+)/g;
+        var correct = /\\correct{([^}]+)?}/.source;
+        var wrong = /\\wrong{([^}]+)?}/.source;
+        var tags = /(<[^>]+?>)/.source;
+        var word = /([^\s\.,#!$%\^&\*;:{}=\-_`~\(\)<>]+)/.source;
+        var whiteSpaces = /([\s\.,#!$%\^&\*;:{}=\-_`~\(\)]+)/.source;
+
+        var mainRex = new RegExp([correct, wrong, tags, word, whiteSpaces].join('|'), 'g');
 
         var match = mainRex.exec(text);
         while (match !== null) {
@@ -818,24 +819,16 @@ function AddonText_Selection_create() {
             } else if (match[3]) { // HTML tag
                 previewHTML += match[3];
                 runHTML += match[3];
-            } else if (match[4]) { // words + nbsp
-                var phrases = match[4].split('nbsp');
-                for (var i=0; i<phrases.length; i++) {
-                    if (phrases[i] === '') { // nbsp
-                        previewHTML += phrases[i];
-                        runHTML += wrapSpaces(phrases[i], spanIndex-1);
-                    } else { // word
-                        if (mode === 'ALL_SELECTABLE') {
-                            previewHTML += match[4];
-                            runHTML += wrapText(match[4], ['selectable'], spanIndex);
-                            spansMarkedWrong.push(spanIndex);
-                        } else {
-                            previewHTML += match[4];
-                            runHTML += match[4];
-                        }
-                    }
-                    spanIndex++;
+            } else if (match[4]) { // words
+                if (mode === 'ALL_SELECTABLE') { // word
+                    previewHTML += match[4];
+                    runHTML += wrapText(match[4], ['selectable'], spanIndex);
+                    spansMarkedWrong.push(spanIndex);
+                } else {
+                    previewHTML += match[4];
+                    runHTML += match[4];
                 }
+                spanIndex++;
             } else { // spaces
                 previewHTML += match[5];
                 runHTML += wrapSpaces(match[5], spanIndex-1);
