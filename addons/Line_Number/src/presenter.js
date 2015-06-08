@@ -1456,6 +1456,7 @@ function AddonLine_Number_create() {
                 };
                 setRangeValues(newRange, true);
                 addToDrawnRanges(newRange);
+                presenter.singleDot.value = -1;
             }
 
             presenter.configuration.isShowErrorsMode = true;
