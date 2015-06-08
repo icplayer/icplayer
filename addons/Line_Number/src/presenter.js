@@ -19,7 +19,11 @@ function AddonLine_Number_create() {
         playerController;
 
     presenter.configuration = {};
-
+    presenter.checkedPoints = [];
+    presenter.results = {
+        correct: 0,
+        wrong: 0
+    };
     presenter.singleDot = {
         value: -1,
         element: null
@@ -81,6 +85,15 @@ function AddonLine_Number_create() {
         presenter.$view.find(selector).css('z-index', '0');
     };
 
+    function addInitPoints () {
+        var points = presenter.configuration.shouldDrawRanges;
+        for (var i = 0; i < points.length; i++) {
+            if (points[i].start.value === points[i].end.value) {
+                presenter.checkedPoints.push(points[i].values[0]);
+            }
+        }
+    }
+
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$view.disableSelection();
@@ -94,13 +107,17 @@ function AddonLine_Number_create() {
 
         presenter.createSteps();
 
-        if ( !isPreview && !presenter.configuration.isDisabled ) {
+        if ( !isPreview && !presenter.configuration.isDisabled && !presenter.configuration.dontShowRanges) {
             presenter.bindInfinityAreas();
         }
 
         presenter.drawRanges(presenter.configuration.shouldDrawRanges);
 
         presenter.configuration.isInitialDraw = false;
+
+        if (presenter.configuration.dontShowRanges) {
+            addInitPoints();
+        }
 
         if ( !presenter.configuration.isVisibleByDefault ) {
             presenter.hide();
@@ -371,7 +388,11 @@ function AddonLine_Number_create() {
 
                 if ( presenter.configuration.touchData.lastEvent.type != e.type ) {
                     var eventData = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
-                    clickLogic(eventData.target);
+                    if (presenter.configuration.dontShowRanges) {
+                        togglePoint($(eventData.target));
+                    } else {
+                        clickLogic($(eventData.target));
+                    }
                 }
             });
 
@@ -399,7 +420,11 @@ function AddonLine_Number_create() {
             clickArea.on('click', function (e) {
                 e.stopPropagation();
                 e.preventDefault();
-                clickLogic($(e.target));
+                if (presenter.configuration.dontShowRanges) {
+                    togglePoint($(e.target));
+                } else {
+                    clickLogic($(e.target));
+                }
             });
         }
     }
@@ -535,6 +560,51 @@ function AddonLine_Number_create() {
     function isLineNumberDisabled () {
         return ((presenter.configuration.isActivity && presenter.configuration.isShowErrorsMode) ||
                  presenter.configuration.isDisabled);
+    }
+
+    function isPointCorrect(point) {
+        var correctPoints = getCorrectPoints();
+
+        if (correctPoints.indexOf(point) !== -1) {
+            return true;
+        }
+    }
+
+    function togglePoint($eventTarget) {
+        if (presenter.configuration.isShowErrorsMode || isLineNumberDisabled() || presenter.isShowAnswersActive) {
+            return;
+        }
+        var $parent = $eventTarget.parent('.stepLine');
+        var $rangeImage = $parent.find('.rangeImage');
+
+        if ($rangeImage.length === 1) {
+            $rangeImage.remove();
+
+            presenter.checkedPoints = presenter.checkedPoints.filter(function(elem) {
+                return elem != $eventTarget[0].value;
+            });
+
+            eventBus.sendEvent("ValueChanged", presenter.createActionEventData($eventTarget[0].value, "0", isPointCorrect($eventTarget[0].value) ? 1 : 0));
+        } else {
+            var $imageContainer = $('<div></div>');
+
+            $imageContainer.addClass('rangeImage exclude include');
+            $parent.append($imageContainer);
+
+            presenter.checkedPoints.push($eventTarget[0].value);
+
+            eventBus.sendEvent("ValueChanged", presenter.createActionEventData($eventTarget[0].value, "1", isPointCorrect($eventTarget[0].value) ? 1 : 0));
+        }
+
+        var correctPoints = getCorrectPoints().sort().toString(),
+            checkedPoints = $.extend(true, [], presenter.checkedPoints);
+
+            checkedPoints = checkedPoints.sort().toString();
+
+        if (correctPoints === checkedPoints) {
+            eventBus.sendEvent("ValueChanged", presenter.createAllOKEventData());
+        }
+
     }
 
     function clickLogic(eventTarget) {
@@ -911,7 +981,7 @@ function AddonLine_Number_create() {
 
                 // if start and end values are the same, that means range is a single point, so it should not draw range
 
-                return false;
+                return true;
             }
 
             var start = parseFloat($(startElement).css('left'));
@@ -1246,7 +1316,8 @@ function AddonLine_Number_create() {
         return JSON.stringify({
             drawnRangesData: presenter.configuration.drawnRangesData,
             isVisible: presenter.configuration.isCurrentlyVisible,
-            isDisabled: presenter.configuration.isDisabled
+            isDisabled: presenter.configuration.isDisabled,
+            points: presenter.checkedPoints
         }, function (key, value) {
             if (value === Infinity) return "Infinity";
             else if (value === -Infinity) return "-Infinity";
@@ -1279,31 +1350,42 @@ function AddonLine_Number_create() {
                 else return value;
             });
 
-        presenter.redrawRanges(parsedState.drawnRangesData.ranges);
-
+        if (presenter.configuration.dontShowRanges) {
+            presenter.checkedPoints = parsedState.points;
+            drawPoints(presenter.checkedPoints);
+        } else {
+            presenter.redrawRanges(parsedState.drawnRangesData.ranges);
+        }
         presenter.configuration.isCurrentlyVisible = parsedState.isVisible;
         presenter.setVisibility(parsedState.isVisible);
 
         presenter.configuration.isDisabled = parsedState.isDisabled;
+
     };
 
     presenter.reset = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+        if (presenter.configuration.dontShowRanges) {
+            presenter.$view.find('.rangeImage').remove();
+            presenter.checkedPoints = [];
+            addInitPoints();
+            drawPoints(presenter.checkedPoints);
+        } else {
+            var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
+            $.each(rangesToRemove, function() {
+                presenter.removeRange(this, true);
+            });
 
-        var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
-        $.each(rangesToRemove, function() {
-            presenter.removeRange(this, true);
-        });
+            // removing all single dots
+            presenter.$view.find('.rangeImage').remove();
 
-        // removing all single dots
-        presenter.$view.find('.rangeImage').remove();
+            var initRanges = presenter.validateRanges(presenter.configuration.ranges, presenter.configuration.separator);
+            presenter.drawRanges(initRanges.shouldDrawRanges);
 
-        var initRanges = presenter.validateRanges(presenter.configuration.ranges, presenter.configuration.separator);
-        presenter.drawRanges(initRanges.shouldDrawRanges);
-
-        presenter.configuration.mouseData.clicks = [];
+            presenter.configuration.mouseData.clicks = [];
+        }
 
         presenter.configuration.isCurrentlyVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -1315,12 +1397,57 @@ function AddonLine_Number_create() {
         presenter.parentLeft = false;
     };
 
+    function getCorrectPoints() {
+        var correctPoints = [];
+        $.each(presenter.configuration.shouldDrawRanges, function() {
+            if ($(this)[0].start.value === $(this)[0].end.value) {
+                correctPoints.push($(this)[0].start.value)
+            }
+        });
+
+        $.each(presenter.configuration.otherRanges, function() {
+            if ($(this)[0].start.value === $(this)[0].end.value) {
+                correctPoints.push($(this)[0].start.value)
+            }
+        });
+
+        return correctPoints;
+    }
+
     presenter.setShowErrorsMode = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
 
-        if (presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
+        if (presenter.configuration.dontShowRanges) {
+            presenter.configuration.isShowErrorsMode = true;
+            var correctPoints = getCorrectPoints(),
+            $elem;
+
+            if (presenter.checkedPoints.length === 0) {
+                addInitPoints();
+            }
+
+            presenter.results = {
+                correct: 0,
+                wrong: 0
+            };
+
+            for (var i = 0; i < presenter.checkedPoints.length; i++) {
+                var point = presenter.checkedPoints[i];
+                if (correctPoints.indexOf(point) !== -1) {
+                    $elem = presenter.$view.find(".clickArea[value='" + point + "']");
+                    $elem.next().toggleClass('include correctRangeInclude');
+                    $elem.next().toggleClass('exclude correctRangeExclude');
+                    presenter.results['correct'] += 1;
+                } else {
+                    $elem = presenter.$view.find(".clickArea[value='" + point + "']");
+                    $elem.next().toggleClass('include wrongRangeInclude');
+                    $elem.next().toggleClass('exclude wrongRangeExclude');
+                    presenter.results['wrong'] += 1;
+                }
+            }
+        } else if (presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
             // change single dot to point on axis
             if (presenter.singleDot.value != -1) {
                 var newRange = {
@@ -1384,6 +1511,23 @@ function AddonLine_Number_create() {
         }
     };
 
+    function updateScore() {
+        var correctPoints = getCorrectPoints();
+        presenter.results = {
+            correct: 0,
+            wrong: 0
+        };
+
+        for (var i = 0; i < presenter.checkedPoints.length; i++) {
+            var point = presenter.checkedPoints[i];
+            if (correctPoints.indexOf(point) !== -1) {
+                presenter.results['correct'] += 1;
+            } else {
+                presenter.results['wrong'] += 1;
+            }
+        }
+    }
+
     presenter.getScore = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -1395,8 +1539,15 @@ function AddonLine_Number_create() {
             return 0;
         }
 
-        var validated = validateDrawnRanges();
-        return validated.correct.length;
+        if (presenter.configuration.dontShowRanges) {
+            updateScore();
+
+            return presenter.results.correct;
+        } else {
+            var validated = validateDrawnRanges();
+            return validated.correct.length;
+        }
+
     };
 
     presenter.getMaxScore = function () {
@@ -1420,8 +1571,13 @@ function AddonLine_Number_create() {
             return 0;
         }
 
-        var validated = validateDrawnRanges();
-        return validated.wrong.length;
+        if (presenter.configuration.dontShowRanges) {
+            updateScore();
+            return presenter.results.wrong;
+        } else {
+            var validated = validateDrawnRanges();
+            return validated.wrong.length;
+        }
     };
 
     function validateDrawnRanges() {
@@ -1834,7 +1990,8 @@ function AddonLine_Number_create() {
             axisXFieldValues: axisXFieldValues,
             allRanges: validatedRangesWithAxisXField.value,
             isCustomAxisXValuesSet: validatedAxisXValues.isCustomAxisXValuesSet,
-            ranges: model["Ranges"]
+            ranges: model["Ranges"],
+            dontShowRanges: ModelValidationUtils.validateBoolean(model["Don't show ranges"]) || false
         };
     };
 
@@ -2119,6 +2276,15 @@ function AddonLine_Number_create() {
         };
     };
 
+    presenter.createActionEventData = function(item, action, isCorrect) {
+        return {
+            'source': presenter.configuration.addonID,
+            'item': item,
+            'value': action,
+            'score': isCorrect ? '1' : '0'
+        };
+    }
+
     presenter.createAllOKEventData = function () {
         return {
             'source': presenter.configuration.addonID,
@@ -2139,7 +2305,7 @@ function AddonLine_Number_create() {
     };
 
     presenter.showAnswers = function () {
-        if(!presenter.configuration.isActivity){
+        if (!presenter.configuration.isActivity){
             return;
         }
 
@@ -2147,32 +2313,53 @@ function AddonLine_Number_create() {
 
         presenter.setWorkMode();
 
-        presenter.currentRanges = jQuery.extend(true ,{}, presenter.configuration.drawnRangesData);
+        if (presenter.configuration.dontShowRanges) {
+            presenter.$view.find('.rangeImage').remove();
+            var correctPoints = getCorrectPoints();
 
-        presenter.leftShowAnswers = presenter.parentLeft;
-        if(presenter.leftShowAnswers){
-            presenter.$view.find('.rangeImage').each(function () {
-                if(parseInt($(this).parent()[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
-                    presenter.rangeShowAnswers = $(this);
-                }
+            drawPoints(correctPoints);
+            presenter.$view.find('.rangeImage').each(function() {
+                $(this).addClass('show-answers');
+            });
+        } else {
+            presenter.currentRanges = jQuery.extend(true ,{}, presenter.configuration.drawnRangesData);
+
+            presenter.leftShowAnswers = presenter.parentLeft;
+            if (presenter.leftShowAnswers){
+                presenter.$view.find('.rangeImage').each(function () {
+                    if (parseInt($(this).parent()[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
+                        presenter.rangeShowAnswers = $(this);
+                    }
+                });
+            }
+
+            presenter.$view.find('.rangeImage').remove();
+
+            var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
+
+            $.each(rangesToRemove, function() {
+                presenter.removeRange(this, true);
+            });
+
+            presenter.drawRanges(presenter.configuration.shouldDrawRanges);
+            presenter.drawRanges(presenter.configuration.otherRanges);
+
+            $.each(presenter.configuration.drawnRangesData.ranges, function() {
+                getSelectedRange(this).addClass('show-answers');
             });
         }
-
-        presenter.$view.find('.rangeImage').remove();
-
-        var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
-
-        $.each(rangesToRemove, function() {
-            presenter.removeRange(this, true);
-        });
-
-        presenter.drawRanges(presenter.configuration.shouldDrawRanges);
-        presenter.drawRanges(presenter.configuration.otherRanges);
-
-        $.each(presenter.configuration.drawnRangesData.ranges, function() {
-            getSelectedRange(this).addClass('show-answers');
-        });
     };
+
+    function drawPoints(pointsToDraw) {
+        presenter.$view.find('.rangeImage').remove();
+        presenter.$view.find('.clickArea').each(function() {
+            var $imageContainer = $('<div></div>');
+            $imageContainer.addClass('rangeImage exclude include');
+            if (pointsToDraw.indexOf($(this).attr('value')) != -1) {
+                $(this).parent('').append($imageContainer);
+            }
+        });
+    }
 
     presenter.hideAnswers = function () {
         if(!presenter.configuration.isActivity){
@@ -2180,22 +2367,26 @@ function AddonLine_Number_create() {
         }
         presenter.hideAnswerClicked = true;
 
-        var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
-
-        $.each(rangesToRemove, function() {
-            presenter.removeRange(this, true);
-        });
-
-        presenter.redrawRanges(presenter.currentRanges.ranges);
 
         presenter.$view.find('.show-answers').removeClass('show-answers');
 
-        if(presenter.leftShowAnswers){
-            presenter.$view.find('.stepLine').each(function () {
-                if(parseInt($(this)[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
-                    $(this).append(presenter.rangeShowAnswers);
-                }
+        if (presenter.configuration.dontShowRanges) {
+            drawPoints(presenter.checkedPoints);
+        } else {
+            var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
+
+            $.each(rangesToRemove, function() {
+                presenter.removeRange(this, true);
             });
+            presenter.redrawRanges(presenter.currentRanges.ranges);
+
+            if(presenter.leftShowAnswers){
+                presenter.$view.find('.stepLine').each(function () {
+                    if(parseInt($(this)[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
+                        $(this).append(presenter.rangeShowAnswers);
+                    }
+                });
+            }
         }
 
         presenter.hideAnswerClicked = false;

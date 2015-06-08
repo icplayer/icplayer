@@ -528,6 +528,7 @@
     "Line_Number_property_show_axis_x_values": "Afficher la valeur de l'axe X",
     "Line_Number_property_axis_x_values": "Valeurs de l'axe X",
     "Line_Number_property_disable": "Désactiver",
+	"Line_Number_property_dont_show_ranges": "Don't show ranges",
     "Limited_Check_name": "Vérifications limitées",
     "Limited_Check_info": "Permet d’ajouter un bouton sur lequel cliquer afin d’afficher si les réponses données dans un module spécifique sont justes ou fausses.",
     "Limited_Check_property_check_text": "Vérifier le texte”,

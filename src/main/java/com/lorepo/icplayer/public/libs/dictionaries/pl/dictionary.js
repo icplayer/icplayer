@@ -524,6 +524,7 @@
 	"Line_Number_property_show_axis_x_values": "Pokaż wartości osi X",
 	"Line_Number_property_axis_x_values": "Wartości osi X",
 	"Line_Number_property_disable": "Wyłącz",
+	"Line_Number_property_dont_show_ranges": "Don't show ranges",
 	"Limited_Check_name": "Sprawdź wybrane odpowiedzi",
 	"Limited_Check_info": "Umożliwia dodanie przycisku, którego kliknięcie pozwala sprawdzić poprawność odpowiedzi udzielonych w wybranych modułach.",
 	"Limited_Check_property_check_text" : "Tekst na przycisku",

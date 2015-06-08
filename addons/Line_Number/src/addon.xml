@@ -11,5 +11,6 @@
         <property name="Show Axis X Values" nameLabel="Line_Number_property_show_axis_x_values" type="boolean" />
         <property name="Axis X Values" nameLabel="Line_Number_property_axis_x_values" type="string" />
         <property name="Disable" nameLabel="Line_Number_property_disable" type="boolean" />
+        <property name="Don't show ranges" nameLabel="Line_Number_property_dont_show_ranges" type="boolean" />
     </model>
 </addon>

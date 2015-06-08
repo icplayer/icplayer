@@ -528,6 +528,7 @@
 	"Line_Number_property_show_axis_x_values": "Show Axis X Values",
 	"Line_Number_property_axis_x_values": "Axis X Values",
 	"Line_Number_property_disable": "Disable",
+	"Line_Number_property_dont_show_ranges": "Don't show ranges",
 	"Limited_Check_name": "Limited Check",
 	"Limited_Check_info": "Allows to add a button clicking on which will show whether the answers given in specified modules are correct or wrong.",
 	"Limited_Check_property_check_text" : "Check text",

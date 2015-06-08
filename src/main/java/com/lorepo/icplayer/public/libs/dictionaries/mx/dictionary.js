@@ -525,6 +525,7 @@
 	"Line_Number_property_show_axis_x_values": "Mostrar Valores de eje X ",
 	"Line_Number_property_axis_x_values": "Valores de eje X ",
 	"Line_Number_property_disable": "Deshabilitar",
+	"Line_Number_property_dont_show_ranges": "Don't show ranges",
 	"Limited_Check_name": "Comprobación Limitada",
 	"Limited_Check_info": "Permite añadir un botón que mostrará si las respuestas recibidas en módulos específicos son correctas o incorrectas.",
 	"Limited_Check_property_check_text": "Seleccionar Texto",
