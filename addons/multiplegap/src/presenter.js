@@ -491,6 +491,10 @@ function Addonmultiplegap_create(){
         placeholder.draggable({
             revert : false,
             helper: function() {
+                if (!presenter.isDragPossible()) {
+                    return $('<div></div>');
+                }
+
                 presenter.itemDragged(placeholder);
                 return getDraggedSrc(placeholder).clone().show();
             },
@@ -633,10 +637,6 @@ function Addonmultiplegap_create(){
 
         if (presenter.isAllOK()) sendAllOKEvent();
     };
-
-    function makeAllDraggable() {
-
-    }
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
