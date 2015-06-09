@@ -593,6 +593,8 @@
 	"multiplegap_property_item_vertical_align": "Item vertical align",
 	"multiplegap_property_maximum_item_count": "Maximum item count",
 	"multiplegap_property_is_not_an_activity": "Is not an activity",
+	"multiplegap_property_number_of_repetitions": "Number of repetitions",
+	"multiplegap_property_id_repeated_element": "ID repeated element",
 	"Navigation_Bar_info": "Allows to add a ready-made navigation bar to a presentation. Since it doesn't require any additional configuration, it is enough to insert it into a presentation and enjoy its functions. Because of the addon's extensive styling mechanism, it has a perfect usage in presentation templates.",
 	"Navigation_Bar_name": "Navigation Bar",
 	"Navigation_Bar_property_show_next_prev_arrows": "Show Next and Prev arrows",

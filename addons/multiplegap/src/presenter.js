@@ -24,7 +24,9 @@ function Addonmultiplegap_create(){
         INVALID_ITEM_WIDTH: "Item width has to be greater than 0",
         INVALID_ITEM_HEIGHT: "Item height has to be greater than 0",
         INVALID_ITEM_SPACING: "Item spacing has to be greater or equal than 0",
-        INVALID_MAXIMUM_ITEM_COUNT: "Maximum item count has to be greater or equal than 1"
+        INVALID_MAXIMUM_ITEM_COUNT: "Maximum item count has to be greater or equal than 1",
+        INVALID_NUMBER_OF_REPETITION: "Incorrect value. It should be integer and greater than 0",
+        INVALID_REPEATED_ELEMENT: "Incorrect value. This field should contains only one ID"
     };
 
     presenter.eventBus            = null;
@@ -38,6 +40,7 @@ function Addonmultiplegap_create(){
 
     presenter.showErrorsMode      = false;
     presenter.isShowAnswersActive = false;
+    presenter.itemCounterMode = false;
     presenter.placeholders2drag = [];
 
     presenter.createPreview = function(view, model) {
@@ -82,6 +85,34 @@ function Addonmultiplegap_create(){
         };
     };
 
+    presenter.validateRepetitions = function(number) {
+        if (number === undefined || number === "") {
+            number = 0;
+        }
+        number = parseInt(number, 10);
+        if (isNaN(number) || number < 0) {
+            return {isError: true, errorCode: 'INVALID_NUMBER_OF_REPETITION'};
+        }
+
+        return {
+            isError: false,
+            value: number
+        }
+    };
+
+    presenter.validateIdRepeatedElement = function(id) {
+        id = id || "";
+
+        if (id.indexOf(",") !== -1 || id.indexOf(";") !== -1) {
+            return {isError: true, errorCode: 'INVALID_REPEATED_ELEMENT'};
+        }
+
+        return {
+            isError: false,
+            value: id
+        }
+    };
+
     presenter.validateModel = function (model) {
         var orientation = presenter.ORIENTATIONS.HORIZONTAL;
         if (model['Orientation'] === "vertical") {
@@ -99,7 +130,15 @@ function Addonmultiplegap_create(){
         }
 
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        var validatedRepetitions = presenter.validateRepetitions(model["Number of repetitions"]);
+        var validateRepeatedElement = presenter.validateIdRepeatedElement(model["ID repeated element"]);
 
+        if (validatedRepetitions.isError) {
+            return validatedRepetitions;
+        }
+        if (validateRepeatedElement.isError) {
+            return validateRepeatedElement;
+        }
         return {
             isError: false,
             ID: model.ID,
@@ -109,7 +148,9 @@ function Addonmultiplegap_create(){
             orientation: orientation,
             sourceType: sourceType,
             stretchImages: model['Stretch images?'] == 'True',
-            items: validatedItems.value
+            items: validatedItems.value,
+            repetitions: validatedRepetitions.value,
+            repeatedElement: validateRepeatedElement.value
         };
     };
 
@@ -127,6 +168,14 @@ function Addonmultiplegap_create(){
         container.append(placeholders);
 
         presenter.configuration = presenter.validateModel(model);
+        if (presenter.configuration.repetitions !== undefined &&
+            presenter.configuration.repeatedElement !== undefined &&
+            presenter.configuration.repetitions !== 0 &&
+            presenter.configuration.repeatedElement !== "")
+        {
+            presenter.itemCounterMode = true;
+        }
+
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
 
@@ -176,7 +225,7 @@ function Addonmultiplegap_create(){
         handler.droppable({drop: function(event, ui) { 
 			event.stopPropagation();
 			event.preventDefault();
-        	handler.click() 
+        	handler.click();
         }});
 
         for(var i = 0; i < model['Items'].length; i++) {
@@ -414,7 +463,6 @@ function Addonmultiplegap_create(){
         handler.click(presenter.removeDraggable);
         placeholder.append(handler);
 
-
         if(sendEvents) {
             presenter.eventBus.sendEvent('ItemConsumed', item);
 
@@ -541,6 +589,7 @@ function Addonmultiplegap_create(){
     };
 
     presenter.performRemoveDraggable = function(handler) {
+
         var placeholder = handler.parent();
 
         presenter.$view.find('.placeholder').each(function(i, element) {
@@ -585,6 +634,9 @@ function Addonmultiplegap_create(){
         if (presenter.isAllOK()) sendAllOKEvent();
     };
 
+    function makeAllDraggable() {
+
+    }
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -610,12 +662,30 @@ function Addonmultiplegap_create(){
         if(presenter.isShowAnswersActive){
             presenter.hideAnswers();
         }
+
+        if (presenter.itemCounterMode) {
+            return presenter.configuration.isActivity ? 1 : 0;
+        }
+
         return presenter.configuration.isActivity ? getItemsLength(presenter.items) : 0;
     };
+
+    function getItemsCount() {
+        return presenter.$view.find('.placeholder').length;
+    }
+
+    function isAllCorrect () {
+        return getItemsCount() === presenter.configuration.repetitions;
+    }
 
     presenter.getScore = function() {
         if(presenter.isShowAnswersActive){
             presenter.hideAnswers();
+        }
+        if (presenter.itemCounterMode) {
+            var score = isAllCorrect() ? 1 : 0;
+
+            return presenter.configuration.isActivity ? score : 0;
         }
         return presenter.configuration.isActivity ? presenter.items.length - presenter.getInvalidItems().length : 0;
     };
@@ -624,11 +694,26 @@ function Addonmultiplegap_create(){
         if(presenter.isShowAnswersActive){
             presenter.hideAnswers();
         }
+        if (presenter.itemCounterMode) {
+            var isEmpty = getItemsCount() === 0,
+                result = 0;
+
+            if (!isAllCorrect() && !isEmpty) {
+                result = 1;
+            }
+
+            return presenter.configuration.isActivity ? result : 0;
+        }
+
         return presenter.configuration.isActivity ? presenter.countItems() - presenter.getScore() : 0;
     };
 
     presenter.isAllOK = function() {
         if (!presenter.configuration.isActivity) return;
+
+        if (presenter.itemCounterMode) {
+            return isAllCorrect() ? 1 : 0;
+        }
 
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
@@ -663,17 +748,27 @@ function Addonmultiplegap_create(){
         markInactive();
         if (!presenter.configuration.isActivity) return;
 
-        var remainingItems = presenter.items.slice(0), currentItem;
-        presenter.$view.find('.placeholder').each(function(index, placeholder) {
-            currentItem = $(placeholder).attr('draggableItem');
-            var currentItemIndex = remainingItems.indexOf(currentItem);
-            if (currentItemIndex !== -1) {
-                remainingItems.splice(currentItemIndex, 1);
-                $(placeholder).addClass('placeholder_valid');
+        if (presenter.itemCounterMode) {
+            if (isAllCorrect()) {
+                presenter.$view.find('.multiplegap_placeholders').addClass('placeholder_valid');
+            } else if (getItemsCount() === 0) {
+                presenter.$view.find('.multiplegap_container').addClass('multiplegap_inactive');
+            } else {
+                presenter.$view.find('.multiplegap_placeholders').addClass('placeholder_invalid');
             }
-        });
+        } else {
+            var remainingItems = presenter.items.slice(0), currentItem;
+            presenter.$view.find('.placeholder').each(function(index, placeholder) {
+                currentItem = $(placeholder).attr('draggableItem');
+                var currentItemIndex = remainingItems.indexOf(currentItem);
+                if (currentItemIndex !== -1) {
+                    remainingItems.splice(currentItemIndex, 1);
+                    $(placeholder).addClass('placeholder_valid');
+                }
+            });
 
-        presenter.$view.find('.placeholder:not(.placeholder_valid)').addClass('placeholder_invalid');
+            presenter.$view.find('.placeholder:not(.placeholder_valid)').addClass('placeholder_invalid');
+        }
     };
 
     presenter.setWorkMode = function() {
@@ -683,6 +778,7 @@ function Addonmultiplegap_create(){
 
         presenter.$view.find('.placeholder_valid').removeClass('placeholder_valid');
         presenter.$view.find('.placeholder_invalid').removeClass('placeholder_invalid');
+
     };
 
     presenter.reset = function() {
@@ -856,24 +952,35 @@ function Addonmultiplegap_create(){
         });
 
         presenter.$view.find('.placeholder').remove();
+        var moduleID,
+            iteratedObject;
+        if (presenter.itemCounterMode) {
+            iteratedObject = presenter.configuration.repetitions;
+        } else {
+            iteratedObject = presenter.items.length;
+        }
 
-        for(var i=0; i<presenter.items.length; i++){
-            var moduleID = presenter.items[i];
-
-            if (presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES){
-                presenter.performAcceptDraggable('<div></div>', {type:'string', value: '', item: moduleID}, false, false, false);
-            }else{
-                var elementId = moduleID.split('-')[0],
-                elementIndex = moduleID.split('-')[1],
-                value = presenter.getElementText(elementId, elementIndex);
-
-                presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
+        for (var i = 0; i < iteratedObject; i++) {
+            if (presenter.itemCounterMode) {
+                moduleID = presenter.configuration.repeatedElement;
+            } else {
+                moduleID = presenter.items[i];
             }
+
+            var value = '';
+            if (presenter.configuration.sourceType != presenter.SOURCE_TYPES.IMAGES) {
+                var elementId = moduleID.split('-')[0],
+                    elementIndex = moduleID.split('-')[1];
+
+                value = presenter.getElementText(elementId, elementIndex);
+            }
+
+            presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
         }
     };
 
     presenter.hideAnswers = function () {
-        if(presenter.isShowAnswersActive){
+        if (presenter.isShowAnswersActive) {
             presenter.$view.find('.placeholder-show-answers').remove();
 
             for(var i = 0; i < presenter.tmpState.length; i++) {

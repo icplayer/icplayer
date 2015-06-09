@@ -590,6 +590,8 @@
 	"multiplegap_property_item_vertical_align": "Alineación vertical del elemento",
 	"multiplegap_property_maximum_item_count": "Máximo número de elementos",
 	"multiplegap_property_is_not_an_activity": "No es una actividad",
+	"multiplegap_property_number_of_repetitions": "Number of repetitions",
+	"multiplegap_property_id_repeated_element": "ID repeated element",
 	"Navigation_Bar_info": "Permite añadir una barra de navegación para la presentación. No requiere ninguna configuración adicional, basta con insertarla en la presentación y disfrutar de sus funciones. Debido a su extenso mecanismo de estilos tiene un uso perfecto en plantillas de presentaciones.",
 	"Navigation_Bar_name": "Barra de navegación",
 	"Navigation_Bar_property_show_next_prev_arrows": "Mostrar las flechas Siguiente y Anterior",

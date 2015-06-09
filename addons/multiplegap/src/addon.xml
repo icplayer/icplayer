@@ -15,5 +15,7 @@
 		<property name="Item vertical align" nameLabel="multiplegap_property_item_vertical_align" type="{none, top, bottom, center}" />
 		<property name="Maximum item count" nameLabel="multiplegap_property_maximum_item_count" type="string" />
 		<property name="Is not an activity" nameLabel="multiplegap_property_is_not_an_activity" type="boolean" />
+        <property name="Number of repetitions" nameLabel="multiplegap_property_number_of_repetitions" type="string" />
+        <property name="ID repeated element" nameLabel="multiplegap_property_id_repeated_element" type="string" />
 	</model>
 </addon>
