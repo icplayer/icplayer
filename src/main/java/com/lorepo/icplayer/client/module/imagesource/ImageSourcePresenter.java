@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -29,16 +30,18 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 public class ImageSourcePresenter implements IPresenter, IStateful, ICommandReceiver{
 
 	public interface IDisplay extends IModuleView{
-		public void show();
+		public void show(boolean refreshPosition);
 		public void hide();
 		public void select();
 		public void deselect();
 		public void addListener(IViewListener l);
-		public void getImageUrl();
 		public Element getElement();
 		public void makeDraggable(ImageSourcePresenter imageSourcePresenter);
+		public void getInitialPosition();
 		public void setDisabled(boolean disable);
 		boolean getDisabled();
+		public void unsetDragMode();
+		public void setDragMode();
 	}
 	
 	private ImageSourceModule model;
@@ -100,13 +103,21 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			}
 		});
 		
+		eventBus.addHandler(PageLoadedEvent.TYPE, new PageLoadedEvent.Handler() {
+			public void onPageLoaded(PageLoadedEvent event) {
+				view.getInitialPosition();
+			}
+		});
+		
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
 				if (event.eventName == "ShowAnswers") {
 					canDrag = false;
+					return;
 				} else if (event.eventName == "HideAnswers") {
 					canDrag = true;
+					return;
 				}
 				String gotItem = event.getData().get("item");
 				if (gotItem != getSerialId()) {
@@ -134,7 +145,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			isImageVisible = true;
 			
 			if (isModuleVisible) {
-				view.show();
+				view.show(true);
 			}
 		}
 	}
@@ -148,7 +159,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		canDrag = true;
 		
 		if (isModuleVisible && isImageVisible) {
-			view.show();
+			view.show(true);
 		} else {
 			view.hide();
 		}
@@ -252,7 +263,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		}
 		
 		if (isImageVisible && isModuleVisible) {
-			view.show();
+			view.show(false);
 		} else {
 			view.hide();
 		}
@@ -307,7 +318,15 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		presenter.isDragPossible = function() {
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::isDragPossible()();
-		}
+		};
+		
+		presenter.shouldRevert = function() { 
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::shouldRevert()();
+		};
+		
+		presenter.isRemovable = function() { 
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::isRemovable()();
+		};
 		
 		presenter.disable = function() {
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::disable()();
@@ -317,15 +336,39 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::enable()();
 		}
 		
+		presenter.setDragMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::setDragMode()();
+		}
+		
+		presenter.unsetDragMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::unsetDragMode()();
+		}
+		
 		return presenter;
 	}-*/;
+	
+	public boolean shouldRevert() {
+		return selected;
+	}
+	
+	private boolean isRemovable() {
+		return model.isRemovable();
+	}
+	
+	private void setDragMode() {
+		view.setDragMode();
+	}
+	
+	private void unsetDragMode() {
+		view.unsetDragMode();
+	}
 	
 	private void show(){
 		isModuleVisible = true;
 
 		if (view != null) {
 			if (isImageVisible) {
-				view.show();
+				view.show(true);
 			}
 		}
 	}

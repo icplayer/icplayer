@@ -107,4 +107,12 @@ public class SourceListViewMockup implements IDisplay {
 		
 	}
 
+	public void setDragMode() {
+		// TODO Auto-generated method stub
+	}
+
+	public void unsetDragMode() {
+		// TODO Auto-generated method stub
+	}
+	
 }

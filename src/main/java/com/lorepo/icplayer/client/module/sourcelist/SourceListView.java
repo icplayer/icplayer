@@ -8,6 +8,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -25,8 +29,10 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private HashMap<String, Label>	labels = new HashMap<String, Label>();
 	private IViewListener listener;
 	private boolean isDragged = false;
+	private boolean isTouchSupported = false;
 	private boolean isPreview = false;
 	private SourceListPresenter presenter = null;
+	private Label labelToRemove = null;
 	
 	public SourceListView(SourceListModule module, boolean isPreview){
 
@@ -54,7 +60,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 
 
 	private void fireClickEvent(String id) {
-		if(listener != null){
+		if(!isDragged && listener != null){
 			listener.onItemCliked(id);
 		}
 	}
@@ -65,7 +71,18 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		}
 	}
 
+	public void setDragMode() {
+		isDragged = true;
+	}
 
+	public void unsetDragMode() {
+		isDragged = false;
+		if (labelToRemove != null) {
+			remove(labelToRemove);
+			labelToRemove = null;
+		}
+	}
+	
 	@Override
 	public void selectItem(String id) {
 
@@ -98,23 +115,39 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			refreshMath(label.getElement());
 		}
 		
-		label.addClickHandler(new ClickHandler() {
+		label.addTouchEndHandler(new TouchEndHandler() {
+
+			@Override
+			public void onTouchEnd(TouchEndEvent event) {
+				isTouchSupported = true;
+				fireClickEvent(id);
+			}
 			
+		});
+		
+		label.addClickHandler(new ClickHandler() {
+
 			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 				event.preventDefault();
-				if (!isDragged) {
+			}
+		
+		});
+		
+		label.addMouseUpHandler(new MouseUpHandler() {
+			
+			@Override
+			public void onMouseUp(MouseUpEvent event) {
+				if (!isTouchSupported) {
 					fireClickEvent(id);
 				}
-				isDragged = false;
 			}
 		});
 		label.addDragStartHandler(new DragStartHandler() {
 			
 			@Override
 			public void onDragStart(DragStartEvent event) {
-				isDragged = true;
 				itemDragged(id);
 			}
 		});
@@ -141,7 +174,11 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	public void removeItem(String id) {
 		Label label = labels.get(id);
 		if (label != null) {
-			remove(label);
+			if (isDragged) {
+				labelToRemove = label;
+			} else {
+				remove(label);
+			}
 		}
 	}
 

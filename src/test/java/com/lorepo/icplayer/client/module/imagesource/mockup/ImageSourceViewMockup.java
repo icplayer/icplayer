@@ -52,13 +52,7 @@ public class ImageSourceViewMockup implements IDisplay {
 	}
 
 	@Override
-	public void getImageUrl() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void show() {
+	public void show(boolean refreshPosition) {
 		isVisible = true;
 	}
 
@@ -74,6 +68,12 @@ public class ImageSourceViewMockup implements IDisplay {
 	}
 
 	@Override
+	public void getInitialPosition() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void setDisabled(boolean disable) {
 		// TODO Auto-generated method stub
 		
@@ -83,5 +83,17 @@ public class ImageSourceViewMockup implements IDisplay {
 	public boolean getDisabled() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void unsetDragMode() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDragMode() {
+		// TODO Auto-generated method stub
+		
 	}
 }

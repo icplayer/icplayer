@@ -1,3 +1,4 @@
+2015-06-10 Fixed issue with returning item to the source in copy mode
 2015-06-09 Fixed issue with dragging in Show Answers mode in Multiple Gap module
 2015-06-09 Added new properties 'Number of repetitions' and 'ID repeated element'
 2015-06-08 Fixed issue with scoring in Line Number module

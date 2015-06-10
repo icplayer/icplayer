@@ -46,6 +46,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public Element getItem(String id);
 		public Set<String> getCurrentLabels();
 		public void setPresenter(SourceListPresenter p);
+		public void setDragMode();
+		public void unsetDragMode();
 	}
 	
 	private IDisplay view;
@@ -365,8 +367,40 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::isDragPossible()();
 		};
 		
+		presenter.shouldRevert = function(){ 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::shouldRevert()();
+		};
+		
+		presenter.isRemovable = function(){ 
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::isRemovable()();
+		};
+		
+		presenter.setDragMode = function(){
+			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::setDragMode()();
+		}
+		
+		presenter.unsetDragMode = function(){
+			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::unsetDragMode()();
+		}
+		
 		return presenter;
 	}-*/;
+	
+	private void setDragMode() {
+		view.setDragMode();
+	}
+	
+	private void unsetDragMode() {
+		view.unsetDragMode();
+	}
+	
+	private boolean shouldRevert() {
+		return (selectedId == null) ? false : true;
+	}
+	
+	private boolean isRemovable() {
+		return model.isRemovable();
+	}
 	
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
