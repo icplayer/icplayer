@@ -131,7 +131,6 @@ function AddonColoring_create(){
         clickedArea.setPixelPosition();
         clickedArea.colorToFill = [255, 255, 255, 255];
 
-
         for(var i = 0; i < configuration.areas.length; i++) {
             var area = configuration.areas[i];
 
@@ -167,6 +166,49 @@ function AddonColoring_create(){
     function isAreaColored(area) {
         return (presenter.allColoredPixels.indexOf(area.pixelPosition) != -1);
     }
+
+    presenter.clearArea = function (x, y) {
+        presenter.fillArea(x, y, '255 255 255 255');
+    };
+
+    presenter.fillArea = function (x, y, color) {
+        presenter.isColored = true;
+
+        presenter.click = {
+          x: parseInt(x, 10),
+          y: parseInt(y, 10)
+        };
+
+        presenter.click.color = presenter.getColorAtPoint(presenter.click.x, presenter.click.y);
+
+        if(color == undefined){
+            presenter.fillColor = presenter.configuration.currentFillingColor;
+        }else{
+            var validatedDefaultFillingColor = presenter.validateColor(color);
+            if (validatedDefaultFillingColor.isError) {
+                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, validatedDefaultFillingColor.errorCode);
+                return;
+            }
+
+            presenter.fillColor = validatedDefaultFillingColor.value;
+        }
+
+        if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
+            if(!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive){
+                presenter.floodFill(
+                    presenter.click,
+                    presenter.fillColor,
+                    presenter.configuration.tolerance
+                );
+            }
+
+            if (!presenter.isAlreadyInColorsThatCanBeFilled(presenter.fillColor)) {
+                presenter.configuration.colorsThatCanBeFilled.push(presenter.fillColor)
+            }
+        }
+
+        presenter.allColoredPixels = [];
+    };
 
     presenter.clickLogic = function(e, isTouch) {
         e.stopPropagation();
@@ -672,7 +714,9 @@ function AddonColoring_create(){
             'setEraserOn' : presenter.setEraserOn,
             'isAttempted' : presenter.isAttempted,
             'showAnswers' : presenter.showAnswers,
-            'hideAnswers' : presenter.hideAnswers
+            'hideAnswers' : presenter.hideAnswers,
+            'fillArea' : presenter.fillAreaCommand,
+            'clearArea' : presenter.clearAreaCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -682,6 +726,14 @@ function AddonColoring_create(){
         presenter.configuration.isErase = true;
         presenter.configuration.lastUsedColor = presenter.configuration.currentFillingColor;
         presenter.configuration.currentFillingColor = [255, 255, 255, 255];
+    };
+
+    presenter.clearAreaCommand = function (coordinates){
+        presenter.clearArea(coordinates[0], coordinates[1]);
+    };
+
+    presenter.fillAreaCommand = function(coordinatesAndColor) {
+        presenter.fillArea(coordinatesAndColor[0], coordinatesAndColor[1], coordinatesAndColor[2]);
     };
 
     presenter.setColorCommand = function(color) {
