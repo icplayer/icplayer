@@ -22,6 +22,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean isFilledGap = false;
 	private JavaScriptObject jsObject = null;
 	private ITextViewListener listener;
+	private boolean isDragMode = false;
 	
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		
@@ -81,12 +82,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	}-*/;
 	
 	private void itemDragged() {
+		isDragMode = true;
 		if (listener != null) {
 			listener.onGapDragged(gapInfo.getId());
 		}
 	}
 	
 	private void itemStopped() {
+		isDragMode = false;
 		if (listener != null) {
 			listener.onGapStopped(gapInfo.getId());
 		}
@@ -144,6 +147,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			super.setHTML(EMPTY_TEXT);
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
+			if (!isDragMode) {
+				JavaScriptUtils.destroyDraggable(getElement());
+			}
 		} else {
 			String markup = StringUtils.markup2html(StringUtils.escapeHTML(text));
 			super.setHTML(markup);
