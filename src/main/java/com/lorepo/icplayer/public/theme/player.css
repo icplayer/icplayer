@@ -267,6 +267,13 @@ hr, table, fieldset {
 	cursor: pointer; 	
 }
 
+.ic_button_lesson_reset {
+	background-image	:url('images/reset.png');
+	background-repeat	:no-repeat;
+	background-position	:center;
+	cursor: pointer; 	
+}
+
 .ic_button_popup{
 	background-image	:url('images/popup.png');
 	background-repeat	:no-repeat;

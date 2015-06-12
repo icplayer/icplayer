@@ -16,4 +16,5 @@ public interface IScoreService {
 	void loadFromString(String state);
 	void setPageScore(IPage page, PageScore score);
 	public ScoreType getScoreType();
+	void lessonScoreReset(boolean resetChecks, boolean resetMistakes);
 }

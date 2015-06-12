@@ -1,3 +1,4 @@
+2015-06-12 Added new module Lesson Reset
 2015-06-12 Fixed issue with dragging empty gap in Text module
 2015-06-11 Added fillArea and clearArea command to Coloring module
 2015-06-10 Fixed issue with returning item to the source in copy mode

@@ -149,4 +149,29 @@ public class ScoreService implements IScoreService {
 	public void setPlayerService(IPlayerServices playerServices) {
 		this.playerServices = playerServices;	
 	}
+	
+	@Override
+	public void lessonScoreReset(boolean resetChecks, boolean resetMistakes) {
+		for (int i=0; i<playerServices.getModel().getPageCount(); i++) {
+			IPage currentPage = playerServices.getModel().getPage(i);
+			if (currentPage.isReportable()) {
+				PageScore pageScore = playerServices.getScoreService().getPageScore(currentPage.getId());
+				if (pageScore.hasScore()) {
+					PageScore score;
+					
+					if (resetChecks && !resetMistakes) {
+						score = pageScore.resetScoreAndChecks();
+					}else if (!resetChecks && resetMistakes) {
+						score = pageScore.resetScoreAndMistakes();
+					}else if (resetChecks && resetMistakes){
+						score = pageScore.resetAllScores();
+					}else {
+						score = pageScore.reset();
+					}				
+					
+					playerServices.getScoreService().setPageScore(currentPage, score);
+				}
+			}
+		}
+	}
 }

@@ -8,4 +8,5 @@ public interface IStateService {
 	String getAsString();
 	void loadFromString(String string);
 	HashMap<String, String> getStates();
+	void resetStates();
 }

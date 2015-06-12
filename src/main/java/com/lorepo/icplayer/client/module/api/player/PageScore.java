@@ -132,7 +132,18 @@ public class PageScore {
 	public PageScore reset() {
 		return new PageScore(0, maxScore, checkCount, 0, mistakeCount);  
 	}
-
+	
+	public PageScore resetAllScores() {
+		return new PageScore(0, maxScore, 0, 0, 0);
+	}
+	
+	public PageScore resetScoreAndMistakes() {
+		return new PageScore(0, maxScore, checkCount, 0, 0);
+	}
+	
+	public PageScore resetScoreAndChecks() {
+		return new PageScore(0, maxScore, 0, 0, mistakeCount);
+	}
 
 	public PageScore updateScore(float score, float maxScore, int errorCount) {
 		return new PageScore(score, maxScore, checkCount, 

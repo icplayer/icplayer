@@ -32,6 +32,9 @@ import com.lorepo.icplayer.client.module.imagegap.ImageGapView;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourceModule;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourceView;
+import com.lorepo.icplayer.client.module.lessonreset.LessonResetModule;
+import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter;
+import com.lorepo.icplayer.client.module.lessonreset.LessonResetView;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckModule;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckView;
@@ -91,6 +94,9 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if(xmlNodeName.compareTo("limitedResetModule") == 0){
 			module = new LimitedResetModule();
+		}
+		else if(xmlNodeName.compareTo("lessonResetModule") == 0){
+			module = new LessonResetModule();
 		}
 		else if(xmlNodeName.compareTo("choiceModule") == 0){
 			module = new ChoiceModel();
@@ -155,6 +161,9 @@ public class ModuleFactory implements IModuleFactory{
 		else if(module instanceof LimitedResetModule){
 			return new LimitedResetView((LimitedResetModule)module, services);
 		}
+		else if(module instanceof LessonResetModule){
+			return new LessonResetView((LessonResetModule)module, services);
+		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterView((CheckCounterModule) module, isPreview);
 		}
@@ -212,6 +221,9 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if (module instanceof LimitedResetModule) {
 			return new LimitedResetPresenter((LimitedResetModule) module, services);
+		}
+		else if (module instanceof LessonResetModule) {
+			return new LessonResetPresenter((LessonResetModule) module, services);
 		}
 		else if(module instanceof CheckCounterModule){
 			return new CheckCounterPresenter((CheckCounterModule) module, services);

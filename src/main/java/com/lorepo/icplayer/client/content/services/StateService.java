@@ -38,4 +38,8 @@ public class StateService implements IStateService{
 	public HashMap<String, String> getStates() {
 		return sessionState;
 	}
+	
+	public void resetStates() {
+		sessionState.clear();
+	}
 }
