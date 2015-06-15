@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="1.9.9" />
+    <property name="version" value="2.0.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -15,6 +15,7 @@
             <arg line="--js src/model-validation.js" />
             <arg line="--js src/loading-screen.js" />
             <arg line="--js src/dom-operations.js" />
+            <arg line="--js src/draggable-droppable-object.js" />
             <arg line="--js src/states-serialization.js" />
             <arg line="--js src/watermark.js" />
             <arg line="--js src/helpers.js" />
@@ -23,7 +24,7 @@
             <arg line="--js src/image-viewer.js" />
             <arg line="--js src/string-utils.js" />
             <arg line="--js src/text-parser.js" />
-        	<arg line="--js src/internationalization.js" />
+            <arg line="--js src/internationalization.js" />
             <arg line="--js src/loadedPromise.js" />
             <arg line="--js_output_file bin/commons-${version}/commons.js" />
         </java>
@@ -35,6 +36,7 @@
  * - Model Validation Utils
  * - Loading Screen
  * - DOM Operations
+ * - Draggable Droppable Object
  * - States Serialization
  * - Watermark
  * - Commands

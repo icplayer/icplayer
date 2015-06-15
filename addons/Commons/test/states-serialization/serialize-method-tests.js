@@ -1,4 +1,4 @@
-TestCase("Serialize method tests", {
+TestCase("[Commons - States Serialization] Serialize method tests", {
     'test undefined': function() {
         // Given
 
@@ -26,7 +26,7 @@ TestCase("Serialize method tests", {
         var state = {
             "test" : "test"
         };
-        var expectedStateString = "[test:string:test]"
+        var expectedStateString = "[test:string:test]";
 
         // When
         var stateString = Serialization.serialize(state);

@@ -1,4 +1,4 @@
-TestCase("Sounds loading", {
+TestCase("[Commons - Image Viewer] Sounds loading", {
     setUp: function() {
         this.sounds = [{
             AAC: "/file/sound.aac",

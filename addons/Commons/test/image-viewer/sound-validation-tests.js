@@ -1,4 +1,4 @@
-TestCase("Sound validation", {
+TestCase("[Commons - Image Viewer] Sound validation", {
     'test undefined': function() {
         var validationResult = ImageViewer.validateSound(undefined);
 

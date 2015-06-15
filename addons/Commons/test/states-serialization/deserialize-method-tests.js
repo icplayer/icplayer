@@ -1,4 +1,4 @@
-TestCase("Deserialize method tests", {
+TestCase("[Commons - States Serialization] Deserialize method tests", {
     'test undefined': function() {
         // Given
 

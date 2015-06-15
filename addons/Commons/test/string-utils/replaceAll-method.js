@@ -1,4 +1,4 @@
-TestCase("Replace All method", {
+TestCase("[Commons - String Utils] Replace All method", {
      setUp: function () {
          this.text = "((+Lorem$ $ ips?um dolor^5 sit - amet, [conse**ctetur] adipis{i}cing ^elit. 2\\3Inte,ger tin$cidunt?. a ^dui id ||vehicula. +)";
      },

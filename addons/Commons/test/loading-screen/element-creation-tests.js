@@ -1,4 +1,4 @@
-TestCase("Element creation", {
+TestCase("[Commons - Loading Screen] Element creation", {
     'test element creation': function() {
         /*:DOC += <div id="element-creation"></div> */
 

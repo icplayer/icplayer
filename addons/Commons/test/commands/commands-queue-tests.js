@@ -1,4 +1,4 @@
-TestCase("Commands queue - creation", {
+TestCase("[Commons - Commands] Commands queue - creation", {
     setUp: function () {
         this.presenter = { };
     },
@@ -11,7 +11,7 @@ TestCase("Commands queue - creation", {
     }
 });
 
-TestCase("Commands queue - adding tasks", {
+TestCase("[Commons - Commands] Commands queue - adding tasks", {
     setUp: function () {
         this.presenter = { };
     },
@@ -40,7 +40,7 @@ TestCase("Commands queue - adding tasks", {
     }
 });
 
-TestCase("Commands queue - tasks retrieval", {
+TestCase("[Commons - Commands] Commands queue - tasks retrieval", {
     setUp: function () {
         this.presenter = { };
         this.queue = CommandsQueueFactory.create(this.presenter);
@@ -95,7 +95,7 @@ TestCase("Commands queue - tasks retrieval", {
     }
 });
 
-TestCase("Commands queue - tasks execution", {
+TestCase("[Commons - Commands] Commands queue - tasks execution", {
     setUp: function () {
         this.presenter = {
             executeCommand: function(name, params) {}
@@ -157,7 +157,7 @@ TestCase("Commands queue - tasks execution", {
     }
 });
 
-TestCase("Commands queue - tasks count and emptiness", {
+TestCase("[Commons - Commands] Commands queue - tasks count and emptiness", {
     setUp: function () {
         this.presenter = { };
         this.queue = CommandsQueueFactory.create(this.presenter);

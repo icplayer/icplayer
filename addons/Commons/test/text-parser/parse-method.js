@@ -1,4 +1,4 @@
-TestCase("parse method", {
+TestCase("[Commons - Text Parser] parse method", {
     setUp:  function () {
        this.textParser = new TextParserProxy({ parse: function(string) {return string;} });
 

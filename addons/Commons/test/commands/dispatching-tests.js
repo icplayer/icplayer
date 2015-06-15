@@ -1,4 +1,4 @@
-TestCase("Commands dispatching", {
+TestCase("[Commons - Commands] Commands dispatching", {
     setUp: function() {
         this.commands = {
             'nextFrame': function(params) {

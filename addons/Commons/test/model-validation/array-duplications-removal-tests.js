@@ -1,4 +1,4 @@
-TestCase("Array duplication removal", {
+TestCase("[Commons - Model Validation Utils] Array duplication removal", {
     'test empty array': function () {
         var cleanedArray = ModelValidationUtils.removeDuplicatesFromArray([]);
 

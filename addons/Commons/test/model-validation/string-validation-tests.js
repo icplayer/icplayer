@@ -1,4 +1,4 @@
-TestCase("String validation", {
+TestCase("[Commons - Model Validation Utils] String validation", {
     'test undefined value': function() {
         var validationResult = ModelValidationUtils.isStringEmpty(undefined);
 
@@ -24,7 +24,7 @@ TestCase("String validation", {
     }
 });
 
-TestCase("String with prefix validation", {
+TestCase("[Commons - Model Validation Utils] String with prefix validation", {
     'test undefined value': function() {
         var validationResult = ModelValidationUtils.isStringWithPrefixEmpty(undefined, undefined);
 

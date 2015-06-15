@@ -1,4 +1,4 @@
-TestCase("endsWith method", {
+TestCase("[Commons - String Utils] endsWith method", {
     'test proper suffix': function () {
         var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ";
         var suffix = ". ";

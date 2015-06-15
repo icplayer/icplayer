@@ -1,4 +1,4 @@
-TestCase("Integer validation", {
+TestCase("[Commons - Model Validation Utils] Integer validation", {
     'test undefined value':function () {
         var validationResult = ModelValidationUtils.validateInteger(undefined);
 
@@ -42,7 +42,7 @@ TestCase("Integer validation", {
     }
 });
 
-TestCase("Positive integer validation", {
+TestCase("[Commons - Model Validation Utils] Positive integer validation", {
     'test undefined value':function () {
         var validationResult = ModelValidationUtils.validatePositiveInteger(undefined);
 
@@ -72,7 +72,7 @@ TestCase("Positive integer validation", {
     }
 });
 
-TestCase("Integer in range validation", {
+TestCase("[Commons - Model Validation Utils] Integer in range validation", {
     'test value lower than minimum': function () {
         var validationResult = ModelValidationUtils.validateIntegerInRange('1', 4, 2);
 
@@ -107,7 +107,7 @@ TestCase("Integer in range validation", {
     }
 });
 
-TestCase("Float validation", {
+TestCase("[Commons - Model Validation Utils] Float validation", {
     'test undefined value': function () {
         var validationResult = ModelValidationUtils.validateFloat(undefined, undefined);
 
@@ -144,7 +144,7 @@ TestCase("Float validation", {
     }
 });
 
-TestCase("Float in range validation", {
+TestCase("[Commons - Model Validation Utils] Float in range validation", {
     'test value lower than minimum': function () {
         var validationResult = ModelValidationUtils.validateFloatInRange('1.0', 4, 2, undefined);
 

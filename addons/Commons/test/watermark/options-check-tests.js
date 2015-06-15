@@ -1,4 +1,4 @@
-TestCase("Watermark options check", {
+TestCase("[Commons - Watermark] Watermark options check", {
     'test options undefined': function() {
         var validatedOptions = Watermark.validateOptions(undefined);
 

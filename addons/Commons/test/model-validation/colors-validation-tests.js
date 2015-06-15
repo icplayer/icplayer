@@ -1,4 +1,4 @@
-TestCase("Colors validation", {
+TestCase("[Commons - Model Validation Utils] Colors validation", {
     'test undefined value': function() {
         var validationResult = ModelValidationUtils.validateColor(undefined, undefined);
 

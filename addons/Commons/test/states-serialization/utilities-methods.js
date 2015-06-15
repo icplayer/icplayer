@@ -1,4 +1,4 @@
-TestCase("Utilities methods tests", {
+TestCase("[Commons - States Serialization] Utilities methods tests", {
     'test isInteger method': function() {
         // Given
         var integer = 1;

@@ -1,4 +1,4 @@
-TestCase("Frames list validation", {
+TestCase("[Commons - Image Viewer] Frames list validation", {
     'test list undefined': function () {
         var conversionResult = ImageViewer.convertFramesList(undefined, undefined, undefined);
 

@@ -1,4 +1,4 @@
-TestCase("Resource location", {
+TestCase("[Commons - Dom Operations] Resource location", {
     setUp: function () {
         this.controller = {
             staticFilesPath: "http://images.google.com/",

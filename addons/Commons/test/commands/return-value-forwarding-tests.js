@@ -1,4 +1,4 @@
-TestCase("Commands return value forwarding", {
+TestCase("[Commons - Commands] Commands return value forwarding", {
     setUp: function() {
         this.commands = {
             'getSomeValue': function() {},

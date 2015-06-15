@@ -1,4 +1,4 @@
-TestCase("Watermark drawing", {
+TestCase("[Commons - Watermark] Watermark drawing", {
     'test draw element with default options': function() {
         /*:DOC += <div id="watermark-draw"></div> */
 

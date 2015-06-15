@@ -1,4 +1,4 @@
-TestCase("Get screen number", {
+TestCase("[Commons - Loading Screen] Get screen number", {
     'test get screen number which exists': function() {
         LoadingScreen.screens = [{
             id: '1111-2222'

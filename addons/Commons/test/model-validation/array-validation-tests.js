@@ -1,4 +1,4 @@
-TestCase("Array element validation", {
+TestCase("[Commons - Model Validation Utils] Array element validation", {
     'test undefined value': function() {
         var validationResult = ModelValidationUtils.isArrayElementEmpty(undefined);
 
@@ -29,7 +29,7 @@ TestCase("Array element validation", {
         assertFalse(validationResult);
     }
 });
-TestCase("Array validation", {
+TestCase("[Commons - Model Validation Utils] Array validation", {
     'test undefined value': function() {
         var validationResult = ModelValidationUtils.isArrayEmpty(undefined);
 

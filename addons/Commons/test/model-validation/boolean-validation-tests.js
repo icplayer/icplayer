@@ -1,4 +1,4 @@
-TestCase("Boolean validation", {
+TestCase("[Commons - Model Validation Utils] Boolean validation", {
     'test undefined value': function() {
         var validationResult = ModelValidationUtils.validateBoolean(undefined);
 

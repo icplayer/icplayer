@@ -1,4 +1,4 @@
-TestCase("Option validation", {
+TestCase("[Commons - Model Validation Utils] Option validation", {
     setUp: function() {
         this.option = {
             'option1': 'OPTION_1',

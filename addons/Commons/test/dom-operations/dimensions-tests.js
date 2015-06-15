@@ -1,4 +1,4 @@
-TestCase("Get outer dimensions", {
+TestCase("[Commons - Dom Operations] Get outer dimensions", {
     'test missing styles': function() {
         /*:DOC += <div id="element1"></div> */
         var expectedDimensions = {
@@ -26,7 +26,7 @@ TestCase("Get outer dimensions", {
     }
 });
 
-TestCase("Calculate outer distance", {
+TestCase("[Commons - Dom Operations] Calculate outer distance", {
     'test proper dimensions': function() {
         var dimensions = {
             border: { top: 1, bottom: 2, left: 3, right: 2 },
@@ -44,7 +44,7 @@ TestCase("Calculate outer distance", {
     }
 });
 
-TestCase("Calculate reduced size", {
+TestCase("[Commons - Dom Operations] Calculate reduced size", {
     'test simple calculation': function() {
         /*:DOC += <div id="element-reduced-size-wrapper" style="width: 200px; height: 140px;"></div> */
         /*:DOC += <div id="element-reduced-size" style="border:4px solid gray; margin: 2px 3px 4px 5px; padding: 3px 2px 1px 2px;"></div> */
@@ -59,7 +59,7 @@ TestCase("Calculate reduced size", {
     }
 });
 
-TestCase("Set reduced size", {
+TestCase("[Commons - Dom Operations] Set reduced size", {
     'test simple calculation': function() {
         /*:DOC += <div id="element-set-size-wrapper" style="width: 200px; height: 140px;"></div> */
         /*:DOC += <div id="element-set-size" style="border:4px solid gray; margin: 2px 3px 4px 5px; padding: 3px 2px 1px 2px;"></div> */
@@ -76,7 +76,7 @@ TestCase("Set reduced size", {
     }
 });
 
-TestCase("Show error message", {
+TestCase("[Commons - Dom Operations] Show error message", {
     setUp: function() {
         this.ERROR_CODES = {
             'ERR_01': "Error message 1",

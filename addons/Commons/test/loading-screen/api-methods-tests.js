@@ -1,4 +1,4 @@
-TestCase("API methods", {
+TestCase("[Commons - Loading Screen] API methods", {
     setUp: function() {
         this.mockedElement = {
             show: function() { },

@@ -1,4 +1,4 @@
-TestCase("startsWith method", {
+TestCase("[Commons - String Utils] startsWith method", {
     'test proper prefix': function () {
         var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ";
         var prefix = "Lorem";
