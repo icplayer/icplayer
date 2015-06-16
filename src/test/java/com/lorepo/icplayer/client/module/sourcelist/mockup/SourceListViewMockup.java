@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.sourcelist.mockup;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.sourcelist.IViewListener;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
@@ -113,6 +112,18 @@ public class SourceListViewMockup implements IDisplay {
 
 	public void unsetDragMode() {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void hideItem(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showItem(String id) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

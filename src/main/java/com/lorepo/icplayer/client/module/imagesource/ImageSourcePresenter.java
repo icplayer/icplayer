@@ -9,7 +9,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -52,6 +51,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	private boolean isModuleVisible;
 	private JavaScriptObject jsObject;
 	private boolean canDrag = true;
+	private boolean returned = false;
 	
 	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services) {
 		this.model = model;
@@ -125,8 +125,14 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 				}
 				if (event.eventName == "itemDragged") {
 					imageSelected();
+					if (model.isRemovable()) {
+						view.hide();
+					}
 				} else if (event.eventName == "itemStopped") {
 					imageDeselected();
+					if (model.isRemovable() && returned) {
+						view.show(true);
+					}
 				}
 			}
 		});
@@ -137,6 +143,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		if (model.getId().compareTo(draggableItem.getId()) == 0 && model.isRemovable()) {
 			view.hide();
 			isImageVisible = false;
+			returned = false;
 		}
 	}
 
@@ -146,6 +153,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			
 			if (isModuleVisible) {
 				view.show(true);
+				returned = true;
 			}
 		}
 	}

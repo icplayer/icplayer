@@ -48,6 +48,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void setPresenter(SourceListPresenter p);
 		public void setDragMode();
 		public void unsetDragMode();
+		public void hideItem(String id);
+		public void showItem(String id);
 	}
 	
 	private IDisplay view;
@@ -58,6 +60,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
 	private boolean canDrag = true;
+	private boolean returned = false;
 	
 	
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
@@ -124,7 +127,13 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 				}
 				if (event.eventName == "itemDragged") {
 					selectItem(gotItem);
+					if (model.isRemovable()) {
+						view.hideItem(gotItem);
+					}
 				} else if (event.eventName == "itemStopped") {
+					if (model.isRemovable() && returned) {
+						view.showItem(gotItem);
+					}
 					deselectCurrentItem();
 					ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
 					playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
@@ -142,19 +151,18 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	
 	private void itemConsumed(ItemConsumedEvent event) {
-		
+		returned = false;
 		deselectCurrentItem();
 		if(model.isRemovable()){
 			removeItem(event.getItem().getId());
 		}
 	}
-	
 	private String getItemPrefix() {
 		return model.getId() + "-";
 	}
 	
 	protected void returnItem(DraggableItem item) {
-
+		returned = true;
 		if(model.isRemovable()) {
 			if(item.getId().startsWith(getItemPrefix())) {
 				items.put(item.getId(), item.getValue());

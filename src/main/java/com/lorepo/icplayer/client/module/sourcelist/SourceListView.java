@@ -190,6 +190,22 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			label.removeStyleName(SELECTED_STYLE);
 		}
 	}
+	
+	@Override
+	public void showItem(String id) {
+		Label label = labels.get(id);
+		if (label != null) {
+			label.setVisible(true);
+		}
+	}
+	
+	@Override
+	public void hideItem(String id) {
+		Label label = labels.get(id);
+		if (label != null) {
+			label.setVisible(false);
+		}
+	}
 
 
 	@Override

@@ -1,3 +1,4 @@
+2015-06-16 Fixed issue with dragging in SourceList and ImageSource modules
 2015-06-15 Added compiled Commons library in version 2.0.0 to icplayer libs
 2015-06-15 Added DraggableDroppableObject: New object which is draggable and droppable - in Commons (now in version 2.0.0)
 2015-06-12 Added new module Lesson Reset
