@@ -280,6 +280,13 @@ function AddonFigureDrawing_create(){
         y: 0,
         isSelected: false,
     }
+    presenter.drawingPoint = {
+        row: 0,
+        column: 0,
+        x: 0,
+        y: 0,
+        isDown: false,
+    }
     var gcd = function(a, b) {
         if (!b) {
             return a;
@@ -310,6 +317,24 @@ function AddonFigureDrawing_create(){
         var firstPoint = presenter.$view.find('.point')[0];
         presenter.$view.find('.chart')[0].insertBefore(newLine,firstPoint);
         if (!presenter.isShowAnswersActive && presenter.coloring) drawLineOnCanvas(point1.x,point1.y,point2.x,point2.y);
+    }
+    function drawTempLine(point1, point2) {
+        line = presenter.$view.find('.templine');
+        if (line.length > 0) {
+            line.attr('y1',point1.y);
+            line.attr('x1',point1.x);
+            line.attr('y2',point2.y);
+            line.attr('x2',point2.x);
+        } else {
+            var newLine = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            newLine.setAttribute("y1",point1.y);
+            newLine.setAttribute("x1",point1.x);
+            newLine.setAttribute("y2",point2.y);
+            newLine.setAttribute("x2",point2.x);
+            newLine.setAttribute("class","templine");
+            var firstPoint = presenter.$view.find('.point')[0];
+            presenter.$view.find('.chart')[0].insertBefore(newLine,firstPoint);
+        }
     }
     function drawLineOnCanvas(x1,y1,x2,y2) {
         presenter.ctx.beginPath();
@@ -539,16 +564,17 @@ function AddonFigureDrawing_create(){
         //double canvas fix
         if (presenter.coloring && MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) {
             var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
-            if (["4.1.1", "4.1.2", "4.2.2", "4.3"].indexOf(android_ver) !== -1) {
+            if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
                 presenter.$view.find('.canvas').parents("*").css("overflow", "visible");
             }
         }
     }
     presenter.run = function(view, model){
         var row, column, x, y;
-        var timeClick = true;
+        var timeClick = true, abandon = false;
         presenter.initiate(view, model);
         presenter.coloredAreas = [];
+        presenter.down = false;
         if (!presenter.error) {
             presenter.drawGrid();
             validateLines(presenter.StartingLines,true,false);
@@ -580,35 +606,76 @@ function AddonFigureDrawing_create(){
         };
         var point1, point2;
 
-        presenter.$view.find('.point').on('mousedown touchstart', function(e){
+        presenter.$view.find('.point').on('mouseup touchend', function(e){
             if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && timeClick) {
                 e.stopPropagation();
                 e.preventDefault();
-                if (e.type != 'mousedown') timeClick = false;
+                abandon = false;
+                if (e.type != 'mouseup') timeClick = false;
                 setTimeout(function(){timeClick = true;},400);
-                if (!presenter.selected.isSelected) {
-                    presenter.selected.row = parseInt($(this).attr('row'),10);
-                    presenter.selected.column = parseInt($(this).attr('column'),10);
-                    presenter.selected.x = parseInt($(this).attr('cx'),10);
-                    presenter.selected.y = parseInt($(this).attr('cy'),10);
-                    presenter.selected.isSelected = true;
-                    $(this).addClass('selected');
+                if (e.type == 'mouseup') {
+                    row = parseInt($(this).attr('row'),10);
+                    column = parseInt($(this).attr('column'),10);
+                    x = parseInt($(this).attr('cx'),10);
+                    y = parseInt($(this).attr('cy'),10);
                 } else {
-                    if (presenter.selected.row == $(this).attr('row') && presenter.selected.column == $(this).attr('column')) {
-                        presenter.selected.isSelected = false;
-                        $(this).removeClass('selected');
+                    row = findClosestPoint(presenter.mouseSX,presenter.mouseSY).row;
+                    column = findClosestPoint(presenter.mouseSX,presenter.mouseSY).column;
+                    x = countX(column);
+                    y = countY(row);
+                    if ((presenter.grid3D && (column + row) % 2 == 0) || Math.abs(x-presenter.mouseSX) + Math.abs(y-presenter.mouseSY) > 30 || row < 1 || column < 1 || row > presenter.pointsY + 1 || (presenter.grid3D && column > 2*(presenter.pointsX)+1) || (!presenter.grid3D && column > presenter.pointsX + 1))
+                        abandon = true;
+                }
+                if (!presenter.selected.isSelected && !abandon) {
+                    if (presenter.drawingPoint.row == row && presenter.drawingPoint.column == column) {
+                        presenter.selected.row = row;
+                        presenter.selected.column = column;
+                        presenter.selected.x = x;
+                        presenter.selected.y = y;
+                        presenter.selected.isSelected = true;
+                        $(this).addClass('selected');
                     } else {
-                        presenter.isStarted = true;
-                        point1 = new Point(presenter.selected.row, presenter.selected.column, presenter.selected.x, presenter.selected.y);
-                        row = parseInt($(this).attr('row'),10);
-                        column = parseInt($(this).attr('column'),10);
-                        x = parseInt($(this).attr('cx'),10);
-                        y = parseInt($(this).attr('cy'),10);
+                        point1 = new Point(presenter.drawingPoint.row, presenter.drawingPoint.column, presenter.drawingPoint.x, presenter.drawingPoint.y);
                         point2 = new Point(row, column, x, y);
                         presenter.drawLine(point1,point2,false,true,false,true);
+                        presenter.isStarted = true;
                         if (presenter.coloring) presenter.redrawCanvas(false);
-                        presenter.$view.find('.point').removeClass('selected');
+                        //if blockColoring mode check if is OK
+                        if (presenter.activity && presenter.allLinesDrawn()) {
+                            var item = 'lines';
+                            var value = '';
+                            var score = '';
+                            presenter.triggerEvent(item,value,score);
+                            if (presenter.blockColoring) presenter.setColorMode();
+                        }
+                    }
+                } else if (!abandon) {
+                    if (presenter.drawingPoint.row == row && presenter.drawingPoint.column == column) {
+                        if (presenter.selected.row != row || presenter.selected.column != column) {
+                            point1 = new Point(presenter.selected.row, presenter.selected.column, presenter.selected.x, presenter.selected.y);
+                            point2 = new Point(row, column, x, y);
+                            presenter.drawLine(point1,point2,false,true,false,true);
+                            presenter.isStarted = true;
+                            presenter.selected.isSelected = false;
+                            presenter.$view.find('.point').removeClass('selected');
+                            if (presenter.coloring) presenter.redrawCanvas(false);
+                            //if blockColoring mode check if is OK
+                            if (presenter.activity && presenter.allLinesDrawn()) {
+                                var item = 'lines';
+                                var value = '';
+                                var score = '';
+                                presenter.triggerEvent(item,value,score);
+                                if (presenter.blockColoring) presenter.setColorMode();
+                            }
+                        }
                         presenter.selected.isSelected = false;
+                        presenter.$view.find('.point').removeClass('selected');
+                    } else {
+                        point1 = new Point(presenter.drawingPoint.row, presenter.drawingPoint.column, presenter.drawingPoint.x, presenter.drawingPoint.y);
+                        point2 = new Point(row, column, x, y);
+                        presenter.drawLine(point1,point2,false,true,false,true);
+                        presenter.isStarted = true;
+                        if (presenter.coloring) presenter.redrawCanvas(false);
                         //if blockColoring mode check if is OK
                         if (presenter.activity && presenter.allLinesDrawn()) {
                             var item = 'lines';
@@ -619,7 +686,25 @@ function AddonFigureDrawing_create(){
                         }
                     }
                 }
-            }
+            };
+            presenter.$view.find('.templine').remove();
+            presenter.drawingPoint.isDown = false;
+        });
+        presenter.$view.find('.point').on('mousedown touchstart', function(e){
+            presenter.$view.find('.templine').remove();
+            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode) {
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.drawingPoint.row = parseInt($(this).attr('row'),10);
+                presenter.drawingPoint.column = parseInt($(this).attr('column'),10);
+                presenter.drawingPoint.x = parseInt($(this).attr('cx'),10);
+                presenter.drawingPoint.y = parseInt($(this).attr('cy'),10);
+                presenter.drawingPoint.isDown = true;
+                if (e.type == 'touchstart') {
+                    presenter.mouseSX = presenter.drawingPoint.x;
+                    presenter.mouseSY = presenter.drawingPoint.y;
+                }
+            };
         });
         presenter.$view.on('mousedown touchstart', function(e){
             e.stopPropagation();
@@ -646,6 +731,33 @@ function AddonFigureDrawing_create(){
                     presenter.triggerEvent(item,value,score);
                 }
             }
+        });
+        presenter.$view.on('mousemove touchmove', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && presenter.drawingPoint.isDown) {
+                point1 = new Point(presenter.drawingPoint.row, presenter.drawingPoint.column, presenter.drawingPoint.x, presenter.drawingPoint.y);
+                if (e.type == 'mousemove') {
+                    coordinations.x = e.originalEvent.pageX;
+                    coordinations.y = e.originalEvent.pageY;
+                } else {
+                    coordinations.x = e.originalEvent.touches[0].pageX;
+                    coordinations.y = e.originalEvent.touches[0].pageY;
+                };
+                presenter.mouseSX = parseInt(coordinations.x,10) - parseInt(presenter.figure.offset().left,10);
+                presenter.mouseSY = parseInt(coordinations.y,10) - parseInt(presenter.figure.offset().top,10);
+                if (presenter.mouseSX < 0 || presenter.mouseSX > presenter.figure.width() || presenter.mouseSY < 0 || presenter.mouseSY > presenter.figure.height()) {
+                    presenter.drawingPoint.isDown = false;
+                    presenter.$view.find('.templine').remove();
+                } else {
+                    point2 = new Point(0, 0, presenter.mouseSX, presenter.mouseSY);
+                    drawTempLine(point1, point2);
+                }
+            }
+        });
+        presenter.$view.on('mouseup mouseleave touchend touchleave', function(e){
+            presenter.drawingPoint.isDown = false;
+            presenter.$view.find('.templine').remove();
         });
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
@@ -931,6 +1043,19 @@ function AddonFigureDrawing_create(){
             }
             if (presenter.coloring) presenter.redrawCanvas(false);
         }
+    }
+    function findClosestPoint(x,y) {
+        if (presenter.grid3D) {
+            var column = parseInt((x * 2 + 0.25 * presenter.grid)/presenter.grid);
+            var row = parseInt(3*(y + 1/6 * presenter.grid - 0.5 * presenter.grid)/presenter.grid)+1;
+        } else {
+            var column = parseInt((x + 0.5 * presenter.grid)/presenter.grid);
+            if (x - countX(column) > 0.5 * presenter.grid) column++;
+            var row = parseInt((y + 0.5 * presenter.grid)/presenter.grid);
+            if (y - countY(row) > 0.5 * presenter.grid) row++;
+        }
+        point = new Point(row, column, x, y);
+        return point;
     }
     function floodFill(startingPixel,fillColor) {
         var imgData = presenter.ctx.getImageData(0, 0, presenter.canvasWidth, presenter.canvasHeight);

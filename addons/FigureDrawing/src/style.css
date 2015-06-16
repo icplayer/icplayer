@@ -48,6 +48,11 @@
 .line.show-answers{
     stroke: gray;
 }
+.templine {
+    stroke:#4C92FD;
+    stroke-width:4;
+    stroke-linecap: round;
+}
 .figure .icon-container {
     border: 1px solid #111111;
     border-radius: 50%;
