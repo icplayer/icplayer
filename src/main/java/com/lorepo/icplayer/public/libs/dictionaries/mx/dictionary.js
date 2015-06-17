@@ -1044,7 +1044,7 @@
 	"Basic_Math_Gaps_property_gap_signs_subtraction": "Resta",
 	"Basic_Math_Gaps_property_gap_signs_division": "División",
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Multiplicación",
-	"Basic_Math_Gaps_property_gap_type": "Tipo de espacio"
+	"Basic_Math_Gaps_property_gap_type": "Tipo de espacio",
 	"Lesson_Progress_info": "",
 	"Lesson_Progress_name": "Progreso de la lección",
 	"Lesson_Progress_property_show_progress_bar": "Mostrar barra de progreso",
@@ -1127,5 +1127,8 @@
 	"MenuPanel_property_horizontal_alignment": "Alineación horizontal",
 	"MenuPanel_property_vertical_alignment": "Alineación vertical",
 	"MenuPanel_property_auto_expand": "Auto expandir",
-	"MenuPanel_property_disable": "Deshabilitar"
+	"MenuPanel_property_disable": "Deshabilitar",
+    "SelectableAddonsBinder_name" : "Selectable Addons Binder",
+    "SelectableAddonsBinder_info" : "Allows to control groups of selectable addons",
+    "SelectableAddonsBinder_property_addons" : "Addons"
 };

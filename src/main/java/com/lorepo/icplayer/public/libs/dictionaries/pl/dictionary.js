@@ -1126,5 +1126,8 @@
 	"MenuPanel_property_horizontal_alignment": "Wyrównanie w poziomie",
 	"MenuPanel_property_vertical_alignment": "Wyrównanie w pionie",
 	"MenuPanel_property_auto_expand": "Auto rozwinięcie",
-	"MenuPanel_property_disable": "Wyłącz"
+	"MenuPanel_property_disable": "Wyłącz",
+    "SelectableAddonsBinder_name" : "Selectable Addons Binder",
+    "SelectableAddonsBinder_info" : "Allows to control groups of selectable addons",
+    "SelectableAddonsBinder_property_addons" : "Addons"
 };

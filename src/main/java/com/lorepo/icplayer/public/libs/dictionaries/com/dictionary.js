@@ -1134,5 +1134,8 @@
 	"MenuPanel_property_horizontal_alignment": "Horizontal Alignment",
 	"MenuPanel_property_vertical_alignment": "Vertical Alignment",
 	"MenuPanel_property_auto_expand": "Auto Expand",
-	"MenuPanel_property_disable": "Disable"
+	"MenuPanel_property_disable": "Disable",
+    "SelectableAddonsBinder_name" : "Selectable Addons Binder",
+    "SelectableAddonsBinder_info" : "Allows to control groups of selectable addons",
+    "SelectableAddonsBinder_property_addons" : "Addons"
 };

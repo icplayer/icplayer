@@ -63,6 +63,7 @@ Plot
 PointsLines
 Points_To_Plot
 Puzzle
+SelectableAddonsBinder
 Shape_Tracing
 Show_Answers
 Single_State_Button
