@@ -375,7 +375,7 @@ function AddonFractions_create(){
     presenter.markAsEmpty = function(){
         presenter.hideAnswers();
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
-        presenter.isErrorCheckingMode = true;
+        presenter.isErrorCheckingMode = false;
         $($myDiv).removeClass('incorrect');
         $($myDiv).removeClass('correct');
     };
