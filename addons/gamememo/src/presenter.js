@@ -645,6 +645,8 @@ function Addongamememo_create(){
         presenter.prepareGrid();
         presenter.createGrid();
         presenter.concealAllCards();
+
+        MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.viewContainer.find(".gamememo_container")[0])});
     };
 
     presenter.getErrorCount = function() {
