@@ -47,6 +47,7 @@
     background: transparent;
     border: none;
     -webkit-appearance: none;
+    text-transform: uppercase;
 }
 
 .crossword_container .cell .word_number {

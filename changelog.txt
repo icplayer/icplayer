@@ -1,3 +1,4 @@
+2015-06-18 Fixed issue with displaying uppercase letters in crossword module
 2015-06-17 Added new module Selectable Addons Binder
 2015-06-17 Fixed issue with MathJax in Memo Game module
 2015-06-17 Added changes in Fractions module
