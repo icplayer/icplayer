@@ -61,11 +61,13 @@ function AddonPage_Score_Counter_create(){
     presenter.attachEventHandler = function () {
         if (presenter.page.isReportable()) {
             presenter.eventBus.addEventListener('ValueChanged', this);
+            presenter.eventBus.addEventListener('PageLoaded', this);
         }
     };
     function runLogic(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.configuration = presenter.validateModel(model);
+        presenter.isPreview = isPreview;
 
         presenter.setVisibility(presenter.configuration.isVisible);
 
@@ -96,6 +98,10 @@ function AddonPage_Score_Counter_create(){
             updateView();
             presenter.sendEvent('ValueChanged', presenter.createEventData(presenter.currentScore));
         }
+        if (eventName == 'PageLoaded') {
+            presenter.countScore();
+            updateView();
+        }
     };
 
     presenter.countScore = function () {
@@ -124,11 +130,28 @@ function AddonPage_Score_Counter_create(){
     }
 
     presenter.run = function(view, model) {
-        runLogic(view, model, false);
+       runLogic(view, model, false);
+
+        if(presenter.configuration.displayMode == presenter.DISPLAY_MODE.FRACTION){
+            presenter.$fractionWrapper.find('.score').text('0');
+            presenter.$fractionWrapper.find('.max-score').html('0');
+        }
+        if(presenter.configuration.displayMode == presenter.DISPLAY_MODE.SCORE){
+            presenter.$scoreWrapper.text('0');
+            presenter.$scoreWrapper.removeClass('hidden');
+            presenter.$view.find('.separator').css('display', 'none');
+        }
+        if(presenter.configuration.displayMode == presenter.DISPLAY_MODE.MAX_SCORE){
+            presenter.$maxScoreWrapper.text('0');
+            presenter.$maxScoreWrapper.removeClass('hidden');
+            presenter.$view.find('.separator').css('display', 'none');
+        }
     };
 
     presenter.reset = function() {
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.currentScore = 0;
+        updateView();
     };
 
     presenter.setVisibility = function (isVisible) {
