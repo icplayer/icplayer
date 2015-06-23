@@ -12,6 +12,9 @@ function AddonIWB_Toolbar_create() {
      *          zoom mode is activated, IWB Toolbar needs to prevent execution of those handlers. For instance,
      *          TextAudio binds a handler to span elements. Those handlers needs to be removed for as long as zoom
       *         mode is active and reinstated when zoom mode is deactivated.
+      *
+      *      Incomplete erasing on Android:
+      *      Issue occurs sometimes without known reason. The helpful solution was workaround redrawing canvas.
      */
 
     function getCorrectObject(val) { return { isValid: true, value: val } }
@@ -558,6 +561,15 @@ function AddonIWB_Toolbar_create() {
                 } else if (presenter.drawMode == presenter.DRAW_MODE.ERASER) {
                     presenter.IWBDraw(presenter.markerCanvas, presenter.markerCtx, getCursorPosition(e));
                     presenter.IWBDraw(presenter.canvas, presenter.ctx, getCursorPosition(e));
+
+                    var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+                    if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
+                        $('canvas').css('opacity', '0.99');
+
+                        setTimeout(function() {
+                            $('canvas').css('opacity', '1');
+                        }, 5);
+                    }
                 }
                 presenter.lastMousePosition = getCursorPosition(e);
             }
@@ -582,7 +594,6 @@ function AddonIWB_Toolbar_create() {
             e.stopPropagation();
             e.preventDefault();
             lastEvent = e;
-
             presenter.isMouseDown = false;
             setOverflowWorkAround(false);
         }
@@ -896,7 +907,6 @@ function AddonIWB_Toolbar_create() {
     function eraserClickHandler(button){
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
-
         panelView(button);
         presenter.$pagePanel.find('.iwb_tmp_canvas').hide();
 
@@ -2255,7 +2265,6 @@ function AddonIWB_Toolbar_create() {
         }
 
         presenter.$selectingMask.hide();
-
         if (isDrawingActive() || presenter.$pagePanel.find('.eraser').hasClass('clicked')) {
             presenter.$penMask.show();
             presenter.$markerMask.show();

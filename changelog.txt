@@ -1,3 +1,4 @@
+2015-06-20 Fixed issue with erasing in IWB Toolbar module
 2015-06-23 Fixed issue with displaying addon in player and preview in Page Score Counter module
 2015-06-18 Fixed issue with displaying uppercase letters in crossword module
 2015-06-17 Added new module Selectable Addons Binder
