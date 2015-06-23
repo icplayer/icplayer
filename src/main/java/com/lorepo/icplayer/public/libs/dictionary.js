@@ -82,7 +82,7 @@
 	"amount" : "Amount",
 	"page_height_size_message" : "Page height must be greater than 0",
 	"cant_save_duplicate" : "Can't save duplicated page: ",
-	"error_loading_addon" : "Error loading addon descriptor from: ",
+	"error_loading_addon" : "Error loading addon.\n Are you trying to copy a private addon to another space? Source: ",
 	"delete_page_confirmation" : "You are going to delete page:\n ",
 	"delete_item_confirmation" : "You are going to remove item:\n",
 	"delete_chapter_confirmation" : "You are going to delete chapter:\n ",
