@@ -2,7 +2,7 @@ AddAttributeTests = TestCase("Add Attribute");
 
 AddAttributeTests.prototype.setUp = function() {
     this.presenter = Addonvideo_create();
-}
+};
 
 AddAttributeTests.prototype.testAddPosterAttribute = function() {
 	// Given
@@ -15,4 +15,4 @@ AddAttributeTests.prototype.testAddPosterAttribute = function() {
 	
 	// Then
 	assertEquals("", expectedVideo.attr('poster'), video.attr('poster'));
-}
+};

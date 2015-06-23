@@ -1,6 +1,4 @@
 function Addonvideo_create() {
-
-
     var presenter = function() {};
 
     presenter.currentMovie = 0;
@@ -62,13 +60,13 @@ function Addonvideo_create() {
                 break;
         }
 
-        return errorMessage += ' Please refresh page.';
+        return errorMessage + ' Please refresh page.';
     };
 
     presenter.videoTypes = [
-        	{ name : 'MP4 video', type : 'video/mp4'},
-        	{ name : 'Ogg video', type : 'video/ogg'},
-        	{ name : 'WebM video', type : 'video/webm'}
+        { name : 'MP4 video', type : 'video/mp4'},
+        { name : 'Ogg video', type : 'video/ogg'},
+        { name : 'WebM video', type : 'video/webm'}
     ];
 
     presenter.VIDEO_STATE = {
@@ -89,7 +87,7 @@ function Addonvideo_create() {
             scale = videoFSWidth / moduleWidth,
             xProportion = screenWidth / moduleWidth,
             yProportion = screenHeight / moduleHeight,
-            offsetX, offsetY, element, transformation;
+            offsetX, offsetY, $element, transformation;
 
         if (yProportion < xProportion) {
             videoFSHeight = screenHeight;
@@ -108,25 +106,25 @@ function Addonvideo_create() {
         offsetY = Math.round(offsetY * 100) / 100;
 
         for (i = 0; i < presenter.captions.length; i++) {
-            element = presenter.captions[i].element;
+            $element = $(presenter.captions[i].element);
 
             if (presenter.configuration.isFullScreen) {
-                if ($(element).attr('oldLeft')) continue;
+                if ($element.attr('oldLeft')) continue;
 
-                top = parseInt($(element).css('top'), 10);
-                left = parseInt($(element).css('left'), 10);
+                top = parseInt($element.css('top'), 10);
+                left = parseInt($element.css('left'), 10);
 
                 newTop = parseInt(top * scale, 10);
                 newLeft = parseInt(left * scale, 10);
 
-                $(element).attr({
+                $element.attr({
                     oldTop: top,
                     oldLeft: left,
-                    oldWidth: $(element).width(),
-                    oldHeight: $(element).height()
+                    oldWidth: $element.width(),
+                    oldHeight: $element.height()
                 });
                 transformation = 'scale(' + scale + ')';
-                $(element).css({
+                $element.css({
                     '-webkit-transform-origin': 'top left',
                     '-moz-transform-origin': 'top left',
                     '-ms-transform-origin': 'top left',
@@ -141,12 +139,12 @@ function Addonvideo_create() {
                     'transform': transformation
                 });
             } else {
-                newLeft = $(element).attr('oldLeft');
-                newTop = $(element).attr('oldTop');
+                newLeft = $element.attr('oldLeft');
+                newTop = $element.attr('oldTop');
                 transformation = 'scale(1.0)';
-                $(element).css({
-                    width: $(element).attr('oldWidth') + 'px',
-                    height: $(element).attr('oldHeight') + 'px',
+                $element.css({
+                    width: $element.attr('oldWidth') + 'px',
+                    height: $element.attr('oldHeight') + 'px',
                     top: newTop + 'px',
                     left: newLeft + 'px',
                     position: 'absolute',
@@ -158,7 +156,7 @@ function Addonvideo_create() {
                     'transform': ''
                 });
 
-                $(element).removeAttr('oldWidth oldHeight oldTop oldLeft');
+                $element.removeAttr('oldWidth oldHeight oldTop oldLeft');
             }
         }
 
@@ -234,7 +232,7 @@ function Addonvideo_create() {
 
         if (!presenter.isVisibleByDefault) presenter.hide();
 
-        this.video.addEventListener('click', function(e){ e.stopPropagation(); });
+        this.video.addEventListener('click', function(e) { e.stopPropagation(); });
         this.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
         this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
         this.video.addEventListener('play', function() {
@@ -261,8 +259,7 @@ function Addonvideo_create() {
         presenter.$view.html(presenter.getVideoErrorMessage(error.code));
     };
 
-    presenter.createPreview = function(view, model){
-        var showVideo = presenter.validatePositiveInteger(model["Show video"], 1);
+    presenter.createPreview = function(view, model) {
         this.files = model.Files;
         this.$view = $(view);
         this.videoContainer = $(view).find('.video-container:first');
@@ -369,9 +366,9 @@ function Addonvideo_create() {
             presenter.sendVideoEndedEvent();
             presenter.reload();
 
-        	if(isFullScreen && document.webkitExitFullscreen) {
-        		document.webkitExitFullscreen();
-        	}
+            if (isFullScreen && document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
 
             if (presenter.configuration.isFullScreen) {
                 fullScreenChange();
@@ -404,13 +401,18 @@ function Addonvideo_create() {
         this.reload();
 
         $(this.video).on('canplay', function() {
-            if(this.currentTime < currentTime){
+            if (this.currentTime < currentTime) {
                 this.currentTime = currentTime;
                 this.startTime = currentTime;
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
                 $(this).off('canplay');
             }
         });
+    };
+
+    presenter.getIOSVersion = function(userAgent) {
+        var match = /CPU OS ([\d_]+) like Mac OS X/.exec(userAgent);
+        return match === null ? '' : match[1];
     };
 
     presenter.addAttributePoster = function(video, posterSource) {
@@ -421,38 +423,39 @@ function Addonvideo_create() {
             }
 
             var video_width = presenter.configuration.dimensions.video.width,
-                video_height = presenter.configuration.dimensions.video.height,
+                video_height = presenter.configuration.dimensions.video.height;
 
-                poster_click = function(e) {
-                    e.stopPropagation();
-                    presenter.$view.find('.poster-wrapper').remove();
-                    video.attr('controls', true);
-                    presenter.video.play();
-                };
+            var $poster_wrapper = $('<div>');
+            $poster_wrapper.width(video_width);
+            $poster_wrapper.height(video_height);
+            $poster_wrapper.addClass('poster-wrapper');
+            $poster_wrapper.on('click', function(e) {
+                e.stopPropagation();
+                $(this).remove();
+                video.attr('controls', true);
+                presenter.video.play();
+            });
 
-            var poster_wrapper = $('<div>');
-            poster_wrapper.width(video_width);
-            poster_wrapper.height(video_height);
-            poster_wrapper.addClass('poster-wrapper');
-            poster_wrapper.on('click', poster_click);
+            var $poster = $('<img>');
+            $poster.attr('src', posterSource);
+            $poster.width(video_width);
+            $poster.height(video_height);
+            $poster_wrapper.append($poster);
 
-            var poster = $('<img>');
-            poster.attr('src', posterSource);
-            poster.width(video_width);
-            poster.height(video_height);
-            poster_wrapper.append(poster);
+            var $playBTN = $('<div>');
+            $playBTN.addClass('video-poster-play');
+            $playBTN.css({top:(video_height-80)/2, left:(video_width-80)/2});
+            $poster_wrapper.append($playBTN);
 
-            var play_btn = $('<div>');
-            play_btn.addClass('video-poster-play');
-            play_btn.css({top:(video_height-80)/2, left:(video_width-80)/2});
-            poster_wrapper.append(play_btn);
+            video.parent().append($poster_wrapper);
 
-            video.parent().append(poster_wrapper);
-
-            // Default video controls should be disabled to enable events on poster
-            video.attr('controls', false);
-        }
-        else {
+            if (presenter.getIOSVersion(navigator.userAgent) === '8_3') {
+                video.attr('controls', true);
+            } else {
+                // Default video controls should be disabled to enable events on poster
+                video.attr('controls', false);
+            }
+        } else {
             video.attr('poster', '');
             presenter.$view.find('.poster-wrapper').remove();
         }
@@ -472,10 +475,10 @@ function Addonvideo_create() {
         var $video = $(this.video);
         var files = this.files;
         this.addAttributePoster($video, files[this.currentMovie].Poster);
-        if(!presenter.defaultControls) {
+        if (!presenter.defaultControls) {
             $video.removeAttr('controls');
         }
-        if(presenter.isPreview) {
+        if (presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {
             $video.attr('preload', 'auto');
@@ -582,7 +585,6 @@ function Addonvideo_create() {
             presenter.convertLinesToCaptions(Helpers.splitLines(subtitles));
             $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
-                //var captions = $(presenter.videoContainer[0]).find("div.captions");
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.captionDivs])();
             });
         }
@@ -683,7 +685,7 @@ function Addonvideo_create() {
     presenter.hide = function() {
         if (!presenter.isCurrentlyVisible) return;
 
-        if(presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
+        if (presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
             this.video.pause();
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
             presenter.isHideExecuted = true;
@@ -718,10 +720,10 @@ function Addonvideo_create() {
     };
 
     presenter.onStalledEventHandler = function () {
-    	var video = this;
+        var video = this;
 
         if (!presenter.commandsQueue.isQueueEmpty() && video.readyState >= 2) {
-        	presenter.isVideoLoaded = true;
+            presenter.isVideoLoaded = true;
             presenter.commandsQueue.executeAllTasks();
         }
     };
@@ -756,7 +758,6 @@ function Addonvideo_create() {
 
 
     presenter.stop = function () {
-
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('stop', []);
             return;

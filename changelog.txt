@@ -1,3 +1,4 @@
+2015-06-23 Fixed issue with controls on iPad in video module
 2015-06-23 Added changes to Clock module
 2015-06-23 Fixed issue with erasing in IWB Toolbar module
 2015-06-23 Fixed issue with displaying addon in player and preview in Page Score Counter module
