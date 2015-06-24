@@ -1,3 +1,4 @@
+2015-06-24 Fixed issue with transparency on Check and Show Answers in Image Gap module
 2015-06-24 Fixed issue with dragging in Sourcelist and Imagesource modules
 2015-06-23 Fixed issue with controls on iPad in video module
 2015-06-23 Added changes to Clock module

@@ -13,8 +13,8 @@ public class ImageGapViewMockup implements IDisplay {
 	private String style;
 	private boolean disabled;
 	private boolean visible = true;
-	
-	
+
+
 	public ImageGapViewMockup(ImageGapModule module) {
 		// TODO Auto-generated constructor stub
 	}
@@ -28,7 +28,7 @@ public class ImageGapViewMockup implements IDisplay {
 		return listener;
 	}
 
-	
+
 	public String getImageUrl(){
 		return imageUrl;
 	}
@@ -52,7 +52,7 @@ public class ImageGapViewMockup implements IDisplay {
 	public void resetStyles() {
 		style = "default";
 	}
-	
+
 	public String getStyle(){
 		return style;
 	}
@@ -61,7 +61,7 @@ public class ImageGapViewMockup implements IDisplay {
 	public void setDisabled(boolean disable) {
 		this.disabled = disable;
 	}
-	
+
 	public boolean isDisabled(){
 		return disabled;
 	}
@@ -75,7 +75,7 @@ public class ImageGapViewMockup implements IDisplay {
 	public void hide() {
 		visible = false;
 	}
-	
+
 	public boolean isVisible(){
 		return visible;
 	}
@@ -83,13 +83,13 @@ public class ImageGapViewMockup implements IDisplay {
 	@Override
 	public void markGapAsEmpty() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void markGapAsWrong() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -107,15 +107,15 @@ public class ImageGapViewMockup implements IDisplay {
 	@Override
 	public void showCorrectAnswers() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void makeDraggable(ImageGapPresenter imageGapPresenter) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	@Override
 	public boolean getDisabled() {
 		// TODO Auto-generated method stub
@@ -125,6 +125,12 @@ public class ImageGapViewMockup implements IDisplay {
 	@Override
 	public void makeDroppable(ImageGapPresenter imageGapPresenter) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void removeClass(String string) {
+		// TODO Auto-generated method stub
+
 	}
 }

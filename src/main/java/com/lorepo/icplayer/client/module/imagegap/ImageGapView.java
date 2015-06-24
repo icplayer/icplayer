@@ -19,11 +19,11 @@ public class ImageGapView extends Image implements IDisplay {
 	private static final String DISABLED_STYLE = "disabled";
 	private static final String EMPTY_STYLE = "empty";
 	private static final String SHOW_CORRECT_STYLE = "correct-answer";
-	
-	private ImageGapModule module;
+
+	private final ImageGapModule module;
 	private IViewListener listener;
 	private boolean disabled = false;
-	
+
 	public ImageGapView(ImageGapModule module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -42,11 +42,11 @@ public class ImageGapView extends Image implements IDisplay {
 		}
 		setImageUrl("");
 		getElement().setId(module.getId());
-		
 	}
-	
+
 	private void connectHandlers() {
 		addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 				event.preventDefault();
@@ -73,7 +73,7 @@ public class ImageGapView extends Image implements IDisplay {
 		String style = getUrl().indexOf(HOLLOW_IMAGE) < 0 ? WRONG_STYLE : EMPTY_STYLE;
 		addStyleDependentName(style);
 	}
-	
+
 	@Override
 	public void showCorrectAnswers() {
 		addStyleDependentName(SHOW_CORRECT_STYLE);
@@ -91,7 +91,7 @@ public class ImageGapView extends Image implements IDisplay {
 		removeStyleDependentName(FILLED_STYLE);
 		removeStyleDependentName(EMPTY_STYLE);
 		removeStyleDependentName(SHOW_CORRECT_STYLE);
-		
+
 		if (getUrl().indexOf(HOLLOW_IMAGE) < 0) {
 			addStyleDependentName(FILLED_STYLE);
 		}
@@ -113,10 +113,10 @@ public class ImageGapView extends Image implements IDisplay {
 	public boolean getDisabled() {
 		return this.disabled;
 	}
-	
+
 	@Override
 	public void show() {
-		setVisible(true);		
+		setVisible(true);
 	}
 
 	@Override
@@ -133,28 +133,34 @@ public class ImageGapView extends Image implements IDisplay {
 	@Override
 	public void markGapAsWrong() {
 		resetStyles();
-		addStyleDependentName(WRONG_STYLE);		
+		addStyleDependentName(WRONG_STYLE);
 	}
 
 	@Override
 	public boolean isAttempted() {
 		return getUrl().indexOf(HOLLOW_IMAGE) < 0;
 	}
-	
+
+	@Override
 	public void makeDraggable(ImageGapPresenter presenter) {
 		JavaScriptUtils.makeDroppedDraggable(getElement(), presenter.getAsJavaScript());
 	}
-	
+
+	@Override
 	public void makeDroppable(ImageGapPresenter presenter) {
 		JavaScriptUtils.makeDropable(getElement(), presenter.getAsJavaScript());
 	}
-	
+
 	public native static void removeDroppable(Element e) /*-{
 		$wnd.$(e).droppable( "option", "disabled", true );
 	}-*/;
-	
+
 	public native static void reDroppableElement(Element e) /*-{
 		$wnd.$(e).droppable( "option", "disabled", false );
 	}-*/;
-	
+
+	@Override
+	public void removeClass(String className) {
+		StyleUtils.removeClassFromElement(this, className);
+	}
 }
