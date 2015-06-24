@@ -189,6 +189,12 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		if(label != null){
 			label.removeStyleName(SELECTED_STYLE);
 		}
+
+		if(module.isVertical()){
+			DOMUtils.applyInlineStyle(label.getElement(), "display: block;");
+		} else {
+			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block; white-space: nowrap; position: relative");
+		}
 	}
 	
 	@Override

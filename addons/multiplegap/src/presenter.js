@@ -245,12 +245,13 @@ function Addonmultiplegap_create(){
 
             if(typeof(eventData.item) == "undefined" || eventData.item === null) {
                 presenter.clearSelected();
-
             } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES && eventData.type == "image") {
                 presenter.saveSelected(eventData);
 
             } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.TEXTS && eventData.type == "string") {
                 presenter.saveSelected(eventData);
+            } else {
+                presenter.clearSelected();
             }
         }
     };
