@@ -82,7 +82,7 @@
 	"amount" : "Ilość",
 	"page_height_size_message" : "Wysokość strony musi być większa niż 0",
 	"cant_save_duplicate" : "Nie można zapisać duplikatu strony: ",
-	"error_loading_addon" : "Błąd podczas wczytywania deskryptora addonu z: ",
+	"error_loading_addon" : "Błąd podczas wczytywania addonu. \n Czy próbujesz skopiować addon prywatny do innej przestrzeni? Źródło: ",
 	"delete_page_confirmation" : "Zamierzasz usunąć stronę:\n ",
 	"delete_item_confirmation" : "Zamierzasz usunąć element:\n",
 	"delete_chapter_confirmation" : "Zamierzasz usunąć rozdział:\n ",
