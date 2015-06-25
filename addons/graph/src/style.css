@@ -15,6 +15,7 @@
     left: 10px;
     bottom: 10px;
     right: 10px;
+    -ms-touch-action: none;
 }
 
 .graph_axis_y_description {
