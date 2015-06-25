@@ -26,13 +26,27 @@
         $(errorElement).text(errorMessage);
         viewContainer.html(errorElement);
     }
- 
+
+     function doesConnectionExist() {
+         var xhr = new ( window.ActiveXObject || XMLHttpRequest )( "Microsoft.XMLHTTP" );
+
+         //YouTube API key is generated in lorepocorporate google account
+         xhr.open( "HEAD", "https://www.googleapis.com/youtube/v3/videos?id=7lCDEYXw3mM&key=AIzaSyAhdKL4WhiNG-fPIIC64LR95FNUOwddISs&part=status", false );
+
+         try {
+             xhr.send();
+             return ( xhr.status >= 200 && xhr.status < 300 || xhr.status === 304 );
+         } catch (error) {
+             return false;
+         }
+     }
+
     function presenterLogic(view, model, preview) {
         var width = model.Width;
         var height = model.Height;
         var viewContainer = $(view);
         var decodedVideoID = presenter.decodeVideoID(model.URL, model.ID);
- 
+
         if (decodedVideoID.isError) {
             showErrorMessage(viewContainer, decodedVideoID.errorMessage);
         } else {
@@ -55,12 +69,25 @@
                 }
 
                 var iframe = document.createElement('iframe');
+                $(iframe).attr('id', 'ytIframe');
                 $(iframe).attr('frameborder', '0');
                 $(iframe).attr('src', src);
                 $(iframe).attr('width', parseInt(width, 10) + 'px');
                 $(iframe).attr('height', parseInt(height, 10) + 'px');
- 
-                viewContainer.html(iframe);
+
+                if(doesConnectionExist()){
+                    viewContainer.html(iframe);
+                }else{
+                    var offlineDiv = document.createElement('div');
+                    $(offlineDiv).addClass('offline-message');
+                    if(model['Offline message']){
+                        $(offlineDiv).text(model['Offline message']);
+                        viewContainer.html(offlineDiv);
+                    }else{
+                        $(offlineDiv).text('No connection to the Internet');
+                        viewContainer.html(offlineDiv);
+                    }
+                }
             }
         }
     }

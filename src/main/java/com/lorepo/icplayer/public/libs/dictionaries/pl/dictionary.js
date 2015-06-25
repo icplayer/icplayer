@@ -821,6 +821,7 @@
 	"YouTube_Addon_property_https": "HTTPS",
 	"YouTube_Addon_property_id": "ID",
 	"YouTube_Addon_property_url": "URL",
+    "YouTube_Addon_property_offline_message" : "Offline message",
 	"error_counter_info" : "Wyświetla liczbę błędów popełnionych na bieżącej stronie prezentacji.",
 	"check_counter_info" : "Wyświetla liczbę wskazującą ile razy wybrano przycisk Sprawdź na bieżącej stronie prezentacji.",
 	"lesson_report_info" : "Pozwala na dodanie do prezentacji gotowego raportu lekcji z uwzględnieniem wyników procentowych dla poszczególnych stron, wyniku całkowitego, liczby błędów i sprawdzeń. Możliwe jest indywidualne dostosowanie wyglądu dla każdej części raportu.",

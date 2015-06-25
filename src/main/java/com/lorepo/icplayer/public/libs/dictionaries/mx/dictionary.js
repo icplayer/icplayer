@@ -822,6 +822,7 @@
 	"YouTube_Addon_property_https": "HTTPS",
 	"YouTube_Addon_property_id": "ID",
 	"YouTube_Addon_property_url": "URL",
+    "YouTube_Addon_property_offline_message" : "Offline message",
 	"error_counter_info": "Muestra el número de errores cometidos en la página actual de la presentación.",
 	"check_counter_info": "Muestra el número de veces que el botón de Verificación de respuestas ha sido utilizado en la página actual.",
 	"lesson_report_info": " Permite insertar un informe de la lección, incluyendo los resultados porcentuales de cada página de la presentación, el resultado porcentual total, así como el número de verificaciones y errores. Es posible modificar el aspecto de cada parte del informe de manera individual.",

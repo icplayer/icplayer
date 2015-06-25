@@ -825,6 +825,7 @@
     "YouTube_Addon_property_https": "HTTPS",
     "YouTube_Addon_property_id": "ID",
     "YouTube_Addon_property_url": "URL",
+    "YouTube_Addon_property_offline_message" : "Offline message",
     "error_counter_info": "Indique le nombre d'erreurs faites dans la page affichée.",
     "check_counter_info": "Indique le nombre de fois où l'on a cliqué sur le bouton Vérifier de la page affichée.",
     "lesson_report_info": "Permet d'insérer un rapport de leçon préprogrammé, avec les résultats en pourcentage pour chaque page de la présentation, le résultat total, et le nombre de fois où l'on a cliqué sur le bouton Vérifier et le nombre d'erreurs commises lors de la réalisation de l'activité. Il est possible de modifier l'apparence de chaque élément du rapport individuellement.",
