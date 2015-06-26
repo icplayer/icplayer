@@ -98,6 +98,7 @@ function AddonParagraph_create() {
             content_css: model['Custom CSS'],
             isPlaceholderSet: !ModelValidationUtils.isStringEmpty(model["Placeholder Text"]),
             placeholderText: model["Placeholder Text"],
+            pluginName: presenter.makePluginName(model["ID"]),
             width: model['Width']
         };
     };
@@ -117,15 +118,10 @@ function AddonParagraph_create() {
         }
 
         if(presenter.configuration.isPlaceholderSet) {
-            plugins.push("placeholder");
+            plugins.push(presenter.configuration.pluginName);
         }
 
-        var pluginsArrayString = "";
-        plugins.forEach(function (element) {
-            pluginsArrayString += " " + element;
-        });
-
-        return pluginsArrayString.trim();
+        return plugins.join(" ");
     };
 
     presenter.upgradeModel = function (model) {
@@ -189,8 +185,18 @@ function AddonParagraph_create() {
         }
     };
 
+    presenter.makePluginName = function(addonID) {
+        var name = 'placeholder';
+        addonID.replace(/[a-z0-9]+/gi, function(x){
+            name += "_" + x;
+        });
+        return name;
+    };
+
     presenter.addPlaceholderPlugin = function () {
-        tinymce.PluginManager.add('placeholder', function(editor) {
+        tinymce.PluginManager.add(presenter.configuration.pluginName, function(ed) {
+            editorID = ed.id;
+            var editor = tinymce.get(editorID);
             editor.on('init', function () {
                 presenter.placeholder = new presenter.placeholderElement(editor);
 
@@ -217,22 +223,24 @@ function AddonParagraph_create() {
     };
 
     presenter.placeholderElement = function(editor){
+        editorID = editor.id;
         this.isSet = true;
         this.shouldBeSet = false;
         this.placeholderText = presenter.configuration.placeholderText;
-        this.contentAreaContainer = tinymce.activeEditor.getBody();
+        this.contentAreaContainer = tinymce.get(editorID).getBody();
 
         tinymce.DOM.setStyle(this.contentAreaContainer, 'position', 'relative');
 
         this.attrs = {style: {position: 'absolute', top:'5px', left:0, color: '#888', padding: '1%', width:'98%', overflow: 'hidden'} };
 
-        this.el = tinymce.DOM.add( this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+        this.el = tinymce.get(editorID).dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
         tinymce.DOM.addClass(this.el, "placeholder");
+        return this;
     };
 
     presenter.placeholderElement.prototype.addPlaceholder = function() {
-        this.el = tinymce.DOM.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
-        tinymce.DOM.addClass(this.el, "placeholder");
+        this.el = tinymce.get(editorID).dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+        tinymce.get(editorID).dom.addClass(this.el, "placeholder");
         this.isSet = true;
     };
 
@@ -247,7 +255,7 @@ function AddonParagraph_create() {
 
     presenter.placeholderElement.prototype.removePlaceholder = function () {
         this.isSet = false;
-        tinymce.DOM.remove(this.el);
+        tinymce.get(editorID).dom.remove(this.el);
     };
 
     presenter.placeholderElement.prototype.getEditorContent = function () {
@@ -358,28 +366,17 @@ function AddonParagraph_create() {
             tinymceState = parsedState.tinymceState,
             isVisibleState = parsedState.isVisible;
 
-    	if (editorID !== undefined) {
-    		tinymce.get(editorID).setContent(tinymceState, {format : 'raw'});
-    	} else {
-    		presenter.configuration.state = tinymceState;
-    	}
-
         isVisible = isVisibleState;
         presenter.setVisibility(isVisible);
 
-        setPlaceholderInSetState(tinymceState);
-    };
-
-    function setPlaceholderInSetState (tinymceState) {
-        if (presenter.configuration.isPlaceholderSet) {
-            if(editorID != undefined) {
-                if (tinymceState.indexOf("class=\"placeholder\"") != -1) {
-                    tinymce.get(editorID).setContent("");
-                    presenter.placeholder = new presenter.placeholderElement(tinymce.get(editorID));
-                }
+        if (tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
+            if (editorID !== undefined) {
+                tinymce.get(editorID).setContent(tinymceState, {format: 'raw'});
+            } else {
+                presenter.configuration.state = tinymceState;
             }
         }
-    }
+    };
 
     presenter.reset = function() {
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -393,7 +390,6 @@ function AddonParagraph_create() {
     presenter.show = function() {
         isVisible = true;
         presenter.setVisibility(true);
-        clearInterval(presenter.timerId);
     };
 
     presenter.hide = function() {

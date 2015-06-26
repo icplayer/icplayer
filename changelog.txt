@@ -1,3 +1,4 @@
+2015-06-26 Fixed issue with few Paragraphs with placeholders on the same page
 2015-06-26 Fixed issue with reset in IWB Toolbar
 2015-06-26 Fixed issue with displaying full screen image in Zoom Image module
 2015-06-25 Added handling offline connection in YouTube module

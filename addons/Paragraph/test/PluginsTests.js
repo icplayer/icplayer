@@ -19,6 +19,7 @@ TestCase("[Paragraph] Get plugins", {
 
     'test place holder should be added only if is set': function () {
         this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.pluginName = "placeholder";
 
         assertEquals("placeholder", this.presenter.getPlugins());
     },
@@ -26,7 +27,8 @@ TestCase("[Paragraph] Get plugins", {
     'test all plugins are set': function () {
         this.presenter.configuration.isPlaceholderSet = true;
         this.presenter.configuration.toolbar = "forecolor backcolor";
+        this.presenter.configuration.pluginName = "Paragraph1";
 
-        assertEquals("textcolor placeholder", this.presenter.getPlugins());
+        assertEquals("textcolor Paragraph1", this.presenter.getPlugins());
     }
 });

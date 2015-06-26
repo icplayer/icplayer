@@ -4,7 +4,9 @@ TestCase("[Paragraph] Model parsing", {
     },
 
     'test default font values': function() {
-        var model = {};
+        var model = {
+            'ID': 'Paragraph1'
+        };
 
         var validatedModel = this.presenter.validateModel(model);
 
@@ -14,6 +16,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test user font family': function () {
         var model = {
+            'ID': 'Paragraph1',
             'Default font family': 'cursive'
         };
 
@@ -25,6 +28,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test user font size': function () {
         var model = {
+            'ID': 'Paragraph1',
             'Default font size': '14px'
         };
 
@@ -36,6 +40,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test user font family and size': function () {
         var model = {
+            'ID': 'Paragraph1',
             'Default font family': 'cursive',
             'Default font size': '14px'
         };
@@ -48,6 +53,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test user custom CSS file': function () {
         var model = {
+            'ID': 'Paragraph1',
             'Custom CSS': '/file/serve/123'
         };
 
@@ -58,6 +64,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test visible toolbar': function () {
         var model = {
+            'ID': 'Paragraph1',
             'Height': 168
         };
 
@@ -69,6 +76,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test hide toolbar': function () {
         var model = {
+            'ID': 'Paragraph1',
             'Height': 168,
             'Hide toolbar': 'True'
         };
@@ -81,6 +89,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test custom toolbar available buttons': function() {
         var model = {
+            'ID': 'Paragraph1',
             'Custom toolbar': 'newdocument bold italic underline strikethrough alignleft aligncenter alignright ' +
                               'alignjustify styleselect formatselect fontselect fontsizeselect ' +
                               'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript |'
@@ -93,6 +102,7 @@ TestCase("[Paragraph] Model parsing", {
 
     'test custom toolbar unavailable buttons removed silently': function() {
         var model = {
+            'ID': 'Paragraph1',
             'Custom toolbar': 'italic underline bold test fake button'
         };
 
@@ -103,11 +113,32 @@ TestCase("[Paragraph] Model parsing", {
 
     'test blank custom toolbar': function() {
         var model = {
+            'ID': 'Paragraph1',
             'Custom toolbar': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
 
         assertEquals(this.presenter.DEFAULTS.TOOLBAR, validatedModel.toolbar);
+    },
+
+    'test placeholder\'s plugin name should not contains spaces': function() {
+        var model = {
+            'ID': 'Paragraph ID with spaces',
+        };
+
+        var validatedModel = this.presenter.validateModel(model);
+
+        assertEquals(1, validatedModel.pluginName.split(" ").length);
+    },
+
+    'test placeholder\'s plugin name should be alphanumerical': function() {
+        var model = {
+            'ID': 'Paragraph\'s name !# with :special... char$ """'
+        };
+
+        var validatedModel = this.presenter.validateModel(model);
+        assertNotEquals("", validatedModel.pluginName);
+        assertEquals("", validatedModel.pluginName.replace(/[a-z0-9_]+/gi, ""));
     }
 });
