@@ -296,7 +296,7 @@ function AddonIWB_Toolbar_create() {
         if ($(button).parent().parent().hasClass('bottom-panel-thickness')) { // is changing thickness
             var thickness = $(button).attr('thickness'),
                 drawingType = activeButton.hasClass('pen') ? 'pen' : 'marker';
-
+            presenter.data.defaultPenWidth = 1;
             changeThickness(presenter.DRAWING_DATA['thickness'][drawingType][thickness], button);
             presenter.buttonThickness = button;
         } else {
@@ -2541,7 +2541,6 @@ function AddonIWB_Toolbar_create() {
 
         if (shouldClearCanvas) {
             changeColor('#0fa9f0');
-            changeThickness(1);
             clearCanvases();
         }
 
@@ -2639,6 +2638,11 @@ function AddonIWB_Toolbar_create() {
     presenter.reset = function() {
         presenter.$pagePanel.find('.clicked').removeClass('clicked');
         reset(true, true, true, true, true);
+
+        presenter.penLineWidth = 1;
+        presenter.data.defaultPenWidth = 1;
+        presenter.markerLineWidth = 10;
+        presenter.data.eraserThickness = 20;
     };
 
     presenter.getErrorCount = function() { return 0; };
