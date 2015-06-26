@@ -84,7 +84,13 @@ function AddonZoom_Image_create() {
     };
 
     function calculateImageSize(image) {
-        var $player = $('#_icplayer');
+        var $player;
+        if(document.getElementById('_icplayer') != null){
+            $player = $('#_icplayer');
+        }else{
+            $player = $('.ic_page_panel');
+        }
+
         var dialog = {};
         var x = image.width;
         var y = image.height;
@@ -112,6 +118,14 @@ function AddonZoom_Image_create() {
 
             var img = new Image();
             img.onload = function() {
+
+                var $player;
+                if(document.getElementById('_icplayer') != null){
+                    $player = document.getElementById('_icplayer');
+                }else{
+                    $player = document.getElementsByClassName('ic_page_panel');
+                }
+
                 var dialogSize = calculateImageSize(this);
 
                 presenter.$image = $("<img class='big' src='" + img.src + "'>");
@@ -129,7 +143,7 @@ function AddonZoom_Image_create() {
                     position: {
                         my: "center",
                         at: "center",
-                        of: document.getElementById("_icplayer")
+                        of: $player
                     },
                     create: function() {
                         var $close = $('<div class="close-button-ui-dialog">');
