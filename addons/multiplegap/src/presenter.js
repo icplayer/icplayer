@@ -3,9 +3,9 @@ function Addonmultiplegap_create(){
      * KNOWN ISSUES:
      *     Invalid properties values (Item width, Item height, Item spacing, Maximum item count):
      *          When addon validated model it checks only value of those properties by numerical values. If parsed
-      *         value is not a number - no error message is showed - that's because calculated values from those
-      *         properties are only used in CSS. Invalid CSS value set with jQuery will simply not be added to
-      *         DOM element, but it won't brake anything. Changing this behaviour will break backward compatibility!
+     *         value is not a number - no error message is showed - that's because calculated values from those
+     *         properties are only used in CSS. Invalid CSS value set with jQuery will simply not be added to
+     *         DOM element, but it won't brake anything. Changing this behaviour will break backward compatibility!
      */
 
     var presenter = function(){};
@@ -160,8 +160,8 @@ function Addonmultiplegap_create(){
 
         var container = $('<div class="multiplegap_container"></div>');
         container.click(function(event) {
-			event.stopPropagation();
-			event.preventDefault();
+            event.stopPropagation();
+            event.preventDefault();
         });
         var placeholders = $('<div class="multiplegap_placeholders"></div>');
 
@@ -202,6 +202,7 @@ function Addonmultiplegap_create(){
             presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
             presenter.eventBus.addEventListener('ItemSelected', presenter.eventListener);
+            presenter.eventBus.addEventListener('ItemConsumed', presenter.eventListener);
             presenter.eventBus.addEventListener('PageLoaded', this);
             presenter.eventBus.addEventListener('ShowAnswers', this);
             presenter.eventBus.addEventListener('HideAnswers', this);
@@ -217,15 +218,11 @@ function Addonmultiplegap_create(){
             height: presenter.$view.css('height')
         });
 
-        var handler = $('<div class="handler"></div>');
-        handler.click(presenter.acceptDraggable);
-        container.append(handler);
-        handler.hide();
-        
-        handler.droppable({drop: function(event, ui) { 
-			event.stopPropagation();
-			event.preventDefault();
-        	handler.click();
+        container.click(presenter.acceptDraggable);
+        container.droppable({drop: function(event, ui) {
+            event.stopPropagation();
+            event.preventDefault();
+            container.click();
         }});
 
         for(var i = 0; i < model['Items'].length; i++) {
@@ -241,7 +238,22 @@ function Addonmultiplegap_create(){
 
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
+            var container = presenter.$view.find('.multiplegap_container');
+
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
+
+            if (eventName === "ItemConsumed") {
+                presenter.$view.find('.handler').show();
+                presenter.isItemChecked = false;
+            }
+
+            if (eventName === "ItemSelected" && eventData.value !== null && eventData.value !== "") {
+                presenter.$view.find('.handler').hide();
+                presenter.isItemChecked = true;
+            } else if (eventName === "ItemSelected" ) {
+                presenter.$view.find('.handler').show();
+                presenter.isItemChecked = false;
+            }
 
             if(typeof(eventData.item) == "undefined" || eventData.item === null) {
                 presenter.clearSelected();
@@ -284,7 +296,10 @@ function Addonmultiplegap_create(){
 
         if(!presenter.maximumItemCountReached()) {
             presenter.$view.find('.multiplegap_container').addClass('multiplegap_active');
-            presenter.$view.find('.handler').show();
+        }
+
+        if (!presenter.isItemChecked) {
+            presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
         }
     };
 
@@ -292,9 +307,13 @@ function Addonmultiplegap_create(){
         e.stopPropagation();
         e.preventDefault();
 
-        if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
+        if(presenter.showErrorsMode || presenter.isShowAnswersActive || !presenter.isItemChecked) {
+            return;
+        }
 
         presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
+        presenter.$view.find('.handler').show();
+        presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
     };
 
     presenter.maximumItemCountReached = function() {
@@ -302,11 +321,11 @@ function Addonmultiplegap_create(){
     };
 
     presenter.parseItemValue = function (item) {
-    	if(item.indexOf("**") > -1 || item.indexOf("__") > -1){
-    		return item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/__(.*?)__/g, "<i>$1</i>").replace(/__(.*?)_/g, "<i>$1_</i>").replace(/\*\*(.*?)\*/g, "<b>$1*</b>").replace(/_(.*?)__/g, "_$1").replace(/\*(.*?)\*\*/g, "*$1");
-    	}else{
-    		return item;
-    	}
+        if(item.indexOf("**") > -1 || item.indexOf("__") > -1){
+            return item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/__(.*?)__/g, "<i>$1</i>").replace(/__(.*?)_/g, "<i>$1_</i>").replace(/\*\*(.*?)\*/g, "<b>$1*</b>").replace(/_(.*?)__/g, "_$1").replace(/\*(.*?)\*\*/g, "*$1");
+        }else{
+            return item;
+        }
     };
 
     presenter.getImageURL = function (elem) {
@@ -587,8 +606,9 @@ function Addonmultiplegap_create(){
         e.stopPropagation();
         e.preventDefault();
 
-        if(presenter.showErrorsMode || presenter.isShowAnswersActive)
+        if(presenter.showErrorsMode || presenter.isShowAnswersActive) {
             return;
+        }
 
         presenter.performRemoveDraggable($(e.target));
     };
@@ -799,7 +819,7 @@ function Addonmultiplegap_create(){
             presenter.hide();
         }
     };
-    
+
     presenter.getState = function() {
         if(presenter.isShowAnswersActive){
             presenter.hideAnswers();

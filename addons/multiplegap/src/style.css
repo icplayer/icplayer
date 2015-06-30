@@ -23,7 +23,9 @@
     left: 0;
 }
 
-
+.multiplegap_active {
+    cursor: pointer;
+}
 
 .multiplegap_container .placeholder_valid {
     border: 1px solid #00ff00;
