@@ -56,6 +56,9 @@ function AddonLearnPen_Report_create() {
         'All': 'ALL',
         'Squeeze': 'SQUEEZE',
         'Pressure': 'PRESSURE',
+        'Squeeze A': 'SQUEEZEA',
+        'Squeeze B': 'SQUEEZEB',
+        'Squeeze C': 'SQUEEZEC',
         DEFAULT: 'All'
     };
     // {Pie chart, Circle in circle, Four circles}
@@ -63,6 +66,7 @@ function AddonLearnPen_Report_create() {
         'Pie chart': 'PIE',
         'Circle in circle': 'CINC',
         'Four circles': '4CIRCLES',
+        'Horizontal Bar': 'BAR',
         DEFAULT: 'Pie chart'
     };
 
@@ -85,30 +89,34 @@ function AddonLearnPen_Report_create() {
         CALC02: "Property Calculate from last values has to be positive value"
     };
 
-    function getCurrentDataFromSensor() {
-        function toPercent(val) { return parseInt(val / 10, 10); }
+    function toPercent(val) { return parseInt(val / 1024 * 100); }
 
+    function getCurrentDataFromSensor() {
         var learnPenData = window.LearnPen;
 
+//        var filteredData = {
+//            isValid: true,
+//            a: Math.floor(Math.random() * 100),
+//            b: Math.floor(Math.random() * 100),
+//            c: Math.floor(Math.random() * 100),
+//            p: Math.floor(Math.random() * 100)
+//        };
 
         var filteredData = {
             isValid: false,
-            a: learnPenData ? toPercent(learnPenData.getA()) : 0, //Math.floor(Math.random() * 100),
-            b: learnPenData ? toPercent(learnPenData.getB()) : 0, //Math.floor(Math.random() * 100),
-            c: learnPenData ? toPercent(learnPenData.getC()) : 0, //Math.floor(Math.random() * 100),
-            p: learnPenData ? toPercent(learnPenData.getP()) : 0  //Math.floor(Math.random() * 100)
+            a: learnPenData ? toPercent(learnPenData.getA()) : 0,
+            b: learnPenData ? toPercent(learnPenData.getB()) : 0,
+            c: learnPenData ? toPercent(learnPenData.getC()) : 0,
+            p: learnPenData ? toPercent(learnPenData.getP()) : 0
         };
 
         if(learnPenData) {
             filteredData = filterData(learnPenData)
         }
-
         return filteredData;
     }
 
     function filterData(learnPenData) {
-        function toPercent(val) { return parseInt(val / 10, 10); }
-
         function isDataNotNoise(element, index, array) {
             return element >= 200;
         }
@@ -148,9 +156,10 @@ function AddonLearnPen_Report_create() {
 
         if (presenter.configuration.calculateFromLastValues > 0) {
             if(!data.isValid) {
-                if (presenter.filteredDataCount < presenter.configuration.calculateFromLastValues)
+                if (presenter.filteredDataCount < presenter.configuration.calculateFromLastValues) {
                     presenter.filteredDataCount += 1;
                     presenter.data.sensorsDataHistory.push(data);
+                }
             }
         }
     }
@@ -191,6 +200,9 @@ function AddonLearnPen_Report_create() {
                 case presenter.SENSOR.All: updateResultDataFromSensorValue((sensorDataObj.a + sensorDataObj.b + sensorDataObj.c + sensorDataObj.p) / 4, resultObject); break;
                 case presenter.SENSOR.Pressure: updateResultDataFromSensorValue(sensorDataObj.p, resultObject); break;
                 case presenter.SENSOR.Squeeze: updateResultDataFromSensorValue((sensorDataObj.a + sensorDataObj.b + sensorDataObj.c) / 3, resultObject); break;
+                case presenter.SENSOR['Squeeze A']: updateResultDataFromSensorValue(sensorDataObj.a, resultObject); break;
+                case presenter.SENSOR['Squeeze B']: updateResultDataFromSensorValue(sensorDataObj.b, resultObject); break;
+                case presenter.SENSOR['Squeeze C']: updateResultDataFromSensorValue(sensorDataObj.c, resultObject); break;
             }
 
             resultObject.aStatus += sensorDataObj.a / arr.length;
@@ -381,6 +393,60 @@ function AddonLearnPen_Report_create() {
         }
     }
 
+    function generateHorizontalBar(above, correct, below) {
+        function drawRec(ctx, x, y, w, h, color, percent) {
+            if(percent > 0){
+                ctx.beginPath();
+                ctx.lineWidth="1";
+                ctx.strokeStyle=color;
+                ctx.rect(x, y, w, h);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        function drawText(ctx, x, y, text) {
+            if(text > 0){
+                ctx.font = "12px Calibri";
+                ctx.textAlign = "center";
+                ctx.fillStyle = "black";
+                ctx.fillText(text + '%', x, y);
+            }
+        }
+
+        var moduleHeight = presenter.configuration.height;
+
+        var sum = above + correct + below;
+
+        var text = [];
+        text[0] = Math.round((below / sum) * 100);
+        text[1] = Math.round((correct / sum) * 100);
+        text[2] = Math.round(100 - (text[0] + text[1]));
+
+        var widthA = Math.round(((text[0]/100)*presenter.configuration.width));
+        var widthB = Math.round(((text[1]/100)*presenter.configuration.width));
+        var widthC = Math.round(((text[2]/100)*presenter.configuration.width));
+
+        var xA = 0;
+        var xB = widthA;
+        var xC = widthA + widthB;
+
+        presenter.data.context.clearRect(0, 0, presenter.configuration.width, presenter.configuration.height);
+
+        drawRec(presenter.data.context, xA, Math.round(moduleHeight/4), widthA, Math.round(moduleHeight/2), presenter.configuration.colors.below, text[0]);
+        drawRec(presenter.data.context, xB, Math.round(moduleHeight/4), widthB, Math.round(moduleHeight/2), presenter.configuration.colors.correct, text[1]);
+        drawRec(presenter.data.context, xC, Math.round(moduleHeight/4), widthC, Math.round(moduleHeight/2), presenter.configuration.colors.above, text[2]);
+
+        var xTextA = xA + (widthA/2);
+        var xTextB = xB + (widthB/2);
+        var xTextC = xC + (widthC/2);
+
+        drawText(presenter.data.context, xTextA, Math.round(moduleHeight/4)-3, text[0]);
+        drawText(presenter.data.context, xTextB, Math.round(moduleHeight/4)-3, text[1]);
+        drawText(presenter.data.context, xTextC, Math.round(moduleHeight/4)-3, text[2]);
+    }
+
     function generatePieChart(above, correct, below) {
         function drawArc(ctx, x, y, r, start, end, color) {
             ctx.beginPath();
@@ -501,6 +567,7 @@ function AddonLearnPen_Report_create() {
             case presenter.GRAPH['Pie chart']: generatePieChart(data.above, data.correct, data.below); break;
             case presenter.GRAPH['Four circles']: generateFourCircles(data.aStatus, data.bStatus, data.cStatus, data.pStatus); break;
             case presenter.GRAPH['Circle in circle']: generateCircleInCircle(data.aStatus, data.bStatus, data.cStatus, data.pStatus); break;
+            case presenter.GRAPH['Horizontal Bar']: generateHorizontalBar(data.above, data.correct, data.below); break;
             default: break;
         }
 

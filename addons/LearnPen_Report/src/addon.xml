@@ -4,8 +4,8 @@
     <model>
         <property name="isDisable" nameLabel="LearnPen_Report_property_is_disable" type="boolean" />
         <property name="correctRange" nameLabel="LearnPen_Report_property_correct_range" type="string" />
-        <property name="graphType" nameLabel="LearnPen_Report_property_graph_type" type="{Pie chart, Circle in circle, Four circles}" />
-        <property name="sensor" nameLabel="LearnPen_Report_property_sensor" type="{All, Squeeze, Pressure}" />
+        <property name="graphType" nameLabel="LearnPen_Report_property_graph_type" type="{Pie chart, Circle in circle, Four circles, Horizontal Bar}" />
+        <property name="sensor" nameLabel="LearnPen_Report_property_sensor" type="{All, Squeeze, Pressure, Squeeze A, Squeeze B, Squeeze C}" />
         <property name="colors" nameLabel="LearnPen_Report_property_colors" type="text" />
         <property name="dataUpdateInterval" nameLabel="LearnPen_Report_property_update_interval" type="string" />
         <property name="calculateFromLastValues" nameLabel="LearnPen_Report_property_get_last_values" type="string" />
