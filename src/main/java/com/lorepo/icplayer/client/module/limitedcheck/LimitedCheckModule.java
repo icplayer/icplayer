@@ -22,7 +22,7 @@ public class LimitedCheckModule extends BasicModuleModel {
 	private List<String> modules = new LinkedList<String>();
 
 	public LimitedCheckModule() {
-		super(DictionaryWrapper.get("Limited_Check_name"));
+		super("Limited Check", DictionaryWrapper.get("Limited_Check_name"));
 		
 		addPropertyCheckText();
 		addPropertyUnCheckText();

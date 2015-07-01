@@ -21,7 +21,7 @@ public class LimitedResetModule extends BasicModuleModel {
 	private List<String> modules = new LinkedList<String>();
 
 	public LimitedResetModule() {
-		super(DictionaryWrapper.get("Limited_Reset_name"));
+		super("Limited Reset", DictionaryWrapper.get("Limited_Reset_name"));
 		
 		addPropertyTitle();
 		addPropertyWorksWith();

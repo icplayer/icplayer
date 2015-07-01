@@ -17,7 +17,7 @@ private boolean resetMistakes = false;
 private boolean resetChecks = false;
 	
 	public LessonResetModule() {		
-		super(DictionaryWrapper.get("Lesson_Reset_name"));
+		super("Lesson Reset", DictionaryWrapper.get("Lesson_Reset_name"));
 		
 		addPropertyTitle();
 		addPropertyResetMistakes();

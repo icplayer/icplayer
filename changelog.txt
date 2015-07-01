@@ -1,3 +1,4 @@
+2015-07-01 Fixed issue with custom classes in Editor
 2015-06-30 Fixed issue with dragging in multiple gap module
 2015-06-26 Fixed issue with few Paragraphs with placeholders on the same page
 2015-06-26 Fixed issue with reset in IWB Toolbar

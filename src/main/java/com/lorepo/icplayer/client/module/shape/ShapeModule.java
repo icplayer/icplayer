@@ -12,7 +12,6 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
  * <shapeModule left='59.07598' top='29.28864' width='10.0' height='10.0' style='background-color:red'>
  * </shapeModule>
  * 
- * @author Krzysztof Langner
  *
  */
 public class ShapeModule extends BasicModuleModel {
@@ -22,7 +21,7 @@ public class ShapeModule extends BasicModuleModel {
 	 * @param services
 	 */
 	public ShapeModule() {
-		super(DictionaryWrapper.get("shape_module"));
+		super("Shape", DictionaryWrapper.get("shape_module"));
 	}
 
 	

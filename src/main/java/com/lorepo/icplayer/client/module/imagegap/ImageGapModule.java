@@ -14,12 +14,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-/**
- * Gapa przyjmująca obrazek
- * 
- * @author Krzysztof Langner
- *
- */
 public class ImageGapModule extends BasicModuleModel {
 
 	public static final String EVENT_CORRECT = "onCorrect";
@@ -33,7 +27,7 @@ public class ImageGapModule extends BasicModuleModel {
 	private HashMap<String, String>  events = new HashMap<String, String>();
 	
 	public ImageGapModule() {
-		super(DictionaryWrapper.get("image_gap_module"));
+		super("Image gap", DictionaryWrapper.get("image_gap_module"));
 		
 		addPropertyAnswer();
 		addPropertyIsActivity();

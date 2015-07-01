@@ -11,22 +11,15 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.addon.param.AddonParamFactory;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 
-
-/**
- * Addon.
- * 
- * @author Krzysztof Langner
- *
- */
 public class AddonModel extends BasicModuleModel {
 
-	private String 				addonId;
+	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
 	private String baseURL;
 	
 	
 	public AddonModel() {
-		super("Addon");
+		super("Addon", "Addon");
 	}
 
 	
@@ -38,7 +31,12 @@ public class AddonModel extends BasicModuleModel {
 		}
 		
 		return addonId;
-	} 
+	}
+	
+	@Override
+	public String getModuleName() {
+		return getModuleTypeName();
+	}
 
 	
 	@Override

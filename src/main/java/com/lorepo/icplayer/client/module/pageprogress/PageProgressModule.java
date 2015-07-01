@@ -11,7 +11,6 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
  * <pageReportModule left='60' top='30' width='10' height='10'>
  * </pageReportModule>
  * 
- * @author Krzysztof Langner
  *
  */
 public class PageProgressModule extends BasicModuleModel{
@@ -21,7 +20,7 @@ public class PageProgressModule extends BasicModuleModel{
 	 * @param services
 	 */
 	public PageProgressModule() {
-		super(DictionaryWrapper.get("page_progress_module"));
+		super("Page Progress", DictionaryWrapper.get("page_progress_module"));
 
 	}
 

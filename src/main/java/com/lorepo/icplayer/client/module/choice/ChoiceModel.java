@@ -13,13 +13,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
-/**
- * Prostokątny obszar o podanym kolorze i rodzaju ramki
- * 
- * @author Krzysztof Langner
- *
- */
 public class ChoiceModel extends BasicModuleModel{
 
 	private boolean isMulti = false;
@@ -31,7 +24,7 @@ public class ChoiceModel extends BasicModuleModel{
 	private boolean randomOrder = false;
 
 	public ChoiceModel() {
-		super(DictionaryWrapper.get("choice_module"));
+		super("Choice", DictionaryWrapper.get("choice_module"));
 		
 		addOption(new ChoiceOption("1", "A", 1));
 		addOption(new ChoiceOption("2", "B", 0));

@@ -17,7 +17,7 @@ public class ErrorCounterModule extends BasicModuleModel{
 	
 	
 	public ErrorCounterModule() {
-		super(DictionaryWrapper.get("error_counter_module"));
+		super("ErrorCounter", DictionaryWrapper.get("error_counter_module"));
 		addPropertyShowErrors();
 		addPropertyShowMistakes();
 		addPropertyRealTimeCalculation();

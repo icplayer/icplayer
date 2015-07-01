@@ -31,7 +31,7 @@ public class ButtonModule extends BasicModuleModel {
 	private String additionalClasses = "";
 	
 	public ButtonModule() {
-		super(DictionaryWrapper.get("button_module"));
+		super("Button", DictionaryWrapper.get("button_module"));
 		addPropertyTitle();
 	}
 

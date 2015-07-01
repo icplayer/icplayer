@@ -240,4 +240,10 @@ public class ModuleModelMockup implements IModuleModel {
 		this.isModuleInEditorVisible = moduleInEditorVisibility;
 	}
 
+	@Override
+	public String getModuleName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

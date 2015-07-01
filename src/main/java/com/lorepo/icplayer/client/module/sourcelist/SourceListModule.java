@@ -21,7 +21,7 @@ public class SourceListModule extends BasicModuleModel{
 	
 	
 	public SourceListModule() {
-		super(DictionaryWrapper.get("source_list_module"));
+		super("Source list", DictionaryWrapper.get("source_list_module"));
 		
 		initData();
 		addPropertyItems();

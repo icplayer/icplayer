@@ -26,7 +26,7 @@ public class OrderingModule extends BasicModuleModel {
 	private boolean allElementsHasSameWidth = false;
 
 	public OrderingModule() {
-		super(DictionaryWrapper.get("ordering_module"));
+		super("Ordering", DictionaryWrapper.get("ordering_module"));
 
 		addItem(new OrderingItem(1, "1", getBaseURL()));
 		addItem(new OrderingItem(2, "2", getBaseURL()));

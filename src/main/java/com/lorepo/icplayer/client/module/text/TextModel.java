@@ -38,10 +38,9 @@ public class TextModel extends BasicModuleModel{
 	private boolean isKeepOriginalOrder = false;
 	public String rawText;
 	public String gapUniqueId = "";
-	
-	
+
 	public TextModel() {
-		super(DictionaryWrapper.get("text_module"));
+		super("Text", DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
 		setText(DictionaryWrapper.get("text_module_default"));
 		addPropertyGapType();

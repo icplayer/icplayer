@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.module;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -16,6 +15,7 @@ import com.lorepo.icplayer.client.module.api.INameValidator;
 
 public abstract class BasicModuleModel extends StyledModule implements IModuleModel {
 	private String moduleTypeName;
+	private String moduleName;
 	private String id;
 	private boolean isVisible = true;
 	private boolean isLocked = false;
@@ -24,13 +24,19 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String buttonType;
 	private boolean isModuleVisibleInEditor = true;
 	
-	protected BasicModuleModel(String typeName){
-		super(typeName);
+	protected BasicModuleModel(String typeName, String name){
+		super(name);
 		this.moduleTypeName = typeName;
+		this.moduleName = name;
 		id = UUID.uuid(6);
 		addPropertyId();
 		registerPositionProperties();
 		addPropertyIsVisible();
+	}
+	
+	@Override
+	public String getModuleName() {
+		return moduleName;
 	}
 	
 	@Override

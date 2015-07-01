@@ -4,13 +4,9 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
 
-/**
- * Interface implementowany przez każdy moduł umieszczany na stronie
- * @author Krzysztof Langner
- *
- */
 public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyProvider{
-	public String getModuleTypeName();
+	public String getModuleTypeName(); // get module type
+	public String getModuleName(); // get translated module name
 	public String getId();
 	public void setId(String id);
 	public void release();

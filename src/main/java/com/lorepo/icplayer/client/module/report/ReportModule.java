@@ -9,13 +9,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
-/**
- * Moduł raportu lekcji
- * 
- * @author Krzysztof Langner
- *
- */
 public class ReportModule extends BasicModuleModel {
 
 	private String errorsLabel = DictionaryWrapper.get("report_errors");
@@ -27,7 +20,7 @@ public class ReportModule extends BasicModuleModel {
 	
 	
 	public ReportModule() {
-		super(DictionaryWrapper.get("report_module"));
+		super("Report", DictionaryWrapper.get("report_module"));
 		
 		addErrorsLabel();
 		addChecksLabel();

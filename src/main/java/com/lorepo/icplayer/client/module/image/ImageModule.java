@@ -11,13 +11,6 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
-/**
- * Obrazek
- * 
- * @author Krzysztof Langner
- *
- */
 public class ImageModule extends BasicModuleModel {
 
 	public enum DisplayMode{
@@ -32,7 +25,7 @@ public class ImageModule extends BasicModuleModel {
 	
 	
 	public ImageModule() {
-		super(DictionaryWrapper.get("image_module"));
+		super("Image", DictionaryWrapper.get("image_module"));
 		
 		addPropertyImage();
 		addPropertyMode();

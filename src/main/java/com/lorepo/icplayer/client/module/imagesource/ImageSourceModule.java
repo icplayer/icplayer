@@ -12,12 +12,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-/**
- * Obrazek żródłowy, który można przedragować do gapy
- * 
- * @author Krzysztof Langner
- *
- */
 public class ImageSourceModule extends BasicModuleModel {
 
 	private String imagePath = "";
@@ -26,7 +20,7 @@ public class ImageSourceModule extends BasicModuleModel {
 	private boolean isDisabled = false;
 	
 	public ImageSourceModule() {
-		super(DictionaryWrapper.get("image_source_module"));
+		super("Image source", DictionaryWrapper.get("image_source_module"));
 		
 		addPropertyImage();
 		addPropertyIsDisabled();

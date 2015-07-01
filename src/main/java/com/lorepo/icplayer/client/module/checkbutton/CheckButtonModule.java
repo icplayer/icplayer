@@ -9,9 +9,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-/**
- * Check button
- */
 public class CheckButtonModule extends BasicModuleModel {
 
 	private String checkTitle = "";
@@ -19,7 +16,7 @@ public class CheckButtonModule extends BasicModuleModel {
 	private String title = "";
 	
 	public CheckButtonModule() {
-		super(DictionaryWrapper.get("check_answers_button"));
+		super("Check Button", DictionaryWrapper.get("check_answers_button"));
 		addPropertyCheckTitle();
 		addPropertyUnCheckTitle();
 	}

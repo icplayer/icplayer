@@ -168,14 +168,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	public void removeAllModules() {
 		widgets.clear();
 		clear();
-		
-//		for (String key : widgets.keySet()) {
-//			Widget w = widgets.get(key);
-//			w.getElement().removeFromParent();
-//			w.removeFromParent();
-//			
-//			w = null;
-//		}
 	}
 
 }
