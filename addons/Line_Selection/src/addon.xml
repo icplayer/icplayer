@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="Line_Selection" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property name="Lines" displayName="Lines" nameLabel="Line_Selection_property_lines" type="text"/>
+		<property name="IsActivity" displayName="Is Activity" nameLabel="Line_Selection_property_is_activity" type="boolean"/>
+        <property name="IsDisabled" displayName="Is Disabled" nameLabel="Line_Selection_property_is_disabled" type="boolean"/>
+        <property name="SingleMode" displayName="Single Mode" nameLabel="Line_Selection_property_single_mode" type="boolean"/>
+	</model>
+</addon>

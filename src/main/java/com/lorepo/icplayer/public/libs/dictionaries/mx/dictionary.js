@@ -1131,5 +1131,10 @@
 	"MenuPanel_property_disable": "Deshabilitar",
     "SelectableAddonsBinder_name" : "Selectable Addons Binder",
     "SelectableAddonsBinder_info" : "Allows to control groups of selectable addons",
-    "SelectableAddonsBinder_property_addons" : "Addons"
+    "SelectableAddonsBinder_property_addons" : "Addons",
+    "Line_Selection_name" : "Line Selection",
+    "Line_Selection_info" : "Allows to add selectable lines to the presentation",
+    "Line_Selection_property_is_activity" : "Is Activity",
+    "Line_Selection_property_is_disabled" : "Is Disabled",
+    "Line_Selection_property_single_mode" : "Single Mode"
 };

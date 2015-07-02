@@ -1,0 +1,28 @@
+.lines_wrapper .line {
+    stroke:#05B8CC;
+    stroke-width:10;
+    stroke-linecap: round;
+    cursor: pointer;
+}
+.lines_wrapper .line.selected {
+    stroke:#941B80;
+}
+.lines_wrapper .line.correct {
+    stroke:green;
+}
+.lines_wrapper .line.wrong {
+    stroke:red;
+}
+.lines_wrapper .line.show_answers_ok {
+    stroke:black;
+}
+.lines_selection.disabled {
+    opacity:0.3;
+}
+.lines_selection .coordinates {
+    color: black;
+    font-size: 14px;
+    border: 1px solid black;
+    padding-left: 20px;
+    width: 100px;
+}

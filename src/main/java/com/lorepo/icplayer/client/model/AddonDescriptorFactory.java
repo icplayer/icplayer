@@ -42,6 +42,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Hangman", "activities_menu");
 		addDescriptor("Image_Identification", "activities_menu");
 		addDescriptor("Line_Number", "activities_menu");
+		addDescriptor("Line_Selection", "activities_menu");
 		addDescriptor("Magic_Boxes", "activities_menu");
 		addDescriptor("gamememo", "activities_menu");
 		addDescriptor("Math", "activities_menu");
