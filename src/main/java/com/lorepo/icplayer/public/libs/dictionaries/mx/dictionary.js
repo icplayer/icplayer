@@ -1136,5 +1136,6 @@
     "Line_Selection_info" : "Allows to add selectable lines to the presentation",
     "Line_Selection_property_is_activity" : "Is Activity",
     "Line_Selection_property_is_disabled" : "Is Disabled",
-    "Line_Selection_property_single_mode" : "Single Mode"
+    "Line_Selection_property_single_mode" : "Single Mode",
+    "Line_Selection_property_lines" : "Lines"
 };
