@@ -29,6 +29,8 @@
 	"preferences" : "Preferences",
 	"grid_size": "Grid size: ",
 	"use_grid": "Use grid: ",
+	"static_header" : "Static header: ",
+	"static_footer" : "Static footer: ",
 	"save_strong" : "<strong>Save</strong>",
 	"cancel" : "Cancel",
 	"editor_tips" : "Tip: Ctrl-F: Find, Ctrl-G: Find next",

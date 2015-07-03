@@ -214,8 +214,7 @@ public class PlayerView extends VerticalPanel{
 		insert(headerView, 0);
 	}
 	
-	public void showFooter(){
-		
+	public void showFooter(){		
 		footerView = new PageView("ic_footer");
 		add(footerView);
 	}

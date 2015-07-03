@@ -944,3 +944,14 @@ hr, table, fieldset {
   text-align:center;
   padding: 0px 0px 0px 20px;
 }
+
+.ic_static_header {
+	position: fixed;
+	z-index: 100;
+}
+
+.ic_static_footer {
+	position: fixed;
+	z-index: 100;
+	bottom: 0;
+}

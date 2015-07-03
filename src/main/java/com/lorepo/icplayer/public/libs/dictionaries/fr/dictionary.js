@@ -29,6 +29,8 @@
     "preferences" : "Préférences",
     "grid_size": "Taille de la grille : ",
     "use_grid": "Utiliser la grille: ",
+	"static_header" : "Static header: ",
+	"static_footer" : "Static footer: ",
     "save_strong" : "<strong>Sauvegarder</strong>",
     "cancel" : "Annuler",
     "editor_tips" : "Astuces : Ctrl-F: Rechercher, Ctrl-G: Rechercher suivant",

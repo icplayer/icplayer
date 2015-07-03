@@ -84,8 +84,7 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
-			headerController.setView(playerView.getHeaderView());
-			
+			headerController.setView(playerView.getHeaderView());			
 //			headerController.setPage(contentModel.getHeader());
 		}
 		if(contentModel.getFooter() != null){

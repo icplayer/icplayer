@@ -29,6 +29,8 @@
 	"preferences" : "Preferencias",
 	"grid_size": "Tamaño de la cuadrícula: ",
 	"use_grid": "Uso de la cuadrícula: ",
+	"static_header" : "Static header: ",
+	"static_footer" : "Static footer: ",
 	"save_strong" : "<strong>Guardar</strong>",
 	"cancel" : "Cancelar",
 	"editor_tips" : "Consejo: Ctrl-F: buscar, Ctrl-G: Buscar siguiente",

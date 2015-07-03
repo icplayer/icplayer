@@ -29,6 +29,8 @@
 	"preferences" : "Preferencje",
 	"grid_size" : "Rozmiar siatki: ",
 	"use_grid" : "Użyj siatki: ",
+	"static_header" : "Static header: ",
+	"static_footer" : "Static footer: ",
 	"save_strong" : "<strong>Zapisz</strong>",
 	"cancel" : "Anuluj",
 	"editor_tips" : "Wskazówka: Ctrl-F: Znajdź, Ctrl-G: Znajdź następny",
