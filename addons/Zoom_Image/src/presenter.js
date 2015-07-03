@@ -38,14 +38,16 @@ function AddonZoom_Image_create() {
             return returnErrorObject(validatedSmallImage.errorCode);
         }
 
+        var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+
         return {
             bigImage: validatedBigImage.value,
             smallImage: validatedSmallImage.value,
-
             ID: model.ID,
             width: parseInt(model["Width"], 10),
             height: parseInt(model["Height"], 10),
-            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            isVisible: isVisible,
+            isVisibleByDefault: isVisible,
             isValid: true
         }
     };
@@ -72,6 +74,7 @@ function AddonZoom_Image_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.$view = $(view);
         presenter.presenterLogic(view, model, false);
     };
 
@@ -81,6 +84,7 @@ function AddonZoom_Image_create() {
 
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.configuration.isVisible = isVisible;
     };
 
     function calculateImageSize(image) {
@@ -183,14 +187,55 @@ function AddonZoom_Image_create() {
         presenter.$view.find(".icon").on(presenter.eventType, createPopUp);
     }
 
-//    presenter.setShowErrorsMode = function() {};
-//    presenter.setWorkMode = function() {};
-//    presenter.reset = function() {};
-//    presenter.getErrorCount = function() {};
-//    presenter.getMaxScore = function() {};
-//    presenter.getScore = function() {};
-//    presenter.getState = function() {};
-//    presenter.setState = function(state) {};
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+    };
+
+    presenter.reset = function() {
+        presenter.configuration.isVisibleByDefault ? presenter.show() : presenter.hide();
+    };
+
+    presenter.getState = function () {
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible
+        });
+    };
+
+    presenter.upgradeStateForVisibility = function (parsedState) {
+        if (parsedState.isVisible == undefined) {
+            parsedState.isVisible = true;
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeState = function(parsedState) {
+        return presenter.upgradeStateForVisibility(parsedState);
+    };
+
+    presenter.setState = function (state) {
+        if (!state) {
+            return;
+        }
+
+        var parsedState = JSON.parse(state),
+            upgradedState = presenter.upgradeState(parsedState);
+
+        presenter.setVisibility(upgradedState.isVisible);
+    };
 
     return presenter;
 }

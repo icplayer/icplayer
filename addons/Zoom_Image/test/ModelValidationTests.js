@@ -1,4 +1,4 @@
-TestCase("YouTube Test", {
+TestCase("[Zoom Image] Model Validation", {
     setUp: function () {
         this.presenter = AddonZoom_Image_create();
 
@@ -34,5 +34,14 @@ TestCase("YouTube Test", {
 
         assertFalse(validatedModel.isValid);
         assertEquals("IMAGE01", validatedModel.errorCode);
+    },
+
+    'test visible is undefined': function() {
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        delete this.model["Is Visible"];
+
+        assertEquals(undefined, this.model["Is Visible"]);
+        assertTrue(validatedModel.isVisible);
     }
 });

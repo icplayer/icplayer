@@ -1,3 +1,4 @@
+2015-07-03 Added show and hide commands to Zoom Image module
 2015-07-03 Added static header and static footer
 2015-07-02 Added Assets Service
 2015-07-02 Added new module Line Selection
