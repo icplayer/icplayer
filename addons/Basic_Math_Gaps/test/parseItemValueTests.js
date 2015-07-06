@@ -103,5 +103,11 @@ TestCase("[Basic Math Gaps] Parse Item Value", {
         var item = "__**item__**";
 
         assertEquals("<i><b>item</i></b>", this.presenter.parseItemValue(item));
+    },
+
+    'test case item as in source list': function() {
+        var item = "item";
+
+        assertEquals("item", this.presenter.parseItemValue(item));
     }
 });

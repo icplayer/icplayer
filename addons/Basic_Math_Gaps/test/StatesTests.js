@@ -8,8 +8,21 @@ TestCase("[Basic Math Gaps] States Tests", {
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
 
         this.stubs = {
-            getSources: sinon.stub(this.presenter.gapsContainer, 'getSources')
+            getSources: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getSources'),
+            getValues: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getValues'),
+            setDisabledInSetState: sinon.stub(this.presenter, 'setDisabledInSetState'),
+            setState: sinon.stub(this.presenter.GapsContainerObject.prototype, 'setState'),
+            setVisibility: sinon.stub(this.presenter, 'setVisibility')
         };
+
+    },
+
+    tearDown: function () {
+        this.presenter.GapsContainerObject.prototype.getSources.restore();
+        this.presenter.GapsContainerObject.prototype.getValues.restore();
+        this.presenter.GapsContainerObject.prototype.setState.restore();
+        this.presenter.setDisabledInSetState.restore();
+        this.presenter.setVisibility.restore();
     },
 
     'test getState works properly' : function() {
@@ -25,6 +38,7 @@ TestCase("[Basic Math Gaps] States Tests", {
             '</div>');
 
         this.stubs.getSources.returns([]);
+        this.stubs.getValues.returns(["1", "2"]);
 
         var stateString = this.presenter.getState();
 
@@ -32,20 +46,14 @@ TestCase("[Basic Math Gaps] States Tests", {
     },
 
     'test setState works properly' : function() {
-        this.presenter.$view = $(
-            '<div class="basic-math-gaps-wrapper">' +
-                '<div class="basic-math-gaps-container">' +
-                '<input value="" />' +
-                '<span class="element">+</span>' +
-                '<input value="" />' +
-                '<span class="element">=</span>' +
-                '<span class="element">3</span>' +
-                '</div>' +
-                '</div>');
-
         this.presenter.setState('{\"values\":[\"1\",\"2\"]}');
 
-        assertEquals('1', this.presenter.$view.find('input:eq(0)').val());
-        assertEquals('2', this.presenter.$view.find('input:eq(1)').val());
+        assertTrue(this.stubs.setState.calledWith(["1", "2"], ["", ""]));
+    },
+
+    'test setState should call setDisabledInState': function () {
+        this.presenter.setState('{\"values\":[\"1\",\"2\"]}');
+
+        assertTrue(this.stubs.setDisabledInSetState.calledOnce);
     }
 });

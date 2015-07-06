@@ -13,7 +13,8 @@
 
 .basic-math-gaps-wrapper .basic-math-gaps-container > input,
 .basic-math-gaps-wrapper .basic-math-gaps-container > .element,
-.basic-math-gaps-wrapper .basic-math-gaps-container > .fraction-container {
+.basic-math-gaps-wrapper .basic-math-gaps-container > .fraction-container,
+.basic-math-gaps-wrapper .basic-math-gaps-container > .draggable-gap {
     float: left;
 }
 
@@ -67,6 +68,8 @@
     border: 1px solid #00bb00;
 }
 
-.basic-math-gaps-wrapper .gap-object {
+.basic-math-gaps-wrapper .draggable-gap {
     height: 20px;
+    text-align: center;
+    cursor: pointer;
 }

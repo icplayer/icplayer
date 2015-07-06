@@ -13,6 +13,22 @@ function AddonBasic_Math_Gaps_create(){
         presenter.eventBus = this.playerController.getEventBus();
     };
 
+    presenter.getErrorObject = function (errorCode) {
+        return {
+            'isError' : true,
+            'errorCode' : errorCode
+        };
+    };
+
+    presenter.errorCodes = {
+        'E01' : 'Left side is not equal to Right side.',
+        'E02' : 'A space can NOT be a decimal separator.',
+        'E03' : 'Gaps Definition can NOT be blank',
+        'E04' : 'Gap width must be positive integer',
+        'E05' : 'Sign must be other than =, [, ]',
+        'E06' : 'Equation needs \'=\' sign to be a equation'
+    };
+
     presenter.createPreview = function(view, model){
         runLogic(view, model, true);
     };
@@ -27,6 +43,7 @@ function AddonBasic_Math_Gaps_create(){
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);
+        presenter.eventBus.addEventListener('ItemConsumed', this);
     };
 
     presenter.upgradeModel = function (model) {
@@ -44,21 +61,35 @@ function AddonBasic_Math_Gaps_create(){
         return upgradedModel;
     };
 
+    function deleteCommands() {
+        delete presenter.getState;
+        delete presenter.setState;
+        delete presenter.getScore;
+        delete presenter.getMaxScore;
+        delete presenter.disable;
+        delete presenter.enable;
+    }
+
     function runLogic(view, model, isPreview) {
         var upgradedModel = presenter.upgradeModel(model);
 
-
-        presenter.$view = $(view);
         presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.$view = $(view);
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(presenter.$view.find('.basic-math-gaps-container'), presenter.errorCodes, presenter.configuration.errorCode);
+
+            deleteCommands();
             return;
         }
 
         presenter.gapsContainer = new presenter.GapsContainerObject();
         presenter.widgetsFactory = new presenter.ObjectFactory();
+        presenter.valueChangeObserver = new presenter.ValueChangeObserver();
 
+        if (isPreview) {
+            presenter.eventBus = function () {};
+        }
 
         presenter.createGaps();
 
@@ -79,9 +110,7 @@ function AddonBasic_Math_Gaps_create(){
             presenter.configuration.gapsDefinition
         );
 
-        if (presenter.configuration.isDisabled) {
-            presenter.gapsContainer.block();
-        }
+        presenter.lastDraggedItem = {};
     };
 
     presenter.setWrapperCss = function () {
@@ -98,7 +127,6 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         presenter._addFocusOutEventListener();
-
     };
 
     presenter._addFocusOutEventListener = function () {
@@ -109,10 +137,15 @@ function AddonBasic_Math_Gaps_create(){
                 value = $(this).val(),
                 score = (($(this).val() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val()) == presenter.configuration.gapsValues[item]));
 
-            if (presenter.configuration.isEquation && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) { return; }
+            if (presenter.configuration.isEquation
+                && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) {
+                return;
+            }
+
             presenter.sendEvent(item, value, score);
         });
     };
+
 
     function escapeRegexSpecialCharacters(value) {
         return (value + '').replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // escape regex special characters
@@ -125,14 +158,6 @@ function AddonBasic_Math_Gaps_create(){
         var escaped = escapeRegexSpecialCharacters(from);
         return value.replace(new RegExp(escaped, 'g'), to);
     }
-
-    presenter.errorCodes = {
-        'E01' : 'Left side is not equal to Right side.',
-        'E02' : 'A space can NOT be a decimal separator.',
-        'E03' : 'Gaps Definition can NOT be blank',
-        'E04' : 'Gap width must be positive integer',
-        'E05' : 'Sign must be other than =, [, ]'
-    };
 
     function getValueOfSingleElement(element, isGap, shouldParse) {
         var getGapValuePattern = /\[(.+)\]/,
@@ -160,7 +185,7 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         return false;
-    };
+    }
 
     presenter.convertSign = function (signs, value) {
         if (typeof (signs) == "undefined") {
@@ -203,15 +228,22 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
-    presenter.validateGapsDefinition = function(model, isEquation, separator, signs) {
-    	if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (model['gapsDefinition'].length === 0) {
-            return {
-                isError: true,
-                errorCode: 'E03'
+    presenter.removeEmptyStringsFromArray = function (stringArray) {
+        var resultArray = [];
+
+        var arrayLen = stringArray.length;
+        for(var i = 0; i < arrayLen; i++) {
+            if (!ModelValidationUtils.isStringEmpty(stringArray[i])) {
+                resultArray.push(stringArray[i]);
             }
+        }
+
+        return resultArray;
+    };
+
+    presenter.validateGapsDefinition = function(model, isEquation, separator, signs) {
+        if (model['gapsDefinition'].length === 0) {
+            return presenter.getErrorObject('E03');
         }
 
         var validatedGapsDefinition = [],
@@ -222,6 +254,9 @@ function AddonBasic_Math_Gaps_create(){
             rightSide = '',
             isLeft = true,
             gapsValues = [];
+
+
+        splittedGapsBySpace = presenter.removeEmptyStringsFromArray(splittedGapsBySpace);
 
         $.each(splittedGapsBySpace, function(i) {
             var valueBeforeConvert = splittedGapsBySpace[i],
@@ -312,14 +347,15 @@ function AddonBasic_Math_Gaps_create(){
             leftSide = convertDecimalSeparator(leftSide, separator, '.');
             rightSide = convertDecimalSeparator(rightSide, separator, '.');
 
-            var leftSideEvaluated = eval(leftSide).toFixed(2),
+            try {
+                var leftSideEvaluated = eval(leftSide).toFixed(2),
                 rightSideEvaluated = eval(rightSide).toFixed(2);
+            } catch (_) {
+                return presenter.getErrorObject('E06');
+            }
 
             if(leftSideEvaluated != rightSideEvaluated) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'E01'
-                }
+                return presenter.getErrorObject('E01');
             }
         }
 
@@ -330,17 +366,13 @@ function AddonBasic_Math_Gaps_create(){
             'leftSide' : isEquation && splittedGapsBySpace.length > 0 ? leftSideEvaluated : leftSide,
             'rightSide' : isEquation && splittedGapsBySpace.length > 0 ? rightSideEvaluated : rightSide
         }
-
     };
 
     presenter.validateDecimalSeparator = function(separator) {
         var spacePattern = /(\s)/;
 
         if (spacePattern.test(separator)) {
-            return {
-                'isError' : true,
-                'errorCode' : 'E02'
-            }
+            return presenter.getErrorObject('E02');
         }
 
         return {
@@ -351,14 +383,11 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.validateGapWidth = function(gapWidth) {
         if (typeof gapWidth == "undefined" || gapWidth == 0) {
-            gapWidth = '';
+            gapWidth = '34';
         }
 
         if (gapWidth < 0 || isNaN(gapWidth)) {
-            return {
-                'isError' : true,
-                'errorCode' : 'E04'
-            }
+            return presenter.getErrorObject('E04');
         }
 
         return {
@@ -376,10 +405,7 @@ function AddonBasic_Math_Gaps_create(){
 
         for (var i = 0; i < Object.keys(signs[0]).length; i++) {
             if (regexp.test(signs[0][Object.keys(signs[0])[i]])) {
-                return {
-                    'isError' : true,
-                    'errorCode' : 'E05'
-                };
+                return presenter.getErrorObject('E05');
             }
         }
 
@@ -423,7 +449,6 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         var validatedGapsDefinition = presenter.validateGapsDefinition(model, validatedIsEquation, validatedDecimalSeparator.value, validatedSigns.value);
-
         if (validatedGapsDefinition.isError) {
             return validatedGapsDefinition;
         }
@@ -439,7 +464,9 @@ function AddonBasic_Math_Gaps_create(){
             'rightValue' : validatedGapsDefinition.rightSide,
             'leftValue' : validatedGapsDefinition.leftSide,
             'isActivity' : validatedIsActivity,
+            'isNotActivity': !validatedIsActivity,
             'isDisabled' : validatedIsDisabled,
+            'isDisabledByDefault': validatedIsDisabled,
             'isVisibleByDefault' : validatedIsVisible,
             'isVisible' : validatedIsVisible,
             'decimalSeparator' : validatedDecimalSeparator.value,
@@ -449,202 +476,119 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
-    presenter.setClassWhenCheck = function(isAddClass) {
-        if (presenter.configuration.isEquation) {
-            var $container = presenter.$view.find('.basic-math-gaps-container');
-
-            if($container.hasClass('basic_math_gaps_check')) {
-                $container.removeClass("basic_math_gaps_check");
-            } else if (isAddClass) {
-                $container.addClass("basic_math_gaps_check");
-            }
-        }
-    };
-
-    presenter._setShowErrorsModeEditable = function(inputs){
-        var inputs = presenter.$view.find('input');
-
-        $.each(inputs, function() {
-            $(this).attr('disabled', 'disabled');
-            $(this).addClass('disabled');
-        });
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
-        presenter.setClassWhenCheck(true);
-
-        if (canNOTCheckScore() || areInputsAllEmpty(inputs)
-            || (presenter.configuration.isEquation
-            && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length)) {
-            return;
-        }
-
-        var validated = validateScore();
-
-        if (presenter.configuration.isEquation) {
-
-            var container = presenter.$view.find('.basic-math-gaps-container');
-
-            if (!validated.userExpressionValid) {
-                $(container).addClass('wrong');
-                return;
-            }
-
-            if ( !isEquationCorrect(validated) ) {
-                $(container).addClass('wrong');
-                return;
-            }
-
-            $(container).addClass('correct');
-        } else {
-
-            $.each(inputs, function(i) {
-                var shouldBeValue = presenter.configuration.gapsValues[i],
-                    currentValue = presenter.reconvertSign(presenter.configuration.Signs, $(this).val());
-
-                    if (shouldBeValue == currentValue) {
-                        $(this).addClass('correct');
-                    } else if (currentValue.length > 0) {
-                        $(this).addClass('wrong');
-                    }
-            });
-
-        }
-    };
-
     presenter.setShowErrorsMode = function () {
-        if (presenter.configuration.isDraggable) {
-            presenter._setShowErrorsModeDraggable();
-        } else {
-            presenter._setShowErrorsModeEditable();
-        }
+        presenter.gapsContainer.check();
     };
 
-    presenter._setShowErrorsModeDraggable = function () {
-        presenter.gapsContainer.block();
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
-        presenter.setClassWhenCheck(true);
-
-        if (!presenter.configuration.isActivity || presenter.gapsContainer.areAllGapsEmpty()) {
-            return;
-        }
-
-        var validated = validateScore();
-
-        if (presenter.configuration.isEquation) {
-
-            var container = presenter.$view.find('.basic-math-gaps-container');
-
-            if (!validated.userExpressionValid) {
-                $(container).addClass('wrong');
-                return;
-            }
-
-            if ( !isEquationCorrect(validated) ) {
-                $(container).addClass('wrong');
-                return;
-            }
-
-            $(container).addClass('correct');
-        } else {
-            presenter.gapsContainer.setShowErrorsModeClasses();
-        }
-    };
-
-    presenter.setWorkMode = function(){
-        if (presenter.configuration.isDisabled) {
-            return;
-        }
-
-        if (presenter.configuration.isDraggable) {
-            presenter.gapsContainer.setWorkModeClasses();
-            presenter.gapsContainer.unblock();
-        } else {
-            presenter.setClassWhenCheck(false);
-
-            var inputs = presenter.$view.find('input');
-            inputs.attr('disabled', false);
-            inputs.removeClass('correct wrong disabled');
-            presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
-        }
-
+    presenter.setWorkMode = function() {
+        presenter.gapsContainer.check();
     };
 
     presenter.reset = function(){
-        if (presenter.configuration.isDisabled) {
-            return;
-        }
-
-        presenter.setWorkMode();
         presenter.gapsContainer.reset();
 
-
-        if(typeof(presenter.userAnswers) !== "undefined") {
-        	presenter.userAnswers.splice(0,presenter.userAnswers.length);
-        }
-
-        presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
-
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.configuration.isDisabled = presenter.configuration.isDisabledByDefault;
     };
 
-    function isEquationCorrect(validatedScore) {
+    presenter.areValuesInEquation = function (userValuesInGaps, correctGapsValues) {
+        correctGapsValues = [].concat(correctGapsValues);
+        var len = userValuesInGaps.length;
+
+        for (var i = 0; i < len; i++) {
+            if (correctGapsValues.indexOf(userValuesInGaps[i]) === -1) {
+                return false;
+            } else {
+                var index = correctGapsValues.indexOf(userValuesInGaps[i]);
+                correctGapsValues.splice(index, 1);
+            }
+        }
+
+        return true;
+    };
+
+    presenter.isEquationCorrect = function (validatedScore) {
+        var isCorrect = presenter.isEquationCorrectWrapper(validatedScore);
+        var valuesAreInEquation = presenter.areValuesInEquationWrapper();
+
+        return (isCorrect && valuesAreInEquation);
+    };
+
+    function getReconvertedUserExpression () {
+        return presenter.reconvertExpression(getUserExpression().split(' '));
+    }
+
+    function getConvertedUserGapsValues () {
+        var gapsValues = presenter.reconvertExpression(presenter.gapsContainer.getValues());
+
+        return gapsValues.split(' ');
+    }
+
+    presenter.areValuesInEquationWrapper = function () {
+        return presenter.areValuesInEquation(getConvertedUserGapsValues(), presenter.configuration.gapsValues);
+    };
+
+
+    presenter.isEquationCorrectWrapper = function (validatedScore) {
         return validatedScore.isSameResultOnBothSides
             && validatedScore.leftEvaluated == presenter.configuration.leftValue
             && validatedScore.rightEvaluated == presenter.configuration.rightValue;
-    }
+    };
 
     presenter.getErrorCount = function(){
-    	if (presenter.isShowAnswersActive) {
+        if (presenter.configuration.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        if (canNOTCheckScore() || areInputsAllEmpty()) {
+
+        if (presenter.cantCheck()) {
             return 0;
         }
 
-        var validated = validateScore();
+        return _getErrorCount();
+    };
+
+    function _getErrorCount () {
+        var validated = presenter.validateScore();
 
         if (presenter.configuration.isEquation) {
-            if (!validated.userExpressionValid) {
-                return 1;
-            }
-
-            if ( !isEquationCorrect(validated) ) {
-                return 1;
-            }
-
-            return 0;
+            return equationGetErrorCount(validated);
         } else {
-            return filterInputs(function(element) { return $(element).val().length > 0; }).length - validated.validGapsCount;
+            return presenter.gapsContainer.getNonEmptyGapsNumber() - validated.validGapsCount;
+        }
+    }
+
+    function equationGetErrorCount (validated) {
+        if (presenter.isEquationCorrect(validated) ) {
+            return 0;
         }
 
-    };
+        return 1;
+    }
 
     function filterInputs(testFunction) {
         return $.grep(presenter.$view.find('input'), function(element) { return testFunction(element) });
     }
 
     presenter.getMaxScore = function(){
-    	if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
-        if (presenter.configuration.isEquation && presenter.configuration.isActivity) {
-            return 1;
-        } else if (presenter.configuration.isActivity) {
-            return presenter.gapsContainer.getMaxScore();
-        } else {
+        if (presenter.configuration.isNotActivity) {
             return 0;
         }
+
+        if (presenter.configuration.isEquation) {
+            return 1;
+        }
+
+        return presenter.gapsContainer.getMaxScore();
     };
 
     function getUserExpression() {
+        function getValueFromChild($gap) {
+            var gapID = $gap.attr("id");
+            var gapValue = presenter.gapsContainer.getValueByID(gapID);
+
+            return value = gapValue;
+        }
+
         var result = '';
 
         $.each(presenter.$view.find('.basic-math-gaps-container').children(), function() {
@@ -657,36 +601,26 @@ function AddonBasic_Math_Gaps_create(){
                 elements.push($('<span class="element">/</span>'));
                 elements.push(container.find('.denominator').children());
             }
+
             $.each(elements, function() {
                 var $element = $(this),
                     value = '';
 
                 if ($element.is('input')) {
-                    value = $element.val() + ' ';
+                    var gapID = $element.attr("id");
+                    var gapValue = presenter.gapsContainer.getValueByID(gapID);
+                    value = gapValue + ' ';
+                } else if ($element.hasClass("draggableContainer")) {
+                    var child = $element.find(":first-child");
+                    value = getValueFromChild(child) + ' ';
                 } else {
                     value = $element.text() + ' ';
                 }
-
                 result += convertDecimalSeparator(value, presenter.configuration.decimalSeparator, '.');
             });
         });
+
         return result.trim();
-    }
-
-    function areInputsAllEmpty(inputs) {
-        var allEmpty = true;
-
-        if (inputs == undefined) {
-            inputs = presenter.$view.find('input');
-        }
-
-        $.each(inputs, function() {
-            if($(this).val().length > 0) {
-                allEmpty = false;
-            }
-        });
-
-        return allEmpty;
     }
 
     presenter.reconvertExpression = function(splittedUserExpression) {
@@ -695,28 +629,13 @@ function AddonBasic_Math_Gaps_create(){
 
         $.each(splittedUserExpression, function(i) {
             convertedSign = presenter.reconvertSign(presenter.configuration.Signs, splittedUserExpression[i]);
-            reconvertedExpression += convertedSign;
+            reconvertedExpression += convertedSign + " ";
         });
 
-        return reconvertedExpression;
+        return reconvertedExpression.trim();
     };
 
-    function getValuesArray () {
-        if (presenter.configuration.isDraggable) {
-            return getValuesFromSpans();
-        }
-
-        return getValuesFromAllGaps();
-    }
-
-    function getValuesFromSpans() {
-        return presenter.gapsContainer.getValues();
-    }
-
-    function validateScore() {
-
-        var valuesArray = getValuesArray();
-
+    presenter.getValidGapsCount = function (valuesArray) {
         var isValid = true;
         var validGapsCount = 0;
 
@@ -728,117 +647,88 @@ function AddonBasic_Math_Gaps_create(){
             }
         });
 
-        var userExpression = getUserExpression(),
-            splitted,
-            splittedUserExpression = userExpression.split(' '),
-            userExpressionValid = false;
+        return {
+            isValid: isValid,
+            validGapsCount: validGapsCount
+        }
+    };
 
-        var reconvertedExpression = presenter.reconvertExpression(splittedUserExpression);
+    presenter.getStringReconvertedUserExpression = function () {
+        return getReconvertedUserExpression().split(' ').reduce(function (result, element) {
+            return result + element;
+        }, '');
+    };
 
-        splitted = reconvertedExpression.split('=');
+    presenter.validateScore = function () {
+        var validatedGapsCount = presenter.getValidGapsCount(presenter.gapsContainer.getValues());
+
+        var reconvertedExpression = presenter.getStringReconvertedUserExpression();
+
+        var splitted = reconvertedExpression.split('=');
 
         if (presenter.configuration.isEquation && splitted.length > 1 && filterInputs(function(element) { return $(element).val().length == 0; }).length == 0) {
             try {
-                var userExpressionLeft = splitted[0],
-                    userExpressionRight = splitted[1],
-                    leftEvaluated = eval(userExpressionLeft).toFixed(2),
-                    rightEvaluated = eval(userExpressionRight).toFixed(2),
-                    isSameResultOnBothSides = leftEvaluated == rightEvaluated;
-
-                userExpressionValid = true;
-
+                var userExpressionLeft = splitted[0];
+                var userExpressionRight = splitted[1];
+                var leftEvaluated = eval(userExpressionLeft).toFixed(2);
+                var rightEvaluated = eval(userExpressionRight).toFixed(2);
+                var isSameResultOnBothSides = leftEvaluated == rightEvaluated;
             } catch (_) {
-                userExpressionValid = false;
+                leftEvaluated = "";
+                rightEvaluated = "";
+                isSameResultOnBothSides = false;
             }
-
         }
 
         return {
-            'userExpressionValid' : userExpressionValid,
-            'isValid' : isValid,
+            'isValid' : validatedGapsCount.isValid,
             'isSameResultOnBothSides' : isSameResultOnBothSides,
             'leftEvaluated' : leftEvaluated,
             'rightEvaluated' : rightEvaluated,
-            'validGapsCount' : validGapsCount
-        }
-    }
+            'validGapsCount' : validatedGapsCount.validGapsCount
+        };
+    };
 
-    function canNOTCheckScore() {
-        return !presenter.configuration.isActivity || presenter.configuration.isDisabled;
-    }
-
-    presenter._getScore = function(){
-    	if (presenter.isShowAnswersActive) {
+    presenter.getScore = function () {
+        if (presenter.configuration.isShowAnswersActive) {
             presenter.hideAnswers();
         }
 
-        var validated = validateScore();
+        if (presenter.cantCheck()) {
+            return 0;
+        }
+
+        var validated = presenter.validateScore();
 
         if (presenter.configuration.isEquation) {
-            if (!validated.userExpressionValid) {
-                return 0;
+            if (presenter.isEquationCorrect(validated) ) {
+                return 1;
             }
 
-            if ( !isEquationCorrect(validated) ) {
-                return 0;
-            }
-
-            return 1;
-
+            return 0;
         } else {
             return validated.validGapsCount;
         }
     };
 
-    presenter.getScore = function () {
-        if (canNOTCheckScore()) {
-            return 0;
+    presenter.cantCheck = function () {
+        if (presenter.configuration.isNotActivity
+        || presenter.configuration.isDisabled
+        || presenter.gapsContainer.areAllGapsEmpty()) {
+            return true;
         }
 
-        if (!presenter.configuration.isDraggable) {
-            if (areInputsAllEmpty()) {
-                return 0;
-            }
-        }
-
-        var score = presenter._getScore();
-
-        return score;
+        return false;
     };
-
-    function getValuesFromAllGaps() {
-        if (presenter.configuration.isDraggable) {
-            return presenter.gapsContainer.getValues();
-        }
-
-        return getValuesFromAllInputs();
-    }
-
-    function getValuesFromAllInputs() {
-        var values = [];
-        $.each(presenter.$view.find('input'), function() {
-            values.push($(this).val());
-        });
-        return values;
-    }
-
-    function setValuesForAllInputs(values) {
-        $.each(presenter.$view.find('input'), function(i) {
-            $(this).val(values[i]);
-        });
-    }
 
     presenter.getState = function(){
         var state = {
-            'values' : getValuesFromAllGaps(),
+            'values' : presenter.gapsContainer.getValues(),
             'sources': presenter.gapsContainer.getSources(),
             'isVisible' : presenter.configuration.isVisible,
             'isDisabled' : presenter.configuration.isDisabled
         };
 
-    	if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
         return JSON.stringify(state);
     };
 
@@ -861,19 +751,27 @@ function AddonBasic_Math_Gaps_create(){
         return upgradedState;
     };
 
+    presenter.setDisabledInSetState = function (isDisabled) {
+        if (presenter.configuration.isDisabledByDefault && !isDisabled) {
+            presenter.gapsContainer.unlock();
+        } else if (!presenter.configuration.isDisabledByDefault && isDisabled) {
+            presenter.gapsContainer.lock();
+        } else if (presenter.configuration.isDisabledByDefault && isDisabled) {
+            presenter.gapsContainer.lock();
+        }
+
+        presenter.configuration.isDisabled = isDisabled;
+    };
+
     presenter.setState = function(stateString){
         var state = JSON.parse(stateString);
 
         var upgradedState = presenter.upgradeState(state);
 
-        if (presenter.configuration.isDraggable) {
-            presenter.gapsContainer.setState(upgradedState.values);
-        } else {
-            setValuesForAllInputs(upgradedState.values);
-        }
+        presenter.gapsContainer.setState(upgradedState.values, upgradedState.sources);
 
         presenter.configuration.isVisible = upgradedState.isVisible;
-        presenter.configuration.isDisabled = upgradedState.isDisabled;
+        presenter.setDisabledInSetState(upgradedState.isDisabled);
 
         presenter.setVisibility(upgradedState.isVisible);
     };
@@ -895,39 +793,13 @@ function AddonBasic_Math_Gaps_create(){
     presenter.disable = function() {
         presenter.configuration.isDisabled = true;
 
-        if (presenter.configuration.isDraggable) {
-            presenter.gapsContainer.block();
-        } else {
-            presenter.setInputsDisabledOption(true);
-        }
-    };
-
-    presenter.getDisabledOption = function (booleanValue) {
-        if (booleanValue) {
-            return 'disabled';
-        }
-
-        return false;
-    };
-
-    presenter.setInputsDisabledOption = function (booleanValue) {
-        $.each(presenter.$view.find('input'), function() {
-            $(this).attr('disabled', presenter.getDisabledOption(booleanValue));
-
-            if (booleanValue) {
-                $(this).addClass('disabled');
-            } else {
-                $(this).removeClass('disabled');
-            }
-        });
+        presenter.gapsContainer.lock();
     };
 
     presenter.enable = function() {
-        presenter.configuration.isDisabled = false;
-        if (presenter.configuration.isDraggable) {
-            presenter.gapsContainer.unblock();
-        } else {
-            presenter.setInputsDisabledOption(false);
+        if (presenter.configuration.isDisabled) {
+            presenter.gapsContainer.unlock();
+            presenter.configuration.isDisabled = false;
         }
     };
 
@@ -976,10 +848,10 @@ function AddonBasic_Math_Gaps_create(){
         var eventData = presenter.createEventData(item, value, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
 
-        if (presenter.isAllOK() && !presenter.configuration.isEquation) sendAllOKEvent();
+        if (presenter.isAllOK() && !presenter.configuration.isEquation) presenter.sendAllOKEvent();
     };
 
-    function sendAllOKEvent() {
+    presenter.sendAllOKEvent = function () {
         var eventData = {
             'source': presenter.configuration.addonID,
             'item': 'all',
@@ -988,7 +860,7 @@ function AddonBasic_Math_Gaps_create(){
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-    }
+    };
 
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "ShowAnswers") {
@@ -1000,39 +872,26 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         if (eventName == "ItemSelected") {
-            var draggedItem = presenter.widgetsFactory.produce(
-                presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGED_ITEM, eventData
-            );
+            presenter.lastDraggedItem = eventData;
+        }
 
-            presenter.lastDraggedItem = draggedItem;
+        if (eventName == "ItemConsumed") {
+            presenter.lastDraggedItem = {};
         }
     };
-    
-    presenter.showAnswers = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
 
+    presenter.showAnswers = function () {
         if (presenter.configuration.isActivity) {
-            presenter.setWorkMode();
-            presenter.isShowAnswersActive = true;
-            presenter.gapsContainer.block();
             presenter.gapsContainer.showAnswers();
         }
     };
-    
+
     presenter.hideAnswers = function () {
-        presenter.isShowAnswersActive = false;
-        presenter.gapsContainer.unblock();
         presenter.gapsContainer.hideAnswers();
     };
 
     presenter.parseItemValue = function (item) {
-    	if(item.indexOf("**") > -1 || item.indexOf("__") > -1){
-    		return item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/__(.*?)__/g, "<i>$1</i>").replace(/__(.*?)_/g, "<i>$1_</i>").replace(/\*\*(.*?)\*/g, "<b>$1*</b>").replace(/_(.*?)__/g, "_$1").replace(/\*(.*?)\*\*/g, "*$1");
-    	}else{
-    		return item;
-    	}
+    	return item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/__(.*?)__/g, "<i>$1</i>").replace(/__(.*?)_/g, "<i>$1_</i>").replace(/\*\*(.*?)\*/g, "<b>$1*</b>").replace(/_(.*?)__/g, "_$1").replace(/\*(.*?)\*\*/g, "*$1");
     };
 
     presenter.GapsContainerObject = function () {
@@ -1040,21 +899,13 @@ function AddonBasic_Math_Gaps_create(){
         this._gapsOrderArray = [];
     };
 
-    presenter.GapsContainerObject.prototype.getGapById = function (id) {
-        return this._gaps[id];
-    };
-
-    presenter.GapsContainerObject.prototype.triggerGapDropHandler = function (id) {
-        this.getGapById(id).actualGap.dropHandler();
-    };
-
-    presenter.GapsContainerObject.prototype.triggerGapClickHandler = function (id) {
-        this.getGapById(id).actualGap.clickHandler();
+    presenter.GapsContainerObject.prototype.getGapIndexByID = function (htmlID) {
+        return this._gapsOrderArray.indexOf(htmlID);
     };
 
     presenter.GapsContainerObject.prototype.getValues = function () {
         return this._gapsOrderArray.map(function (element) {
-            return this._gaps[element].actualGap.getValue();
+            return this._gaps[element].getValue();
         }, this);
     };
 
@@ -1064,25 +915,8 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.GapsContainerObject.prototype.getSources = function () {
         return this._gapsOrderArray.map(function (gapID){
-            return this._gaps[gapID].actualGap.getSource();
+            return this._gaps[gapID].getSource();
         }, this);
-    };
-
-    presenter.GapsContainerObject.prototype.getScoreForEventByGapID = function (gapID, value) {
-        var index = this._gapsOrderArray.indexOf(gapID);
-
-        var scoreBoolean = (value === presenter.configuration.gapsValues[index] ||
-        (presenter.reconvertSign(presenter.configuration.Signs, value) == presenter.configuration.gapsValues[index]));
-
-        if (scoreBoolean) {
-            return 1;
-        }
-
-        return 0;
-    };
-
-    presenter.GapsContainerObject.prototype.getGapIndexByID = function (gapID) {
-        return (this._gapsOrderArray.indexOf(gapID) + 1);
     };
 
     presenter.GapsContainerObject.prototype.areAllGapsEmpty = function () {
@@ -1093,444 +927,381 @@ function AddonBasic_Math_Gaps_create(){
         return (reducedValue === "");
     };
 
-    presenter.GapsContainerObject.prototype.showAnswers = function () {
-        this._gapsOrderArray.map(function (gapID) {
-            return this._gaps[gapID];
-        }, this).forEach(function (gap, index) {
-            gap.actualGap.setValue(
-                presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[index])
-            );
+    presenter.GapsContainerObject.prototype.setState = function (valuesArray, sourcesArray) {
+        this._gapsOrderArray.forEach(function (gapID, index) {
+            this._gaps[gapID].setState(valuesArray[index], sourcesArray[index]);
 
-            gap.$actualView.addClass('bmg_show-answers');
-        });
+            if (valuesArray[index] == "") {
+                this._gaps[gapID].destroyDraggableProperty();
+            }
+
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.showAnswers = function () {
+        this._gapsOrderArray.forEach(function (gapID) {
+            this._gaps[gapID].showAnswers();
+        }, this);
     };
 
     presenter.GapsContainerObject.prototype.hideAnswers = function () {
         this._gapsOrderArray.forEach(function (gapID) {
-            this._gaps[gapID].actualGap.hideAnswers();
-            this._gaps[gapID].$actualView.removeClass('bmg_show-answers');
+            this._gaps[gapID].hideAnswers();
         }, this);
     };
 
-    presenter.GapsContainerObject.prototype.setShowErrorsModeClasses = function () {
-        this._gapsOrderArray.forEach(function (gapID, index) {
-            var gap = this._gaps[gapID];
+    presenter.GapsContainerObject.prototype.canSendEvent = function () {
+        if (presenter.configuration.isEquation) {
+            return this.getNonEmptyGapsNumber() == this._gapsOrderArray.length;
+        }
 
-            var shouldBeValue = presenter.configuration.gapsValues[index];
-            var currentValue = presenter.reconvertSign(presenter.configuration.Signs, gap.actualGap.getValue());
-
-
-            if (shouldBeValue == currentValue) {
-                gap.$actualView.addClass('correct');
-            } else {
-                gap.$actualView.addClass('wrong');
-            }
-        }, this);
+        return true;
     };
 
-    presenter.GapsContainerObject.prototype.setWorkModeClasses = function () {
-        presenter.setClassWhenCheck(false);
-        presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
-
-
+    presenter.GapsContainerObject.prototype.check = function () {
         this._gapsOrderArray.forEach(function (gapID) {
-            var gap = this._gaps[gapID];
-            gap.$actualView.removeClass('correct wrong disabled')
-
+            this._gaps[gapID].check();
         }, this);
     };
 
-    presenter.GapsContainerObject.prototype.block = function () {
+    presenter.GapsContainerObject.prototype.lock = function () {
         this._gapsOrderArray.forEach(function (element) {
-            this._gaps[element].actualGap.block();
+            this._gaps[element].lock();
         }, this);
     };
 
-    presenter.GapsContainerObject.prototype.unblock = function () {
+    presenter.GapsContainerObject.prototype.unlock = function () {
         this._gapsOrderArray.forEach(function (element) {
-            this._gaps[element].actualGap.unblock();
+            this._gaps[element].unlock();
         }, this);
     };
 
     presenter.GapsContainerObject.prototype.reset = function () {
         this._gapsOrderArray.forEach(function (gapID) {
-            this._gaps[gapID].actualGap.reset();
+            this._gaps[gapID].reset();
         }, this);
     };
 
-    presenter.GapsContainerObject.prototype.showActualView = function (id) {
-        var handlerGaps = this.getGapById(id);
+    presenter.GapsContainerObject.prototype.getNonEmptyGapsNumber = function () {
+        return this.getValues().filter(function (value) {
+            return value.length > 0;
+        }).length;
+    };
 
-        var $viewToReplace = handlerGaps.actualGap.getView();
-
-
-        handlerGaps.$actualView.replaceWith($viewToReplace).remove();
-        handlerGaps.$actualView = $viewToReplace;
-
-        handlerGaps.actualGap.connectEventsToReplacedView($viewToReplace);
+    presenter.GapsContainerObject.prototype.areAllGapsFilled = function () {
+        return (this.getNonEmptyGapsNumber() == this._gapsOrderArray.length);
     };
 
     presenter.GapsContainerObject.prototype.addGap = function (gap) {
-        var id = gap.getId();
+        var gapID = gap.getObjectID();
 
-        this._gapsOrderArray.push(id);
+        this._gapsOrderArray.push(gapID);
 
-        this._gaps[id] = {
-            baseGap: gap,
-            actualGap: gap,
-            $actualView: gap.getView()
-        };
+        this._gaps[gapID] = gap;
     };
 
-    presenter.GapsContainerObject.prototype.setState = function (valuesArray) {
-        this._gapsOrderArray.forEach(function (element, index) {
-            if (valuesArray[index] == "") {
-                this._replaceWithEmptyGap(index);
-            } else {
-                this._replaceWithDraggableGap(valuesArray[index], "", index);
+    presenter.GapsContainerObject.prototype.getValueByID = function (gapID) {
+        return this._gaps[gapID].getValue();
+    };
+
+    presenter.getCSSConfiguration = function () {
+        if (presenter.configuration.isEquation) {
+            return {
+                showAnswers: 'bmg_show-answers'
+            };
+        } else {
+            return {
+                correct: "correct",
+                wrong: "wrong",
+                showAnswers: 'bmg_show-answers'
+            };
+        }
+    }
+
+    presenter.GapUtils = function (configuration) {
+        DraggableDroppableObject.call(this, configuration, presenter.getCSSConfiguration());
+
+        this.valueChangeObserver = presenter.valueChangeObserver;
+    };
+
+    presenter.GapUtils.prototype = Object.create(DraggableDroppableObject.prototype);
+    presenter.GapUtils.constructor = presenter.GapUtils;
+
+    presenter.GapUtils.prototype.addClassToContainer = function () {
+        presenter.$view.find('.basic-math-gaps-container').addClass("basic_math_gaps_check");
+    }
+
+    presenter.GapUtils.prototype.removeClassFromContainer = function () {
+        presenter.$view.find('.basic-math-gaps-container').removeClass("basic_math_gaps_check");
+    };
+
+    presenter.GapUtils.prototype.removeClassInEquation = function () {
+        presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
+    };
+
+    presenter.GapUtils.prototype.getClassName = function () {
+        if (presenter.isEquationCorrect(presenter.validateScore())) {
+            return "correct";
+        } else {
+            return "wrong";
+        }
+    }
+
+    presenter.GapUtils.prototype.addClassInEquation = function () {
+        if (presenter.gapsContainer.areAllGapsFilled()) {
+            presenter.$view.find('.basic-math-gaps-container').addClass(this.getClassName());
+        }
+    };
+
+    presenter.GapUtils.prototype.shouldNotAddCssClassInEquation = function (valueFunction) {
+        return presenter.configuration.isNotActivity
+        || presenter.configuration.isDisabled
+        || presenter.gapsContainer.areAllGapsEmpty();
+    };
+    
+    presenter.GapUtils.prototype.shouldNotAddCssClass = function () {
+        return presenter.configuration.isNotActivity
+        || presenter.configuration.isDisabled
+        || this.isEmpty();
+    };
+
+    presenter.GapUtils.prototype.setCss = function (containerCssFunction, equationFunction, notEquationFunction) {
+        containerCssFunction();
+
+        if (presenter.configuration.isEquation) {
+            if (this.shouldNotAddCssClassInEquation()) {
+                return;
             }
-        }, this);
+            equationFunction.call(this);
+        } else {
+            if (this.shouldNotAddCssClass()) {
+                return;
+            }
+            notEquationFunction.call(this);
+        }
     };
 
-    presenter.GapsContainerObject.prototype._replaceWithEmptyGap = function (index) {
-        var gapID = this._gapsOrderArray[index];
+    presenter.GapUtils.prototype.isEmpty = function () {
+        return this.getValue() == "";
+    }
 
-        var gap = this._gaps[gapID];
+    presenter.GapUtils.prototype.onBlock = function () {
+        if (!presenter.configuration.isDisabled) {
+            this.lock();
+        }
+    };
+
+    presenter.GapUtils.prototype.onUnblock = function () {
+        if (!presenter.configuration.isDisabled) {
+            this.unlock();
+        }
+    };
+
+    presenter.GapUtils.prototype.onShowAnswers = function () {
+        presenter.configuration.isShowAnswersActive = true;
+
+        if (presenter.configuration.isDisabled) {
+            this.setViewValue(this.showAnswersValue);
+        } else {
+            DraggableDroppableObject.prototype.onShowAnswers.call(this);
+        }
+    };
+
+    presenter.GapUtils.prototype.onHideAnswers = function () {
+        presenter.configuration.isShowAnswersActive = false;
+
+        if (presenter.configuration.isDisabled) {
+            this.setViewValue(this.value);
+        } else {
+            DraggableDroppableObject.prototype.onHideAnswers.call(this);
+        }
+    };
+
+    presenter.GapUtils.prototype.onReset = function () {
+        DraggableDroppableObject.prototype.onReset.call(this);
+
+        if (presenter.configuration.isDisabledByDefault && !presenter.configuration.isDisabled) {
+            this.lock();
+        } else if (!presenter.configuration.isDisabledByDefault && presenter.configuration.isDisabled) {
+            this.unlock();
+        }
+    };
+
+    presenter.GapUtils.prototype.onCorrect = function () {
+        this.onBlock();
+    };
+
+    presenter.GapUtils.prototype.onUnCorrect = function () {
+        this.onUnblock();
+    };
+
+    presenter.GapUtils.prototype.onWrong = function () {
+        this.onBlock();
+    };
+
+    presenter.GapUtils.prototype.onUnWrong = function () {
+        this.onUnblock();
+    };
+
+    presenter.GapUtils.prototype.setCssOnCorrect = function () {
+        this.setCss(this.addClassToContainer, this.addClassInEquation, DraggableDroppableObject.prototype.setCssOnCorrect);
+    };
+
+    presenter.GapUtils.prototype.setCssOnUnCorrect = function () {
+        this.setCss(this.removeClassFromContainer, this.removeClassInEquation, DraggableDroppableObject.prototype.setCssOnUnCorrect);
+    };
+
+    presenter.GapUtils.prototype.setCssOnWrong = function () {
+        this.setCss(this.addClassToContainer, this.addClassInEquation, DraggableDroppableObject.prototype.setCssOnWrong);
+    };
+
+    presenter.GapUtils.prototype.setCssOnUnWrong = function () {
+        this.setCss(this.removeClassFromContainer, this.removeClassInEquation, DraggableDroppableObject.prototype.setCssOnUnWrong);
+    };
+
+    presenter.GapUtils.prototype.isCorrect = function () {
+        if (presenter.configuration.isEquation) {
+            return presenter.isEquationCorrect(presenter.validateScore());
+        } else {
+            return DraggableDroppableObject.prototype.isCorrect.call(this);
+        }
+    };
 
 
-        var data = {
-            id: gap.actualGap.getId(),
-            width: presenter.configuration.gapWidth,
-            float: gap.actualGap.getFloat()
+    presenter.EditableInputGap = function (htmlID, correctAnswer) {
+        var configuration = {
+            addonID: presenter.configuration.addonID,
+            objectID: htmlID,
+            eventBus: presenter.eventBus,
+            getSelectedItem: presenter.getSelectedItem,
+
+            showAnswersValue: correctAnswer,
+
+            createView: presenter.EditableInputGap.prototype.createView,
+            connectEvents: function () {},
+            setViewValue: presenter.EditableInputGap.prototype.setViewValue
         };
 
+        presenter.GapUtils.call(this, configuration);
 
-        var producedEmptyGap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP, data);
-
-        this.replaceActualGapWithId(gapID, producedEmptyGap);
-        this.showActualView(gapID);
+        this.$view.on("input", this.onEdit.bind(this));
     };
 
-    presenter.GapsContainerObject.prototype._replaceWithDraggableGap = function (value, source, index) {
-        var gapID = this._gapsOrderArray[index];
+    presenter.EditableInputGap.prototype = Object.create(presenter.GapUtils.prototype);
+    presenter.EditableInputGap.constructor = presenter.EditableInputGap;
 
-        var gap = this._gaps[gapID];
-
-
-        var data = {
-            id: gap.actualGap.getId(),
-            className: gap.actualGap.getClassName(),
-            value: value,
-            source: source,
-            width: presenter.configuration.gapWidth,
-            float: gap.actualGap.getFloat()
-        };
-
-
-        var producedGap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
-
-        this.replaceActualGapWithId(gapID, producedGap);
-        this.showActualView(gapID);
-    };
-
-    presenter.GapsContainerObject.prototype.addFractionGap = function (gap) {
-        this.addGap(gap.getNumerator());
-        this.addGap(gap.getDenominator());
-    };
-
-    presenter.GapsContainerObject.prototype.replaceActualGapWithId = function (id, newGap) {
-        this._gaps[id].actualGap = newGap;
-    };
-
-    presenter.GapsContainerObject.prototype.replaceActualGapWithBaseById = function (id) {
-        var baseGap = this._gaps[id].baseGap;
-
-        this._gaps[id].actualGap = baseGap;
-    };
-
-    presenter.GapObject = function (id, width, float, value, source, className) {
-        this.id = id;
-        this._className = className || "";
-        this.width = width || 30;
-        this._float = float || true;
-        this._source = source || "";
-        this._value = value || "";
-        this._$view = this._createView();
-        this._connectEvents(this._$view);
-    };
-
-    presenter.GapObject.prototype.getWidth = function () {
-        return this.width;
-    };
-
-    presenter.GapObject.prototype.reset = function () {
-        return this.setValue("");
-    };
-
-    presenter.GapObject.prototype.getFloat = function () {
-        return this._float;
-    };
-
-    presenter.GapObject.prototype.getClassName = function () {
-        return this._className;
-    };
-
-    presenter.GapObject.prototype.getSource = function () {
-        return this._source;
-    };
-
-    presenter.GapObject.prototype._createView = function () {
-        var $inputGap = $('<input type="text" value="" id="' + this.id + '" />');
+    presenter.EditableInputGap.prototype.createView = function () {
+        var $inputGap = $('<input type="text" value="" id="' + this.objectID + '" />');
+        $inputGap.css({
+            width: presenter.configuration.gapWidth + "px"
+        });
 
         return $inputGap;
     };
 
-    presenter.GapObject.prototype.setValue = function (value) {
-        this._userAnswer = this._$view.val();
-        this._$view.val(value);
+    presenter.EditableInputGap.prototype.onEdit = function (event) {
+        this.notifyEdit();
+        this.value = this.getValue();
     };
 
-    presenter.GapObject.prototype.hideAnswers = function () {
-        this._$view.val(this._userAnswer);
+    presenter.EditableInputGap.prototype.lock = function () {
+        this.$view.attr('disabled','disabled');
+        this.$view.addClass('disabled');
     };
 
-    presenter.GapObject.prototype.setDisabledAttributeAndClass = function () {
-        this._$view.attr('disabled', 'disabled');
-        this._$view.addClass('disabled');
+    presenter.EditableInputGap.prototype.unlock = function () {
+        this.$view.removeAttr('disabled');
+        this.$view.removeClass('disabled');
     };
 
-    presenter.GapObject.prototype.getId = function () {
-        return this.id;
+    presenter.EditableInputGap.prototype.getValue = function () {
+        return this.$view.val();
     };
 
-    presenter.GapObject.prototype._connectEvents = function ($view) {
-        $view.click(function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-
-        });
+    presenter.EditableInputGap.prototype.setViewValue = function (value) {
+        return this.$view.val(value);
     };
 
-    presenter.GapObject.prototype.block = function () {
-        this._$view.attr('disabled', true);
+    presenter.EditableInputGap.prototype.getSource = function () {
+        return "";
     };
 
-    presenter.GapObject.prototype.unblock = function () {
-        this._$view.attr('disabled', false);
+    presenter.EditableInputGap.prototype.onShowAnswers = function () {
+        this.value = this.getValue();
+        presenter.GapUtils.prototype.onShowAnswers.call(this);
     };
 
-    presenter.GapObject.prototype.connectEventsToReplacedView = function ($view) {
-        this._connectEvents($view);
-    };
+    presenter.DraggableDroppableGap = function (htmlID, correctAnswer) {
+        var configuration = {
+            addonID: presenter.configuration.addonID,
+            objectID: htmlID,
+            eventBus: presenter.eventBus,
+            getSelectedItem: presenter.getSelectedItem,
 
-    presenter.GapObject.prototype.getValue = function () {
-        return this._$view.val();
-    };
+            showAnswersValue: correctAnswer,
 
-    presenter.GapObject.prototype.setDroppableDisabledOption = function (booleanValue) {
-        this._$view.droppable( "option", "disabled", booleanValue);
-    };
-
-    presenter.GapObject.prototype.clickHandler = function () {
-    };
-
-    presenter.GapObject.prototype.dropHandler = function () {
-        presenter.lastDraggedItem.fillGap(this);
-    };
-
-    presenter.GapObject.prototype.getView = function () {
-        return this._$view;
-    };
-
-    presenter.GapObject.prototype.sendItemReturnedEvent = function () {
-        var eventData = {
-            'item': this._source,
-            'value': this._value,
-            type: this._type
+            fillGap: presenter.DraggableDroppableGap.prototype.fillGap,
+            makeGapEmpty: presenter.DraggableDroppableGap.prototype.makeGapEmpty
         };
 
-        presenter.eventBus.sendEvent('ItemReturned', eventData);
-    };
 
-    presenter.GapObject.prototype.sendValueChangedEvent = function () {
-        presenter.eventBus.sendEvent('ValueChanged', {
-            source: presenter.configuration.addonID,
-            value: this._value,
-            score: presenter.gapsContainer.getScoreForEventByGapID(this.id, this._value),
-            item: presenter.gapsContainer.getGapIndexByID(this.id)
+        presenter.GapUtils.call(this, configuration);
+
+        this.$view.css({
+            width: presenter.configuration.gapWidth + "px",
+            display: 'inline-block'
         });
 
-        if (presenter.isAllOK() && !presenter.configuration.isEquation) sendAllOKEvent();
+        this.addCssClass("draggable-gap");
     };
 
+    presenter.DraggableDroppableGap.prototype = Object.create(presenter.GapUtils.prototype);
+    presenter.DraggableDroppableGap.parent = presenter.GapUtils.prototype;
+    presenter.DraggableDroppableGap.constructor = presenter.DraggableDroppableGap;
+
+
+    presenter.DraggableDroppableGap.prototype.fillGap = function (selectedItem) {
+        DraggableDroppableObject.prototype.fillGap.call(this, selectedItem);
+        this.notify();
+    };
+
+    presenter.DraggableDroppableGap.prototype.makeGapEmpty = function () {
+        DraggableDroppableObject.prototype.makeGapEmpty.call(this);
+        this.notify();
+    };
+
+    presenter.DraggableDroppableGap.prototype.notify = function () {
+        this.valueChangeObserver.notify(this.getValueChangeEventData());
+    };
+
+    presenter.DraggableDroppableGap.prototype.getValueChangeEventData = function () {
+        return {
+            htmlID: this.getObjectID(),
+            value: this.getValue(),
+            isCorrect: this.getValue() == this.showAnswersValue
+        };
+    };
 
     presenter.ElementGapObject = function (value) {
         this._value = value;
-        this._$view = this._createView();
+        this.$view = this._createView();
     };
 
-    presenter.ElementGapObject.prototype = Object.create(presenter.GapObject.prototype);
-    presenter.ElementGapObject.prototype.constructor = presenter.ElementGapObject;
 
     presenter.ElementGapObject.prototype._createView = function () {
         return $('<span class="element">' + this._value + '</span>');
     };
 
-    presenter.ElementGapObject.prototype.setDisabledAttributeAndClass = function () {};
-
-
-    presenter.DraggableEmptyGap = function (id, width, float) {
-        presenter.GapObject.call(this, id, width, float);
+    presenter.ElementGapObject.prototype.getView = function () {
+        return $('<span class="element">' + this._value + '</span>');
     };
 
-    presenter.DraggableEmptyGap.prototype = Object.create(presenter.GapObject.prototype);
-    presenter.DraggableEmptyGap.prototype.constructor = presenter.DraggableEmptyGap;
+    presenter.getSelectedItem = function () {
+        var item = presenter.lastDraggedItem;
 
-    presenter.DraggableEmptyGap.prototype._createView = function () {
-        var $span = $('<span></span>');
-        $span.attr('id', this.id);
-        $span.addClass("ui-droppable");
-        $span.addClass("ui-widget-content");
-        $span.css({
-            width: this.width + "px",
-            display: "inline-block",
-            height: "20px"
-        });
+        presenter.onEventReceived("ItemSelected", {});
 
-        if (this._float) {
-            $span.css({
-                float: 'left'
-            });
-        }
-
-        return $span;
-    };
-
-    presenter.DraggableEmptyGap.prototype.getValue = function () {
-        return "";
-    };
-
-    presenter.DraggableEmptyGap.prototype.setValue = function (value) {
-        this._$view.html(value);
-    };
-
-    presenter.DraggableEmptyGap.prototype.hideAnswers = function () {
-        this._$view.html("");
-    };
-
-    presenter.DraggableEmptyGap.prototype._connectEvents = function ($view) {
-        $view.droppable({
-            drop: function (event, ui) {
-                event.stopPropagation();
-                event.preventDefault();
-                var id = $(this).attr("id");
-                presenter.gapsContainer.triggerGapDropHandler(id);
-            }
-        });
-    };
-
-    presenter.DraggableEmptyGap.prototype.block = function () {
-        this.setDroppableDisabledOption(true);
-    };
-
-    presenter.DraggableEmptyGap.prototype.unblock = function () {
-        this.setDroppableDisabledOption(false);
-    };
-
-
-    presenter.DraggableMathGapObject = function (id, width, float, value, source, className) {
-        presenter.GapObject.call(this, id, width, float, value, source, className);
-        this._type = "string";
-    };
-
-
-    presenter.DraggableMathGapObject.prototype = Object.create(presenter.GapObject.prototype);
-    presenter.DraggableMathGapObject.prototype.constructor = presenter.DraggableMathGapObject;
-    presenter.DraggableMathGapObject.prototype.parent = presenter.GapObject.prototype;
-
-    presenter.DraggableMathGapObject.prototype.getValue = function () {
-        return this._value;
-    };
-
-    presenter.DraggableMathGapObject.prototype.setValue = function (value) {
-        this._$view.html(value);
-    };
-
-    presenter.DraggableMathGapObject.prototype.reset = function (value) {
-        this.setValue("");
-        this._$view.draggable("disable");
-    };
-
-
-    presenter.DraggableMathGapObject.prototype.hideAnswers = function () {
-        this._$view.html(this._value);
-    };
-
-    presenter.DraggableMathGapObject.prototype._createView = function () {
-        var $span = $('<span></span>');
-        $span.attr('id', this.id);
-        $span.addClass(this._className);
-        $span.addClass("gap-object");
-        $span.addClass("ui-draggable");
-        $span.addClass("ui-widget-content");
-        $span.css({
-            width: this.width + "px",
-            display: "inline-block",
-            'text-align': "center"
-        });
-
-        $span.text(this._value);
-        $span.draggable({
-            revert: true,
-            revertDuration: 300
-        });
-
-        if (this._float) {
-            $span.css({
-                float: 'left'
-            });
-        }
-
-        return $span;
-    };
-
-    presenter.DraggableMathGapObject.prototype._connectEvents = function ($view) {
-        this.bindClickHandler($view);
-
-        $view.droppable({
-            drop: function (event, ui) {
-                event.stopPropagation();
-                event.preventDefault();
-                var id = $(this).attr("id");
-                presenter.gapsContainer.triggerGapDropHandler(id);
-            }
-        });
-    };
-
-    presenter.DraggableMathGapObject.prototype.bindClickHandler = function ($view) {
-        $view.click(function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-            var id = $(this).attr("id");
-            presenter.gapsContainer.triggerGapClickHandler(id);
-        });
-    };
-
-    presenter.DraggableMathGapObject.prototype.block = function () {
-        this._$view.unbind("click");
-        this.setDroppableDisabledOption(true);
-    };
-
-    presenter.DraggableMathGapObject.prototype.unblock = function () {
-        this.bindClickHandler(this._$view);
-        this.setDroppableDisabledOption(false);
-    };
-
-    presenter.DraggableMathGapObject.prototype.clickHandler = function () {
-        this.sendItemReturnedEvent();
-        presenter.gapsContainer.replaceActualGapWithBaseById(this.id);
-
-        presenter.gapsContainer.showActualView(this.id)
+        return item;
     };
 
 
@@ -1547,8 +1318,6 @@ function AddonBasic_Math_Gaps_create(){
         this._createContainers();
     };
 
-    presenter.FractionGapObject.prototype = Object.create(presenter.GapObject.prototype);
-    presenter.FractionGapObject.prototype.parent = presenter.GapObject.prototype;
     presenter.FractionGapObject.prototype.constructor = presenter.FractionGapObject;
 
     presenter.FractionGapObject.prototype._createContainers = function () {
@@ -1569,44 +1338,34 @@ function AddonBasic_Math_Gaps_create(){
         this._denominatorValue = value;
     };
 
-    presenter.FractionGapObject.prototype.createGapNumerator = function (type) {
-         this._numerator = presenter.widgetsFactory.produce(type, this._getNominatorProductionData());
-    };
-
-    presenter.FractionGapObject.prototype.createGapDenominator = function (type) {
-         this._denominator = presenter.widgetsFactory.produce(type, this._getDenominatorProductionData());
-    };
-
-    presenter.FractionGapObject.prototype.changeCSSFloatProperty = function () {
-        this._numerator.getView().css({
-            float: 'none'
-        });
-
-        this._denominator.getView().css({
-            float: 'none'
+    presenter.FractionGapObject.prototype.setDisplayInlineBlock = function (gap) {
+        gap.getView().css({
+            display: "inline-block"
         });
     };
 
-    presenter.FractionGapObject.prototype._getNominatorProductionData = function () {
+    presenter.FractionGapObject.prototype.createGapNumerator = function (type, data) {
+         this._numerator = presenter.widgetsFactory.produce(type, this._getNominatorProductionData(data));
+    };
+
+    presenter.FractionGapObject.prototype.createGapDenominator = function (type, data) {
+         this._denominator = presenter.widgetsFactory.produce(type, this._getDenominatorProductionData(data));
+    };
+
+    presenter.FractionGapObject.prototype._getNominatorProductionData = function (data) {
         return {
             id: this._id + "-numerator",
-            width: presenter.configuration.gapWidth
+            width: presenter.configuration.gapWidth,
+            correctAnswer: data.correctAnswerNumerator
         };
     };
 
-    presenter.FractionGapObject.prototype._getDenominatorProductionData = function () {
+    presenter.FractionGapObject.prototype._getDenominatorProductionData = function (data) {
         return {
             id: this._id + "-denominator",
-            width: presenter.configuration.gapWidth
+            width: presenter.configuration.gapWidth,
+            correctAnswer: data.correctAnswerDenominator
         };
-    };
-
-    presenter.FractionGapObject.prototype.addDisabledAttributeAndClassNumerator = function () {
-        this._numerator.setDisabledAttributeAndClass();
-    };
-
-    presenter.FractionGapObject.prototype.addDisabledAttributeAndClassDenominator = function () {
-        this._denominator.setDisabledAttributeAndClass();
     };
 
     presenter.FractionGapObject.prototype.getView = function () {
@@ -1628,10 +1387,8 @@ function AddonBasic_Math_Gaps_create(){
         return this._denominator;
     };
 
-
     presenter.ObjectFactory = function () {
         this.gapsFactory = new presenter.GapsFactoryObject();
-        this.draggedItemFactory = new presenter.DraggedItemFactoryObject();
         this.gapsContainerFactory = new presenter.GapsContainerFactoryObject();
     };
 
@@ -1639,10 +1396,8 @@ function AddonBasic_Math_Gaps_create(){
         EDITABLE_INPUT_GAP: 0,
         FRACTION_GAP: 1,
         ELEMENT_GAP: 2,
-        DRAGGED_ITEM: 3,
-        DRAGGABLE_MATH_GAP: 4,
-        GAP_CONTAINER: 5,
-        DRAGGABLE_EMPTY_GAP: 6
+        DRAGGABLE_MATH_GAP: 3,
+        GAP_CONTAINER: 4
     };
 
     presenter.ObjectFactory.prototype.produce = function (type, data) {
@@ -1661,23 +1416,15 @@ function AddonBasic_Math_Gaps_create(){
             case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP:
                 producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
                 break;
-            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP:
-                producedItem = this.gapsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP, data);
-                break;
-            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGED_ITEM:
-                producedItem = this.draggedItemFactory.produce(data);
-                break;
             case presenter.ObjectFactory.PRODUCTION_TYPE.GAP_CONTAINER:
                 producedItem = this.gapsContainerFactory.produce(data);
                 break;
         }
-        
+
         return producedItem;
     };
 
-    presenter.FractionBuilderObject = function () {
-
-    };
+    presenter.FractionBuilderObject = function () {};
 
     presenter.FractionBuilderObject.prototype = Object.create(presenter.ObjectFactory.prototype);
     presenter.FractionBuilderObject.prototype.constructor = presenter.FractionBuilderObject;
@@ -1688,19 +1435,13 @@ function AddonBasic_Math_Gaps_create(){
         this._setNumerator(fraction, data);
         this._setDenominator(fraction, data);
 
-        this._setDisabled(fraction);
-        fraction.changeCSSFloatProperty();
+
+        fraction.setDisplayInlineBlock(fraction.getNumerator());
+        fraction.setDisplayInlineBlock(fraction.getDenominator());
 
         fraction.joinNumeratorDenominator();
 
         return fraction;
-    };
-
-    presenter.FractionBuilderObject.prototype._setDisabled = function (fraction) {
-        if (presenter.configuration.isDisabled) {
-            fraction.addDisabledAttributeAndClassDenominator();
-            fraction.addDisabledAttributeAndClassNumerator();
-        }
     };
 
     presenter.FractionBuilderObject.prototype._produceFractionObject = function (data) {
@@ -1710,10 +1451,10 @@ function AddonBasic_Math_Gaps_create(){
     presenter.FractionBuilderObject.prototype._setNumerator = function (fraction, data) {
         if (data.fraction.numerator.isGap) {
             if (presenter.configuration.isDraggable) {
-                fraction.createGapNumerator(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP);
+                fraction.createGapNumerator(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
             } else {
-                fraction.createGapNumerator(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP);
-            }
+                fraction.createGapNumerator(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, data);}
+
         } else {
             fraction.createElementNumerator(data.fraction.numerator.parsed);
         }
@@ -1722,14 +1463,15 @@ function AddonBasic_Math_Gaps_create(){
     presenter.FractionBuilderObject.prototype._setDenominator = function (fraction, data) {
         if (data.fraction.denominator.isGap) {
             if (presenter.configuration.isDraggable) {
-                fraction.createGapDenominator(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP);
+                fraction.createGapDenominator(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
             } else {
-                fraction.createGapDenominator(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP);
+                fraction.createGapDenominator(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, data);
             }
         } else {
             fraction.createElementDenominator(data.fraction.denominator.parsed);
         }
     };
+
 
     presenter.GapsFactoryObject = function () {
         this._fractionBuilder = new presenter.FractionBuilderObject();
@@ -1743,36 +1485,26 @@ function AddonBasic_Math_Gaps_create(){
             case presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP:
                 return this.produceEditableInputGap(data);
                 break;
-            case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
-                return this.produceFractionGap(data);
-                break;
             case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP:
                 return this.produceDraggableMathGap(data);
-            case presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP:
-                return this.produceDraggableEmptyGap(data);
-                break;
             case presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP:
                 return this.produceElementGap(data);
+            case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
+                return this.produceFractionGap(data);
                 break;
         }
     };
 
     presenter.GapsFactoryObject.prototype.produceEditableInputGap = function (data) {
-        return new presenter.GapObject(data.id, data.width);
+        return new presenter.EditableInputGap(data.id, data.correctAnswer);
     };
 
     presenter.GapsFactoryObject.prototype.produceDraggableMathGap = function (data) {
-        return new presenter.DraggableMathGapObject(
-            data.id,  data.width, data.float, data.value, data.source, data.className
-        );
+        return new presenter.DraggableDroppableGap(data.id, data.correctAnswer);
     };
 
     presenter.GapsFactoryObject.prototype.produceElementGap = function (value) {
         return new presenter.ElementGapObject(value);
-    };
-
-    presenter.GapsFactoryObject.prototype.produceDraggableEmptyGap = function (data) {
-        return new presenter.DraggableEmptyGap( data.id, data.width, data.float);
     };
 
     presenter.GapsFactoryObject.prototype.produceFractionGap = function (data) {
@@ -1784,198 +1516,162 @@ function AddonBasic_Math_Gaps_create(){
     presenter.GapsContainerFactoryObject.prototype = Object.create(presenter.ObjectFactory.prototype);
     presenter.GapsContainerFactoryObject.prototype.constructor = presenter.GapsContainerFactoryObject;
 
+    presenter.GapsContainerFactoryObject.prototype.getFractionIndexIncrement = function (dataElement) {
+        var increment = 0;
+
+        if (dataElement.fraction.denominator.isGap) {
+            increment++;
+        }
+
+        if (dataElement.fraction.numerator.isGap) {
+            increment++;
+        }
+
+        return increment;
+    };
+
+    function wrapItemInContainer(item) {
+        var $container = $('<div></div>');
+        $container.css({
+            height: "50px",
+            'text-align': 'center',
+            float: 'left',
+            display: 'inline-block'
+        });
+        $container.addClass("draggableContainer");
+        $container.append(item.getView());
+
+        return $container
+    }
+
+    function setFractionCssToMainContainer($mainContainer) {
+        $mainContainer.addClass('hasFractions');
+        $mainContainer.find(".draggableContainer").css({
+            'margin-top': "15px"
+        });
+    }
+
     presenter.GapsContainerFactoryObject.prototype.produce = function (data) {
         var container = presenter.$view.find('.basic-math-gaps-container');
         var hasFractions = false;
 
-        data.forEach(function (element, index) {
+
+        var dataIndex;
+        var elementIndex;
+        var draggable = false;
+        for(dataIndex = 0, elementIndex = 0; dataIndex < data.length; dataIndex += 1) {
+            var dataElement = data[dataIndex];
             var item;
 
-            switch (element.gapType) {
+            switch (dataElement.gapType) {
                 case presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP:
-                    item = this._produceNormalGap(this._getNormalGapData(index));
+                    item = this._produceGap(this._getGapData(elementIndex));
+                    elementIndex++;
                     presenter.gapsContainer.addGap(item);
-                    break;
-                case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
-                    item = this._produceFractionGap(element, this._getElementId(index));
-                    presenter.gapsContainer.addFractionGap(item);
-                    hasFractions = true;
+                    draggable = true;
                     break;
                 case presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP:
-                    item = this._produceElementGap(element);
+                    item = this._produceElementGap(dataElement);
+                    break;
+                case presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP:
+                    item = this._produceFractionGap(dataElement, this._getElementId(elementIndex), elementIndex);
+                    elementIndex += this.getFractionIndexIncrement(dataElement);
+                    this._addFractionGap(item, dataElement);
+                    hasFractions = true;
                     break;
             }
 
-            container.append(item.getView());
 
-            if (element.isHiddenAdditionAfter) {
-                container.append($('<span class="hidden-addition">+</span>'));
+            if (draggable) {
+                var $wrappedItem = wrapItemInContainer(item);
+                container.append($wrappedItem);
+                draggable = false;
+            } else {
+                container.append(item.getView());
             }
 
-        }, this);
+            if (dataElement.isHiddenAdditionAfter) {
+                container.append($('<span class="hidden-addition">+</span>'));
+            }
+        }
+
+        if (presenter.configuration.isDisabledByDefault) {
+            presenter.gapsContainer.lock();
+        }
 
         if (hasFractions) {
-            container.addClass('hasFractions');
+            setFractionCssToMainContainer(container);
         }
     };
 
-    presenter.GapsContainerFactoryObject.prototype._produceNormalGap = function (data) {
-        var gap;
+    presenter.GapsContainerFactoryObject.prototype._addFractionGap = function (fractionGap, gapDefinition) {
 
-        data.float = true;
-
-        if (presenter.configuration.isDraggable) {
-            gap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_EMPTY_GAP, data);
-        } else {
-            gap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, data);
+        if (gapDefinition.fraction.numerator.isGap) {
+            presenter.gapsContainer.addGap(fractionGap.getNumerator());
         }
 
-        if (presenter.configuration.isDisabled) {
-            gap.setDisabledAttributeAndClass();
+        if (gapDefinition.fraction.denominator.isGap) {
+            presenter.gapsContainer.addGap(fractionGap.getDenominator());
         }
-
-        return gap;
     };
 
-    presenter.GapsContainerFactoryObject.prototype._getNormalGapData = function (index) {
-        return {
-            id: this._getElementId(index),
-            width: presenter.configuration.gapWidth,
-            float: true
-        };
+    presenter.GapsContainerFactoryObject.prototype._produceFractionGap = function (data, id, elementIndex) {
+        data.fractionID = id;
+
+        if (data.fraction.numerator.isGap) {
+            data["correctAnswerNumerator"] = presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[elementIndex]);
+            elementIndex++;
+        }
+
+        if (data.fraction.denominator.isGap) {
+            data["correctAnswerDenominator"] = presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[elementIndex]);
+        }
+
+        return presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP, data);
     };
 
     presenter.GapsContainerFactoryObject.prototype._produceElementGap = function (data) {
         return presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.ELEMENT_GAP, data.originalForm);
     };
 
+
+    presenter.GapsContainerFactoryObject.prototype._produceGap = function (data) {
+        var gap;
+
+        if (presenter.configuration.isDraggable) {
+            gap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP, data);
+        } else {
+            gap = presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.EDITABLE_INPUT_GAP, data);
+        }
+
+        return gap;
+    };
+
+    presenter.GapsContainerFactoryObject.prototype._getGapData = function (index) {
+        return {
+            id: this._getElementId(index),
+            width: presenter.configuration.gapWidth,
+            value: "",
+            source: "",
+            correctAnswer: presenter.convertSign(presenter.configuration.Signs, presenter.configuration.gapsValues[index])
+        };
+    };
+
     presenter.GapsContainerFactoryObject.prototype._getElementId = function (index) {
         return (presenter.configuration.addonID + "-" + index);
     };
 
-    presenter.GapsContainerFactoryObject.prototype._produceFractionGap = function (data, id) {
-        data.fractionID = id;
+    presenter.ValueChangeObserver = function () {};
 
-        return presenter.widgetsFactory.produce(presenter.ObjectFactory.PRODUCTION_TYPE.FRACTION_GAP, data);
-    };
-    
-    presenter.DraggedItemFactoryObject = function () {};
-    
-    presenter.DraggedItemFactoryObject.prototype = Object.create(presenter.ObjectFactory.prototype);
-    presenter.DraggedItemFactoryObject.prototype.constructor = presenter.DraggedItemFactoryObject;
-    presenter.DraggedItemFactoryObject.prototype.produce = function (data) {
-        data = this._validateEventData(data);
+    presenter.ValueChangeObserver.prototype.notify = function (data) {
+        var eventData = presenter.createEventData(presenter.gapsContainer.getGapIndexByID(data.htmlID), data.value, data.isCorrect);
 
-        switch (data.type) {
-            case "string":
-                return this.produceTextItem(data);
-                break;
-            default:
-                return this.produceNullItem();
-                break;
-        }
-    };
-
-    presenter.DraggedItemFactoryObject.prototype._validateEventData = function (data) {
-        if (data.type === undefined) {
-            data.type = "NullObject";
-            return data;
+        if (!presenter.gapsContainer.canSendEvent()) {
+            return;
         }
 
-        if (data.value === undefined) {
-            data.type = "NullObject";
-            return data;
-        }
-
-        if (data.item === undefined) {
-            data.type = "NullObject";
-            return data;
-        }
-
-        return data;
-    };
-    
-    presenter.DraggedItemFactoryObject.prototype.produceTextItem = function (data) {
-        return new presenter.TextItem(data.item, data.value, data.item);
-    };
-
-    presenter.DraggedItemFactoryObject.prototype.produceNullItem = function () {
-        return new presenter.NullItemObject();
-    };
-
-    presenter.DraggedItem = function (parent, value, source) {
-        this.parent = parent;
-        this.value = value;
-        this.source = source;
-        this._type = "";
-    };
-
-    presenter.DraggedItem.prototype.getView = function () {
-        return this._$view;
-    };
-
-    presenter.DraggedItem.prototype.sendItemConsumedEvent = function () {
-        var eventData = {
-            'item': this.source,
-            'value': this.value,
-            type: this._type
-        };
-
-        presenter.eventBus.sendEvent('ItemConsumed', eventData);
-    };
-
-    presenter.DraggedItem.prototype.fillGap = function () {
-        return "NotImplementedError";
-    };
-    
-    presenter.NullItemObject = function () {};
-
-    presenter.NullItemObject.prototype = Object.create(presenter.DraggedItem.prototype);
-    presenter.NullItemObject.prototype.sendItemConsumedEvent = function () {};
-
-    presenter.NullItemObject.prototype.fillGap = function (gapToFill) {
-
-    };
-
-    presenter.TextItem = function (parent, value, source) {
-        presenter.DraggedItem.call(this, parent, value, source);
-        this._type = "string";
-    };
-
-    presenter.TextItem.prototype = Object.create(presenter.DraggedItem.prototype);
-    presenter.TextItem.prototype.parent = presenter.DraggedItem.prototype;
-    presenter.TextItem.prototype.constructor = presenter.TextItem;
-
-    presenter.TextItem.prototype.fillGap = function (gapToFill) {
-        this.sendItemConsumedEvent();
-
-        var gapID = gapToFill.getId();
-
-
-        var fillingGap = this.getFillingGap(
-            gapID,
-            gapToFill.getClassName(),
-            gapToFill.getWidth(),
-            gapToFill.getFloat()
-        );
-
-        presenter.gapsContainer.replaceActualGapWithId(gapID, fillingGap);
-        presenter.gapsContainer.showActualView(gapID);
-        fillingGap.sendValueChangedEvent();
-    };
-
-    presenter.TextItem.prototype.getFillingGap = function (id, className, width, float) {
-        return presenter.widgetsFactory.produce(
-            presenter.ObjectFactory.PRODUCTION_TYPE.DRAGGABLE_MATH_GAP,
-            {
-                id: id,
-                className: className,
-                width: width,
-                value: presenter.parseItemValue(this.value),
-                source: this.source,
-                float: float
-            }
-        );
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+        if (presenter.isAllOK() && !presenter.configuration.isEquation) presenter.sendAllOKEvent();
     };
 
     return presenter;

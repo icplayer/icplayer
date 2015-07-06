@@ -1,4 +1,4 @@
-TestCase("[Basic_Math_Gaps] Upgrade state", {
+TestCase("[Basic Math Gaps] Upgrade state", {
     setUp: function () {
         this.presenter = AddonBasic_Math_Gaps_create();
         this.stubs = {
@@ -25,7 +25,7 @@ TestCase("[Basic_Math_Gaps] Upgrade state", {
     }
 });
 
-TestCase("[Basic_Math_Gaps] Upgrade sources validation", {
+TestCase("[Basic Math Gaps] Upgrade sources validation", {
     setUp: function () {
         this.presenter = AddonBasic_Math_Gaps_create();
         this.values = [1, 2, 3, 4, 5, 6];

@@ -87,13 +87,13 @@ TestCase("[Basic Math Gaps] Gaps width validation", {
     'test validateGaps width with empty field should be set to default' : function() {
         var gapWidth = this.presenter.validateGapWidth('');
 
-        assertEquals('', gapWidth.value);
+        assertEquals('34', gapWidth.value);
     },
 
     'test validateGapsWidth with 0 width should be set to default' : function() {
         var gapWidth = this.presenter.validateGapWidth(0);
 
-        assertEquals('', gapWidth.value);
+        assertEquals('34', gapWidth.value);
     },
 
     'test validateGapsWidth with correct value 60px' : function() {
@@ -332,7 +332,7 @@ TestCase("[Basic Math Gaps] Signs validation", {
 
         var reconvertedExpression = this.presenter.reconvertExpression(splittedUserExpression);
 
-        assertEquals("3+3-0=6*2/2", reconvertedExpression);
+        assertEquals("3 + 3 - 0 = 6 * 2 / 2", reconvertedExpression);
     }
 });
 
@@ -495,7 +495,7 @@ TestCase("[Basic Math Gaps] Model validation", {
     }
 });
 
-TestCase("[Basic_Math_Gaps] Gap type validation", {
+TestCase("[Basic Math Gaps] Gap type validation", {
     setUp: function () {
         this.presenter = AddonBasic_Math_Gaps_create();
     },
@@ -521,7 +521,7 @@ TestCase("[Basic_Math_Gaps] Gap type validation", {
     }
 });
 
-TestCase("[Basic_Math_Gaps] [Gaps Definition] Gap type validation", {
+TestCase("[Basic Math Gaps] [Gaps Definition] Gap type validation", {
     setUp: function () {
         this.presenter = AddonBasic_Math_Gaps_create();
     },

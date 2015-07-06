@@ -9,16 +9,18 @@ TestCase("[Basic Math Gaps] Score Tests", {
             'rightValue' : '3.00',
             'isActivity' : true,
             'isDisabled' : false,
-            'hasBeenStarted' : true
+            'hasBeenStarted' : true,
+            isDraggable: false
         };
 
+        this.stubs = {
+            getValues: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getValues'),
+            getMaxScore: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getMaxScore'),
+            areAllGapsEmpty: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsEmpty'),
+            getStringReconvertedUserExpression: sinon.stub(this.presenter, 'getStringReconvertedUserExpression')
+        };
 
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
-        var inputGap = new this.presenter.ElementGapObject(5);
-        var inputGap2 = new this.presenter.ElementGapObject(10);
-        this.presenter.gapsContainer.addGap(inputGap);
-        this.presenter.gapsContainer.addGap(inputGap2);
-
 
         this.presenter.$view = $(
             '<div class="basic-math-gaps-wrapper">' +
@@ -33,7 +35,17 @@ TestCase("[Basic Math Gaps] Score Tests", {
 
     },
 
+    tearDown: function () {
+        this.presenter.GapsContainerObject.prototype.getValues.restore();
+        this.presenter.GapsContainerObject.prototype.getMaxScore.restore();
+        this.presenter.GapsContainerObject.prototype.areAllGapsEmpty.restore();
+        this.presenter.getStringReconvertedUserExpression.restore();
+    },
+
     'test getScore for equation and valid user input' : function() {
+        this.stubs.getValues.returns(["1", "2"]);
+        this.stubs.getStringReconvertedUserExpression.returns("1+2=3");
+
         var score = this.presenter.getScore();
 
         assertEquals(1, score);
@@ -50,6 +62,9 @@ TestCase("[Basic Math Gaps] Score Tests", {
                 '<span class="element">3</span>' +
                 '</div>' +
                 '</div>');
+
+        this.stubs.getValues.returns(["1", "3"]);
+        this.stubs.getStringReconvertedUserExpression.returns("1+3=3");
 
         var score = this.presenter.getScore();
 
@@ -68,6 +83,9 @@ TestCase("[Basic Math Gaps] Score Tests", {
                 '</div>' +
             '</div>');
 
+        this.stubs.getValues.returns(["1", "2"]);
+        this.stubs.getStringReconvertedUserExpression.returns("1+2");
+
         var score = this.presenter.getScore();
 
         assertEquals(2, score);
@@ -85,26 +103,12 @@ TestCase("[Basic Math Gaps] Score Tests", {
                 '</div>' +
             '</div>');
 
+        this.stubs.getValues.returns(["1", "1"]);
+    this.stubs.getStringReconvertedUserExpression.returns("1+1");
+
         var score = this.presenter.getScore();
 
         assertEquals(1, score);
-    },
-
-    'test getErrorsCount' : function() {
-        this.presenter.configuration.isEquation = false;
-        this.presenter.configuration.gapsValues = ['1', '2'];
-        this.presenter.$view = $(
-            '<div class="basic-math-gaps-wrapper">' +
-                '<div class="basic-math-gaps-container">' +
-                    '<input value="1" />' +
-                    '<span class="element">></span>' +
-                    '<input value="1" />' +
-                '</div>' +
-            '</div>');
-
-        var errors = this.presenter.getErrorCount();
-
-        assertEquals(1, errors);
     },
 
     'test getMaxScore when isEquation' : function() {
@@ -116,6 +120,7 @@ TestCase("[Basic Math Gaps] Score Tests", {
 
     'test getMaxScore when NOT isEquation' : function() {
         this.presenter.configuration.isEquation = false;
+        this.stubs.getMaxScore.returns(2);
 
         var maxScore = this.presenter.getMaxScore();
 
@@ -123,7 +128,7 @@ TestCase("[Basic Math Gaps] Score Tests", {
     },
 
     'test getMaxScore will return 0 when addon is NOT activity' : function() {
-        this.presenter.configuration.isActivity = false;
+        this.presenter.configuration.isNotActivity = true;
 
 
         var maxScore = this.presenter.getMaxScore();
@@ -142,6 +147,9 @@ TestCase("[Basic Math Gaps] Score Tests", {
                 '<input value="" />' +
                 '</div>' +
             '</div>');
+
+        this.stubs.areAllGapsEmpty.returns(true);
+        this.stubs.getMaxScore.returns(2);
 
         var score = this.presenter.getScore(),
             errors = this.presenter.getErrorCount(),

@@ -1,3 +1,4 @@
+2015-07-06 Added drag&drop feature and fixed issue with events in isEquation mode in Basic Math Gaps module
 2015-07-06 Added compiled Commons library in version 3.0.0 to icplayer libs
 2015-07-06 Added StatefullAddonObject: State machine for check, reset, show/hide answers and fixed minor issues with DraggableDroppableObject in Commons (now in version 3.0.0)
 2015-07-03 Added show and hide commands to Zoom Image module
