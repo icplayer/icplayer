@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="2.0.0" />
+    <property name="version" value="3.0.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -15,6 +15,7 @@
             <arg line="--js src/model-validation.js" />
             <arg line="--js src/loading-screen.js" />
             <arg line="--js src/dom-operations.js" />
+            <arg line="--js src/statefull-addon-object.js" />
             <arg line="--js src/draggable-droppable-object.js" />
             <arg line="--js src/states-serialization.js" />
             <arg line="--js src/watermark.js" />
@@ -36,6 +37,7 @@
  * - Model Validation Utils
  * - Loading Screen
  * - DOM Operations
+ * - Statefull Addon Object
  * - Draggable Droppable Object
  * - States Serialization
  * - Watermark

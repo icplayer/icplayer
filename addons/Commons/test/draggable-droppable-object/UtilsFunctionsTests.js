@@ -181,13 +181,21 @@ TestCase("[Commons - Draggable Droppable Object] Make gap empty", {
         this.stubs = {
             setValue: sinon.stub(this.templateObject, 'setValue'),
             setViewValue: sinon.stub(this.templateObject, 'setViewValue'),
-            setSource: sinon.stub(DraggableDroppableObject.prototype, 'setSource')
+            setSource: sinon.stub(DraggableDroppableObject.prototype, 'setSource'),
+            notifyEdit: sinon.stub(this.templateObject, 'notifyEdit')
         };
     },
 
     tearDown: function () {
+        this.templateObject.notifyEdit.restore();
         this.templateObject.setValue.restore();
         DraggableDroppableObject.prototype.setSource.restore();
+    },
+
+    'test making gap empty should notify state machine about edit': function () {
+        this.templateObject.makeGapEmpty(this.templateObject);
+
+        assertTrue(this.stubs.notifyEdit.calledOnce);
     },
 
     'test making gap empty should change its value to empty string': function () {
@@ -237,16 +245,25 @@ TestCase("[Commons - Draggable Droppable Object] Fill gap", {
             sendItemConsumedEvent: sinon.stub(DraggableDroppableObject.prototype, 'sendItemConsumedEvent'),
             setValue: sinon.stub(this.templateObject, 'setValue'),
             setViewValue: sinon.stub(this.templateObject, 'setViewValue'),
-            setSource: sinon.stub(DraggableDroppableObject.prototype, 'setSource')
+            setSource: sinon.stub(DraggableDroppableObject.prototype, 'setSource'),
+            notifyEdit: sinon.stub(this.templateObject, 'notifyEdit')
         };
     },
 
     tearDown: function () {
         this.templateObject.setValue.restore();
         this.templateObject.setViewValue.restore();
+        this.templateObject.notifyEdit.restore();
         DraggableDroppableObject.prototype.sendItemConsumedEvent.restore();
         DraggableDroppableObject.prototype.setSource.restore();
     },
+
+    'test filling gap should notify state machine about editing': function () {
+        DraggableDroppableObject.prototype.fillGap.call(this.templateObject, this.providedItem);
+
+        assertTrue(this.stubs.notifyEdit.calledOnce);
+    },
+
 
     'test filling gap should set value with provided item': function () {
         DraggableDroppableObject.prototype.fillGap.call(this.templateObject, this.providedItem);
@@ -254,6 +271,7 @@ TestCase("[Commons - Draggable Droppable Object] Fill gap", {
         assertTrue(this.stubs.setValue.calledOnce);
         assertTrue(this.stubs.setValue.calledWith(this.value));
     },
+
 
     'test filling gap should set view value with provided item': function () {
         DraggableDroppableObject.prototype.fillGap.call(this.templateObject, this.providedItem);
@@ -270,13 +288,13 @@ TestCase("[Commons - Draggable Droppable Object] Fill gap", {
     },
 
     'test filling gap should send item consumed event': function () {
-        this.templateObject.fillGap(this.templateObject, this.providedItem);
+        this.templateObject.fillGap.call(this.templateObject, this.providedItem);
 
         assertTrue(this.stubs.sendItemConsumedEvent.calledOnce);
     },
 
     'test filling gap should send item consumed event after changing values': function () {
-        this.templateObject.fillGap(this.templateObject, this.providedItem);
+        this.templateObject.fillGap.call(this.templateObject, this.providedItem);
 
         assertTrue(this.stubs.sendItemConsumedEvent.calledAfter(this.stubs.setValue));
         assertTrue(this.stubs.sendItemConsumedEvent.calledAfter(this.stubs.setSource));
@@ -328,18 +346,15 @@ TestCase("[Commons - Draggable Droppable Object] Click dispatcher", {
     }
 });
 
-TestCase("[Commons - Draggable Droppable Object] Reset", {
+TestCase("[Commons - Draggable Droppable Object] onReset", {
     setUp: function () {
-        this.initialValue = "a;iwhj4awy8 asd;fidfhja v";
-
         this.configuration = {
             addonID: "addonID",
             objectID: "objectID",
             eventBus: function () {},
             value: "1",
             source: "SourceList1-2",
-            getSelectedItem: function () {},
-            initialValue: this.initialValue
+            getSelectedItem: function () {}
         };
 
         this.templateObject = new DraggableDroppableObject(this.configuration, {});
@@ -357,22 +372,22 @@ TestCase("[Commons - Draggable Droppable Object] Reset", {
         DraggableDroppableObject.prototype.setSource.restore();
     },
 
-    'test reset should set value of object with its initialValue': function () {
-        this.templateObject.reset();
+    'test onReset should set value of object with empty string': function () {
+        this.templateObject.onReset();
 
         assertTrue(this.stubs.setValue.calledOnce);
-        assertTrue(this.stubs.setValue.calledWith(this.initialValue));
+        assertTrue(this.stubs.setValue.calledWith(""));
     },
 
-    'test reset should set view value of object with its initialValue': function () {
-        this.templateObject.reset();
+    'test onReset should set view value of object with empty string': function () {
+        this.templateObject.onReset();
 
-        assertTrue(this.stubs.setValue.calledOnce);
-        assertTrue(this.stubs.setValue.calledWith(this.initialValue));
+        assertTrue(this.stubs.setViewValue.calledOnce);
+        assertTrue(this.stubs.setViewValue.calledWith(""));
     },
 
-    'test reset should set source of object with to empty string': function () {
-        this.templateObject.reset();
+    'test onReset should set source of object with to empty string': function () {
+        this.templateObject.onReset();
 
         assertTrue(this.stubs.setSource.calledOnce);
         assertTrue(this.stubs.setSource.calledWith(""));
@@ -396,7 +411,8 @@ TestCase("[Commons - Draggable Droppable Object] Set state", {
             setValue: sinon.stub(this.templateObject, 'setValue'),
             setViewValue: sinon.stub(this.templateObject, 'setViewValue'),
             setSource: sinon.stub(DraggableDroppableObject.prototype, 'setSource'),
-            bindDraggableHandler: sinon.stub(DraggableDroppableObject.prototype, 'bindDraggableHandler')
+            bindDraggableHandler: sinon.stub(DraggableDroppableObject.prototype, 'bindDraggableHandler'),
+            notifyEdit: sinon.stub(this.templateObject, 'notifyEdit')
         };
 
         this.expectedValue = "asdf.hja3w";
@@ -406,6 +422,7 @@ TestCase("[Commons - Draggable Droppable Object] Set state", {
     tearDown: function () {
         this.templateObject.setValue.restore();
         this.templateObject.setViewValue.restore();
+        this.templateObject.notifyEdit.restore();
         DraggableDroppableObject.prototype.setSource.restore();
         DraggableDroppableObject.prototype.bindDraggableHandler.restore();
     },
@@ -424,7 +441,7 @@ TestCase("[Commons - Draggable Droppable Object] Set state", {
         assertTrue(this.stubs.setViewValue.calledWith(this.expectedValue));
     },
 
-    'test set state should set object model a provided source': function () {
+    'test set state should set object model with a provided source': function () {
         this.templateObject.setState(this.expectedValue, this.expectedSource);
 
 
@@ -436,5 +453,11 @@ TestCase("[Commons - Draggable Droppable Object] Set state", {
         this.templateObject.setState(this.expectedValue, this.expectedSource);
 
         assertTrue(this.stubs.bindDraggableHandler.calledOnce);
+    },
+
+    'test set state should notifyEdit': function () {
+        this.templateObject.setState(this.expectedValue, this.expectedSource);
+
+        assertTrue(this.stubs.notifyEdit.calledOnce);
     }
 });

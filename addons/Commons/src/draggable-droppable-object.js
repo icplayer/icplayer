@@ -58,7 +58,7 @@
      Holds logic for emptying gap, filling and sending proper events at all actions.
 
      User can provide in configuration one of below optional functions, just remember that changing createView may change
-     functionging some of this functions:
+     functioning some of this functions:
         - createView
         - setValue
         - setViewValue
@@ -66,6 +66,7 @@
         - makeGapEmpty
         - fillGap
         - connectEvents
+        - cursorAt
 
      @class Draggable Droppable Object
 
@@ -76,7 +77,6 @@
         @param configuration.getSelectedItem {Function} Function provided by addon to retrieve last selected item
         @param [configuration.source] {String} ID of source which will be used at sending proper events by this object - default value empty string
         @param [configuration.value] {String} Value which will be set to object - default value empty string
-        @param [configuration.initialValue] {String} Value which used when the object will be reset by reset function - default value empty string
         @param [configuration.type] {String} It's used at sending proper events by this object - default value string "string"
         @param [configuration.showAnswersValue] {String} Value which will be used at show answers function - default value empty string, it is used also to determine if object is correct or wrong
         @param [configuration.createView] {Function} Method for object which will be used to create View, have to return jQuery object
@@ -86,29 +86,27 @@
         @param [configuration.helper] {Function} Method for object which is used at binding draggable and helper, should return string "clone" or jQueryObject
         @param [configuration.makeGapEmpty] {Function} Method which is used to clean the object model & DOM view
         @param [configuration.fillGap] {Function} Method which is used to fill up object model & DOM view
+        @param [configuration.cursorAt] {Function} Method which is calculate cursor position at dragging for helper view
 
      @param {object} [cssConfiguration] Css Configuration Object
         @param [cssConfiguration.correct] {String} Class added to view DOM when object is determined as correct
         @param [cssConfiguration.wrong] {String} Class added to view DOM when object is determined as wrong
-        @param [cssConfiguration.showAnswer] {String} Class added to view DOM when object is in show answers mode
+        @param [cssConfiguration.showAnswers] {String} Class added to view DOM when object is in show answers mode
+        @param [cssConfiguration.block] [String] Class added to view DOM when object is in block state
      @constructor
      */
     function DraggableDroppableObject (configuration, cssConfiguration) {
+        StatefullAddonObject.call(this, cssConfiguration);
         DraggableDroppableObject._internal.validateConfiguration(configuration);
-
 
         this.addonID = configuration.addonID;
         this.objectID = configuration.objectID;
 
         this.source = configuration.source || "";
         this.value = configuration.value || "";
-        this.initialValue = configuration.initialValue || "";
         this.showAnswersValue = configuration.showAnswersValue || "";
         this.type = configuration.type || "string";
 
-        this.correctCSSClass = cssConfiguration.correct || "";
-        this.wrongCSSClass = cssConfiguration.wrong || "";
-        this.showAnswerCSSClass = cssConfiguration.showAnswer || "";
 
         this._isClickable = true;
 
@@ -119,6 +117,7 @@
         this.helper = configuration.helper || DraggableDroppableObject.prototype.helper;
         this.makeGapEmpty = configuration.makeGapEmpty || DraggableDroppableObject.prototype.makeGapEmpty;
         this.fillGap = configuration.fillGap || DraggableDroppableObject.prototype.fillGap;
+        this.cursorAt = configuration.cursorAt || DraggableDroppableObject.prototype.cursorAt;
 
         this.eventBus = configuration.eventBus;
         this.getSelectedItem = configuration.getSelectedItem;
@@ -126,6 +125,9 @@
         this.$view = this.createView.call(this);
         this.connectEvents(this);
     }
+
+    DraggableDroppableObject.prototype = Object.create(StatefullAddonObject.prototype);
+    DraggableDroppableObject.constructor = DraggableDroppableObject;
 
     DraggableDroppableObject._internal = {
         /**
@@ -191,7 +193,7 @@
          * @returns {*}
          */
         getSelectedItemWrapper: function () {
-                return DraggableDroppableObject._internal.validateSelectedItemData(this.getSelectedItem.call(this));
+            return DraggableDroppableObject._internal.validateSelectedItemData(this.getSelectedItem.call(this));
         },
 
         getClickHandler: function () {
@@ -257,17 +259,6 @@
         },
 
         /**
-         * Compares value with showAnswersValue
-         * Its called with this as Draggable Droppable Object.
-         * @private isUserAnswerCorrect
-         * @param this {object} Draggable Droppable Object
-         * @returns {boolean}
-         */
-        isUserAnswerCorrect: function () {
-            return this.value == this.showAnswersValue;
-        },
-
-        /**
          * Returns object with required data at sending events
          * Its called with this as Draggable Droppable Object.
          * @protected getDraggableEventsData
@@ -323,10 +314,14 @@
     /**
     * Change html View to empty, cleans source and value and also unbinds draggable property.
     * Its called with this as Draggable Droppable Object.
+    * Notifies state machine about edit.
+    * Overriding this function should still make once call of notifyEdit.
     * @method makeGapEmpty
     * @param this {object} Draggable Droppable Object
     */
     DraggableDroppableObject.prototype.makeGapEmpty = function () {
+        this.notifyEdit();
+
         this.setValue.call(this, "");
         this.setViewValue.call(this, "");
         this.setSource.call(this, "");
@@ -355,17 +350,25 @@
      * Fills object with data passed by itemSelectedEvent. Changes source, value, viewValue. Sends item consumed event and
      * binds draggable handler.
      * Its called with this as Draggable Droppable Object.
+     * Notifies state machine about edit.
+     * Overriding this function should still make once call of notifyEdit.
      * @method fillGap
      * @param selectedItem {object} Data object of event ItemSelected
      * @param this {object} Draggable Droppable Object
      */
     DraggableDroppableObject.prototype.fillGap = function (selectedItem) {
+        this.notifyEdit();
+
         this.setValue.call(this, selectedItem.value);
         this.setViewValue.call(this, selectedItem.value);
         this.setSource.call(this, selectedItem.item);
 
         this.sendItemConsumedEvent();
         this.bindDraggableHandler();
+    };
+
+    DraggableDroppableObject.prototype.cursorAt = function (selectedItem) {
+        return {};
     };
 
     /**
@@ -421,10 +424,10 @@
 
     /**
      * Add provided css class to object view attribute
-     * @method addCSSClass
+     * @method addCssClass
      * @param {String} CSSClassName
      */
-    DraggableDroppableObject.prototype.addCSSClass = function (CSSClassName) {
+    DraggableDroppableObject.prototype.addCssClass = function (CSSClassName) {
         this.$view.addClass(CSSClassName);
     };
 
@@ -433,56 +436,8 @@
      * @method removeCSSClass
      * @param CSSClassName
      */
-    DraggableDroppableObject.prototype.removeCSSClass = function (CSSClassName) {
+    DraggableDroppableObject.prototype.removeCssClass = function (CSSClassName) {
         this.$view.removeClass(CSSClassName);
-    };
-
-    /**
-     * Add provided class in cssConfiguration.wrong to object view attribute
-     * @method addWrongCSSClass
-     */
-    DraggableDroppableObject.prototype.addWrongCSSClass = function () {
-        this.addCSSClass(this.wrongCSSClass);
-    };
-
-    /**
-     * Removes from view provided class in cssConfiguration.wrong
-     * @method removeWrongCSSClass
-     */
-    DraggableDroppableObject.prototype.removeWrongCSSClass = function () {
-        this.removeCSSClass(this.wrongCSSClass);
-    };
-
-    /**
-     * Add correct css class provided in cssConfiguration.correct to object view attribute
-     * @method addCorrectCSSClass
-     */
-    DraggableDroppableObject.prototype.addCorrectCSSClass = function () {
-        this.addCSSClass(this.correctCSSClass);
-    };
-
-    /**
-     * Removes correct css class provided in cssConfiguration.correct from object view attribute
-     * @method removeCorrectCSSClass
-     */
-    DraggableDroppableObject.prototype.removeCorrectCSSClass = function () {
-        this.removeCSSClass(this.correctCSSClass);
-    };
-
-    /**
-     * Add show answer css class provided in cssConfiguration.showAnswer to object view attribute
-     * @method addShowAnswersCorrectCSSClass
-     */
-    DraggableDroppableObject.prototype.addShowAnswersCSSClass = function () {
-        this.addCSSClass(this.showAnswerCSSClass);
-    };
-
-    /**
-     * Remove show answer css class provided in cssConfiguration.showAnswer from object view attribute
-     * @method removeShowAnswersCorrectCSSClass
-     */
-    DraggableDroppableObject.prototype.removeShowAnswersCSSClass = function () {
-        this.removeCSSClass(this.showAnswerCSSClass);
     };
 
     /**
@@ -515,6 +470,7 @@
         this.$view.draggable({
             revert: false,
             helper: this.helper(),
+            cursorAt: this.cursorAt(),
             start: DraggableDroppableObject._internal.getStartDraggingHandler.call(this),
             stop: DraggableDroppableObject._internal.getStopDraggingHandler.call(this)
         });
@@ -699,68 +655,98 @@
     };
 
     /**
-     * Resets object value, view value to initialValue and source to empty string
-     * @method reset
+     * Function defining object behavior when object moves from work to start state.
+     * Sets value & viewValue & source to empty, and blocks dragging.
+     * @method onReset
      */
-    DraggableDroppableObject.prototype.reset = function () {
-        this.setValue.call(this, this.initialValue);
-        this.setViewValue.call(this, this.initialValue);
+    DraggableDroppableObject.prototype.onReset = function () {
+        this.setValue.call(this, "");
+        this.setViewValue.call(this, "");
         this.setSource.call(this, "");
 
         this.destroyDraggableProperty();
     };
 
     /**
-     * Sets object to show errors mode.
-     * Should lock object and depending if its correct or not add proper class
-     * @method setShowErrorsMode
+     * Function defining object behavior when object moves from start to block state.
+     * Locks object.
+     * @method onBlock
      */
-    DraggableDroppableObject.prototype.setShowErrorsMode = function () {
+    DraggableDroppableObject.prototype.onBlock = function () {
         this.lock();
-
-        if(DraggableDroppableObject._internal.isUserAnswerCorrect.call(this)) {
-            this.addCorrectCSSClass();
-        } else {
-            this.addWrongCSSClass();
-        }
     };
 
     /**
-     * Sets object to work mode.
-     * Should unlock object and depending if its correct or not remove proper class
-     * @method setWorkMode
+     * Function defining object behavior when object moves from block to start state.
+     * Unlocks object.
+     * @method onUnblock
      */
-    DraggableDroppableObject.prototype.setWorkMode = function () {
+    DraggableDroppableObject.prototype.onUnblock = function () {
         this.unlock();
-
-        if(DraggableDroppableObject._internal.isUserAnswerCorrect.call(this)) {
-            this.removeCorrectCSSClass();
-        } else {
-            this.removeWrongCSSClass();
-        }
     };
 
     /**
-     * Method sets object to show answer mode.
-     * Should lock object, add provided class and setViewValue to show answers value
-     * @method showAnswer
+     * Function determines if object is correct or wrong depending on provided showAnswersValue and actual value
+     * @method isCorrect
+     * @returns {boolean} returns true if object is correct
      */
-    DraggableDroppableObject.prototype.showAnswer = function () {
-        this.lock();
-        this.addShowAnswersCSSClass();
+    DraggableDroppableObject.prototype.isCorrect = function () {
+        return this.value === this.showAnswersValue;
+    };
 
+    /**
+     * Function definese behavior of object when moving from work to wrong state.
+     * Blocks inputs.
+     * @method onWrong
+     */
+    DraggableDroppableObject.prototype.onWrong = function () {
+        this.lock();
+    };
+
+    /**
+     * Function defines behavior of object when moving from wrong to work state.
+     * Unblocks inputs.
+     * @method onUnWrong
+     */
+    DraggableDroppableObject.prototype.onUnWrong = function () {
+        this.unlock();
+    };
+
+    /**
+     * Function defines behavior of object when moving from work to correct state.
+     * Blocks input.
+     * @method onCorrect
+     */
+    DraggableDroppableObject.prototype.onCorrect = function () {
+        this.lock();
+    };
+
+    /**
+     * Function defines behavior of object when moving from correct to work state.
+     * Unblocks input.
+     * @method onUnCorrect
+     */
+    DraggableDroppableObject.prototype.onUnCorrect = function () {
+        this.unlock();
+    };
+
+    /**
+     * Function defines behavior of object when moving from work to show answers state.
+     * Blocks input, set view value to showAnswersValue.
+     * @method onShowAnswers
+     */
+    DraggableDroppableObject.prototype.onShowAnswers = function () {
+        this.lock();
         this.setViewValue(this.showAnswersValue);
     };
 
     /**
-     * Method hide answers.
-     * Should unlock object, remove provided class and setViewValue to user actual value
-     * @method showAnswer
+     * Function defines behavior of object when moving from show answers to work state.
+     * Unblocks input, set view value to actual object value.
+     * @method onHideAnswers
      */
-    DraggableDroppableObject.prototype.hideAnswer = function () {
+    DraggableDroppableObject.prototype.onHideAnswers = function () {
         this.unlock();
-        this.removeShowAnswersCSSClass();
-
         this.setViewValue(this.value);
     };
 
@@ -777,6 +763,9 @@
         this.setSource.call(this, source);
 
         this.bindDraggableHandler();
+
+        this.notifyEdit();
     };
+
     window.DraggableDroppableObject = window.DraggableDroppableObject || DraggableDroppableObject;
 })(window);

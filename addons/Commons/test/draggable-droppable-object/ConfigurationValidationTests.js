@@ -21,15 +21,16 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
         };
     },
 
-    'test  should throw no exceptions if configuration object is valid': function () {
+    'test should throw no exceptions if configuration object is valid': function () {
         try {
             DraggableDroppableObject._internal.validateConfiguration(this.validConfiguration);
         } catch (exc) {
             fail("It shouldnt throw exception");
         }
     },
-    
+
     'test undefined event bus should throw NoEventBus error': function () {
+        var undefined;
         this.validConfiguration.eventBus = undefined;
 
         try {
@@ -38,16 +39,16 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
         } catch (exc) {
         }
     },
-    
+
     'test event bus should be a event bus object otherwise throw TypeError': function () {
         this.validConfiguration.eventBus = "asdfkjhlna34w";
-        
+
         try {
             DraggableDroppableObject._internal.validateConfiguration(this.validConfiguration);
             fail("It should throw TypeError");
         } catch (exc) {}
     },
-    
+
     'test undefined get selected item should throw UndefinedGetSelectedItemError': function () {
         this.validConfiguration.getSelectedItem = undefined;
 
@@ -56,7 +57,7 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
             fail("It should throw UndefinedGetSelectedItemError");
         } catch (exc) {}
     },
-    
+
     'test get selected item should be a function otherwise should throw TypeError': function () {
         this.validConfiguration.getSelectedItem = "asdfkjhlna34w";
 
@@ -65,7 +66,7 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
             fail("It should throw TypeError");
         } catch (exc) {}
     },
-    
+
     'test undefined addonID should throw expcetion UndefinedAddonIDError': function () {
         this.validConfiguration.addonID = undefined;
 
@@ -84,7 +85,7 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
             fail("It should throw TypeError");
         } catch (exc) {}
     },
-    
+
     'test undefined objectID should throw UndefinedObjectIDError': function () {
         this.validConfiguration.objectID = undefined;
 
@@ -93,7 +94,7 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
             fail("It should throw UndefinedObjectIDError");
         } catch (exc) {}
     },
-    
+
     'test objectID should be a string otherwise throw exception TypeError': function () {
         this.validConfiguration.objectID = {};
 
@@ -102,7 +103,6 @@ TestCase("[Commons - Draggable Droppable Object] Configuration validation", {
             fail("It should throw TypeError");
         } catch (exc) {}
     },
-
 
     'test createView have to be a function otherwise should throw error': function () {
         this.validConfigurationWithView.createView = "asfddla";

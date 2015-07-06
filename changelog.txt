@@ -1,3 +1,4 @@
+2015-07-06 Added StatefullAddonObject: State machine for check, reset, show/hide answers and fixed minor issues with DraggableDroppableObject in Commons (now in version 3.0.0)
 2015-07-03 Added show and hide commands to Zoom Image module
 2015-07-03 Added static header and static footer
 2015-07-02 Added Assets Service
