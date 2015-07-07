@@ -4,6 +4,7 @@ function AddonMagic_Boxes_create() {
     var gridSelection = [];
     var goodSelections = [];
     var goodSelectionIndexes = [];
+    var correctAnswers = [];
 
     var viewContainer;
     var gridContainerWrapper;
@@ -47,8 +48,19 @@ function AddonMagic_Boxes_create() {
     function initGridSelection() {
         for(var row = 0; row < presenter.configuration.rows; row++) {
             gridSelection[row] = [];
+            correctAnswers[row] = [];
             for(var column = 0; column < presenter.configuration.columns; column++) {
                 gridSelection[row][column] = false;
+                correctAnswers[row][column] = false;
+            }
+        }
+    }
+
+    function clearCorrectAnswers() {
+        for(var row = 0; row < presenter.configuration.rows; row++) {
+            correctAnswers[row] = [];
+            for(var column = 0; column < presenter.configuration.columns; column++) {
+                correctAnswers[row][column] = false;
             }
         }
     }
@@ -209,21 +221,41 @@ function AddonMagic_Boxes_create() {
     }
 
     function applyAnswerStyles() {
-        gridContainerWrapper.find(".selectable-element").each(function(index) {
-            if(!$(this).hasClass("selectable-element-selected")) {
-                return true; // jQeury equivalent of continue
+        if(presenter.configuration.checkByWords){
+            gridContainerWrapper.find(".selectable-element").each(function(index) {
+                if($(this).hasClass('selectable-element-selected')){
+                    $(this).addClass('selectable-element-selected-uncorrect');
+                }
+            });
+
+            for (var i=0; i<presenter.configuration.answers.length; i++){
+                if(presenter.checkIfWordIsSelected(presenter.configuration.answers[i].toString())){
+                    var word = presenter.configuration.answers[i].toString();
+                    for(var j=0; j < presenter.answerWords[word.toLowerCase()].column.length; j++){
+                        var index = presenter.answerWords[word.toLowerCase()].row[j] * presenter.configuration.columns + presenter.answerWords[word.toLowerCase()].column[j];
+                        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+                        element.removeClass('selectable-element-selected-uncorrect');
+                        element.addClass('selectable-element-selected-correct');
+                    }
+                }
             }
+        }else{
+            gridContainerWrapper.find(".selectable-element").each(function(index) {
+                if(!$(this).hasClass("selectable-element-selected")) {
+                    return true; // jQeury equivalent of continue
+                }
 
-            var className;
+                var className;
 
-            if(goodSelectionIndexes[index] != -1){
-                className = 'selectable-element-selected-correct';
-            }else{
-                className = 'selectable-element-selected-uncorrect';
-            }
+                if(goodSelectionIndexes[index] != -1){
+                    className = 'selectable-element-selected-correct';
+                }else{
+                    className = 'selectable-element-selected-uncorrect';
+                }
 
-            $(this).addClass(className);
-        });
+                $(this).addClass(className);
+            });
+        }
     }
 
     function cleanAnswersStyles() {
@@ -287,11 +319,23 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.getScore = function() {
-        return presenter.calculateScore(goodSelections, gridSelection).correct;
+        if(presenter.configuration.checkByWords){
+            return presenter.countScoreForWords().score;
+        }else{
+            return presenter.calculateScore(goodSelections, gridSelection).correct;
+        }
     };
 
     presenter.getErrorCount = function() {
-        return presenter.calculateScore(goodSelections, gridSelection).errors;
+        if(presenter.configuration.checkByWords){
+            if(presenter.isAttempted()){
+                return presenter.countScoreForWords().errors;
+            }else{
+                return 0;
+            }
+        }else{
+            return presenter.calculateScore(goodSelections, gridSelection).errors;
+        }
     };
 
     presenter.serializeGridSelection = function(gridSelection, rows, columns) {
@@ -363,17 +407,33 @@ function AddonMagic_Boxes_create() {
     };
 
     function presenterLogic(view, model, preview){
+        presenter.answerWords = {};
         viewContainer = $(view);
         gridContainerWrapper = viewContainer.find(".magicGridWrapper:first");
         gridContainer = gridContainerWrapper.find(".magicGrid:first");
         presenter.configuration = presenter.validateModel(model);
+
+        if(presenter.configuration.answers){
+            for(var i = 0; i< presenter.configuration.answers.length; i++){
+                presenter.answerWords[presenter.configuration.answers[i].toString().toLowerCase()] = {
+                    row : [],
+                    column : []
+                };
+            }
+        }
+
         if(presenter.configuration.isError) {
             showErrorMessage(presenter.configuration.errorMessage);
         } else {
             initGridSelection();
             initGrid(model, preview);
             goodSelections = presenter.findGoodSelections(presenter.configuration.gridElements, presenter.configuration.answers);
-            maxScore = presenter.calculateMaxScore(goodSelections);
+
+            if(presenter.configuration.checkByWords){
+                maxScore = presenter.configuration.answers.length;
+            }else{
+                maxScore = presenter.calculateMaxScore(goodSelections);
+            }
 
             if (preview) {
                 gridSelection = goodSelections;
@@ -513,6 +573,10 @@ function AddonMagic_Boxes_create() {
                 var horizontalResult = presenter.isWordInRow(grid, r, answer);
                 for (var hr = 0; hr < horizontalResult.positions.length; hr++) {
                     for (l = 0; l < answer.length; l++) {
+                        if(presenter.configuration.checkByWords){
+                            presenter.answerWords[answer.toLowerCase()].row.push(r);
+                            presenter.answerWords[answer.toLowerCase()].column.push(horizontalResult.positions[hr] + l);
+                        }
                         goodSelections.push({
                             row: r,
                             column: horizontalResult.positions[hr] + l
@@ -526,6 +590,10 @@ function AddonMagic_Boxes_create() {
                 var verticalResult = presenter.isWordInColumn(grid, c, answer);
                 for (var vr = 0; vr < verticalResult.positions.length; vr++) {
                     for (l = 0; l < answer.length; l++) {
+                        if(presenter.configuration.checkByWords){
+                            presenter.answerWords[answer.toLowerCase()].row.push(verticalResult.positions[vr] + l);
+                            presenter.answerWords[answer.toLowerCase()].column.push(c);
+                        }
                         goodSelections.push({
                             row: verticalResult.positions[vr] + l,
                             column: c
@@ -538,6 +606,10 @@ function AddonMagic_Boxes_create() {
             var diagonalResult = presenter.isWordOnDiagonals(grid, answer, presenter.DIAGONALS.NORMAL);
             for (var dr = 0; dr < diagonalResult.positions.length; dr++) {
                 for (l = 0; l < answer.length; l++) {
+                    if(presenter.configuration.checkByWords){
+                        presenter.answerWords[answer.toLowerCase()].row.push(diagonalResult.positions[dr].row + l);
+                        presenter.answerWords[answer.toLowerCase()].column.push(diagonalResult.positions[dr].column + l);
+                    }
                     goodSelections.push({
                         row: diagonalResult.positions[dr].row + l,
                         column: diagonalResult.positions[dr].column + l
@@ -549,6 +621,10 @@ function AddonMagic_Boxes_create() {
             var reverseDiagonalResult = presenter.isWordOnDiagonals(grid, answer, presenter.DIAGONALS.REVERSED);
             for (var rdr = 0; rdr < reverseDiagonalResult.positions.length; rdr++) {
                 for (l = 0; l < answer.length; l++) {
+                    if(presenter.configuration.checkByWords){
+                        presenter.answerWords[answer.toLowerCase()].row.push(reverseDiagonalResult.positions[rdr].row + l);
+                        presenter.answerWords[answer.toLowerCase()].column.push(reverseDiagonalResult.positions[rdr].column - l);
+                    }
                     goodSelections.push({
                         row: reverseDiagonalResult.positions[rdr].row + l,
                         column: reverseDiagonalResult.positions[rdr].column - l
@@ -561,6 +637,52 @@ function AddonMagic_Boxes_create() {
         var columns = grid[0].length;
 
         return presenter.convertSelectionToArray(goodSelections, rows, columns);
+    };
+
+    presenter.countScoreForWords = function () {
+        var score = 0;
+        var errors = 0;
+
+        clearCorrectAnswers();
+        for (var i=0; i<presenter.configuration.answers.length; i++){
+            if(presenter.checkIfWordIsSelected(presenter.configuration.answers[i].toString())){
+                fillCorrectAnswers(presenter.configuration.answers[i].toString());
+                score++;
+            }
+        }
+
+        for (var j=0; j<presenter.configuration.rows; j++){
+            for (var k=0; k<presenter.configuration.columns; k++){
+                if(gridSelection[j][k]  && !correctAnswers[j][k]){
+                    errors++;
+                }
+            }
+        }
+
+        return {
+            score: score,
+            errors: errors
+        };
+    };
+
+    function fillCorrectAnswers(word) {
+        for (var i = 0; i<presenter.answerWords[word.toLowerCase()].column.length; i++ ){
+            correctAnswers[presenter.answerWords[word.toLowerCase()].row[i]][presenter.answerWords[word.toLowerCase()].column[i]] = true;
+        }
+    }
+
+    presenter.checkIfWordIsSelected = function(word) {
+        var correct = 0;
+        var incorrect= 0;
+
+        for(var i=0; i < presenter.answerWords[word.toLowerCase()].column.length; i++){
+            if(gridSelection[presenter.answerWords[word.toLowerCase()].row[i]][presenter.answerWords[word.toLowerCase()].column[i]]){
+                correct++;
+            }else{
+                incorrect++;
+            }
+        }
+        return correct>0 && incorrect == 0;
     };
 
     presenter.convertSelectionToArray = function (selections, rows, columns) {
@@ -746,7 +868,8 @@ function AddonMagic_Boxes_create() {
             columns: gridValidationResult.columns,
             rows: gridValidationResult.rows,
             gridElements: gridValidationResult.gridElements,
-            answers: answersValidationResult.answers
+            answers: answersValidationResult.answers,
+            checkByWords: ModelValidationUtils.validateBoolean(model['CheckByWords'])
         };
     };
 
@@ -816,6 +939,17 @@ function AddonMagic_Boxes_create() {
             }
         });
     }
+
+    presenter.isAttempted = function () {
+        for (var i = 0; i<presenter.configuration.rows; i++){
+            for (var j = 0; j<presenter.configuration.columns; j++){
+                if(gridSelection[i][j] == true){
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
 
     function checkIfSelected (row, column){
         var index = row * presenter.configuration.columns + column;

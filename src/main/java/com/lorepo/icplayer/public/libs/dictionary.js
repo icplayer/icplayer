@@ -552,6 +552,7 @@
 	"Magic_Boxes_name": "Magic Boxes",
 	"Magic_Boxes_property_grid": "Grid",
 	"Magic_Boxes_property_answers": "Answers",
+    "Magic_Boxes_property_check_by_words" : "Check By Words",
 	"Math_info": "Developed with a view to the needs of all math teachers. With this addon, it is possible to prepare both simple and complicated mathematical equations and formulae with text gaps used as inputs for the answers.",
 	"Math_name": "Math",
 	"Math_property_variables": "Variables",

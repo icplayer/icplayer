@@ -4,5 +4,6 @@
 	<model>
 		<property name='Grid' nameLabel="Magic_Boxes_property_grid" type='text' isLocalized="true" />
 		<property name='Answers' nameLabel="Magic_Boxes_property_answers" type='text' isLocalized="true" />
+        <property name="CheckByWords" displayName="Check By Words" nameLabel="Magic_Boxes_property_check_by_words" type="boolean"/>
 	</model>
 </addon>

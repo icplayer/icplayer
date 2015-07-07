@@ -552,6 +552,7 @@
     "Magic_Boxes_name": "Mots-mêlés",
     "Magic_Boxes_property_grid": "Grille",
     "Magic_Boxes_property_answers": "Réponses",
+    "Magic_Boxes_property_check_by_words" : "Check By Words",
     "Math_info": "Développé pour les besoins de tous les professeurs de mathématiques. Avec ce module externe, il est possible de préparer des équations et formules simples et complexes avec des textes à trous dans lesquels seront saisies les réponses.",
     "Math_name": "Maths",
     "Math_property_variables": "Variables",

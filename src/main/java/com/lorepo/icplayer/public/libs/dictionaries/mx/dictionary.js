@@ -549,6 +549,7 @@
 	"Magic_Boxes_name": "Sopa de letras",
 	"Magic_Boxes_property_grid": "Cuadrícula",
 	"Magic_Boxes_property_answers": "Respuestas",
+    "Magic_Boxes_property_check_by_words" : "Check By Words",
 	"Math_info": "Desarrollado para enfrentarse a las necesidades de todos los profesores de matemáticas. Con este addon, es posible preparar ambos ecuaciones y fórmulas matemáticas simples y complejas usando los huecos de texto como insumos para las respuestas.",
 	"Math_name": "Matemáticas",
 	"Math_property_variables": "Variables",
