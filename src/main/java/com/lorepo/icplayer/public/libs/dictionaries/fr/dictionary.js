@@ -1,4 +1,5 @@
 ﻿var ice_dictionary = {
+	"module_belongs_to_group" : "At least one module belongs to a group",
 	"error_forbidden" : "Vous n'avez pas l'autorisation d'éditer ce contenu",
 "error_not_found": "Contenu non trouvé",
 "error_server_error": "Erreur serveur. Merci de réessayer plus tard",
