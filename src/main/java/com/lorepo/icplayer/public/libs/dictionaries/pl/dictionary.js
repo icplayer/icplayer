@@ -548,7 +548,7 @@
 	"Magic_Boxes_name" : "Wykreślanka",
 	"Magic_Boxes_property_grid": "Siatka",
 	"Magic_Boxes_property_answers": "Odpowiedzi",
-    "Magic_Boxes_property_check_by_words" : "Check By Words",
+    "Magic_Boxes_property_check_by_words" : "Sprawdzaj według słów",
 	"Math_info" : "Addon powstał z myślą o potrzebach nauczycieli matematyki. Umożliwia przygotowanie zarówno prostych, jak i bardziej skomplikowanych równań i formuł matematycznych zawierających pola do uzupełnienia odpowiedzi.",
 	"Math_name" : "Moduł matematyczny",
 	"Math_property_variables": "Zmienne",
