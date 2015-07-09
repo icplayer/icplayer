@@ -1,3 +1,4 @@
+2015-07-09 Fixed issue with wrong input in order property in Ordering module
 2015-07-07 Added checking by words in Magic Boxes module
 2015-07-06 Added drag&drop feature and fixed issue with events in isEquation mode in Basic Math Gaps module
 2015-07-06 Added compiled Commons library in version 3.0.0 to icplayer libs

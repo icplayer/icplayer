@@ -115,7 +115,9 @@ public class OrderingModule extends BasicModuleModel {
 				String[] alternativeIndexes = orders[i].split(",");
 				for (int j = 0; j < items.size() && j < alternativeIndexes.length; j++) {
 					int index = Integer.parseInt(alternativeIndexes[j])-1;
-					items.get(index).addAlternativeIndex(j+1);
+					if(index < items.size()){
+						items.get(index).addAlternativeIndex(j+1);
+					}
 				}
 			}
 		}
