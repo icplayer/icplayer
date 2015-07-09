@@ -243,6 +243,7 @@
 	"text_module_gap_type" : "Gap type",
 	"text_module_gap_width" : "Gap width",
 	"text_module_gap_max_length" : "Gap max length",
+	"text_is_connected_to_math" : "Is connected to Math",
 	"is_activity" : "Is&nbsp;activity",
 	"is_disabled" : "Is&nbsp;disabled",
 	"randomOrder" : "Random&nbsp;Order",

@@ -240,6 +240,7 @@
 	"text_module_gap_type" : "Tipo de hueco",
 	"text_module_gap_width" : "Anchura del hueco",
 	"text_module_gap_max_length" : "Longitud máxima de hueco",
+	"text_is_connected_to_math" : "Is connected to Math",
 	"is_activity" : "Es actividad",
 	"is_disabled" : "Está deshabilitado",
 	"randomOrder" : "Orden al azar",

@@ -16,10 +16,10 @@ import com.lorepo.icplayer.client.utils.MathJax;
 
 public class TextView extends HTML implements IDisplay{
 
-	private TextModel module;
+	private final TextModel module;
 	private ITextViewListener listener;
-	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
-	private ArrayList<String> mathGapIds = new ArrayList<String>();
+	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
+	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
@@ -34,19 +34,19 @@ public class TextView extends HTML implements IDisplay{
 			hide();
 		}
 	}
-	
+
 	public ITextViewListener getListener() {
 		return listener;
 	}
-	
-	public void addElement(TextElementDisplay el) { 
+
+	public void addElement(TextElementDisplay el) {
 		textElements.add(el);
 	}
-	
+
 	@Override
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
-		
-		int gapWidth = module.getGapWidth(); 
+
+		int gapWidth = module.getGapWidth();
 		while (giIterator.hasNext()) {
 			InlineChoiceInfo gi = giIterator.next();
 			InlineChoiceWidget gap = new InlineChoiceWidget(gi, listener);
@@ -60,8 +60,7 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void connectDraggableGaps(Iterator<GapInfo> giIterator) {
-		
-		int gapWidth = module.getGapWidth(); 
+		int gapWidth = module.getGapWidth();
 		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
@@ -90,7 +89,7 @@ public class TextView extends HTML implements IDisplay{
 			}
 		}
 	}
-	
+
 	@Override
 	public void connectFilledGaps(Iterator<GapInfo> giIterator) {
 		int gapWidth = module.getGapWidth();
@@ -111,7 +110,7 @@ public class TextView extends HTML implements IDisplay{
 			}
 		}
 	}
-	
+
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
 		while (giIterator.hasNext()) {
@@ -144,13 +143,12 @@ public class TextView extends HTML implements IDisplay{
 
 	@Override
 	public void connectLinks(Iterator<LinkInfo> it) {
-		
 		while (it.hasNext()) {
 			final LinkInfo info = it.next();
 			if(DOM.getElementById(info.getId()) != null){
 				LinkWidget widget = new LinkWidget(info);
 				widget.addClickHandler(new ClickHandler() {
-					
+
 					@Override
 					public void onClick(ClickEvent event) {
 						event.stopPropagation();
@@ -163,15 +161,12 @@ public class TextView extends HTML implements IDisplay{
 				});
 			}
 		}
-		
 	}
-
 
 	@Override
 	public void addListener(ITextViewListener l) {
 		listener = l;
 	}
-
 
 	@Override
 	public void setValue(String id, String value) {
@@ -181,22 +176,18 @@ public class TextView extends HTML implements IDisplay{
 				return;
 			}
 		}
-		
 	}
-
 
 	@Override
 	public int getChildrenCount() {
 		return textElements.size();
 	}
 
-
 	@Override
 	public TextElementDisplay getChild(int index) {
 		return textElements.get(index);
 	}
 
-	
 	@Override
 	public void setHTML(String html){
 		super.setHTML(html);
@@ -217,11 +208,11 @@ public class TextView extends HTML implements IDisplay{
 		Element element = getElement();
 		if (element.getStyle().getVisibility().equals("hidden")) {
 			element.getStyle().setProperty("visibility", "visible");
-			
+
 			if (callRefreshMath) {
 				refreshMath();
 			}
 		}
 	}
-	
+
 }

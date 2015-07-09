@@ -11,14 +11,14 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 
 public class ScoreService implements IScoreService {
 
-	private HashMap<String, Integer>	scores;
+	private final HashMap<String, Integer>	scores;
 	// Helper field for mapping page name to its ID (backwards compatibility)
-	private HashMap<String, String>	pagesNamesToIds;
-	private HashMap<String, PageScore>	pageScores;
+	private final HashMap<String, String>	pagesNamesToIds;
+	private final HashMap<String, PageScore>	pageScores;
 	private final boolean useLast;
-	private ScoreType scoreType;
+	private final ScoreType scoreType;
 	private IPlayerServices playerServices;
-	
+
 	public ScoreService(ScoreType scoreType){
 		this.scoreType = scoreType;
 		this.useLast = scoreType == ScoreType.last;
@@ -26,8 +26,8 @@ public class ScoreService implements IScoreService {
 		pagesNamesToIds = new HashMap<String, String>();
 		pageScores = new HashMap<String, PageScore>();
 	}
-	
-	
+
+
 	@Override
 	public int getScore(String moduleName) {
 
@@ -46,40 +46,40 @@ public class ScoreService implements IScoreService {
 		for(PageScore scoreObj : pageScores.values()){
 			max += scoreObj.getMaxScore();
 		}
-		
+
 		return max;
 	}
 
 	@Override
 	public int getTotalScore() {
 		ScoreType scoreType = getScoreType();
-		
+
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		int total = 0;
 		for(PageScore scoreObj : pageScores.values()){
 			total += scoreObj.getScore();
 		}
-		
+
 		return total;
 	}
-	
+
 	@Override
 	public void setScore(String moduleName, int score, int maxScore) {
 		Integer scoreObj = new Integer(score);
 		scores.put(moduleName, scoreObj);
 	}
-	
+
 	@Override
 	public PageScore getPageScore(String pageId) {
 		PageScore score = pageScores.get(pageId);
-		
+
 		if(score == null){
 			score = new PageScore();
 		}
-		
+
 		assert(score != null);
 		return score;
 	}
@@ -104,13 +104,12 @@ public class ScoreService implements IScoreService {
 		}
 	}
 
-
 	@Override
 	public void setPageScore(IPage page, PageScore score) {
 		PageScore pageScore = pageScores.get(page.getId());
 
 		if (getScoreType().equals(ScoreType.last) || pageScore == null) {
-			
+
 			pageScores.put(page.getId(), score);
 			pagesNamesToIds.put(page.getName(), page.getId());
 		}
@@ -120,14 +119,14 @@ public class ScoreService implements IScoreService {
 		return useLast;
 	}
 
+	@Override
 	public ScoreType getScoreType() {
 		return scoreType;
 	}
-	
+
+	@Override
 	public PageScore getPageScoreByName(String pageName) {
-		String pageId = pagesNamesToIds.get(pageName);
-		
-		return getPageScoreById(pageId);
+		return getPageScoreById(pagesNamesToIds.get(pageName));
 	}
 
 	@Override
@@ -141,15 +140,14 @@ public class ScoreService implements IScoreService {
 		if (score == null) {
 			score = new PageScore();
 		}
-		
+
 		return score;
 	}
 
-
 	public void setPlayerService(IPlayerServices playerServices) {
-		this.playerServices = playerServices;	
+		this.playerServices = playerServices;
 	}
-	
+
 	@Override
 	public void lessonScoreReset(boolean resetChecks, boolean resetMistakes) {
 		for (int i=0; i<playerServices.getModel().getPageCount(); i++) {
@@ -158,7 +156,7 @@ public class ScoreService implements IScoreService {
 				PageScore pageScore = playerServices.getScoreService().getPageScore(currentPage.getId());
 				if (pageScore.hasScore()) {
 					PageScore score;
-					
+
 					if (resetChecks && !resetMistakes) {
 						score = pageScore.resetScoreAndChecks();
 					}else if (!resetChecks && resetMistakes) {
@@ -167,8 +165,8 @@ public class ScoreService implements IScoreService {
 						score = pageScore.resetAllScores();
 					}else {
 						score = pageScore.reset();
-					}				
-					
+					}
+
 					playerServices.getScoreService().setPageScore(currentPage, score);
 				}
 			}

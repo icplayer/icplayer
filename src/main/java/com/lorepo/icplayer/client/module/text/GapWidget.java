@@ -18,17 +18,17 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 public class GapWidget extends TextBox implements TextElementDisplay{
 
-	private GapInfo gapInfo;
+	private final GapInfo gapInfo;
 	private boolean isDisabled = false;
-	
-	
+
+
 	public GapWidget(GapInfo gi, final ITextViewListener listener){
-		
+
 		super(DOM.getElementById(gi.getId()));
-		
+
 		gapInfo = gi;
 		setStylePrimaryName("ic_gap");
-		
+
 		if (gi.getMaxLength()>0) {
 			int max_length = gi.getMaxLength();
 			max_length = Math.max(max_length, gi.getPlaceHolder().length());
@@ -42,60 +42,63 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 			}
 			setMaxLength(max_length);
 		}
-		
+
 		onAttach();
-		
+
 		if (listener != null) {
-			
+
 			addKeyUpHandler(new KeyUpHandler() {
+				@Override
 				public void onKeyUp(KeyUpEvent event) {
 					listener.onValueEdited(gapInfo.getId(), getText());
 				}
 			});
-			
+
 			addBlurHandler(new BlurHandler() {
+				@Override
 				public void onBlur(BlurEvent event) {
 					listener.onValueChanged(gapInfo.getId(), getText());
 				}
 			});
 
 			addDropHandler(new DropHandler() {
-				
+
 				@Override
 				public void onDrop(DropEvent event) {
 					if(!event.getDataTransfer().getData("text/plain").isEmpty()) {
 						Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-							
+
 							@Override
 							public void execute() {
 								listener.onValueChanged(gapInfo.getId(), getText());
 							}
 						});
 					}
-					
+
 				}
 			});
 		}
 		addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 			}
 		});
-		
+
 	}
-	
+
 	public GapInfo getGapInfo() {
 		return gapInfo;
 	}
-	
+
+	@Override
 	public boolean hasId(String id){
 		return (gapInfo.getId().compareTo(id) == 0);
 	}
 
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
-
-		if(isActivity) {
+		if (isActivity) {
 			String text = getText().trim();
 			if (text.length() > 0) {
 				if (gapInfo.isCorrect(text)) {
@@ -110,15 +113,17 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 		setEnabled(false);
 	}
-	
+
+	@Override
 	public void setWorkMode() {
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
+		com.lorepo.icf.utils.JavaScriptUtils.log("!isDisabled " + !isDisabled);
 		setEnabled(!isDisabled);
 	}
 
-	
+	@Override
 	public void reset() {
 		setText("");
 		removeStyleDependentName("correct");
@@ -153,10 +158,12 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		addStyleDependentName("empty");
 	}
 
+	@Override
 	public boolean isAttempted() {
 		return (getText().trim().length() > 0);
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		isDisabled = disabled;
 		setEnabled(!disabled);

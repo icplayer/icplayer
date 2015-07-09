@@ -15,17 +15,16 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private static final String EMPTY_GAP_STYLE = "ic_draggableGapEmpty";
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
 	private static final String EMPTY_TEXT = "&nbsp;";
-	private GapInfo gapInfo;
+	private final GapInfo gapInfo;
 	private boolean disabled = false;
 	private boolean isWorkMode = true;
 	private String answerText = "";
 	private boolean isFilledGap = false;
 	private JavaScriptObject jsObject = null;
-	private ITextViewListener listener;
+	private final ITextViewListener listener;
 	private boolean isDragMode = false;
-	
+
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
-		
 		super(DOM.getElementById(gi.getId()));
 
 		this.listener = listener;
@@ -40,6 +39,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 		if (listener != null) {
 			addClickHandler(new ClickHandler() {
+				@Override
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
 					event.preventDefault();
@@ -49,10 +49,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 				}
 			});
 		}
-		
+
 		JavaScriptUtils.makeDropable(getElement(), getAsJavaScript());
 	}
-	
+
+	@Override
 	public boolean hasId(String id) {
 		return (gapInfo.getId().compareTo(id) == 0);
 	}
@@ -63,9 +64,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		}
 		return jsObject;
 	}
-	
+
 	private native JavaScriptObject initJSObject(DraggableGapWidget x) /*-{
-		var view = function(){};
+		var view = function() {};
 		view.itemDragged = function() {
 			return x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::itemDragged()();
 		};
@@ -80,38 +81,36 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		}
 		return view;
 	}-*/;
-	
+
 	private void itemDragged() {
 		isDragMode = true;
 		if (listener != null) {
 			listener.onGapDragged(gapInfo.getId());
 		}
 	}
-	
+
 	private void itemStopped() {
 		isDragMode = false;
 		if (listener != null) {
 			listener.onGapStopped(gapInfo.getId());
 		}
 	}
-	
+
 	private boolean isDragPossible() {
 		if (!isWorkMode || this.disabled) {
 			return false;
 		}
 		return true;
 	}
-	
-	
+
 	private void dropHandler() {
 		if (listener != null && !disabled && isWorkMode) {
 			listener.onGapDropped(gapInfo.getId());
 		}
 	}
-	
+
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
-
 		if (isActivity) {
 			if (answerText.length() > 0) {
 				if (gapInfo.isCorrect(answerText)){
@@ -125,14 +124,16 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		}
 		isWorkMode = false;
 	}
-	
+
+	@Override
 	public void setWorkMode() {
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		isWorkMode = true;
 	}
-	
+
+	@Override
 	public void reset() {
 		setText("");
 		removeStyleDependentName("correct");
@@ -140,9 +141,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		removeStyleDependentName("empty");
 		isWorkMode = true;
 	}
-	
+
+	@Override
 	public void setText(String text) {
-		
 		if (text.isEmpty()) {
 			super.setHTML(EMPTY_TEXT);
 			setStylePrimaryName(EMPTY_GAP_STYLE);
@@ -157,7 +158,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			JavaScriptUtils.makeDroppedDraggable(getElement(), getAsJavaScript());
 		}
-		
+
 		if (isFilledGap) {
 			addStyleName("ic_filled_gap");
 		}
@@ -182,6 +183,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		addStyleDependentName("wrong");
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 		if (disabled) {
@@ -198,6 +200,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		addStyleDependentName("empty");
 	}
 
+	@Override
 	public boolean isAttempted() {
 		return (answerText.length() > 0);
 	}

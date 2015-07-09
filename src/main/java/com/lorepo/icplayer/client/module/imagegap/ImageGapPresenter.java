@@ -67,7 +67,6 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		this.model = model;
 		this.playerServices = services;
 		isVisible = model.isVisible();
-
 		connectHandlers();
 	}
 
@@ -210,10 +209,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private void viewClicked() {
-		if (consumedItem != null) {
-			removeItem();
-		} else {
+		if (consumedItem == null) {
 			insertItem();
+		} else {
+			removeItem();
 		}
 	}
 
@@ -282,11 +281,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			state.put("consumed",  consumedItem.toString());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));
-		if (isShowErrorsMode){
+		if (isShowErrorsMode) {
 			state.put("isDisabled", Boolean.toString(workModeDisabled));
-		}else if (this.isShowAnswersActive) {
+		} else if (this.isShowAnswersActive) {
 			state.put("isDisabled", Boolean.toString(showAnswersModeDisabled));
-		}else{
+		} else {
 			state.put("isDisabled", Boolean.toString(view.getDisabled()));
 		}
 
@@ -407,19 +406,60 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		return jsObject;
 	}
 
+	private String getValue() {
+		return getState();
+	}
+
+	private void setGapAnswer(int index, String value) {
+		ImageSourcePresenter igp = (ImageSourcePresenter) playerServices.getModule(value);
+		view.setImageUrl(igp.getImageUrl());
+
+		view.resetStyles();
+		view.setDisabled(true);
+		view.showCorrectAnswers();
+	}
+
+	private void setUserValue(int index, String value) {
+		reset();
+		setState(value);
+	}
+
+	private boolean isActivity() {
+		return model.isActivity();
+	}
+
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
 
 		var presenter = function() {};
 
+		presenter.getValue = function(index) {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getValue()();
+		}
+
+		presenter.setGapAnswer = function(index, val) {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setGapAnswer(ILjava/lang/String;)(index, val);
+		}
+
+		presenter.setUserValue = function(index, val) {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setUserValue(ILjava/lang/String;)(index, val);
+		}
+
+		presenter.isActivity = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isActivity()();
+		}
+
 		presenter.getImageId = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
 		}
+
 		presenter.getGapValue = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
 		}
+
 		presenter.isGapAttempted = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isGapAttempted()();
 		}
+
 		presenter.show = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::show()();
 		}
@@ -481,7 +521,6 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		return currentEventData;
 	}
-
 
 	private void itemDragged() {
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
