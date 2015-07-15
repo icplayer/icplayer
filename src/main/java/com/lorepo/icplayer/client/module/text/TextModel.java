@@ -17,13 +17,11 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
-
-public class TextModel extends BasicModuleModel{
-
+public class TextModel extends BasicModuleModel {
 	public String parsedText;
-	public List<GapInfo>	gapInfos = new ArrayList<GapInfo>();
-	public List<InlineChoiceInfo>	choiceInfos = new ArrayList<InlineChoiceInfo>();
-	public List<LinkInfo>	linkInfos = new ArrayList<LinkInfo>();
+	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
+	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
+	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
 
 	private String moduleText = "";
 	private boolean useDraggableGaps;
@@ -53,52 +51,42 @@ public class TextModel extends BasicModuleModel{
 		addPropertyOpenLinksinNewTab();
 		addPropertyText();
 		addPropertyKeepOriginalOrder();
-		
 	}
 
-
 	@Override
-	public void setId(String id){
+	public void setId(String id) {
 		super.setId(id);
-		if(rawText != null){
+		if (rawText != null) {
 			setText(rawText);
 		}
 	}
-	
-	
+
 	public String getGapUniqueId(){
 		return gapUniqueId;
 	}
-	
-	
+
 	public String getParsedText(){
 		return parsedText;
 	}
-	
-	
+
 	public boolean hasDraggableGaps(){
 		return useDraggableGaps;
 	}
-	
-	
+
 	public int getGapWidth(){
 		return gapWidth;
 	}
-	
-	
+
 	@Override
 	public void load(Element node, String baseUrl) {
-
 		super.load(node, baseUrl);
-		
+
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
-			
-			Node childNode = nodes.item(i);
-			if(childNode instanceof Element){
-				
-				if(childNode.getNodeName().compareTo("text") == 0){
 
+			Node childNode = nodes.item(i);
+			if (childNode instanceof Element) {
+				if (childNode.getNodeName().compareTo("text") == 0) {
 					Element textElement = (Element) childNode;
 					useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
 					useMathGaps = XMLUtils.getAttributeAsBoolean(textElement, "math");
@@ -111,20 +99,17 @@ public class TextModel extends BasicModuleModel{
 					isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
 					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
-					if(rawText == null){
-						rawText = XMLUtils.getText(textElement);
-						rawText = StringUtils.unescapeXML(rawText);
+					if (rawText == null) {
+						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 					}
 					setText(rawText);
-					
+
 				}
 			}
 		}
 	}
 
-	
 	private void setText(String text) {
-
 		moduleText = text;
 		TextParser parser = new TextParser();
 		parser.setId(gapUniqueId);
@@ -144,46 +129,43 @@ public class TextModel extends BasicModuleModel{
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
-		if(getBaseURL() != null){
+		if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
 		}
 	}
 
-
 	@Override
 	public String toXML() {
-		
+
 		String xml = "<textModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<text draggable='" + useDraggableGaps + "' " +
-				"math='" + useMathGaps + "' " + 
+				"math='" + useMathGaps + "' " +
 				"gapMaxLength='" + gapMaxLength + "' " +
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
-				"isIgnorePunctuation='" + isIgnorePunctuation + 
-				"' isKeepOriginalOrder='" + isKeepOriginalOrder + 
-				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive + 
-				"' openLinksinNewTab='" + openLinksinNewTab + 
+				"isIgnorePunctuation='" + isIgnorePunctuation +
+				"' isKeepOriginalOrder='" + isKeepOriginalOrder +
+				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive +
+				"' openLinksinNewTab='" + openLinksinNewTab +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
-		
+
 		return XMLUtils.removeIllegalCharacters(xml);
 	}
-
 
 	private void addPropertyText() {
 
 		IHtmlProperty property = new IHtmlProperty() {
-				
 			@Override
 			public void setValue(String newValue) {
 				setText(newValue);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return moduleText;
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("text_module_text");
@@ -194,15 +176,13 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("text_module_text");
 			}
 		};
-		
+
 		addProperty(property);
 	}
-	
-	
-	private void addPropertyGapType() {
 
+	private void addPropertyGapType() {
 		IProperty property = new IEnumSetProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				useDraggableGaps = newValue.compareTo("Draggable") == 0;
@@ -210,7 +190,7 @@ public class TextModel extends BasicModuleModel{
 				setText(moduleText);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				if(useDraggableGaps){
@@ -248,21 +228,20 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("text_module_gap_type");
 			}
 		};
-		
+
 		addProperty(property);
 	}
-	
-	private void addPropertyOpenLinksinNewTab() {
 
+	private void addPropertyOpenLinksinNewTab() {
 		IProperty property = new IEnumSetProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				openLinksinNewTab = newValue.compareTo("New Tab") == 0;
 				setText(moduleText);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return openLinksinNewTab ? "New Tab" : "Same Tab";
@@ -288,22 +267,20 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("open_links_in_new_tab");
 			}
 		};
-		
+
 		addProperty(property);
 	}
-	
 
 	private void addPropertyGapWidth() {
-
 		IProperty property = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				gapWidth = Integer.parseInt(newValue);
 				setText(moduleText);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return Integer.toString(gapWidth);
@@ -319,21 +296,20 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("text_module_gap_width");
 			}
 		};
-		
+
 		addProperty(property);
 	}
-	
-	private void addPropertyGapMaxLength() {
 
+	private void addPropertyGapMaxLength() {
 		IProperty property = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				gapMaxLength = Integer.parseInt(newValue);
 				setText(moduleText);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return Integer.toString(gapMaxLength);
@@ -349,15 +325,14 @@ public class TextModel extends BasicModuleModel{
 				return DictionaryWrapper.get("text_module_gap_max_length");
 			}
 		};
-		
+
 		addProperty(property);
 	}
-	
 
 	public List<GapInfo> getGapInfos() {
 		return gapInfos;
 	}
-	
+
 	public List<InlineChoiceInfo> getChoiceInfos() {
 		return choiceInfos;
 	}
@@ -369,27 +344,25 @@ public class TextModel extends BasicModuleModel{
 	public boolean isActivity() {
 		return isActivity;
 	}
-	
-	
+
 	private void addPropertyIsActivity() {
-		
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if(value!= isActivity){
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isActivity) {
 					isActivity = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isActivity ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("is_activity");
@@ -401,30 +374,29 @@ public class TextModel extends BasicModuleModel{
 			}
 
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
 
-
 	private void addPropertyIsDisabled() {
-		
+
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if(value!= isDisabled){
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= isDisabled) {
 					isDisabled = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isDisabled ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("is_disabled");
@@ -434,32 +406,30 @@ public class TextModel extends BasicModuleModel{
 			public String getDisplayName() {
 				return DictionaryWrapper.get("is_disabled");
 			}
-
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
 
-
 	private void addPropertyIsCaseSensitive() {
-		
+
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if(value!= isCaseSensitive){
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= isCaseSensitive) {
 					isCaseSensitive = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isCaseSensitive ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("case_sensitive");
@@ -471,107 +441,98 @@ public class TextModel extends BasicModuleModel{
 			}
 
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
 
-
 	private void addPropertyIsIgnorePunctuation() {
-		
+
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if(value!= isIgnorePunctuation){
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= isIgnorePunctuation) {
 					isIgnorePunctuation = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isIgnorePunctuation ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("Ignore_punctuation");
 			}
-			
+
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Ignore_punctuation");
 			}
-
-
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
-	
+
 	private void addPropertyKeepOriginalOrder() {
-			IProperty property = new IBooleanProperty() {
-			
+		IProperty property = new IBooleanProperty() {
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if(value!= isKeepOriginalOrder){
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= isKeepOriginalOrder) {
 					isKeepOriginalOrder = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isKeepOriginalOrder ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("Keep_original_order");
 			}
-			
+
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Keep_original_order");
 			}
-
-
 		};
-		
-		addProperty(property);	
-	}
 
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
 	}
-	
+
 	public void setIsDisabled(boolean value) {
 		isDisabled = value;
 	}
 
-	
 	public boolean isCaseSensitive() {
 		return isCaseSensitive;
 	}
 
-
 	public boolean isIgnorePunctuation() {
 		return isIgnorePunctuation;
 	}
-	
+
 	public boolean openLinksinNewTab() {
 		return openLinksinNewTab;
 	}
-	
+
 	public boolean isKeepOriginalOrder() {
 		return isKeepOriginalOrder;
 	}
-
 
 	public boolean hasMathGaps() {
 		return useMathGaps;

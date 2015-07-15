@@ -1,13 +1,23 @@
 function AddonMath_create() {
-    var presenter = function () {};
+
+    function getCorrectObject(val) { return { isError: false, value: val }; }
+    function getErrorObject(ec) { return { isError: true, errorCode: ec }; }
+
+    var presenter = function() {};
+    presenter.isShowAnswers = false;
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.eventBus = presenter.playerController.getEventBus();
     };
 
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model);
         presenter.$view.css('visibility', 'hidden');
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.createPreview = function (view, model) {
@@ -63,6 +73,36 @@ function AddonMath_create() {
         return { isError: false, variables: variablesArray };
     };
 
+    function parseSA(answers) {
+        if (ModelValidationUtils.isStringEmpty(answers)) return getCorrectObject([]);
+
+        var variables = answers.split('\n').map(function(line) {
+            var v = line.split('=');
+            if (v.length === 2) {
+                return {
+                    name: v[0].trim(),
+                    value: v[1].trim(),
+                    users: ''
+                }
+            }
+            return 0;
+        });
+
+        if (variables.some(function(v) { return v === 0; })) {
+            return getErrorObject('SA01');
+        }
+
+        if (variables.some(function(v) { return v.name === ''; })) {
+            return getErrorObject('SA02');
+        }
+
+        if (variables.some(function(v) { return v.value === ''; })) {
+            return getErrorObject('SA03');
+        }
+
+        return getCorrectObject(variables);
+    }
+
     presenter.convertExpressions = function (expressions) {
         var expressionsArray = [], splittedExpressions = expressions.split('\n');
 
@@ -79,6 +119,11 @@ function AddonMath_create() {
         var convertedVariables = presenter.convertVariables(model.Variables, expressions);
         if (convertedVariables.isError) {
             return { isError: true, errorCode: convertedVariables.errorCode };
+        }
+
+        var parsedShowAnswers = parseSA(model['Show Answers']);
+        if (parsedShowAnswers.isError) {
+            return { isError: true, errorCode: parsedShowAnswers.errorCode };
         }
 
         var decimalSeparator = model["Decimal separator"],
@@ -102,6 +147,7 @@ function AddonMath_create() {
             isError: false,
             variables: convertedVariables.variables,
             expressions: expressions,
+            answers: parsedShowAnswers.value,
             onCorrectEvent: model.onCorrect,
             onIncorrectEvent: model.onIncorrect,
             onPartialEvent: model.onPartiallyCompleted,
@@ -174,7 +220,6 @@ function AddonMath_create() {
     };
 
     presenter.evaluateAllExpressions = function (expressions, variables, separators) {
-
         var results = [], i, overall = true, evaluationResult;
 
         for (i = 0; i < expressions.length; i++) {
@@ -205,7 +250,6 @@ function AddonMath_create() {
 
     presenter.convertVariable = function (gapIdentifier, separators) {
         var decodedReference = presenter.decodeModuleReference(gapIdentifier);
-
         if (!decodedReference.isValid) return undefined;
 
         try {
@@ -327,13 +371,18 @@ function AddonMath_create() {
         }
     };
 
-    presenter.setShowErrorsMode = function () {
+    presenter.setShowErrorsMode = function() {
+        if (presenter.isShowAnswers) {
+            toggleAnswers(false);
+        }
+
         presenter.isErrorMode = true;
 
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
 
         if (!emptyGaps.isValid) {
+            presenter.hideAnswers();
             alert(emptyGaps.errorMessage);
             return;
         }
@@ -349,15 +398,15 @@ function AddonMath_create() {
         presenter.markGapsCorrectness(presenter.configuration.variables, evaluationResult.overall);
     };
 
-    presenter.setWorkMode = function () {
+    presenter.setWorkMode = function() {
         presenter.isErrorMode = false;
     };
 
-    presenter.executeEventCode = function (eventCode) {
+    presenter.executeEventCode = function(eventCode) {
         presenter.playerController.getCommands().executeEventCode(eventCode);
     };
 
-    presenter.markGapsEmptiness = function (gaps) {
+    presenter.markGapsEmptiness = function(gaps) {
         var moduleReference, decodedReference, textModule, i, length;
 
         for (i = 0, length = gaps.length; i < length; i++) {
@@ -373,6 +422,7 @@ function AddonMath_create() {
 
         var emptyGaps = presenter.getEmptyGaps(presenter.configuration.variables);
         if (!emptyGaps.isValid) {
+            presenter.hideAnswers();
             alert(emptyGaps.errorMessage);
             return;
         }
@@ -388,16 +438,9 @@ function AddonMath_create() {
         }
     };
 
-    presenter.isAttempted = function () {
-        var notAttemptedGaps = presenter.getNotAttemptedGaps(presenter.configuration.variables),
-            isAttempted;
-        if(notAttemptedGaps.gaps.length == 0){
-            isAttempted = true;
-        }else{
-            isAttempted = false;
-        }
-
-        return isAttempted;
+    presenter.isAttempted = function() {
+        var notAttemptedGaps = presenter.getNotAttemptedGaps(presenter.configuration.variables);
+        return notAttemptedGaps.gaps.length === 0;
     };
 
     presenter.getScore = function () {
@@ -434,14 +477,17 @@ function AddonMath_create() {
 
     presenter.reset = function () {
         presenter.isErrorMode = false;
+        presenter.isShowAnswers = false;
     };
 
     presenter.executeCommand = function(name, params) {
         if (presenter.isErrorMode) return;
 
         var commands = {
-            'evaluate' : presenter.evaluate,
-            'isAttempted' : presenter.isAttempted
+            'evaluate': presenter.evaluate,
+            'isAttempted': presenter.isAttempted,
+            'showAnswers': presenter.showAnswers,
+            'hideAnswers': presenter.hideAnswers
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -450,8 +496,9 @@ function AddonMath_create() {
     function getAlertMessage(variable) {
         var decodedReference = presenter.decodeModuleReference(variable.value);
 
-        return "Text module with ID " + decodedReference.moduleID + " doesn't have gap with "
-            + decodedReference.gapIndex + " index or does not exists!";
+        return "Text module with ID [ID] doesn't have gap with [INDEX] index or does not exists!"
+            .replace('[ID]', decodedReference.moduleID)
+            .replace('[INDEX]', decodedReference.gapIndex);
     }
 
     presenter.getEmptyGaps = function (variables) {
@@ -479,6 +526,65 @@ function AddonMath_create() {
 
         return { isValid: true, gaps: notAttemptedGaps };
     };
+
+    function toggleAnswers(on) {
+        presenter.isShowAnswers = on;
+        for (var i=0; i<presenter.configuration.answers.length; i++) {
+            var answer = presenter.configuration.answers[i];
+            var moduleReference = presenter.decodeModuleReference(answer.name);
+            var module = presenter.getModule(moduleReference.moduleID);
+
+            if (module != null && !module.isActivity()) {
+                if (on) {
+                    answer.users = module.getValue(moduleReference.gapIndex);
+                    module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.configuration.answers.length);
+                } else {
+                    module.setUserValue(moduleReference.gapIndex, answer.users);
+                }
+            }
+        }
+    }
+
+    presenter.showAnswers = function() {
+        if (!presenter.isShowAnswers) {
+            toggleAnswers(true);
+        }
+    };
+
+    presenter.hideAnswers = function() {
+        if (presenter.isShowAnswers) {
+            toggleAnswers(false);
+        }
+    };
+
+    presenter.onEventReceived = function(eventName) {
+        switch(eventName) {
+            case 'ShowAnswers': presenter.showAnswers(); break;
+            case 'HideAnswers': presenter.hideAnswers(); break;
+            case 'PageLoaded': markModules(); break;
+        }
+    };
+
+    function markModules() {
+        for (var i=0; i<presenter.configuration.answers.length; i++) {
+            var answer = presenter.configuration.answers[i];
+            var moduleReference = presenter.decodeModuleReference(answer.name);
+            var module = presenter.getModule(moduleReference.moduleID);
+
+            if (module != null && !module.isActivity()) {
+                module.markConnectionWithMath();
+            }
+        }
+
+        for (var j=0; j < presenter.configuration.variables.length; j++){
+            var decodedReference = presenter.decodeModuleReference(presenter.configuration.variables[j].value);
+            var notSAmodule = presenter.getModule(decodedReference.moduleID);
+
+            if (notSAmodule != null && !notSAmodule.isActivity()) {
+                notSAmodule.markConnectionWithMath();
+            }
+        }
+    }
 
     return presenter;
 }

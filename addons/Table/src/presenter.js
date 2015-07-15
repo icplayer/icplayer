@@ -1,4 +1,7 @@
 function AddonTable_create() {
+
+    var isConnectedWithMath = false;
+
     var presenter = function () {
     };
 
@@ -156,6 +159,22 @@ function AddonTable_create() {
         }
     };
 
+    presenter.attachHandlers = function () {
+        var handler = presenter.$view.find('span');
+        $(handler).on('click', function (e){
+            if($(this).text() != ''){
+                presenter.removeDraggable(e);
+            }else{
+                presenter.acceptDraggable(e);
+            }
+        });
+    };
+
+    presenter.removeHandlers = function () {
+        var handler = presenter.$view.find('span');
+        $(handler).unbind('click');
+    };
+
     presenter.run = function (view, model) {
         presenter.logic(view, model, false);
         presenter.eventBus.addEventListener('ShowAnswers', this);
@@ -168,14 +187,7 @@ function AddonTable_create() {
 
             var handler = $(view).find('span');
 
-            $(handler).on('click', function (e){
-
-                if($(this).text() != ''){
-                    presenter.removeDraggable(e);
-                }else{
-                    presenter.acceptDraggable(e);
-                }
-            });
+            presenter.attachHandlers();
 
             handler.droppable({drop: function(event, ui) {
                 event.stopPropagation();
@@ -277,13 +289,19 @@ function AddonTable_create() {
                 $(this).removeClass('gapFilled');
             });
         }
+
+        $.each(presenter.$view.find('.ic_gap'), function () {
+            $(this).removeClass('ic_gap-show-answers');
+        });
+        presenter.setGapNumber = 0;
     };
 
     presenter.getState = function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        if (!presenter.configuration.isActivity || presenter.configuration.gaps.descriptions === undefined) {
+
+        if (/*!presenter.configuration.isActivity || */presenter.configuration.gaps.descriptions === undefined) {
             return;
         }
 
@@ -807,6 +825,10 @@ function AddonTable_create() {
         return Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.isActivity = function () {
+      return presenter.configuration.isActivity;
+    };
+
     presenter.getMaxScore = function () {
         if (!presenter.configuration.isActivity) return 0;
         if (presenter.isShowAnswersActive) {
@@ -886,6 +908,7 @@ function AddonTable_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        presenter.isShowErrorsMode = true;
         var isCaseSensitive = presenter.configuration.isCaseSensitive,
             isPunctuationIgnored = presenter.configuration.isPunctuationIgnored,
             isActivity = presenter.configuration.isActivity;
@@ -893,7 +916,7 @@ function AddonTable_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
         $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
             $(gap).attr('disabled', 'disabled');
             if (!isActivity) return true;
@@ -925,7 +948,7 @@ function AddonTable_create() {
             presenter.removeMarkClasses(gap);
         });
     };
-
+    presenter.isShowErrorsMode = false;
     presenter.setWorkMode = function () {
         $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
             var gapIndex = presenter.getGapIndex(gap),
@@ -937,6 +960,7 @@ function AddonTable_create() {
         if(presenter.configuration.gapType == "draggable"){
             presenter.$view.find('input').attr("disabled", "true");
         }
+        presenter.isShowErrorsMode = false;
     };
 
     presenter.createEventData = function (item, value, score) {
@@ -985,6 +1009,7 @@ function AddonTable_create() {
                     }else{
                         presenter.answers.push($(gap).text());
                         $(gap).text(gapDescription.answers[0]);
+                        presenter.removeHandlers();
                     }
                 }else{
                     presenter.answers.push($(gap).val());
@@ -1009,6 +1034,7 @@ function AddonTable_create() {
                         $(gap).val(presenter.answers[index]);
                     }else{
                         $(gap).text(presenter.answers[index]);
+                        presenter.attachHandlers();
                     }
                 }else{
 	                $(gap).val(presenter.answers[index]);
@@ -1017,6 +1043,107 @@ function AddonTable_create() {
 	        });
     	}
     };
-    
+
+    presenter.setGapNumber = 0;
+
+    presenter.setGapAnswer = function (gapIndex, answer, answersLength) {
+        presenter.setGapNumber++;
+        presenter.mathAnswers = [];
+
+        presenter.isShowErrorsMode = false;
+        var gap = $(presenter.$view.find('.ic_gap')[gapIndex-1]);
+        $(gap).attr('disabled', 'disabled');
+
+        if(presenter.configuration.gapType == "draggable"){
+            if($(gap).is('select')){
+                $(gap).val(answer);
+                $(gap).addClass('math-answer');
+            }else{
+                $(gap).text(answer);
+                $(gap).addClass('math-answer');
+                presenter.removeHandlers();
+            }
+        }else{
+            $(gap).val(answer);
+            $(gap).addClass('math-answer');
+        }
+        presenter.removeMarkClasses(gap);
+        $(gap).addClass('ic_gap-show-answers');
+
+        if(answersLength == presenter.setGapNumber){
+            $.each(presenter.$view.find('.ic_gap'), function (index, gap) {
+                if(!$(this).hasClass('math-answer')){
+                    $(this).attr('disabled', 'disabled');
+                    if(presenter.configuration.gapType == "draggable"){
+                        if($(this).is('select')){
+                            presenter.mathAnswers.push({index: index, value: $(this).val()});
+                            $(gap).val('');
+                        }else{
+                            presenter.mathAnswers.push({index: index, value: $(this).text()});
+                            $(gap).text('');
+                        }
+                    }else{
+                        presenter.mathAnswers.push({index: index, value: $(this).val()});
+                        $(gap).val('');
+                    }
+                    presenter.removeMarkClasses(this);
+                }
+            });
+        }
+    };
+
+    presenter.setUserValue = function (index, value) {
+        presenter.setGapNumber = 0;
+        var gap = $(presenter.$view.find('.ic_gap')[index-1]);
+        if(!presenter.isShowErrorsMode){
+            presenter.setWorkMode();
+        }
+        if(presenter.configuration.gapType == "draggable"){
+            if($(gap).is('select')){
+                $(gap).val(value);
+            }else{
+                $(gap).text(value);
+                presenter.attachHandlers();
+            }
+        }else{
+            $(gap).val(value);
+        }
+        $(gap).removeClass('ic_gap-show-answers');
+
+        for (var i = 0; i < presenter.mathAnswers.length; i++){
+            var notConnectedGap = $(presenter.$view.find('.ic_gap')[presenter.mathAnswers[i].index]);
+            if(presenter.configuration.gapType == "draggable"){
+                if($(notConnectedGap).is('select')){
+                    $(notConnectedGap).val(presenter.mathAnswers[i].value);
+                    $(notConnectedGap).removeClass('math-answer');
+                }else{
+                    $(notConnectedGap).text(presenter.mathAnswers[i].value);
+                    $(notConnectedGap).removeClass('math-answer');
+                    presenter.attachHandlers();
+                }
+            }else{
+                $(notConnectedGap).val(presenter.mathAnswers[i].value);
+                $(notConnectedGap).removeClass('math-answer');
+            }
+        }
+    };
+
+    presenter.markConnectionWithMath = function() {
+        isConnectedWithMath = true;
+    };
+
+    presenter.getValue = function (index) {
+        var gap = $(presenter.$view.find('.ic_gap')[index-1]);
+        if(presenter.configuration.gapType == "draggable"){
+            if($(gap).is('select')){
+               return $(gap).val();
+            }else{
+                return $(gap).text();
+            }
+        }else{
+            return $(gap).val();
+        }
+    };
+
     return presenter;
 }

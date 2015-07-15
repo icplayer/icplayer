@@ -19,16 +19,16 @@ public class ImageGapModule extends BasicModuleModel {
 	public static final String EVENT_CORRECT = "onCorrect";
 	public static final String EVENT_WRONG = "onWrong";
 	public static final String EVENT_EMPTY = "onEmpty";
-	
+
 	private String answerId = "";
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
-	
-	private HashMap<String, String>  events = new HashMap<String, String>();
-	
+
+	private final HashMap<String, String> events = new HashMap<String, String>();
+
 	public ImageGapModule() {
 		super("Image gap", DictionaryWrapper.get("image_gap_module"));
-		
+
 		addPropertyAnswer();
 		addPropertyIsActivity();
 		addPropertyEvent(EVENT_CORRECT);
@@ -36,23 +36,23 @@ public class ImageGapModule extends BasicModuleModel {
 		addPropertyEvent(EVENT_EMPTY);
 		addPropertyIsDisabled();
 	}
-	
+
 	public String getAnswerId() {
 		return answerId;
 	}
-	
+
 	@Override
 	public void load(Element node, String baseUrl) {
 		super.load(node, baseUrl);
-		
+
 		loadEvents(node);
-		
+
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node childNode = nodes.item(i);
 			if (childNode instanceof Element) {
 				if (childNode.getNodeName().compareTo("gap") == 0 && childNode instanceof Element) {
-					Element gapElement = (Element)childNode;
+					Element gapElement = (Element) childNode;
 					answerId = XMLUtils.getAttributeAsString(gapElement, "answerId");
 					isActivity = XMLUtils.getAttributeAsBoolean(gapElement, "isActivity", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean(gapElement, "isDisabled", false);
@@ -63,14 +63,14 @@ public class ImageGapModule extends BasicModuleModel {
 	}
 
 	private void loadEvents(Element rootElement) {
-		
+
 		NodeList eventsNodes = rootElement.getElementsByTagName("events");
 
 		if (eventsNodes.getLength() > 0) {
-			
+
 			NodeList eventNodes = eventsNodes.item(0).getChildNodes();
 			for (int i = 0; i < eventNodes.getLength(); i++) {
-	
+
 				Node node = eventNodes.item(i);
 				if (node instanceof Element && node.getNodeName().compareTo("event") == 0) {
 					Element element = (Element)eventNodes.item(i);
@@ -88,7 +88,6 @@ public class ImageGapModule extends BasicModuleModel {
 	 */
 	@Override
 	public String toXML() {
-		
 		String xml = "<imageGapModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<events>";
 		xml += eventToXML(EVENT_CORRECT);
@@ -97,7 +96,7 @@ public class ImageGapModule extends BasicModuleModel {
 		xml += "</events>";
 		xml += "<gap answerId='" + answerId + "' isActivity='" + isActivity + "' isDisabled='" + isDisabled + "'/>";
 		xml += "</imageGapModule>";
-		
+
 		return xml;
 	}
 
@@ -110,18 +109,18 @@ public class ImageGapModule extends BasicModuleModel {
 	private void addPropertyAnswer() {
 
 		IProperty property = new IStringListProperty() {
-				
+
 			@Override
 			public void setValue(String newValue) {
 				answerId = newValue.replace("\n", ";");
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return answerId.replace(";", "\n");
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("image_gap_answer");
@@ -132,30 +131,30 @@ public class ImageGapModule extends BasicModuleModel {
 				return DictionaryWrapper.get("image_gap_answer");
 			}
 		};
-		
+
 		addProperty(property);
 	}
 
 
 	private void addPropertyIsActivity() {
-		
+
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if (value!= isActivity) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isActivity) {
 					isActivity = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isActivity ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("is_activity");
@@ -167,29 +166,29 @@ public class ImageGapModule extends BasicModuleModel {
 			}
 
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
-	
+
 	private void addPropertyIsDisabled() {
-		
+
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if (value!= isDisabled) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isDisabled) {
 					isDisabled = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isDisabled ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("image_gap_is_disabled");
@@ -201,26 +200,26 @@ public class ImageGapModule extends BasicModuleModel {
 			}
 
 		};
-		
-		addProperty(property);	
+
+		addProperty(property);
 	}
 
 	private void addPropertyEvent(final String eventName) {
-		
+
 		IProperty property = new IEventProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				events.put(eventName, newValue);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
-				String value = events.get(eventName);		
+				String value = events.get(eventName);
 				return value == null ? "" : value;
 			}
-			
+
 			@Override
 			public String getName() {
 				return getEventTranslatedName(eventName);
@@ -231,25 +230,25 @@ public class ImageGapModule extends BasicModuleModel {
 				return getEventTranslatedName(eventName);
 			}
 		};
-		
+
 		addProperty(property);
 	}
 
-    private String getEventTranslatedName(final String eventName) {
-        String label = "image_gap_on_";
+	private String getEventTranslatedName(final String eventName) {
+		String label = "image_gap_on_";
 
-        if (eventName.equals(EVENT_CORRECT)) {
-            label += "correct";
-        } else if (eventName.equals(EVENT_WRONG)) {
-            label += "wrong";
-        } else if (eventName.equals(EVENT_EMPTY)) {
-            label += "empty";
-        } else {
-            throw new IllegalArgumentException();
-        }
+		if (eventName.equals(EVENT_CORRECT)) {
+			label += "correct";
+		} else if (eventName.equals(EVENT_WRONG)) {
+			label += "wrong";
+		} else if (eventName.equals(EVENT_EMPTY)) {
+			label += "empty";
+		} else {
+			throw new IllegalArgumentException();
+		}
 
-        return DictionaryWrapper.get(label);
-    }
+		return DictionaryWrapper.get(label);
+	}
 
 	public String getEventCode(String eventName) {
 		return events.get(eventName);
@@ -258,7 +257,7 @@ public class ImageGapModule extends BasicModuleModel {
 	public boolean isActivity() {
 		return isActivity;
 	}
-	
+
 	public boolean isDisabled() {
 		return isDisabled;
 	}

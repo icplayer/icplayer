@@ -168,4 +168,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	public boolean isDisabled() {
 		return isDisabled;
 	}
+
+	@Override
+	public void setEnableGap(boolean enable) {
+		setEnabled(enable);		
+	}
 }
