@@ -1,0 +1,18 @@
+.board-game-container{
+    background-color:white;
+    -moz-background-size:100% 100%;
+    -webkit-background-size:100% 100%;
+    background-size:100% 100%;
+    background-repeat: no-repeat;
+}
+
+.board-game-element{
+    position:absolute;
+    background-color:blue;
+}
+
+.board-game-field{
+    position:absolute;
+    background-color:blue;
+    opacity: 0.3;
+}

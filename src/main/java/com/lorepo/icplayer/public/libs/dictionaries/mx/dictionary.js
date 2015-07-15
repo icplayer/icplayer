@@ -1141,5 +1141,17 @@
     "Line_Selection_property_is_activity" : "Is Activity",
     "Line_Selection_property_is_disabled" : "Is Disabled",
     "Line_Selection_property_single_mode" : "Single Mode",
-    "Line_Selection_property_lines" : "Lines"
+    "Line_Selection_property_lines" : "Lines",
+    "Board_Game_name" : "Board Game",
+    "Board_Game_info" : "Enables to create simple game with movable elements and defined fields",
+    "Board_game_property_background" : "Background",
+    "Board_game_property_has_fields" : "has Fields",
+    "Board_game_property_fields" : "Fields",
+    "Board_game_property_top" : "Top",
+    "Board_game_property_left" : "Left",
+    "Board_game_property_width" : "Width",
+    "Board_game_property_height" : "Height",
+    "Board_game_property_images" : "Elements",
+    "Board_game_property_pawn_image" : "Element Image",
+    "Board_game_property_is_disable" : "Is Disabled"
 };

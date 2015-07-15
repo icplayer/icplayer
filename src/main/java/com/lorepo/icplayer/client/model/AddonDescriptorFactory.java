@@ -31,6 +31,7 @@ public class AddonDescriptorFactory {
 
 		// ACTIVITIES
 		addDescriptor("Basic_Math_Gaps", "activities_menu");
+		addDescriptor("Board_Game", "activities_menu");
 		addDescriptor("Clock", "activities_menu");
 		addDescriptor("ConnectingDots", "activities_menu");
 		addDescriptor("Connection", "activities_menu");
