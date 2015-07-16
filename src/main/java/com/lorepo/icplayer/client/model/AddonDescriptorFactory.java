@@ -80,6 +80,7 @@ public class AddonDescriptorFactory {
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");
 		addDescriptor("Navigation_Bar", "navigation_menu");
+		addDescriptor("Assessments_Navigation_Bar", "navigation_menu");
 		addDescriptor("Next", "navigation_menu");
 		addDescriptor("Page_Counter", "navigation_menu");
 		addDescriptor("Page_Name", "navigation_menu");

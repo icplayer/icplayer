@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Assessments_Navigation_Bar'>
+    <model>
+        <property name='Sections' type='text' nameLabel="Assessments_Navigation_Bar_property_sections"/>
+    </model>
+</addon>

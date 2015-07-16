@@ -1,3 +1,4 @@
+2015-07-16 Added new module Assessments Navigation Bar
 2015-07-15 Added new module Board Game
 2015-07-15 Added show answers mode to Math module connected with Text, Table and Image Gap modules
 2015-07-10 Added selection by plotting in Magic Boxes module
