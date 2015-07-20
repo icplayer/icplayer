@@ -38,7 +38,12 @@ function AddonMath_create() {
         'CV_01': "Missing assignment operator!",
         'CV_02': "Missing gap ID!",
         'CV_03': "Unused variable!",
-        'CV_04': "Decimal separator and thousand separator are the same!"
+        'CV_04': "Decimal separator and thousand separator are the same!",
+        'CV_05': "Number of defined gaps in Show Answers is different than number of Variables",
+        'CV_06': "Incorrect gap name defined in Show Answers property",
+        'SA04': "Empty line is inserted in Show Answers property",
+        'SA02': "Name of gap is not defined in Show Answers",
+        'SA03': "Value of gap is not defined in Show Answers"
     };
 
     presenter.convertVariables = function (variables, expressions) {
@@ -73,35 +78,46 @@ function AddonMath_create() {
         return { isError: false, variables: variablesArray };
     };
 
-    function parseSA(answers) {
+    presenter.parseShowAnswers = function (answers, convertedVariables) {
         if (ModelValidationUtils.isStringEmpty(answers)) return getCorrectObject([]);
 
         var variables = answers.split('\n').map(function(line) {
-            var v = line.split('=');
-            if (v.length === 2) {
-                return {
-                    name: v[0].trim(),
-                    value: v[1].trim(),
-                    users: ''
-                }
+            return {
+                name:line.substr(0, line.indexOf('=')).trim(),
+                value:line.substr(line.indexOf('=') + 1).trim(),
+                users: ''
             }
-            return 0;
         });
 
-        if (variables.some(function(v) { return v === 0; })) {
-            return getErrorObject('SA01');
+        if (variables.some(function(v) { return v.value === '' && v.name === ''; })) {
+            return getErrorObject('SA04'); // check if empty line is in property
         }
 
         if (variables.some(function(v) { return v.name === ''; })) {
-            return getErrorObject('SA02');
+            return getErrorObject('SA02'); // check if name of gap is defined
         }
 
         if (variables.some(function(v) { return v.value === ''; })) {
-            return getErrorObject('SA03');
+            return getErrorObject('SA03'); // check if value of gap is defined
+        }
+
+        if(variables.length > 0 && (variables.length != convertedVariables.length)){
+            return getErrorObject('CV_05'); // check if number of gaps equals number of defined gaps in Show Answers
+        }
+
+        var definedGaps = [];
+        for (var j = 0; j <  convertedVariables.length; j++){
+            definedGaps.push(convertedVariables[j].name);
+        }
+
+        for (var i = 0; i <  variables.length; i++){
+            if(!(definedGaps.indexOf(variables[i].name) > -1)){
+                return getErrorObject('CV_06'); // check if defined gap names are correct
+            }
         }
 
         return getCorrectObject(variables);
-    }
+    };
 
     presenter.convertExpressions = function (expressions) {
         var expressionsArray = [], splittedExpressions = expressions.split('\n');
@@ -121,7 +137,7 @@ function AddonMath_create() {
             return { isError: true, errorCode: convertedVariables.errorCode };
         }
 
-        var parsedShowAnswers = parseSA(model['Show Answers']);
+        var parsedShowAnswers = presenter.parseShowAnswers(model['Show Answers'], convertedVariables.variables);
         if (parsedShowAnswers.isError) {
             return { isError: true, errorCode: parsedShowAnswers.errorCode };
         }
@@ -444,6 +460,9 @@ function AddonMath_create() {
     };
 
     presenter.getScore = function () {
+        if(presenter.configuration.isError){
+            return;
+        }
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
         if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) return 0;
@@ -457,6 +476,9 @@ function AddonMath_create() {
     };
 
     presenter.getErrorCount = function () {
+        if(presenter.configuration.isError){
+            return;
+        }
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
 
@@ -472,6 +494,9 @@ function AddonMath_create() {
     };
 
     presenter.getMaxScore = function () {
+        if(presenter.configuration.isError){
+            return;
+        }
         return presenter.configuration.variables.length;
     };
 
@@ -531,7 +556,17 @@ function AddonMath_create() {
         presenter.isShowAnswers = on;
         for (var i=0; i<presenter.configuration.answers.length; i++) {
             var answer = presenter.configuration.answers[i];
-            var moduleReference = presenter.decodeModuleReference(answer.name);
+            var gapName = null;
+            for (var j= 0; j<presenter.configuration.variables.length; j++){
+                if(presenter.configuration.variables[j].name == answer.name){
+                    gapName = presenter.configuration.variables[j].value;
+                }
+            }
+            if(gapName == null){
+                return;
+            }
+
+            var moduleReference = presenter.decodeModuleReference(gapName);
             var module = presenter.getModule(moduleReference.moduleID);
 
             if (module != null && !module.isActivity()) {
@@ -566,6 +601,10 @@ function AddonMath_create() {
     };
 
     function markModules() {
+        if(presenter.configuration.isError){
+            return;
+        }
+
         for (var i=0; i<presenter.configuration.answers.length; i++) {
             var answer = presenter.configuration.answers[i];
             var moduleReference = presenter.decodeModuleReference(answer.name);

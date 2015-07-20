@@ -1,4 +1,4 @@
-TestCase("Decode module ID and gap index", {
+TestCase("[Math] Decode module ID and gap index", {
     setUp: function () {
         this.presenter = AddonMath_create();
     },
@@ -26,7 +26,7 @@ TestCase("Decode module ID and gap index", {
     }
 });
 
-TestCase("Runtime variable conversion", {
+TestCase("[Math] Runtime variable conversion", {
     setUp: function () {
         var text1 = {
             getGapValue: function (index) {
@@ -152,7 +152,7 @@ TestCase("Runtime variable conversion", {
     }
 });
 
-TestCase("Assign variables to current 'this' object", {
+TestCase("[Math] Assign variables to current 'this' object", {
     setUp: function () {
         this.presenter = AddonMath_create();
     },
@@ -173,7 +173,7 @@ TestCase("Assign variables to current 'this' object", {
     }
 });
 
-TestCase("Getting module ID from variable name", {
+TestCase("[Math] Getting module ID from variable name", {
     setUp: function () {
         this.presenter = AddonMath_create();
         this.variables = [
@@ -190,7 +190,7 @@ TestCase("Getting module ID from variable name", {
     }
 });
 
-TestCase("Runtime variable emptiness checking", {
+TestCase("[Math] Runtime variable emptiness checking", {
     setUp: function () {
         this.text1 = {
             getGapValue: function (index) {

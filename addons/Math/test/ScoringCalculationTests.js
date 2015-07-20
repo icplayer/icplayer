@@ -1,4 +1,4 @@
-TestCase("Scoring calculation - max score", {
+TestCase("[Math] Scoring calculation - max score", {
     setUp: function () {
         this.presenter = AddonMath_create();
         sinon.stub(this.presenter, 'getEmptyGaps');
@@ -59,7 +59,7 @@ TestCase("Scoring calculation - max score", {
     }
 });
 
-TestCase("Scoring calculation - score and errors count", {
+TestCase("[Math] Scoring calculation - score and errors count", {
     setUp: function () {
         this.presenter = AddonMath_create();
         var text1 = {

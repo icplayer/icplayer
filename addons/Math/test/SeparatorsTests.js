@@ -1,4 +1,4 @@
-TestCase("Separators", {
+TestCase("[Math] Separators", {
     setUp: function () {
         var text1 = {
             getGapValue: function (index) {

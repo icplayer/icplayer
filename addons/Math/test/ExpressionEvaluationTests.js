@@ -1,4 +1,4 @@
-TestCase("Expression evaluation", {
+TestCase("[Math] Expression evaluation", {
     setUp: function () {
         this.presenter = AddonMath_create();
         var text1 = {

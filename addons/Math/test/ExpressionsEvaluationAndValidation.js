@@ -1,4 +1,4 @@
-TestCase("Checking which variables are present in expression", {
+TestCase("[Math] Checking which variables are present in expression", {
     setUp: function () {
         this.presenter = AddonMath_create();
         this.variables = [
@@ -42,7 +42,7 @@ TestCase("Checking which variables are present in expression", {
     }
 });
 
-TestCase("Expressions evaluation", {
+TestCase("[Math] Expressions evaluation", {
     setUp: function () {
         this.presenter = AddonMath_create();
         var text1 = {

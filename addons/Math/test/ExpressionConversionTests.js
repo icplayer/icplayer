@@ -1,4 +1,4 @@
-TestCase("Finding text occurrences", {
+TestCase("[Math] Finding text occurrences", {
     setUp: function () {
         this.presenter = AddonMath_create();
     },
@@ -20,7 +20,7 @@ TestCase("Finding text occurrences", {
     }
 });
 
-TestCase("Adding prefix to variable in expression", {
+TestCase("[Math] Adding prefix to variable in expression", {
     setUp: function () {
         this.presenter = AddonMath_create();
     },
@@ -44,7 +44,7 @@ TestCase("Adding prefix to variable in expression", {
     }
 });
 
-TestCase("Expression conversion", {
+TestCase("[Math] Expression conversion", {
     setUp: function () {
         this.presenter = AddonMath_create();
         this.variables = [

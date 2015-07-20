@@ -1,4 +1,4 @@
-TestCase("Commands logic - evaluate", {
+TestCase("[Math] Commands logic - evaluate", {
     setUp: function () {
         this.presenter = AddonMath_create();
 

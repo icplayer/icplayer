@@ -1,4 +1,4 @@
-TestCase("Variables conversion", {
+TestCase("[Math] Variables conversion", {
     setUp: function () {
         this.presenter = AddonMath_create();
     },
