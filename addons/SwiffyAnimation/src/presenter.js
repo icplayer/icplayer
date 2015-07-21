@@ -104,7 +104,7 @@ function AddonSwiffyAnimation_create(){
         });//end loop
 
         //stop propagation
-        $(view).find('.swiffyContainer')[0].click(function(e){
+        $(view).find('.swiffyContainer').click(function(e) {
             e.stopImmediatePropagation();
             e.stopPropagation();
         });
