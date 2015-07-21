@@ -24,6 +24,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 		
 		choiceInfo = gi;
 		setStylePrimaryName("ic_inlineChoice");
+		addStyleName("ic_inlineChoice-default");
 		
 		onAttach();
 		
@@ -36,9 +37,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 					int index = getSelectedIndex();
 					if(index > 0){
 						value = StringUtils.unescapeXML(getValue(index));
+						removeStyleName("ic_inlineChoice-default");
 					}
 					else{
 						value = "---";
+						addStyleName("ic_inlineChoice-default");
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 				}
@@ -113,9 +116,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
+		addStyleName("ic_inlineChoice-default");
 		setEnabled(!isDisabled);
 	}
-
 	
 	public void setText(String value) {
 		
@@ -172,5 +175,10 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	@Override
 	public void setEnableGap(boolean enable) {
 		setEnabled(enable);		
+	}
+
+	@Override
+	public void removeDefaultStyle() {
+		removeStyleName("ic_inlineChoice-default");		
 	}
 }

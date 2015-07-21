@@ -226,4 +226,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public void setEnableGap(boolean enable) {
 		setDisabled(!enable);		
 	}
+
+	@Override
+	public void removeDefaultStyle() {
+	}
 }

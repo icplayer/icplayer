@@ -200,6 +200,7 @@ public class TextParser {
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
+			placeholder = StringUtils.unescapeXML(placeholder);
 			replaceText = "<input id='" + id + "' type='edit' size='"
 					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"' />";
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
@@ -253,6 +254,7 @@ public class TextParser {
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
+			placeholder = StringUtils.unescapeXML(placeholder);
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;

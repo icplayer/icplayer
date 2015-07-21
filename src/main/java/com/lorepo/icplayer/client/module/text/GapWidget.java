@@ -190,4 +190,8 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		setEnabled(enable);		
 	}
 
+	@Override
+	public void removeDefaultStyle() {	
+	}
+
 }

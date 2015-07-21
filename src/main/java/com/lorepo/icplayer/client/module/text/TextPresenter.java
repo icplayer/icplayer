@@ -16,6 +16,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -56,6 +57,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setStyleShowAnswers();
 		void removeStyleHideAnswers();
 		void setEnableGap(boolean enable);
+		void removeDefaultStyle();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -176,6 +178,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		Iterator<String> distractors = choice.getDistractors();
 		while (distractors.hasNext()) {
 			String distractor = distractors.next();
+			distractor = StringUtils.unescapeXML(distractor);
 			if (distractor.equals(optionName)) return index;
 			index++;
 		}
@@ -219,7 +222,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			Element elem = DOM.getElementById(choice.getId());
 			SelectElement sElem = (SelectElement) elem;
-
+			
 			int correctIndex = getOptionIndex(choice, choice.getAnswer());
 			if (correctIndex != -1)
 				sElem.setSelectedIndex(correctIndex + 1);

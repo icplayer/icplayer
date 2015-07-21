@@ -173,6 +173,9 @@ public class TextView extends HTML implements IDisplay{
 		for(TextElementDisplay gap : textElements){
 			if(gap.hasId(id)){
 				gap.setText(value);
+				if(!value.equals("---")){
+					gap.removeDefaultStyle();
+				}
 				return;
 			}
 		}
