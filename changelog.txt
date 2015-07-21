@@ -1,3 +1,4 @@
+2015-07-21 Fixed issue with wrong checking in Shape Tracing module
 2015-07-21 Fixed parsing and styling in Text module
 2015-07-21 Fixed issue with numerating gaps in Writing Calculation module
 2015-07-21 Fixed unit tests in Text Audio & Text Selection modules

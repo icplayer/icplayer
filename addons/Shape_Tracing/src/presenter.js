@@ -76,7 +76,10 @@ function AddonShape_Tracing_create() {
         isAllOk: false,
         drawingOpacity: 1,
 
-        pencilThickness: 0
+        pencilThickness: 0,
+
+        shapeImageLoaded: null,
+        shapeImageLoadedDeferred: null
     };
 
     var canvasData = {
@@ -486,6 +489,7 @@ function AddonShape_Tracing_create() {
                     showFoundBoundaryPoints();
                 }
             }
+            presenter.data.shapeImageLoadedDeferred.resolve();
         };
         image.src = presenter.configuration.shapeImage;
     }
@@ -940,6 +944,9 @@ function AddonShape_Tracing_create() {
     }
 
     presenter.presenterLogic = function(view, model, isPreview) {
+        presenter.data.shapeImageLoadedDeferred = new $.Deferred();
+        presenter.data.shapeImageLoaded = presenter.data.shapeImageLoadedDeferred.promise();
+
         presenter.$view = $(view);
 
         Kinetic.pixelRatio = 1;
@@ -981,9 +988,11 @@ function AddonShape_Tracing_create() {
         drawBackGroundImage(isPreview);
         drawShapeImage(isPreview);
 
-        if (presenter.configuration.correctAnswerImage && !isPreview) {
-            drawCorrectAnswerImage(isPreview);
-        }
+        presenter.data.shapeImageLoaded.then(function() {
+            if (presenter.configuration.correctAnswerImage && !isPreview) {
+                drawCorrectAnswerImage(isPreview);
+            }
+        });
 
         if (!isPreview) {
             turnOnEventListeners();
