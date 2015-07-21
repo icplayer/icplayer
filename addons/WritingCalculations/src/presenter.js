@@ -194,11 +194,13 @@ function AddonWritingCalculations_create() {
                     index += 2;
                 } else {
                     element = row[index];
-                    correctAnswer = {
-                        rowIndex: rowIndex + 1,
-                        cellIndex: ++columnItemIndex,
-                        value: this.getValueOfElement(element)
-                    };
+                    if(presenter.isCommutativity){
+                        correctAnswer = {
+                            rowIndex: rowIndex + 1,
+                            cellIndex: ++columnItemIndex,
+                            value: this.getValueOfElement(element)
+                        };
+                    }
                     if (!isNaN(parseInt(element, 10))) {
                         if (presenter.answers[rowIndex] === undefined) {
                             presenter.answers[rowIndex] = [];

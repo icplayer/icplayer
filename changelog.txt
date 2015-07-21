@@ -1,3 +1,4 @@
+2015-07-21 Fixed issue with numerating gaps in Writing Calculation module
 2015-07-21 Fixed unit tests in Text Audio & Text Selection modules
 2015-07-20 Changed defining and parsing gaps in Show Answers in Math module
 2015-07-16 Added new module Assessments Navigation Bar
