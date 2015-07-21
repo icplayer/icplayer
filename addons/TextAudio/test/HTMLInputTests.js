@@ -9,7 +9,7 @@ TestCase('[TextAudio] HTML Input Tests', {
 
         var result = this.presenter.parseSlideText(text);
 
-        assertEquals(result, expected);
+        assertEquals(result.split('').sort().join(''), expected.split('').sort().join(''));
     },
 
     'test HTML input 2': function() {
@@ -18,7 +18,7 @@ TestCase('[TextAudio] HTML Input Tests', {
 
         var result = this.presenter.parseSlideText(text);
 
-        assertEquals(result, expected);
+        assertEquals(result.split('').sort().join(''), expected.split('').sort().join(''));
     },
 
     'test HTML input 3': function() {
@@ -27,7 +27,7 @@ TestCase('[TextAudio] HTML Input Tests', {
 
         var result = this.presenter.parseSlideText(text);
 
-        assertEquals(result, expected);
+        assertEquals(result.split('').sort().join(''), expected.split('').sort().join(''));
     },
 
     'test HTML input 4': function() {
@@ -36,6 +36,6 @@ TestCase('[TextAudio] HTML Input Tests', {
 
         var result = this.presenter.parseSlideText(text);
 
-        assertEquals(result, expected);
+        assertEquals(result.split('').sort().join(''), expected.split('').sort().join(''));
     }
 });

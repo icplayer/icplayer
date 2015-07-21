@@ -65,7 +65,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class=\"text_selection\">some text</div>', result.renderedPreview);
-        assertEquals('<div class=\"text_selection\"><span class="selectable" number="0">some</span><span left="0" right="1"> </span><span class="selectable" number="1">text</span></div>', result.renderedRun);
+        assertEquals('<div class=\"text_selection\"><span class="selectable" number="0">some</span><span left="0" right="1"> </span><span class="selectable" number="1">text</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test parse Words with markers': function() {
@@ -74,7 +74,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="correct selectable">some</span> <span class="wrong selectable">text</span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0">some</span><span left="0" right="1"> </span><span class="selectable" number="1">text</span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">some</span><span left="0" right="1"> </span><span class="selectable" number="1">text</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test parse Words with markers with latex': function() {
@@ -83,7 +83,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\)</span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0">\\(\\sqrt{x^{10}}\\)</span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">\\(\\sqrt{x^{10}}\\)</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test parse Words with markers with latex - extra space': function() {
@@ -92,7 +92,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="wrong selectable">\\(\\sqrt{x^{10}}\\) </span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0">\\(\\sqrt{x^{10}}\\) </span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0">\\(\\sqrt{x^{10}}\\) </span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test parse Words with markers with latex - spaces all over the place': function() {
@@ -101,7 +101,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class=\"wrong selectable\"> \\(\\sqrt{ {x ^{ 10 } } } \\) </span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class=\"selectable\" number="0"> \\(\\sqrt{ {x ^{ 10 } } } \\) </span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class=\"selectable\" number="0"> \\(\\sqrt{ {x ^{ 10 } } } \\) </span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test parse Words with markers with latex - spaces all over the place another example': function() {
@@ -110,7 +110,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class=\"correct selectable\">\\(\\frac{ 2 } { \\sqrt{3}}\\)</span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class=\"selectable\" number="0">\\(\\frac{ 2 } { \\sqrt{3}}\\)</span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class=\"selectable\" number="0">\\(\\frac{ 2 } { \\sqrt{3}}\\)</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test count brackets': function() {
@@ -126,8 +126,11 @@ TestCase("[Text Selection] Support Functions", {
         var result = this.presenter.parseWords(text, 'MARK_PHRASES', 'MULTISELECT');
 
         assertTrue(result.isValid);
+
         assertEquals('<div class="text_selection"><span class="correct selectable">affection</span>full</div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0">affection</span>full</div>', result.renderedRun);
+
+        var expectedRun = '<div class="text_selection"><span class="selectable" number="0">affection</span>full</div>'.split('').sort().join('');
+        assertEquals(expectedRun, result.renderedRun.split('').sort().join(''));
     },
 
     'test word with special sign after marker': function() {
@@ -136,7 +139,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="wrong selectable">super</span>.</div>', result.renderedPreview);
-        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">super</span><span left=\"0\" right=\"1\">.</span></div>', result.renderedRun);
+        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">super</span><span left=\"0\" right=\"1\">.</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test single letter': function() {
@@ -218,7 +221,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="correct selectable"><b>Te</b> xt</span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>Te</b> xt</span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>Te</b> xt</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test parseWords with bold 2': function() {
@@ -227,7 +230,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="correct selectable"><b>Te </b>xt</span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>Te </b>xt</span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>Te </b>xt</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test space after bold': function() {
@@ -236,7 +239,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class="text_selection"><span class="correct selectable"><b>t</b>est</span></div>', result.renderedPreview);
-        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>t</b>est</span></div>', result.renderedRun);
+        assertEquals('<div class="text_selection"><span class="selectable" number="0"><b>t</b>est</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test mathjax with allselectable': function() {
@@ -245,7 +248,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">some</span> text \\(\\sqrt{x^{10}}\\)</div>', result.renderedPreview);
-        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">some</span><span left=\"0\" right=\"1\"> </span>text<span left=\"1\" right=\"2\"> </span>\\(\\sqrt{x^{10}}\\)</div>', result.renderedRun);
+        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">some</span><span left=\"0\" right=\"1\"> </span>text<span left=\"1\" right=\"2\"> </span>\\(\\sqrt{x^{10}}\\)</div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     }
 
 });
