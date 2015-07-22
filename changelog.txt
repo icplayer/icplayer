@@ -1,3 +1,4 @@
+2015-07-22 Added show/hide commands in YouTube module
 2015-07-21 Fixed issue with alert on Safari Windows in Swiffy Animation module
 2015-07-21 Fixed issue with wrong checking in Shape Tracing module
 2015-07-21 Fixed parsing and styling in Text module

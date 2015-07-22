@@ -44,8 +44,15 @@
     function presenterLogic(view, model, preview) {
         var width = model.Width;
         var height = model.Height;
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        presenter.isVisibleByDefault = presenter.isVisible;
+
         var viewContainer = $(view);
         var decodedVideoID = presenter.decodeVideoID(model.URL, model.ID);
+
+        presenter.$view = $(view);
+
+        presenter.setVisibility(presenter.isVisible);
 
         if (decodedVideoID.isError) {
             showErrorMessage(viewContainer, decodedVideoID.errorMessage);
@@ -168,11 +175,71 @@
  
         return methodResult;
     };
+
+     presenter.setVisibility = function (isVisible) {
+         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+     };
+
+     presenter.show = function() {
+         presenter.setVisibility(true);
+         presenter.isVisible = true;
+     };
+
+     presenter.hide = function() {
+         presenter.setVisibility(false);
+         presenter.isVisible = false;
+     };
+
+     presenter.executeCommand = function(name, params) {
+         var commands = {
+             'show': presenter.show,
+             'hide': presenter.hide
+         };
+
+         Commands.dispatch(commands, name, params, presenter);
+     };
+
+     presenter.reset = function(){
+         presenter.isVisible = presenter.isVisibleByDefault;
+         presenter.setVisibility(presenter.isVisibleByDefault);
+     };
+
+     presenter.getState = function () {
+         return JSON.stringify({
+             isVisible: presenter.isVisible
+         });
+     };
+
+     presenter.upgradeStateForVisibility = function(state) {
+         if (state.isVisible === undefined) {
+             state.isVisible = true;
+         }
+
+         return state;
+     };
+
+     presenter.upgradeState = function (parsedState) {
+         parsedState = presenter.upgradeStateForVisibility(parsedState);
+
+         return parsedState;
+     };
+
+     presenter.setState = function(state) {
+         if (ModelValidationUtils.isStringEmpty(state)) {
+             return;
+         }
+
+         var parsedState = presenter.upgradeState(JSON.parse(state));
+
+         presenter.isVisible = parsedState.isVisible;
+
+         presenter.setVisibility(presenter.isVisible);
+     };
  
     return presenter;
 }
 /**
  * YouTube Addon
  * Version 1.5
- * Last update: 22-03-2012 14:55
+ * Last update: 22-07-2015
  */
