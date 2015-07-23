@@ -9,6 +9,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -63,7 +64,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				setWorkMode();
+				reset();
 			}
 		});
 		
@@ -171,6 +172,9 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 	@Override
 	public void reset() {
 		setWorkMode();
+		if (view != null) {
+			view.setShowAnswersMode(false);
+		}
 	}
 
 	@Override
