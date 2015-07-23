@@ -121,12 +121,22 @@ TestCase("[Commons - Draggable Droppable Object] Click handler", {
         assertTrue(this.stubs.makeGapEmpty.calledOnce);
     },
 
-    'test when user clicks and selected item is empty then gap should send item returned before becoming empty': function () {
+    'test when user clicks gap should send ItemReturned event before making gap empty': function () {
         this.stubs.getSelectedItem.returns({type: "Empty"});
 
         this.templateObject.clickHandler();
 
         assertTrue(this.stubs.sendItemReturnedEvent.calledOnce);
+        assertTrue(this.stubs.sendItemReturnedEvent.calledBefore(this.stubs.makeGapEmpty));
+    },
+
+    'test when user clicks gap should send ItemReturned event before filling gap': function () {
+        this.stubs.getSelectedItem.returns({type: "string"});
+
+        this.templateObject.clickHandler();
+
+        assertTrue(this.stubs.sendItemReturnedEvent.calledOnce);
+        assertTrue(this.stubs.sendItemReturnedEvent.calledBefore(this.stubs.fillGap));
     },
 
     'test when user clicks and selected item is valid object then gap should get filled': function () {

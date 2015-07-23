@@ -485,8 +485,8 @@
     DraggableDroppableObject.prototype.clickHandler = function (event) {
         var selectedItem = DraggableDroppableObject._internal.getSelectedItemWrapper.call(this);
 
+        this.sendItemReturnedEvent();
         if (DraggableDroppableObject._internal.isSelectedItemEmpty(selectedItem)) {
-            this.sendItemReturnedEvent();
             this.makeGapEmpty.call(this);
         } else {
             this.fillGap.call(this, selectedItem);
