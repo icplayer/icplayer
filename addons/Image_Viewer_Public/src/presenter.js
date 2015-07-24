@@ -1393,17 +1393,30 @@ function AddonImage_Viewer_Public_create() {
         }
     };
 
-    presenter.createEventData = function(frameNumber) {
+    presenter.createEventData = function(frameNumber, eventScore) {
         return {
             source : this.addonId,
             item : "" + frameNumber,
             value : '',
-            score : ''
+            score : eventScore
         }
     };
 
     presenter.triggerFrameChangeEvent = function(frameNumber) {
-        var eventData = this.createEventData(frameNumber);
+        var eventScore;
+
+        if(presenter.configuration.correctFrames.frames){
+            if(presenter.configuration.correctFrames.frames.indexOf(frameNumber-1) > -1){
+                eventScore = 1;
+            }else{
+                eventScore = 0;
+            }
+        }else{
+            eventScore = '';
+        }
+
+        var eventData = this.createEventData(frameNumber, eventScore);
+
         if (playerController != null && !presenter.isShowAnswersActive) {
             playerController.getEventBus().sendEvent('ValueChanged', eventData);
         }

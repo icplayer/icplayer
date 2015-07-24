@@ -9,11 +9,11 @@ TestCase("Events tests", {
 	},
 	
 	'test event has been created' : function() {
-		var eventData = this.presenter.createEventData(4);
+		var eventData = this.presenter.createEventData(4, 1);
 		assertEquals('IV_1', eventData.source);
 		assertEquals('4', eventData.item);
 		assertEquals('', eventData.value);
-		assertEquals('', eventData.score);
+		assertEquals(1, eventData.score);
 	}
 });
 
