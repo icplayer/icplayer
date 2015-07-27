@@ -166,16 +166,16 @@ function Addongraph_create(){
         return r;
     };
 
-
     presenter.setShowErrorsMode = function() {
         if(presenter.isShowAnswersActive){
             presenter.hideAnswers();
         }
-        if (!presenter.isStarted) {
+
+        presenter.errorMode = true;
+        if (!presenter.isStarted || presenter.configuration.isNotActivity) {
             return 0;
         }
 
-        presenter.errorMode = true;
         presenter.configuration.shouldCalcScore = true;
 
         if(presenter.configuration.isInteractive) {
