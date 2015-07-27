@@ -168,6 +168,9 @@ function Addongraph_create(){
 
 
     presenter.setShowErrorsMode = function() {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
         if (!presenter.isStarted) {
             return 0;
         }
@@ -259,6 +262,7 @@ function Addongraph_create(){
     presenter.reset = function() {
         presenter.isStarted = false;
         presenter.configuration.shouldCalcScore = true;
+        presenter.isShowAnswersActive = false;
 
         presenter.redrawValueContainers();
 
@@ -266,6 +270,10 @@ function Addongraph_create(){
         presenter.setVisibility(presenter.configuration.isVisible);
 
         presenter.setWorkMode();
+
+        presenter.$view.find(".graph_value_container").each(function (index, element) {
+            $(element).removeClass("graph_show_answers");
+        });
     };
 
 
@@ -375,6 +383,7 @@ function Addongraph_create(){
         eventData.stopPropagation();
 
         if(presenter.errorMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
@@ -412,6 +421,7 @@ function Addongraph_create(){
         eventData.stopPropagation();
 
         if(presenter.errorMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
@@ -479,6 +489,7 @@ function Addongraph_create(){
 
     function mouseDownCallback (eventData) {
         if(presenter.errorMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         presenter.configuration.mouseData.isMouseDown = true;
         presenter.configuration.mouseData.wasMouseDown = true;
@@ -505,6 +516,7 @@ function Addongraph_create(){
 
     function columnContainerMouseDownCallback (eventData) {
         if(presenter.errorMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.mouseData.$element = $(eventData.target);
@@ -595,6 +607,7 @@ function Addongraph_create(){
 
     function mouseUpCallback () {
         if(presenter.errorMode) return;
+        if(presenter.isShowAnswersActive) return;
 
         presenter.isStarted = true;
         presenter.configuration.shouldCalcScore = true;
@@ -668,6 +681,7 @@ function Addongraph_create(){
 
     function mouseMoveCallback (eventData) {
         if(presenter.errorMode) return;
+        if(presenter.isShowAnswersActive) return;
         if (presenter.configuration.mouseData.isMouseDown !== true) return;
 
         presenter.configuration.shouldCalcScore = true;
@@ -736,6 +750,9 @@ function Addongraph_create(){
 
     presenter.run = function(view, model) {
         presenter.initialize(view, model, false);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -1665,6 +1682,76 @@ function Addongraph_create(){
             axisYDescriptionLeft = 0;
         }
         axisYDescription.css('left', axisYDescriptionLeft + 'px');
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if(presenter.configuration.isNotActivity) return;
+
+        if(presenter.errorMode){
+            presenter.setWorkMode();
+        }
+
+        presenter.isShowAnswersActive = true;
+        presenter.currentData = [];
+        presenter.$view.find(".graph_value_container").each(function (index, element) {
+            presenter.currentData[index] = $(element).attr("current-value");
+        });
+
+        presenter.$view.find(".graph_value_container").each(function (index, element) {
+            var currentValue = presenter.configuration.answers[index],
+                valueContainer = $(element);
+            if(currentValue >= 0) {
+                valueContainer.css({
+                    bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
+                    height: parseFloat(currentValue / presenter.absoluteRange) * 100 + '%',
+                    top: ''
+                });
+                valueContainer.addClass('graph_show_answers');
+            } else if (currentValue < 0) {
+                valueContainer.css({
+                    height: parseFloat(currentValue * -1 / presenter.absoluteRange) * 100 + '%',
+                    top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
+                    bottom: ''
+                });
+                valueContainer.addClass('graph_show_answers');
+            }
+        });
+    };
+
+    presenter.hideAnswers = function () {
+        if(presenter.configuration.isNotActivity) return;
+
+        presenter.$view.find(".graph_value_container").each(function (index, element) {
+            var currentValue = presenter.currentData[index],
+                valueContainer = $(element);
+            if(currentValue >= 0) {
+                valueContainer.css({
+                    bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
+                    height: parseFloat(currentValue / presenter.absoluteRange) * 100 + '%',
+                    top: ''
+                });
+                valueContainer.removeClass('graph_show_answers');
+            } else if (currentValue < 0) {
+                valueContainer.css({
+                    height: parseFloat(currentValue * -1 / presenter.absoluteRange) * 100 + '%',
+                    top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
+                    bottom: ''
+                });
+                valueContainer.removeClass('graph_show_answers');
+            }
+        });
+
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;

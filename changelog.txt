@@ -1,3 +1,4 @@
+2015-07-27 Added show answers mode in Graph module
 2015-07-24 Added sending score in event data in Image Viewer module
 2015-07-23 Added compiled Commons library in version 3.0.1 to icplayer libs
 2015-07-23 Fixed issue that filled gap was not sending ItemReturned event on click with DraggableDroppableObject  in Commons (now in version 3.0.1)
