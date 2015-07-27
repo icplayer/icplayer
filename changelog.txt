@@ -1,3 +1,4 @@
+2015-07-27 Fixed issue with checking score and show answers in Navigation Bar module
 2015-07-27 Added group scoring
 2015-07-27 Fixed issue with check mode in Graph module
 2015-07-27 Added show answers mode in Graph module

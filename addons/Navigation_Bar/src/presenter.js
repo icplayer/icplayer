@@ -49,6 +49,8 @@ function AddonNavigation_Bar_create() {
         presenter.scoreService = controller.getScore();
         presenter.eventBus.addEventListener('PageLoaded', this);
         presenter.eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     function goToPage(whereTo, index) {
@@ -686,10 +688,26 @@ function AddonNavigation_Bar_create() {
             presenter.pageIndex = presenter.currentIndex;
             presenter.pageLoadedDeferred.resolve();
         }
-        if (eventName == "ValueChanged" && presenter.configuration.addClassNBPageOK) {
+        if (eventName == "ValueChanged" && presenter.configuration.addClassNBPageOK && !presenter.isShowAnswersActive) {
             presenter.currentIndex = presenter.pageIndex;
             presenter.isCurrentPageOk();
         }
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
