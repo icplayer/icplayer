@@ -1,4 +1,11 @@
 ﻿var ice_dictionary = {
+	"module_belongs_to_group" : "At least one module belongs to a group",
+	"max_score" : "Group's Max Score",
+	"group_id" : "ID",
+	"defaultScore" : "Default",
+	"zeroMaxScore" : "Zero or Max",
+	"graduallyToMaxScore" : "Gradually to Max",
+	"Group" : "Group",
 	"error_forbidden" : "Usted no cuenta con los privilegios para editar este contenido",
 	"error_not_found": "Contenido no encontrado",
 	"error_server_error": "Error en el servidor. Favor de intentarlo más tarde",

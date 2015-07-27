@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page layout="pixels"  width="100" height="200">
+	<modules>
+	   <textModule id="Title" left="114" top="340" width="131" height="25" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <text draggable="false" math="false" gapMaxLength="0" gapWidth="0" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true"><![CDATA[Title]]></text>
+	   </textModule>
+	   <buttonModule id="PrevPage" left="7" top="345" width="44" height="44" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <button type="prevPage" text="" onclick="" />
+	   </buttonModule>
+	   <buttonModule id="NextPage" left="522" top="343" width="44" height="44" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <button type="nextPage" text="" onclick="" />
+	   </buttonModule>
+	   <addonModule addonId="Audio" id="Audio1" left="229" top="204" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <properties>
+	         <property name="mp3" displayName="MP3" type="file" value="" />
+	         <property name="ogg" displayName="OGG" type="file" value="" />
+	         <property name="defaultControls" displayName="Default controls" type="boolean" value="" />
+	         <property name="useBrowserControls" displayName="Use browser controls" type="boolean" value="" />
+	         <property name="displayTime" displayName="Display time" type="boolean" value="" />
+	         <property name="enableLoop" displayName="Enable loop" type="boolean" value="" />
+	         <property name="Narration" displayName="Narration" type="narration" />
+	         <property name="onEnd" displayName="On end" type="event" />
+	      </properties>
+	   </addonModule>
+	   <choiceModule id="Choice2" left="445" top="28" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <choice isMulti="false" isDisabled="false" isActivity="true" randomOrder="false" />
+	      <options>
+	         <option value="1">
+	            <text><![CDATA[A]]></text>
+	            <feedback />
+	         </option>
+	         <option value="0">
+	            <text><![CDATA[B]]></text>
+	            <feedback />
+	         </option>
+	      </options>
+	   </choiceModule>
+	   <textModule id="Text1" left="49" top="203" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <text draggable="false" math="false" gapMaxLength="0" gapWidth="0" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true"><![CDATA[Enter text here...]]></text>
+	   </textModule>
+	   <choiceModule id="Choice4" left="386" top="268" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <choice isMulti="false" isDisabled="false" isActivity="true" randomOrder="false" />
+	      <options>
+	         <option value="1">
+	            <text><![CDATA[A]]></text>
+	            <feedback />
+	         </option>
+	         <option value="0">
+	            <text><![CDATA[B]]></text>
+	            <feedback />
+	         </option>
+	      </options>
+	   </choiceModule>
+	   <choiceModule id="Choice5" left="52" top="14" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <choice isMulti="false" isDisabled="false" isActivity="true" randomOrder="false" />
+	      <options>
+	         <option value="1">
+	            <text><![CDATA[A]]></text>
+	            <feedback />
+	         </option>
+	         <option value="0">
+	            <text><![CDATA[B]]></text>
+	            <feedback />
+	         </option>
+	      </options>
+	   </choiceModule>
+	   <addonModule addonId="Basic_Math_Gaps" id="Basic_Math_Gaps1" left="386" top="158" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <properties>
+	         <property name="decimalSeparator" displayName="Decimal Separator" type="string" value="" />
+	         <property name="gapsDefinition" displayName="Gaps Definition" type="text" />
+	         <property name="isEquation" displayName="Is Equation" type="boolean" value="" />
+	         <property name="isNotActivity" displayName="Is Not Activity" type="boolean" value="" />
+	         <property name="isDisabled" displayName="Is Disabled" type="boolean" value="" />
+	         <property name="gapWidth" displayName="Gap width" type="string" value="" />
+	         <property name="gapType" displayName="Gap Type" type="{Editable, Draggable}" value="" />
+	         <property name="Signs" displayName="Signs" type="list">
+	            <template>
+	               <property name="Addition" displayName="Addition" type="string" value="" />
+	               <property name="Subtraction" displayName="Subtraction" type="string" value="" />
+	               <property name="Division" displayName="Division" type="string" value="" />
+	               <property name="Multiplication" displayName="Multiplication" type="string" value="" />
+	            </template>
+	            <items>
+	               <item>
+	                  <property name="Addition" displayName="Addition" type="string" value="" />
+	                  <property name="Subtraction" displayName="Subtraction" type="string" value="" />
+	                  <property name="Division" displayName="Division" type="string" value="" />
+	                  <property name="Multiplication" displayName="Multiplication" type="string" value="" />
+	               </item>
+	            </items>
+	         </property>
+	      </properties>
+	   </addonModule>
+	   <addonModule addonId="Fractions" id="Fractions1" left="623" top="100" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <properties>
+	         <property name="Figure" displayName="Figure" type="{---,Rectangular,Circle}" value="" />
+	         <property name="RectHorizontal" displayName="Rectangular horizontal parts" type="string" value="" />
+	         <property name="RectVertical" displayName="Rectangular vertical parts" type="string" value="" />
+	         <property name="CircleParts" displayName="Circle parts" type="string" value="" />
+	         <property name="Correct" displayName="Number of correct parts" type="string" value="" />
+	         <property name="selectedParts" displayName="Selected parts" type="string" value="" />
+	         <property name="selectionColor" displayName="Selection color" type="string" value="" />
+	         <property name="emptyColor" displayName="Empty color" type="string" value="" />
+	         <property name="strokeColor" displayName="Stroke color" type="string" value="" />
+	         <property name="strokeWidth" displayName="Stroke width" type="string" value="" />
+	         <property name="isNotActivity" displayName="Is not an activity" type="boolean" value="" />
+	         <property name="isDisable" displayName="Is disabled" type="boolean" value="" />
+	         <property name="imageDeselect" displayName="Image for deselected parts" type="image" value="" />
+	         <property name="imageSelect" displayName="Image for selected parts" type="image" value="" />
+	      </properties>
+	   </addonModule>
+	   <addonModule addonId="Line_Number" id="Line_Number1" left="682" top="281" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <properties>
+	         <property name="Decimal Separator" displayName="Decimal Separator" type="string" value="" />
+	         <property name="Min" displayName="Min" type="string" value="" />
+	         <property name="Max" displayName="Max" type="string" value="" />
+	         <property name="Ranges" displayName="Ranges" type="text" />
+	         <property name="Not Activity" displayName="Not Activity" type="boolean" value="" />
+	         <property name="Step" displayName="Step" type="string" value="" />
+	         <property name="Show Axis X Values" displayName="Show Axis X Values" type="boolean" value="" />
+	         <property name="Axis X Values" displayName="Axis X Values" type="string" value="" />
+	         <property name="Disable" displayName="Disable" type="boolean" value="" />
+	         <property name="Don't show ranges" displayName="Don't show ranges" type="boolean" value="" />
+	      </properties>
+	   </addonModule>
+	   <addonModule addonId="TrueFalse" id="TrueFalse1" left="762" top="36" width="100" height="100" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+	      <layout type="LTWH">
+	         <left relative="" property="left" />
+	         <top relative="" property="top" />
+	         <right relative="" property="right" />
+	         <bottom relative="" property="bottom" />
+	      </layout>
+	      <properties>
+	         <property name="isNotActivity" displayName="Is not an activity" type="boolean" value="" />
+	         <property name="Multi" displayName="Multi" type="boolean" value="" />
+	         <property name="Questions" displayName="Questions" type="list">
+	            <template>
+	               <property name="Question" displayName="Question" type="html" />
+	               <property name="Answer" displayName="Answer" type="string" value="" />
+	            </template>
+	            <items>
+	               <item>
+	                  <property name="Question" displayName="Question" type="html" />
+	                  <property name="Answer" displayName="Answer" type="string" value="" />
+	               </item>
+	            </items>
+	         </property>
+	         <property name="Choices" displayName="Choices" type="list">
+	            <template>
+	               <property name="Choice" displayName="Choice" type="html" />
+	            </template>
+	            <items>
+	               <item>
+	                  <property name="Choice" displayName="Choice" type="html" />
+	               </item>
+	            </items>
+	         </property>
+	      </properties>
+	   </addonModule>
+	</modules>
+	<groups>
+		<group id="Group1">
+			<scoring type="zeroMaxScore" max="5"/>
+			<groupedModulesList>
+				<groupModule moduleID="Choice5"/>
+			</groupedModulesList>
+		</group>
+		<group id="Group2">
+			<scoring type="defaultScore" max="3"/>
+			<groupedModulesList>
+				<groupModule moduleID="Audio1"/>
+				<groupModule moduleID="Choice4"/>
+				<groupModule moduleID="Basic_Math_Gaps1"/>
+			</groupedModulesList>
+		</group>
+		<group id="Group3">
+			<scoring type="defaultScore" max="4"/>
+			<groupedModulesList>
+				<groupModule moduleID="Title"/>
+			</groupedModulesList>
+			</group>
+		<group id="Group4">
+			<scoring type="defaultScore" max="6"/>
+			<groupedModulesList>
+				<groupModule moduleID="Fractions1"/>
+				<groupModule moduleID="TrueFalse1"/>
+			</groupedModulesList>
+		</group>
+	</groups>
+</page>

@@ -60,7 +60,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	// Properties
 	IProperty propertyName;
 	private int index;
-	
+	private List<Group> groupedModules = new ArrayList<Group>();
+
 	public Page(String name, String url) {
 		super("Page");
 		this.id = UUID.uuid(6);
@@ -141,7 +142,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	 */
 	@Override
 	public String toXML() {
-
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		
 		xml += "<page layout='" + layout.toString() + "'";
@@ -166,12 +166,20 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		for(IModuleModel module : modules){
 			xml += module.toXML();
 		}
+		xml += 	"</modules>";
 		
-		xml += 	"</modules>" + "</page>";
+		xml += "<groups>";
+		if (groupedModules != null) {
+			for(Group group: groupedModules) {
+				xml += group.toXML();
+			}
+		}
+		
+		xml += 	"</groups>" + "</page>";
 	
 		return XMLUtils.removeIllegalCharacters(xml);
 	}
-
+	
 	public void reload(Element rootElement) {
 		load(rootElement, baseURL);
 		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
@@ -186,6 +194,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		loadPageAttributes(rootElement);
 		loadModules(rootElement);
+		loadGroupedModules(rootElement);
 		loaded = true;
 	}
 
@@ -236,7 +245,22 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			}
 		}
 	}
-
+	
+	private void loadGroupedModules(Element rootElement) {
+		NodeList groupNodes = rootElement.getElementsByTagName("group");
+		
+		if (groupNodes.getLength() == 0) {
+			return;
+		}
+		
+		this.groupedModules.clear();
+		
+		for (int i = 0; i < groupNodes.getLength(); i++) { // for each group node
+			Element groupNode = (Element) groupNodes.item(i); // get it one
+			Group group = new Group(this);
+			this.groupedModules.add(group.loadGroupFromXML(groupNode));
+		}
+	}
 
 	private void addPropertyName() {
 
@@ -635,5 +659,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		pageId = playerServices.getModel().getPage(index).getId();
 		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
-}
+	}
+	
+	public void setGroupedModules(List<Group> groupedModules) {
+		this.groupedModules = groupedModules;
+	}
+	
+	public List<Group> getGroupedModules() {
+		return groupedModules;
+	}
 }

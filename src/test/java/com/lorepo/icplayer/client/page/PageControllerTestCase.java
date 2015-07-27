@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -12,6 +13,7 @@ import org.xml.sax.SAXException;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.model.Group;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
@@ -69,5 +71,20 @@ public class PageControllerTestCase {
 
 		assertNotNull(presenter);
 	}
-
+	
+	@Test
+	public void createGroupPresenters() throws SAXException, IOException {
+		init("testdata/page.xml");
+		
+		Group group = new Group();
+		group.add(pageController.findModule("sl1").getModel());
+		group.add(pageController.findModule("sl2").getModel());
+		
+		ArrayList<IPresenter> presenters = pageController.createGroupPresenters(group);
+		
+		assertEquals(2, presenters.size());
+		
+		assertEquals(pageController.findModule("sl1"), presenters.get(0));
+		assertEquals(pageController.findModule("sl2"), presenters.get(1));
+	}
 }

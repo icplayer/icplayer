@@ -11,6 +11,15 @@
 			<button type="nextPage" text=""/>
 		</buttonModule>
 		
+		<sourceListModule id="sl1" left='40' top='100' width='640' height='40'>
+			<items>
+				<item text="didn&apos;t" type="string"/>
+				<item text="volvo" type="string"/>
+				<item text="Opcja 1" type="string"/>
+				<item text="Pozostałe" type="string"/>
+			</items>
+		</sourceListModule>
+		
 		<sourceListModule id="sl2" left='40' top='100' width='640' height='40'>
 			<items>
 				<item text="didn&apos;t" type="string"/>
@@ -42,5 +51,33 @@
 		</imageGapModule>
 		
 	</modules>
-
+	<groups>
+		<group id="Group0">
+		    <scoring type="zeroMaxScore" max="6" />
+		    <groupedModulesList>
+		        <groupModule moduleID="Choice1" />
+		        <groupModule moduleID="Choice2" />
+		    </groupedModulesList>
+		</group>
+		<group id="Group1">
+		    <scoring type="graduallyToMaxScore" max="4" />
+		    <groupedModulesList>
+		        <groupModule moduleID="Choice3" />
+		        <groupModule moduleID="Choice4" />
+		    </groupedModulesList>
+		</group>
+		<group id="Group2">
+		    <scoring type="defaultScore" max="6" />
+		    <groupedModulesList>
+		        <groupModule moduleID="Choice6" />
+		        <groupModule moduleID="Choice7" />
+		    </groupedModulesList>
+		</group>
+		<group id="Group3">
+		    <scoring type="defaultScore" max="0" />
+		    <groupedModulesList>
+		        <groupModule moduleID="Choice5" />
+		    </groupedModulesList>
+		</group>
+	</groups>
 </page>

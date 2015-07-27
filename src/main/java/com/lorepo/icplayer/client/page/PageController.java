@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.page;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
@@ -10,10 +11,12 @@ import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.model.Group;
+import com.lorepo.icplayer.client.model.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.ScoringType;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
+import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -27,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.page.Score.Result;
 
 public class PageController {
 
@@ -47,7 +51,7 @@ public class PageController {
 	private ArrayList<IPresenter> presenters;
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
-	private HandlerRegistration valueChangedHandler;
+	private HandlerRegistration valueChangedHandler;	
 
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -141,7 +145,86 @@ public class PageController {
 			}
 		}
 	}
+	
 
+	public Group findGroup(IModuleModel module) {
+		List<Group> groups = currentPage.getGroupedModules();
+
+		for (Group group : groups) {
+			if (group.contains(module)) {
+				return group;
+			}
+		}
+		
+		return null;
+	}
+	
+	protected ArrayList<IPresenter> createGroupPresenters(Group group) {
+		ArrayList<IPresenter> groupPresenters = new ArrayList<IPresenter>();
+
+		for (IModuleModel module : group) {
+			for (int i = 0; i < presenters.size(); i++) {
+				if (presenters.get(i).getModel().equals(module)) {
+					groupPresenters.add(presenters.get(i));
+				}
+			}
+		}
+
+		return groupPresenters;
+	}
+	
+	protected Result calculateScoreForEachGroup(Group group, ArrayList<IPresenter> groupPresenters, int groupMaxScore) {
+		Result groupResult = new Result();
+		
+		for(IPresenter presenter : groupPresenters){
+			if(presenter instanceof IActivity){
+				IActivity activity = (IActivity) presenter;		
+				if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
+					groupResult = Score.calculateZeroMaxScore(groupResult, activity);
+				} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
+					groupResult = Score.calculateGraduallyScore(groupResult, activity);
+				} else {
+					groupResult = Score.calculateDefaultScore(groupResult, activity, currentPage.getScoringType());
+				}
+			}
+		}
+		
+		return groupResult;
+	}
+	
+	protected Result calculateScoreModulesOutGroup(Result groupsResult) {
+		for (IPresenter presenter : presenters) {
+			if (findGroup(presenter.getModel()) == null && presenter instanceof IActivity) {
+				IActivity activity = (IActivity) presenter;
+				groupsResult = Score.calculateDefaultScore(groupsResult, activity, currentPage.getScoringType());
+			}
+		}
+		
+		return groupsResult;
+	}
+	
+	protected Result calculateScoreModulesInGroups() {
+		Result groupsResult = new Result();
+		
+		for (Group group : currentPage.getGroupedModules()) {
+			int groupMaxScore = group.getMaxScore();
+
+			ArrayList<IPresenter> groupPresenters = createGroupPresenters(group);
+			
+			Result groupResult = calculateScoreForEachGroup(group, groupPresenters, groupMaxScore);
+			
+			if (group.getScoringType() == ScoringGroupType.defaultScore) {
+				groupsResult = Score.updateDefaultGroupResult(groupsResult, groupResult);
+			} else if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
+				groupsResult = Score.updateZeroMaxGroupResult(groupsResult, groupResult, groupMaxScore);
+			} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
+				groupsResult = Score.updateGraduallyToMaxGroupResult(groupsResult, groupResult, groupMaxScore);
+			}
+		}
+		
+		return groupsResult;
+	}
+	
 	public void checkAnswers() {
 		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
@@ -157,17 +240,13 @@ public class PageController {
 	}
 
 	private Score.Result getCurrentScore() {
-		if (currentPage.getScoringType() == ScoringType.zeroOne) {
-			return Score.calculateZeroOneScore(presenters);
-		}
+		Result groupsResult = calculateScoreModulesInGroups();
 
-		if (currentPage.getScoringType() == ScoringType.minusErrors) {
-			return Score.calculateMinusScore(presenters);
-		}
+		groupsResult = calculateScoreModulesOutGroup(groupsResult);
 
-		return Score.calculatePercentageScore(presenters);
+		return groupsResult;
 	}
-
+	
 	public void uncheckAnswers() {
 		playerService.getEventBus().fireEvent(new WorkModeEvent());
 	}
