@@ -1,3 +1,4 @@
+2015-07-28 Added CSS classes to draggable gaps in Basic Math Gaps
 2015-07-27 Fixed issue with checking score and show answers in Navigation Bar module
 2015-07-27 Added group scoring
 2015-07-27 Fixed issue with check mode in Graph module

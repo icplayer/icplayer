@@ -933,6 +933,9 @@ function AddonBasic_Math_Gaps_create(){
 
             if (valuesArray[index] == "") {
                 this._gaps[gapID].destroyDraggableProperty();
+            }else{
+                this._gaps[gapID].removeCssClass("gapEmpty");
+                this._gaps[gapID].addCssClass("gapFilled");
             }
 
         }, this);
@@ -979,6 +982,8 @@ function AddonBasic_Math_Gaps_create(){
     presenter.GapsContainerObject.prototype.reset = function () {
         this._gapsOrderArray.forEach(function (gapID) {
             this._gaps[gapID].reset();
+            this._gaps[gapID].removeCssClass("gapFilled");
+            this._gaps[gapID].removeCssClass("gapEmpty");
         }, this);
     };
 
@@ -1088,12 +1093,16 @@ function AddonBasic_Math_Gaps_create(){
     presenter.GapUtils.prototype.onBlock = function () {
         if (!presenter.configuration.isDisabled) {
             this.lock();
+            if(this.isEmpty()){
+                this.addCssClass("gapEmpty");
+            }
         }
     };
 
     presenter.GapUtils.prototype.onUnblock = function () {
         if (!presenter.configuration.isDisabled) {
             this.unlock();
+            this.removeCssClass("gapEmpty");
         }
     };
 
@@ -1263,11 +1272,14 @@ function AddonBasic_Math_Gaps_create(){
     presenter.DraggableDroppableGap.prototype.fillGap = function (selectedItem) {
         DraggableDroppableObject.prototype.fillGap.call(this, selectedItem);
         this.notify();
+        this.addCssClass("gapFilled");
+        this.removeCssClass("gapEmpty")
     };
 
     presenter.DraggableDroppableGap.prototype.makeGapEmpty = function () {
         DraggableDroppableObject.prototype.makeGapEmpty.call(this);
         this.notify();
+        this.removeCssClass("gapFilled");
     };
 
     presenter.DraggableDroppableGap.prototype.notify = function () {
