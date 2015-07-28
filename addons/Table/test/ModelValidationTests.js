@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Table] Model validation", {
     setUp: function() {
         this.presenter = AddonTable_create();
 
@@ -49,7 +49,7 @@ TestCase("Model validation", {
         assertTrue(validatedModel.isVisibleByDefault);
 
         // Properties for gaps
-        assertFalse(validatedModel.isDisabled);
+        assertFalse(validatedModel.isDisabledByDefault);
         assertTrue(validatedModel.isActivity);
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);
@@ -152,7 +152,7 @@ TestCase("Model validation", {
         assertTrue(validatedModel.isVisibleByDefault);
 
         // Properties for gaps
-        assertFalse(validatedModel.isDisabled);
+        assertFalse(validatedModel.isDisabledByDefault);
         assertTrue(validatedModel.isActivity);
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);
@@ -164,7 +164,7 @@ TestCase("Model validation", {
 
         var validatedModel = this.presenter.validateModel(this.emptyContentModel);
 
-        assertFalse(validatedModel.isDisabled);
+        assertFalse(validatedModel.isDisabledByDefault);
         assertFalse(validatedModel.isActivity);
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);

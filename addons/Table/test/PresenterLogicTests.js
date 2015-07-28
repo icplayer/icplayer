@@ -1,4 +1,4 @@
-TestCase("Presenter logic", {
+TestCase("[Table] Presenter logic", {
     setUp: function () {
         this.presenter = AddonTable_create();
 
@@ -12,8 +12,7 @@ TestCase("Presenter logic", {
         sinon.stub(this.presenter, 'setRowHeight');
         sinon.stub(this.presenter, 'setVisibility');
         sinon.stub(this.presenter, 'parseDefinitionLinks');
-        sinon.stub(this.presenter, 'gapLogic');
-        sinon.stub(this.presenter, 'attachGapsHandlers');
+        sinon.stub(this.presenter, 'initializeGaps');
 
         sinon.stub(DOMOperationsUtils, 'showErrorMessage');
     },
@@ -26,8 +25,7 @@ TestCase("Presenter logic", {
         this.presenter.setRowHeight.restore();
         this.presenter.setVisibility.restore();
         this.presenter.parseDefinitionLinks.restore();
-        this.presenter.gapLogic.restore();
-        this.presenter.attachGapsHandlers.restore();
+        this.presenter.initializeGaps.restore();
 
         DOMOperationsUtils.showErrorMessage.restore();
     },
@@ -43,9 +41,8 @@ TestCase("Presenter logic", {
         assertTrue(this.presenter.setColumnWidth.calledOnce);
         assertTrue(this.presenter.setRowHeight.calledOnce);
         assertTrue(this.presenter.setVisibility.calledOnce);
-        assertTrue(this.presenter.gapLogic.calledOnce);
+        assertTrue(this.presenter.initializeGaps.calledOnce);
         assertTrue(this.presenter.parseDefinitionLinks.calledOnce);
-        assertTrue(this.presenter.attachGapsHandlers.calledOnce);
     },
 
     'test errors during model validation in run mode': function () {
@@ -59,9 +56,8 @@ TestCase("Presenter logic", {
         assertFalse(this.presenter.setColumnWidth.calledOnce);
         assertFalse(this.presenter.setRowHeight.calledOnce);
         assertFalse(this.presenter.setVisibility.calledOnce);
-        assertFalse(this.presenter.gapLogic.calledOnce);
+        assertFalse(this.presenter.initializeGaps.calledOnce);
         assertFalse(this.presenter.parseDefinitionLinks.calledOnce);
-        assertFalse(this.presenter.attachGapsHandlers.calledOnce);
     },
 
     'test proper config in preview mode': function () {
@@ -75,9 +71,8 @@ TestCase("Presenter logic", {
         assertTrue(this.presenter.setColumnWidth.calledOnce);
         assertTrue(this.presenter.setRowHeight.calledOnce);
         assertTrue(this.presenter.setVisibility.calledOnce);
-        assertTrue(this.presenter.gapLogic.calledOnce);
+        assertTrue(this.presenter.initializeGaps.calledOnce);
         assertFalse(this.presenter.parseDefinitionLinks.calledOnce);
-        assertFalse(this.presenter.attachGapsHandlers.calledOnce);
     },
 
     'test errors during model validation in preview mode': function () {
@@ -91,8 +86,7 @@ TestCase("Presenter logic", {
         assertFalse(this.presenter.setColumnWidth.calledOnce);
         assertFalse(this.presenter.setRowHeight.calledOnce);
         assertFalse(this.presenter.setVisibility.calledOnce);
-        assertFalse(this.presenter.gapLogic.calledOnce);
+        assertFalse(this.presenter.initializeGaps.calledOnce);
         assertFalse(this.presenter.parseDefinitionLinks.calledOnce);
-        assertFalse(this.presenter.attachGapsHandlers.calledOnce);
     }
 });

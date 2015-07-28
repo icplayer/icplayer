@@ -1,4 +1,4 @@
-TestCase("Model upgrades - add columns widths", {
+TestCase("[Table] Model upgrades - add columns widths", {
     setUp: function () {
         this.presenter = AddonTable_create();
         this.model = {
@@ -33,7 +33,7 @@ TestCase("Model upgrades - add columns widths", {
     }
 });
 
-TestCase("Model upgrades - add rows heights", {
+TestCase("[Table] Model upgrades - add rows heights", {
     setUp: function () {
         this.presenter = AddonTable_create();
         this.model = {

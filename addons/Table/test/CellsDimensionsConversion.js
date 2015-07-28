@@ -1,4 +1,4 @@
-TestCase("Cells dimensions conversion", {
+TestCase("[Table] Cells dimensions conversion", {
     setUp: function () {
         this.presenter = AddonTable_create();
     },

@@ -1,4 +1,4 @@
-TestCase("Content validation", {
+TestCase("[Table] Content validation", {
     setUp: function() {
         this.presenter = AddonTable_create();
 

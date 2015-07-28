@@ -29,3 +29,8 @@
 .table-addon-wrapper .gapFilled{
     cursor: pointer;
 }
+
+.table-addon-wrapper .draggable-gap{
+    height: 20px;
+    width: 40px;
+}

@@ -1,58 +1,84 @@
-TestCase("Commands logic - isGapIndexCorrect helper method", {
+TestCase("[Table] Commands logic - validateGapIndex helper method", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "some value" },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "" },
-                    { answers: [""], score: 1, id: "Table1-3", value: "" },
-                    { answers: ["answ1", "answ2", "answ3"], score: 4, id: "Table1-4", value: "another value" }
-                ]
-            }
-        };
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+        this.presenter.gapsContainer.addGap({});
+        this.presenter.gapsContainer.addGap({});
+        this.presenter.gapsContainer.addGap({});
+        this.presenter.gapsContainer.addGap({});
     },
 
     'test smallest index possible': function () {
-        assertTrue(this.presenter.isGapIndexCorrect(1));
+        assertTrue(this.presenter.validateGapIndex(1).isValid);
     },
 
     'test largest index possible': function () {
-        assertTrue(this.presenter.isGapIndexCorrect(4));
+        assertTrue(this.presenter.validateGapIndex(4).isValid);
     },
 
     'test index too small': function () {
-        assertFalse(this.presenter.isGapIndexCorrect(0));
+        assertFalse(this.presenter.validateGapIndex(0).isValid);
     },
 
     'test index too high': function () {
-        assertFalse(this.presenter.isGapIndexCorrect(6));
+        assertFalse(this.presenter.validateGapIndex(6).isValid);
     },
 
     'test index is NaN': function () {
-        assertFalse(this.presenter.isGapIndexCorrect("nan"));
+        assertFalse(this.presenter.validateGapIndex("nan").isValid);
     },
 
     'test empty gap descriptions array': function () {
-        this.presenter.configuration.gaps.descriptions = [];
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
 
-        assertFalse(this.presenter.isGapIndexCorrect(1));
+        assertFalse(this.presenter.validateGapIndex(1).isValid);
+    },
+    
+    'test returned index is 0-based': function () {
+        assertEquals(0, this.presenter.validateGapIndex(1).index);
+    },
+
+    'test should parse float to int if gap index is valid': function () {
+        assertEquals(0, this.presenter.validateGapIndex(1.5).index);
+        assertEquals(1, this.presenter.validateGapIndex(2.5).index);
     }
 });
 
-TestCase("Commands logic - getGapText / getGapValue", {
+TestCase("[Table] Commands logic - getGapText / getGapValue", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "some value" },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "" },
-                    { answers: [""], score: 1, id: "Table1-3", value: "" },
-                    { answers: ["answ1", "answ2", "answ3"], score: 4, id: "Table1-4", value: "another value" }
-                ]
-            }
+
+        this.stubs = {
+            createView: sinon.stub(DraggableDroppableObject.prototype, 'createView'),
+            connectEvents: sinon.stub(DraggableDroppableObject._internal, 'connectEvents'),
+            validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration')
         };
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.gap1 = new this.presenter.GapUtils({});
+        this.gap1.setValue('some value');
+
+        this.gap2 = new this.presenter.GapUtils({});
+        this.gap2.setValue('');
+
+        this.gap3 = new this.presenter.GapUtils({});
+        this.gap3.setValue('');
+
+        this.gap4 = new this.presenter.GapUtils({});
+        this.gap4.setValue('another value');
+
+        this.presenter.gapsContainer.addGap(this.gap1);
+        this.presenter.gapsContainer.addGap(this.gap2);
+        this.presenter.gapsContainer.addGap(this.gap3);
+        this.presenter.gapsContainer.addGap(this.gap4);
+    },
+
+    tearDown: function () {
+        DraggableDroppableObject.prototype.createView.restore();
+        DraggableDroppableObject._internal.connectEvents.restore();
+        DraggableDroppableObject._internal.validateConfiguration.restore();
     },
 
     'test proper gap index and gap empty': function () {
@@ -86,352 +112,200 @@ TestCase("Commands logic - getGapText / getGapValue", {
     }
 });
 
-TestCase("Commands logic - markGapAsCorrect", {
+TestCase("[Table] Commands logic - markGapAsCorrect", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "" },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "" }
-                ]
-            }
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+        
+        this.stubs = {
+            validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
+            markGapByIndexAsCorrect: sinon.stub(this.presenter.GapsContainerObject.prototype, 'markGapByIndexAsCorrect')
         };
-
-        this.presenter.$view = { find: function () {} };
-        this.findStub = sinon.stub(this.presenter.$view, 'find');
+    },
+    
+    tearDown: function () {
+        this.presenter.validateGapIndex.restore();
+        this.presenter.GapsContainerObject.prototype.markGapByIndexAsCorrect.restore();
+    },
+    
+    'test should mark gap when index is valid': function () {
+        this.stubs.validateGapIndex.returns({isValid: true, index: 1});
+        
+        this.presenter.markGapAsCorrect({});
+        
+        assertTrue(this.stubs.markGapByIndexAsCorrect.calledOnce);
     },
 
-    'test gap has no additional style': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+    'test shouldnt mark gap when index is invalid': function () {
+        this.stubs.validateGapIndex.returns({isValid: false});
 
-        this.presenter.markGapAsCorrect(1);
+        this.presenter.markGapAsCorrect({});
 
-        assertEquals("ic_gap ic_gap-correct", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
-    },
-
-    'test gap has no additional style - wrapper method': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsCorrectCommand(["1"]);
-
-        assertEquals("ic_gap ic_gap-correct", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
-    },
-
-    'test gap was already marked': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap ic_gap-wrong">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsCorrect(1);
-
-        assertEquals("ic_gap ic_gap-correct", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
-    },
-
-    'test gap was already marked but gap index is invalid': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap ic_gap-wrong">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsCorrect(3);
-
-        assertEquals("ic_gap ic_gap-wrong", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+        assertFalse(this.stubs.markGapByIndexAsCorrect.called);
     }
 });
 
-TestCase("Commands logic - markGapAsWrong", {
+TestCase("[Table] Commands logic - markGapAsWrong", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "" },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "" }
-                ]
-            }
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.stubs = {
+            validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
+            markGapByIndexAsWrong: sinon.stub(this.presenter.GapsContainerObject.prototype, 'markGapByIndexAsWrong')
         };
-
-        this.presenter.$view = { find: function () {} };
-        this.findStub = sinon.stub(this.presenter.$view, 'find');
     },
 
-    'test gap has no additional style': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsWrong(1);
-
-        assertEquals("ic_gap ic_gap-wrong", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+    tearDown: function () {
+        this.presenter.validateGapIndex.restore();
+        this.presenter.GapsContainerObject.prototype.markGapByIndexAsWrong.restore();
     },
 
-    'test gap has no additional style - wrapper method': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+    'test should mark gap when index is valid': function () {
+        this.stubs.validateGapIndex.returns({isValid: true, index: 1});
 
-        this.presenter.markGapAsWrongCommand(["1"]);
+        this.presenter.markGapAsWrong({});
 
-        assertEquals("ic_gap ic_gap-wrong", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+        assertTrue(this.stubs.markGapByIndexAsWrong.calledOnce);
     },
 
-    'test gap was already marked': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap ic_gap-empty">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+    'test shouldnt mark gap when index is invalid': function () {
+        this.stubs.validateGapIndex.returns({isValid: false});
 
-        this.presenter.markGapAsWrong(1);
+        this.presenter.markGapAsWrong({});
 
-        assertEquals("ic_gap ic_gap-wrong", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
-    },
-
-    'test gap was already marked but gap index is invalid': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap ic_gap-empty">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsWrong(3);
-
-        assertEquals("ic_gap ic_gap-empty", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+        assertFalse(this.stubs.markGapByIndexAsWrong.called);
     }
 });
 
-TestCase("Commands logic - markGapAsEmpty", {
+TestCase("[Table] Commands logic - markGapAsEmpty", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "" },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "" }
-                ]
-            }
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.stubs = {
+            validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
+            markGapByIndexAsEmpty: sinon.stub(this.presenter.GapsContainerObject.prototype, 'markGapByIndexAsEmpty')
         };
-
-        this.presenter.$view = { find: function () {} };
-        this.findStub = sinon.stub(this.presenter.$view, 'find');
     },
 
-    'test gap has no additional style': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsEmpty(1);
-
-        assertEquals("ic_gap ic_gap-empty", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+    tearDown: function () {
+        this.presenter.validateGapIndex.restore();
+        this.presenter.GapsContainerObject.prototype.markGapByIndexAsEmpty.restore();
     },
 
-    'test gap has no additional style - wrapper method': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+    'test should mark gap when index is valid': function () {
+        this.stubs.validateGapIndex.returns({isValid: true, index: 1});
 
-        this.presenter.markGapAsEmptyCommand(["1"]);
+        this.presenter.markGapAsEmpty({});
 
-        assertEquals("ic_gap ic_gap-empty", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+        assertTrue(this.stubs.markGapByIndexAsEmpty.calledOnce);
     },
 
-    'test gap was already marked': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap ic_gap-wrong">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
+    'test shouldnt mark gap when index is invalid': function () {
+        this.stubs.validateGapIndex.returns({isValid: false});
 
-        this.presenter.markGapAsEmpty(1);
+        this.presenter.markGapAsEmpty({});
 
-        assertEquals("ic_gap ic_gap-empty", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
-    },
-
-    'test gap was already marked but gap index is invalid': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap ic_gap-wrong">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.markGapAsEmpty(3);
-
-        assertEquals("ic_gap ic_gap-wrong", $(this.inp1).attr('class'));
-        assertEquals("ic_gap", $(this.inp2).attr('class'));
+        assertFalse(this.stubs.markGapByIndexAsEmpty.called);
     }
 });
 
-TestCase("Commands logic - enableGap", {
+TestCase("[Table] Commands logic - enableGap", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "", isEnabled: true },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "", isEnabled: true }
-                ]
-            }
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.stubs = {
+            validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
+            unlockGapByIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'unlockGapByIndex')
         };
-
-        this.presenter.$view = { find: function () {} };
-        this.findStub = sinon.stub(this.presenter.$view, 'find');
     },
 
-    'test gap is already enabled': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.enableGap(1);
-
-        assertUndefined($(this.inp1).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertUndefined($(this.inp2).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+    tearDown: function () {
+        this.presenter.validateGapIndex.restore();
+        this.presenter.GapsContainerObject.prototype.unlockGapByIndex.restore();
     },
 
-    'test both gaps are disabled but only one will be enabled': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap" disabled>*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap" disabled>*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-        this.presenter.configuration.gaps.descriptions[0].isEnabled = false;
-        this.presenter.configuration.gaps.descriptions[1].isEnabled = false;
+    'test should enable gap when index is valid': function () {
+        this.stubs.validateGapIndex.returns({isValid: true, index: 1});
 
-        this.presenter.enableGap(1);
+        this.presenter.enableGap({});
 
-        assertUndefined($(this.inp1).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertEquals("disabled", $(this.inp2).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+        assertTrue(this.stubs.unlockGapByIndex.calledOnce);
     },
 
-    'test both gaps are disabled but only one will be enabled - command': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap" disabled>*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap" disabled>*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-        this.presenter.configuration.gaps.descriptions[0].isEnabled = false;
-        this.presenter.configuration.gaps.descriptions[1].isEnabled = false;
+    'test shouldnt enable gap when index is invalid': function () {
+        this.stubs.validateGapIndex.returns({isValid: false});
 
-        this.presenter.enableGapCommand(["1"]);
+        this.presenter.enableGap({});
 
-        assertUndefined($(this.inp1).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertEquals("disabled", $(this.inp2).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+        assertFalse(this.stubs.unlockGapByIndex.called);
     }
 });
 
-TestCase("Commands logic - disableGap", {
+TestCase("[Table] Commands logic - disableGap", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "", isEnabled: false },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "", isEnabled: false }
-                ]
-            }
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.stubs = {
+            validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
+            lockGapByIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'lockGapByIndex')
         };
-
-        this.presenter.$view = { find: function () {} };
-        this.findStub = sinon.stub(this.presenter.$view, 'find');
     },
 
-    'test gap is already disabled': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap" disabled>*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap" disabled>*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-
-        this.presenter.disableGap(1);
-
-        assertEquals("disabled", $(this.inp1).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertEquals("disabled", $(this.inp2).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+    tearDown: function () {
+        this.presenter.validateGapIndex.restore();
+        this.presenter.GapsContainerObject.prototype.lockGapByIndex.restore();
     },
 
-    'test both gaps are enabled but only one will be disabled': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-        this.presenter.configuration.gaps.descriptions[0].isEnabled = true;
-        this.presenter.configuration.gaps.descriptions[1].isEnabled = true;
+    'test should disable gap when index is valid': function () {
+        this.stubs.validateGapIndex.returns({isValid: true, index: 1});
 
-        this.presenter.disableGap(1);
+        this.presenter.disableGap({});
 
-        assertEquals("disabled", $(this.inp1).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertUndefined($(this.inp2).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+        assertTrue(this.stubs.lockGapByIndex.calledOnce);
     },
 
-    'test both gaps are enabled but only one will be disabled - command': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-        this.presenter.configuration.gaps.descriptions[0].isEnabled = true;
-        this.presenter.configuration.gaps.descriptions[1].isEnabled = true;
+    'test shouldnt disable gap when index is invalid': function () {
+        this.stubs.validateGapIndex.returns({isValid: false});
 
-        this.presenter.disableGapCommand(["1"]);
+        this.presenter.disableGap({});
 
-        assertEquals("disabled", $(this.inp1).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertUndefined($(this.inp2).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+        assertFalse(this.stubs.lockGapByIndex.called);
     }
 });
 
-TestCase("Commands logic - disable and enable all gaps", {
+TestCase("[Table] Commands logic - disable and enable all gaps", {
     setUp: function () {
         this.presenter = AddonTable_create();
-        this.presenter.configuration = {
-            gaps: {
-                descriptions: [
-                    { answers: [""], score: 1, id: "Table1-1", value: "", isEnabled: true },
-                    { answers: ["ans1"], score: 2, id: "Table1-2", value: "", isEnabled: true }
-                ]
-            }
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
+        this.stubs = {
+            lockAllGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'lockAllGaps'),
+            unlockAllGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'unlockAllGaps')
         };
-
-        this.presenter.$view = { find: function () {} };
-        this.findStub = sinon.stub(this.presenter.$view, 'find');
     },
 
-    'test enable all gaps': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap" disabled>*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap" disabled>*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-        this.findStub.withArgs('#Table1-2').returns($(this.inp2));
-        this.presenter.configuration.gaps.descriptions[0].isEnabled = false;
-        this.presenter.configuration.gaps.descriptions[1].isEnabled = false;
-
-        this.presenter.enableAllGaps();
-
-        assertUndefined($(this.inp1).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertUndefined($(this.inp2).attr('disabled'));
-        assertTrue(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+    tearDown: function () {
+        this.presenter.GapsContainerObject.prototype.lockAllGaps.restore();
+        this.presenter.GapsContainerObject.prototype.unlockAllGaps.restore();
     },
 
-    'test disable all gaps': function () {
-        /*:DOC inp1 = <input id="Table1-1" class="ic_gap">*/
-        /*:DOC inp2 = <input id="Table1-2" class="ic_gap">*/
-        this.findStub.withArgs('#Table1-1').returns($(this.inp1));
-        this.findStub.withArgs('#Table1-2').returns($(this.inp2));
-
+    'test should disable all gaps': function () {
         this.presenter.disableAllGaps();
 
-        assertEquals("disabled", $(this.inp1).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[0].isEnabled);
-        assertEquals("disabled", $(this.inp2).attr('disabled'));
-        assertFalse(this.presenter.configuration.gaps.descriptions[1].isEnabled);
+        assertTrue(this.stubs.lockAllGaps.calledOnce);
+    },
+
+    'test should enable all gaps': function () {
+        this.presenter.enableAllGaps();
+
+        assertTrue(this.stubs.unlockAllGaps.calledOnce);
     }
 });

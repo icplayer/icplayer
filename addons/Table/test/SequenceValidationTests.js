@@ -1,4 +1,4 @@
-TestCase("Single number validation", {
+TestCase("[Table] Single number validation", {
     setUp: function () {
         this.presenter = AddonTable_create();
     },
@@ -36,7 +36,7 @@ TestCase("Single number validation", {
     }
 });
 
-TestCase("Sequence validation", {
+TestCase("[Table] Sequence validation", {
     setUp: function () {
         this.presenter = AddonTable_create();
     },

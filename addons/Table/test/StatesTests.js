@@ -1,193 +1,154 @@
-TestCase("State saving", {
+TestCase("[Table] Get State", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+
         this.presenter.configuration = {
-            isVisible: true,
-            isActivity: true,
-            gaps: {
-                descriptions: []
-            }
+            gapType: "editable",
+            isVisible: true
         };
+
+        this.presenter.isShowAnswersActive = false;
+
+        this.stubs = {
+            hideAnswers: sinon.stub(this.presenter, 'hideAnswers'),
+            getState: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getState'),
+            getGapsState: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getGapsState')
+        };
+
+        this.expectedGapsState = {
+            gaps: "sflknhdjfas.ljdkfsafdas",
+            yupikayey: "1337"
+        };
+
+        this.expectedSpansState = {
+            spans: "alwerhlayudcvz.v,nxcz.vxzc",
+            test: "my little test"
+        };
+
+        this.stubs.getGapsState.returns(this.expectedGapsState);
+        this.stubs.getState.returns(this.expectedSpansState);
     },
 
-    'test no gaps': function () {
-        var expectedState = JSON.stringify({
-            isVisible: true,
-            gaps: [],
-            spans: null
-        });
-
-        var state = this.presenter.getState();
-
-        assertEquals(expectedState, state);
+    tearDown: function () {
+        this.presenter.hideAnswers.restore();
+        this.presenter.GapsContainerObject.prototype.getState.restore();
+        this.presenter.GapsContainerObject.prototype.getGapsState.restore();
     },
 
-    'test all gaps have empty values': function () {
-        this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "", isEnabled: true },
-            { answers: ["ans1"], id: "Table1-2", value: "", isEnabled: true },
-            { answers: [""], id: "Table1-3", value: "", isEnabled: true },
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "", isEnabled: true }
-        ];
+    'test should hide answers if show answers is active': function () {
+        this.presenter.isShowAnswersActive = true;
 
-        var expectedState = JSON.stringify({
-            isVisible: true,
-            gaps: [
-                { value: "", isEnabled: true },
-                { value: "", isEnabled: true },
-                { value: "", isEnabled: true },
-                { value: "", isEnabled: true }
-            ],
-            spans: null
-        });
+        this.presenter.getState();
 
-        var state = this.presenter.getState();
-
-        assertEquals(expectedState, state);
+        assertTrue(this.stubs.hideAnswers.calledOnce);
     },
 
-    'test some gaps have values': function () {
-        this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "some value", isEnabled: true },
-            { answers: ["ans1"], id: "Table1-2", value: "", isEnabled: true },
-            { answers: [""], id: "Table1-3", value: "another value", isEnabled: true },
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "", isEnabled: true }
-        ];
+    'test should return isVisible attribute in state equals to what is in configuration': function () {
+        var testedState = JSON.parse(this.presenter.getState());
 
-        var expectedState = JSON.stringify({
-            isVisible: true,
-            gaps: [
-                { value: "some value", isEnabled: true },
-                { value: "", isEnabled: true },
-                { value: "another value", isEnabled: true },
-                { value: "", isEnabled: true }
-            ],
-            spans: null
-        });
+        assertTrue(testedState.isVisible);
 
-        var state = this.presenter.getState();
+        this.presenter.configuration.isVisible = false;
 
-        assertEquals(expectedState, state);
+        testedState = JSON.parse(this.presenter.getState());
+
+        assertFalse(testedState.isVisible);
     },
 
-    'test some gaps were disabled': function () {
-        this.presenter.configuration.gaps.descriptions = [
-            { answers: [""], id: "Table1-1", value: "", isEnabled: true },
-            { answers: ["ans1"], id: "Table1-2", value: "", isEnabled: false },
-            { answers: [""], id: "Table1-3", value: "", isEnabled: false },
-            { answers: ["answ1", "answ2", "answ3"], id: "Table1-4", value: "", isEnabled: true }
-        ];
+    'test shouldnt hide answers if show answers is not active': function () {
+        this.presenter.getState();
 
-        var expectedState = JSON.stringify({
-            isVisible: true,
-            gaps: [
-                { value: "", isEnabled: true },
-                { value: "", isEnabled: false },
-                { value: "", isEnabled: false },
-                { value: "", isEnabled: true }
-            ],
-            spans: null
-        });
+        assertFalse(this.stubs.hideAnswers.called);
+    },
 
-        var state = this.presenter.getState();
+    'test should return in state gaps attribute equals to data returned by getGapsState from gaps container': function () {
+        var testedState = JSON.parse(this.presenter.getState());
 
-        assertEquals(expectedState, state);
+        assertEquals(this.expectedGapsState, testedState.gaps);
+    },
+
+    'test should set spans attribute in state to null if gap type is not draggable': function () {
+        var testedState = JSON.parse(this.presenter.getState());
+
+        assertNull(testedState.spans);
+    },
+
+    'test should set spans attribute in state to data returned by getState from gaps container when gap type is draggable': function () {
+        this.presenter.configuration.gapType = "draggable";
+
+        var testedState = JSON.parse(this.presenter.getState());
+
+        assertNotNull(testedState.spans);
+        assertEquals(this.expectedSpansState, testedState.spans);
     }
 });
 
-TestCase("State restoring", {
+TestCase("[Table] Set State", {
     setUp: function () {
         this.presenter = AddonTable_create();
         this.presenter.configuration = {};
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
 
-        sinon.stub(this.presenter, 'setVisibility');
-        sinon.stub(this.presenter, 'restoreGapValues');
-        sinon.stub(this.presenter, 'setGapDisableProperties');
+        this.stubs = {
+            setVisibility: sinon.stub(this.presenter, 'setVisibility'),
+            parseState: sinon.stub(JSON, 'parse'),
+            setGapsState: sinon.stub(this.presenter.gapsContainer, 'setGapsState'),
+            setSpansState: sinon.stub(this.presenter.gapsContainer, 'setSpansState')
+        };
+
+        this.expectedParsedGapsState = {
+            test: "gaps gaps gaps oh my gaps",
+            leet: "1337"
+        };
+
+        this.expectedParsedSpansState = {
+            test: "spam spam spam",
+            price: "3.4$"
+        };
+
+        this.stubs.parseState.returns({
+            isVisible: false,
+            gaps: this.expectedGapsState,
+            spans: this.expectedSpansState
+        });
     },
 
     tearDown: function () {
         this.presenter.setVisibility.restore();
-        this.presenter.restoreGapValues.restore();
-        this.presenter.setGapDisableProperties.restore();
+        this.presenter.gapsContainer.setGapsState.restore();
+        this.presenter.gapsContainer.setSpansState.restore();
+        JSON.parse.restore();
     },
 
-    'test restore visible table without gaps': function () {
-        var state = JSON.stringify({
-            isVisible: true,
-            gaps: []
+    'test should set visibility with value from parsed state': function () {
+        this.stubs.parseState.returns({
+            isVisible: false
         });
 
-        this.presenter.setState(state);
+        this.presenter.setState({});
 
-        assertTrue(this.presenter.configuration.isVisible);
-
-        assertTrue(this.presenter.setVisibility.calledWith(true));
-        assertTrue(this.presenter.restoreGapValues.calledWith([]));
-        assertFalse(this.presenter.setGapDisableProperties.called);
+        assertTrue(this.stubs.setVisibility.calledOnce);
+        assertTrue(this.stubs.setVisibility.calledWith(false));
     },
 
-    'test restore invisible table without gaps': function () {
-        var state = JSON.stringify({
-            isVisible: false,
-            gaps: []
-        });
-
-        this.presenter.setState(state);
+    'test should set isVisible in configuration with value from parsed state': function () {
+        this.presenter.setState({});
 
         assertFalse(this.presenter.configuration.isVisible);
-
-        assertTrue(this.presenter.setVisibility.calledWith(false));
-        assertTrue(this.presenter.restoreGapValues.calledWith([]));
-        assertFalse(this.presenter.setGapDisableProperties.called);
     },
 
-    'test restore gaps disable property': function () {
-        var state = JSON.stringify({
-            isVisible: false,
-            gaps: [
-                { value: "", isEnabled: false },
-                { value: "", isEnabled: false },
-                { value: "", isEnabled: false },
-                { value: "", isEnabled: false }
-            ]
-        });
+    'test should set gaps state with gaps attribute from state': function () {
+        this.presenter.setState({});
 
-        this.presenter.setState(state);
-
-        assertFalse(this.presenter.configuration.isVisible);
-
-        assertTrue(this.presenter.setVisibility.calledWith(false));
-        assertTrue(this.presenter.restoreGapValues.calledWith(["", "", "", ""]));
-
-        assertEquals(4, this.presenter.setGapDisableProperties.callCount);
-        assertFalse(this.presenter.setGapDisableProperties.getCall(0).args[1]); // isEnabled property
-        assertFalse(this.presenter.setGapDisableProperties.getCall(1).args[1]); // isEnabled property
-        assertFalse(this.presenter.setGapDisableProperties.getCall(2).args[1]); // isEnabled property
-        assertFalse(this.presenter.setGapDisableProperties.getCall(3).args[1]); // isEnabled property
+        assertTrue(this.stubs.setGapsState.calledOnce);
+        assertTrue(this.stubs.setGapsState.calledWith(this.expectedGapsState));
     },
 
-    'test only part of gaps are disabled and have value': function () {
-        var state = JSON.stringify({
-            isVisible: false,
-            gaps: [
-                { value: "some value", isEnabled: false },
-                { value: "", isEnabled: true },
-                { value: "another value", isEnabled: false },
-                { value: "", isEnabled: true }
-            ]
-        });
+    'test should set spans state with spans attribute from state': function () {
+        this.presenter.setState({});
 
-        this.presenter.setState(state);
-
-        assertFalse(this.presenter.configuration.isVisible);
-
-        assertTrue(this.presenter.setVisibility.calledWith(false));
-        assertTrue(this.presenter.restoreGapValues.calledWith(["some value", "", "another value", ""]));
-
-        assertEquals(4, this.presenter.setGapDisableProperties.callCount);
-        assertFalse(this.presenter.setGapDisableProperties.getCall(0).args[1]); // isEnabled property
-        assertTrue(this.presenter.setGapDisableProperties.getCall(1).args[1]); // isEnabled property
-        assertFalse(this.presenter.setGapDisableProperties.getCall(2).args[1]); // isEnabled property
-        assertTrue(this.presenter.setGapDisableProperties.getCall(3).args[1]); // isEnabled property
+        assertTrue(this.stubs.setSpansState.calledOnce);
+        assertTrue(this.stubs.setSpansState.calledWith(this.expectedSpansState));
     }
 });
