@@ -615,7 +615,7 @@
 	"Navigation_Bar_info": "Allows to add a ready-made navigation bar to a presentation. Since it doesn't require any additional configuration, it is enough to insert it into a presentation and enjoy its functions. Because of the addon's extensive styling mechanism, it has a perfect usage in presentation templates.",
 	"Navigation_Bar_name": "Navigation Bar",
 	"Navigation_Bar_property_show_next_prev_arrows": "Show Next and Prev arrows",
-	"Navigation_Bar_property_show_home_last_arrows": "Show Home and Last arrows",
+	"Navigation_Bar_property_show_home_last_arrows": "Hide Home and Last arrows",
 	"Navigation_Bar_property_numericals": "Numericals",
 	"Navigation_Bar_property_styles": "Styles",
 	"Navigation_Bar_property_pages": "Pages",
