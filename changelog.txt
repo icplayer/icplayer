@@ -1,3 +1,4 @@
+2015-07-29 Fixed issue with adding class on reset in Text module
 2015-07-28 Added drag&drop feature in Table module
 2015-07-28 Corrected mistakes in dictionary
 2015-07-28 Added CSS classes to draggable gaps in Basic Math Gaps

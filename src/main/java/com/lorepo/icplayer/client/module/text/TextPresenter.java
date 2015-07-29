@@ -427,7 +427,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			child.reset();
 			child.removeStyleHideAnswers();
 			child.setDisabled(module.isDisabled());
-			child.markGapAsEmpty();
 		}
 
 		if (enteredText != null) {
