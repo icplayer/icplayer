@@ -149,6 +149,8 @@ function AddonAnimated_Page_Progress_create() {
     presenter.eventListener = function () {
         eventBus = playerController.getEventBus();
         eventBus.addEventListener('ValueChanged', this, true);
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -170,8 +172,16 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.onEventReceived = function (eventName) {
-        if (eventName == "ValueChanged") {
+        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive) {
             presenter.changeRange();
+        }
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
         }
     };
 
@@ -279,6 +289,14 @@ function AddonAnimated_Page_Progress_create() {
     presenter.reset = function () {
         presenter.cleanView();
         presenter.setViewImage(0);
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;
