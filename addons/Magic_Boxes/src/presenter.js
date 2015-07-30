@@ -411,10 +411,18 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.getMaxScore = function() {
+        if(presenter.configuration.isError){
+            return 0;
+        }
+
         return maxScore;
     };
 
     presenter.getScore = function() {
+        if(presenter.configuration.isError){
+            return 0;
+        }
+
         if(presenter.configuration.checkByWords){
             return presenter.countScoreForWords().score;
         }else{
@@ -423,6 +431,10 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.getErrorCount = function() {
+        if(presenter.configuration.isError){
+            return 0;
+        }
+
         if(presenter.configuration.checkByWords){
             if(presenter.isAttempted()){
                 return presenter.countScoreForWords().errors;
