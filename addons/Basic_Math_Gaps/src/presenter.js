@@ -1194,6 +1194,8 @@ function AddonBasic_Math_Gaps_create(){
         presenter.GapUtils.call(this, configuration);
 
         this.$view.on("input", this.onEdit.bind(this));
+
+        this.$view.off('change').bind('change', this.onEdit.bind(this));
     };
 
     presenter.EditableInputGap.prototype = Object.create(presenter.GapUtils.prototype);

@@ -997,6 +997,7 @@ function AddonTable_create() {
 
     presenter.SelectGap.prototype.connectEvents = function () {
         this.$view.on("input", this.onEdit.bind(this));
+        this.$view.off('change').bind('change', this.onEdit.bind(this));
     };
 
     presenter.SelectGap.prototype.onEdit = function (event) {
@@ -1045,6 +1046,7 @@ function AddonTable_create() {
     presenter.EditableInputGap.prototype.connectEvents = function () {
         this.$view.on("input", this.onEdit.bind(this));
         this.$view.on("blur", this.blurHandler.bind(this));
+        this.$view.off('change').bind('change', this.onEdit.bind(this));
     };
 
     presenter.EditableInputGap.prototype.createView = function () {
