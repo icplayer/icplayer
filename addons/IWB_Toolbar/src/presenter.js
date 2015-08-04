@@ -318,10 +318,25 @@ function AddonIWB_Toolbar_create() {
             panel = presenter.$pagePanel.find('.bottom-panel-floating-image');
         }
 
-        if (panel.is(':visible')) {
-            panel.hide();
-        } else {
-            panel.show();
+        if(panel.hasClass('bottom-panel-floating-image')){
+            if(panel.attr('isHidden') == '0'){
+                panel.hide();
+                panel.attr('isHidden', '1');
+                return;
+            }
+            if (panel.is(':visible')) {
+                panel.hide();
+                panel.attr('isHidden', '1');
+            } else {
+                panel.show();
+                panel.attr('isHidden', '0');
+            }
+        }else{
+            if (panel.is(':visible')) {
+                panel.hide();
+            } else {
+                panel.show();
+            }
         }
     }
 
@@ -1005,10 +1020,14 @@ function AddonIWB_Toolbar_create() {
             var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
             if (display == 'none') {
                 presenter.$floatingImageMask.show();
+                presenter.$pagePanel.find('.bottom-panel-floating-image').show();
+                presenter.$pagePanel.find('.bottom-panel-floating-image').attr('isHidden', '1');
             } else {
                 presenter.$floatingImageMask.hide();
-                presenter.$pagePanel.find('.floating-image').removeClass('clicked');
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
+                presenter.$pagePanel.find('.floating-image').removeClass('clicked');
+                presenter.$pagePanel.find('.bottom-panel-floating-image').attr('isHidden', '0');
+                //presenter.$pagePanel.find('.bottom-panel-floating-image').css('display', 'none');
             }
             setImagePosition();
         });
@@ -2563,6 +2582,7 @@ function AddonIWB_Toolbar_create() {
             if (presenter.$floatingImageMask) {
                 presenter.$floatingImageMask.hide();
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
+                presenter.$pagePanel.find('.bottom-panel-floating-image').attr('isHidden', '1');
             }
         }
 

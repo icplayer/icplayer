@@ -1,3 +1,4 @@
+2015-08-04 Fixed issue with closing bottom panel in IWB Toolbar module
 2015-07-30 Fixed issue with errors when module is empty in Magic Boxes module
 2015-07-29 Fixed issue with checking score in show answers mode in Animated Lesson Progress and Animated Page Progress modules
 2015-07-29 Fixed issue with adding class on reset in Text module
