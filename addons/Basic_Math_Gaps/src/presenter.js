@@ -134,8 +134,8 @@ function AddonBasic_Math_Gaps_create(){
 
         inputs.focusout(function() {
             var item = presenter.$view.find('input').index( this),
-                value = $(this).val(),
-                score = (($(this).val() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val()) == presenter.configuration.gapsValues[item]));
+                value = $(this).val().trim(),
+                score = (($(this).val().trim() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val().trim()) == presenter.configuration.gapsValues[item]));
 
             if (presenter.configuration.isEquation
                 && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length ) {
@@ -1226,7 +1226,7 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.EditableInputGap.prototype.getValue = function () {
-        return this.$view.val();
+        return this.$view.val().trim();
     };
 
     presenter.EditableInputGap.prototype.setViewValue = function (value) {
