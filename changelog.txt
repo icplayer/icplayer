@@ -1,3 +1,4 @@
+2015-08-07 Fixed issue with checking answer in editor Preview
 2015-08-04 Fixed issue with reseting and checking editable gaps in Basic Math Gaps and Table modules
 2015-08-04 Fixed issue with closing bottom panel in IWB Toolbar module
 2015-07-30 Fixed issue with errors when module is empty in Magic Boxes module

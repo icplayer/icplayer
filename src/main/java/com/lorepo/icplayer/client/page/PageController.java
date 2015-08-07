@@ -241,8 +241,17 @@ public class PageController {
 
 	private Score.Result getCurrentScore() {
 		Result groupsResult = calculateScoreModulesInGroups();
-
-		groupsResult = calculateScoreModulesOutGroup(groupsResult);
+		
+		if(groupsResult == null){
+			Result result = new Result();
+			result.score = 0;
+			result.maxScore = 0;
+			result.errorCount = 0;
+			
+			groupsResult = calculateScoreModulesOutGroup(result);
+		}else{
+			groupsResult = calculateScoreModulesOutGroup(groupsResult);
+		}
 
 		return groupsResult;
 	}
