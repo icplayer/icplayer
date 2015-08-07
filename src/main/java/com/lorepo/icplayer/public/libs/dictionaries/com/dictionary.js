@@ -860,6 +860,7 @@
 	"WritingCalculations_property_class": "Class",
 	"WritingCalculations_property_style": "Style",
 	"WritingCalculations_property_commutativity": "Commutativity",
+    "WritingCalculations_property_equals" : "Equals",
 	"Vimeo_info": "Enables to upload a Vimeo movie into a presentation. To make it work, it is enough to enter the Vimeo movie ID in the Properties section.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "Movie ID",

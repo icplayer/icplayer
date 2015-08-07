@@ -32,7 +32,8 @@ function AddonWritingCalculations_create() {
             'Addition' : '',
             'Subtraction' : '',
             'Division' : '',
-            'Multiplication' : ''
+            'Multiplication' : '',
+            'Equals' : ''
         }];
         return upgradedModel;
     };
@@ -90,6 +91,9 @@ function AddonWritingCalculations_create() {
         }
         if (key == 'Multiplication') {
             return "\\(\\times\\)";
+        }
+        if (key == 'Equals') {
+            return "\\(=\\)";
         }
     };
 
@@ -344,6 +348,8 @@ function AddonWritingCalculations_create() {
             return presenter.signs['Addition'];
         } else if (value === "-") {
             return presenter.signs['Subtraction'];
+        } else if (value === "#") {
+            return presenter.signs['Equals'];
         }
     };
 
@@ -370,7 +376,7 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.isSymbol = function(element) {
-        var pattern = /[+\-*:\)]/g; // matches: '+', '-', ':', ')' and '*'
+        var pattern = /[#+\-*:\)]/g; // matches: '#', '+', '-', ':', ')' and '*'
         return pattern.test(element);
     };
 

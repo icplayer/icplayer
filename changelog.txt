@@ -1,3 +1,4 @@
+2015-08-07 Added adding equals sign in Writing Calculation module
 2015-08-07 Fixed issue with checking answers with white spaces in Basic Math Gaps module
 2015-08-07 Fixed issue with checking answer in editor Preview
 2015-08-04 Fixed issue with reseting and checking editable gaps in Basic Math Gaps and Table modules

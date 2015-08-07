@@ -857,6 +857,7 @@
 	"WritingCalculations_property_class": "Clase",
 	"WritingCalculations_property_style": "Estilo",
 	"WritingCalculations_property_commutativity": "Commutativity",
+    "WritingCalculations_property_equals" : "Equals",
 	"Vimeo_info": "Permite cargar una película de Vimeo a la presentación. Para que funcione, solamente hay que introducir el ID de película de Vimeo a la sección Propiedades.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "ID de la película ",

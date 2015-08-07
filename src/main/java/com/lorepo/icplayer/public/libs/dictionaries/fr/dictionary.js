@@ -860,6 +860,7 @@
     "WritingCalculations_property_class": "Classe",
     "WritingCalculations_property_style": "Style",
 	"WritingCalculations_property_commutativity": "Commutativity",
+    "WritingCalculations_property_equals" : "Equals",
     "Vimeo_info": "Permet de télécharger un film Vimeo dans une présentation. Pour le faire fonctionner, il suffit d'entrer l'ID du film Vimeo dans le menu Propriétés.",
     "Vimeo_name": "Vimeo",
     "Vimeo_property_movie_id": "ID du film",

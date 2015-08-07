@@ -8,6 +8,7 @@
             <property name='Subtraction' nameLabel="WritingCalculations_property_subtraction" type='string' />
             <property name='Division' nameLabel="WritingCalculations_property_division" type='string' />
             <property name='Multiplication' nameLabel="WritingCalculations_property_multiplication" type='string' />
+            <property name='Equals' nameLabel="WritingCalculations_property_equals" type='string' />
         </property>
         <property displayName="Styles" name="Styles" nameLabel="WritingCalculations_property_styles" type="list">
             <property name="Column" nameLabel="WritingCalculations_property_column" type="string"/>
