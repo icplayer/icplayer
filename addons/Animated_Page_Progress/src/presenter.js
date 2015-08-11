@@ -127,7 +127,7 @@ function AddonAnimated_Page_Progress_create() {
             $rate.addClass('animated-page-progress-rate rate-' + (i + 1)).css('display', 'none');
 
             if (images[i] != "") {
-                $rate.css('background-images', 'url(' + images[i] + ')');
+                $rate.css('background-image', 'url(' + images[i] + ')');
             }
 
             $wrapper.append($rate);
