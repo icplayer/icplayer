@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="3.0.1" />
+    <property name="version" value="3.0.2" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
