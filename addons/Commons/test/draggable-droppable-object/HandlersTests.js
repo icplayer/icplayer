@@ -174,7 +174,8 @@ TestCase("[Commons - Draggable Droppable Object] Drop handler", {
         this.stubs = {
             getSelectedItem: sinon.stub(this.templateObject, 'getSelectedItem'),
             fillGap: sinon.stub(this.templateObject, 'fillGap'),
-            sendItemReturnedEvent: sinon.stub(this.templateObject, 'sendItemReturnedEvent')
+            sendItemReturnedEvent: sinon.stub(this.templateObject, 'sendItemReturnedEvent'),
+            setDroppedElement: sinon.stub(this.templateObject, 'setDroppedElement')
         };
     },
 
@@ -182,12 +183,17 @@ TestCase("[Commons - Draggable Droppable Object] Drop handler", {
         this.templateObject.getSelectedItem.restore();
         this.templateObject.fillGap.restore();
         this.templateObject.sendItemReturnedEvent.restore();
+        this.templateObject.setDroppedElement.restore();
     },
 
     'test when user drops object on gap it should at first send item returned event': function () {
         this.stubs.getSelectedItem.returns(this.expectedItem);
 
-        DraggableDroppableObject.prototype.dropHandler.call(this.templateObject);
+        var ui = {
+            draggable: []
+        };
+
+        DraggableDroppableObject.prototype.dropHandler.call(this.templateObject, '', ui);
 
         assertTrue(this.stubs.sendItemReturnedEvent.calledOnce);
         assertTrue(this.stubs.sendItemReturnedEvent.calledBefore(this.stubs.fillGap));
@@ -196,7 +202,11 @@ TestCase("[Commons - Draggable Droppable Object] Drop handler", {
     'test when user drops object on gap it should get filled with provided item': function () {
         this.stubs.getSelectedItem.returns(this.expectedItem);
 
-        DraggableDroppableObject.prototype.dropHandler.call(this.templateObject);
+        var ui = {
+            draggable: []
+        };
+
+        DraggableDroppableObject.prototype.dropHandler.call(this.templateObject, '', ui);
 
         assertTrue(this.stubs.fillGap.calledOnce);
         assertEquals(this.expectedItem, this.stubs.fillGap.getCall(0).args[0]);
@@ -205,7 +215,11 @@ TestCase("[Commons - Draggable Droppable Object] Drop handler", {
     'test drop handler should first get selected item': function () {
         this.stubs.getSelectedItem.returns({});
 
-        DraggableDroppableObject.prototype.dropHandler.call(this.templateObject);
+        var ui = {
+            draggable: []
+        };
+
+        DraggableDroppableObject.prototype.dropHandler.call(this.templateObject, '', ui);
 
         assertTrue(this.stubs.getSelectedItem.calledOnce);
         assertTrue(this.stubs.getSelectedItem.calledBefore(this.stubs.fillGap));

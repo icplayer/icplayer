@@ -109,6 +109,7 @@
 
 
         this._isClickable = true;
+        this.droppedElement;
 
         this.createView = configuration.createView || DraggableDroppableObject.prototype.createView;
         this.connectEvents = configuration.connectEvents || DraggableDroppableObject._internal.connectEvents;
@@ -118,6 +119,8 @@
         this.makeGapEmpty = configuration.makeGapEmpty || DraggableDroppableObject.prototype.makeGapEmpty;
         this.fillGap = configuration.fillGap || DraggableDroppableObject.prototype.fillGap;
         this.cursorAt = configuration.cursorAt || DraggableDroppableObject.prototype.cursorAt;
+
+        this.getDroppedElement = DraggableDroppableObject.prototype.getDroppedElement;
 
         this.eventBus = configuration.eventBus;
         this.getSelectedItem = configuration.getSelectedItem;
@@ -207,6 +210,9 @@
             return function (event, ui) {
                 this.stopPropagationAndPreventDefault(event);
                 this.dropHandler(event, ui);
+                var helper = ui.helper[0];
+                $(helper).addClass("ic_sourceListItem-selected");
+                this.droppedElement = helper;
             }.bind(this);
         },
         
@@ -308,7 +314,9 @@
     * @returns {string}
     */
     DraggableDroppableObject.prototype.helper = function () {
-        return "clone";
+        return function (e, ui) {
+            return $(this.droppedElement);
+        }.bind(this);
     };
 
     /**
@@ -415,6 +423,18 @@
     };
 
     /**
+     * @method getDroppedElement
+     * @returns {string}
+     */
+    DraggableDroppableObject.prototype.getDroppedElement = function () {
+        return $('<div>').append($(this.droppedElement).clone()).html();
+    };
+
+    DraggableDroppableObject.prototype.setDroppedElement = function (droppedElement) {
+        this.droppedElement = droppedElement;
+    };
+
+    /**
      * @method setSource
      * @param source {string}
      */
@@ -485,6 +505,17 @@
     DraggableDroppableObject.prototype.clickHandler = function (event) {
         var selectedItem = DraggableDroppableObject._internal.getSelectedItemWrapper.call(this);
 
+        if (!DraggableDroppableObject._internal.isSelectedItemEmpty(selectedItem)) {
+            var sourceID = selectedItem.item.substr(0, selectedItem.item.lastIndexOf('-')),
+                droppedElement = $('#_icplayer').find('#'+sourceID).children().filter(function(){ return $(this).text() == selectedItem.value;});
+
+            var helper = $(droppedElement[0]);
+            helper.css("display", "inline-block");
+            helper.addClass("ic_sourceListItem-selected");
+
+            this.droppedElement = $('<div>').append(helper.clone()).html();
+        }
+
         this.sendItemReturnedEvent();
         if (DraggableDroppableObject._internal.isSelectedItemEmpty(selectedItem)) {
             this.makeGapEmpty.call(this);
@@ -516,6 +547,7 @@
      * @param ui {object} jQuery UI object
      */
     DraggableDroppableObject.prototype.dropHandler = function (event, ui) {
+        this.setDroppedElement(ui.draggable[0]);
         this.sendItemReturnedEvent();
         this.fillGap.call(this, DraggableDroppableObject._internal.getSelectedItemWrapper.call(this));
     };
@@ -757,10 +789,11 @@
      * @param value {string}
      * @param source {string}
      */
-    DraggableDroppableObject.prototype.setState = function (value, source) {
+    DraggableDroppableObject.prototype.setState = function (value, source, droppedElement) {
         this.setValue.call(this, value);
         this.setViewValue.call(this, value);
         this.setSource.call(this, source);
+        this.droppedElement = droppedElement;
 
         this.bindDraggableHandler();
 
