@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,6 +10,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -167,7 +169,33 @@ public class TextView extends HTML implements IDisplay{
 	public void addListener(ITextViewListener l) {
 		listener = l;
 	}
+	
+	@Override
+	public void setDroppedElements(String id, String element) {
+		for(TextElementDisplay gap : textElements){
+			if(gap.getId().substring(gap.getId().lastIndexOf("-") + 1) == id.substring(id.lastIndexOf("-") + 1)){
+				gap.setDroppedElement(element);
+				return;
+			}
+		}
+	}
+	
+	@Override
+	public HashMap<String, String> getDroppedElements() {
+		HashMap<String, String> droppedElements = new HashMap<String, String>();
+		
+		for(TextElementDisplay gap : textElements){
+			String helper = gap.getDroppedElement();
+			if(helper != null){
+				String escaped = StringUtils.escapeXML(helper);
+				droppedElements.put(gap.getId(), escaped);
+			}
+		}
+		
+		return droppedElements;
+	}
 
+	
 	@Override
 	public void setValue(String id, String value) {
 		for(TextElementDisplay gap : textElements){

@@ -16,7 +16,6 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -58,6 +57,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void removeStyleHideAnswers();
 		void setEnableGap(boolean enable);
 		void removeDefaultStyle();
+		void setDroppedElement(String element);
+		String getDroppedElement();
+		String getId();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -77,6 +79,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void show(boolean b);
 		Element getElement();
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
+		HashMap<String, String> getDroppedElements();
+		void setDroppedElements(String id, String element);
 	}
 
 	private final TextModel module;
@@ -295,6 +299,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
+		
 
 		if (enteredText != null) {
 			state.put("enteredText", enteredText);
@@ -314,6 +319,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("disabled", JSONUtils.toJSONString(stateDisabled));
 		state.put("isVisible", Boolean.toString(isVisible));
+		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
 
 		return JSONUtils.toJSONString(state);
 	}
@@ -365,6 +371,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		if (module.hasMathGaps() && !isShowAnswersActive) {
 			view.setHTML(module.parsedText);
+		}
+		
+		HashMap<String, String> droppedElements = JSONUtils.decodeHashMap(state.get("droppedElements"));
+		if(droppedElements != null){
+			for (String key: droppedElements.keySet()) {
+				String value = droppedElements.get(key);			
+				view.setDroppedElements(key, value);
+			}
 		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));

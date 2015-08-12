@@ -123,4 +123,16 @@ public class TextViewMockup implements IDisplay {
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
 		
 	}
+
+	@Override
+	public HashMap<String, String> getDroppedElements() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setDroppedElements(String id, String element) {
+		// TODO Auto-generated method stub
+		
+	}
 }

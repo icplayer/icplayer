@@ -23,6 +23,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private JavaScriptObject jsObject = null;
 	private final ITextViewListener listener;
 	private boolean isDragMode = false;
+	private String droppedElementHelper = "";
+	private boolean isShowAnswersMode = false;
 
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		super(DOM.getElementById(gi.getId()));
@@ -76,8 +78,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		view.isDragPossible = function() {
 			return x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::isDragPossible()();
 		};
-		view.dropHandler = function() {
-			x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::dropHandler()();
+		view.dropHandler = function(droppedElemnt) {
+			x.@com.lorepo.icplayer.client.module.text.DraggableGapWidget::dropHandler(Ljava/lang/String;)(droppedElemnt);
 		}
 		return view;
 	}-*/;
@@ -103,11 +105,17 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		return true;
 	}
 
-	private void dropHandler() {
+	private void dropHandler(String droppedElement) {
 		if (listener != null && !disabled && isWorkMode) {
 			listener.onGapDropped(gapInfo.getId());
+			droppedElementHelper = droppedElementToString(droppedElement);
 		}
 	}
+	
+	public native static String droppedElementToString(String text) /*-{
+		var element = $wnd.$(text).addClass("ic_sourceListItem-selected");
+		return $wnd.$('<div>').append(element.clone()).html();
+	}-*/;
 
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
@@ -142,12 +150,34 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		isWorkMode = true;
 	}
 
+	public native static String getElement(String text) /*-{
+		var element = $wnd.$("#_icplayer").find(".ic_sourceList").children().filter(function(){ return $wnd.$(this).text() == text;}),
+			helper = $wnd.$(element[0]).clone();
+			helper.css("display", "inline-block");
+			helper.addClass("ic_sourceListItem-selected");
+		return $wnd.$('<div>').append(helper.clone()).html();
+	}-*/;
+	
+	@Override
+	public void setDroppedElement(String element) {
+		droppedElementHelper = StringUtils.unescapeXML(element);
+		if(droppedElementHelper != ""){
+			JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), droppedElementHelper);
+		}
+	}
+	
+	@Override
+	public String getDroppedElement() {
+		return droppedElementHelper;
+	}
+	
 	@Override
 	public void setText(String text) {
 		if (text.isEmpty()) {
 			super.setHTML(EMPTY_TEXT);
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
+			droppedElementHelper = "";
 			if (!isDragMode) {
 				JavaScriptUtils.destroyDraggable(getElement());
 			}
@@ -156,7 +186,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			super.setHTML(markup);
 			answerText = StringUtils.removeAllFormatting(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
-			JavaScriptUtils.makeDroppedDraggable(getElement(), getAsJavaScript());
+			if(getElement(text).length() != 0 && !isShowAnswersMode){
+				JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), getElement(text));
+			}
 		}
 
 		if (isFilledGap) {
@@ -167,6 +199,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public String getTextValue() {
 		return answerText;
+	}
+	
+	@Override
+	public String getId() {
+		return gapInfo.getId();
 	}
 
 	@Override
@@ -212,12 +249,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public void setStyleShowAnswers() {
+		isShowAnswersMode = true;
 		addStyleDependentName("correct-answer");
 		setDisabled(true);
 	}
 
 	@Override
 	public void removeStyleHideAnswers() {
+		isShowAnswersMode = false;
 		removeStyleDependentName("correct-answer");
 		setDisabled(false);
 	}

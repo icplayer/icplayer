@@ -6,12 +6,14 @@ TestCase("[Graph] Reset logic", {
         sinon.stub(this.presenter, 'setVisibility');
         sinon.stub(this.presenter, 'redrawValueContainers');
         sinon.stub(this.presenter, 'setWorkMode');
+        sinon.stub(this.presenter, 'removeShowAnswersClass');
     },
 
     tearDown: function () {
         this.presenter.setVisibility.restore();
         this.presenter.redrawValueContainers.restore();
         this.presenter.setWorkMode.restore();
+        this.presenter.removeShowAnswersClass.restore();
     },
 
     'test reset to visible': function () {

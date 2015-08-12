@@ -181,4 +181,21 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	public void removeDefaultStyle() {
 		removeStyleName("ic_inlineChoice-default");		
 	}
+
+	@Override
+	public void setDroppedElement(String element) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getDroppedElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getId() {
+		return choiceInfo.getId();
+	}
 }

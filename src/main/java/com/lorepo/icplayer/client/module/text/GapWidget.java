@@ -194,4 +194,21 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	public void removeDefaultStyle() {	
 	}
 
+	@Override
+	public void setDroppedElement(String element) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getDroppedElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getId() {
+		return gapInfo.getId();
+	}
+
 }

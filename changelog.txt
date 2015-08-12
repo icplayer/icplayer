@@ -1,3 +1,4 @@
+2015-08-12 Added handling draggable object with HTML structure and classes from Source List in Basic Math Gaps, Table and Text
 2015-08-12 Added getting HTML structure and css classes from Source List in draggable object
 2015-08-11 Fixed issue with adding images in Animated Page Progress module
 2015-08-07 Added adding equals sign in Writing Calculation module

@@ -31,10 +31,14 @@ var setUpUtils = function () {
 
     this.valuesArray = ["1", "2", "3"];
     this.sourcesArray = ["source1", "source2", "source3"];
+    this.droppedElementsArray = ["dropped1", "dropped2", "dropped3"];
+
+    sinon.stub(this.gapsContainer, 'addGapFilled');
 };
 
 var tearDownUtils = function () {
     this.presenter.GapsContainerObject.prototype.getNonEmptyGapsNumber.restore();
+    this.gapsContainer.addGapFilled.restore();
 };
 
 TestCase("[Basic Math Gaps] [Gaps Container] Set state", {
@@ -42,7 +46,7 @@ TestCase("[Basic Math Gaps] [Gaps Container] Set state", {
     tearDown: tearDownUtils,
 
     'test state should be set to all gaps': function () {
-        this.gapsContainer.setState(this.valuesArray, this.sourcesArray);
+        this.gapsContainer.setState(this.valuesArray, this.sourcesArray, this.droppedElementsArray);
 
         assertTrue(this.stubs.gap1SetState.calledOnce);
         assertTrue(this.stubs.gap2SetState.calledOnce);
@@ -50,11 +54,11 @@ TestCase("[Basic Math Gaps] [Gaps Container] Set state", {
     },
 
     'test state should be set with provided data': function () {
-        this.gapsContainer.setState(this.valuesArray, this.sourcesArray);
+        this.gapsContainer.setState(this.valuesArray, this.sourcesArray, this.droppedElementsArray);
 
-        assertTrue(this.stubs.gap1SetState.calledWith(this.valuesArray[0], this.sourcesArray[0]));
-        assertTrue(this.stubs.gap2SetState.calledWith(this.valuesArray[1], this.sourcesArray[1]));
-        assertTrue(this.stubs.gap3SetState.calledWith(this.valuesArray[2], this.sourcesArray[2]));
+        assertTrue(this.stubs.gap1SetState.calledWith(this.valuesArray[0], this.sourcesArray[0], this.droppedElementsArray[0]));
+        assertTrue(this.stubs.gap2SetState.calledWith(this.valuesArray[1], this.sourcesArray[1], this.droppedElementsArray[1]));
+        assertTrue(this.stubs.gap3SetState.calledWith(this.valuesArray[2], this.sourcesArray[2], this.droppedElementsArray[2]));
     }
 });
 

@@ -726,7 +726,8 @@ function AddonBasic_Math_Gaps_create(){
             'values' : presenter.gapsContainer.getValues(),
             'sources': presenter.gapsContainer.getSources(),
             'isVisible' : presenter.configuration.isVisible,
-            'isDisabled' : presenter.configuration.isDisabled
+            'isDisabled' : presenter.configuration.isDisabled,
+            'droppedElements' : presenter.gapsContainer.getDroppedElements()
         };
 
         return JSON.stringify(state);
@@ -768,7 +769,7 @@ function AddonBasic_Math_Gaps_create(){
 
         var upgradedState = presenter.upgradeState(state);
 
-        presenter.gapsContainer.setState(upgradedState.values, upgradedState.sources);
+        presenter.gapsContainer.setState(upgradedState.values, upgradedState.sources, upgradedState.droppedElements);
 
         presenter.configuration.isVisible = upgradedState.isVisible;
         presenter.setDisabledInSetState(upgradedState.isDisabled);
@@ -919,6 +920,12 @@ function AddonBasic_Math_Gaps_create(){
         }, this);
     };
 
+    presenter.GapsContainerObject.prototype.getDroppedElements = function () {
+        return this._gapsOrderArray.map(function (gapID){
+            return this._gaps[gapID].getDroppedElement();
+        }, this);
+    };
+
     presenter.GapsContainerObject.prototype.areAllGapsEmpty = function () {
         var reducedValue = this.getValues().reduce(function (previousElement, currentElement) {
             return previousElement + currentElement;
@@ -927,18 +934,21 @@ function AddonBasic_Math_Gaps_create(){
         return (reducedValue === "");
     };
 
-    presenter.GapsContainerObject.prototype.setState = function (valuesArray, sourcesArray) {
+    presenter.GapsContainerObject.prototype.setState = function (valuesArray, sourcesArray, droppedElementsArray) {
         this._gapsOrderArray.forEach(function (gapID, index) {
-            this._gaps[gapID].setState(valuesArray[index], sourcesArray[index]);
-
+            this._gaps[gapID].setState(valuesArray[index], sourcesArray[index], droppedElementsArray[index]);
             if (valuesArray[index] == "") {
                 this._gaps[gapID].destroyDraggableProperty();
             }else{
-                this._gaps[gapID].removeCssClass("gapEmpty");
-                this._gaps[gapID].addCssClass("gapFilled");
+                this.addGapFilled(gapID);
             }
 
         }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.addGapFilled = function (gapID){
+        this._gaps[gapID].removeCssClass("gapEmpty");
+        this._gaps[gapID].addCssClass("gapFilled");
     };
 
     presenter.GapsContainerObject.prototype.showAnswers = function () {

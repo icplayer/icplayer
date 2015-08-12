@@ -271,6 +271,10 @@ function Addongraph_create(){
 
         presenter.setWorkMode();
 
+        presenter.removeShowAnswersClass();
+    };
+
+    presenter.removeShowAnswersClass = function () {
         presenter.$view.find(".graph_value_container").each(function (index, element) {
             $(element).removeClass("graph_show_answers");
         });

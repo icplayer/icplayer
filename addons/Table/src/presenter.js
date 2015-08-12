@@ -945,12 +945,13 @@ function AddonTable_create() {
     presenter.GapUtils.prototype.getState = function () {
         return {
             value: this.getValue(),
-            item: this.getSource()
+            item: this.getSource(),
+            droppedElement: this.getDroppedElement()
         };
     };
 
-    presenter.GapUtils.prototype.setState = function (value, source, isEnabled) {
-        DraggableDroppableObject.prototype.setState.call(this, value, source);
+    presenter.GapUtils.prototype.setState = function (value, source, isEnabled, droppedElement) {
+        DraggableDroppableObject.prototype.setState.call(this, value, source, droppedElement);
 
         if (isEnabled !== undefined) {
             this.setIsEnabled(isEnabled);
@@ -1293,10 +1294,10 @@ function AddonTable_create() {
         }, this);
     };
 
-    presenter.GapsContainerObject.prototype.setSpansState = function (state, undefined) {
-        if ((state !== undefined) && (state !== null)) {
+    presenter.GapsContainerObject.prototype.setSpansState = function (state, undefinedAttr) {
+        if ((state !== undefinedAttr) && (state !== null)) {
             state.map(function (stateData, index) {
-                this.gaps[index].setState(stateData.value, stateData.item);
+                this.gaps[index].setState(stateData.value, stateData.item, undefined, stateData.droppedElement);
 
                 if (stateData.value == "") {
                     this.gaps[index].destroyDraggableProperty();

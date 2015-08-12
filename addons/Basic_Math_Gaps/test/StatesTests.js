@@ -42,7 +42,7 @@ TestCase("[Basic Math Gaps] States Tests", {
 
         var stateString = this.presenter.getState();
 
-        assertEquals('{\"values\":[\"1\",\"2\"],\"sources\":[],\"isVisible\":true}', stateString);
+        assertEquals('{\"values\":[\"1\",\"2\"],\"sources\":[],\"isVisible\":true,\"droppedElements\":[]}', stateString);
     },
 
     'test setState works properly' : function() {

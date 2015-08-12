@@ -474,7 +474,7 @@ TestCase("[Table] [Gap Utils] GetState", {
         var testedState = this.gap.getState();
 
         assertEquals(this.expectedSource, testedState.item);
-    },
+    }
 });
 
 TestCase("[Table] [Gap Utils] setIsEnabled", {
