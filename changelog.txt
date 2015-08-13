@@ -1,4 +1,5 @@
-2015-08-13 Fixed issue with playing audio and video afetr clicking in dropdown button in Audio, TextAudio and Video modules
+2015-08-13 Fixed issue with error in setting state on mLibro in IWB Toolbar module
+2015-08-13 Fixed issue with playing audio and video after clicking in dropdown button in Audio, TextAudio and Video modules
 2015-08-12 Added handling draggable object with HTML structure and classes from Source List in Basic Math Gaps, Table and Text
 2015-08-12 Added getting HTML structure and css classes from Source List in draggable object
 2015-08-11 Fixed issue with adding images in Animated Page Progress module

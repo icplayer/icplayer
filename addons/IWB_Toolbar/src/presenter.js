@@ -2928,10 +2928,15 @@ function AddonIWB_Toolbar_create() {
             presenter.$penMask.show();
             presenter.$markerMask.show();
             if(presenter.isKeepStateAndPosition){
-                if(window.savedPanel.tools.activeFunction == 'pen' || window.savedPanel.tools.activeFunction == 'marker'){
-                    if(window.savedPanel.isOpen){
-                        presenter.$penMask.css('pointer-events', 'auto');
-                        presenter.$markerMask.css('pointer-events', 'auto');
+                if(window.savedPanel.tools != undefined){
+                    if(window.savedPanel.tools.activeFunction == 'pen' || window.savedPanel.tools.activeFunction == 'marker'){
+                        if(window.savedPanel.isOpen){
+                            presenter.$penMask.css('pointer-events', 'auto');
+                            presenter.$markerMask.css('pointer-events', 'auto');
+                        }else{
+                            presenter.$penMask.css('pointer-events', 'none');
+                            presenter.$markerMask.css('pointer-events', 'none');
+                        }
                     }else{
                         presenter.$penMask.css('pointer-events', 'none');
                         presenter.$markerMask.css('pointer-events', 'none');
@@ -2946,7 +2951,7 @@ function AddonIWB_Toolbar_create() {
             }
         }
 
-        if(presenter.isKeepStateAndPosition){
+        if(presenter.isKeepStateAndPosition && (window.savedPanel.tools != undefined)){
             activeFunction = window.savedPanel.tools.activeFunction;
             presenter.closePenColor = window.savedPanel.tools.stateColor;
             presenter.closePenThickness = window.savedPanel.tools.stateThickness;
