@@ -196,8 +196,11 @@ function Addonvideo_create() {
         presenter.pageLoaded = pageLoadedDeferred.promise();
     };
 
-    presenter.onEventReceived = function () {
+    presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
+        if(eventData.value == 'dropdownClicked') {
+            this.video.load();
+        }
     };
 
     presenter.createEndedEventData = function (currentVideo) {
@@ -244,6 +247,8 @@ function Addonvideo_create() {
             }
             delete presenter.isHideExecuted;
         }, false);
+
+        presenter.eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {

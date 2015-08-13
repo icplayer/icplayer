@@ -13,6 +13,12 @@ function AddonTextAudio_create() {
     var globalIntervalNumber = 0;
     var isVocabularyAudioLoaded = false;
 
+    presenter.onEventReceived = function(eventName, eventData) {
+        if(eventData.value == 'dropdownClicked') {
+            presenter.audio.load();
+        }
+    };
+
     function showLoadingArea(clickAction) {
         if (clickAction === 'play_vocabulary_interval' && presenter.buzzAudio.length === 0 && !MobileUtils.isMobileUserAgent(navigator.userAgent)) {
             presenter.$view.find('div.text-audio-loading-area').css('display','block');
@@ -924,6 +930,8 @@ function AddonTextAudio_create() {
             });
         }
         presenter.addonID = model.ID;
+
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.createPreview = function(view, model) {

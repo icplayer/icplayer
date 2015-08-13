@@ -12,6 +12,12 @@ function AddonAudio_create(){
     presenter.playerController = null;
     presenter.addonID = null;
 
+    presenter.onEventReceived = function(eventName, eventData) {
+        if(eventData.value == 'dropdownClicked') {
+            presenter.audio.load();
+        }
+    };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
@@ -411,6 +417,7 @@ function AddonAudio_create(){
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.createPreview = function(view, model){
