@@ -1,3 +1,4 @@
+2015-08-18 Updated Swiffy library to version 7.3.0
 2015-08-13 Fixed issue with wrong position of draggable item in Source List module
 2015-08-13 Fixed issue with error in setting state on mLibro in IWB Toolbar module
 2015-08-13 Fixed issue with playing audio and video after clicking in dropdown button in Audio, TextAudio and Video modules
