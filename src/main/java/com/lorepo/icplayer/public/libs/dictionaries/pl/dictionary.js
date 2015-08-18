@@ -214,6 +214,7 @@
 	"number_of_items" : "Liczba elementów:",
 	"title" : "Tytuł",
 	"page" : "Strona",
+	"page_index" : "Page Index",
 	"on_click" : "Na kliknięcie",
 	"additional_classes" : "Dodatkowe klasy",
 	"button_module" : "Przycisk",

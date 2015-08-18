@@ -28,6 +28,7 @@ public class ButtonModule extends BasicModuleModel {
 	private ButtonType type = ButtonType.nextPage;
 	private String text = "";
 	private String onClick;
+	private String pageIndex;
 	private String additionalClasses = "";
 	
 	public ButtonModule() {
@@ -55,6 +56,7 @@ public class ButtonModule extends BasicModuleModel {
 					setType(childElement.getAttribute("type"));
 					onClick = childElement.getAttribute("onclick");
 					additionalClasses = childElement.getAttribute("additionalClasses");
+					pageIndex = childElement.getAttribute("pageIndex");
 				}
 			}
 		}
@@ -81,6 +83,9 @@ public class ButtonModule extends BasicModuleModel {
 
 		if (type == ButtonType.popup) {
 			xml += " additionalClasses='" + StringUtils.escapeXML(additionalClasses) + "'";
+		}
+		if (type == ButtonType.gotoPage) {
+			xml += " pageIndex='" + StringUtils.escapeXML(pageIndex) + "'";
 		}
 		
 		xml += "/></buttonModule>";
@@ -125,6 +130,7 @@ public class ButtonModule extends BasicModuleModel {
 		}
 		else if(type == ButtonType.gotoPage) {
 			addPropertyPage();
+			addPropertyPageIndex();
 		} 
 		else if(type == ButtonType.standard) {
 			addPropertyOnClick();
@@ -184,6 +190,40 @@ public class ButtonModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("page");
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	public String getPageIndex() {
+		return pageIndex == null ? "" : pageIndex;
+	}
+
+	
+	private void addPropertyPageIndex() {
+
+		IProperty property = new IProperty() {
+				
+			@Override
+			public void setValue(String newValue) {
+				pageIndex = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return pageIndex;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("page_index");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("page_index");
 			}
 		};
 		

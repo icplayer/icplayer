@@ -1,3 +1,4 @@
+2015-08-18 Added navigating to page by number in Go To Page Button module
 2015-08-18 Fixed issue with checking in not activity mode in Line Number module
 2015-08-18 Updated Swiffy library to version 7.3.0
 2015-08-13 Fixed issue with wrong position of draggable item in Source List module
