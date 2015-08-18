@@ -1419,6 +1419,10 @@ function AddonLine_Number_create() {
             presenter.hideAnswers();
         }
 
+        if(!presenter.configuration.isActivity) {
+            return;
+        }
+
         if (presenter.configuration.dontShowRanges) {
             presenter.configuration.isShowErrorsMode = true;
             var correctPoints = getCorrectPoints(),
