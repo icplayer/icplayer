@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter.IDisplay;
 
@@ -66,6 +67,9 @@ public class LimitedResetView extends PushButton implements IDisplay {
 						
 						presenter.reset();
 					}
+					
+					ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "", "");
+					playerServices.getEventBus().fireEvent(valueEvent);
 				}
 			});		
 		}
