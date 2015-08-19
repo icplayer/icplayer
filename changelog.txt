@@ -1,3 +1,4 @@
+2015-08-19 Fixed issue with showing answers in check mode in Hangman module.
 2015-08-18 Added navigating to page by number in Go To Page Button module
 2015-08-18 Fixed issue with checking in not activity mode in Line Number module
 2015-08-18 Updated Swiffy library to version 7.3.0

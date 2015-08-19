@@ -537,6 +537,32 @@ function AddonHangman_create() {
         }
     };
 
+    presenter.showCorrectInSetShowErrorsMode = function () {
+        var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
+        var neededLetters = presenter.getNeededLetters(currentPhrase.phrase);
+        var $letter;
+        for (var i = 0; i < neededLetters.length; i++) {
+            if(neededLetters[i].indexOf('!') > -1){
+                $letter = $('<div>'+neededLetters[i]+'</div>');
+                $letter.addClass('hangman-letter');
+            }else{
+                $letter = presenter.findLetterElement(neededLetters[i]);
+            }
+
+            if (presenter.isLetterSelected(currentPhrase, neededLetters[i])) {
+                if(!$letter.hasClass('hangman-tip')){
+                    $letter.addClass('correct');
+                }
+            }
+        }
+
+        presenter.$lettersContainer.find('.hangman-letter.selected:not(.correct):not(.incorrect)').each(function (_, element) {
+            if(!$(element).hasClass('hangman-tip')){
+                $(element).addClass('incorrect');
+            }
+        });
+    };
+
     presenter.findLetterElement = function (letter) {
         var $letters = presenter.$lettersContainer.find('.hangman-letter');
 
@@ -798,7 +824,7 @@ function AddonHangman_create() {
         presenter.isErrorCheckingMode = true;
         if(presenter.isActivity){
             presenter.workModeState = presenter.getState();
-            presenter.showCorrect();
+            presenter.showCorrectInSetShowErrorsMode();
         }
     };
 
