@@ -1,4 +1,5 @@
-2015-09-19 Added sending ValueChanged event in Limited Reset module
+2015-08-20 Fixed adding classes to previous and next buttons in Navigation Bar module
+2015-08-19 Added sending ValueChanged event in Limited Reset module
 2015-08-19 Fixed issue with showing answers in check mode in Hangman module.
 2015-08-18 Added navigating to page by number in Go To Page Button module
 2015-08-18 Fixed issue with checking in not activity mode in Line Number module

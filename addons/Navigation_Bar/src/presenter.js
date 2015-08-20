@@ -298,7 +298,7 @@ function AddonNavigation_Bar_create() {
     function generatePreviousArrowElement() {
         var homeElement = presenter.$view.find('[class*="navigationbar-element-first"]:first').parent();
         var isElementInactive = presenter.currentIndex === 0;
-        var elementStyle = isElementInactive ? "navigationbar-element-previous-inactive" : "navigationbar-element-previous";
+        var elementStyle = isElementInactive ? "navigationbar-element-previous-inactive inactive" : "navigationbar-element-previous";
 
         var previousElementArrow = '<a href="#"><span class="' + elementStyle + '">&lt;</span></a>';
 
@@ -313,7 +313,7 @@ function AddonNavigation_Bar_create() {
     function generateNextArrowElement() {
         var previousElement = presenter.$view.find('[class*="navigationbar-element-previous"]:first').parent();
         var isElementInactive = presenter.currentIndex === presenter.pageCount - 1;
-        var elementStyle = isElementInactive ? "navigationbar-element-next-inactive" : "navigationbar-element-next";
+        var elementStyle = isElementInactive ? "navigationbar-element-next-inactive inactive" : "navigationbar-element-next";
 
         var nextElementArrow = '<a href="#"><span class="' + elementStyle + '">&gt;</span></a>';
 
