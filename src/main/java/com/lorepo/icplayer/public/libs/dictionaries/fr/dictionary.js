@@ -1050,6 +1050,7 @@
     "Animated_Page_Progress_property_score": "Score",
     "Animated_Page_Progress_property_image": "Image",
     "Animated_Page_Progress_property_initial_image": "Image initiale",
+    "Animated_Page_Progress_property_work_in_check_mode": "Work in Check Mode",
     "Animated_Lesson_Progress_info": "Permet d'insérer des pages de progression animées qui affichent des images en fonction du résultat en pourcentage obtenu dans la leçon.",
     "Animated_Lesson_Progress_name": "Progression de la leçon animée",
     "Animated_Lesson_Progress_property_ranges": "Etendues",

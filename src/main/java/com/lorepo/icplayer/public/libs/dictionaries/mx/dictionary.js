@@ -1047,6 +1047,7 @@
 	"Animated_Page_Progress_property_score": "Calificaciones",
 	"Animated_Page_Progress_property_image": "Imagen",
 	"Animated_Page_Progress_property_initial_image": "Imagen inicial",
+    "Animated_Page_Progress_property_work_in_check_mode": "Work in Check Mode",
 	"Animated_Lesson_Progress_info": "Permite insertar una gráfica que enseña el progreso animado de la lección mostrando diferentes imágenes dependiendo de resultado obtenido en toda la lección",
 	"Animated_Lesson_Progress_name": "Progreso de lección animado",
 	"Animated_Lesson_Progress_property_ranges": "Rangos",

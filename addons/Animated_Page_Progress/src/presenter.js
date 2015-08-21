@@ -53,7 +53,8 @@ function AddonAnimated_Page_Progress_create() {
             },
             length: model.Ranges.length,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            initialImage: model['Initial image']
+            initialImage: model['Initial image'],
+            workInCheckMode: ModelValidationUtils.validateBoolean(model['Work in Check Mode'])
         }
     };
 
@@ -171,8 +172,12 @@ function AddonAnimated_Page_Progress_create() {
         presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive) {
+    presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive && !presenter.configuration.workInCheckMode) {
+            presenter.changeRange();
+        }
+
+        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive && presenter.configuration.workInCheckMode && eventData.value == "resetClicked") {
             presenter.changeRange();
         }
 
@@ -262,7 +267,13 @@ function AddonAnimated_Page_Progress_create() {
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };
-    
+
+    presenter.setShowErrorsMode = function(){
+        if(presenter.configuration.workInCheckMode){
+            presenter.changeRange();
+        }
+    };
+
     presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,

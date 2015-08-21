@@ -7,5 +7,6 @@
 		    <property name="Image" nameLabel="Animated_Page_Progress_property_image" type="image"/>
 		</property>
         <property name="Initial image" nameLabel="Animated_Page_Progress_property_initial_image" type="image" />
+        <property name="Work in Check Mode" displayName="Work in Check Mode" nameLabel="Animated_Page_Progress_property_work_in_check_mode" type="boolean" />
 	</model>
 </addon>
