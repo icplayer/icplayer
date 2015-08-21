@@ -274,7 +274,6 @@ function AddonSlider_create () {
                 $(imageElement).css({
                     top: (mousePositions.y + relativeDistance.vertical) + 'px'
                 });
-
             }
 
             presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
@@ -342,6 +341,8 @@ function AddonSlider_create () {
             var popupTop = $popup.top;
             var popupLeft = $popup.left;
         }
+
+        setAddonPosition();
 
         return {
             x:(eventData.pageX - presenter.configuration.offset.left) - popupLeft,
