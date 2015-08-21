@@ -1046,7 +1046,7 @@
 	"Animated_Page_Progress_property_score": "Wynik",
 	"Animated_Page_Progress_property_image": "Obraz",
 	"Animated_Page_Progress_property_initial_image": "Obraz początkowy",
-    "Animated_Page_Progress_property_work_in_check_mode": "Work in Check Mode",
+    "Animated_Page_Progress_property_work_in_check_mode": "Działa w trybie sprawdzania",
 	"Animated_Lesson_Progress_info" : "Addon umożliwia dodanie obrazków do paska postępu, które mogą być różne w zależności od wyniku procentowego uzyskanego w całej lekcji.",
 	"Animated_Lesson_Progress_name" : "Wskaźnik postępu lekcji",
 	"Animated_Lesson_Progress_property_ranges": "Zakresy",
