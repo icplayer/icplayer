@@ -477,11 +477,11 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.setShowErrorsMode = function () {
-        presenter.gapsContainer.check();
+        presenter.gapsContainer.check(true);
     };
 
     presenter.setWorkMode = function() {
-        presenter.gapsContainer.check();
+        presenter.gapsContainer.check(false);
     };
 
     presenter.reset = function(){
@@ -971,9 +971,9 @@ function AddonBasic_Math_Gaps_create(){
         return true;
     };
 
-    presenter.GapsContainerObject.prototype.check = function () {
+    presenter.GapsContainerObject.prototype.check = function (isSetShow) {
         this._gapsOrderArray.forEach(function (gapID) {
-            this._gaps[gapID].check();
+            this._gaps[gapID].check(isSetShow);
         }, this);
     };
 

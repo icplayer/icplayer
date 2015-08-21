@@ -681,11 +681,11 @@ function AddonTable_create() {
     };
 
     presenter.setShowErrorsMode = function () {
-        presenter.gapsContainer.check();
+        presenter.gapsContainer.check(true);
     };
 
     presenter.setWorkMode = function () {
-        presenter.gapsContainer.check();
+        presenter.gapsContainer.check(false);
     };
 
     presenter.createEventData = function (item, value, score) {
@@ -1175,9 +1175,9 @@ function AddonTable_create() {
         });
     };
 
-    presenter.GapsContainerObject.prototype.check = function () {
+    presenter.GapsContainerObject.prototype.check = function (isSetShow) {
         this.gaps.forEach(function (gap) {
-            gap.check();
+            gap.check(isSetShow);
         });
     };
 

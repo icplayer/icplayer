@@ -196,7 +196,7 @@
      * Should be called when user clicks check button.
      * @method check
      */
-    StatefullAddonObject.prototype.check = function () {
+    StatefullAddonObject.prototype.check = function (isSetShow) {
         switch (this._actualState) {
             case StatefullAddonObject._internal.STATE.START:
                 StatefullAddonObject._internal.checkStartState.call(this);
@@ -208,10 +208,14 @@
                 StatefullAddonObject._internal.checkWorkState.call(this);
                 break;
             case StatefullAddonObject._internal.STATE.WRONG:
-                StatefullAddonObject._internal.uncheckWrongState.call(this);
+                if(!isSetShow){
+                    StatefullAddonObject._internal.uncheckWrongState.call(this);
+                }
                 break;
             case StatefullAddonObject._internal.STATE.CORRECT:
-                StatefullAddonObject._internal.uncheckCorrectState.call(this);
+                if(!isSetShow){
+                    StatefullAddonObject._internal.uncheckCorrectState.call(this);
+                }
                 break;
             case StatefullAddonObject._internal.STATE.SHOW_ANSWERS:
                 StatefullAddonObject._internal.checkShowAnswersState.call(this);
