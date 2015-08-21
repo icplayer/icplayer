@@ -486,11 +486,18 @@ function Addonmultiplegap_create(){
         if(sendEvents) {
             presenter.eventBus.sendEvent('ItemConsumed', item);
 
+            var score;
+            if(presenter.isElementCorrect(item.item)){
+                score = 1;
+            }else{
+                score = 0;
+            }
+
             presenter.eventBus.sendEvent('ValueChanged', {
                 'source': presenter.configuration.ID,
                 'item'  : '' + item.item, // ensure that we send string
                 'value' : 'add',
-                'score' : '1'
+                'score' : score
             });
 
             if (presenter.isAllOK()) sendAllOKEvent();
@@ -505,6 +512,10 @@ function Addonmultiplegap_create(){
         } else {
             presenter.makePlaceholderDraggable(placeholder);
         }
+    };
+
+    presenter.isElementCorrect = function (item) {
+        return presenter.items.indexOf(item) > -1;
     };
 
     presenter.makePlaceholderDraggable = function(placeholder) {
@@ -653,7 +664,7 @@ function Addonmultiplegap_create(){
             'source': presenter.configuration.ID,
             'item'  : '' + placeholder.attr('draggableItem'), // ensure that we send string
             'value' : 'remove',
-            'score' : '1'
+            'score' : '0'
         });
 
         if (presenter.isAllOK()) sendAllOKEvent();
