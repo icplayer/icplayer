@@ -299,7 +299,7 @@ function AddonAnimated_Page_Progress_create() {
 
     presenter.reset = function () {
         presenter.cleanView();
-        presenter.setViewImage(0);
+        presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
     };
 
     presenter.showAnswers = function () {
