@@ -126,6 +126,10 @@ public class ScoreService implements IScoreService {
 
 	@Override
 	public PageScore getPageScoreByName(String pageName) {
+		if (scoreType.equals(ScoreType.last)) {
+			playerServices.getCommands().updateCurrentPageScore(false);
+		}
+		
 		return getPageScoreById(pagesNamesToIds.get(pageName));
 	}
 
@@ -134,7 +138,7 @@ public class ScoreService implements IScoreService {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-
+		
 		PageScore score = pageScores.get(pageId);
 
 		if (score == null) {
