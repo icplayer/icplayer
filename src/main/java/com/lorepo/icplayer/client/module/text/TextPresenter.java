@@ -16,6 +16,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -319,7 +320,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("disabled", JSONUtils.toJSONString(stateDisabled));
 		state.put("isVisible", Boolean.toString(isVisible));
-		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
+		
+		if (JSONUtils.toJSONString(view.getDroppedElements()) != null) {
+    		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
+		}
 
 		return JSONUtils.toJSONString(state);
 	}
@@ -372,13 +376,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (module.hasMathGaps() && !isShowAnswersActive) {
 			view.setHTML(module.parsedText);
 		}
+
+		HashMap<String, String> droppedElements = null;
 		
-		HashMap<String, String> droppedElements = JSONUtils.decodeHashMap(state.get("droppedElements"));
-		if(droppedElements != null){
-			for (String key: droppedElements.keySet()) {
-				String value = droppedElements.get(key);			
-				view.setDroppedElements(key, value);
-			}
+		if (state.containsKey("droppedElements")){
+			droppedElements = JSONUtils.decodeHashMap(state.get("droppedElements"));
+			if(droppedElements != null){
+	            for (String key: droppedElements.keySet()) {
+	                String value = droppedElements.get(key);
+	                JavaScriptUtils.log(value+"");
+	                if (value != null) {
+	                    view.setDroppedElements(key, value);
+	                }
+	            }
+	        }
 		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
