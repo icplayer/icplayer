@@ -6,6 +6,9 @@ function AddonHangman_create() {
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model, false);
         eventBus = playerController.getEventBus();
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function (view, model) {
@@ -680,6 +683,10 @@ function AddonHangman_create() {
     };
 
     presenter.getState = function () {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
+
         return JSON.stringify({
             currentPhrase: presenter.currentPhrase,
             phrases: presenter.configuration.phrases
@@ -821,6 +828,10 @@ function AddonHangman_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if(presenter.isShowAnswersActive){
+            presenter.hideAnswers();
+        }
+
         presenter.isErrorCheckingMode = true;
         if(presenter.isActivity){
             presenter.workModeState = presenter.getState();
@@ -883,6 +894,64 @@ function AddonHangman_create() {
 
     presenter.sendAllOKEvent = function (){
         eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData());
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showCorrectSA = function () {
+        var currentPhrase = presenter.configuration.phrases[presenter.currentPhrase];
+        var neededLetters = presenter.getNeededLetters(currentPhrase.phrase);
+        var $letter;
+        for (var i = 0; i < neededLetters.length; i++) {
+            if(neededLetters[i].indexOf('!') > -1){
+                $letter = $('<div>'+neededLetters[i]+'</div>');
+                $letter.addClass('hangman-letter');
+            }else{
+                $letter = presenter.findLetterElement(neededLetters[i]);
+            }
+            $letter.addClass('show-answers');
+            presenter.addLetterSelectionToPhrase(currentPhrase, $letter.text());
+            presenter.onLetterSelectedAction(neededLetters[i], currentPhrase, false);
+        }
+    };
+
+    presenter.showAnswers = function () {
+        if(!presenter.isActivity){
+            return;
+        }
+
+        presenter.isShowAnswersActive = true;
+        if(presenter.isErrorCheckingMode){
+            presenter.setWorkMode();
+        }
+
+        presenter.workModeState = JSON.stringify({
+            currentPhrase: presenter.currentPhrase,
+            phrases: presenter.configuration.phrases
+        });
+        presenter.$view.find('.hangman-letter').each(function (){
+            if($(this).hasClass('selected')){
+                $(this).removeClass('selected');
+            }
+        });
+
+        presenter.showCorrectSA();
+    };
+
+    presenter.hideAnswers = function () {
+        if(!presenter.isActivity){
+            return;
+        }
+        presenter.setState(presenter.workModeState);
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;

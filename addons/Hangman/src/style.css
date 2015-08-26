@@ -51,3 +51,7 @@
 .hangman-letters .hangman-letter.incorrect {
     background-color: red;
 }
+
+.hangman-letters .hangman-letter.show-answers {
+    background-color: blue;
+}

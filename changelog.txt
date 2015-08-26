@@ -1,3 +1,4 @@
+2015-08-25 Added Show Answers mode in Hangman module
 2015-08-25 Fixed getting maxScore by page name on page loaded event.
 2015-08-24 Fixed problem with displaying initial image after reset in Animated Page Progress module
 2015-08-21 Fixed problem with dragging in Slider module
