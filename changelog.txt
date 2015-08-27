@@ -1,3 +1,4 @@
+2015-08-27 Fixed issue with draggable element in Text module
 2015-08-25 Fixed issue with receiving state without droppedElements in Text module
 2015-08-25 Added Show Answers mode in Hangman module
 2015-08-25 Fixed getting maxScore by page name on page loaded event.
