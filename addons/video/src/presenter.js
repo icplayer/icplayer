@@ -237,7 +237,9 @@ function Addonvideo_create() {
 
         this.video.addEventListener('click', function(e) { e.stopPropagation(); });
         this.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
-        this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
+        this.video.addEventListener('loadedmetadata', function() {
+            presenter.metadadaLoaded = true;
+        }, false);
         this.video.addEventListener('play', function() {
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
         }, false);
@@ -362,12 +364,12 @@ function Addonvideo_create() {
 
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
-        
-        var currentTime = Math.floor(video.currentTime);
-        var videoDuration = Math.floor(video.duration);
-        var isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
 
-        if (currentTime == videoDuration) {
+        var currentTime = Math.round(video.currentTime * 10) / 10,
+            videoDuration = Math.round(video.duration * 10) / 10,
+            isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
+
+        if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
             presenter.reload();
 
