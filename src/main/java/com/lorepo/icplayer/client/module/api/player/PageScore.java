@@ -127,7 +127,11 @@ public class PageScore {
 		return new PageScore(score, maxScore, checkCount+1, 
 				errorCount, mistakeCount+errorCount);  
 	}
-
+	
+	public PageScore incrementCheckCounter() {
+		return new PageScore(score, maxScore, checkCount+1, 
+				errorCount, mistakeCount);
+	}
 
 	public PageScore reset() {
 		return new PageScore(0, maxScore, checkCount, 0, mistakeCount);  

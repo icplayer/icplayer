@@ -125,5 +125,11 @@ public class CommandsMockup implements IPlayerCommands {
 	@Override
 	public void resetPageScore() {
 	}
+
+	@Override
+	public void incrementCheckCounter() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

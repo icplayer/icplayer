@@ -4,5 +4,6 @@
     <model>
         <property name="Text" nameLabel="Show_Answers_property_text" type="string" isLocalized="true" />
         <property name="Text selected" nameLabel="Show_Answers_property_text_selected" type="string" isLocalized="true" />
+        <property name="Increment check counter" nameLabel="Show_Answers_property_increment_check_counter" type="boolean" />
     </model>
 </addon>

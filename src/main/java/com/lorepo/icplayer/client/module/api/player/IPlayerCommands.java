@@ -28,4 +28,5 @@ public interface IPlayerCommands {
 	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear);
 	public void showNavigationPanels();
 	public void hideNavigationPanels();
+	void incrementCheckCounter();
 }

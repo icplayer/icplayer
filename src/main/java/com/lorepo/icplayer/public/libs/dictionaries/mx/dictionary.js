@@ -1041,6 +1041,7 @@
 	"Show_Answers_name": "Mostrar respuestas",
 	"Show_Answers_property_text": "Texto",
 	"Show_Answers_property_text_selected": "Texto seleccionado",
+    "Show_Answers_property_enable_check_counter": "Increment check counter",
 	"Animated_Page_Progress_info": "Permite insertar una gráfica que enseña el progreso de página de forma animada mostrando diferentes imágenes dependiendo de resultado obtenido en una página",
 	"Animated_Page_Progress_name": "Progreso de página animado",
 	"Animated_Page_Progress_property_ranges": "Rangos",

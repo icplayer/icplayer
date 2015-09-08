@@ -32,7 +32,8 @@ function AddonShow_Answers_create(){
             'textSelected' : model['Text selected'],
             'isVisible' : ModelValidationUtils.validateBoolean(model["Is Visible"]),
             'addonID' : model.ID,
-            'isSelected': false
+            'isSelected': false,
+            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"])
         }
     };
 
@@ -48,6 +49,9 @@ function AddonShow_Answers_create(){
                 text = presenter.configuration.textSelected;
                 eventName = presenter.EVENTS.SHOW_ANSWERS;
                 presenter.$wrapper.addClass('selected');
+                if(presenter.configuration.enableCheckCounter){
+                    presenter.playerController.getCommands().incrementCheckCounter();
+                }
             } else {
                 text = presenter.configuration.text;
                 eventName = presenter.EVENTS.HIDE_ANSWERS;

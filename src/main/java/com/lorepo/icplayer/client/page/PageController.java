@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Group;
@@ -149,10 +150,11 @@ public class PageController {
 
 	public Group findGroup(IModuleModel module) {
 		List<Group> groups = currentPage.getGroupedModules();
-
-		for (Group group : groups) {
-			if (group.contains(module)) {
-				return group;
+		if(groups != null){
+			for (Group group : groups) {
+				if (group.contains(module)) {
+					return group;
+				}
 			}
 		}
 		
@@ -205,20 +207,21 @@ public class PageController {
 	
 	protected Result calculateScoreModulesInGroups() {
 		Result groupsResult = new Result();
-		
-		for (Group group : currentPage.getGroupedModules()) {
-			int groupMaxScore = group.getMaxScore();
-
-			ArrayList<IPresenter> groupPresenters = createGroupPresenters(group);
-			
-			Result groupResult = calculateScoreForEachGroup(group, groupPresenters, groupMaxScore);
-			
-			if (group.getScoringType() == ScoringGroupType.defaultScore) {
-				groupsResult = Score.updateDefaultGroupResult(groupsResult, groupResult);
-			} else if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
-				groupsResult = Score.updateZeroMaxGroupResult(groupsResult, groupResult, groupMaxScore);
-			} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
-				groupsResult = Score.updateGraduallyToMaxGroupResult(groupsResult, groupResult, groupMaxScore);
+		if(currentPage.getGroupedModules() != null){
+			for (Group group : currentPage.getGroupedModules()) {
+				int groupMaxScore = group.getMaxScore();
+	
+				ArrayList<IPresenter> groupPresenters = createGroupPresenters(group);
+				
+				Result groupResult = calculateScoreForEachGroup(group, groupPresenters, groupMaxScore);
+				
+				if (group.getScoringType() == ScoringGroupType.defaultScore) {
+					groupsResult = Score.updateDefaultGroupResult(groupsResult, groupResult);
+				} else if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
+					groupsResult = Score.updateZeroMaxGroupResult(groupsResult, groupResult, groupMaxScore);
+				} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
+					groupsResult = Score.updateGraduallyToMaxGroupResult(groupsResult, groupResult, groupMaxScore);
+				}
 			}
 		}
 		
@@ -229,6 +232,10 @@ public class PageController {
 		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
 	}
+	
+	public void incrementCheckCounter() {
+		updateScoreCheckCounter();
+	}
 
 	public void updateScore(boolean updateCounters) {
 		if (currentPage != null && currentPage.isReportable()) {
@@ -236,6 +243,15 @@ public class PageController {
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
 			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
 			playerService.getScoreService().setPageScore(currentPage, updateCounters ? score.incrementCounters() : score);
+		}
+	}
+	
+	public void updateScoreCheckCounter() {
+		if (currentPage != null && currentPage.isReportable()) {
+			Score.Result result = getCurrentScore();
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
+			playerService.getScoreService().setPageScore(currentPage, score.incrementCheckCounter());
 		}
 	}
 

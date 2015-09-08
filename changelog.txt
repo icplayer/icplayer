@@ -1,3 +1,4 @@
+2015-09-08 Added incrementing check counter in Show Answers module
 2015-09-01 Fixed issue with earlier end of movie in Video module
 2015-08-27 Fixed issue with draggable element in Text module
 2015-08-25 Fixed issue with receiving state without droppedElements in Text module

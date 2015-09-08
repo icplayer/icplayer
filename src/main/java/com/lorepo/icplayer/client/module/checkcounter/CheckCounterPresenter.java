@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.checkcounter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
@@ -46,6 +47,15 @@ public class CheckCounterPresenter implements IPresenter{
 							updateDisplay();
 						}
 					});
+			
+			playerServices.getEventBus().addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+				@Override
+				public void onCustomEventOccurred(CustomEvent event) {
+					if (event.eventName.equals("ShowAnswers")) {
+						updateDisplay();
+					}
+				}
+			});
 		}
 	}
 

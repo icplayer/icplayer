@@ -34,6 +34,11 @@ public class PlayerCommands implements IPlayerCommands {
 	public void checkAnswers() {
 		pageController.checkAnswers();
 	}
+	
+	@Override
+	public void incrementCheckCounter() {
+		pageController.incrementCheckCounter();
+	}
 
 	@Override
 	public void uncheckAnswers() {
