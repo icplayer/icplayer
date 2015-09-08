@@ -226,7 +226,6 @@ function AddonImage_Identification_create(){
     presenter.reset = function() {
         presenter.configuration.isSelected = false;
         presenter.configuration.isErrorCheckMode = false;
-        presenter.configuration.isHoverEnabled = false;
 
         applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
 
