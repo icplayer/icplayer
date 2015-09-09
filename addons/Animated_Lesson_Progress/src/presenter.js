@@ -227,8 +227,7 @@ function AddonAnimated_Lesson_Progress_create() {
     };
 
     presenter.reset = function () {
-        presenter.cleanView();
-        presenter.setViewImage(0);
+        presenter.countPercentageScore();
     };
 
     presenter.showAnswers = function () {

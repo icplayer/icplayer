@@ -17,7 +17,8 @@ UpgradeModelTests.prototype.testUpgradeSigns = function() {
                 'Addition' : '',
                 'Subtraction' : '',
                 'Division' : '',
-                'Multiplication' : ''
+                'Multiplication' : '',
+                'Equals' : ''
             }
         ]
     };
