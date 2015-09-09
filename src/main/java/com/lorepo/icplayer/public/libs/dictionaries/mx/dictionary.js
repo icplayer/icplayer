@@ -1199,5 +1199,9 @@
     "Board_game_property_height" : "Height",
     "Board_game_property_images" : "Elements",
     "Board_game_property_pawn_image" : "Element Image",
-    "Board_game_property_is_disable" : "Is Disabled"
+    "Board_game_property_is_disable" : "Is Disabled",
+    "FractionsBinder_name": "Fractions Binder",
+    "FractionsBinder_info": "Allows to control groups of Fractions addons",
+    "FractionsBinder_property_addons": "Fractions",
+    "FractionsBinder_property_correct_elements": "Correct Elements"
 };

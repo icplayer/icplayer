@@ -11,8 +11,8 @@ function AddonSudoku_create(){
     presenter.isErrorCheckingMode = false;
     presenter.cells = [];
     presenter.currentAnswer = [];
-        presenter.eventBus = '';
-        presenter.isShowAnswerMode = false;
+    presenter.eventBus = '';
+    presenter.isShowAnswerMode = false;
 
     function displayText() {
         var textToDisplay = presenter.model['Text to be displayed'],
@@ -27,8 +27,8 @@ function AddonSudoku_create(){
 
 
 
-presenter.executeCommand = function(name, params) {
-       switch(name.toLowerCase()) {
+    presenter.executeCommand = function(name, params) {
+        switch(name.toLowerCase()) {
             case 'enable'.toLowerCase():
                 presenter.enable();
                 break;
@@ -181,8 +181,7 @@ presenter.executeCommand = function(name, params) {
         var enters = 0;
         for(i = 0; i< value.length; i++){
             if(value[i] != ' ') {
-                if((parseInt(value[i],10) < 1 || isNaN(value[i],10)) && !value[i].match(regExp) && value[i] != '_')
-                {
+                if((parseInt(value[i],10) < 1 || isNaN(value[i],10)) && !value[i].match(regExp) && value[i] != '_'){
                     $counter.text('Row '+(enters + 1)+' has incorrect value.');
                     return false;
                 }
@@ -260,6 +259,7 @@ presenter.executeCommand = function(name, params) {
 
         presenter.Values = model.Values;
         var score = '';
+        var test = false;
 
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
@@ -272,29 +272,54 @@ presenter.executeCommand = function(name, params) {
             }
 
             presenter.$view.find("input.active").change(function() {
-                var id = this.id.slice(2,3) + "-" + this.id.slice(1,2);
-                if(presenter.isActivity){
-                    score = this.value == presenter.correctAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] ? 1 : 0;
-                } else {
-                    score = '';
-                }
-                presenter.triggerFrameChangeEvent(this.value, id, score);
-                if(presenter.isActivity){
-                    if(this.value != ''){
-                        if(presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] == ''){
-                            presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] = this.value;
-                            presenter.currentViewNumbers++;
-                        } else{
-                            presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] = this.value;
-                        }
-                    } else{
+
+                if(parseInt(this.value,10) < 1 || isNaN(this.value,10) || this.value == ' '){
+                    test = true;
+                    presenter.cells[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)].attr("value", '');
+
+                    if(presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] != ''){
                         presenter.currentViewNumbers--;
+                        presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] = '';
+                    }
+
+                } else{
+
+                    test = false;
+
+                }
+
+                if(!test) {
+
+                    var id = this.id.slice(2,3) + "-" + this.id.slice(1,2);
+
+                    if(presenter.isActivity){
+                        score = this.value == presenter.correctAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] ? 1 : 0;
+                    } else {
+                        score = '';
+
+                    }
+                    presenter.triggerFrameChangeEvent(this.value, id, score);
+
+                    if(presenter.isActivity){
+                        if(this.value != ''){
+                            if(presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] == ''){
+                                presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] = this.value;
+                                presenter.currentViewNumbers++;
+                            } else{
+                                presenter.currentAnswer[(this.id.slice(1,2)-1)][(this.id.slice(2,3)-1)] = this.value;
+                            }
+                        } else{
+                            presenter.currentViewNumbers--;
+                        }
                     }
                 }
+
                 if(presenter.currentViewNumbers == 81){
                     presenter.isAllOkEvent();
                 }
             });
+
+
 
         }
     };
@@ -343,12 +368,12 @@ presenter.executeCommand = function(name, params) {
     };
 
     presenter.isAttempted = function(){
-    presenter.hideAnswers();
-    if(presenter.isActivity){
-        return presenter.initialViewNumbers == presenter.currentViewNumbers ? false: true;
-    } else{
-        return true;
-    }
+        presenter.hideAnswers();
+        if(presenter.isActivity){
+            return presenter.initialViewNumbers == presenter.currentViewNumbers ? false: true;
+        } else{
+            return true;
+        }
 
     };
 
@@ -660,6 +685,7 @@ presenter.executeCommand = function(name, params) {
 
         for(j=1;j<=9;j++){
             for(i=1;i<=9;i++){
+                $element = presenter.cells[j-1][i-1];
                 $($element).removeClass("wrong");
                 $($element).removeClass("correct");
             }
@@ -740,9 +766,9 @@ presenter.executeCommand = function(name, params) {
     };
 
 
-presenter.getScore = function () {
+    presenter.getScore = function () {
 
-    	presenter.hideAnswers();
+        presenter.hideAnswers();
 
         if(presenter.isActivity === true) {
             var correct = 0;
@@ -765,7 +791,7 @@ presenter.getScore = function () {
 
     presenter.getErrorCount = function () {
 
-    	presenter.hideAnswers();
+        presenter.hideAnswers();
 
         if(presenter.isActivity === true) {
             var errors = 0;
@@ -796,7 +822,7 @@ presenter.getScore = function () {
         presenter.isErrorCheckingMode = true;
 
 
-		presenter.hideAnswers();
+        presenter.hideAnswers();
 
         if(presenter.isActivity === true) {
 
@@ -858,9 +884,9 @@ presenter.getScore = function () {
 
             for(j=1;j<=9;j++){
                 for(i=1;i<=9;i++){
-                        $(presenter.cells[j-1][i-1]).attr("value", presenter.correctAnswer[j-1][i-1]);
-                    }
+                    $(presenter.cells[j-1][i-1]).attr("value", presenter.correctAnswer[j-1][i-1]);
                 }
+            }
         }
     };
 
@@ -873,9 +899,9 @@ presenter.getScore = function () {
 
             for(j=1;j<=9;j++){
                 for(i=1;i<=9;i++){
-                        $(presenter.cells[j-1][i-1]).attr("value", presenter.currentAnswer[j-1][i-1]);
-                    }
+                    $(presenter.cells[j-1][i-1]).attr("value", presenter.currentAnswer[j-1][i-1]);
                 }
+            }
         }
 
 

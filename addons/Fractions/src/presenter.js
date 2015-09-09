@@ -352,7 +352,47 @@ function AddonFractions_create(){
             case 'isAttempted'.toLowerCase():
                 presenter.isAttempted();
                 break;
+            case 'showElementsSA'.toLowerCase():
+                presenter.showElementsSA(params[0]);
+                break;
+            case 'hideElementsSA'.toLowerCase():
+                presenter.hideElementsSA();
+                break;
+            case 'allElements'.toLowerCase():
+                presenter.allElements();
+                break;
+            case 'isErrorCheckMode'.toLowerCase():
+                presenter.isErrorCheckMode(params[0]);
+                break;
+            case 'addShowAnswersClass'.toLowerCase():
+                presenter.addShowAnswersClass();
+                break;
+            case 'removeShowAnswersClass'.toLowerCase():
+                presenter.removeShowAnswersClass();
+                break;
+            case 'getCurrentNumberSA'.toLowerCase():
+                presenter.getCurrentNumberSA();
+                break;
+
         }
+    };
+
+    presenter.allElements = function(){
+        return presenter.allElementsCount;
+    };
+
+    presenter.addShowAnswersClass = function(){
+        var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
+        $($myDiv).addClass('showAnswers');
+    };
+
+    presenter.removeShowAnswersClass = function(){
+        var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
+        $($myDiv).removeClass('showAnswers');
+    };
+
+    presenter.isErrorCheckMode = function(value){
+        presenter.isErrorCheckingMode = value;
     };
 
     presenter.markAsCorrect = function(){
@@ -395,11 +435,24 @@ function AddonFractions_create(){
         return Counter;
     };
 
+    presenter.getCurrentNumberSA = function(){
+        //presenter.hideAnswers();
+        return Counter;
+    };
+
     presenter.run = function(view, model) {
         presenter.$view = $(view);
         presenter.model = model;
 
         presenter.init(view, model, false);
+
+        if(model.Figure == 'Rectangular') {
+            presenter.allElementsCount = model.RectHorizontal * model.RectVertical;
+        }
+
+        if(model.Figure == 'Circle') {
+            presenter.allElementsCount = model.CircleParts;
+        }
 
         presenter.isVisible = model["Is Visible"] == 'True';
         presenter.wasVisible = model["Is Visible"] == 'True';
@@ -566,7 +619,6 @@ function AddonFractions_create(){
 
     presenter.markElementAsClicked = function(element){
         var clickedElementID=element.id;
-
         if(presenter.isErrorCheckingMode === false && presenter.isDisable === false)
         {
             if(presenter.currentSelected.item[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)] === false)
@@ -769,6 +821,7 @@ function AddonFractions_create(){
     presenter.setShowErrorsMode = function () {
         presenter.hideAnswers();
         presenter.isErrorCheckingMode = true;
+
         if(isNotActivity === false) {
             var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
 
@@ -780,6 +833,7 @@ function AddonFractions_create(){
                 }
             }
         }
+
     };
 
 
@@ -857,8 +911,10 @@ function AddonFractions_create(){
         if(presenter.isErrorCheckingMode == true){
             presenter.setWorkMode();
         }
+
+        presenter.isErrorCheckingMode = true; //blokowanie na check
+
         if(isNotActivity === false) {
-            presenter.isErrorCheckingMode = true;
             if(correctAnswer != Counter){
                 if(presenter.clear()){
                     if(Counter < correctAnswer){
@@ -903,6 +959,47 @@ function AddonFractions_create(){
                 presenter.markCorrectAnswerAsSelected(j);
             }
         }
+        return true;
+    };
+
+    presenter.showElementsSA = function(element){
+
+        var correctAnswerSA = element;
+        presenter.isErrorCheckingMode = true;
+        if(correctAnswerSA != Counter){
+            if(presenter.clear()){
+                if(Counter < correctAnswerSA){
+                    var k = 0;
+                    for(var j=1;j<presenter.currentSelected.item.length;j++){
+                        if(presenter.currentSelected.item[j] === true) {
+                            presenter.markCorrectAnswerAsSelected(j);
+                        }
+                        if(presenter.currentSelected.item[j] === false && k != correctAnswerSA - Counter){
+                            presenter.markCorrectAnswerAsSelected(j);
+                            k++;
+                        }
+                    }
+                } else{
+                    var k = 0;
+                    for(var j=1;j<presenter.currentSelected.item.length;j++){
+                        if(presenter.currentSelected.item[j] === true) {
+                            if(k != correctAnswerSA){
+                                presenter.markCorrectAnswerAsSelected(j);
+                                k++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
+        $($myDiv).addClass('showAnswers');
+    };
+
+    presenter.hideElementsSA = function(item){
+        //presenter.isErrorCheckingMode = false;
+        presenter.hideAnswers();
     };
 
 

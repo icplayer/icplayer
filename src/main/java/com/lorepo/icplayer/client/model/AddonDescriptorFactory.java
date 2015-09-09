@@ -119,6 +119,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Event_Listener", "scripting_menu");
 		addDescriptor("Event_Sender", "scripting_menu");
 		addDescriptor("feedback", "scripting_menu");
+		addDescriptor("FractionsBinder", "scripting_menu");
 		addDescriptor("Logger", "scripting_menu");
 		addDescriptor("Multiple_Audio_Controls_Binder", "scripting_menu");
 		addDescriptor("SelectableAddonsBinder", "scripting_menu");

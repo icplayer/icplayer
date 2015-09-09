@@ -1,3 +1,4 @@
+2015-09-09 Added changes to Sudoku, Fractions modules and added new module Fractions Binder
 2015-09-09 Fixed issue with wrong range image after reset in Animated Lesson Progress
 2015-09-08 Fixed issue with class on hover after reset in Image Identification module
 2015-09-08 Added incrementing check counter in Show Answers module

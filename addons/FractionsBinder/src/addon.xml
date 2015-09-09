@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='FractionsBinder' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Addons" displayName="Fractions" type="text" nameLabel="FractionsBinder_property_addons" />
+        <property name="CorrectElements" displayName="Correct Elements" type="string" nameLabel="FractionsBinder_property_correct_elements" />
+    </model>
+</addon>
