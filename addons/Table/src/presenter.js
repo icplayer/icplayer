@@ -93,8 +93,9 @@ function AddonTable_create() {
         presenter.$view.html(parsedText);
     };
 
-    presenter.setGapsClass = function () {
+    presenter.setGapsClassAndWidth = function () {
         presenter.$view.find('.ic_inlineChoice').addClass('ic_gap');
+        presenter.$view.find('.ic_inlineChoice').css('width', presenter.configuration.gapWidth.value+"px");
     };
 
     presenter.initializeGaps = function (isPreview) {
@@ -102,7 +103,7 @@ function AddonTable_create() {
             presenter.parseGaps();
         }
         presenter.gapsContainer.replaceDOMViewWithGap();
-        presenter.setGapsClass();
+        presenter.setGapsClassAndWidth();
     };
 
     function deleteCommands () {
