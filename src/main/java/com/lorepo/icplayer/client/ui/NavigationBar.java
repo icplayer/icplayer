@@ -42,7 +42,7 @@ public class NavigationBar extends PopupPanel {
 			previewURL = NavigationBarUtils.getPagePreviewURL(contentModel.getPage(col).getPreview(), baseUrl);
 			
 			buttonLabel = "";
-			if (previewURL == null || previewURL == "") {
+			if (previewURL == null || previewURL == "" || previewURL.endsWith("/")) {
 				buttonLabel += (col + 1);
 			}
 			
