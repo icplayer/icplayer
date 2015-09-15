@@ -1040,7 +1040,7 @@
 	"Show_Answers_name" : "Pokaż odpowiedzi",
 	"Show_Answers_property_text": "Tekst",
 	"Show_Answers_property_text_selected": "Zaznaczony tekst",
-    "Show_Answers_property_enable_check_counter": "Increment check counter",
+    "Show_Answers_property_enable_check_counter": "Zwiększenie licznika sprawdzeń",
 	"Animated_Page_Progress_info" : "Addon umożliwia dodanie obrazków do paska postępu, które mogą być różne w zależności od uzyskanego wyniku procentowego.",
 	"Animated_Page_Progress_name" : "Wskaźnik postępu strony",
 	"Animated_Page_Progress_property_ranges": "Zakresy",
@@ -1199,8 +1199,8 @@
     "Board_game_property_images" : "Elementy",
     "Board_game_property_pawn_image" : "Obraz dla elementu",
     "Board_game_property_is_disable" : "Jest wyłączony",
-    "FractionsBinder_name": "Fractions Binder",
-    "FractionsBinder_info": "Allows to control groups of Fractions addons",
+    "FractionsBinder_name": "Łącznik ułamków",
+    "FractionsBinder_info": "Umożliwia zarządzanie grupami addonów Ułamki.",
     "FractionsBinder_property_addons": "Fractions",
-    "FractionsBinder_property_correct_elements": "Correct Elements"
+    "FractionsBinder_property_correct_elements": "Poprawne elementy"
 };
