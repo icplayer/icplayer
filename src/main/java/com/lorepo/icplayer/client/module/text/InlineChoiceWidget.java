@@ -147,9 +147,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 
 	@Override
 	public void markGapAsWrong() {
-		removeStyleDependentName("correct");
-		removeStyleDependentName("empty");
-		addStyleDependentName("wrong");
+		if(!getTextValue().equals("---")){
+			removeStyleDependentName("correct");
+			removeStyleDependentName("empty");
+			addStyleDependentName("wrong");
+		}
 	}
 
 	public void setDisabled(boolean disabled) {
