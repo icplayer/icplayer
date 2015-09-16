@@ -285,7 +285,7 @@ function AddonBasic_Math_Gaps_create(){
                     isDenominatorGap = isGapPattern.test(denominator);
 
                 if (!isGap) {
-                    isNumeratorGap = isGapPattern.test(numerator),
+                    isNumeratorGap = isGapPattern.test(numerator);
                     isDenominatorGap = isGapPattern.test(denominator);
                 } else {
                     isNumeratorGap = true;
@@ -551,6 +551,10 @@ function AddonBasic_Math_Gaps_create(){
         var validated = presenter.validateScore();
 
         if (presenter.configuration.isEquation) {
+            if(!presenter.gapsContainer.areAllGapsFilled()){
+                return 0;
+            }
+
             return equationGetErrorCount(validated);
         } else {
             return presenter.gapsContainer.getNonEmptyGapsNumber() - validated.validGapsCount;
@@ -701,6 +705,10 @@ function AddonBasic_Math_Gaps_create(){
         var validated = presenter.validateScore();
 
         if (presenter.configuration.isEquation) {
+            if(!presenter.gapsContainer.areAllGapsFilled()){
+                return 0;
+            }
+
             if (presenter.isEquationCorrect(validated) ) {
                 return 1;
             }
@@ -1044,7 +1052,7 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.GapUtils.prototype.addClassToContainer = function () {
         presenter.$view.find('.basic-math-gaps-container').addClass("basic_math_gaps_check");
-    }
+    };
 
     presenter.GapUtils.prototype.removeClassFromContainer = function () {
         presenter.$view.find('.basic-math-gaps-container').removeClass("basic_math_gaps_check");
@@ -1060,7 +1068,7 @@ function AddonBasic_Math_Gaps_create(){
         } else {
             return "wrong";
         }
-    }
+    };
 
     presenter.GapUtils.prototype.addClassInEquation = function () {
         if (presenter.gapsContainer.areAllGapsFilled()) {

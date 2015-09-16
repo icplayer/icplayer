@@ -13,6 +13,7 @@ TestCase("[Basic Math Gaps] Get Error Count", {
 
             blockGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'lock'),
             areAllGapsEmpty: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsEmpty'),
+            areAllGapsFilled: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsFilled'),
             getNonEmptyGapsNumber: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getNonEmptyGapsNumber'),
 
             isEquationCorrect: sinon.stub(this.presenter, 'isEquationCorrect'),
@@ -34,6 +35,7 @@ TestCase("[Basic Math Gaps] Get Error Count", {
 
         this.presenter.GapsContainerObject.prototype.lock.restore();
         this.presenter.GapsContainerObject.prototype.areAllGapsEmpty.restore();
+        this.presenter.GapsContainerObject.prototype.areAllGapsFilled.restore();
         this.presenter.GapsContainerObject.prototype.getNonEmptyGapsNumber.restore();
     },
 
@@ -83,6 +85,7 @@ TestCase("[Basic Math Gaps] Get Error Count", {
 
         this.stubs.validateScore.returns({});
         this.stubs.isEquationCorrect.returns(false);
+        this.stubs.areAllGapsFilled.returns(true);
 
         assertEquals(1, this.presenter.getErrorCount());
     },
