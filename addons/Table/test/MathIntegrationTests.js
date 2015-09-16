@@ -5,7 +5,7 @@ TestCase("[Table] Set Gap Answer", {
 
         this.stubs = {
             setMathShowAnswersValueByGapIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'setMathShowAnswersValueByGapIndex'),
-            showAnswersGapsContainer: sinon.stub(this.presenter.GapsContainerObject.prototype, 'showAnswers'),
+            showAnswersGapsContainer: sinon.stub(this.presenter.GapsContainerObject.prototype, 'showAnswersMath'),
             setMathShowAnswersCounter: sinon.stub(this.presenter, 'setMathShowAnswersCounter'),
             tickMathCounter: sinon.stub(this.presenter, 'tickMathCounter'),
             shouldTriggerMathShowAnswers: sinon.stub(this.presenter, 'shouldTriggerMathShowAnswers')
@@ -17,7 +17,7 @@ TestCase("[Table] Set Gap Answer", {
 
     tearDown: function () {
         this.presenter.GapsContainerObject.prototype.setMathShowAnswersValueByGapIndex.restore();
-        this.presenter.GapsContainerObject.prototype.showAnswers.restore();
+        this.presenter.GapsContainerObject.prototype.showAnswersMath.restore();
         this.presenter.setMathShowAnswersCounter.restore();
         this.presenter.tickMathCounter.restore();
         this.presenter.shouldTriggerMathShowAnswers.restore();

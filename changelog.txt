@@ -1,3 +1,4 @@
+2015-09-16 Fixed check mode and show answers mode connected with Math module in Table module
 2015-09-15 Fixed problem with coloring empty dropdown gaps in Text module
 2015-09-11 Fixed problem with disabled gaps in show answers mode in Text module
 2015-09-11 Fixed problem with displaying page numbers on mLibro in Page Icon Toolbar

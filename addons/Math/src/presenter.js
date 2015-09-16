@@ -572,13 +572,25 @@ function AddonMath_create() {
             if (module != null && !module.isActivity()) {
                 if (on) {
                     answer.users = module.getValue(moduleReference.gapIndex);
-                    module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.configuration.answers.length);
+                    module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.moduleAnswersCounter(moduleReference.moduleID));
                 } else {
                     module.setUserValue(moduleReference.gapIndex, answer.users);
                 }
             }
         }
     }
+
+    presenter.moduleAnswersCounter = function (module) {
+        var counter = 0;
+
+        for (var j= 0; j<presenter.configuration.variables.length; j++){
+            if(presenter.configuration.variables[j].value.indexOf(module) > -1){
+                counter++;
+            }
+        }
+
+        return counter;
+    };
 
     presenter.showAnswers = function() {
         if (!presenter.isShowAnswers) {
