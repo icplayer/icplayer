@@ -216,6 +216,7 @@ function AddonLearnPen_Data_create() {
     function colorSteps(stepsAndColors) {
         function setBackGroundColor($sensor, step, color) {
             $sensor.find('div.box[data-step="' + step + '"]').css('background-color', color);
+            $sensor.find('div.box[data-step="' + step + '"]').attr('data-color', color);
         }
 
         for (var i=0; i<DATA_LENGTH; i++) {
@@ -228,9 +229,22 @@ function AddonLearnPen_Data_create() {
 
     function updateDataOnGraph() {
         function setDataForSensor($sensor, steps, value) {
-            for (var i=0; i<DATA_LENGTH; i++)
-                if (steps[i].value < value)
-                    $sensor.find('div.box[data-step="' + i + '"]').addClass(ON_MODE_CLASS);
+            var color, index;
+
+            for (var i=0; i<DATA_LENGTH; i++) {
+                if (steps[i].value < value) {
+                    index = i;
+                }
+            }
+            color = $sensor.find('div.box[data-step="' + index + '"]').attr("data-color");
+
+            for (var i=0; i<DATA_LENGTH; i++) {
+                if (steps[i].value < value) {
+                    $sensor.find('div.box[data-step="' + i + '"]').css("background-color", color);
+                } else {
+                    $sensor.find('div.box[data-step="' + i + '"]').css("background-color", "white");
+                }
+            }
         }
 
         presenter.$view.find('div.' + ON_MODE_CLASS).each(function() {
