@@ -17,6 +17,7 @@ TestCase("[Basic Math Gaps] Score Tests", {
             getValues: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getValues'),
             getMaxScore: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getMaxScore'),
             areAllGapsEmpty: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsEmpty'),
+            areAllGapsFilled: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsFilled'),
             getStringReconvertedUserExpression: sinon.stub(this.presenter, 'getStringReconvertedUserExpression')
         };
 
@@ -40,11 +41,13 @@ TestCase("[Basic Math Gaps] Score Tests", {
         this.presenter.GapsContainerObject.prototype.getMaxScore.restore();
         this.presenter.GapsContainerObject.prototype.areAllGapsEmpty.restore();
         this.presenter.getStringReconvertedUserExpression.restore();
+        this.presenter.GapsContainerObject.prototype.areAllGapsFilled.restore();
     },
 
     'test getScore for equation and valid user input' : function() {
         this.stubs.getValues.returns(["1", "2"]);
         this.stubs.getStringReconvertedUserExpression.returns("1+2=3");
+        this.stubs.areAllGapsFilled.returns(true);
 
         var score = this.presenter.getScore();
 
