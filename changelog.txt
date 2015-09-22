@@ -1,3 +1,4 @@
+2015-09-22 Added handling reset in Page Rating module
 2015-09-16 Fixed issue with checking answer in Is Equation mode in Basic Math Gaps module
 2015-09-16 Fixed check mode and show answers mode connected with Math module in Table module
 2015-09-15 Fixed problem with coloring empty dropdown gaps in Text module
