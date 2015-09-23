@@ -96,10 +96,10 @@ function AddonLearnPen_Report_create() {
 
 //        var filteredData = {
 //            isValid: true,
-//            a: Math.floor(Math.random() * 100),
-//            b: Math.floor(Math.random() * 100),
-//            c: Math.floor(Math.random() * 100),
-//            p: Math.floor(Math.random() * 100)
+//            a: toPercent(Math.floor(Math.random() * 1000)),
+//            b: toPercent(Math.floor(Math.random() * 1000)),
+//            c: toPercent(Math.floor(Math.random() * 1000)),
+//            p: toPercent(Math.floor(Math.random() * 1000))
 //        };
 
         var filteredData = {
@@ -140,11 +140,49 @@ function AddonLearnPen_Report_create() {
         };
     }
 
+    function getSensorHistory(historyArray, sensorsArray) {
+        var noise = toPercent(200);
+
+        function filterNoise(element) {
+            return this.some(function (variable) {
+               return element[variable] > noise;
+            }, this);
+        }
+
+        return historyArray.filter(filterNoise, sensorsArray);
+    }
+
     function getValues() {
         if (presenter.configuration.calculateFromLastValues === 0) {
-            return presenter.data.sensorsDataHistory;
+            return getSensorHistory(presenter.data.sensorsDataHistory, getSensorsConfiguration());
         } else {
-            return presenter.data.sensorsDataHistory.getLastElements(presenter.configuration.calculateFromLastValues);
+            return getSensorHistory(presenter.data.sensorsDataHistory, getSensorsConfiguration()).getLastElements(presenter.configuration.calculateFromLastValues);
+        }
+    }
+
+    function getSensorsConfiguration () {
+        switch (presenter.configuration.sensor) {
+            case presenter.SENSOR.All:
+                return ['a', 'b', 'c', 'p'];
+                break;
+            case presenter.SENSOR.Pressure:
+                return ['p'];
+                break;
+            case presenter.SENSOR.Squeeze:
+                return ['a', 'b', 'c'];
+                break;
+            case presenter.SENSOR['Squeeze A']:
+                return ['a'];
+                break;
+            case presenter.SENSOR['Squeeze B']:
+                return ['b'];
+                break;
+            case presenter.SENSOR['Squeeze C']:
+                return ['c'];
+                break;
+            default:
+                return ['a', 'b', 'c', 'p'];
+                break;
         }
     }
 
