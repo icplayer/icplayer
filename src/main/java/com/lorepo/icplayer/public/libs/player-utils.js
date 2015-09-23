@@ -76,6 +76,8 @@
                         "page_number": (i + 1),
                         "page_name": page.getName(),
                         "score": Math.floor(pageScaledScore * 100) / 100,
+                        "absolute_score": score['score'],
+                        "max_score": score['maxScore'],
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
                         "checks_count": score['checkCount'] ? score['checkCount'] : 0,
                         "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0
