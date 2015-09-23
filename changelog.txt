@@ -1,3 +1,4 @@
+2015-09-23 Fixed disabling gap after checking answers in Image Gap module
 2015-09-22 Added handling reset in Page Rating module
 2015-09-16 Fixed issue with checking answer in Is Equation mode in Basic Math Gaps module
 2015-09-16 Fixed check mode and show answers mode connected with Math module in Table module

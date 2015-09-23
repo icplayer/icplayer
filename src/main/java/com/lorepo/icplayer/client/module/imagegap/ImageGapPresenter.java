@@ -176,8 +176,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void setShowErrorsMode() {
 		if (this.isShowAnswersActive) hideAnswers();
-		isShowErrorsMode = true;
-		workModeDisabled = view.getDisabled();
+		if(!isShowErrorsMode){
+			workModeDisabled = view.getDisabled();
+		}
+		
+		isShowErrorsMode = true;		
 		view.setDisabled(true);
 		if (model.isActivity()) {
 			if (getScore() > 0) {
