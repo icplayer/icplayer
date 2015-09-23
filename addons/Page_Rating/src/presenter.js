@@ -64,7 +64,7 @@ function AddonPage_Rating_create() {
         return {
             source : presenter.addonID,
             item : data.index,
-            value : data.selected ? "1" : "0",
+            value : data.selected ? "1" : "0"
         };
     };
     
@@ -255,7 +255,21 @@ function AddonPage_Rating_create() {
     
     presenter.getRate = function() {
 		return presenter.currentRate;
-    }
+    };
+
+    presenter.reset = function () {
+        presenter.isElementSelected = null;
+        var $img = presenter.$view.find("img[name='selected']"),
+            index = parseInt($img.data('index'), 10);
+
+        $img.attr({
+            "src": deselected_img[index],
+            "name": "deselected"
+        });
+
+        presenter.$view.find('textarea[data-name="textarea"]').val("");
+        presenter.$view.find('.page-rating-submit-button').attr('disabled','disabled');
+    };
         
     return presenter;
 }
