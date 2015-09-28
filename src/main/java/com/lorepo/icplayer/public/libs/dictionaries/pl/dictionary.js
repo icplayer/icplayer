@@ -1181,6 +1181,7 @@
     "Assessments_Navigation_Bar_info": "Pozwala na utworzenie paska nawigacyjnego z indeksami losowych numerów stron.",
     "Assessments_Navigation_Bar_name": "Assessments Navigation Bar",
     "Assessments_Navigation_Bar_property_sections": "Sekcje",
+    "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Real-time navigationbar-page-attempted",
     "Line_Selection_name" : "Wybór linii",
     "Line_Selection_info" : "Pozwala na dodanie do prezentacji wybieralnych linii.",
     "Line_Selection_property_is_activity" : "Jest ćwiczeniem",
