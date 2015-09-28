@@ -441,8 +441,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		if (module.isVisible()) {
 			view.show(true);
+			isVisible = true;
 		} else {
 			view.hide();
+			isVisible = false;
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {

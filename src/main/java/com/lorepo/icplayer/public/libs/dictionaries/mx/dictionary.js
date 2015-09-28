@@ -1182,6 +1182,7 @@
     "Assessments_Navigation_Bar_info": "Allows to create navigation with random number page indexes",
     "Assessments_Navigation_Bar_name": "Assessments Navigation Bar",
     "Assessments_Navigation_Bar_property_sections": "Sections",
+    "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Real-time navigationbar-page-attempted",
     "Line_Selection_name" : "Line Selection",
     "Line_Selection_info" : "Allows to add selectable lines to the presentation",
     "Line_Selection_property_is_activity" : "Is Activity",

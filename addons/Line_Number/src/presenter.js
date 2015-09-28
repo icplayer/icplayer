@@ -1451,6 +1451,7 @@ function AddonLine_Number_create() {
                     presenter.results['wrong'] += 1;
                 }
             }
+            presenter.$view.find('.outer').addClass("disable");
         } else if (presenter.configuration.isActivity && !presenter.configuration.isDisabled) {
             // change single dot to point on axis
             if (presenter.singleDot.value != -1) {
@@ -1481,6 +1482,8 @@ function AddonLine_Number_create() {
             }
 
             resetClicks();
+
+            presenter.$view.find('.outer').addClass("disable");
         }
     };
 
@@ -1513,6 +1516,7 @@ function AddonLine_Number_create() {
             presenter.$view.find('.wrong').removeClass('wrong');
             presenter.$view.find('.correctRangeExclude, .wrongRangeExclude').removeClass('correctRangeExclude wrongRangeExclude').addClass('exclude');
             presenter.$view.find('.correctRangeInclude, .wrongRangeInclude').removeClass('correctRangeInclude wrongRangeInclude').addClass('include');
+            presenter.$view.find('.outer').removeClass("disable");
         }
     };
 
@@ -2353,6 +2357,7 @@ function AddonLine_Number_create() {
                 getSelectedRange(this).addClass('show-answers');
             });
         }
+        presenter.$view.find('.outer').addClass("disable");
     };
 
     function drawPoints(pointsToDraw) {
@@ -2396,7 +2401,7 @@ function AddonLine_Number_create() {
 
         presenter.hideAnswerClicked = false;
         presenter.isShowAnswersActive = false;
-
+        presenter.$view.find('.outer').removeClass("disable");
     };
 
     return presenter;

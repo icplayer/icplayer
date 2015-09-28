@@ -41,6 +41,10 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.presentation = controller.getPresentation();
         presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
         presenter.commander = controller.getCommands();
+        presenter.eventBus = controller.getEventBus();
+
+        presenter.eventBus.addEventListener('PageLoaded', this);
+        presenter.eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.changeToPage = function (index) {
@@ -127,6 +131,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$view = this.createView();
         this.$view_text;
         this.actualCommand;
+        this.navigateToPage;
         this.isActualButton = false;
 
         this.connectEvents();
@@ -143,8 +148,16 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$view.addClass(cssClass);
     };
 
+    presenter.Button.prototype.removeCssClass = function (cssClass) {
+        this.$view.removeClass(cssClass);
+    };
+
     presenter.Button.prototype.setCommand = function (command) {
         this.actualCommand = command;
+    };
+
+    presenter.Button.prototype.setNavigateToPage = function (navigateToPage) {
+        this.navigateToPage = navigateToPage;
     };
 
     presenter.Button.prototype.execute = function () {
@@ -354,6 +367,45 @@ function AddonAssessments_Navigation_Bar_create(){
         return sections.reduce(function (result, section) {
             return result.concat(section.pages);
         }, []);
+    };
+
+    presenter.attemptedButtons = [];
+
+    function checkIfButtonInArray(button) {
+        for(var i = 0; i < presenter.attemptedButtons.length; i++) {
+            if(presenter.attemptedButtons[i].navigateToPage == button.navigateToPage) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function removeButtonFromArray(button) {
+        for(var i = 0; i < presenter.attemptedButtons.length; i++) {
+            if(presenter.attemptedButtons[i].navigateToPage == button.navigateToPage) {
+                presenter.attemptedButtons.splice(i, i+1);
+            }
+        }
+    }
+
+    presenter.Sections.prototype.addClassAllAttemptedToPage = function (index) {
+        for(var i = 0; i < presenter.navigationManager.buttons.length; i++){
+            if(presenter.navigationManager.buttons[i].navigateToPage == index){
+                presenter.navigationManager.buttons[i].addCssClass("all-attempted");
+                if(!checkIfButtonInArray(presenter.navigationManager.buttons[i])){
+                    presenter.attemptedButtons.push(presenter.navigationManager.buttons[i]);
+                }
+            }
+        }
+    };
+
+    presenter.Sections.prototype.removeClassAllAttemptedToPage = function (index) {
+        for(var i = 0; i < presenter.navigationManager.buttons.length; i++){
+            if(presenter.navigationManager.buttons[i].navigateToPage == index){
+                presenter.navigationManager.buttons[i].removeCssClass("all-attempted");
+                removeButtonFromArray(presenter.navigationManager.buttons[i]);
+            }
+        }
     };
 
     presenter.Sections.prototype.setBookmarkCurrentPage = function (bookmark) {
@@ -657,6 +709,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationManager.prototype.getPageButton = function (page) {
         var button = new presenter.Button(page.description);
         button.setCommand(page.getChangeToPageCommand());
+        button.setNavigateToPage(page.page);
 
         return button;
     };
@@ -829,7 +882,8 @@ function AddonAssessments_Navigation_Bar_create(){
         return {
             isValid: true,
             addonID: model["ID"],
-            sections: validatedSections.sections
+            sections: validatedSections.sections,
+            addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"])
         };
     };
 
@@ -1041,7 +1095,8 @@ function AddonAssessments_Navigation_Bar_create(){
         var pages = presenter.sections.allPages;
 
         var state = {
-            pages: pages
+            pages: pages,
+            attemptedButtons: presenter.attemptedButtons
         };
 
         return JSON.stringify(state);
@@ -1063,6 +1118,94 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.navigationManager.restartLeftSideIndex();
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
+        presenter.attemptedButtons = parsedState.attemptedButtons;
+
+        if(presenter.attemptedButtons && presenter.attemptedButtons.length > 0){
+            for(var i = 0; i < presenter.navigationManager.buttons.length; i++) {
+                for(var j = 0; j < presenter.attemptedButtons.length; j++){
+                    if(presenter.navigationManager.buttons[i].navigateToPage == presenter.attemptedButtons[j].navigateToPage){
+                        presenter.navigationManager.buttons[i].addCssClass("all-attempted");
+                    }
+                }
+            }
+        }
+    };
+
+    function currentPageAreAllAttempted() {
+        if(presenter.presentation.getPage(presenter.currentPageIndex).isReportable()){
+            var modules = getAllOfTheModulesThatImplementIsAttempted(presenter.currentPageIndex);
+            if(areAllModulesAttempted(modules)){
+                presenter.sections.addClassAllAttemptedToPage(presenter.currentPageIndex);
+            }else{
+                presenter.sections.removeClassAllAttemptedToPage(presenter.currentPageIndex);
+            }
+        }
+    }
+
+    function getAllOfTheModulesThatImplementIsAttempted(page) {
+        var ids = presenter.playerController.getPresentation().getPage(page).getModules(),
+            modules = [];
+
+        for(var i = 0; i < ids.array.length; i++){
+            var currentModule = presenter.playerController.getModule(ids.array[i]);
+
+            if (currentModule && currentModule.isAttempted !== undefined) {
+                modules.push(currentModule);
+            }
+        }
+
+        return modules;
+    }
+
+    function areAllModulesAttempted(modules) {
+        if(modules.length == 0){
+            return false;
+        }
+
+        var areAllAttempted = true;
+
+        $.each(modules, function() {
+            if (!this.isAttempted()) {
+                areAllAttempted = false;
+                return false; // break;
+            }
+        });
+
+        return areAllAttempted;
+    }
+
+    presenter.areAllModulesAttempted = function () {
+        currentPageAreAllAttempted();
+    };
+
+    presenter.reset = function () {
+        presenter.sections.removeClassAllAttemptedToPage(presenter.currentPageIndex);
+    };
+
+    presenter.onEventReceived = function(eventName) {
+        if (eventName == 'PageLoaded' && presenter.configuration.addClassAreAllAttempted) {
+            presenter.areAllModulesAttempted();
+        }
+
+        if (eventName == "ValueChanged" && presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
+            presenter.areAllModulesAttempted();
+        }
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.isShowAnswersActive = false;
     };
 
     return presenter;

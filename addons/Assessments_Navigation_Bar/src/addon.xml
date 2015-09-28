@@ -2,5 +2,6 @@
 <addon id='Assessments_Navigation_Bar'>
     <model>
         <property name='Sections' type='text' nameLabel="Assessments_Navigation_Bar_property_sections"/>
+        <property name='addClassAreAllAttempted' type='boolean' displayName='Real-time navigationbar-page-attempted' nameLabel="Assessments_Navigation_Bar_property_add_class_are_all_attempted"/>
     </model>
 </addon>

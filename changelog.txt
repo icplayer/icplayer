@@ -1,3 +1,6 @@
+2015-09-28 Added classes on show answers and show errors mode in Line Number module
+2015-09-28 Added property Page Attempted in Assesment Navigation Bar module
+2015-09-28 Fixed saving visibility in state after reset in Text module
 2015-09-23 Fixed reading-out data from sensors in LearnPen Report module
 2015-09-23 Fixed disabling gap after checking answers in Image Gap module
 2015-09-22 Added handling reset in Page Rating module
