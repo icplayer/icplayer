@@ -236,7 +236,23 @@ public class PageController {
 	public void incrementCheckCounter() {
 		updateScoreCheckCounter();
 	}
+	
+	public void increaseMistakeCounter() {
+		updateScoreMistakeCounter();
+		
+		ValueChangedEvent valueEvent = new ValueChangedEvent("", "", "increaseMistakeCounter", "");
+		playerService.getEventBus().fireEvent(valueEvent);
+	}
 
+	public void updateScoreMistakeCounter() {
+		if (currentPage != null && currentPage.isReportable()) {
+			Score.Result result = getCurrentScore();
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
+			playerService.getScoreService().setPageScore(currentPage, score.increaseMistakeCounter());
+		}
+	}
+	
 	public void updateScore(boolean updateCounters) {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();

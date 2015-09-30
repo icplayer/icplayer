@@ -90,6 +90,16 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 						}
 					});
 		}
+		
+			playerServices.getEventBus().addHandler(ValueChangedEvent.TYPE, 
+					new ValueChangedEvent.Handler() {
+						@Override
+						public void onScoreChanged(ValueChangedEvent event) {
+							if(event.getValue().equals("increaseMistakeCounter")){
+								updateDisplay();
+							}
+						}
+					});
 	}
 
 	@Override
