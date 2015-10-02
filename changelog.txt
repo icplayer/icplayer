@@ -1,3 +1,4 @@
+2015-10-02 Fixed problem with displaying percentage score in LearnPen Report module
 2015-09-30 Added increaseMistakeCounter command
 2015-09-28 Added classes on show answers and show errors mode in Line Number module
 2015-09-28 Added property Page Attempted in Assesment Navigation Bar module
