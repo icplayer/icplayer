@@ -32,17 +32,19 @@
         }
     };
 
-    /**
+/**
      Returns Presentation object
 
      @param {Object} presentation current presentation object
+     @param {Array} pagesTimes time spend on pages
 
      @method getPresentation
 
      @return {Object} returns current presentation score (min, max, raw and scaled), errors count and checks count
      */
-    window.PlayerUtils.prototype.getPresentationScore = function (presentation) {
-        if (this.hasOwnProperty("scoreService")) {
+    window.PlayerUtils.prototype.getPresentationScore = function(presentation, pagesTimes) {
+        pagesTimes = pagesTimes || { total: 0 };
+        if (this.hasOwnProperty('scoreService')) {
             var sumOfScore = 0.0, sumOfErrors = 0, sumOfChecks = 0,
                 sumOfMaxScore = 0.0,
                 sumOfScaledScore = 0.0,
@@ -74,6 +76,8 @@
                         "page_number": (i + 1),
                         "page_name": page.getName(),
                         "score": Math.floor(pageScaledScore * 100) / 100,
+                        "absolute_score": score['score'],
+                        "max_score": score['maxScore'],
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
                         "checks_count": score['checkCount'] ? score['checkCount'] : 0,
                         "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0
@@ -85,7 +89,7 @@
 
             var scaledScore = 0;
             if (count > 0) {
-                scaledScore = Math.floor((sumOfScaledScore / count) * 100) / 100
+                scaledScore = Math.floor((sumOfScaledScore / count) * 100) / 100;
             }
 
             return {
@@ -96,11 +100,11 @@
                 errorsCount: sumOfErrors,
                 checksCount: sumOfChecks,
                 mistakeCount: sumOfMistakes,
-                paginatedResult: paginatedResults
+                paginatedResult: paginatedResults,
+                totalTime: pagesTimes.total,
+                pagesTimes: pagesTimes
             }
         }
-        else {
-            return undefined;
-        }
     };
+
 })(window);
