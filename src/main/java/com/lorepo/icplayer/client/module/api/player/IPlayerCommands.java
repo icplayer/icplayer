@@ -29,4 +29,5 @@ public interface IPlayerCommands {
 	public void showNavigationPanels();
 	public void hideNavigationPanels();
 	void incrementCheckCounter();
+	void increaseMistakeCounter();
 }

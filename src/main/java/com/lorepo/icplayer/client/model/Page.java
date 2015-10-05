@@ -547,6 +547,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		this.id = pageId;
 	}
 
+	public void setWidth(int width) {
+		this.width = width; 
+	}
+	
 	public void setHeight(int height) {
 		this.height = height; 
 	}

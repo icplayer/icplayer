@@ -465,6 +465,7 @@ function AddonLearnPen_Report_create() {
         var widthA = Math.round(((text[0]/100)*presenter.configuration.width));
         var widthB = Math.round(((text[1]/100)*presenter.configuration.width));
         var widthC = Math.round(((text[2]/100)*presenter.configuration.width));
+        var moduleWidth = widthA + widthB + widthC;
 
         var xA = 0;
         var xB = widthA;
@@ -479,6 +480,24 @@ function AddonLearnPen_Report_create() {
         var xTextA = xA + (widthA/2);
         var xTextB = xB + (widthB/2);
         var xTextC = xC + (widthC/2);
+
+        if(text[0] > 0 && xTextA < 10){
+            xTextA = 10;
+        }
+        if(text[2] > 0 && xTextC > (moduleWidth-11)){
+            xTextC = moduleWidth-11;
+        }
+        if(text[0] == 0 && xTextB < 10){
+            xTextB = 10;
+        }
+        if(text[2] == 0 && xTextB > (moduleWidth-10)){
+            xTextB = moduleWidth-10;
+        }
+        if(text[0] > 0 && xTextB < (xTextA+19)){
+            xTextB = xTextA+19;
+        }else if(text[2] > 0 && xTextB > (xTextC-20)){
+            xTextB = xTextC-20;
+        }else{} // 10, 19, 20.. - width of text
 
         drawText(presenter.data.context, xTextA, Math.round(moduleHeight/4)-3, text[0]);
         drawText(presenter.data.context, xTextB, Math.round(moduleHeight/4)-3, text[1]);
