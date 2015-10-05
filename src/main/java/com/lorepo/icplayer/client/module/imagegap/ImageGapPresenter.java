@@ -613,7 +613,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private boolean isAttempted() {
-		return view.isAttempted();
+		if(model.isActivity()){
+			return view.isAttempted();
+		}else{
+			return true;
+		}
 	}
 
 }
