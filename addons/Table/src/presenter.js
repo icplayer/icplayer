@@ -634,6 +634,11 @@ function AddonTable_create() {
         return presenter.$view;
     };
 
+    presenter.isAllOK = function() {
+        var score = presenter.getScore();
+        return score == presenter.getMaxScore() && score != 0;
+    };
+
     presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
@@ -647,10 +652,22 @@ function AddonTable_create() {
             'enableAllGaps': presenter.enableAllGaps,
             'disableGap': presenter.disableGapCommand,
             'disableAllGaps': presenter.disableAllGaps,
-            'getView' : presenter.getView
+            'getView' : presenter.getView,
+            'isAllOK' : presenter.isAllOK
         };
 
         return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.sendAllOKEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
     presenter.getMaxScore = function () {
@@ -1359,6 +1376,8 @@ function AddonTable_create() {
 
     presenter.ValueChangeObserver.prototype.notify = function (data) {
         presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
+
+        if (presenter.isAllOK()) presenter.sendAllOKEvent();
     };
 
     presenter.ValueChangeObserver.prototype.getEventData = function (data) {

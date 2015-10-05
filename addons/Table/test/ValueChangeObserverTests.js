@@ -82,10 +82,17 @@ TestCase("[Table] [Value Change Observer] Notify", {
             test: "asl;kdfj;safa",
             argh: "v.xc,nzjada"
         };
+
+        sinon.stub(this.presenter, 'getScore');
+        sinon.stub(this.presenter, 'getMaxScore');
+        sinon.stub(this.presenter, 'sendAllOKEvent');
     },
     
     tearDown: function () {
         this.presenter.ValueChangeObserver.prototype.getEventData.restore();
+        this.presenter.getScore.restore();
+        this.presenter.getMaxScore.restore();
+        this.presenter.sendAllOKEvent.restore();
     },
 
     'test should send ValueChanged event by event bus with provided data by getEventData': function () {
