@@ -458,7 +458,15 @@ function Addongraph_create(){
 
         if(newValue < presenter.configuration.axisYMinimumValue) return;
 
-        valueContainer.attr('current-value', newValue.toFixed(newValuePrecision));
+        var splittedStep = presenter.configuration.axisYGridStep.toString().split('.'),
+            precision;
+        if(splittedStep[1]){
+            precision = splittedStep[1].length;
+            valueContainer.attr('current-value', newValue.toFixed(precision));
+        }else{
+            valueContainer.attr('current-value', newValue.toFixed(newValuePrecision));
+        }
+
         presenter.redrawGraphValue(valueContainer);
 
         if (currentValue === newValue) return;
@@ -659,7 +667,15 @@ function Addongraph_create(){
 
         }
 
-        $container.attr('current-value', newValue);
+        var splittedStep = presenter.configuration.axisYGridStep.toString().split('.');
+
+        if(splittedStep[1]){
+            var precision = splittedStep[1].length;
+            $container.attr('current-value', newValue.toFixed(precision));
+        }else{
+            $container.attr('current-value', newValue);
+        }
+
         presenter.redrawGraphValue(valueContainer);
 
         if (presenter.configuration.mouseData.currentValue !== newValue) {
@@ -1267,9 +1283,19 @@ function Addongraph_create(){
 
             for(i = 0; i < cyclicValues.length; i++) {
                 var step = cyclicValues[i];
+
+                var splittedStep = step.toString().split('.');
+
                 var value;
-                for(value = step; value <= yMax; value += step) {
-                    values.push(value);
+                if(splittedStep[1]){
+                    var commaLength = splittedStep[1].length;
+                    for(value = step; value.toFixed(commaLength) <= yMax; value += step) {
+                        values.push(value.toFixed(commaLength));
+                    }
+                }else{
+                    for(value = step; value <= yMax; value += step) {
+                        values.push(value);
+                    }
                 }
 
                 for(value = -step; value >= yMin; value -= step) {
