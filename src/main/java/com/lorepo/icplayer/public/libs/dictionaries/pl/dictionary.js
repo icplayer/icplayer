@@ -1179,9 +1179,9 @@
     "SelectableAddonsBinder_info" : "Pozwala sterować pracą grup addonów wybieralnych.",
     "SelectableAddonsBinder_property_addons" : "Addony",
     "Assessments_Navigation_Bar_info": "Pozwala na utworzenie paska nawigacyjnego z indeksami losowych numerów stron.",
-    "Assessments_Navigation_Bar_name": "Assessments Navigation Bar",
+    "Assessments_Navigation_Bar_name": "Niestandardowy pasek nawigacyjny",
     "Assessments_Navigation_Bar_property_sections": "Sekcje",
-    "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Real-time navigationbar-page-attempted",
+    "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "\"Navigationbar-page-attempted\" w czasie rzeczywistym",
     "Line_Selection_name" : "Wybór linii",
     "Line_Selection_info" : "Pozwala na dodanie do prezentacji wybieralnych linii.",
     "Line_Selection_property_is_activity" : "Jest ćwiczeniem",
@@ -1202,6 +1202,6 @@
     "Board_game_property_is_disable" : "Jest wyłączony",
     "FractionsBinder_name": "Łącznik ułamków",
     "FractionsBinder_info": "Umożliwia zarządzanie grupami addonów Ułamki.",
-    "FractionsBinder_property_addons": "Fractions",
+    "FractionsBinder_property_addons": "Ułamki",
     "FractionsBinder_property_correct_elements": "Poprawne elementy"
 };
