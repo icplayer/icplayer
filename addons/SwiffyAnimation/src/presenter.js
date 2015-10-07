@@ -108,6 +108,7 @@ function AddonSwiffyAnimation_create(){
             e.stopImmediatePropagation();
             e.stopPropagation();
         });
+        //console.log('run');
     };
 
     presenter.checkIfAllAnimationsAreLoaded = function(){
@@ -249,6 +250,7 @@ function AddonSwiffyAnimation_create(){
     presenter.setVisibility = function(isVisible) {
         presenter.isVisible = isVisible;
         presenter.$view.css("display", isVisible ? "block" : "none");
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.show = function() {
