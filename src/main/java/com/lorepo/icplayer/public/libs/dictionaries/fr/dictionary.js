@@ -293,6 +293,7 @@
     "move_module_up_menu": "Monter le module",
     "move_module_down_menu": "Descendre le module",
     "page_preview": "Prévisualiser",
+    "page_edit": "Edit",
     "score_type": "Type de Score",
     "Preview": "Prévisualiser",
     "layout_editor": "Configuration de l'Editeur",

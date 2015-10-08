@@ -290,6 +290,7 @@
 	"move_module_up_menu" : "Subir módulo",
 	"move_module_down_menu" : "Bajar módulo",
 	"page_preview" : "Previsualizar página",
+    "page_edit": "Edit",
 	"score_type" : "Tipo de Puntuación",
 	"Preview" : "Previsualizar",
 	"layout_editor" : "Editor de Fondo",

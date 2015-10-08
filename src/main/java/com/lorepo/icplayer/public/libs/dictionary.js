@@ -293,6 +293,7 @@
 	"move_module_up_menu": "Move module up",
 	"move_module_down_menu": "Move module down",
 	"page_preview": "Preview",
+	"page_edit": "Edit",
 	"score_type": "Score Type",
 	"Preview": "Preview",
 	"layout_editor": "Layout Editor",

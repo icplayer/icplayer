@@ -290,6 +290,7 @@
 	"move_module_up_menu" : "Przenieś moduł w górę",
 	"move_module_down_menu" : "Przenieś moduł w dół",
 	"page_preview" : "Podgląd",
+    "page_edit": "Edycja",
 	"score_type" : "Rodzaj wyniku",
 	"Preview" : "Podgląd",
 	"layout_editor" : "Edytor układu strony",
