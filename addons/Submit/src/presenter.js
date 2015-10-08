@@ -40,14 +40,26 @@ function AddonSubmit_create(){
         runLogic(view, model, true);
     };
 
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
     presenter.validateModel = function(model, isPreview) {
         var buttonText = model['Text'],
-            buttonTextSelected = model['TextSelected'];
+            buttonTextSelected = model['TextSelected'],
+            isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
 
         return {
             'buttonText' : buttonText,
             'buttonTextSelected' : buttonTextSelected,
-            'addonID' : model['ID']
+            'addonID' : model['ID'],
+            'isVisible' : isVisible,
+            'isVisibleByDefault': isVisible
         }
     };
 
@@ -145,6 +157,7 @@ function AddonSubmit_create(){
     presenter.reset = function(){
         presenter.submitWrapper.removeClass('selected');
         presenter.submitButton.html(presenter.configuration.buttonText);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.getErrorCount = function(){
@@ -160,9 +173,28 @@ function AddonSubmit_create(){
     };
 
     presenter.getState = function(){
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible
+        });
     };
 
-    presenter.setState = function(state){
+    presenter.setState = function(rawState){
+        var state = JSON.parse(rawState);
+
+        presenter.setVisibility(state.isVisible);
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.configuration.isVisible = isVisible;
+    };
+
+    presenter.show = function() {
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
     };
 
     return presenter;
