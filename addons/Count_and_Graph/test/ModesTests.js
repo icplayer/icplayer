@@ -25,6 +25,10 @@ TestCase("[Count_and_Graph] Show errors mode / work mode", {
             columnSetShowErrorsMode: sinon.spy(this.column, 'setShowErrorsMode'),
             columnSetWorkMode: sinon.spy(this.column, 'setWorkMode')
         };
+
+        this.presenter.configuration = {
+            isNotActivity: false
+        };
     },
 
     tearDown: function () {

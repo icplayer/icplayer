@@ -8,6 +8,10 @@ TestCase("[Count_and_Graph] Max score", {
         var _ = 1;
 
         this.presenter.graph = new this.presenter.graphObject(divMock, _, [1, 2, 3, 4, 5], _, _, _, _, _, _, _, _, _, _);
+        this.presenter.configuration = {
+            isNotActivity: false
+        };
+
     },
 
     'test max score should be equal to number of columns in graph': function () {
@@ -37,6 +41,10 @@ TestCase("[Count_and_Graph] Score", {
             getScoreColumn1: sinon.spy(this.column1, 'getScore'),
             getScoreColumn2: sinon.spy(this.column2, 'getScore'),
             getScoreColumn3: sinon.spy(this.column3, 'getScore')
+        };
+
+        this.presenter.configuration = {
+            isNotActivity: false
         };
     },
 
@@ -103,6 +111,9 @@ TestCase("[Count_and_Graph] Error count", {
         this.presenter.graph._columns = [this.column1, this.column2, this.column3];
 
         sinon.stub(this.presenter.graph, 'isAttempted');
+        this.presenter.configuration = {
+            isNotActivity: false
+        };
     },
 
     'test when all columns marked correctly it should be 0': function () {

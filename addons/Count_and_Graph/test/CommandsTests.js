@@ -57,6 +57,10 @@ TestCase("[Count_and_Graph] Show / hide answers", {
         this.presenter.graph._columns = this.columns;
         this.presenter.graph._columns[0]._topSelectedBarNumber = 3;
         this.presenter.graph._columns[1]._topSelectedBarNumber = 2;
+
+        this.presenter.configuration = {
+            isNotActivity: false
+        };
     },
 
     getSpies: function (columns) {
