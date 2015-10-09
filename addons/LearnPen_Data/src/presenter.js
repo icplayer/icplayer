@@ -140,9 +140,11 @@ function AddonLearnPen_Data_create() {
             // #ffa500 - orange
             // #90ee90 - lightgreen
             var squeeze = [
-                getStep("#ffff00", 20), getStep("#ffff00", 35), getStep("#ffff00", 50),
-                getStep("#008000", 60), getStep("#008000", 70), getStep("#008000", 75), getStep("#008000", 80),
-                getStep("#ffa500", 85), getStep("#ffa500", 87),
+                getStep("#ffff00", 20), getStep("#ffff00", 35), getStep("#ffff00", 40),
+                getStep("#ffff00", 45),
+                getStep("#008000", 70), getStep("#008000", 75), getStep("#008000", 80),
+                getStep("#008000", 85),
+                getStep("#ff0000", 87),
                 getStep("#ff0000", 90), getStep("#ff0000", 93), getStep("#ff0000", 95)
             ];
 
@@ -152,9 +154,10 @@ function AddonLearnPen_Data_create() {
                 c: squeeze,
                 p: [
                     getStep("#ffff00", 20), getStep("#ffff00", 30),
-                    getStep("#90ee90", 40), getStep("#90ee90", 50),
+                    getStep("#ffff00", 40), getStep("#ffff00", 50),
                     getStep("#008000", 60), getStep("#008000", 65), getStep("#008000", 70),
-                    getStep("#ffa500", 75), getStep("#ffa500", 80),
+                    getStep("#008000", 75),
+                    getStep("#ff0000", 80),
                     getStep("#ff0000", 85), getStep("#ff0000", 90), getStep("#ff0000", 95)
                 ]
             });
@@ -216,6 +219,7 @@ function AddonLearnPen_Data_create() {
     function colorSteps(stepsAndColors) {
         function setBackGroundColor($sensor, step, color) {
             $sensor.find('div.box[data-step="' + step + '"]').css('background-color', color);
+            $sensor.find('div.box[data-step="' + step + '"]').attr('data-color', color);
         }
 
         for (var i=0; i<DATA_LENGTH; i++) {
@@ -228,9 +232,22 @@ function AddonLearnPen_Data_create() {
 
     function updateDataOnGraph() {
         function setDataForSensor($sensor, steps, value) {
-            for (var i=0; i<DATA_LENGTH; i++)
-                if (steps[i].value < value)
-                    $sensor.find('div.box[data-step="' + i + '"]').addClass(ON_MODE_CLASS);
+            var color, index;
+
+            for (var i=0; i<DATA_LENGTH; i++) {
+                if (steps[i].value < value) {
+                    index = i;
+                }
+            }
+            color = $sensor.find('div.box[data-step="' + index + '"]').attr("data-color");
+
+            for (var i=0; i<DATA_LENGTH; i++) {
+                if (steps[i].value < value) {
+                    $sensor.find('div.box[data-step="' + i + '"]').css("background-color", color);
+                } else {
+                    $sensor.find('div.box[data-step="' + i + '"]').css("background-color", "white");
+                }
+            }
         }
 
         presenter.$view.find('div.' + ON_MODE_CLASS).each(function() {
