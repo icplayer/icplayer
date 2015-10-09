@@ -2893,7 +2893,9 @@ function AddonIWB_Toolbar_create() {
 
         if (presenter.shouldRestoreStateAndPosition(presenter.model, parsedState)) {
             if (parsedState.openedPanel) {
-                openPanel(false);
+                if(presenter.isKeepStateAndPosition){
+                    openPanel(false);
+                }
             }
             presenter.position = parsedState.position;
 
@@ -2975,18 +2977,6 @@ function AddonIWB_Toolbar_create() {
         presenter.isSavedState = true;
 
         if(!presenter.isKeepStateAndPosition){
-        if(parsedState.openedPanel){
-            if(activeFunction){
-                if(activeFunction != 'clock' && activeFunction != 'stopwatch' && activeFunction != 'note' && activeFunction != 'reset' && activeFunction != 'open'){
-                    if(!presenter.recklick){
-                        presenter.functionButton = presenter.$pagePanel.find('.'+activeFunction);
-                        buttonsLogic[activeFunction].onOpen(presenter.functionButton);
-                    }
-                    isRecklicked = false;
-                }
-            }
-        }
-
             if(presenter.isCloseColor){
                 changeColor(presenter.closePenColor, presenter.buttonColor);
                 changeThickness(presenter.closePenThickness, presenter.buttonThickness);
