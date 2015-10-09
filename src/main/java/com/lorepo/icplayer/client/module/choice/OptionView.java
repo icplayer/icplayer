@@ -97,7 +97,6 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	 * Ustawienie stanu w zależności czy jest poprawną odpowiedzią value > 0 czy nie
 	 */
 	public void reset() {
-
 		resetStyles();
 		setDown(false);
 		setEnabled(true);
@@ -113,23 +112,19 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	}
 
 	@Override
-	public void setWrongStyle() {
-		
-		if(isDown()){
+	public void setWrongStyle() {	
+		if (isDown()) {
 			addStyleDependentName("down-wrong");
-		}
-		else{
+		} else {
 			addStyleDependentName("up-wrong");
 		}
 	}
 
 	@Override
 	public void setCorrectStyle() {
-		
-		if(isDown()){
+		if (isDown()) {
 			addStyleDependentName("down-correct");
-		}
-		else{
+		} else {
 			addStyleDependentName("up-correct");
 		}
 	}
@@ -146,6 +141,8 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		removeStyleDependentName("down-correct");
 		removeStyleDependentName("down-correct-answer");
 		removeStyleDependentName("down-wrong");
+		removeStyleName("ic_soption-markedAsCorrect");
+		removeStyleName("ic_soption-markedAsWrong");
 	}
 	
 	public void connectLinks(Iterator<LinkInfo> it) {
@@ -215,10 +212,19 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	}
 
 
+	private void setStyleFromCommandMarkAsCorrect() {
+		addStyleName("ic_soption-markedAsCorrect");
+	}
+	
+	private void setStyleFromCommandMarkAsWrong() {
+		addStyleName("ic_soption-markedAsWrong");
+	}
+	
 	@Override
 	public void markAsCorrect() {
 		resetStyles();
 		setCorrectStyle();
+		setStyleFromCommandMarkAsCorrect();
 	}
 
 
@@ -232,5 +238,6 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	public void markAsWrong() {
 		resetStyles();
 		setWrongStyle();
+		setStyleFromCommandMarkAsWrong();
 	}
 }

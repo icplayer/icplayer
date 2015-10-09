@@ -7,6 +7,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
+import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -434,20 +435,30 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> params) {
+		IStringType param = null;
 		
-		if (commandName.compareTo("enable") == 0){
+		if (commandName.compareTo("enable") == 0) {
 			enable();
-		} else if (commandName.compareTo("disable") == 0){
+		} else if (commandName.compareTo("disable") == 0) {
 			disable();
-		} else if (commandName.compareTo("show") == 0){
+		} else if (commandName.compareTo("show") == 0) {
 			show();
-		} else if (commandName.compareTo("hide") == 0){
+		} else if (commandName.compareTo("hide") == 0) {
 			hide();
-		} else if (commandName.compareTo("reset") == 0){
+		} else if (commandName.compareTo("reset") == 0) {
 			reset();
-		} else if(commandName.compareTo("isallok") == 0){
+		} else if (commandName.compareTo("isallok") == 0) {
             return String.valueOf(isAllOK());
+        } else if (commandName.compareTo("markoptionascorrect") == 0 && params.size() == 1) {
+			param = (IStringType) params.get(0);
+        	markOptionAsCorrect(Integer.parseInt(param.getValue()));
+        } else if (commandName.compareTo("markoptionaswrong") == 0 && params.size() == 1) {
+			param = (IStringType) params.get(0);
+        	markOptionAsWrong(Integer.parseInt(param.getValue()));
+        } else if (commandName.compareTo("markoptionasempty") == 0 && params.size() == 1) {
+			param = (IStringType) params.get(0);
+        	markOptionAsEmpty(Integer.parseInt(param.getValue()));
         }
 		
 		return "";
