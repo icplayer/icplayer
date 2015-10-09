@@ -409,6 +409,7 @@
 	"Count_and_Graph_property_background_color": "Color del fondo",
 	"Count_and_Graph_property_grid_line_color": "Color de la línea",
 	"Count_and_Graph_property_border": "Borde",
+    "Count_and_Graph_property_is_not_activity": "Is not an activity",
 	"crossword_info" : "Permite incluir un crucigrama listo para usar en una presentación. Para configurar la actividad es suficiente con definir algunos parámetros específicos en el menú del módulo.",
 	"crossword_name": "Crucigrama",
 	"crossword_property_crossword": "Crucigrama",

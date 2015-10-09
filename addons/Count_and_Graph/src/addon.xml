@@ -2,6 +2,7 @@
 
 <addon id='Count_and_Graph' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
+        <property name="isNotActivity" displayName="Is not an activity" nameLabel="Count_and_Graph_property_is_not_activity" type="boolean" />
         <property name="X axis description" nameLabel="Count_and_Graph_property_x_axis_description" type="string" isLocalized="true" />
         <property name="X axis data" nameLabel="Count_and_Graph_property_x_axis_data" type="list">
             <property name="Answer" nameLabel="Count_and_Graph_property_answer" type="string" />

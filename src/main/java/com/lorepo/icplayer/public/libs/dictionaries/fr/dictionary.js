@@ -412,6 +412,7 @@
     "Count_and_Graph_property_background_color": "Couleur du fond",
     "Count_and_Graph_property_grid_line_color": "Couleur des lignes de la grille",
     "Count_and_Graph_property_border": "Bordure",
+    "Count_and_Graph_property_is_not_activity": "Is not an activity",
     "crossword_info": "Permet d'insérer des mots croisés dans une présentation. Pour que l'activité fonctionne, il suffit de redéfinir quelques paramètres spécifiques dans le menu du module externe.",
     "crossword_name": "Mots-croisés",
     "crossword_property_crossword": "Mots-croisés",

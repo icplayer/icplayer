@@ -409,6 +409,7 @@
 	"Count_and_Graph_property_background_color": "Kolor tła",
 	"Count_and_Graph_property_grid_line_color": "Kolor linii siatki",
 	"Count_and_Graph_property_border": "Obramowanie",
+    "Count_and_Graph_property_is_not_activity": "Is not an activity",
 	"crossword_info" : "Umożliwia dodanie do prezentacji gotowej krzyżówki, wystarczy zdefiniować kilka podstawowych parametrów w menu Właściwości.",
 	"crossword_name" : "Krzyżówka",
 	"crossword_property_crossword": "Krzyżówka",

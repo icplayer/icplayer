@@ -1408,7 +1408,8 @@ function AddonCount_and_Graph_create() {
             columnsDescriptionsImages: validatedAxisXData.descriptionsImages,
             columnsNumber: validatedAxisXData.columnsNumber,
             axisXDescription: model["X axis description"],
-            axisYDescription: model["Y axis description"]
+            axisYDescription: model["Y axis description"],
+            isNotActivity: ModelValidationUtils.validateBoolean(model["isNotActivity"])
         };
     };
 
@@ -1775,6 +1776,8 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.showAnswers = function () {
+        if (presenter.configuration.isNotActivity) return;
+
         if (presenter.errorMode) {
             presenter.graph.setWorkMode();
             presenter.errorMode = false;
@@ -1786,6 +1789,8 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (presenter.configuration.isNotActivity) return;
+
         presenter.graph.unblock();
         presenter.graph.hideAnswers();
         presenter.isShowAnswersActive = false;
@@ -1799,10 +1804,14 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.getMaxScore = function () {
+        if (presenter.configuration.isNotActivity) return 0;
+
         return presenter.graph.getMaxScore();
     };
 
     presenter.getScore = function () {
+        if (presenter.configuration.isNotActivity) return 0;
+
         return presenter.graph.getScore();
     };
 
@@ -1813,10 +1822,14 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.getErrorCount = function () {
+        if (presenter.configuration.isNotActivity) return 0;
+
         return presenter.graph.getErrorCount();
     };
 
     presenter.setShowErrorsMode = function () {
+        if (presenter.configuration.isNotActivity) return;
+
         if(presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1829,6 +1842,8 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.setWorkMode = function () {
+        if (presenter.configuration.isNotActivity) return;
+
         if(presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
