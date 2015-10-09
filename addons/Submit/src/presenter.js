@@ -68,15 +68,13 @@ function AddonSubmit_create(){
             ids = presenter.playerController.getPresentation().getPage(pageIndex).getModules(),
             modules = [];
 
-        $.each(ids, function() {
-            var id = this.toString(),
-                currentModule = presenter.playerController.getModule(id);
+        for(var i = 0; i < ids.array.length; i++){
+            var currentModule = presenter.playerController.getModule(ids.array[i]);
 
             if (currentModule && currentModule.isAttempted !== undefined) {
                 modules.push(currentModule);
             }
-
-        });
+        }
 
         return modules;
     }

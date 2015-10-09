@@ -1,3 +1,4 @@
+2015-10-09 Fixed sending notAllAttempted event in Submit module
 2015-10-09 Added commands markOptionAs... and new classes on their execute to Choice module
 2015-10-09 Added property Is not an activity in Count and Graph module
 2015-10-08 Added commands show/hide in Submit module
