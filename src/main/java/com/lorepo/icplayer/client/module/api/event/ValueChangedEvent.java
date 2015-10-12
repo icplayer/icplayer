@@ -3,16 +3,9 @@ package com.lorepo.icplayer.client.module.api.event;
 import java.util.HashMap;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent.Handler;
 
-/**
- * Event wysyłany gdy w ćwiczeniu zostanie zmieniona wartość
- * 
- * @author Krzysztof Langner
- *
- */
-public class ValueChangedEvent extends GwtEvent<Handler> {
+public class ValueChangedEvent extends PlayerEvent<Handler> {
 
 	private String moduleId;
 	private String itemId;
@@ -70,6 +63,12 @@ public class ValueChangedEvent extends GwtEvent<Handler> {
 		data.put("score", score);
 	
 		return data;
+	}
+
+
+	@Override
+	public String getName() {
+		return "ValueChanged";
 	}
 	
 }

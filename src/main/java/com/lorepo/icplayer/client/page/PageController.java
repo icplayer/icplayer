@@ -9,7 +9,6 @@ import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Group;

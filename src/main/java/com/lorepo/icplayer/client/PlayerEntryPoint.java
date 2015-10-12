@@ -20,41 +20,55 @@ public class PlayerEntryPoint implements EntryPoint {
 		initJavaScriptAPI(this);
 	}
 
-	/**
-	 * Init Javascript API
-	 */
-	private static native void initJavaScriptAPI(PlayerEntryPoint x) /*-{
+	private static native void initJavaScriptAPI(PlayerEntryPoint entryPoint) /*-{
+		function createAPI(player) {
+			player.load = function(url, index){
+			  	index = index || 0;
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
+  			};
+		  
+		  	player.setConfig = function(config){
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setConfig(Lcom/google/gwt/core/client/JavaScriptObject;)(config);
+			};
+			
+			player.onStatusChanged = function(listener){
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
+			};
+			
+			player.setAnalytics = function(id){
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
+			};
+			
+			player.getState = function(){
+			    return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
+			};
+			
+			player.setState = function(state){
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
+			};
+			
+			player.setPages = function(pages){
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
+			};
+			
+			player.getPlayerServices = function(){
+			    return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
+			};
+			
+			player.onPageLoaded = function(listener){
+			  	entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
+			};
+			
+			player.forceScoreUpdate = function(listener){
+			  	entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::forceScoreUpdate()();
+			};
+		} 
+		
 		// CreatePlayer
 		$wnd.icCreatePlayer = function(id) {
-		  var player = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createAppPlayer(Ljava/lang/String;)(id);
-		  player.load = function(url, index){
-		  	index = index || 0;
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
-		  }
-		  player.onStatusChanged = function(listener){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
-		  }
-		  player.setAnalytics = function(id){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
-		  }
-		  player.getState = function(){
-		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
-		  }
-		  player.setState = function(state){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
-		  }
-		   player.setPages = function(pages){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
-		  }
-		  player.getPlayerServices = function(){
-		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
-		  }
-		  player.onPageLoaded = function(listener){
-		  	x.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
-		  }
-		  player.forceScoreUpdate = function(listener){
-		  	x.@com.lorepo.icplayer.client.PlayerEntryPoint::forceScoreUpdate()();
-		  }
+		  var player = entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::createAppPlayer(Ljava/lang/String;)(id);
+		  
+		  createAPI(player);
 
 		  return player;
 		}
@@ -62,31 +76,8 @@ public class PlayerEntryPoint implements EntryPoint {
 		// Create book
 		$wnd.icCreateBook = function(id, useCover) {
 		  var player = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
-		  player.load = function(url, index){
-		  	index = index || 0;
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
-		  }
-		  player.onStatusChanged = function(listener){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
-		  }
-		  player.setAnalytics = function(id){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
-		  }
-		  player.getState = function(){
-		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
-		  }
-		  player.setState = function(state){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
-		  }
-		  player.setPages = function(pages){
-		    x.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
-		  }
-		  player.getPlayerServices = function(){
-		    return x.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
-		  }
-		  player.onPageLoaded = function(listener){
-		  	x.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
-		  }
+		  
+		  createAPI(player);
 
 		  return player;
 		}
@@ -123,6 +114,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			pageIndex = 0;
 		}
 		theApplication.load(url, pageIndex);
+	}
+	
+	private void setConfig(JavaScriptObject config) {
+		theApplication.setConfig(config);
 	}
 
 	private void forceScoreUpdate() {

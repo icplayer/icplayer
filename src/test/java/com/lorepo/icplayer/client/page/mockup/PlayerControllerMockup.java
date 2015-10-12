@@ -2,9 +2,13 @@ package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.HashMap;
 
+import org.mockito.Mockito;
+
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
+import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
@@ -162,6 +166,18 @@ public class PlayerControllerMockup implements IPlayerController {
 	public IAssetsService getAssetsService() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public PlayerConfig getPlayerConfig() {
+		PlayerConfig mockedConfig = Mockito.mock(PlayerConfig.class);
+		PlayerConfig.Events mockedEventsConfig = Mockito.mock(PlayerConfig.Events.class);
+		
+		Mockito.when(mockedConfig.getEvents()).thenReturn(mockedEventsConfig);
+		Mockito.when(mockedEventsConfig.getDisabled()).thenReturn(new String[0]);
+
+		return mockedConfig;
 	}
 
 }

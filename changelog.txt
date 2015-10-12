@@ -1,3 +1,4 @@
+2015-10-12 Added disabled events configuration.
 2015-10-09 Fixed displaying data in LearnPen Data module
 2015-10-09 Fixed issue with active tools after changing lesson page in IWB Toolbar module
 2015-10-09 Fixed sending notAllAttempted event in Submit module

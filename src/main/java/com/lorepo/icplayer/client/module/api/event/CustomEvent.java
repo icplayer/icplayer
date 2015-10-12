@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.api.event;
 import java.util.HashMap;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent.Handler;
 
 /**
@@ -12,7 +11,7 @@ import com.lorepo.icplayer.client.module.api.event.CustomEvent.Handler;
  * @author Krzysztof Langner
  *
  */
-public class CustomEvent extends GwtEvent<Handler> {
+public class CustomEvent extends PlayerEvent<Handler> {
 
 	public final String eventName;
 	private HashMap<String, String> data;
@@ -26,6 +25,11 @@ public class CustomEvent extends GwtEvent<Handler> {
 	public CustomEvent(String name, HashMap<String, String> data) {
 		eventName = name;
 		this.data = data;
+	}
+	
+	@Override
+	public String getName() {
+		return eventName;
 	}
 
 	@Override

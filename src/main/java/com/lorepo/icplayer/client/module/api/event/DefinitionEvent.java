@@ -3,16 +3,9 @@ package com.lorepo.icplayer.client.module.api.event;
 import java.util.HashMap;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent.Handler;
 
-/**
- * Event wysyłany gdy zostanie wybrany link z definicją
- * 
- * @author Krzysztof Langner
- *
- */
-public class DefinitionEvent extends GwtEvent<Handler> {
+public class DefinitionEvent extends PlayerEvent<Handler> {
 
 	private String definition;
 	
@@ -20,6 +13,10 @@ public class DefinitionEvent extends GwtEvent<Handler> {
 		this.definition = definition;
 	}
 	
+	@Override
+	public String getName() {
+		return "Definition";
+	}
 	
 	public String getDefinition(){
 		return definition;
@@ -48,6 +45,5 @@ public class DefinitionEvent extends GwtEvent<Handler> {
 		data.put("word", definition);
 		return data;
 	}
-	
 }
 

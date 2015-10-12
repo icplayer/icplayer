@@ -3,10 +3,9 @@ package com.lorepo.icplayer.client.module.api.event;
 import java.util.HashMap;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent.Handler;
 
-public class PageLoadedEvent extends GwtEvent<Handler> {
+public class PageLoadedEvent extends PlayerEvent<Handler> {
 
 	public final String pageName;
 	public static Type<Handler> TYPE = new Type<Handler>();
@@ -17,6 +16,11 @@ public class PageLoadedEvent extends GwtEvent<Handler> {
 
 	public PageLoadedEvent(String name) {
 		pageName = name;
+	}
+	
+	@Override
+	public String getName() {
+		return "PageLoaded";
 	}
 
 	@Override

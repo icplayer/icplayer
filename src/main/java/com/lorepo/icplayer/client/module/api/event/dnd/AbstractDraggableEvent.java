@@ -3,16 +3,9 @@ package com.lorepo.icplayer.client.module.api.event.dnd;
 import java.util.HashMap;
 
 import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
+import com.lorepo.icplayer.client.module.api.event.PlayerEvent;
 
-/**
- * Klasa bazowa dla eventów dragowania
- * 
- * @author Krzysztof Langner
- *
- */
-abstract class AbstractDraggableEvent<H extends EventHandler> extends GwtEvent<H> {
-
+abstract class AbstractDraggableEvent<H extends EventHandler> extends PlayerEvent<H> {
 	private DraggableItem item;
 	
 	

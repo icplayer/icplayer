@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 
 
@@ -13,6 +14,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 public interface IPlayerServices {
 
 	public IContent getModel();
+	public PlayerConfig getPlayerConfig();
 	public EventBus	getEventBus();
 	public int getCurrentPageIndex();
 	public IPlayerCommands	getCommands();

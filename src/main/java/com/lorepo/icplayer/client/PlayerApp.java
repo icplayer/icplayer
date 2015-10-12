@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
@@ -15,15 +16,12 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
-/**
- * Create single page application
- */
 public class PlayerApp{
 
-	/** Div id */
 	private String divId;
 	private	Content contentModel;
 	private PlayerController playerController;
+	private PlayerConfig playerConfig = new PlayerConfig();
 	/** Score service impl */
 	private PlayerEntryPoint entryPoint;
 	private int startPageIndex = 0;
@@ -216,6 +214,7 @@ public class PlayerApp{
 		
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode);
+		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
 		playerController.addPageLoadListener(new ILoadListener() {
@@ -276,6 +275,37 @@ public class PlayerApp{
 		playerController.updateScore();
 	}
 	
+	public static class PlayerConfigOverlay extends JavaScriptObject {
+		protected PlayerConfigOverlay() {}
+		
+		public final native PlayerEventsConfigOverlay getEvents() /*-{
+			return this.events ? this.events : {};
+		}-*/;
+		
+		/**
+		 * Because GWT Overlay Types cannot be created with new keyword and
+		 * it only can be created from JSNI we're returning empty JavaScript
+		 * object that will be marshaled to PlayerConfig type.
+		 * @return
+		 */
+		public static final native PlayerConfigOverlay getEmpty() /*-{
+			return {};
+		}-*/;
+	}
+	
+	public static class PlayerEventsConfigOverlay extends JavaScriptObject {
+		protected PlayerEventsConfigOverlay() {}
+		
+		public final native String[] getDisabled() /*-{
+			return this.disabled ? this.disabled : [];
+		}-*/;
+	}
+	
+	public void setConfig(JavaScriptObject config) {
+		PlayerConfigOverlay overlayConfig = JSONUtils.parseOverlayType(config, PlayerConfigOverlay.class);
+		
+		this.playerConfig = PlayerConfig.fromOverlay(overlayConfig);
+	}
 
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);

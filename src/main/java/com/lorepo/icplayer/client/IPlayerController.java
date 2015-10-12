@@ -12,6 +12,7 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 public interface IPlayerController {
 
 	IContent getModel();
+	PlayerConfig getPlayerConfig();
 	IScoreService getScoreService();
 	IAssetsService getAssetsService();
 	int getCurrentPageIndex();

@@ -3,12 +3,6 @@ package com.lorepo.icplayer.client.module.api.event.dnd;
 import com.google.gwt.event.shared.EventHandler;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent.Handler;
 
-/**
- * Event wysyłany gdy obiekt dostępny globalnie został zaznaczony
- * 
- * @author Krzysztof Langner
- *
- */
 public class ItemSelectedEvent extends AbstractDraggableEvent<Handler> {
 
 	public interface Handler extends EventHandler {
@@ -27,11 +21,14 @@ public class ItemSelectedEvent extends AbstractDraggableEvent<Handler> {
 		return TYPE;
 	}
 
-	
+	@Override
+	public String getName() {
+		return "ItemSelected";
+	}
+
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onItemSelected(this);
 	}
-	
 }
 

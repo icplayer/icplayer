@@ -36,6 +36,7 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 public class PlayerController implements IPlayerController{
 
 	private	Content				contentModel;
+	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
 	private PageController		pageController2;
 	private PageController		headerController;
@@ -452,6 +453,13 @@ public class PlayerController implements IPlayerController{
 		return footerController.findModule(id);	
 	}
 
+	@Override
+	public PlayerConfig getPlayerConfig() {
+		return config;
+	}
 
 
+	public void setPlayerConfig(PlayerConfig config) {
+		this.config = config;
+	}
 }

@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -20,7 +21,7 @@ import com.lorepo.icplayer.client.page.PageController;
 public class PlayerServices implements IPlayerServices {
 
 	private final PlayerCommands playerCommands;
-	private final ResettableEventBus eventBus;
+	private final PlayerEventBus eventBus;
 	private final IPlayerController playerController;
 	private final PageController pageController;
 	private JavaScriptPlayerServices jsServiceImpl;
@@ -29,7 +30,10 @@ public class PlayerServices implements IPlayerServices {
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
 		this.pageController = pageController;
-		eventBus = new ResettableEventBus(new SimpleEventBus());
+
+		eventBus = new PlayerEventBus(new ResettableEventBus(new SimpleEventBus()));
+		eventBus.setPlayerServices(this);
+
 		playerCommands = new PlayerCommands(pageController, playerController);
 	}
 
@@ -65,6 +69,11 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IContent getModel() {
 		return playerController.getModel();
+	}
+	
+	@Override
+	public PlayerConfig getPlayerConfig() {
+		return playerController.getPlayerConfig();
 	}
 
 	@Override
