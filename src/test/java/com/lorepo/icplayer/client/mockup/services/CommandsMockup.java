@@ -137,5 +137,11 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void gotoCommonPage(String commonsPageName) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

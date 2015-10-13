@@ -127,6 +127,15 @@ public class PlayerController implements IPlayerController{
 		return playerView;
 	}
 	
+	public void switchToCommonPage(String pageName) {
+		int index = getModel().getCommonPages().findPageIndexByName(pageName);
+
+		if (index > -1) {
+			switchToCommonPage(index);
+		} else {
+			Window.alert("Missing page:\n<" + pageName + ">");
+		}
+	}
 	
 	/**
 	 * Przełączenie się na stronę o podanej nazwie
@@ -134,12 +143,11 @@ public class PlayerController implements IPlayerController{
 	 * @return true if page found
 	 */
 	public void switchToPage(String pageName) {
-
 		int index = getModel().getPages().findPageIndexByName(pageName);
-		if(index > -1){
+		
+		if (index > -1){
 			switchToPage(index);
-		}
-		else{
+		} else {
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
@@ -226,10 +234,38 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 	
+	public void switchToCommonPage(int index) {
+		
+		closeCurrentPages();
+		IPage page;
+		if (pageController2 != null) {
+			if ((!showCover && index % 2 > 0) || (showCover && index % 2 == 0 && index > 0)) {
+				index -= 1;
+			}
+		}
+		
+		if (index < contentModel.getCommonPages().getTotalPageCount()) {
+			page = contentModel.getCommonPage(index);
+		} else {
+			page = contentModel.getCommonPage(0);
+		}
+		
+		if (showCover && index == 0) {
+			playerView.showSinglePage();
+			switchToPage(page, pageController1);
+		} else {
+			switchToPage(page, pageController1);
+			if (pageController2 != null && index+1 < contentModel.getCommonPages().getTotalPageCount()) {
+				playerView.showTwoPages();
+				page = contentModel.getCommonPage(index+1);
+				switchToPage(page, pageController2);
+			}
+		}
+	}
+	
 
 	private void switchToPage(IPage page, final PageController pageController){
 
-		
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		sendAnalytics("switch to page", params );

@@ -30,4 +30,5 @@ public interface IPlayerCommands {
 	public void hideNavigationPanels();
 	void incrementCheckCounter();
 	void increaseMistakeCounter();
+	public void gotoCommonPage(String commonsPageName);
 }

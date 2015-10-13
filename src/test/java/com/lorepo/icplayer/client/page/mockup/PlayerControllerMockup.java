@@ -179,5 +179,10 @@ public class PlayerControllerMockup implements IPlayerController {
 
 		return mockedConfig;
 	}
+	
+	@Override
+	public void switchToCommonPage(String commonPageName) {
+		// TODO Auto-generated method stub
+	}
 
 }

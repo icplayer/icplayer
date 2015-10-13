@@ -16,4 +16,5 @@ public interface IContent {
     public IChapter getTableOfContents();
     public IChapter getCommonPages();
     public List<IAsset> getAssets();
+	public IPage getCommonPage(int index);
 }

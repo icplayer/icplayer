@@ -33,4 +33,5 @@ public interface IPlayerController {
 	void setPopupEnabled(boolean enabled);
 	IPresenter findHeaderModule(String name);
 	IPresenter findFooterModule(String name);
+	void switchToCommonPage(String commonPageName);
 }

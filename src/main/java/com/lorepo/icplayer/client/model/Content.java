@@ -409,6 +409,10 @@ public class Content implements IXMLSerializable, IContent {
 		return pages.getAllPages().get(index);
 	}
 
+	public IPage getCommonPage(int index) {
+		return commonPages.getAllPages().get(index);
+	}
+	
     @Override
     public IPage getPageById(String id) {
         for (IPage page : pages.getAllPages()) {

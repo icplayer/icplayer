@@ -80,6 +80,10 @@ public class PlayerCommands implements IPlayerCommands {
 	public void gotoPage(String pageName) {
 		controller.switchToPage(pageName);
 	}
+	
+	public void gotoCommonPage(String commonPageName) {
+		controller.switchToCommonPage(commonPageName);
+	}
 
 	@Override
 	public void gotoPageIndex(int index) {
