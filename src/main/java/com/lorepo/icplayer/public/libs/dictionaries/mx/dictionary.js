@@ -132,6 +132,7 @@
 	"cant_remove_last_page" : "No se puede eliminar la página \n. La presentación debe tener al menos una página.",
 	"rename_page" : "Renombrar página",
 	"name" : "Nombre",
+	"new_chapter_name": "New Chapter",
 	"module_editor" : "Editor del módulo",
 	"create_new_page_menu" : "Crear nueva página",
 	"select_template_menu" : "Seleccionar plantilla...",

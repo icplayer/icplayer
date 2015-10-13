@@ -132,6 +132,7 @@
     "cant_remove_last_page" : "Impossible de supprimer la page.\n Vous devez au moins mettre une page dans la présentation",
     "rename_page" : "Renommer la page",
     "name" : "Nom",
+    "new_chapter_name": "New Chapter",
     "module_editor" : "Editeur de module",
     "create_new_page_menu" : "Créer une nouvelle page",
     "select_template_menu" : "Sélectionner un modèle...",

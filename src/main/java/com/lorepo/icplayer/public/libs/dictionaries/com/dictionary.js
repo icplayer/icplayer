@@ -132,6 +132,7 @@
 	"cant_remove_last_page" : "Can't remove page.\nYou need at least one page in presentation",
 	"rename_page" : "Rename page",
 	"name" : "Name",
+	"new_chapter_name": "New Chapter",
 	"module_editor" : "Module Editor",
 	"create_new_page_menu" : "Create new page",
 	"select_template_menu" : "Select template...",
