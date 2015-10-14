@@ -132,7 +132,7 @@
 	"cant_remove_last_page" : "Nie można usunąć strony.\nPrezentacja musi zawierać co najmniej jedną stronę.",
 	"rename_page" : "Zmień nazwę strony",
 	"name" : "Nazwa",
-	"new_chapter_name": "New Chapter",
+	"new_chapter_name": "Nowy rozdział",
 	"module_editor" : "Edytor modułów",
 	"create_new_page_menu" : "Utwórz nową stronę",
 	"select_template_menu" : "Wybierz szablon...",
