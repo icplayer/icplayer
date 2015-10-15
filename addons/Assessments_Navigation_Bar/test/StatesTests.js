@@ -32,8 +32,6 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
             ]
         };
 
-
-
         this.expectedPages = [
             new this.presenter.Page(1, "page1", "section1", "section_0"),
             new this.presenter.Page(4, "page2", "section3", "section_1"),
@@ -92,5 +90,90 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
 
         assertTrue(this.stubs.moveToCurrentPage.calledOnce);
         assertTrue(this.stubs.moveToCurrentPage.calledAfter(this.stubs.setSections));
+    }
+});
+
+TestCase("[Assessments_Navigation_Bar] UpgradeState", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+
+        this.spies = {
+            upgradeAttemptedPages: sinon.spy(this.presenter, 'upgradeAttemptedPages')
+        };
+    },
+
+    tearDown: function () {
+        this.presenter.upgradeAttemptedPages.restore();
+    },
+
+    'test should call upgrade attempted pages': function () {
+        this.presenter.upgradeState({});
+
+        assertTrue(this.spies.upgradeAttemptedPages.calledOnce);
+    },
+
+    'test should properly upgrade incomplete state': function () {
+        var expectedState = {
+            attemptedPages: []
+        };
+
+        var upgradedState = this.presenter.upgradeState({});
+
+        assertEquals(expectedState, upgradedState);
+    },
+
+    'test shouldnt upgrade complete state': function () {
+        var completedState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionCssClass: "test section ccs classname",
+                isBookmarkOn: true
+            }],
+            attemptedPages: [1, 2, 3]
+        };
+
+        var expectedState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionCssClass: "test section ccs classname",
+                isBookmarkOn: true
+            }],
+            attemptedPages: [1, 2, 3]
+        };
+
+        var upgradedState = this.presenter.upgradeState(completedState);
+
+        assertEquals(expectedState, upgradedState);
+    }
+});
+
+TestCase("[Assessments_Navigation_Bar] UpgradeAttemptedPages", {
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+    },
+
+    'test should upgrade missing attempted pages with empty array': function () {
+        var expectedState = {
+            attemptedPages: []
+        };
+
+        var upgradedState = this.presenter.upgradeAttemptedPages({});
+
+        assertEquals(expectedState, upgradedState);
+    },
+
+    'test shouldnt upgrade attempted pages if they exists in state': function () {
+        var expectedState = {
+            attemptedPages: [1, 2, 3, 4, 5]
+        };
+
+        var upgradedState = this.presenter.upgradeAttemptedPages(expectedState);
+
+        assertEquals(expectedState, upgradedState);
     }
 });

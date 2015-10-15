@@ -13,6 +13,12 @@ function AddonAssessments_Navigation_Bar_create(){
         S_05: "Section: %section_1% pages numbers cant intersect with page numbers of section: %section_2%."
     };
 
+    presenter.CSS_CLASSES = {
+        ALL_ATTEMPTED: "all-attempted"
+    };
+    
+    presenter.attemptedButtons = [];
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -141,7 +147,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.Button.prototype.connectEvents = function () {
         this.$view[0].addEventListener("click", this, false);
         this.$view[0].addEventListener("mouseover", this, false);
-        this.$view[0].addEventListener("mouseleave", this, false);
+        this.$view[0].addEventListener("mouseout", this, false);
     };
     
     presenter.Button.prototype.addCssClass = function (cssClass) {
@@ -176,10 +182,13 @@ function AddonAssessments_Navigation_Bar_create(){
             case "mouseover":
                 this.$view.addClass("mouse-over");
                 break;
-            case "mouseleave":
+            case "mouseout":
                 this.$view.removeClass("mouse-over");
                 break;
         }
+
+        event.preventDefault();
+        event.stopPropagation();
     };
 
     presenter.Button.prototype.setAsCurrent = function () {
@@ -306,7 +315,19 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.Sections = function (sections) {
         this.sections = this.createSections(sections);
         this.allPages = this.getAllPagesInOrder(this.sections);
+        this.attemptedPages = [];
         this.pagesIndexes = this.getPagesIndexes(this.allPages);
+    };
+
+    presenter.Sections.prototype.markPageAsAttempted = function (page) {
+        this.attemptedPages.push(page);
+    };
+
+    presenter.Sections.prototype.markPageAsNotAttempted = function (page) {
+        var attempted_page_index = this.attemptedPages.indexOf(page);
+        if (attempted_page_index !== -1) {
+            this.attemptedPages.splice(attempted_page_index, 1);
+        }
     };
 
     presenter.Sections.prototype.getPagesIndexes = function (pages) {
@@ -369,43 +390,14 @@ function AddonAssessments_Navigation_Bar_create(){
         }, []);
     };
 
-    presenter.attemptedButtons = [];
-
-    function checkIfButtonInArray(button) {
-        for(var i = 0; i < presenter.attemptedButtons.length; i++) {
-            if(presenter.attemptedButtons[i].navigateToPage == button.navigateToPage) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function removeButtonFromArray(button) {
-        for(var i = 0; i < presenter.attemptedButtons.length; i++) {
-            if(presenter.attemptedButtons[i].navigateToPage == button.navigateToPage) {
-                presenter.attemptedButtons.splice(i, i+1);
-            }
-        }
-    }
-
-    presenter.Sections.prototype.addClassAllAttemptedToPage = function (index) {
-        for(var i = 0; i < presenter.navigationManager.buttons.length; i++){
-            if(presenter.navigationManager.buttons[i].navigateToPage == index){
-                presenter.navigationManager.buttons[i].addCssClass("all-attempted");
-                if(!checkIfButtonInArray(presenter.navigationManager.buttons[i])){
-                    presenter.attemptedButtons.push(presenter.navigationManager.buttons[i]);
-                }
-            }
-        }
+    presenter.Sections.prototype.addClassAllAttemptedToPage = function (current_page_index) {
+        presenter.navigationManager.markCurrentButtonWithAttemptedClass();
+        presenter.sections.markPageAsAttempted(current_page_index);
     };
 
-    presenter.Sections.prototype.removeClassAllAttemptedToPage = function (index) {
-        for(var i = 0; i < presenter.navigationManager.buttons.length; i++){
-            if(presenter.navigationManager.buttons[i].navigateToPage == index){
-                presenter.navigationManager.buttons[i].removeCssClass("all-attempted");
-                removeButtonFromArray(presenter.navigationManager.buttons[i]);
-            }
-        }
+    presenter.Sections.prototype.removeClassAllAttemptedToPage = function (current_page_index) {
+        presenter.navigationManager.removeCurrentButtonAttemptedClass();
+        presenter.sections.markPageAsNotAttempted(current_page_index);
     };
 
     presenter.Sections.prototype.setBookmarkCurrentPage = function (bookmark) {
@@ -492,6 +484,14 @@ function AddonAssessments_Navigation_Bar_create(){
         })[0].removeBookmark();
     };
 
+    presenter.NavigationManager.prototype.markButtonsWithAttempted = function (attemptedPages) {
+        this.buttons.filter(function (button) {
+            return (attemptedPages.indexOf(button.navigateToPage) !== -1);
+        }).forEach(function (button) {
+            button.addCssClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
+        });
+    };
+
     presenter.NavigationManager.prototype.initView = function () {
         this.appendNavigationButtonsFirst();
         this.appendSectionsContainer();
@@ -504,6 +504,28 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$sections.addClass("sections");
 
         presenter.$wrapper.append(this.$sections);
+    };
+
+    presenter.NavigationManager.prototype.getActualButtonsArray = function () {
+        return this.buttons.filter(function (button) {
+            return button.isActualButton
+        });
+    };
+
+    presenter.NavigationManager.prototype.markCurrentButtonWithAttemptedClass = function () {
+        var button = this.getActualButtonsArray();
+
+        if (button.length === 1) {
+            button[0].addCssClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
+        }
+    };
+
+    presenter.NavigationManager.prototype.removeCurrentButtonAttemptedClass = function () {
+        var button = this.getActualButtonsArray();
+
+        if (button.length === 1) {
+            button[0].removeCssClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
+        }
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsFirst = function () {
@@ -801,8 +823,6 @@ function AddonAssessments_Navigation_Bar_create(){
         if (presenter.isPreview) {
             presenter.navigationManager.buttons[0].setAsCurrent();
         }
-
-
     };
 
     function removeMockupDOM () {
@@ -835,16 +855,6 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.configuration.navigationLeftIndex = 0;
         presenter.configuration.navigationRightIndex = numberOfButtons - 1;
     }
-
-    function getSectionNameVerticalistance () {
-        var $element = presenter.$wrapper.find(".section_name");
-
-        var elementDimensions = DOMOperationsUtils.getOuterDimensions($element);
-        var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
-
-        return elementDistances.vertical;
-    }
-
 
     function calculateButtonsSize(elementDistances) {
         var elementWidth = parseInt(presenter.$wrapper.width() / presenter.configuration.numberOfButtons - elementDistances.horizontal, 10);
@@ -1034,12 +1044,12 @@ function AddonAssessments_Navigation_Bar_create(){
         return result;
     }
 
-    function changeToIndexesToZeroBased(element) {
+    function changeToIndexesZeroBased(element) {
         return (element - 1);
     }
 
     function parseCommaSeparatedRange (section) {
-        return section.split(",").map(getTrimmedStringElement).map(Number).map(changeToIndexesToZeroBased);
+        return section.split(",").map(getTrimmedStringElement).map(Number).map(changeToIndexesZeroBased);
     }
 
     function getArrayOfPagesFromSection (section) {
@@ -1092,11 +1102,19 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.getState = function(){
-        var pages = presenter.sections.allPages;
+        var pages = presenter.sections.allPages.map(function (page) {
+            return {
+                page: page.page,
+                description: page.description,
+                sectionName: page.sectionName,
+                sectionCssClass: page.sectionCssClass,
+                isBookmarkOn: page.isBookmarkOn
+            };
+        });
 
         var state = {
             pages: pages,
-            attemptedButtons: presenter.attemptedButtons
+            attemptedPages: presenter.sections.attemptedPages
         };
 
         return JSON.stringify(state);
@@ -1112,28 +1130,42 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.setState = function(state){
-        var parsedState = JSON.parse(state);
+        if (state === null || state === "" || state === undefined) {
+            return;
+        }
 
-        presenter.sections.allPages = getRestorePagesObjectArray(parsedState.pages);
+        var parsedState = JSON.parse(state);
+        var upgradedState = presenter.upgradeState(parsedState);
+
+        presenter.sections.allPages = getRestorePagesObjectArray(upgradedState.pages);
         presenter.navigationManager.restartLeftSideIndex();
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
-        presenter.attemptedButtons = parsedState.attemptedButtons;
 
-        if(presenter.attemptedButtons && presenter.attemptedButtons.length > 0){
-            for(var i = 0; i < presenter.navigationManager.buttons.length; i++) {
-                for(var j = 0; j < presenter.attemptedButtons.length; j++){
-                    if(presenter.navigationManager.buttons[i].navigateToPage == presenter.attemptedButtons[j].navigateToPage){
-                        presenter.navigationManager.buttons[i].addCssClass("all-attempted");
-                    }
-                }
-            }
+        presenter.sections.attemptedPages = upgradedState.attemptedPages;
+        presenter.navigationManager.markButtonsWithAttempted(presenter.sections.attemptedPages);
+    };
+
+    presenter.upgradeState = function (state) {
+        return presenter.upgradeAttemptedPages(state);
+    };
+
+    presenter.upgradeAttemptedPages = function (state) {
+        var upgradedState = {};
+        jQuery.extend(true, upgradedState, state); // Deep copy of model object
+
+        if(state.attemptedPages === undefined) {
+            upgradedState["attemptedPages"] = [];
         }
+
+        return upgradedState;
     };
 
     function currentPageAreAllAttempted() {
         if(presenter.presentation.getPage(presenter.currentPageIndex).isReportable()){
-            var modules = getAllOfTheModulesThatImplementIsAttempted(presenter.currentPageIndex);
+            
+            var modules = getAllModulesImplementingIsAttempted(presenter.currentPageIndex);
+
             if(areAllModulesAttempted(modules)){
                 presenter.sections.addClassAllAttemptedToPage(presenter.currentPageIndex);
             }else{
@@ -1142,7 +1174,7 @@ function AddonAssessments_Navigation_Bar_create(){
         }
     }
 
-    function getAllOfTheModulesThatImplementIsAttempted(page) {
+    function getAllModulesImplementingIsAttempted(page) {
         var ids = presenter.playerController.getPresentation().getPage(page).getModules(),
             modules = [];
 

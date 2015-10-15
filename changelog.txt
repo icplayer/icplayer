@@ -1,3 +1,4 @@
+2015-10-15 Fixed issue with state in Assessments Navigation Bar module
 2015-10-13 Added possibility move to common page in GoToPage Module
 2015-10-12 Added disabled events configuration.
 2015-10-09 Fixed displaying data in LearnPen Data module
