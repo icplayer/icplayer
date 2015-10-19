@@ -34,6 +34,7 @@ public class TextModel extends BasicModuleModel {
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation = false;
 	private boolean isKeepOriginalOrder = false;
+	private boolean isClearPlaceholderOnFocus = false;
 	public String rawText;
 	public String gapUniqueId = "";
 
@@ -51,6 +52,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyOpenLinksinNewTab();
 		addPropertyText();
 		addPropertyKeepOriginalOrder();
+		addPropertyClearPlaceholderOnFocus();
 	}
 
 	@Override
@@ -97,6 +99,7 @@ public class TextModel extends BasicModuleModel {
 					isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
 					isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
 					isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
+					isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
 					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
 					if (rawText == null) {
@@ -144,6 +147,7 @@ public class TextModel extends BasicModuleModel {
 				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
 				"isIgnorePunctuation='" + isIgnorePunctuation +
 				"' isKeepOriginalOrder='" + isKeepOriginalOrder +
+				"' isClearPlaceholderOnFocus='" + isClearPlaceholderOnFocus +
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive +
 				"' openLinksinNewTab='" + openLinksinNewTab +
 				"'><![CDATA[" + moduleText + "]]></text>";
@@ -509,6 +513,38 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyClearPlaceholderOnFocus() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isClearPlaceholderOnFocus) {
+					isClearPlaceholderOnFocus = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isClearPlaceholderOnFocus ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Clear_placeholder_on_focus");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Clear_placeholder_on_focus");
+			}
+		};
+
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
@@ -532,6 +568,10 @@ public class TextModel extends BasicModuleModel {
 
 	public boolean isKeepOriginalOrder() {
 		return isKeepOriginalOrder;
+	}
+	
+	public boolean isClearPlaceholderOnFocus() {
+		return isClearPlaceholderOnFocus;
 	}
 
 	public boolean hasMathGaps() {

@@ -708,8 +708,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		InputElement input = InputElement.as(element);
 		GapInfo gap = getGapInfoById(gapId);
 		String enteredValue = input.getValue();
-		if (enteredValue == "") {
-			input.setValue(gap.getPlaceHolder());
+		
+		if (module.isClearPlaceholderOnFocus() && !module.hasDraggableGaps()) {
+			input.setAttribute("placeholder", "");
+			
+			if (enteredValue == "") {
+				input.setValue("");
+			}
+		} else {
+			if (enteredValue == "") {
+				input.setValue(gap.getPlaceHolder());
+			}
 		}
 	}
 
@@ -717,7 +726,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		InputElement input = InputElement.as(element);
 		GapInfo gap = getGapInfoById(gapId);
 		String enteredValue = input.getValue();
-		if (enteredValue == gap.getPlaceHolder()) {
+		
+		if (module.isClearPlaceholderOnFocus() && !module.hasDraggableGaps()) {
+			input.setAttribute("placeholder", gap.getPlaceHolder());
+		}
+		
+		if (enteredValue.equals(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
 	}

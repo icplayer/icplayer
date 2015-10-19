@@ -303,6 +303,7 @@ var ice_dictionary = {
 "showCounters": "Montrer les compteurs",
 "Ignore_punctuation": "Ignorer la ponctuation",
 "Keep_original_order": "Conserver l'ordre d'origine",
+"Clear_placeholder_on_focus": "Clear placeholder on focus",
 "open_links_in_new_tab": "Ouvrir un lien externe dans",
 "page_exported": "Page copiée",
 "cant_import_page": "Aucune page n'est disponible pour l'import",

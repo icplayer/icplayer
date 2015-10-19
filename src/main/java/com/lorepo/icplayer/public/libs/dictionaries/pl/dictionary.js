@@ -300,6 +300,7 @@
 	"showCounters" : "Pokaż liczniki",
 	"Ignore_punctuation" : "Ignoruj interpunkcję",
 	"Keep_original_order" : "Zachowaj kolejność oryginalną",
+	"Clear_placeholder_on_focus": "Clear placeholder on focus",
 	"open_links_in_new_tab" : "Otwórz zewnętrzny link w",
 	"page_exported" : "Strona skopiowana",
 	"cant_import_page" : "Brak strony do zaimportowania",
