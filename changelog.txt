@@ -1,3 +1,4 @@
+2015-10-21 Fixed book view configuration
 2015-10-19 Added new property Clear placeholder on focus to Text module
 2015-10-15 Fixed issue with state in Assessments Navigation Bar module
 2015-10-13 Added possibility move to common page in GoToPage Module

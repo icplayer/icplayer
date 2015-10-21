@@ -75,7 +75,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 		// Create book
 		$wnd.icCreateBook = function(id, useCover) {
-		  var player = x.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
+		  var player = entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
 		  
 		  createAPI(player);
 
