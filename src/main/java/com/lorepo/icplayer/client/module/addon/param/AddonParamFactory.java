@@ -8,34 +8,27 @@ public class AddonParamFactory {
 		
 		String lowerCaseType = type.trim().toLowerCase();
 
-		if(lowerCaseType.compareTo("audio") == 0){
+		if (lowerCaseType.compareTo("audio") == 0) {
 			return new AudioAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("boolean") == 0){
+		} if (lowerCaseType.compareTo("video") == 0) {
+			return new VideoAddonParam(parent, type);
+		} else if(lowerCaseType.compareTo("boolean") == 0) {
 			return new BooleanAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("event") == 0){
+		} else if(lowerCaseType.compareTo("event") == 0) {
 			return new EventAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("file") == 0){
+		} else if(lowerCaseType.compareTo("file") == 0) {
 			return new FileAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("html") == 0){
+		} else if(lowerCaseType.compareTo("html") == 0) {
 			return new HTMLAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("image") == 0){
+		} else if(lowerCaseType.compareTo("image") == 0) {
 			return new ImageAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("list") == 0){
+		} else if(lowerCaseType.compareTo("list") == 0) {
 			return new ListAddonParam(parent, type, this);
-		}
-		else if(lowerCaseType.compareTo("text") == 0){
+		} else if(lowerCaseType.compareTo("text") == 0) {
 			return new TextAddonParam(parent, type);
-		}
-		else if(lowerCaseType.compareTo("narration") == 0){
+		} else if(lowerCaseType.compareTo("narration") == 0) {
 			return new TextAddonParam(parent, type);
-		}
-		else if(lowerCaseType.startsWith("{")){
+		} else if(lowerCaseType.startsWith("{")) {
 			return new EnumAddonParam(parent, type);
 		}
 		

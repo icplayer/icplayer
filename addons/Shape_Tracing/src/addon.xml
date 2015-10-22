@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <addon id='Shape_Tracing' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Shape image" nameLabel="Shape_Tracing_property_shape_image" type="file" />
+        <property name="Shape image" nameLabel="Shape_Tracing_property_shape_image" type="image" />
         <property name="Show Shape image" nameLabel="Shape_Tracing_property_show_shape_image" type="boolean" />
         <property name="Hide Shape image on check" nameLabel="Shape_Tracing_property_hide_shape_image_on_check" type="boolean" />
         <property name="Show Boundaries (editor)" nameLabel="Shape_Tracing_property_show_boundaries_editor" type="boolean" />
-        <property name="Background image" nameLabel="Shape_Tracing_property_background_image" type="file" />
+        <property name="Background image" nameLabel="Shape_Tracing_property_background_image" type="image" />
         <property name="Correct number of lines" nameLabel="Shape_Tracing_property_correct_number_of_lines" type="string" />
         <property name="Points' coordinates" nameLabel="Shape_Tracing_property_points_coordinates" type="text" />
         <property name="isPointsOrder" displayName="Mind points' order" nameLabel="Shape_Tracing_property_is_points_order" type="boolean" />
@@ -13,6 +13,6 @@
         <property name="Pen Thickness" displayName="Thickness" nameLabel="Shape_Tracing_property_pen_thickness" type="string" />
         <property name="Opacity" nameLabel="Shape_Tracing_property_opacity" type="string" />
         <property name="Border" nameLabel="Shape_Tracing_property_border" type="string" />
-        <property name="Correct Answer Image" nameLabel="Shape_Tracing_property_correct_answer_image" type="file" />
+        <property name="Correct Answer Image" nameLabel="Shape_Tracing_property_correct_answer_image" type="image" />
     </model>
 </addon>

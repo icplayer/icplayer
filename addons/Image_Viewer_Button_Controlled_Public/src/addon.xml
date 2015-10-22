@@ -2,13 +2,13 @@
 
 <addon id='Image_Viewer_Button_Controlled_Public' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Image' nameLabel="Image_Viewer_Button_Controlled_Public_property_image" type='file' />
+		<property name='Image' nameLabel="Image_Viewer_Button_Controlled_Public_property_image" type='image' />
 		<property name="Frames" nameLabel="Image_Viewer_Button_Controlled_Public_property_frames" type="string" />
 		<property name="Frame size" nameLabel="Image_Viewer_Button_Controlled_Public_property_frame_size" type="{Original, Keep aspect ratio, Stretch}" />
 		<property name="Sounds" nameLabel="Image_Viewer_Button_Controlled_Public_property_sounds" type="list">
-			<property name="MP3 sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_mp3_sound" type="file" />
-			<property name="OGG sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_ogg_sound" type="file" />
-			<property name="AAC sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_aac_sound" type="file" />
+			<property name="MP3 sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_mp3_sound" type="audio" />
+			<property name="OGG sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_ogg_sound" type="audio" />
+			<property name="AAC sound" nameLabel="Image_Viewer_Button_Controlled_Public_property_aac_sound" type="audio" />
 		</property>
 		<property name="Frame names" nameLabel="Image_Viewer_Button_Controlled_Public_property_frame_names" type="list">
 			<property name="name" nameLabel="Image_Viewer_Button_Controlled_Public_property_name" type="string" />

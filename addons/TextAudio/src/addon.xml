@@ -11,12 +11,12 @@
             <property name='Times' nameLabel='TextAudio_property_times' type='text' isLocalized='true' />
             <property name='positionAndDimentions' displayName="Position and Dimentions" nameLabel='TextAudio_property_position_and_dimentions' type='text' isLocalized='true' />
         </property>
-        <property name='mp3' nameLabel='TextAudio_property_mp3' type='file' />
-        <property name='ogg' nameLabel='TextAudio_property_ogg' type='file' />
+        <property name='mp3' nameLabel='TextAudio_property_mp3' type='audio' />
+        <property name='ogg' nameLabel='TextAudio_property_ogg' type='audio' />
 
         <property name="clickAction" displayName="On Text Click Behavior" nameLabel='TextAudio_property_click_action' type="{Play from the moment, Play the interval, Play the interval from vocabulary file}" />
-        <property name='vocabulary_mp3' displayName="Vocabulary mp3" nameLabel='TextAudio_property_vocabulary_mp3' type='file' />
-        <property name='vocabulary_ogg' displayName="Vocabulary ogg" nameLabel='TextAudio_property_vocabulary_ogg' type='file' />
+        <property name='vocabulary_mp3' displayName="Vocabulary mp3" nameLabel='TextAudio_property_vocabulary_mp3' type='audio' />
+        <property name='vocabulary_ogg' displayName="Vocabulary ogg" nameLabel='TextAudio_property_vocabulary_ogg' type='audio' />
         <property name='vocabulary_intervals' displayName="Vocabulary intervals" nameLabel='TextAudio_property_vocabulary_intervals' type='text' isLocalized='true' />
 
         <property name='onEnd' displayName='On end' nameLabel='TextAudio_property_vocabulary_on_end' type='event' />

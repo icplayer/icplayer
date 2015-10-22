@@ -3,11 +3,11 @@
 <addon id='Slideshow' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Audio' nameLabel="Slideshow_property_audio" type='list'>
-			<property name="MP3" nameLabel="Slideshow_property_mp3" type="file" />
-			<property name="OGG" nameLabel="Slideshow_property_ogg" type="file" />
+			<property name="MP3" nameLabel="Slideshow_property_mp3" type="audio" />
+			<property name="OGG" nameLabel="Slideshow_property_ogg" type="audio" />
 		</property>
 		<property name="Slides" nameLabel="Slideshow_property_slides" type="list">
-			<property name="Image" nameLabel="Slideshow_property_image" type="file" />
+			<property name="Image" nameLabel="Slideshow_property_image" type="image" />
 			<property name="Start" nameLabel="Slideshow_property_start" type="string" />
 		</property>
 		<property name="Texts" nameLabel="Slideshow_property_texts" type="list">

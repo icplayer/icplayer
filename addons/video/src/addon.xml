@@ -3,9 +3,9 @@
 <addon id='video' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Files' nameLabel="video_property_files" type='list'>
-			<property name="Ogg video" displayName="Ogv video" nameLabel="video_property_ogg_video" type="file" />
-			<property name="MP4 video" nameLabel="video_property_mp4_video" type="file" />
-			<property name="WebM video" nameLabel="video_property_webm_video" type="file" />
+			<property name="Ogg video" displayName="Ogv video" nameLabel="video_property_ogg_video" type="video" />
+			<property name="MP4 video" nameLabel="video_property_mp4_video" type="video" />
+			<property name="WebM video" nameLabel="video_property_webm_video" type="video" />
 			<property name="Subtitles" nameLabel="video_property_subtitles" type="text" isLocalized="true" />
 			<property name="Poster" nameLabel="video_property_poster" type="image" />
 			<property name="ID" nameLabel="video_property_id" type="string" />

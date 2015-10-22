@@ -36,6 +36,7 @@
 	"load_from_hard_drive" : "Wgraj z dysku",
 	"url" : "URL",
 	"audio" : "Audio",
+	"video" : "Video",
 	"all" : "Wszystko",
 	"empty" : "Puste",
 	"error_forbidden" : "Nie masz uprawnień do edycji tej zawartości",

@@ -36,6 +36,7 @@
 	"load_from_hard_drive" : "Load from hard drive",
 	"url" : "URL",
 	"audio" : "Audio",
+	"video" : "Video",
 	"all" : "All",
 	"empty" : "Empty",
 	"error_forbidden" : "Usted no cuenta con los privilegios para editar este contenido",

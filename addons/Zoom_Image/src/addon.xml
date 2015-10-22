@@ -2,7 +2,7 @@
 
 <addon id="Zoom_Image" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Full Screen image" displayName="Full Screen image" nameLabel="Zoom_Image_property_full_screen_image" type="file" />
-        <property name="Page image" displayName="Page image" nameLabel="Zoom_Image_property_page_image" type="file" />
+        <property name="Full Screen image" displayName="Full Screen image" nameLabel="Zoom_Image_property_full_screen_image" type="image" />
+        <property name="Page image" displayName="Page image" nameLabel="Zoom_Image_property_page_image" type="image" />
     </model>
 </addon>

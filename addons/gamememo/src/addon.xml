@@ -4,9 +4,9 @@
 	<model>
 		<property name='Pairs' nameLabel="gamememo_property_pairs" type='list'>
 			<property name="A (text)" nameLabel="gamememo_property_pair_a_text" type="string" isLocalized="true" />
-			<property name="A (image)" nameLabel="gamememo_property_pair_a_image" type="file" />
+			<property name="A (image)" nameLabel="gamememo_property_pair_a_image" type="image" />
 			<property name="B (text)" nameLabel="gamememo_property_pair_b_text" type="string" isLocalized="true" />
-			<property name="B (image)" nameLabel="gamememo_property_pair_b_image" type="file" />
+			<property name="B (image)" nameLabel="gamememo_property_pair_b_image" type="image" />
 		</property>
 		<property name="Columns" nameLabel="gamememo_property_columns" type="string" />
 		<property name="Rows" nameLabel="gamememo_property_rows" type="string" />

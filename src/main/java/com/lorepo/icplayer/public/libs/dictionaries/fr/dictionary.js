@@ -36,6 +36,7 @@ var ice_dictionary = {
 "load_from_hard_drive" : "Charger depuis le disque dur",
 "url" : "URL",
 "audio" : "Audio",
+"video" : "Video",
 "all" : "Tous",
 "empty" : "Vide",
 "error_forbidden" : "Vous n'avez pas l'autorisation d'éditer ce contenu",

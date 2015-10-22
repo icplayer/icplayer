@@ -36,6 +36,7 @@
 	"load_from_hard_drive" : "Load from hard drive",
 	"url" : "URL",
 	"audio" : "Audio",
+	"video" : "Video",
 	"all" : "All",
 	"empty" : "Empty",
 	"error_forbidden" : "You don't have permission to edit this content",

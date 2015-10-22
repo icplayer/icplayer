@@ -4,7 +4,7 @@
 	<model>
 		<property name='Base image' nameLabel="Layered_Image_property_base_image" type='image' />
 		<property name="Layers" nameLabel="Layered_Image_property_layers" type="list">
-			<property name="Image" nameLabel="Layered_Image_property_image" type="file" />
+			<property name="Image" nameLabel="Layered_Image_property_image" type="image" />
 			<property name="Show at start" nameLabel="Layered_Image_property_show_at_start" type="boolean" />
 		</property>
 		<property name="Image size" nameLabel="Layered_Image_property_image_size" type="{Original, Keep aspect ratio, Stretch}" />
