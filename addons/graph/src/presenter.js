@@ -276,6 +276,7 @@ function Addongraph_create(){
 
     presenter.removeShowAnswersClass = function () {
         presenter.$view.find(".graph_value_container").each(function (index, element) {
+            $(element).parent().find('.graph_column_container_interactive').removeClass("graph_column_container_show_answers");
             $(element).removeClass("graph_show_answers");
         });
     };
@@ -1739,13 +1740,15 @@ function Addongraph_create(){
 
         presenter.$view.find(".graph_value_container").each(function (index, element) {
             var currentValue = presenter.configuration.answers[index],
-                valueContainer = $(element);
+                valueContainer = $(element),
+                $columnContainer = valueContainer.parent('').find('.graph_column_container_interactive');
             if(currentValue >= 0) {
                 valueContainer.css({
                     bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
                     height: parseFloat(currentValue / presenter.absoluteRange) * 100 + '%',
                     top: ''
                 });
+                $columnContainer.addClass('graph_column_container_show_answers');
                 valueContainer.addClass('graph_show_answers');
             } else if (currentValue < 0) {
                 valueContainer.css({
@@ -1753,6 +1756,7 @@ function Addongraph_create(){
                     top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
                     bottom: ''
                 });
+                $columnContainer.addClass('graph_column_container_show_answers');
                 valueContainer.addClass('graph_show_answers');
             }
         });
@@ -1763,13 +1767,16 @@ function Addongraph_create(){
 
         presenter.$view.find(".graph_value_container").each(function (index, element) {
             var currentValue = presenter.currentData[index],
-                valueContainer = $(element);
+                valueContainer = $(element),
+                $columnContainer = valueContainer.parent('').find('.graph_column_container_interactive');
+
             if(currentValue >= 0) {
                 valueContainer.css({
                     bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
                     height: parseFloat(currentValue / presenter.absoluteRange) * 100 + '%',
                     top: ''
                 });
+                $columnContainer.removeClass('graph_column_container_show_answers');
                 valueContainer.removeClass('graph_show_answers');
             } else if (currentValue < 0) {
                 valueContainer.css({
@@ -1777,6 +1784,7 @@ function Addongraph_create(){
                     top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
                     bottom: ''
                 });
+                $columnContainer.removeClass('graph_column_container_show_answers');
                 valueContainer.removeClass('graph_show_answers');
             }
         });
