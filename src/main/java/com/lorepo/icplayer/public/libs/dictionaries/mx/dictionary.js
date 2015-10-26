@@ -1,4 +1,6 @@
 ﻿var ice_dictionary = {
+    "main_tab": "Main",
+	"commons_tab": "Commons",
 	"module_belongs_to_group" : "At least one module belongs to a group",
 	"max_score" : "Group's Max Score",
 	"group_id" : "ID",
