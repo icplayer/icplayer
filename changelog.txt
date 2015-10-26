@@ -1,3 +1,4 @@
+2015-10-26 Fixed displaying data on Firefox in Count and Graph module
 2015-10-22 Fixed addon properties types (from file to audio and image). Introduced new property type - video
 2015-10-22 Fixed styling module in Show Answers mode in Count and Graph module
 2015-10-21 Fixed book view configuration

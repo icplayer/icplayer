@@ -717,8 +717,6 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.graphObject.prototype.initializeGraph = function () {
-        this.setCallbackForAddonView();
-
         this.$view = this._createMainContainer();
 
         this._$graphContainer = this._createGraph();
@@ -731,6 +729,8 @@ function AddonCount_and_Graph_create() {
         this._appendAxisX(this._$axisXContainer);
 
         this._$parentDiv.append(this.$view);
+
+        this.setCallbackForAddonView();
     };
 
     presenter.graphObject.prototype._appendAxisX = function ($axisXContainer) {
@@ -1186,12 +1186,13 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.axisXObject.prototype._addLoadingEventHandler = function ($image) {
-        var event = this._getImageHasFinishedLoadingEvent($image.width(), $image.height());
+
         var callbackFunction = this._notify;
 
         $image.on("load", function () {
+            var event = this._getImageHasFinishedLoadingEvent($image.width(), $image.height());
             callbackFunction(event);
-        });
+        }.bind(this));
     };
 
     presenter.axisXObject.prototype._notify = function (event) {
@@ -1287,7 +1288,6 @@ function AddonCount_and_Graph_create() {
         if (this._shouldCreateRescalingTask()) {
             return this._createRescalingTask();
         }
-
         return this._createNullTask();
     };
 
