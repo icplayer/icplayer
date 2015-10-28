@@ -65,6 +65,23 @@ public class LessonResetView extends PushButton implements IDisplay {
 	}
 	
 	@Override
+	public void execute() {
+		if (isDisabled) {
+			return;
+		}
+		
+		if (isShowAnswersMode) {
+			playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
+			
+			isShowAnswersMode = false;
+		}
+		
+		playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
+		playerServices.getStateService().resetStates();
+		playerServices.getEventBus().fireEvent(new ResetPageEvent());
+	}
+	
+	@Override
 	public void show() {
 		setVisible(true);
 		
