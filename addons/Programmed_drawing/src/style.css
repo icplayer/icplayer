@@ -1,0 +1,33 @@
+.cellGridWrapper {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+}
+
+.cellGrid {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.cell-element {
+    float: left;
+    font-size: 2em;
+    font-family: "Verdana";
+    padding: 0;
+    margin: 0;
+    border-width: 1px;
+    text-align: center;
+    color: black;
+}
+
+.cell-element-wrapper {
+    float: left;
+    font-size: 2em;
+    padding: 0;
+    margin: 0;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    text-align: center;
+}

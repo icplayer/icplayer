@@ -1218,5 +1218,7 @@
     "Board_game_property_height" : "Height",
     "Board_game_property_images" : "Elements",
     "Board_game_property_pawn_image" : "Element Image",
-    "Board_game_property_is_disable" : "Is Disabled"
+    "Board_game_property_is_disable" : "Is Disabled",
+    "Programmed_Drawing_name" : "Programmed Drawing",
+    "Programmed_Drawing_info" : "Allows to draw by commands"
 };
