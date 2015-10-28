@@ -258,14 +258,12 @@ public class TextParser {
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			replaceText = "<input id='" + id + "' type='edit' size='"
-					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap ic_draggableGapEmpty' placeholder='" + placeholder +"' />";
+			replaceText = "<span id='" + id + "' class='ic_draggableGapEmpty ic_filled_gap'>" + placeholder + "</span>";
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			gi.setPlaceHolder(placeholder);
 			gi.addAnswer(answer);
 			parserResult.gapInfos.add(gi);
 		}
-
 		return replaceText;
 	}
 	

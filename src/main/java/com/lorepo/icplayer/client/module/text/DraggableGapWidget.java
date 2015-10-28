@@ -174,7 +174,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void setText(String text) {
 		if (text.isEmpty()) {
-			super.setHTML(EMPTY_TEXT);
+			if (!isFilledGap) {
+				super.setHTML(EMPTY_TEXT);
+			} else {
+				super.setHTML(gapInfo.getPlaceHolder());
+			}
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
 			droppedElementHelper = "";
@@ -185,6 +189,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			String markup = StringUtils.markup2html(StringUtils.escapeHTML(text));
 			super.setHTML(markup);
 			answerText = StringUtils.removeAllFormatting(text);
+			droppedElementHelper = getElement(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			if(getElement(text).length() != 0 && !isShowAnswersMode){
 				JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), getElement(text));
