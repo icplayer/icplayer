@@ -175,6 +175,8 @@ function AddonProgrammed_Drawing_create(){
         if(presenter.configuration.initialDesign){
             presenter.validateInstructions(presenter.configuration.initialDesign);
         }
+
+        presenter.setVisibility(presenter.configuration.isVisible);
     }
 
     presenter.setPlayerController = function(controller) {
