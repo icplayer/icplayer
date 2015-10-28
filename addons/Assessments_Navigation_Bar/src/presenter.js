@@ -1178,8 +1178,8 @@ function AddonAssessments_Navigation_Bar_create(){
         var ids = presenter.playerController.getPresentation().getPage(page).getModules(),
             modules = [];
 
-        for(var i = 0; i < ids.array.length; i++){
-            var currentModule = presenter.playerController.getModule(ids.array[i]);
+        for(var i = 0; i < ids.i.length; i++){
+            var currentModule = presenter.playerController.getModule(ids.i[i]);
 
             if (currentModule && currentModule.isAttempted !== undefined) {
                 modules.push(currentModule);
