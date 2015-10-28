@@ -29,6 +29,7 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		public Element getElement();
 		void setDisabled(boolean isDisabled);
 		public void setShowAnswersMode(boolean b);
+		void execute();
 	}
 	
 	private LessonResetModule model;
@@ -93,6 +94,8 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 			show();
 		} else if(commandName.compareTo("hide") == 0) {
 			hide();
+		} else if(commandName.compareTo("execute") == 0) {
+			execute();
 		}
 		
 		return value;
@@ -156,7 +159,7 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 
 	@Override
 	public void reset() {
-		// Module is not an activity		
+		// Module is not an activity
 	}
 	
 	protected void show() {
@@ -196,6 +199,10 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::getView()();
 		}
 		
+		presenter.execute = function() {
+			return x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::execute()();
+		}
+		
 		return presenter;
 	}-*/;
 	
@@ -205,6 +212,12 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		}
 		
 		return null;
+	}
+	
+	public void execute () {
+		if (view != null) {
+			view.execute();
+		}
 	}
 
 }

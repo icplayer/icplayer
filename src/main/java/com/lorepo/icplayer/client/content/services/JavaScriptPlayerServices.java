@@ -35,6 +35,7 @@ import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
 import com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
@@ -538,6 +539,8 @@ public class JavaScriptPlayerServices {
 			return ((ErrorCounterPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ShapePresenter) {
 			return ((ShapePresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof LessonResetPresenter) {
+			return ((LessonResetPresenter) presenter).getAsJavaScript();
 		}
 
 		return null;
