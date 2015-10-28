@@ -807,6 +807,27 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			reset();
 		} else if (commandName.compareTo("isallok") == 0) {
 			return String.valueOf(isAllOK());
+		} else if (commandName.compareTo("markgapascorrect") == 0 && params.size() == 1) {
+			if (params.size() > 0 && params.get(0) instanceof IStringType) {
+				param = (IStringType) params.get(0);
+				int gapIndex = Integer.parseInt(param.getValue());
+				
+				markGapAsCorrect(gapIndex);
+			}
+		} else if (commandName.compareTo("markgapaswrong") == 0 && params.size() == 1) {
+			if (params.size() > 0 && params.get(0) instanceof IStringType) {
+				param = (IStringType) params.get(0);
+				int gapIndex = Integer.parseInt(param.getValue());
+				
+				markGapAsWrong(gapIndex);
+			}
+		} else if (commandName.compareTo("markgapasempty") == 0 && params.size() == 1) {
+			if (params.size() > 0 && params.get(0) instanceof IStringType) {
+				param = (IStringType) params.get(0);
+				int gapIndex = Integer.parseInt(param.getValue());
+				
+				markGapAsEmpty(gapIndex);
+			}
 		}
 
 		return "";
