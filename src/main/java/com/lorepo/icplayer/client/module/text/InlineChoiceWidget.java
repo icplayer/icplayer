@@ -162,6 +162,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 
 	@Override
 	public void markGapAsEmpty() {
+		removeStyleDependentName("wrong");
+		removeStyleDependentName("correct");
+		addStyleDependentName("empty");
 	}
 
 	public boolean isAttempted() {
