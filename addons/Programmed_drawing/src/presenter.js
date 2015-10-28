@@ -22,7 +22,7 @@ function AddonProgrammed_Drawing_create(){
 
                 var selectableElement = $(document.createElement('div'));
                 selectableElement.addClass('cell-element');
-                selectableElement.attr('data-coordinates', (column+1)+"-"+((rows-row)));
+                selectableElement.attr('coordinates', (column+1)+"-"+((rows-row)));
 
                 wrapperElement.append(selectableElement);
                 gridContainer.append(wrapperElement);
@@ -62,13 +62,13 @@ function AddonProgrammed_Drawing_create(){
             var selectedRow = parseInt(index / columns, 10);
             var selectedColumn = parseInt(index % columns, 10);
 
-            $(this).width(selectedColumn === columns - 1 ? wrapperWidth + horizontalGap : wrapperWidth);
-            $(this).height(selectedRow === rows - 1 ? wrapperHeight + verticalGap : wrapperHeight);
+            $(this).width(selectedColumn === columns - 1 ? wrapperWidth /*+ horizontalGap*/ : wrapperWidth);
+            $(this).height(selectedRow === rows - 1 ? wrapperHeight /*+ verticalGap*/ : wrapperHeight);
 
             var selectableElement = $(this).find('.cell-element:first');
-            selectableElement.width(selectedColumn === columns - 1 ? elementWidth + horizontalGap : elementWidth);
-            selectableElement.height(selectedRow === rows -1 ? elementHeight + verticalGap : elementHeight);
-            var lineHeight = selectedRow === rows -1 ? elementHeight + verticalGap : elementHeight;
+            selectableElement.width(selectedColumn === columns - 1 ? elementWidth/* + horizontalGap */: elementWidth);
+            selectableElement.height(selectedRow === rows -1 ? elementHeight/* + verticalGap */: elementHeight);
+            var lineHeight = selectedRow === rows -1 ? elementHeight/* + verticalGap */: elementHeight;
             selectableElement.css('line-height', lineHeight + "px");
         });
     }
@@ -121,21 +121,28 @@ function AddonProgrammed_Drawing_create(){
         }
     };
 
+    presenter.colorSquareCommand = function (command) {
+        presenter.colorSquare(command[0], command[1]);
+    };
+
     presenter.colorSquare = function (x, y){
-        console.log(x,y);
         var coordinates = x+"-"+ y,
-            element = presenter.$view.find('.cell-element[data-coordinates="'+ coordinates +'"]');
+            element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
 
         element.css('background-color', presenter.configuration.color);
-        element.attr('data-colored', 'true');
+        element.attr('colored', 'true');
+    };
+
+    presenter.resetSquareCommand = function (command) {
+        presenter.resetSquare(command[0], command[1]);
     };
 
     presenter.resetSquare = function (x, y){
         var coordinates = x+"-"+ y,
-            element = presenter.$view.find('.cell-element[data-coordinates="'+ coordinates +'"]');
+            element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
 
         element.css('background-color', 'transparent');
-        element.attr('data-colored', 'false');
+        element.attr('colored', 'false');
     };
 
     presenter.run = function(view, model){
@@ -228,21 +235,32 @@ function AddonProgrammed_Drawing_create(){
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'colorSquare' : presenter.colorSquare,
-            'resetSquare' : presenter.resetSquare,
+            'colorSquare' : presenter.colorSquareCommand,
+            'resetSquare' : presenter.resetSquareCommand,
             'reset' : presenter.reset
         };
 
         Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.resetAll = function () {
+        presenter.$view.find('.cell-element').each(function () {
+            $(this).css('background-color', 'transparent');
+            $(this).attr('colored', 'false');
+        });
+    };
+
     presenter.reset = function(){
         presenter.$view.find('.cell-element').each(function () {
-            if($(this).data('colored')){
-                var coordinates = $(this).data('coordinates').split('-');
+            if($(this).attr('colored') == 'true'){
+                var coordinates = $(this).attr('coordinates').split('-');
                 presenter.resetSquare(coordinates[0], coordinates[1]);
             }
         });
+
+        if(presenter.configuration.initialDesign){
+            presenter.validateInstructions(presenter.configuration.initialDesign);
+        }
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
     };
@@ -250,12 +268,10 @@ function AddonProgrammed_Drawing_create(){
     presenter.getState = function(){
         var coordinates = [];
         presenter.$view.find('.cell-element').each(function () {
-            if($(this).data('colored') == true){
-                coordinates.push($(this).data('coordinates'));
+            if($(this).attr('colored') == 'true'){
+                coordinates.push($(this).attr('coordinates'));
             }
         });
-
-        console.log(coordinates);
 
         var state = {
             'coordinates' : coordinates
@@ -272,9 +288,8 @@ function AddonProgrammed_Drawing_create(){
         var parsed = JSON.parse(state);
 
         var coordinates = parsed.coordinates;
-        console.log(coordinates);
 
-        presenter.reset();
+        presenter.resetAll();
 
         if(coordinates){
             for(var i = 0; i < coordinates.length; i++){
