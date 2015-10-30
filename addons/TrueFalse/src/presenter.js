@@ -446,7 +446,8 @@ function AddonTrueFalse_create() {
             'markAsWrong': presenter.markAsWrongCommand,
             'markAsEmpty': presenter.markAsEmptyCommand,
             'removeMark': presenter.removeMarkCommand,
-            'isAttempted' : presenter.isAttemptedCommand
+            'isAttempted' : presenter.isAttemptedCommand,
+            'reset' : presenter.reset
         };
 
         Commands.dispatch(commands, name, params, presenter);

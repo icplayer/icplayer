@@ -1,3 +1,4 @@
+2015-10-30 Added reset command in True False module
 2015-10-30 Added new module Programmed Drawing
 2015-10-30 Fixed displaying correct and wrong icons in Coloring module
 2015-10-28 Fixed issue after drop gap to filledDraggableGap in Text module
