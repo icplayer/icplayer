@@ -39,13 +39,13 @@ public class ButtonView extends Composite implements IDisplay {
 			button = new CheckAnswersButton(playerServices);
 		}
 		else if(ButtonType.cancel == type){
-			button = new ClosePopupButton(pageService);
+			button = new ClosePopupButton(pageService, playerServices, module);
 		}
 		else if(ButtonType.nextPage == type){
 			button = new NextPageButton(playerServices);
 		}
 		else if(ButtonType.popup == type){
-			button = new PopupButton(module.getOnClick(), this, pageService, module.getAdditionalClasses());
+			button = new PopupButton(module.getOnClick(), this, pageService, module.getAdditionalClasses(), playerServices, module);
 		}
 		else if(ButtonType.prevPage == type){
 			button = new PrevPageButton(playerServices);
