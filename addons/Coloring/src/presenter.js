@@ -777,9 +777,12 @@ function AddonColoring_create(){
     function displayIcon(area, isWrong) {
         var iconContainer = $('<div class="icon-container"></div>'),
             container = presenter.$view.find('.coloring-container'),
+            containerWidth = container.width(),
+            canvasWidth = $(presenter.canvas).width(),
+            leftDistance = (containerWidth-canvasWidth)/ 2,
             position = $(presenter.canvas).position(),
             top = area.y + position.top - 5, // -5 because it's half of the icon container width and height
-            left = area.x + position.left - 5;
+            left = area.x + leftDistance - 5;
 
         iconContainer.css({
             top: top + 'px',
