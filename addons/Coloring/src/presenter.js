@@ -78,24 +78,21 @@ function AddonColoring_create(){
             score = score ? 1 : 0;
         }
 
-        var value = value.toString();
-        var item = item.join(';');
-
         return {
             'source': presenter.configuration.addonID,
-            'item': item,
-            'value': value,
+            'item': item.join(';'),
+            'value': value.toString(),
             'score': score
         };
     };
 
     presenter.sendEvent = function(item, value, score) {
-    	if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
-    		var eventData = presenter.createEventData(item, value, score);
-    		presenter.eventBus.sendEvent('ValueChanged', eventData);
+        if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+            var eventData = presenter.createEventData(item, value, score);
+            presenter.eventBus.sendEvent('ValueChanged', eventData);
 
-    		if (presenter.isAllOK()) sendAllOKEvent();
-    	}
+            if (presenter.isAllOK()) sendAllOKEvent();
+        }
     };
 
     function sendAllOKEvent() {
@@ -112,7 +109,6 @@ function AddonColoring_create(){
     function setAreasDefaultColors() {
         var configuration = presenter.configuration;
         $.each(configuration.areas, function() {
-
             this.defaultColor = presenter.getColorAtPoint(this.x, this.y);
         });
     }
@@ -120,7 +116,6 @@ function AddonColoring_create(){
     function setAreasPixelPosition() {
         var configuration = presenter.configuration;
         $.each(configuration.areas, function() {
-
             this.pixelPosition = (this.x + this.y * presenter.canvasWidth) * 4;
         });
     }
@@ -144,7 +139,7 @@ function AddonColoring_create(){
             presenter.configuration.userAreas = [];
         }
 
-        if(!isUserAreaExists()) {
+        if (!isUserAreaExists()) {
             presenter.configuration.userAreas.push(clickedArea);
         }
 
@@ -175,15 +170,15 @@ function AddonColoring_create(){
         presenter.isColored = true;
 
         presenter.click = {
-          x: parseInt(x, 10),
-          y: parseInt(y, 10)
+            x: parseInt(x, 10),
+            y: parseInt(y, 10)
         };
 
         presenter.click.color = presenter.getColorAtPoint(presenter.click.x, presenter.click.y);
 
-        if(color == undefined){
+        if (color == undefined) {
             presenter.fillColor = presenter.configuration.currentFillingColor;
-        }else{
+        } else {
             var validatedDefaultFillingColor = presenter.validateColor(color);
             if (validatedDefaultFillingColor.isError) {
                 DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, validatedDefaultFillingColor.errorCode);
@@ -194,7 +189,7 @@ function AddonColoring_create(){
         }
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
-            if(!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive){
+            if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
                     presenter.fillColor,
@@ -220,20 +215,22 @@ function AddonColoring_create(){
 
         presenter.click.color = presenter.getColorAtPoint(presenter.click.x, presenter.click.y);
 
+        if (presenter.configuration.disableFill) {
+            presenter.sendEvent([presenter.click.x, presenter.click.y], '', '');
+
+            return false;
+        }
+
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
 
-            if(!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive){
+            if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
                     presenter.configuration.currentFillingColor,
                     presenter.configuration.tolerance
                 );
             }
-
-            var clickedArea =  getClickedArea(presenter.click);
-
-            presenter.userInteractionSendingEvent(clickedArea);
-
+            presenter.userInteractionSendingEvent(getClickedArea(presenter.click));
 
             if (!presenter.isAlreadyInColorsThatCanBeFilled(presenter.configuration.currentFillingColor)) {
                 presenter.configuration.colorsThatCanBeFilled.push(presenter.configuration.currentFillingColor)
@@ -253,9 +250,8 @@ function AddonColoring_create(){
     presenter.recolorImage = function () {
         var imageData = presenter.ctx.getImageData(0, 0,presenter.canvasWidth, presenter.canvasHeight);
 
-        for (var i=0;i<imageData.data.length;i+=4)
-        {
-            if(imageData.data[i]==0 &&
+        for (var i=0; i<imageData.data.length; i+=4) {
+            if (imageData.data[i]==0 &&
                 imageData.data[i+1]==0 &&
                 imageData.data[i+2]==0 &&
                 imageData.data[i+3]==255
@@ -285,8 +281,6 @@ function AddonColoring_create(){
 
         var imageElement = $('<img>');
         imageElement.attr('src', presenter.configuration.imageFile);
-
-
 
         var canvasElement = $('<canvas></canvas>');
         presenter.ctx = canvasElement[0].getContext('2d');
@@ -378,7 +372,7 @@ function AddonColoring_create(){
     };
 
     presenter.isAlreadyInColorsThatCanBeFilled = function(color) {
-        for(var i = 0; i < presenter.configuration.colorsThatCanBeFilled.length; i++) {
+        for (var i = 0; i < presenter.configuration.colorsThatCanBeFilled.length; i++) {
             if (presenter.compareArrays(color, presenter.configuration.colorsThatCanBeFilled[i])) {
                 return true;
             }
@@ -406,7 +400,7 @@ function AddonColoring_create(){
         return true;
     };
 
-    presenter.getColorAtPoint = function (x, y) {
+    presenter.getColorAtPoint = function(x, y) {
         var data = presenter.ctx.getImageData(x, y, 1, 1).data,
             color = [];
         for (var i = 0; i < data.length; i++) {
@@ -480,9 +474,7 @@ function AddonColoring_create(){
         var validatedTolerance = {};
         if (model['Tolerance'].toString().length === 0) {
             validatedTolerance.value = 50;
-
         } else {
-
             validatedTolerance = ModelValidationUtils.validateIntegerInRange(model['Tolerance'], 100, 0);
             if (validatedTolerance.isError) {
                 return { isError: true, errorCode: validatedTolerance.errorCode};
@@ -504,14 +496,14 @@ function AddonColoring_create(){
         }
 
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
-            validatedIsActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
-            validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']),
-            addonID = model['ID'];
+            validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']);
 
         return {
             'isValid': true,
-            'isError' : false,
-            'imageFile' : model.Image,
+            'isError': false,
+            'addonID' : model['ID'],
+
+            'imageFile': model.Image,
             'areas' : validatedAreas.items,
             'tolerance' : validatedTolerance.value,
             'currentFillingColor' : validatedDefaultFillingColor.value,
@@ -521,9 +513,9 @@ function AddonColoring_create(){
             'isVisibleByDefault' : validatedIsVisible,
             'isDisabled' : validatedIsDisabled,
             'isDisabledByDefault' : validatedIsDisabled,
-            'isActivity' : validatedIsActivity,
-            'addonID' : addonID,
-            'lastUsedColor' : validatedDefaultFillingColor.value
+            'isActivity' : !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
+            'lastUsedColor' : validatedDefaultFillingColor.value,
+            'disableFill': ModelValidationUtils.validateBoolean(model['disableFill'])
         }
     };
 
@@ -539,11 +531,11 @@ function AddonColoring_create(){
             colorToFill: [-1, -1, -1, -1]
         };
 
-        if(isNaN(area.x) || isNaN(area.y)) {
+        if (isNaN(area.x) || isNaN(area.y)) {
             return presenter.getErrorObject("A01");
         }
 
-        if(area.x < 0 || area.y < 0) {
+        if (area.x < 0 || area.y < 0) {
             return presenter.getErrorObject("A01");
         }
 
@@ -591,7 +583,6 @@ function AddonColoring_create(){
 
             return {isValid: false, isError: true, errorCode: 'E03'};
         });
-
 
         var errors = areas.filter(function (element) {if (element.isError) return element;});
         if (errors.length > 0) {
@@ -694,12 +685,13 @@ function AddonColoring_create(){
             presenter.hideAnswers();
         }
 
-        var isAttempted = false;
-        if(presenter.isColored){
-            isAttempted = true;
-        }
-        
-        return isAttempted;
+        return presenter.isColored || false;
+    };
+
+    presenter.getColor = function(x, y) {
+        if (x === undefined || y === undefined) return;
+
+        return presenter.getColorAtPoint(x, y).join(' ');
     };
 
     presenter.executeCommand = function(name, params) {
@@ -716,7 +708,8 @@ function AddonColoring_create(){
             'showAnswers' : presenter.showAnswers,
             'hideAnswers' : presenter.hideAnswers,
             'fillArea' : presenter.fillAreaCommand,
-            'clearArea' : presenter.clearAreaCommand
+            'clearArea' : presenter.clearAreaCommand,
+            'getColor' : presenter.getColor
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -966,7 +959,6 @@ function AddonColoring_create(){
 
         if (state.userAreas == undefined) {
             return presenter.upgradeUserAreas(state);
-
         }
 
         return state;
@@ -1211,8 +1203,8 @@ function AddonColoring_create(){
 
         });
 
-        if(presenter.configuration.userAreas) {
-            for(var i = 0; i < presenter.configuration.userAreas.length; i++) {
+        if (presenter.configuration.userAreas) {
+            for (var i = 0; i < presenter.configuration.userAreas.length; i++) {
                 var area = presenter.configuration.userAreas[i];
                 presenter.tmpFilledAreas.push({area: area, color: area.getColor()});
             }
