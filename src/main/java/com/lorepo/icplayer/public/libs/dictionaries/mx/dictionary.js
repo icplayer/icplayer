@@ -1211,5 +1211,11 @@
     "FractionsBinder_name": "Fractions Binder",
     "FractionsBinder_info": "Allows to control groups of Fractions addons",
     "FractionsBinder_property_addons": "Fractions",
-    "FractionsBinder_property_correct_elements": "Correct Elements"
+    "FractionsBinder_property_correct_elements": "Correct Elements",
+    "Programmed_Drawing_name" : "Programmed Drawing",
+    "Programmed_Drawing_info" : "Allows to draw by commands",
+    "Programmed_Drawing_property_rows" : "Rows",
+    "Programmed_Drawing_property_columns" : "Columns",
+    "Programmed_Drawing_property_color" : "Color",
+    "Programmed_Drawing_property_initial_design" : "Initial design"
 };

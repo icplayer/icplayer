@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="Programmed_Drawing" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property name="Rows" nameLabel="Programmed_Drawing_property_rows" type="string" />
+        <property name="Columns" nameLabel="Programmed_Drawing_property_columns" type="string" />
+        <property name="Color" nameLabel="Programmed_Drawing_property_color" type="string" />
+        <property name="Initial design" nameLabel="Programmed_Drawing_property_initial_design" type="text" />
+	</model>
+</addon>

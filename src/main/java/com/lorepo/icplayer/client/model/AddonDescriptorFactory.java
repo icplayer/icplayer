@@ -122,6 +122,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("FractionsBinder", "scripting_menu");
 		addDescriptor("Logger", "scripting_menu");
 		addDescriptor("Multiple_Audio_Controls_Binder", "scripting_menu");
+		addDescriptor("Programmed_Drawing", "scripting_menu");
 		addDescriptor("SelectableAddonsBinder", "scripting_menu");
 		addDescriptor("Single_State_Button", "scripting_menu");
 		addDescriptor("Slider", "scripting_menu");

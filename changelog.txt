@@ -1,4 +1,5 @@
-2015-10-39 Fixed displaying correct and wrong icons in Coloring module
+2015-10-30 Added new module Programmed Drawing
+2015-10-30 Fixed displaying correct and wrong icons in Coloring module
 2015-10-28 Fixed issue after drop gap to filledDraggableGap in Text module
 2015-10-28 Added calling functionality by command in Lesson Reset module
 2015-10-28 Fixed issue with checking attempted modules in Sumbit and Assesment Navigation Bar modules

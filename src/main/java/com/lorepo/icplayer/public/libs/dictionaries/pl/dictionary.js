@@ -1210,5 +1210,11 @@
     "FractionsBinder_name": "Łącznik ułamków",
     "FractionsBinder_info": "Umożliwia zarządzanie grupami addonów Ułamki.",
     "FractionsBinder_property_addons": "Ułamki",
-    "FractionsBinder_property_correct_elements": "Poprawne elementy"
+    "FractionsBinder_property_correct_elements": "Poprawne elementy",
+    "Programmed_Drawing_name" : "Programmed Drawing",
+    "Programmed_Drawing_info" : "Allows to draw by commands",
+    "Programmed_Drawing_property_rows" : "Rows",
+    "Programmed_Drawing_property_columns" : "Columns",
+    "Programmed_Drawing_property_color" : "Color",
+    "Programmed_Drawing_property_initial_design" : "Initial design"
 };
