@@ -1,3 +1,5 @@
+2015-10-30 Upgradet Swiffy library to version 7.4
+2015-10-30 Added commend getColor(x, y) and property "Disable filling on click" to Coloring module
 2015-10-30 Added sending event on click in Open Popup Button and Close Popup Button
 2015-10-30 Added reset command in True False module
 2015-10-30 Added new module Programmed Drawing
