@@ -78,7 +78,7 @@
                 var iframe = document.createElement('iframe');
                 $(iframe).attr('id', 'ytIframe');
                 $(iframe).attr('frameborder', '0');
-                $(iframe).attr('src', src);
+                $(iframe).attr('src', src + "?enablejsapi=1");
                 $(iframe).attr('width', parseInt(width, 10) + 'px');
                 $(iframe).attr('height', parseInt(height, 10) + 'px');
 
@@ -190,10 +190,26 @@
          presenter.isVisible = false;
      };
 
+     // This function takes argument as function's name from iframe API:
+     // https://developers.google.com/youtube/iframe_api_reference?hl=pl#Functions
+     function callPlayer(func, args) {
+         presenter.$view.find("iframe")[0].contentWindow.postMessage(JSON.stringify({
+             'event': 'command',
+             'func': func,
+             'args': args || []
+         }), "*");
+     }
+
+     presenter.stop = function() {
+         callPlayer('stopVideo');
+         callPlayer('seekTo', [0, true]);
+     };
+
      presenter.executeCommand = function(name, params) {
          var commands = {
              'show': presenter.show,
-             'hide': presenter.hide
+             'hide': presenter.hide,
+             'stop': presenter.stop
          };
 
          Commands.dispatch(commands, name, params, presenter);
@@ -241,5 +257,5 @@
 /**
  * YouTube Addon
  * Version 1.5
- * Last update: 22-07-2015
+ * Last update: 02-11-2015
  */
