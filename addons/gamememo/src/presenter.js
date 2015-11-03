@@ -191,6 +191,7 @@ function Addongamememo_create(){
         presenter.previewCards = model['Show cards for preview'] == 'True';
         presenter.styleAImage = model['Image for style A'] != '' ? model['Image for style A'] : null;
         presenter.styleBImage = model['Image for style B'] != '' ? model['Image for style B'] : null;
+        presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['Is Not Activity']));
 
         var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
@@ -382,7 +383,7 @@ function Addongamememo_create(){
 
         presenter.score++;
 
-        if (presenter.isAllOK()) {
+        if (presenter.isAllOK() && presenter.isActivity) {
             presenter.sendAllOKEvent();
         }
     };
@@ -402,8 +403,12 @@ function Addongamememo_create(){
         var secondId = parseInt(secondID)+1;
 
         eventData.item = firstId+"-"+secondId;
-        eventData.score = isCorrect ? "1" : "0";
         eventData.value = '1';
+        eventData.score = isCorrect ? "1" : "0";
+
+        if (!presenter.isActivity) {
+            eventData.score = "";
+        }
 
         return eventData;
     };
@@ -650,17 +655,22 @@ function Addongamememo_create(){
     };
 
     presenter.getErrorCount = function() {
+        if (!presenter.isActivity) {
+            return 0;
+        }
+
         var lastErrorCount = presenter.errorCount;
         presenter.errorCount = 0;
+
         return lastErrorCount;
     };
 
     presenter.getMaxScore = function() {
-        return presenter.maxScore;
+        return presenter.isActivity ? presenter.maxScore : 0;
     };
 
     presenter.getScore = function() {
-        return presenter.score;
+        return presenter.isActivity ? presenter.score : 0;
     };
 
     presenter.executeCommand = function (name, params) {
@@ -691,12 +701,14 @@ function Addongamememo_create(){
     };
 
     presenter.setShowErrorsMode = function(){
-        presenter.turnOffUserInteraction();
-
-        markCardsWithCorrectWrongStyle(filterClickedCards(getClickedCards()), true);
-
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
+        }
+
+        if (presenter.isActivity) {
+            presenter.turnOffUserInteraction();
+
+            markCardsWithCorrectWrongStyle(filterClickedCards(getClickedCards()), true);
         }
     };
 
@@ -787,12 +799,13 @@ function Addongamememo_create(){
     };
 
     presenter.setWorkMode = function () {
-        presenter.turnOnUserInteraction();
-
-        markCardsWithCorrectWrongStyle(getClickedCards(), false);
-
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
+        }
+
+        if (presenter.isActivity) {
+            presenter.turnOnUserInteraction();
+            markCardsWithCorrectWrongStyle(getClickedCards(), false);
         }
     };
 
@@ -807,6 +820,10 @@ function Addongamememo_create(){
     };
 
     presenter.showAnswers = function () {
+        if (!presenter.isActivity) {
+            return;
+        }
+
         presenter.isShowAnswersActive = true;
 
         presenter.showCard(presenter.viewContainer.find('.cell'));
@@ -814,6 +831,10 @@ function Addongamememo_create(){
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isActivity) {
+            return;
+        }
+
         presenter.viewContainer.find('.cell').removeClass('.cell-show-answers');
         presenter.viewContainer.find('.cell').find('.back').css('visibility', 'hidden');
         presenter.viewContainer.find('.cell').find('.front').css('visibility', 'visible');
