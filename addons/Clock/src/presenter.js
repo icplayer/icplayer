@@ -641,6 +641,7 @@ function AddonClock_create() {
                             presenter.isHandInMove = false;
                             presenter.currentHand = 0;
                             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1 : 0);
+
                         }
                     }).mouseup(function(e) {
 
@@ -650,7 +651,6 @@ function AddonClock_create() {
             jQuery(function($) {
                 $(view).find('#h-hand')
                     .click(function(e) {
-
                         e.stopImmediatePropagation();
                         presenter.currentHand = 0;
                         e.stopPropagation();
@@ -664,9 +664,9 @@ function AddonClock_create() {
 
                         if (presenter.isHandInMove) {
                             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+
                             presenter.isHandInMove = false;
                         }
-
                     })
                     .mousedown(
                     function(e) {
@@ -678,7 +678,6 @@ function AddonClock_create() {
                             presenter.moveCurrentHand(this);
                             presenter.isHandInMove = true;
                         }
-
                     })
                     .mousemove(
                     function(e) {
@@ -889,6 +888,7 @@ function AddonClock_create() {
                         e.stopImmediatePropagation();
                         presenter.isHandInMove = false;
                         presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+
                     })
                     .on(
                     'touchmove',
@@ -932,7 +932,18 @@ function AddonClock_create() {
     };
 
     presenter.getCurrentTime = function() {
-
+        if(presenter.currentMinuteValue == 60){
+            presenter.currentMinuteValue = 0;
+            if (presenter.TimeStandard == 12 && presenter.currentHourValue == 12) {
+                presenter.currentHourValue = 1;
+            } else{
+                if (presenter.TimeStandard == 24 && presenter.currentHourValue == 23) {
+                    presenter.currentHourValue = 0;
+                } else{
+                    presenter.currentHourValue++;
+                }
+            }
+        }
         var currentTime = presenter.currentHourValue
             + ":"
             + (presenter.currentMinuteValue < 10 ? "0"
@@ -1144,6 +1155,7 @@ function AddonClock_create() {
             }
         } else{
             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+
         }
 
     };
