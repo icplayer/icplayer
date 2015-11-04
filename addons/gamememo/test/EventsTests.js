@@ -16,7 +16,7 @@ TestCase("Events test", {
     'test AllOK event should be sent': function () {
 
         this.presenter.isAllOK.returns(true);
-
+        this.presenter.isActivity = true;
         this.presenter.addScoreAndSentEvent();
 
         assertTrue(this.presenter.cardReveal.called);

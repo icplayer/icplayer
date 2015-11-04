@@ -1,7 +1,7 @@
 TestCase("IsAllOK test", {
     setUp: function () {
         this.presenter = Addongamememo_create();
-
+        this.presenter.isActivity = true;
     },
 
     'test isAllOk at the first attempt': function () {
