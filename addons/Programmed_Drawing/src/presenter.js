@@ -63,13 +63,10 @@ function AddonProgrammed_Drawing_create(){
             var selectedRow = parseInt(index / columns, 10);
             var selectedColumn = parseInt(index % columns, 10);
 
-            $(this).width(wrapperWidth + horizontal);
-            $(this).height(wrapperHeight + vertical);
+            $(this).width(wrapperWidth + horizontal + 2);
+            $(this).height(wrapperHeight + vertical + 2);
 
             var selectableElement = $(this).find('.cell-element:first');
-
-            selectableElement.width(elementWidth + horizontal);
-            selectableElement.height(elementHeight + vertical);
 
             var lineHeight = selectedRow === rows -1 ? elementHeight + verticalGapHeight : elementHeight;
             selectableElement.css('line-height', lineHeight + "px");
