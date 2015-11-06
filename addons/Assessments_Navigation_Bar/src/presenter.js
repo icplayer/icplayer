@@ -320,7 +320,9 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Sections.prototype.markPageAsAttempted = function (page) {
-        this.attemptedPages.push(page);
+        if(!(this.attemptedPages.indexOf(page) > -1)){
+            this.attemptedPages.push(page);
+        }
     };
 
     presenter.Sections.prototype.markPageAsNotAttempted = function (page) {
