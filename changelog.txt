@@ -1,3 +1,4 @@
+2015-11-10 Fixed issue with incorrect values and visibility in LearnPen(Data/Report) module
 2015-11-06 Fixed issue with allAttempted class in Assesment Navigation Bar module
 2015-11-05 Fixed issue with zooming in Programmed Drawing module
 2015-11-03 Added IsNotActivity property to MemoGame module

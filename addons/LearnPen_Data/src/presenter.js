@@ -140,26 +140,19 @@ function AddonLearnPen_Data_create() {
             // #ffa500 - orange
             // #90ee90 - lightgreen
             var squeeze = [
-                getStep("#ffff00", 20), getStep("#ffff00", 35), getStep("#ffff00", 40),
-                getStep("#ffff00", 45),
-                getStep("#008000", 70), getStep("#008000", 75), getStep("#008000", 80),
-                getStep("#008000", 85),
-                getStep("#ff0000", 87),
-                getStep("#ff0000", 90), getStep("#ff0000", 93), getStep("#ff0000", 95)
+                getStep("#ffff00", 10), getStep("#ffff00", 20), getStep("#ffff00", 30),
+                getStep("#ffff00", 32),
+                getStep("#008000", 33), getStep("#008000", 40), getStep("#008000", 50),
+                getStep("#008000", 66),
+                getStep("#ff0000", 67),
+                getStep("#ff0000", 70), getStep("#ff0000", 80), getStep("#ff0000", 95)
             ];
 
             return getCorrectObject({
                 a: squeeze,
                 b: squeeze,
                 c: squeeze,
-                p: [
-                    getStep("#ffff00", 20), getStep("#ffff00", 30),
-                    getStep("#ffff00", 40), getStep("#ffff00", 50),
-                    getStep("#008000", 60), getStep("#008000", 65), getStep("#008000", 70),
-                    getStep("#008000", 75),
-                    getStep("#ff0000", 80),
-                    getStep("#ff0000", 85), getStep("#ff0000", 90), getStep("#ff0000", 95)
-                ]
+                p: squeeze
             });
         }
 

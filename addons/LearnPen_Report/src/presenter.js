@@ -368,6 +368,7 @@ function AddonLearnPen_Report_create() {
         return {
             isValid: true,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             ID: model.ID,
             width: parseInt(model.Width, 10),
             height: parseInt(model.Height, 10),
@@ -635,6 +636,7 @@ function AddonLearnPen_Report_create() {
     presenter.reset = function() {
         presenter.data.sensorsDataHistory = [];
         presenter.displayCurrentData();
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.show = function() {
