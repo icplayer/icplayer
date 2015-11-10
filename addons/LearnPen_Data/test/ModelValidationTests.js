@@ -23,13 +23,13 @@ TestCase("[LearnPen_Data] Model validation", {
         assertEquals(100, validatedModel.refreshTime);
 
         assertEquals("#ffff00", validatedModel.stepsAndColors.a[2].color);
-        assertEquals(45, validatedModel.stepsAndColors.a[3].value);
+        assertEquals(32, validatedModel.stepsAndColors.a[3].value);
         assertEquals("#008000", validatedModel.stepsAndColors.b[4].color);
-        assertEquals(75, validatedModel.stepsAndColors.b[5].value);
+        assertEquals(40, validatedModel.stepsAndColors.b[5].value);
         assertEquals("#008000", validatedModel.stepsAndColors.c[6].color);
-        assertEquals(85, validatedModel.stepsAndColors.c[7].value);
+        assertEquals(66, validatedModel.stepsAndColors.c[7].value);
         assertEquals("#ff0000", validatedModel.stepsAndColors.p[8].color);
-        assertEquals(85, validatedModel.stepsAndColors.p[9].value);
+        assertEquals(70, validatedModel.stepsAndColors.p[9].value);
     },
 
     'test correct custom steps and colors property': function() {
