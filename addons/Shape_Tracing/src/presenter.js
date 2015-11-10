@@ -671,88 +671,97 @@ function AddonShape_Tracing_create() {
 
     function turnOnEventListeners() {
         var $canvas = $(canvasData.temp.canvas);
-        var isDown = false;
-        var isWorkaroundOn = false;
 
         $canvas.on('click', function(e) {
             e.stopPropagation();
         });
 
         if (MobileUtils.isEventSupported('touchstart')) { // TOUCH
-
-            $canvas.on('touchstart', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                presenter.data.numberOfLines++;
-
-                if (presenter.data.isPencilActive) {
-                    presenter.data.isStarted = true;
-                    setOverflowWorkAround(true);
-                    draw(e);
-                } else {
-                    resetAddon(false);
-                }
-            });
-
-            $canvas.on('touchmove', function(e) {
-                if (presenter.data.isPencilActive) {
-                    presenter.data.isStarted = true;
-                    if (!isWorkaroundOn) {
-                        setOverflowWorkAround(true);
-                    }
-                    draw(e);
-                } else {
-                    resetAddon(false);
-                }
-
-            });
-
-            $canvas.on('touchend', function() {
-                if (presenter.data.isPencilActive) {
-                    eventCreator();
-                }
-
-                canvasData.main.context.drawImage(canvasData.temp.canvas, 0, 0);
-                canvasData.temp.context.clearRect(0, 0, canvasData.temp.canvas.width, canvasData.temp.canvas.height);
-
-                points = [];
-                directionPoints.push('Up');
-
-                setOverflowWorkAround(false);
-                isWorkaroundOn = false;
-            });
-        } else { // MOUSE
-            $canvas.on('mousedown', function(e) {
-                e.stopPropagation();
-                isDown = true;
-                draw(e);
-                $canvas.on('mousemove', draw);
-
-                if (presenter.data.isPencilActive) {
-                    presenter.data.isStarted = true;
-                    presenter.data.numberOfLines++;
-                } else {
-                    resetAddon(false);
-                }
-            });
-
-            $canvas.on('mouseup mouseleave', function() {
-                $canvas.off('mousemove', draw);
-                if (isDown && presenter.data.isPencilActive) {
-                    eventCreator();
-                    isDown = false;
-                }
-
-                canvasData.main.context.drawImage(canvasData.temp.canvas, 0, 0);
-                canvasData.temp.context.clearRect(0, 0, canvasData.temp.canvas.width, canvasData.temp.canvas.height);
-
-                points = [];
-            });
-
-            $canvas.on('mouseup', function() {
-                directionPoints.push('Up');
-            });
+            connectTouchEvents($canvas);
         }
+         // MOUSE
+        connectMouseEvents($canvas)
+    }
+
+    function connectTouchEvents($canvas) {
+        var isWorkaroundOn = false;
+
+        $canvas.on('touchstart', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            presenter.data.numberOfLines++;
+
+            if (presenter.data.isPencilActive) {
+                presenter.data.isStarted = true;
+                setOverflowWorkAround(true);
+                draw(e);
+            } else {
+                resetAddon(false);
+            }
+        });
+
+        $canvas.on('touchmove', function(e) {
+            if (presenter.data.isPencilActive) {
+                presenter.data.isStarted = true;
+                if (!isWorkaroundOn) {
+                    setOverflowWorkAround(true);
+                }
+                draw(e);
+            } else {
+                resetAddon(false);
+            }
+
+        });
+
+        $canvas.on('touchend', function() {
+            if (presenter.data.isPencilActive) {
+                eventCreator();
+            }
+
+            canvasData.main.context.drawImage(canvasData.temp.canvas, 0, 0);
+            canvasData.temp.context.clearRect(0, 0, canvasData.temp.canvas.width, canvasData.temp.canvas.height);
+
+            points = [];
+            directionPoints.push('Up');
+
+            setOverflowWorkAround(false);
+            isWorkaroundOn = false;
+        });
+    }
+
+    function connectMouseEvents($canvas) {
+        var isDown = false;
+
+        $canvas.on('mousedown', function(e) {
+            e.stopPropagation();
+            isDown = true;
+            draw(e);
+            $canvas.on('mousemove', draw);
+
+            if (presenter.data.isPencilActive) {
+                presenter.data.isStarted = true;
+                presenter.data.numberOfLines++;
+            } else {
+                resetAddon(false);
+            }
+        });
+
+        $canvas.on('mouseup mouseleave', function() {
+            $canvas.off('mousemove', draw);
+            if (isDown && presenter.data.isPencilActive) {
+                eventCreator();
+                isDown = false;
+            }
+
+            canvasData.main.context.drawImage(canvasData.temp.canvas, 0, 0);
+            canvasData.temp.context.clearRect(0, 0, canvasData.temp.canvas.width, canvasData.temp.canvas.height);
+
+            points = [];
+        });
+
+        $canvas.on('mouseup', function() {
+            directionPoints.push('Up');
+        });
     }
 
     function turnOffEventListeners() {

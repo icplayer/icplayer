@@ -150,110 +150,118 @@ function AddonDrawing_create() {
 
         // TOUCH
         if (MobileUtils.isEventSupported('touchstart')) {
-            tmp_canvas.addEventListener('touchstart', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                setOverflowWorkAround(true);
-
-                if (!presenter.configuration.isPencil) {
-                    presenter.configuration.context.globalCompositeOperation = "destination-out";
-                }
-
-                presenter.zoom = getZoom();
-                presenter.isStarted = true;
-                presenter.onMobilePaint(e);
-                tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
-            }, false);
-
-            tmp_canvas.addEventListener('touchend', function (e) {
-                e.stopPropagation();
-
-                setOverflowWorkAround(false);
-
-                tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
-                ctx.drawImage(tmp_canvas, 0, 0);
-                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-                presenter.points = [];
-            }, false);
-        } else {
-            // MOUSE
-            tmp_canvas.addEventListener('mousemove', function (e) {
-                e.stopPropagation();
-
-                var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-                var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-                if (presenter.zoom !== 1) {
-                    x = x * (1 / parseInt(presenter.zoom, 10));
-                    y = y * (1 / parseInt(presenter.zoom, 10));
-                }
-
-                presenter.mouse.x = x;
-                presenter.mouse.y = y;
-
-            }, false);
-
-            $(tmp_canvas).on('mouseleave', function (e) {
-                e.stopPropagation();
-
-                setOverflowWorkAround(false);
-
-                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-                ctx.drawImage(tmp_canvas, 0, 0);
-                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-                presenter.points = [];
-            });
-
-            tmp_canvas.addEventListener('mousedown', function (e) {
-                e.stopPropagation();
-
-                setOverflowWorkAround(true);
-
-                if (!presenter.configuration.isPencil) {
-                    presenter.configuration.context.globalCompositeOperation = "destination-out";
-                }
-
-                presenter.zoom = getZoom();
-                if (presenter.zoom == "" || presenter.zoom == undefined) {
-                    presenter.zoom = 1;
-                }
-
-                tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
-                presenter.isStarted = true;
-
-                var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-                var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-                if (presenter.zoom !== 1) {
-                    x = x * (1 / presenter.zoom);
-                    y = y * (1 / presenter.zoom);
-                }
-
-                presenter.points.push({x: x, y: y});
-
-                presenter.onPaint(e);
-            }, false);
-
-            tmp_canvas.addEventListener('mouseup', function (e) {
-                e.stopPropagation();
-
-                setOverflowWorkAround(false);
-
-                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-                ctx.drawImage(tmp_canvas, 0, 0);
-                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-                presenter.points = [];
-            }, false);
+            connectTouchEvents(tmp_canvas, tmp_ctx, ctx);
         }
+
+        // MOUSE
+        connectMouseEvents(tmp_canvas, tmp_ctx, ctx);
 
         tmp_canvas.addEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
     };
+
+    function connectTouchEvents(tmp_canvas, tmp_ctx, ctx) {
+        tmp_canvas.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            setOverflowWorkAround(true);
+
+            if (!presenter.configuration.isPencil) {
+                presenter.configuration.context.globalCompositeOperation = "destination-out";
+            }
+
+            presenter.zoom = getZoom();
+            presenter.isStarted = true;
+            presenter.onMobilePaint(e);
+            tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
+        }, false);
+
+        tmp_canvas.addEventListener('touchend', function (e) {
+            e.stopPropagation();
+
+            setOverflowWorkAround(false);
+
+            tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
+            ctx.drawImage(tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            presenter.points = [];
+        }, false);
+    }
+
+    function connectMouseEvents(tmp_canvas, tmp_ctx, ctx) {
+        tmp_canvas.addEventListener('mousemove', function (e) {
+            e.stopPropagation();
+
+            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+            if (presenter.zoom !== 1) {
+                x = x * (1 / parseInt(presenter.zoom, 10));
+                y = y * (1 / parseInt(presenter.zoom, 10));
+            }
+
+            presenter.mouse.x = x;
+            presenter.mouse.y = y;
+
+        }, false);
+
+        $(tmp_canvas).on('mouseleave', function (e) {
+            e.stopPropagation();
+
+            setOverflowWorkAround(false);
+
+            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+            ctx.drawImage(tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            presenter.points = [];
+        });
+
+        tmp_canvas.addEventListener('mousedown', function (e) {
+            e.stopPropagation();
+
+            setOverflowWorkAround(true);
+
+            if (!presenter.configuration.isPencil) {
+                presenter.configuration.context.globalCompositeOperation = "destination-out";
+            }
+
+            presenter.zoom = getZoom();
+            if (presenter.zoom == "" || presenter.zoom == undefined) {
+                presenter.zoom = 1;
+            }
+
+            tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
+            presenter.isStarted = true;
+
+            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+            if (presenter.zoom !== 1) {
+                x = x * (1 / presenter.zoom);
+                y = y * (1 / presenter.zoom);
+            }
+
+            presenter.points.push({x: x, y: y});
+
+            presenter.onPaint(e);
+        }, false);
+
+        tmp_canvas.addEventListener('mouseup', function (e) {
+            e.stopPropagation();
+
+            setOverflowWorkAround(false);
+
+            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+            ctx.drawImage(tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            presenter.points = [];
+        }, false);
+    }
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 

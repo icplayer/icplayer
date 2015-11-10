@@ -31,9 +31,9 @@ function AddonImage_Identification_create(){
     }
 
     presenter.handleMouseActions = function() {
-        var element = presenter.$view.find('div:first');
+        var $element = presenter.$view.find('div:first');
 
-        element.hover(
+        $element.hover(
             function() {
                 if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
 
@@ -52,40 +52,48 @@ function AddonImage_Identification_create(){
             }
         );
 
-        if (MobileUtils.isEventSupported('touchstart')) {
-            element.on('touchstart', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                presenter.lastEvent = e;
-            });
-
-            element.on('touchend', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if ( presenter.lastEvent.type != e.type ) {
-                    clickLogic();
-                }
-            });
-        }else{
-            element.on('mousedown', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                presenter.lastEvent = e;
-            });
-
-            element.on ('mouseup', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if ( presenter.lastEvent.type != e.type ) {
-                    clickLogic();
-                }
-            });
+        if (MobileUtils.isEventSupported('touchstart') || MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
+            connectTouchHandlers($element);
         }
+
+        connectClickHandlers($element);
     };
+
+    function connectClickHandlers($element) {
+        $element.on('mousedown', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            presenter.lastEvent = e;
+        });
+
+        $element.on ('mouseup', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if ( presenter.lastEvent.type != e.type ) {
+                clickLogic();
+            }
+        });
+    }
+
+    function connectTouchHandlers($element) {
+        $element.on('touchstart', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            presenter.lastEvent = e;
+        });
+
+        $element.on('touchend', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if ( presenter.lastEvent.type != e.type ) {
+                clickLogic();
+            }
+        });
+    }
 
     function setViewDimensions(model) {
         var viewDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
