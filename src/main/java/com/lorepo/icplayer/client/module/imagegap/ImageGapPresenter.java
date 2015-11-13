@@ -8,7 +8,6 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -254,6 +253,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			String score = Integer.toString(getScore());
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", consumedItem.getId(), score);
 			playerServices.getEventBus().fireEvent(valueEvent);
+			if(getScore() == 1){
+				ValueChangedEvent isAllOKevent = new ValueChangedEvent(model.getId(), "all", "", "");
+				playerServices.getEventBus().fireEvent(isAllOKevent);
+			}
 			view.makeDraggable(this);
 		}
 	}
@@ -536,6 +539,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.enable = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::enable()();
 		}
+		presenter.isAllOK = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isAllOK()();
+		}
 
 		return presenter;
 	}-*/;
@@ -574,6 +580,14 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		insertItem();
 	}
 
+	private boolean isAllOK() {
+		if(getScore() == 1){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	private Element getView() {
 		return view.getElement();
 	}
