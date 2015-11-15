@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="icplayer" default="dist" basedir=".">
 	<taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addons/addon-compiler.jar"/>
-	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="libs/jslint4java-2.0.5.jar" />
 
 	<property file="build.properties" />
 	<property name="src" location="src/main/java" />
