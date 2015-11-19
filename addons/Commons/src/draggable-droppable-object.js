@@ -569,6 +569,7 @@
         this.sendItemReturnedEvent();
         this.sendItemDraggedEvent();
         ui.helper.zIndex(100);
+        this.$view.removeClass('gapFilled');
     };
 
     /**

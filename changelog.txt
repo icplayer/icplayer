@@ -1,3 +1,4 @@
+2015-11-19 Fixed issue with class in draggable gap in Table module
 2015-11-13 Added isAllOK event and command in Image Gap module
 2015-11-10 Fixed issue with desktop browsers having mobile events in Image Identification, Shape Tracing, Drawing modules
 2015-11-10 Fixed issue with incorrect values and visibility in LearnPen(Data/Report) module
