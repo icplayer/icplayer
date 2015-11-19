@@ -263,7 +263,7 @@ function AddonImage_Identification_create(){
 
         if (presenter.configuration.isSelected) {
             applySelectionStyle(presenter.configuration.isSelected === presenter.configuration.shouldBeSelected, CSS_CLASSES.CORRECT, CSS_CLASSES.INCORRECT);
-        } else if (presenter.configuration.shouldBeSelected) {
+        } else {
             applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
         }
     };
