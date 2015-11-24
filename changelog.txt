@@ -1,3 +1,4 @@
+2015-11-24 Fixed issue with show answers mode in Choice module
 2015-11-24 Fixed issue with displaying columns in Connection module
 2015-11-19 Fixed issue with adding class in Image Identification module
 2015-11-19 Fixed issue with class in draggable gap in Table module
