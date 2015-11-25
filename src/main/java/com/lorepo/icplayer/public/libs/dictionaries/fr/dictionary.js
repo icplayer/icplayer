@@ -76,6 +76,7 @@ var ice_dictionary = {
 "grid_visibility" : "Grid Visibility",
 "grid_snapping" : "Module to Grid Snapping",
 "grid_size_menu" : "Grid Size (drag horizontally or click to type)",
+"ruler_position": "Ruler position",
 "rulers": "Rulers",
 "use_rulers": "Use rulers: ",
 "use_rulers_snapping": "Use Rulers Snapping: ",
