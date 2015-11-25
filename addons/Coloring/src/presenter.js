@@ -339,6 +339,13 @@ function AddonColoring_create(){
                     'minWidth' : presenter.canvasWidth
                 });
 
+                var moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.addonID+'"]');
+
+                moduleSelector.on('mousemove', function(e) {
+                    xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
+                    yContainer.find('.value').html(getMousePositionOnCanvas(e).y);
+                });
+
                 canvasElement.on('mousemove', function(e) {
                     xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
                     yContainer.find('.value').html(getMousePositionOnCanvas(e).y);
