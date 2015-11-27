@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -61,6 +62,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	IProperty propertyName;
 	private int index;
 	private List<Group> groupedModules = new ArrayList<Group>();
+	private HashMap<String, String> rulers = new HashMap<String, String>();
 
 	public Page(String name, String url) {
 		super("Page");
@@ -150,6 +152,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
+		xml += " verticalRulers='" + rulers.get("verticals") + "'";
+		xml += " horizontalRulers='" + rulers.get("horizontals") + "'";
+		
 		if(!cssClass.isEmpty()){
 			String encodedClass = StringUtils.escapeXML(cssClass);
 			xml += " class='" + encodedClass + "'";
@@ -206,6 +211,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		String css = URLUtils.resolveCSSURL(baseURL, style);
 		setInlineStyle(css);
 		setStyleClass(rootElement.getAttribute("class"));
+		setRulers("verticals", XMLUtils.getAttributeAsString(rootElement, "verticalRulers"));
+		setRulers("horizontals", XMLUtils.getAttributeAsString(rootElement, "horizontalRulers"));
 		
 		String positioning = rootElement.getAttribute("layout");
 		if (positioning == null || positioning.isEmpty()) {
@@ -671,5 +678,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	
 	public List<Group> getGroupedModules() {
 		return groupedModules;
+	}
+	
+	public void setRulers(String key, String value) {
+		this.rulers.put(key, value);
+	}
+	
+	public String getRulers(String key) {
+		return rulers.get(key);
 	}
 }
