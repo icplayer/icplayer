@@ -171,6 +171,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			public String getDisplayName() {
 				return "ID";
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -202,6 +207,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("is_visible");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 
 		};

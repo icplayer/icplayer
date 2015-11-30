@@ -24,7 +24,7 @@ public class SourceListModule extends BasicModuleModel{
 		super("Source list", DictionaryWrapper.get("source_list_module"));
 		
 		initData();
-		addPropertyItems();
+		addPropertyItems(true);
 		addPropertyRemovable();
 		addPropertyVertical();
 		addPropertyRandomOrder();
@@ -98,7 +98,7 @@ public class SourceListModule extends BasicModuleModel{
 	}
 
 	
-	private void addPropertyItems() {
+	private void addPropertyItems(final boolean isDefault) {
 
 		IProperty property = new IStringListProperty() {
 				
@@ -121,6 +121,11 @@ public class SourceListModule extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("source_list_items");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return isDefault;
 			}
 		};
 		
@@ -153,6 +158,11 @@ public class SourceListModule extends BasicModuleModel{
 					sendPropertyChangedEvent(this);
 				}
 				
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -222,6 +232,11 @@ public class SourceListModule extends BasicModuleModel{
 				return DictionaryWrapper.get("source_list_removable");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);
@@ -260,6 +275,11 @@ public class SourceListModule extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("source_list_vertical");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 
 		};

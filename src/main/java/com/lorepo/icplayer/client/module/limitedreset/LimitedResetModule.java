@@ -59,6 +59,11 @@ public class LimitedResetModule extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Limited_Reset_property_title");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -90,6 +95,11 @@ public class LimitedResetModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Limited_Reset_property_works_with");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		

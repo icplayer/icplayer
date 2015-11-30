@@ -401,6 +401,11 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			public String getDisplayName() {
 				return DictionaryWrapper.get("name");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(propertyName);

@@ -293,6 +293,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			public String getDisplayName() {
 				return DictionaryWrapper.get("name");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(propertyName);
@@ -326,6 +331,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("width");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -361,6 +371,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			public String getDisplayName() {
 				return DictionaryWrapper.get("height");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -395,6 +410,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			public String getDisplayName() {
 				return DictionaryWrapper.get("is_reportable");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -424,6 +444,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Preview");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -595,6 +620,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("score_type");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		

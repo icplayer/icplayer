@@ -59,6 +59,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	private boolean isVisible;
 	private boolean isShowAnswersActive = false;
 	private String currentState = "";
+	private int currentScore;
+	private int currentMaxScore;
+	private int currentErrorCount;
 	
 
 	public ChoicePresenter(ChoiceModel module, IPlayerServices services){
@@ -121,7 +124,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (!module.isActivity()) {
 			return;
 		}
-		
+				
+		this.currentScore = getScore();
+		this.currentMaxScore = getMaxScore();
+		this.currentErrorCount = getErrorCount();
 		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
@@ -138,20 +144,16 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				optionView.setWrongStyle();
 			}
 		}
-		
 	}
 	
 	private void hideAnswers() {
 		if (!module.isActivity()) {
 			return;
 		}
-		
 		clearStylesAndSelection();
 		setState(this.currentState);
 		this.isShowAnswersActive = false;
 		setWorkMode();
-		
-		this.currentState = "";
 	}
 	
 	@Override
@@ -334,7 +336,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		}
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), id, newValue, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
-		
+
 		if(getScore() == getMaxScore() && getErrorCount() == 0){
 			score = Integer.toString(getScore());
 			valueEvent = new ValueChangedEvent(module.getId(), id, "allOK", score);
@@ -349,7 +351,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public int getErrorCount() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.currentErrorCount;
 		}
 
 		int errors = 0;
@@ -368,7 +370,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public int getMaxScore() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.currentMaxScore;
 		}
 
 		if(module.isActivity()) return module.getMaxScore();
@@ -378,7 +380,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public int getScore() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.currentScore;
 		}
 
 		int score = 0;

@@ -81,6 +81,11 @@ public class LimitedCheckModule extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Limited_Check_property_check_text");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -109,6 +114,11 @@ public class LimitedCheckModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Limited_Check_property_uncheck_text");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -141,6 +151,11 @@ public class LimitedCheckModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Limited_Check_property_works_with");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		

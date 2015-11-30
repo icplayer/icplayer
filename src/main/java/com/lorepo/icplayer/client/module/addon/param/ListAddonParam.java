@@ -170,6 +170,11 @@ public class ListAddonParam extends StringAddonParam{
 				moveItemDown(index);
 				sendPropertyChangedEvent(this);
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		return property;

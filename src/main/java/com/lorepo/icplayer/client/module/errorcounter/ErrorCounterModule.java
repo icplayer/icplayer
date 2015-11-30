@@ -100,6 +100,11 @@ public class ErrorCounterModule extends BasicModuleModel{
 				return DictionaryWrapper.get("errors_property");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);	
@@ -140,6 +145,11 @@ public class ErrorCounterModule extends BasicModuleModel{
 				return DictionaryWrapper.get("mistakes_property");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);	
@@ -172,6 +182,11 @@ public class ErrorCounterModule extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("real_time_calculation_property");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 
 		};

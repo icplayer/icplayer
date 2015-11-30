@@ -65,6 +65,11 @@ public class EventAddonParam extends StringAddonParam{
 			public String getDisplayName() {
 				return displayName;
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		return property;

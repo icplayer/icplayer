@@ -99,7 +99,8 @@ function AddonParagraph_create() {
             isPlaceholderSet: !ModelValidationUtils.isStringEmpty(model["Placeholder Text"]),
             placeholderText: model["Placeholder Text"],
             pluginName: presenter.makePluginName(model["ID"]),
-            width: model['Width']
+            width: model['Width'],
+            height: parseInt(height, 10)
         };
     };
 
@@ -132,7 +133,7 @@ function AddonParagraph_create() {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if(model["Placeholder Text"] == undefined) {
+        if (model["Placeholder Text"] == undefined) {
             upgradedModel["Placeholder Text"] = "";
         }
 
@@ -144,7 +145,7 @@ function AddonParagraph_create() {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
 
-        presenter.$view.on('click', function(e){
+        presenter.$view.on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
         });
@@ -159,11 +160,10 @@ function AddonParagraph_create() {
 
         isVisible = presenter.configuration.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
-
     };
 
-    presenter.getTinymceInitConfiguration = function (selector) {
-        var config = {
+    presenter.getTinymceInitConfiguration = function(selector) {
+        return {
             plugins: presenter.configuration.plugins,
             selector : selector,
             width: presenter.configuration.width,
@@ -175,19 +175,17 @@ function AddonParagraph_create() {
             content_css: presenter.configuration.content_css,
             setup: presenter.setup
         };
-
-        return config;
     };
 
-    presenter.addPlugins = function () {
-        if(presenter.configuration.isPlaceholderSet) {
+    presenter.addPlugins = function() {
+        if (presenter.configuration.isPlaceholderSet) {
             presenter.addPlaceholderPlugin();
         }
     };
 
     presenter.makePluginName = function(addonID) {
         var name = 'placeholder';
-        addonID.replace(/[a-z0-9]+/gi, function(x){
+        addonID.replace(/[a-z0-9]+/gi, function(x) {
             name += "_" + x;
         });
         return name;
@@ -204,7 +202,7 @@ function AddonParagraph_create() {
                 editor.on('focus', onFocus);
 
                 function onFocus() {
-                   if(presenter.placeholder.isSet) {
+                   if (presenter.placeholder.isSet) {
                        presenter.placeholder.removePlaceholder();
                        presenter.placeholder.shouldBeSet = (presenter.placeholder.getEditorContent() == "");
                    }
@@ -212,7 +210,6 @@ function AddonParagraph_create() {
 
                 function onBlur() {
                     if (presenter.placeholder.shouldBeSet) {
-
                         presenter.placeholder.addPlaceholder();
                     } else {
                         presenter.placeholder.removePlaceholder();
@@ -295,12 +292,12 @@ function AddonParagraph_create() {
             }
     };
 
-    presenter.setIframeHeight = function(){
+    presenter.setIframeHeight = function() {
         var $editor = presenter.$view.find('#' + editorID + '_ifr'),
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
-            editorHeight -=  presenter.$view.find('.mce-toolbar').height();
+            editorHeight -= presenter.$view.find('.mce-toolbar').height();
         }
 
         $editor.height(editorHeight);
@@ -329,14 +326,21 @@ function AddonParagraph_create() {
         presenter.setStyles();
 
         if (presenter.configuration.state !== undefined) {
-        	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
+            tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
         }
-
-        presenter.setIframeHeight();
 
         presenter.$view.find('.mce-toolbar').on('resize', presenter.setIframeHeight);
 
-        presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
+        presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border', 0);
+
+        // wait till toolbar render
+        var intervalId = setInterval(function () {
+            var toolbarHeight = presenter.$view.find('.mce-toolbar').height();
+            if (toolbarHeight < 110 && toolbarHeight > 0) {
+                clearInterval(intervalId);
+                presenter.setIframeHeight();
+            }
+        }, 50);
     };
 
     presenter.setPlayerController = function (controller) {
@@ -363,10 +367,9 @@ function AddonParagraph_create() {
 
     presenter.setState = function(state) {
         var parsedState = JSON.parse(state),
-            tinymceState = parsedState.tinymceState,
-            isVisibleState = parsedState.isVisible;
+            tinymceState = parsedState.tinymceState;
 
-        isVisible = isVisibleState;
+        isVisible = parsedState.isVisible;
         presenter.setVisibility(isVisible);
 
         if (tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
@@ -383,7 +386,6 @@ function AddonParagraph_create() {
         isVisible = presenter.configuration.isVisible;
 
         var selector = '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
-
         tinymce.activeEditor = tinymce.init(presenter.getTinymceInitConfiguration(selector));
     };
 

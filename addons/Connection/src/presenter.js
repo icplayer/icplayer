@@ -701,7 +701,7 @@ function AddonConnection_create() {
     presenter.initializeView = function (view, model) {
         var leftColumnHeight = $(view).find('.connectionLeftColumn:first').outerHeight();
         var rightColumnHeight = $(view).find('.connectionRightColumn:first').outerHeight();
-        var height = leftColumnHeight > rightColumnHeight ? leftColumnHeight : rightColumnHeight;
+        var height = model['Height'];// leftColumnHeight > rightColumnHeight ? leftColumnHeight : rightColumnHeight;
         var leftColumnWidth = $(view).find('.connectionLeftColumn:first').outerWidth(true);
         var rightColumnWidth = $(view).find('.connectionRightColumn:first').outerWidth(true);
         var width = model['Width'] - leftColumnWidth - rightColumnWidth;

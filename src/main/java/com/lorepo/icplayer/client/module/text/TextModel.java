@@ -50,7 +50,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyIsCaseSensitive();
 		addPropertyIsIgnorePunctuation();
 		addPropertyOpenLinksinNewTab();
-		addPropertyText();
+		addPropertyText(true);
 		addPropertyKeepOriginalOrder();
 		addPropertyClearPlaceholderOnFocus();
 	}
@@ -156,7 +156,7 @@ public class TextModel extends BasicModuleModel {
 		return XMLUtils.removeIllegalCharacters(xml);
 	}
 
-	private void addPropertyText() {
+	private void addPropertyText(final boolean is_default) {
 
 		IHtmlProperty property = new IHtmlProperty() {
 			@Override
@@ -178,6 +178,11 @@ public class TextModel extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_text");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return is_default;
 			}
 		};
 
@@ -231,6 +236,11 @@ public class TextModel extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_gap_type");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 
 		addProperty(property);
@@ -270,6 +280,11 @@ public class TextModel extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("open_links_in_new_tab");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 
 		addProperty(property);
@@ -299,6 +314,11 @@ public class TextModel extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_gap_width");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 
 		addProperty(property);
@@ -327,6 +347,11 @@ public class TextModel extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("text_module_gap_max_length");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 
@@ -377,6 +402,11 @@ public class TextModel extends BasicModuleModel {
 				return DictionaryWrapper.get("is_activity");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 
 		addProperty(property);
@@ -409,6 +439,11 @@ public class TextModel extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("is_disabled");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 
@@ -444,6 +479,11 @@ public class TextModel extends BasicModuleModel {
 				return DictionaryWrapper.get("case_sensitive");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 
 		addProperty(property);
@@ -477,6 +517,11 @@ public class TextModel extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Ignore_punctuation");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 
 		addProperty(property);
@@ -509,6 +554,11 @@ public class TextModel extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Keep_original_order");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 
 		addProperty(property);
@@ -540,6 +590,11 @@ public class TextModel extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Clear_placeholder_on_focus");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 

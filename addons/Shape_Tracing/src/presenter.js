@@ -412,6 +412,16 @@ function AddonShape_Tracing_create() {
     function cursorCoordinates() {
         drawBoxMouseData(52, 37);
 
+        presenter.data.shapeImageLoaded.then(function() {
+            var moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.ID+'"]');
+            moduleSelector.on('mousemove', function(e) {
+                var x = e.offsetX, y = e.offsetY;
+
+                presenter.text.setText(prepearText(x, y));
+                presenter.layerBG.draw();
+            });
+        });
+
         presenter.$view.find(".drawing").on('mousemove', function(e) {
             e.stopPropagation();
 

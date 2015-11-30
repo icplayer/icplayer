@@ -123,6 +123,11 @@ public class Group extends GroupPropertyProvider {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("group_id");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(propertyId);
@@ -186,6 +191,11 @@ public class Group extends GroupPropertyProvider {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("score_type");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -226,6 +236,11 @@ public class Group extends GroupPropertyProvider {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("max_score");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
