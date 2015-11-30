@@ -1,3 +1,4 @@
+2015-11-30 Added ShowAnswers to Plot module
 2015-11-27 Fixed issue with editor height in Paragraph module
 2015-11-25 Added displaying coordinates in editor in Coloring and Shape Tracing modules
 2015-11-24 Fixed issue with show answers mode in Choice module

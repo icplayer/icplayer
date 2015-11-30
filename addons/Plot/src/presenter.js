@@ -348,9 +348,9 @@ function AddonPlot_create(){
                     var refObj = plot.svgDoc.find('.point[vx="'+vx+'"][vy="'+vy+'"]');
                     if(!refObj.hasClass('nonclickable')) {
                         if(refObj.hasClass('point_selected')) {
-                            plot._deselectPoint(vx, vy);
+                            plot._deselectPoint(vx, vy, false);
                         } else {
-                            plot._selectPoint(vx, vy);
+                            plot._selectPoint(vx, vy, false);
                         }
                     }
                 });
@@ -367,8 +367,10 @@ function AddonPlot_create(){
                 }
             });
         }
-        this._deselectPoint = function(x,y) {
-            this._touchPoint(x, y);
+        this._deselectPoint = function(x,y, isShowAnswersMode) {
+            if (!isShowAnswersMode) {
+                 this._touchPoint(x, y);
+            }
             var pvx = parseFloat(x);
             var pvy = parseFloat(y);
             var refObj = plot.svgDoc.find('.point[vx="'+x+'"][vy="'+y+'"]');
@@ -378,17 +380,21 @@ function AddonPlot_create(){
             $.each(this.selectedPoints, function(k, v) {
                 if(v.x == pvx && v.y == pvy) {
                     plot.selectedPoints.splice(k, 1);
-                    plot.stateChanged({
-                        item:'point_'+pvx+'_'+pvy,
-                        value:0,
-                        score:plot.getPointEventScore(pvx, pvy, plot.STATE_DESELECT_POINT)
-                    });
+                    if (!isShowAnswersMode) {
+                        plot.stateChanged({
+                            item:'point_'+pvx+'_'+pvy,
+                            value:0,
+                            score:plot.getPointEventScore(pvx, pvy, plot.STATE_DESELECT_POINT)
+                        });
+                    }
                     return false;
                 }
             });
         }
-        this._selectPoint = function(x,y) {
-            this._touchPoint(x, y);
+        this._selectPoint = function(x,y, isShowAnswersMode) {
+            if (!isShowAnswersMode) {
+                this._touchPoint(x, y);
+            }
             var pvx = parseFloat(x);
             var pvy = parseFloat(y);
             var refObj = plot.svgDoc.find('.point[vx="'+x+'"][vy="'+y+'"]');
@@ -410,11 +416,13 @@ function AddonPlot_create(){
                         y:pvy,
                         clickable: true
                     });
-                    plot.stateChanged({
-                        item:'point_'+pvx+'_'+pvy,
-                        value:1,
-                        score:plot.getPointEventScore(pvx, pvy, plot.STATE_SELECT_POINT)
-                    });
+                    if (!isShowAnswersMode) {
+                        plot.stateChanged({
+                            item:'point_'+pvx+'_'+pvy,
+                            value:1,
+                            score:plot.getPointEventScore(pvx, pvy, plot.STATE_SELECT_POINT)
+                        });
+                    }
                 }
             }
         }
@@ -1201,9 +1209,9 @@ function AddonPlot_create(){
                 var refObj = plot.svgDoc.find('.point[vx="'+x+'"][vy="'+y+'"]');
                 var refObjOutline = plot.svgDoc.find('.point_outline_base[vx="'+x+'"][vy="'+y+'"]');
                 if(visibility && !refObj.hasClass('point_selected')) {
-                    this._selectPoint(x, y);
+                    this._selectPoint(x, y, false);
                 } else if(!visibility && refObj.hasClass('point_selected')) {
-                    this._deselectPoint(x, y);
+                    this._deselectPoint(x, y, false);
                 }
             }
         }
@@ -1384,6 +1392,7 @@ function AddonPlot_create(){
     var presenter = function(){};
     var addonID;
     var plot = new Plot();
+    presenter.isShowAnswersActive = false;
 
     presenter.setWorkMode = function(){
         var ref;
@@ -1408,6 +1417,7 @@ function AddonPlot_create(){
         plot.svgDoc.find('.point_outline_mark_error').removeClass('point_outline_mark_error');
         plot.svgDoc.find('.point_correct').removeClass('point_correct');
         plot.svgDoc.find('.point_outline_mark_correct').removeClass('point_outline_mark_correct');
+        plot.svgDoc.find('.point_outline_base').removeClass('plot_show_answers');
     };
     presenter.markPointAsError = function(x, y) {
         plot.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]').addClass('point_error');
@@ -1417,9 +1427,98 @@ function AddonPlot_create(){
         plot.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]').addClass('point_correct');
         plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('point_outline_mark_correct');
     };
+
+    presenter.setPointShowAnswersClass = function(x, y) {
+        plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('plot_show_answers');
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.showAnswers = function() {
+        if(!presenter.isActivity) {
+            return;
+        }
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        presenter.isShowAnswersActive = true;
+
+        // POINTS
+        presenter.clickedPoints = {};
+
+        $.extend( true, presenter.clickedPoints, plot.selectedPoints );
+
+        $.each(presenter.clickedPoints, function(_, point) {
+            plot._deselectPoint(point.x, point.y, true);
+        });
+
+        presenter.removePointsStateMarks();
+
+        $.each(plot.points, function(_, point) {
+            if (point.correct) {
+                presenter.setPointShowAnswersClass(point.x, point.y);
+            }
+        });
+
+        // FUNCTIONS
+        $.each(plot.expressions, function(idx, val) {
+            plot.removePlot(idx);
+        });
+
+        $.each(plot.expressions, function(idx, val) {
+            if(val.correctAnswer) {
+                plot.drawPlot(idx);
+                plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('show_answers').removeAttr('style');
+                plot.svgDoc.find('.is_plot[uid="'+idx+'"]').removeClass('draw_selected');
+                plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('show_answers');
+                plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').removeClass('draw_outline').removeClass('draw_"' + idx + '"_outline');
+            }
+        });
+
+        plot.enableUI(false);
+    };
+
+    presenter.hideAnswers = function() {
+        if(!presenter.isActivity) {
+            return;
+        }
+        presenter.isShowAnswersActive = false;
+
+        // POINTS
+        presenter.removePointsStateMarks();
+
+        $.each(presenter.clickedPoints, function(_, point) {
+            plot._selectPoint(point.x, point.y, true);
+        });
+
+        //FUNCTIONS
+        $.each(plot.expressions, function(idx, val) {
+            if(val.correctAnswer) {
+                plot.removePlot(idx);
+            }
+        });
+
+        plot.drawPlots();
+
+        plot.enableUI(true);
+    };
+
     presenter.setShowErrorsMode = function() {
         if(!presenter.isActivity) {
             return;
+        }
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
         }
 
         var res;
@@ -1584,8 +1683,13 @@ function AddonPlot_create(){
     }
 
     presenter.reset = function(){
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.errorsMode = false;
         presenter._allDoneState = false;
+        presenter.isShowAnswersActive = false;
         plot.setAttempted(false);
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
@@ -1615,6 +1719,9 @@ function AddonPlot_create(){
         addonID = model.ID;
 
         presenter.initialize(presenter.view, presenter.model, true);
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.setPlayerController = function(controller) {
@@ -1947,10 +2054,18 @@ function AddonPlot_create(){
         plot.enableUI(state);
     };
     presenter.hide = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
     presenter.show = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
@@ -1961,6 +2076,10 @@ function AddonPlot_create(){
         var plotState = [];
         var variableState = [];
         var pointsState = [];
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
 
         $.each(plot.expressions, function(idx, val) {
             plotState[idx] = {
@@ -2062,6 +2181,7 @@ function AddonPlot_create(){
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
+
     presenter.stateChanged = function(data) {
         var receiver;
         if(data) {
@@ -2118,6 +2238,9 @@ function AddonPlot_create(){
     }
 
     presenter.isAttempted = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return !this.isActivity ? true : this.getPlot().isAttempted();
     }
 

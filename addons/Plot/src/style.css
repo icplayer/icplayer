@@ -146,3 +146,11 @@
 	stroke:#00bb00;
 	stroke-width:2;
 }
+
+.plot_show_answers {
+    stroke-opacity:1;
+    stroke:#006600;
+    stroke-width:2;
+    fill-opacity:1;
+    fill:#00bb00;
+}
