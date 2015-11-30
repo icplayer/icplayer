@@ -30,7 +30,7 @@ public class ChoiceModel extends BasicModuleModel{
 		addOption(new ChoiceOption("2", "B", 0));
 		
 		addPropertyIsMulti();
-		addPropertyOptions();
+		addPropertyOptions(true);
 		addPropertyIsDisabled();
 		addPropertyIsActivity();
 		addPropertyRandomOrder();
@@ -179,13 +179,18 @@ public class ChoiceModel extends BasicModuleModel{
 				return DictionaryWrapper.get("is_multi");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);
 	}
 
 
-	private void addPropertyOptions() {
+	private void addPropertyOptions(final boolean isDefault) {
 
 		optionsProperty = new IListProperty() {
 				
@@ -241,6 +246,11 @@ public class ChoiceModel extends BasicModuleModel{
 			public void moveChildDown(int index) {
 				moveItemDown(index);
 				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return isDefault;
 			}
 		};
 		
@@ -315,6 +325,11 @@ public class ChoiceModel extends BasicModuleModel{
 				return DictionaryWrapper.get("is_disabled");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);	
@@ -354,6 +369,11 @@ public class ChoiceModel extends BasicModuleModel{
 				return DictionaryWrapper.get("is_activity");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);	
@@ -390,6 +410,11 @@ public class ChoiceModel extends BasicModuleModel{
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("randomOrder");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 
 		};

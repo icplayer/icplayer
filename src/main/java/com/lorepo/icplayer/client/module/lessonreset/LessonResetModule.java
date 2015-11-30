@@ -52,6 +52,11 @@ private boolean resetChecks = false;
 			public String getDisplayName() {
 				return DictionaryWrapper.get("Lesson_Reset_property_title");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -86,6 +91,11 @@ private boolean resetChecks = false;
 				return DictionaryWrapper.get("Lesson_Reset_property_reset_mistakes");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);	
@@ -118,6 +128,11 @@ private boolean resetChecks = false;
 		@Override
 		public String getDisplayName() {
 			return DictionaryWrapper.get("Lesson_Reset_property_reset_checks");
+		}
+
+		@Override
+		public boolean isDefault() {
+			return false;
 		}
 
 	};

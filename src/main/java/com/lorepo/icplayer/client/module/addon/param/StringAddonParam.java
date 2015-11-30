@@ -73,6 +73,11 @@ public class StringAddonParam implements IAddonParam{
 			public String getDisplayName() {
 				return displayName;
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 			
 		};
 		

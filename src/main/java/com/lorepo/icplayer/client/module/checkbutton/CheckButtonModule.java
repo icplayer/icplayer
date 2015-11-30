@@ -96,6 +96,11 @@ public class CheckButtonModule extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("check_title");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -124,6 +129,11 @@ public class CheckButtonModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("uncheck_title");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		

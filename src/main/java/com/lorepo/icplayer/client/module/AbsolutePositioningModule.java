@@ -164,6 +164,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getDisplayName() {
 				return DictionaryWrapper.get("layout");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(layoutProperty);
@@ -200,6 +205,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("left");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -238,6 +248,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getDisplayName() {
 				return DictionaryWrapper.get("top");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(topProperty);
@@ -274,6 +289,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getDisplayName() {
 				return DictionaryWrapper.get("width");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(widthProperty);
@@ -309,6 +329,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("height");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -352,6 +377,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			public String getDisplayName() {
 				return DictionaryWrapper.get("right");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(rightProperty);
@@ -388,6 +418,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("bottom");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		

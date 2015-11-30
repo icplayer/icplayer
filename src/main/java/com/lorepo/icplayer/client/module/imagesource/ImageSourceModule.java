@@ -102,6 +102,11 @@ public class ImageSourceModule extends BasicModuleModel {
 				return DictionaryWrapper.get("image_source_is_disabled");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);	
@@ -134,6 +139,11 @@ public class ImageSourceModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("image_source_image");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -171,6 +181,11 @@ public class ImageSourceModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("image_source_removable");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 
 		};

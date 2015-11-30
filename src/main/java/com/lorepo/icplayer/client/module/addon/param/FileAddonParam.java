@@ -33,6 +33,11 @@ public class FileAddonParam extends StringAddonParam{
 			public String getDisplayName() {
 				return displayName;
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		return property;

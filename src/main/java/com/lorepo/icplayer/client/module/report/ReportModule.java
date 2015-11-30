@@ -111,6 +111,11 @@ public class ReportModule extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("report_error_label");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -140,6 +145,11 @@ public class ReportModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("report_checks_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -171,6 +181,11 @@ public class ReportModule extends BasicModuleModel {
 			public String getDisplayName() {
 				return DictionaryWrapper.get("report_results_label");
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		addProperty(property);
@@ -200,6 +215,11 @@ public class ReportModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("report_total_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
@@ -241,6 +261,11 @@ public class ReportModule extends BasicModuleModel {
 				return DictionaryWrapper.get("showCounters");
 			}
 
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
 		};
 		
 		addProperty(property);
@@ -270,6 +295,11 @@ IProperty property = new IProperty() {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("report_title_width");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		

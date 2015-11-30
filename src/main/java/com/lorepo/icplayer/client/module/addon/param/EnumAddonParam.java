@@ -77,6 +77,11 @@ public class EnumAddonParam extends StringAddonParam{
 			public String getAllowedValue(int index) {
 				return allowedValues.get(index);
 			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
 		};
 		
 		return property;

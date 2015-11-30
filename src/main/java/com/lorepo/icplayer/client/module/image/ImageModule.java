@@ -27,7 +27,7 @@ public class ImageModule extends BasicModuleModel {
 	public ImageModule() {
 		super("Image", DictionaryWrapper.get("image_module"));
 		
-		addPropertyImage();
+		addPropertyImage(true);
 		addPropertyMode();
 	}
 
@@ -95,7 +95,7 @@ public class ImageModule extends BasicModuleModel {
 	}
 	
 	
-	private void addPropertyImage() {
+	private void addPropertyImage(final boolean isDefault) {
 
 		IProperty property = new IImageProperty() {
 				
@@ -118,6 +118,11 @@ public class ImageModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("image_property");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return isDefault;
 			}
 		};
 		
@@ -158,6 +163,11 @@ public class ImageModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("mode_property");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
 			}
 		};
 		
