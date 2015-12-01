@@ -25,6 +25,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
 public class Page extends BasicPropertyProvider implements IStyledModule, IPage {
@@ -62,7 +63,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	IProperty propertyName;
 	private int index;
 	private List<Group> groupedModules = new ArrayList<Group>();
-	private HashMap<String, String> rulers = new HashMap<String, String>();
+	@SuppressWarnings("serial")
+	private HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>(){{
+		put("verticals", new ArrayList<Ruler>());
+		put("horizontals", new ArrayList<Ruler>());
+	}};
 
 	public Page(String name, String url) {
 		super("Page");
@@ -152,8 +157,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
-		xml += " verticalRulers='" + rulers.get("verticals") + "'";
-		xml += " horizontalRulers='" + rulers.get("horizontals") + "'";
 		
 		if(!cssClass.isEmpty()){
 			String encodedClass = StringUtils.escapeXML(cssClass);
@@ -180,7 +183,27 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			}
 		}
 		
-		xml += 	"</groups>" + "</page>";
+		xml += 	"</groups>";
+		
+		xml += "<editorRulers>";
+		if (rulers != null) {
+			List<Ruler> verticalRulers = rulers.get("verticals");
+			List<Ruler> horizontalRulers = rulers.get("horizontals");
+			
+			if (verticalRulers != null) {
+				for (Ruler ruler : verticalRulers) {
+					xml += ruler.toXML();
+				}
+			}
+
+			if (horizontalRulers != null) {
+				for (Ruler ruler : horizontalRulers) {
+					xml += ruler.toXML();
+				}
+			}
+		}
+		
+		xml += 	"</editorRulers>" + "</page>";
 	
 		return XMLUtils.removeIllegalCharacters(xml);
 	}
@@ -200,6 +223,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		loadPageAttributes(rootElement);
 		loadModules(rootElement);
 		loadGroupedModules(rootElement);
+		loadRulers(rootElement);
 		loaded = true;
 	}
 
@@ -211,8 +235,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		String css = URLUtils.resolveCSSURL(baseURL, style);
 		setInlineStyle(css);
 		setStyleClass(rootElement.getAttribute("class"));
-		setRulers("verticals", XMLUtils.getAttributeAsString(rootElement, "verticalRulers"));
-		setRulers("horizontals", XMLUtils.getAttributeAsString(rootElement, "horizontalRulers"));
 		
 		String positioning = rootElement.getAttribute("layout");
 		if (positioning == null || positioning.isEmpty()) {
@@ -267,6 +289,41 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			Group group = new Group(this);
 			this.groupedModules.add(group.loadGroupFromXML(groupNode));
 		}
+	}
+	
+	private void loadRulers(Element rootElement) {
+		NodeList verticalRulers = rootElement.getElementsByTagName("vertical");
+		NodeList horizontalRulers = rootElement.getElementsByTagName("horizontal");
+		List<Ruler> verticals = new ArrayList<Ruler>();
+		List<Ruler> horizontals = new ArrayList<Ruler>();
+
+		if (verticalRulers.getLength() == 0 && horizontalRulers.getLength() == 0) {
+			return;
+		}
+
+		this.rulers.clear();
+
+		for (int i = 0; i < verticalRulers.getLength(); i++) {
+			Element rulerNode = (Element) verticalRulers.item(i);
+			Ruler ruler = new Ruler();
+
+			ruler.setType("vertical");
+			ruler.setPosition(Integer.parseInt(rulerNode.getFirstChild().getNodeValue()));
+
+			verticals.add(ruler);
+		}
+		
+		for (int i = 0; i < horizontalRulers.getLength(); i++) {
+			Element rulerNode = (Element) horizontalRulers.item(i);
+			Ruler ruler = new Ruler();
+			
+			ruler.setType("horizontal");
+			ruler.setPosition(Integer.parseInt(rulerNode.getFirstChild().getNodeValue()));
+
+			horizontals.add(ruler);
+		}
+		
+		setRulers(verticals, horizontals);
 	}
 
 	private void addPropertyName() {
@@ -710,11 +767,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		return groupedModules;
 	}
 	
-	public void setRulers(String key, String value) {
-		this.rulers.put(key, value);
+	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
+		rulers.put("verticals", verticals);
+		rulers.put("horizontals", horizontals);	
 	}
 	
-	public String getRulers(String key) {
-		return rulers.get(key);
+	public List<Ruler> getRulersByType(String type) {
+		return rulers.get(type);
+	}
+	
+	public HashMap<String, List<Ruler>> getRulers() {
+		return rulers;
 	}
 }
