@@ -48,6 +48,7 @@ public class GroupedModulesTestCase {
 				+ "<page layout='pixels' name='page2' isReportable='true' scoring='percentage' width='100' height='200'>"
 				+ "<modules></modules>"
 				+ "<groups></groups>"
+				+ "<editorRulers></editorRulers>"
 				+ "</page>",
 				page.toXML());
 	} 
