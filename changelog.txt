@@ -1,3 +1,4 @@
+2015-12-02 Added possibility of displaying page from commons
 2015-12-01 Added math gaps in Table module
 2015-11-30 Added ShowAnswers to Plot module
 2015-11-27 Fixed issue with editor height in Paragraph module

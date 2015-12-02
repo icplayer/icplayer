@@ -46,6 +46,29 @@ public class PlayerApp{
 	public IScoreService getScoreService() {
 		return playerController.getScoreService();
 	}
+	
+	/**
+	 * Load content from given URL
+	 * @param url
+	 * @param pageIndex
+	 * @param isCommonPage
+	 */
+	private void loadPage(String url, int pageIndex, final boolean isCommonPage) {
+		startPageIndex = pageIndex;
+		contentModel = new Content();
+		if (pagesSubset != null) contentModel.setPageSubset(pagesSubset);
+		XMLLoader reader = new XMLLoader(contentModel);
+		
+		
+		reader.load(url, new ILoadListener() {
+			public void onFinishedLoading(Object obj) {
+				initPlayer(isCommonPage);
+			}
+			public void onError(String error) {
+				JavaScriptUtils.log("Can't load:" + error);
+			}
+		});
+	}
 
 	/**
 	 * Load content from given URL
@@ -53,19 +76,18 @@ public class PlayerApp{
 	 * @param pageIndex 
 	 */
 	public void load(String url, int pageIndex) {
-		startPageIndex = pageIndex;
-		contentModel = new Content();
-		if (pagesSubset != null) contentModel.setPageSubset(pagesSubset);
-		XMLLoader reader = new XMLLoader(contentModel);
-		reader.load(url, new ILoadListener() {
-			public void onFinishedLoading(Object obj) {
-				initPlayer();
-			}
-			public void onError(String error) {
-				JavaScriptUtils.log("Can't load:" + error);
-			}
-		});
+		loadPage(url, pageIndex, false);
 	}
+	
+	/**
+	 * Load common page from given URL
+	 * @param url
+	 * @param pageIndex 
+	 */
+	public void loadCommonPage(String url, int pageIndex) {
+		loadPage(url, pageIndex, true);
+	}
+
 
 	public void setPages(String pagesSub) {
 		ArrayList<Integer> selectedPages = new ArrayList<Integer>();
@@ -210,7 +232,7 @@ public class PlayerApp{
 	/**
 	 * Init player after content is loaded
 	 */
-	private void initPlayer() {
+	private void initPlayer(final boolean isCommonPage) {
 		
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode);
@@ -247,9 +269,10 @@ public class PlayerApp{
 		if(contentModel.getFooter() != null){
 			loader.addPage(contentModel.getFooter());
 		}
+		
 		loader.load(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
-				loadFirstPage();
+				loadFirstPage(isCommonPage);
 			}
 
 			public void onError(String error) {
@@ -257,13 +280,17 @@ public class PlayerApp{
 		});
 	}
 	
-	private void loadFirstPage() {
+	private void loadFirstPage(boolean isCommonPage) {
 		if(loadedState != null){
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 		}
-		playerController.initHeaders();
-		playerController.switchToPage(startPageIndex);
+		if (isCommonPage) {
+			playerController.switchToCommonPage(startPageIndex);
+		} else {
+			playerController.initHeaders();
+			playerController.switchToPage(startPageIndex);
+		}
 	}
 
 

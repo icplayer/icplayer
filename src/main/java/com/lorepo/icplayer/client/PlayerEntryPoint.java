@@ -26,7 +26,12 @@ public class PlayerEntryPoint implements EntryPoint {
 			  	index = index || 0;
 			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
   			};
-		  
+  			
+			player.loadCommonPage = function(url, index){
+			  	index = index || 0;
+			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::loadCommonPage(Ljava/lang/String;I)(url, index);
+  			};
+  			
 		  	player.setConfig = function(config){
 			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setConfig(Lcom/google/gwt/core/client/JavaScriptObject;)(config);
 			};
@@ -114,6 +119,13 @@ public class PlayerEntryPoint implements EntryPoint {
 			pageIndex = 0;
 		}
 		theApplication.load(url, pageIndex);
+	}
+	
+	private void loadCommonPage(String url, int pageIndex) {
+		if (pageIndex < 0) {
+			pageIndex = 0;
+		}
+		theApplication.loadCommonPage(url, pageIndex);
 	}
 	
 	private void setConfig(JavaScriptObject config) {
