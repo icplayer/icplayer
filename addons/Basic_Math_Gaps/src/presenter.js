@@ -476,12 +476,18 @@ function AddonBasic_Math_Gaps_create(){
         }
     };
 
+    presenter.isErrorsMode = false;
+
     presenter.setShowErrorsMode = function () {
-        presenter.gapsContainer.check(true);
+        if(!presenter.isErrorsMode){
+            presenter.gapsContainer.check(true);
+            presenter.isErrorsMode = true;
+        }
     };
 
     presenter.setWorkMode = function() {
         presenter.gapsContainer.check(false);
+        presenter.isErrorsMode = false;
     };
 
     presenter.reset = function(){
@@ -489,6 +495,7 @@ function AddonBasic_Math_Gaps_create(){
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.configuration.isDisabled = presenter.configuration.isDisabledByDefault;
+        presenter.isErrorsMode = false;
     };
 
     presenter.areValuesInEquation = function (userValuesInGaps, correctGapsValues) {
@@ -891,6 +898,7 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.showAnswers = function () {
         if (presenter.configuration.isActivity) {
+            presenter.isErrorsMode = false;
             presenter.gapsContainer.showAnswers();
         }
     };
