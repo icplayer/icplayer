@@ -59,6 +59,8 @@ function AddonWritingCalculations_create() {
         presenter.$view = $(view);
         presenter.model = presenter.upgradeModel(model);
         presenter.signs = presenter.readSigns( presenter.model['Signs'][0] );
+        presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['Is not activity']);
+        presenter.multisigns = ModelValidationUtils.validateBoolean(model['Multisigns']);
         presenter.createView(presenter.array);
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
@@ -321,6 +323,9 @@ function AddonWritingCalculations_create() {
             case this.ELEMENT_TYPE.EMPTY_BOX:
                 var input = $("<input type='text'>");
                 input.addClass("writing-calculations-input");
+                if(!presenter.multisigns){
+                    input.attr("maxlength", 1);
+                }
                 container.append(input);
                 break;
             case this.ELEMENT_TYPE.LINE:
@@ -430,6 +435,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.setShowErrorsMode = function() {
+        if(presenter.isNotActivity){
+            return;
+        }
+
         var inputs = $(this.$view).find(".writing-calculations-input");
 
         if (presenter.isShowAnswersActive) {
@@ -601,6 +610,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.setWorkMode = function() {
+        if(presenter.isNotActivity){
+            return;
+        }
+
         this.clean(true, false);
     };
 
@@ -694,6 +707,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getScore = function() {
+        if(presenter.isNotActivity){
+            return 0;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -701,6 +718,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getMaxScore = function() {
+        if(presenter.isNotActivity){
+            return 0;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -708,6 +729,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getErrorCount = function() {
+        if(presenter.isNotActivity){
+            return 0;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -779,6 +804,10 @@ function AddonWritingCalculations_create() {
 
 
     presenter.showAnswers = function () {
+        if(presenter.isNotActivity){
+            return;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -797,6 +826,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.hideAnswers = function () {
+        if(presenter.isNotActivity){
+            return;
+        }
+
         presenter.isShowAnswersActive = false;
         var inputs = $(this.$view).find(".writing-calculations-input");
         $.each(inputs, function(index){
