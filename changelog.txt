@@ -1,3 +1,4 @@
+2015-12-08 Fixed issue with draggable gaps with LaTeX in Text module
 2015-12-04 Added Is not activity and Enable more digits in gap properties in Writing Calculations module
 2015-12-03 Fixed issue with Limited Check and Check in Basic Math Gaps module
 2015-12-02 Added possibility of displaying page from commons
