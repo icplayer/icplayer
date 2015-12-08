@@ -42,8 +42,7 @@ public class AddonModel extends BasicModuleModel {
 	@Override
 	public String getProviderName() {
 		return getModuleTypeName();
-	}
-	
+	}	
 	
 	@Override
 	public void load(Element rootElement, String baseUrl) {
@@ -69,7 +68,7 @@ public class AddonModel extends BasicModuleModel {
 	
 				Node node = optionNodes.item(i);
 				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){
-					Element element = (Element)optionNodes.item(i);
+					Element element = (Element)node;
 					String type = XMLUtils.getAttributeAsString(element, "type");
 					IAddonParam addonParam = paramFactory.createAddonParam(this, type);
 					
@@ -111,7 +110,6 @@ public class AddonModel extends BasicModuleModel {
 
 
 	public void addAddonParam(String name, String displayName, String type) {
-		
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		IAddonParam addonParam = paramFactory.createAddonParam(this, type);
 		addonParam.setName(name);

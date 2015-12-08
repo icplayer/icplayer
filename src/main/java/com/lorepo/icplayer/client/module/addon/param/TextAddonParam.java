@@ -70,7 +70,7 @@ public class TextAddonParam extends StringAddonParam{
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 		};
 		

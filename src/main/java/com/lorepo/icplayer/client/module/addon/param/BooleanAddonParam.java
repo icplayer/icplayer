@@ -36,7 +36,7 @@ public class BooleanAddonParam extends StringAddonParam{
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 		};
 		

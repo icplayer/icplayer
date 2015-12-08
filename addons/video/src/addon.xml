@@ -2,7 +2,7 @@
 
 <addon id='video' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Files' nameLabel="video_property_files" type='list'>
+		<property name='Files' nameLabel="video_property_files" type='list' isDefault='true'>
 			<property name="Ogg video" displayName="Ogv video" nameLabel="video_property_ogg_video" type="video" />
 			<property name="MP4 video" nameLabel="video_property_mp4_video" type="video" />
 			<property name="WebM video" nameLabel="video_property_webm_video" type="video" />

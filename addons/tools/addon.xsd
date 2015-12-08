@@ -32,6 +32,7 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
+        <xs:attribute name="isDefault" type="xs:boolean" />
     </xs:complexType>
 
 </xs:schema>

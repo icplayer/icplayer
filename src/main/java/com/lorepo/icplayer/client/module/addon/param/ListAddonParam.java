@@ -173,7 +173,7 @@ public class ListAddonParam extends StringAddonParam{
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 		};
 		
