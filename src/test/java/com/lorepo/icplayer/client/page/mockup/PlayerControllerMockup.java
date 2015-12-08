@@ -8,6 +8,7 @@ import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
+import com.lorepo.icplayer.client.content.services.TimeService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -15,16 +16,19 @@ import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerControllerMockup implements IPlayerController {
 
 	private IScoreService	scoreService;
+	private ITimeService	timeService;
 	private StateService	stateService;
 
 	public PlayerControllerMockup() {
 		scoreService = new ScoreService(ScoreType.last);
 		stateService = new StateService();
+		timeService = new TimeService();
 	}
 	
 	
@@ -183,6 +187,12 @@ public class PlayerControllerMockup implements IPlayerController {
 	@Override
 	public void switchToCommonPage(String commonPageName) {
 		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public ITimeService getTimeService() {
+		return timeService;
 	}
 
 }

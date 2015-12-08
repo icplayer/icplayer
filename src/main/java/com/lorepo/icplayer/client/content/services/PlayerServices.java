@@ -16,6 +16,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.page.PageController;
 
 public class PlayerServices implements IPlayerServices {
@@ -131,5 +132,10 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public boolean hasCover() {
 		return playerController.hasCover();
+	}
+
+	@Override
+	public ITimeService getTimeService() {
+		return playerController.getTimeService();
 	}
 }

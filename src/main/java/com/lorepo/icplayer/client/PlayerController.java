@@ -20,6 +20,7 @@ import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.content.services.AssetsService;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
+import com.lorepo.icplayer.client.content.services.TimeService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.PageList;
@@ -29,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -43,6 +45,7 @@ public class PlayerController implements IPlayerController{
 	private PageController		footerController;
 	private	PlayerView			playerView;
 	private long				timeStart = 0;
+	private TimeService			timeService;
 	private ScoreService		scoreService;
 	private AssetsService		assetsService;
 	private StateService		stateService;
@@ -66,6 +69,7 @@ public class PlayerController implements IPlayerController{
 
 		createPageControllers(bookMode);
 		scoreService.setPlayerService(pageController1.getPlayerServices());
+		timeService = new TimeService();
 	}
 	
 	
@@ -203,7 +207,6 @@ public class PlayerController implements IPlayerController{
 	 * @param index
 	 */
 	public void switchToPage(int index){
-		
 		closeCurrentPages();
 		IPage page;
 		if(pageController2 != null){
@@ -309,7 +312,6 @@ public class PlayerController implements IPlayerController{
 			footerController.setPage(contentModel.getFooter());
 		}
 	}
-
 	
 	private static void scrollViewToBeggining() {
 		 
@@ -345,8 +347,17 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
-
+	private void updateTimeForCurrentPages() {
+		IPage page1 = pageController1.getPage();
+		IPage page2 = null;
+		if (pageController2 != null) {
+			page2 = pageController2.getPage();
+		}
+		timeService.updateTimeForPages(page1, page2);
+	}
+	
 	public void updateState() {
+		updateTimeForCurrentPages();
 		HashMap<String, String> state = pageController1.getState();
 		stateService.addState(state);
 		if(pageController2 != null){
@@ -492,6 +503,11 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public PlayerConfig getPlayerConfig() {
 		return config;
+	}
+	
+	public ITimeService getTimeService() {
+		updateTimeForCurrentPages();
+		return timeService;
 	}
 
 

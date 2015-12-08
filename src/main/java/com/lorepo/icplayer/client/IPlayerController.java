@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public interface IPlayerController {
@@ -15,6 +16,7 @@ public interface IPlayerController {
 	PlayerConfig getPlayerConfig();
 	IScoreService getScoreService();
 	IAssetsService getAssetsService();
+	ITimeService getTimeService();
 	int getCurrentPageIndex();
 	IStateService getStateService();
 	void switchToPage(String pageName);

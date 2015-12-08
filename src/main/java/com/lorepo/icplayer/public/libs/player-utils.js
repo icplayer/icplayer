@@ -14,6 +14,7 @@
             this.player = playerObject;
             this.playerServices = playerObject.getPlayerServices();
             this.scoreService = this.playerServices.getScore();
+			this.timeService = this.playerServices.getTimeService();
         }
     };
 
@@ -36,14 +37,12 @@
      Returns Presentation object
 
      @param {Object} presentation current presentation object
-     @param {Array} pagesTimes time spend on pages
 
      @method getPresentation
 
      @return {Object} returns current presentation score (min, max, raw and scaled), errors count and checks count
      */
-    window.PlayerUtils.prototype.getPresentationScore = function(presentation, pagesTimes) {
-        pagesTimes = pagesTimes || { total: 0 };
+    window.PlayerUtils.prototype.getPresentationScore = function(presentation) {
         if (this.hasOwnProperty('scoreService')) {
             var sumOfScore = 0.0, sumOfErrors = 0, sumOfChecks = 0,
                 sumOfMaxScore = 0.0,
@@ -80,7 +79,8 @@
                         "max_score": score['maxScore'],
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
                         "checks_count": score['checkCount'] ? score['checkCount'] : 0,
-                        "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0
+                        "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0,
+                        "time": score['time'] ? parseInt(score['time'], 10) : 0
                     };
 
                     count += 1;
@@ -92,6 +92,8 @@
                 scaledScore = Math.floor((sumOfScaledScore / count) * 100) / 100;
             }
 
+            totalTime = parseInt(this.timeService.getTotalTime(), 10);
+
             return {
                 minScore: 0,
                 maxScore: count,
@@ -101,8 +103,7 @@
                 checksCount: sumOfChecks,
                 mistakeCount: sumOfMistakes,
                 paginatedResult: paginatedResults,
-                totalTime: pagesTimes.total,
-                pagesTimes: pagesTimes
+                totalTime: totalTime
             }
         }
     };

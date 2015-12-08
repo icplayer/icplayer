@@ -373,6 +373,17 @@ public class JavaScriptPlayerServices {
 			return score;
 		};
 		
+		playerServices.getTimeService = function() {
+			var time = function() {
+			};
+			
+			time.getTotalTime = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTotalTime()();
+			}
+
+			return time;
+		}
+		
 		playerServices.getAssets = function() {
 			var assets = function() {
 			};
@@ -545,7 +556,11 @@ public class JavaScriptPlayerServices {
 
 		return null;
 	}
-
+	
+	private String getTotalTime() {
+		return Long.toString(playerServices.getTimeService().getTotalTime());
+	}
+	
 	private int getMaxScore(){
 		return playerServices.getScoreService().getTotalMaxScore();
 	}
@@ -563,11 +578,17 @@ public class JavaScriptPlayerServices {
 
 	private JavaScriptObject getPageScoreById(String id){
 		PageScore score = playerServices.getScoreService().getPageScoreById(id);
-		JavaScriptObject model = scoreToJs(score);
-
+		Long time = playerServices.getTimeService().getPageTimeById(id);
+		JavaScriptObject model = scoreToJs(score, time);
 		return model;
 	}
 
+	private static JavaScriptObject scoreToJs(PageScore score, Long time) {
+		JavaScriptObject model = scoreToJs(score);
+		JavaScriptUtils.addPropertyToJSArray(model, "time", Long.toString(time));
+		return model;
+	}
+	
 	private static JavaScriptObject scoreToJs(PageScore score) {
 		JavaScriptObject model = JavaScriptObject.createArray();
 		JavaScriptUtils.addPropertyToJSArray(model, "score", (int) score.getScore());

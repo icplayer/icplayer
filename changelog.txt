@@ -1,3 +1,4 @@
+2015-12-08 Added Time measurement feature to Player
 2015-12-08 Added rulers handling
 2015-12-08 Fixed issue with draggable gaps with LaTeX in Text module
 2015-12-04 Added Is not activity and Enable more digits in gap properties in Writing Calculations module

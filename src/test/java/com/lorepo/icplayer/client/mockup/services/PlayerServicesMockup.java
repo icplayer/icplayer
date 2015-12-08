@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
+import com.lorepo.icplayer.client.module.api.player.ITimeService;
 
 public class PlayerServicesMockup implements IPlayerServices {
 
@@ -144,6 +145,13 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public PlayerConfig getPlayerConfig() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public ITimeService getTimeService() {
 		// TODO Auto-generated method stub
 		return null;
 	}

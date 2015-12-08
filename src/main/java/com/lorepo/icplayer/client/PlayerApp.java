@@ -284,6 +284,7 @@ public class PlayerApp{
 		if(loadedState != null){
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
+			playerController.getPlayerServices().getTimeService().loadFromString(loadedState.get("time"));
 		}
 		if (isCommonPage) {
 			playerController.switchToCommonPage(startPageIndex);
@@ -345,9 +346,11 @@ public class PlayerApp{
 		playerController.updateState();
 		String state = playerController.getPlayerServices().getStateService().getAsString();
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
+		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);
+		data.put("time", time);
 		return JSONUtils.toJSONString(data);
 	}
 
