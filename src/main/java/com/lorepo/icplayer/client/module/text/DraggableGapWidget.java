@@ -150,11 +150,22 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		isWorkMode = true;
 	}
 
-	public native static String getElement(String text) /*-{
-		var element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).text() == text;}),
-			helper = $wnd.$(element[0]).clone();
-			helper.css("display", "inline-block");
-			helper.addClass("ic_sourceListItem-selected");
+	public native static String getElement(String text) /*-{		
+		var isLatex = false;
+		var element;
+		
+		if(text.indexOf("\\(") > -1 && text.indexOf("\\)") > -1){
+			var newText = text.replace("\\(", "").replace("\\)", "");
+			text = newText;
+			isLatex = true;
+			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).clone().children().remove('.MathJax').end().text() == text;});
+		}else{
+			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).text() == text;});
+		}
+		
+		var helper = $wnd.$(element[0]).clone();
+		helper.css("display", "inline-block");
+		helper.addClass("ic_sourceListItem-selected");
 		return $wnd.$('<div>').append(helper.clone()).html();
 	}-*/;
 	

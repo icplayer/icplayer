@@ -80,7 +80,7 @@ public class EnumAddonParam extends StringAddonParam{
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 		};
 		

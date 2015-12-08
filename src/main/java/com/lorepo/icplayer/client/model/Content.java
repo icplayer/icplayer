@@ -455,6 +455,11 @@ public class Content implements IXMLSerializable, IContent {
 		return page;
 	}
 	
+	public int getCommonPageIndex(String pageId) {
+	    //  -1 if page not found
+		return commonPages.findPageIndexById(pageId);
+	}
+	
 	
 	public Page getHeader(){
 		return findPageByName(headerPageName);

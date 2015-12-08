@@ -102,6 +102,22 @@ function AddonTable_create() {
         if (!isPreview) {
             presenter.parseGaps();
         }
+
+        if(presenter.configuration.gapType == 'math'){
+            presenter.gapsContainer.gaps = [];
+            $(presenter.$view).find('input').each(function () {
+                $(this).replaceWith("\\gap{" +
+                    $(this).attr('id') +
+                    "|" +
+                    1 +
+                    "|" +
+                    presenter.configuration.gapWidth.value +
+                    "|" +
+                    "{{value:" + $(this).attr('id') + "}}" +
+                    "}");
+            });
+        }
+
         presenter.gapsContainer.replaceDOMViewWithGap();
         presenter.setGapsClassAndWidth();
     };
@@ -137,12 +153,54 @@ function AddonTable_create() {
         presenter.$wrapper = presenter.$view.find('.table-addon-wrapper');
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
 
+        if(presenter.configuration.gapType == "math"){
+            var mathJaxDeferred = new jQuery.Deferred();
+            presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
+            presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
+
+            MathJax.Hub.Register.MessageHook("End Process", function (message) {
+                if ($(message[1]).hasClass('ic_page')) {
+                    presenter.mathJaxProcessEndedDeferred.resolve();
+                }
+            });
+        }
+
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             deleteCommands();
             return;
         }
 
+        if(presenter.configuration.gapType == "math"){
+                presenter.mathJaxProcessEnded.then(function() {
+                    presenter.mainLogic(isPreview);
+
+                    MathJax.CallBack.Queue().Push(function () {
+                        MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+                        if(!isPreview){
+                            var checkSelector = setInterval(function () {
+                                if ($(presenter.$view).find('input').length > 0) {
+                                    presenter.gapsContainer.gaps = [];
+                                    $(presenter.$view).find('input').each(function (_, index) {
+                                        for(var i = 0; i < presenter.gapsAnswers.length; i++){
+                                            if(presenter.gapsAnswers[i].id == $(this).attr('id')){
+                                                var correctAnswers = presenter.gapsAnswers[i].answers;
+                                            }
+                                        }
+                                        presenter.gapsContainer.addGap(new presenter.EditableInputGap($(this).attr('id'), correctAnswers, 1));
+                                    });
+                                    clearInterval(checkSelector);
+                                }
+                            }, 100);
+                        }
+                    });
+                });
+        }else{
+            presenter.mainLogic(isPreview);
+        }
+    };
+
+    presenter.mainLogic = function (isPreview) {
         presenter.gapsContainer = new presenter.GapsContainerObject();
 
         var $table = presenter.generateTable(presenter.configuration.contents, isPreview);
@@ -227,8 +285,20 @@ function AddonTable_create() {
         presenter.setVisibility(state.isVisible);
         presenter.configuration.isVisible = state.isVisible;
 
-        presenter.gapsContainer.setGapsState(state.gaps);
-        presenter.gapsContainer.setSpansState(state.spans);
+        if(presenter.configuration.gapType == 'math'){
+            var checkSelector = setInterval(function () {
+                if ($(presenter.$view).find('.mathGap').length == presenter.gapsAnswers.length) {
+                    try{
+                    presenter.gapsContainer.setGapsState(state.gaps);
+                    presenter.gapsContainer.setSpansState(state.spans);
+                    clearInterval(checkSelector);
+                    }catch(e){}
+                }
+            }, 100);
+        }else{
+            presenter.gapsContainer.setGapsState(state.gaps);
+            presenter.gapsContainer.setSpansState(state.spans);
+        }
     };
 
     /**
@@ -675,6 +745,10 @@ function AddonTable_create() {
             return 0;
         }
 
+        if (presenter.gapsContainer == undefined) {
+            return 0;
+        }
+
         return presenter.gapsContainer.getMaxScore();
     };
 
@@ -683,10 +757,14 @@ function AddonTable_create() {
             return 0;
         }
 
+        if (presenter.gapsContainer == undefined) {
+            return 0;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
         return presenter.gapsContainer.getScore();
     };
 
@@ -695,10 +773,14 @@ function AddonTable_create() {
             return 0;
         }
 
+        if (presenter.gapsContainer == undefined) {
+            return 0;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
         return presenter.gapsContainer.getErrorCount();
     };
 
@@ -808,6 +890,10 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.parseValue = function (value) {
+        if(presenter.configuration.gapType == 'math') {
+            return value;
+        }
+
         if (!presenter.configuration.isCaseSensitive) {
             value = value.toLowerCase();
         }
@@ -1057,7 +1143,23 @@ function AddonTable_create() {
         this.$view.removeAttr('disabled');
     };
 
+    presenter.gapsAnswers = [];
+
+    function addGapAnswers(htmlID, correctAnswer) {
+        var isInTable = false;
+        for (var i = 0; i < presenter.gapsAnswers.length; i++){
+            if(presenter.gapsAnswers[i].id == htmlID){
+                isInTable = true;
+            }
+        }
+
+        if(!isInTable){
+            presenter.gapsAnswers.push({id: htmlID, answers: correctAnswer});
+        }
+    }
+
     presenter.EditableInputGap = function (htmlID, correctAnswer, gapScore) {
+        addGapAnswers(htmlID, correctAnswer);
         var configuration = {
             addonID: presenter.configuration.addonID,
             objectID: htmlID,
@@ -1087,14 +1189,18 @@ function AddonTable_create() {
     };
 
     presenter.EditableInputGap.prototype.createView = function () {
-        var $inputGap = $('<input type="text" value="" id="' + this.objectID + '" />');
-        $inputGap.css({
-            width: presenter.configuration.gapWidth + "px"
-        });
+        if(presenter.configuration.gapType == 'math'){
+            return $(presenter.$view).find("input[id='"+this.objectID+"']");
+        }else{
+            var $inputGap = $('<input type="text" value="" id="' + this.objectID + '" />');
+            $inputGap.css({
+                width: presenter.configuration.gapWidth + "px"
+            });
 
-        $inputGap.addClass("ic_gap");
+            $inputGap.addClass("ic_gap");
 
-        return $inputGap;
+            return $inputGap;
+        }
     };
 
     presenter.EditableInputGap.prototype.onEdit = function (event) {

@@ -17,4 +17,5 @@ public interface IContent {
     public IChapter getCommonPages();
     public List<IAsset> getAssets();
 	public IPage getCommonPage(int index);
+	public int getCommonPageIndex(String pageId);
 }

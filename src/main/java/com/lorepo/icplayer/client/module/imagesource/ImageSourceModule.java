@@ -143,7 +143,7 @@ public class ImageSourceModule extends BasicModuleModel {
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return true;
 			}
 		};
 		

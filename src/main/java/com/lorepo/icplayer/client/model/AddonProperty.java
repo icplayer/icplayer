@@ -16,7 +16,7 @@ public class AddonProperty {
 	private String type;
 	private boolean isLocalized = false;
 	private List<AddonProperty> childProperties = new ArrayList<AddonProperty>();
-	
+	private boolean isDefault = false;
 	
 	public AddonProperty(){
 	}
@@ -52,6 +52,9 @@ public class AddonProperty {
 		isLocalized = value;
 	}
 	
+	public boolean isDefault() {
+		return isDefault;
+	}
 	
 	public void load(Element rootElement) {
 		
@@ -62,10 +65,12 @@ public class AddonProperty {
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
 		isLocalized = XMLUtils.getAttributeAsBoolean(rootElement, "isLocalized", false);
 
+		isDefault = XMLUtils.getAttributeAsBoolean(rootElement, "isDefault");
+		
 		if(type.compareTo("list") == 0){
 			
 			NodeList optionNodes = rootElement.getChildNodes();
-			for(int i = 0; i < optionNodes.getLength(); i++){
+			for(int i = 0; i < optionNodes.getLength(); i++){                        
 		
 				Node node = optionNodes.item(i);
 				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){
@@ -87,7 +92,7 @@ public class AddonProperty {
 		String encodedType = StringUtils.escapeXML(type.trim());
 		
 		if(childProperties.size() > 0){
-			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + "'>";
+			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + "'>"; 
 			for(AddonProperty property : childProperties){
 				xml += property.toXML();
 			}
@@ -95,7 +100,7 @@ public class AddonProperty {
 		}
 		else{
 			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + 
-					"' isLocalized='" + isLocalized + "'/>";
+					"' isLocalized='" + isLocalized + "' isDefault='" + isDefault + "'/>";
 		}
 		
 		return xml;

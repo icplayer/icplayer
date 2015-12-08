@@ -13,6 +13,7 @@ public class StringAddonParam implements IAddonParam{
 	protected String type;
 	protected String value = "";
 	private AddonModel parent;
+	protected boolean isDefault = false;
 	
 	
 	public StringAddonParam(AddonModel parent, String type) {
@@ -74,9 +75,8 @@ public class StringAddonParam implements IAddonParam{
 				return displayName;
 			}
 
-			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 			
 		};
@@ -122,5 +122,15 @@ public class StringAddonParam implements IAddonParam{
 	@Override
 	public String getDisplayName() {
 		return this.displayName;
+	}
+	
+	@Override
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+
+	@Override
+	public boolean isDefault() {
+		return isDefault;
 	}
 }

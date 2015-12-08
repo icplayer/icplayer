@@ -36,7 +36,7 @@ public class FileAddonParam extends StringAddonParam{
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 		};
 		

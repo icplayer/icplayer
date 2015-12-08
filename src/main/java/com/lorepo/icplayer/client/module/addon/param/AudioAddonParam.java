@@ -36,7 +36,7 @@ public class AudioAddonParam extends StringAddonParam{
 
 			@Override
 			public boolean isDefault() {
-				return false;
+				return isDefault;
 			}
 		};
 		
@@ -50,6 +50,7 @@ public class AudioAddonParam extends StringAddonParam{
 		IAddonParam param = new AudioAddonParam(getAddonModel(), type);
 		param.setName(name);
 		param.setDisplayName(displayName);
+		param.setDefault(isDefault);
 		return param;
 	}
 }
