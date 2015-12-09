@@ -561,7 +561,7 @@ function AddonShape_Tracing_create() {
         for (var i=y-r; i<=y+r; i++) {
             for (var j=x-r; j<=x+r; j++) {
                 if (i > 0 && j > 0 && j < presenter.data.width && i < presenter.data.height) {
-                    if (r * r <= (x-j) * (x-j) + (y-i) * (y-i)) {
+                    if (r * r >= (x-j) * (x-j) + (y-i) * (y-i)) {
                         if (!presenter.data.borderPositions[i][j]) return false;
                     }
                 }
