@@ -295,6 +295,7 @@
 	"text_module_gap_type" : "Typ luki",
 	"text_module_gap_width" : "Szerokość luki w tekście",
 	"text_module_gap_max_length" : "Max. dł. luki",
+	"text_module_value_type" : "Value type",
 	"is_activity" : "Jest&nbsp;ćwiczeniem",
 	"is_disabled" : "Jest&nbsp;wyłączony",
 	"randomOrder" : "Kolejność&nbsp;losowa",

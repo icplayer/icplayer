@@ -32,6 +32,7 @@ public class FilledGapWidget extends GapWidget implements TextElementDisplay{
 			addBlurHandler(new BlurHandler() {
 				public void onBlur(BlurEvent event) {
 					listener.onGapBlured(getGapInfo().getId(), event.getRelativeElement());
+					listener.onKeyAction(getGapInfo().getId(), event.getRelativeElement());
 				}
 			});
 		}

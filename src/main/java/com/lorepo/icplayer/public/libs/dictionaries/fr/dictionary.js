@@ -295,6 +295,7 @@ var ice_dictionary = {
 "text_module_gap_type" : "Type de champ",
 "text_module_gap_width" : "Largeur du champ",
 "text_module_gap_max_length" : "Longueur maximale du champ",
+"text_module_value_type" : "Value type",
 "is_activity" : "Est&nbsp;un exercice",
 "is_disabled" : "Est&nbsp;désactivé",
 "randomOrder" : "Affichage&nbsp;aléatoire",

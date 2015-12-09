@@ -53,6 +53,12 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 					listener.onValueEdited(gapInfo.getId(), getText());
 				}
 			});
+			
+			addBlurHandler(new BlurHandler() {
+				public void onBlur(BlurEvent event) {
+					listener.onKeyAction(gapInfo.getId(), event.getRelativeElement());
+				}
+			});
 
 			addBlurHandler(new BlurHandler() {
 				@Override

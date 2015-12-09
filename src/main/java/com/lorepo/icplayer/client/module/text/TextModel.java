@@ -37,6 +37,7 @@ public class TextModel extends BasicModuleModel {
 	private boolean isClearPlaceholderOnFocus = false;
 	public String rawText;
 	public String gapUniqueId = "";
+	private String valueType = "All";
 
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -53,6 +54,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyText(true);
 		addPropertyKeepOriginalOrder();
 		addPropertyClearPlaceholderOnFocus();
+		addPropertyValueType();
 	}
 
 	@Override
@@ -102,6 +104,7 @@ public class TextModel extends BasicModuleModel {
 					isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
 					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
+					valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
 					if (rawText == null) {
 						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 					}
@@ -150,6 +153,7 @@ public class TextModel extends BasicModuleModel {
 				"' isClearPlaceholderOnFocus='" + isClearPlaceholderOnFocus +
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive +
 				"' openLinksinNewTab='" + openLinksinNewTab +
+				"' valueType='" + valueType +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 
@@ -279,6 +283,56 @@ public class TextModel extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("open_links_in_new_tab");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyValueType() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				valueType = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return valueType;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_value_type");
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 4;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				if (index == 0){
+					return "All";
+				}else if(index == 1) {
+					return "Number only";
+				} else if (index == 2) {
+					return "Letters only";
+				} else {
+					return "Alphanumeric";
+				}
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_value_type");
 			}
 
 			@Override
@@ -631,6 +685,10 @@ public class TextModel extends BasicModuleModel {
 
 	public boolean hasMathGaps() {
 		return useMathGaps;
+	}
+	
+	public String getValueType() {
+		return valueType;
 	}
 
 }

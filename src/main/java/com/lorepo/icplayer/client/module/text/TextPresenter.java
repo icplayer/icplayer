@@ -585,6 +585,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onGapFocused(String gapId, Element element) {
 				gapFocused(gapId, element);
 			}
+			
+			@Override
+			public void onKeyAction(String gapId, Element element) {
+				keyAction(gapId, element);
+			}
 
 			@Override
 			public void onGapBlured(String gapId, Element element) {
@@ -719,6 +724,49 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (enteredValue == "") {
 				input.setValue(gap.getPlaceHolder());
 			}
+		}
+	}
+	
+	private native String replaceNumbersOnly(String value) /*-{
+		return value.replace(/[^0-9]/g, "");
+	}-*/;
+	
+	private String replaceAlphanumeric(String value){
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (GapInfo.isLetter(c) || GapInfo.isDigit(c)) {
+				sb.append(c);
+			}
+		}
+
+		return sb.toString();
+	}
+	
+	private String replaceLettersOnly(String value){
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (GapInfo.isLetter(c)) {
+				sb.append(c);
+			}
+		}
+
+		return sb.toString();
+	}
+	
+	protected void keyAction(String gapId, Element element){
+		InputElement input = InputElement.as(element);
+		String value = input.getValue();
+			
+		if(module.getValueType().equals("Number only")){
+			input.setValue(replaceNumbersOnly(value));
+		}else if(module.getValueType().equals("Letters only")){
+			input.setValue(replaceLettersOnly(value));
+		}else if(module.getValueType().equals("Alphanumeric")){	
+			input.setValue(replaceAlphanumeric(value));
 		}
 	}
 
