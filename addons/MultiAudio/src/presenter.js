@@ -334,8 +334,9 @@ function AddonMultiAudio_create(){
         } else {
             this.hide();
         }
-        this.currentAudio = 0;
         this.stop();
+        this.currentAudio = 0;
+        presenter.loadFiles(this.audio, this.globalModel);
     };
 
     presenter.jumpTo = function(audioNumber) {
@@ -422,6 +423,7 @@ function AddonMultiAudio_create(){
         }
 
         this.currentAudio = currentAudio;
+        presenter.loadFiles(this.audio, this.globalModel);
     };
 
     presenter.validateFiles = function(files) {
