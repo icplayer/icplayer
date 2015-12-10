@@ -19,6 +19,11 @@ ValidateState.prototype.setUp = function() {
     		"Interface" : "None"
     };
     this.presenter.globalView = $("<div><div class='wrapper-addon-audio'></div></div>");
+    sinon.stub(this.presenter, 'loadFiles');
+};
+
+ValidateState.prototype.tearDown = function() {
+    this.presenter.loadFiles.restore();
 };
 
 ValidateState.prototype.testGetState = function() {
