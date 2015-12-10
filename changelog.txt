@@ -1,3 +1,4 @@
+2015-12-10 Added optional parameter to isOrderCorrect function in Shape Tracing module
 2015-12-10 Fixed setting item after reset and changing page in MultiAudio module
 2015-12-09 Fixed issue with detecting boundaries is Shape Tracing
 2015-12-09 Added new property Value type in Text module

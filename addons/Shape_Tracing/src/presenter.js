@@ -1197,16 +1197,31 @@ function AddonShape_Tracing_create() {
         return uniqueValues;
     }
 
-    presenter.isOrderCorrect = function() {
-        var drawnPoints = getDrawnUniqueValues();
+    presenter.isOrderCorrect = function(skipPoints) {
+        skipPoints = skipPoints === 'true' || skipPoints === true;
 
-        for (var i = 0; i < drawnPoints.length; i++) {
-            if (drawnPoints[i] !== i + 1) {
-                return false;
+        var i, previous = -1;
+        var drawnPoints = getDrawnUniqueValues();
+        if (skipPoints) {
+            for (i = 0; i < drawnPoints.length; i++) {
+                if (previous > drawnPoints[i]) {
+                    return false;
+                }
+                previous = drawnPoints[i];
+            }
+        } else {
+            for (i = 0; i < drawnPoints.length; i++) {
+                if (drawnPoints[i] !== i + 1) {
+                    return false;
+                }
             }
         }
 
         return true;
+    };
+
+    presenter.isOrderCorrectCommand = function(params) {
+        return presenter.isOrderCorrect(params[0]);
     };
 
     presenter.executeCommand = function(name, params) {
@@ -1225,7 +1240,7 @@ function AddonShape_Tracing_create() {
             "hideAnswers": presenter.hideAnswers,
             "setColor": presenter.setColor,
             "setOpacity": presenter.setOpacity,
-            "isOrderCorrect": presenter.isOrderCorrect
+            "isOrderCorrect": presenter.isOrderCorrectCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);

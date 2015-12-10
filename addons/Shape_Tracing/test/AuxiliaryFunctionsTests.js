@@ -3,6 +3,7 @@ TestCase("Axuiliary Functions", {
         this.presenter = AddonShape_Tracing_create();
 
         this.presenter.pointsArray = [1, 2];
+        this.presenter.pointsHistory = [1, 2, 3, 4, 5];
 
         this.presenter.data = {
             borderPositions: [],
@@ -61,12 +62,36 @@ TestCase("Axuiliary Functions", {
     },
 
     'test isPositionInDefinedPoint' : function() {
-
         assertTrue(this.presenter.isThisActivePointAndCheck(18, 18));
         assertEquals([1], this.presenter.pointsArray);
 
         assertTrue(this.presenter.isThisActivePointAndCheck(1, 6));
         assertEquals([], this.presenter.pointsArray);
+    },
 
+    'test isOrderCorrectCommand()' : function() {
+        assertTrue(this.presenter.isOrderCorrectCommand([]));
+    },
+
+    'test isOrderCorrect()' : function() {
+        assertTrue(this.presenter.isOrderCorrect());
+    },
+
+    'test isOrderCorrect(true)' : function() {
+        assertTrue(this.presenter.isOrderCorrect(true));
+    },
+
+    'test isOrderCorrect(true) with missing points in the middle' : function() {
+        this.presenter.pointsHistory = [1, 2, 3, 6];
+        assertTrue(this.presenter.isOrderCorrect(true));
+    },
+
+    'test isOrderCorrect(false) with correct points' : function() {
+        assertTrue(this.presenter.isOrderCorrect(false));
+    },
+
+    'test isOrderCorrect(false) with wrong points' : function() {
+        this.presenter.pointsHistory = [1, 2, 3, 6, 5];
+        assertFalse(this.presenter.isOrderCorrect());
     }
 });
