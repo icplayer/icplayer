@@ -267,6 +267,9 @@ function AddonTrueFalse_create() {
     var makeView = function (view, model, preview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.setVisibility(presenter.isVisible);
 
         if (notAllRequiredParameters(questions, possibleChoices)) {
             return $(view).html(QUESTION_AND_CHOICES_REQUIRED);
@@ -303,6 +306,20 @@ function AddonTrueFalse_create() {
         playerController = controller;
     };
 
+    presenter.setVisibility = function (isVisible) {
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.isVisible = false;
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.isVisible = true;
+    };
+
     presenter.run = function (view, model) {
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
@@ -333,10 +350,11 @@ function AddonTrueFalse_create() {
             selectedElements[i] = $(this).hasClass("down");
             i++;
         });
-        return JSON.stringify(selectedElements);
+        return selectedElements;
     }
 
     presenter.createPreview = function (view, model) {
+        presenter.$view = $(view);
         makeView(view, model, true);
     };
 
@@ -345,7 +363,10 @@ function AddonTrueFalse_create() {
             return presenter.currentState;
         }
 
-        return getSelectedElements();
+        return JSON.stringify({
+            selectedElements: getSelectedElements(),
+            isVisible: presenter.isVisible
+        });
     };
 
     presenter.setState = function (state) {
@@ -354,7 +375,15 @@ function AddonTrueFalse_create() {
         }
 
         var i = 0;
-        var selectedElements = JSON.parse(state);
+        var selectedElements;
+        var parsedState = JSON.parse(state);
+        if(typeof parsedState.isVisible !== "undefined"){
+            selectedElements = parsedState.selectedElements;
+            presenter.setVisibility(parsedState.isVisible);
+            presenter.isVisible = parsedState.isVisible;
+        }else{
+            selectedElements = parsedState;
+        }
 
         presenter.$view.find(".tf_" + presenter.type + "_image").each(function () {
             if (selectedElements[i] == true) {
@@ -402,6 +431,8 @@ function AddonTrueFalse_create() {
         }
 
         workMode(true);
+        presenter.setVisibility(presenter.isVisibleByDefault);
+        presenter.isVisible = presenter.isVisibleByDefault;
     };
 
     presenter.getErrorCount = function () {
@@ -447,6 +478,8 @@ function AddonTrueFalse_create() {
             'markAsEmpty': presenter.markAsEmptyCommand,
             'removeMark': presenter.removeMarkCommand,
             'isAttempted' : presenter.isAttemptedCommand,
+            'show': presenter.show,
+            'hide': presenter.hide,
             'reset' : presenter.reset
         };
 

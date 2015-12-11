@@ -240,10 +240,29 @@ function AddonConnection_create() {
         presenter.initialize(presenter.view, presenter.model, true);
     };
 
+    presenter.setVisibility = function (isVisible) {
+        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.isVisible = false;
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.isVisible = true;
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.setVisibility(presenter.isVisible);
+
         isRTL = $(view).css('direction').toLowerCase() === 'rtl';
         connections = $(view).find('.connections:first');
 
@@ -900,6 +919,8 @@ function AddonConnection_create() {
         });
 
         redraw();
+        presenter.setVisibility(presenter.isVisibleByDefault);
+        presenter.isVisible = presenter.isVisibleByDefault;
     };
 
     presenter.getErrorCount = function () {
@@ -939,7 +960,10 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.ids.length; i++) {
             id.push(presenter.lineStack.ids[i].join(':'))
         }
-        return JSON.stringify(id);
+        return JSON.stringify({
+            id: id,
+            isVisible: presenter.isVisible
+        });
     };
 
     presenter.setState = function (state) {
@@ -949,7 +973,15 @@ function AddonConnection_create() {
             if (state != '' && !hookExecuted) {
                 presenter.lineStack.setSendEvents(false);
 
-                var id = JSON.parse(state);
+                var parsedState = JSON.parse(state);
+                var id;
+                if(typeof parsedState.isVisible !== "undefined"){
+                    id = parsedState.id;
+                    presenter.setVisibility(parsedState.isVisible);
+                    presenter.isVisible = parsedState.isVisible;
+                }else{
+                    id = parsedState;
+                }
                 for (var i = 0; i < id.length; i++) {
                     var pair = id[i].split(':');
                     pushConnection(new Line(getElementById(pair[0]), getElementById(pair[1])), false);
@@ -1068,6 +1100,8 @@ function AddonConnection_create() {
             'markAsWrong': presenter.markAsWrongCommand,
             'isAttempted' : presenter.isAttemptedCommand,
             'showAnswers': presenter.showAnswers,
+            'show': presenter.show,
+            'hide': presenter.hide,
             'hideAnswers': presenter.hideAnswers
         };
 

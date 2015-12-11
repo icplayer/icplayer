@@ -1,3 +1,4 @@
+2015-12-11 Added show and hide commands in Connection and TrueFalse modules
 2015-12-10 Added optional parameter to isOrderCorrect function in Shape Tracing module
 2015-12-10 Fixed setting item after reset and changing page in MultiAudio module
 2015-12-09 Fixed issue with detecting boundaries is Shape Tracing
