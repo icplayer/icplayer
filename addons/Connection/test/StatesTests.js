@@ -9,7 +9,7 @@ StatesTests.prototype.setUp = function() {
 };
 
 StatesTests.prototype.testGetState = function() {
-    var expectedState = "[\"1:3\",\"a:5\"]";
+    var expectedState = "{\"id\":[\"1:3\",\"a:5\"]}";
     var state = this.presenter.getState();
     assertEquals(expectedState, state);
 };

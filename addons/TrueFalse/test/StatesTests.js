@@ -9,7 +9,7 @@ TestCase("Get and Set State Tests", {
 
     'test get state function create correct data' : function() {
         var state = this.presenter.getState();
-        var expectedState = '[true,false,true]';
+        var expectedState = '{\"selectedElements\":[true,false,true]}';
 
         assertEquals('', expectedState, state);
     },
