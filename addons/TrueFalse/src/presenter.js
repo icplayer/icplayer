@@ -656,7 +656,13 @@ function AddonTrueFalse_create() {
         }
 
         workMode(true);
-        presenter.setState(presenter.currentState);
+
+        var state = JSON.stringify({
+            "selectedElements": presenter.currentState,
+            "isVisible": presenter.isVisible
+        });
+
+        presenter.setState(state);
 
         delete presenter.currentState;
         presenter.isShowAnswersActive = false;
