@@ -1,3 +1,4 @@
+2015-12-15 Fixed issue with slow drawing in Shape Tracing
 2015-12-15 Fixed issue with rulers in editor
 2015-12-15 Fixed problem withs Show Answers mode in TrueFalse module
 2015-12-11 Added show and hide commands in Connection and TrueFalse modules

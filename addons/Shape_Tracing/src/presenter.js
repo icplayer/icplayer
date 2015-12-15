@@ -558,8 +558,8 @@ function AddonShape_Tracing_create() {
     presenter.isShapeCoveredInCircle = function(x, y, r) {
         r = parseInt(r, 10);
 
-        for (var i=y-r; i<=y+r; i++) {
-            for (var j=x-r; j<=x+r; j++) {
+        for (var i=y-r; i<=y+r; i += 3) {
+            for (var j=x-r; j<=x+r; j += 3) {
                 if (i > 0 && j > 0 && j < presenter.data.width && i < presenter.data.height) {
                     if (r * r >= (x-j) * (x-j) + (y-i) * (y-i)) {
                         if (!presenter.data.borderPositions[i][j]) return false;
@@ -582,11 +582,10 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.isPositionInDefinedPoint = function(x, y, r) {
-
         r = parseInt(r, 10);
 
-        for (var i=y-r; i<=y+r; i++) {
-            for (var j=x-r; j<=x+r; j++) {
+        for (var i=y-r; i<=y+r; i += 3) {
+            for (var j=x-r; j<=x+r; j += 3) {
                 if (i > 0 && j > 0 && j < presenter.data.width && i < presenter.data.height) {
                     if (r * r <= (x-j) * (x-j) + (y-i) * (y-i)) {
                         upDateCheckPointsHistory(x, y);
@@ -686,10 +685,12 @@ function AddonShape_Tracing_create() {
             e.stopPropagation();
         });
 
-        if (MobileUtils.isEventSupported('touchstart')) { // TOUCH
+        // TOUCH
+        if (MobileUtils.isEventSupported('touchstart')) {
             connectTouchEvents($canvas);
         }
-         // MOUSE
+
+        // MOUSE
         connectMouseEvents($canvas)
     }
 
@@ -787,9 +788,8 @@ function AddonShape_Tracing_create() {
         P03: "Points' coordinates are out of canvas range",
         P04: "Non numeric value in points' coordinates property",
 
-        C01: "Wrong value or empty property Color",
+        C01: "Wrong value in property: Color",
 
-        T01: "Property Thickness cannot be empty",
         T02: "Property Thickness cannot be less then 1 and more then 40",
 
         O01: "Property Opacity has to be between 0 and 1",
@@ -842,6 +842,11 @@ function AddonShape_Tracing_create() {
     }
 
     function parseColor(color) {
+        color = color.trim();
+        if (ModelValidationUtils.isStringEmpty(color)) {
+            return returnCorrectObject('#000000');
+        }
+
         if (color[0] === '#' && !(color.length === 7 || color.length === 4)) {
             return returnErrorObject("C01");
         }
@@ -856,7 +861,7 @@ function AddonShape_Tracing_create() {
 
     function parseThickness(thickness) {
         if (ModelValidationUtils.isStringEmpty(thickness)) {
-            return returnErrorObject("T01");
+            return returnCorrectObject(10);
         }
 
         thickness = parseInt(thickness, 10);

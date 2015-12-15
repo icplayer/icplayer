@@ -27,8 +27,8 @@ TestCase("Model validation", {
             "Correct number of lines": "2;3",
             "Points' coordinates": "1;1;1\n2;2;2\n3;3;3",
             "isPointsOrder": "False", // Mind points' order
-            "Color": "green",
-            "Pen Thickness": "10",
+            "Color": "",
+            "Pen Thickness": "",
             "Eraser Thickness": "10",
             "Opacity": "",
             "Border": "1"
@@ -45,7 +45,7 @@ TestCase("Model validation", {
         assertTrue(validatedModel.isShowFoundBoundaries);
         assertEquals([2,3], validatedModel.numberOfLines);
         assertEquals([[1,1,1], [2,2,2], [3,3,3]], validatedModel.points);
-        assertEquals("#008000", validatedModel.color);
+        assertEquals("#000000", validatedModel.color);
         assertEquals(10, validatedModel.penThickness);
     },
 
