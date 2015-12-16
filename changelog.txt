@@ -1,3 +1,4 @@
+2015-12-16 Added displaying coordinates in editor in BoardGame, PointsLine, LineSelection, FigureDrawing and ConnectingDots modules
 2015-12-15 Fixed issue with slow drawing in Shape Tracing
 2015-12-15 Fixed issue with rulers in editor
 2015-12-15 Fixed problem withs Show Answers mode in TrueFalse module

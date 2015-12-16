@@ -543,11 +543,29 @@ function AddonConnectingDots_create(){
                 'minWidth' : Width
             });
 
-            presenter.$view.find('.connectingdots').on('mousemove', function(e) {
+            function setCalculatedPosition(e) {
                 presenter.mouseSX = parseInt(e.pageX,10) - parseInt($div.offset().left,10);
                 presenter.mouseSY = parseInt(e.pageY,10) - parseInt($div.offset().top,10);
                 xContainer.find('.value').html(presenter.mouseSX);
                 yContainer.find('.value').html(presenter.mouseSY);
+            }
+
+            var doesElementExist = function() {
+                var $moduleSelector = $('.moduleSelector[data-id="'+presenter.addonID+'"]');
+
+                if ($moduleSelector.length > 0) {
+                    $moduleSelector.on('mousemove', function(e) {
+                        setCalculatedPosition(e);
+                    });
+
+                    clearInterval(interval);
+                }
+            };
+
+            var interval = setInterval(function() { doesElementExist(); }, 500);
+
+            presenter.$view.find('.connectingdots').on('mousemove', function(e) {
+                setCalculatedPosition(e);
             });
         }
 

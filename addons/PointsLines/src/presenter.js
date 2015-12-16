@@ -711,9 +711,27 @@ function AddonPointsLines_create() {
             'minWidth' : presenter.canvasWidth
         });
 
-        canvasElement.on('mousemove', function(e) {
+        function setCalculatedPosition(e) {
             xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
             yContainer.find('.value').html(getMousePositionOnCanvas(e).y);
+        }
+
+        var doesElementExist = function() {
+            var $moduleSelector = $('.moduleSelector[data-id="'+presenter.addonID+'"]');
+
+            if ($moduleSelector.length > 0) {
+                $moduleSelector.on('mousemove', function(e) {
+                    setCalculatedPosition(e);
+                });
+
+                clearInterval(interval);
+            }
+        };
+
+        var interval = setInterval(function() { doesElementExist(); }, 500);
+
+        canvasElement.on('mousemove', function(e) {
+            setCalculatedPosition(e);
         });
     };
 

@@ -208,13 +208,32 @@ function AddonBoard_Game_create(){
             coordinatesContainer.addClass('coordinates');
             coordinatesContainer.append(xContainer).append(yContainer);
             $(view).find('.board-game-container').append(coordinatesContainer);
-            $(view).find('.board-game-container').on('mousemove', function(e) {
+
+            function setCalculatedPosition(e) {
                 coordinations.x = e.originalEvent.pageX || e.originalEvent.touches[0].pageX;
                 coordinations.y = e.originalEvent.pageY || e.originalEvent.touches[0].pageY;
                 presenter.mouseSX = parseInt(coordinations.x,10) - parseInt($(view).find('.board-game-container').offset().left,10);
                 presenter.mouseSY = parseInt(coordinations.y,10) - parseInt($(view).find('.board-game-container').offset().top,10);
                 xContainer.find('.value').html(presenter.mouseSX);
                 yContainer.find('.value').html(presenter.mouseSY);
+            }
+
+            var doesElementExist = function() {
+                var $moduleSelector = $('.moduleSelector[data-id="'+presenter.modelID+'"]');
+
+                if ($moduleSelector.length > 0) {
+                    $moduleSelector.on('mousemove', function(e) {
+                        setCalculatedPosition(e);
+                    });
+
+                    clearInterval(interval);
+                }
+            };
+
+            var interval = setInterval(function() { doesElementExist(); }, 500);
+
+            $(view).find('.board-game-container').on('mousemove', function(e) {
+                setCalculatedPosition(e);
             });
         }
 
