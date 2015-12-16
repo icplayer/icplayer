@@ -81,7 +81,6 @@ TestCase("isShapeCoveredInCircle", {
         this.presenter.data.height = 8;
         this.presenter.data.currentPointNumber = 1;
 
-        var nextPointNumber = 2;
         this.model["Points' coordinates"] = "6;6;5";
 
         var validatedModel = this.presenter.validateModel(this.model);

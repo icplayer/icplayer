@@ -557,9 +557,10 @@ function AddonShape_Tracing_create() {
 
     presenter.isShapeCoveredInCircle = function(x, y, r) {
         r = parseInt(r, 10);
+        var increase = r < 4 ? r : 4;
 
-        for (var i=y-r; i<=y+r; i += 3) {
-            for (var j=x-r; j<=x+r; j += 3) {
+        for (var i=y-r; i<=y+r; i += increase) {
+            for (var j=x-r; j<=x+r; j += increase) {
                 if (i > 0 && j > 0 && j < presenter.data.width && i < presenter.data.height) {
                     if (r * r >= (x-j) * (x-j) + (y-i) * (y-i)) {
                         if (!presenter.data.borderPositions[i][j]) return false;
