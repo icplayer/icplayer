@@ -1,3 +1,4 @@
+2015-12-17 Fixed error messages in Standard Shapes module
 2015-12-16 Fixed tests in Shape Tracing
 2015-12-16 Added displaying coordinates in editor in BoardGame, PointsLine, LineSelection, FigureDrawing and ConnectingDots modules
 2015-12-15 Fixed issue with slow drawing in Shape Tracing

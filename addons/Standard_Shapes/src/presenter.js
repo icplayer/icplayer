@@ -404,7 +404,7 @@ function AddonStandard_Shapes_create(){
 
         if (presenter.configuration.lineEnding !== presenter.LINE_ENDING.NONE) {
             if (4 * presenter.configuration.strokeWidth + 2 > height) {
-                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R01');
+                DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'RU1');
                 return;
             }
         }
@@ -440,7 +440,7 @@ function AddonStandard_Shapes_create(){
                 break;
             case presenter.LINE_ENDING.CIRCLES:
                 if (4 * radius > width - 1) {
-                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R02');
+                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'RU1');
                     return;
                 }
 
@@ -457,7 +457,7 @@ function AddonStandard_Shapes_create(){
                 break;
             case presenter.LINE_ENDING.NONE_AND_CIRCLE:
                 if (2 * radius > width - 1) {
-                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R02');
+                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'RU2');
                     return;
                 }
 
@@ -471,7 +471,7 @@ function AddonStandard_Shapes_create(){
                 break;
             case presenter.LINE_ENDING.CIRCLE_AND_ARROW:
                 if (2 * radius + arrowHeight > width - 1) {
-                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'R03');
+                    DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, 'RU3');
                     return;
                 }
 
