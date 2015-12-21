@@ -633,6 +633,7 @@ var ice_dictionary = {
 "gamememo_property_image_for_style_b": "Image pour le style B",
 "gamememo_property_keep_cards_aspect_ratio": "Conserver les proportions des cartes",
 "gamememo_property_show_cards_for_preview": "Afficher les cartes en prévisualisation",
+"gamememo_property_image_mode": "Image Mode",
 "MultiAudio_info": "C'est une version améliorée du module externe Audio. Il a été enrichi de nouvelles fonctionnalités, telles que le téléchargement de plusieurs fichiers audio, la lecture de chaque fichier individuellement, le passage d'un fichier ŕ un autre, une interface de sélection améliorée.",
 "MultiAudio_name": "Audio multiple",
 "MultiAudio_property_files": "Fichiers",

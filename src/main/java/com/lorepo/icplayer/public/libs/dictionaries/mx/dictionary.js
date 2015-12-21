@@ -633,6 +633,7 @@
 	"gamememo_property_image_for_style_b": "Imagen de estilo B",
 	"gamememo_property_keep_cards_aspect_ratio": "Mantener relación de aspecto de las tarjetas",
 	"gamememo_property_show_cards_for_preview": "Mostrar cartas para obtener una vista preliminar",
+    "gamememo_property_image_mode": "Image Mode",
 	"MultiAudio_info": "Es una versión mejorada del addon Audio que ha sido enriquecido con nuevas características, tales como subir varios archivos de audio, lo que permite bucle de cada archivo de forma individual, saltar entre los archivos y mejorada selección de la interfaz.",
 	"MultiAudio_name": "MultiAudio",
 	"MultiAudio_property_files": "Archivo",

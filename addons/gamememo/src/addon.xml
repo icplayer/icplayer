@@ -16,5 +16,6 @@
 		<property name="Keep cards aspect ratio" nameLabel="gamememo_property_keep_cards_aspect_ratio" type="boolean" />
 		<property name="Show cards for preview" nameLabel="gamememo_property_show_cards_for_preview" type="boolean" />
         <property name="Is Not Activity" nameLabel="gamememo_property_is_not_activity" type="boolean" />
+        <property name="Image Mode" nameLabel="gamememo_property_image_mode" type="{Original, Stretch, KeepAspect}"/>
 	</model>
 </addon>

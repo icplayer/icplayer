@@ -192,6 +192,7 @@ function Addongamememo_create(){
         presenter.styleAImage = model['Image for style A'] != '' ? model['Image for style A'] : null;
         presenter.styleBImage = model['Image for style B'] != '' ? model['Image for style B'] : null;
         presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['Is Not Activity']));
+        presenter.imageMode = model['Image Mode'];
 
         var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
@@ -361,8 +362,15 @@ function Addongamememo_create(){
 
     presenter.handleCardClickedFirst = function(card) {
         presenter.state = presenter.STATES.CLICKED_FIRST;
-
-        presenter.cardClickedFirst = card;
+        if(presenter.imageMode == 'KeepAspect'){
+            if(card.hasClass('cell')){
+                presenter.cardClickedFirst = card;
+            }else{
+                presenter.cardClickedFirst = card.parent();
+            }
+        }else{
+            presenter.cardClickedFirst = card;
+        }
         presenter.showCard(presenter.cardClickedFirst);
 
         if(presenter.useTwoStyles) {
@@ -372,8 +380,7 @@ function Addongamememo_create(){
     };
 
     presenter.cardReveal = function () {
-        var cells = presenter.cardClickedFirst.parent().find(".cell");
-
+        var cells = presenter.viewContainer.find('.cell');
         presenter.serializedCards[$.inArray(presenter.cardClickedFirst[0], cells)].revealed = true;
         presenter.serializedCards[$.inArray(presenter.cardClickedSecond[0], cells)].revealed = true;
     };
@@ -426,12 +433,16 @@ function Addongamememo_create(){
         var cardId = $(e.target).parent().find('.card').attr('card_id');
 
         if(presenter.useTwoStyles) {
-            var clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
+            var clickedStyle;
+            if(presenter.imageMode == 'KeepAspect'){
+                clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().parent().find('.card').attr('card_style')));
+            }else{
+                clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
+            }
             if(clickedStyle == presenter.cardClickedStyle) {
                 return;
             }
         }
-
         switch(presenter.state) {
             case presenter.STATES.READY:
                 presenter.handleCardClickedFirst($(e.target).parent());
@@ -440,7 +451,16 @@ function Addongamememo_create(){
             case presenter.STATES.CLICKED_FIRST:
                 presenter.state = presenter.STATES.CLICKED_SECOND;
 
-                presenter.cardClickedSecond = $(e.target).parent();
+                if(presenter.imageMode == 'KeepAspect'){
+                    if($(e.target).parent().hasClass('cell')){
+                        presenter.cardClickedSecond = $(e.target).parent();
+                    }else{
+                        presenter.cardClickedSecond = $(e.target).parent().parent();
+                    }
+                }else{
+                    presenter.cardClickedSecond = $(e.target).parent();
+                }
+
                 presenter.showCard(presenter.cardClickedSecond);
 
                 presenter.cardClickedFirstId = presenter.cardClickedFirst.find('.card').attr('card_id');
@@ -475,7 +495,6 @@ function Addongamememo_create(){
                     presenter.hideCard(presenter.cardClickedFirst);
                     presenter.hideCard(presenter.cardClickedSecond);
                 }
-
                 presenter.handleCardClickedFirst($(e.target).parent());
 
                 presenter.cardClickedSecond = null;
@@ -546,12 +565,59 @@ function Addongamememo_create(){
             }
         }
 
-        if(presenter.styleAImage != null)
-            $container.find('div.front_A').css('background', 'url(' + encodeURI(presenter.styleAImage) + ')');
+        var img;
 
-        if(presenter.styleBImage != null)
-            $container.find('div.front_B').css('background', 'url(' + encodeURI(presenter.styleBImage) + ')');
+        if(presenter.styleAImage != null){
+            if(presenter.imageMode == 'Stretch'){
+                $container.find('div.front_A').css({
+                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')',
+                    'background-size': '100% 100%'
+                });
+            }else if(presenter.imageMode == 'KeepAspect'){
+                img = $('<img>');
+                img.attr('src', encodeURI(presenter.styleAImage));
+                img.css({
+                    'display': 'block',
+                    'max-width': presenter.requestedColumnWidth,
+                    'max-height': presenter.requestedRowHeight,
+                    'width': 'auto',
+                    'height': 'auto'
+                });
+                $container.find('div.front_A').append(img);
+                $container.find('div.front_A').css('background', 'transparent');
+            }else{
+                $container.find('div.front_A').css({
+                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')',
+                    'background-repeat': 'no-repeat'
+                });
+            }
+        }
 
+        if(presenter.styleBImage != null){
+            if(presenter.imageMode == 'Stretch'){
+                $container.find('div.front_B').css({
+                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')',
+                    'background-size': '100% 100%'
+                });
+            }else if(presenter.imageMode == 'KeepAspect'){
+                img = $('<img>');
+                img.attr('src', encodeURI(presenter.styleBImage));
+                img.css({
+                    'display': 'block',
+                    'max-width': presenter.requestedColumnWidth,
+                    'max-height': presenter.requestedRowHeight,
+                    'width': 'auto',
+                    'height': 'auto'
+                });
+                $container.find('div.front_B').append(img);
+                $container.find('div.front_B').css('background', 'transparent');
+            }else{
+                $container.find('div.front_B').css({
+                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')',
+                    'background-repeat': 'no-repeat'
+                });
+            }
+        }
 
         presenter.viewContainer.children('div').append($container);
 
@@ -566,8 +632,53 @@ function Addongamememo_create(){
 
         if(!presenter.preview || (presenter.preview && !presenter.previewCards))
             $container.find('div.back').css('visibility', 'hidden');
+
+        if(presenter.imageMode == 'Stretch'){
+            presenter.viewContainer.find('.gamememo_container .cell .back.placeholder img').css({
+                'width': '100%',
+                'height': '100%'
+            });
+        }
+
+        if(presenter.imageMode == 'KeepAspect'){
+            presenter.viewContainer.find('.gamememo_container .cell .back.placeholder img').css({
+                'display': 'block',
+                'max-width': presenter.requestedColumnWidth,
+                'max-height': presenter.requestedRowHeight,
+                'width': 'auto',
+                'height': 'auto'
+            });
+
+            presenter.viewContainer.find('.gamememo_container .cell .back.placeholder img').load(function () {
+                presenter.viewContainer.find('.gamememo_container .cell .back.placeholder').each(function () {
+                    centerImage(this);
+                });
+            });
+
+            presenter.viewContainer.find('img').load(function () {
+                presenter.viewContainer.find('div.front_A').each(function () {
+                    centerImage(this);
+                });
+            });
+
+            presenter.viewContainer.find('img').load(function () {
+                presenter.viewContainer.find('div.front_B').each(function () {
+                    centerImage(this);
+                });
+            });
+        }
     };
 
+    function centerImage(element) {
+        var imgTop = ($(element).height() - $(element).find('img').height())/2;
+        var imgLeft = ($(element).width() - $(element).find('img').width())/2;
+
+        $(element).find('img').css({
+            'top': imgTop+'px',
+            'left': imgLeft+'px',
+            'position': 'relative'
+        });
+    }
 
     presenter.initializeLogic = function(view, model) {
         presenter.viewContainer = $(view);
@@ -588,7 +699,6 @@ function Addongamememo_create(){
         presenter.preview = false;
         eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
-
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
     };
