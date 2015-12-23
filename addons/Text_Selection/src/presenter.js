@@ -421,6 +421,7 @@ function AddonText_Selection_create() {
             renderedRun: parsedText.renderedRun,
             renderedPreview: parsedText.renderedPreview,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             isExerciseStarted: false,
             areEventListenersOn: true,
             addonID: model['ID'],
@@ -911,7 +912,8 @@ function AddonText_Selection_create() {
 
         presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
         presenter.setWorkMode();
-        presenter.show();
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
     };
 
     presenter.getState = function() {
