@@ -1,3 +1,4 @@
+2016-01-05 Added horizontal layout property to Choice module
 2015-12-23 Fixed problem with reseting visibility in Text Selection module
 2015-12-21 Added image modes in Memo Game module
 2015-12-18 Fixed problem with stopping audio on mLibro in Audio module

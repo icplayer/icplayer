@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
@@ -17,6 +18,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
+	private HorizontalPanel optionsPanelHorizontal;
 	private ArrayList<IOptionDisplay> optionWidgets = new ArrayList<IOptionDisplay>();
 	private ArrayList<IOptionDisplay> orderedWidgets = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
@@ -38,8 +40,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private void createUI(boolean isPreview){
 		
 		optionsPanel = new VerticalPanel();
+		optionsPanelHorizontal = new HorizontalPanel();
 
-		optionsPanel.setStyleName("ic_choice");
+		if(module.isHorizontalLayout()){
+			optionsPanelHorizontal.setStyleName("ic_choice");
+		}else{
+			optionsPanel.setStyleName("ic_choice");
+		}
 		
 		makeOrder(isPreview);
 		
@@ -50,13 +57,23 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			widget = new OptionView(option, module.isMulti());
 			widget.addValueChangeHandler(this);
 			optionWidgets.add(widget);
-			optionsPanel.add((Widget)widget);
+			if(module.isHorizontalLayout()){
+				optionsPanelHorizontal.add((Widget)widget);
+			}else{
+				optionsPanel.add((Widget)widget);
+			}
 		}
 
 		getOrderedOptions();
-		optionsPanel.setSize("100%", "100%");
-		add(optionsPanel);
-		setWidgetPosition(optionsPanel, 0, 0);
+		if(module.isHorizontalLayout()){
+			optionsPanelHorizontal.setSize("100%", "100%");
+			add(optionsPanelHorizontal);
+			setWidgetPosition(optionsPanelHorizontal, 0, 0);
+		}else{
+			optionsPanel.setSize("100%", "100%");
+			add(optionsPanel);
+			setWidgetPosition(optionsPanel, 0, 0);
+		}
 		
 		StyleUtils.applyInlineStyle(this, module);
 		if(!isPreview){

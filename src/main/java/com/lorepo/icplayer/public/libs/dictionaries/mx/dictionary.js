@@ -245,6 +245,7 @@
 	"check_counter_module" : "Módulo Verificador",
 	"choice_module" : "Opción",
 	"is_multi" : "Es múltiple",
+	"horizontal_layout": "Horizontal Layout",
 	"choice_item" : "Ítem",
 	"choice_option" : "Opción",
 	"choice_item_text" : "Texto",

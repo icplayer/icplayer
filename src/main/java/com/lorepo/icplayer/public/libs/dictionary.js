@@ -249,6 +249,7 @@
 	"check_counter_module" : "Check Counter",
 	"choice_module" : "Choice",
 	"is_multi" : "Is&nbsp;multi",
+	"horizontal_layout": "Horizontal Layout",
 	"choice_item" : "Item",
 	"choice_option" : "Choice option",
 	"choice_item_text" : "Text",

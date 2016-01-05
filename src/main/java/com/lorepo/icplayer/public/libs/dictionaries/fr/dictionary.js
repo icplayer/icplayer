@@ -245,6 +245,7 @@ var ice_dictionary = {
 "check_counter_module" : "Compteur de vérifications",
 "choice_module" : "Choix",
 "is_multi" : "Est&nbsp;multiple",
+"horizontal_layout": "Horizontal Layout",
 "choice_item" : "Elément",
 "choice_option" : "Choix numéro",
 "choice_item_text" : "Texte",

@@ -22,6 +22,7 @@ public class ChoiceModel extends BasicModuleModel{
 	private boolean isDisabled = false;
 	private boolean isActivity = true;
 	private boolean randomOrder = false;
+	private boolean isHorizontal = false;
 
 	public ChoiceModel() {
 		super("Choice", DictionaryWrapper.get("choice_module"));
@@ -34,6 +35,7 @@ public class ChoiceModel extends BasicModuleModel{
 		addPropertyIsDisabled();
 		addPropertyIsActivity();
 		addPropertyRandomOrder();
+		addPropertyHorizontalLayout();
 	}
 	
 	public void addOption(ChoiceOption option) {
@@ -88,6 +90,7 @@ public class ChoiceModel extends BasicModuleModel{
 			isDisabled = XMLUtils.getAttributeAsBoolean(choice, "isDisabled", false);
 			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
 			randomOrder = XMLUtils.getAttributeAsBoolean(choice, "randomOrder", false);
+			isHorizontal = XMLUtils.getAttributeAsBoolean(choice, "isHorizontal", false);
 		}
 		
 		// Read options nodes
@@ -132,6 +135,7 @@ public class ChoiceModel extends BasicModuleModel{
 				"isDisabled='" + isDisabled +  "' " +
 				"isActivity='" + isActivity +  "' " +
 				"randomOrder='" + randomOrder +  "' " +
+				"isHorizontal='" + isHorizontal +  "' " +
 				" />";
 		xml += "<options>";
 		for(ChoiceOption option : options){
@@ -150,6 +154,49 @@ public class ChoiceModel extends BasicModuleModel{
 	}
 
 
+	private void addPropertyHorizontalLayout() {
+
+		IProperty property = new IBooleanProperty() {
+				
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
+				
+				if(value!= isHorizontal){
+					isHorizontal = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return isHorizontal ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("horizontal_layout");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("horizontal_layout");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+		
+		addProperty(property);
+	}
+	
+	public boolean isHorizontalLayout() {
+		return isHorizontal;
+	}
+	
 	private void addPropertyIsMulti() {
 
 		IProperty property = new IBooleanProperty() {
