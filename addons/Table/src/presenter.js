@@ -172,29 +172,29 @@ function AddonTable_create() {
         }
 
         if(presenter.configuration.gapType == "math"){
-                presenter.mathJaxProcessEnded.then(function() {
-                    presenter.mainLogic(isPreview);
-
-                    MathJax.CallBack.Queue().Push(function () {
-                        MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
-                        if(!isPreview){
-                            var checkSelector = setInterval(function () {
-                                if ($(presenter.$view).find('input').length > 0) {
-                                    presenter.gapsContainer.gaps = [];
-                                    $(presenter.$view).find('input').each(function (_, index) {
-                                        for(var i = 0; i < presenter.gapsAnswers.length; i++){
-                                            if(presenter.gapsAnswers[i].id == $(this).attr('id')){
-                                                var correctAnswers = presenter.gapsAnswers[i].answers;
-                                            }
+            presenter.mainLogic(isPreview);
+            presenter.mathJaxProcessEnded.then(function() {
+                MathJax.CallBack.Queue().Push(function () {
+                    MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+                    if(!isPreview){
+                        var checkSelector = setInterval(function () {
+                            if ($(presenter.$view).find('input').length > 0) {
+                                presenter.gapsContainer.gaps = [];
+                                $(presenter.$view).find('input').each(function (_, index) {
+                                    for(var i = 0; i < presenter.gapsAnswers.length; i++){
+                                        if(presenter.gapsAnswers[i].id == $(this).attr('id')){
+                                            var correctAnswers = presenter.gapsAnswers[i].answers;
                                         }
-                                        presenter.gapsContainer.addGap(new presenter.EditableInputGap($(this).attr('id'), correctAnswers, 1));
-                                    });
-                                    clearInterval(checkSelector);
-                                }
-                            }, 100);
-                        }
-                    });
+                                    }
+                                    presenter.gapsContainer.addGap(new presenter.EditableInputGap($(this).attr('id'), correctAnswers, 1));
+                                });
+                                clearInterval(checkSelector);
+                                presenter.eventBus.sendEvent('ValueChanged', []);
+                            }
+                        }, 100);
+                    }
                 });
+            });
         }else{
             presenter.mainLogic(isPreview);
         }
