@@ -245,7 +245,7 @@
 	"check_counter_module" : "Licznik sprawdzeń",
 	"choice_module" : "Ćwiczenie wyboru",
 	"is_multi" : "&nbsp;Wielokrotny",
-	"horizontal_layout": "Horizontal Layout",
+	"horizontal_layout": "Układ poziomy",
 	"choice_item" : "Element",
 	"choice_option" : "Opcja wyboru",
 	"choice_item_text" : "Tekst",
