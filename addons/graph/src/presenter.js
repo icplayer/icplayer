@@ -245,6 +245,9 @@ function Addongraph_create(){
         return presenter.getMaxScore() - presenter.getScore();
     };
 
+    presenter.isAllOK = function () {
+        return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+    };
 
     presenter.redrawValueContainers = function () {
         var valueContainers = presenter.$view.find('.graph_value_container');
@@ -348,7 +351,8 @@ function Addongraph_create(){
         var commands = {
             'show': presenter.show,
             'hide' : presenter.hide,
-            'getValue': presenter.getValue
+            'getValue': presenter.getValue,
+            'isAllOK': presenter.isAllOK
         };
 
         return Commands.dispatch(commands, name, params, presenter);
