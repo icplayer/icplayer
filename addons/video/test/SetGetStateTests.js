@@ -1,4 +1,4 @@
-SetGetStateTests = TestCase("Setting and Getting States Tests");
+SetGetStateTests = TestCase("[Video] Setting and Getting States Tests");
 
 SetGetStateTests.prototype.setUp = function() {
     this.presenter = Addonvideo_create();

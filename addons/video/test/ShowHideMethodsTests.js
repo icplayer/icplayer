@@ -1,4 +1,4 @@
-ShowHideMethodsTests = TestCase("Show and Hide Methods Tests");
+ShowHideMethodsTests = TestCase("[Video] Show and Hide Methods Tests");
 
 ShowHideMethodsTests.prototype.setUp = function() {
     this.presenter = Addonvideo_create();

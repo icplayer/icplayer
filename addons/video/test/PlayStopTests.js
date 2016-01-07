@@ -1,4 +1,4 @@
-TestCase("Play Stop and Pause Commands Tests", {
+TestCase("[Video] Play Stop and Pause Commands Tests", {
     setUp: function() {
         this.presenter = Addonvideo_create();
         this.presenter.video = document.createElement('video');

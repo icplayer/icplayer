@@ -1,4 +1,4 @@
-TestCase('Helpers', {
+TestCase('[Video] Helpers', {
     setUp: function() {
         this.presenter = Addonvideo_create();
     },

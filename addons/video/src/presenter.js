@@ -177,16 +177,20 @@ function Addonvideo_create() {
         this.video.addEventListener("webkitfullscreenchange", fullScreenChange, false);
     };
 
+    presenter.registerHook = function() {
+        presenter.mathJaxHook = MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
+            if ($(message[1]).hasClass('ic_page')) {
+                presenter.mathJaxProcessEndedDeferred.resolve();
+            }
+        });
+    };
+
     presenter.setPlayerController = function (controller) {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
 
-        MathJax.Hub.Register.MessageHook("End Process", function (message) {
-            if ($(message[1]).hasClass('ic_page')) {
-                presenter.mathJaxProcessEndedDeferred.resolve();
-            }
-        });
+        presenter.registerHook();
 
         presenter.eventBus = controller.getEventBus();
         presenter.eventBus.addEventListener('PageLoaded', this);
@@ -216,6 +220,56 @@ function Addonvideo_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.stopPropagationOnClickEvent = function(e) {
+        e.stopPropagation();
+    };
+
+    presenter.setMetaDataOnMetaDataLoadedEvent = function() {
+        presenter.metadadaLoaded = true;
+    };
+
+    function setVideoStateOnPlayEvent() {
+        presenter.videoState = presenter.VIDEO_STATE.PLAYING;
+    }
+
+    function setVideoStateOnPauseEvent() {
+        if (!presenter.isHideExecuted) {
+            presenter.videoState = presenter.VIDEO_STATE.PAUSED;
+        }
+
+        delete presenter.isHideExecuted;
+    }
+
+    presenter.removeMathJaxHook = function() {
+        MathJax.Hub.signal.hooks["End Process"].Remove(presenter.mathJaxHook);
+    };
+
+    presenter.destroy = function() {
+        presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.videoObject.removeEventListener('click', presenter.stopPropagationOnClickEvent);
+        presenter.videoObject.removeEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
+        presenter.videoObject.removeEventListener('play', setVideoStateOnPlayEvent);
+        presenter.videoObject.removeEventListener('pause', setVideoStateOnPauseEvent);
+        presenter.videoObject.removeEventListener('stalled', presenter.onStalledEventHandler);
+        presenter.videoObject.removeEventListener('webkitfullscreenchange', fullScreenChange);
+        document.removeEventListener("mozfullscreenchange", fullScreenChange);
+
+        presenter.$videoObject.unbind("ended");
+        presenter.$videoObject.unbind("error");
+        presenter.$videoObject.unbind("canplay");
+        presenter.$videoObject.unbind('timeupdate');
+
+        presenter.removeMathJaxHook();
+        presenter.$view.off();
+
+        presenter.videoObject.src = '';
+        presenter.mathJaxHook = null;
+        presenter.eventBus = null;
+        presenter.view = null;
+        presenter.viewObject = null;
+        presenter.video = null;
+    };
+
     presenter.run = function(view, model) {
         presenter.commandsQueue = CommandsQueueFactory.create(presenter);
         presenter.isVideoLoaded = false;
@@ -231,26 +285,27 @@ function Addonvideo_create() {
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         height = upgradedModel.Height;
         this.setDimensions();
-        this.reload();
+        presenter.reload();
 
         if (!presenter.isVisibleByDefault) presenter.hide();
 
-        this.video.addEventListener('click', function(e) { e.stopPropagation(); });
-        this.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
-        this.video.addEventListener('loadedmetadata', function() {
-            presenter.metadadaLoaded = true;
-        }, false);
-        this.video.addEventListener('play', function() {
-            presenter.videoState = presenter.VIDEO_STATE.PLAYING;
-        }, false);
-        this.video.addEventListener('pause', function() {
-            if (!presenter.isHideExecuted) {
-                presenter.videoState = presenter.VIDEO_STATE.PAUSED;
-            }
-            delete presenter.isHideExecuted;
-        }, false);
+        presenter.video.addEventListener('click', presenter.stopPropagationOnClickEvent);
+        presenter.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
+        presenter.video.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
+        presenter.video.addEventListener('play', setVideoStateOnPlayEvent);
+        presenter.video.addEventListener('pause', setVideoStateOnPauseEvent);
 
         presenter.eventBus.addEventListener('ValueChanged', this);
+
+        presenter.videoObject = this.video;
+        presenter.$videoObject = $(this.video);
+        presenter.videoView = view;
+
+        presenter.videoView.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {
@@ -357,7 +412,7 @@ function Addonvideo_create() {
         this.setVideo();
         this.loadSubtitles();
         $(this.video).unbind('timeupdate');
-        $(this.video).bind("timeupdate", function() {
+        $(this.video).bind("timeupdate", function () {
             onTimeUpdate(this);
         });
     };
@@ -407,7 +462,7 @@ function Addonvideo_create() {
         this.currentMovie = state.currentMovie;
         this.reload();
 
-        $(this.video).on('canplay', function() {
+        $(this.video).on('canplay', function onVideoCanPlay() {
             if (this.currentTime < currentTime) {
                 this.currentTime = currentTime;
                 this.startTime = currentTime;
@@ -436,7 +491,7 @@ function Addonvideo_create() {
             $poster_wrapper.width(video_width);
             $poster_wrapper.height(video_height);
             $poster_wrapper.addClass('poster-wrapper');
-            $poster_wrapper.on('click', function(e) {
+            $poster_wrapper.on('click', function onPosterWrapperClick(e) {
                 e.stopPropagation();
                 $(this).remove();
                 video.attr('controls', true);
@@ -500,11 +555,11 @@ function Addonvideo_create() {
 
             // "ended" event doesn't work on Safari
             $(this.video).unbind('timeupdate');
-            $(this.video).bind("timeupdate", function () {
+            $(this.video).bind("timeupdate", function onTimeUpdate() {
                 onTimeUpdate(this);
             });
 
-            $(this.video).bind("error", function() {
+            $(this.video).bind("error", function onError() {
                 $(this).unbind("error");
                 presenter.reload();
                 if (presenter.configuration.isFullScreen) {
@@ -512,7 +567,7 @@ function Addonvideo_create() {
                 }
             });
 
-            $(this.video).bind("canplay", function () {
+            $(this.video).bind("canplay", function onCanPlay() {
                 presenter.isVideoLoaded = true;
 
                 if (!presenter.commandsQueue.isQueueEmpty()) {
@@ -590,7 +645,7 @@ function Addonvideo_create() {
             }
 
             presenter.convertLinesToCaptions(Helpers.splitLines(subtitles));
-            $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function(data) {
+            $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onSubtitlesLoaded(data) {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.captionDivs])();
             });
@@ -655,11 +710,11 @@ function Addonvideo_create() {
 
         var $captions = presenter.$view.find('.captions');
         if (!isVisible) {
-            $captions.each(function () {
+            $captions.each(function hideVisibility() {
                 $(this).css('visibility', 'hidden');
             });
         } else {
-            $captions.each(function () {
+            $captions.each(function showVisibility() {
                 if ($(this).attr('visibility') === 'visible') {
                     $(this).css('visibility', 'visible');
                 }

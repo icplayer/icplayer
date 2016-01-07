@@ -1,4 +1,4 @@
-AddAttributeTests = TestCase("Add Attribute");
+AddAttributeTests = TestCase("[Video] Add Attribute");
 
 AddAttributeTests.prototype.setUp = function() {
     this.presenter = Addonvideo_create();

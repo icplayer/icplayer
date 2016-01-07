@@ -1,4 +1,4 @@
-PositiveIntegerValidationTests = TestCase("Positive integer validation tests");
+PositiveIntegerValidationTests = TestCase("[Video] Positive integer validation tests");
 
 PositiveIntegerValidationTests.prototype.testUndefinedValues = function()  {
     var presenter = Addonvideo_create();

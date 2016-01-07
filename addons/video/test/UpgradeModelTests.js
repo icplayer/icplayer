@@ -1,4 +1,4 @@
-UpgradeModelTests = TestCase("Upgrade Model Video");
+UpgradeModelTests = TestCase("[Video] Upgrade Model Video");
 
 UpgradeModelTests.prototype.setUp = function() {
     this.presenter = Addonvideo_create();
