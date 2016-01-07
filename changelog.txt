@@ -1,3 +1,4 @@
+2016-01-07 Fixed issue with Video on Chrome
 2016-01-07 Added isAllOK command to Fractions module
 2016-01-07 Added isAllOK command to Graph module
 2016-01-05 Fixed problem with MathJax in Table module
