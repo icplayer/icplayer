@@ -373,6 +373,9 @@ function AddonFractions_create(){
             case 'getCurrentNumberSA'.toLowerCase():
                 presenter.getCurrentNumberSA();
                 break;
+            case 'isAllOK'.toLowerCase():
+                presenter.isAllOK();
+                break;
 
         }
     };
@@ -434,6 +437,18 @@ function AddonFractions_create(){
         presenter.hideAnswers();
         return Counter;
     };
+
+    presenter.isAllOK = function(){
+        presenter.hideAnswers();
+
+        if(isNotActivity === true) {
+            return true;
+        }
+        return Counter == correctAnswer ? true : false;
+    };
+
+
+
 
     presenter.getCurrentNumberSA = function(){
         //presenter.hideAnswers();
