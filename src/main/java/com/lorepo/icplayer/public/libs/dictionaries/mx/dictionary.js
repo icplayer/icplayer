@@ -273,6 +273,7 @@
 	"ordering_new_item" : "Nuevo ítem",
 	"ordering_item" : "Ítem",
 	"ordering_item_text" : "Texto",
+	"ordering_gradually_score": "Gradually Score",
 	"page_progress_module" : "Página de Progreso",
 	"report_module" : "Reporte",
 	"report_errors" : "Errores / acumulados",

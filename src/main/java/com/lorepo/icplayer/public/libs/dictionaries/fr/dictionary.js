@@ -272,6 +272,7 @@ var ice_dictionary = {
 "ordering_new_item" : "Nouvel élément",
 "ordering_item" : "Elément numéro",
 "ordering_item_text" : "Texte",
+"ordering_gradually_score": "Gradually Score",
 "page_progress_module" : "Progression de la page",
 "real_time_calculation_property" : "Calculer en temps réel",
 "report_module" : "Rapport",

@@ -360,22 +360,27 @@ public class OrderingView extends Composite implements IDisplay {
 	@Override
 	public int getErrorCount() {
 		int index = 1;
-
+		int errors = 0;
+		
 		for (int i = 0; i < getWidgetCount(); i++) {
 
 			if (getWidget(i) instanceof ItemWidget) {
 
 				ItemWidget itemWidget = (ItemWidget) getWidget(i);
-				if(!itemWidget.isCorrect(index)) {
+				
+				if (module.isGraduallyScore() && !itemWidget.isCorrect(index)) {
+					errors++;
+				} else if(!itemWidget.isCorrect(index)) {
 					return 1;
 				}
+				
 				index++;
 			}
 		}
 
-		return 0;
+		return errors;
 	}
-
+	
 	@Override
 	public void setShowErrorsMode() {
 		workMode = false;

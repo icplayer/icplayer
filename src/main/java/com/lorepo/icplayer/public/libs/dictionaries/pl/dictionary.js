@@ -272,6 +272,7 @@
 	"ordering_new_item" : "Nowy element",
 	"ordering_item" : "Element szeregowania",
 	"ordering_item_text" : "Tekst",
+	"ordering_gradually_score": "Gradually Score",
 	"page_progress_module" : "Wynik strony",
 	"real_time_calculation_property" : "Oblicz w czasie rzeczywistym",
 	"report_module" : "Raport",

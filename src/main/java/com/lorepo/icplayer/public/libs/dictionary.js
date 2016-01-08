@@ -276,6 +276,7 @@
 	"ordering_new_item" : "New Item",
 	"ordering_item" : "Ordering item",
 	"ordering_item_text" : "Text",
+	"ordering_gradually_score": "Gradually Score",
 	"page_progress_module" : "Page Progress",
 	"real_time_calculation_property" : "Calculate in real time",
 	"report_module" : "Report",

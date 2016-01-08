@@ -1,3 +1,4 @@
+2016-01-08 Added graduated score to Ordering module
 2016-01-08 Added select and deselect commands in Line Selection module
 2016-01-07 Fixed issue with Video on Chrome
 2016-01-07 Added isAllOK command to Fractions module

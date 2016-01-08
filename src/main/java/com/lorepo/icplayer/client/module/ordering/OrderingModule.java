@@ -24,6 +24,7 @@ public class OrderingModule extends BasicModuleModel {
 	private String optionalOrder = "";
 	private boolean isActivity = true;
 	private boolean allElementsHasSameWidth = false;
+	private boolean graduallyScore = false;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -37,6 +38,7 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyOptionalOrder();
 		addPropertyIsActivity();
 		addPropertyAllElementHasSameWidth();
+		addPropertyGraduallyScore();
 	}
 
 	private void addItem(OrderingItem item) {
@@ -80,6 +82,7 @@ public class OrderingModule extends BasicModuleModel {
 			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
 			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
 			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
+			graduallyScore = XMLUtils.getAttributeAsBoolean(choice, "graduallyScore");
 		}
 
 		// Read item nodes
@@ -141,7 +144,7 @@ public class OrderingModule extends BasicModuleModel {
 		String xml = "<orderingModule " + getBaseXML() + ">" + getLayoutXML();
 
 		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" +
-				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + Boolean.toString(allElementsHasSameWidth) + "' />";
+				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) + "'/>";
 
 		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
@@ -151,7 +154,7 @@ public class OrderingModule extends BasicModuleModel {
 	}
 
 	public int getMaxScore() {
-		return maxScore;
+		return graduallyScore ? items.size() : maxScore;		
 	}
 
 	private void addPropertyIsVertical() {
@@ -399,6 +402,49 @@ public class OrderingModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("All_elements_has_same_width");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean isGraduallyScore() {
+		return graduallyScore;
+	}
+	
+	private void addPropertyGraduallyScore() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != graduallyScore) {
+					graduallyScore = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return graduallyScore ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("ordering_gradually_score");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("ordering_gradually_score");
 			}
 
 			@Override
