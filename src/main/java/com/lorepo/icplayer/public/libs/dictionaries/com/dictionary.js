@@ -625,6 +625,7 @@
 	"Math_property_on_incorrect": "On incorrect",
 	"Math_property_on_partially_completed": "On partially completed",
     "Math_property_show_answers" : "Show Answers",
+	"Math_property_empty_answer" : "Empty answer",
 	"gamememo_info": "Allows to create a simple game that checks the player’s ability to match different pairs of items which initially are placed randomly \"face down\". A user has to find all matching pairs by remembering the location and meaning of individual items.",
 	"gamememo_name": "Memo Game",
 	"gamememo_property_pairs": "Pairs",

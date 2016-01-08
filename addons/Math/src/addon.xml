@@ -10,5 +10,6 @@
         <property name="onCorrect" nameLabel="Math_property_on_correct" type="event" />
         <property name="onIncorrect" nameLabel="Math_property_on_incorrect" type="event" />
         <property name="onPartiallyCompleted" nameLabel="Math_property_on_partially_completed" type="event" />
+        <property name="Empty Answer" nameLabel="Math_property_empty_answer" type="string" />
     </model>
 </addon>

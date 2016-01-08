@@ -43,7 +43,8 @@ function AddonMath_create() {
         'CV_06': "Incorrect gap name defined in Show Answers property",
         'SA04': "Empty line is inserted in Show Answers property",
         'SA02': "Name of gap is not defined in Show Answers",
-        'SA03': "Value of gap is not defined in Show Answers"
+        'SA03': "Value of gap is not defined in Show Answers",
+        'EV_01': "Only one string can be declared"
     };
 
     presenter.convertVariables = function (variables, expressions) {
@@ -129,6 +130,14 @@ function AddonMath_create() {
         return expressionsArray;
     };
 
+
+    presenter.convertEmptyAnswer = function(variable) {
+        if (!variable) return "";
+        if (variable.indexOf(' ') >= 0) return { isError: true, errorCode: 'EV_01' };
+
+        return variable;
+    };
+
     presenter.convertModel = function (model) {
         var expressions = presenter.convertExpressions(model.Expressions);
 
@@ -159,6 +168,11 @@ function AddonMath_create() {
             isThousandSeparatorSet: isThousandSeparatorSet
         };
 
+        var emptyAnswer = presenter.convertEmptyAnswer(model['Empty Answer']);
+        if (emptyAnswer.isError) {
+            return { isError: true, errorCode: 'EV_01' };
+        }
+
         return {
             isError: false,
             variables: convertedVariables.variables,
@@ -167,7 +181,8 @@ function AddonMath_create() {
             onCorrectEvent: model.onCorrect,
             onIncorrectEvent: model.onIncorrect,
             onPartialEvent: model.onPartiallyCompleted,
-            separators: separators
+            separators: separators,
+            emptyAnswer: emptyAnswer
         };
     };
 
@@ -526,6 +541,10 @@ function AddonMath_create() {
             .replace('[INDEX]', decodedReference.gapIndex);
     }
 
+    function isVariableEmpty(variable) {
+        return variable === "" || variable === presenter.configuration.emptyAnswer;
+    }
+
     presenter.getEmptyGaps = function (variables) {
         var emptyGaps = [], i, convertedVariable;
 
@@ -533,7 +552,7 @@ function AddonMath_create() {
             convertedVariable = presenter.convertVariable(variables[i].value, presenter.configuration.separators);
             if (convertedVariable === undefined) return { isValid: false, errorMessage: getAlertMessage(variables[i]) };
 
-            if (convertedVariable === "") emptyGaps.push(variables[i].name);
+            if (isVariableEmpty(convertedVariable)) emptyGaps.push(variables[i].name);
         }
 
         return { isValid: true, gaps: emptyGaps };

@@ -621,6 +621,7 @@
 	"Math_property_on_incorrect": "Es incorrecto",
 	"Math_property_on_partially_completed": "Es parcialmente completado",
     "Math_property_show_answers" : "Show Answers",
+	"Math_property_empty_answer" : "Empty answer",
 	"gamememo_info": "El usuario tiene que encontrar todos los pares coincidentes recordando la ubicación y el significado de los elementos individuales.",
 	"gamememo_name": "Memorama",
 	"gamememo_property_pairs": "Pares",

@@ -620,6 +620,7 @@
 	"Math_property_on_incorrect": "Na źle",
 	"Math_property_on_partially_completed": "Na częściowo uzupełnione",
     "Math_property_show_answers" : "Pokaż odpowiedzi",
+	"Math_property_empty_answer" : "Empty answer",
 	"gamememo_info" : "Pozwala na utworzenie prostej gry sprawdzającej umiejętność łączenia w pary różnych elementów, które początkowo ułożone są rewersem do góry. Gracz ma za zadanie odkryć wszystkie pary, zapamiętując położenie i znaczenie poszczególnych elementów.",
 	"gamememo_name" : "Gra memo",
 	"gamememo_property_pairs" : "Pary",

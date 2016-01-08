@@ -621,6 +621,7 @@ var ice_dictionary = {
 "Math_property_on_incorrect": "Si incorrect",
 "Math_property_on_partially_completed": "Si partiellement réalisé",
 "Math_property_show_answers" : "Afficher les réponses",
+"Math_property_empty_answer" : "Empty answer",
 "gamememo_info": "Permet de créer un jeu simple qui vérifie la capacité du joueur ŕ reformer des paires d'éléments qui sont initialement placés au hasard \" face cachée\". Un utilisateur doit trouver toutes les paires en se souvenant de l'emplacement et de la signification de chaque élément.",
 "gamememo_name": "Jeu du memory",
 "gamememo_property_pairs": "Paires",
