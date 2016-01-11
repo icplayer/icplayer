@@ -23,6 +23,15 @@ public class TotalScore {
 		return data;
 	}
 	
+	public HashMap<String, String> getModeButton(LimitedCheckModule module, boolean mode) {
+		HashMap<String, String> data = new HashMap<String, String>();
+		
+		data.put("source", module.getId());
+		data.put("value", mode ? "checked" : "unchecked");
+		
+		return data;
+	}
+	
 	public static TotalScore getFromPresenters(List<IPresenter> presenters) {
 		TotalScore totalScore = new TotalScore();
 		

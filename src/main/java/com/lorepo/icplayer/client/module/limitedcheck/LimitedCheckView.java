@@ -61,6 +61,10 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 		}
 	}
 	
+	public boolean isButtonPressed() {
+		return isShowErrorsMode;
+	}
+	
 	private void onCheck() {
 		isShowErrorsMode = true;
 		updateStyle();
@@ -86,6 +90,9 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 		
 		presenters = getModulesPresenters();
 		changeModulesMode();
+		
+		TotalScore totalScore = TotalScore.getFromPresenters(presenters);
+		playerServices.getEventBus().fireEventFromSource(new CustomEvent("LimitedCheck", totalScore.getModeButton(module, isShowErrorsMode)), this);
 	}
 	
 	public ArrayList<IPresenter> getModulesPresenters() {
