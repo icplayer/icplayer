@@ -273,7 +273,8 @@ function AddonMultiAudio_create(){
             'next': presenter.next,
             'previous': presenter.previous,
             'jumpTo': presenter.jumpToCommand,
-            'jumpToID': presenter.jumpToIDCommand
+            'jumpToID': presenter.jumpToIDCommand,
+            'pause': presenter.pause
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -302,10 +303,18 @@ function AddonMultiAudio_create(){
 
         if (!presenter.audio.paused) {
             presenter.audio.pause();
-            presenter.audio.currentTime = 0;
             presenter.playingEventSent = false;
         }
+
+        presenter.audio.currentTime = 0;
     };
+
+    presenter.pause = function() {
+        if (!presenter.audio.paused) {
+            presenter.audio.pause();
+            presenter.playingEventSent = false;
+        }
+    }
 
     presenter.show = function() {
         this.setVisibility(true);

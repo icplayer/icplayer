@@ -1,3 +1,4 @@
+2016-01-11 Added pause command to MultiAudio
 2016-01-08 Added property Empty Answer to Math module
 2016-01-08 Added graduated score to Ordering module
 2016-01-08 Added select and deselect commands in Line Selection module
