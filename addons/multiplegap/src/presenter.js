@@ -754,8 +754,14 @@ function Addonmultiplegap_create(){
         var remainingItems = presenter.items.slice(0), currentItem;
 
         presenter.$view.find('.placeholder').each(function(index, placeholder) {
+
+            // To get updated score during dragged element which is still in DOM we must break out of each
+            if (!$(placeholder).find('.handler').filter(':visible').length) {
+                return true;
+            }
             currentItem = $(placeholder).attr('draggableItem');
             var currentItemIndex = remainingItems.indexOf(currentItem);
+
             if (currentItemIndex !== -1) {
                 remainingItems.splice(currentItemIndex, 1);
             }
