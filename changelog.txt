@@ -1,3 +1,4 @@
+2016-01-12 Added Blocked Lines property in Point And Lines module
 2016-01-11 Added custom event on uncheck in LimitedCheck module
 2016-01-11 Added pause command to MultiAudio
 2016-01-08 Added property Empty Answer to Math module

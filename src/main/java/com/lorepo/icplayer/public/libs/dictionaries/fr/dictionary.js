@@ -1009,6 +1009,7 @@ var ice_dictionary = {
 "PointsLines_property_lines": "Réponse",
 "PointsLines_property_is_activity": "Est un exercice",
 "PointsLines_property_is_disabled": "Est désactivé",
+"PointsLines_property_blocked_lines": "Blocked lines",
 "EdgeAnimation_info" : "Permet d'intégrer des animations et d'autres projets créés dans le programme Adobe Edge Animate. Plus d'une animation peuvent ętre utilisées dans ce module. Pour qu'il fonctionne, il est nécessaire de configurer certaines propriétés dans le menu latéral, comme les animations, les images et l'animation initiale.",
 "EdgeAnimation_name" : "Bordure de l'animation",
 "EdgeAnimation_property_animations" : "Animations",

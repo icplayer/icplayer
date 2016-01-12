@@ -1,6 +1,8 @@
 .addon_PointsLines .pointslines {
     border: 3px solid #ccc;
-    position:relative;
+    position:absolute;
+    -ms-touch-action: none;
+    touch-action: none;
 }
 .addon_PointsLines .disabled {
     height: 100%;

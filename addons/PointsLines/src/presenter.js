@@ -9,6 +9,7 @@ function AddonPointsLines_create() {
         'NP' : 'Define the points!',
         'IE' : 'Indexes incorrect!',
         'LE' : 'Starting lines incorrect!',
+        'BL' : 'Blocked lines incorrect!',
         'AE' : 'Answer incorrect!'
     };
 
@@ -241,7 +242,8 @@ function AddonPointsLines_create() {
         }
         return pointsCoordinates;
     }
-    function getLines(dataLines, numberOfPoints, stars) {
+    function getLines(dataLines, numberOfPoints, type) {
+        if (dataLines == undefined) dataLines='';
         dataLines = dataLines.replace(/\s/g, '');
         var Lines = new Array(numberOfPoints);
         var i, j, tmp_dane, point1, point2;
@@ -267,15 +269,17 @@ function AddonPointsLines_create() {
                 point1 = Math.min(parseInt(tmp_dane[1],10)-1,parseInt(tmp_dane[0],10)-1);
                 point2 = Math.max(parseInt(tmp_dane[1],10)-1,parseInt(tmp_dane[0],10)-1);
                 Lines[point1][point2] = 1;
-            } else if (stars && !isNaN(tmp_dane[0]) && parseInt(tmp_dane[0], 10) <= numberOfPoints && !isNaN(tmp_dane[1].substring(0, tmp_dane[1].length - 1)) && (tmp_dane[1].substring(tmp_dane[1].length - 1)) === '*' && parseInt(tmp_dane[1].substring(0, tmp_dane[1].length - 1), 10) <= numberOfPoints) {
+            } else if (type == 1 && !isNaN(tmp_dane[0]) && parseInt(tmp_dane[0], 10) <= numberOfPoints && !isNaN(tmp_dane[1].substring(0, tmp_dane[1].length - 1)) && (tmp_dane[1].substring(tmp_dane[1].length - 1)) === '*' && parseInt(tmp_dane[1].substring(0, tmp_dane[1].length - 1), 10) <= numberOfPoints) {
                 point1 = Math.min(parseInt(tmp_dane[1].substring(0,tmp_dane[1].length-1),10)-1,parseInt(tmp_dane[0],10)-1);
                 point2 = Math.max(parseInt(tmp_dane[1].substring(0,tmp_dane[1].length-1),10)-1,parseInt(tmp_dane[0],10)-1);
                 Lines[point1][point2] = 2;
             } else {
-                if (stars) {
+                if (type == 1) {
                     presenter.error = 'LE';
-                } else {
+                } else if (type == 2) {
                     presenter.error = 'AE';
+                } else {
+                    presenter.error = 'BL';
                 }
                 return false;
             }
@@ -403,6 +407,7 @@ function AddonPointsLines_create() {
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.initIsVisible = presenter.isVisible;
         var startingLines = presenter.model['Starting lines'];
+        var blockedLines = presenter.model['Blocked lines'];
         var con = presenter.$view.find('.pointslines').parent();
         presenter.$view.find('.pointslines').css({
             'width' : con.width(),
@@ -416,14 +421,17 @@ function AddonPointsLines_create() {
         }
         presenter.drawPoints();
         numberOfPoints = presenter.points.length;
-        presenter.startingLines = getLines(startingLines, numberOfPoints, true);
-        presenter.currentLines = getLines(startingLines, numberOfPoints, true);
-
+        presenter.startingLines = getLines(startingLines, numberOfPoints, 1);
         if (presenter.startingLines === false) {
             con.text(presenter.ERROR_CODES[presenter.error]);
             return;
         }
-
+        presenter.currentLines = getLines(startingLines, numberOfPoints, 1);
+        presenter.blockedLines = getLines(blockedLines, numberOfPoints, 3);
+        if (presenter.blockedLines === false) {
+            con.text(presenter.ERROR_CODES[presenter.error]);
+            return;
+        }
         for ( var i = 0; i < numberOfPoints; i++) {
             for ( var j = i; j < numberOfPoints; j++) {
                 if (presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) {
@@ -432,7 +440,7 @@ function AddonPointsLines_create() {
             }
         }
         var answer = presenter.model['Lines'];
-        presenter.answer = getLines(answer, numberOfPoints, false);
+        presenter.answer = getLines(answer, numberOfPoints, 2);
         if (presenter.answer === false) {
             con.text(presenter.ERROR_CODES[presenter.error]);
             return;
@@ -446,7 +454,7 @@ function AddonPointsLines_create() {
         } else if (presenter.selectedPoint !== -1) {
             point1 = Math.min(parseInt(presenter.selectedPoint,10),parseInt(i,10));
             point2 = Math.max(parseInt(presenter.selectedPoint,10),parseInt(i,10));
-            if (presenter.currentLines[point1][point2] === 0) {
+            if (presenter.currentLines[point1][point2] === 0 && presenter.blockedLines[point1][point2] != 1) {
                 presenter.drawLine(point1,point2);
                 presenter.currentLines[point1][point2] = 1;
                 line = 'line_'+(point1)+'_'+(point2);
@@ -492,160 +500,162 @@ function AddonPointsLines_create() {
 
     presenter.run = function(view, model) {
         presenter.initiate(view, model);
-        var $div = presenter.$view.find('.pointslines');
-        var Width = $div.width();
-        var Height = $div.height();
-        var i, j;
-        var line, score;
-        var point1, point2, distance;
-        presenter.selectedPoint = -1;
-        presenter.draw = false;
-        var timeClick = true;
-        if (presenter.disabled) presenter.disable();
+        if (!presenter.error) {
+            var $div = presenter.$view.find('.pointslines');
+            var Width = $div.width();
+            var Height = $div.height();
+            var i, j;
+            var line, score;
+            var point1, point2, distance;
+            presenter.selectedPoint = -1;
+            presenter.draw = false;
+            var timeClick = true;
+            if (presenter.disabled) presenter.disable();
 
 
-        presenter.$view.find('.point_container').on('mousedown', function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
-                presenter.draw = parseInt($(this).attr('order_value'),10)-1;
-            }
+            presenter.$view.find('.point_container').on('mousedown', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                    presenter.draw = parseInt($(this).attr('order_value'),10)-1;
+                }
 
-        });
+            });
 
-        presenter.$view.on('mousemove',function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            presenter.mouseSX = parseInt(e.pageX,10) - parseInt($div.offset().left,10);
-            presenter.mouseSY = parseInt(e.pageY,10) - parseInt($div.offset().top,10);
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
-                presenter.drawTempLine(presenter.draw,presenter.mouseSX,presenter.mouseSY);
-            }
-        });
+            presenter.$view.on('mousemove',function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.mouseSX = parseInt(e.pageX,10) - parseInt($div.offset().left,10);
+                presenter.mouseSY = parseInt(e.pageY,10) - parseInt($div.offset().top,10);
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                    presenter.drawTempLine(presenter.draw,presenter.mouseSX,presenter.mouseSY);
+                }
+            });
 
-        presenter.$view.find('.point_container').on('mouseup',function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            if (presenter.draw !== false && !presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+            presenter.$view.find('.point_container').on('mouseup',function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                if (presenter.draw !== false && !presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                    if (presenter.$view.find('#line_tmp').length > 0) {
+                        presenter.$view.find('#line_tmp').remove();
+                    }
+                    j = parseInt($(this).attr('order_value'),10)-1;
+                    if (presenter.draw !== j && presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.blockedLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] != 1) {
+                        presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
+                        presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
+                        line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
+                        if (presenter.selectedPoint !== -1) {
+                            presenter.$view.find('#point_'+presenter.addonID+'_'+i).removeClass('selected');
+                            presenter.selectedPoint = -1;
+                        }
+                        if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
+                            score = 1;
+                        } else {
+                            score = 0;
+                        }
+                        presenter.triggerLineEvent(line,1,score);
+                        line = 'all';
+                        score = '';
+                        if (presenter.isAllOK() && presenter.activity) {
+                            presenter.triggerLineEvent(line,score,score);
+                        }
+                    }
+                }
+                presenter.draw = false;
+            });
+
+            presenter.$view.on('mouseup mouseleave',function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                presenter.draw = false;
+
                 if (presenter.$view.find('#line_tmp').length > 0) {
                     presenter.$view.find('#line_tmp').remove();
                 }
-                j = parseInt($(this).attr('order_value'),10)-1;
-                if (presenter.draw !== j && presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0) {
-                    presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
-                    presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
-                    line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
-                    if (presenter.selectedPoint !== -1) {
-                        presenter.$view.find('#point_'+presenter.addonID+'_'+i).removeClass('selected');
-                        presenter.selectedPoint = -1;
-                    }
-                    if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
-                        score = 1;
-                    } else {
-                        score = 0;
-                    }
-                    presenter.triggerLineEvent(line,1,score);
-                    line = 'all';
-                    score = '';
-                    if (presenter.isAllOK() && presenter.activity) {
-                        presenter.triggerLineEvent(line,score,score);
-                    }
+            });
+
+            presenter.$view.find('.point_container').on('touchstart', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                    presenter.mouseSX = parseInt(e.originalEvent.touches[0].pageX,10) - parseInt($div.offset().left,10);
+                    presenter.mouseSY = parseInt(e.originalEvent.touches[0].pageY,10) - parseInt($div.offset().top,10);
+                    presenter.mouseX = parseInt(e.originalEvent.touches[0].pageX,10) - parseInt($div.offset().left,10);
+                    presenter.mouseY = parseInt(e.originalEvent.touches[0].pageY,10) - parseInt($div.offset().top,10);
+                    presenter.draw = parseInt($(this).attr('order_value'),10)-1;
                 }
-            }
-            presenter.draw = false;
-        });
+            });
 
-        presenter.$view.on('mouseup mouseleave',function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            presenter.draw = false;
-
-            if (presenter.$view.find('#line_tmp').length > 0) {
-                presenter.$view.find('#line_tmp').remove();
-            }
-        });
-
-        presenter.$view.find('.point_container').on('touchstart', function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
-                presenter.mouseSX = parseInt(e.originalEvent.touches[0].pageX,10) - parseInt($div.offset().left,10);
-                presenter.mouseSY = parseInt(e.originalEvent.touches[0].pageY,10) - parseInt($div.offset().top,10);
+            presenter.$view.find('.pointslines').on('touchmove', function(e){
+                e.stopPropagation();
+                e.preventDefault();
                 presenter.mouseX = parseInt(e.originalEvent.touches[0].pageX,10) - parseInt($div.offset().left,10);
                 presenter.mouseY = parseInt(e.originalEvent.touches[0].pageY,10) - parseInt($div.offset().top,10);
-                presenter.draw = parseInt($(this).attr('order_value'),10)-1;
-            }
-        });
+                if (presenter.mouseX >  Width || presenter.mouseY > Height || presenter.mouseX < 0 || presenter.mouseY < 0) {
+                    presenter.draw = false;
+                    if (presenter.$view.find('#line_tmp').length > 0) {
+                        presenter.$view.find('#line_tmp').remove();
+                    }
+                }
+                if (presenter.draw !== false) {
+                    presenter.drawTempLine(presenter.draw,presenter.mouseX,presenter.mouseY);
+                }
+            });
 
-        presenter.$view.find('.pointslines').on('touchmove', function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            presenter.mouseX = parseInt(e.originalEvent.touches[0].pageX,10) - parseInt($div.offset().left,10);
-            presenter.mouseY = parseInt(e.originalEvent.touches[0].pageY,10) - parseInt($div.offset().top,10);
-            if (presenter.mouseX >  Width || presenter.mouseY > Height || presenter.mouseX < 0 || presenter.mouseY < 0) {
+            presenter.$view.on('touchend', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                if (Math.abs(presenter.mouseSX - presenter.mouseX) + Math.abs(presenter.mouseSY - presenter.mouseY) < 15 && presenter.draw !== false) {
+                    if (timeClick) presenter.doClick(presenter.draw);
+                    timeClick = false;
+                    setTimeout(function(){timeClick = true;},310);
+                    //			presenter.doClick(presenter.draw);
+                } else  if (presenter.draw !== false){
+                    j = -1;
+                    for(i = 0; i<(presenter.points).length; i++) {
+                        distance = Math.abs(presenter.mouseX - parseInt(presenter.points[i][0],10))+ Math.abs(presenter.mouseY - parseInt(presenter.points[i][1],10));
+                        if (distance < 25) {
+                            j = i;
+                        }
+                    }
+                    if (j !== -1 && presenter.draw !== j && presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0  && presenter.blockedLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] != 1) {
+                        presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
+                        presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
+                        line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
+                        if (presenter.selectedPoint !== -1) {
+                            presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
+                            presenter.selectedPoint = -1;
+                        }
+
+                        if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
+                            score = 1;
+                        } else {
+                            score = 0;
+                        }
+                        presenter.triggerLineEvent(line,1,score);
+                        if (presenter.isAllOK() && presenter.activity) {
+                            line = 'all';
+                            score = '';
+                            presenter.triggerLineEvent(line,score,score);
+                        }
+                    }
+                }
                 presenter.draw = false;
                 if (presenter.$view.find('#line_tmp').length > 0) {
                     presenter.$view.find('#line_tmp').remove();
                 }
-            }
-            if (presenter.draw !== false) {
-                presenter.drawTempLine(presenter.draw,presenter.mouseX,presenter.mouseY);
-            }
-        });
-
-        presenter.$view.on('touchend', function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            if (Math.abs(presenter.mouseSX - presenter.mouseX) + Math.abs(presenter.mouseSY - presenter.mouseY) < 15 && presenter.draw !== false) {
-                if (timeClick) presenter.doClick(presenter.draw);
-                timeClick = false;
-                setTimeout(function(){timeClick = true;},310);
-                //			presenter.doClick(presenter.draw);
-            } else  if (presenter.draw !== false){
-                j = -1;
-                for(i = 0; i<(presenter.points).length; i++) {
-                    distance = Math.abs(presenter.mouseX - parseInt(presenter.points[i][0],10))+ Math.abs(presenter.mouseY - parseInt(presenter.points[i][1],10));
-                    if (distance < 25) {
-                        j = i;
-                    }
+            });
+            presenter.$view.find('.point_container').click(function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && timeClick) {
+                    i = parseInt($(this).attr('order_value'), 10) - 1;
+                    presenter.doClick(i);
                 }
-                if (j !== -1 && presenter.draw !== j && presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0) {
-                    presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
-                    presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
-                    line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
-                    if (presenter.selectedPoint !== -1) {
-                        presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
-                        presenter.selectedPoint = -1;
-                    }
-
-                    if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
-                        score = 1;
-                    } else {
-                        score = 0;
-                    }
-                    presenter.triggerLineEvent(line,1,score);
-                    if (presenter.isAllOK() && presenter.activity) {
-                        line = 'all';
-                        score = '';
-                        presenter.triggerLineEvent(line,score,score);
-                    }
-                }
-            }
-            presenter.draw = false;
-            if (presenter.$view.find('#line_tmp').length > 0) {
-                presenter.$view.find('#line_tmp').remove();
-            }
-        });
-        presenter.$view.find('.point_container').click(function(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && timeClick) {
-                i = parseInt($(this).attr('order_value'), 10) - 1;
-                presenter.doClick(i);
-            }
-        });
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+            });
+            presenter.eventBus.addEventListener('ShowAnswers', this);
+            presenter.eventBus.addEventListener('HideAnswers', this);
+        }
     };
 
     presenter.onEventReceived = function (eventName) {
@@ -711,27 +721,9 @@ function AddonPointsLines_create() {
             'minWidth' : presenter.canvasWidth
         });
 
-        function setCalculatedPosition(e) {
+        canvasElement.on('mousemove', function(e) {
             xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
             yContainer.find('.value').html(getMousePositionOnCanvas(e).y);
-        }
-
-        var doesElementExist = function() {
-            var $moduleSelector = $('.moduleSelector[data-id="'+presenter.addonID+'"]');
-
-            if ($moduleSelector.length > 0) {
-                $moduleSelector.on('mousemove', function(e) {
-                    setCalculatedPosition(e);
-                });
-
-                clearInterval(interval);
-            }
-        };
-
-        var interval = setInterval(function() { doesElementExist(); }, 500);
-
-        canvasElement.on('mousemove', function(e) {
-            setCalculatedPosition(e);
         });
     };
 
@@ -777,21 +769,23 @@ function AddonPointsLines_create() {
     presenter.setState = function(state) {
         presenter.currentLines = JSON.parse(state).currentLines;
         presenter.disabled = JSON.parse(state).disabled;
-        if (presenter.disabled) {
-            presenter.disable();
-        } else {
-            presenter.enable();
-        }
-        presenter.isVisible = JSON.parse(state).visible;
-        presenter.updateVisibility();
-        var numberOfPoints = presenter.points.length;
-        for (var i = 0; i < numberOfPoints; i++) {
-            for (var j = i; j < numberOfPoints; j++) {
-                if ((presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) && (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
-                    presenter.drawLine(i, j);
-                } else {
-                    if (presenter.currentLines[i][j] === 0 && presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
-                        presenter.$view.find('#line_' + (i) + '_' + (j)).remove();
+        if (presenter.error == false) {
+            if (presenter.disabled) {
+                presenter.disable();
+            } else {
+                presenter.enable();
+            }
+            presenter.isVisible = JSON.parse(state).visible;
+            presenter.updateVisibility();
+            var numberOfPoints = presenter.points.length;
+            for (var i = 0; i < numberOfPoints; i++) {
+                for (var j = i; j < numberOfPoints; j++) {
+                    if ((presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) && (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
+                        presenter.drawLine(i, j);
+                    } else {
+                        if (presenter.currentLines[i][j] === 0 && presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
+                            presenter.$view.find('#line_' + (i) + '_' + (j)).remove();
+                        }
                     }
                 }
             }
@@ -803,7 +797,7 @@ function AddonPointsLines_create() {
             presenter.hideAnswers();
         }
         var numberOfPoints = presenter.points.length;
-        if (presenter.activity || (presenter.error !== false)) {
+        if (presenter.activity && (presenter.error == false)) {
             var licznik = 0;
             var i, j;
             for (i = 0; i < numberOfPoints; i++) {
