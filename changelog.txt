@@ -1,3 +1,4 @@
+2016-01-13 Fixed issue with dragging when check mode is on in Ordering module
 2016-01-12 Fixed issue with dragged elements and them scores in MultipleGap module
 2016-01-12 Added Blocked Lines property in Point And Lines module
 2016-01-11 Added custom event on uncheck in LimitedCheck module

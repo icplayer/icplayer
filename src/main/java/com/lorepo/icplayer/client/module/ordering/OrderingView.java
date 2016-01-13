@@ -92,14 +92,22 @@ public class OrderingView extends Composite implements IDisplay {
 		getElement().setId(module.getId());
 		getAsJavaScript();
 		if(!isPreview){
-			makeSortable(getElement(), jsObject);
+			makeSortable(getElement(), jsObject, workMode);
 		}
 	}
 
-	private native void makeSortable(Element e, JavaScriptObject jsObject)/*-{
+	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
 		var forceHide = false;
+		
+		if (!workMode) {
+			$wnd.$(e).find(selector).sortable("disable");
+			return;
+		} else {
+			$wnd.$(e).find(selector).sortable("enable");	
+		}
+		
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
 			axis: jsObject.axis,
@@ -384,6 +392,7 @@ public class OrderingView extends Composite implements IDisplay {
 	@Override
 	public void setShowErrorsMode() {
 		workMode = false;
+		makeSortable(getElement(), jsObject, workMode);
 
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
@@ -405,6 +414,7 @@ public class OrderingView extends Composite implements IDisplay {
 	@Override
 	public void setWorkMode() {
 		workMode = true;
+		makeSortable(getElement(), jsObject, workMode);
 
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
@@ -445,6 +455,7 @@ public class OrderingView extends Composite implements IDisplay {
 	@Override
 	public void setWorkStatus(boolean isWorkOn) {
 		workMode = isWorkOn;
+		makeSortable(getElement(), jsObject, workMode);
 	}
 
 	@Override
@@ -480,6 +491,7 @@ public class OrderingView extends Composite implements IDisplay {
 	@Override
 	public void reset() {
 		workMode = true;
+		makeSortable(getElement(), jsObject, workMode);
 
 		randomizeViewItems();
 		for (int i = 0; i < getWidgetCount(); i++) {
