@@ -1008,7 +1008,7 @@
 	"PointsLines_property_lines": "Odpowiedź",
 	"PointsLines_property_is_activity": "Jest ćwiczeniem",
 	"PointsLines_property_is_disabled": "Jest wyłączony",
-    "PointsLines_property_blocked_lines": "Blocked lines",
+    "PointsLines_property_blocked_lines": "Zablokowane linie",
 	"EdgeAnimation_info" : "Pozwala na osadzenie w prezentacji animacji utworzonej w programie Adobe Edge Animate. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane właściwości w menu bocznym.",
 	"EdgeAnimation_name" : "Animacja Adobe Edge",
 	"EdgeAnimation_property_animations" : "Animacje",
