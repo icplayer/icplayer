@@ -548,9 +548,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} else if (!module.hasMathGaps()) {
 			view.connectGaps(module.getGapInfos().iterator());
 			view.connectFilledGaps(module.getGapInfos().iterator());
-			view.connectInlineChoices(module.getChoiceInfos().iterator());
-			view.connectLinks(module.getLinkInfos().iterator());
 		}
+		
+		view.connectInlineChoices(module.getChoiceInfos().iterator());
+		view.connectLinks(module.getLinkInfos().iterator());
 	}
 
 	private void connectViewListener() {
