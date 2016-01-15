@@ -259,7 +259,7 @@ function AddonLearnPen_Report_create() {
 
     function validateRange(range) {
         if (ModelValidationUtils.isStringEmpty(range)) {
-            return getCorrectObject({ start: 33, end: 66 });
+            return getCorrectObject({ start: 40, end: 80 });
         }
 
         var values = range.split(';');
