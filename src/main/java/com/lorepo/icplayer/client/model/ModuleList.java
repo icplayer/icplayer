@@ -148,7 +148,7 @@ public class ModuleList extends ArrayList<IModuleModel> {
 		
 		for(IModuleModel module : this){
 			
-			if(module.getId().compareToIgnoreCase(name) == 0){
+			if(module.getId().compareTo(name) == 0){
 				foundModule = module;
 				break;
 			}
