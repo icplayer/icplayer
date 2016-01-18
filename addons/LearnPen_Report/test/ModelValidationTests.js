@@ -27,7 +27,7 @@ TestCase("[LearnPen_Report] Model validation", {
 
         assertTrue(validatedModel.isVisible);
         assertFalse(validatedModel.isDisable);
-        assertEquals({ start : 33, end : 66 }, validatedModel.range);
+        assertEquals({ start : 40, end : 80 }, validatedModel.range);
         assertEquals("SQUEEZE", validatedModel.sensor);
         assertEquals({ above: "red", correct: "green", below: "yellow" }, validatedModel.colors);
         assertEquals(100, validatedModel.updateTime);
