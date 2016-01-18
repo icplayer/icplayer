@@ -1,3 +1,4 @@
+2016-01-18 Added new module Print Report
 2016-01-18 Fixed test in LearnPen Report module
 2016-01-15 Changed default values of correct range in LearnPen Report module
 2016-01-15 Fixed changing module ID

@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Print_Report' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property name="Text" displayName="Text" nameLabel="Print_Report_property_text" type="string" isLocalized="true"/>
+        <property name="Title" displayName="Title" nameLabel="Print_Report_property_title" type="boolean"/>
+        <property name="TitleLabel" displayName="Title Label" nameLabel="Print_Report_property_title_label" type="string" isLocalized="true"/>
+        <property name="Subtitle" displayName="Show subtitle" nameLabel="Print_Report_property_subtitle" type="boolean"/>
+        <property name="SubtitleLabel" displayName="Subtitle" nameLabel="Print_Report_property_subtitle_label" type="string" isLocalized="true"/>
+        <property name="Username" displayName="Show User First And Last Name" nameLabel="Print_Report_property_username" type="boolean"/>
+        <property name="PercentageScore" displayName="Percentage Score" nameLabel="Print_Report_property_percentage_score" type="boolean" />
+        <property name="PercentageScoreLabel" displayName="Percentage Score Label" nameLabel="Print_Report_property_percentage_score_label" type="string" isLocalized="true"/>
+        <property name="Checks" displayName="Checks" nameLabel="Print_Report_property_checks" type="boolean" />
+        <property name="ChecksLabel" displayName="Checks Label" nameLabel="Print_Report_property_checks_label" type="string" isLocalized="true"/>
+        <property name="Mistakes" displayName="Mistakes" nameLabel="Print_Report_property_mistakes" type="boolean" />
+        <property name="MistakesLabel" displayName="Mistakes Label" nameLabel="Print_Report_property_mistakes_label" type="string" isLocalized="true"/>
+        <property name="Errors" displayName="Errors" nameLabel="Print_Report_property_errors" type="boolean" />
+        <property name="ErrorsLabel" displayName="Errors Label" nameLabel="Print_Report_property_errors_label" type="string" isLocalized="true"/>
+        <property name="PageScore" displayName="Page Score" nameLabel="Print_Report_property_page_score" type="boolean" />
+        <property name="PageScoreLabel" displayName="Page Score Label" nameLabel="Print_Report_property_page_score_label" type="string" isLocalized="true"/>
+        <property name="TimePerPage" displayName="Time Per Page" nameLabel="Print_Report_property_time_per_page" type="boolean" />
+        <property name="TimePerPageLabel" displayName="Time Per Page Label" nameLabel="Print_Report_property_time_per_page_label" type="string" isLocalized="true"/>
+        <property name="Total" displayName="Show Total Results" nameLabel="Print_Report_property_total" type="boolean" />
+        <property name="TotalLabel" displayName="Total Results Label" nameLabel="Print_Report_property_total_label" type="string" isLocalized="true"/>
+        <property name="TimePerPageDaysLabel" displayName="Time Per Page: Days Label" nameLabel="Print_Report_property_time_per_page_days_label" type="string" isLocalized="true"/>
+        <property name="TimePerPageHoursLabel" displayName="Time Per Page: Hours Label" nameLabel="Print_Report_property_time_per_page_hours_label" type="string" isLocalized="true"/>
+        <property name="TimePerPageMinutesLabel" displayName="Time Per Page: Minutes Label" nameLabel="Print_Report_property_time_per_page_minutes_label" type="string" isLocalized="true"/>
+        <property name="TimePerPageSecondsLabel" displayName="Time Per Page: Seconds Label" nameLabel="Print_Report_property_time_per_page_seconds_label" type="string" isLocalized="true"/>
+        <property name="UsernameFirstLabel" displayName="User Form: First Name Label" nameLabel="Print_Report_property_username_first_label" type="string" isLocalized="true"/>
+        <property name="UsernameLastLabel" displayName="User Form: Last Name Label" nameLabel="Print_Report_property_username_last_label" type="string" isLocalized="true"/>
+        <property name="UsernameConfirmLabel" displayName="User Form: Confirm Label" nameLabel="Print_Report_property_username_confirm_label" type="string" isLocalized="true"/>
+        <property name="UsernameCancelLabel" displayName="User Form: Cancel Label" nameLabel="Print_Report_property_username_cancel_label" type="string" isLocalized="true"/>
+        <property name="Styles" displayName="Styles" nameLabel="Print_Report_property_styles" type="text" />
+    </model>
+</addon>

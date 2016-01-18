@@ -76,6 +76,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Page_Score_Counter", "reporting_menu");
 		addDescriptor("Show_Answers", "reporting_menu");
 		addDescriptor("Submit", "reporting_menu");
+		addDescriptor("Print_Report", "reporting_menu");
 
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");

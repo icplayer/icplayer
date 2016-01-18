@@ -380,6 +380,10 @@ public class JavaScriptPlayerServices {
 			time.getTotalTime = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTotalTime()();
 			}
+			
+			time.getPageTimeById = function(pageId) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTimeById(Ljava/lang/String;)(pageId);
+			}
 
 			return time;
 		}
@@ -559,6 +563,10 @@ public class JavaScriptPlayerServices {
 	
 	private String getTotalTime() {
 		return Long.toString(playerServices.getTimeService().getTotalTime());
+	}
+	
+	private String getPageTimeById(String pageId) {
+		return Long.toString(playerServices.getTimeService().getPageTimeById(pageId));
 	}
 	
 	private int getMaxScore(){
