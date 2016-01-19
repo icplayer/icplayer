@@ -105,7 +105,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
-
 		connectHandlers();
 	}
 
@@ -630,10 +629,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			@Override
 			public void onGapDropped(String id) {
-				if (consumedItems.get(id) != null) {
-					removeFromGap(id);
+				if(draggableItem != null){
+					if (consumedItems.get(id) != null) {
+						removeFromGap(id);
+					}
+					insertToGap(id);
 				}
-				insertToGap(id);
 			}
 		});
 	}
