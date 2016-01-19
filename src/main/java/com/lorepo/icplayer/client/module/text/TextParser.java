@@ -313,36 +313,39 @@ public class TextParser {
 
 		String replaceText = null;
 
-		int index = expression.indexOf(":");
-		if (index > 0) {
-			String value = expression.substring(0, index).trim();
-			String answerValues = StringUtils.removeNewlines(expression
-					.substring(index + 1));
-			String[] answers = answerValues.split("\\|");
-			if (answers.length > 1) {
+		try {
+			int index = expression.indexOf(":");
+			if (index > 0) {
+				String value = expression.substring(0, index).trim();
+				String answerValues = StringUtils.removeNewlines(expression
+						.substring(index + 1));
+				String[] answers = answerValues.split("\\|");
+				if (answers.length > 1) {
 
-				String id = baseId + "-" + idCounter;
-				idCounter++;
-				String answer = StringUtils.unescapeXML(answers[0].trim());
-				InlineChoiceInfo info = new InlineChoiceInfo(id, answer,
-						Integer.parseInt(value));
-				parserResult.choiceInfos.add(info);
-				replaceText = "<select id='" + id
-						+ "' class='ic_inlineChoice'>";
-				replaceText += "<option value='-'>---</option>";
-				for (int i = 0; i < answers.length; i++) {
-					info.addDistractor(answers[i].trim());
+					String id = baseId + "-" + idCounter;
+					idCounter++;
+					String answer = StringUtils.unescapeXML(answers[0].trim());
+					InlineChoiceInfo info = new InlineChoiceInfo(id, answer,
+							Integer.parseInt(value));
+					parserResult.choiceInfos.add(info);
+					replaceText = "<select id='" + id
+							+ "' class='ic_inlineChoice'>";
+					replaceText += "<option value='-'>---</option>";
+					for (int i = 0; i < answers.length; i++) {
+						info.addDistractor(answers[i].trim());
+					}
+					Iterator<String> distractors = info.getDistractors();
+					while (distractors.hasNext()) {
+						String dist = distractors.next();
+						String itemValue = StringUtils.escapeXML(dist);
+						replaceText += "<option value='" + itemValue + "'>" + dist
+								+ "</option>";
+					}
+					replaceText += "</select>";
 				}
-				Iterator<String> distractors = info.getDistractors();
-				while (distractors.hasNext()) {
-					String dist = distractors.next();
-					String itemValue = StringUtils.escapeXML(dist);
-					replaceText += "<option value='" + itemValue + "'>" + dist
-							+ "</option>";
-				}
-				replaceText += "</select>";
 			}
-		}
+		} catch (Exception e) {}
+
 
 		return replaceText;
 	}

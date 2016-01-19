@@ -232,6 +232,7 @@ var ice_dictionary = {
 "page_index" : "Index de la page",
 "on_click" : "au clic",
 "additional_classes" : "Classes supplémentaires",
+"text_parse_error": "Incorrect gap's syntax",
 "button_module": "Bouton",
 "standard_button" : "Standard",
 "next_page_button" : "Page suivante",

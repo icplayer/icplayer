@@ -129,7 +129,13 @@ public class TextModel extends BasicModuleModel {
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
+
 		if (parsedText.equals("#ERROR#")) {
+			parsedText = DictionaryWrapper.get("text_parse_error");
+			gapInfos.clear();
+			choiceInfos.clear();
+			linkInfos.clear();
+			
 			return;
 		}
 		gapInfos = parsedTextInfo.gapInfos;
@@ -590,6 +596,7 @@ public class TextModel extends BasicModuleModel {
 
 				if (value!= isKeepOriginalOrder) {
 					isKeepOriginalOrder = value;
+					setText(moduleText);
 					sendPropertyChangedEvent(this);
 				}
 			}

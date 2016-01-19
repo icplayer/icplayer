@@ -232,6 +232,7 @@
 	"page_index" : "Page Index",
 	"on_click" : "Al dar Click",
 	"additional_classes" : "Clases adicionales",
+	"text_parse_error": "Incorrect gap's syntax",
 	"button_module" : "Botón",
 	"standard_button" : "Estándar",
 	"next_page_button" : "Página siguiente",
