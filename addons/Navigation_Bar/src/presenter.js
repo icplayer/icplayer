@@ -635,12 +635,15 @@ function AddonNavigation_Bar_create() {
         if(presenter.presentation.getPage(presenter.currentIndex).isReportable()){
             var percentageScore = presenter.getPercentageScore(presenter.currentIndex);
             var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.currentIndex + 1) + "']");
+            var id = presenter.presentation.getPage(presenter.currentIndex).getId();
+            var pageScore = presenter.scoreService.getPageScoreById(id);
 
-            if(percentageScore == 100 || isNaN(percentageScore)){
+            if((percentageScore == 100 && pageScore.errorCount == 0) || isNaN(percentageScore)){
                 $page.addClass("navigationbar-page-ok");
                 presenter.pagesOk.push(presenter.currentIndex + 1);
             }
-            if(percentageScore < 100){
+
+            if(percentageScore < 100 || pageScore.errorCount > 0){
                 $page.removeClass("navigationbar-page-ok");
                 for(var k = presenter.pagesOk.length - 1; k >= 0; k--) {
                     if(presenter.pagesOk[k] === (presenter.currentIndex + 1)) {
@@ -655,12 +658,14 @@ function AddonNavigation_Bar_create() {
       for (var i=0; i<presenter.pageCount; i++){
           if(presenter.presentation.getPage(i).isReportable() && presenter.presentation.getPage(i).isVisited()){
               var percentageScore = presenter.getPercentageScore(i);
+              var id = presenter.presentation.getPage(i).getId();
+              var pageScore = presenter.scoreService.getPageScoreById(id);
 
               if(isNaN(percentageScore)){
                   percentageScore = 100;
               }
 
-              if(percentageScore == 100){
+              if(percentageScore == 100 && pageScore.errorCount == 0){
                   presenter.$wrapper.find("[data-page-number='" + (i+1) + "']").addClass("navigationbar-page-ok");
               }
           }
@@ -682,13 +687,17 @@ function AddonNavigation_Bar_create() {
         });
     };
     
-    presenter.onEventReceived = function(eventName) {
+    presenter.onEventReceived = function(eventName, eventData) {
         if (eventName == 'PageLoaded') {
             presenter.currentIndex = presenter.playerController.getCurrentPageIndex();
             presenter.pageIndex = presenter.currentIndex;
             presenter.pageLoadedDeferred.resolve();
         }
         if (eventName == "ValueChanged" && presenter.configuration.addClassNBPageOK && !presenter.isShowAnswersActive) {
+            presenter.currentIndex = presenter.pageIndex;
+            presenter.isCurrentPageOk();
+        }
+        if(eventData.value == "resetClicked"){
             presenter.currentIndex = presenter.pageIndex;
             presenter.isCurrentPageOk();
         }
