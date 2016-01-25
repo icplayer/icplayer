@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.ArrayList;
 
+import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -69,5 +70,11 @@ public class PageViewMockup implements IPageDisplay {
 	@Override
 	public void removeAllModules() {
 		views.clear();
+	}
+
+	@Override
+	public void runKeyboardNavigation(EventBus eventBus) {
+		// TODO Auto-generated method stub
+		
 	}
 }

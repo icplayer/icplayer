@@ -1,13 +1,24 @@
 package com.lorepo.icplayer.client.page;
 
 import java.util.HashMap;
+import java.util.List;
 
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition.Property;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -25,7 +36,8 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-
+	private int focusedModule = 0;
+	String currentModuleName = "";
 	
 	public AbsolutePageView(){
 
@@ -104,6 +116,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			}
 			
 			moduleView.setPixelSize(width, height);
+			moduleView.getElement().setAttribute("data-focus", "false");
 		    add(moduleView, left, top);
 		    widgets.put(module.getId(), moduleView);
 		}
@@ -169,5 +182,76 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		widgets.clear();
 		clear();
 	}
+	
+	private void selectModule(String moduleName) {
+		Widget widget = widgets.get(moduleName);
+		widget.getElement().setAttribute("data-focus", "true");
+		widget.getElement().addClassName("ic_selected_module");
+	}
+	
+	private void activateModule(String moduleName) {
+		Widget widget = widgets.get(moduleName);
+		widget.getElement().addClassName("ic_active_module");
+	}
+	
+	private void deselectModule(String currentModuleName) {
+		if (currentModuleName.isEmpty()) return;
+		
+		Widget currentWidget = widgets.get(currentModuleName);
+		currentWidget.getElement().setAttribute("data-focus", "false");
+		currentWidget.getElement().removeClassName("ic_selected_module");
+		currentWidget.getElement().removeClassName("ic_active_module");
+	}
+	
+	private void escapeModule(String currentModuleName) {
+		if (currentModuleName.isEmpty()) return;
+		
+		Widget currentWidget = widgets.get(currentModuleName);
+		currentWidget.getElement().removeClassName("ic_active_module");
+	}
+	
 
+	public void selectNextModule() {
+		List<String> modulesNames = currentPage.getModulesList();
+		String moduleName = modulesNames.get(focusedModule % widgets.size());
+
+		selectModule(moduleName);
+		deselectModule(currentModuleName);
+		
+		currentModuleName = moduleName;
+		focusedModule++;
+	}
+	
+	private static native void setSelectedModuleName(String name) /*-{
+		$wnd.selectedModuleName = name;
+	}-*/;
+	
+	@Override
+	public void runKeyboardNavigation(final EventBus eventBus) {
+		RootPanel.get().addDomHandler(new KeyDownHandler() {
+			boolean moduleIsActivated = false;
+			
+	        @Override
+	        public void onKeyDown(KeyDownEvent event) {
+	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && !moduleIsActivated) {
+	            	event.preventDefault();
+	            	selectNextModule();
+	            }
+	            
+	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+	            	event.preventDefault();
+	            	setSelectedModuleName(currentModuleName);
+	            	activateModule(currentModuleName);
+	            	this.moduleIsActivated = true;
+	            }
+	            
+	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
+	            	event.preventDefault();
+	            	escapeModule(currentModuleName);
+	            	this.moduleIsActivated = false;
+	            }
+	        }
+	    }, KeyDownEvent.getType());
+		
+	}
 }

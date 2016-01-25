@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.page;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
@@ -19,7 +20,6 @@ public class PageView extends SimplePanel implements IPageDisplay{
 
 	private IPageDisplay display;
 	private String styleName;
-
 	
 	public PageView(String styleName){
 		this.styleName = styleName;
@@ -75,4 +75,8 @@ public class PageView extends SimplePanel implements IPageDisplay{
 		}
 	}
 
+	@Override
+	public void runKeyboardNavigation(EventBus eventBus) {
+		display.runKeyboardNavigation(eventBus);
+	}
 }

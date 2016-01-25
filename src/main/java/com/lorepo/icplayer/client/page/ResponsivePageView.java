@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.page;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
@@ -77,5 +78,11 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 	@Override
 	public void removeAllModules() {
 		clear();
+	}
+
+	@Override
+	public void runKeyboardNavigation(EventBus eventBus) {
+		// TODO Auto-generated method stub
+		
 	}
 }

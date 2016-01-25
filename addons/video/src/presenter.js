@@ -269,7 +269,66 @@ function Addonvideo_create() {
         presenter.viewObject = null;
         presenter.video = null;
     };
+    
+    presenter.executeAction = function(e, keycode) {      
+        function increasedVolume() {
+        	var val = Math.round((presenter.videoObject.volume + 0.1)*10)/10;
+        	
+        	return val > 1 ? 1 : val;
+        }
+        
+        function decreasedVolume() {
+        	var val = Math.round((presenter.videoObject.volume - 0.1)*10)/10;
+        	
+        	return val < 0 ? 0 : val;
+        }
+        
+        function forward() {
+        	presenter.videoObject.currentTime += 15; 
+        }
+        
+        function backward() {
+        	presenter.videoObject.currentTime -= 15; 
+        }
+        
+        if(keycode == 32) {
+            if (presenter.video.paused) {
+            	presenter.play();
+            } else {
+            	presenter.pause();
+            }
+        }
+        
+        if(keycode == 38) {
+            presenter.videoObject.volume = increasedVolume();
+        }
+        
+        if(keycode == 40) {
+            presenter.videoObject.volume = decreasedVolume();
+        }
+        
+        if(keycode == 37) {
+        	backward();
+        }
+        
+        if(keycode == 39) {
+        	forward();
+        }
+    };
+    
+    presenter.addKeyboardNavigation = function() {
+        $(document).on('keydown', function(e) {
+        	var keycode = (event.keyCode ? event.keyCode : event.which);
 
+        	if (window.selectedModuleName === presenter.addonID) {
+            	e.stopPropagation();
+                e.preventDefault();
+                
+                presenter.executeAction(e, keycode);
+            }
+        });
+    };
+    
     presenter.run = function(view, model) {
         presenter.commandsQueue = CommandsQueueFactory.create(presenter);
         presenter.isVideoLoaded = false;
@@ -306,6 +365,8 @@ function Addonvideo_create() {
                 presenter.destroy();
             }
         });
+        
+        presenter.addKeyboardNavigation();
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {
