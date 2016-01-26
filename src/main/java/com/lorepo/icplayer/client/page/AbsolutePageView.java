@@ -233,9 +233,12 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			
 	        @Override
 	        public void onKeyDown(KeyDownEvent event) {
-	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && !moduleIsActivated) {
+	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 	            	event.preventDefault();
-	            	selectNextModule();
+	            	if (!moduleIsActivated) {
+	            		selectNextModule();
+	            		setSelectedModuleName(null);
+	            	}
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
