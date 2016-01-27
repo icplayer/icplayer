@@ -38,6 +38,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
 	private int focusedModule = 0;
 	String currentModuleName = "";
+	boolean moduleIsActivated = false;
 	
 	public AbsolutePageView(){
 
@@ -185,29 +186,33 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	
 	private void selectModule(String moduleName) {
 		Widget widget = widgets.get(moduleName);
-		widget.getElement().setAttribute("data-focus", "true");
 		widget.getElement().addClassName("ic_selected_module");
 	}
 	
 	private void activateModule(String moduleName) {
 		Widget widget = widgets.get(moduleName);
 		widget.getElement().addClassName("ic_active_module");
+		
+		this.moduleIsActivated = true;
 	}
 	
 	private void deselectModule(String currentModuleName) {
 		if (currentModuleName.isEmpty()) return;
 		
 		Widget currentWidget = widgets.get(currentModuleName);
-		currentWidget.getElement().setAttribute("data-focus", "false");
 		currentWidget.getElement().removeClassName("ic_selected_module");
 		currentWidget.getElement().removeClassName("ic_active_module");
 	}
 	
-	private void escapeModule(String currentModuleName) {
+	private void deactivateModule(String currentModuleName) {
 		if (currentModuleName.isEmpty()) return;
 		
 		Widget currentWidget = widgets.get(currentModuleName);
 		currentWidget.getElement().removeClassName("ic_active_module");
+		
+		this.moduleIsActivated = false;
+		
+		setModuleStatus(currentModuleName, true, false);
 	}
 	
 
@@ -220,41 +225,42 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		
 		currentModuleName = moduleName;
 		focusedModule++;
+		
+		setModuleStatus(moduleName, true, false);
 	}
 	
-	private static native void setSelectedModuleName(String name) /*-{
-		$wnd.selectedModuleName = name;
+	private static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
+		$wnd.moduleStatus = {
+			name: name,
+			selected: selected,
+			activated: activated
+		}
 	}-*/;
 	
 	@Override
 	public void runKeyboardNavigation(final EventBus eventBus) {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
-			boolean moduleIsActivated = false;
-			
+
 	        @Override
 	        public void onKeyDown(KeyDownEvent event) {
+
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
-	            	event.preventDefault();
 	            	if (!moduleIsActivated) {
+		            	event.preventDefault();
 	            		selectNextModule();
-	            		setSelectedModuleName(null);
 	            	}
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
-	            	setSelectedModuleName(currentModuleName);
 	            	activateModule(currentModuleName);
-	            	this.moduleIsActivated = true;
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
-	            	escapeModule(currentModuleName);
-	            	this.moduleIsActivated = false;
+	            	deactivateModule(currentModuleName);
 	            }
 	        }
 	    }, KeyDownEvent.getType());
-		
 	}
 }

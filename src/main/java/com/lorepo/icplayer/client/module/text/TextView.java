@@ -6,11 +6,18 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -246,4 +253,44 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 
+	private static native String getModuleStatus(String type) /*-{
+		return $wnd.moduleStatus[type];
+	}-*/;
+	
+
+	private void onEnterKey() {
+    	int position = -1;
+    	TextElementDisplay gap = null;
+    	
+    	if (module.getId().equals(getModuleStatus("name"))) {
+    		
+    		for(int i = 0; i < textElements.size(); i++) {
+				gap = textElements.get(i);
+				
+    			if (gap instanceof InlineChoiceWidget) {
+    				position = i;
+    			}
+    		}
+    		
+    		if (position == -1) {
+    			gap = textElements.get(0);
+    		} else {
+    			gap = textElements.get(position);
+    		}
+    		
+    		if (gap != null) {
+    			gap.setFocusGap(true);
+    		}
+    	}
+	}
+	
+	private void onEscapeKey() {
+    	if (module.getId().equals(getModuleStatus("name"))) {
+    		TextElementDisplay gap = textElements.get(0);
+    		
+    		if (gap != null) {
+    			gap.setFocusGap(false);
+    		}
+    	}
+	}
 }

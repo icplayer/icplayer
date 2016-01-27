@@ -60,6 +60,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElement(String element);
 		String getDroppedElement();
 		String getId();
+		void setFocusGap(boolean focus);
 	}
 
 	public interface IDisplay extends IModuleView {
