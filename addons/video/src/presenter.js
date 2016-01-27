@@ -320,7 +320,7 @@ function Addonvideo_create() {
         $(document).on('keydown', function(e) {
         	var keycode = (event.keyCode ? event.keyCode : event.which);
 
-        	if (window.selectedModuleName === presenter.addonID) {
+        	if (window.moduleStatus.name === presenter.addonID && window.moduleStatus.activated) {
             	e.stopPropagation();
                 e.preventDefault();
                 

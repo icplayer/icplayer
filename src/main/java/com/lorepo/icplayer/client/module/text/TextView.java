@@ -6,16 +6,10 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
@@ -33,6 +27,7 @@ public class TextView extends HTML implements IDisplay{
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
+		new KeyboardNavigation(this);
 	}
 
 	private void createUI(boolean isPreview) {
@@ -253,16 +248,11 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 
-	private static native String getModuleStatus(String type) /*-{
-		return $wnd.moduleStatus[type];
-	}-*/;
-	
-
-	private void onEnterKey() {
+	public void onEnterKey() {
     	int position = -1;
     	TextElementDisplay gap = null;
     	
-    	if (module.getId().equals(getModuleStatus("name"))) {
+    	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
     		
     		for(int i = 0; i < textElements.size(); i++) {
 				gap = textElements.get(i);
@@ -284,13 +274,12 @@ public class TextView extends HTML implements IDisplay{
     	}
 	}
 	
-	private void onEscapeKey() {
-    	if (module.getId().equals(getModuleStatus("name"))) {
-    		TextElementDisplay gap = textElements.get(0);
+	public void onEscapeKey() {
+    	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
     		
-    		if (gap != null) {
-    			gap.setFocusGap(false);
-    		}
+			for (TextElementDisplay gap : textElements) {
+				gap.setFocusGap(false);
+			}
     	}
 	}
 }

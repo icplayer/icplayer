@@ -7,7 +7,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 
 public class KeyboardNavigation {
-	public void KeyboardNavigation(IModuleView modukeView) {
+	public KeyboardNavigation(final IModuleView moduleView) {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			
 	        @Override
@@ -15,14 +15,18 @@ public class KeyboardNavigation {
 
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
-	            	modukeView.onEnterKey();
+	            	moduleView.onEnterKey();
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
-	            	modukeView.onEscapeKey();
+	            	moduleView.onEscapeKey();
 	            }
 	        }
 	    }, KeyDownEvent.getType());
 	}
+	
+	public static native String getModuleStatus(String type) /*-{
+		return $wnd.moduleStatus[type];
+	}-*/;
 }

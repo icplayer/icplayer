@@ -11,14 +11,9 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition.Property;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -194,6 +189,8 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		widget.getElement().addClassName("ic_active_module");
 		
 		this.moduleIsActivated = true;
+		
+		setModuleStatus(moduleName, true, true);
 	}
 	
 	private void deselectModule(String currentModuleName) {
