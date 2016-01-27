@@ -1,3 +1,4 @@
+2016-01-27 Fixed issue with removing module in group in Text module
 2016-01-25 Added global state in Show Answers module
 2016-01-20 Fixed adding class when page score is 100% in Navigation Bar module
 2016-01-19 Fixed issue with Keep Original Order mode and dropdowngaps in Text module

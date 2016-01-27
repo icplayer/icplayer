@@ -785,4 +785,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	public HashMap<String, List<Ruler>> getRulers() {
 		return rulers;
 	}
+
+	public void removeModule(IModuleModel module) {
+		for (Group g : groupedModules) {
+			if (g.contains(module)) {
+				g.remove(module);
+			}
+		}
+		
+		modules.remove(module);
+	}
 }
