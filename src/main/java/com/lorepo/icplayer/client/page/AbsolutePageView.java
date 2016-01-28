@@ -236,6 +236,8 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	
 	@Override
 	public void runKeyboardNavigation(final EventBus eventBus) {
+		setModuleStatus("", false, false); //initialize moduleStatus on Page loaded
+		
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 
 	        @Override
