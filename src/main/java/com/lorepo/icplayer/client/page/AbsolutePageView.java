@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.page;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,6 +35,32 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	private int focusedModule = 0;
 	String currentModuleName = "";
 	boolean moduleIsActivated = false;
+	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
+	List<String> modulesNames = new ArrayList<String>();
+	public enum ExpectedModules {
+		text, video;
+		
+		  public static boolean contains(String s) {
+		      for(ExpectedModules choice:values()) {
+		           if (choice.name().equals(s)) {
+		        	   return true; 
+		           }
+		      }
+		              
+		      return false;
+		  }
+		  
+		  public static List<String> getModulesTypes() {
+			  ExpectedModules[] states = values();
+			    List<String> names = new ArrayList<String>();
+
+			    for (int i = 0; i < states.length; i++) {
+			        names.add(states[i].name());
+			    }
+
+			    return names;
+			}
+	}
 	
 	public AbsolutePageView(){
 
@@ -112,12 +139,11 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			}
 			
 			moduleView.setPixelSize(width, height);
-			moduleView.getElement().setAttribute("data-focus", "false");
 		    add(moduleView, left, top);
 		    widgets.put(module.getId(), moduleView);
+		    addToNavigation(module, moduleView);
 		}
 	}
-
 
 	private int calculatePosition(String widgetName, Property property, int modulePos) {
 		int pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
@@ -180,12 +206,15 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	}
 	
 	private void selectModule(String moduleName) {
-		Widget widget = widgets.get(moduleName);
+		Widget widget = navigationWidgets.get(moduleName);
+		
 		widget.getElement().addClassName("ic_selected_module");
 	}
 	
 	private void activateModule(String moduleName) {
-		Widget widget = widgets.get(moduleName);
+		if (moduleName.isEmpty()) return;
+		
+		Widget widget = navigationWidgets.get(moduleName);
 		widget.getElement().addClassName("ic_active_module");
 		
 		this.moduleIsActivated = true;
@@ -196,7 +225,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	private void deselectModule(String currentModuleName) {
 		if (currentModuleName.isEmpty()) return;
 		
-		Widget currentWidget = widgets.get(currentModuleName);
+		Widget currentWidget = navigationWidgets.get(currentModuleName);
 		currentWidget.getElement().removeClassName("ic_selected_module");
 		currentWidget.getElement().removeClassName("ic_active_module");
 	}
@@ -204,7 +233,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	private void deactivateModule(String currentModuleName) {
 		if (currentModuleName.isEmpty()) return;
 		
-		Widget currentWidget = widgets.get(currentModuleName);
+		Widget currentWidget = navigationWidgets.get(currentModuleName);
 		currentWidget.getElement().removeClassName("ic_active_module");
 		
 		this.moduleIsActivated = false;
@@ -214,8 +243,8 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	
 
 	public void selectNextModule() {
-		List<String> modulesNames = currentPage.getModulesList();
-		String moduleName = modulesNames.get(focusedModule % widgets.size());
+		int size = focusedModule % navigationWidgets.size();
+		String moduleName = modulesNames.get(size);
 
 		selectModule(moduleName);
 		deselectModule(currentModuleName);
@@ -234,6 +263,14 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		}
 	}-*/;
 	
+	
+	private void addToNavigation(IModuleModel module, Widget moduleView) {
+		if (ExpectedModules.contains(module.getModuleTypeName().toLowerCase())) {
+			navigationWidgets.put(module.getId(), moduleView);
+			modulesNames.add(module.getId());
+		}
+	}
+	
 	@Override
 	public void runKeyboardNavigation(final EventBus eventBus) {
 		setModuleStatus("", false, false); //initialize moduleStatus on Page loaded
@@ -242,7 +279,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	        @Override
 	        public void onKeyDown(KeyDownEvent event) {
-
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 	            	if (!moduleIsActivated) {
 		            	event.preventDefault();

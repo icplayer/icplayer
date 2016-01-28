@@ -77,6 +77,9 @@ public class PageView extends SimplePanel implements IPageDisplay{
 
 	@Override
 	public void runKeyboardNavigation(EventBus eventBus) {
-		display.runKeyboardNavigation(eventBus);
+		if (styleName.equals("ic_page")) {
+			display.runKeyboardNavigation(eventBus);
+		}
+
 	}
 }
