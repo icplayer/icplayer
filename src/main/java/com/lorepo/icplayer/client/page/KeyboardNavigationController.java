@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.text.TextModel;
+import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public final class KeyboardNavigationController {
 	private int focusedModule = 0;
@@ -40,45 +45,46 @@ public final class KeyboardNavigationController {
 	        @Override
 	        public void onKeyDown(KeyDownEvent event) {
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
+	            	event.preventDefault();
 	            	if (!moduleIsActivated) {
-		            	event.preventDefault();
 	            		selectNextModule();
 	            	}
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
-	            	activateModule(currentModuleName);
+	            	activateModule();
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
-	            	deactivateModule(currentModuleName);
+	            	deactivateModule();
 	            }
 	        }
 	    }, KeyDownEvent.getType());
 	}
 	
 	protected void addToNavigation(IModuleModel module, Widget moduleView) {
-		boolean isHidden = moduleView.getElement().getStyle().getVisibility().equals("hidden");
 		boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
 		
-		if (isModuleExpected && !isHidden) {
-			JavaScriptUtils.log(moduleView.getElement().getStyle().getVisibility());
+		if (isModuleExpected) {
+			if (module.getModuleTypeName().equalsIgnoreCase("text")) {
+				
+			}
 			navigationWidgets.put(module.getId(), moduleView);
 			modulesNames.add(module.getId());
 		}
 	}
 	
-	private void activateModule(String moduleName) {
-		if (moduleName.isEmpty()) return;
+	private void activateModule() {
+		if (currentModuleName.isEmpty()) return;
 		
-		Widget widget = navigationWidgets.get(moduleName);
+		Widget widget = navigationWidgets.get(currentModuleName);
 		widget.getElement().addClassName("ic_active_module");
 		
 		this.moduleIsActivated = true;
 		
-		setModuleStatus(moduleName, true, true);
+		setModuleStatus(currentModuleName, true, true);
 	}
 	
 	private void deselectModule(String currentModuleName) {
@@ -89,7 +95,7 @@ public final class KeyboardNavigationController {
 		currentWidget.getElement().removeClassName("ic_active_module");
 	}
 	
-	private void deactivateModule(String currentModuleName) {
+	private void deactivateModule() {
 		if (currentModuleName.isEmpty()) return;
 		
 		Widget currentWidget = navigationWidgets.get(currentModuleName);
@@ -102,12 +108,24 @@ public final class KeyboardNavigationController {
 	
 
 	private void selectNextModule() {
-		int size = focusedModule % navigationWidgets.size();
-		String moduleName = modulesNames.get(size);
-
-		selectModule(moduleName);
 		deselectModule(currentModuleName);
 		
+		int position = focusedModule % navigationWidgets.size();
+		String moduleName = modulesNames.get(position);
+		Widget w = navigationWidgets.get(moduleName);
+		int i = 0;
+		
+		// skip hidden modules
+		while (w.getElement().getStyle().getVisibility().equals("hidden")) {
+			if (i++ == position) break; // if all modules are hidden then break loop
+			focusedModule++;
+			position = focusedModule % navigationWidgets.size();
+			moduleName = modulesNames.get(position);
+			w = navigationWidgets.get(moduleName);
+		}
+		
+		selectModule(moduleName);
+
 		currentModuleName = moduleName;
 		focusedModule++;
 		

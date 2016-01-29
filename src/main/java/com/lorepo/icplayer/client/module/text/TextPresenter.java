@@ -1238,5 +1238,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public void markConnectionWithMath() {
 		isConnectedToMath = true;
 	}
+	
+	public int getChildrenCount() {
+		return view.getChildrenCount();
+	}
 
 }

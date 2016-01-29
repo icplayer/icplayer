@@ -262,12 +262,14 @@ public class TextView extends HTML implements IDisplay{
     			}
     		}
     		
-    		if (position == -1) {
-    			gap = textElements.get(0);
-    		} else {
-    			gap = textElements.get(position);
+    		if (textElements.size() > 0) {
+        		if (position == -1) {
+        			gap = textElements.get(0);
+        		} else {
+        			gap = textElements.get(position);
+        		}
     		}
-    		
+
     		if (gap != null) {
     			gap.setFocusGap(true);
     		}
