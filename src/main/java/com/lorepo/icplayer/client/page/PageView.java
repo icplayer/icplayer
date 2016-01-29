@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.page;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
@@ -9,13 +8,6 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 
-
-/**
- * Base class for different page layouts
- * 
- * @author Krzysztof Langner
- *
- */
 public class PageView extends SimplePanel implements IPageDisplay{
 
 	private IPageDisplay display;
@@ -76,9 +68,9 @@ public class PageView extends SimplePanel implements IPageDisplay{
 	}
 
 	@Override
-	public void runKeyboardNavigation(EventBus eventBus) {
+	public void runKeyboardNavigation() {
 		if (styleName.equals("ic_page")) {
-			display.runKeyboardNavigation(eventBus);
+			display.runKeyboardNavigation();
 		}
 
 	}

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -42,7 +41,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		void runKeyboardNavigation(EventBus eventBus);
+		void runKeyboardNavigation();
 	}
 
 	private IPageDisplay pageView;
@@ -106,7 +105,7 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-		pageView.runKeyboardNavigation(playerService.getEventBus());
+		pageView.runKeyboardNavigation();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
