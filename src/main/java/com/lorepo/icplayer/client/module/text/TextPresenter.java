@@ -1239,8 +1239,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isConnectedToMath = true;
 	}
 	
-	public int getChildrenCount() {
-		return view.getChildrenCount();
+	public boolean isSelectable() {
+		return view.getChildrenCount() > 0;
 	}
 
 }
