@@ -115,6 +115,7 @@ public class PageController {
 		}
 		pageView.refreshMathJax();
 		if (run) {
+			keyboardController.init();
 			keyboardController.setWidgets(pageView.getWidgets());
 			keyboardController.addToNavigation(presenters);
 		}

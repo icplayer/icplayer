@@ -156,4 +156,13 @@ public final class KeyboardNavigationController {
 			activated: activated
 		}
 	}-*/;
+	
+	public void init() {
+		focusedModule = 0;
+		currentModuleName = "";
+		moduleIsActivated = false;
+		navigationWidgets = new HashMap<String, Widget>();
+		modulesNames = new ArrayList<String>();
+		widgets = new HashMap<String, Widget>();
+	}
 }
