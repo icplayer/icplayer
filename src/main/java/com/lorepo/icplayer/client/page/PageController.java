@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
@@ -30,6 +31,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.page.Score.Result;
 
 public class PageController {
@@ -41,7 +43,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		void runKeyboardNavigation();
+		void runKeyboardNavigation(ArrayList<IPresenter> presenters);
 	}
 
 	private IPageDisplay pageView;
@@ -91,7 +93,7 @@ public class PageController {
 			valueChangedHandler = null;
 		}
 	}
-
+	
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
@@ -105,7 +107,7 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-		pageView.runKeyboardNavigation();
+		pageView.runKeyboardNavigation(presenters);
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
