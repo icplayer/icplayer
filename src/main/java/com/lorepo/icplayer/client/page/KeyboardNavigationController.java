@@ -4,19 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.text.TextModel;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public final class KeyboardNavigationController {
@@ -26,7 +20,7 @@ public final class KeyboardNavigationController {
 	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
 	private List<String> modulesNames = new ArrayList<String>();
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-	private ArrayList<IPresenter> presenters;
+
 	private enum ExpectedModules {
 		// Navigation modules
 		text, video;
@@ -41,21 +35,20 @@ public final class KeyboardNavigationController {
 		}
 	}
 	
-	protected void setPresenters(ArrayList<IPresenter> presenters) {
-		this.presenters = presenters;
+	protected void setWidgets(HashMap<String, Widget> widgets) {
+		this.widgets = widgets;
 	}
 	
-	protected void run(ArrayList<IPresenter> presenters) {
-		this.presenters = presenters;
+	public void run(ArrayList<IPresenter> presenters, boolean run) {
+		if (!run) return;
+		
 		setModuleStatus("", false, false); //initialize moduleStatus during loading of page
-		addToNavigation();
 
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 
 	        @Override
 	        public void onKeyDown(KeyDownEvent event) {
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
-	            	JavaScriptUtils.log("AAAACTIVE: "+moduleIsActivated);
 	            	if (!moduleIsActivated) {
 		            	event.preventDefault();
 	            		selectNextModule();
@@ -75,7 +68,7 @@ public final class KeyboardNavigationController {
 	    }, KeyDownEvent.getType());
 	}
 	
-	private void addToNavigation() {
+	protected void addToNavigation(ArrayList<IPresenter> presenters) {
 		for (IPresenter presenter : presenters) {
 			IModuleModel module = presenter.getModel();
 			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
@@ -90,10 +83,6 @@ public final class KeyboardNavigationController {
 				modulesNames.add(presenter.getModel().getId());
 			}
 		}
-	}
-	
-	protected void add(IModuleModel module, Widget moduleView) {
-		widgets.put(module.getId(), moduleView);
 	}
 	
 	private void activateModule() {
@@ -134,7 +123,7 @@ public final class KeyboardNavigationController {
 		String moduleName = modulesNames.get(position);
 		Widget w = navigationWidgets.get(moduleName);
 		int i = 0;
-		JavaScriptUtils.log(focusedModule+" : "+navigationWidgets.size()+" : "+position+" : "+moduleName+" : "+w);
+
 		if (w == null) return; // there is no modules to select
 		
 		// skip hidden modules

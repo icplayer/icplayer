@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.page;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -9,7 +8,6 @@ import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 
 public class PageView extends SimplePanel implements IPageDisplay{
@@ -72,10 +70,7 @@ public class PageView extends SimplePanel implements IPageDisplay{
 	}
 
 	@Override
-	public void runKeyboardNavigation(ArrayList<IPresenter> presenters) {
-		if (styleName.equals("ic_page")) {
-			display.runKeyboardNavigation(presenters);
-		}
-
+	public HashMap<String, Widget> getWidgets() {
+		return display.getWidgets();
 	}
 }

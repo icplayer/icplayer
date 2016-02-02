@@ -31,7 +31,6 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
-import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.page.Score.Result;
 
 public class PageController {
@@ -43,7 +42,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		void runKeyboardNavigation(ArrayList<IPresenter> presenters);
+		HashMap<String, Widget> getWidgets();
 	}
 
 	private IPageDisplay pageView;
@@ -55,15 +54,23 @@ public class PageController {
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;	
-
+	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
+	private boolean run;
+	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
 		init(playerServiceImpl);
+		run = true;
+		keyboardController.run(null, run);
+
 	}
 
 	public PageController(IPlayerServices playerServices) {
 		init(playerServices);
+		run = false;
+		keyboardController.run(null, run);
+
 	}
 
 	private void init(IPlayerServices playerServices) {
@@ -107,7 +114,11 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-		pageView.runKeyboardNavigation(presenters);
+		if (run) {
+			keyboardController.setWidgets(pageView.getWidgets());
+			keyboardController.addToNavigation(presenters);
+		}
+
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 

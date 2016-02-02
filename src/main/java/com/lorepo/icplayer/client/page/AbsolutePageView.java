@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.page;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.DOM;
@@ -11,7 +10,6 @@ import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition.Property;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
@@ -20,7 +18,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-	private KeyboardNavigationController navigation = new KeyboardNavigationController();
 	
 	public AbsolutePageView(){
 		addStyleName("ic_page");
@@ -99,7 +96,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			moduleView.setPixelSize(width, height);
 		    add(moduleView, left, top);
 		    widgets.put(module.getId(), moduleView);
-		    navigation.add(module, moduleView);
 		}
 	}
 
@@ -164,7 +160,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	}
 	
 	@Override
-	public void runKeyboardNavigation(ArrayList<IPresenter> presenters) {
-		navigation.run(presenters);
+	public HashMap<String, Widget> getWidgets() {
+		return widgets;
 	}
 }
