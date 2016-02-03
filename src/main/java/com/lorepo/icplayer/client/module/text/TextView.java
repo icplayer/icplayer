@@ -294,33 +294,14 @@ public class TextView extends HTML implements IDisplay{
 	            		gap.setFocusGap(true);
 	            	}
 	            }
-	            
 	        }
 	    }, KeyDownEvent.getType());
 	}
 	
 	public void onEnterKey() {
-
-//    	int position = -1;
     	TextElementDisplay gap = null;
     	
     	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
-
-//    		for(int i = 0; i < textElements.size(); i++) {
-//				gap = textElements.get(i);
-//				
-//    			if (gap instanceof InlineChoiceWidget) {
-//    				position = i;
-//    			}
-//    		}
-//    		
-//    		if (textElements.size() > 0) {
-//        		if (position == -1) {
-//        			gap = textElements.get(0);
-//        		} else {
-//        			gap = textElements.get(position);
-//        		}
-//    		}
     		if(textElements.size() > 0) {
         		gap = textElements.get(0);
     		}
