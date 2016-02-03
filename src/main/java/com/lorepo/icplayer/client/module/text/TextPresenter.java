@@ -82,6 +82,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
+		void removeHandler();
 	}
 
 	private final TextModel module;
@@ -107,6 +108,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.playerServices = services;
 		isVisible = module.isVisible();
 		connectHandlers();
+		onClose();
 	}
 
 	private void connectHandlers() {
@@ -640,6 +642,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		});
 	}
 
+	private void onClose() {
+		playerServices.getEventBus().addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
+			@Override
+			public void onCustomEventOccurred(CustomEvent event) {
+				if (event.eventName.equals("closePage")) {
+					view.removeHandler();
+				}
+			}
+		});
+	}
+	
 	protected void dropdownClicked(String id) {
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "dropdownClicked", "");
 		playerServices.getEventBus().fireEvent(valueEvent);

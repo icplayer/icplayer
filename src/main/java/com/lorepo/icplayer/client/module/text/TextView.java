@@ -6,10 +6,15 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
@@ -23,11 +28,15 @@ public class TextView extends HTML implements IDisplay{
 	private ITextViewListener listener;
 	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
-
+	private HandlerRegistration handler;
+	private boolean moduleHasFocus = false;
+	private KeyboardNavigation keyboardNavigation;
+	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
-		new KeyboardNavigation(this);
+		keyboardNavigation = new KeyboardNavigation(this);
+//		onTabKey();
 	}
 
 	private void createUI(boolean isPreview) {
@@ -248,30 +257,78 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 
+	private int getTextElementsSize() {
+		return textElements.size();
+	}
+	
+	public void removeHandler() {
+		if (handler != null) {
+			handler.removeHandler(); // local
+			keyboardNavigation.removeHandler(); // global
+		}
+		moduleHasFocus = false;
+	}
+	
+	public void onTabKey() {
+		if (handler != null) {
+			handler.removeHandler();
+		}
+
+		handler = RootPanel.get().addDomHandler(new KeyDownHandler() {
+			int clicks = 0;
+			
+	        @Override
+	        public void onKeyDown(KeyDownEvent event) {
+	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
+	            	event.preventDefault();
+	            	String status = KeyboardNavigation.getModuleStatus("activated");
+	            	
+	            	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name")) && status.equals("true")) {
+	            		int size = getTextElementsSize();
+	            		
+	            		clicks++;
+	            		if (clicks >= size && size > 0) {
+	            			clicks = 0;
+	            		}
+	            		TextElementDisplay gap = textElements.get(clicks);
+	            		gap.setFocusGap(true);
+	            	}
+	            }
+	            
+	        }
+	    }, KeyDownEvent.getType());
+	}
+	
 	public void onEnterKey() {
-    	int position = -1;
+
+//    	int position = -1;
     	TextElementDisplay gap = null;
     	
     	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
-    		
-    		for(int i = 0; i < textElements.size(); i++) {
-				gap = textElements.get(i);
-				
-    			if (gap instanceof InlineChoiceWidget) {
-    				position = i;
-    			}
-    		}
-    		
-    		if (textElements.size() > 0) {
-        		if (position == -1) {
-        			gap = textElements.get(0);
-        		} else {
-        			gap = textElements.get(position);
-        		}
+
+//    		for(int i = 0; i < textElements.size(); i++) {
+//				gap = textElements.get(i);
+//				
+//    			if (gap instanceof InlineChoiceWidget) {
+//    				position = i;
+//    			}
+//    		}
+//    		
+//    		if (textElements.size() > 0) {
+//        		if (position == -1) {
+//        			gap = textElements.get(0);
+//        		} else {
+//        			gap = textElements.get(position);
+//        		}
+//    		}
+    		if(textElements.size() > 0) {
+        		gap = textElements.get(0);
     		}
 
-    		if (gap != null) {
+    		if (gap != null && !moduleHasFocus) {
+    			onTabKey();
     			gap.setFocusGap(true);
+    			moduleHasFocus = true;
     		}
     	}
 	}
@@ -281,6 +338,7 @@ public class TextView extends HTML implements IDisplay{
     		
 			for (TextElementDisplay gap : textElements) {
 				gap.setFocusGap(false);
+				moduleHasFocus = false;
 			}
     	}
 	}

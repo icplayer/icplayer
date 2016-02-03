@@ -49,8 +49,8 @@ public final class KeyboardNavigationController {
 	        @Override
 	        public void onKeyDown(KeyDownEvent event) {
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
+	            	event.preventDefault();
 	            	if (!moduleIsActivated) {
-		            	event.preventDefault();
 	            		selectNextModule();
 	            	}
 	            }
@@ -115,7 +115,6 @@ public final class KeyboardNavigationController {
 		setModuleStatus(currentModuleName, true, false);
 	}
 	
-
 	private void selectNextModule() {
 		deselectModule(currentModuleName);
 		
@@ -149,7 +148,11 @@ public final class KeyboardNavigationController {
 		widget.getElement().addClassName("ic_selected_module");
 	}
 	
-	private static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
+	public void resetStatus() {
+		setModuleStatus("", false, false);
+	}
+	
+	public static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
 		$wnd.moduleStatus = {
 			name: name,
 			selected: selected,
