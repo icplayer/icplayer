@@ -1,3 +1,4 @@
+2016-02-03 Fixed issue with printing graphical backgrounds in Print Report module
 2016-02-02 Added adding class during video playback in Video module
 2016-02-01 Fixed issue with setting state in Multiple Audio Binder module
 2016-01-27 Fixed issue with adding video source to addon model

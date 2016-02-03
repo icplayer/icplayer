@@ -111,7 +111,7 @@ function AddonPrint_Report_create(){
     presenter.createPopup = function addonPrint_Report_createPopup () {
         var $popup = $('<div></div>').
                 addClass('print-report-popup'),
-            $form = $('<form></form>').
+            $form = $('<div></div>').
                 addClass('print-report-form'),
             $firstNameLabel = $('<label></label>').
                 addClass('print-report-form-firstname-label').
@@ -226,7 +226,7 @@ function AddonPrint_Report_create(){
     presenter.showReport = function addonPrint_Report_showReport () {
         var data = presenter.getPagesData(),
             reportHtml = presenter.prepareReportHtml(data),
-            reportWindow = window.open('about:blank');
+            reportWindow = window.open();
 
         $(reportWindow.document).ready(function addonPrint_Report_onReportWindowReady () {
             try {
@@ -234,59 +234,75 @@ function AddonPrint_Report_create(){
             } catch (e) { // workaround for IE
                 reportWindow.document.body.innerHTML = reportHtml.prop('outerHTML');
             }
-            if (!presenter.isAndroid()) { // Android does not have native support for window.print()
-                reportWindow.print();
-                reportWindow.close();
-            }
+
             reportWindow = null;
             reportHtml = null;
         });
-    };
-
-    presenter.isAndroid = function addonPrint_Report_isAndroid () {
-        var check = false;
-        (function AddonPrint_Report_isAndroidCheck (a){
-            a = a.toLowerCase();
-            if (a.indexOf('android') > -1) {
-                check = true;
-            }
-        })(navigator.userAgent||navigator.vendor||window.opera);
-        return check;
     };
 
     presenter.prepareReportHtml = function addonPrint_Report_prepareReportHtml (data) {
         var $reportWrapper = $('<section></section>').addClass('wrapper'),
             $reportDefaultStyles = $('<style></style>'),
             $reportStyles = $('<style></style>').text(presenter.configuration.styles),
+            $reportActions = presenter.prepareReportActionsHtml(),
             $reportHeader = presenter.prepareReportHeaderHtml(),
             $reportTable = presenter.prepareReportTableHtml(data);
 
         $reportDefaultStyles.text(
             '@media print and (color) { * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }' +
-                'body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; ' +
-                'color: #333333; margin: 0; padding: 0; }' +
-                'h1, h2 { line-height: 40px; margin: 0; }' +
-                'h1 { font-size: 38.5px; }' +
-                'h2 { font-size: 31.5px; }' +
-                'table { width: 100%; max-width: 100%; border-collapse: collapse; border-spacing: 0; ' +
-                'background-color: transparent; }' +
-                'table th, table td { padding: 8px; line-height: 20px; text-align: left; vertical-align: top; }' +
-                'table td { border-top: 1px solid #dddddd; }' +
-                'table tbody > tr:nth-child(odd) td { background: #f9f9f9; }' +
-                '.percentage-score-label, .percentage-score { color: blue; }' +
-                '.checks-label, .checks { color: green; }' +
-                '.mistakes-label, .mistakes { color: brown; }' +
-                '.errors-label, .errors { color: red; }' +
-                '.page-score-label, .page-score { color: blue; font-weight: bold; }' +
-                '.total td { border-top: 3px solid #dddddd; font-weight: bold; }'
+            'body { width: 210mm; margin: 0 auto; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;' +
+                'font-size: 14px; line-height: 20px; color: #333333; padding: 0; }' +
+            'h1, h2 { line-height: 40px; margin: 0; }' +
+            'h1 { font-size: 38.5px; }' +
+            'h2 { font-size: 31.5px; }' +
+            'table { width: 100%; max-width: 100%; border-collapse: collapse; border-spacing: 0; ' +
+            'background-color: transparent; }' +
+            'table th, table td { padding: 8px; line-height: 20px; text-align: left; vertical-align: top; }' +
+            'table td { border-top: 1px solid #dddddd; }' +
+            'table tbody > tr:nth-child(odd) td { background: #f9f9f9; }' +
+            '.percentage-score-label, .percentage-score { color: blue; }' +
+            '.checks-label, .checks { color: green; }' +
+            '.mistakes-label, .mistakes { color: brown; }' +
+            '.errors-label, .errors { color: red; }' +
+            '.page-score-label, .page-score { color: blue; font-weight: bold; }' +
+            '.total td { border-top: 3px solid #dddddd; font-weight: bold; }' +
+            '.actions { border: 1px solid #ccc; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px; ' +
+                'border-top-width: 0; margin-bottom: 10px; overflow: auto; background: #fff; }' +
+            '.actions button { display: inline-block; padding: 6px 12px; margin: 5px; font-size: 14px;' +
+                'font-weight: bold; line-height: 1.42857143; text-align: center; white-space: nowrap;' +
+                'vertical-align: middle; background-image: none; border: 1px solid transparent; border-radius: 4px;' +
+                'cursor: pointer; }' +
+            '.actions button.close { background: #ff0000; color: #ffffff; float: left; }' +
+            '.actions button.print { background: #0000ff; color: #ffffff; float: right; }' +
+            '@media print { body { width: 100% } .actions { display: none; } }'
         );
 
         $reportWrapper.append($reportDefaultStyles);
         $reportWrapper.append($reportStyles);
+        $reportWrapper.append($reportActions);
         $reportWrapper.append($reportHeader);
         $reportWrapper.append($reportTable);
 
         return $reportWrapper;
+    };
+
+    presenter.prepareReportActionsHtml = function addonPrint_Report_prepareReportActionsHtml () {
+        var $actions = $('<div></div>').addClass('actions');
+
+        $actions.append(
+            $('<button></button>').
+                addClass('close').
+                text(presenter.configuration.labels.closeReport).
+                attr('onclick', 'javascript:window.close()')
+        ).
+        append(
+            $('<button></button>').
+                addClass('print').
+                text(presenter.configuration.labels.printReport).
+                attr('onclick', 'javascript:window.print()')
+        );
+
+        return $actions;
     };
 
     presenter.prepareReportHeaderHtml = function addonPrint_Report_prepareReportHeaderHtml () {
@@ -511,16 +527,11 @@ function AddonPrint_Report_create(){
     };
 
     presenter.setPlayerController = function addonPrint_Report_setPlayerController (controller) {
-        var eventBus = controller.getEventBus();
-
         presenter.playerController = controller;
         presenter.presentation = controller.getPresentation();
         presenter.pageCount = presenter.presentation.getPageCount();
         presenter.scoreService = controller.getScore();
         presenter.timeService = controller.getTimeService();
-
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function addonPrint_Report_createPreview (view, model) {
@@ -539,41 +550,6 @@ function AddonPrint_Report_create(){
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$wrapper.off();
         presenter.unbindPopupEvents();
-
-        presenter.clickAction = null;
-
-        presenter.getPagesData = null;
-        presenter.getPageData = null;
-        presenter.calculateTotal = null;
-
-        presenter.prepareReportHtml = null;
-        presenter.prepareReportHeaderHtml = null;
-        presenter.prepareReportTableHtml = null;
-        presenter.prepareReportTableHeaderHtml= null;
-        presenter.prepareReportTableBodyHtml = null;
-        presenter.prepareReportTableBodyRowHtml = null;
-        presenter.humanReadableTime = null;
-        presenter.isAndroid = null;
-
-        presenter.showReport = null;
-
-        presenter.showPopup = null;
-        presenter.hidePopup = null;
-        presenter.createPopup = null;
-        presenter.bindPopupEvents = null;
-        presenter.unbindPopupEvents = null;
-
-        presenter.reset = null;
-        presenter.getState = null;
-        presenter.setState = null;
-        presenter.setErrorsMode = null;
-        presenter.setWorkMode = null;
-        presenter.hide = null;
-        presenter.show = null;
-        presenter.setVisibility = null;
-        presenter.createPreview = null;
-        presenter.executeCommand = null;
-        presenter.setPlayerController = null;
 
         presenter.user = null;
         presenter.configuration = null;
@@ -677,8 +653,10 @@ function AddonPrint_Report_create(){
                 'timePerPageSeconds': model.TimePerPageSecondsLabel || 's',
                 'userFirstName': model.UsernameFirstLabel || 'First name',
                 'userLastName': model.UsernameLastLabel || 'Last name',
-                'userConfirm': model.UsernameConfirmLabel || 'Print',
-                'userCancel': model.UsernameCancelLabel || 'Cancel'
+                'userConfirm': model.UsernameConfirmLabel || 'Generate',
+                'userCancel': model.UsernameCancelLabel || 'Cancel',
+                'closeReport': model.CloseReportLabel || 'Close',
+                'printReport': model.PrintReportLabel || 'Print'
 
             },
             'styles': model.Styles,

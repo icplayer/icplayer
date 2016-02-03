@@ -11,23 +11,23 @@
     color: #000000;
 }
 
-.print-report-popup form.print-report-form {
+.print-report-popup .print-report-form {
     display: table;
     padding: 15px;
     margin: 10px auto 0 auto;
     background: #ffffff;
 }
 
-.print-report-popup form.print-report-form label,
-.print-report-popup form.print-report-form input {
+.print-report-popup .print-report-form label,
+.print-report-popup .print-report-form input {
     display: block;
 }
 
-.print-report-popup form.print-report-form label {
+.print-report-popup .print-report-form label {
     margin: 5px 0;
 }
 
-.print-report-popup form.print-report-form input {
+.print-report-popup .print-report-form input {
     height: 34px;
     width: 100%;
     min-width: 300px;
@@ -43,11 +43,11 @@
     background-image: none;
 }
 
-.print-report-popup form.print-report-form .print-report-form-actions {
+.print-report-popup .print-report-form .print-report-form-actions {
     text-align: center;
 }
 
-.print-report-popup form.print-report-form .print-report-form-actions button {
+.print-report-popup .print-report-form .print-report-form-actions button {
     display: inline-block;
     padding: 6px 12px;
     margin: 5px 5px 0 5px;
@@ -63,12 +63,12 @@
     cursor: pointer;
 }
 
-.print-report-popup form.print-report-form button.print-report-form-confirm-btn {
+.print-report-popup .print-report-form button.print-report-form-confirm-btn {
     background: #0000ff;
     color: #ffffff;
 }
 
-.print-report-popup form.print-report-form button.print-report-form-cancel-btn {
-    background: red;
+.print-report-popup .print-report-form button.print-report-form-cancel-btn {
+    background: #ff0000;
     color: #ffffff;
 }

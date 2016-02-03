@@ -1274,5 +1274,7 @@
     "Print_Report_property_username_confirm_label": "User form: confirm button label",
     "Print_Report_property_username_cancel_label": "User form: cancel button label",
     "Print_Report_property_total": "Show total results",
-    "Print_Report_property_total_label": "Total results label"
+    "Print_Report_property_total_label": "Total results label",
+    "Print_Report_property_print_report_label": "Print report label",
+    "Print_Report_property_close_report_label": "Close report label"
 };
