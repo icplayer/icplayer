@@ -1,3 +1,4 @@
+2016-02-04 Fixed getting error count in Hangman module
 2016-02-03 Fixed setting state in Basic Math Gaps module
 2016-02-03 Fixed issue with printing graphical backgrounds in Print Report module
 2016-02-02 Added adding class during video playback in Video module

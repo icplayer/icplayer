@@ -809,6 +809,10 @@ function AddonHangman_create() {
         }
     };
 
+    presenter.isSomethingSelected = function () {
+        return presenter.$view.find('.selected').length > 0;
+    };
+
     presenter.getScore = function () {
         if(presenter.isActivity){
             var phrases = presenter.getPhraseForScoring();
@@ -819,7 +823,7 @@ function AddonHangman_create() {
     };
 
     presenter.getErrorCount = function () {
-        if(presenter.isActivity){
+        if(presenter.isActivity && presenter.isSomethingSelected()){
             var phrases = presenter.getPhraseForScoring();
             return presenter.getScoring(phrases).errors;
         }else{
