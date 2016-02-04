@@ -147,4 +147,10 @@ public class TextViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void removeHandler() {
+		// TODO Auto-generated method stub
+		
+	}
 }

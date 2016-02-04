@@ -318,7 +318,7 @@ function Addonvideo_create() {
     
     presenter.addKeyboardNavigation = function() {
         $(document).on('keydown', function(e) {
-        	var keycode = (event.keyCode ? event.keyCode : event.which);
+        	var keycode = (e.keyCode ? e.keyCode : e.which);
 
         	if (window.moduleStatus.name === presenter.addonID && window.moduleStatus.activated) {
             	e.stopPropagation();

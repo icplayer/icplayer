@@ -269,7 +269,7 @@ public class TextView extends HTML implements IDisplay{
 		moduleHasFocus = false;
 	}
 	
-	public void onTabKey() {
+	public void tabKeyHandler() {
 		if (handler != null) {
 			handler.removeHandler();
 		}
@@ -307,7 +307,7 @@ public class TextView extends HTML implements IDisplay{
     		}
 
     		if (gap != null && !moduleHasFocus) {
-    			onTabKey();
+    			tabKeyHandler();
     			gap.setFocusGap(true);
     			moduleHasFocus = true;
     		}
