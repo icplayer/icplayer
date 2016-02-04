@@ -320,12 +320,17 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     };
 
     presenter.setState = function (stringifiedState) {
-        var state = JSON.parse(stringifiedState), connection;
+        var state = JSON.parse(stringifiedState);
 
         state = jQuery.grep(state, function (element) {
             return element.isSelected;
         });
 
+        presenter.pageLoadedHandlerLoad(state);
+    };
+
+    presenter.pageLoadedHandlerLoad = function (state) {
+        var connection;
         presenter.pageLoaded.then(function() {
             jQuery.each(state, function (index, value) {
                 connection = presenter.configuration.connections.getConnection(value.ID);

@@ -230,13 +230,13 @@ function Addonvideo_create() {
 
     function setVideoStateOnPlayEvent() {
         presenter.videoState = presenter.VIDEO_STATE.PLAYING;
-        presenter.$view.addClass('playing');
+        presenter.addClassToView('playing');
     }
 
     function setVideoStateOnPauseEvent() {
         if (!presenter.isHideExecuted) {
             presenter.videoState = presenter.VIDEO_STATE.PAUSED;
-            presenter.$view.removeClass('playing');
+            presenter.removeClassFromView('playing');
         }
 
         delete presenter.isHideExecuted;
@@ -417,7 +417,7 @@ function Addonvideo_create() {
         $(this.video).bind("timeupdate", function () {
             onTimeUpdate(this);
         });
-        presenter.$view.removeClass('playing');
+        presenter.removeClassFromView('playing');
     };
 
     function onTimeUpdate(video) {
@@ -805,6 +805,14 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.addClassToView = function (className) {
+        presenter.$view.addClass(className);
+    };
+
+    presenter.removeClassFromView = function (className) {
+        presenter.$view.removeClass(className);
+    };
+
     presenter.play = function () {
         presenter.removeWaterMark();
 
@@ -817,11 +825,9 @@ function Addonvideo_create() {
 
         if (this.video.paused) {
             this.video.play();
-            presenter.$view.addClass('playing');
+            presenter.addClassToView('playing');
         }
     };
-
-
 
     presenter.stop = function () {
         if (!presenter.isVideoLoaded) {
@@ -832,7 +838,7 @@ function Addonvideo_create() {
         if (!this.video.paused) {
             presenter.seek(0); // sets the current time to 0
             this.video.pause();
-            presenter.$view.removeClass('playing');
+            presenter.removeClassFromView('playing');
         }
     };
 
@@ -844,7 +850,7 @@ function Addonvideo_create() {
 
         if (!this.video.paused) {
             this.video.pause();
-            presenter.$view.removeClass('playing');
+            presenter.removeClassFromView('playing');
         }
     };
 

@@ -70,10 +70,13 @@ TestCase("State restoring", {
                 { Audio: 'Audio8', DoubleStateButton: 'Double_State_Button8'}
             ])
         };
+
+        sinon.stub(this.presenter, 'pageLoadedHandlerLoad');
     },
 
     tearDown: function () {
         this.presenter.getModule.restore();
+        this.presenter.pageLoadedHandlerLoad.restore();
     },
 
     'test set state when no Audio was playing': function () {
@@ -91,22 +94,6 @@ TestCase("State restoring", {
 
         this.doubleStateButtonActionMock.verify();
         this.doubleStateButtonOtherMock.verify();
-    },
-
-    'test set state when one Audio was playing': function () {
-        this.doubleStateButtonActionMock.expects('deselect').once();
-        this.doubleStateButtonOtherMock.expects('deselect').never();
-
-        var state = JSON.stringify([
-            {ID: 0, isSelected: false},
-            {ID: 1, isSelected: false},
-            {ID: 2, isSelected: true},
-            {ID: 3, isSelected: false}
-        ]);
-
-        this.presenter.setState(state);
-
-        this.doubleStateButtonActionMock.verify();
-        this.doubleStateButtonOtherMock.verify();
+        assertTrue(this.presenter.pageLoadedHandlerLoad.called);
     }
 });
