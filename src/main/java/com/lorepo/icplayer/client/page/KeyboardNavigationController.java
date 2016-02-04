@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -142,10 +143,15 @@ public final class KeyboardNavigationController {
 		setModuleStatus(moduleName, true, false);		
 	}
 	
+	private native void scrollToModule(int position) /*-{
+		$wnd.scrollTo(0, position);
+	}-*/;
+	
 	private void selectModule(String moduleName) {
 		Widget widget = navigationWidgets.get(moduleName);
-		
 		widget.getElement().addClassName("ic_selected_module");
+		
+		scrollToModule(widget.getAbsoluteTop());
 	}
 	
 	public void resetStatus() {
