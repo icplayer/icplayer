@@ -21,7 +21,8 @@ public final class KeyboardNavigationController {
 	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
 	private List<String> modulesNames = new ArrayList<String>();
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-
+	private boolean isInitiated = false;
+	
 	private enum ExpectedModules {
 		// Navigation modules
 		text, video;
@@ -40,6 +41,20 @@ public final class KeyboardNavigationController {
 		this.widgets = widgets;
 	}
 	
+	private void initialSelect() {
+		isInitiated = true;
+
+		String moduleName = modulesNames.get(0);
+		Widget w = navigationWidgets.get(moduleName);
+
+		if (w == null) return; // there is no modules to select
+		
+		selectModule(moduleName);
+		currentModuleName = moduleName;
+		
+		setModuleStatus(moduleName, true, false);	
+	}
+	
 	public void run(ArrayList<IPresenter> presenters, boolean run) {
 		if (!run) return;
 		
@@ -51,8 +66,18 @@ public final class KeyboardNavigationController {
 	        public void onKeyDown(KeyDownEvent event) {
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 	            	event.preventDefault();
+	            	
+	            	if (!isInitiated) {
+	            		initialSelect();
+	            		return;
+	            	}
+	            	
 	            	if (!moduleIsActivated) {
-	            		selectNextModule();
+	            		if (event.isShiftKeyDown()) {
+	            			selectPreviousModule();
+	            		} else {
+	            			selectNextModule();
+	            		}
 	            	}
 	            }
 	            
@@ -116,10 +141,39 @@ public final class KeyboardNavigationController {
 		setModuleStatus(currentModuleName, true, false);
 	}
 	
+	private void selectPreviousModule() {
+		deselectModule(currentModuleName);
+		
+		int position = --focusedModule % navigationWidgets.size();
+		String moduleName = modulesNames.get(position);
+		Widget w = navigationWidgets.get(moduleName);
+		int i = 0;
+
+		if (w == null) return; // there is no modules to select
+		
+		// skip hidden modules
+		while (w.getElement().getStyle().getVisibility().equals("hidden")) {
+			if (i++ == position) break; // if all modules are hidden then break loop
+			focusedModule--;
+			position = focusedModule % navigationWidgets.size();
+			if (position == 0) {
+				position = navigationWidgets.size() - 1;
+			}
+			moduleName = modulesNames.get(position);
+			w = navigationWidgets.get(moduleName);
+		}
+		
+		selectModule(moduleName);
+
+		currentModuleName = moduleName;
+		
+		setModuleStatus(moduleName, true, false);	
+	}
+	
 	private void selectNextModule() {
 		deselectModule(currentModuleName);
 		
-		int position = focusedModule % navigationWidgets.size();
+		int position = ++focusedModule % navigationWidgets.size();
 		String moduleName = modulesNames.get(position);
 		Widget w = navigationWidgets.get(moduleName);
 		int i = 0;
@@ -138,7 +192,6 @@ public final class KeyboardNavigationController {
 		selectModule(moduleName);
 
 		currentModuleName = moduleName;
-		focusedModule++;
 		
 		setModuleStatus(moduleName, true, false);		
 	}
@@ -170,6 +223,7 @@ public final class KeyboardNavigationController {
 		focusedModule = 0;
 		currentModuleName = "";
 		moduleIsActivated = false;
+		isInitiated = false;
 		navigationWidgets = new HashMap<String, Widget>();
 		modulesNames = new ArrayList<String>();
 		widgets = new HashMap<String, Widget>();
