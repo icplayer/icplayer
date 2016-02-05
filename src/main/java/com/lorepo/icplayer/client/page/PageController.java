@@ -53,24 +53,19 @@ public class PageController {
 	private ArrayList<IPresenter> presenters;
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
-	private HandlerRegistration valueChangedHandler;	
-	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
-	private boolean run;
+	private HandlerRegistration valueChangedHandler;
+	private KeyboardNavigationController keyboardController;
+
+	private boolean shouldInitialize;
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
 		init(playerServiceImpl);
-		run = true;
-		keyboardController.run(null, run);
-
 	}
 
 	public PageController(IPlayerServices playerServices) {
 		init(playerServices);
-		run = false;
-		keyboardController.run(null, run);
-
 	}
 
 	private void init(IPlayerServices playerServices) {
@@ -101,6 +96,11 @@ public class PageController {
 		}
 	}
 	
+	public void setKeyboardController(KeyboardNavigationController kc, boolean shouldInitialize) {
+		this.keyboardController = kc;
+		this.shouldInitialize = shouldInitialize;
+	}
+	
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
@@ -114,12 +114,12 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-		if (run) {
+		if (shouldInitialize){
 			keyboardController.init();
-			keyboardController.setWidgets(pageView.getWidgets());
-			keyboardController.addToNavigation(presenters);
 		}
-
+		keyboardController.setWidgets(pageView.getWidgets());
+		keyboardController.addToNavigation(presenters);
+		
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
