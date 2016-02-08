@@ -19,7 +19,6 @@ public final class KeyboardNavigationController {
 	private boolean moduleIsActivated = false;
 	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
 	private List<String> modulesNames = new ArrayList<String>();
-	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
 	private boolean isInitiated = false;
 	
 	private enum ExpectedModules {
@@ -34,10 +33,6 @@ public final class KeyboardNavigationController {
 			}
 			return false;
 		}
-	}
-	
-	protected void setWidgets(HashMap<String, Widget> widgets) {
-		this.widgets = widgets;
 	}
 	
 	private void initialSelect() {
@@ -91,7 +86,7 @@ public final class KeyboardNavigationController {
 	    }, KeyDownEvent.getType());
 	}
 	
-	protected void addToNavigation(ArrayList<IPresenter> presenters) {
+	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, String prefix) {
 		for (IPresenter presenter : presenters) {
 			IModuleModel module = presenter.getModel();
 			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
@@ -102,8 +97,8 @@ public final class KeyboardNavigationController {
 					if (!((TextPresenter) presenter).isSelectable()) continue;
 				}
 				
-				navigationWidgets.put(module.getId(), widgets.get(module.getId()));
-				modulesNames.add(presenter.getModel().getId());
+				navigationWidgets.put(prefix + module.getId(), widgets.get(module.getId()));
+				modulesNames.add(prefix + presenter.getModel().getId());
 			}
 		}
 	}
@@ -140,8 +135,13 @@ public final class KeyboardNavigationController {
 	
 	private void selectPreviousModule() {
 		deselectModule(currentModuleName);
-		
 		int position = --focusedModule % navigationWidgets.size();
+		
+		if (position < 0) {
+			position = navigationWidgets.size() - 1;
+			focusedModule = navigationWidgets.size() - 1;
+		}
+		
 		String moduleName = modulesNames.get(position);
 		Widget w = navigationWidgets.get(moduleName);
 		int i = 0;
@@ -209,6 +209,8 @@ public final class KeyboardNavigationController {
 	}
 	
 	public static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
+		name = name.replace(/(h|b|f)_/g, "");
+		
 		$wnd.moduleStatus = {
 			name: name,
 			selected: selected,
@@ -223,6 +225,5 @@ public final class KeyboardNavigationController {
 		isInitiated = false;
 		navigationWidgets = new HashMap<String, Widget>();
 		modulesNames = new ArrayList<String>();
-		widgets = new HashMap<String, Widget>();
 	}
 }

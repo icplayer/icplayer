@@ -55,8 +55,11 @@ public class PageController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
+	private PageType pageType;
 
-	private boolean shouldInitialize;
+	public enum PageType {
+		main, book, header, footer
+	}
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -96,9 +99,13 @@ public class PageController {
 		}
 	}
 	
-	public void setKeyboardController(KeyboardNavigationController kc, boolean shouldInitialize) {
+	public void setKeyboardController(KeyboardNavigationController kc, PageType pageType) {
 		this.keyboardController = kc;
-		this.shouldInitialize = shouldInitialize;
+		this.pageType = pageType;
+	}
+	
+	public PageType getPageType() {
+		return pageType;
 	}
 	
 	public void setPage(Page page) {
@@ -114,11 +121,17 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-		if (shouldInitialize){
-			keyboardController.init();
+
+		String prefix = "";
+		if (pageType == PageType.footer) {
+			prefix = "f_";
+		} else if (pageType == PageType.header) {
+			prefix = "h_";
+		} else if (pageType == PageType.book) {
+			prefix = "b_";
 		}
-		keyboardController.setWidgets(pageView.getWidgets());
-		keyboardController.addToNavigation(presenters);
+
+		keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);
 		
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}

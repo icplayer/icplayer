@@ -33,11 +33,12 @@ import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.PageController.PageType;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
-
+	
 	private	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
@@ -57,7 +58,7 @@ public class PlayerController implements IPlayerController{
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
 	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
-	
+	private boolean bookMode = false;
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
 		
@@ -73,17 +74,19 @@ public class PlayerController implements IPlayerController{
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 		timeService = new TimeService();
 		keyboardController.run();
+		this.bookMode = bookMode;
 	}
 	
 	
 	private void createPageControllers(boolean bookMode) {
 
 		pageController1 = new PageController(this);
-		pageController1.setKeyboardController(keyboardController, false);
+		pageController1.setKeyboardController(keyboardController, PageType.main);
 		pageController1.setView(playerView.getPageView(0));
 		if(bookMode){
 			playerView.showTwoPages();
 			pageController2 = new PageController(this);
+			pageController2.setKeyboardController(keyboardController, PageType.book);
 			pageController2.setView(playerView.getPageView(1));
 		}
 	}
@@ -93,7 +96,7 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
-			headerController.setKeyboardController(keyboardController, true);
+			headerController.setKeyboardController(keyboardController, PageType.header);
 
 			headerController.setView(playerView.getHeaderView());			
 //			headerController.setPage(contentModel.getHeader());
@@ -102,7 +105,7 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
-			footerController.setKeyboardController(keyboardController, false);
+			footerController.setKeyboardController(keyboardController, PageType.footer);
 
 			footerController.setView(playerView.getFooterView());
 //			footerController.setPage(contentModel.getFooter());
@@ -312,19 +315,37 @@ public class PlayerController implements IPlayerController{
 			
 	}
 
-
 	private void pageLoaded(Page page, PageController pageController) {
-	
+		PageType type = pageController.getPageType();
 		
-		if(headerController != null){
-			headerController.setPage(contentModel.getHeader());
+		if (bookMode && type == PageType.main) {
+			keyboardController.init();
+			if(headerController != null){
+				headerController.setPage(contentModel.getHeader());
+			}
 		}
 		
+		if (!bookMode) {
+			keyboardController.init();
+			if(headerController != null){
+				headerController.setPage(contentModel.getHeader());
+			}
+		}
+
 		pageController.setPage(page);
 
-		if(footerController != null){
-			footerController.setPage(contentModel.getFooter());
+		if (!bookMode) {
+			if(footerController != null){
+				footerController.setPage(contentModel.getFooter());
+			}
 		}
+		
+		if (bookMode && type == PageType.book) {
+			if(footerController != null){
+				footerController.setPage(contentModel.getFooter());
+			}
+		}
+
 	}
 	
 	private static void scrollViewToBeggining() {
