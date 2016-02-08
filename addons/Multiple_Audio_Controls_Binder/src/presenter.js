@@ -196,9 +196,14 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
+        }
+
         var matchedModule = presenter.matchEventToModules(eventData);
 
         if (!matchedModule.isMatch) return;
@@ -295,6 +300,8 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     };
 
     presenter.run = function (view, model) {
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
         presenterLogic(view, model, false);
     };
 
@@ -313,15 +320,22 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     };
 
     presenter.setState = function (stringifiedState) {
-        var state = JSON.parse(stringifiedState), connection;
+        var state = JSON.parse(stringifiedState);
 
         state = jQuery.grep(state, function (element) {
             return element.isSelected;
         });
 
-        jQuery.each(state, function (index, value) {
-            connection = presenter.configuration.connections.getConnection(value.ID);
-            connection.DoubleStateButton.getModule().deselect();
+        presenter.pageLoadedHandlerLoad(state);
+    };
+
+    presenter.pageLoadedHandlerLoad = function (state) {
+        var connection;
+        presenter.pageLoaded.then(function() {
+            jQuery.each(state, function (index, value) {
+                connection = presenter.configuration.connections.getConnection(value.ID);
+                connection.DoubleStateButton.getModule().deselect();
+            });
         });
     };
 

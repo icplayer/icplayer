@@ -1,3 +1,11 @@
+2016-02-04 Fixed getting error count in Hangman module
+2016-02-03 Fixed setting state in Basic Math Gaps module
+2016-02-03 Fixed issue with printing graphical backgrounds in Print Report module
+2016-02-02 Added adding class during video playback in Video module
+2016-02-01 Fixed issue with setting state in Multiple Audio Binder module
+2016-01-27 Fixed issue with adding video source to addon model
+2016-01-27 Fixed issue with removing module in group
+2016-01-25 Added global state in Show Answers module
 2016-01-20 Fixed adding class when page score is 100% in Navigation Bar module
 2016-01-19 Fixed issue with Keep Original Order mode and dropdowngaps in Text module
 2016-01-19 Fixed issue with Source List and Text gaps in Text module

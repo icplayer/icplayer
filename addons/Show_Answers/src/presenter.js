@@ -75,6 +75,7 @@ function AddonShow_Answers_create(){
 
         if (!isPreview) {
             presenter.handleClickAction();
+            presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
         }
     }
@@ -91,6 +92,11 @@ function AddonShow_Answers_create(){
     presenter.onEventReceived = function (eventName) {
         if (eventName == "HideAnswers") {
             presenter.reset();
+        }
+        if (eventName == "ShowAnswers") {
+            presenter.$button.text(presenter.configuration.textSelected);
+            presenter.$wrapper.addClass('selected');
+            presenter.configuration.isSelected = true;
         }
     };
 

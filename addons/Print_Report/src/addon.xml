@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
 <addon id='Print_Report' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
-	<model>
+    <model>
         <property name="Text" displayName="Text" nameLabel="Print_Report_property_text" type="string" isLocalized="true"/>
+        <property name="PrintReportLabel" displayName="Print Report Label" nameLabel="Print_Report_property_print_report_label" type="string" isLocalized="true"/>
+        <property name="CloseReportLabel" displayName="Close Report Label" nameLabel="Print_Report_property_close_report_label" type="string" isLocalized="true"/>
         <property name="Title" displayName="Title" nameLabel="Print_Report_property_title" type="boolean"/>
         <property name="TitleLabel" displayName="Title Label" nameLabel="Print_Report_property_title_label" type="string" isLocalized="true"/>
         <property name="Subtitle" displayName="Show subtitle" nameLabel="Print_Report_property_subtitle" type="boolean"/>

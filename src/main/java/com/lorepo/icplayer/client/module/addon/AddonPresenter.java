@@ -13,6 +13,7 @@ import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
@@ -247,6 +248,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		
 		if(	property instanceof IAudioProperty || 
 			property instanceof IImageProperty ||
+			property instanceof IVideoProperty ||
 			property instanceof IFileProperty)
 		{
 			value = URLUtils.resolveURL(model.getBaseURL(), value);

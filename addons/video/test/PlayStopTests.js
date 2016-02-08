@@ -10,7 +10,15 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
 
         sinon.stub(this.presenter, 'seek');
         sinon.stub(this.presenter.commandsQueue, 'addTask');
-        sinon.stub(this.presenter, 'removeWaterMark')
+        sinon.stub(this.presenter, 'removeWaterMark');
+
+        sinon.stub(this.presenter, 'removeClassFromView');
+        sinon.stub(this.presenter, 'addClassToView');
+    },
+
+    tearDown: function () {
+        this.presenter.removeClassFromView.restore();
+        this.presenter.addClassToView.restore();
     },
 
     'test play when video is paused': function() {

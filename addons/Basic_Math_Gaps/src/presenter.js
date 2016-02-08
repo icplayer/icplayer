@@ -779,10 +779,29 @@ function AddonBasic_Math_Gaps_create(){
         presenter.configuration.isDisabled = isDisabled;
     };
 
+    presenter.upgradeDroppedElements = function (state) {
+        var upgradedState = {};
+        jQuery.extend(true, upgradedState, state); // Deep copy of model object
+
+        upgradedState["droppedElements"] = upgradedState.values.map(function () {
+            return "";
+        });
+
+        return upgradedState;
+    };
+
+    presenter.upgradeStateDroppedElements = function (state) {
+        if(state.droppedElements == undefined){
+            return presenter.upgradeDroppedElements(state);
+        }
+        return state;
+    };
+
     presenter.setState = function(stateString){
         var state = JSON.parse(stateString);
 
         var upgradedState = presenter.upgradeState(state);
+        upgradedState = presenter.upgradeStateDroppedElements(upgradedState);
 
         presenter.gapsContainer.setState(upgradedState.values, upgradedState.sources, upgradedState.droppedElements);
 

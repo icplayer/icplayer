@@ -84,7 +84,9 @@ public class Group extends GroupPropertyProvider {
 		xml += "<groupedModulesList>";
 		
 		for(IModuleModel module : group) {
-			xml += "<groupModule moduleID='" + StringUtils.escapeXML(module.getId()) + "'/>";
+			if (module != null) {
+				xml += "<groupModule moduleID='" + StringUtils.escapeXML(module.getId()) + "'/>";
+			}
 		}
 		
 		xml += "</groupedModulesList>";
