@@ -285,4 +285,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void removeDefaultStyle() {
 	}
+
+	@Override
+	public void setFocusGap(boolean focus) {
+		
+	}
 }

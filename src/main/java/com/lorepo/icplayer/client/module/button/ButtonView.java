@@ -109,4 +109,18 @@ public class ButtonView extends Composite implements IDisplay {
 	public boolean isErrorCheckingMode() {
 		return isErrorCheckingMode;
 	}
+
+
+	@Override
+	public void onEnterKey() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onEscapeKey() {
+		// TODO Auto-generated method stub
+		
+	}
 }

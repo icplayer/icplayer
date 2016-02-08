@@ -90,4 +90,16 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 		
 	}
 
+	@Override
+	public void onEnterKey() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onEscapeKey() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

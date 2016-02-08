@@ -54,4 +54,18 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 		setVisible(false);
 	}
 
+
+	@Override
+	public void onEnterKey() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onEscapeKey() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.page;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
@@ -8,18 +10,10 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 
-
-/**
- * Base class for different page layouts
- * 
- * @author Krzysztof Langner
- *
- */
 public class PageView extends SimplePanel implements IPageDisplay{
 
 	private IPageDisplay display;
 	private String styleName;
-
 	
 	public PageView(String styleName){
 		this.styleName = styleName;
@@ -75,4 +69,8 @@ public class PageView extends SimplePanel implements IPageDisplay{
 		}
 	}
 
+	@Override
+	public HashMap<String, Widget> getWidgets() {
+		return display.getWidgets();
+	}
 }

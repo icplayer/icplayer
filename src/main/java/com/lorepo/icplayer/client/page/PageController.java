@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
@@ -41,6 +42,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
+		HashMap<String, Widget> getWidgets();
 	}
 
 	private IPageDisplay pageView;
@@ -51,8 +53,14 @@ public class PageController {
 	private ArrayList<IPresenter> presenters;
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
-	private HandlerRegistration valueChangedHandler;	
+	private HandlerRegistration valueChangedHandler;
+	private KeyboardNavigationController keyboardController;
+	private PageType pageType;
 
+	public enum PageType {
+		main, book, header, footer
+	}
+	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -90,7 +98,16 @@ public class PageController {
 			valueChangedHandler = null;
 		}
 	}
-
+	
+	public void setKeyboardController(KeyboardNavigationController kc, PageType pageType) {
+		this.keyboardController = kc;
+		this.pageType = pageType;
+	}
+	
+	public PageType getPageType() {
+		return pageType;
+	}
+	
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
@@ -104,6 +121,18 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
+
+		String prefix = "";
+		if (pageType == PageType.footer) {
+			prefix = "f_";
+		} else if (pageType == PageType.header) {
+			prefix = "h_";
+		} else if (pageType == PageType.book) {
+			prefix = "b_";
+		}
+
+		keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);
+		
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
@@ -365,6 +394,9 @@ public class PageController {
 	}
 
 	public void closePage() {
+		playerService.getEventBus().fireEvent(new CustomEvent("closePage", new HashMap<String, String>()));
+		keyboardController.resetStatus();
+		
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
