@@ -23,7 +23,7 @@ public final class KeyboardNavigationController {
 	
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video;
+		text, video, button;
 		
 		private static boolean contains(String s) {
 			for(ExpectedModules choice:values()) {
