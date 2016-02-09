@@ -317,23 +317,9 @@ public class PlayerController implements IPlayerController{
 
 	private void pageLoaded(Page page, PageController pageController) {
 		PageType type = pageController.getPageType();
-		
-		if (bookMode && type == PageType.main) {
-			keyboardController.init();
-			if(headerController != null){
-				headerController.setPage(contentModel.getHeader());
-			}
-		}
-		
-		if (!bookMode) {
-			keyboardController.init();
-			if(headerController != null){
-				headerController.setPage(contentModel.getHeader());
-			}
-		}
-
+		keyboardController.init();
 		pageController.setPage(page);
-
+		
 		if (!bookMode) {
 			if(footerController != null){
 				footerController.setPage(contentModel.getFooter());
@@ -343,6 +329,18 @@ public class PlayerController implements IPlayerController{
 		if (bookMode && type == PageType.book) {
 			if(footerController != null){
 				footerController.setPage(contentModel.getFooter());
+			}
+		}
+		
+		if (bookMode && type == PageType.main) {
+			if(headerController != null){
+				headerController.setPage(contentModel.getHeader());
+			}
+		}
+			
+		if (!bookMode) {
+			if(headerController != null){
+				headerController.setPage(contentModel.getHeader());
 			}
 		}
 

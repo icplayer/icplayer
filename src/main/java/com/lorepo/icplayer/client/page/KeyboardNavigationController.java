@@ -20,6 +20,7 @@ public final class KeyboardNavigationController {
 	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
 	private List<String> modulesNames = new ArrayList<String>();
 	private boolean isInitiated = false;
+	private int startPosition = 0;
 	
 	private enum ExpectedModules {
 		// Navigation modules
@@ -38,11 +39,11 @@ public final class KeyboardNavigationController {
 	private void initialSelect() {
 		isInitiated = true;
 
-		String moduleName = modulesNames.get(0);
+		String moduleName = modulesNames.get(startPosition);
 		Widget w = navigationWidgets.get(moduleName);
 
 		if (w == null) return; // there is no modules to select
-		
+		focusedModule = startPosition;
 		selectModule(moduleName);
 		currentModuleName = moduleName;
 		
@@ -87,6 +88,11 @@ public final class KeyboardNavigationController {
 	}
 	
 	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, String prefix) {
+		// Modules are added in order: main page, footer, header
+		// Start Position(from header) equals to the sum of main page modules and footer modules.
+		if (prefix.equals("h_")) {
+			this.startPosition = navigationWidgets.size();
+		}
 		for (IPresenter presenter : presenters) {
 			IModuleModel module = presenter.getModel();
 			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
