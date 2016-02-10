@@ -23,6 +23,9 @@ function AddonAdvanced_Connector_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
+        if (presenter.isDisabled) {
+            return;
+        }
         var i, length;
         event = presenter.fillEventData(eventData, eventName);
 
@@ -63,7 +66,8 @@ function AddonAdvanced_Connector_create() {
             return;
         }
 
-        if (ModelValidationUtils.validateBoolean(model["Is disabled"])) {
+        presenter.isDisabled = ModelValidationUtils.validateBoolean(model["Is disabled"]);
+        if (presenter.isDisabled) {
             return;
         }
 
