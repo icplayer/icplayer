@@ -1,3 +1,4 @@
+2016-02-10 Added isAllOK method and event in Text Identification module
 2016-02-10 Fixed Check mode and Show Answers mode in Text and Writing Calculations modules
 2016-02-04 Fixed getting error count in Hangman module
 2016-02-03 Fixed setting state in Basic Math Gaps module

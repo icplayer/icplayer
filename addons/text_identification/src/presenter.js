@@ -52,6 +52,7 @@ function Addontext_identification_create(){
         presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
         presenter.executeUserEventCode();
         presenter.triggerSelectionChangeEvent();
+        if (presenter.isAllOK()) sendAllOKEvent();
     };
 
     function handleMouseActions() {
@@ -124,6 +125,7 @@ function Addontext_identification_create(){
         presenter.$view = $(view);
         presenter.currentPageId = presenter.$view.parent('.ic_page').attr('id');
         var textSrc = model.Text;
+        presenter.moduleID = model.ID;
         presenter.configuration = presenter.validateModel(model);
 
         var container = $('<div class="text-identification-container"></div>');
@@ -184,6 +186,17 @@ function Addontext_identification_create(){
         presenter.applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
     };
 
+    function sendAllOKEvent() {
+        var eventData = {
+            'source': presenter.moduleID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    }
+
     presenter.executeCommand = function(name, params) {
         if (presenter.configuration.isErrorCheckMode) return;
 
@@ -193,7 +206,8 @@ function Addontext_identification_create(){
             'isSelected': presenter.isSelected,
             'markAsCorrect': presenter.markAsCorrect,
             'markAsWrong': presenter.markAsWrong,
-            'markAsEmpty': presenter.markAsEmpty
+            'markAsEmpty': presenter.markAsEmpty,
+            'isAllOK': presenter.isAllOK
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -249,6 +263,10 @@ function Addontext_identification_create(){
         } else if (presenter.configuration.shouldBeSelected) {
             presenter.applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT)
         }
+    };
+
+    presenter.isAllOK = function () {
+        return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
     presenter.getErrorCount = function() {
