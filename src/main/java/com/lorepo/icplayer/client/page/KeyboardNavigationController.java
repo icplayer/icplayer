@@ -51,7 +51,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void run() {
-		setModuleStatus("", false, false); //initialize moduleStatus during loading of page
+//		setModuleStatus("", false, false); //initialize moduleStatus during loading of page
 
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 
@@ -90,21 +90,32 @@ public final class KeyboardNavigationController {
 	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, String prefix) {
 		// Modules are added in order: main page, footer, header
 		// Start Position(from header) equals to the sum of main page modules and footer modules.
+		// it's necessry to check this before for loop
 		if (prefix.equals("h_")) {
 			this.startPosition = navigationWidgets.size();
 		}
+		
 		for (IPresenter presenter : presenters) {
 			IModuleModel module = presenter.getModel();
 			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
 			String moduleTypeName = module.getModuleTypeName().toLowerCase();
 			
 			if (isModuleExpected) {
+				// for text modules
 				if (moduleTypeName.equals("text")){
 					if (!((TextPresenter) presenter).isSelectable()) continue;
 				}
 				
 				navigationWidgets.put(prefix + module.getId(), widgets.get(module.getId()));
 				modulesNames.add(prefix + presenter.getModel().getId());
+			}
+		}
+
+		//it's necessry to check this after for loop
+		if (prefix.equals("h_")) {
+			if (!currentModuleName.equals("")) {
+				selectModule(currentModuleName);
+				activateModule();
 			}
 		}
 	}
@@ -206,15 +217,28 @@ public final class KeyboardNavigationController {
 	private void selectModule(String moduleName) {
 		Widget widget = navigationWidgets.get(moduleName);
 		widget.getElement().addClassName("ic_selected_module");
-		
+
 		scrollToModule(widget.getAbsoluteTop());
 	}
 	
-	public void resetStatus() {
-		setModuleStatus("", false, false);
+	private boolean isCommonModule() {
+		return currentModuleName.startsWith("h") || currentModuleName.startsWith("f");
 	}
 	
+	public void resetStatus() {
+		if (!isCommonModule()) {
+			setModuleStatus("", false, false);
+		}
+	}
+	
+	// True, if no module is activated
+	private static native boolean shouldSelectModule() /*-{
+		return typeof $wnd.moduleStatus.name !== ""
+	}-*/;
+	
 	public static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
+		var page = "";
+		
 		name = name.replace(/(h|b|f)_/g, "");
 		
 		$wnd.moduleStatus = {
@@ -225,10 +249,13 @@ public final class KeyboardNavigationController {
 	}-*/;
 	
 	public void init() {
-		focusedModule = 0;
-		currentModuleName = "";
-		moduleIsActivated = false;
-		isInitiated = false;
+		if (!isCommonModule()) {
+			focusedModule = 0;
+			currentModuleName = "";
+			moduleIsActivated = false;
+			isInitiated = false;
+		}
+
 		navigationWidgets = new HashMap<String, Widget>();
 		modulesNames = new ArrayList<String>();
 	}
