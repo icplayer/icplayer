@@ -100,6 +100,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private HashMap<String, String> currentEventData;
 	private boolean isConnectedToMath = false;
 	private boolean isMathShowAnswersActive = false;
+	private int currentScore = 0;
+	private int currentErrorCount = 0;
+	private int currentMaxScore = 0;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -202,6 +205,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return;
 		}
 
+		this.currentScore = getScore();
+		this.currentErrorCount = getErrorCount();
+		this.currentMaxScore = getMaxScore();
 		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
@@ -405,7 +411,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		if (isShowAnswers()) {
-			hideAnswers();
+			return currentErrorCount;
 		}
 
 		String enteredValue;
@@ -474,9 +480,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		if (isShowAnswers()) {
-			hideAnswers();
+			return currentMaxScore;
 		}
-
+		
 		int maxScore = 0;
 
 		for (GapInfo gap : module.getGapInfos()) {
@@ -496,7 +502,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		if (isShowAnswers()) {
-			hideAnswers();
+			return currentScore;
 		}
 
 		int score = 0;

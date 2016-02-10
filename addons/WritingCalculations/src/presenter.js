@@ -712,7 +712,7 @@ function AddonWritingCalculations_create() {
         }
 
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            return presenter.currentScore;
         }
         return this.getPoints("correct");
     };
@@ -723,7 +723,7 @@ function AddonWritingCalculations_create() {
         }
 
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            return presenter.currentMaxScore;
         }
         return this.getPoints("all");
     };
@@ -734,7 +734,7 @@ function AddonWritingCalculations_create() {
         }
 
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            return presenter.currentErrorCount;
         }
         return this.getPoints("incorrect");
     };
@@ -813,6 +813,9 @@ function AddonWritingCalculations_create() {
         }
         presenter.userAnswers = [];
         presenter.isShowAnswersActive = true;
+        presenter.currentScore = presenter.getScore();
+        presenter.currentErrorCount = presenter.getErrorCount();
+        presenter.currentMaxScore = presenter.getMaxScore();
         presenter.clean(true,false);
         var inputs = $(this.$view).find(".writing-calculations-input");
         var correctAnswers = this.correctAnswersList;
