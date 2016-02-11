@@ -39,7 +39,12 @@ function AddonNavigation_Bar_create() {
     	return Internationalization.WESTERN_ARABIC;
     }
 
-    presenter.executeAction = function(e, keycode) {
+    presenter.keyboardController = function(keycode) {
+        $(document).off('keydown');
+        $(document).on('keydown', function(e) {
+            e.preventDefault();
+        });
+
         var elements = presenter.$view.find("span").not("[class*='inactive']");
 
         function getCurrentPosition() {
@@ -85,8 +90,7 @@ function AddonNavigation_Bar_create() {
         function forward() {
             select(elements[getCurrentPosition() + 1]);
         }
-
-        switch(keycode) {
+        switch(parseInt(keycode, 10)) {
             case 13:
                 skipToPage();
                 break;
@@ -97,24 +101,6 @@ function AddonNavigation_Bar_create() {
                 forward();
                 break;
         }
-    };
-
-
-    presenter.removeKeyboard = function() {
-        $(document).off('keydown');
-    };
-
-    presenter.addKeyboardNavigation = function() {
-        $(document).on('keydown', function(e) {
-            var keycode = (e.keyCode ? e.keyCode : e.which);
-
-            if (window.moduleStatus.name === presenter.configuration.ID && window.moduleStatus.activated) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                presenter.executeAction(e, keycode);
-            }
-        });
     };
 
     presenter.setPlayerController = function (controller) {
@@ -130,7 +116,6 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('closePage', this);
-        presenter.addKeyboardNavigation();
     };
 
     function goToPage(whereTo, index) {
@@ -789,10 +774,6 @@ function AddonNavigation_Bar_create() {
 
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
-        }
-
-        if (eventName == "closePage") {
-            presenter.removeKeyboard();
         }
     };
 

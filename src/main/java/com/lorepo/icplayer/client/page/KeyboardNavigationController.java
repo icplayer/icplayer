@@ -11,6 +11,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public final class KeyboardNavigationController {
@@ -21,6 +23,7 @@ public final class KeyboardNavigationController {
 	private List<String> modulesNames = new ArrayList<String>();
 	private boolean isInitiated = false;
 	private int startPosition = 0;
+	private IPlayerServices playerServices;
 	
 	private enum ExpectedModules {
 		// Navigation modules
@@ -54,8 +57,7 @@ public final class KeyboardNavigationController {
 //		setModuleStatus("", false, false); //initialize moduleStatus during loading of page
 
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
-
-	        @Override
+			@Override
 	        public void onKeyDown(KeyDownEvent event) {
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 	            	event.preventDefault();
@@ -82,6 +84,11 @@ public final class KeyboardNavigationController {
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
 	            	deactivateModule();
+	            }
+
+	            if (moduleIsActivated) {
+	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
+	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, Integer.toString(event.getNativeKeyCode())));
 	            }
 	        }
 	    }, KeyDownEvent.getType());
@@ -235,10 +242,8 @@ public final class KeyboardNavigationController {
 	private static native boolean shouldSelectModule() /*-{
 		return typeof $wnd.moduleStatus.name !== ""
 	}-*/;
-	
+
 	public static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
-		var page = "";
-		
 		name = name.replace(/(h|b|f)_/g, "");
 		
 		$wnd.moduleStatus = {
@@ -258,5 +263,9 @@ public final class KeyboardNavigationController {
 
 		navigationWidgets = new HashMap<String, Widget>();
 		modulesNames = new ArrayList<String>();
+	}
+	
+	public void setPS(IPlayerServices ps) {
+		this.playerServices = ps;
 	}
 }

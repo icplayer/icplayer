@@ -102,6 +102,7 @@ public class PageController {
 	public void setKeyboardController(KeyboardNavigationController kc, PageType pageType) {
 		this.keyboardController = kc;
 		this.pageType = pageType;
+		keyboardController.setPS(playerService);
 	}
 	
 	public PageType getPageType() {

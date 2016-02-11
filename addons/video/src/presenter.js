@@ -272,7 +272,11 @@ function Addonvideo_create() {
         presenter.video = null;
     };
     
-    presenter.executeAction = function(e, keycode) {      
+    presenter.keyboardController = function(keycode) {
+        $(document).off('keydown');
+        $(document).on('keydown', function(e) {
+            e.preventDefault();
+        });
         function increasedVolume() {
         	var val = Math.round((presenter.videoObject.volume + 0.1)*10)/10;
         	
@@ -317,20 +321,7 @@ function Addonvideo_create() {
         	forward();
         }
     };
-    
-    presenter.addKeyboardNavigation = function() {
-        $(document).on('keydown', function(e) {
-        	var keycode = (e.keyCode ? e.keyCode : e.which);
 
-        	if (window.moduleStatus.name === presenter.addonID && window.moduleStatus.activated) {
-            	e.stopPropagation();
-                e.preventDefault();
-                
-                presenter.executeAction(e, keycode);
-            }
-        });
-    };
-    
     presenter.run = function(view, model) {
         presenter.commandsQueue = CommandsQueueFactory.create(presenter);
         presenter.isVideoLoaded = false;
@@ -367,8 +358,6 @@ function Addonvideo_create() {
                 presenter.destroy();
             }
         });
-        
-        presenter.addKeyboardNavigation();
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {
