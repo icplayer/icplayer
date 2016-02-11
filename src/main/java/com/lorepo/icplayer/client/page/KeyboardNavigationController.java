@@ -75,7 +75,11 @@ public final class KeyboardNavigationController {
 	            		}
 	            	}
 	            }
-	            
+
+	            if (moduleIsActivated) {
+	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
+	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, Integer.toString(event.getNativeKeyCode())));
+	            }
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
 	            	activateModule();
@@ -86,15 +90,11 @@ public final class KeyboardNavigationController {
 	            	deactivateModule();
 	            }
 
-	            if (moduleIsActivated) {
-	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
-	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, Integer.toString(event.getNativeKeyCode())));
-	            }
 	        }
 	    }, KeyDownEvent.getType());
 	}
 	
-	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, String prefix) {
+	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, final String prefix) {
 		// Modules are added in order: main page, footer, header
 		// Start Position(from header) equals to the sum of main page modules and footer modules.
 		// it's necessry to check this before for loop
@@ -252,6 +252,10 @@ public final class KeyboardNavigationController {
 			activated: activated
 		}
 	}-*/;
+	
+	public boolean isModuleActivated() {
+		return moduleIsActivated;
+	}
 	
 	public void init() {
 		if (!isCommonModule()) {

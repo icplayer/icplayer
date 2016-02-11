@@ -40,9 +40,10 @@ function AddonNavigation_Bar_create() {
     }
 
     presenter.keyboardController = function(keycode) {
-        $(document).off('keydown');
+
         $(document).on('keydown', function(e) {
             e.preventDefault();
+            $(this).off('keydown');
         });
 
         var elements = presenter.$view.find("span").not("[class*='inactive']");
@@ -90,7 +91,7 @@ function AddonNavigation_Bar_create() {
         function forward() {
             select(elements[getCurrentPosition() + 1]);
         }
-        switch(parseInt(keycode, 10)) {
+        switch(keycode) {
             case 13:
                 skipToPage();
                 break;

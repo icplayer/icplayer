@@ -273,10 +273,12 @@ function Addonvideo_create() {
     };
     
     presenter.keyboardController = function(keycode) {
-        $(document).off('keydown');
+
         $(document).on('keydown', function(e) {
             e.preventDefault();
+            $(this).off('keydown');
         });
+
         function increasedVolume() {
         	var val = Math.round((presenter.videoObject.volume + 0.1)*10)/10;
         	
@@ -296,29 +298,47 @@ function Addonvideo_create() {
         function backward() {
         	presenter.videoObject.currentTime -= 15; 
         }
-        
-        if(keycode == 32) {
+
+        function playPause() {
             if (presenter.video.paused) {
-            	presenter.play();
+                presenter.play();
             } else {
-            	presenter.pause();
+                presenter.pause();
             }
         }
-        
-        if(keycode == 38) {
-            presenter.videoObject.volume = increasedVolume();
+
+        function fullScreen() {
+            if (presenter.videoObject.requestFullscreen) {
+                presenter.videoObject.requestFullscreen();
+            } else if (presenter.videoObject.mozRequestFullScreen) {
+                presenter.videoObject.mozRequestFullScreen();
+            } else if (presenter.videoObject.webkitRequestFullscreen) {
+                presenter.videoObject.webkitRequestFullscreen();
+            }
         }
-        
-        if(keycode == 40) {
-            presenter.videoObject.volume = decreasedVolume();
-        }
-        
-        if(keycode == 37) {
-        	backward();
-        }
-        
-        if(keycode == 39) {
-        	forward();
+
+        switch(keycode) {
+            case 32:
+                playPause();
+                break;
+            case 38:
+                presenter.videoObject.volume = increasedVolume();
+                break;
+            case 40:
+                presenter.videoObject.volume = decreasedVolume();
+                break;
+            case 37:
+                backward();
+                break;
+            case 39:
+                forward();
+                break;
+            case 27:
+                presenter.pause();
+                break;
+            case 70:
+                fullScreen();
+                break;
         }
     };
 

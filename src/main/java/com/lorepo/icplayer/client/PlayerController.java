@@ -303,7 +303,10 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-				scrollViewToBeggining();
+				
+				if (!keyboardController.isModuleActivated()) {
+					scrollViewToBeggining();
+				}
 			}
 
 			@Override

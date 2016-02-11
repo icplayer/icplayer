@@ -91,7 +91,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native void activate(JavaScriptObject obj, String moduleName, String keyCode) /*-{
 		try{
 			if(obj.keyboardController != undefined) {
-				obj.keyboardController(keyCode);
+				obj.keyboardController(parseInt(keyCode, 10));
 			}
 		}
 		catch(err){
