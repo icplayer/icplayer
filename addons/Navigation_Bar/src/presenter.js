@@ -65,6 +65,15 @@ function AddonNavigation_Bar_create() {
                     }
                 });
             }
+            // dotted
+            if (typeof pos === "undefined") {
+                $.each(elements, function(i, el) {
+                    if ($(el).hasClass("navigationbar-dotted-element")) {
+                        pos = i;
+                        return false;
+                    }
+                });
+            }
 
             return pos;
         }

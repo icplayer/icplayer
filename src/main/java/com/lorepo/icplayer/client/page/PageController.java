@@ -395,7 +395,6 @@ public class PageController {
 	}
 
 	public void closePage() {
-		playerService.getEventBus().fireEvent(new CustomEvent("closePage", new HashMap<String, String>()));
 		keyboardController.resetStatus();
 		
 		if (playerServiceImpl != null) {
