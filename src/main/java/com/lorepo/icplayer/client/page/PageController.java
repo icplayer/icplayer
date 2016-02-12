@@ -131,8 +131,9 @@ public class PageController {
 		} else if (pageType == PageType.book) {
 			prefix = "b_";
 		}
-
-		keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);
+		if (keyboardController != null) {
+			keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);
+		}
 		
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
