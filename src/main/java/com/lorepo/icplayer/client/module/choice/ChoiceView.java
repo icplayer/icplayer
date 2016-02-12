@@ -11,9 +11,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
-import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
-import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
 

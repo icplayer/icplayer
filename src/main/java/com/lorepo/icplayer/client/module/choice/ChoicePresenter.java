@@ -125,16 +125,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	private void activate(ModuleActivatedEvent event) {
 		String moduleName = event.moduleName;
-		String keyCode = event.moduleStatus;
 		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
 		
 		if (moduleName.equals(module.getId())) {
-			int code = 0;
-			
-			try {
-				code = Integer.parseInt(keyCode);
-			} catch (NumberFormatException nfe) {}
-			
 			view.executeOnKeyCode(keyDownEvent);
 		}
 	}
