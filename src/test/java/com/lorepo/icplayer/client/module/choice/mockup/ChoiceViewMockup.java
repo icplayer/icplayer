@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.module.choice.ChoiceModel;
 import com.lorepo.icplayer.client.module.choice.ChoiceOption;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IDisplay;
@@ -119,16 +120,8 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 
 
 	@Override
-	public void onEnterKey() {
+	public void executeOnKeyCode(KeyDownEvent event) {
 		// TODO Auto-generated method stub
 		
 	}
-
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

@@ -133,16 +133,4 @@ public class ImageGapViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 
 	}
-
-	@Override
-	public void onEnterKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
 }

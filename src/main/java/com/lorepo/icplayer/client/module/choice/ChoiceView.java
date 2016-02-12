@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.choice;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -205,23 +206,37 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			}
 		}
 	}
+
+	private void addBorder() {
+		if (position < 0) {
+			position = 0;
+		}
+		IOptionDisplay option = optionWidgets.get(position);
+		
+		if (option != null) {
+			option.addBorder();
+		}
+	}
 	
-	@Override
-	public void onEnterKey() {
+	private void removeBorder() {
+		if (position < 0) return;
+		IOptionDisplay option = optionWidgets.get(position);
+		
+		if (option != null) {
+			option.removeBorder();
+		}
 	}
-
-
-	@Override
-	public void onEscapeKey() {
-	}
-
-
+	
 	@Override
 	public void executeOnKeyCode(KeyDownEvent event) {
 		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			addBorder();
+		}
 		
-		//tab key
-		if (code == 9) {
+		if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
 			skip();
 		}
 		
@@ -229,6 +244,11 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		if (code == 32) {
 			event.preventDefault();
 			select();
+		}
+		
+		if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			removeBorder();
 		}
 	}
 }

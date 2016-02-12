@@ -96,4 +96,18 @@ public class OptionViewMockup implements IOptionDisplay {
 	public void setCorrectAnswerStyle() {
 		// TODO Auto-generated method stub
 	}
+
+
+	@Override
+	public void addBorder() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void removeBorder() {
+		// TODO Auto-generated method stub
+		
+	}
 }

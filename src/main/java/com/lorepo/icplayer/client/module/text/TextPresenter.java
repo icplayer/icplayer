@@ -9,6 +9,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
@@ -24,6 +25,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -82,7 +84,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void removeHandler();
+		void executeOnKeyCode(KeyDownEvent event);
 	}
 
 	private final TextModel module;
@@ -111,7 +113,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.playerServices = services;
 		isVisible = module.isVisible();
 		connectHandlers();
-		onClose();
 	}
 
 	private void connectHandlers() {
@@ -168,8 +169,23 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}
 			}
 		});
+		
+		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
+			public void onActivated(ModuleActivatedEvent event) {
+				activate(event);
+			}
+		});
 	}
 
+	private void activate(ModuleActivatedEvent event) {
+		String moduleName = event.moduleName;
+		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
+		
+		if (moduleName.equals(module.getId())) {
+			view.executeOnKeyCode(keyDownEvent);
+		}
+	}
+	
 	private boolean isShowAnswers() {
 		return module.isActivity() ? this.isShowAnswersActive : false;
 	}
@@ -643,17 +659,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 						removeFromGap(id);
 					}
 					insertToGap(id);
-				}
-			}
-		});
-	}
-
-	private void onClose() {
-		playerServices.getEventBus().addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
-			@Override
-			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("closePage")) {
-					view.removeHandler();
 				}
 			}
 		});

@@ -1,9 +1,10 @@
 package com.lorepo.icplayer.client.module.button;
 
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -24,7 +25,6 @@ public class ButtonView extends Composite implements IDisplay {
 		initWidget(createInnerButton(services));
 		getElement().setId(module.getId());
 		this.playerServices = services;
-		new KeyboardNavigation(this);
 	}
 
 	
@@ -114,17 +114,21 @@ public class ButtonView extends Composite implements IDisplay {
 		return isErrorCheckingMode;
 	}
 
-	public void onEnterKey() {
-    	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
-    		if (module.getType() == ButtonType.nextPage) {
-    			playerServices.getCommands().nextPage();
-    		} else if(module.getType() == ButtonType.prevPage) {
-    			playerServices.getCommands().prevPage();
-    		}
-    	}
-	}
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
 
-	public void onEscapeKey() {
-		
+		if (code == KeyCodes.KEY_ENTER) {
+			event.preventDefault();
+			enter();
+		}
+	}
+	
+	public void enter() {
+		if (module.getType() == ButtonType.nextPage) {
+			playerServices.getCommands().nextPage();
+		} else if(module.getType() == ButtonType.prevPage) {
+			playerServices.getCommands().prevPage();
+		}
 	}
 }

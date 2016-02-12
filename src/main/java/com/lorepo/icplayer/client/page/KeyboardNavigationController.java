@@ -54,8 +54,6 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void run() {
-//		setModuleStatus("", false, false); //initialize moduleStatus during loading of page
-
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
@@ -76,13 +74,15 @@ public final class KeyboardNavigationController {
 	            	}
 	            }
 
-	            if (moduleIsActivated) {
-	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
-	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
-	            }
+
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
 	            	activateModule();
+	            }
+	            
+	            if (moduleIsActivated) {
+	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
+	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {

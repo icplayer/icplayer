@@ -21,19 +21,6 @@ public class PresenterTestCase {
 		public void setData(int value) {
 			this.value = value;
 		}
-
-		@Override
-		public void onEnterKey() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void onEscapeKey() {
-			// TODO Auto-generated method stub
-			
-		}
-
 	}
 
 	

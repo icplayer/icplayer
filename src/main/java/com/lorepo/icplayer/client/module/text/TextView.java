@@ -8,15 +8,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
-import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -28,15 +25,11 @@ public class TextView extends HTML implements IDisplay{
 	private ITextViewListener listener;
 	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
-	private HandlerRegistration handler;
 	private boolean moduleHasFocus = false;
-	private KeyboardNavigation keyboardNavigation;
-	
+	private int clicks = 0;
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
-		keyboardNavigation = new KeyboardNavigation(this);
-//		onTabKey();
 	}
 
 	private void createUI(boolean isPreview) {
@@ -261,66 +254,60 @@ public class TextView extends HTML implements IDisplay{
 		return textElements.size();
 	}
 	
-	public void removeHandler() {
-		if (handler != null) {
-			handler.removeHandler(); // local
-			keyboardNavigation.removeHandler(); // global
-		}
-		moduleHasFocus = false;
-	}
-	
-	public void tabKeyHandler() {
-		if (handler != null) {
-			handler.removeHandler();
-		}
+	private void skip() {
+		int size = getTextElementsSize();
+		JavaScriptUtils.log("4");
 
-		handler = RootPanel.get().addDomHandler(new KeyDownHandler() {
-			int clicks = 0;
-			
-	        @Override
-	        public void onKeyDown(KeyDownEvent event) {
-	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
-	            	event.preventDefault();
-	            	String status = KeyboardNavigation.getModuleStatus("activated");
-	            	
-	            	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name")) && status.equals("true")) {
-	            		int size = getTextElementsSize();
-	            		
-	            		clicks++;
-	            		if (clicks >= size && size > 0) {
-	            			clicks = 0;
-	            		}
-	            		TextElementDisplay gap = textElements.get(clicks);
-	            		gap.setFocusGap(true);
-	            	}
-	            }
-	        }
-	    }, KeyDownEvent.getType());
+		clicks++;
+		
+		if (clicks >= size && size > 0) {
+			clicks = 0;
+		}
+		
+		TextElementDisplay gap = textElements.get(clicks);
+		gap.setFocusGap(true);
 	}
 	
-	public void onEnterKey() {
+	private void enter() {
     	TextElementDisplay gap = null;
-    	
-    	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
-    		if(textElements.size() > 0) {
-        		gap = textElements.get(0);
-    		}
+		JavaScriptUtils.log("2");
 
-    		if (gap != null && !moduleHasFocus) {
-    			tabKeyHandler();
-    			gap.setFocusGap(true);
-    			moduleHasFocus = true;
-    		}
-    	}
+		if(textElements.size() > 0) {
+    		gap = textElements.get(0);
+		}
+
+		if (gap != null && !moduleHasFocus) {
+			gap.setFocusGap(true);
+			moduleHasFocus = true;
+		}
 	}
 	
-	public void onEscapeKey() {
-    	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
-    		
-			for (TextElementDisplay gap : textElements) {
-				gap.setFocusGap(false);
-				moduleHasFocus = false;
-			}
-    	}
+	private void escape() {
+		JavaScriptUtils.log("3");
+
+		for (TextElementDisplay gap : textElements) {
+			gap.setFocusGap(false);
+			moduleHasFocus = false;
+		}
+	}
+	
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+		JavaScriptUtils.log("1");
+		if (code == KeyCodes.KEY_ENTER) {
+			event.preventDefault();
+			enter();
+		}
+
+		if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			escape();
+		}
+		
+		if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
+			skip();
+		}
 	}
 }

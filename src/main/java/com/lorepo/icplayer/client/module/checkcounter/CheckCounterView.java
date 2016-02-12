@@ -24,17 +24,4 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 			setText("");
 		}
 	}
-
-	@Override
-	public void onEnterKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
