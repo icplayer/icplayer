@@ -14,25 +14,15 @@ import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-
-/**
- * This is X,Y laytout
- * 
- * @author Krzysztof Langner
- *
- */
 public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-
 	
 	public AbsolutePageView(){
-
 		addStyleName("ic_page");
 	}
 	
-
 	@Override
 	public void setPage(Page newPage) {
 	
@@ -109,7 +99,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		}
 	}
 
-
 	private int calculatePosition(String widgetName, Property property, int modulePos) {
 		int pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
 		int pageHeight = DOM.getElementPropertyInt(getElement(), "clientHeight");
@@ -169,5 +158,9 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 		widgets.clear();
 		clear();
 	}
-
+	
+	@Override
+	public HashMap<String, Widget> getWidgets() {
+		return widgets;
+	}
 }

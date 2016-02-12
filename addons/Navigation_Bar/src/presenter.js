@@ -39,6 +39,80 @@ function AddonNavigation_Bar_create() {
     	return Internationalization.WESTERN_ARABIC;
     }
 
+    presenter.keyboardController = function(keycode) {
+
+        $(document).on('keydown', function(e) {
+            e.preventDefault();
+            $(this).off('keydown');
+        });
+
+        var elements = presenter.$view.find("span").not("[class*='inactive']");
+
+        function getCurrentPosition() {
+            var pos;
+            $.each(elements, function(i, el) {
+                if ($(el).is("[class*='mouse-hover']")) {
+                    pos = i;
+                    return false;
+                }
+            });
+
+            if (typeof pos === "undefined") {
+                $.each(elements, function(i, el) {
+                    if ($(el).is("[class*='current']")) {
+                        pos = i;
+                        return false;
+                    }
+                });
+            }
+            // dotted
+            if (typeof pos === "undefined") {
+                $.each(elements, function(i, el) {
+                    if ($(el).hasClass("navigationbar-dotted-element")) {
+                        pos = i;
+                        return false;
+                    }
+                });
+            }
+
+            return pos;
+        }
+
+        function select(element) {
+            if (!element) return;
+
+            presenter.$view.find('span').removeClass('navigationbar-element-mouse-hover');
+
+            $(element).removeClass('navigationbar-element');
+            $(element).addClass('navigationbar-element-mouse-hover');
+
+            var pageNumber = $(element).attr('data-page-number');
+        }
+
+        function skipToPage() {
+            $(elements[getCurrentPosition()]).trigger('click');
+        }
+
+        function back() {
+            select(elements[getCurrentPosition() - 1]);
+        }
+
+        function forward() {
+            select(elements[getCurrentPosition() + 1]);
+        }
+        switch(keycode) {
+            case 13:
+                skipToPage();
+                break;
+            case 37:
+                back();
+                break;
+            case 39:
+                forward();
+                break;
+        }
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
@@ -51,6 +125,7 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ValueChanged', this);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('closePage', this);
     };
 
     function goToPage(whereTo, index) {
@@ -511,7 +586,8 @@ function AddonNavigation_Bar_create() {
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
             hideHomeLastArrows: model.HideHomeLastArrows === 'True',
             language: getLanguage(model),
-            addClassNBPageOK: model.AddClassNBPageOK === 'True'
+            addClassNBPageOK: model.AddClassNBPageOK === 'True',
+            ID: model.ID
         };
 
         if (!model['Styles']) {
