@@ -1,3 +1,7 @@
+2016-02-10 Changed page name in dictionary
+2016-02-10 Fixed displaying alert in Advanced Connector module
+2016-02-10 Added isAllOK method and event in Text Identification module
+2016-02-10 Fixed Check mode and Show Answers mode in Text and Writing Calculations modules
 2016-02-04 Fixed getting error count in Hangman module
 2016-02-03 Fixed setting state in Basic Math Gaps module
 2016-02-03 Fixed issue with printing graphical backgrounds in Print Report module

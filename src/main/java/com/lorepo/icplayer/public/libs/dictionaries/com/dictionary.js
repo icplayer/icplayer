@@ -231,7 +231,7 @@
 	"item_count" : "Item count:",
 	"number_of_items" : "Number of items:",
 	"title" : "Title",
-	"page" : "Page Title",
+	"page" : "Page",
 	"page_index" : "Page Index",
 	"on_click" : "onClick",
 	"additional_classes" : "Additional classes",
