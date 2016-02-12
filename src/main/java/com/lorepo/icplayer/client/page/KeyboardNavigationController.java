@@ -27,7 +27,7 @@ public final class KeyboardNavigationController {
 	
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar;
+		text, video, button, navigation_bar, choice;
 		
 		private static boolean contains(String s) {
 			for(ExpectedModules choice:values()) {
@@ -78,7 +78,7 @@ public final class KeyboardNavigationController {
 
 	            if (moduleIsActivated) {
 	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
-	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, Integer.toString(event.getNativeKeyCode())));
+	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
 	            }
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();

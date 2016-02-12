@@ -240,4 +240,14 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		setWrongStyle();
 		setStyleFromCommandMarkAsWrong();
 	}
+	
+	@Override
+	public void removeBorder() {
+		removeStyleName("ic_option_border");
+	}
+
+	@Override
+	public void addBorder() {
+		addStyleName("ic_option_border");
+	}
 }
