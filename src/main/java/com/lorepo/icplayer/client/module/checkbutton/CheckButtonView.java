@@ -102,16 +102,4 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	public void uncheckAnswers() {
 		if (isShowErrorsMode) toggleAnswers();
 	}
-
-	@Override
-	public void onEnterKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
 }

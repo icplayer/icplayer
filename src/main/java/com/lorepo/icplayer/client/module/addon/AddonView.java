@@ -40,18 +40,4 @@ public class AddonView extends HTML implements AddonPresenter.IDisplay{
 	public void setViewHTML(String html) {
 		setHTML(html);
 	}
-
-
-	@Override
-	public void onEnterKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
 }

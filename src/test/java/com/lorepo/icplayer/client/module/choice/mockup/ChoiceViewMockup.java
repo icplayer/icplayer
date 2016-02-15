@@ -117,18 +117,4 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		
 	}
 
-
-	@Override
-	public void onEnterKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

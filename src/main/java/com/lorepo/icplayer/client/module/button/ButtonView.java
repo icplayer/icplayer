@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icplayer.client.KeyboardNavigation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -15,7 +14,6 @@ public class ButtonView extends Composite implements IDisplay {
 	
 	private ButtonModule module;
 	private boolean isErrorCheckingMode;
-	private IPlayerServices playerServices;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -23,8 +21,6 @@ public class ButtonView extends Composite implements IDisplay {
 
 		initWidget(createInnerButton(services));
 		getElement().setId(module.getId());
-		this.playerServices = services;
-		new KeyboardNavigation(this);
 	}
 
 	
@@ -112,19 +108,5 @@ public class ButtonView extends Composite implements IDisplay {
 	@Override
 	public boolean isErrorCheckingMode() {
 		return isErrorCheckingMode;
-	}
-
-	public void onEnterKey() {
-    	if (module.getId().equals(KeyboardNavigation.getModuleStatus("name"))) {
-    		if (module.getType() == ButtonType.nextPage) {
-    			playerServices.getCommands().nextPage();
-    		} else if(module.getType() == ButtonType.prevPage) {
-    			playerServices.getCommands().prevPage();
-    		}
-    	}
-	}
-
-	public void onEscapeKey() {
-		
 	}
 }

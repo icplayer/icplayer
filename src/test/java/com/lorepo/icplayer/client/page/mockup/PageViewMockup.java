@@ -1,9 +1,7 @@
 package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -71,12 +69,5 @@ public class PageViewMockup implements IPageDisplay {
 	@Override
 	public void removeAllModules() {
 		views.clear();
-	}
-
-
-	@Override
-	public HashMap<String, Widget> getWidgets() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

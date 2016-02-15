@@ -955,15 +955,3 @@ hr, table, fieldset {
 	z-index: 100;
 	bottom: 0;
 }
-
-.ic_selected_module {
-	border: 2px solid rgba(27,144,253,1) !important;
-	-webkit-box-shadow: 0 0 2px 0 rgba(27,144,253,0.6) !important;
-	box-shadow: 0 0 2px 0 rgba(27,144,253,0.6) !important;
-}
-
-.ic_active_module {
-	border: 2px solid rgba(0,255,0,1) !important;
-	-webkit-box-shadow: 0 0 2px 0 rgba(0,255,0,0.6) !important;
-	box-shadow: 0 0 2px 0 rgba(0,255,0,0.6) !important;
-}

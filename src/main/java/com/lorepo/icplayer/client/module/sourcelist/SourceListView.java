@@ -238,18 +238,4 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		refreshMath(getElement());
 	}
 
-
-	@Override
-	public void onEnterKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onEscapeKey() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
