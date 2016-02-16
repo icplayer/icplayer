@@ -396,7 +396,10 @@ public class PageController {
 	}
 
 	public void closePage() {
-		keyboardController.resetStatus();
+		// kc in popup window is null
+		if (keyboardController != null) {
+			keyboardController.resetStatus();
+		}
 		
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
