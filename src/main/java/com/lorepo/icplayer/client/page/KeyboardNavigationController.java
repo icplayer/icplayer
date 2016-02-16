@@ -21,8 +21,8 @@ public final class KeyboardNavigationController {
 	private boolean moduleIsActivated = false;
 	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
 	private List<String> modulesNames = new ArrayList<String>();
+	private List<String> headerNames = new ArrayList<String>();
 	private boolean isInitiated = false;
-	private int startPosition = 0;
 	private IPlayerServices playerServices;
 	
 	private enum ExpectedModules {
@@ -40,15 +40,13 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void initialSelect() {
-		isInitiated = true;
-
-		String moduleName = modulesNames.get(startPosition);
+		String moduleName = modulesNames.get(0);
 		Widget w = navigationWidgets.get(moduleName);
 
 		if (w == null) return; // there is no modules to select
-		focusedModule = startPosition;
 		selectModule(moduleName);
 		currentModuleName = moduleName;
+		isInitiated = true;
 		
 		setModuleStatus(moduleName, true, false);	
 	}
@@ -94,14 +92,7 @@ public final class KeyboardNavigationController {
 	    }, KeyDownEvent.getType());
 	}
 	
-	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, final String prefix) {
-		// Modules are added in order: main page, footer, header
-		// Start Position(from header) equals to the sum of main page modules and footer modules.
-		// it's necessry to check this before for loop
-		if (prefix.equals("h_")) {
-			this.startPosition = navigationWidgets.size();
-		}
-		
+	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, final String prefix) {	
 		for (IPresenter presenter : presenters) {
 			IModuleModel module = presenter.getModel();
 			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
@@ -112,14 +103,21 @@ public final class KeyboardNavigationController {
 				if (moduleTypeName.equals("text")){
 					if (!((TextPresenter) presenter).isSelectable()) continue;
 				}
-				
+				if (prefix.equals("h_")) {
+					headerNames.add(prefix + presenter.getModel().getId());
+				} else {
+					modulesNames.add(prefix + presenter.getModel().getId());
+				}
 				navigationWidgets.put(prefix + module.getId(), widgets.get(module.getId()));
-				modulesNames.add(prefix + presenter.getModel().getId());
 			}
+		}
+		
+		if (prefix.equals("h_")) {
+			modulesNames.addAll(0, headerNames);
 		}
 
 		//it's necessry to check this after for loop
-		if (prefix.equals("h_")) {
+		if (prefix.equals("f_")) {
 			if (!currentModuleName.equals("")) {
 				selectModule(currentModuleName);
 				activateModule();

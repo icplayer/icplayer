@@ -323,18 +323,6 @@ public class PlayerController implements IPlayerController{
 		keyboardController.init();
 		pageController.setPage(page);
 		
-		if (!bookMode) {
-			if(footerController != null){
-				footerController.setPage(contentModel.getFooter());
-			}
-		}
-		
-		if (bookMode && type == PageType.book) {
-			if(footerController != null){
-				footerController.setPage(contentModel.getFooter());
-			}
-		}
-		
 		if (bookMode && type == PageType.main) {
 			if(headerController != null){
 				headerController.setPage(contentModel.getHeader());
@@ -346,7 +334,17 @@ public class PlayerController implements IPlayerController{
 				headerController.setPage(contentModel.getHeader());
 			}
 		}
-
+		if (!bookMode) {
+			if(footerController != null){
+				footerController.setPage(contentModel.getFooter());
+			}
+		}
+		
+		if (bookMode && type == PageType.book) {
+			if(footerController != null){
+				footerController.setPage(contentModel.getFooter());
+			}
+		}
 	}
 	
 	private static void scrollViewToBeggining() {
