@@ -676,6 +676,7 @@ var ice_dictionary = {
 "Navigation_Bar_property_class": "Classe",
 "Navigation_Bar_property_style": "Style",
 "Navigation_Bar_property_add_class_nb_page_ok": "Barre de navigation de la page en temps réel - ok",
+"Navigation_Bar_property_first_page_as_cover": "First page as cover",
 "Page_Counter_info": "Permet d'ajouter un compteur de page dans une présentation. Il présente le numéro de la page affichée et le nombre de pages total, dans l'ordre normal ou inversé.",
 "Page_Counter_name": "Compteur de page",
 "Page_Counter_property_numericals": "Numériques",
