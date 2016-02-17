@@ -320,7 +320,9 @@ public class PlayerController implements IPlayerController{
 
 	private void pageLoaded(Page page, PageController pageController) {
 		PageType type = pageController.getPageType();
-		keyboardController.init();
+		if (type != PageType.book) {
+			keyboardController.init();
+		}
 		pageController.setPage(page);
 		
 		if (bookMode && type == PageType.main) {

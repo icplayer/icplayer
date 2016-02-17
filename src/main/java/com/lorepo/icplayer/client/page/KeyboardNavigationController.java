@@ -21,6 +21,8 @@ public final class KeyboardNavigationController {
 	private boolean moduleIsActivated = false;
 	private HashMap<String, Widget> navigationWidgets = new HashMap<String, Widget>();
 	private List<String> modulesNames = new ArrayList<String>();
+	private List<String> tempModulesNames = new ArrayList<String>();
+	private HashMap<String, List<String>> pageModules = new HashMap<String, List<String>>();
 	private List<String> headerNames = new ArrayList<String>();
 	private boolean isInitiated = false;
 	private IPlayerServices playerServices;
@@ -51,6 +53,29 @@ public final class KeyboardNavigationController {
 		setModuleStatus(moduleName, true, false);	
 	}
 	
+	private void fillModulesNamesList() {	
+		if (pageModules.containsKey("Header")) {
+			modulesNames.addAll(pageModules.get("Header"));
+		}
+		
+		if (pageModules.containsKey("Main")) {
+			modulesNames.addAll(pageModules.get("Main"));
+		}
+		
+		if (pageModules.containsKey("Book")) {
+			modulesNames.addAll(pageModules.get("Book"));
+		}
+		
+		if (pageModules.containsKey("Footer")) {
+			modulesNames.addAll(pageModules.get("Footer"));
+		}
+
+		if (!currentModuleName.equals("")) {
+			selectModule(currentModuleName);
+			activateModule();
+		}
+	}
+	
 	public void run() {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
@@ -59,6 +84,7 @@ public final class KeyboardNavigationController {
 	            	event.preventDefault();
 	            	
 	            	if (!isInitiated) {
+		            	fillModulesNamesList();
 	            		initialSelect();
 	            		return;
 	            	}
@@ -103,26 +129,23 @@ public final class KeyboardNavigationController {
 				if (moduleTypeName.equals("text")){
 					if (!((TextPresenter) presenter).isSelectable()) continue;
 				}
-				if (prefix.equals("h_")) {
-					headerNames.add(prefix + presenter.getModel().getId());
-				} else {
-					modulesNames.add(prefix + presenter.getModel().getId());
-				}
+
+				tempModulesNames.add(prefix + presenter.getModel().getId());
 				navigationWidgets.put(prefix + module.getId(), widgets.get(module.getId()));
 			}
 		}
-		
-		if (prefix.equals("h_")) {
-			modulesNames.addAll(0, headerNames);
-		}
 
-		//it's necessry to check this after for loop
-		if (prefix.equals("f_")) {
-			if (!currentModuleName.equals("")) {
-				selectModule(currentModuleName);
-				activateModule();
-			}
+		if (prefix.equals("h_")) {
+			pageModules.put("Header", new ArrayList<String>(tempModulesNames));
+		} else if (prefix.equals("f_")) {
+			pageModules.put("Footer", new ArrayList<String>(tempModulesNames));
+		} else if (prefix.equals("b_")) {
+			pageModules.put("Book", new ArrayList<String>(tempModulesNames));
+		} else {
+			pageModules.put("Main", new ArrayList<String>(tempModulesNames));
 		}
+		
+		tempModulesNames.clear();
 	}
 	
 	private void activateModule() {
