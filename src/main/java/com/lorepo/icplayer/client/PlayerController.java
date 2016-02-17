@@ -59,6 +59,7 @@ public class PlayerController implements IPlayerController{
 	private boolean isPopupEnabled = false;
 	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private boolean bookMode = false;
+	private int loadedCount = 0;
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
 		
@@ -281,7 +282,6 @@ public class PlayerController implements IPlayerController{
 	
 
 	private void switchToPage(IPage page, final PageController pageController){
-
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		sendAnalytics("switch to page", params );
@@ -318,11 +318,21 @@ public class PlayerController implements IPlayerController{
 			
 	}
 
+	private boolean shouldKeyboardInit() {
+		if (bookMode) {
+			return loadedCount % 2 == 0;
+		}
+		
+		return true;
+	}
+	
 	private void pageLoaded(Page page, PageController pageController) {
 		PageType type = pageController.getPageType();
-		if (type != PageType.book) {
+
+		if (shouldKeyboardInit()) {
 			keyboardController.init();
 		}
+		
 		pageController.setPage(page);
 		
 		if (bookMode && type == PageType.main) {
@@ -340,13 +350,19 @@ public class PlayerController implements IPlayerController{
 			if(footerController != null){
 				footerController.setPage(contentModel.getFooter());
 			}
+			
+			keyboardController.fillModulesNamesList();
 		}
 		
 		if (bookMode && type == PageType.book) {
 			if(footerController != null){
 				footerController.setPage(contentModel.getFooter());
 			}
+			
+			keyboardController.fillModulesNamesList();
 		}
+		
+		loadedCount++;
 	}
 	
 	private static void scrollViewToBeggining() {

@@ -53,7 +53,7 @@ public final class KeyboardNavigationController {
 		setModuleStatus(moduleName, true, false);	
 	}
 	
-	private void fillModulesNamesList() {	
+	public void fillModulesNamesList() {	
 		if (pageModules.containsKey("Header")) {
 			modulesNames.addAll(pageModules.get("Header"));
 		}
@@ -84,7 +84,6 @@ public final class KeyboardNavigationController {
 	            	event.preventDefault();
 	            	
 	            	if (!isInitiated) {
-		            	fillModulesNamesList();
 	            		initialSelect();
 	            		return;
 	            	}
@@ -279,7 +278,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void init() {
-		if (!isCommonModule()) {
+		if (!(isCommonModule() && isModuleActivated())) {
 			focusedModule = 0;
 			currentModuleName = "";
 			moduleIsActivated = false;
