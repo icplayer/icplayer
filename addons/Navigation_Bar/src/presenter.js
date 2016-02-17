@@ -100,6 +100,11 @@ function AddonNavigation_Bar_create() {
         function forward() {
             select(elements[getCurrentPosition() + 1]);
         }
+
+        function deselect() {
+            presenter.$view.find('span').removeClass('navigationbar-element-mouse-hover');
+        }
+
         switch(keycode) {
             case 13:
                 skipToPage();
@@ -109,6 +114,9 @@ function AddonNavigation_Bar_create() {
                 break;
             case 39:
                 forward();
+                break;
+            case 27:
+                deselect();
                 break;
         }
     };
