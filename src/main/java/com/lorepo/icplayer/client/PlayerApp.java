@@ -15,6 +15,8 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import com.lorepo.icplayer.client.xml.ContentFactory;
+import com.lorepo.icplayer.client.xml.IContentFactory;
 
 public class PlayerApp{
 
@@ -55,19 +57,30 @@ public class PlayerApp{
 	 */
 	private void loadPage(String url, int pageIndex, final boolean isCommonPage) {
 		startPageIndex = pageIndex;
-		contentModel = new Content();
-		if (pagesSubset != null) contentModel.setPageSubset(pagesSubset);
-		XMLLoader reader = new XMLLoader(contentModel);
+		if (pagesSubset != null) {
+			contentModel.setPageSubset(pagesSubset);
+		}
 		
-		
-		reader.load(url, new ILoadListener() {
+		IContentFactory contentFactory = ContentFactory.getInstance();
+		contentFactory.load(url, new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				initPlayer(isCommonPage);
 			}
+			
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load:" + error);
 			}
 		});
+		
+//		XMLLoader reader = new XMLLoader(contentModel);
+//		reader.load(url, new ILoadListener() {
+//			public void onFinishedLoading(Object obj) {
+//				initPlayer(isCommonPage);
+//			}
+//			public void onError(String error) {
+//				JavaScriptUtils.log("Can't load:" + error);
+//			}
+//		});
 	}
 
 	/**
