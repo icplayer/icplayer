@@ -34,21 +34,22 @@ public class ContentFactory implements IContentFactory {
 	}
 	
 	@Override
-	public void load(String fetchUrl, ILoadListener listener) {
+	public void load(String fetchUrl, ArrayList<Integer> pagesSubset, ILoadListener listener) {
+		this.pagesSubset = pagesSubset;
 		try {
-			RequestsUtils.get(fetchUrl, this.getContentLoadCallback(listener));
+			RequestsUtils.get(fetchUrl, this.getContentLoadCallback(listener, pagesSubset));
 		} catch (RequestException e) {
 			JavaScriptUtils.log("Fetching main data content from server has failed: " + e.toString());
 		}
 	}
 
-	private RequestCallback getContentLoadCallback(final ILoadListener listener) {
+	private RequestCallback getContentLoadCallback(final ILoadListener listener, final Array<Integer> pagesSubset) {
 		return new RequestCallback() {
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() == 200 || response.getStatusCode() == 0) {
-					Content content = produce(response.getText());
+					Content content = produce(response.getText(), pagesSubset);
 					listener.onFinishedLoading(null);
 				} else {
 					// Handle the error.  Can get the status text from response.getStatusText()
@@ -64,11 +65,11 @@ public class ContentFactory implements IContentFactory {
 		};
 	}
 
-	protected Content produce(String xmlString) {
+	protected Content produce(String xmlString, ArrayList<Integer> pagesSubset) {
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
 		Integer version = XMLUtils.getAttributeAsInt(xml, "version");
 		
-		return this.parsersList.get(version).parse(xml);
+		return this.parsersList.get(version).parse(xml, pagesSubset);
 	}
 
 	@Override

@@ -16,8 +16,9 @@ import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.xml.IContentBuilder;
 
-public class Content implements IXMLSerializable, IContent {
+public class Content implements IContentBuilder, IContent {
 
 	public enum ScoreType{ first, last }
 	
@@ -29,7 +30,7 @@ public class Content implements IXMLSerializable, IContent {
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
 	private ArrayList<Integer> pageSubset = new ArrayList<Integer>();
-	private String styles;
+	private HashMap<String, String> styles;
 	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
 	private IContentListener listener;
@@ -37,10 +38,6 @@ public class Content implements IXMLSerializable, IContent {
 	private String footerPageName = "commons/footer";
 	
 	public Content(){
-		
-		pages = new PageList("root");
-		commonPages = new PageList("commons");
-		connectHandlers();
 	}
 	
 	public void setPlayerController(IPlayerServices ps) {
@@ -181,24 +178,10 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 	
-	public String getStyles(){
+	public HashMap<String,String> getStyles(){
 		return styles;
 	}
 	
-	public void setMetadataValue(String key, String value){
-		
-		if(value == null || value.length() == 0){
-			metadata.remove(key);
-		}
-		else{
-			metadata.put(key, value);
-		}
-	}
-
-	
-	public void setStyles(String text) {
-		styles = text;
-	}
 
 	public void setPageSubset(ArrayList<Integer> pageList){
 		pageSubset = pageList;
@@ -235,52 +218,6 @@ public class Content implements IXMLSerializable, IContent {
 			}
 		}
 		
-	}
-
-	private void loadAttributes(Element rootElement) {
-		name = XMLUtils.getAttributeAsString(rootElement, "name");
-		name = StringUtils.unescapeXML(name);
-		String st = XMLUtils.getAttributeAsString(rootElement, "scoreType");
-		if(st.equals(ScoreType.first.toString())){
-			scoreType = ScoreType.first;
-		}
-	}
-
-
-	private void loadMetadata(Element rootElement) {
-		NodeList entries = rootElement.getElementsByTagName("entry");
-		
-		for(int i = 0; i < entries.getLength(); i++){
-	
-			Element node = (Element)entries.item(i);
-			String key = StringUtils.unescapeXML(node.getAttribute("key"));
-			String value = StringUtils.unescapeXML(node.getAttribute("value"));
-			setMetadataValue(key, value);
-		}
-	}
-
-
-	private void loadAddonDescriptors(Element rootElement) {
-	
-		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
-		
-		for(int i = 0; i < descriptorNodes.getLength(); i++){
-	
-			Element node = (Element)descriptorNodes.item(i);
-			String addonId = node.getAttribute("addonId");
-			String href = StringUtils.unescapeXML(node.getAttribute("href"));
-			addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
-		}
-	}
-
-
-	private void loadStyles(Element rootElement) {
-
-		String style = XMLUtils.getText(rootElement);
-		if(style.length() > 0){
-			style = StringUtils.unescapeXML(style);
-			setStyles(style);
-		}
 	}
 
 
@@ -486,6 +423,55 @@ public class Content implements IXMLSerializable, IContent {
 			parent = commonPages.getParentChapter(node);
 		}
 		return parent;
+	}
+
+	@Override
+	public void setBaseUrl(String url) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setMetadata(HashMap<String, String> metadata) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAddonDescriptors(
+			HashMap<String, AddonDescriptor> addonDescriptors) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStyles(HashMap<String, String> styles) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCommonPages(PageList commonPageList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPages(PageList pagesList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAssets(ArrayList<IAsset> assets) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setVersion(Integer version) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

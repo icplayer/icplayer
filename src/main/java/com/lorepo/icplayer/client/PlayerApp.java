@@ -35,7 +35,6 @@ public class PlayerApp{
 	private boolean isStaticHeader = false;
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
-		
 		this.divId = id;
 		this.entryPoint = entryPoint;
 	 }
@@ -57,12 +56,9 @@ public class PlayerApp{
 	 */
 	private void loadPage(String url, int pageIndex, final boolean isCommonPage) {
 		startPageIndex = pageIndex;
-		if (pagesSubset != null) {
-			contentModel.setPageSubset(pagesSubset);
-		}
 		
 		IContentFactory contentFactory = ContentFactory.getInstance();
-		contentFactory.load(url, new ILoadListener() {
+		contentFactory.load(url, this.pagesSubset, new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				initPlayer(isCommonPage);
 			}
