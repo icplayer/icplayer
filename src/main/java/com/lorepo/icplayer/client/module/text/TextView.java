@@ -12,7 +12,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
@@ -256,7 +255,6 @@ public class TextView extends HTML implements IDisplay{
 	
 	private void skip() {
 		int size = getTextElementsSize();
-		JavaScriptUtils.log("4");
 
 		clicks++;
 		
@@ -270,7 +268,6 @@ public class TextView extends HTML implements IDisplay{
 	
 	private void enter() {
     	TextElementDisplay gap = null;
-		JavaScriptUtils.log("2");
 
 		if(textElements.size() > 0) {
     		gap = textElements.get(0);
@@ -283,8 +280,6 @@ public class TextView extends HTML implements IDisplay{
 	}
 	
 	private void escape() {
-		JavaScriptUtils.log("3");
-
 		for (TextElementDisplay gap : textElements) {
 			gap.setFocusGap(false);
 			moduleHasFocus = false;
@@ -294,7 +289,7 @@ public class TextView extends HTML implements IDisplay{
 	@Override
 	public void executeOnKeyCode(KeyDownEvent event) {
 		int code = event.getNativeKeyCode();
-		JavaScriptUtils.log("1");
+
 		if (code == KeyCodes.KEY_ENTER) {
 			event.preventDefault();
 			enter();

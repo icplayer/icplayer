@@ -102,7 +102,6 @@ public class PageController {
 	public void setKeyboardController(KeyboardNavigationController kc, PageType pageType) {
 		this.keyboardController = kc;
 		this.pageType = pageType;
-		keyboardController.setPS(playerService);
 	}
 	
 	public PageType getPageType() {
@@ -125,11 +124,11 @@ public class PageController {
 
 		String prefix = "";
 		if (pageType == PageType.footer) {
-			prefix = "f_";
+			prefix = "__f__";
 		} else if (pageType == PageType.header) {
-			prefix = "h_";
+			prefix = "__h__";
 		} else if (pageType == PageType.book) {
-			prefix = "b_";
+			prefix = "__b__";
 		}
 		if (keyboardController != null) {
 			keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);

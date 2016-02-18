@@ -25,7 +25,7 @@ public final class KeyboardNavigationController {
 	private HashMap<String, List<String>> pageModules = new HashMap<String, List<String>>();
 	private List<String> headerNames = new ArrayList<String>();
 	private boolean isInitiated = false;
-	private IPlayerServices playerServices;
+	private HashMap<String, IPlayerServices> playerServices = new HashMap<String, IPlayerServices>();
 	
 	private enum ExpectedModules {
 		// Navigation modules
@@ -76,6 +76,10 @@ public final class KeyboardNavigationController {
 		}
 	}
 	
+	private boolean isModuleInBookView(String moduleName) {
+		return (moduleName.length() >= 2 && moduleName.startsWith("__b__"));
+	}
+	
 	public void run() {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
@@ -104,8 +108,14 @@ public final class KeyboardNavigationController {
 	            }
 	            
 	            if (moduleIsActivated) {
-	            	String moduleName = currentModuleName.replaceFirst("[hbf]_", "");
-	        		playerServices.getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+	            	boolean isModuleInBookView = isModuleInBookView(currentModuleName);
+	            	String moduleName = currentModuleName.replaceFirst("__[hbf]__", "");
+	            	
+	            	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
+	            		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+	            	} else {
+	            		playerServices.get("SingleMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+	            	}
 	            }
 	            
 	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
@@ -134,11 +144,11 @@ public final class KeyboardNavigationController {
 			}
 		}
 
-		if (prefix.equals("h_")) {
+		if (prefix.equals("__h__")) {
 			pageModules.put("Header", new ArrayList<String>(tempModulesNames));
-		} else if (prefix.equals("f_")) {
+		} else if (prefix.equals("__f__")) {
 			pageModules.put("Footer", new ArrayList<String>(tempModulesNames));
-		} else if (prefix.equals("b_")) {
+		} else if (prefix.equals("__b__")) {
 			pageModules.put("Book", new ArrayList<String>(tempModulesNames));
 		} else {
 			pageModules.put("Main", new ArrayList<String>(tempModulesNames));
@@ -249,7 +259,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private boolean isCommonModule() {
-		return currentModuleName.startsWith("h") || currentModuleName.startsWith("f");
+		return currentModuleName.startsWith("__h__") || currentModuleName.startsWith("__f__");
 	}
 	
 	public void resetStatus() {
@@ -264,7 +274,7 @@ public final class KeyboardNavigationController {
 	}-*/;
 
 	public static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
-		name = name.replace(/(h|b|f)_/g, "");
+		name = name.replace(/__(h|b|f)__/g, "");
 		
 		$wnd.moduleStatus = {
 			name: name,
@@ -289,7 +299,11 @@ public final class KeyboardNavigationController {
 		modulesNames = new ArrayList<String>();
 	}
 	
-	public void setPS(IPlayerServices ps) {
-		this.playerServices = ps;
+	public void setPlayerService(IPlayerServices ps, boolean isBookMode) {
+		if (isBookMode) {
+			playerServices.put("BookMode", ps);
+		} else {
+			playerServices.put("SingleMode", ps);
+		}
 	}
 }

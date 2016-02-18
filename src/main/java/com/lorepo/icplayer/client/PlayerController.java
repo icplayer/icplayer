@@ -82,11 +82,13 @@ public class PlayerController implements IPlayerController{
 	private void createPageControllers(boolean bookMode) {
 
 		pageController1 = new PageController(this);
+		keyboardController.setPlayerService(pageController1.getPlayerServices(), false);
 		pageController1.setKeyboardController(keyboardController, PageType.main);
 		pageController1.setView(playerView.getPageView(0));
 		if(bookMode){
 			playerView.showTwoPages();
 			pageController2 = new PageController(this);
+			keyboardController.setPlayerService(pageController2.getPlayerServices(), true);
 			pageController2.setKeyboardController(keyboardController, PageType.book);
 			pageController2.setView(playerView.getPageView(1));
 		}
@@ -326,10 +328,19 @@ public class PlayerController implements IPlayerController{
 		return true;
 	}
 	
+	private boolean shouldModulesListFilled() {
+		if (bookMode) {
+			return loadedCount % 2 != 0;
+		}
+		
+		return true;
+	}
+	
 	private void pageLoaded(Page page, PageController pageController) {
 		PageType type = pageController.getPageType();
 
 		if (shouldKeyboardInit()) {
+			JavaScriptUtils.log("INIT");
 			keyboardController.init();
 		}
 		
@@ -350,15 +361,15 @@ public class PlayerController implements IPlayerController{
 			if(footerController != null){
 				footerController.setPage(contentModel.getFooter());
 			}
-			
-			keyboardController.fillModulesNamesList();
 		}
 		
 		if (bookMode && type == PageType.book) {
 			if(footerController != null){
 				footerController.setPage(contentModel.getFooter());
 			}
-			
+		}
+		
+		if(shouldModulesListFilled()) {
 			keyboardController.fillModulesNamesList();
 		}
 		
