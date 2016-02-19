@@ -16,6 +16,7 @@ public class ButtonView extends Composite implements IDisplay {
 	
 	private ButtonModule module;
 	private boolean isErrorCheckingMode;
+	private IPlayerServices playerServices;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -23,10 +24,7 @@ public class ButtonView extends Composite implements IDisplay {
 
 		initWidget(createInnerButton(services));
 		getElement().setId(module.getId());
-<<<<<<< HEAD
 		this.playerServices = services;
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	}
 
 	
@@ -115,7 +113,6 @@ public class ButtonView extends Composite implements IDisplay {
 	public boolean isErrorCheckingMode() {
 		return isErrorCheckingMode;
 	}
-<<<<<<< HEAD
 
 	@Override
 	public void executeOnKeyCode(KeyDownEvent event) {
@@ -134,6 +131,4 @@ public class ButtonView extends Composite implements IDisplay {
 			playerServices.getCommands().prevPage();
 		}
 	}
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 }

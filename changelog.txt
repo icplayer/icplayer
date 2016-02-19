@@ -1,4 +1,5 @@
 2016-02-15 Added reading values only from canvas in LearnPen Report module
+2016-02-12 Added keyboard navigation functionality to Text, Next/PrevPage Buttons, Video, NavigationBar modules
 2016-02-10 Changed page name in dictionary
 2016-02-10 Fixed displaying alert in Advanced Connector module
 2016-02-10 Added isAllOK method and event in Text Identification module

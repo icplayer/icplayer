@@ -31,12 +31,14 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.PageController.PageType;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
-
+	
 	private	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
@@ -55,13 +57,9 @@ public class PlayerController implements IPlayerController{
 	private String analyticsId;
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
-<<<<<<< HEAD
 	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private boolean bookMode = false;
 	private int loadedCount = 0;
-=======
-	
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
 		
@@ -76,26 +74,22 @@ public class PlayerController implements IPlayerController{
 		createPageControllers(bookMode);
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 		timeService = new TimeService();
+		keyboardController.run();
+		this.bookMode = bookMode;
 	}
 	
 	
 	private void createPageControllers(boolean bookMode) {
 
 		pageController1 = new PageController(this);
-<<<<<<< HEAD
 		keyboardController.setPlayerService(pageController1.getPlayerServices(), false);
 		pageController1.setKeyboardController(keyboardController, PageType.main);
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 		pageController1.setView(playerView.getPageView(0));
 		if(bookMode){
 			playerView.showTwoPages();
 			pageController2 = new PageController(this);
-<<<<<<< HEAD
 			keyboardController.setPlayerService(pageController2.getPlayerServices(), true);
 			pageController2.setKeyboardController(keyboardController, PageType.book);
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 			pageController2.setView(playerView.getPageView(1));
 		}
 	}
@@ -105,14 +99,20 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
+			headerController.setKeyboardController(keyboardController, PageType.header);
+
 			headerController.setView(playerView.getHeaderView());			
 //			headerController.setPage(contentModel.getHeader());
+
 		}
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
+			footerController.setKeyboardController(keyboardController, PageType.footer);
+
 			footerController.setView(playerView.getFooterView());
 //			footerController.setPage(contentModel.getFooter());
+
 		}
 	}
 
@@ -305,7 +305,10 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-				scrollViewToBeggining();
+				
+				if (!keyboardController.isModuleActivated()) {
+					scrollViewToBeggining();
+				}
 			}
 
 			@Override
@@ -317,7 +320,6 @@ public class PlayerController implements IPlayerController{
 			
 	}
 
-<<<<<<< HEAD
 	private boolean shouldKeyboardInit() {
 		if (bookMode) {
 			return loadedCount % 2 == 0;
@@ -371,17 +373,6 @@ public class PlayerController implements IPlayerController{
 		}
 		
 		loadedCount++;
-=======
-
-	private void pageLoaded(Page page, PageController pageController) {
-		pageController.setPage(page);
-		if(headerController != null){
-			headerController.setPage(contentModel.getHeader());
-		}
-		if(footerController != null){
-			footerController.setPage(contentModel.getFooter());
-		}
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	}
 	
 	private static void scrollViewToBeggining() {

@@ -168,7 +168,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 		return array;
 	}
-<<<<<<< HEAD
 
 	private void skip() {
 		position++;
@@ -252,6 +251,4 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			removeBorder();
 		}
 	}
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 }

@@ -125,8 +125,4 @@ public class SourceListViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
-<<<<<<< HEAD
-=======
-	
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 }

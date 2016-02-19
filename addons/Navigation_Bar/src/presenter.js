@@ -39,7 +39,6 @@ function AddonNavigation_Bar_create() {
     	return Internationalization.WESTERN_ARABIC;
     }
 
-<<<<<<< HEAD
     presenter.keyboardController = function(keycode) {
 
         $(document).on('keydown', function(e) {
@@ -122,8 +121,6 @@ function AddonNavigation_Bar_create() {
         }
     };
 
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
@@ -136,6 +133,7 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ValueChanged', this);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('closePage', this);
     };
 
     function goToPage(whereTo, index) {
@@ -596,7 +594,8 @@ function AddonNavigation_Bar_create() {
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
             hideHomeLastArrows: model.HideHomeLastArrows === 'True',
             language: getLanguage(model),
-            addClassNBPageOK: model.AddClassNBPageOK === 'True'
+            addClassNBPageOK: model.AddClassNBPageOK === 'True',
+            ID: model.ID
         };
 
         if (!model['Styles']) {

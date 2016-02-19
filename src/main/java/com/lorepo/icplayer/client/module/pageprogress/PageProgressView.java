@@ -60,8 +60,4 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	public List<IOptionDisplay> getOptions() {
 		return optionWidgets;
 	}
-<<<<<<< HEAD
-=======
-
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 }

@@ -6,11 +6,8 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-<<<<<<< HEAD
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
-=======
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
@@ -27,12 +24,8 @@ public class TextView extends HTML implements IDisplay{
 	private ITextViewListener listener;
 	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
-<<<<<<< HEAD
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
-=======
-
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -256,7 +249,6 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 
-<<<<<<< HEAD
 	private int getTextElementsSize() {
 		return textElements.size();
 	}
@@ -315,6 +307,3 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 }
-=======
-}
->>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
