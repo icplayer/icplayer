@@ -11,5 +11,6 @@
             <property name="Style" type="string" nameLabel="Navigation_Bar_property_style"/>
         </property>
         <property name='AddClassNBPageOK' type='boolean' displayName='Real-time navigationbar-page-ok' nameLabel="Navigation_Bar_property_add_class_nb_page_ok"/>
+        <property name='firstPageAsCover' type='boolean' displayName='First page as cover' nameLabel="Navigation_Bar_property_first_page_as_cover"/>
 	</model>
 </addon>

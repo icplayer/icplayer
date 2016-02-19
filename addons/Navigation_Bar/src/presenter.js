@@ -359,12 +359,20 @@ function AddonNavigation_Bar_create() {
 
     // Index is displayed page number
     function generateIndexElementStub(index, navigationBarMoved) {
-        var isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
+        var isCurrentElement, pageIndex;
+
+        if(presenter.configuration.firstPageAsCover){
+            isCurrentElement = !navigationBarMoved ? (index - 1 + 1) === presenter.currentIndex : (index - 1 + 1) === movedFromIndex;
+            pageIndex = parseInt(index, 10) + 1;
+        }else{
+            isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
+            pageIndex = parseInt(index, 10);
+        }
 
         var currentElementStyle = isCurrentElement ? "navigationbar-element-current" : "navigationbar-element";
 
         return '<a href="#">' +
-            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + index + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
+            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + pageIndex + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
             '</a>';
     }
 
@@ -379,13 +387,20 @@ function AddonNavigation_Bar_create() {
         var dotsRightTargetIndex;
         var n = 0;
 
-        if (maxElementCount >= presenter.pageCount) { // All pages will be displayed
-            for (n = 1; n <= presenter.pageCount; n++) {
+        var pageCount;
+        if(presenter.configuration.firstPageAsCover){
+            pageCount = presenter.pageCount-1;
+        }else{
+            pageCount = presenter.pageCount;
+        }
+
+        if (maxElementCount >= pageCount) { // All pages will be displayed
+            for (n = 1; n <= pageCount; n++) {
                 element = generateIndexElementStub(n, navigationBarMoved);
                 presenter.$wrapper.append(element);
             }
         } else {
-            if (presenter.currentIndex < maxElementCount - 1) { // -1 for dotted element
+            if (presenter.currentIndex < (maxElementCount - 1)) { // -1 for dotted element
                 for (n = 0; n < maxElementCount - 1; n++) {
                     element = generateIndexElementStub(n + 1, navigationBarMoved);
                     presenter.$wrapper.append(element);
@@ -396,11 +411,11 @@ function AddonNavigation_Bar_create() {
                 presenter.$wrapper.append(generateDottedElement(DOTTED_SIDE.RIGHT));
             } else if (presenter.currentIndex > (presenter.pageCount - maxElementCount)) {
                 // Dots are displayed on the left -> -1 to max element count
-                dotsLeftTargetIndex = (presenter.pageCount - 1) - (maxElementCount - 2) - 1;
+                dotsLeftTargetIndex = (pageCount - 1) - (maxElementCount - 2) - 1;
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
                 presenter.$wrapper.append(dottedElement);
 
-                for (n = presenter.pageCount - maxElementCount + 1; n < presenter.pageCount; n++) {
+                for (n = pageCount - maxElementCount + 1; n < pageCount; n++) {
                     element = generateIndexElementStub(n + 1, navigationBarMoved);
                     presenter.$wrapper.append(element);
                 }
@@ -511,7 +526,8 @@ function AddonNavigation_Bar_create() {
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
             hideHomeLastArrows: model.HideHomeLastArrows === 'True',
             language: getLanguage(model),
-            addClassNBPageOK: model.AddClassNBPageOK === 'True'
+            addClassNBPageOK: model.AddClassNBPageOK === 'True',
+            firstPageAsCover: ModelValidationUtils.validateBoolean(model["firstPageAsCover"])
         };
 
         if (!model['Styles']) {
@@ -603,8 +619,14 @@ function AddonNavigation_Bar_create() {
 
         var elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;
         maxElementCount = parseInt((presenter.$wrapper.width() - (arrowsCount * elementBaseWidth)) / elementBaseWidth, 10) - 4;
-        var numberOfElements = presenter.pageCount < maxElementCount ? presenter.pageCount + arrowsCount : maxElementCount + arrowsCount;
-        var elementWidth = parseInt(presenter.$wrapper.width() / numberOfElements - elementDistances.horizontal, 10);
+        var pageCount;
+        if(presenter.configuration.firstPageAsCover){
+            pageCount = presenter.pageCount-1;
+        }else{
+            pageCount = presenter.pageCount;
+        }
+        var numberOfElements = pageCount < maxElementCount ? pageCount + arrowsCount : maxElementCount + arrowsCount;
+        var elementWidth = parseInt(presenter.$wrapper.width() / numberOfElements  - elementDistances.horizontal, 10);
         var elementHeight = parseInt(presenter.$wrapper.height() - elementDistances.vertical, 10);
         var horizontalGap = presenter.$wrapper.width() - (elementWidth + elementDistances.horizontal) * numberOfElements;
 

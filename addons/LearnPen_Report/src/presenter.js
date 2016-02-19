@@ -19,6 +19,40 @@ function AddonLearnPen_Report_create() {
         return this.slice(this.length - num);
     };
 
+    var addons = {
+        "addon_Drawing": false,
+        "addon_Shape_Tracing": false,
+        "addon_LearnPen": false
+    };
+
+    for (var addon in addons) {
+        $('.'+addon).find('canvas').on('mousedown', function (){
+            addons[addon] = true;
+        });
+
+        $('.'+addon).find('canvas').on('mouseup mouseleave', function (){
+            addons[addon] = false;
+        });
+
+        $('.'+addon).find('canvas').on('touchstart', function (){
+            addons[addon] = true;
+        });
+
+        $('.'+addon).find('canvas').on('touchend', function (){
+            addons[addon] = false;
+        });
+    }
+
+    function shouldGetDataFromSensors (){
+        var shouldGet = false;
+        for (var addon in addons) {
+            if(addons[addon] == true){
+                shouldGet = true;
+            }
+        }
+        return shouldGet;
+    }
+
     function getColorFromStatus(status) {
         switch (status) {
             case  1: return presenter.configuration.colors.above;
@@ -611,6 +645,12 @@ function AddonLearnPen_Report_create() {
     }
 
     presenter.displayCurrentData = function() {
+        if(shouldGetDataFromSensors()){
+            presenter.displayData();
+        }
+    };
+
+    presenter.displayData = function () {
         var data = presenter.data.isPreview ? {
             above: 1,
             correct: 1,
@@ -635,7 +675,7 @@ function AddonLearnPen_Report_create() {
 
     presenter.reset = function() {
         presenter.data.sensorsDataHistory = [];
-        presenter.displayCurrentData();
+        presenter.displayData();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
