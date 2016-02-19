@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
@@ -42,7 +41,6 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		HashMap<String, Widget> getWidgets();
 	}
 
 	private IPageDisplay pageView;
@@ -53,14 +51,8 @@ public class PageController {
 	private ArrayList<IPresenter> presenters;
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
-	private HandlerRegistration valueChangedHandler;
-	private KeyboardNavigationController keyboardController;
-	private PageType pageType;
+	private HandlerRegistration valueChangedHandler;	
 
-	public enum PageType {
-		main, book, header, footer
-	}
-	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -98,6 +90,7 @@ public class PageController {
 			valueChangedHandler = null;
 		}
 	}
+<<<<<<< HEAD
 	
 	public void setKeyboardController(KeyboardNavigationController kc, PageType pageType) {
 		this.keyboardController = kc;
@@ -108,6 +101,9 @@ public class PageController {
 		return pageType;
 	}
 	
+=======
+
+>>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
@@ -121,6 +117,7 @@ public class PageController {
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
+<<<<<<< HEAD
 
 		String prefix = "";
 		if (pageType == PageType.footer) {
@@ -134,6 +131,8 @@ public class PageController {
 			keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);
 		}
 		
+=======
+>>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
@@ -395,11 +394,14 @@ public class PageController {
 	}
 
 	public void closePage() {
+<<<<<<< HEAD
 		// kc in popup window is null
 		if (keyboardController != null) {
 			keyboardController.resetStatus();
 		}
 		
+=======
+>>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}

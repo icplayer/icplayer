@@ -62,7 +62,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElement(String element);
 		String getDroppedElement();
 		String getId();
-		void setFocusGap(boolean focus);
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -84,7 +83,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
+<<<<<<< HEAD
 		void executeOnKeyCode(KeyDownEvent event);
+=======
+>>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	}
 
 	private final TextModel module;
@@ -663,7 +665,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		});
 	}
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> 1a4d29499a61b38702006c62b190961a45d12ba3
 	protected void dropdownClicked(String id) {
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "dropdownClicked", "");
 		playerServices.getEventBus().fireEvent(valueEvent);
@@ -1261,10 +1267,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	public void markConnectionWithMath() {
 		isConnectedToMath = true;
-	}
-	
-	public boolean isSelectable() {
-		return view.getChildrenCount() > 0;
 	}
 
 }

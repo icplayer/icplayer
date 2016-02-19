@@ -203,9 +203,4 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 	public String getId() {
 		return choiceInfo.getId();
 	}
-
-	@Override
-	public void setFocusGap(boolean focus) {
-		setFocus(focus);
-	}
 }

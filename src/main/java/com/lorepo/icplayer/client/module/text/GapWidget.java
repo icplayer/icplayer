@@ -217,8 +217,4 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		return gapInfo.getId();
 	}
 
-	@Override
-	public void setFocusGap(boolean focus) {
-		setFocus(focus);
-	}
 }
