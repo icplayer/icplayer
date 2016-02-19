@@ -256,6 +256,7 @@ public class TextView extends HTML implements IDisplay{
 	private void skip() {
 		int size = getTextElementsSize();
 
+		if (size == 0) return;
 		clicks++;
 		
 		if (clicks >= size && size > 0) {

@@ -340,7 +340,6 @@ public class PlayerController implements IPlayerController{
 		PageType type = pageController.getPageType();
 
 		if (shouldKeyboardInit()) {
-			JavaScriptUtils.log("INIT");
 			keyboardController.init();
 		}
 		

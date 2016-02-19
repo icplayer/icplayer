@@ -53,6 +53,15 @@ public final class KeyboardNavigationController {
 		setModuleStatus(moduleName, true, false);	
 	}
 	
+	// we must update this position because each of page has different number of modules
+	private void updateFocusedModulePosition() {
+		for (int i = 0; i < modulesNames.size(); i++) {
+			if (modulesNames.get(i).equals(currentModuleName)) {
+				focusedModule = i;
+			}
+		}
+	}
+	
 	public void fillModulesNamesList() {	
 		if (pageModules.containsKey("Header")) {
 			modulesNames.addAll(pageModules.get("Header"));
@@ -73,6 +82,7 @@ public final class KeyboardNavigationController {
 		if (!currentModuleName.equals("")) {
 			selectModule(currentModuleName);
 			activateModule();
+			updateFocusedModulePosition();
 		}
 	}
 	
