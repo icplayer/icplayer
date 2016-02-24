@@ -55,11 +55,6 @@ public class PageController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
-	private PageType pageType;
-
-	public enum PageType {
-		main, book, header, footer
-	}
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -99,41 +94,22 @@ public class PageController {
 		}
 	}
 	
-	public void setKeyboardController(KeyboardNavigationController kc, PageType pageType) {
-		this.keyboardController = kc;
-		this.pageType = pageType;
-	}
-	
-	public PageType getPageType() {
-		return pageType;
-	}
-	
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
 		currentPage = page;
+
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
+
 		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
 
-		String prefix = "";
-		if (pageType == PageType.footer) {
-			prefix = "__f__";
-		} else if (pageType == PageType.header) {
-			prefix = "__h__";
-		} else if (pageType == PageType.book) {
-			prefix = "__b__";
-		}
-		if (keyboardController != null) {
-			keyboardController.addToNavigation(pageView.getWidgets(), presenters, prefix);
-		}
-		
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
@@ -159,7 +135,6 @@ public class PageController {
 		scriptingEngine.reset();
 
 		for(IModuleModel module : currentPage.getModules()){
-
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
@@ -407,7 +382,9 @@ public class PageController {
 			currentPage.release();
 			currentPage = null;
 		}
+		
 		pageView.removeAllModules();
+		presenters.clear();
 	}
 
 	public IPlayerServices getPlayerServices() {
@@ -416,5 +393,17 @@ public class PageController {
 
 	public IPlayerController getPlayerController() {
 		return playerController;
+	}
+	 
+	public List<IPresenter> getPresenters() {
+		return presenters;
+	}
+	
+	public HashMap<String, Widget> getWidgets() {
+		if (pageView != null) {
+			return pageView.getWidgets();
+		}
+		
+		return null;
 	}
 }

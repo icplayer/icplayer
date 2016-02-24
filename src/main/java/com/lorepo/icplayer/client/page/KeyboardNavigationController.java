@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -26,6 +27,10 @@ public final class KeyboardNavigationController {
 	private List<String> headerNames = new ArrayList<String>();
 	private boolean isInitiated = false;
 	private HashMap<String, IPlayerServices> playerServices = new HashMap<String, IPlayerServices>();
+	private List<String> headerWidgets = new ArrayList<String>();
+	private List<String> footerWidgets = new ArrayList<String>();
+	private List<String> mainPageWidgets = new ArrayList<String>();
+	private List<String> bookPageWidgets = new ArrayList<String>();
 	
 	private enum ExpectedModules {
 		// Navigation modules
@@ -41,7 +46,7 @@ public final class KeyboardNavigationController {
 		}
 	}
 	
-	private void initialSelect() {
+	private void initialSelect() {	
 		String moduleName = modulesNames.get(0);
 		Widget w = navigationWidgets.get(moduleName);
 
@@ -63,20 +68,21 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void fillModulesNamesList() {	
-		if (pageModules.containsKey("Header")) {
-			modulesNames.addAll(pageModules.get("Header"));
+		modulesNames.clear();
+		if(!headerWidgets.isEmpty()) {
+			modulesNames.addAll(headerWidgets);
+		}
+
+		if(!mainPageWidgets.isEmpty()) {
+			modulesNames.addAll(mainPageWidgets);
 		}
 		
-		if (pageModules.containsKey("Main")) {
-			modulesNames.addAll(pageModules.get("Main"));
+		if(!bookPageWidgets.isEmpty()) {
+			modulesNames.addAll(bookPageWidgets);
 		}
 		
-		if (pageModules.containsKey("Book")) {
-			modulesNames.addAll(pageModules.get("Book"));
-		}
-		
-		if (pageModules.containsKey("Footer")) {
-			modulesNames.addAll(pageModules.get("Footer"));
+		if(!footerWidgets.isEmpty()) {
+			modulesNames.addAll(footerWidgets);
 		}
 
 		if (!currentModuleName.equals("")) {
@@ -135,36 +141,6 @@ public final class KeyboardNavigationController {
 
 	        }
 	    }, KeyDownEvent.getType());
-	}
-	
-	protected void addToNavigation(HashMap<String, Widget> widgets, ArrayList<IPresenter> presenters, final String prefix) {	
-		for (IPresenter presenter : presenters) {
-			IModuleModel module = presenter.getModel();
-			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
-			String moduleTypeName = module.getModuleTypeName().toLowerCase();
-			
-			if (isModuleExpected) {
-				// for text modules
-				if (moduleTypeName.equals("text")){
-					if (!((TextPresenter) presenter).isSelectable()) continue;
-				}
-
-				tempModulesNames.add(prefix + presenter.getModel().getId());
-				navigationWidgets.put(prefix + module.getId(), widgets.get(module.getId()));
-			}
-		}
-
-		if (prefix.equals("__h__")) {
-			pageModules.put("Header", new ArrayList<String>(tempModulesNames));
-		} else if (prefix.equals("__f__")) {
-			pageModules.put("Footer", new ArrayList<String>(tempModulesNames));
-		} else if (prefix.equals("__b__")) {
-			pageModules.put("Book", new ArrayList<String>(tempModulesNames));
-		} else {
-			pageModules.put("Main", new ArrayList<String>(tempModulesNames));
-		}
-		
-		tempModulesNames.clear();
 	}
 	
 	private void activateModule() {
@@ -228,7 +204,11 @@ public final class KeyboardNavigationController {
 
 		currentModuleName = moduleName;
 		
-		setModuleStatus(moduleName, true, false);	
+		setModuleStatus(moduleName, true, false);
+	}
+	
+	private boolean isModuleHidden(Element elem) {
+		return elem.getStyle().getVisibility().equals("hidden") || elem.getStyle().getDisplay().equals("none");
 	}
 	
 	private void selectNextModule() {
@@ -242,14 +222,14 @@ public final class KeyboardNavigationController {
 		if (w == null) return; // there is no modules to select
 		
 		// skip hidden modules
-		while (w.getElement().getStyle().getVisibility().equals("hidden")) {
+		while (isModuleHidden(w.getElement())) {
 			if (i++ == position) break; // if all modules are hidden then break loop
 			focusedModule++;
 			position = focusedModule % navigationWidgets.size();
 			moduleName = modulesNames.get(position);
 			w = navigationWidgets.get(moduleName);
 		}
-		
+
 		selectModule(moduleName);
 
 		currentModuleName = moduleName;
@@ -297,7 +277,7 @@ public final class KeyboardNavigationController {
 		return moduleIsActivated;
 	}
 	
-	public void init() {
+	public void reset() {
 		if (!(isCommonModule() && isModuleActivated())) {
 			focusedModule = 0;
 			currentModuleName = "";
@@ -305,6 +285,11 @@ public final class KeyboardNavigationController {
 			isInitiated = false;
 		}
 
+		headerWidgets.clear();
+		footerWidgets.clear();
+		mainPageWidgets.clear();
+		bookPageWidgets.clear();
+		
 		navigationWidgets = new HashMap<String, Widget>();
 		modulesNames = new ArrayList<String>();
 	}
@@ -314,6 +299,65 @@ public final class KeyboardNavigationController {
 			playerServices.put("BookMode", ps);
 		} else {
 			playerServices.put("SingleMode", ps);
+		}
+	}
+	
+	private List<String> getProperModulesToList(List<IPresenter> presenters, HashMap<String, Widget> widgets, String prefix) {
+		List<String> tempModulesNames = new ArrayList<String>();
+
+		for (IPresenter presenter : presenters) {
+			IModuleModel module = presenter.getModel();
+			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
+			String moduleTypeName = module.getModuleTypeName().toLowerCase();
+			
+			if (isModuleExpected) {
+				// for text modules
+				if (moduleTypeName.equals("text")){
+					if (!((TextPresenter) presenter).isSelectable()) continue;
+				}
+				
+				tempModulesNames.add(prefix + presenter.getModel().getId());
+				navigationWidgets.put(prefix + module.getId(), widgets.get(module.getId()));
+			}
+		}
+		
+		return tempModulesNames;
+	}
+	
+	public void addHeaderToNavigation(PageController controller) {
+		if (controller != null && controller.getWidgets() != null) {
+			headerWidgets.clear();
+			List<String> widgetNames = new ArrayList<String>();
+			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__h__");
+			headerWidgets.addAll(widgetNames);
+		}
+	}
+	
+	public void addFooterToNavigation(PageController controller) {
+		if (controller != null && controller.getWidgets() != null) {
+			footerWidgets.clear();
+			List<String> widgetNames = new ArrayList<String>();
+			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__f__");
+			footerWidgets.addAll(widgetNames);
+		}
+	}
+	
+	public void addMainToNavigation(PageController controller) {
+		if (controller != null && controller.getWidgets() != null) {
+			mainPageWidgets.clear();
+			List<String> widgetNames = new ArrayList<String>();
+			
+			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "");
+			mainPageWidgets.addAll(widgetNames);
+		}
+	}
+	
+	public void addSecondToNavigation(PageController controller) {
+		if (controller != null && controller.getWidgets() != null) {
+			bookPageWidgets.clear();
+			List<String> widgetNames = new ArrayList<String>();
+			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__b__");
+			bookPageWidgets.addAll(widgetNames);
 		}
 	}
 }

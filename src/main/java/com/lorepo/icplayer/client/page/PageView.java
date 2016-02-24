@@ -71,6 +71,10 @@ public class PageView extends SimplePanel implements IPageDisplay{
 
 	@Override
 	public HashMap<String, Widget> getWidgets() {
-		return display.getWidgets();
+		if (display != null) {
+			return display.getWidgets();
+		}
+		
+		return null;
 	}
 }

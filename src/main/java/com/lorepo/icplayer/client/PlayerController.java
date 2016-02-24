@@ -33,7 +33,6 @@ import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.PageController.PageType;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
@@ -58,11 +57,8 @@ public class PlayerController implements IPlayerController{
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
 	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
-	private boolean bookMode = false;
-	private int loadedCount = 0;
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
-		
 		contentModel = content;
 		playerView = view;
 		playerView.setPlayerController(this);
@@ -75,21 +71,17 @@ public class PlayerController implements IPlayerController{
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 		timeService = new TimeService();
 		keyboardController.run();
-		this.bookMode = bookMode;
 	}
 	
 	
 	private void createPageControllers(boolean bookMode) {
-
 		pageController1 = new PageController(this);
 		keyboardController.setPlayerService(pageController1.getPlayerServices(), false);
-		pageController1.setKeyboardController(keyboardController, PageType.main);
 		pageController1.setView(playerView.getPageView(0));
 		if(bookMode){
 			playerView.showTwoPages();
 			pageController2 = new PageController(this);
 			keyboardController.setPlayerService(pageController2.getPlayerServices(), true);
-			pageController2.setKeyboardController(keyboardController, PageType.book);
 			pageController2.setView(playerView.getPageView(1));
 		}
 	}
@@ -99,7 +91,6 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
-			headerController.setKeyboardController(keyboardController, PageType.header);
 
 			headerController.setView(playerView.getHeaderView());			
 //			headerController.setPage(contentModel.getHeader());
@@ -108,7 +99,6 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
-			footerController.setKeyboardController(keyboardController, PageType.footer);
 
 			footerController.setView(playerView.getFooterView());
 //			footerController.setPage(contentModel.getFooter());
@@ -320,59 +310,25 @@ public class PlayerController implements IPlayerController{
 			
 	}
 
-	private boolean shouldKeyboardInit() {
-		if (bookMode) {
-			return loadedCount % 2 == 0;
-		}
-		
-		return true;
-	}
-	
-	private boolean shouldModulesListFilled() {
-		if (bookMode) {
-			return loadedCount % 2 != 0;
-		}
-		
-		return true;
-	}
-	
 	private void pageLoaded(Page page, PageController pageController) {
-		PageType type = pageController.getPageType();
-
-		if (shouldKeyboardInit()) {
-			keyboardController.init();
-		}
+		keyboardController.reset();
 		
 		pageController.setPage(page);
 		
-		if (bookMode && type == PageType.main) {
-			if(headerController != null){
-				headerController.setPage(contentModel.getHeader());
-			}
-		}
-			
-		if (!bookMode) {
-			if(headerController != null){
-				headerController.setPage(contentModel.getHeader());
-			}
-		}
-		if (!bookMode) {
-			if(footerController != null){
-				footerController.setPage(contentModel.getFooter());
-			}
+		keyboardController.addMainToNavigation(pageController1);
+		keyboardController.addSecondToNavigation(pageController2);
+		
+		if(headerController != null){
+			headerController.setPage(contentModel.getHeader());
+			keyboardController.addHeaderToNavigation(headerController);
 		}
 		
-		if (bookMode && type == PageType.book) {
-			if(footerController != null){
-				footerController.setPage(contentModel.getFooter());
-			}
+		if(footerController != null){
+			footerController.setPage(contentModel.getFooter());
+			keyboardController.addFooterToNavigation(footerController);
 		}
 		
-		if(shouldModulesListFilled()) {
-			keyboardController.fillModulesNamesList();
-		}
-		
-		loadedCount++;
+		keyboardController.fillModulesNamesList();
 	}
 	
 	private static void scrollViewToBeggining() {
