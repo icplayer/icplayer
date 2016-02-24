@@ -93,7 +93,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private boolean isModuleInBookView(String moduleName) {
-		return (moduleName.length() >= 2 && moduleName.startsWith("__b__"));
+		return (moduleName.length() >= 5 && moduleName.charAt(2) == 'b');
 	}
 	
 	public void run() {
@@ -125,7 +125,7 @@ public final class KeyboardNavigationController {
 	            
 	            if (moduleIsActivated) {
 	            	boolean isModuleInBookView = isModuleInBookView(currentModuleName);
-	            	String moduleName = currentModuleName.replaceFirst("__[hbf]__", "");
+	            	String moduleName = currentModuleName.substring(5, currentModuleName.length());
 	            	
 	            	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
 	            		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
@@ -249,7 +249,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private boolean isCommonModule() {
-		return currentModuleName.startsWith("__h__") || currentModuleName.startsWith("__f__");
+		return currentModuleName.charAt(2) == 'h' || currentModuleName.charAt(2) == 'f';
 	}
 	
 	public void resetStatus() {
@@ -264,7 +264,7 @@ public final class KeyboardNavigationController {
 	}-*/;
 
 	public static native void setModuleStatus(String name, boolean selected, boolean activated) /*-{
-		name = name.replace(/__(h|b|f)__/g, "");
+		name = name.substring(5, name.length);
 		
 		$wnd.moduleStatus = {
 			name: name,
@@ -347,7 +347,7 @@ public final class KeyboardNavigationController {
 			mainPageWidgets.clear();
 			List<String> widgetNames = new ArrayList<String>();
 			
-			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "");
+			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__m__");
 			mainPageWidgets.addAll(widgetNames);
 		}
 	}
