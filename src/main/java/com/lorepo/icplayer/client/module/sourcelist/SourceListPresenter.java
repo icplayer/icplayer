@@ -50,6 +50,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void unsetDragMode();
 		public void hideItem(String id);
 		public void showItem(String id);
+		void connectDOMNodeRemovedEvent(String id);
 	}
 	
 	private IDisplay view;
@@ -61,6 +62,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private boolean isVisible;
 	private boolean canDrag = true;
 	private boolean returned = false;
+	private boolean isTest = false;
 	
 	
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
@@ -70,6 +72,11 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		this.isVisible = model.isVisible();
 		
 		connectHandlers();
+	}
+
+	public SourceListPresenter(SourceListModule model, IPlayerServices services, Boolean isTest){
+		this(model, services);
+		this.isTest = isTest;
 	}
 
 
@@ -274,6 +281,9 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			});
 			
 			loadItems(false);
+		}
+		if (!this.isTest) {
+			view.connectDOMNodeRemovedEvent(model.getId());
 		}
 	}
 

@@ -238,4 +238,40 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		refreshMath(getElement());
 	}
 
+
+	@Override
+	public native void connectDOMNodeRemovedEvent (String id) /*-{
+		var $addon = $wnd.$(".ic_page #" + id),
+			addon = $addon[0];
+
+		function onDOMNodeRemoved (event) {
+			var $draggableElements;
+			
+			if (event.target.getAttribute("class").split(" ").indexOf("ui-draggable") !== -1) {
+				$wnd.$(event.target).draggable("destroy");
+				return;
+			}
+			else if (event.target !== addon) {
+				return;
+			}
+	
+			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+
+			$draggableElements = $addon.find(".ui-draggable");
+	
+			$draggableElements.draggable("destroy");
+	
+			$draggableElements = null;
+			addon = null;
+			$addon = null;
+		}
+
+	    if (addon && addon.addEventListener) {
+		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+	    } else {
+	        $addon = null;
+	        addon = null;
+	    }
+	}-*/;
+
 }

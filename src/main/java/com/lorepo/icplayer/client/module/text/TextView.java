@@ -246,4 +246,40 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 
+	public native void connectDOMNodeRemovedEvent (String id) /*-{
+		var $addon = $wnd.$(".ic_page #" + id),
+			addon = $addon[0];
+			
+		function onDOMNodeRemoved (event) {
+			var $droppableElements, $draggableElements;
+			if (event.target !== addon) {
+				return;
+			}
+			
+			$wnd.MathJax.Hub.getAllJax().forEach(function (mathJaxElement) {
+				mathJaxElement.Detach();
+				mathJaxElement.Remove();
+			});
+			
+			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+
+			$droppableElements = $addon.find(".ui-droppable");
+			$draggableElements = $addon.find(".ui-draggable");
+			
+			$droppableElements.droppable("destroy");
+			$draggableElements.draggable("destroy");
+			
+			$droppableElements = null;
+			$draggableElements = null;
+			addon = null;
+			$addon = null;
+		}
+
+		if (addon && addon.addEventListener) {
+		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+		} else {
+            $addon = null;
+            addon = null;
+        }
+	}-*/;
 }

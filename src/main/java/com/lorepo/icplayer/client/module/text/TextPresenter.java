@@ -81,6 +81,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
+		void connectDOMNodeRemovedEvent(String id);
 	}
 
 	private final TextModel module;
@@ -544,6 +545,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				connectGapWhenMathJaxReady(this, gapUniqueId + '-' + Integer.toString(i));
 			}
 		}
+		
+		view.connectDOMNodeRemovedEvent(module.getId());
 	}
 
 	private void updateViewText() {
@@ -1042,7 +1045,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 
 				dfd.promise().done(function (_element) {
-					console.log("created");
 					x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});

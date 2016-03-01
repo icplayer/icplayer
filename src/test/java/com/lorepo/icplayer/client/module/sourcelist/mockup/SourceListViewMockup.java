@@ -125,5 +125,11 @@ public class SourceListViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void connectDOMNodeRemovedEvent(String id) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
