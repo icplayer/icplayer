@@ -1,3 +1,4 @@
+2016-03-01 Added ignoring inline styles
 2016-03-01 Added positioning of values on x and y axis in Plot module
 2016-02-24 Fixed displaying ranges after reset in Animated Page Progress module
 2016-02-22 Added possibility to define smaller steps in Line Number module

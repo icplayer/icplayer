@@ -104,11 +104,29 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 			}
 			
 			moduleView.setPixelSize(width, height);
+			String newStyles = deletePositionImportantStyles(moduleView.getElement().getAttribute("style"));
+			moduleView.getElement().setAttribute("style", newStyles);
 		    add(moduleView, left, top);
 		    widgets.put(module.getId(), moduleView);
 		}
 	}
+	
+	public String deletePositionImportantStyles (String inlineStyle) {
+		String[] attributes = inlineStyle.split(";");
+		StringBuilder strBuilder = new StringBuilder();
+		for (String attribute: attributes) {
+			if((attribute.contains("left") || attribute.contains("top") 
+					|| attribute.contains("right") || attribute.contains("bottom")) && (!attribute.contains("-left") && !attribute.contains("-top") 
+					&& !attribute.contains("-right") && !attribute.contains("-bottom"))){
+				continue;
+			}
+			strBuilder.append(attribute);
+			strBuilder.append(";");
+		}
 
+		String newAttributes = strBuilder.toString();
+		return newAttributes;
+	}
 
 	private int calculatePosition(String widgetName, Property property, int modulePos) {
 		int pageWidth = DOM.getElementPropertyInt(getElement(), "clientWidth");
