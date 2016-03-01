@@ -60,6 +60,20 @@ function AddonPlot_create(){
         this.freePoints = false;
         this.precision = {x: 100, y:100};
         this.attempted = false;
+        this.xAxisValuesPosition = 0;
+        this.yAxisValuesPosition = 0;
+
+        this.setXAxisValuesPosition = function (value) {
+            this.svgDoc.find('.axisThicksTextX').attr('y', value);
+        };
+
+        this.setYAxisValuesPosition = function (value) {
+            var element = this.svgDoc.find('.axisThicksTextY');
+            element.attr('x', value);
+            if(value < 0) {
+                element.attr("text-anchor", "end");
+            }
+        };
 
         this.setScale = function () {
             this.svgDoc.find('.scale').attr('transform', 'scale(1, -1)');
@@ -1767,6 +1781,8 @@ function AddonPlot_create(){
         plot.yAxisDescription = model['Y axis description'] || 'y';
         plot.xAxisVisible = model['hide X axis'] === undefined || model['hide X axis'].toLowerCase() === 'false' || model['hide X axis'] == '' ? true : false;
         plot.yAxisVisible = model['hide Y axis'] === undefined || model['hide Y axis'].toLowerCase() === 'false' || model['hide Y axis'] == '' ? true : false;
+        plot.xAxisValuesPosition = model['X axis values position'];
+        plot.yAxisValuesPosition = model['Y axis values position'];
         var xAxisValues = model['Axis x values'] === undefined || model['Axis x values'] == '' || this._hasIllegalCharacters(model['Axis x values'].toString()) ? false : model['Axis x values'].toString().split(this.getSeparatorByDecimalSeparator());
         var yAxisValues = model['Axis y values'] === undefined || model['Axis y values'] == '' || this._hasIllegalCharacters(model['Axis y values'].toString()) ? false : model['Axis y values'].toString().split(this.getSeparatorByDecimalSeparator());
         if(xAxisValues !== false && xAxisValues.length > 0) {
@@ -1894,6 +1910,14 @@ function AddonPlot_create(){
                 preserveAspectRatio: "none"
             }
         });
+
+        if(plot.xAxisValuesPosition != '' && !isNaN(plot.xAxisValuesPosition)){
+            plot.setXAxisValuesPosition(plot.xAxisValuesPosition);
+        }
+
+        if(plot.yAxisValuesPosition != '' && !isNaN(plot.yAxisValuesPosition)){
+            plot.setYAxisValuesPosition(plot.yAxisValuesPosition);
+        }
     };
     presenter.toDotSeparator = function(value) {
         return (value + '').replace(this.decimalSeparator, '.');

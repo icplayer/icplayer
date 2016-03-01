@@ -755,6 +755,8 @@
 	"Plot_property_asymptote_dy": "Asymptota DY",
 	"Plot_property_broadcast": "Emisja",
 	"Plot_property_decimal_separator": "Separator dziesiętny",
+    "Plot_property_x_axis_values_position": "X axis values position",
+    "Plot_property_y_axis_values_position": "Y axis values position",
 	"Points_To_Plot_info" : "Rozszerzenie do Addonu Wykres; pozwala na tworzenie ćwiczeń opartych na zależnościach między wykresem a punktami, jak np. definiowanie punktów lub liczby punktów do zaznaczenia na wykresie.",
 	"Points_To_Plot_name" : "Punkty na wykresie",
 	"Points_To_Plot_property_source": "Źródło",

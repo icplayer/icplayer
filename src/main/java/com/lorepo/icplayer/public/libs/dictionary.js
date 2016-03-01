@@ -760,6 +760,8 @@
 	"Plot_property_asymptote_dy": "Asymptote DY",
 	"Plot_property_broadcast": "Broadcast",
 	"Plot_property_decimal_separator": "Decimal separator",
+    "Plot_property_x_axis_values_position": "X axis values position",
+    "Plot_property_y_axis_values_position": "Y axis values position",
 	"Points_To_Plot_info": "This addon is an extension of the Plot addon. It allows users to create activities based on points to plot relations, e.g. define the points or the number of points to be selected in the Plot activity.",
 	"Points_To_Plot_name": "Points To Plot",
 	"Points_To_Plot_property_source": "Source",

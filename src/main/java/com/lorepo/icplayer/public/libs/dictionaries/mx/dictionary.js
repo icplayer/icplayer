@@ -756,6 +756,8 @@
 	"Plot_property_asymptote_dy": "Asíntota DY",
 	"Plot_property_broadcast": "Difusión",
 	"Plot_property_decimal_separator": "Separador decimal",
+    "Plot_property_x_axis_values_position": "X axis values position",
+    "Plot_property_y_axis_values_position": "Y axis values position",
 	"Points_To_Plot_info": "Addon para el módulo sistema de coordenadas. Permite crear ejercicios basados en relaciones entre puntos y la gráfica. Por ejemplo: Comprueba si el punto seleccionado pertenece a la gráfica.",
 	"Points_To_Plot_name": "Puntos para trazar",
 	"Points_To_Plot_property_source": "Fuente",

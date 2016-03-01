@@ -756,6 +756,8 @@ var ice_dictionary = {
 "Plot_property_asymptote_dy": "Asymptote DY",
 "Plot_property_broadcast": "Diffuser",
 "Plot_property_decimal_separator": "Séparateur décimal",
+"Plot_property_x_axis_values_position": "X axis values position",
+"Plot_property_y_axis_values_position": "Y axis values position",
 "Points_To_Plot_info": "Ce module est une extension du module externe « Plot ». Il permet aux utilisateurs de créer des activités basées sur des points à relier.",
 "Points_To_Plot_name": "Points en graphique",
 "Points_To_Plot_property_source": "Source",
