@@ -1,35 +1,29 @@
 function AddonTextAudio_create() {
-
-    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
-    function getCorrectObject(val) { return { isValid: true, value: val }; }
-
     var presenter = function() {};
-    var originalFile = {};
-    var vocabularyFile = {};
-    var eventBus;
-    var currentTimeAlreadySent;
-    var hasBeenStarted = false;
-    var isPlaying = false;
-    var globalIntervalNumber = 0;
-    var isVocabularyAudioLoaded = false;
 
-    presenter.onEventReceived = function(eventName, eventData) {
-        if(eventData.value == 'dropdownClicked') {
-            presenter.audio.load();
-        }
+    presenter.originalFile = {};
+    presenter.vocabularyFile = {};
+    presenter.eventBus = null;
+    presenter.currentTimeAlreadySent = null;
+    presenter.hasBeenStarted = false;
+    presenter.isPlaying = false;
+    presenter.globalIntervalNumber = 0;
+    presenter.isVocabularyAudioLoaded = false;
+    presenter.isVocabularyPlaying = false;
+    presenter.buzzAudio = [];
+    presenter.audio = {};
+    presenter.current_slide_data = {
+        slide_id: -1,
+        selection_id: -1
     };
-
-    function showLoadingArea(clickAction) {
-        if (clickAction === 'play_vocabulary_interval' && presenter.buzzAudio.length === 0 && !MobileUtils.isMobileUserAgent(navigator.userAgent)) {
-            presenter.$view.find('div.text-audio-loading-area').css('display','block');
-        }
-    }
-
-    function hideLoadingArea() {
-        var $loadingArea = presenter.$view.find('div.text-audio-loading-area');
-        $loadingArea.css('display','none');
-        $loadingArea.remove();
-    }
+    presenter.playerController = null;
+    presenter.selectionId = undefined;
+    presenter.playedByClick = false;
+    presenter.addonID = null;
+    presenter.fps = 10;
+    presenter.previousSelectionId = -1;
+    presenter.mouseData = {};
+    presenter.slidesMade = false;
 
     /**
      * play_interval_or_vocabulary - this option if for compatibility sake. If user had both
@@ -43,45 +37,6 @@ function AddonTextAudio_create() {
         play_vocabulary_interval: 'Play the interval from vocabulary file',
         play_interval_or_vocabulary: 'Play interval from base file or vocabulary audio file'
     };
-    var isVocabularyPlaying = false;
-
-    function transposeDict(dict) {
-        var transp = {};
-        for (var key in dict) {
-            if (dict.hasOwnProperty(key))
-                transp[dict[key]] = key;
-        }
-        return transp;
-    }
-
-    presenter.buzzAudio = [];
-
-    function startTimeMeasurement() {
-        isPlaying = true;
-        if (!presenter.audioClock) {
-            presenter.audioClock = setInterval(function() { onTimeUpdateCallback(); }, 1000 / presenter.fps);
-        }
-    }
-
-    function stopTimeMeasurement() {
-        isPlaying = false;
-        clearInterval(presenter.audioClock);
-        presenter.audioClock = undefined;
-    }
-
-    function startVocabularyTimeMeasurement() {
-        isVocabularyPlaying = true;
-        if (!presenter.audioVocClock) {
-            presenter.audioVocClock = setInterval(function() { onTimeUpdateCallback(); }, 1000 / presenter.fps);
-        }
-    }
-
-    function stopVocabularyTimeMeasurement() {
-        isVocabularyPlaying = false;
-        clearInterval(presenter.audioVocClock);
-        presenter.audioVocClock = undefined;
-        presenter.clearSelection();
-    }
 
     presenter.ERROR_CODES = {
         'M01': 'This addon needs at least 1 audio file.',
@@ -97,56 +52,113 @@ function AddonTextAudio_create() {
         'VI03': 'Vocabulary time intervals are not set'
     };
 
-    presenter.audio = {};
-    presenter.current_slide_data = {
-        slide_id: -1,
-        selection_id: -1
-    };
-    presenter.playerController = null;
-    presenter.selectionId = undefined;
-    presenter.playedByClick = false;
-    presenter.addonID = null;
-    presenter.fps = 10;
-    presenter.previousSelectionId = -1;
 
-    presenter.setPlayerController = function(controller) {
+    presenter.getErrorObject = function AddonTextAudio_getErrorObject (ec) {
+        return {
+            isValid: false,
+            errorCode: ec
+        };
+    };
+
+    presenter.getCorrectObject = function AddonTextAudio_getCorrectObject (val) {
+        return {
+            isValid: true,
+            value: val
+        };
+    };
+
+    presenter.onEventReceived = function AddonTextAudio_onEventReceived (eventName, eventData) {
+        if(eventData.value == 'dropdownClicked') {
+            presenter.audio.load();
+        }
+    };
+
+    presenter.showLoadingArea = function AddonTextAudio_showLoadingArea (clickAction) {
+        if (clickAction === 'play_vocabulary_interval' && presenter.buzzAudio.length === 0 && !MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            presenter.$view.find('div.text-audio-loading-area').css('display','block');
+        }
+    };
+
+    presenter.hideLoadingArea = function AddonTextAudio_hideLoadingArea () {
+        var $loadingArea = presenter.$view.find('div.text-audio-loading-area');
+        $loadingArea.css('display','none');
+        $loadingArea.remove();
+    };
+
+    presenter.transposeDict = function AddonTextAudio_transposeDict (dict) {
+        var transp = {};
+        for (var key in dict) {
+            if (dict.hasOwnProperty(key))
+                transp[dict[key]] = key;
+        }
+        return transp;
+    };
+
+    presenter.startTimeMeasurement = function AddonTextAudio_startTimeMeasurement () {
+        presenter.isPlaying = true;
+        if (!presenter.audioClock) {
+            presenter.audioClock = setInterval(function AddonTextAudio_audioClockInterval () { presenter.onTimeUpdateCallback(); }, 1000 / presenter.fps);
+        }
+    };
+
+    presenter.stopTimeMeasurement = function AddonTextAudio_stopTimeMeasurement () {
+        presenter.isPlaying = false;
+        clearInterval(presenter.audioClock);
+        presenter.audioClock = null;
+    };
+
+    presenter.startVocabularyTimeMeasurement = function AddonTextAudio_startVocabularyTimeMeasurement () {
+        presenter.isVocabularyPlaying = true;
+        if (!presenter.audioVocClock) {
+            presenter.audioVocClock = setInterval(function AddonTextAudio_audioVOcClockInterval () { presenter.onTimeUpdateCallback(); }, 1000 / presenter.fps);
+        }
+    };
+
+    presenter.stopVocabularyTimeMeasurement = function AddonTextAudio_stopVocabularyTimeMeasurement () {
+        presenter.isVocabularyPlaying = false;
+        clearInterval(presenter.audioVocClock);
+        presenter.audioVocClock = null;
+        presenter.clearSelection();
+    };
+
+    presenter.setPlayerController = function AddonTextAudio_setPlayerController (controller) {
         presenter.playerController = controller;
     };
 
-    function stopSingleAudioPlayer() {
-        removeMarkFromItems();
+    presenter.stopSingleAudioPlayer = function AddonTextAudio_stopSingleAudioPlayer () {
+        presenter.removeMarkFromItems();
 
         for (var i=0; i<presenter.buzzAudio.length; i++) {
             presenter.buzzAudio[i].stop();
         }
-    }
+    };
 
-    function playSingleAudioPlayer(slideId, elementID) {
-        stopSingleAudioPlayer();
+    presenter.playSingleAudioPlayer = function AddonTextAudio_playSingleAudioPlayer (slideId, elementID) {
+        presenter.stopSingleAudioPlayer();
 
         for (var i=0; i<slideId; i++) {
             elementID += presenter.slidesLengths[i];
         }
 
         presenter.buzzAudio[elementID].play();
-    }
+    };
 
-    function markItem(selectionId) {
+    presenter.markItem = function AddonTextAudio_markItem (selectionId) {
         var selector = 'span[data-selectionid="[NUMBER]"]'.replace('[NUMBER]', selectionId);
         presenter.$view.find('.textaudio-text').find(selector).addClass('active');
-    }
+    };
 
-    function removeMarkFromItems() {
+    presenter.removeMarkFromItems = function AddonTextAudio_removeMarkFromItems () {
         presenter.$view.find('span.active').removeClass('active');
-    }
+    };
 
-    presenter.upgradeModel = function(model) {
+    presenter.upgradeModel = function AddonTextAudio_upgradeModel (model) {
     	var upgradedModel = presenter.upgradeControls(model);
-    	
+
         return presenter.upgradeClickAction(upgradedModel);
     };
 
-    presenter.upgradeClickAction = function(model) {
+    presenter.upgradeClickAction = function AddonTextAudio_upgradeClickAction (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
@@ -169,9 +181,9 @@ function AddonTextAudio_create() {
         return upgradedModel;
     };
 
-    presenter.upgradeControls = function(model) {
+    presenter.upgradeControls = function AddonTextAudio_upgradeControls (model) {
     	var upgradedModel = {};
-    	
+
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
         if (typeof upgradedModel['controls'] == "undefined") {
@@ -181,144 +193,136 @@ function AddonTextAudio_create() {
         		upgradedModel['controls'] = "None";
         	}
         }
-        
+
         return upgradedModel;
     };
-    
-    function getSlideNumber() {
-        return presenter.current_slide_data.slide_id + 1;
-    }
 
-    function getEventObject(_item, _value, _score) {
+    presenter.getSlideNumber = function addonTextAudio_getSlideNumber () {
+        return presenter.current_slide_data.slide_id + 1;
+    };
+
+    presenter.getEventObject = function AddonTextAudio_getEventObject (_item, _value, _score) {
         return {
             source : presenter.addonID,
             item: _item + "",
             value: _value + "",
             score: _score + ""
         };
-    }
-
-    presenter.createTimeUpdateEventData = function(data) {
-        return getEventObject(getSlideNumber(), data.currentTime, "");
     };
 
-    presenter.createOnEndEventData = function() {
-        return getEventObject("end", "", "");
+    presenter.createTimeUpdateEventData = function AddonTextAudio_createTimeUpdateEventData (data) {
+        return presenter.getEventObject(presenter.getSlideNumber(), data.currentTime, "");
     };
 
-    function createOnPlayEventData() {
-        return getEventObject(getSlideNumber(), "playing", "");
-    }
-
-    function createOnPauseEventData() {
-        return getEventObject(getSlideNumber(), "stop", "");
-    }
-
-    presenter.getAudioCurrentTime = function () {
-        return this.audio.currentTime;
+    presenter.createOnEndEventData = function AddonTextAudio_createOnEndEventData () {
+        return presenter.getEventObject("end", "", "");
     };
 
-    function formatTime(seconds) {
-        function addZero(v) { return (v < 10 ? '0' : '') + v }
+    presenter.createOnPlayEventData = function AddonTextAudio_createOnPlayEventData () {
+        return presenter.getEventObject(presenter.getSlideNumber(), "playing", "");
+    };
+
+    presenter.createOnPauseEventData = function AddonTextAudio_createOnPauseEventData () {
+        return presenter.getEventObject(presenter.getSlideNumber(), "stop", "");
+    };
+
+    presenter.getAudioCurrentTime = function AddonTextAudio_getAudioCurrentTime () {
+        return presenter.audio.currentTime;
+    };
+
+    presenter.formatTime = function addonTextAudio_formatTime (seconds) {
+        function addonTextAudio_addZero(v) { return (v < 10 ? '0' : '') + v }
 
         var minutes = Math.floor(seconds / 60);
         var remainingSeconds = Math.floor(seconds % 60);
 
-        return addZero(minutes) + ":" + addZero(remainingSeconds);
-    }
+        return addonTextAudio_addZero(minutes) + ":" + addonTextAudio_addZero(remainingSeconds);
+    };
 
-    function onLoadedMetadataCallback() {
+    presenter.onLoadedMetadataCallback = function AddonTextAudio_onLoadedMetadataCallback () {
         var duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
-        displayTimer(0, duration);
+        presenter.displayTimer(0, duration);
 
         if (presenter.configuration.controls === "Custom"){
-            var player_time = presenter.$view.find('.textaudio-player-time');
-            player_time.html('0:00 / ' + formatTime(duration))
+            presenter.$playerTime.html('0:00 / ' + presenter.formatTime(duration))
         }
-    }
-
-    presenter.sendEventAndSetCurrentTimeAlreadySent = function(eventData, currentTime) {
-        eventBus.sendEvent('ValueChanged', eventData);
-        currentTimeAlreadySent = currentTime;
     };
 
-    presenter.sendOnEndEvent = function() {
+    presenter.sendEventAndSetCurrentTimeAlreadySent = function AddonTextAudio_sendEventAndSetCurrentTimeAlreadySent (eventData, currentTime) {
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+        presenter.currentTimeAlreadySent = currentTime;
+    };
+
+    presenter.sendOnEndEvent = function AddonTextAudio_sendOnEndEvent () {
         var eventData = presenter.createOnEndEventData();
-        eventBus.sendEvent('ValueChanged', eventData);
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.onTimeUpdateSendEventCallback = function() {
-        var currentTime = formatTime(presenter.getAudioCurrentTime());
-        if (currentTime !== currentTimeAlreadySent) { // to prevent duplicated value
+    presenter.onTimeUpdateSendEventCallback = function AddonTextAudio_onTimeUpdateSendEventCallback () {
+        var currentTime = presenter.formatTime(presenter.getAudioCurrentTime());
+        if (currentTime !== presenter.currentTimeAlreadySent) { // to prevent duplicated value
             var eventData = presenter.createTimeUpdateEventData({'currentTime' : currentTime});
             presenter.sendEventAndSetCurrentTimeAlreadySent(eventData, currentTime);
         }
     };
 
-    presenter.mouseData = {};
-    
-    function onTimeUpdateCallback() {
-        if (isVocabularyPlaying) {
+    presenter.onTimeUpdateCallback = function AddonTextAudio_onTimeUpdateCallback () {
+        var bar_width, currentTime, duration;
+
+        if (presenter.isVocabularyPlaying) {
             if (presenter.vocabulary.getTime() >= presenter.vocabulary_end) {
                 presenter.vocabulary.setTime(0);
                 presenter.vocabulary.pause();
             }
             return;
         }
-        var currentTime = presenter.audio.currentTime;
-        var duration = parseInt(presenter.audio.duration, 10);
+        currentTime = presenter.audio.currentTime;
+        duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
-        
+
         if (presenter.configuration.displayTime) {
-            displayTimer(currentTime, duration);
+            presenter.displayTimer(currentTime, duration);
         }
 
-
         if (presenter.configuration.controls === "Custom"){
-            var player_time = presenter.$view.find('.textaudio-player-time');
-            player_time.html(formatTime(currentTime) + ' / ' + formatTime(duration));
-            var progress_bar = presenter.$view.find('.textaudio-progress-bar'),
-                slider = progress_bar.find('.textaudio-slider-btn'),
-                bar = progress_bar.find('.textaudio-bar'),
-                bar_width = progress_bar.width() * currentTime / duration;
-            bar.width(Math.round(bar_width));
-            slider.css('left', Math.round(bar_width));
+            presenter.$playerTime.html(presenter.formatTime(currentTime) + ' / ' + presenter.formatTime(duration));
+            bar_width = presenter.$progressWrapper.width() * currentTime / duration;
+            presenter.$progressBar.width(Math.round(bar_width));
+            presenter.$progressSlider.css('left', Math.round(bar_width));
         }
 
         if(presenter.configuration.showSlides == "Show all slides"){
-            change_slide_all(currentTime);
+            presenter.changeSlideAll(currentTime);
         }else{
-            change_slide(currentTime);
+            presenter.changeSlide(currentTime);
         }
 
         if (presenter.stopClicked) {
             presenter.$view.find('span').removeClass('active');
-            hasBeenStarted = false;
+            presenter.hasBeenStarted = false;
             presenter.stopClicked = false;
         }
-    }
+    };
 
-    function change_volume_class(volume_btn, volume_class) {
+    presenter.changeVolumeClass = function addonTextAudio_changeVolumeClass (volume_btn, volume_class) {
         if (volume_btn.hasClass(volume_class)) {
             return;
         }
-        for (i=0; i<=3; i++) {
+        for (var i=0; i<=3; i++) {
             if (volume_btn.hasClass('textaudio-volume'+i)) {
                 volume_btn.removeClass('textaudio-volume'+i);
             }
         }
         volume_btn.addClass(volume_class);
-    }
+    };
 
-    function onVolumeChanged() {
+    presenter.onVolumeChanged = function AddonTextAudio_onVolumeChanged () {
+        var volume, volume_class;
         if (presenter.configuration.controls === "Custom"){
-            var layer = presenter.$view.find('.textaudio-volume-layer'),
-                control = layer.find('.textaudio-volume-control'),
-                volume_btn = presenter.$view.find('.textaudio-volume-btn'),
-                volume = presenter.audio.volume,
-                volume_class = '';
-            control.css('left', volume * layer.width());
+            volume = presenter.audio.volume;
+            volume_class = '';
+            presenter.$volumeControl.css('left', volume * presenter.$volumeLayer.width());
             if (volume < 0.1) {
                 volume_class = 'textaudio-volume0';
                 if (volume > 0) {
@@ -331,50 +335,49 @@ function AddonTextAudio_create() {
             } else {
                 volume_class = 'textaudio-volume3';
             }
-            change_volume_class(volume_btn, volume_class);
+            presenter.changeVolumeClass(presenter.$volumeBtn, volume_class);
         }
-    }
+    };
 
-    function playPauseCallback() {
-        var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
-        if (playpause_btn.hasClass('textaudio-pause-btn')) {
+    presenter.playPauseCallback = function AddonTextAudio_playPauseCallback () {
+        if (presenter.$playPauseBtn.hasClass('textaudio-pause-btn')) {
             presenter.pause();
         }
         else {
             presenter.play();
         }
-    }
+    };
 
-    function displayTimer(current, duration) {
-        presenter.$view.find('#currentTime').html(formatTime(current) + ' / ');
-        presenter.$view.find('#durationTime').html(formatTime(duration));
-    }
+    presenter.displayTimer = function AddonTextAudio_displayTimer (current, duration) {
+        presenter.$view.find('#currentTime').html(presenter.formatTime(current) + ' / ');
+        presenter.$view.find('#durationTime').html(presenter.formatTime(duration));
+    };
 
-    function go_to(slide_id, selectionId) {
+    presenter.goTo =  function AddonTextAudio_goTo (slide_id, selectionId) {
         if (slide_id >= 0 || selectionId >= 0) {
             var frame2go = presenter.configuration.slides[slide_id].Times[selectionId].start + 0.1;
             presenter.audio.currentTime = frame2go / presenter.fps;
         }
         presenter.play();
-    }
+    };
 
-    function setPositionAndDimentions (element, slide_id) {
+    presenter.setPositionAndDimentions = function AddonTextAudio_setPositionAndDimentions (element, slide_id) {
         element.css('position', 'absolute');
         element.css('left', presenter.configuration.slides[slide_id].positionAndDimentions[0]+ 'px');
         element.css('top', presenter.configuration.slides[slide_id].positionAndDimentions[1]+ 'px');
         element.css('width', presenter.configuration.slides[slide_id].positionAndDimentions[2]+ 'px');
         element.css('height', presenter.configuration.slides[slide_id].positionAndDimentions[3]+ 'px');
-    }
+    };
 
-    function removePositionAndDimentions (element) {
+    presenter.removePositionAndDimentions = function AddonTextAudio_removePositionAndDimentions (element) {
         element.css('position', '');
         element.css('left', '');
         element.css('top', '');
         element.css('width', '');
         element.css('height', '');
-    }
+    };
 
-    function make_slide(textWrapper, slide_id) {
+    presenter.makeSlide =  function AddonTextAudio_makeSlide (textWrapper, slide_id) {
         slide_id = parseInt(slide_id, 10);
         if (slide_id < 0) {
             textWrapper.html('');
@@ -388,24 +391,26 @@ function AddonTextAudio_create() {
             if(presenter.configuration.showSlides == "Show all slides"){
                 textWrapper.append(presenter.configuration.slides[slide_id].html);
                 if(presenter.configuration.slides[slide_id].positionAndDimentions != '' && presenter.configuration.slides[slide_id].positionAndDimentions != undefined){
-                    setPositionAndDimentions(textWrapper, slide_id);
+                    presenter.setPositionAndDimentions(textWrapper, slide_id);
                 }
             }else{
                 textWrapper.html(presenter.configuration.slides[slide_id].html);
                 if(presenter.configuration.slides[slide_id].positionAndDimentions != '' && presenter.configuration.slides[slide_id].positionAndDimentions != undefined){
-                    setPositionAndDimentions(textWrapper, slide_id);
+                    presenter.setPositionAndDimentions(textWrapper, slide_id);
                 }else{
-                    removePositionAndDimentions(textWrapper);
+                    presenter.removePositionAndDimentions(textWrapper);
                 }
             }
             textWrapper.attr('data-slideId', slide_id);
-            textWrapper.find("span[class^='textelement']").each(function() {
+            textWrapper.find("span[class^='textelement']").each(function AddonTextAudio_textWrapperTextElementEach () {
+                var that = this;
                 if(!presenter.configuration.isClickDisabled){
-                    $(this).on('click', function(e) {
+                    presenter.slidesSpanElements.push(that);
+                    $(that).on('click', function addonTextAudio_textWrapperTextElementOnClick (e) {
                         e.stopPropagation();
 
                         var isVocabularyInterval = presenter.configuration.clickAction == 'play_vocabulary_interval';
-                        var isLoaded = isVocabularyAudioLoaded || presenter.buzzAudio.length !== 0;
+                        var isLoaded = presenter.isVocabularyAudioLoaded || presenter.buzzAudio.length !== 0;
                         if (isVocabularyInterval && !MobileUtils.isMobileUserAgent(navigator.userAgent) && !isLoaded) {
                             return false;
                         }
@@ -415,26 +420,26 @@ function AddonTextAudio_create() {
 
                         switch (presenter.configuration.clickAction) {
                             case 'play_vocabulary_interval':
-                                if (isVocabularyPlaying || !isPlaying) {
+                                if (presenter.isVocabularyPlaying || !presenter.isPlaying) {
                                     var intervalId = parseInt($(this).attr('data-intervalId'), 10);
                                     var frame = presenter.configuration.vocabularyIntervals[intervalId];
 
-                                    if (isPlaying) {
+                                    if (presenter.isPlaying) {
                                         presenter.vocabulary.stop();
                                     }
                                     presenter.clearSelection();
                                     presenter.vocabulary.setTime(frame.start / presenter.fps);
                                     presenter.vocabulary_end = frame.end / presenter.fps;
                                     presenter.vocabulary.play();
-                                    markItem(presenter.selectionId);
+                                    presenter.markItem(presenter.selectionId);
                                     break;
                                 }
                             case 'play_interval_or_vocabulary':
                             case 'play_vocabulary_file':
-                                if (!isPlaying) {
+                                if (!presenter.isPlaying) {
                                     presenter.pause();
-                                    playSingleAudioPlayer(slide_id, presenter.selectionId);
-                                    markItem(presenter.selectionId);
+                                    presenter.playSingleAudioPlayer(slide_id, presenter.selectionId);
+                                    presenter.markItem(presenter.selectionId);
                                     break;
                                 }
                             case 'play_interval':
@@ -447,21 +452,21 @@ function AddonTextAudio_create() {
                                 }
 
                                 if (MobileUtils.isSafariMobile(navigator.userAgent)) {
-                                    function fun() {
+                                    function AddonTextAudio_fun() {
                                         if (slide_id >= 0 || presenter.selectionId >= 0) {
                                             var frame2go = presenter.configuration.slides[slide_id].Times[presenter.selectionId].start;
                                             presenter.audio.currentTime = frame2go / presenter.fps;
                                         }
-                                        presenter.audio.removeEventListener("playing", fun, false);
+                                        presenter.audio.removeEventListener("playing", AddonTextAudio_fun, false);
                                     }
-                                    if (hasBeenStarted) {
+                                    if (presenter.hasBeenStarted) {
                                         presenter.pause();
-                                        go_to(slide_id, presenter.selectionId);
+                                        presenter.goTo(slide_id, presenter.selectionId);
                                     } else {
-                                        presenter.audio.addEventListener("playing", fun, false);
+                                        presenter.audio.addEventListener("playing", AddonTextAudio_fun, false);
                                     }
                                 } else {
-                                    go_to(slide_id, presenter.selectionId);
+                                    presenter.goTo(slide_id, presenter.selectionId);
                                 }
                         }
                     });
@@ -469,23 +474,23 @@ function AddonTextAudio_create() {
             });
 
         }
-    }
+    };
 
-    function highlight_selection(textWrapper, selection_id) {
-        textWrapper.find('span').each(function() {
+    presenter.highlightSelection = function AddonTextAudio_highlightSelection (textWrapper, selection_id) {
+        textWrapper.find('span').each(function () {
             $(this).removeClass('active');
         });
         if (selection_id >= 0) {
             textWrapper.find('span.textelement' + selection_id).addClass('active');
         }
-    }
+    };
 
-    function areSlidesEqual(slide1, slide2) {
+    presenter.areSlidesEqual = function addonTextAudio_areSlidesEqual (slide1, slide2) {
         return slide1.slide_id == slide2.slide_id && slide1.selection_id == slide2.selection_id;
-    }
+    };
 
-    function highlight_selection_all(textWrapper, selection_id) {
-        presenter.$view.find('.textaudio-text').find('span').each(function() {
+    presenter.highlightSelectionAll = function AddonTextAudio_highlightSelectionAll (textWrapper, selection_id) {
+        presenter.$view.find('.textaudio-text').find('span').each(function () {
             $(this).removeClass('active');
         });
 
@@ -496,9 +501,9 @@ function AddonTextAudio_create() {
         if (selection_id >= 0) {
             textWrapper.find('span.textelement' + selection_id).addClass('active');
         }
-    }
+    };
 
-    function change_slide_all(currentTime) {
+    presenter.changeSlideAll = function AddonTextAudio_changeSlideAll (currentTime) {
         currentTime = Math.round(currentTime * presenter.fps);
         var frames_array = presenter.configuration.frames;
         var isCurrentTimeInRange = currentTime < frames_array.length;
@@ -507,7 +512,7 @@ function AddonTextAudio_create() {
             selection_id: isCurrentTimeInRange ? frames_array[currentTime].selection_id : 0
         };
         presenter.currentSlide = slide_data.slide_id;
-        if (!hasBeenStarted) {
+        if (!presenter.hasBeenStarted) {
             slide_data.selection_id = -1;
         }
         var difference = slide_data.selection_id - presenter.previousSelectionId;
@@ -515,12 +520,12 @@ function AddonTextAudio_create() {
             slide_data.selection_id -= difference - 1;
         }
         presenter.previousSelectionId = slide_data.selection_id;
-        change_slide_from_data_all(slide_data);
-    }
+        presenter.changeSlideFromDataAll(slide_data);
+    };
 
-    function change_slide_from_data_all(slide_data) {
+    presenter.changeSlideFromDataAll = function AddonTextAudio_changeSlideFromDataAll (slide_data) {
         var textWrapper = presenter.$view.find(".slide-id-0");
-        if (!areSlidesEqual(slide_data, presenter.current_slide_data)) {
+        if (!presenter.areSlidesEqual(slide_data, presenter.current_slide_data)) {
             var blockHighlight = false;
             var currentSelId = presenter.current_slide_data.selection_id;
             if (presenter.configuration.playPart && currentSelId !== -1 && presenter.selectionId === currentSelId) {
@@ -528,12 +533,12 @@ function AddonTextAudio_create() {
                 blockHighlight = true;
             }
             if (slide_data.slide_id != presenter.current_slide_data.slide_id && !presenter.slidesMade) {
-                make_slide(textWrapper, slide_data.slide_id);
+                presenter.makeSlide(textWrapper, slide_data.slide_id);
             }
-            highlight_selection_all(textWrapper, slide_data.selection_id);
+            presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
 
             if (blockHighlight) {
-                textWrapper.find('span').each(function() {
+                textWrapper.find('span').each(function AddonTextAudio_textWrapperSpanEach2 () {
                     if ($(this).hasClass('active')) {
                         $(this).removeClass('active');
                         $(this).addClass("tmp-active");
@@ -544,15 +549,15 @@ function AddonTextAudio_create() {
             presenter.playedByClick = false;
         } else {
             if (presenter.$view.find('.active').length === 0) {
-                highlight_selection_all(textWrapper, slide_data.selection_id);
+                presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
             }
         }
-    }
+    };
 
-    function change_slide_from_data(slide_data) {
+    presenter.changeSlideFromData = function AddonTextAudio_changeSlideFromData (slide_data) {
         var textWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-text");
 
-        if (!areSlidesEqual(slide_data, presenter.current_slide_data)) {
+        if (!presenter.areSlidesEqual(slide_data, presenter.current_slide_data)) {
             var blockHighlight = false;
 
             var currentSelId = presenter.current_slide_data.selection_id;
@@ -562,12 +567,12 @@ function AddonTextAudio_create() {
             }
 
             if (slide_data.slide_id != presenter.current_slide_data.slide_id) {
-                make_slide(textWrapper, slide_data.slide_id);
+                presenter.makeSlide(textWrapper, slide_data.slide_id);
             }
-            highlight_selection(textWrapper, slide_data.selection_id);
+            presenter.highlightSelection(textWrapper, slide_data.selection_id);
 
             if (blockHighlight) {
-                textWrapper.find('span').each(function() {
+                textWrapper.find('span').each(function AddonTextAudio_textWrapperSpanEach3 () {
                     if ($(this).hasClass('active')) {
                         $(this).removeClass('active');
                         $(this).addClass("tmp-active");
@@ -579,12 +584,12 @@ function AddonTextAudio_create() {
             presenter.playedByClick = false;
         } else {
             if (presenter.$view.find('.active').length === 0) {
-                highlight_selection(textWrapper, slide_data.selection_id);
+                presenter.highlightSelection(textWrapper, slide_data.selection_id);
             }
         }
-    }
+    };
 
-    function change_slide(currentTime) {
+    presenter.changeSlide = function AddonTextAudio_changeSlide (currentTime) {
         currentTime = Math.round(currentTime * presenter.fps);
 
         var frames_array = presenter.configuration.frames;
@@ -595,7 +600,7 @@ function AddonTextAudio_create() {
             selection_id: isCurrentTimeInRange ? frames_array[currentTime].selection_id : 0
         };
 
-        if (!hasBeenStarted) {
+        if (!presenter.hasBeenStarted) {
             slide_data.selection_id = -1;
         }
 
@@ -605,12 +610,10 @@ function AddonTextAudio_create() {
         }
 
         presenter.previousSelectionId = slide_data.selection_id;
-        change_slide_from_data(slide_data);
-    }
+        presenter.changeSlideFromData(slide_data);
+    };
 
-    presenter.slidesMade = false;
-
-    function progressMouseDownCallback(event) {
+    presenter.progressMouseDownCallback = function AddonTextAudio_progressMouseDownCallback (event) {
         if ($(event.target).hasClass('textaudio-slider-btn')) {
             presenter.mouseData.oldPosition = event.pageX;
             presenter.mouseData.isMouseDragged = true;
@@ -619,70 +622,64 @@ function AddonTextAudio_create() {
                 presenter.pause();
             }
         }
-    }
+    };
 
-    function progressMouseUpCallback() {
+    presenter.progressMouseUpCallback = function AddonTextAudio_progressMouseUpCallback () {
+        var duration;
         if (presenter.mouseData.isMouseDragged) {
-            var progress_bar = presenter.$view.find('.textaudio-progress-bar'),
-                bar = progress_bar.find('.textaudio-bar'),
-                duration = presenter.audio.duration;
+            duration = presenter.audio.duration;
             duration = isNaN(duration) ? 0 : duration;
-            var currentTime = duration * bar.width() / progress_bar.width();
-            presenter.audio.currentTime = currentTime;
+            presenter.audio.currentTime = duration * presenter.$progressBar.width() / presenter.$progressWrapper.width();
             presenter.mouseData.isMouseDragged = false;
             presenter.mouseData.oldPosition = 0;
             if (presenter.mouseData.playedBeforeDragging) {
                 presenter.play();
             }
         }
-    }
+    };
 
-    function progressMouseMoveCallback(event) {
+    presenter.progressMouseMoveCallback = function AddonTextAudio_progressMouseMoveCallback (event) {
+        var relativeDistance, barWidth, oldWidth;
         if (presenter.mouseData.isMouseDragged){
-            var relativeDistance = event.pageX - presenter.mouseData.oldPosition,
-                bar_width = 0,
-                progress_bar = presenter.$view.find('.textaudio-progress-bar'),
-                bar = progress_bar.find('.textaudio-bar'),
-                slider = progress_bar.find('.textaudio-slider-btn'),
-                oldWidth = bar.width();
-            if (oldWidth + relativeDistance < progress_bar.width()) {
-                bar_width = oldWidth + relativeDistance;
+            relativeDistance = event.pageX - presenter.mouseData.oldPosition;
+            barWidth = 0;
+            oldWidth = presenter.$progressBar.width();
+            if (oldWidth + relativeDistance < presenter.$progressWrapper.width()) {
+                barWidth = oldWidth + relativeDistance;
             }
             else {
-                bar_width = progress_bar.width();
+                barWidth = presenter.$progressWrapper.width();
             }
-            bar.width(bar_width);
-            slider.css('left',Math.round(bar_width));
+            presenter.$progressBar.width(barWidth);
+            presenter.$progressSlider.css('left',Math.round(barWidth));
             presenter.mouseData.oldPosition = event.pageX;
         }
-    }
+    };
 
-    function isMoreThanOneFingerGesture(event) {
-        var touch, touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+    presenter.isMoreThanOneFingerGesture = function addonTextAudio_isMoreThanOneFingerGesture (event) {
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         if (event.hasOwnProperty('touches'))
             touchPoints = event.touches;
         return touchPoints.length> 1;
-    }
+    };
 
-    function progressTouchStartCallback(event) {
-        if (isMoreThanOneFingerGesture(event)) return;
-        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+    presenter.progressTouchStartCallback = function addonTextAudio_progressTouchStartCallback (event) {
+        if (presenter.isMoreThanOneFingerGesture(event)) return;
+        var touch, touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
         if (event.hasOwnProperty('touches'))
             touch = event.touches[0];
         else
             touch = touchPoints[0];
-        progressMouseDownCallback(touch);
-    }
+        presenter.progressMouseDownCallback(touch);
+    };
 
+    presenter.progressTouchEndCallback =  function AddonTextAudio_progressTouchEndCallback () {
+        presenter.progressMouseUpCallback();
+    };
 
-    function progressTouchEndCallback() {
-        progressMouseUpCallback();
-    }
-
-
-    function progressTouchMoveCallback(event) {
-        if (isMoreThanOneFingerGesture(event)) return;
+    presenter.progressTouchMoveCallback = function AddonTextAudio_progressTouchMoveCallback (event) {
+        if (presenter.isMoreThanOneFingerGesture(event)) return;
 
         var touch;
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
@@ -691,109 +688,134 @@ function AddonTextAudio_create() {
             touch = event.touches[0];
         else
             touch = touchPoints[0];
-        progressMouseMoveCallback(touch);
-    }
+        presenter.progressMouseMoveCallback(touch);
+    };
 
-    function attachProgressListeners($progress_wrapper, customplayer) {
+    presenter.attachProgressListeners = function AddonTextAudio_attachProgressListeners () {
         presenter.isMobileDevice = MobileUtils.isMobileUserAgent(navigator.userAgent) || MobileUtils.isEventSupported('touchend');
         if (MobileUtils.isWindowsMobile(window.navigator)) {
-            $progress_wrapper[0].addEventListener("MSPointerDown", progressTouchStartCallback, false);
-            $progress_wrapper[0].addEventListener("MSPointerUp", progressTouchEndCallback, false);
-            $progress_wrapper[0].addEventListener("MSPointerMove", progressTouchMoveCallback, false);
+            presenter.$progressWrapper[0].addEventListener("MSPointerDown", presenter.progressTouchStartCallback , false);
+            presenter.$progressWrapper[0].addEventListener("MSPointerUp", presenter.progressTouchEndCallback, false);
+            presenter.$progressWrapper[0].addEventListener("MSPointerMove", presenter.progressTouchMoveCallback, false);
         }
         else if (presenter.isMobileDevice) {
-            $progress_wrapper[0].ontouchstart=progressTouchStartCallback;
-            customplayer[0].ontouchend=progressTouchEndCallback;
-            $progress_wrapper[0].ontouchmove=progressTouchMoveCallback;
+            presenter.$progressWrapper[0].ontouchstart=presenter.progressTouchStartCallback ;
+            presenter.$customPlayer[0].ontouchend=presenter.progressTouchEndCallback;
+            presenter.$progressWrapper[0].ontouchmove=presenter.progressTouchMoveCallback;
         }
         else {
-            $progress_wrapper.on('mousedown', progressMouseDownCallback);
-            $progress_wrapper.on('mouseup', progressMouseUpCallback);
-            $progress_wrapper.on('mousemove', progressMouseMoveCallback);
+            presenter.$progressWrapper.on('mousedown', presenter.progressMouseDownCallback);
+            presenter.$progressWrapper.on('mouseup', presenter.progressMouseUpCallback);
+            presenter.$progressWrapper.on('mousemove', presenter.progressMouseMoveCallback);
         }
-    }
+    };
 
-    function toogleVolumeLayer(){
-        onVolumeChanged();
-        presenter.$view.find('.textaudio-volume-layer').toggle();
-        presenter.$view.find('.textaudio-player-time').toggle();
-    }
+    presenter.toogleVolumeLayer = function AddonTextAudio_toogleVolumeLayer (){
+        presenter.onVolumeChanged();
+        presenter.$volumeLayer.toggle();
+        presenter.$playerTime.toggle();
+    };
 
-    function createHtmlPlayer(view) {
-        var audioWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-player");
-        var customplayer = $('<div>');
-        customplayer.addClass('textaudioplayer');
+    presenter.createHtmlPlayer = function AddonTextAudio_createHtmlPlayer () {
+        var $volumeControlBackground;
 
-        var playpause_btn = $('<div>');
-        playpause_btn.addClass('textaudio-play-pause-btn');
-        playpause_btn.addClass('textaudio-play-btn');
-        playpause_btn.on('click', playPauseCallback);
-        customplayer.append(playpause_btn);
+        presenter.$customPlayer = $('<div>').
+            addClass('textaudioplayer');
 
-        var stop_btn = $('<div>');
-        stop_btn.addClass('textaudio-stop-btn');
-        stop_btn.on('click', presenter.stop);
-        customplayer.append(stop_btn);
+        presenter.$playPauseBtn = $('<div>').
+            addClass('textaudio-play-pause-btn').
+            addClass('textaudio-play-btn').
+            on('click', presenter.playPauseCallback);
 
-        var progress_wrapper = $('<div>');
-        progress_wrapper.addClass('textaudio-progress-bar');
-        var progress_bar = $('<div>');
-        progress_bar.addClass('textaudio-bar');
-        var progress_slider = $('<div>');
-        progress_slider.addClass('textaudio-slider-btn');
-        attachProgressListeners(progress_wrapper, customplayer);
+        presenter.$customPlayer.append(presenter.$playPauseBtn);
 
-        progress_wrapper.append(progress_bar);
-        progress_wrapper.append(progress_slider);
-        customplayer.append(progress_wrapper)
+        presenter.$stopBtn = $('<div>').
+            addClass('textaudio-stop-btn').
+            on('click', presenter.stop);
+
+        presenter.$customPlayer.append(presenter.$stopBtn);
+
+        presenter.$progressWrapper = $('<div>').
+            addClass('textaudio-progress-bar');
+
+        presenter.$progressBar = $('<div>').
+            addClass('textaudio-bar');
+
+        presenter.$progressSlider = $('<div>').
+            addClass('textaudio-slider-btn');
+
+        presenter.attachProgressListeners();
+
+        presenter.$progressWrapper.
+            append(presenter.$progressBar).
+            append(presenter.$progressSlider);
+
+        presenter.$customPlayer.append(presenter.$progressWrapper);
 
         if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
-            var volume_btn = $('<div>');
-            volume_btn.addClass('textaudio-volume-btn');
-            volume_btn.on('click', toogleVolumeLayer);
-            customplayer.append(volume_btn);
+            presenter.$volumeBtn = $('<div>').
+                addClass('textaudio-volume-btn').
+                on('click', presenter.toogleVolumeLayer);
 
-            var volume_layer = $('<div>');
-            volume_layer.addClass('textaudio-volume-layer');
-            volume_layer.append($('<div class="textaudio-volume-control-background">'));
-            volume_layer.append($('<div class="textaudio-volume-control">'));
-            volume_layer.on('click', function (e) {
-                presenter.audio.volume = e.offsetX / $(this).width();
-            });
-            volume_layer.hide();
-            customplayer.append(volume_layer);
+            presenter.$volumeLayer = $('<div>').
+                addClass('textaudio-volume-layer').
+                on('click', presenter.volumeLayerOnClick).
+                hide();
+
+            $volumeControlBackground = $('<div>').
+                addClass('textaudio-volume-control-background');
+
+            presenter.$volumeControl = $('<div>').
+                addClass('textaudio-volume-control');
+
+            presenter.$volumeLayer.
+                append($volumeControlBackground).
+                append(presenter.$volumeControl);
+
+            presenter.$customPlayer.
+                append(presenter.$volumeBtn).
+                append(presenter.$volumeLayer);
         }
 
-        var player_time = $('<div>');
-        player_time.addClass('textaudio-player-time');
-        player_time.text('00:00 / --:--');
-        customplayer.append(player_time);
+        presenter.$playerTime = $('<div>').
+            addClass('textaudio-player-time').
+            text('00:00 / --:--');
 
-        audioWrapper.append(customplayer);
-    }
+        presenter.$customPlayer.append(presenter.$playerTime);
 
-    function createView(view, model, isPreview) {
-        originalFile.mp3 = model.mp3;
-        originalFile.ogg = model.ogg;
+        presenter.$audioWrapper.append(presenter.$customPlayer);
+    };
 
-        var audio = new Audio();
+    presenter.volumeLayerOnClick = function AddonTextAudio_volumeLayerOnClick (e) {
+        presenter.audio.volume = e.offsetX / $(this).width();
+    };
+
+    presenter.createView = function AddonTextAudio_createView (view, model, isPreview) {
+        presenter.$view.bind('click', function (event) {
+            event.stopPropagation();
+        });
+        presenter.originalFile .mp3 = model.mp3;
+        presenter.originalFile .ogg = model.ogg;
+
+        presenter.audio = document.createElement('audio');
+        presenter.$audioWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-player");
 
         if (presenter.configuration.controls === "Browser") {
-            $(audio).attr("controls", "controls").attr("preload", "auto");
+            presenter.audio.setAttribute("controls", "controls");
+            presenter.audio.setAttribute("preload", "auto");
         } else if (presenter.configuration.controls === "Custom") {
-            createHtmlPlayer();
+            presenter.createHtmlPlayer();
         }
 
         var currentTime = document.createElement("span");
         var durationTime = document.createElement("span");
-        $(currentTime).attr("id", "currentTime");
-        $(durationTime).attr("id", "durationTime");
+        $(currentTime).attr("id", "currentTime").addClass('current-time');
+        $(durationTime).attr("id", "durationTime").addClass('duration-time');
 
-        var audioWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-player");
-        audioWrapper.append(audio);
+        presenter.$audioWrapper.append(presenter.audio);
         if (presenter.configuration.displayTime) {
-            audioWrapper.append(currentTime).append(durationTime);
-            audio.addEventListener('loadeddata', onLoadedMetadataCallback, false);
+            presenter.$audioWrapper.append(currentTime).append(durationTime);
+            presenter.audio.addEventListener('loadeddata', presenter.onLoadedMetadataCallback, false);
         }
 
         if(presenter.configuration.showSlides == "Show all slides"){
@@ -804,74 +826,82 @@ function AddonTextAudio_create() {
                         slide_id: frames_array[i].slide_id,
                         selection_id: frames_array[i].selection_id
                     };
-                    change_slide_from_data_all(slide_data);
+                    presenter.changeSlideFromDataAll(slide_data);
                 }
             }
             presenter.$view.find('.textaudio-text span').removeClass('active');
         }else{
-            change_slide(0);
+            presenter.changeSlide(0);
         }
 
         presenter.slidesMade = true;
 
         if (!isPreview) {
-            audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
-            audio.addEventListener('playing', function() { hasBeenStarted = true; }, false);
-            audio.addEventListener('play', function() {
-                if (isVocabularyPlaying) {
-                    presenter.vocabulary.pause();
-                }
-                if (!presenter.playedByClick) {
-                    presenter.selectionId = undefined;
-                }
-                eventBus.sendEvent('ValueChanged', createOnPlayEventData());
-                startTimeMeasurement();
-            }, false);
-            audio.addEventListener('pause', function() {
-                stopTimeMeasurement();
-                eventBus.sendEvent('ValueChanged', createOnPauseEventData())
-            }, false);
+            presenter.audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+            presenter.audio.addEventListener('playing', presenter.onAudioPlaying, false);
+            presenter.audio.addEventListener('play', presenter.onAudioPlay, false);
+            presenter.audio.addEventListener('pause', presenter.onAudioPause, false);
+        }
+    };
+
+    presenter.onAudioPlaying = function AddonTextAudio_onAudioPlaying () {
+        presenter.hasBeenStarted = true;
+    };
+
+    presenter.onAudioPlay =  function AddonTextAudio_onAudioPlay () {
+        if (presenter.isVocabularyPlaying) {
+            presenter.vocabulary.pause();
+        }
+        if (!presenter.playedByClick) {
+            presenter.selectionId = undefined;
+        }
+        presenter.eventBus.sendEvent('ValueChanged', presenter.createOnPlayEventData());
+        presenter.startTimeMeasurement();
+    };
+
+    presenter.onAudioPause = function AddonTextAudio_onAudioPause () {
+        presenter.stopTimeMeasurement();
+        presenter.eventBus.sendEvent('ValueChanged', presenter.createOnPauseEventData())
+    };
+
+    presenter.attachEventListeners = function AddonTextAudio_attachEventListeners () {
+        presenter.audio.addEventListener('loadeddata', presenter.onLoadedMetadataCallback, false);
+        presenter.audio.addEventListener('timeupdate', presenter.onTimeUpdateCallback, false);
+        presenter.audio.addEventListener('volumechange', presenter.onVolumeChanged, false);
+        presenter.audio.addEventListener('ended', presenter.onEnded, false);
+        presenter.audio.addEventListener('click', presenter.onAudioClick, false);
+    };
+
+    presenter.onEnded = function AddonTextAudio_onEnded () {
+        if (presenter.configuration.enableLoop) {
+            presenter.currentTime = 0;
+            presenter.play();
+        } else {
+            presenter.executeOnEndEvent();
+            presenter.sendOnEndEvent();
+            presenter.stop();
+            presenter.$view.find(".wrapper-addon-textaudio .textaudio-text :last-child").removeClass('active');
         }
 
-        presenter.audio = audio;
-    }
+        presenter.playedByClick = false;
+    };
 
-    function attachEventListeners(audio) {
-        audio.addEventListener('loadeddata', onLoadedMetadataCallback, false);
-        audio.addEventListener('timeupdate', onTimeUpdateCallback, false);
-        audio.addEventListener('volumechange', onVolumeChanged, false);
-        audio.addEventListener('ended', function() {
-            if (presenter.configuration.enableLoop) {
-                this.currentTime = 0;
-                this.play();
-            } else {
-                presenter.executeOnEndEvent();
-                presenter.sendOnEndEvent();
-                presenter.stop();
-                presenter.$view.find(".wrapper-addon-textaudio .textaudio-text :last-child").removeClass('active');
-            }
+    presenter.onAudioClick = function AddonTextAudio_onAudioClick (event) {
+        event.stopPropagation();
+    };
 
-            presenter.playedByClick = false;
-        }, false);
-
-        audio.addEventListener('click', function(e) {
-            e.stopPropagation();
-        }, false);
-    }
-
-    function loadFiles() {
+    presenter.loadFiles = function AddonTextAudio_loadFiles () {
         var canPlayMp3 = false;
         var canPlayOgg = false;
-        var audio = presenter.audio;
 
-        if (audio.canPlayType) {
-            canPlayMp3 = audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
-            canPlayOgg = audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
+        if (presenter.audio.canPlayType) {
+            canPlayMp3 = presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/mpeg');
+            canPlayOgg = presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/ogg; codecs="vorbis"');
 
             if (canPlayMp3) {
-                $(audio).attr("src", originalFile.mp3);
+                presenter.audio.setAttribute("src", presenter.originalFile .mp3);
             } else if (canPlayOgg) {
-                $(audio).attr("src", originalFile.ogg);
+                presenter.audio.setAttribute("src", presenter.originalFile .ogg);
             }
 
             if (presenter.configuration.clickAction == 'play_vocabulary_interval') {
@@ -879,71 +909,194 @@ function AddonTextAudio_create() {
                     presenter.configuration.vocabulary_mp3,
                     presenter.configuration.vocabulary_ogg
                 ]);
-                presenter.vocabulary.bind('canplaythrough', function() {
+                presenter.vocabulary.bind('canplaythrough', function AddonTextAudio_vocabularyCanPlayThrough () {
                     presenter.vocabulary.unbind('canplaythrough');
-                    isVocabularyAudioLoaded = true;
-                    hideLoadingArea();
+                    presenter.isVocabularyAudioLoaded = true;
+                    presenter.hideLoadingArea();
                 }, false);
-                presenter.vocabulary.bind('ended', function() {
+                presenter.vocabulary.bind('ended', function AddonTextAudio_vocabularyEnded () {
                     presenter.clearSelection();
                 });
-                presenter.vocabulary.bind('play', function() {
+                presenter.vocabulary.bind('play', function AddonTextAudio_vocabularyPlay () {
                     if (!presenter.playedByClick) {
                         presenter.selectionId = undefined;
                     }
-                    startVocabularyTimeMeasurement();
+                    presenter.startVocabularyTimeMeasurement();
                 }, false);
-                presenter.vocabulary.bind('pause', function() {
-                    stopVocabularyTimeMeasurement();
+                presenter.vocabulary.bind('pause', function AddonTextAudio_vocabularyPause () {
+                    presenter.stopVocabularyTimeMeasurement();
                 }, false);
             }
         } else {
-            $(audio).append("Your browser doesn't support audio.");
+            var infoSpan = document.createElement('span');
+            infoSpan.innerHTML = "Your browser doesn't support audio.";
+            presenter.audio.appendChild(infoSpan);
         }
 
-        $(audio).load();
-        attachEventListeners(audio);
-    }
+        presenter.audio.load();
+        presenter.attachEventListeners();
+    };
 
-    function createSeparateAudioFiles(audioFiles) {
+    presenter.createSeparateAudioFiles = function AddonTextAudio_createSeparateAudioFiles (audioFiles) {
         for (var i=0; i<audioFiles.length; i++) {
             var localBuzz = new buzz.sound([
                 audioFiles[i].mp3,
                 audioFiles[i].ogg
             ]);
 
-            localBuzz.bind('ended', function() {
+            localBuzz.bind('ended', function AddonTextAudio_localBuzzEnded () {
                 presenter.clearSelection();
             });
 
             presenter.buzzAudio.push(localBuzz);
         }
-    }
+    };
 
-    presenter.run = function(view, model) {
+    presenter.run = function AddonTextAudio_run (view, model) {
+        presenter.view = view;
+        presenter.$view = $(view);
+
         presenter.initialize(view, model, false);
-        eventBus = presenter.playerController.getEventBus();
+
+        presenter.eventBus = presenter.playerController.getEventBus();
         presenter.isLoaded = false;
         if (presenter.configuration.isValid) {
-            this.audio.addEventListener("loadeddata", function() {
-                presenter.isLoaded = true;
-            });
+            presenter.audio.addEventListener("loadeddata", presenter.onAudioLoadedData);
         }
         presenter.addonID = model.ID;
 
-        eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('ValueChanged', this);
+
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
-    presenter.createPreview = function(view, model) {
+    presenter.onAudioLoadedData = function AddonTextAudio_onAudioLoadedData () {
+        presenter.isLoaded = true;
+    };
+
+    presenter.destroy = function AddonTextAudio_destroy (event) {
+        if (event.target !== presenter.view) {
+            return;
+        }
+
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
+        if (presenter.$customPlayer) {
+            presenter.$customPlayer[0].ontouchend = null;
+            presenter.$customPlayer = null;
+        }
+        if (presenter.$playPauseBtn) {
+            presenter.$playPauseBtn.off();
+            presenter.$playPauseBtn = null;
+        }
+        if (presenter.$stopBtn) {
+            presenter.$stopBtn.off();
+            presenter.$stopBtn = null;
+        }
+        if (presenter.$progressWrapper) {
+            presenter.$progressWrapper[0].removeEventListener("MSPointerDown", presenter.progressTouchStartCallback , false);
+            presenter.$progressWrapper[0].removeEventListener("MSPointerUp", presenter.progressTouchEndCallback, false);
+            presenter.$progressWrapper[0].removeEventListener("MSPointerMove", presenter.progressTouchMoveCallback, false);
+            presenter.$progressWrapper[0].ontouchstart = null;
+            presenter.$progressWrapper[0].ontouchmove = null;
+            presenter.$progressWrapper.off();
+            presenter.$progressWrapper = null;
+        }
+        if (presenter.$progressBar) {
+            presenter.$progressBar = null;
+        }
+        if (presenter.$progressSlider) {
+            presenter.$progressSlider = null;
+        }
+        if (presenter.$volumeBtn) {
+            presenter.$volumeBtn.off();
+            presenter.$volumeBtn = null;
+        }
+        if (presenter.$volumeLayer) {
+            presenter.$volumeLayer.off();
+            presenter.$volumeLayer = null;
+        }
+        if (presenter.$volumeControl) {
+            presenter.$volumeControl = null;
+        }
+        if (presenter.$playerTime) {
+            presenter.$playerTime = null;
+        }
+
+        if (presenter.audio) {
+            presenter.audio.pause();
+            presenter.audio.removeEventListener('loadeddata', presenter.onLoadedMetadataCallback, false);
+            presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+            presenter.audio.removeEventListener('playing', presenter.onAudioPlaying, false);
+            presenter.audio.removeEventListener('play', presenter.onAudioPlay, false);
+            presenter.audio.removeEventListener('pause', presenter.onAudioPause, false);
+            presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateCallback, false);
+            presenter.audio.removeEventListener('volumechange', presenter.onVolumeChanged, false);
+            presenter.audio.removeEventListener('ended', presenter.onEnded, false);
+            presenter.audio.removeEventListener('click', presenter.onAudioClick, false);
+            presenter.audio.removeEventListener("loadeddata", presenter.onAudioLoadedData);
+            presenter.audio.removeEventListener("loadeddata", presenter.stopAudioLoadedData);
+            presenter.audio.removeEventListener("loadeddata", presenter.playAudioLoadedData);
+            presenter.audio.setAttribute('src', '');
+            presenter.audio.removeAttribute('src');
+            presenter.audio.load();
+        }
+
+        if (presenter.vocabulary) {
+            presenter.vocabulary.unbind('ended play pause canplaythrough');
+            presenter.vocabulary = null;
+        }
+
+        presenter.buzzAudio.forEach(function (singleBuzzAudio, index) {
+            singleBuzzAudio.unbind('ended play pause canplaythrough');
+            presenter.buzzAudio[index] = null;
+        });
+
+        presenter.slidesSpanElements.forEach(function (spanElement, index) {
+            $(spanElement).off();
+            presenter.slidesSpanElements[index] = null;
+        });
+
+        try {
+            clearInterval(presenter.audioClock);
+        } catch (e) {}
+
+        try {
+            clearInterval(presenter.audioVocClock);
+        } catch (e) {}
+
+        presenter.$audioWrapper = null;
+        presenter.originalFile = null;
+        presenter.vocabularyFile = null;
+        presenter.eventBus = null;
+        presenter.currentTimeAlreadySent = null;
+        presenter.buzzAudio = null;
+        presenter.audio = null;
+        presenter.current_slide_data = null;
+        presenter.playerController = null;
+        presenter.mouseData = null;
+        presenter.audioClock = null;
+        presenter.audioVocClock = null;
+        presenter.configuration = null;
+        presenter.slidesSpanElements = null;
+        presenter.$view.unbind();
+        presenter.view = null;
+        presenter.$view = null;
+    };
+
+    presenter.createPreview = function AddonTextAudio_createPreview (view, model) {
+        presenter.view = view;
+        presenter.$view = $(view);
         presenter.initialize(view, model, true);
     };
 
-    presenter.initialize = function(view, model, isPreview) {
+    presenter.initialize = function AddonTextAudio_initialize (view, model, isPreview) {
         buzz.defaults.preload = 'auto';
         buzz.defaults.autoplay = false;
         buzz.defaults.loop = false;
 
-        presenter.$view = $(view);
+        presenter.slidesSpanElements = [];
+
 
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -960,20 +1113,20 @@ function AddonTextAudio_create() {
 
         presenter.isVisibleByDefault = presenter.configuration.isVisible;
 
-        createView(view, upgradedModel, isPreview);
+        presenter.createView(view, upgradedModel, isPreview);
 
         if (!isPreview) {
-            loadFiles();
+            presenter.loadFiles();
 
             if (presenter.configuration.playSeparateFiles) {
-                createSeparateAudioFiles(presenter.configuration.separateFiles);
+                presenter.createSeparateAudioFiles(presenter.configuration.separateFiles);
             }
 
-            showLoadingArea(presenter.configuration.clickAction);
+            presenter.showLoadingArea(presenter.configuration.clickAction);
         }
     };
 
-    presenter.roundTimeEntry = function(time_entry) {
+    presenter.roundTimeEntry = function addonTextAudio_roundTimeEntry (time_entry) {
         var time = time_entry.replace(',', '.').split(':'),
             minutes = time[0],
             seconds = parseFloat(time[1]).toFixed(1).split('.');
@@ -985,7 +1138,7 @@ function AddonTextAudio_create() {
         return minutes + ':' + seconds[0] + '.' + seconds[1];
     };
 
-    presenter.toFrames = function(time_entry) {
+    presenter.toFrames = function addonTextAudio_toFrames (time_entry) {
         time_entry =  presenter.roundTimeEntry(time_entry);
 
         var entry = time_entry.split(':');
@@ -1009,7 +1162,7 @@ function AddonTextAudio_create() {
         return ((minutes * 60 + seconds) * presenter.fps) + decyseconds;
     };
 
-    presenter.timeEntry = function(slide_time) {
+    presenter.timeEntry = function AddonTextAudio_timeEntry (slide_time) {
         var entry = slide_time.split('-');
         if (entry.length != 2) {
             return {
@@ -1024,42 +1177,41 @@ function AddonTextAudio_create() {
         };
     };
 
-    presenter.parseSlideText = function(text) {
+    presenter.createNewSpan = function addonTextAudio_createNewSpan(n1, n2, text) {
+        var $span = $('<span></span>').
+            addClass('textelement' + n1).
+            attr('data-selectionid', n1).
+            attr('data-intervalid', n2).
+            html(text);
+        return $span.prop("outerHTML");
+    };
 
-        function createNewSpan(n1, n2, text) {
-            var $span = $('<span></span>');
-            $span.addClass('textelement' + n1);
-            $span.attr('data-selectionid', n1);
-            $span.attr('data-intervalid', n2);
-            $span.html(text);
-            return $span.prop("outerHTML");
-        }
-
+    presenter.parseSlideText = function addonTextAudio_parseSlideText (text) {
         var elemNumber = 0;
         var resultHTML = "";
 
         HTMLParser(text, {
-            start: function(tag, attrs, unary) {
+            start: function (tag, attrs, unary) {
                 resultHTML += "<" + tag;
                 for (var i=0; i<attrs.length; i++) {
                     resultHTML += " " + attrs[i].name + '="' + attrs[i].escaped + '"';
                 }
                 resultHTML += (unary ? "/" : "") + ">";
             },
-            end: function(tag) {
+            end: function (tag) {
                 resultHTML += "</" + tag + ">";
             },
-            chars: function(text) {
+            chars: function (text) {
                 var localParts = text.split('||');
 
                 for (var i=0; i<localParts.length; i++) {
                     if (localParts[i] !== '') {
-                        resultHTML += createNewSpan(elemNumber, globalIntervalNumber, localParts[i]);
+                        resultHTML += presenter.createNewSpan(elemNumber, presenter.globalIntervalNumber, localParts[i]);
                     }
 
                     if (i !== localParts.length-1) {
                         elemNumber++;
-                        globalIntervalNumber++;
+                        presenter.globalIntervalNumber++;
                     }
                 }
             }
@@ -1068,7 +1220,7 @@ function AddonTextAudio_create() {
         return resultHTML;
     };
 
-    presenter.validateSlides = function(slides) {
+    presenter.validateSlides = function AddonTextAudio_validateSlides (slides) {
         var validationResult = {
             isValid: false,
             value: [{
@@ -1155,29 +1307,29 @@ function AddonTextAudio_create() {
         return validationResult;
     };
 
-    presenter.validateSeparateFiles = function(audioFiles) {
-        function hasEmptyField(audioFiles) {
-            return audioFiles.filter(function(v) {
+    presenter.validateSeparateFiles = function addonTextAudio_validateSeparateFiles (audioFiles) {
+        function addonTextAudio_hasEmptyField (audioFiles) {
+            return audioFiles.filter(function AddonTextAudio_audioFilesFilter (v) {
                 return ModelValidationUtils.isStringEmpty(v.mp3) || ModelValidationUtils.isStringEmpty(v.ogg);
             }).length > 0;
         }
 
         if (ModelValidationUtils.isArrayEmpty(audioFiles)) {
-            return getErrorObject('SAF01');
+            return presenter.getErrorObject('SAF01');
         }
 
         if (presenter.totalNumberOfParts !== audioFiles.length) {
-            return getErrorObject('SAF02');
+            return presenter.getErrorObject('SAF02');
         }
 
-        if (hasEmptyField(audioFiles)) {
-            return getErrorObject('SAF03');
+        if (addonTextAudio_hasEmptyField(audioFiles)) {
+            return presenter.getErrorObject('SAF03');
         }
 
-        return getCorrectObject(audioFiles);
+        return presenter.getCorrectObject(audioFiles);
     };
 
-    presenter.validateVocabularyIntervals = function(intervals) {
+    presenter.validateVocabularyIntervals = function addonTextAudio_validateVocabularyIntervals (intervals) {
         var returnObj = {
             intervals: undefined,
             errorCode: false
@@ -1188,58 +1340,57 @@ function AddonTextAudio_create() {
             return returnObj;
         }
 
-        var vocIntervals = intervals.split('\n'),
-            intervals=[], time_range;
+        var vocIntervals = intervals.split('\n');
+            intervals = [];
         if (vocIntervals.length != presenter.totalNumberOfParts) {
             returnObj.errorCode = 'VI02';
             return returnObj;
         }
 
         for (var i=0; i<vocIntervals.length; i++) {
-            time_range = presenter.timeEntry(vocIntervals[i]);
-            intervals.push(time_range);
+            intervals.push(presenter.timeEntry(vocIntervals[i]));
         }
 
         returnObj.intervals = intervals;
         return returnObj;
     };
 
-    presenter.validateModel = function (model) {
+    presenter.validateModel = function addonTextAudio_validateModel (model) {
         if (model.clickAction === '') {
             model.clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment;
         }
         var validatedAudioFiles = null,
-            transposedBehaviors = transposeDict(presenter.ALLOWED_CLICK_BEHAVIOUR),
+            transposedBehaviors = presenter.transposeDict(presenter.ALLOWED_CLICK_BEHAVIOUR),
             clickAction = transposedBehaviors[model.clickAction];
-        originalFile.mp3 = model.mp3;
-        originalFile.ogg = model.ogg;
+        presenter.originalFile .mp3 = model.mp3;
+        presenter.originalFile .ogg = model.ogg;
 
-        if (!originalFile.ogg && !originalFile.mp3) {
-            return getErrorObject('M01');
+        if (!presenter.originalFile .ogg && !presenter.originalFile .mp3) {
+            return presenter.getErrorObject('M01');
         }
 
         presenter.totalNumberOfParts = 0;
         var validatedSlides = presenter.validateSlides(model.Slides);
         var validatedVocabularyIntervals = presenter.validateVocabularyIntervals(model.vocabulary_intervals);
         if (validatedSlides.errorCode) {
-            return getErrorObject(validatedSlides.errorCode);
+            return presenter.getErrorObject(validatedSlides.errorCode);
         }
 
         if (clickAction == 'play_vocabulary_file' || clickAction == 'play_interval_or_vocabulary') {
             validatedAudioFiles = presenter.validateSeparateFiles(model.separateFiles);
-            if (!validatedAudioFiles.isValid) return getErrorObject(validatedAudioFiles.errorCode);
+            if (!validatedAudioFiles.isValid) return presenter.getErrorObject(validatedAudioFiles.errorCode);
         } else {
-            validatedAudioFiles = getCorrectObject(false);
+            validatedAudioFiles = presenter.getCorrectObject(false);
         }
 
         if (clickAction == 'play_vocabulary_interval') {
-            vocabularyFile.mp3 = model.vocabulary_mp3;
-            vocabularyFile.ogg = model.vocabulary_ogg;
-            if (!vocabularyFile.mp3 && !vocabularyFile.ogg) {
-                return getErrorObject('VI01');
+            presenter.vocabularyFile.mp3 = model.vocabulary_mp3;
+            presenter.vocabularyFile.ogg = model.vocabulary_ogg;
+            if (!presenter.vocabularyFile.mp3 && !presenter.vocabularyFile.ogg) {
+                return presenter.getErrorObject('VI01');
             }
             if (validatedVocabularyIntervals.errorCode) {
-                return getErrorObject(validatedVocabularyIntervals.errorCode);
+                return presenter.getErrorObject(validatedVocabularyIntervals.errorCode);
             }
         }
 
@@ -1268,7 +1419,7 @@ function AddonTextAudio_create() {
         };
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function addonTextAudio_executeCommand (name, params) {
         var commands = {
             'play': presenter.play,
             'stop': presenter.stop,
@@ -1280,98 +1431,102 @@ function AddonTextAudio_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function AddonTextAudio_setVisibility (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    function pauseZero() {
-        stopTimeMeasurement();
+    presenter.pauseZero = function addonTextAudio_pauseZero () {
+        presenter.stopTimeMeasurement();
 
         if (!presenter.audio.paused && presenter.isLoaded) {
             presenter.stopClicked = true;
             presenter.audio.pause();
             presenter.audio.currentTime = 0;
         }
-    }
+    };
 
-    presenter.play = function() {
-        startTimeMeasurement();
+    presenter.play = function addonTextAudio_play () {
+        presenter.startTimeMeasurement();
         if (presenter.audio.paused) {
             presenter.stopClicked = false;
-            pauseZero();
+            presenter.pauseZero();
             presenter.audio.play();
             if (presenter.configuration.controls === "Custom") {
-                var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
-                playpause_btn.removeClass('textaudio-play-btn');
-                playpause_btn.addClass('textaudio-pause-btn');
+                presenter.$playPauseBtn.
+                    removeClass('textaudio-play-btn').
+                    addClass('textaudio-pause-btn');
             }
         }
     };
 
-    presenter.stop = function() {
+    presenter.stop = function addonTextAudio_stop () {
         if (presenter.configuration.controls === "Custom" && presenter.isLoaded) {
-            var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
             presenter.stopClicked = true;
-            playpause_btn.addClass('textaudio-play-btn');
-            playpause_btn.removeClass('textaudio-pause-btn');
+            presenter.$playPauseBtn.
+                addClass('textaudio-play-btn').
+                removeClass('textaudio-pause-btn');
             if (presenter.audio.paused) {
                 presenter.stopClicked = true;
                 presenter.audio.currentTime = 0;
             }
         }
-        removeMarkFromItems();
-        pauseZero();
+        presenter.removeMarkFromItems();
+        presenter.pauseZero();
         if (!presenter.isLoaded) {
-            this.audio.addEventListener("loadeddata", function() {
-                presenter.isLoaded = true;
-                presenter.stop();
-            });
+            presenter.audio.addEventListener("loadeddata", presenter.stopAudioLoadedData);
         }
     };
 
-    presenter.playPartStop = function() {
-        pauseZero();
+    presenter.stopAudioLoadedData = function AddonTextAudio_StopAudioLoadedData () {
+        presenter.isLoaded = true;
+        presenter.stop();
+    };
+
+    presenter.playPartStop = function addonTextAudio_playPartStop () {
+        presenter.pauseZero();
         if (!presenter.isLoaded) {
-            this.audio.addEventListener("loadeddata", function() {
-                presenter.isLoaded = true;
-                presenter.stop();
-            });
+            presenter.audio.addEventListener("loadeddata", presenter.playAudioLoadedData);
         }
     };
 
-    presenter.pause = function() {
-        stopTimeMeasurement();
+    presenter.playAudioLoadedData = function AddonTextAudio_playAudioLoadedData () {
+        presenter.isLoaded = true;
+        presenter.stop();
+    };
 
-        if (!this.audio.paused) {
-            this.audio.pause();
+    presenter.pause = function addonTextAudio_pause () {
+        presenter.stopTimeMeasurement();
+
+        if (!presenter.audio.paused) {
+            presenter.audio.pause();
             if (presenter.configuration.controls === "Custom") {
-                var playpause_btn = presenter.$view.find(".textaudio-play-pause-btn");
-                playpause_btn.removeClass('textaudio-pause-btn');
-                playpause_btn.addClass('textaudio-play-btn');
+                presenter.$playPauseBtn.
+                    removeClass('textaudio-pause-btn').
+                    addClass('textaudio-play-btn');
             }
         }
     };
 
-    presenter.show = function() {
-        this.setVisibility(true);
-        this.configuration.isVisible = true;
+    presenter.show = function addonTextAudio_show () {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
     };
 
-    presenter.hideAddon = function() {
-        this.setVisibility(false);
-        this.configuration.isVisible = false;
+    presenter.hideAddon = function addonTextAudio_hideAddon () {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
     };
 
-    presenter.hide = function () {
-        this.stop();
-        this.hideAddon();
+    presenter.hide = function addonTextAudio_hide () {
+        presenter.stop();
+        presenter.hideAddon();
     };
 
-    presenter.reset = function() {
+    presenter.reset = function addonTextAudio_reset () {
         presenter.stop();
 
-        hasBeenStarted = false;
-        isPlaying = false;
+        presenter.hasBeenStarted = false;
+        presenter.isPlaying = false;
         presenter.playedByClick = false;
 
         presenter.configuration.isVisible = presenter.isVisibleByDefault;
@@ -1382,11 +1537,11 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.clearSelection = function() {
+    presenter.clearSelection = function addonTextAudio_clearSelection () {
         presenter.$view.find('.textaudio-text span.active').removeClass('active');
     };
 
-    presenter.getState = function() {
+    presenter.getState = function addonTextAudio_getState () {
         presenter.stop();
         if (presenter.vocabulary !== undefined) {
             presenter.vocabulary.stop();
@@ -1397,22 +1552,22 @@ function AddonTextAudio_create() {
         });
     };
 
-    presenter.setState = function(stateString) {
+    presenter.setState = function addonTextAudio_setState (stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return false;
         if (!presenter.configuration.isValid) return false;
 
         presenter.stop();
 
         if (JSON.parse(stateString).isVisible) {
-            this.show();
+            presenter.show();
         } else {
-            this.hideAddon();
+            presenter.hideAddon();
         }
 
         return false;
     };
 
-    presenter.executeOnEndEvent = function () {
+    presenter.executeOnEndEvent = function AddonTextAudio_executeOnEndEvent () {
         if (presenter.configuration.onEndEventCode) {
             presenter.playerController.getCommands().executeEventCode(presenter.configuration.onEndEventCode);
         }

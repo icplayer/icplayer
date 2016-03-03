@@ -55,17 +55,17 @@
 }
 
 .textaudio-play-btn {
-    background-image: url('resources/audio-play-btn.svg');
+    background-image: url('resources/audio-play-btn.png');
 }
 
 .textaudio-pause-btn {
-    background-image: url('resources/audio-pause-btn.svg');
+    background-image: url('resources/audio-pause-btn.png');
 }
 
 .textaudio-stop-btn {
     width: 40px;
     height: 40px;
-    background: url('resources/audio-stop-btn.svg') no-repeat center center;
+    background: url('resources/audio-stop-btn.png') no-repeat center center;
     float:left;
     cursor: pointer;
 }
@@ -73,25 +73,25 @@
 .textaudio-volume-btn {
     width: 40px;
     height: 40px;
-    background: url('resources/audio-volume-btn.svg') no-repeat center center;
+    background: url('resources/audio-volume-btn.png') no-repeat center center;
     float:left;
     cursor: pointer;
 }
 
 .textaudio-volume0 {
-    background-image: url('resources/volume-0.svg');
+    background-image: url('resources/volume-0.png');
 }
 
 .textaudio-volume1 {
-    background-image: url('resources/volume-1.svg');
+    background-image: url('resources/volume-1.png');
 }
 
 .textaudio-volume2 {
-    background-image: url('resources/volume-2.svg');
+    background-image: url('resources/volume-2.png');
 }
 
 .textaudio-volume3 {
-    background-image: url('resources/volume-3.svg');
+    background-image: url('resources/volume-3.png');
 }
 
 .textaudio-player-time {
@@ -122,7 +122,7 @@
 .textaudio-slider-btn {
     width: 20px;
     height: 20px;
-    background: url('resources/audio-slider-btn.svg') no-repeat;
+    background: url('resources/audio-slider-btn.png') no-repeat;
     float:left;
     margin-left: -10px;
     margin-top: -5px;
@@ -158,6 +158,6 @@
     position: absolute;
     width: 20px;
     height: 40px;
-    background: url('resources/audio-slider-btn.svg') no-repeat center;
+    background: url('resources/audio-slider-btn.png') no-repeat center;
     margin-left: -10px;
 }

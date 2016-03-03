@@ -483,7 +483,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (isShowAnswers()) {
 			return currentMaxScore;
 		}
-
+		
 		int maxScore = 0;
 
 		for (GapInfo gap : module.getGapInfos()) {
