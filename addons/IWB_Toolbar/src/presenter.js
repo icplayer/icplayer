@@ -2156,19 +2156,16 @@ function AddonIWB_Toolbar_create() {
     }
 
 
-    function applyNoteEditHandler(note, noteBody) {
-        note.on('dblclick', function() {
-            noteEditHandler(note, noteBody);
-            note.off('dblclick');
+    function applyNoteEditHandler($note, noteBody) {
+        $note.on('dblclick', function() {
+            noteEditHandler($note, noteBody);
+            $note.off('dblclick');
         });
 
-//        applyDoubleTapHandler(note, function() {
-//            noteEditHandler(note, noteBody);
-//        });
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            note.on('doubletap', function(e) {
-                noteEditHandler(note, noteBody);
-                note.off('doubletap');
+            window.EventsUtils.DoubleTap.on($note, function () {
+                noteEditHandler($note, noteBody);
+                window.EventsUtils.DoubleTap.off($note);
             });
         }
     }

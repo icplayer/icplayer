@@ -18,7 +18,6 @@
     <script src="libs/jquery-ui.js"/>
     <script src="libs/jquery-csv.js"/>
     <script src="libs/jquery.dotimeout.js"/>
-    <script src="libs/jquery.finger.min.js"/>
     <script src="libs/jquery.imgpreload.js"/>
     <script src="libs/jquery.mousewheel.js"/>
     <script src="libs/js-expression-eval.js"/>

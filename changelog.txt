@@ -1,3 +1,4 @@
+2016-03-03 Fixed memory leaks in Audio module
 2016-03-03 Fixed memory leaks in TextAudio module
 2016-03-03 Fixed issue with id selector in Text module
 2016-03-01 Fixed memory leaks in Text with draggable gaps, Source List and Show Answers
