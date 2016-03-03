@@ -25,15 +25,15 @@ import com.lorepo.icplayer.client.utils.MathJax;
 public class SourceListView extends FlowPanel implements IDisplay{
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
-	private SourceListModule module;
-	private HashMap<String, Label>	labels = new HashMap<String, Label>();
+	private final SourceListModule module;
+	private final HashMap<String, Label>	labels = new HashMap<String, Label>();
 	private IViewListener listener;
 	private boolean isDragged = false;
 	private boolean isTouchSupported = false;
 	private boolean isPreview = false;
 	private SourceListPresenter presenter = null;
 	private Label labelToRemove = null;
-	
+
 	public SourceListView(SourceListModule module, boolean isPreview){
 
 		this.module = module;
@@ -50,7 +50,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		else{
 			setStyleName(module.getStyleClass());
 		}
-		
+
 		StyleUtils.applyInlineStyle(this, module);
 		if(!isPreview){
 			setVisible(module.isVisible());
@@ -64,17 +64,19 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			listener.onItemCliked(id);
 		}
 	}
-	
+
 	private void itemDragged(String id) {
 		if(listener != null){
 			listener.onItemDragged(id);
 		}
 	}
 
+	@Override
 	public void setDragMode() {
 		isDragged = true;
 	}
 
+	@Override
 	public void unsetDragMode() {
 		isDragged = false;
 		if (labelToRemove != null) {
@@ -82,7 +84,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			labelToRemove = null;
 		}
 	}
-	
+
 	@Override
 	public void selectItem(String id) {
 
@@ -114,7 +116,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		if (callMathJax) {
 			refreshMath(label.getElement());
 		}
-		
+
 		label.addTouchEndHandler(new TouchEndHandler() {
 
 			@Override
@@ -122,9 +124,9 @@ public class SourceListView extends FlowPanel implements IDisplay{
 				isTouchSupported = true;
 				fireClickEvent(id);
 			}
-			
+
 		});
-		
+
 		label.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -132,11 +134,11 @@ public class SourceListView extends FlowPanel implements IDisplay{
 				event.stopPropagation();
 				event.preventDefault();
 			}
-		
+
 		});
-		
+
 		label.addMouseUpHandler(new MouseUpHandler() {
-			
+
 			@Override
 			public void onMouseUp(MouseUpEvent event) {
 				if (!isTouchSupported) {
@@ -145,26 +147,29 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			}
 		});
 		label.addDragStartHandler(new DragStartHandler() {
-			
+
 			@Override
 			public void onDragStart(DragStartEvent event) {
 				itemDragged(id);
 			}
 		});
-		
+
         if(!isPreview){
     		JavaScriptUtils.makeDraggable(label.getElement(), presenter.getAsJavaScript());
         }
 	}
-	
+
+	@Override
 	public void setPresenter(SourceListPresenter p) {
 		presenter = p;
 	}
-	
+
+	@Override
 	public Element getItem(String id) {
 		return labels.get(id).getElement();
 	}
-	
+
+	@Override
 	public Set<String> getCurrentLabels() {
 		return labels.keySet();
 	}
@@ -196,7 +201,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block; white-space: nowrap; position: relative");
 		}
 	}
-	
+
 	@Override
 	public void showItem(String id) {
 		Label label = labels.get(id);
@@ -204,7 +209,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			label.setVisible(true);
 		}
 	}
-	
+
 	@Override
 	public void hideItem(String id) {
 		Label label = labels.get(id);
@@ -213,24 +218,21 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		}
 	}
 
-
 	@Override
 	public void removeAll() {
 		labels.clear();
 		clear();
 	}
 
-
 	public void refreshMath(Element element) {
 		MathJax.refreshMathJax(element);
 	}
-	
+
 	@Override
 	public void show() {
 		setVisible(true);
 		refreshMath(getElement());
 	}
-
 
 	@Override
 	public void hide() {
@@ -238,15 +240,14 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		refreshMath(getElement());
 	}
 
-
 	@Override
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
-		var $addon = $wnd.$(".ic_page #" + id),
+		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
 		function onDOMNodeRemoved (event) {
 			var $draggableElements;
-			
+
 			if (event.target.getAttribute("class").split(" ").indexOf("ui-draggable") !== -1) {
 				$wnd.$(event.target).draggable("destroy");
 				return;
@@ -254,13 +255,13 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			else if (event.target !== addon) {
 				return;
 			}
-	
+
 			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
 
 			$draggableElements = $addon.find(".ui-draggable");
-	
+
 			$draggableElements.draggable("destroy");
-	
+
 			$draggableElements = null;
 			addon = null;
 			$addon = null;
