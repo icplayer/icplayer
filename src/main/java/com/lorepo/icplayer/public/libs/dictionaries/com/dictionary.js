@@ -681,6 +681,7 @@
 	"Navigation_Bar_property_style": "Style",
 	"Navigation_Bar_property_add_class_nb_page_ok": "Real-time navigationbar-page-ok",
     "Navigation_Bar_property_first_page_as_cover": "First page as cover",
+    "Navigation_Bar_property_last_page_separated": "Last page separated",
 	"Page_Counter_info": "Allows to add a page counter to a presentation. It can present a current page index and a presentation page count in a normal or reversed order.",
 	"Page_Counter_name": "Page Counter",
  	"Page_Counter_property_numericals": "Numericals",

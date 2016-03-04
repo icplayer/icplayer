@@ -676,6 +676,7 @@
 	"Navigation_Bar_property_style": "Styl",
 	"Navigation_Bar_property_add_class_nb_page_ok": "\"Navigationbar-page-ok\" w czasie rzeczywistym",
     "Navigation_Bar_property_first_page_as_cover": "First page as cover",
+    "Navigation_Bar_property_last_page_separated": "Last page separated",
 	"Page_Counter_info" : "Umożliwia dodanie licznika stron do prezentacji. Moduł przedstawia indeks bieżącej strony oraz liczbę stron w prezentacji w standardowej lub odwróconej kolejności.",
 	"Page_Counter_name" : "Licznik stron",
  	"Page_Counter_property_numericals": "Numerowanie stron",

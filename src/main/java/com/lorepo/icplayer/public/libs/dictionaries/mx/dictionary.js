@@ -677,6 +677,7 @@
 	"Navigation_Bar_property_style": "Estilo",
 	"Navigation_Bar_property_add_class_nb_page_ok": "Tiempo real de la barra de navegación en la página correcta",
     "Navigation_Bar_property_first_page_as_cover": "First page as cover",
+    "Navigation_Bar_property_last_page_separated": "Last page separated",
 	"Page_Counter_info" : "Permite añadir un contador de páginas a la presentación. Presenta un índice de la página actual y un número de páginas de presentación en el orden normal o invertido.",
 	"Page_Counter_name": "Contador de páginas",
 	"Page_Counter_property_numericals": "Numérico",
