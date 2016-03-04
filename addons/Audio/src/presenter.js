@@ -327,6 +327,10 @@ function AddonAudio_create(){
             text('00:00 / --:--');
         presenter.$customPlayer.append(presenter.$playerTime);
 
+        presenter.$customPlayer.on('click mousedown mouseup', function(event){
+            event.stopPropagation();
+            event.preventDefault();
+        });
         presenter.$audioWrapper.append(presenter.$customPlayer);
     }
 
@@ -484,6 +488,7 @@ function AddonAudio_create(){
             presenter.$progressWrapper = null;
         }
         if (presenter.$customPlayer) {
+            presenter.$customPlayer.off();
             presenter.$customPlayer[0].ontouchend=null;
             presenter.$customPlayer = null;
         }
