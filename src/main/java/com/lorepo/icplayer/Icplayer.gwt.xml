@@ -28,7 +28,10 @@
     <script src="libs/jquery.svgdom.min.js"/>
     <script src="libs/expression-evaluator.js"/>
     <script src="libs/commons.js"/>
-    <script src="libs/dictionary.js"/>
+    <script src="libs/dictionaries/com/dictionary.js"/>
+    <script src="libs/dictionaries/fr/dictionary.js"/>
+    <script src="libs/dictionaries/mx/dictionary.js"/>
+    <script src="libs/dictionaries/pl/dictionary.js"/>
     <script src="libs/aop.min.js"/>
     <script src="libs/scorm.js"/>
     <script src="libs/scorm_1_2.js"/>

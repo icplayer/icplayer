@@ -1,4 +1,4 @@
-﻿var ice_dictionary = {
+﻿var ice_dictionary_pl = {
     "main_tab": "Main",
 	"commons_tab": "Commons",
 	"module_belongs_to_group" : "Co najmniej jeden moduł należy do grupy",
