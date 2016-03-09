@@ -130,6 +130,8 @@ public class PageController {
 
 		for(IModuleModel module : currentPage.getModules()){
 
+			String newInlineStyle = deletePositionImportantStyles(module.getInlineStyle());
+			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
@@ -146,6 +148,23 @@ public class PageController {
 		}
 	}
 	
+	public String deletePositionImportantStyles (String inlineStyle) {
+		String[] attributes = inlineStyle.split(";");
+		StringBuilder strBuilder = new StringBuilder();
+		for (String attribute: attributes) {
+			if((attribute.contains("left") || attribute.contains("top") 
+					|| attribute.contains("right") || attribute.contains("bottom")) && (!attribute.contains("-left") && !attribute.contains("-top") 
+					&& !attribute.contains("-right") && !attribute.contains("-bottom") 
+					&& !attribute.contains("text-align") && !attribute.contains("vertical-align") && !attribute.contains("background") && !attribute.contains("gradient"))){
+				continue;
+			}
+			strBuilder.append(attribute);
+			strBuilder.append(";");
+		}
+
+		String newAttributes = strBuilder.toString();
+		return newAttributes;
+	}
 
 	public Group findGroup(IModuleModel module) {
 		List<Group> groups = currentPage.getGroupedModules();
