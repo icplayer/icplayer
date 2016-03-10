@@ -109,7 +109,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
+		try{
 		connectHandlers();
+		}catch(Exception e){
+			
+		}
 	}
 
 	private void connectHandlers() {

@@ -1,3 +1,4 @@
+2016-03-10 Secured adding handlers for creating presenters
 2016-03-09 Fixed issue with inline styles
 2016-03-07 Added loading all dictionaries.
 2016-03-04 Fixed zoom in IWB Toolbar module
