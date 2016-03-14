@@ -12,21 +12,23 @@ function AddonAudio_create(){
     presenter.playerController = null;
     presenter.addonID = null;
 
-    presenter.onEventReceived = function(eventName, eventData) {
+    presenter.mouseData = {};
+
+    presenter.onEventReceived = function AddonAudio_onEventReceived (eventName, eventData) {
         if(eventData.value == 'dropdownClicked') {
             presenter.audio.load();
         }
     };
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function AddonAudio_setPlayerController (controller) {
         presenter.playerController = controller;
     };
 
-    presenter.upgradeModel = function(model) {
+    presenter.upgradeModel = function AddonAudio_upgradeModel (model) {
         return presenter.upgradeEnableLoop(model);
     };
 
-    presenter.upgradeEnableLoop = function (model) {
+    presenter.upgradeEnableLoop = function AddonAudio_upgradeEnableLoop (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
@@ -37,7 +39,7 @@ function AddonAudio_create(){
         return upgradedModel;
     };
 
-    presenter.createTimeUpdateEventData = function (data) {
+    presenter.createTimeUpdateEventData = function AddonAudio_createTimeUpdateEventData (data) {
         return {
             source : presenter.addonID,
             item : '',
@@ -46,7 +48,7 @@ function AddonAudio_create(){
         };
     };
 
-    presenter.createOnEndEventData = function () {
+    presenter.createOnEndEventData = function AddonAudio_createOnEndEventData () {
         return {
             source : presenter.addonID,
             item : 'end',
@@ -55,11 +57,11 @@ function AddonAudio_create(){
         };
     };
 
-    presenter.getAudioCurrentTime = function () {
+    presenter.getAudioCurrentTime = function AddonAudio_getAudioCurrentTime () {
         return this.audio.currentTime;
     };
 
-    function formatTime(seconds) {
+    function addonAudio_formatTime (seconds) {
         var minutes = Math.floor(seconds / 60);
         minutes = (minutes >= 10) ? minutes : "0" + minutes;
         seconds = Math.floor(seconds % 60);
@@ -67,77 +69,67 @@ function AddonAudio_create(){
         return minutes + ":" + seconds;
     }
 
-    function onLoadedMetadataCallback() {
+    function AddonAudio_onLoadedMetadataCallback () {
         var duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
         if (presenter.configuration.displayTime) {
-            displayTimer(0, duration);
+            AddonAudio_displayTimer(0, duration);
         }
         if (presenter.configuration.isHtmlPlayer){
-            var player_time = presenter.$view.find('.player-time');
-            player_time.html('0:00 / ' + formatTime(duration))
+            presenter.$playerTime.html('0:00 / ' + addonAudio_formatTime(duration))
         }
     }
 
-    presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
+    presenter.sendEventAndSetCurrentTimeAlreadySent = function AddonAudio_sendEventAndSetCurrentTimeAlreadySent (eventData, currentTime) {
         eventBus.sendEvent('ValueChanged', eventData);
         currentTimeAlreadySent = currentTime;
     };
 
-    presenter.sendOnEndEvent = function () {
+    presenter.sendOnEndEvent = function AddonAudio_sendOnEndEvent () {
         var eventData = presenter.createOnEndEventData();
         eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.onTimeUpdateSendEventCallback = function() {
-        var currentTime = formatTime(presenter.getAudioCurrentTime());
+    presenter.onTimeUpdateSendEventCallback = function AddonAudio_onTimeUpdateSendEventCallback () {
+        var currentTime = addonAudio_formatTime(presenter.getAudioCurrentTime());
         if (currentTime !== currentTimeAlreadySent) { // to prevent duplicated value
             var eventData = presenter.createTimeUpdateEventData({'currentTime' : currentTime});
             presenter.sendEventAndSetCurrentTimeAlreadySent(eventData, currentTime);
         }
     };
 
-    presenter.mouseData = {};
-
-    function onTimeUpdateCallback() {
-        var duration = parseInt(presenter.audio.duration, 10);
+    function AddonAudio_onTimeUpdateCallback() {
+        var bar_width, duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
         var currentTime = presenter.audio.currentTime;
         if (presenter.configuration.displayTime) {
-            displayTimer(currentTime, duration);
+            AddonAudio_displayTimer(currentTime, duration);
         }
         if (presenter.configuration.isHtmlPlayer){
-            var player_time = presenter.$view.find('.player-time');
-            player_time.html(formatTime(currentTime) + ' / ' + formatTime(duration));
-            var progress_bar = presenter.$view.find('.audio-progress-bar'),
-                slider = progress_bar.find('.audio-slider-btn'),
-                bar = progress_bar.find('.audio-bar'),
-                bar_width = progress_bar.width() * currentTime / duration;
-            bar.width(Math.round(bar_width));
-            slider.css('left', Math.round(bar_width));
+            presenter.$playerTime.html(addonAudio_formatTime(currentTime) + ' / ' + addonAudio_formatTime(duration));
+            bar_width = presenter.$progressWrapper.width() * currentTime / duration;
+            presenter.$progressBar.width(Math.round(bar_width));
+            presenter.$progressSlider.css('left', Math.round(bar_width));
         }
     }
 
-    function change_volume_class(volume_btn, volume_class) {
-        if (volume_btn.hasClass(volume_class)) {
+    function AddonAudio_change_volume_class(volume_class) {
+        if (presenter.$volumeBtn.hasClass(volume_class)) {
             return;
         }
-        for (i=0; i<=3; i++) {
-            if (volume_btn.hasClass('audio-volume'+i)) {
-                volume_btn.removeClass('audio-volume'+i);
+        for (var i=0; i<=3; i++) {
+            if (presenter.$volumeBtn.hasClass('audio-volume'+i)) {
+                presenter.$volumeBtn.removeClass('audio-volume'+i);
             }
         }
-        volume_btn.addClass(volume_class);
+        presenter.$volumeBtn.addClass(volume_class);
     }
 
-    function onVolumeChanged() {
+    function AddonAudio_onVolumeChanged() {
         if (presenter.configuration.isHtmlPlayer){
-            var layer = presenter.$view.find('.audio-volume-layer'),
-                control = layer.find('.audio-volume-control'),
-                volume_btn = presenter.$view.find('.audio-volume-btn'),
-                volume = presenter.audio.volume,
+            var volume = presenter.audio.volume,
                 volume_class = '';
-            control.css('left', volume * layer.width());
+            presenter.$volumeControl.css('left', volume * presenter.$volumeLayer.width());
             if (volume < 0.1) {
                 volume_class = 'audio-volume0';
                 if (volume > 0) {
@@ -150,13 +142,12 @@ function AddonAudio_create(){
             } else {
                 volume_class = 'audio-volume3';
             }
-            change_volume_class(volume_btn, volume_class);
+            AddonAudio_change_volume_class(volume_class);
         }
     }
 
-    function playPauseCallback() {
-        var playpause_btn = presenter.$view.find(".play-pause-btn");
-        if (playpause_btn.hasClass('audio-pause-btn')) {
+    function AddonAudio_playPauseCallback () {
+        if (presenter.$playPauseBtn.hasClass('audio-pause-btn')) {
             presenter.pause();
         }
         else {
@@ -164,12 +155,12 @@ function AddonAudio_create(){
         }
     }
 
-    function displayTimer(current, duration) {
-        presenter.$view.find('#currentTime').html(formatTime(current) + ' / ');
-        presenter.$view.find('#durationTime').html(formatTime(duration));
+    function AddonAudio_displayTimer(current, duration) {
+        presenter.$view.find('#currentTime').html(addonAudio_formatTime(current) + ' / ');
+        presenter.$view.find('#durationTime').html(addonAudio_formatTime(duration));
     }
 
-    function progressMouseDownCallback(event) {
+    function AddonAudio_progressMouseDownCallback(event) {
         if ($(event.target).hasClass('audio-slider-btn')) {
             presenter.mouseData.oldPosition = event.pageX;
             presenter.mouseData.isMouseDragged = true;
@@ -180,14 +171,11 @@ function AddonAudio_create(){
         }
     }
 
-    function progressMouseUpCallback() {
+    function AddonAudio_progressMouseUpCallback() {
         if (presenter.mouseData.isMouseDragged) {
-            var progress_bar = presenter.$view.find('.audio-progress-bar'),
-                bar = progress_bar.find('.audio-bar'),
-                duration = presenter.audio.duration;
+            var duration = presenter.audio.duration;
             duration = isNaN(duration) ? 0 : duration;
-            var currentTime = duration * bar.width() / progress_bar.width();
-            presenter.audio.currentTime = currentTime;
+            presenter.audio.currentTime = duration * presenter.$progressBar.width() / presenter.$progressWrapper.width();
             presenter.mouseData.isMouseDragged = false;
             presenter.mouseData.oldPosition = 0;
             if (presenter.mouseData.playedBeforeDragging) {
@@ -196,52 +184,51 @@ function AddonAudio_create(){
         }
     }
 
-    function progressMouseMoveCallback(event) {
+    function AddonAudio_progressMouseMoveCallback(event) {
         if (presenter.mouseData.isMouseDragged){
             var relativeDistance = event.pageX - presenter.mouseData.oldPosition,
                 bar_width = 0,
-                progress_bar = presenter.$view.find('.audio-progress-bar'),
-                bar = progress_bar.find('.audio-bar'),
-                slider = progress_bar.find('.audio-slider-btn'),
-                oldWidth = bar.width();
-            if (oldWidth + relativeDistance < progress_bar.width()) {
+                oldWidth = presenter.$progressBar.width();
+            if (oldWidth + relativeDistance < presenter.$progressWrapper.width()) {
                 bar_width = oldWidth + relativeDistance;
             }
             else {
-                bar_width = progress_bar.width();
+                bar_width = presenter.$progressWrapper.width();
             }
-            bar.width(bar_width);
-            slider.css('left',Math.round(bar_width));
+            presenter.$progressBar.width(bar_width);
+            presenter.$progressSlider.css('left',Math.round(bar_width));
             presenter.mouseData.oldPosition = event.pageX;
         }
     }
 
-    function isMoreThanOneFingerGesture(event) {
-        var touch, touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+    function addonAudio_isMoreThanOneFingerGesture(event) {
+        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         if (event.hasOwnProperty('touches'))
             touchPoints = event.touches;
         return touchPoints.length> 1;
     }
 
-    function progressTouchStartCallback(event) {
-        if (isMoreThanOneFingerGesture(event)) return;
-        var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
+    function AddonAudio_progressTouchStartCallback(event) {
+        var touch, touchPoints;
+        if (addonAudio_isMoreThanOneFingerGesture(event)) return;
+
+        touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
         if (event.hasOwnProperty('touches'))
             touch = event.touches[0];
         else
             touch = touchPoints[0];
-        progressMouseDownCallback(touch);
+        AddonAudio_progressMouseDownCallback(touch);
     }
 
 
-    function progressTouchEndCallback() {
-        progressMouseUpCallback();
+    function AddonAudio_progressTouchEndCallback() {
+        AddonAudio_progressMouseUpCallback();
     }
 
 
-    function progressTouchMoveCallback(event) {
-        if (isMoreThanOneFingerGesture(event)) return;
+    function AddonAudio_progressTouchMoveCallback(event) {
+        if (addonAudio_isMoreThanOneFingerGesture(event)) return;
 
         var touch;
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
@@ -250,88 +237,106 @@ function AddonAudio_create(){
             touch = event.touches[0];
         else
             touch = touchPoints[0];
-        progressMouseMoveCallback(touch);
+        AddonAudio_progressMouseMoveCallback(touch);
     }
 
-    function attachProgressListeners($progress_wrapper, customplayer) {
+    function AddonAudio_attachProgressListeners() {
         presenter.isMobileDevice = MobileUtils.isMobileUserAgent(navigator.userAgent) || MobileUtils.isEventSupported('touchend');
         if (MobileUtils.isWindowsMobile(window.navigator)) {
-            $progress_wrapper[0].addEventListener("MSPointerDown", progressTouchStartCallback, false);
-            $progress_wrapper[0].addEventListener("MSPointerUp", progressTouchEndCallback, false);
-            $progress_wrapper[0].addEventListener("MSPointerMove", progressTouchMoveCallback, false);
+            presenter.$progressWrapper[0].addEventListener("MSPointerDown", AddonAudio_progressTouchStartCallback, false);
+            presenter.$progressWrapper[0].addEventListener("MSPointerUp", AddonAudio_progressTouchEndCallback, false);
+            presenter.$progressWrapper[0].addEventListener("MSPointerMove", AddonAudio_progressTouchMoveCallback, false);
         }
         else if (presenter.isMobileDevice) {
-            $progress_wrapper[0].ontouchstart=progressTouchStartCallback;
-            customplayer[0].ontouchend=progressTouchEndCallback;
-            $progress_wrapper[0].ontouchmove=progressTouchMoveCallback;
+            presenter.$progressWrapper[0].ontouchstart=AddonAudio_progressTouchStartCallback;
+            presenter.$customPlayer[0].ontouchend=AddonAudio_progressTouchEndCallback;
+            presenter.$progressWrapper[0].ontouchmove=AddonAudio_progressTouchMoveCallback;
         }
         else {
-            $progress_wrapper.on('mousedown', progressMouseDownCallback);
-            $progress_wrapper.on('mouseup', progressMouseUpCallback);
-            $progress_wrapper.on('mousemove', progressMouseMoveCallback);
+            presenter.$progressWrapper.on('mousedown', AddonAudio_progressMouseDownCallback);
+            presenter.$progressWrapper.on('mouseup', AddonAudio_progressMouseUpCallback);
+            presenter.$progressWrapper.on('mousemove', AddonAudio_progressMouseMoveCallback);
         }
     }
 
-    function toogleVolumeLayer(){
-        onVolumeChanged();
-        presenter.$view.find('.audio-volume-layer').toggle();
-        presenter.$view.find('.player-time').toggle();
+    function AddonAudio_toogleVolumeLayer(){
+        AddonAudio_onVolumeChanged();
+        presenter.$volumeLayer.toggle();
+        presenter.$playerTime.toggle();
     }
 
-    function createHtmlPlayer(view) {
-        var audioWrapper = presenter.$view.find(".wrapper-addon-audio");
-        var customplayer = $('<div>');
-        customplayer.addClass('audioplayer');
+    function AddonAudio_createHtmlPlayer() {
+        presenter.$customPlayer = $('<div>').
+            addClass('audioplayer');
 
-        var playpause_btn = $('<div>');
-        playpause_btn.addClass('play-pause-btn');
-        playpause_btn.addClass('audio-play-btn');
-        playpause_btn.on('click', playPauseCallback);
-        customplayer.append(playpause_btn);
+        presenter.$playPauseBtn = $('<div>').
+            addClass('play-pause-btn').
+            addClass('audio-play-btn').
+            on('click', AddonAudio_playPauseCallback);
 
-        var stop_btn = $('<div>');
-        stop_btn.addClass('audio-stop-btn');
-        stop_btn.on('click', presenter.stop);
-        customplayer.append(stop_btn);
+        presenter.$customPlayer.append(presenter.$playPauseBtn);
 
-        var progress_wrapper = $('<div>');
-        progress_wrapper.addClass('audio-progress-bar');
-        var progress_bar = $('<div>');
-        progress_bar.addClass('audio-bar');
-        var progress_slider = $('<div>');
-        progress_slider.addClass('audio-slider-btn');
-        attachProgressListeners(progress_wrapper, customplayer);
+        presenter.$stopBtn = $('<div>').
+            addClass('audio-stop-btn').
+            on('click', presenter.stop);
 
-        progress_wrapper.append(progress_bar);
-        progress_wrapper.append(progress_slider);
-        customplayer.append(progress_wrapper)
+        presenter.$customPlayer.append(presenter.$stopBtn);
+
+        presenter.$progressWrapper = $('<div>').
+            addClass('audio-progress-bar');
+
+        presenter.$progressBar = $('<div>').
+            addClass('audio-bar');
+
+        presenter.$progressSlider = $('<div>').
+            addClass('audio-slider-btn');
+
+        AddonAudio_attachProgressListeners();
+
+        presenter.$progressWrapper.
+            append(presenter.$progressBar).
+            append(presenter.$progressSlider);
+
+        presenter.$customPlayer.append(presenter.$progressWrapper);
 
         if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
-            var volume_btn = $('<div>');
-            volume_btn.addClass('audio-volume-btn');
-            volume_btn.on('click', toogleVolumeLayer);
-            customplayer.append(volume_btn);
+            presenter.$volumeBtn = $('<div>').
+                addClass('audio-volume-btn').
+                on('click', AddonAudio_toogleVolumeLayer);
 
-            var volume_layer = $('<div>');
-            volume_layer.addClass('audio-volume-layer');
-            volume_layer.append($('<div class="volume-control-background">'));
-            volume_layer.append($('<div class="audio-volume-control">'));
-            volume_layer.on('click', function (e) {
+            presenter.$customPlayer.append(presenter.$volumeBtn);
+
+            presenter.$volumeControlBackground = $('<div>').addClass('volume-control-background');
+            presenter.$volumeControl = $('<div>').addClass('audio-volume-control');
+
+            presenter.$volumeLayer = $('<div>').
+                addClass('audio-volume-layer').
+                append(presenter.$volumeControlBackground).
+                append(presenter.$volumeControl).
+                on('click', function (e) {
                 presenter.audio.volume = e.offsetX / $(this).width();
             });
-            volume_layer.hide();
-            customplayer.append(volume_layer);
+
+            presenter.$volumeLayer.hide();
+
+            presenter.$customPlayer.append(presenter.$volumeLayer);
         }
 
-        var player_time = $('<div>');
-        player_time.addClass('player-time');
-        player_time.text('00:00 / --:--');
-        customplayer.append(player_time);
+        presenter.$playerTime = $('<div>').
+            addClass('player-time').
+            text('00:00 / --:--');
+        presenter.$customPlayer.append(presenter.$playerTime);
 
-        audioWrapper.append(customplayer);
+        presenter.$customPlayer.on('click mousedown mouseup', function(event){
+            event.stopPropagation();
+            event.preventDefault();
+        });
+        presenter.$audioWrapper.append(presenter.$customPlayer);
     }
 
-    function createView(view, model, isPreview){
+    function AddonAudio_createView(view, model, isPreview){
+        presenter.$audioWrapper = presenter.$view.find(".wrapper-addon-audio");
+
         mp3File = model.mp3;
         oggFile = model.ogg;
 
@@ -344,7 +349,7 @@ function AddonAudio_create(){
         if (presenter.configuration.defaultControls){
             $(audio).attr("preload", "auto");
             if (presenter.configuration.isHtmlPlayer){
-                createHtmlPlayer();
+                AddonAudio_createHtmlPlayer();
             }
             else {
                 $(audio).attr("controls", "controls");
@@ -357,10 +362,9 @@ function AddonAudio_create(){
         $(currentTime).attr("id", "currentTime");
         $(durationTime).attr("id", "durationTime");
 
-        var audioWrapper = presenter.$view.find(".wrapper-addon-audio");
-        audioWrapper.append(audio);
+        presenter.$audioWrapper.append(audio);
         if (presenter.configuration.displayTime) {
-            audioWrapper.append(currentTime).append(durationTime);
+            presenter.$audioWrapper.append(currentTime).append(durationTime);
         }
         if (!isPreview) {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
@@ -369,27 +373,30 @@ function AddonAudio_create(){
         presenter.audio = audio;
     }
 
-    function attachEventListeners(audio) {
-        audio.addEventListener('loadeddata', onLoadedMetadataCallback, false);
-        audio.addEventListener('timeupdate', onTimeUpdateCallback, false);
-        audio.addEventListener('volumechange', onVolumeChanged, false);
-        audio.addEventListener('ended', function() {
-            if (presenter.configuration.enableLoop) {
-                this.currentTime = 0;
-                this.play();
-            } else {
-                presenter.executeOnEndEvent();
-                presenter.sendOnEndEvent();
-                presenter.stop();
-            }
-        }, false);
-
-        audio.addEventListener('click', function(e) {
-            e.stopPropagation();
-        }, false);
+    function AddonAudio_attachEventListeners(audio) {
+        audio.addEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
+        audio.addEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
+        audio.addEventListener('volumechange', AddonAudio_onVolumeChanged, false);
+        audio.addEventListener('ended', AddonAudio_onAudioEnded , false);
+        audio.addEventListener('click', AddonAudio_onAudioClick, false);
     }
 
-    function loadFiles(){
+    function AddonAudio_onAudioEnded () {
+        if (presenter.configuration.enableLoop) {
+            this.currentTime = 0;
+            this.play();
+        } else {
+            presenter.executeOnEndEvent();
+            presenter.sendOnEndEvent();
+            presenter.stop();
+        }
+    }
+
+    function AddonAudio_onAudioClick (e) {
+        e.stopPropagation();
+    }
+
+    function AddonAudio_loadFiles(){
         var canPlayMp3 = false;
         var canPlayOgg = false;
         var audio = presenter.audio;
@@ -410,35 +417,105 @@ function AddonAudio_create(){
 
         $(audio).load();
 
-        attachEventListeners(audio);
+        AddonAudio_attachEventListeners(audio);
     }
 
-    presenter.run = function(view, model){
+    presenter.run = function AddonAudio_run (view, model){
         presenter.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
         eventBus.addEventListener('ValueChanged', this);
+
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
-    presenter.createPreview = function(view, model){
+    presenter.createPreview = function AddonAudio_createPreview (view, model){
         presenter.initialize(view, model, true);
     };
 
-    presenter.initialize = function(view, model, isPreview) {
+    presenter.initialize = function AddonAudio_initialize (view, model, isPreview) {
         var upgradedModel = presenter.upgradeModel(model);
 
+        presenter.view = view;
         presenter.$view = $(view);
         presenter.configuration = presenter.validateModel(upgradedModel);
 
-        createView(view, upgradedModel, isPreview);
+        AddonAudio_createView(view, upgradedModel, isPreview);
         
         if (!isPreview) {
-        	loadFiles();	
+        	AddonAudio_loadFiles();
+            presenter.$view.bind('click', function (event) {
+                event.stopPropagation();
+            });
         }
 
     };
 
-    presenter.validateModel = function (model) {
+    presenter.destroy = function AddonAudio_destroy (event) {
+        if (event.target !== presenter.view) {
+            return;
+        }
+
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.playerController = null;
+
+        presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+        presenter.audio.removeEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
+        presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
+        presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
+        presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
+        presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
+        presenter.audio.setAttribute('src', '');
+        presenter.audio.load();
+        presenter.audio = null;
+
+        if (presenter.$playPauseBtn) {
+            presenter.$playPauseBtn.off();
+            presenter.$playPauseBtn = null;
+        }
+        if (presenter.$stopBtn) {
+            presenter.$stopBtn.off();
+            presenter.$stopBtn = null;
+        }
+        if (presenter.$progressWrapper) {
+            presenter.$progressWrapper[0].removeEventListener("MSPointerDown", AddonAudio_progressTouchStartCallback, false);
+            presenter.$progressWrapper[0].removeEventListener("MSPointerUp", AddonAudio_progressTouchEndCallback, false);
+            presenter.$progressWrapper[0].removeEventListener("MSPointerMove", AddonAudio_progressTouchMoveCallback, false);
+            presenter.$progressWrapper[0].ontouchstart=null;
+            presenter.$progressWrapper[0].ontouchmove=null;
+            presenter.$progressWrapper.off();
+            presenter.$progressWrapper = null;
+        }
+        if (presenter.$customPlayer) {
+            presenter.$customPlayer.off();
+            presenter.$customPlayer[0].ontouchend=null;
+            presenter.$customPlayer = null;
+        }
+        if (presenter.$volumeBtn) {
+            presenter.$volumeBtn.off();
+            presenter.$volumeBtn = null;
+        }
+        if (presenter.$volumeLayer) {
+            presenter.$volumeLayer.off();
+            presenter.$volumeLayer = null;
+        }
+
+        presenter.$volumeControlBackground = null;
+        presenter.$volumeControl = null;
+        presenter.$audioWrapper = null;
+        presenter.$playerTime = null;
+        presenter.$progressBar = null;
+        presenter.$progressSlider = null;
+
+        presenter.mouseData = null;
+        presenter.configuration = null;
+        presenter.$view.unbind();
+        presenter.$view = null;
+        presenter.view = null;
+    };
+
+    presenter.validateModel = function AddonAudio_validateModel (model) {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]),
             defaultControls = ModelValidationUtils.validateBoolean(model.defaultControls),
             useBrowserControls = ModelValidationUtils.validateBoolean(model.useBrowserControls);
@@ -455,7 +532,7 @@ function AddonAudio_create(){
         };
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function AddonAudio_executeCommand (name, params) {
         var commands = {
             'play': presenter.play,
             'stop': presenter.stop,
@@ -466,57 +543,57 @@ function AddonAudio_create(){
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function AddonAudio_setVisibility (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.play = function() {
-        if(this.audio.src && this.audio.paused) {
-            this.audio.play();
+        if(presenter.audio.src && presenter.audio.paused) {
+            presenter.audio.play();
             if (presenter.configuration.isHtmlPlayer) {
-                var playpause_btn = presenter.$view.find(".play-pause-btn");
-                playpause_btn.removeClass('audio-play-btn');
-                playpause_btn.addClass('audio-pause-btn');
+                presenter.$playPauseBtn.
+                    removeClass('audio-play-btn').
+                    addClass('audio-pause-btn');
             }
         }
     };
 
-    presenter.pause = function() {
+    presenter.pause = function AddonAudio_pause () {
         if(presenter.audio.readyState > 0) {
             if (!presenter.audio.paused) {
                 presenter.audio.pause();
             }
             if (presenter.configuration.isHtmlPlayer) {
-                var playpause_btn = presenter.$view.find(".play-pause-btn");
-                playpause_btn.removeClass('audio-pause-btn');
-                playpause_btn.addClass('audio-play-btn');
+                presenter.$playPauseBtn.
+                    removeClass('audio-pause-btn').
+                    addClass('audio-play-btn');
             }
         }
     };
 
-    presenter.stop = function() {
+    presenter.stop = function AddonAudio_stop () {
         if(presenter.audio.readyState > 0) {
             presenter.pause();
             presenter.audio.currentTime = 0;
         }
     };
 
-    presenter.show = function() {
+    presenter.show = function AddonAudio_show () {
         this.setVisibility(true);
         this.configuration.isVisible = true;
     };
 
-    presenter.hideAddon = function() {
+    presenter.hideAddon = function AddonAudio_hideAddon () {
         this.setVisibility(false);
         this.configuration.isVisible = false;
     };
 
-    presenter.hide = function () {
+    presenter.hide = function AddonAudio_hide () {
         this.stop();
         this.hideAddon();
     };
 
-    presenter.reset = function() {
+    presenter.reset = function AddonAudio_reset () {
         presenter.stop();
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
@@ -527,7 +604,7 @@ function AddonAudio_create(){
         }
     };
 
-    presenter.getState = function() {
+    presenter.getState = function AddonAudio_getState () {
 
         presenter.stop();
 
@@ -536,8 +613,10 @@ function AddonAudio_create(){
         });
     };
 
-    presenter.setState = function(stateString) {
-        if (ModelValidationUtils.isStringEmpty(stateString)) return false;
+    presenter.setState = function addonAudio_setState (stateString) {
+        if (ModelValidationUtils.isStringEmpty(stateString)) {
+            return false;
+        }
 
         presenter.stop();
 
@@ -550,7 +629,7 @@ function AddonAudio_create(){
         return false;
     };
 
-    presenter.executeOnEndEvent = function () {
+    presenter.executeOnEndEvent = function AddonAudio_executeOnEndEvent () {
         if (presenter.configuration.onEndEventCode) {
             presenter.playerController.getCommands().executeEventCode(presenter.configuration.onEndEventCode);
         }

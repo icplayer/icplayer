@@ -44,7 +44,7 @@ public class ModuleFactoryMockup implements IModuleFactory {
 			return new ChoicePresenter((ChoiceModel) model, services);
 		}
 		else if(model instanceof SourceListModule){
-			return new SourceListPresenter((SourceListModule) model, services);
+			return new SourceListPresenter((SourceListModule) model, services, true);
 		}
 		
 		return null;

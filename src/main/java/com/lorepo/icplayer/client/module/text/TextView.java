@@ -172,7 +172,7 @@ public class TextView extends HTML implements IDisplay{
 	public void addListener(ITextViewListener l) {
 		listener = l;
 	}
-	
+
 	@Override
 	public void setDroppedElements(String id, String element) {
 		for(TextElementDisplay gap : textElements){
@@ -182,11 +182,11 @@ public class TextView extends HTML implements IDisplay{
 			}
 		}
 	}
-	
+
 	@Override
 	public HashMap<String, String> getDroppedElements() {
 		HashMap<String, String> droppedElements = new HashMap<String, String>();
-		
+
 		for(TextElementDisplay gap : textElements){
 			String helper = gap.getDroppedElement();
 			if(helper != null){
@@ -194,11 +194,11 @@ public class TextView extends HTML implements IDisplay{
 				droppedElements.put(gap.getId(), escaped);
 			}
 		}
-		
+
 		return droppedElements;
 	}
 
-	
+
 	@Override
 	public void setValue(String id, String value) {
 		for(TextElementDisplay gap : textElements){
@@ -306,4 +306,41 @@ public class TextView extends HTML implements IDisplay{
 			skip();
 		}
 	}
+
+	public native void connectDOMNodeRemovedEvent (String id) /*-{
+		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
+			addon = $addon[0];
+
+		function onDOMNodeRemoved (event) {
+			var $droppableElements, $draggableElements;
+			if (event.target !== addon) {
+				return;
+			}
+
+			$wnd.MathJax.Hub.getAllJax().forEach(function (mathJaxElement) {
+				mathJaxElement.Detach();
+				mathJaxElement.Remove();
+			});
+
+			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+
+			$droppableElements = $addon.find(".ui-droppable");
+			$draggableElements = $addon.find(".ui-draggable");
+
+			$droppableElements.droppable("destroy");
+			$draggableElements.draggable("destroy");
+
+			$droppableElements = null;
+			$draggableElements = null;
+			addon = null;
+			$addon = null;
+		}
+
+		if (addon && addon.addEventListener) {
+		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+		} else {
+            $addon = null;
+            addon = null;
+        }
+	}-*/;
 }

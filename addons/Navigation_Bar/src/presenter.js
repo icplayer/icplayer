@@ -2,6 +2,7 @@ function AddonNavigation_Bar_create() {
     var presenter = function () { };
     presenter.eventBus = null;
     presenter.pagesOk = [];
+    presenter.allPagesDisplayed = false;
 
     var NAVIGATION_PAGE = {
         FIRST: 0,
@@ -478,10 +479,21 @@ function AddonNavigation_Bar_create() {
         }
 
         if (maxElementCount >= pageCount) { // All pages will be displayed
-            for (n = 1; n <= pageCount; n++) {
-                element = generateIndexElementStub(n, navigationBarMoved);
-                presenter.$wrapper.append(element);
+            if(presenter.configuration.lastPageSeparated){
+                for (n = 1; n <= pageCount; n++) {
+                    if(n != pageCount){
+                        element = generateIndexElementStub(n, navigationBarMoved);
+                        presenter.$wrapper.append(element);
+                    }
+                }
+                presenter.allPagesDisplayed = true;
+            }else{
+                for (n = 1; n <= pageCount; n++) {
+                    element = generateIndexElementStub(n, navigationBarMoved);
+                    presenter.$wrapper.append(element);
+                }
             }
+            presenter.allPagesDisplayed = true;
         } else {
             if (presenter.currentIndex < (maxElementCount - 1)) { // -1 for dotted element
                 for (n = 0; n < maxElementCount - 1; n++) {
@@ -498,9 +510,18 @@ function AddonNavigation_Bar_create() {
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
                 presenter.$wrapper.append(dottedElement);
 
-                for (n = pageCount - maxElementCount + 1; n < pageCount; n++) {
-                    element = generateIndexElementStub(n + 1, navigationBarMoved);
-                    presenter.$wrapper.append(element);
+                if(presenter.configuration.lastPageSeparated){
+                    for (n = pageCount - maxElementCount; n < pageCount; n++) {
+                        if(presenter.configuration.lastPageSeparated && n != (pageCount-1)){
+                            element = generateIndexElementStub(n + 1, navigationBarMoved);
+                            presenter.$wrapper.append(element);
+                        }
+                    }
+                }else{
+                    for (n = pageCount - maxElementCount + 1; n < pageCount; n++) {
+                        element = generateIndexElementStub(n + 1, navigationBarMoved);
+                        presenter.$wrapper.append(element);
+                    }
                 }
             } else {
                 var numberOfElement = maxElementCount - 2;
@@ -544,6 +565,12 @@ function AddonNavigation_Bar_create() {
 
         if (presenter.$wrapper.css('direction') === 'rtl') {
             reorderElements(dotsIndexes, elementWidth, elementHeight, preview, horizontalGap);
+        }
+
+        if(presenter.configuration.lastPageSeparated && presenter.allPagesDisplayed){
+            var elementsCount = presenter.$view.find("span[class^=navigationbar-element]").length;
+            var missingWidth = parseInt(elementWidth/elementsCount, 10);
+            elementWidth = elementWidth + missingWidth;
         }
 
         presenter.$view.find("span[class^=navigationbar-element]").each(function () {
@@ -611,7 +638,8 @@ function AddonNavigation_Bar_create() {
             language: getLanguage(model),
             addClassNBPageOK: model.AddClassNBPageOK === 'True',
             ID: model.ID,
-            firstPageAsCover: ModelValidationUtils.validateBoolean(model["firstPageAsCover"])
+            firstPageAsCover: ModelValidationUtils.validateBoolean(model["firstPageAsCover"]),
+            lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"])
         };
 
         if (!model['Styles']) {

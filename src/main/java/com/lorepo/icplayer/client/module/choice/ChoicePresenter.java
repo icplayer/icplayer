@@ -76,7 +76,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		isDisabled = module.isDisabled();
 		isVisible = module.isVisible();
 
-		connectHandlers();
+		try{
+			connectHandlers();
+		}catch(Exception e){
+		}
 	}
 
 	

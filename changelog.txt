@@ -1,3 +1,15 @@
+2016-03-10 Secured adding handlers for creating presenters
+2016-03-09 Fixed issue with inline styles
+2016-03-07 Added loading all dictionaries.
+2016-03-04 Fixed zoom in IWB Toolbar module
+2016-03-04 Added setting last page as separated page in Navigation Bar module
+2016-03-03 Fixed memory leaks in Audio module
+2016-03-03 Fixed memory leaks in TextAudio module
+2016-03-03 Fixed issue with id selector in Text module
+2016-03-01 Fixed memory leaks in Text with draggable gaps, Source List and Show Answers
+2016-03-01 Added ignoring inline styles
+2016-03-01 Added positioning of values on x and y axis in Plot module
+2016-02-24 Fixed displaying ranges after reset in Animated Page Progress module
 2016-02-22 Added possibility to define smaller steps in Line Number module
 2016-02-17 Added setting first page as cover in Navigation Bar module
 2016-02-15 Added reading values only from canvas in LearnPen Report module

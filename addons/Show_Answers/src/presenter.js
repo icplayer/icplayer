@@ -38,7 +38,7 @@ function AddonShow_Answers_create(){
     };
 
     presenter.handleClickAction = function () {
-        presenter.$button.click(function (eventData) {
+        presenter.$button.on('click', function (eventData) {
             eventData.stopPropagation();
 
             var text, eventName;
@@ -81,7 +81,24 @@ function AddonShow_Answers_create(){
     }
 
     presenter.run = function(view, model) {
-            presenterLogic(view, model, false);
+        presenter.view = view;
+        presenterLogic(view, model, false);
+
+        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+    };
+
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) {
+            return;
+        }
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        presenter.$button.off();
+
+        presenter.$button = null;
+        presenter.$wrapper = null;
+        presenter.$view = null;
+        presenter.view = null;
     };
 
     presenter.setVisibility = function (isVisible) {

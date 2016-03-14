@@ -52,5 +52,7 @@
 		<property name='Asymptote DY' nameLabel="Plot_property_asymptote_dy" type='int' isLocalized='false'/>
 		<property name='Broadcast' nameLabel="Plot_property_broadcast" type='string' isLocalized='false'/>
 		<property name="Decimal separator" nameLabel="Plot_property_decimal_separator" type="string" isLocalized='false'/>
+        <property name='X axis values position' nameLabel="Plot_property_x_axis_values_position" type='int' isLocalized='false'/>
+        <property name='Y axis values position' nameLabel="Plot_property_y_axis_values_position" type='int' isLocalized='false'/>
 	</model>
 </addon>

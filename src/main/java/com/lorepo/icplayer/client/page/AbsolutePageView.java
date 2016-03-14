@@ -48,13 +48,11 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module){
-
 		int left, right, width, top, bottom, height;
 		
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
 			ILayoutDefinition layout = module.getLayout();
-			
 			if(layout.hasLeft()){
 				left = calculatePosition(layout.getLeftRelativeTo(), 
 						layout.getLeftRelativeToProperty(), module.getLeft());

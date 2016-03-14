@@ -69,7 +69,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		this.model = model;
 		this.playerServices = services;
 		isVisible = model.isVisible();
-		connectHandlers();
+		try{
+			connectHandlers();
+		}catch(Exception e){
+		}
 	}
 
 	private void connectHandlers() {

@@ -1,4 +1,4 @@
-﻿var ice_dictionary = {
+﻿var ice_dictionary_mx = {
     "main_tab": "Main",
 	"commons_tab": "Commons",
 	"module_belongs_to_group" : "At least one module belongs to a group",
@@ -677,6 +677,7 @@
 	"Navigation_Bar_property_style": "Estilo",
 	"Navigation_Bar_property_add_class_nb_page_ok": "Tiempo real de la barra de navegación en la página correcta",
     "Navigation_Bar_property_first_page_as_cover": "First page as cover",
+    "Navigation_Bar_property_last_page_separated": "Last page separated",
 	"Page_Counter_info" : "Permite añadir un contador de páginas a la presentación. Presenta un índice de la página actual y un número de páginas de presentación en el orden normal o invertido.",
 	"Page_Counter_name": "Contador de páginas",
 	"Page_Counter_property_numericals": "Numérico",
@@ -756,6 +757,8 @@
 	"Plot_property_asymptote_dy": "Asíntota DY",
 	"Plot_property_broadcast": "Difusión",
 	"Plot_property_decimal_separator": "Separador decimal",
+    "Plot_property_x_axis_values_position": "X axis values position",
+    "Plot_property_y_axis_values_position": "Y axis values position",
 	"Points_To_Plot_info": "Addon para el módulo sistema de coordenadas. Permite crear ejercicios basados en relaciones entre puntos y la gráfica. Por ejemplo: Comprueba si el punto seleccionado pertenece a la gráfica.",
 	"Points_To_Plot_name": "Puntos para trazar",
 	"Points_To_Plot_property_source": "Fuente",

@@ -84,7 +84,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
+<<<<<<< HEAD
 		void executeOnKeyCode(KeyDownEvent event);
+=======
+		void connectDOMNodeRemovedEvent(String id);
+>>>>>>> master
 	}
 
 	private final TextModel module;
@@ -112,7 +116,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
+		try{
 		connectHandlers();
+		}catch(Exception e){
+			
+		}
 	}
 
 	private void connectHandlers() {
@@ -250,7 +258,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			Element elem = DOM.getElementById(choice.getId());
 			SelectElement sElem = (SelectElement) elem;
-			
+
 			int correctIndex = getOptionIndex(choice, choice.getAnswer());
 			if (correctIndex != -1)
 				sElem.setSelectedIndex(correctIndex + 1);
@@ -323,7 +331,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
-		
+
 
 		if (enteredText != null) {
 			state.put("enteredText", enteredText);
@@ -343,7 +351,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("disabled", JSONUtils.toJSONString(stateDisabled));
 		state.put("isVisible", Boolean.toString(isVisible));
-		
+
 		if (JSONUtils.toJSONString(view.getDroppedElements()) != null) {
     		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
 		}
@@ -401,7 +409,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		HashMap<String, String> droppedElements = null;
-		
+
 		if (state.containsKey("droppedElements")){
 			droppedElements = JSONUtils.decodeHashMap(state.get("droppedElements"));
 			if(droppedElements != null){
@@ -563,6 +571,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				connectGapWhenMathJaxReady(this, gapUniqueId + '-' + Integer.toString(i));
 			}
 		}
+
+		view.connectDOMNodeRemovedEvent(module.getId());
 	}
 
 	private void updateViewText() {
@@ -573,7 +583,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.connectGaps(module.getGapInfos().iterator());
 			view.connectFilledGaps(module.getGapInfos().iterator());
 		}
-		
+
 		view.connectInlineChoices(module.getChoiceInfos().iterator());
 		view.connectLinks(module.getLinkInfos().iterator());
 	}
@@ -610,7 +620,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onGapFocused(String gapId, Element element) {
 				gapFocused(gapId, element);
 			}
-			
+
 			@Override
 			public void onKeyAction(String gapId, Element element) {
 				keyAction(gapId, element);
@@ -740,10 +750,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		InputElement input = InputElement.as(element);
 		GapInfo gap = getGapInfoById(gapId);
 		String enteredValue = input.getValue();
-		
+
 		if (module.isClearPlaceholderOnFocus() && !module.hasDraggableGaps()) {
 			input.setAttribute("placeholder", "");
-			
+
 			if (enteredValue == "") {
 				input.setValue("");
 			}
@@ -753,14 +763,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 	}
-	
+
 	private native String replaceNumbersOnly(String value) /*-{
 		return value.replace(/[^0-9]/g, "");
 	}-*/;
-	
+
 	private String replaceAlphanumeric(String value){
 		StringBuilder sb = new StringBuilder();
-		
+
 		for (int i = 0; i < value.length(); i++) {
 			char c = value.charAt(i);
 			if (GapInfo.isLetter(c) || GapInfo.isDigit(c)) {
@@ -770,10 +780,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return sb.toString();
 	}
-	
+
 	private String replaceLettersOnly(String value){
 		StringBuilder sb = new StringBuilder();
-		
+
 		for (int i = 0; i < value.length(); i++) {
 			char c = value.charAt(i);
 			if (GapInfo.isLetter(c)) {
@@ -783,16 +793,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return sb.toString();
 	}
-	
+
 	protected void keyAction(String gapId, Element element){
 		InputElement input = InputElement.as(element);
 		String value = input.getValue();
-			
+
 		if(module.getValueType().equals("Number only")){
 			input.setValue(replaceNumbersOnly(value));
 		}else if(module.getValueType().equals("Letters only")){
 			input.setValue(replaceLettersOnly(value));
-		}else if(module.getValueType().equals("Alphanumeric")){	
+		}else if(module.getValueType().equals("Alphanumeric")){
 			input.setValue(replaceAlphanumeric(value));
 		}
 	}
@@ -801,11 +811,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		InputElement input = InputElement.as(element);
 		GapInfo gap = getGapInfoById(gapId);
 		String enteredValue = input.getValue();
-		
+
 		if (module.isClearPlaceholderOnFocus() && !module.hasDraggableGaps()) {
 			input.setAttribute("placeholder", gap.getPlaceHolder());
 		}
-		
+
 		if (enteredValue.equals(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
@@ -886,21 +896,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
 				param = (IStringType) params.get(0);
 				int gapIndex = Integer.parseInt(param.getValue());
-				
+
 				markGapAsCorrect(gapIndex);
 			}
 		} else if (commandName.compareTo("markgapaswrong") == 0 && params.size() == 1) {
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
 				param = (IStringType) params.get(0);
 				int gapIndex = Integer.parseInt(param.getValue());
-				
+
 				markGapAsWrong(gapIndex);
 			}
 		} else if (commandName.compareTo("markgapasempty") == 0 && params.size() == 1) {
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
 				param = (IStringType) params.get(0);
 				int gapIndex = Integer.parseInt(param.getValue());
-				
+
 				markGapAsEmpty(gapIndex);
 			}
 		}
@@ -1052,7 +1062,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		try {
 			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Process", function () {
 				var dfd = $wnd.$.Deferred(),
-					element = $wnd.$('#' + id);
+					element = $wnd.$("[id='" + id + "']");
 				var checkSelector = setInterval(function () {
 					if (element.length) {
 						dfd.resolve(element);
@@ -1061,7 +1071,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 
 				dfd.promise().done(function (_element) {
-					console.log("created");
 					x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});
@@ -1098,7 +1107,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return "[error]";
 	}
-	
+
 	private void setGapAnswer(int index, String answer) {
 		if (view != null && index <= view.getChildrenCount()) {
 			TextElementDisplay gap = view.getChild(index-1);

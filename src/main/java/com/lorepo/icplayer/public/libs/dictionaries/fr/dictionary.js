@@ -1,4 +1,4 @@
-var ice_dictionary = {
+var ice_dictionary_fr = {
 "main_tab": "Pages",
 "commons_tab": "Éléments communs",
 "module_belongs_to_group" : "Au moins un module appartient à un groupe",
@@ -677,6 +677,7 @@ var ice_dictionary = {
 "Navigation_Bar_property_style": "Style",
 "Navigation_Bar_property_add_class_nb_page_ok": "Barre de navigation de la page en temps réel - ok",
 "Navigation_Bar_property_first_page_as_cover": "First page as cover",
+"Navigation_Bar_property_last_page_separated": "Last page separated",
 "Page_Counter_info": "Permet d'ajouter un compteur de page dans une présentation. Il présente le numéro de la page affichée et le nombre de pages total, dans l'ordre normal ou inversé.",
 "Page_Counter_name": "Compteur de page",
 "Page_Counter_property_numericals": "Numériques",
@@ -756,6 +757,8 @@ var ice_dictionary = {
 "Plot_property_asymptote_dy": "Asymptote DY",
 "Plot_property_broadcast": "Diffuser",
 "Plot_property_decimal_separator": "Séparateur décimal",
+"Plot_property_x_axis_values_position": "X axis values position",
+"Plot_property_y_axis_values_position": "Y axis values position",
 "Points_To_Plot_info": "Ce module est une extension du module externe « Plot ». Il permet aux utilisateurs de créer des activités basées sur des points à relier.",
 "Points_To_Plot_name": "Points en graphique",
 "Points_To_Plot_property_source": "Source",

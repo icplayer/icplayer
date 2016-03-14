@@ -1,4 +1,4 @@
-﻿var ice_dictionary = {
+﻿var ice_dictionary_pl = {
     "main_tab": "Main",
 	"commons_tab": "Commons",
 	"module_belongs_to_group" : "Co najmniej jeden moduł należy do grupy",
@@ -676,6 +676,7 @@
 	"Navigation_Bar_property_style": "Styl",
 	"Navigation_Bar_property_add_class_nb_page_ok": "\"Navigationbar-page-ok\" w czasie rzeczywistym",
     "Navigation_Bar_property_first_page_as_cover": "First page as cover",
+    "Navigation_Bar_property_last_page_separated": "Last page separated",
 	"Page_Counter_info" : "Umożliwia dodanie licznika stron do prezentacji. Moduł przedstawia indeks bieżącej strony oraz liczbę stron w prezentacji w standardowej lub odwróconej kolejności.",
 	"Page_Counter_name" : "Licznik stron",
  	"Page_Counter_property_numericals": "Numerowanie stron",
@@ -755,6 +756,8 @@
 	"Plot_property_asymptote_dy": "Asymptota DY",
 	"Plot_property_broadcast": "Emisja",
 	"Plot_property_decimal_separator": "Separator dziesiętny",
+    "Plot_property_x_axis_values_position": "X axis values position",
+    "Plot_property_y_axis_values_position": "Y axis values position",
 	"Points_To_Plot_info" : "Rozszerzenie do Addonu Wykres; pozwala na tworzenie ćwiczeń opartych na zależnościach między wykresem a punktami, jak np. definiowanie punktów lub liczby punktów do zaznaczenia na wykresie.",
 	"Points_To_Plot_name" : "Punkty na wykresie",
 	"Points_To_Plot_property_source": "Źródło",
