@@ -456,6 +456,8 @@ function AddonAudio_create(){
             return;
         }
 
+        presenter.audio.pause();
+
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         presenter.playerController = null;
@@ -548,6 +550,7 @@ function AddonAudio_create(){
     };
 
     presenter.play = function() {
+        if (!presenter.audio) return;
         if(presenter.audio.src && presenter.audio.paused) {
             presenter.audio.play();
             if (presenter.configuration.isHtmlPlayer) {
@@ -559,6 +562,7 @@ function AddonAudio_create(){
     };
 
     presenter.pause = function AddonAudio_pause () {
+        if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             if (!presenter.audio.paused) {
                 presenter.audio.pause();
@@ -572,6 +576,7 @@ function AddonAudio_create(){
     };
 
     presenter.stop = function AddonAudio_stop () {
+        if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             presenter.pause();
             presenter.audio.currentTime = 0;
@@ -594,6 +599,8 @@ function AddonAudio_create(){
     };
 
     presenter.reset = function AddonAudio_reset () {
+        if (!presenter.audio) return;
+
         presenter.stop();
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
