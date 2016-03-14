@@ -84,11 +84,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-<<<<<<< HEAD
 		void executeOnKeyCode(KeyDownEvent event);
-=======
 		void connectDOMNodeRemovedEvent(String id);
->>>>>>> master
 	}
 
 	private final TextModel module;
