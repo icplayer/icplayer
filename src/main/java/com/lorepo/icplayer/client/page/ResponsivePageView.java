@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.page;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.Page;
@@ -19,10 +21,9 @@ import com.lorepo.icplayer.client.utils.MathJax;
 public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 	private Page currentPage;
+	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
 
-	
 	public ResponsivePageView(){
-
 		addStyleName("ic_flowPage");
 	}
 	
@@ -58,6 +59,7 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 			
 			moduleView.addStyleName("ic_module");
 		    add(moduleView);
+		    widgets.put(module.getId(), moduleView);
 		}
 	}
 
@@ -77,5 +79,10 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 	@Override
 	public void removeAllModules() {
 		clear();
+	}
+
+	@Override
+	public HashMap<String, Widget> getWidgets() {
+		return widgets;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.module.text.GapInfo;
 import com.lorepo.icplayer.client.module.text.ITextViewListener;
 import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
@@ -139,6 +140,10 @@ public class TextViewMockup implements IDisplay {
 	@Override
 	public void connectDOMNodeRemovedEvent(String id) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		// TODO Auto-generated method stub
 	}
 }

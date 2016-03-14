@@ -274,5 +274,4 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	        addon = null;
 	    }
 	}-*/;
-
 }

@@ -31,12 +31,13 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
-
+	
 	private	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
@@ -55,10 +56,9 @@ public class PlayerController implements IPlayerController{
 	private String analyticsId;
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
-	
+	private KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
-		
 		contentModel = content;
 		playerView = view;
 		playerView.setPlayerController(this);
@@ -70,16 +70,18 @@ public class PlayerController implements IPlayerController{
 		createPageControllers(bookMode);
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 		timeService = new TimeService();
+		keyboardController.run();
 	}
 	
 	
 	private void createPageControllers(boolean bookMode) {
-
 		pageController1 = new PageController(this);
+		keyboardController.setPlayerService(pageController1.getPlayerServices(), false);
 		pageController1.setView(playerView.getPageView(0));
 		if(bookMode){
 			playerView.showTwoPages();
 			pageController2 = new PageController(this);
+			keyboardController.setPlayerService(pageController2.getPlayerServices(), true);
 			pageController2.setView(playerView.getPageView(1));
 		}
 	}
@@ -89,14 +91,18 @@ public class PlayerController implements IPlayerController{
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
+
 			headerController.setView(playerView.getHeaderView());			
 //			headerController.setPage(contentModel.getHeader());
+
 		}
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
+
 			footerController.setView(playerView.getFooterView());
 //			footerController.setPage(contentModel.getFooter());
+
 		}
 	}
 
@@ -268,7 +274,6 @@ public class PlayerController implements IPlayerController{
 	
 
 	private void switchToPage(IPage page, final PageController pageController){
-
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		sendAnalytics("switch to page", params );
@@ -290,7 +295,10 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-				scrollViewToBeggining();
+				
+				if (!keyboardController.isModuleActivated()) {
+					scrollViewToBeggining();
+				}
 			}
 
 			@Override
@@ -302,15 +310,25 @@ public class PlayerController implements IPlayerController{
 			
 	}
 
-
 	private void pageLoaded(Page page, PageController pageController) {
+		keyboardController.reset();
+		
 		pageController.setPage(page);
+		
+		keyboardController.addMainToNavigation(pageController1);
+		keyboardController.addSecondToNavigation(pageController2);
+		
 		if(headerController != null){
 			headerController.setPage(contentModel.getHeader());
+			keyboardController.addHeaderToNavigation(headerController);
 		}
+		
 		if(footerController != null){
 			footerController.setPage(contentModel.getFooter());
+			keyboardController.addFooterToNavigation(footerController);
 		}
+		
+		keyboardController.fillModulesNamesList();
 	}
 	
 	private static void scrollViewToBeggining() {

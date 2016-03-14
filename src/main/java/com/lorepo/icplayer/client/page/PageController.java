@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
@@ -41,6 +42,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
+		HashMap<String, Widget> getWidgets();
 	}
 
 	private IPageDisplay pageView;
@@ -51,8 +53,9 @@ public class PageController {
 	private ArrayList<IPresenter> presenters;
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
-	private HandlerRegistration valueChangedHandler;	
-
+	private HandlerRegistration valueChangedHandler;
+	private KeyboardNavigationController keyboardController;
+	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -90,20 +93,23 @@ public class PageController {
 			valueChangedHandler = null;
 		}
 	}
-
+	
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
 		currentPage = page;
+
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
+
 		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
+
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 
@@ -129,7 +135,6 @@ public class PageController {
 		scriptingEngine.reset();
 
 		for(IModuleModel module : currentPage.getModules()){
-
 			String newInlineStyle = deletePositionImportantStyles(module.getInlineStyle());
 			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
@@ -384,6 +389,11 @@ public class PageController {
 	}
 
 	public void closePage() {
+		// kc in popup window is null
+		if (keyboardController != null) {
+			keyboardController.resetStatus();
+		}
+		
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
@@ -391,7 +401,9 @@ public class PageController {
 			currentPage.release();
 			currentPage = null;
 		}
+		
 		pageView.removeAllModules();
+		presenters.clear();
 	}
 
 	public IPlayerServices getPlayerServices() {
@@ -400,5 +412,17 @@ public class PageController {
 
 	public IPlayerController getPlayerController() {
 		return playerController;
+	}
+	 
+	public List<IPresenter> getPresenters() {
+		return presenters;
+	}
+	
+	public HashMap<String, Widget> getWidgets() {
+		if (pageView != null) {
+			return pageView.getWidgets();
+		}
+		
+		return null;
 	}
 }

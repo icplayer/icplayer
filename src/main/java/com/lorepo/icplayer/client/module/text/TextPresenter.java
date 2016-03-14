@@ -9,6 +9,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
@@ -24,6 +25,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -60,6 +62,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElement(String element);
 		String getDroppedElement();
 		String getId();
+		void setFocusGap(boolean focus);
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -81,6 +84,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
+		void executeOnKeyCode(KeyDownEvent event);
 		void connectDOMNodeRemovedEvent(String id);
 	}
 
@@ -170,8 +174,23 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}
 			}
 		});
+		
+		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
+			public void onActivated(ModuleActivatedEvent event) {
+				activate(event);
+			}
+		});
 	}
 
+	private void activate(ModuleActivatedEvent event) {
+		String moduleName = event.moduleName;
+		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
+		
+		if (moduleName.equals(module.getId())) {
+			view.executeOnKeyCode(keyDownEvent);
+		}
+	}
+	
 	private boolean isShowAnswers() {
 		return module.isActivity() ? this.isShowAnswersActive : false;
 	}
@@ -651,7 +670,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		});
 	}
-
+	
 	protected void dropdownClicked(String id) {
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "dropdownClicked", "");
 		playerServices.getEventBus().fireEvent(valueEvent);
@@ -1248,6 +1267,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	public void markConnectionWithMath() {
 		isConnectedToMath = true;
+	}
+	
+	public boolean isSelectable() {
+		return view.getChildrenCount() > 0;
 	}
 
 }

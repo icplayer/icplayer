@@ -6,6 +6,8 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
@@ -22,7 +24,8 @@ public class TextView extends HTML implements IDisplay{
 	private ITextViewListener listener;
 	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
-
+	private boolean moduleHasFocus = false;
+	private int clicks = 0;
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -246,7 +249,64 @@ public class TextView extends HTML implements IDisplay{
 		}
 	}
 
+	private int getTextElementsSize() {
+		return textElements.size();
+	}
+	
+	private void skip() {
+		int size = getTextElementsSize();
+
+		if (size == 0) return;
+		clicks++;
+		
+		if (clicks >= size && size > 0) {
+			clicks = 0;
+		}
+		
+		TextElementDisplay gap = textElements.get(clicks);
+		gap.setFocusGap(true);
+	}
+	
+	private void enter() {
+    	TextElementDisplay gap = null;
+
+		if(textElements.size() > 0) {
+    		gap = textElements.get(0);
+		}
+
+		if (gap != null && !moduleHasFocus) {
+			gap.setFocusGap(true);
+			moduleHasFocus = true;
+		}
+	}
+	
+	private void escape() {
+		for (TextElementDisplay gap : textElements) {
+			gap.setFocusGap(false);
+			moduleHasFocus = false;
+		}
+	}
+	
 	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			event.preventDefault();
+			enter();
+		}
+
+		if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			escape();
+		}
+		
+		if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
+			skip();
+		}
+	}
+
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];

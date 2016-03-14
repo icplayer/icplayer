@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.button;
 
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
@@ -14,6 +16,7 @@ public class ButtonView extends Composite implements IDisplay {
 	
 	private ButtonModule module;
 	private boolean isErrorCheckingMode;
+	private IPlayerServices playerServices;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -21,6 +24,7 @@ public class ButtonView extends Composite implements IDisplay {
 
 		initWidget(createInnerButton(services));
 		getElement().setId(module.getId());
+		this.playerServices = services;
 	}
 
 	
@@ -108,5 +112,23 @@ public class ButtonView extends Composite implements IDisplay {
 	@Override
 	public boolean isErrorCheckingMode() {
 		return isErrorCheckingMode;
+	}
+
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			event.preventDefault();
+			enter();
+		}
+	}
+	
+	public void enter() {
+		if (module.getType() == ButtonType.nextPage) {
+			playerServices.getCommands().nextPage();
+		} else if(module.getType() == ButtonType.prevPage) {
+			playerServices.getCommands().prevPage();
+		}
 	}
 }

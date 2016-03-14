@@ -53,5 +53,4 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 	public void hide() {
 		setVisible(false);
 	}
-
 }
