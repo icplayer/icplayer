@@ -1,3 +1,4 @@
+2016-03-15 Fixed displaying background in Memo Game module
 2016-03-15 Fixed reseting axis values position in Plot module
 2016-03-14 Fixed issue with reset in Audio module
 2016-03-14 Added keyboard navigation
