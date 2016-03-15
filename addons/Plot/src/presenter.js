@@ -98,6 +98,13 @@ function AddonPlot_create(){
                 this.drawPoints();
             }
             this.enableUI(this.uiEnabled);
+            if(this.xAxisValuesPosition != '' && !isNaN(this.xAxisValuesPosition)){
+                this.setXAxisValuesPosition(this.xAxisValuesPosition);
+            }
+
+            if(this.yAxisValuesPosition != '' && !isNaN(this.yAxisValuesPosition)){
+                this.setYAxisValuesPosition(this.yAxisValuesPosition);
+            }
         };
         this.clearCanvas = function() {
             this.svgDoc.find('.drawings').children().remove();
