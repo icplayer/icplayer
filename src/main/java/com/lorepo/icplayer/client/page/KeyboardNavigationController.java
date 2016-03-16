@@ -31,6 +31,7 @@ public final class KeyboardNavigationController {
 	private List<String> footerWidgets = new ArrayList<String>();
 	private List<String> mainPageWidgets = new ArrayList<String>();
 	private List<String> bookPageWidgets = new ArrayList<String>();
+	private boolean modeOn = false;
 	
 	private enum ExpectedModules {
 		// Navigation modules
@@ -99,8 +100,20 @@ public final class KeyboardNavigationController {
 	public void run() {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
-	        public void onKeyDown(KeyDownEvent event) {
-	            if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
+	        public void onKeyDown(KeyDownEvent event) {		
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
+					modeOn = !modeOn;
+					event.preventDefault();
+					
+					if (!modeOn) {
+						deactivateModule();
+						deselectModule(currentModuleName);
+					}
+					
+					return;
+				}
+				
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 	            	event.preventDefault();
 	            	
 	            	if (!isInitiated) {
@@ -118,12 +131,12 @@ public final class KeyboardNavigationController {
 	            }
 
 
-	            if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
 	            	activateModule();
 	            }
 	            
-	            if (moduleIsActivated) {
+	            if (modeOn && moduleIsActivated) {
 	            	boolean isModuleInBookView = isModuleInBookView(currentModuleName);
 	            	String moduleName = currentModuleName.substring(5, currentModuleName.length());
 	            	
@@ -134,7 +147,7 @@ public final class KeyboardNavigationController {
 	            	}
 	            }
 	            
-	            if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
 	            	deactivateModule();
 	            }
