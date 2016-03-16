@@ -105,9 +105,15 @@ public final class KeyboardNavigationController {
 					modeOn = !modeOn;
 					event.preventDefault();
 					
-					if (!modeOn) {
+					if (!modeOn) { // off
 						deactivateModule();
 						deselectModule(currentModuleName);
+					} else { // on
+						if (!isInitiated) {
+							initialSelect();
+						} else {
+							selectModule(currentModuleName);
+						}
 					}
 					
 					return;
