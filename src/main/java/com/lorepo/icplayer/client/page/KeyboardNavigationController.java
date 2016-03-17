@@ -32,7 +32,7 @@ public final class KeyboardNavigationController {
 	private List<String> mainPageWidgets = new ArrayList<String>();
 	private List<String> bookPageWidgets = new ArrayList<String>();
 	private boolean modeOn = false;
-	
+
 	private enum ExpectedModules {
 		// Navigation modules
 		text, video, button, navigation_bar, choice;
@@ -100,7 +100,7 @@ public final class KeyboardNavigationController {
 	public void run() {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
-	        public void onKeyDown(KeyDownEvent event) {		
+	        public void onKeyDown(KeyDownEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					modeOn = !modeOn;
 					event.preventDefault();

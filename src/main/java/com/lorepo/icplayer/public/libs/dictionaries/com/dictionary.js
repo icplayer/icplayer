@@ -1,4 +1,8 @@
 ﻿var ice_dictionary_en = {
+	"documentation": "Documentation",
+	"documentation_error": "Cannot load documentation.",
+	"documention_loading": "Loading. Please wait.",
+	"documentation_notification": "New feature! Documentation is now available in editor.<br> All you need to do is click on \"?\" button in properties panel.",
 	"main_tab": "Main",
 	"commons_tab": "Commons",
 	"module_belongs_to_group" : "At least one module belongs to a group",

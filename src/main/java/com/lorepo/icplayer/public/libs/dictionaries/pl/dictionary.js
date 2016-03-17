@@ -1,4 +1,8 @@
 ﻿var ice_dictionary_pl = {
+	"documentation": "Dokumentacja",
+	"documentation_error": "Nie można wczytać dokumentacji.",
+	"documention_loading": "Ładowanie. Proszę czekać.",
+	"documentation_notification": "New feature! Documentation is now available in editor.<br> All you need to do is click on \"?\" button in properties panel.",
     "main_tab": "Main",
 	"commons_tab": "Commons",
 	"module_belongs_to_group" : "Co najmniej jeden moduł należy do grupy",
