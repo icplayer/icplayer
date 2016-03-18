@@ -1468,6 +1468,8 @@ function AddonTable_create() {
 
                 if (stateData.value == "") {
                     this.gaps[index].destroyDraggableProperty();
+                }else{
+                    this.gaps[index].addCssClass("gapFilled");
                 }
 
             }, this);
