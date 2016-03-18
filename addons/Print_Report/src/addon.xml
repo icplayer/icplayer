@@ -24,6 +24,8 @@
         <property name="TimePerPageLabel" displayName="Time Per Page Label" nameLabel="Print_Report_property_time_per_page_label" type="string" isLocalized="true"/>
         <property name="Total" displayName="Show Total Results" nameLabel="Print_Report_property_total" type="boolean" />
         <property name="TotalLabel" displayName="Total Results Label" nameLabel="Print_Report_property_total_label" type="string" isLocalized="true"/>
+        <property name="Date" displayName="Show Current Date" nameLabel="Print_Report_property_date" type="boolean" />
+        <property name="DateLabel" displayName="Date Format" nameLabel="Print_Report_property_date_label" type="{dd-mm-yy, mm-dd-yy, yy-mm-dd, dd/mm/yy, mm/dd/yy, yy/mm/dd}" isLocalized="true"/>
         <property name="TimePerPageDaysLabel" displayName="Time Per Page: Days Label" nameLabel="Print_Report_property_time_per_page_days_label" type="string" isLocalized="true"/>
         <property name="TimePerPageHoursLabel" displayName="Time Per Page: Hours Label" nameLabel="Print_Report_property_time_per_page_hours_label" type="string" isLocalized="true"/>
         <property name="TimePerPageMinutesLabel" displayName="Time Per Page: Minutes Label" nameLabel="Print_Report_property_time_per_page_minutes_label" type="string" isLocalized="true"/>

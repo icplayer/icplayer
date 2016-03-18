@@ -1275,5 +1275,7 @@
     "Print_Report_property_total": "Show total results",
     "Print_Report_property_total_label": "Total results label",
     "Print_Report_property_print_report_label": "Print report label",
-    "Print_Report_property_close_report_label": "Close report label"
+    "Print_Report_property_close_report_label": "Close report label",
+    "Print_Report_property_date_label": "Date format",
+    "Print_Report_property_date": "Show Current Date"
 };

@@ -1276,5 +1276,7 @@ var ice_dictionary_fr = {
 "Print_Report_property_total": "Afficher le résultat total",
 "Print_Report_property_total_label": "Etiquette Résultat total",
 "Print_Report_property_print_report_label": "Etiquette Imprimer le rapport",
-"Print_Report_property_close_report_label": "Etiquette Fermer le rapport"
+"Print_Report_property_close_report_label": "Etiquette Fermer le rapport",
+"Print_Report_property_date_label": "Date format",
+"Print_Report_property_date": "Show Current Date"
 };

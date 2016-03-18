@@ -305,6 +305,49 @@ function AddonPrint_Report_create(){
         return $actions;
     };
 
+    presenter.prepareMonthFormat = function addonPrint_Report_prepareMonthFormat (month) {
+        if(month.toString().length < 2){
+            return "0" + month;
+        }
+
+        return month;
+    };
+
+    presenter.prepareYearFormat = function addonPrint_Report_prepareYearFormat (year) {
+        return year.toString().substring(2);
+    };
+
+    presenter.prepareDate = function addonPrint_Report_prepareDate (format) {
+        var date = new Date(),
+            day = date.getDate(),
+            month = presenter.prepareMonthFormat(date.getMonth()+1),
+            year = presenter.prepareYearFormat(date.getFullYear());
+
+
+        switch(format) {
+            case "dd-mm-yy":
+                return day + "-" + month + "-" + year;
+                break;
+            case "mm-dd-yy":
+                return month + "-" + day + "-" + year;
+                break;
+            case "yy-mm-dd":
+                return year + "-" + month + "-" + day;
+                break;
+            case "dd/mm/yy":
+                return day + "/" + month + "/" + year;
+                break;
+            case "mm/dd/yy":
+                return month + "/" + day + "/" + year;
+                break;
+            case "yy/mm/dd":
+                return year + "/" + month + "/" + day;
+                break;
+            default:
+                return day + "-" + month + "-" + year;
+        }
+    };
+
     presenter.prepareReportHeaderHtml = function addonPrint_Report_prepareReportHeaderHtml () {
         var $header = $('<div></div>').addClass('header');
 
@@ -322,6 +365,14 @@ function AddonPrint_Report_create(){
                     $('<h2></h2>').text(presenter.configuration.labels.subtitle)
                 )
             );
+        }
+
+        if(presenter.configuration.report.date) {
+            $header.append(
+                $('<div></div>').addClass('date').append(
+                    $('<h2></h2>').text(presenter.prepareDate(presenter.configuration.labels.date))
+                )
+            )
         }
 
         if (presenter.configuration.report.username) {
@@ -635,7 +686,8 @@ function AddonPrint_Report_create(){
                 'errors': ModelValidationUtils.validateBoolean(model.Errors),
                 'pageScore': ModelValidationUtils.validateBoolean(model.PageScore),
                 'timePerPage': ModelValidationUtils.validateBoolean(model.TimePerPage),
-                'total': ModelValidationUtils.validateBoolean(model.Total)
+                'total': ModelValidationUtils.validateBoolean(model.Total),
+                'date': ModelValidationUtils.validateBoolean(model.Date)
             },
             'labels': {
                 'title': model.TitleLabel,
@@ -656,7 +708,8 @@ function AddonPrint_Report_create(){
                 'userConfirm': model.UsernameConfirmLabel || 'Generate',
                 'userCancel': model.UsernameCancelLabel || 'Cancel',
                 'closeReport': model.CloseReportLabel || 'Close',
-                'printReport': model.PrintReportLabel || 'Print'
+                'printReport': model.PrintReportLabel || 'Print',
+                'date': model.DateLabel
 
             },
             'styles': model.Styles,
