@@ -200,7 +200,6 @@ function AddonMath_create() {
             for (i = 0; i < variables.length; i++) {
                 var convertedVariable = presenter.convertVariable(variables[i].value, separators);
                 if (convertedVariable === undefined) return { isValid: false, result: getAlertMessage(variables[i]) };
-
                 convertedVariables.push({
                     name: variables[i].name,
                     value: convertedVariable
@@ -330,10 +329,15 @@ function AddonMath_create() {
         return convertedExpression;
     };
 
+    function checkIfCorrectVariable(tempExpression, variable) {
+        var lastChar = tempExpression.charAt(tempExpression.indexOf(variable)+variable.length);
+        return lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%";
+    }
+
     presenter.findTextOccurrences = function (expression, variable) {
         var indexes = [], tempExpression = expression, offset = 0;
 
-        while (tempExpression.indexOf(variable) !== -1) {
+        while (tempExpression.indexOf(variable) !== -1 && checkIfCorrectVariable(tempExpression, variable)) {
             var indexOf = tempExpression.indexOf(variable);
             indexes.push(indexOf + offset);
             offset += indexOf + variable.length;
