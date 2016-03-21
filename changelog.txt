@@ -1,3 +1,4 @@
+2016-03-21 Fixed scrolling and text wrapping on iOS in Paragraph module
 2016-03-18 Added displaying current date in Print Report module
 2016-03-18 Fixed issue with class after changing page in Table module
 2016-03-18 Fixed issue with variables in Math module

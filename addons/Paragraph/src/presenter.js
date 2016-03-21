@@ -40,7 +40,52 @@ function AddonParagraph_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
         presenter.initializeEditor(view, model);
+
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+
+        if (iOSSafari) {
+            presenter.pageLoaded.then(function() {
+                presenter.myVar = setInterval(function(){
+                    findIframeAndSetStyles();
+                }, 1000);
+            });
+        }
+    };
+
+    function findIframeAndSetStyles() {
+        var iframe = presenter.$view.find(".paragraph-wrapper").find("iframe"),
+            body = $(iframe).contents().find("#tinymce"),
+            element = body.find("p");
+
+        element.css({
+            'overflow-wrap': 'break-word',
+            'word-wrap': 'break-word',
+            '-ms-word-break': 'break-all',
+            'word-break': 'break-word',
+            '-ms-hyphen': 'auto',
+            '-moz-hyphens': 'auto',
+            '-webkit-hyphens': 'auto',
+            'hyphens': 'auto'
+        });
+
+        presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
+
+        if (iframe.length > 0){
+            clearInterval(presenter.myVar);
+        }
+    }
+
+    presenter.onEventReceived = function(eventName) {
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
+        }
     };
 
     presenter.validateToolbar = function(controls) {
@@ -345,6 +390,8 @@ function AddonParagraph_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.onNodeChange = function () {
