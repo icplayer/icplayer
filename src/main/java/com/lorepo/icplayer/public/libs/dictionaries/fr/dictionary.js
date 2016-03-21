@@ -5,6 +5,7 @@ var ice_dictionary_fr = {
 "documentation_notification": "New feature! Documentation is now available in editor.<br> All you need to do is click on \"?\" button in properties panel.",
 "main_tab": "Pages",
 "commons_tab": "Éléments communs",
+"save_changes": "You have made changes, do you want to save them?",
 "module_belongs_to_group" : "Au moins un module appartient à un groupe",
 "max_score" : "Score max du groupe",
 "group_id" : "ID",
