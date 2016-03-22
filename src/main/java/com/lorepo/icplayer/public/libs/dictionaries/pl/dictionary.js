@@ -1251,7 +1251,7 @@
     "Print_Report_property_mistakes": "Pokaż licznik pomyłek",
     "Print_Report_property_mistakes_label": "Etykieta licznika pomyłek",
     "Print_Report_property_errors": "Pokaż licznik błędów",
-    "Print_Report_property_errors_label": "Etykieta licznika błędów,
+    "Print_Report_property_errors_label": "Etykieta licznika błędów",
     "Print_Report_property_checks": "Pokaż licznik sprawdzeń",
     "Print_Report_property_checks_label": "Etykieta licznika sprawdzeń",
     "Print_Report_property_time_per_page": "Pokaż czas na stronie",
@@ -1261,7 +1261,7 @@
     "Print_Report_property_time_per_page_minutes_label": "Czas na stronie: etykieta minut",
     "Print_Report_property_time_per_page_seconds_label": "Czas na stronie: etykieta sekund",
     "Print_Report_property_page_score": "Pokaż wynik na stronie",
-    "Print_Report_property_page_score_label": "Etykieta wyniku na stroniel",
+    "Print_Report_property_page_score_label": "Etykieta wyniku na stronie",
     "Print_Report_property_styles": "Style",
     "Print_Report_property_text": "Tekst",
     "Print_Report_property_title": "Pokaż tytuł",
@@ -1277,6 +1277,6 @@
     "Print_Report_property_total_label": "Etykieta wyniku całkowitego",
     "Print_Report_property_print_report_label": "Etykieta wydruku raportu",
     "Print_Report_property_close_report_label": "Etykieta zamknięcia raportu",
-    "Print_Report_property_date_label": "Format daty,
+    "Print_Report_property_date_label": "Format daty",
     "Print_Report_property_date": "Pokaż bieżącą datę"
 };
