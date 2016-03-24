@@ -128,6 +128,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Single_State_Button", "scripting_menu");
 		addDescriptor("Slider", "scripting_menu");
 		addDescriptor("MenuPanel", "scripting_menu");
+		addDescriptor("Variable_Storage", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");

@@ -1278,5 +1278,10 @@
     "Print_Report_property_print_report_label": "Etykieta wydruku raportu",
     "Print_Report_property_close_report_label": "Etykieta zamknięcia raportu",
     "Print_Report_property_date_label": "Format daty",
-    "Print_Report_property_date": "Pokaż bieżącą datę"
+    "Print_Report_property_date": "Pokaż bieżącą datę",
+	"Variable_Storage_info": "This addon allows users to add variables that can be used in exercises and simulations.",
+	"Variable_Storage_name": "Variable storage",
+	"Variable_Storage_property_variables": "Variables",
+	"Variable_Storage_property_variables_name": "Name",
+	"Variable_Storage_property_variables_start": "Start"
 };

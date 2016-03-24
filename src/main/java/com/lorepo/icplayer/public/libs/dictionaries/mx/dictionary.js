@@ -1279,5 +1279,11 @@
     "Print_Report_property_print_report_label": "Print report label",
     "Print_Report_property_close_report_label": "Close report label",
     "Print_Report_property_date_label": "Date format",
-    "Print_Report_property_date": "Show Current Date"
+    "Print_Report_property_date": "Show Current Date",
+	"Variable_Storage_info": "This addon allows users to add variables that can be used in exercises and simulations.",
+	"Variable_Storage_name": "Variable storage",
+	"Variable_Storage_property_variables": "Variables",
+	"Variable_Storage_property_variables_name": "Name",
+	"Variable_Storage_property_variables_start": "Start"
+
 };
