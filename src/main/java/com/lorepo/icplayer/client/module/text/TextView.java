@@ -235,6 +235,7 @@ public class TextView extends HTML implements IDisplay{
 	@Override
 	public void hide() {
 		getElement().getStyle().setProperty("visibility", "hidden");
+		getElement().getStyle().setProperty("display", "none");
 	}
 
 	@Override
@@ -242,6 +243,7 @@ public class TextView extends HTML implements IDisplay{
 		Element element = getElement();
 		if (element.getStyle().getVisibility().equals("hidden")) {
 			element.getStyle().setProperty("visibility", "visible");
+			element.getStyle().setProperty("display", "block");
 
 			if (callRefreshMath) {
 				refreshMath();

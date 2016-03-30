@@ -1,3 +1,4 @@
+2016-03-30 Fixed issue with droppable gaps in Text module
 2016-03-24 Added new module Variable Storage
 2016-03-21 Fixed scrolling and text wrapping on iOS in Paragraph module
 2016-03-18 Added displaying current date in Print Report module
