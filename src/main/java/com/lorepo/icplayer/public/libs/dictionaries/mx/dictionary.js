@@ -125,6 +125,8 @@
 	"please_wait" : "Espera mientras se guarda la presentación",
 	"presentation_saved" : "Presentación guardada.",
 	"page_saved" : "Página guardada.",
+	"set_current_version": "Set current version.",
+	"save_changes_modal_message": "Do you want to save the changes? The same version was edited. User and version:",
 	"saving_changes" : "Guardando cambios",
 	"cant_save_page" : "No se puede guardar la página:",
 "cant_save_page_Forbidden": "No se puede guardar la página. Probablemente usted ha sido desconectado.",

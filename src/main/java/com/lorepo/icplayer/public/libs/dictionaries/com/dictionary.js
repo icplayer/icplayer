@@ -126,6 +126,8 @@
 	"please_wait" : "Please wait till page is saved before closing editor.",
 	"presentation_saved" : "Presentation saved.",
 	"page_saved" : "Page saved.",
+	"set_current_version": "Set current version.",
+	"save_changes_modal_message": "Do you want to save the changes? The same version was edited. User and version:",
 	"saving_changes" : "Saving changes",
 	"cant_save_page" : "Can't save page: ",
 	"cant_save_page_Forbidden": "Can't save page. Probably you have been logged out.",

@@ -125,6 +125,8 @@
 	"please_wait" : "Zanim zamkniesz edytor zaczekaj, aż strona zostanie zapisana.",
 	"presentation_saved" : "Prezentacja zapisana.",
 	"page_saved" : "Strona zapisana.",
+	"set_current_version": "Set current version.",
+	"save_changes_modal_message": "Do you want to save the changes? The same version was edited. User and version:",
 	"saving_changes" : "Zapisywanie zmian",
 	"cant_save_page" : "Nie można zapisać strony: ",
 	"cant_save_page_Forbidden": "Nie można zapisać strony. Prawdopodobnie zostałeś wylogowany.",

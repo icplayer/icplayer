@@ -125,6 +125,8 @@ var ice_dictionary_fr = {
 "please_wait" : "Merci d'attendre que la page soit sauvegardée avant de fermer l'éditeur.",
 "presentation_saved" : "La présentation a été sauvegardée.",
 "page_saved" : "La page a été sauvegardée.",
+"set_current_version": "Set current version.",
+"save_changes_modal_message": "Do you want to save the changes? The same version was edited. User and version:",
 "saving_changes" : "Modifications en cours de sauvegarde",
 "cant_save_page" : "Impossible de sauvegarder la page :",
 "cant_save_page_Forbidden": "Impossible de sauvegarder la page. Vous avez probablement été déconnecté.",
