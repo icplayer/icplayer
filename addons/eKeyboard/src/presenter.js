@@ -318,7 +318,8 @@ function AddoneKeyboard_create(){
                     $('input').attr("readonly", true);
                 }
 
-                $(presenter.configuration.workWithViews).find('input').keyboard({
+                $(presenter.configuration.workWithViews).find('input').on('click', function() {
+                    $(this).keyboard({
                     // *** choose layout ***
                     layout: presenter.configuration.layoutType,
                     customLayout: presenter.configuration.customLayout,
@@ -493,6 +494,9 @@ function AddoneKeyboard_create(){
                     // when the accept button is clicked, "isClosing" is true
                     validate    : function(keyboard, value, isClosing) { return true; }
 
+                    });
+
+                    $(this).focus();
                 });
             }
         });
