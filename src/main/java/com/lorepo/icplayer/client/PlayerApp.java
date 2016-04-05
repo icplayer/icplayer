@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.ContentFactory;
 import com.lorepo.icplayer.client.xml.IContentFactory;
+import com.lorepo.icplayer.client.xml.IContentLoadingListener;
 
 public class PlayerApp{
 
@@ -58,8 +59,12 @@ public class PlayerApp{
 		startPageIndex = pageIndex;
 		
 		IContentFactory contentFactory = ContentFactory.getInstance();
-		contentFactory.load(url, this.pagesSubset, new ILoadListener() {
-			public void onFinishedLoading(Object obj) {
+		
+		contentFactory.load(url, this.pagesSubset, new IContentLoadingListener() {
+			public void onFinishedLoading(Content content) {
+				contentModel = content;
+				contentModel.setBaseUrl();
+				JavaScriptUtils.log(contentModel);
 				initPlayer(isCommonPage);
 			}
 			
@@ -67,16 +72,6 @@ public class PlayerApp{
 				JavaScriptUtils.log("Can't load:" + error);
 			}
 		});
-		
-//		XMLLoader reader = new XMLLoader(contentModel);
-//		reader.load(url, new ILoadListener() {
-//			public void onFinishedLoading(Object obj) {
-//				initPlayer(isCommonPage);
-//			}
-//			public void onError(String error) {
-//				JavaScriptUtils.log("Can't load:" + error);
-//			}
-//		});
 	}
 
 	/**
@@ -226,7 +221,7 @@ public class PlayerApp{
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
 		isStaticHeader = true;
-	}
+	} 
 	
 	public void makeFooterStatic() {
 		if(getScreenHeight() < getPageHeight()){		
@@ -267,7 +262,7 @@ public class PlayerApp{
 		contentModel.setPlayerController(getPlayerServices());
 		
 		RootPanel.get(divId).add(playerView);
-		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
+		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles().get("default"));
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());

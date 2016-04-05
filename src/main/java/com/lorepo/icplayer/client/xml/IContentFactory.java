@@ -5,6 +5,6 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icplayer.client.model.Content;
 
 public interface IContentFactory {	
-	public void load(String fetchUrl, ArrayList<Integer> pagesSubset, final ILoadListener listener);
+	public void load(String fetchUrl, ArrayList<Integer> pagesSubset, final IContentLoadingListener listener);
 	public String dumps(Content content);
 }

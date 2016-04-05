@@ -21,8 +21,8 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 public class PageList extends BasicPropertyProvider implements IChapter{
 	
 	private IPlayerServices playerServices;
-	private List<IContentNode>	nodes = new ArrayList<IContentNode>();
-	private IPageListListener listener;
+	public List<IContentNode>	nodes = new ArrayList<IContentNode>();
+	public IPageListListener listener;
 	public String name;
 	
 	public PageList(){

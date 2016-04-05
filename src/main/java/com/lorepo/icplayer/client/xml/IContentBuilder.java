@@ -13,12 +13,11 @@ public interface IContentBuilder {
 	public void setMetadata(HashMap<String, String> metadata);
 	public void setAddonDescriptors(HashMap<String, AddonDescriptor> addonDescriptors);
 	public void setStyles(HashMap<String, String> styles);
-	public void setCommonPages(PageList commonPageList);
-	public void setPages(PageList pagesList);
 	public void setAssets(ArrayList<IAsset> assets);
-	public void setVersion(Integer version);
 	public void setScoreType(ScoreType scoreType);
 	public void setName(String name);
+	public void setPages(PageList pagesList);
+	public void setCommonPages(PageList commonPageList);
 	public void setHeaderPageName(String name);
 	public void setFooterPageName(String name);
 }

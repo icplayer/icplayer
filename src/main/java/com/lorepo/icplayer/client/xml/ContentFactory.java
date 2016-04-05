@@ -34,8 +34,7 @@ public class ContentFactory implements IContentFactory {
 	}
 	
 	@Override
-	public void load(String fetchUrl, ArrayList<Integer> pagesSubset, ILoadListener listener) {
-		this.pagesSubset = pagesSubset;
+	public void load(String fetchUrl, ArrayList<Integer> pagesSubset, IContentLoadingListener listener) {
 		try {
 			RequestsUtils.get(fetchUrl, this.getContentLoadCallback(listener, pagesSubset));
 		} catch (RequestException e) {
@@ -43,14 +42,14 @@ public class ContentFactory implements IContentFactory {
 		}
 	}
 
-	private RequestCallback getContentLoadCallback(final ILoadListener listener, final Array<Integer> pagesSubset) {
+	private RequestCallback getContentLoadCallback(final IContentLoadingListener listener, final ArrayList<Integer> pagesSubset) {
 		return new RequestCallback() {
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() == 200 || response.getStatusCode() == 0) {
 					Content content = produce(response.getText(), pagesSubset);
-					listener.onFinishedLoading(null);
+					listener.onFinishedLoading(content);
 				} else {
 					// Handle the error.  Can get the status text from response.getStatusText()
 					listener.onError("Wrong status: " + response.getText());

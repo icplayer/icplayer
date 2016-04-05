@@ -11,11 +11,17 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.IAsset;
+import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
 
 public class ContentParserZero implements IContentParser{
+	
+	protected String PAGES_KEY = "pages";
+	protected String COMMONS_KEY = "commons";
+	protected String HEADER_PAGE = "header";
+	protected String FOOTER_PAGE = "footer";
 	
 	@Override
 	public Content parse(Element rootNode, ArrayList<Integer> pagesSubset) {
@@ -46,7 +52,18 @@ public class ContentParserZero implements IContentParser{
 					content.setStyles(styles);
 				}
 				else if(name.compareTo("pages") == 0){
-					HashMap<String, PageList> pagesList = this.parsePages(child, pagesSubset);
+					HashMap<String, PageList> pagesHashmap = this.parsePages(child, pagesSubset);
+					PageList pages = pagesHashmap.get(this.PAGES_KEY);
+					PageList commons = pagesHashmap.get(this.COMMONS_KEY);
+					
+					String headerPageName = parsePageName(child, this.HEADER_PAGE);
+					String footerPageName = parsePageName(child, this.FOOTER_PAGE);
+					
+					content.setPages(pages);
+					content.setCommonPages(commons);
+					content.setHeaderPageName(headerPageName);
+					content.setFooterPageName(footerPageName);
+					
 				}
 				else if(name.compareTo("assets") == 0){
 					ArrayList<IAsset> assets = this.parseAssets(child);
@@ -60,6 +77,23 @@ public class ContentParserZero implements IContentParser{
 		return (Content) content;
 	}
 	
+	private String parsePageName(Element rootElement, String pageNode) {
+		String name = null;
+		
+		NodeList children = rootElement.getChildNodes();
+		
+		for(int i = 0; i < children.getLength(); i++){
+			if(children.item(i) instanceof Element){
+				Element node = (Element)children.item(i);
+				if(node.getNodeName().compareTo(pageNode) == 0){
+					name = node.getAttribute("ref");
+				}
+			}
+		}
+		
+		return name;
+	}
+
 	private ScoreType parseScoreType(Element rootElement) {
 		String st = XMLUtils.getAttributeAsString(rootElement, "scoreType");
 		if(st.equals(ScoreType.first.toString())){
@@ -173,25 +207,26 @@ public class ContentParserZero implements IContentParser{
 		}
 	}
 	
+		
 	private HashMap<String, PageList> parsePages(Element rootElement, ArrayList<Integer> pageSubset) {
 		HashMap<String, PageList> pagesHashMap = new HashMap<String, PageList>();
 		NodeList children = rootElement.getChildNodes();
-//		pages.load(rootElement, baseUrl, pageSubset, 0);
-//		for(int i = 0; i < children.getLength(); i++){
-//	
-//			if(children.item(i) instanceof Element){
-//				Element node = (Element)children.item(i);
-//				if(node.getNodeName().compareTo("folder") == 0){
-//					commonPages.load(node, baseUrl, null, 0);
-//				}
-//				else if(node.getNodeName().compareTo("header") == 0){
-//					headerPageName = node.getAttribute("ref");
-//				}
-//				else if(node.getNodeName().compareTo("footer") == 0){
-//					footerPageName = node.getAttribute("ref");
-//				}
-//			}
-//		}
+		
+		PageList pages = new PageList();
+		pages.load(rootElement, null, pageSubset, 0);
+		
+		pagesHashMap.put("pages", pages);
+		for(int i = 0; i < children.getLength(); i++){
+			if(children.item(i) instanceof Element){
+				Element node = (Element)children.item(i);
+				if(node.getNodeName().compareTo("folder") == 0){
+					PageList commonPages = new PageList();
+					commonPages.load(node, null, null, 0);
+					pagesHashMap.put("commons", commonPages);
+					break;
+				}
+			}
+		}
 		
 		return pagesHashMap;
 	}

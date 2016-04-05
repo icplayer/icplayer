@@ -36,6 +36,7 @@ public class Content implements IContentBuilder, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
+	private Integer version = 2;
 	
 	public Content(){
 	}
@@ -97,8 +98,8 @@ public class Content implements IContentBuilder, IContent {
 		return scoreType;
 	}
 	
-	public void setScoreType(ScoreType st){
-		scoreType = st;
+	public void setScoreType(ScoreType scoreType){
+		this.scoreType = scoreType;
 	}
 	
 	public void addChangeListener(IContentListener l){
@@ -157,7 +158,6 @@ public class Content implements IContentBuilder, IContent {
 	
 	@Override
 	public List<IAsset> getAssets(){
-		
 		return assets;
 	}
 
@@ -184,81 +184,8 @@ public class Content implements IContentBuilder, IContent {
 	
 
 	public void setPageSubset(ArrayList<Integer> pageList){
-		pageSubset = pageList;
-	}
-
-	@Override
-	public void load(Element rootElement, String url) {
-
-		baseUrl = url.substring(0, url.lastIndexOf("/")+1);
-
-		loadAttributes(rootElement);
-
-		NodeList children = rootElement.getChildNodes();
-		for(int i = 0; i < children.getLength(); i++){
-			
-			if(children.item(i) instanceof Element){
-				Element child = (Element) children.item(i);
-				String name = child.getNodeName(); 
-				if(name.compareTo("metadata") == 0){
-					loadMetadata(child);
-				}
-				else if(name.compareTo("addons") == 0){
-					loadAddonDescriptors(child);
-				}
-				else if(name.compareTo("style") == 0){
-					loadStyles(child);
-				}
-				else if(name.compareTo("pages") == 0){
-					loadPages(child, url, pageSubset);
-				}
-				else if(name.compareTo("assets") == 0){
-					loadAssets(child);
-				}
-			}
-		}
-		
-	}
-
-
-	private void loadPages(Element rootElement, String baseUrl, ArrayList<Integer> pageSubset) {
-		NodeList children = rootElement.getChildNodes();
-		pages.load(rootElement, baseUrl, pageSubset, 0);
-		for(int i = 0; i < children.getLength(); i++){
-	
-			if(children.item(i) instanceof Element){
-				Element node = (Element)children.item(i);
-				if(node.getNodeName().compareTo("folder") == 0){
-					commonPages.load(node, baseUrl, null, 0);
-				}
-				else if(node.getNodeName().compareTo("header") == 0){
-					headerPageName = node.getAttribute("ref");
-				}
-				else if(node.getNodeName().compareTo("footer") == 0){
-					footerPageName = node.getAttribute("ref");
-				}
-			}
-		}
-	}
-
-
-	private void loadAssets(Element rootElement) {
-		
-		AssetFactory factory = new AssetFactory();
-		
-		NodeList assets = rootElement.getElementsByTagName("asset");
-		for(int i = 0; i < assets.getLength(); i++){
-
-			Element node = (Element)assets.item(i);
-			String href = StringUtils.unescapeXML(node.getAttribute("href"));
-			String type = StringUtils.unescapeXML(node.getAttribute("type"));
-			IAsset asset = factory.createAsset(type, href);
-			if(asset != null){
-				addAsset(asset);
-				asset.setTitle(StringUtils.unescapeXML(node.getAttribute("title")));
-				asset.setFileName(StringUtils.unescapeXML(node.getAttribute("fileName")));
-				asset.setContentType(StringUtils.unescapeXML(node.getAttribute("contentType")));
-			}
+		if (pageList != null) {
+			pageSubset = pageList;
 		}
 	}
 
@@ -272,7 +199,7 @@ public class Content implements IContentBuilder, IContent {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>"; 
 
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";			
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version.toString() + "'>";			
 		
 		// Metadata
 		xml += "<metadata>";
@@ -290,9 +217,14 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += 	"</addons>";
 
+		
+		xml += "<styles>";
 		if(styles != null){
-			xml += "<style>" + StringUtils.escapeHTML(styles) + "</style>";
+		    for (String key : styles.keySet()) {
+		    	xml += "<style name='" + key + "'>" + StringUtils.escapeHTML(styles.get(key)) + "</style>"; 
+		    }
 		}
+		xml += "</styles>";
 		
 		// Pages
 		xml += toXMLPages();
@@ -374,7 +306,6 @@ public class Content implements IContentBuilder, IContent {
 		String lowerCaseName = pageName.toLowerCase(); 
 		
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
-		
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
 			index = commonPages.findPageIndexByName(commonPageName);
 			if(index >= 0){
@@ -427,53 +358,55 @@ public class Content implements IContentBuilder, IContent {
 
 	@Override
 	public void setBaseUrl(String url) {
-		// TODO Auto-generated method stub
+		this.baseUrl = url;
 		
 	}
 
 	@Override
 	public void setMetadata(HashMap<String, String> metadata) {
-		// TODO Auto-generated method stub
-		
+		this.metadata = metadata;
 	}
 
 	@Override
 	public void setAddonDescriptors(
-			HashMap<String, AddonDescriptor> addonDescriptors) {
-		// TODO Auto-generated method stub
+		HashMap<String, AddonDescriptor> addonDescriptors) {
 		
 	}
 
 	@Override
 	public void setStyles(HashMap<String, String> styles) {
-		// TODO Auto-generated method stub
-		
+		this.styles = styles;
 	}
 
 	@Override
 	public void setCommonPages(PageList commonPageList) {
-		// TODO Auto-generated method stub
+		this.commonPages = commonPageList;
 		
 	}
 
 	@Override
 	public void setPages(PageList pagesList) {
-		// TODO Auto-generated method stub
-		
+		this.pages = pagesList;
 	}
 
 	@Override
 	public void setAssets(ArrayList<IAsset> assets) {
-		// TODO Auto-generated method stub
+		this.assets = assets;
 		
 	}
 
 	@Override
-	public void setVersion(Integer version) {
-		// TODO Auto-generated method stub
-		
+	public void setName(String name) {
+		this.name = name;
 	}
 
+	@Override
+	public void setHeaderPageName(String name) {
+		this.headerPageName = name;
+	}
 
-	
+	@Override
+	public void setFooterPageName(String name) {
+		this.footerPageName = name;
+	}
 }
