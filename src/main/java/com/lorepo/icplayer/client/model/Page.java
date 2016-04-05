@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -575,6 +576,21 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		return ids;
 	}
+	
+	private JsArrayString getModulesListAsJs() {
+		List<String> ids = new ArrayList<String>();
+	    JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
+
+		for(IModuleModel module : modules) {
+			ids.add(module.getId());
+		}
+		
+	    for (String string : ids) {
+	        jsArray.push(string);
+	    }
+	    
+	    return jsArray;
+	}
 
 	public int getWidth() {
 		return width;
@@ -738,7 +754,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		}
 
 		page.getModules = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getModulesList()();
+			return x.@com.lorepo.icplayer.client.model.Page::getModulesListAsJs()();
 		}
 
 		return page;

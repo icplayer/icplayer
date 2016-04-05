@@ -1,3 +1,4 @@
+2016-04-05 Fixed issue with getModules method in API
 2016-04-05 Fixed issue with showing module when lesson is in iframe in Glossary module
 2016-04-04 Fixed issue with appearing native keyboard in eKeyboard module on Android
 2016-03-30 Fixed issue with droppable gaps in Text module
