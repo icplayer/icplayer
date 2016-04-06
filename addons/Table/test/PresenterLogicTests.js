@@ -13,6 +13,7 @@ TestCase("[Table] Presenter logic", {
         sinon.stub(this.presenter, 'setVisibility');
         sinon.stub(this.presenter, 'parseDefinitionLinks');
         sinon.stub(this.presenter, 'initializeGaps');
+        sinon.stub(this.presenter, 'setEditorGapWidth');
 
         sinon.stub(DOMOperationsUtils, 'showErrorMessage');
     },
@@ -26,6 +27,7 @@ TestCase("[Table] Presenter logic", {
         this.presenter.setVisibility.restore();
         this.presenter.parseDefinitionLinks.restore();
         this.presenter.initializeGaps.restore();
+        this.presenter.setEditorGapWidth.restore();
 
         DOMOperationsUtils.showErrorMessage.restore();
     },

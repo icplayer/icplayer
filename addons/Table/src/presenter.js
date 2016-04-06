@@ -200,9 +200,13 @@ function AddonTable_create() {
         }
 
         if(isPreview) {
-            presenter.$view.find('input').css("width", presenter.configuration.gapWidth.value+"px");
-            presenter.$view.find('span').css("width", presenter.configuration.gapWidth.value+"px");
+            presenter.setEditorGapWidth();
         }
+    };
+
+    presenter.setEditorGapWidth = function () {
+        presenter.$view.find('input').css("width", presenter.configuration.gapWidth.value+"px");
+        presenter.$view.find('span').css("width", presenter.configuration.gapWidth.value+"px");
     };
 
     presenter.mainLogic = function (isPreview) {
