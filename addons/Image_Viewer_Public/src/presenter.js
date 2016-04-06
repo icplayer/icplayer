@@ -1517,7 +1517,7 @@ function AddonImage_Viewer_Public_create() {
             presenter.hideAnswers();
         }
 
-        if(!presenter.configuration.correctFrames.isExerciseMode) { return 0; }
+        if(presenter.configuration.correctFrames && !presenter.configuration.correctFrames.isExerciseMode) { return 0; }
         return 1;
     };
 
