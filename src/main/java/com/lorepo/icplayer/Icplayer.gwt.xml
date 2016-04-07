@@ -44,6 +44,8 @@
     <script src="libs/google-swiffy-7.4.js"/>
     <script src="libs/sonic.js"/>
 	<script src="libs/zoom.js"/>
+    <script src="libs/FileSaver.js"/>
+    <script src="libs/blob.js"/>
 
     <script src="libs/eKeyboard_layouts/french.js"/>
     <script src="libs/eKeyboard_layouts/german.js"/>

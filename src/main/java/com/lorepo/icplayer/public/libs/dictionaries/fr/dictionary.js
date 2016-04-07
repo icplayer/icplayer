@@ -1280,6 +1280,8 @@ var ice_dictionary_fr = {
 "Print_Report_property_close_report_label": "Etiquette Fermer le rapport",
 "Print_Report_property_date_label": "Date format",
 "Print_Report_property_date": "Show Current Date",
+"Print_Report_property_export_csv_label": "Export Button Label",
+"Print_Report_property_show_export_button": "Show Export Button",
 "Variable_Storage_info": "This addon allows users to add variables that can be used in exercises and simulations.",
 "Variable_Storage_name": "Variable storage",
 "Variable_Storage_property_variables": "Variables",

@@ -1,4 +1,5 @@
-2016-04-08 Added Reset, CheckAnswers and ShowAnswers to Keyboard Navigation
+2016-04-07 Added exporting report to file in Print Report module
+2016-04-07 Added Reset, CheckAnswers and ShowAnswers to Keyboard Navigation
 2016-04-07 Added method getModulesAsJS to player's API
 2016-04-06 Fixed tests in Table module
 2016-04-06 Fixed issue with inserting Image_Viewer module
