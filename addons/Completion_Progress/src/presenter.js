@@ -38,7 +38,7 @@ function AddonCompletion_Progress_create() {
             return;
         }
 
-        var modules = presenter.page.getModules(),
+        var modules = presenter.page.getModulesAsJS(),
             module, loadedModules = [];
 
         for (var i = 0; i < modules.length; i++) {

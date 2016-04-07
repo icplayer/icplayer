@@ -52,7 +52,7 @@ function AddonNext_create(){
 
     function getAllOfTheModulesThatImplementIsAttempted() {
         var pageIndex = presenter.playerController.getCurrentPageIndex(),
-            ids = presenter.playerController.getPresentation().getPage(pageIndex).getModules(),
+            ids = presenter.playerController.getPresentation().getPage(pageIndex).getModulesAsJS(),
             modules = [];
 
         $.each(ids, function() {

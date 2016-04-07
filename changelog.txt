@@ -1,3 +1,4 @@
+2016-04-07 Added method getModulesAsJS to player's API
 2016-04-06 Fixed tests in Table module
 2016-04-06 Fixed issue with inserting Image_Viewer module
 2016-04-06 Fixed issue with changing gap width in editor in Table module
