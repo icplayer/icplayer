@@ -35,9 +35,11 @@ public final class KeyboardNavigationController {
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton;
 		
 		private static boolean contains(String s) {
+			s = s.replaceAll("\\s","");
+
 			for(ExpectedModules choice:values()) {
 				if (choice.name().equals(s)) {
 				   return true; 
@@ -97,10 +99,26 @@ public final class KeyboardNavigationController {
 		return (moduleName.length() >= 5 && moduleName.charAt(2) == 'b');
 	}
 	
+	// Sometimes modules can remove classes just activated or selected modules. We must restore them.
+	private void restoreClasses() {
+		if (!modeOn) return;
+		
+		Widget currentWidget = navigationWidgets.get(currentModuleName);
+
+		if (currentWidget != null) {
+			currentWidget.getElement().addClassName("ic_selected_module");
+			
+			if (moduleIsActivated) {
+				currentWidget.getElement().addClassName("ic_active_module");
+			}
+		}
+	}
+	
 	public void run() {
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
+				// ON and OFF navigation
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					modeOn = !modeOn;
 					event.preventDefault();
@@ -119,6 +137,7 @@ public final class KeyboardNavigationController {
 					return;
 				}
 				
+				// Skipping between modules
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
 	            	event.preventDefault();
 	            	
@@ -136,12 +155,13 @@ public final class KeyboardNavigationController {
 	            	}
 	            }
 
-
+	            // Activate module on Enter key
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 	            	event.preventDefault();
 	            	activateModule();
 	            }
 	            
+	            // Send event
 	            if (modeOn && moduleIsActivated) {
 	            	boolean isModuleInBookView = isModuleInBookView(currentModuleName);
 	            	String moduleName = currentModuleName.substring(5, currentModuleName.length());
@@ -153,21 +173,23 @@ public final class KeyboardNavigationController {
 	            	}
 	            }
 	            
+	            // Deactive module
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
 	            	deactivateModule();
 	            }
-
+	            
+	            restoreClasses();
 	        }
 	    }, KeyDownEvent.getType());
 	}
 	
 	private void activateModule() {
 		if (currentModuleName.isEmpty()) return;
-		
+
 		Widget widget = navigationWidgets.get(currentModuleName);
 		widget.getElement().addClassName("ic_active_module");
-		
+
 		this.moduleIsActivated = true;
 		
 		setModuleStatus(currentModuleName, true, true);
@@ -326,8 +348,8 @@ public final class KeyboardNavigationController {
 
 		for (IPresenter presenter : presenters) {
 			IModuleModel module = presenter.getModel();
-			boolean isModuleExpected = ExpectedModules.contains(module.getModuleTypeName().toLowerCase());
 			String moduleTypeName = module.getModuleTypeName().toLowerCase();
+			boolean isModuleExpected = ExpectedModules.contains(moduleTypeName);
 			
 			if (isModuleExpected) {
 				// for text modules
@@ -343,40 +365,28 @@ public final class KeyboardNavigationController {
 		return tempModulesNames;
 	}
 	
-	public void addHeaderToNavigation(PageController controller) {
+	private void addToNavigation(PageController controller, List<String> widgets, String prefix) {
 		if (controller != null && controller.getWidgets() != null) {
-			headerWidgets.clear();
+			widgets.clear();
 			List<String> widgetNames = new ArrayList<String>();
-			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__h__");
-			headerWidgets.addAll(widgetNames);
+			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), prefix);
+			widgets.addAll(widgetNames);
 		}
+	}
+	
+	public void addHeaderToNavigation(PageController controller) {
+		addToNavigation(controller, headerWidgets, "__h__");
 	}
 	
 	public void addFooterToNavigation(PageController controller) {
-		if (controller != null && controller.getWidgets() != null) {
-			footerWidgets.clear();
-			List<String> widgetNames = new ArrayList<String>();
-			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__f__");
-			footerWidgets.addAll(widgetNames);
-		}
+		addToNavigation(controller, footerWidgets, "__f__");
 	}
 	
 	public void addMainToNavigation(PageController controller) {
-		if (controller != null && controller.getWidgets() != null) {
-			mainPageWidgets.clear();
-			List<String> widgetNames = new ArrayList<String>();
-			
-			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__m__");
-			mainPageWidgets.addAll(widgetNames);
-		}
+		addToNavigation(controller, mainPageWidgets, "__m__");
 	}
 	
 	public void addSecondToNavigation(PageController controller) {
-		if (controller != null && controller.getWidgets() != null) {
-			bookPageWidgets.clear();
-			List<String> widgetNames = new ArrayList<String>();
-			widgetNames = getProperModulesToList(controller.getPresenters(), controller.getWidgets(), "__b__");
-			bookPageWidgets.addAll(widgetNames);
-		}
+		addToNavigation(controller, bookPageWidgets, "__b__");
 	}
 }

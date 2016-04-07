@@ -2,9 +2,12 @@ package com.lorepo.icplayer.client.module.checkbutton;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter.IDisplay;
 
 public class CheckButtonView extends PushButton implements IDisplay {
@@ -101,5 +104,19 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	@Override
 	public void uncheckAnswers() {
 		if (isShowErrorsMode) toggleAnswers();
+	}
+	
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			event.preventDefault();
+			enter();
+		}
+	}
+	
+	private void enter() {
+		toggleAnswers();
 	}
 }

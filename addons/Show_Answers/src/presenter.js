@@ -9,6 +9,12 @@ function AddonShow_Answers_create(){
         HIDE_ANSWERS: 'HideAnswers'
     };
 
+    presenter.keyboardController = function(keycode) {
+        if (keycode === 13) {
+            presenter.$button.click();
+        }
+    }
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();

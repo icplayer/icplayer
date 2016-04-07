@@ -124,11 +124,19 @@ public class ButtonView extends Composite implements IDisplay {
 		}
 	}
 	
-	public void enter() {
+	private void enter() {
 		if (module.getType() == ButtonType.nextPage) {
 			playerServices.getCommands().nextPage();
 		} else if(module.getType() == ButtonType.prevPage) {
 			playerServices.getCommands().prevPage();
+		} else if (module.getType() == ButtonType.checkAnswers) {
+			if (isErrorCheckingMode) {
+				playerServices.getCommands().uncheckAnswers();
+			} else {
+				playerServices.getCommands().checkAnswers();
+			}
+		} else if (module.getType() == ButtonType.reset) {
+			playerServices.getCommands().reset();
 		}
 	}
 }
