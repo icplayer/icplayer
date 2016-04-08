@@ -36,6 +36,7 @@ public class OrderingView extends Composite implements IDisplay {
 	private boolean isTouched = false;
 	private boolean isMouseUp = false;
 	private boolean isDragging = false;
+	private boolean wasChanged = false;
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
 		this.module = module;
@@ -62,6 +63,9 @@ public class OrderingView extends Composite implements IDisplay {
 		};
 		view.markEnd = function(endIndex) {
 			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markEnd(I)(endIndex);
+		}
+		view.markChange = function(endIndex) {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markChange(I)(endIndex);
 		}
 		view.axis = isVertical ? "y" : "x";
 
@@ -135,6 +139,9 @@ public class OrderingView extends Composite implements IDisplay {
 				if (forceHide) {
 					ui.item.style("display", displayType, "important");
 				}
+			},
+			change: function( event, ui ) {
+				jsObject.markChange(ui.item.index());
 			}
 		});
 		$wnd.$(e).disableSelection();
@@ -192,7 +199,6 @@ public class OrderingView extends Composite implements IDisplay {
 	}
 
 	private void onWidgetClicked(Widget widget) {
-
 		if (workMode) {
 			if (selectedWidget == null) {
 				selectedWidget = widget;
@@ -255,11 +261,20 @@ public class OrderingView extends Composite implements IDisplay {
 		isDragging = true;
 	}
 
+	public void markChange(int destIndex) {
+		int sourceIndex = innerCellPanel.getWidgetIndex(selectedWidget);
+		selectedWidget.removeStyleName("ic_drag-source");
+		onValueChanged(sourceIndex, destIndex);
+		wasChanged = true;
+	}
+	
 	public void markEnd(int destIndex) {
 		int sourceIndex = innerCellPanel.getWidgetIndex(selectedWidget);
 		moveWidget(sourceIndex, destIndex);
-		selectedWidget.removeStyleName("ic_drag-source");
-		selectedWidget = null;
+		if(wasChanged){
+			selectedWidget = null;
+			wasChanged = false;
+		}
 		onValueChanged(sourceIndex, destIndex);
 		isDragging = false;
 	}
