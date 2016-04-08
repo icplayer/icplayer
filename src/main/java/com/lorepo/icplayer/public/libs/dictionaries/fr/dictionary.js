@@ -850,6 +850,7 @@ var ice_dictionary_fr = {
 "Table_Of_Contents_name": "Table des matiàres",
 "Table_Of_Contents_property_header": "En-tete",
 "Table_Of_Contents_property_dont_show_pages": "Ne pas afficher les pages",
+    "Table_Of_Contents_property_display_type": "Display Type",
 "text_identification_info": "Permet d'ajouter une sélection multiple de textes avec du contenu HTML à la présentation, dans laquelle chaque élément fonctionne en mode sélection unique.",
 "text_identification_name": "Identification de texte",
 "text_identification_property_text": "Texte",

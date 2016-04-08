@@ -1,3 +1,4 @@
+2016-04-08 Added list and combo views in Table of Contents module
 2016-04-07 Added exporting report to file in Print Report module
 2016-04-07 Added Reset, CheckAnswers and ShowAnswers to Keyboard Navigation
 2016-04-07 Added method getModulesAsJS to player's API

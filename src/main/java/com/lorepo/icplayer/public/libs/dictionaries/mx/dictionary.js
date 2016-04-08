@@ -850,6 +850,7 @@
 	"Table_Of_Contents_name": "Índice",
 	"Table_Of_Contents_property_header": "Cabezal",
 	"Table_Of_Contents_property_dont_show_pages": "No mostrar las páginas",
+    "Table_Of_Contents_property_display_type": "Display Type",
 	"text_identification_info": "Permite añadir la selección de texto múltiple con contenido HTML a la presentación, donde cada elemento funciona en modo individual de selección.",
 	"text_identification_name": "Identificación de Texto",
 	"text_identification_property_text": "Texto",

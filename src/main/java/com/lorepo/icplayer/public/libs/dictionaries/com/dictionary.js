@@ -854,6 +854,7 @@
 	"Table_Of_Contents_name": "Table Of Contents",
 	"Table_Of_Contents_property_header": "Header",
 	"Table_Of_Contents_property_dont_show_pages": "Don't show pages",
+    "Table_Of_Contents_property_display_type": "Display Type",
 	"text_identification_info": "Allows to add multiple text selection with HTML content to a presentation, where each element works in a single selection mode.",
 	"text_identification_name": "Text Identification",
 	"text_identification_property_text": "Text",

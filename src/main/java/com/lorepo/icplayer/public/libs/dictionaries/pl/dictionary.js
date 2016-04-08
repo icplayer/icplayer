@@ -849,6 +849,7 @@
 	"Table_Of_Contents_name" : "Spis treści",
 	"Table_Of_Contents_property_header": "Nagłówek",
 	"Table_Of_Contents_property_dont_show_pages": "Nie pokazuj stron",
+    "Table_Of_Contents_property_display_type": "Display Type",
 	"text_identification_info" : "Pozwala na wstawienie do prezentacji ćwiczenia składającego się z kilku elementów tekstowych (w formacie HTML) do wyboru. Każdy element działa w trybie pojedynczej selekcji.",
 	"text_identification_name" : "Wybór tekstu",
 	"text_identification_property_text" : "Tekst",
