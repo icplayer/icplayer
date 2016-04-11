@@ -252,6 +252,13 @@ function AddonSlider_create () {
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
 
+
+            if(presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth"){
+                presenter.configuration.newStep = presenter.whichStepZoneSmooth(mousePositions, presenter.configuration);
+            }else{
+                presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
+            }
+
             if ( presenter.configuration.orientation == presenter.ORIENTATION.LANDSCAPE ) {
                 relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
                 presenter.mouseData.oldPosition.x = eventData.pageX;
@@ -259,9 +266,24 @@ function AddonSlider_create () {
                 mousePositions.x = mousePositions.x > 0 ? mousePositions.x : 0;
                 mousePositions.x = mousePositions.x < imageElementData.maxLeft ? mousePositions.x : imageElementData.maxLeft;
 
-                $(imageElement).css({
-                    left: (mousePositions.x + relativeDistance.horizontal) + 'px'
-                });
+                if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
+                    $(imageElement).css({
+                        left: (mousePositions.x + relativeDistance.horizontal) + 'px'
+                    });
+                }
+
+                if (presenter.configuration.newStep !== presenter.configuration.currentStep && presenter.continuousEvents) {
+                    presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
+
+                    presenter.configuration.currentStep = presenter.configuration.newStep;
+                    presenter.triggerOnStepChangeUserEvent();
+
+                    presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
+
+                    if(presenter.continuousEventsSteps == "Stick" || presenter.continuousEventsSteps == undefined || presenter.continuousEventsSteps == ""){
+                        presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
+                    }
+                }
 
             } else {
                 relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
@@ -271,12 +293,27 @@ function AddonSlider_create () {
 
                 presenter.mouseData.oldPosition.y = eventData.pageY;
 
-                $(imageElement).css({
-                    top: (mousePositions.y + relativeDistance.vertical) + 'px'
-                });
+                if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
+                    $(imageElement).css({
+                        top: (mousePositions.y + relativeDistance.vertical) + 'px'
+                    });
+                }
+
+                if (presenter.configuration.newStep !== presenter.configuration.currentStep && presenter.continuousEvents) {
+                    presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
+
+                    presenter.configuration.currentStep = presenter.configuration.newStep;
+                    presenter.triggerOnStepChangeUserEvent();
+
+                    presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
+
+                    if(presenter.continuousEventsSteps == "Stick" || presenter.continuousEventsSteps == undefined || presenter.continuousEventsSteps == ""){
+                        presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
+                    }
+                }
             }
 
-            presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
+            //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
         eventData.preventDefault();
     }
@@ -363,6 +400,8 @@ function AddonSlider_create () {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
         onStepChangeEvent = model.onStepChange;
+        presenter.continuousEvents = ModelValidationUtils.validateBoolean(model["Continuous events"]);
+        presenter.continuousEventsSteps = model["Continuous events steps"];
 
         presenter.$addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
 
@@ -675,6 +714,25 @@ function AddonSlider_create () {
             isErrorMode: false,
             shouldBlockInErrorMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"])
         };
+    };
+
+    presenter.closestSmooth = 0;
+    presenter.whichStepZoneSmooth = function (mousePositions, globalData) {
+        var imageCenter = globalData.orientation === presenter.ORIENTATION.LANDSCAPE ? parseInt($(presenter.imageElement).css('left'), 10) +
+                ($(presenter.imageElement).width()/2) : parseInt($(presenter.imageElement).css('top'), 10) + ($(presenter.imageElement).height()/2),
+            margin = parseInt((globalData.snapPoints[1] - globalData.snapPoints[0]) / 5, 10);
+
+        for (var j = 0; j < globalData.snapPoints.length; j++) {
+            var pointBefore = parseInt(globalData.snapPoints[j] - margin, 10);
+            var pointAfter = parseInt(globalData.snapPoints[j] + margin, 10);
+            if(imageCenter > pointBefore && imageCenter < pointAfter){
+                if(presenter.closestSmooth != j){
+                    presenter.closestSmooth = j;
+                }
+            }
+        }
+
+        return presenter.closestSmooth + 1;
     };
 
     presenter.whichStepZone = function(mousePositions, globalData) {

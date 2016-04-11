@@ -797,6 +797,8 @@ var ice_dictionary_fr = {
 "Slider_property_initial_step": "Palier initial",
 "Slider_property_on_step_change": "Un palier a été modifié",
 "Slider_property_block_in_error_checking_mode": "Bloquer en mode vérification d'erreurs",
+"Slider_property_continuous_events": "Continuous events",
+"Slider_property_continuous_events_steps": "Continuous events steps",
 "Slideshow_info": "Permet de préparer un diaporama, incluant les sous-titres et la bande son correspondants.",
 "Slideshow_name": "Diaporama",
 "Slideshow_property_audio": "Audio",

@@ -796,6 +796,8 @@
 	"Slider_property_initial_step": "Początkowy skok",
 	"Slider_property_on_step_change": "Przy zmianie skoku",
 	"Slider_property_block_in_error_checking_mode": "Zablokuj w trybie sprawdzania błędów",
+    "Slider_property_continuous_events": "Continuous events",
+    "Slider_property_continuous_events_steps": "Continuous events steps",
 	"Slideshow_info" : "Umożliwia przygotowanie pokazu slajdów z uwzględnieniem podpisów i odpowiedniej ścieżki dźwiękowej.",
 	"Slideshow_name" : "Pokaz slajdów",
 	"Slideshow_property_audio": "Dźwięk",

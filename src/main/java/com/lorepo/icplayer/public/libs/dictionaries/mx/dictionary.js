@@ -797,6 +797,8 @@
 	"Slider_property_initial_step": "Paso inicial",
 	"Slider_property_on_step_change": "En cambio de paso",
 	"Slider_property_block_in_error_checking_mode": "Bloquear en modo de comprobación de errores ",
+    "Slider_property_continuous_events": "Continuous events",
+    "Slider_property_continuous_events_steps": "Continuous events steps",
 	"Slideshow_info": "Permite preparar una presentación incluyendo subtítulos y sonido correspondiente.",
 	"Slideshow_name": "Presentador de diapositivas",
 	"Slideshow_property_audio": "Audio",

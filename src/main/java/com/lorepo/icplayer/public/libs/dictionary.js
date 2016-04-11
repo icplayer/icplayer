@@ -797,6 +797,8 @@
 	"Slider_property_initial_step": "Initial step",
 	"Slider_property_on_step_change": "On step change",
 	"Slider_property_block_in_error_checking_mode": "Block in error checking mode",
+    "Slider_property_continuous_events": "Continuous events",
+    "Slider_property_continuous_events_steps": "Continuous events steps",
 	"Slideshow_info": "Allows to prepare a slideshow presentation including captions and a corresponding soundtrack.",
 	"Slideshow_name": "Slideshow",
 	"Slideshow_property_audio": "Audio",
