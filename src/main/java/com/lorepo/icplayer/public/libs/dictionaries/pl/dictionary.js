@@ -1,4 +1,4 @@
-﻿var ice_dictionary_pl = {
+var ice_dictionary_pl = {
 	"documentation": "Dokumentacja",
 	"documentation_error": "Nie można wczytać dokumentacji.",
 	"documention_loading": "Ładowanie. Proszę czekać.",
@@ -851,7 +851,7 @@
 	"Table_Of_Contents_name" : "Spis treści",
 	"Table_Of_Contents_property_header": "Nagłówek",
 	"Table_Of_Contents_property_dont_show_pages": "Nie pokazuj stron",
-    "Table_Of_Contents_property_display_type": "Display Type",
+    "Table_Of_Contents_property_display_type": "Rodzaj wyświetlania",
 	"text_identification_info" : "Pozwala na wstawienie do prezentacji ćwiczenia składającego się z kilku elementów tekstowych (w formacie HTML) do wyboru. Każdy element działa w trybie pojedynczej selekcji.",
 	"text_identification_name" : "Wybór tekstu",
 	"text_identification_property_text" : "Tekst",
@@ -1282,11 +1282,12 @@
     "Print_Report_property_close_report_label": "Etykieta zamknięcia raportu",
     "Print_Report_property_date_label": "Format daty",
     "Print_Report_property_date": "Pokaż bieżącą datę",
-    "Print_Report_property_export_csv_label": "Export Button Label",
-    "Print_Report_property_show_export_button": "Show Export Button",
+    "Print_Report_property_export_csv_label": "Etykieta przycisku eksportu",
+    "Print_Report_property_show_export_button": "Przycisk pokaż eksport",
 	"Variable_Storage_info": "This addon allows users to add variables that can be used in exercises and simulations.",
 	"Variable_Storage_name": "Variable storage",
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start"
 };
+
