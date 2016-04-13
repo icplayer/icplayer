@@ -1,4 +1,5 @@
-2016-04-08 Added sending continuous events and stick steps in Slider module 
+2016-04-13 Fixed rendering latex in Text module
+2016-04-11 Added sending continuous events and stick steps in Slider module 
 2016-04-08 Fixed dragging element in Ordering module
 2016-04-08 Added french layout to Paragraph
 2016-04-08 Added list and combo views in Table of Contents module

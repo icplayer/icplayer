@@ -231,6 +231,10 @@ public class TextView extends HTML implements IDisplay{
 	public void refreshMath() {
 		MathJax.refreshMathJax(getElement());
 	}
+	
+	public void rerenderMathJax (){
+		MathJax.rerenderMathJax(getElement());
+	}
 
 	@Override
 	public void hide() {
@@ -247,6 +251,9 @@ public class TextView extends HTML implements IDisplay{
 
 			if (callRefreshMath) {
 				refreshMath();
+				if(!(module.hasMathGaps() || module.hasDraggableGaps())){
+					rerenderMathJax();
+				}
 			}
 		}
 	}

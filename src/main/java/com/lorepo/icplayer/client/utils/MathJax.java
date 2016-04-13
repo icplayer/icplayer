@@ -17,4 +17,8 @@ public class MathJax {
 		}
 	}-*/;
 	
+	public static native void rerenderMathJax (Element e) /*-{
+		$wnd.MathJax.Hub.Rerender(e);
+	}-*/;
+	
 }
