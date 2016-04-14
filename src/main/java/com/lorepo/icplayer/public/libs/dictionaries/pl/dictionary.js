@@ -306,7 +306,7 @@ var ice_dictionary_pl = {
 	"text_module_value_type" : "Value type",
 	"is_activity" : "Jest&nbsp;ćwiczeniem",
 	"is_disabled" : "Jest&nbsp;wyłączony",
-	"block_wrong_answers" : "Block wrong answers",
+	"block_wrong_answers" : "Zablokuj błędne odpowiedzi",
 	"randomOrder" : "Kolejność&nbsp;losowa",
 	"All_elements_has_same_width" : "Jednakowa szer. dla wszystkich elementów",
 	"case_sensitive" : "Uwzględnia&nbsp;wielkość liter",
@@ -859,7 +859,7 @@ var ice_dictionary_pl = {
 	"text_identification_property_selection_correct" : "Wybór jest poprawny",
 	"text_identification_property_on_selected" : "Na zaznaczenie",
 	"text_identification_property_on_deselected" : "Na odznaczenie",
-    "text_identification_property_block_wrong_answers": "Block wrong answers",
+    "text_identification_property_block_wrong_answers": "Zablokuj błędne odpowiedzi",
 	"TrueFalse_info" : "Umożliwia utworzenie ćwiczenia wielokrotnego lub pojedynczego wyboru, które składa się z co najmniej jednego pytania i dwóch opcji wyboru.",
 	"TrueFalse_name" : "Prawda/Fałsz",
 	"TrueFalse_property_is_not_activity" : "Nie jest ćwiczeniem",
@@ -1292,4 +1292,3 @@ var ice_dictionary_pl = {
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start"
 };
-
