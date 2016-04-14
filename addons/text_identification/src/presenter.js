@@ -53,6 +53,12 @@ function Addontext_identification_create(){
         presenter.executeUserEventCode();
         presenter.triggerSelectionChangeEvent();
         if (presenter.isAllOK()) sendAllOKEvent();
+
+        var score = presenter.configuration.shouldBeSelected ? 1 : 0;
+        if(score == 0 && presenter.configuration.blockWrongAnswers) {
+            presenter.configuration.isSelected = !presenter.configuration.isSelected;
+            presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
+        }
     };
 
     function handleMouseActions() {
@@ -95,7 +101,8 @@ function Addontext_identification_create(){
             onDeselected: model.onDeselected,
             shouldBeSelected: ModelValidationUtils.validateBoolean(model.SelectionCorrect),
             isSelected: false,
-            isErrorCheckMode: false
+            isErrorCheckMode: false,
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers)
         };
     };
 

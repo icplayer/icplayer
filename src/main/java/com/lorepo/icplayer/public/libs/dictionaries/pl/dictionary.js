@@ -859,6 +859,7 @@ var ice_dictionary_pl = {
 	"text_identification_property_selection_correct" : "Wybór jest poprawny",
 	"text_identification_property_on_selected" : "Na zaznaczenie",
 	"text_identification_property_on_deselected" : "Na odznaczenie",
+    "text_identification_property_block_wrong_answers": "Block wrong answers",
 	"TrueFalse_info" : "Umożliwia utworzenie ćwiczenia wielokrotnego lub pojedynczego wyboru, które składa się z co najmniej jednego pytania i dwóch opcji wyboru.",
 	"TrueFalse_name" : "Prawda/Fałsz",
 	"TrueFalse_property_is_not_activity" : "Nie jest ćwiczeniem",

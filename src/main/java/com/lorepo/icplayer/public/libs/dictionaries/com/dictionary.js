@@ -864,6 +864,7 @@
 	"text_identification_property_selection_correct": "Selection is correct",
 	"text_identification_property_on_selected": "On selected",
 	"text_identification_property_on_deselected": "On deselected",
+    "text_identification_property_block_wrong_answers": "Block wrong answers",
 	"TrueFalse_info": "It is an alternative for a Choice module, which enables to insert a single or multiple choice activity into a presentation. In the TrueFalse addon, it is necessary to select at least one question and two choice options.",
 	"TrueFalse_name": "True False",
 	"TrueFalse_property_is_not_activity": "Is not an activity",

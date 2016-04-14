@@ -860,6 +860,7 @@
 	"text_identification_property_selection_correct": "Seleccionar como correcto",
 	"text_identification_property_on_selected": "Seleccionado",
 	"text_identification_property_on_deselected": "No seleccionado",
+    "text_identification_property_block_wrong_answers": "Block wrong answers",
 	"TrueFalse_info": "Es una alternativa para el módulo de elección, que permite insertar una actividad de elección simple o múltiple a la presentación. En el addon Verdadero-Falso, es necesario seleccionar al menos una pregunta y dos opciones para elegir.",
 	"TrueFalse_name": "Verdadero-Falso",
 	"TrueFalse_property_is_not_activity": "No es una actividad",
