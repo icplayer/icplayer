@@ -306,6 +306,7 @@
 	"text_module_value_type" : "Value type",
 	"is_activity" : "Es actividad",
 	"is_disabled" : "Está deshabilitado",
+	"block_wrong_answers" : "Block wrong answers",
 	"randomOrder" : "Orden al azar",
 	"All_elements_has_same_width" : "El mismo ancho para todos los elementos",
 	"case_sensitive" : "Distinguir mayúsculas y minúsculas",

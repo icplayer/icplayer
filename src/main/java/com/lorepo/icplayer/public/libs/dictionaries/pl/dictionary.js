@@ -306,6 +306,7 @@ var ice_dictionary_pl = {
 	"text_module_value_type" : "Value type",
 	"is_activity" : "Jest&nbsp;ćwiczeniem",
 	"is_disabled" : "Jest&nbsp;wyłączony",
+	"block_wrong_answers" : "Block wrong answers",
 	"randomOrder" : "Kolejność&nbsp;losowa",
 	"All_elements_has_same_width" : "Jednakowa szer. dla wszystkich elementów",
 	"case_sensitive" : "Uwzględnia&nbsp;wielkość liter",

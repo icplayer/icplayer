@@ -1,3 +1,4 @@
+2016-04-14 Added blocking wrong answers in Text module
 2016-04-13 Fixed rendering latex in Text module
 2016-04-11 Added sending continuous events and stick steps in Slider module 
 2016-04-08 Fixed dragging element in Ordering module

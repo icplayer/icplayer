@@ -310,6 +310,7 @@
 	"text_module_value_type" : "Value type",
 	"is_activity" : "Is&nbsp;activity",
 	"is_disabled" : "Is&nbsp;disabled",
+	"block_wrong_answers" : "Block wrong answers",
 	"randomOrder" : "Random&nbsp;Order",
 	"All_elements_has_same_width" : "Even width for all elements",
 	"case_sensitive" : "Case&nbsp;sensitive",

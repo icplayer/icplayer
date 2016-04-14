@@ -649,7 +649,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			@Override
 			public void onGapDragged(String gapId) {
 				CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData(gapId));
-				removeFromGap(gapId);
+				removeFromGap(gapId, true);
 				playerServices.getEventBus().fireEvent(dragEvent);
 			}
 
@@ -663,7 +663,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onGapDropped(String id) {
 				if(draggableItem != null){
 					if (consumedItems.get(id) != null) {
-						removeFromGap(id);
+						removeFromGap(id, true);
 					}
 					insertToGap(id);
 				}
@@ -709,7 +709,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 
 		if (previouslyConsumedItem != null) {
-			removeFromGap(gapId);
+			removeFromGap(gapId, true);
 		} else if (draggableItem != null) {
 			insertToGap(gapId);
 		}
@@ -727,9 +727,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(gapId));
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
+		if(Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
+			removeFromGap(gapId, false);
+		}
 	}
 
-	protected void removeFromGap(String gapId) {
+	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 
 		String value = "";
@@ -740,7 +743,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.setValue(gapId, "");
 		fireItemReturnedEvent(previouslyConsumedItem);
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
-		playerServices.getEventBus().fireEvent(valueEvent);
+		if(shouldFireEvent){
+			playerServices.getEventBus().fireEvent(valueEvent);
+		}
 	}
 
 	protected void gapFocused(String gapId, Element element) {
