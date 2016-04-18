@@ -1028,6 +1028,7 @@
 	"ConnectingDots_property_image_a": "Start image",
 	"ConnectingDots_property_image_b": "End image",
 	"ConnectingDots_property_is_disabled": "Is disabled",
+    "Connection_property_block_wrong_answers" : "Block wrong answers",
 	"PointsLines_info": "Allows users to present a set of points on a plane where choosing two points causes drawing or removing a segment (line) connecting these two points.",
 	"PointsLines_name": "Points and Lines",
 	"PointsLines_property_points": "Points' coordinates",

@@ -1015,6 +1015,7 @@ var ice_dictionary_pl = {
 	"ConnectingDots_property_image_a": "Obraz początkowy",
 	"ConnectingDots_property_image_b": "Obraz końcowy",
 	"ConnectingDots_property_is_disabled": "Jest wyłączony",
+    "Connection_property_block_wrong_answers" : "Block wrong answers",
 	"PointsLines_info" : "Pozwala na dodanie do prezentacji ćwiczenia, w którym wybranie dwóch punktów powoduje utworzenie lub usunięcie segmentu łączącego te dwa punkty. Addon można wykorzystać zarówno w formie prezentacji zagadnienia matematycznego lub jako w pełni interaktywne zadanie.",
 	"PointsLines_name" : "Punkty i linie",
 	"PointsLines_property_points": "Współrzędne punktów",

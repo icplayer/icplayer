@@ -1016,6 +1016,7 @@
 	"ConnectingDots_property_image_a": "Imagen inicial",
 	"ConnectingDots_property_image_b": "Imagen final",
 	"ConnectingDots_property_is_disabled": "Esta deshabilitado",
+    "Connection_property_block_wrong_answers" : "Block wrong answers",
 	"PointsLines_info": "Permite a los usuarios presentar un conjunto de puntos en un plano donde la selección de dos puntos hace que se dibuja o borra un segmento (línea) que conecta estos dos puntos.",
 	"PointsLines_name": "Puntos y lineas",
 	"PointsLines_property_points": "Coordenadas de los puntos",
