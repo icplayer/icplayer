@@ -23,6 +23,7 @@ public class ImageGapModule extends BasicModuleModel {
 	private String answerId = "";
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
+	private boolean blockWrongAnswers = false;
 
 	private final HashMap<String, String> events = new HashMap<String, String>();
 
@@ -35,6 +36,7 @@ public class ImageGapModule extends BasicModuleModel {
 		addPropertyEvent(EVENT_WRONG);
 		addPropertyEvent(EVENT_EMPTY);
 		addPropertyIsDisabled();
+		addPropertyBlockWrongAnswers();
 	}
 
 	public String getAnswerId() {
@@ -56,6 +58,7 @@ public class ImageGapModule extends BasicModuleModel {
 					answerId = XMLUtils.getAttributeAsString(gapElement, "answerId");
 					isActivity = XMLUtils.getAttributeAsBoolean(gapElement, "isActivity", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean(gapElement, "isDisabled", false);
+					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(gapElement, "blockWrongAnswers", false);
 					break;
 				}
 			}
@@ -94,7 +97,7 @@ public class ImageGapModule extends BasicModuleModel {
 		xml += eventToXML(EVENT_WRONG);
 		xml += eventToXML(EVENT_EMPTY);
 		xml += "</events>";
-		xml += "<gap answerId='" + answerId + "' isActivity='" + isActivity + "' isDisabled='" + isDisabled + "'/>";
+		xml += "<gap answerId='" + answerId + "' isActivity='" + isActivity + "' isDisabled='" + isDisabled + "' blockWrongAnswers='" + blockWrongAnswers + "'/>";
 		xml += "</imageGapModule>";
 
 		return xml;
@@ -140,7 +143,43 @@ public class ImageGapModule extends BasicModuleModel {
 		addProperty(property);
 	}
 
+	private void addPropertyBlockWrongAnswers() {
 
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+				if (value!= blockWrongAnswers) {
+					blockWrongAnswers = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return blockWrongAnswers ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("block_wrong_answers");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("block_wrong_answers");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
 	private void addPropertyIsActivity() {
 
 		IProperty property = new IBooleanProperty() {
@@ -280,6 +319,10 @@ public class ImageGapModule extends BasicModuleModel {
 
 	public boolean isDisabled() {
 		return isDisabled;
+	}
+	
+	public boolean shouldBlockWrongAnswers() {
+		return blockWrongAnswers;
 	}
 
 }

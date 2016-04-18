@@ -234,17 +234,19 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (consumedItem == null) {
 			insertItem();
 		} else {
-			removeItem();
+			removeItem(true);
 		}
 	}
 
-	private void removeItem() {
+	private void removeItem(boolean shouldSendEvent) {
 		if (consumedItem != null) {
 			view.setImageUrl("");
 			fireItemReturnedEvent(consumedItem);
 			consumedItem = null;
-			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", "", "0");
-			playerServices.getEventBus().fireEvent(valueEvent);
+			if(shouldSendEvent){
+				ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", "", "0");
+				playerServices.getEventBus().fireEvent(valueEvent);
+			}
 		}
 	}
 
@@ -261,6 +263,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				playerServices.getEventBus().fireEvent(isAllOKevent);
 			}
 			view.makeDraggable(this);
+			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
+				removeItem(false);
+			}
 		}
 	}
 
@@ -562,7 +567,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void itemDragged() {
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
-		removeItem();
+		removeItem(true);
 		playerServices.getEventBus().fireEvent(dragEvent);
 	}
 
@@ -579,7 +584,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private void dropHandler() {
-		removeItem();
+		removeItem(true);
 		insertItem();
 	}
 
