@@ -1,3 +1,4 @@
+2016-04-19 Added property weight to page
 2016-04-18 Added blocking wrong answers in Image Gap module
 2016-04-18 Added blocking wrong answers in Connection module
 2016-04-14 Added blocking wrong answers in Text Identification module

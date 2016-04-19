@@ -21,22 +21,22 @@ import com.lorepo.icplayer.client.module.api.player.ITimeService;
 
 public class PlayerServicesMockup implements IPlayerServices {
 
-	private EventBus		eventBus;
-	private IPlayerCommands	commands;
-	private IScoreService	scoreService;
+	private final EventBus		eventBus;
+	private final IPlayerCommands	commands;
+	private final IScoreService	scoreService;
 	private IContent		contentModel;
-	private IJsonServices	jsonMockup;
-	
+	private final IJsonServices	jsonMockup;
+
 	public PlayerServicesMockup() {
-	
+
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
 		scoreService = new ScoreService(ScoreType.last);
 		jsonMockup = new JsonMockup();
 	}
-	
-	
+
+
 	@Override
 	public IScoreService getScoreService() {
 
@@ -45,7 +45,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public IPlayerCommands getCommands() {
-		
+
 		return commands;
 	}
 
@@ -68,7 +68,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return 0;
 	}
 
-	
+
 	public void setModel(IContent content){
 		this.contentModel = content;
 	}
@@ -104,7 +104,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 	@Override
 	public void sendAnalytics(String event, HashMap<String, String> params) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -128,7 +128,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-	
+
 	@Override
 	public IPresenter getFooterModule(String id) {
 		// TODO Auto-generated method stub
@@ -154,5 +154,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public ITimeService getTimeService() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public int getPageWeight() {
+		// TODO Auto-generated method stub
+		return 1;
 	}
 }

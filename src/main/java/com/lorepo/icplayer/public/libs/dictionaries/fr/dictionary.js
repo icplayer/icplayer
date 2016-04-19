@@ -1284,6 +1284,8 @@ var ice_dictionary_fr = {
 "Print_Report_property_total_label": "Etiquette Résultat total",
 "Print_Report_property_print_report_label": "Etiquette Imprimer le rapport",
 "Print_Report_property_close_report_label": "Etiquette Fermer le rapport",
+"weight_mode": "Scoring Weight Mode",
+"weight_value": "Custom Scoring Value",
 "Print_Report_property_date_label": "Date format",
 "Print_Report_property_date": "Show Current Date",
 "Print_Report_property_export_csv_label": "Export Button Label",

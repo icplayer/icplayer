@@ -372,22 +372,22 @@ public class JavaScriptPlayerServices {
 
 			return score;
 		};
-		
+
 		playerServices.getTimeService = function() {
 			var time = function() {
 			};
-			
+
 			time.getTotalTime = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTotalTime()();
 			}
-			
+
 			time.getPageTimeById = function(pageId) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTimeById(Ljava/lang/String;)(pageId);
 			}
 
 			return time;
 		}
-		
+
 		playerServices.getAssets = function() {
 			var assets = function() {
 			};
@@ -414,10 +414,10 @@ public class JavaScriptPlayerServices {
 		return playerServices;
 	}-*/;
 
-	private String getContentType(String href){		
+	private String getContentType(String href){
 		return playerServices.getAssetsService().getContentType(href);
 	}
-	
+
     private JavaScriptObject getPageByIndex(int index) {
         return playerServices.getModel().getPage(index).toJavaScript();
     }
@@ -560,15 +560,15 @@ public class JavaScriptPlayerServices {
 
 		return null;
 	}
-	
+
 	private String getTotalTime() {
 		return Long.toString(playerServices.getTimeService().getTotalTime());
 	}
-	
+
 	private String getPageTimeById(String pageId) {
 		return Long.toString(playerServices.getTimeService().getPageTimeById(pageId));
 	}
-	
+
 	private int getMaxScore(){
 		return playerServices.getScoreService().getTotalMaxScore();
 	}
@@ -587,7 +587,9 @@ public class JavaScriptPlayerServices {
 	private JavaScriptObject getPageScoreById(String id){
 		PageScore score = playerServices.getScoreService().getPageScoreById(id);
 		Long time = playerServices.getTimeService().getPageTimeById(id);
+
 		JavaScriptObject model = scoreToJs(score, time);
+
 		return model;
 	}
 
@@ -596,7 +598,7 @@ public class JavaScriptPlayerServices {
 		JavaScriptUtils.addPropertyToJSArray(model, "time", Long.toString(time));
 		return model;
 	}
-	
+
 	private static JavaScriptObject scoreToJs(PageScore score) {
 		JavaScriptObject model = JavaScriptObject.createArray();
 		JavaScriptUtils.addPropertyToJSArray(model, "score", (int) score.getScore());
@@ -604,6 +606,7 @@ public class JavaScriptPlayerServices {
 		JavaScriptUtils.addPropertyToJSArray(model, "checkCount", score.getCheckCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "errorCount", score.getErrorCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
+		JavaScriptUtils.addPropertyToJSArray(model, "weight", score.getWeight());
 		return model;
 	}
 
@@ -663,11 +666,11 @@ public class JavaScriptPlayerServices {
 	private void incrementCheckCounter() {
 		playerServices.getCommands().incrementCheckCounter();
 	}
-	
+
 	private void increaseMistakeCounter() {
 		playerServices.getCommands().increaseMistakeCounter();
 	}
-	
+
 	private void checkAnswers() {
 		playerServices.getCommands().checkAnswers();
 	}

@@ -20,47 +20,50 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 public class Content implements IXMLSerializable, IContent {
 
 	public enum ScoreType{ first, last }
-	
+
 	private static final String COMMONS_FOLDER = "commons/";
 	private String name = "";
-	private ScoreType scoreType = ScoreType.last; 
-	private PageList	pages;
-	private PageList	commonPages;
-	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
-	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
+	private ScoreType scoreType = ScoreType.last;
+	private final PageList	pages;
+	private final PageList	commonPages;
+	private final HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
+	private final ArrayList<IAsset>	assets = new ArrayList<IAsset>();
 	private ArrayList<Integer> pageSubset = new ArrayList<Integer>();
 	private String styles;
-	private HashMap<String, String>	metadata = new HashMap<String, String>();
+	private final HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	
+
 	public Content(){
-		
+
 		pages = new PageList("root");
 		commonPages = new PageList("commons");
 		connectHandlers();
 	}
-	
+
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
-	
+
 	private void connectHandlers() {
 		pages.addListener(new IPageListListener() {
+			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
 					listener.onRemovePage(node, parent);
 				}
 			}
-			
+
+			@Override
 			public void onNodeMoved(IChapter source, int from, int to) {
 				if(listener != null){
 					listener.onPageMoved(source, from, to);
 				}
 			}
-			
+
+			@Override
 			public void onNodeAdded(IContentNode node) {
 				if(listener != null){
 					listener.onAddPage(node);
@@ -72,121 +75,127 @@ public class Content implements IXMLSerializable, IContent {
 				if(listener != null){
 					listener.onChanged(source);
 				}
-				
+
 			}
 		});
-		
+
 		commonPages.addListener(new IPageListListener() {
+			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
 					listener.onRemovePage(node, parent);
 				}
 			}
+			@Override
 			public void onNodeMoved(IChapter source, int from, int to) {
 			}
+			@Override
 			public void onNodeAdded(IContentNode node) {
 				if(listener != null){
 					listener.onAddPage(node);
 				}
 			}
+			@Override
 			public void onChanged(IContentNode source) {
 			}
 		});
-		
+
 	}
 
-	
+
 	public ScoreType getScoreType(){
 		return scoreType;
 	}
-	
+
 	public void setScoreType(ScoreType st){
 		scoreType = st;
 	}
-	
+
 	public void addChangeListener(IContentListener l){
 		listener = l;
 	}
-	
-	
+
+
 	public HashMap<String,AddonDescriptor>	getAddonDescriptors(){
 		return addonDescriptors;
 	}
-	
-	
+
+
 	public PageList	getPages(){
 		return pages;
 	}
-	
-	
+
+
+	@Override
 	public PageList	getCommonPages(){
 		return commonPages;
 	}
-	
-	
+
+
 	public void addAsset(IAsset asset){
-		
-		String href = asset.getHref(); 
-		
+
+		String href = asset.getHref();
+
 		if(href == null){
 			return;
 		}
-		
+
 		String escaped = StringUtils.escapeHTML(href);
 		if(escaped.compareTo(href) != 0){
 			return;
 		}
-			
+
 		boolean foundURL = false;
-			
+
 		for(IAsset a : assets){
 			if(a.getHref().compareTo(asset.getHref()) == 0){
 				foundURL = true;
 				break;
 			}
 		}
-			
+
 		if(	!foundURL){
 
 			assets.add(asset);
 		}
 	}
 
-	
+
 	public IAsset getAsset(int index){
-		
+
 		return assets.get(index);
 	}
-	
+
 	@Override
 	public List<IAsset> getAssets(){
-		
+
 		return assets;
 	}
 
-	
+
 	public int getAssetCount(){
-		
+
 		return assets.size();
 	}
 
-	
+
+	@Override
 	public String getBaseUrl(){
 		return baseUrl;
 	}
-	
-	
+
+
 	public String getMetadataValue(String key){
 		return metadata.get(key);
 	}
 
-	
+
 	public String getStyles(){
 		return styles;
 	}
-	
+
 	public void setMetadataValue(String key, String value){
-		
+
 		if(value == null || value.length() == 0){
 			metadata.remove(key);
 		}
@@ -195,7 +204,7 @@ public class Content implements IXMLSerializable, IContent {
 		}
 	}
 
-	
+
 	public void setStyles(String text) {
 		styles = text;
 	}
@@ -213,10 +222,10 @@ public class Content implements IXMLSerializable, IContent {
 
 		NodeList children = rootElement.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++){
-			
+
 			if(children.item(i) instanceof Element){
 				Element child = (Element) children.item(i);
-				String name = child.getNodeName(); 
+				String name = child.getNodeName();
 				if(name.compareTo("metadata") == 0){
 					loadMetadata(child);
 				}
@@ -234,7 +243,7 @@ public class Content implements IXMLSerializable, IContent {
 				}
 			}
 		}
-		
+
 	}
 
 	private void loadAttributes(Element rootElement) {
@@ -249,9 +258,9 @@ public class Content implements IXMLSerializable, IContent {
 
 	private void loadMetadata(Element rootElement) {
 		NodeList entries = rootElement.getElementsByTagName("entry");
-		
+
 		for(int i = 0; i < entries.getLength(); i++){
-	
+
 			Element node = (Element)entries.item(i);
 			String key = StringUtils.unescapeXML(node.getAttribute("key"));
 			String value = StringUtils.unescapeXML(node.getAttribute("value"));
@@ -261,11 +270,11 @@ public class Content implements IXMLSerializable, IContent {
 
 
 	private void loadAddonDescriptors(Element rootElement) {
-	
+
 		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
-		
+
 		for(int i = 0; i < descriptorNodes.getLength(); i++){
-	
+
 			Element node = (Element)descriptorNodes.item(i);
 			String addonId = node.getAttribute("addonId");
 			String href = StringUtils.unescapeXML(node.getAttribute("href"));
@@ -288,7 +297,7 @@ public class Content implements IXMLSerializable, IContent {
 		NodeList children = rootElement.getChildNodes();
 		pages.load(rootElement, baseUrl, pageSubset, 0);
 		for(int i = 0; i < children.getLength(); i++){
-	
+
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("folder") == 0){
@@ -306,9 +315,9 @@ public class Content implements IXMLSerializable, IContent {
 
 
 	private void loadAssets(Element rootElement) {
-		
+
 		AssetFactory factory = new AssetFactory();
-		
+
 		NodeList assets = rootElement.getElementsByTagName("asset");
 		for(int i = 0; i < assets.getLength(); i++){
 
@@ -330,13 +339,14 @@ public class Content implements IXMLSerializable, IContent {
 	 * Convert model into XML
 	 * @return
 	 */
+	@Override
 	public String toXML(){
-	
-		String xml = "<?xml version='1.0' encoding='UTF-8' ?>"; 
+
+		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";			
-		
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";
+
 		// Metadata
 		xml += "<metadata>";
 		for(String key : metadata.keySet()){
@@ -345,7 +355,7 @@ public class Content implements IXMLSerializable, IContent {
 			xml += "<entry key='" + encodedKey + "' value='" + encodedValue + "'/>";
 		}
 		xml += 	"</metadata>";
-		
+
 		// Addons
 		xml += "<addons>";
 		for(AddonDescriptor descriptor : addonDescriptors.values()){
@@ -356,44 +366,44 @@ public class Content implements IXMLSerializable, IContent {
 		if(styles != null){
 			xml += "<style>" + StringUtils.escapeHTML(styles) + "</style>";
 		}
-		
+
 		// Pages
 		xml += toXMLPages();
-		
+
 		// Assets
 		xml += "<assets>";
 		for(IAsset asset : assets){
 			xml += asset.toXML();
 		}
 		xml += 	"</assets>";
-		
+
 		xml += 	"</interactiveContent>";
 		return xml;
 	}
 
 
 	private String toXMLPages() {
-		
+
 		String xml = "<pages>";
 		xml += pages.toXML();
-		
+
 		if(commonPages.getTotalPageCount() > 0){
-			
+
 			xml += "<folder name='commons'>";
 			xml += commonPages.toXML();
 			xml += 	"</folder>";
 		}
-		
+
 		if(headerPageName != null){
 			xml += "<header ref='" + headerPageName + "'/>";
 		}
-		
+
 		if(footerPageName != null){
 			xml += "<footer ref='" + footerPageName + "'/>";
 		}
-		
+
 		xml += 	"</pages>";
-		
+
 		return xml;
 	}
 
@@ -409,10 +419,11 @@ public class Content implements IXMLSerializable, IContent {
 		return pages.getAllPages().get(index);
 	}
 
+	@Override
 	public IPage getCommonPage(int index) {
 		return commonPages.getAllPages().get(index);
 	}
-	
+
     @Override
     public IPage getPageById(String id) {
         for (IPage page : pages.getAllPages()) {
@@ -428,16 +439,17 @@ public class Content implements IXMLSerializable, IContent {
 	public IAddonDescriptor getAddonDescriptor(String addonId) {
 		return addonDescriptors.get(addonId);
 	}
-	
-	
+
+
+	@Override
 	public Page findPageByName(String pageName){
-		
+
 		int index;
 		Page page = null;
-		String lowerCaseName = pageName.toLowerCase(); 
-		
+		String lowerCaseName = pageName.toLowerCase();
+
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
-		
+
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
 			index = commonPages.findPageIndexByName(commonPageName);
 			if(index >= 0){
@@ -450,22 +462,23 @@ public class Content implements IXMLSerializable, IContent {
 				page = pages.getAllPages().get(index);
 			}
 		}
-		
-		
+
+
 		return page;
 	}
-	
+
+	@Override
 	public int getCommonPageIndex(String pageId) {
 	    //  -1 if page not found
 		return commonPages.findPageIndexById(pageId);
 	}
-	
-	
+
+
 	public Page getHeader(){
 		return findPageByName(headerPageName);
 	}
-	
-	
+
+
 	public Page getFooter(){
 		return findPageByName(footerPageName);
 	}
@@ -488,6 +501,16 @@ public class Content implements IXMLSerializable, IContent {
 		return parent;
 	}
 
+	public HashMap<String, Integer> getPageWeights() {
+		HashMap<String, Integer> weights = new HashMap<String, Integer>();
 
-	
+		for(IPage page : getPages().getAllPages()) {
+			weights.put(page.getId(), page.getPageWeight());
+		}
+
+		return weights;
+	}
+
+
+
 }

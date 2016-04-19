@@ -10,48 +10,48 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 @SuppressWarnings("serial")
 public class Group extends GroupPropertyProvider {
-	
+
 	private Page page;
 	private String id;
 	private ScoringGroupType scoringType = ScoringGroupType.defaultScore;
 	private int maxScore = 1;
 	private IProperty propertyMaxScore;
-	
+
 	public enum ScoringGroupType {
 		defaultScore,
 		zeroMaxScore,
 		graduallyToMaxScore
 	}
-	
+
 	public Group(Page page) {
 		super("Group");
 		this.page = page;
 		addPropertyId();
 		addPropertyScoreType();
 	}
-	
+
 	public Group() {
 		super("Group");
 		addPropertyId();
 		addPropertyScoreType();
 	}
-	
+
 	public String getId() {
 		return id;
 	}
-	
+
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+
 	public ScoringGroupType getScoringType() {
 		return scoringType;
 	}
-	
+
 	public int getMaxScore() {
 		return maxScore;
 	}
-	
+
 	public Group loadGroupFromXML(Element groupNode) {
 		NodeList groupModuleElements = groupNode.getElementsByTagName("groupModule");
 		NodeList scoringNode = groupNode.getElementsByTagName("scoring");
@@ -67,14 +67,14 @@ public class Group extends GroupPropertyProvider {
 			String moduleID = groupModule.getAttribute("moduleID");
 			group.add(page.getModules().getModuleById(moduleID));
 		}
-		
+
 		group.maxScore = maxScore;
 		group.scoringType = scoringType;
 		group.id = id;
 
 		return group;
 	}
-	
+
 	public String toXML() {
 		Group group = this;
 		String xml;
@@ -82,45 +82,45 @@ public class Group extends GroupPropertyProvider {
 		xml = "<group id='" + id + "'>";
 		xml += "<scoring type='" + scoringType + "' max='" + maxScore + "'/>";
 		xml += "<groupedModulesList>";
-		
+
 		for(IModuleModel module : group) {
 			if (module != null) {
 				xml += "<groupModule moduleID='" + StringUtils.escapeXML(module.getId()) + "'/>";
 			}
 		}
-		
+
 		xml += "</groupedModulesList>";
 		xml += "</group>";
 		return xml;
 	}
-	
+
 	protected boolean isIdCorrect(String newValue) {
 		return !newValue.trim().equals("");
 	}
-	
+
 	private void addPropertyId() {
 
 		IProperty propertyId = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				
+
 				if (isIdCorrect(newValue) && isIDUnique(newValue)) {
 					id = newValue;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return id;
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("group_id");
 			}
-			
+
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("group_id");
@@ -131,49 +131,49 @@ public class Group extends GroupPropertyProvider {
 				return false;
 			}
 		};
-		
+
 		addProperty(propertyId);
 	}
-	
+
 	protected boolean isIDUnique(String newId) {
 		for (Group group : page.getGroupedModules()) {
 			if (group.getId().equals(newId)) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private void addPropertyScoreType() {
 
 		IProperty property = new IEnumSetProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				setScoreFromString(newValue);
 				sendPropertyChangedEvent(this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return DictionaryWrapper.get(scoringType.toString());
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("score_type");
 			}
-			
+
 			@Override
 			public int getAllowedValueCount() {
 				return ScoringGroupType.values().length;
 			}
-			
+
 			@Override
 			public String getAllowedValue(int index) {
 				String type = "";
-				
+
 				switch(ScoringGroupType.values()[index]) {
 					case defaultScore:
 						type = "Default";
@@ -185,7 +185,7 @@ public class Group extends GroupPropertyProvider {
 						type = "Gradually to Max";
 						break;
 				}
-				
+
 				return type;
 			}
 
@@ -199,10 +199,10 @@ public class Group extends GroupPropertyProvider {
 				return false;
 			}
 		};
-		
+
 		addProperty(property);
 	}
-	
+
 	protected boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
 		try {
 			maxScore = Integer.parseInt(newValue);
@@ -212,29 +212,29 @@ public class Group extends GroupPropertyProvider {
 			return false;
 		}
 	}
-	
+
 	public void addPropertyMaxScore() {
-		 if (propertyMaxScore != null) {
-			 return;
-		 }
-		 
+		if (propertyMaxScore != null) {
+			return;
+		}
+
 		IProperty property = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				isNewValueMaxScoreValid(newValue, this);
 			}
-			
+
 			@Override
 			public String getValue() {
 				return maxScore > 0 ? Integer.toString(maxScore) : "1";
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("max_score");
 			}
-			
+
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("max_score");
@@ -245,16 +245,16 @@ public class Group extends GroupPropertyProvider {
 				return false;
 			}
 		};
-		
+
 		propertyMaxScore = property;
 		addProperty(property);
 	}
-	
+
 	public void removePropertyMaxScore() {
 		removeProperty(propertyMaxScore);
 		propertyMaxScore = null;
 	}
-	
+
 	public void setScoreFromString(String scoreName) {
 		if(scoreName != null){
 			for(ScoringGroupType st : ScoringGroupType.values()){

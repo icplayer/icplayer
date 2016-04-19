@@ -55,7 +55,6 @@ public class PageController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
-	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -93,7 +92,7 @@ public class PageController {
 			valueChangedHandler = null;
 		}
 	}
-	
+
 	public void setPage(Page page) {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
@@ -152,14 +151,14 @@ public class PageController {
 			}
 		}
 	}
-	
+
 	public String deletePositionImportantStyles (String inlineStyle) {
 		String[] attributes = inlineStyle.split(";");
 		StringBuilder strBuilder = new StringBuilder();
 		for (String attribute: attributes) {
-			if((attribute.contains("left") || attribute.contains("top") 
-					|| attribute.contains("right") || attribute.contains("bottom")) && (!attribute.contains("-left") && !attribute.contains("-top") 
-					&& !attribute.contains("-right") && !attribute.contains("-bottom") 
+			if((attribute.contains("left") || attribute.contains("top")
+					|| attribute.contains("right") || attribute.contains("bottom")) && (!attribute.contains("-left") && !attribute.contains("-top")
+					&& !attribute.contains("-right") && !attribute.contains("-bottom")
 					&& !attribute.contains("text-align") && !attribute.contains("vertical-align") && !attribute.contains("background") && !attribute.contains("gradient"))){
 				continue;
 			}
@@ -180,10 +179,10 @@ public class PageController {
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	protected ArrayList<IPresenter> createGroupPresenters(Group group) {
 		ArrayList<IPresenter> groupPresenters = new ArrayList<IPresenter>();
 
@@ -197,13 +196,13 @@ public class PageController {
 
 		return groupPresenters;
 	}
-	
+
 	protected Result calculateScoreForEachGroup(Group group, ArrayList<IPresenter> groupPresenters, int groupMaxScore) {
 		Result groupResult = new Result();
-		
+
 		for(IPresenter presenter : groupPresenters){
 			if(presenter instanceof IActivity){
-				IActivity activity = (IActivity) presenter;		
+				IActivity activity = (IActivity) presenter;
 				if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
 					groupResult = Score.calculateZeroMaxScore(groupResult, activity);
 				} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
@@ -213,10 +212,10 @@ public class PageController {
 				}
 			}
 		}
-		
+
 		return groupResult;
 	}
-	
+
 	protected Result calculateScoreModulesOutGroup(Result groupsResult) {
 		for (IPresenter presenter : presenters) {
 			if (findGroup(presenter.getModel()) == null && presenter instanceof IActivity) {
@@ -224,20 +223,20 @@ public class PageController {
 				groupsResult = Score.calculateDefaultScore(groupsResult, activity, currentPage.getScoringType());
 			}
 		}
-		
+
 		return groupsResult;
 	}
-	
+
 	protected Result calculateScoreModulesInGroups() {
 		Result groupsResult = new Result();
 		if(currentPage.getGroupedModules() != null){
 			for (Group group : currentPage.getGroupedModules()) {
 				int groupMaxScore = group.getMaxScore();
-	
+
 				ArrayList<IPresenter> groupPresenters = createGroupPresenters(group);
-				
+
 				Result groupResult = calculateScoreForEachGroup(group, groupPresenters, groupMaxScore);
-				
+
 				if (group.getScoringType() == ScoringGroupType.defaultScore) {
 					groupsResult = Score.updateDefaultGroupResult(groupsResult, groupResult);
 				} else if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
@@ -247,22 +246,22 @@ public class PageController {
 				}
 			}
 		}
-		
+
 		return groupsResult;
 	}
-	
+
 	public void checkAnswers() {
 		updateScore(true);
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
 	}
-	
+
 	public void incrementCheckCounter() {
 		updateScoreCheckCounter();
 	}
-	
+
 	public void increaseMistakeCounter() {
 		updateScoreMistakeCounter();
-		
+
 		ValueChangedEvent valueEvent = new ValueChangedEvent("", "", "increaseMistakeCounter", "");
 		playerService.getEventBus().fireEvent(valueEvent);
 	}
@@ -275,7 +274,7 @@ public class PageController {
 			playerService.getScoreService().setPageScore(currentPage, score.increaseMistakeCounter());
 		}
 	}
-	
+
 	public void updateScore(boolean updateCounters) {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();
@@ -284,7 +283,7 @@ public class PageController {
 			playerService.getScoreService().setPageScore(currentPage, updateCounters ? score.incrementCounters() : score);
 		}
 	}
-	
+
 	public void updateScoreCheckCounter() {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();
@@ -296,13 +295,13 @@ public class PageController {
 
 	private Score.Result getCurrentScore() {
 		Result groupsResult = calculateScoreModulesInGroups();
-		
+
 		if(groupsResult == null){
 			Result result = new Result();
 			result.score = 0;
 			result.maxScore = 0;
 			result.errorCount = 0;
-			
+
 			groupsResult = calculateScoreModulesOutGroup(result);
 		}else{
 			groupsResult = calculateScoreModulesOutGroup(groupsResult);
@@ -310,7 +309,7 @@ public class PageController {
 
 		return groupsResult;
 	}
-	
+
 	public void uncheckAnswers() {
 		playerService.getEventBus().fireEvent(new WorkModeEvent());
 	}
@@ -393,7 +392,7 @@ public class PageController {
 		if (keyboardController != null) {
 			keyboardController.resetStatus();
 		}
-		
+
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
@@ -401,7 +400,7 @@ public class PageController {
 			currentPage.release();
 			currentPage = null;
 		}
-		
+
 		pageView.removeAllModules();
 		presenters.clear();
 	}
@@ -413,16 +412,16 @@ public class PageController {
 	public IPlayerController getPlayerController() {
 		return playerController;
 	}
-	 
+
 	public List<IPresenter> getPresenters() {
 		return presenters;
 	}
-	
+
 	public HashMap<String, Widget> getWidgets() {
 		if (pageView != null) {
 			return pageView.getWidgets();
 		}
-		
+
 		return null;
 	}
 }

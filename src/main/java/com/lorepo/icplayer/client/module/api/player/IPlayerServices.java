@@ -30,4 +30,5 @@ public interface IPlayerServices {
 	public void sendAnalytics(String event, HashMap<String,String> params);
 	public IPresenter getHeaderModule(String name);
 	public IPresenter getFooterModule(String name);
+	public int getPageWeight();
 }

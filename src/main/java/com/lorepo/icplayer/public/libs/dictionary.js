@@ -1288,6 +1288,8 @@
     "Print_Report_property_total_label": "Total results label",
     "Print_Report_property_print_report_label": "Print report label",
     "Print_Report_property_close_report_label": "Close report label",
+    "weight_mode": "Scoring Weight Mode",
+    "weight_value": "Custom Scoring Value",
     "Print_Report_property_date_label": "Date format",
     "Print_Report_property_date": "Show Current Date",
     "Print_Report_property_export_csv_label": "Export Button Label",

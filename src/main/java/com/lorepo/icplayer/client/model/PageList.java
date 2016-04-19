@@ -19,28 +19,29 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
 public class PageList extends BasicPropertyProvider implements IChapter{
-	
+
 	private IPlayerServices playerServices;
-	private List<IContentNode>	nodes = new ArrayList<IContentNode>();
+	private final List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
 	public String name;
-	
+
 	public PageList(){
 		this("Chapter");
 	}
-	
 
-	
+
+
 	public PageList(String name){
 		super("Chapter");
 		this.name = name;
 		addPropertyName();
 	}
-	
+
+	@Override
 	public String getName(){
 		return name;
 	}
-	
+
 	public void setPlayerServices(IPlayerServices ps) {
 		this.playerServices = ps;
 		List<Page> pages = getAllPages();
@@ -48,15 +49,16 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			page.setPlayerServices(ps);
 		}
 	}
-	
+
 
 	public void addListener(IPageListListener l){
 		this.listener = l;
 	}
-	
-	
+
+
+	@Override
 	public boolean add(IContentNode node){
-		
+
 		boolean result = nodes.add(node);
 		if(listener != null){
 			listener.onNodeAdded(node);
@@ -65,13 +67,14 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				pages.addListener(listener);
 			}
 		}
-		
+
 		return result;
 	}
-	
-	
+
+
+	@Override
 	public List<Page> getAllPages(){
-		List<Page> pages = new Vector<Page>(); 
+		List<Page> pages = new Vector<Page>();
 		for(IContentNode node : nodes){
 			if(node instanceof Page){
 				pages.add((Page) node);
@@ -81,48 +84,48 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				pages.addAll(chapter.getAllPages());
 			}
 		}
-		
+
 		return pages;
 	}
-	
+
 	public void insertBefore(int index, IContentNode node){
-		
+
 		nodes.add(index, node);
-		
+
 		if(listener != null){
 			listener.onNodeAdded(node);
 		}
 	}
 
-	
+
 	public IContentNode removePage(int index){
-		
+
 		IContentNode node = nodes.remove(index);
-		
+
 		if(listener != null){
 			listener.onNodeRemoved(node, this);
 		}
-		
+
 		return node;
 	}
 
-	
+
 	public boolean remove(IContentNode node){
-		
+
 		boolean result = nodes.remove(node);
-		
+
 		if(listener != null && result){
 			listener.onNodeRemoved(node, this);
 		}
-		
+
 		return result;
 	}
 
-	
+
 	public boolean removeFromTree(IContentNode node){
-		
+
 		boolean result = nodes.remove(node);
-		
+
 		if(result){
 			if(listener != null){
 				listener.onNodeRemoved(node, this);
@@ -138,13 +141,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				}
 			}
 		}
-		
+
 		return result;
 	}
 
-	
+
 	public boolean remove(String name){
-		
+
 		for(IContentNode node : nodes){
 			if(node instanceof Page){
 				Page page = (Page) node;
@@ -163,29 +166,29 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				}
 			}
 		}
-		
-		
+
+
 		return false;
 	}
 
-	
+
 	public int findPageIndexByName(String pageName) {
 
 		int index = 0;
 		String strippedSourceName = pageName.replaceAll("\\s+", "");
 		List<Page> pages = getAllPages();
 		for(Page page : pages){
-		
+
 			String strippedName = page.getName().replaceAll("\\s+", "");
 			if(strippedName.compareToIgnoreCase(strippedSourceName) == 0){
 				return index;
 			}
 			index++;
 		}
-		
+
 		return -1;
 	}
-	
+
 	public int findPageIndexById(String pageId) {
 
 		int index = 0;
@@ -196,26 +199,26 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			}
 			index++;
 		}
-		
+
 		return -1;
 	}
 
-	
+
 	public String generateUniquePageName() {
 
 		String pageName = "New page";
-		
+
 		for(int i = 1; i < 200; i++){
 			pageName = DictionaryWrapper.get("page") + " " + i;
 			if(findPageIndexByName(pageName) == -1){
 				break;
 			}
 		}
-		
+
 		return pageName;
 	}
-	
-	
+
+
 	public int getTotalPageCount(){
 		int counter = 0;
 		for(IContentNode node : nodes){
@@ -232,14 +235,14 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	@Override
 	public void load(Element rootElement, String url) {
-		//for IXMLSerializable interface  
+		//for IXMLSerializable interface
 		load(rootElement, url, null, 0);
 	}
 
 
 	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex) {
 		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
-		
+
 		boolean isLoadedWithSubset = subsetOfPages != null && subsetOfPages.size() > 0;
 		name = StringUtils.unescapeXML(nodeName);
 		NodeList children = rootElement.getChildNodes();
@@ -247,10 +250,10 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("page") == 0){
-					if (isLoadedWithSubset && !subsetOfPages.contains(pageIndex)) { 
+					if (isLoadedWithSubset && !subsetOfPages.contains(pageIndex)) {
 						pageIndex++;
 						continue;
-					} else {		
+					} else {
 						Page page = loadPage(node);
 						add(page);
 						pageIndex++;
@@ -267,17 +270,22 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 	private Page loadPage(Element node) {
+		final String name = StringUtils.unescapeXML(node.getAttribute("name"));
+		final String href = node.getAttribute("href");
+		final String pageId = node.getAttribute("id");
+		final String preview = XMLUtils.getAttributeAsString(node, "preview");
 
-		String name = StringUtils.unescapeXML(node.getAttribute("name"));
-		String href = node.getAttribute("href");
-		String pageId = node.getAttribute("id");
-		String preview = XMLUtils.getAttributeAsString(node, "preview");
+		final String pageWeightAttribute = node.getAttribute("pageWeight");
+		final boolean isEmpty = pageWeightAttribute == null || pageWeightAttribute.isEmpty();
+		final int weight = isEmpty ? 1 : (int) Float.parseFloat(pageWeightAttribute);
+
 		boolean reportable = XMLUtils.getAttributeAsBoolean(node, "reportable", true);
 		Page page = new Page(name, href);
-		if(pageId != null && pageId.length() > 0 && !pageId.equals("null")){
+		if (pageId != null && pageId.length() > 0 && !pageId.equals("null")) {
 			page.setId(pageId);
 		}
 
+		page.setPageWeight(weight);
 		page.setReportable(reportable);
 		page.setPreview(preview);
 		return page;
@@ -286,11 +294,10 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	@Override
 	public String toXML() {
 		String xml = "";
-		for(IContentNode node : nodes){
-			if(node instanceof Page){
+		for (IContentNode node : nodes) {
+			if (node instanceof Page) {
 				xml += toXMLPage((Page) node);
-			}
-			else if(node instanceof PageList){
+			} else if (node instanceof PageList){
 				PageList chapter = (PageList) node;
 				String name = StringUtils.escapeXML(chapter.getName());
 				xml += "<chapter name='" + name + "'>";
@@ -298,21 +305,21 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				xml += "</chapter>";
 			}
 		}
-		
+
 		return xml;
 	}
-	
+
 	private String toXMLPage(Page page) {
-		
 		String name = StringUtils.escapeXML(page.getName());
 		String href = StringUtils.escapeXML(page.getHref());
 		String preview = StringUtils.escapeXML(page.getPreview());
-		String xml = "<page id='" + page.getId() + "' name='" + name + "'" + 
-				" href='" + href + "' preview='" + preview + "'";
-		if(page.isReportable()){
+		String xml = "<page id='" + page.getId() + "' name='" + name + "'" + " href='" + href + "' preview='" + preview + "'";
+		xml += " modulesMaxScore='[s]'".replace("[s]", page.getModulesMaxScore() + "");
+		xml += " pageWeight='[w]'".replace("[w]", page.getPageWeight() + "");
+
+		if (page.isReportable()) {
 			xml += " reportable='true'/>";
-		}
-		else{
+		} else {
 			xml += " reportable='false'/>";
 		}
 		return xml;
@@ -325,11 +332,9 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	public int indexOf(IContentNode node){
 		return nodes.indexOf(node);
 	}
-	
-	public void movePage(int from, int to){
 
-		if(from < nodes.size() && to < nodes.size()){
-			
+	public void movePage(int from, int to) {
+		if (from < nodes.size() && to < nodes.size()){
 			IContentNode node = nodes.remove(from);
 			nodes.add(to, node);
 			if(listener != null && node instanceof Page){
@@ -338,10 +343,12 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		}
 	}
 
+	@Override
 	public int size(){
 		return nodes.size();
 	}
-	
+
+	@Override
 	public IContentNode get(int index){
 		return nodes.get(index);
 	}
@@ -349,7 +356,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	@Override
 	public JavaScriptObject toJavaScript() {
 		return javaScriptInterface(this);
-	}	
+	}
 
 	/**
 	 * Get JavaScript interface to the page
@@ -357,7 +364,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	 * @return
 	 */
 	private native static JavaScriptObject javaScriptInterface(PageList x) /*-{
-	
+
 		var chapter = function(){}
 		chapter.type = "chapter";
 		chapter.getName = function(){
@@ -369,34 +376,34 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		chapter.get = function(index){
 			return x.@com.lorepo.icplayer.client.model.PageList::getPageAsJavaScript(I)(index);
 		}
-		
+
 		return chapter;
 	}-*/;
-	
+
 	private JavaScriptObject getPageAsJavaScript(int index) {
 		return get(index).toJavaScript();
-	}	
-	
+	}
+
 	private void addPropertyName() {
 
 		IProperty propertyName = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
 				name = newValue;
 				fireChangedEvent();
 			}
-			
+
 			@Override
 			public String getValue() {
 				return name;
 			}
-			
+
 			@Override
 			public String getName() {
 				return DictionaryWrapper.get("name");
 			}
-			
+
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("name");
@@ -407,7 +414,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				return false;
 			}
 		};
-		
+
 		addProperty(propertyName);
 	}
 
