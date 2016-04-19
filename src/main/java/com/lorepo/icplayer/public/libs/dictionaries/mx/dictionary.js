@@ -452,6 +452,7 @@
 	"crossword_property_word_numbers": "Número de palabras en el crucigrama",
 	"crossword_property_marked_column_index": "Indice de la columna marcada",
 	"crossword_property_marked_row_index": "Indice de la fila marcada",
+    "crossword_property_block_wrong_answers": "Block wrong answers",
 	"Custom_Scoring_info": "Permite a enlazar varios módulos y a crear unas actividades totalmente interactivas con una función de puntuación común.",
 	"Custom_Scoring_name": "Puntuación personalizada",
 	"Custom_Scoring_property_script": "Guión",

@@ -452,6 +452,7 @@ var ice_dictionary_pl = {
 	"crossword_property_word_numbers": "Numerowanie słów",
 	"crossword_property_marked_column_index": "Indeks zaznaczonej kolumny",
 	"crossword_property_marked_row_index": "Indeks zaznaczonego rzędu",
+    "crossword_property_block_wrong_answers": "Block wrong answers",
 	"Custom_Scoring_info" : "Pozwala na powiązanie wielu modułów i utworzenie w pełni interaktywnych ćwiczeń połączonych wspólną funkcją zliczania wyników.",
 	"Custom_Scoring_name" : "Niestandardowa punktacja",
 	"Custom_Scoring_property_script": "Skrypt",

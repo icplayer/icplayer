@@ -165,6 +165,10 @@ function Addoncrossword_create(){
         var correctLetter = presenter.crossword[pos.y][pos.x][0];
         var isOk = usersLetter === correctLetter;
         presenter.sendScoreEvent(pos, usersLetter, isOk);
+        var score = isOk ? 1 : 0;
+        if(score == 0 && presenter.blockWrongAnswers){
+            event.target.value = "";
+        }
     };
 
     function setCaretPosition(elem, caretPos) {
@@ -460,6 +464,8 @@ function Addoncrossword_create(){
                 previous = line[j];
             }
         }
+
+        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
 
         return {
             isError: false
