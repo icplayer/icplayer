@@ -1,3 +1,4 @@
+2016-04-21 Added Color correct property in Coloring module
 2016-04-19 Added blocking wrong answers in Crossword module
 2016-04-19 Fixed memory leaks in IWB_Toolbar module and added destroy method to zoom.js
 2016-04-19 Added property weight to page

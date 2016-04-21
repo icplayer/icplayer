@@ -1161,6 +1161,7 @@
 	"Coloring_property_tolerance": "Tolerance",
 	"Coloring_property_is_not_activity": "Is Not Activity",
 	"Coloring_property_is_disabled": "Is Disabled",
+    "Coloring_property_color_correct" : "Color correct",
 	"IWB_Toolbar_info": "IWB Toolbar is a set of tools to help teachers in conducting lessons and giving presentations. It has been specially designed to work with IWB (Interactive Whiteboard).",
 	"IWB_Toolbar_name": "IWB Toolbar",
 	"IWB_Toolbar_property_floating_images": "Floating Images",
