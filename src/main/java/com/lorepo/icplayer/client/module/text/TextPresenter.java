@@ -17,6 +17,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -687,6 +688,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(id));
 		String itemID = id.substring(id.lastIndexOf("-")+1);
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, newValue, score);
+
+		if (score.equals("0") && module.shouldBlockWrongAnswers()) {
+			try {
+				view.getChild(Integer.parseInt(itemID) - 1).setText("");
+				values.remove(id);
+			} catch(NumberFormatException nfe) {
+				JavaScriptUtils.log(nfe);
+			}
+		}
+		
 		playerServices.getEventBus().fireEvent(valueEvent);
 	}
 
