@@ -465,11 +465,15 @@ function Addoncrossword_create(){
             }
         }
 
-        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
+        presenter.blockWrongAnswers = presenter.isBlockWrongAnswers(model);
 
         return {
             isError: false
         };
+    };
+
+    presenter.isBlockWrongAnswers = function (model) {
+        return ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
     };
 
     presenter.initializeLogic = function(view, model) {
