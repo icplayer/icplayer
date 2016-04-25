@@ -688,6 +688,7 @@
 	"multiplegap_property_is_not_an_activity": "No es una actividad",
 	"multiplegap_property_number_of_repetitions": "Número de repeticiones",
 	"multiplegap_property_id_repeated_element": "ID del elemento repetido",
+	"multiplegap_property_block_wrong_answers": "Block wrong answers",
 	"Navigation_Bar_info": "Permite añadir una barra de navegación para la presentación. No requiere ninguna configuración adicional, basta con insertarla en la presentación y disfrutar de sus funciones. Debido a su extenso mecanismo de estilos tiene un uso perfecto en plantillas de presentaciones.",
 	"Navigation_Bar_name": "Barra de navegación",
 	"Navigation_Bar_property_show_next_prev_arrows": "Mostrar las flechas Siguiente y Anterior",

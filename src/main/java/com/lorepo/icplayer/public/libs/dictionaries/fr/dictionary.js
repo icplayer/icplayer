@@ -688,6 +688,7 @@ var ice_dictionary_fr = {
 "multiplegap_property_is_not_an_activity": "N'est pas un exercice",
 "multiplegap_property_number_of_repetitions": "Nombre de répétitions",
 "multiplegap_property_id_repeated_element": "Elément avec ID répété",
+"multiplegap_property_block_wrong_answers": "Block wrong answers",
 "Navigation_Bar_info": "Permet d'ajouter une barre de navigation dans une présentation. Comme cela ne nécessite aucune configuration supplémentaire, il suffit de l'insérer dans une présentation et profiter de ses fonctions. Elle peut être personnalisée et donc insérée dans tous les modèles de présentation.",
 "Navigation_Bar_name": "Barre de navigation",
 "Navigation_Bar_property_show_next_prev_arrows": "Afficher les flèches Suivant et Précédent",

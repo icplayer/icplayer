@@ -687,6 +687,7 @@
 	"multiplegap_property_is_not_an_activity": "Nie jest ćwiczeniem",
 	"multiplegap_property_number_of_repetitions": "Liczba powtórzeń",
 	"multiplegap_property_id_repeated_element": "ID powtórnego elementu",
+	"multiplegap_property_block_wrong_answers": "Block wrong answers",
 	"Navigation_Bar_info" : "Umożliwia dodanie do prezentacji gotowego paska nawigacyjnego, który nie wymaga dodatkowej konfiguracji; wystarczy wstawić Addon do prezentacji i w pełni korzystać z jego funkcji. Dzięki bogatym opcjom nadawania stylów CSS, pasek nawigacyjny jest doskonałym dodatkiem do szablonów.",
 	"Navigation_Bar_name" : "Pasek nawigacyjny",
 	"Navigation_Bar_property_show_next_prev_arrows": "Pokaż strzałki Dalej i Wstecz",

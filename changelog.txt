@@ -1,4 +1,5 @@
-2016-04-19 Added blocking wrong answers for editable gaps in Text module
+2016-04-25 Added blocking wrong answers in MultipleGap module
+2016-04-22 Added blocking wrong answers for editable gaps in Text module
 2016-04-22 Fixed tests in Crossword module
 2016-04-21 Added Color correct property in Coloring module
 2016-04-19 Added blocking wrong answers in Crossword module

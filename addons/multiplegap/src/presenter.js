@@ -150,7 +150,8 @@ function Addonmultiplegap_create(){
             stretchImages: model['Stretch images?'] == 'True',
             items: validatedItems.value,
             repetitions: validatedRepetitions.value,
-            repeatedElement: validateRepeatedElement.value
+            repeatedElement: validateRepeatedElement.value,
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model["Block wrong answers"])
         };
     };
 
@@ -348,6 +349,10 @@ function Addonmultiplegap_create(){
         if(!presenter.isShowAnswersActive){
             if(!force && presenter.selectedItem == null) return;
             if(presenter.maximumItemCountReached()) return;
+            if(presenter.configuration.blockWrongAnswers && !presenter.isElementCorrect(item.item)) {
+                sendEvent(item, false);
+                return;
+            }
         }
 
         var child;
@@ -484,23 +489,7 @@ function Addonmultiplegap_create(){
         placeholder.append(handler);
 
         if(sendEvents) {
-            presenter.eventBus.sendEvent('ItemConsumed', item);
-
-            var score;
-            if(presenter.isElementCorrect(item.item)){
-                score = 1;
-            }else{
-                score = 0;
-            }
-
-            presenter.eventBus.sendEvent('ValueChanged', {
-                'source': presenter.configuration.ID,
-                'item'  : '' + item.item, // ensure that we send string
-                'value' : 'add',
-                'score' : score
-            });
-
-            if (presenter.isAllOK()) sendAllOKEvent();
+            sendEvent(item, true);
         }
 
         $(presenter.selectorRootClass() + '>.handler').hide();
@@ -513,6 +502,28 @@ function Addonmultiplegap_create(){
             presenter.makePlaceholderDraggable(placeholder);
         }
     };
+
+    function sendEvent(item, consumed) {
+        if (consumed) {
+            presenter.eventBus.sendEvent('ItemConsumed', item);
+        }
+
+        var score;
+        if(presenter.isElementCorrect(item.item)){
+            score = 1;
+        }else{
+            score = 0;
+        }
+
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item'  : '' + item.item, // ensure that we send string
+            'value' : 'add',
+            'score' : score
+        });
+
+        if (presenter.isAllOK()) sendAllOKEvent();
+    }
 
     presenter.isElementCorrect = function (item) {
         return presenter.items.indexOf(item) > -1;
