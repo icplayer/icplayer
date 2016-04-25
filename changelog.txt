@@ -1,3 +1,4 @@
+2016-04-25 Fixed issue with non displaying coordinations in PointsLines module
 2016-04-25 Added blocking wrong answers in MultipleGap module
 2016-04-22 Added blocking wrong answers for editable gaps in Text module
 2016-04-22 Fixed tests in Crossword module
