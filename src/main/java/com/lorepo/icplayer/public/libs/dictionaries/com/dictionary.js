@@ -1055,6 +1055,7 @@
 	"PointsLines_property_is_activity": "Is activity",
 	"PointsLines_property_is_disabled": "Is disabled",
     "PointsLines_property_blocked_lines": "Blocked lines",
+	"PointsLines_property_block_wrong_answers": "Block wrong answers",
 	"EdgeAnimation_info" : "Enables to embed animations and other projects created in Adobe Edge Animate program. More than one animation can be used in the addon and to make it work, it is necessary to configure certain properties in the addon’s side menu, including Animations, Images and Initial animation.",
 	"EdgeAnimation_name" : "Edge Animation",
 	"EdgeAnimation_property_animations" : "Animations",
