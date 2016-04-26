@@ -28,8 +28,19 @@ function AddonSubmit_create(){
         return eventData;
     };
 
+    function getEventObject(item, value, score) {
+        return {
+            'source': presenter.configuration.addonID,
+            'item': item != undefined ? item : "",
+            'value': value != undefined ? value : "",
+            'score': score != undefined ? score : ""
+        };
+    }
+
     presenter.sendEvent = function(eventName, eventData) {
-        presenter.eventBus.sendEvent(eventName, eventData);
+        var eventObject = getEventObject(eventData.item, eventData.value, eventData.score);
+
+        presenter.eventBus.sendEvent(eventName, eventObject);
     };
 
     presenter.ERROR_CODES = {
