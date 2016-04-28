@@ -1035,10 +1035,11 @@ function Addonmultiplegap_create(){
     presenter.hideAnswers = function () {
         presenter.$view.find('.placeholder-show-answers').remove();
 
-        for(var i = 0; i < presenter.tmpState.length; i++) {
-            presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), presenter.tmpState[i], false, false, false);
+        if(presenter.tmpState){
+            for(var i = 0; i < presenter.tmpState.length; i++) {
+                presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), presenter.tmpState[i], false, false, false);
+            }
         }
-
         presenter.$view.find('.placeholder-show-answers').removeClass('placeholder-show-answers');
         presenter.isShowAnswersActive = false;
     };

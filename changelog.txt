@@ -1,3 +1,4 @@
+2016-04-26 Fixed issue with hide answers in Multiplegap module
 2016-04-26 Fixed issue with sending event in Submit module
 2016-04-25 Added blocking wrong answers in PlotsLines module
 2016-04-25 Fixed issue with non displaying coordinations in PointsLines module
