@@ -1,7 +1,7 @@
 ﻿var ice_dictionary_en = {
 	"fill_required_field": "Fill required field",
 	"enable_keep_order_property": "To set correct answer manually please enable Keep original order property",
-	"complete_inputs": "Make sure if all requires fields are filled",
+	"complete_inputs": "Make sure if all required fields are filled",
 	"editable": "Editable",
 	"filled": "Filled",
 	"dropdown": "Dropdown",
