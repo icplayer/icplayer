@@ -133,7 +133,11 @@ public class PagePopupPanel extends DialogBox {
 				top = Window.getScrollTop();
 			}
 			
-			top += getParentWindowOffset();
+			try{
+				top += getParentWindowOffset();
+			}catch(Exception e) {
+				top += 0;
+			}
 			
 			Window.addWindowScrollHandler(new ScrollHandler() {
 				public void onWindowScroll(ScrollEvent event) {
@@ -142,7 +146,6 @@ public class PagePopupPanel extends DialogBox {
 				}
 
 			});
-			
 			setPopupPosition(left, top);
 		}
 	}
