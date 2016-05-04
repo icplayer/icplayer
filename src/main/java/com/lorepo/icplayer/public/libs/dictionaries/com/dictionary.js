@@ -546,6 +546,7 @@
 	"Image_Identification_property_selection_correct": "Selection is correct",
 	"Image_Identification_property_is_not_an_activity": "Is not an activity",
 	"Image_Identification_property_block_in_error_checking_mode": "Block in error checking mode",
+    "Image_Identification_property_block_wrong_answers" : "Block wrong answers",
 	"Image_Viewer_Public_info": "Allows to insert simple animations in which new frames are shown on selection. There is also the possibility of adding a sound notification on a changing frame, subtitles, a frame counter or a watermark indicating the \"Play\" button. Image viewer supports 3 audio file formats: mp3, ogg Vorbis and aac.",
 	"Image_Viewer_Public_name": "Image Viewer",
 	"Image_Viewer_Public_property_image": "Image",

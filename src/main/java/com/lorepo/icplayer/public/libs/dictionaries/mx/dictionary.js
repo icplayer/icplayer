@@ -542,6 +542,7 @@
 	"Image_Identification_property_selection_correct": "La selección es correcta",
 	"Image_Identification_property_is_not_an_activity": "No es una actividad",
 	"Image_Identification_property_block_in_error_checking_mode": "Bloque en modo de comprobación de errores",
+    "Image_Identification_property_block_wrong_answers" : "Block wrong answers",
 	"Image_Viewer_Public_info": "Permite a insertar animaciones sencillas: los nuevos marcos se muestran al hacer un clic. También permite añadir un sonido al cambiar la imagen. Es compatible con 3 formatos de audio: MP3, Ogg Vorbis, ACC.",
 	"Image_Viewer_Public_name": "Visor de imágenes",
 	"Image_Viewer_Public_property_image": "Imagen",

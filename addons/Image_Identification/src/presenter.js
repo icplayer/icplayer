@@ -26,8 +26,14 @@ function AddonImage_Identification_create(){
 
     function clickLogic() {
         if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
-        presenter.toggleSelectionState();
+        presenter.toggleSelectionState(true);
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+
+        var score = presenter.configuration.shouldBeSelected ? 1 : 0;
+        if(score == 0 && presenter.configuration.blockWrongAnswers) {
+            presenter.toggleSelectionState(false);
+            applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        }
     }
 
     presenter.handleMouseActions = function() {
@@ -172,7 +178,8 @@ function AddonImage_Identification_create(){
             isHoverEnabled: true,
             isActivity: !ModelValidationUtils.validateBoolean(model["Is not an activity"]),
             isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
-            isErrorCheckMode: false
+            isErrorCheckMode: false,
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers)
         };
     };
 
@@ -364,10 +371,12 @@ function AddonImage_Identification_create(){
         applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
-    presenter.toggleSelectionState = function() {
+    presenter.toggleSelectionState = function(shouldSendEvent) {
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
 
-        presenter.triggerSelectionEvent(presenter.configuration.isSelected, presenter.configuration.shouldBeSelected);
+        if(shouldSendEvent){
+            presenter.triggerSelectionEvent(presenter.configuration.isSelected, presenter.configuration.shouldBeSelected);
+        }
     };
 
     presenter.isAllOK = function () {

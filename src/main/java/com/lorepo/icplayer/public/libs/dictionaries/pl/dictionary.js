@@ -542,6 +542,7 @@
 	"Image_Identification_property_selection_correct" : "Wybór jest poprawny",
 	"Image_Identification_property_is_not_an_activity" : "Nie jest ćwiczeniem",
 	"Image_Identification_property_block_in_error_checking_mode" : "Zablokuj w trybie sprawdzania odpowiedzi",
+    "Image_Identification_property_block_wrong_answers" : "Block wrong answers",
 	"Image_Viewer_Public_name" : "Przeglądarka obrazów",
 	"Image_Viewer_Public_property_image": "Obraz",
 	"Image_Viewer_Public_property_frames": "Klatki",

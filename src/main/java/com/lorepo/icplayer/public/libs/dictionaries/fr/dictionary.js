@@ -542,6 +542,7 @@ var ice_dictionary_fr = {
 "Image_Identification_property_selection_correct": "La sélection est correcte",
 "Image_Identification_property_is_not_an_activity": "N'est pas un exercice",
 "Image_Identification_property_block_in_error_checking_mode": "Bloquer en mode vérification d'erreurs",
+"Image_Identification_property_block_wrong_answers" : "Block wrong answers",
 "Image_Viewer_Public_info": "Permet d'insérer des animations simples dans lesquelles de nouvelles images sont présentées sur sélection. Il est possible d'ajouter un son de notification quand on change d'image, des sous-titres, un compteur d'images ou un filigrane avec le bouton \"Play\". La visionneuse d'images supporte 3 formats de fichiers audio : mp3, ogg Vorbis et aac.",
 "Image_Viewer_Public_name": "Visionneuse d'images",
 "Image_Viewer_Public_property_image": "Image",
