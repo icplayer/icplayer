@@ -74,6 +74,9 @@ function AddonIWB_Toolbar_create() {
     presenter.currentFloatingImageIndex = 0;
     presenter.textAudioEvents = [];
 
+    presenter.penUsed = false;
+    presenter.markerUsed = false;
+
 
     function getCorrectObject(val) {
         return {
@@ -458,6 +461,8 @@ function AddonIWB_Toolbar_create() {
 
         setOverflowWorkAround(false);
 
+        presenter.markerUsed = true;
+
         presenter.iwb_tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
         presenter.markerCtx.drawImage(presenter.iwb_tmp_canvas, 0, 0);
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
@@ -496,6 +501,10 @@ function AddonIWB_Toolbar_create() {
     presenter.markerMouseUpHandler = function IWB_Toolbar_mouseUpHandler(e) {
         e.stopPropagation();
         e.preventDefault();
+
+        if (presenter.isMouseDown) {
+            presenter.markerUsed = true;
+        }
 
         presenter.isMouseDown = false;
         setOverflowWorkAround(false);
@@ -566,6 +575,9 @@ function AddonIWB_Toolbar_create() {
     presenter.penMouseUpHandler = function IWB_Toolbar_penMouseUpHandler(e) {
         e.stopPropagation();
         e.preventDefault();
+        if (presenter.isMouseDown) {
+            presenter.penUsed = true;
+        }
         presenter.isMouseDown = false;
         setOverflowWorkAround(false);
     };
@@ -3255,11 +3267,13 @@ function AddonIWB_Toolbar_create() {
 
     function clearCanvases() {
         if (presenter.canvas) {
+            presenter.penUsed = false;
             presenter.canvas.off('mousemove mousedown mouseup');
             presenter.ctx.clearRect(0, 0, presenter.canvas[0].width, presenter.canvas[0].height);
         }
 
         if (presenter.markerCanvas) {
+            presenter.markerUsed = false;
             presenter.markerCanvas.off('mousemove mousedown mouseup');
             presenter.markerCtx.clearRect(0, 0, presenter.markerCanvas[0].width, presenter.markerCanvas[0].height);
         }
@@ -3349,8 +3363,8 @@ function AddonIWB_Toolbar_create() {
            position = presenter.$panel.position(),
            openedPanel = isPanelOpened(),
            drawings = {
-               'pen' : presenter.canvas ? presenter.canvas[0].toDataURL('image/png') : null,
-               'marker' : presenter.markerCanvas ? presenter.markerCanvas[0].toDataURL('image/png') : null
+               'pen' : (presenter.penUsed && presenter.canvas) ? presenter.canvas[0].toDataURL('image/png') : null,
+               'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerCanvas[0].toDataURL('image/png') : null
            };
 
         clearCanvases();
@@ -3540,6 +3554,14 @@ function AddonIWB_Toolbar_create() {
         var image2 = new Image();
         presenter._setState.images.push(image1);
         presenter._setState.images.push(image2);
+
+        if (upgradedState.drawings.pen) {
+            presenter.penUsed = true;
+        }
+        if (upgradedState.drawings.marker) {
+            presenter.markerUsed = true;
+        }
+
         setDrawingState(image1, presenter.ctx, upgradedState.drawings.pen);
         setDrawingState(image2, presenter.markerCtx, upgradedState.drawings.marker);
         
