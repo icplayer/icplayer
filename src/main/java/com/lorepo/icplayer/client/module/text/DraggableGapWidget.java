@@ -163,6 +163,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).text() == text;});
 		}
 		
+		element.each(function () {
+			if($wnd.$(this).hasClass("ic_sourceListItem")){
+				element = $wnd.$(this).clone();
+			}
+		});
+		
 		var helper = $wnd.$(element[0]).clone();
 		helper.css("display", "inline-block");
 		helper.addClass("ic_sourceListItem-selected");
