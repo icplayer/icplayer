@@ -42,14 +42,13 @@ public class Content implements IContentBuilder, IContent {
 	public Content(){
 		this.pages = new PageList("root");
 		this.commonPages = new PageList("commons");
-		this.connectHandlers();
 	}
 	
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
 	
-	private void connectHandlers() {
+	public void connectHandlers() {
 		pages.addListener(new IPageListListener() {
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){

@@ -79,7 +79,7 @@ public class ContentParserZero implements IContentParser{
 		}
 			
 		
-		
+
 		return (Content) content;
 	}
 	
