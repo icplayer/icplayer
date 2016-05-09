@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.IXMLSerializable;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
@@ -299,21 +300,26 @@ public class Content implements IContentBuilder, IContent {
 	}
 	
 	
-	public Page findPageByName(String pageName){
-		
+	public Page findPageByName(String pageName){	
 		int index;
 		Page page = null;
 		String lowerCaseName = pageName.toLowerCase(); 
 		
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
+			JavaScriptUtils.log("znajduje w contencie header z commons folder");
 			index = commonPages.findPageIndexByName(commonPageName);
+			JavaScriptUtils.log("dostalem index commons");
+			JavaScriptUtils.log(index);
 			if(index >= 0){
 				page = commonPages.getAllPages().get(index);
 			}
 		}
 		else{
+			JavaScriptUtils.log("znajduje w pager header z commons folder");
 			index = pages.findPageIndexByName(pageName);
+			JavaScriptUtils.log("dostalem index pages");
+			JavaScriptUtils.log(index);
 			if(index >= 0){
 				page = pages.getAllPages().get(index);
 			}
@@ -358,7 +364,7 @@ public class Content implements IContentBuilder, IContent {
 
 	@Override
 	public void setBaseUrl(String url) {
-		this.baseUrl = url;
+		this.baseUrl = url.substring(0, url.lastIndexOf("/")+1);
 		
 	}
 

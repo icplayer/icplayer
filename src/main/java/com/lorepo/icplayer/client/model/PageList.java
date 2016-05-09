@@ -9,6 +9,7 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -71,17 +72,35 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	
 	
 	public List<Page> getAllPages(){
-		List<Page> pages = new Vector<Page>(); 
+		List<Page> pages = new Vector<Page>();
+		JavaScriptUtils.log("=================================");
+		JavaScriptUtils.log("nody z getAllpPages");
+		JavaScriptUtils.log(nodes);
+		JavaScriptUtils.log("iteruje w forze po nodes");
 		for(IContentNode node : nodes){
+			JavaScriptUtils.log(node);
 			if(node instanceof Page){
-				pages.add((Page) node);
+				JavaScriptUtils.log("node w Page w getAllPages");
+				JavaScriptUtils.log(node);
+				JavaScriptUtils.log(pages);
+				Page addingPage = (Page) node;
+				JavaScriptUtils.log(addingPage);
+				pages.add(addingPage);
+				JavaScriptUtils.log("dodalem page'a");
 			}
 			else if(node instanceof PageList){
+				JavaScriptUtils.log("PageList w getAllPages");
+				JavaScriptUtils.log(node);
 				PageList chapter = (PageList) node;
+				JavaScriptUtils.log("chapter");
+				JavaScriptUtils.log(chapter);
+				JavaScriptUtils.log("odpalam chapter getAllPages");
 				pages.addAll(chapter.getAllPages());
 			}
 		}
 		
+		JavaScriptUtils.log("oddaje wszystkie strony z pageListy");
+		JavaScriptUtils.log("=================================");
 		return pages;
 	}
 	
@@ -174,8 +193,9 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		int index = 0;
 		String strippedSourceName = pageName.replaceAll("\\s+", "");
 		List<Page> pages = getAllPages();
+		JavaScriptUtils.log("pobralem");
 		for(Page page : pages){
-		
+
 			String strippedName = page.getName().replaceAll("\\s+", "");
 			if(strippedName.compareToIgnoreCase(strippedSourceName) == 0){
 				return index;
