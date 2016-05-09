@@ -1,3 +1,4 @@
+2016-05-09 Added show/hide commands in Text Identification module
 2016-05-06 Fixed rendering LaTeX in draggable gaps in Text module
 2016-05-05 Optimized state in IWB Toolbar
 2016-05-04 Fixed setting popup position

@@ -135,6 +135,10 @@ function Addontext_identification_create(){
         presenter.moduleID = model.ID;
         presenter.configuration = presenter.validateModel(model);
 
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.setVisibility(presenter.isVisible);
+
         var container = $('<div class="text-identification-container"></div>');
         container.addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
@@ -147,6 +151,20 @@ function Addontext_identification_create(){
 
         if (!isPreview) handleMouseActions();
     }
+
+    presenter.setVisibility = function (isVisible) {
+        $(presenter.$view).css('visibility', isVisible ? 'visible' : 'hidden');
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.isVisible = false;
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.isVisible = true;
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -214,7 +232,9 @@ function Addontext_identification_create(){
             'markAsCorrect': presenter.markAsCorrect,
             'markAsWrong': presenter.markAsWrong,
             'markAsEmpty': presenter.markAsEmpty,
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -250,6 +270,8 @@ function Addontext_identification_create(){
         presenter.configuration.isErrorCheckMode = false;
         isHoverEnabled = true;
         presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.setVisibility(presenter.isVisibleByDefault);
+        presenter.isVisible = presenter.isVisibleByDefault;
     };
 
     presenter.setWorkMode = function() {
@@ -289,13 +311,34 @@ function Addontext_identification_create(){
     };
 
     presenter.getState = function() {
-        return presenter.isSelected() ? 'True' : 'False';
+        //return presenter.isSelected() ? 'True' : 'False';
+
+        return JSON.stringify({
+            isSelected: presenter.isSelected() ? 'True' : 'False',
+            isVisible: presenter.isVisible
+        });
     };
 
     presenter.setState = function(state) {
-        presenter.configuration.isSelected = state.toString() === "True";
+        var serializeIsSelected, parsedState;
+        if (state.indexOf("}") > -1 && state.indexOf("{") > -1){
+            parsedState = JSON.parse(state);
+            serializeIsSelected = parsedState.isSelected;
+        }else{
+            serializeIsSelected = state;
+            parsedState = undefined;
+        }
+
+        presenter.configuration.isSelected = serializeIsSelected.toString() === "True";
 
         presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+
+        if(parsedState){
+            if(parsedState.isVisible != undefined){
+                presenter.setVisibility(parsedState.isVisible);
+                presenter.isVisible = parsedState.isVisible;
+            }
+        }
     };
 
     presenter.createEventData = function() {
