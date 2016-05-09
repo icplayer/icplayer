@@ -309,21 +309,13 @@ public class Content implements IContentBuilder, IContent {
 		
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
-			JavaScriptUtils.log("znajduje w contencie header z commons folder");
-			JavaScriptUtils.log(commonPages);
-			JavaScriptUtils.log(this);
 			index = commonPages.findPageIndexByName(commonPageName);
-			JavaScriptUtils.log("dostalem index commons");
-			JavaScriptUtils.log(index);
 			if(index >= 0){
 				page = commonPages.getAllPages().get(index);
 			}
 		}
 		else{
-			JavaScriptUtils.log("znajduje w pager header z commons folder");
 			index = pages.findPageIndexByName(pageName);
-			JavaScriptUtils.log("dostalem index pages");
-			JavaScriptUtils.log(index);
 			if(index >= 0){
 				page = pages.getAllPages().get(index);
 			}
@@ -378,9 +370,8 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 	@Override
-	public void setAddonDescriptors(
-		HashMap<String, AddonDescriptor> addonDescriptors) {
-		
+	public void setAddonDescriptors (HashMap<String, AddonDescriptor> addonDescriptors) {
+		this.addonDescriptors = addonDescriptors;
 	}
 
 	@Override

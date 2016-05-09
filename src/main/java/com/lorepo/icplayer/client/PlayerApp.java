@@ -63,7 +63,7 @@ public class PlayerApp{
 		contentFactory.load(url, this.pagesSubset, new IContentLoadingListener() {
 			public void onFinishedLoading(Content content) {
 				contentModel = content;
-				JavaScriptUtils.log(contentModel);
+				contentModel.connectHandlers();
 				initPlayer(isCommonPage);
 			}
 			
@@ -236,28 +236,20 @@ public class PlayerApp{
 	 * Init player after content is loaded
 	 */
 	private void initPlayer(final boolean isCommonPage) {
-		JavaScriptUtils.log("new player view");
 		PlayerView playerView = new PlayerView();
-		JavaScriptUtils.log("new player controller");
 		playerController = new PlayerController(contentModel, playerView, bookMode);
-		JavaScriptUtils.log("set player config");
 		playerController.setPlayerConfig(playerConfig);
-		JavaScriptUtils.log("set first page as cover");
 		playerController.setFirstPageAsCover(showCover);
-		JavaScriptUtils.log("set analytics");
 		playerController.setAnalytics(analyticsId);
-		JavaScriptUtils.log("addPageLoadListener");
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				entryPoint.onPageLoaded();
 				
 				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0){
-					JavaScriptUtils.log("make header static");
 					makeHeaderStatic();
 				}
 
 				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0){
-					JavaScriptUtils.log("make footer static");
 					makeFooterStatic();
 				}
 			}
@@ -265,7 +257,6 @@ public class PlayerApp{
 			}
 		});
 		
-		JavaScriptUtils.log("content set panel controller");
 		contentModel.setPlayerController(getPlayerServices());
 		
 		RootPanel.get(divId).add(playerView);
@@ -273,6 +264,12 @@ public class PlayerApp{
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		JavaScriptUtils.log("======================================");
+		JavaScriptUtils.log("Content data loader przed zaladowaniem");
+		JavaScriptUtils.log(contentModel);
+		JavaScriptUtils.log(contentModel.getAddonDescriptors());
+		JavaScriptUtils.log(contentModel.getAddonDescriptors().values());
+		JavaScriptUtils.log("======================================");		
 		loader.addAddons(contentModel.getAddonDescriptors().values());
 		JavaScriptUtils.log("contentModel get Header");
 		if(contentModel.getHeader() != null){

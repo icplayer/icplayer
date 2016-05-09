@@ -73,34 +73,18 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	
 	public List<Page> getAllPages(){
 		List<Page> pages = new Vector<Page>();
-		JavaScriptUtils.log("=================================");
-		JavaScriptUtils.log("nody z getAllpPages");
-		JavaScriptUtils.log(nodes);
-		JavaScriptUtils.log("iteruje w forze po nodes");
 		for(IContentNode node : nodes){
 			JavaScriptUtils.log(node);
 			if(node instanceof Page){
-				JavaScriptUtils.log("node w Page w getAllPages");
-				JavaScriptUtils.log(node);
-				JavaScriptUtils.log(pages);
 				Page addingPage = (Page) node;
-				JavaScriptUtils.log(addingPage);
 				pages.add(addingPage);
-				JavaScriptUtils.log("dodalem page'a");
 			}
 			else if(node instanceof PageList){
-				JavaScriptUtils.log("PageList w getAllPages");
-				JavaScriptUtils.log(node);
 				PageList chapter = (PageList) node;
-				JavaScriptUtils.log("chapter");
-				JavaScriptUtils.log(chapter);
-				JavaScriptUtils.log("odpalam chapter getAllPages");
 				pages.addAll(chapter.getAllPages());
 			}
 		}
 		
-		JavaScriptUtils.log("oddaje wszystkie strony z pageListy");
-		JavaScriptUtils.log("=================================");
 		return pages;
 	}
 	
@@ -193,7 +177,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		int index = 0;
 		String strippedSourceName = pageName.replaceAll("\\s+", "");
 		List<Page> pages = getAllPages();
-		JavaScriptUtils.log("pobralem");
 		for(Page page : pages){
 
 			String strippedName = page.getName().replaceAll("\\s+", "");

@@ -137,18 +137,22 @@ public class ContentParserZero implements IContentParser{
 	}
 	
 	private HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) {
+		JavaScriptUtils.log("===============parseAddon Descriptors==========================");
+		JavaScriptUtils.log(rootElement);
 		HashMap<String, AddonDescriptor> addonDescriptors = new HashMap<String, AddonDescriptor>();
-		
 		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
 		
+		JavaScriptUtils.log(descriptorNodes);
+		JavaScriptUtils.log(descriptorNodes.getLength());
 		for(int i = 0; i < descriptorNodes.getLength(); i++){
-	
 			Element node = (Element)descriptorNodes.item(i);
 			String addonId = node.getAttribute("addonId");
 			String href = StringUtils.unescapeXML(node.getAttribute("href"));
 			addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
 		}
-		
+
+		JavaScriptUtils.log(addonDescriptors);
+		JavaScriptUtils.log("===============parseAddon Descriptors==========================");
 		return addonDescriptors;
 	}
 	
@@ -222,29 +226,18 @@ public class ContentParserZero implements IContentParser{
 		pages.load(rootElement, null, pageSubset, 0);
 		
 		pagesHashMap.put("pages", pages);
-		JavaScriptUtils.log("*************************");
-		JavaScriptUtils.log("Parsuje pages");
-		JavaScriptUtils.log(rootElement);
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("folder") == 0){
-					JavaScriptUtils.log("folder, parsuje commons");
 					PageList commonPages = new PageList("commons");
-					JavaScriptUtils.log("przed zaladowaniem");
-					JavaScriptUtils.log(commonPages);
 					commonPages.load(node, null, null, 0);
-					JavaScriptUtils.log("po zaladowaniu commonPages");
-					JavaScriptUtils.log(commonPages);
 					pagesHashMap.put("commons", commonPages);
 					break;
 				}
 			}
 		}
 		
-		JavaScriptUtils.log("zwracanie hashmapy");
-		JavaScriptUtils.log(pagesHashMap);
-		JavaScriptUtils.log("*************************");		
 		return pagesHashMap;
 	}
 }
