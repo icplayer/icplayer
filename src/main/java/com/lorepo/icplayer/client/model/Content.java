@@ -40,6 +40,9 @@ public class Content implements IContentBuilder, IContent {
 	private Integer version = 2;
 	
 	public Content(){
+		this.pages = new PageList("root");
+		this.commonPages = new PageList("commons");
+		this.connectHandlers();
 	}
 	
 	public void setPlayerController(IPlayerServices ps) {
@@ -308,6 +311,8 @@ public class Content implements IContentBuilder, IContent {
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
 			JavaScriptUtils.log("znajduje w contencie header z commons folder");
+			JavaScriptUtils.log(commonPages);
+			JavaScriptUtils.log(this);
 			index = commonPages.findPageIndexByName(commonPageName);
 			JavaScriptUtils.log("dostalem index commons");
 			JavaScriptUtils.log(index);

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.AddonDescriptor;
@@ -59,8 +60,13 @@ public class ContentParserZero implements IContentParser{
 					String headerPageName = parsePageName(child, this.HEADER_PAGE);
 					String footerPageName = parsePageName(child, this.FOOTER_PAGE);
 					
-					content.setPages(pages);
-					content.setCommonPages(commons);
+					if (pages != null) {
+						content.setPages(pages);						
+					}
+
+					if (commons != null) {
+						content.setCommonPages(commons);	
+					}
 					content.setHeaderPageName(headerPageName);
 					content.setFooterPageName(footerPageName);
 					
@@ -212,22 +218,33 @@ public class ContentParserZero implements IContentParser{
 		HashMap<String, PageList> pagesHashMap = new HashMap<String, PageList>();
 		NodeList children = rootElement.getChildNodes();
 		
-		PageList pages = new PageList();
+		PageList pages = new PageList("root");
 		pages.load(rootElement, null, pageSubset, 0);
 		
 		pagesHashMap.put("pages", pages);
+		JavaScriptUtils.log("*************************");
+		JavaScriptUtils.log("Parsuje pages");
+		JavaScriptUtils.log(rootElement);
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("folder") == 0){
-					PageList commonPages = new PageList();
+					JavaScriptUtils.log("folder, parsuje commons");
+					PageList commonPages = new PageList("commons");
+					JavaScriptUtils.log("przed zaladowaniem");
+					JavaScriptUtils.log(commonPages);
 					commonPages.load(node, null, null, 0);
+					JavaScriptUtils.log("po zaladowaniu commonPages");
+					JavaScriptUtils.log(commonPages);
 					pagesHashMap.put("commons", commonPages);
 					break;
 				}
 			}
 		}
 		
+		JavaScriptUtils.log("zwracanie hashmapy");
+		JavaScriptUtils.log(pagesHashMap);
+		JavaScriptUtils.log("*************************");		
 		return pagesHashMap;
 	}
 }
