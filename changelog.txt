@@ -1,3 +1,4 @@
+2016-05-10 Added class on hover in Image Identification module
 2016-05-10 Fixed issue with indexing pages in DIsable Score Pages in HLR module
 2016-05-09 Added show/hide commands in Text Identification module
 2016-05-06 Fixed rendering LaTeX in draggable gaps in Text module
