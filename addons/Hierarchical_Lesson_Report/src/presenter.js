@@ -57,6 +57,14 @@ function AddonHierarchical_Lesson_Report_create() {
         $("<tr></tr>").prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
     }
 
+    function getRealPageIndex(index) {
+        var utils = new PlayerUtils(player);
+        var presentation = utils.getPresentation();
+        var score = utils.getPresentationScore(presentation);
+
+        return parseInt(score.paginatedResult[index].page_number, 10) - 1;
+    }
+
     presenter.calculateLessonScaledScore = function () {
         if (presenter.lessonScore.pageCount == 0) {
             return 0;
@@ -176,7 +184,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         return score.score;
-    }
+    };
 
     function createScoreCells(row, pageId, index, isChapter) {
         var isScoreEnable = presenter.configuration.disabledScorePages.indexOf(index) === -1;
@@ -235,9 +243,6 @@ function AddonHierarchical_Lesson_Report_create() {
             }
 
             if (presenter.configuration.showPageScore) {
-                var value;
-
-
                 $("<td></td>").appendTo($(row))
                     .addClass("hier_report-page-score")
                     .html(presenter.insertPageScoreValuesToPage(pageScore, score));
@@ -264,7 +269,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         return value;
-    }
+    };
 
     function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
@@ -286,7 +291,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function updateRow(pageIndex, pageScore) {
         var row = $(".treegrid-" + pageIndex);
-        var hasChildren = pageScore.count > 0 ? true : false;
+        var hasChildren = pageScore.count > 0;
 
         if (presenter.configuration.showResults) {
             var percent = (Math.floor((pageScore.score / pageScore.count) * 100)) || 0;
@@ -415,7 +420,8 @@ function AddonHierarchical_Lesson_Report_create() {
             if (!isChapter) {
                 pageId = root.get(i).getId();
             }
-            addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter, pageId);
+            var realPageIndex = getRealPageIndex(pageIndex);
+            addRow(root.get(i).getName(), realPageIndex, parrentIndex, isChapter, pageId);
             pageScore = presentationController.getScore().getPageScoreById(pageId);
             pageScore.count = 1;
             pageIndex++;
@@ -425,7 +431,7 @@ function AddonHierarchical_Lesson_Report_create() {
                 updateRow(chapterIndex, values.pagesScore);
                 pageScore =  values.pagesScore;
             }
-            isEnabled = presenter.configuration.disabledScorePages.indexOf(pageIndex) === -1;
+            isEnabled = presenter.configuration.disabledScorePages.indexOf(realPageIndex) === -1;
             chapterScore = presenter.updateChapterScore(chapterScore, pageScore, isEnabled);
         }
 
