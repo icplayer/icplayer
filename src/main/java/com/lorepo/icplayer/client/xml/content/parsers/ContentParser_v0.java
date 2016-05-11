@@ -1,89 +1,33 @@
-package com.lorepo.icplayer.client.xml;
+package com.lorepo.icplayer.client.xml.content.parsers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.IAsset;
-import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.xml.content.IContentBuilder;
+import com.lorepo.icplayer.client.xml.content.IContentParser;
 
-public class ContentParserZero implements IContentParser{
+public class ContentParser_v0 extends ContentParserBase implements IContentParser{
 	
-	protected String PAGES_KEY = "pages";
-	protected String COMMONS_KEY = "commons";
-	protected String HEADER_PAGE = "header";
-	protected String FOOTER_PAGE = "footer";
+	private String version = "1";
 	
 	@Override
 	public Content parse(Element rootNode, ArrayList<Integer> pagesSubset) {
-		IContentBuilder content = new Content();
+		IContentBuilder content = (IContentBuilder) super.parse(rootNode, pagesSubset);
 		
-		String contentName = this.parseName(rootNode);
-		ScoreType scoreType = this.parseScoreType(rootNode);
-		
-		content.setScoreType(scoreType);
-		content.setName(contentName);
-
-		NodeList children = rootNode.getChildNodes();
-		for(int i = 0; i < children.getLength(); i++){
-			
-			if(children.item(i) instanceof Element){
-				Element child = (Element) children.item(i);
-				String name = child.getNodeName(); 
-				if(name.compareTo("metadata") == 0){
-					HashMap<String, String> metadata = this.parseMetadata(child);
-					content.setMetadata(metadata);
-				}
-				else if(name.compareTo("addons") == 0){
-					HashMap<String, AddonDescriptor> addonDescriptors = this.parseAddonDescriptors(child);
-					content.setAddonDescriptors(addonDescriptors);
-				}
-				else if(name.compareTo("style") == 0){
-					HashMap<String, String> styles = this.parseStyles(child);
-					content.setStyles(styles);
-				}
-				else if(name.compareTo("pages") == 0){
-					HashMap<String, PageList> pagesHashmap = this.parsePages(child, pagesSubset);
-					PageList pages = pagesHashmap.get(this.PAGES_KEY);
-					PageList commons = pagesHashmap.get(this.COMMONS_KEY);
-					
-					String headerPageName = parsePageName(child, this.HEADER_PAGE);
-					String footerPageName = parsePageName(child, this.FOOTER_PAGE);
-					
-					if (pages != null) {
-						content.setPages(pages);						
-					}
-
-					if (commons != null) {
-						content.setCommonPages(commons);	
-					}
-					content.setHeaderPageName(headerPageName);
-					content.setFooterPageName(footerPageName);
-					
-				}
-				else if(name.compareTo("assets") == 0){
-					ArrayList<IAsset> assets = this.parseAssets(child);
-					content.setAssets(assets);
-				}
-			}
-		}
-			
-		
-
-		return (Content) content;
+		return this.parseLayouts(content, null);
 	}
 	
-	private String parsePageName(Element rootElement, String pageNode) {
+	protected String parsePageName(Element rootElement, String pageNode) {
 		String name = null;
 		
 		NodeList children = rootElement.getChildNodes();
@@ -100,23 +44,7 @@ public class ContentParserZero implements IContentParser{
 		return name;
 	}
 
-	private ScoreType parseScoreType(Element rootElement) {
-		String st = XMLUtils.getAttributeAsString(rootElement, "scoreType");
-		if(st.equals(ScoreType.first.toString())){
-			return ScoreType.first;
-		}
-		
-		return null;
-	}
-	
-	private String parseName(Element rootElement) {
-		String name = XMLUtils.getAttributeAsString(rootElement, "name");
-		name = StringUtils.unescapeXML(name);
-		
-		return name;
-	}
-	
-	private HashMap<String, String> parseMetadata(Element rootElement) {
+	protected HashMap<String, String> parseMetadata(Element rootElement) {
 		HashMap<String, String> metadata = new HashMap<String, String>();
 		NodeList entries = rootElement.getElementsByTagName("entry");
 		
@@ -136,14 +64,10 @@ public class ContentParserZero implements IContentParser{
 		return metadata;
 	}
 	
-	private HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) {
-		JavaScriptUtils.log("===============parseAddon Descriptors==========================");
-		JavaScriptUtils.log(rootElement);
+	protected HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) {
 		HashMap<String, AddonDescriptor> addonDescriptors = new HashMap<String, AddonDescriptor>();
 		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
 		
-		JavaScriptUtils.log(descriptorNodes);
-		JavaScriptUtils.log(descriptorNodes.getLength());
 		for(int i = 0; i < descriptorNodes.getLength(); i++){
 			Element node = (Element)descriptorNodes.item(i);
 			String addonId = node.getAttribute("addonId");
@@ -151,12 +75,10 @@ public class ContentParserZero implements IContentParser{
 			addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
 		}
 
-		JavaScriptUtils.log(addonDescriptors);
-		JavaScriptUtils.log("===============parseAddon Descriptors==========================");
 		return addonDescriptors;
 	}
 	
-	private HashMap<String,String> parseStyles(Element rootElement) {
+	protected HashMap<String,String> parseStyles(Element rootElement) {
 		HashMap<String, String> styles = new HashMap<String, String>();
 		
 		String style = XMLUtils.getText(rootElement);
@@ -168,7 +90,7 @@ public class ContentParserZero implements IContentParser{
 		return styles;
 	}
 	
-	private ArrayList<IAsset> parseAssets(Element rootElement) {
+	protected ArrayList<IAsset> parseAssets(Element rootElement) {
 		ArrayList<IAsset> assets = new ArrayList<IAsset>();
 		
 		AssetFactory factory = new AssetFactory();
@@ -218,7 +140,7 @@ public class ContentParserZero implements IContentParser{
 	}
 	
 		
-	private HashMap<String, PageList> parsePages(Element rootElement, ArrayList<Integer> pageSubset) {
+	protected HashMap<String, PageList> parsePages(Element rootElement, ArrayList<Integer> pageSubset) {
 		HashMap<String, PageList> pagesHashMap = new HashMap<String, PageList>();
 		NodeList children = rootElement.getChildNodes();
 		
@@ -239,5 +161,24 @@ public class ContentParserZero implements IContentParser{
 		}
 		
 		return pagesHashMap;
+	}
+
+	@Override
+	public String getVersion() {
+		return this.version;
+	}
+
+	@Override
+	protected Content parseLayouts(IContentBuilder content, Element child) {
+		if (child == null) {
+			PageLayout defaultLayout = new PageLayout();
+			defaultLayout.setName("default");
+			defaultLayout.setTreshold(0, PageLayout.MAX_RIGHT_TRESHOLD);
+			defaultLayout.setType("default");
+			
+			content.addLayout(defaultLayout);
+		}
+		
+		return (Content) content;
 	}
 }

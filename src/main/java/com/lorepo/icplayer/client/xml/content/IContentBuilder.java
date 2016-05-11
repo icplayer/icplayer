@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.xml;
+package com.lorepo.icplayer.client.xml.content;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 
 public interface IContentBuilder {
 	public void setBaseUrl(String url);
@@ -20,4 +21,5 @@ public interface IContentBuilder {
 	public void setCommonPages(PageList commonPageList);
 	public void setHeaderPageName(String name);
 	public void setFooterPageName(String name);
+	public void addLayout(PageLayout pageLayout);
 }

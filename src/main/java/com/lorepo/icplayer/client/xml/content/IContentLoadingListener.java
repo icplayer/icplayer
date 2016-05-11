@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.xml;
+package com.lorepo.icplayer.client.xml.content;
 
 import com.lorepo.icplayer.client.model.Content;
 

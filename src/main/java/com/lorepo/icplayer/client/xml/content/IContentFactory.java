@@ -1,7 +1,6 @@
-package com.lorepo.icplayer.client.xml;
+package com.lorepo.icplayer.client.xml.content;
 import java.util.ArrayList;
 
-import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icplayer.client.model.Content;
 
 public interface IContentFactory {	

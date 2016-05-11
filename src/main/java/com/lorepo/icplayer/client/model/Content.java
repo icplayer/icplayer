@@ -4,20 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.utils.IXMLSerializable;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
-import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icplayer.client.model.asset.AssetFactory;
+import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.xml.IContentBuilder;
+import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
@@ -37,11 +33,13 @@ public class Content implements IContentBuilder, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	private Integer version = 2;
+	private String version = "2";
+	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 	
 	public Content(){
 		this.pages = new PageList("root");
 		this.commonPages = new PageList("commons");
+		this.connectHandlers();
 	}
 	
 	public void setPlayerController(IPlayerServices ps) {
@@ -202,7 +200,7 @@ public class Content implements IContentBuilder, IContent {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>"; 
 
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version.toString() + "'>";			
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version + "'>";			
 		
 		// Metadata
 		xml += "<metadata>";
@@ -380,12 +378,6 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 	@Override
-	public void setCommonPages(PageList commonPageList) {
-		this.commonPages = commonPageList;
-		
-	}
-
-	@Override
 	public void setPages(PageList pagesList) {
 		this.pages = pagesList;
 	}
@@ -409,5 +401,15 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setFooterPageName(String name) {
 		this.footerPageName = name;
+	}
+
+	@Override
+	public void setCommonPages(PageList commonPageList) {
+		this.commonPages = commonPageList;
+	}
+
+	@Override
+	public void addLayout(PageLayout pageLayout) {
+		this.layoutsContainer.addLayout(pageLayout);
 	}
 }

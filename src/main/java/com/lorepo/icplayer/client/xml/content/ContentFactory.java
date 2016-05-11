@@ -1,6 +1,7 @@
-package com.lorepo.icplayer.client.xml;
+package com.lorepo.icplayer.client.xml.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.http.client.Request;
@@ -8,21 +9,29 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.xml.client.XMLParser;
-import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.utils.RequestsUtils;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v1;
 
 public class ContentFactory implements IContentFactory {
-	
-	private ArrayList<IContentParser> parsersList = null;
+	private HashMap<String, IContentParser> parsersMap = null;
 	private static IContentFactory instance = null;
 	
 	private ContentFactory() {
-		this.parsersList = new ArrayList<IContentParser>();
+		this.parsersMap = new HashMap<String, IContentParser>();
 		
-		this.parsersList.add(new ContentParserZero());
+		this.addParser(new ContentParser_v0());
+		this.addParser(new ContentParser_v1());
+	}
+	
+	private void addParser(IContentParser parser) {
+		JavaScriptUtils.log("=======================");
+		JavaScriptUtils.log(parser.getVersion());
+		JavaScriptUtils.log("=======================");
+		this.parsersMap.put(parser.getVersion(), parser);
 	}
 
 	public static IContentFactory getInstance() {
@@ -67,9 +76,16 @@ public class ContentFactory implements IContentFactory {
 
 	protected Content produce(String xmlString, ArrayList<Integer> pagesSubset, String fetchUrl) {
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
-		Integer version = XMLUtils.getAttributeAsInt(xml, "version");
+		String version = XMLUtils.getAttributeAsString(xml, "version", "1");
 		
-		Content producedContent = this.parsersList.get(version).parse(xml, pagesSubset);
+		JavaScriptUtils.log("=============================================");
+		JavaScriptUtils.log("W produce");
+		JavaScriptUtils.log(version);
+		JavaScriptUtils.log(this.parsersMap);
+		JavaScriptUtils.log(this.parsersMap.get(version));
+		JavaScriptUtils.log("=============================================");
+		
+		Content producedContent = this.parsersMap.get(version).parse(xml,  pagesSubset);
 		producedContent.setBaseUrl(fetchUrl);
 		
 		return producedContent;

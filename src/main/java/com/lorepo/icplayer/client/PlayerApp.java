@@ -9,15 +9,14 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
-import com.lorepo.icplayer.client.xml.ContentFactory;
-import com.lorepo.icplayer.client.xml.IContentFactory;
-import com.lorepo.icplayer.client.xml.IContentLoadingListener;
+import com.lorepo.icplayer.client.xml.content.ContentFactory;
+import com.lorepo.icplayer.client.xml.content.IContentFactory;
+import com.lorepo.icplayer.client.xml.content.IContentLoadingListener;
 
 public class PlayerApp{
 
@@ -64,6 +63,7 @@ public class PlayerApp{
 			public void onFinishedLoading(Content content) {
 				contentModel = content;
 				contentModel.connectHandlers();
+				JavaScriptUtils.log(contentModel);
 				initPlayer(isCommonPage);
 			}
 			
@@ -264,19 +264,11 @@ public class PlayerApp{
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
-		JavaScriptUtils.log("======================================");
-		JavaScriptUtils.log("Content data loader przed zaladowaniem");
-		JavaScriptUtils.log(contentModel);
-		JavaScriptUtils.log(contentModel.getAddonDescriptors());
-		JavaScriptUtils.log(contentModel.getAddonDescriptors().values());
-		JavaScriptUtils.log("======================================");		
 		loader.addAddons(contentModel.getAddonDescriptors().values());
-		JavaScriptUtils.log("contentModel get Header");
 		if(contentModel.getHeader() != null){
 			loader.addPage(contentModel.getHeader());
 		}
 		
-		JavaScriptUtils.log("contentModel get Footer");
 		if(contentModel.getFooter() != null){
 			loader.addPage(contentModel.getFooter());
 		}
