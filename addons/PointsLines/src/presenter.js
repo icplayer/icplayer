@@ -180,8 +180,24 @@ function AddonPointsLines_create() {
             score : score
         };
     };
+
+    function uncheckLine(line) {
+        var splittedLine = line.split("_"),
+            point1 = splittedLine[1],
+            point2 = splittedLine[2];
+
+        presenter.$view.find('#line_'+(point1)+'_'+(point2)).remove();
+        presenter.currentLines[point1][point2] = 0;
+
+        presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
+        presenter.selectedPoint = -1;
+    }
+
     presenter.triggerLineEvent = function(line, state, score) {
         var eventData = presenter.createEventData(line, state, score);
+        if(parseInt(score, 10) === 0 && presenter.blockWrongAnswers) {
+            uncheckLine(line);
+        }
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
@@ -408,6 +424,7 @@ function AddonPointsLines_create() {
         presenter.initIsVisible = presenter.isVisible;
         var startingLines = presenter.model['Starting lines'];
         var blockedLines = presenter.model['Blocked lines'];
+        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(presenter.model['Block wrong answers']);
         var con = presenter.$view.find('.pointslines').parent();
         presenter.$view.find('.pointslines').css({
             'width' : con.width(),
@@ -721,9 +738,27 @@ function AddonPointsLines_create() {
             'minWidth' : presenter.canvasWidth
         });
 
-        canvasElement.on('mousemove', function(e) {
+        function setCalculatedPosition(e) {
             xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
             yContainer.find('.value').html(getMousePositionOnCanvas(e).y);
+        }
+
+        var doesElementExist = function() {
+            var $moduleSelector = $('.moduleSelector[data-id="'+presenter.addonID+'"]');
+
+            if ($moduleSelector.length > 0) {
+                $moduleSelector.on('mousemove', function(e) {
+                    setCalculatedPosition(e);
+                });
+
+                clearInterval(interval);
+            }
+        };
+
+        var interval = setInterval(function() { doesElementExist(); }, 500);
+
+        canvasElement.on('mousemove', function(e) {
+            setCalculatedPosition(e);
         });
     };
 

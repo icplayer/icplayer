@@ -21,7 +21,6 @@ public class PresenterTestCase {
 		public void setData(int value) {
 			this.value = value;
 		}
-
 	}
 
 	

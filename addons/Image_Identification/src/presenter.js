@@ -13,7 +13,8 @@ function AddonImage_Identification_create(){
         EMPTY : "image-identification-element-empty",
         INCORRECT : "image-identification-element-incorrect",
         MOUSE_HOVER : "image-identification-element-mouse-hover",
-        SHOW_ANSWERS : "image-identification-element-show-answers"
+        SHOW_ANSWERS : "image-identification-element-show-answers",
+        MOUSE_HOVER_SELECTED: "image-identification-element-selected-mouse-hover"
     };
 
     /**
@@ -21,13 +22,19 @@ function AddonImage_Identification_create(){
      */
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
-            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.SHOW_ANSWERS;
+            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.SHOW_ANSWERS + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED;
     }
 
     function clickLogic() {
         if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
-        presenter.toggleSelectionState();
+        presenter.toggleSelectionState(true);
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+
+        var score = presenter.configuration.shouldBeSelected ? 1 : 0;
+        if(score == 0 && presenter.configuration.blockWrongAnswers) {
+            presenter.toggleSelectionState(false);
+            applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        }
     }
 
     presenter.handleMouseActions = function() {
@@ -40,6 +47,9 @@ function AddonImage_Identification_create(){
                 if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
                     $(this).addClass('image-identification-element-mouse-hover');
+                    if(presenter.configuration.isSelected){
+                        $(this).addClass('image-identification-element-selected-mouse-hover');
+                    }
                 }
             },
             function() {
@@ -172,7 +182,8 @@ function AddonImage_Identification_create(){
             isHoverEnabled: true,
             isActivity: !ModelValidationUtils.validateBoolean(model["Is not an activity"]),
             isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
-            isErrorCheckMode: false
+            isErrorCheckMode: false,
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers)
         };
     };
 
@@ -364,10 +375,12 @@ function AddonImage_Identification_create(){
         applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
-    presenter.toggleSelectionState = function() {
+    presenter.toggleSelectionState = function(shouldSendEvent) {
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
 
-        presenter.triggerSelectionEvent(presenter.configuration.isSelected, presenter.configuration.shouldBeSelected);
+        if(shouldSendEvent){
+            presenter.triggerSelectionEvent(presenter.configuration.isSelected, presenter.configuration.shouldBeSelected);
+        }
     };
 
     presenter.isAllOK = function () {

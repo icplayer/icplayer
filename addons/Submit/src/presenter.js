@@ -28,8 +28,19 @@ function AddonSubmit_create(){
         return eventData;
     };
 
+    function getEventObject(item, value, score) {
+        return {
+            'source': presenter.configuration.addonID,
+            'item': item != undefined ? item : "",
+            'value': value != undefined ? value : "",
+            'score': score != undefined ? score : ""
+        };
+    }
+
     presenter.sendEvent = function(eventName, eventData) {
-        presenter.eventBus.sendEvent(eventName, eventData);
+        var eventObject = getEventObject(eventData.item, eventData.value, eventData.score);
+
+        presenter.eventBus.sendEvent(eventName, eventObject);
     };
 
     presenter.ERROR_CODES = {
@@ -65,11 +76,11 @@ function AddonSubmit_create(){
 
     function getAllOfTheModulesThatImplementIsAttempted() {
         var pageIndex = presenter.playerController.getCurrentPageIndex(),
-            ids = presenter.playerController.getPresentation().getPage(pageIndex).getModules(),
+            ids = presenter.playerController.getPresentation().getPage(pageIndex).getModulesAsJS(),
             modules = [];
 
-        for(var i = 0; i < ids.i.length; i++){
-            var currentModule = presenter.playerController.getModule(ids.i[i]);
+        for(var i = 0; i < ids.length; i++){
+            var currentModule = presenter.playerController.getModule(ids[i]);
 
             if (currentModule && currentModule.isAttempted !== undefined) {
                 modules.push(currentModule);

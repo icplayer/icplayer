@@ -27,7 +27,6 @@ public class ScoreService implements IScoreService {
 		pageScores = new HashMap<String, PageScore>();
 	}
 
-
 	@Override
 	public int getScore(String moduleName) {
 
@@ -38,13 +37,12 @@ public class ScoreService implements IScoreService {
 		return 0;
 	}
 
-
 	@Override
 	public int getTotalMaxScore() {
 
 		int max = 0;
-		for(PageScore scoreObj : pageScores.values()){
-			max += scoreObj.getMaxScore();
+		for (PageScore scoreObj : pageScores.values()){
+			max += scoreObj.getMaxScore() * scoreObj.getWeight();
 		}
 
 		return max;
@@ -59,8 +57,8 @@ public class ScoreService implements IScoreService {
 		}
 
 		int total = 0;
-		for(PageScore scoreObj : pageScores.values()){
-			total += scoreObj.getScore();
+		for (PageScore scoreObj : pageScores.values()) {
+			total += scoreObj.getScore() * scoreObj.getWeight();
 		}
 
 		return total;
@@ -106,6 +104,7 @@ public class ScoreService implements IScoreService {
 
 	@Override
 	public void setPageScore(IPage page, PageScore score) {
+		score.setWeight(page.getPageWeight());
 		PageScore pageScore = pageScores.get(page.getId());
 
 		if (getScoreType().equals(ScoreType.last) || pageScore == null) {
@@ -129,7 +128,7 @@ public class ScoreService implements IScoreService {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		return getPageScoreById(pagesNamesToIds.get(pageName));
 	}
 
@@ -138,7 +137,7 @@ public class ScoreService implements IScoreService {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		PageScore score = pageScores.get(pageId);
 
 		if (score == null) {
@@ -176,4 +175,5 @@ public class ScoreService implements IScoreService {
 			}
 		}
 	}
+
 }

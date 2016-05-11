@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface IPage extends IContentNode{
 
+	@Override
 	public String getName();
 	public boolean isReportable();
 	public String getBaseURL();
@@ -13,4 +14,10 @@ public interface IPage extends IContentNode{
 	public String getHref();
 	public List<String> getModulesList();
 	public void setPlayerServices(IPlayerServices ps);
+	public int getPageWeight();
+	public void setModulesMaxScore(int s);
+	public int getModulesMaxScore();
+	void setPageCustomWeight(int w);
+	int getPageCustomWeight();
+	void setPageWeight(int w);
 }

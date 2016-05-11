@@ -1,3 +1,67 @@
+2016-05-10 Added class on hover in Image Identification module
+2016-05-10 Fixed issue with indexing pages in DIsable Score Pages in HLR module
+2016-05-09 Added show/hide commands in Text Identification module
+2016-05-06 Fixed rendering LaTeX in draggable gaps in Text module
+2016-05-05 Optimized state in IWB Toolbar
+2016-05-04 Fixed setting popup position
+2016-05-04 Added blocking wrong answers in Image Identification module
+2016-05-04 Added new event to CrossWord adddon - CorrectWord
+2016-04-26 Fixed issue with hide answers in Multiplegap module
+2016-04-26 Fixed issue with sending event in Submit module
+2016-04-25 Added blocking wrong answers in PlotsLines module
+2016-04-25 Fixed issue with non displaying coordinations in PointsLines module
+2016-04-25 Added blocking wrong answers in MultipleGap module
+2016-04-22 Added blocking wrong answers for editable gaps in Text module
+2016-04-22 Fixed tests in Crossword module
+2016-04-21 Added Color correct property in Coloring module
+2016-04-19 Added blocking wrong answers in Crossword module
+2016-04-19 Fixed memory leaks in IWB_Toolbar module and added destroy method to zoom.js
+2016-04-19 Added property weight to page
+2016-04-18 Added blocking wrong answers in Image Gap module
+2016-04-18 Added blocking wrong answers in Connection module
+2016-04-14 Added blocking wrong answers in Text Identification module
+2016-04-14 Added blocking wrong answers in Text module
+2016-04-13 Fixed rendering latex in Text module
+2016-04-11 Added sending continuous events and stick steps in Slider module 
+2016-04-08 Fixed dragging element in Ordering module
+2016-04-08 Added french layout to Paragraph
+2016-04-08 Added list and combo views in Table of Contents module
+2016-04-07 Added exporting report to file in Print Report module
+2016-04-07 Added Reset, CheckAnswers and ShowAnswers to Keyboard Navigation
+2016-04-07 Added method getModulesAsJS to player's API
+2016-04-06 Fixed tests in Table module
+2016-04-06 Fixed issue with inserting Image_Viewer module
+2016-04-06 Fixed issue with changing gap width in editor in Table module
+2016-04-05 Fixed issue with showing module when lesson is in iframe in Glossary module
+2016-04-04 Fixed issue with appearing native keyboard in eKeyboard module on Android
+2016-03-30 Fixed issue with droppable gaps in Text module
+2016-03-24 Added new module Variable Storage
+2016-03-21 Fixed scrolling and text wrapping on iOS in Paragraph module
+2016-03-18 Added displaying current date in Print Report module
+2016-03-18 Fixed issue with class after changing page in Table module
+2016-03-18 Fixed issue with variables in Math module
+2016-03-18 Added isAllOK command to Writing Calculation module
+2016-03-17 Added labels for showing documentation in editor
+2016-03-16 Added show and hide methods in Magic Box module
+2016-03-16 Added mode on and off to keyboard navigation
+2016-03-15 Fixed displaying background in Memo Game module
+2016-03-15 Fixed reseting axis values position in Plot module
+2016-03-14 Fixed issue with reset in Audio module
+2016-03-14 Added keyboard navigation
+2016-03-10 Secured adding handlers for creating presenters
+2016-03-09 Fixed issue with inline styles
+2016-03-07 Added loading all dictionaries.
+2016-03-04 Fixed zoom in IWB Toolbar module
+2016-03-04 Added setting last page as separated page in Navigation Bar module
+2016-03-03 Fixed memory leaks in Audio module
+2016-03-03 Fixed memory leaks in TextAudio module
+2016-03-03 Fixed issue with id selector in Text module
+2016-03-01 Fixed memory leaks in Text with draggable gaps, Source List and Show Answers
+2016-03-01 Added ignoring inline styles
+2016-03-01 Added positioning of values on x and y axis in Plot module
+2016-02-24 Fixed displaying ranges after reset in Animated Page Progress module
+2016-02-22 Added possibility to define smaller steps in Line Number module
+2016-02-17 Added setting first page as cover in Navigation Bar module
 2016-02-15 Added reading values only from canvas in LearnPen Report module
 2016-02-10 Changed page name in dictionary
 2016-02-10 Fixed displaying alert in Advanced Connector module

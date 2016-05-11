@@ -7,7 +7,13 @@ function AddonPrint_Report_create(){
         presenter.$view = $(view);
         presenter.$page = $('.ic_page');
         presenter.$wrapper = $('<div></div>').addClass('print-report-addon-wrapper').text(presenter.configuration.text);
+        presenter.$exportButton = $('<button></button>').addClass('export-button').text(presenter.configuration.labels.exportCsvReport);
+        presenter.$view.append(presenter.$exportButton);
         presenter.$view.append(presenter.$wrapper);
+
+        if(!presenter.configuration.report.showExportButton){
+            presenter.$exportButton.hide();
+        }
 
         presenter.originalViewStyles = presenter.$view.attr('style');
         presenter.originalViewClasses = presenter.$view.attr('class');
@@ -23,12 +29,29 @@ function AddonPrint_Report_create(){
             presenter.$view.append(presenter.$popup);
             presenter.$popup.hide();
             presenter.bindPopupEvents();
+            presenter.$exportButton.on("click", function () {
+                presenter.showPopup(true);
+            });
         }
+    };
+
+    presenter.exportButtonClickAction = function () {
+        var data = presenter.getPagesData(),
+            name = presenter.user.firstName || '',
+            lastName = presenter.user.lastName || '',
+            date = presenter.prepareDate(presenter.configuration.labels.date),
+            firstNameLabel = presenter.configuration.labels.userFirstName,
+            lastNameLabel = presenter.configuration.labels.userLastName,
+            scoreLabel = presenter.configuration.labels.pageScore || "Score",
+            errorsLabel = presenter.configuration.labels.errors || "Errors";
+
+            var blob = new Blob([firstNameLabel+ ": " + name + ", " + lastNameLabel + ": " + lastName + ", " + scoreLabel + ": " + data.total.score + "/" + data.total.maxScore + ", " + errorsLabel + ": " + data.total.errors + ", " + date], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "report.txt");
     };
 
     presenter.clickAction = function addonPrint_Report_clickAction () {
         if (presenter.configuration.report.username) {
-            presenter.showPopup();
+            presenter.showPopup(false);
         } else {
             presenter.showReport();
         }
@@ -130,6 +153,9 @@ function AddonPrint_Report_create(){
             $confirmBtn = $('<button></button>').
                 addClass('print-report-form-confirm-btn').
                 text(presenter.configuration.labels.userConfirm),
+            $exportBtn = $('<button></button>').
+                addClass('export-report-form-confirm-btn').
+                text(presenter.configuration.labels.exportCsvReport),
             $cancelBtn = $('<button></button>').
                 addClass('print-report-form-cancel-btn').
                 text(presenter.configuration.labels.userCancel);
@@ -150,7 +176,8 @@ function AddonPrint_Report_create(){
                 $('<div></div>').
                     addClass('print-report-form-actions').
                     append($cancelBtn).
-                    append($confirmBtn)
+                    append($confirmBtn).
+                    append($exportBtn)
             );
 
         $popup.css({
@@ -168,6 +195,12 @@ function AddonPrint_Report_create(){
             event.preventDefault();
             presenter.hidePopup();
             presenter.showReport();
+        });
+
+        presenter.$popup.on('click', '.export-report-form-confirm-btn', function addonPrint_Report_onConfirmClick (event) {
+            event.preventDefault();
+            presenter.hidePopup();
+            presenter.exportButtonClickAction();
         });
 
         presenter.$popup.on('click', '.print-report-form-cancel-btn', function addonPrint_Report_onCancelClick (event) {
@@ -188,7 +221,13 @@ function AddonPrint_Report_create(){
         presenter.$popup.off();
     };
 
-    presenter.showPopup = function AddonPrint_Report_showPopup () {
+    presenter.showPopup = function AddonPrint_Report_showPopup (exportButtonClicked) {
+        if(exportButtonClicked){
+            presenter.$popup.find('.print-report-form-confirm-btn').hide();
+        }else{
+            presenter.$popup.find('.export-report-form-confirm-btn').hide();
+        }
+
         var $firstName = presenter.$popup.find('.print-report-form-firstname'),
             $lastName = presenter.$popup.find('.print-report-form-lastname');
 
@@ -199,6 +238,7 @@ function AddonPrint_Report_create(){
         $lastName = null;
 
         presenter.$wrapper.hide();
+        presenter.$exportButton.hide();
 
         presenter.$view.
             removeAttr('style class').
@@ -220,7 +260,12 @@ function AddonPrint_Report_create(){
             attr('style', presenter.originalViewStyles).
             attr('class', presenter.originalViewClasses);
 
+        presenter.$popup.find('.print-report-form-confirm-btn').show();
+        presenter.$popup.find('.export-report-form-confirm-btn').show();
         presenter.$wrapper.show();
+        if(presenter.configuration.report.showExportButton){
+            presenter.$exportButton.show();
+        }
     };
 
     presenter.showReport = function addonPrint_Report_showReport () {
@@ -305,6 +350,49 @@ function AddonPrint_Report_create(){
         return $actions;
     };
 
+    presenter.prepareMonthFormat = function addonPrint_Report_prepareMonthFormat (month) {
+        if(month.toString().length < 2){
+            return "0" + month;
+        }
+
+        return month;
+    };
+
+    presenter.prepareYearFormat = function addonPrint_Report_prepareYearFormat (year) {
+        return year.toString().substring(2);
+    };
+
+    presenter.prepareDate = function addonPrint_Report_prepareDate (format) {
+        var date = new Date(),
+            day = date.getDate(),
+            month = presenter.prepareMonthFormat(date.getMonth()+1),
+            year = presenter.prepareYearFormat(date.getFullYear());
+
+
+        switch(format) {
+            case "dd-mm-yy":
+                return day + "-" + month + "-" + year;
+                break;
+            case "mm-dd-yy":
+                return month + "-" + day + "-" + year;
+                break;
+            case "yy-mm-dd":
+                return year + "-" + month + "-" + day;
+                break;
+            case "dd/mm/yy":
+                return day + "/" + month + "/" + year;
+                break;
+            case "mm/dd/yy":
+                return month + "/" + day + "/" + year;
+                break;
+            case "yy/mm/dd":
+                return year + "/" + month + "/" + day;
+                break;
+            default:
+                return day + "-" + month + "-" + year;
+        }
+    };
+
     presenter.prepareReportHeaderHtml = function addonPrint_Report_prepareReportHeaderHtml () {
         var $header = $('<div></div>').addClass('header');
 
@@ -322,6 +410,14 @@ function AddonPrint_Report_create(){
                     $('<h2></h2>').text(presenter.configuration.labels.subtitle)
                 )
             );
+        }
+
+        if(presenter.configuration.report.date) {
+            $header.append(
+                $('<div></div>').addClass('date').append(
+                    $('<h2></h2>').text(presenter.prepareDate(presenter.configuration.labels.date))
+                )
+            )
         }
 
         if (presenter.configuration.report.username) {
@@ -549,6 +645,7 @@ function AddonPrint_Report_create(){
     presenter.destroy = function addonPrint_Report_destroy () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$wrapper.off();
+        presenter.$exportButton.off();
         presenter.unbindPopupEvents();
 
         presenter.user = null;
@@ -568,6 +665,7 @@ function AddonPrint_Report_create(){
         presenter.$view = null;
         presenter.$body = null;
         presenter.view = null;
+        presenter.$exportButton = null;
 
         presenter.destroy = null;
         presenter = null;
@@ -635,7 +733,9 @@ function AddonPrint_Report_create(){
                 'errors': ModelValidationUtils.validateBoolean(model.Errors),
                 'pageScore': ModelValidationUtils.validateBoolean(model.PageScore),
                 'timePerPage': ModelValidationUtils.validateBoolean(model.TimePerPage),
-                'total': ModelValidationUtils.validateBoolean(model.Total)
+                'total': ModelValidationUtils.validateBoolean(model.Total),
+                'date': ModelValidationUtils.validateBoolean(model.Date),
+                'showExportButton': ModelValidationUtils.validateBoolean(model.ShowExportButton)
             },
             'labels': {
                 'title': model.TitleLabel,
@@ -656,7 +756,9 @@ function AddonPrint_Report_create(){
                 'userConfirm': model.UsernameConfirmLabel || 'Generate',
                 'userCancel': model.UsernameCancelLabel || 'Cancel',
                 'closeReport': model.CloseReportLabel || 'Close',
-                'printReport': model.PrintReportLabel || 'Print'
+                'printReport': model.PrintReportLabel || 'Print',
+                'exportCsvReport': model.ExportCsvLabel || 'Export report',
+                'date': model.DateLabel
 
             },
             'styles': model.Styles,

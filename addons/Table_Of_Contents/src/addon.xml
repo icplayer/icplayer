@@ -4,5 +4,6 @@
 	<model>
 		<property name="Header" nameLabel="Table_Of_Contents_property_header" type="string" isLocalized="true" />
         <property name="DontShowPages" displayName="Don't show pages" nameLabel="Table_Of_Contents_property_dont_show_pages" type="string" />
+        <property name="displayType" displayName="Display Type" nameLabel="Table_Of_Contents_property_display_type" type="{default, list, comboList}" />
 	</model>
 </addon>

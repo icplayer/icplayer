@@ -40,14 +40,59 @@ function AddonParagraph_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.pageLoadedDeferred = new $.Deferred();
+        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
         presenter.initializeEditor(view, model);
+
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+
+        if (iOSSafari) {
+            presenter.pageLoaded.then(function() {
+                presenter.myVar = setInterval(function(){
+                    findIframeAndSetStyles();
+                }, 1000);
+            });
+        }
+    };
+
+    function findIframeAndSetStyles() {
+        var iframe = presenter.$view.find(".paragraph-wrapper").find("iframe"),
+            body = $(iframe).contents().find("#tinymce"),
+            element = body.find("p");
+
+        element.css({
+            'overflow-wrap': 'break-word',
+            'word-wrap': 'break-word',
+            '-ms-word-break': 'break-all',
+            'word-break': 'break-word',
+            '-ms-hyphen': 'auto',
+            '-moz-hyphens': 'auto',
+            '-webkit-hyphens': 'auto',
+            'hyphens': 'auto'
+        });
+
+        presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
+
+        if (iframe.length > 0){
+            clearInterval(presenter.myVar);
+        }
+    }
+
+    presenter.onEventReceived = function(eventName) {
+        if (eventName == 'PageLoaded') {
+            presenter.pageLoadedDeferred.resolve();
+        }
     };
 
     presenter.validateToolbar = function(controls) {
         if (!controls) {
             return presenter.DEFAULTS.TOOLBAR;
         }
-        var allowedButtons = 'newdocument bold italic underline strikethrough alignleft aligncenter '+
+        var allowedButtons = 'customBold customUnderline customItalic newdocument bold italic underline strikethrough alignleft aligncenter '+
                              'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
                              'bullist numlist outdent indent blockquote undo redo '+
                              'removeformat subscript superscript forecolor backcolor |'.split(' ');
@@ -70,7 +115,8 @@ function AddonParagraph_create() {
             toolbar = presenter.validateToolbar(model['Custom toolbar']),
             height = model.Height,
             hasDefaultFontFamily = false,
-            hasDefaultFontSize = false;
+            hasDefaultFontSize = false,
+            layoutType = model["Layout Type"] || "Default";
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -100,7 +146,8 @@ function AddonParagraph_create() {
             placeholderText: model["Placeholder Text"],
             pluginName: presenter.makePluginName(model["ID"]),
             width: model['Width'],
-            height: parseInt(height, 10)
+            height: parseInt(height, 10),
+            layoutType: layoutType
         };
     };
 
@@ -163,6 +210,8 @@ function AddonParagraph_create() {
     };
 
     presenter.getTinymceInitConfiguration = function(selector) {
+        var layoutType = presenter.configuration.layoutType;
+
         return {
             plugins: presenter.configuration.plugins,
             selector : selector,
@@ -170,10 +219,12 @@ function AddonParagraph_create() {
             height: presenter.configuration.textAreaHeight,
             statusbar: false,
             menubar: false,
-            toolbar: presenter.configuration.toolbar,
+            toolbar: layoutType === "Default" ? presenter.configuration.toolbar : getSpecifyToolbar(layoutType),
             oninit: presenter.onInit,
             content_css: presenter.configuration.content_css,
-            setup: presenter.setup
+            setup: presenter.setup,
+            language: layoutType === "Default" ? '' : 'fr_FR',
+            language_url : layoutType === "Default" ? '' : '/langs/fr_FR.js'
         };
     };
 
@@ -265,9 +316,72 @@ function AddonParagraph_create() {
         }
     };
 
+    function getSpecifyToolbar(language) {
+        var toolbar = "";
+
+        if (language === "French") {
+            toolbar = "customBold customItalic customUnderline numlist bullist alignleft aligncenter alignright alignjustify";
+        }
+
+        return toolbar;
+    }
+
+    function addStylesToButton() {
+        var boldButton = presenter.$view.find("[aria-label='" + getButton("Bold").title + "'] button"),
+            italicButton = presenter.$view.find("[aria-label='" + getButton("Italic").title + "'] button"),
+            underlineButton = presenter.$view.find("[aria-label='" + getButton("Underline").title + "'] button");
+
+        boldButton.css({'font-family': 'tinymce', 'font-size': '18px', 'font-weight': 'bold'});
+        italicButton.css({'font-family': 'tinymce', 'font-size': '18px', 'font-weight': 'bold', 'font-style': 'italic'});
+        underlineButton.css({'font-family': 'tinymce', 'font-size': '18px', 'font-weight': 'bold', 'text-decoration': 'underline'});
+    }
+
+    function getButton(type) {
+        var layoutLanguage = presenter.configuration.layoutType;
+
+        var french = {
+            Bold: {
+                text: '\u0047',
+                title: 'Bold'
+            },
+            Underline: {
+                text: 'S',
+                title: 'Underline'
+            },
+            Italic: {
+                text: 'I',
+                title: 'Italic'
+            }
+        }
+
+        var languages = {
+            French: french
+        }
+
+        return languages[layoutLanguage][type];
+    }
+
+    function createButton(editor, type) {
+        var button = getButton(type);
+
+        return {
+            text: button.text,
+            title: button.title,
+            icon: false,
+            onclick: function() {
+                editor.execCommand(type);
+            }
+        }
+    }
+
     presenter.setup = function (ed) {
         ed.on("NodeChange", presenter.onNodeChange);
         ed.on("keyup", presenter.onTinymceChange);
+        if (presenter.configuration.layoutType !== "Default") {
+            ed.addButton('customBold', createButton(this, "Bold"));
+            ed.addButton('customItalic', createButton(this, "Italic"));
+            ed.addButton('customUnderline', createButton(this, "Underline"));
+        }
     };
 
     presenter.setStyles = function () {
@@ -341,10 +455,16 @@ function AddonParagraph_create() {
                 presenter.setIframeHeight();
             }
         }, 50);
+
+        if (presenter.configuration.layoutType !== "Default") {
+            addStylesToButton();
+        }
     };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
+        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.onNodeChange = function () {

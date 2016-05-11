@@ -35,7 +35,7 @@ public class Content implements IContentBuilder, IContent {
 	private String footerPageName = "commons/footer";
 	private String version = "2";
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
-	
+
 	public Content(){
 		this.pages = new PageList("root");
 		this.commonPages = new PageList("commons");
@@ -48,18 +48,21 @@ public class Content implements IContentBuilder, IContent {
 	
 	public void connectHandlers() {
 		pages.addListener(new IPageListListener() {
+			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
 					listener.onRemovePage(node, parent);
 				}
 			}
-			
+
+			@Override
 			public void onNodeMoved(IChapter source, int from, int to) {
 				if(listener != null){
 					listener.onPageMoved(source, from, to);
 				}
 			}
-			
+
+			@Override
 			public void onNodeAdded(IContentNode node) {
 				if(listener != null){
 					listener.onAddPage(node);
@@ -76,18 +79,22 @@ public class Content implements IContentBuilder, IContent {
 		});
 		
 		commonPages.addListener(new IPageListListener() {
+			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
 				if(listener != null){
 					listener.onRemovePage(node, parent);
 				}
 			}
+			@Override
 			public void onNodeMoved(IChapter source, int from, int to) {
 			}
+			@Override
 			public void onNodeAdded(IContentNode node) {
 				if(listener != null){
 					listener.onAddPage(node);
 				}
 			}
+			@Override
 			public void onChanged(IContentNode source) {
 			}
 		});
@@ -124,9 +131,9 @@ public class Content implements IContentBuilder, IContent {
 	
 	
 	public void addAsset(IAsset asset){
-		
-		String href = asset.getHref(); 
-		
+
+		String href = asset.getHref();
+
 		if(href == null){
 			return;
 		}
@@ -162,9 +169,9 @@ public class Content implements IContentBuilder, IContent {
 		return assets;
 	}
 
-	
+
 	public int getAssetCount(){
-		
+
 		return assets.size();
 	}
 
@@ -182,14 +189,12 @@ public class Content implements IContentBuilder, IContent {
 	public HashMap<String,String> getStyles(){
 		return styles;
 	}
-	
 
 	public void setPageSubset(ArrayList<Integer> pageList){
 		if (pageList != null) {
 			pageSubset = pageList;
 		}
 	}
-
 
 	/**
 	 * Convert model into XML
@@ -200,7 +205,7 @@ public class Content implements IContentBuilder, IContent {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>"; 
 
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version + "'>";			
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version + "'>";
 		
 		// Metadata
 		xml += "<metadata>";
@@ -218,15 +223,15 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += 	"</addons>";
 
-		
+
 		xml += "<styles>";
 		if(styles != null){
 		    for (String key : styles.keySet()) {
-		    	xml += "<style name='" + key + "'>" + StringUtils.escapeHTML(styles.get(key)) + "</style>"; 
+		    	xml += "<style name='" + key + "'>" + StringUtils.escapeHTML(styles.get(key)) + "</style>";
 		    }
 		}
 		xml += "</styles>";
-		
+
 		// Pages
 		xml += toXMLPages();
 		
@@ -243,27 +248,27 @@ public class Content implements IContentBuilder, IContent {
 
 
 	private String toXMLPages() {
-		
+
 		String xml = "<pages>";
 		xml += pages.toXML();
-		
+
 		if(commonPages.getTotalPageCount() > 0){
-			
+
 			xml += "<folder name='commons'>";
 			xml += commonPages.toXML();
 			xml += 	"</folder>";
 		}
-		
+
 		if(headerPageName != null){
 			xml += "<header ref='" + headerPageName + "'/>";
 		}
-		
+
 		if(footerPageName != null){
 			xml += "<footer ref='" + footerPageName + "'/>";
 		}
-		
+
 		xml += 	"</pages>";
-		
+
 		return xml;
 	}
 
@@ -282,7 +287,7 @@ public class Content implements IContentBuilder, IContent {
 	public IPage getCommonPage(int index) {
 		return commonPages.getAllPages().get(index);
 	}
-	
+
     @Override
     public IPage getPageById(String id) {
         for (IPage page : pages.getAllPages()) {
@@ -300,11 +305,11 @@ public class Content implements IContentBuilder, IContent {
 	}
 	
 	
-	public Page findPageByName(String pageName){	
+	public Page findPageByName(String pageName){
 		int index;
 		Page page = null;
-		String lowerCaseName = pageName.toLowerCase(); 
-		
+		String lowerCaseName = pageName.toLowerCase();
+
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
 			index = commonPages.findPageIndexByName(commonPageName);
@@ -318,8 +323,7 @@ public class Content implements IContentBuilder, IContent {
 				page = pages.getAllPages().get(index);
 			}
 		}
-		
-		
+
 		return page;
 	}
 	
@@ -359,7 +363,7 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setBaseUrl(String url) {
 		this.baseUrl = url.substring(0, url.lastIndexOf("/")+1);
-		
+
 	}
 
 	@Override
@@ -385,7 +389,7 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setAssets(ArrayList<IAsset> assets) {
 		this.assets = assets;
-		
+
 	}
 
 	@Override
@@ -412,4 +416,15 @@ public class Content implements IContentBuilder, IContent {
 	public void addLayout(PageLayout pageLayout) {
 		this.layoutsContainer.addLayout(pageLayout);
 	}
+
+    public HashMap<String, Integer> getPageWeights() {
+		HashMap<String, Integer> weights = new HashMap<String, Integer>();
+
+		for(IPage page : getPages().getAllPages()) {
+			weights.put(page.getId(), page.getPageWeight());
+		}
+
+		return weights;
+	}
+
 }

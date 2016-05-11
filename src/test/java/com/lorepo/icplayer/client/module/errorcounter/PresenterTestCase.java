@@ -40,7 +40,6 @@ public class PresenterTestCase {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
 	}
 
 	

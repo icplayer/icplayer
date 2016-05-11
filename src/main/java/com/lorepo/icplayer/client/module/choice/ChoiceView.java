@@ -3,6 +3,8 @@ package com.lorepo.icplayer.client.module.choice;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -24,6 +26,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private IOptionListener listener;
 	private int[] order;
 	
+	private int position = -1;
 	
 	public ChoiceView(ChoiceModel module, boolean isPreview){
 	
@@ -164,5 +167,88 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			array[order[i]]=i;
 		}
 		return array;
+	}
+
+	private void skip() {
+		position++;
+		
+		if (position == optionWidgets.size()) {
+			position = position % optionWidgets.size();
+		}
+
+		IOptionDisplay option = optionWidgets.get(position);
+
+		for (IOptionDisplay widget : optionWidgets) {
+			widget.removeBorder();
+		}
+		
+		if (option != null) {
+			option.addBorder();
+		}
+	}
+	
+	private void select() {
+		if (position < 0) return;
+		
+		IOptionDisplay option = optionWidgets.get(position);
+		
+		if (!module.isMulti()) {
+			for (IOptionDisplay widget : optionWidgets) {
+				widget.setDown(false);
+			}
+		}
+
+		if (option != null) {
+			if (option.isDown()) {
+				option.setDown(false);
+			} else {
+				option.setDown(true);
+			}
+		}
+	}
+
+	private void addBorder() {
+		if (position < 0) {
+			position = 0;
+		}
+		IOptionDisplay option = optionWidgets.get(position);
+		
+		if (option != null) {
+			option.addBorder();
+		}
+	}
+	
+	private void removeBorder() {
+		if (position < 0) return;
+		IOptionDisplay option = optionWidgets.get(position);
+		
+		if (option != null) {
+			option.removeBorder();
+		}
+	}
+	
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			addBorder();
+		}
+		
+		if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
+			skip();
+		}
+		
+		//space key
+		if (code == 32) {
+			event.preventDefault();
+			select();
+		}
+		
+		if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			removeBorder();
+		}
 	}
 }

@@ -9,5 +9,7 @@
 		<property name="InitialStep" nameLabel="Slider_property_initial_step" type="string" />
 		<property name="onStepChange" nameLabel="Slider_property_on_step_change" type="event" />
 		<property name="Block in error checking mode" nameLabel="Slider_property_block_in_error_checking_mode" type="boolean" />
+        <property name="Continuous events" nameLabel="Slider_property_continuous_events" type="boolean" />
+        <property name="Continuous events steps" nameLabel="Slider_property_continuous_events_steps" type="{Stick, Smooth}" />
 	</model>
 </addon>

@@ -89,5 +89,4 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

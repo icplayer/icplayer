@@ -2,6 +2,7 @@ function AddonNavigation_Bar_create() {
     var presenter = function () { };
     presenter.eventBus = null;
     presenter.pagesOk = [];
+    presenter.allPagesDisplayed = false;
 
     var NAVIGATION_PAGE = {
         FIRST: 0,
@@ -39,6 +40,88 @@ function AddonNavigation_Bar_create() {
     	return Internationalization.WESTERN_ARABIC;
     }
 
+    presenter.keyboardController = function(keycode) {
+
+        $(document).on('keydown', function(e) {
+            e.preventDefault();
+            $(this).off('keydown');
+        });
+
+        var elements = presenter.$view.find("span").not("[class*='inactive']");
+
+        function getCurrentPosition() {
+            var pos;
+            $.each(elements, function(i, el) {
+                if ($(el).is("[class*='mouse-hover']")) {
+                    pos = i;
+                    return false;
+                }
+            });
+
+            if (typeof pos === "undefined") {
+                $.each(elements, function(i, el) {
+                    if ($(el).is("[class*='current']")) {
+                        pos = i;
+                        return false;
+                    }
+                });
+            }
+            // dotted
+            if (typeof pos === "undefined") {
+                $.each(elements, function(i, el) {
+                    if ($(el).hasClass("navigationbar-dotted-element")) {
+                        pos = i;
+                        return false;
+                    }
+                });
+            }
+
+            return pos;
+        }
+
+        function select(element) {
+            if (!element) return;
+
+            presenter.$view.find('span').removeClass('navigationbar-element-mouse-hover');
+
+            $(element).removeClass('navigationbar-element');
+            $(element).addClass('navigationbar-element-mouse-hover');
+
+            var pageNumber = $(element).attr('data-page-number');
+        }
+
+        function skipToPage() {
+            $(elements[getCurrentPosition()]).trigger('click');
+        }
+
+        function back() {
+            select(elements[getCurrentPosition() - 1]);
+        }
+
+        function forward() {
+            select(elements[getCurrentPosition() + 1]);
+        }
+
+        function deselect() {
+            presenter.$view.find('span').removeClass('navigationbar-element-mouse-hover');
+        }
+
+        switch(keycode) {
+            case 13:
+                skipToPage();
+                break;
+            case 37:
+                back();
+                break;
+            case 39:
+                forward();
+                break;
+            case 27:
+                deselect();
+                break;
+        }
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
@@ -51,6 +134,7 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ValueChanged', this);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('closePage', this);
     };
 
     function goToPage(whereTo, index) {
@@ -359,12 +443,20 @@ function AddonNavigation_Bar_create() {
 
     // Index is displayed page number
     function generateIndexElementStub(index, navigationBarMoved) {
-        var isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
+        var isCurrentElement, pageIndex;
+
+        if(presenter.configuration.firstPageAsCover){
+            isCurrentElement = !navigationBarMoved ? (index - 1 + 1) === presenter.currentIndex : (index - 1 + 1) === movedFromIndex;
+            pageIndex = parseInt(index, 10) + 1;
+        }else{
+            isCurrentElement = !navigationBarMoved ? (index - 1) === presenter.currentIndex : (index - 1) === movedFromIndex;
+            pageIndex = parseInt(index, 10);
+        }
 
         var currentElementStyle = isCurrentElement ? "navigationbar-element-current" : "navigationbar-element";
 
         return '<a href="#">' +
-            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + index + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
+            '<span class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + pageIndex + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
             '</a>';
     }
 
@@ -379,13 +471,31 @@ function AddonNavigation_Bar_create() {
         var dotsRightTargetIndex;
         var n = 0;
 
-        if (maxElementCount >= presenter.pageCount) { // All pages will be displayed
-            for (n = 1; n <= presenter.pageCount; n++) {
-                element = generateIndexElementStub(n, navigationBarMoved);
-                presenter.$wrapper.append(element);
+        var pageCount;
+        if(presenter.configuration.firstPageAsCover){
+            pageCount = presenter.pageCount-1;
+        }else{
+            pageCount = presenter.pageCount;
+        }
+
+        if (maxElementCount >= pageCount) { // All pages will be displayed
+            if(presenter.configuration.lastPageSeparated){
+                for (n = 1; n <= pageCount; n++) {
+                    if(n != pageCount){
+                        element = generateIndexElementStub(n, navigationBarMoved);
+                        presenter.$wrapper.append(element);
+                    }
+                }
+                presenter.allPagesDisplayed = true;
+            }else{
+                for (n = 1; n <= pageCount; n++) {
+                    element = generateIndexElementStub(n, navigationBarMoved);
+                    presenter.$wrapper.append(element);
+                }
             }
+            presenter.allPagesDisplayed = true;
         } else {
-            if (presenter.currentIndex < maxElementCount - 1) { // -1 for dotted element
+            if (presenter.currentIndex < (maxElementCount - 1)) { // -1 for dotted element
                 for (n = 0; n < maxElementCount - 1; n++) {
                     element = generateIndexElementStub(n + 1, navigationBarMoved);
                     presenter.$wrapper.append(element);
@@ -396,13 +506,22 @@ function AddonNavigation_Bar_create() {
                 presenter.$wrapper.append(generateDottedElement(DOTTED_SIDE.RIGHT));
             } else if (presenter.currentIndex > (presenter.pageCount - maxElementCount)) {
                 // Dots are displayed on the left -> -1 to max element count
-                dotsLeftTargetIndex = (presenter.pageCount - 1) - (maxElementCount - 2) - 1;
+                dotsLeftTargetIndex = (pageCount - 1) - (maxElementCount - 2) - 1;
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
                 presenter.$wrapper.append(dottedElement);
 
-                for (n = presenter.pageCount - maxElementCount + 1; n < presenter.pageCount; n++) {
-                    element = generateIndexElementStub(n + 1, navigationBarMoved);
-                    presenter.$wrapper.append(element);
+                if(presenter.configuration.lastPageSeparated){
+                    for (n = pageCount - maxElementCount; n < pageCount; n++) {
+                        if(presenter.configuration.lastPageSeparated && n != (pageCount-1)){
+                            element = generateIndexElementStub(n + 1, navigationBarMoved);
+                            presenter.$wrapper.append(element);
+                        }
+                    }
+                }else{
+                    for (n = pageCount - maxElementCount + 1; n < pageCount; n++) {
+                        element = generateIndexElementStub(n + 1, navigationBarMoved);
+                        presenter.$wrapper.append(element);
+                    }
                 }
             } else {
                 var numberOfElement = maxElementCount - 2;
@@ -446,6 +565,12 @@ function AddonNavigation_Bar_create() {
 
         if (presenter.$wrapper.css('direction') === 'rtl') {
             reorderElements(dotsIndexes, elementWidth, elementHeight, preview, horizontalGap);
+        }
+
+        if(presenter.configuration.lastPageSeparated && presenter.allPagesDisplayed){
+            var elementsCount = presenter.$view.find("span[class^=navigationbar-element]").length;
+            var missingWidth = parseInt(elementWidth/elementsCount, 10);
+            elementWidth = elementWidth + missingWidth;
         }
 
         presenter.$view.find("span[class^=navigationbar-element]").each(function () {
@@ -511,7 +636,10 @@ function AddonNavigation_Bar_create() {
             showNextPrevArrows: model.ShowNextPrevArrows === 'True',
             hideHomeLastArrows: model.HideHomeLastArrows === 'True',
             language: getLanguage(model),
-            addClassNBPageOK: model.AddClassNBPageOK === 'True'
+            addClassNBPageOK: model.AddClassNBPageOK === 'True',
+            ID: model.ID,
+            firstPageAsCover: ModelValidationUtils.validateBoolean(model["firstPageAsCover"]),
+            lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"])
         };
 
         if (!model['Styles']) {
@@ -603,8 +731,14 @@ function AddonNavigation_Bar_create() {
 
         var elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;
         maxElementCount = parseInt((presenter.$wrapper.width() - (arrowsCount * elementBaseWidth)) / elementBaseWidth, 10) - 4;
-        var numberOfElements = presenter.pageCount < maxElementCount ? presenter.pageCount + arrowsCount : maxElementCount + arrowsCount;
-        var elementWidth = parseInt(presenter.$wrapper.width() / numberOfElements - elementDistances.horizontal, 10);
+        var pageCount;
+        if(presenter.configuration.firstPageAsCover){
+            pageCount = presenter.pageCount-1;
+        }else{
+            pageCount = presenter.pageCount;
+        }
+        var numberOfElements = pageCount < maxElementCount ? pageCount + arrowsCount : maxElementCount + arrowsCount;
+        var elementWidth = parseInt(presenter.$wrapper.width() / numberOfElements  - elementDistances.horizontal, 10);
         var elementHeight = parseInt(presenter.$wrapper.height() - elementDistances.vertical, 10);
         var horizontalGap = presenter.$wrapper.width() - (elementWidth + elementDistances.horizontal) * numberOfElements;
 

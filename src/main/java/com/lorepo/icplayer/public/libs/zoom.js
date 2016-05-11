@@ -8,6 +8,9 @@
  * Modified by Karol Gebert:
  * - removed pan function and all related functions
  * - added support for zooming elements in iframe
+ *
+ * Modified by Andrzej Krawczyk:
+ * - added destroy function for zoom object
  */
 zoom = (function(){
 
@@ -99,6 +102,12 @@ zoom = (function(){
         }
     }
 
+    function keyupHandler(event) {
+        if( level !== 1 && event.keyCode === 27 ) {
+            zoom.out();
+        }
+    }
+
     return {
         /**
          * Zooms in on either a rectangle or HTML element.
@@ -118,11 +127,7 @@ zoom = (function(){
          */
         init: function () {
             // Zoom out if the user hits escape
-            document.addEventListener( 'keyup', function( event ) {
-                if( level !== 1 && event.keyCode === 27 ) {
-                    zoom.out();
-                }
-            } );
+            document.addEventListener( 'keyup', keyupHandler);
 
             supportsTransforms = 'WebkitTransform' in document.body.style ||
                 'MozTransform' in document.body.style ||
@@ -138,6 +143,11 @@ zoom = (function(){
                 document.body.style.MozTransition = '-moz-transform '+ TRANSITION_DURATION +'ms ease';
                 document.body.style.WebkitTransition = '-webkit-transform '+ TRANSITION_DURATION +'ms ease';
             }
+        },
+
+
+        destroy: function () {
+            document.removeEventListener('keyup', keyupHandler);
         },
 
         to: function( options ) {

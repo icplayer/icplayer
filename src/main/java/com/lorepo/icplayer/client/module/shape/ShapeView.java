@@ -25,5 +25,5 @@ public class ShapeView extends AbsolutePanel implements IDisplay {
 	@Override
 	public void show() {
 		setVisible(true);
-	}	
+	}
 }

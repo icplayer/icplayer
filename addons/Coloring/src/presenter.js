@@ -205,6 +205,29 @@ function AddonColoring_create(){
         presenter.allColoredPixels = [];
     };
 
+    presenter.checkIfColoredCorrectly = function () {
+        $.each(presenter.configuration.areas, function() {
+            var area = this;
+
+            if(!presenter.shouldBeTakenIntoConsideration(area)) {
+                return true; // continue
+            }
+
+            if (!isCorrect(area)) {
+                    var r = area.colorToFill[0],
+                        g = area.colorToFill[1],
+                        b = area.colorToFill[2],
+                        a = area.colorToFill[3],
+                        color = r + " " + g + " " + b + " " + a;
+                if(r != -1){
+                    presenter.fillArea(area.x, area.y, color);
+                }else{
+                    presenter.fillArea(area.x, area.y, '0 0 0 0');
+                }
+            }
+        });
+    };
+
     presenter.clickLogic = function(e, isTouch) {
         e.stopPropagation();
         e.preventDefault();
@@ -230,13 +253,19 @@ function AddonColoring_create(){
                     presenter.configuration.tolerance
                 );
             }
-            presenter.userInteractionSendingEvent(getClickedArea(presenter.click));
+
+            if(!presenter.configuration.colorCorrect){
+                presenter.userInteractionSendingEvent(getClickedArea(presenter.click));
+            }
 
             if (!presenter.isAlreadyInColorsThatCanBeFilled(presenter.configuration.currentFillingColor)) {
                 presenter.configuration.colorsThatCanBeFilled.push(presenter.configuration.currentFillingColor)
             }
         }
-
+        if(presenter.configuration.colorCorrect){
+            presenter.checkIfColoredCorrectly();
+            presenter.sendEvent([presenter.click.x, presenter.click.y], presenter.configuration.isErase ? 0 : 1, 1);
+        }
     };
 
     presenter.userInteractionSendingEvent = function (clickedArea) {
@@ -522,7 +551,8 @@ function AddonColoring_create(){
             'isDisabledByDefault' : validatedIsDisabled,
             'isActivity' : !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
             'lastUsedColor' : validatedDefaultFillingColor.value,
-            'disableFill': ModelValidationUtils.validateBoolean(model['disableFill'])
+            'disableFill' : ModelValidationUtils.validateBoolean(model['disableFill']),
+            'colorCorrect' : ModelValidationUtils.validateBoolean(model.colorCorrect)
         }
     };
 

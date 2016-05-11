@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
@@ -15,6 +16,7 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -37,6 +39,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public void markAsCorrect();
 		public void markAsEmpty();
 		public void markAsWrong();
+		public void addBorder();
+		public void removeBorder();
 	}
 	
 	public interface IDisplay extends IModuleView{
@@ -49,6 +53,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public int[] getOryginalOrder();
 		public void setVisibleVal(boolean val);
 		public void getOrderedOptions();
+		public void executeOnKeyCode(KeyDownEvent event);
 	}
 	
 	private IDisplay view;
@@ -71,7 +76,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		isDisabled = module.isDisabled();
 		isVisible = module.isVisible();
 
-		connectHandlers();
+		try{
+			connectHandlers();
+		}catch(Exception e){
+		}
 	}
 
 	
@@ -109,6 +117,21 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 					}
 				}
 			});
+			
+			eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
+				public void onActivated(ModuleActivatedEvent event) {
+					activate(event);
+				}
+			});
+		}
+	}
+	
+	private void activate(ModuleActivatedEvent event) {
+		String moduleName = event.moduleName;
+		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
+		
+		if (moduleName.equals(module.getId())) {
+			view.executeOnKeyCode(keyDownEvent);
 		}
 	}
 	

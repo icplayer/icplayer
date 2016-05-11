@@ -12,7 +12,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.utils.ILoadListener;
-import com.lorepo.icf.utils.IXMLSerializable;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -31,34 +30,34 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
 
-	private	Content				contentModel;
+	private final	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
 	private PageController		pageController2;
 	private PageController		headerController;
 	private PageController		footerController;
-	private	PlayerView			playerView;
+	private final	PlayerView			playerView;
 	private long				timeStart = 0;
-	private TimeService			timeService;
-	private ScoreService		scoreService;
-	private AssetsService		assetsService;
-	private StateService		stateService;
+	private final TimeService			timeService;
+	private final ScoreService		scoreService;
+	private final AssetsService		assetsService;
+	private final StateService		stateService;
 	private ILoadListener		pageLoadListener;
 	private PagePopupPanel		popupPanel;
-	private String sessionId;
+	private final String sessionId;
 	private String analyticsId;
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
-	
-	
+	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
+
 	public PlayerController(Content content, PlayerView view, boolean bookMode){
-		
 		contentModel = content;
 		playerView = view;
 		playerView.setPlayerController(this);
@@ -70,31 +69,32 @@ public class PlayerController implements IPlayerController{
 		createPageControllers(bookMode);
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 		timeService = new TimeService();
+		keyboardController.run();
 	}
-	
-	
-	private void createPageControllers(boolean bookMode) {
 
+	private void createPageControllers(boolean bookMode) {
 		pageController1 = new PageController(this);
+		keyboardController.setPlayerService(pageController1.getPlayerServices(), false);
 		pageController1.setView(playerView.getPageView(0));
 		if(bookMode){
 			playerView.showTwoPages();
 			pageController2 = new PageController(this);
+			keyboardController.setPlayerService(pageController2.getPlayerServices(), true);
 			pageController2.setView(playerView.getPageView(1));
 		}
 	}
 
-	
 	public void initHeaders() {
 		if(contentModel.getHeader() != null){
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
-			headerController.setView(playerView.getHeaderView());			
+			headerController.setView(playerView.getHeaderView());
 //			headerController.setPage(contentModel.getHeader());
 		}
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
+
 			footerController.setView(playerView.getFooterView());
 //			footerController.setPage(contentModel.getFooter());
 		}
@@ -104,13 +104,14 @@ public class PlayerController implements IPlayerController{
 	public void addPageLoadListener(ILoadListener l){
 		pageLoadListener = l;
 	}
-	
+
 	/**
 	 * get current loaded page index
 	 * @return
 	 */
+	@Override
 	public int getCurrentPageIndex(){
-		
+
 		int index = 0;
 		for(int i = 0; i < contentModel.getPageCount(); i++){
 			if(contentModel.getPage(i) == pageController1.getPage()){
@@ -120,17 +121,20 @@ public class PlayerController implements IPlayerController{
 		}
 		return index;
 	}
-	
-	
+
+
+	@Override
 	public Content	getModel(){
 		return contentModel;
 	}
-	
-	
+
+
+	@Override
 	public PlayerView getView(){
 		return playerView;
 	}
-	
+
+	@Override
 	public void switchToCommonPage(String pageName) {
 		int index = getModel().getCommonPages().findPageIndexByName(pageName);
 
@@ -140,15 +144,16 @@ public class PlayerController implements IPlayerController{
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
-	
+
 	/**
 	 * Przełączenie się na stronę o podanej nazwie
 	 * @param pageName
 	 * @return true if page found
 	 */
+	@Override
 	public void switchToPage(String pageName) {
 		int index = getModel().getPages().findPageIndexByName(pageName);
-		
+
 		if (index > -1){
 			switchToPage(index);
 		} else {
@@ -167,6 +172,7 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
+	@Override
 	public void switchToPrevPage() {
 		PageList pages = contentModel.getPages();
 		for(int i = 0; i < pages.getTotalPageCount(); i++){
@@ -184,6 +190,7 @@ public class PlayerController implements IPlayerController{
 	}
 
 
+	@Override
 	public void switchToNextPage() {
 
 		PageList pages = contentModel.getPages();
@@ -206,11 +213,12 @@ public class PlayerController implements IPlayerController{
 	 * Switch to page at given index
 	 * @param index
 	 */
+	@Override
 	public void switchToPage(int index){
 		closeCurrentPages();
 		IPage page;
 		if(pageController2 != null){
-			if( (!showCover && index%2 > 0) || 
+			if( (!showCover && index%2 > 0) ||
 				(showCover && index%2 == 0 && index > 0))
 			{
 				index -= 1;
@@ -222,7 +230,7 @@ public class PlayerController implements IPlayerController{
 		else{
 			page = contentModel.getPage(0);
 		}
-		
+
 		if(showCover && index == 0){
 			playerView.showSinglePage();
 			switchToPage(page, pageController1);
@@ -236,9 +244,9 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
-	
+
 	public void switchToCommonPage(int index) {
-		
+
 		closeCurrentPages();
 		IPage page;
 		if (pageController2 != null) {
@@ -246,13 +254,13 @@ public class PlayerController implements IPlayerController{
 				index -= 1;
 			}
 		}
-		
+
 		if (index < contentModel.getCommonPages().getTotalPageCount()) {
 			page = contentModel.getCommonPage(index);
 		} else {
 			page = contentModel.getCommonPage(0);
 		}
-		
+
 		if (showCover && index == 0) {
 			playerView.showSinglePage();
 			switchToPage(page, pageController1);
@@ -265,20 +273,19 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
-	
+
 
 	private void switchToPage(IPage page, final PageController pageController){
-
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		sendAnalytics("switch to page", params );
 		// Load new page
 		String baseUrl = contentModel.getBaseUrl();
-		XMLLoader reader = new XMLLoader((IXMLSerializable) page);
+		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		playerView.showWaitDialog();
 		reader.load(url, new ILoadListener() {
-			
+
 			@Override
 			public void onFinishedLoading(Object obj) {
 				Page page = (Page) obj;
@@ -290,7 +297,10 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-				scrollViewToBeggining();
+
+				if (!keyboardController.isModuleActivated()) {
+					scrollViewToBeggining();
+				}
 			}
 
 			@Override
@@ -299,30 +309,41 @@ public class PlayerController implements IPlayerController{
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
-			
-	}
 
+	}
 
 	private void pageLoaded(Page page, PageController pageController) {
+		keyboardController.reset();
+
 		pageController.setPage(page);
+
+		keyboardController.addMainToNavigation(pageController1);
+		keyboardController.addSecondToNavigation(pageController2);
+
 		if(headerController != null){
 			headerController.setPage(contentModel.getHeader());
+			keyboardController.addHeaderToNavigation(headerController);
 		}
+
 		if(footerController != null){
 			footerController.setPage(contentModel.getFooter());
+			keyboardController.addFooterToNavigation(footerController);
 		}
+
+		keyboardController.fillModulesNamesList();
 	}
-	
+
 	private static void scrollViewToBeggining() {
-		 
+
 		Scheduler.get().scheduleFinally(new ScheduledCommand() {
+			@Override
 			public void execute() {
 				Window.scrollTo(0, 0);
 			}
 		});
 	}
 
-	
+
 	private void closeCurrentPages() {
 		closePopup();
 		pageController1.updateScore(false);
@@ -330,15 +351,15 @@ public class PlayerController implements IPlayerController{
 		if (isBookMode()) {
 			pageController2.updateScore(false);
 		}
-		
+
 		updateState();
-		
+
 		pageController1.closePage();
 		if(isBookMode()){
 			pageController2.closePage();
 		}
 	}
-	
+
 	public void updateScore() {
 		pageController1.updateScore(false);
 
@@ -355,7 +376,7 @@ public class PlayerController implements IPlayerController{
 		}
 		timeService.updateTimeForPages(page1, page2);
 	}
-	
+
 	public void updateState() {
 		updateTimeForCurrentPages();
 		HashMap<String, String> state = pageController1.getState();
@@ -380,20 +401,24 @@ public class PlayerController implements IPlayerController{
 	}
 
 
+	@Override
 	public long getTimeElapsed() {
 		return (System.currentTimeMillis()-timeStart)/1000;
 	}
 
 
+	@Override
 	public IScoreService getScoreService() {
 		return scoreService;
 	}
-	
+
+	@Override
 	public IAssetsService getAssetsService() {
 		return assetsService;
 	}
 
 
+	@Override
 	public IStateService getStateService() {
 		return stateService;
 	}
@@ -426,8 +451,8 @@ public class PlayerController implements IPlayerController{
 		if(analyticsId == null){
 			return;
 		}
-		
-		String url = "http://www.bluenotepad.com/api/log?" + 
+
+		String url = "http://www.bluenotepad.com/api/log?" +
 				"notepad=" + analyticsId + "&session=" + sessionId + "&event=" + event;
 		if( params != null){
 			for(String key : params.keySet()){
@@ -438,8 +463,10 @@ public class PlayerController implements IPlayerController{
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, encodedUrl);
 		try {
 			builder.sendRequest(null, new RequestCallback() {
+				@Override
 				public void onError(Request request, Throwable exception) {
 				}
+				@Override
 				public void onResponseReceived(Request request, Response response){
 				}
 			});
@@ -487,24 +514,25 @@ public class PlayerController implements IPlayerController{
 		if (headerController == null) {
 			return null;
 		}
-		
-		return headerController.findModule(id);	
+
+		return headerController.findModule(id);
 	}
-	
+
 	@Override
 	public IPresenter findFooterModule(String id) {
 		if (footerController == null) {
 			return null;
 		}
-		
-		return footerController.findModule(id);	
+
+		return footerController.findModule(id);
 	}
 
 	@Override
 	public PlayerConfig getPlayerConfig() {
 		return config;
 	}
-	
+
+	@Override
 	public ITimeService getTimeService() {
 		updateTimeForCurrentPages();
 		return timeService;

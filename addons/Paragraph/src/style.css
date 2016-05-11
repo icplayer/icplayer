@@ -5,6 +5,7 @@ div.paragraph-wrapper {
 	border-radius: 2px;
     overflow-y: hidden;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 div.paragraph-wrapper textarea {

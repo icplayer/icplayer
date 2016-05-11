@@ -298,6 +298,10 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.reset = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         presenter.cleanView();
         presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
     };

@@ -42,10 +42,9 @@ public class PlayerServices implements IPlayerServices {
 	public IScoreService getScoreService() {
 		return 	playerController.getScoreService();
 	}
-	
+
 	@Override
 	public IAssetsService getAssetsService() {
-
 		return 	playerController.getAssetsService();
 	}
 
@@ -71,7 +70,7 @@ public class PlayerServices implements IPlayerServices {
 	public IContent getModel() {
 		return playerController.getModel();
 	}
-	
+
 	@Override
 	public PlayerConfig getPlayerConfig() {
 		return playerController.getPlayerConfig();
@@ -137,5 +136,10 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public ITimeService getTimeService() {
 		return playerController.getTimeService();
+	}
+
+	@Override
+	public int getPageWeight() {
+		return pageController.getPage().getPageWeight();
 	}
 }

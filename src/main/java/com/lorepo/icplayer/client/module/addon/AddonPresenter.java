@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -73,15 +74,36 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				reset();
 			}
 		});
+		
+		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
+			public void onActivated(ModuleActivatedEvent event) {
+				activate(event.moduleName, event.moduleStatus);
+			}
+		});
 	}
+	
+	private void activate(String moduleName, String moduleStatus) {
+		if (moduleName.equals(model.getId())) {
+			activate(jsObject, moduleName, moduleStatus);
+		}
+	}
+	
+	private native void activate(JavaScriptObject obj, String moduleName, String keyCode) /*-{
+		try{
+			if(obj.keyboardController != undefined) {
+				obj.keyboardController(parseInt(keyCode, 10));
+			}
+		}
+		catch(err){
+			console.log("err in activate" + err);
+	  	}	
+	}-*/;
 	
 	@Override
 	public void setShowErrorsMode() {
 		setShowErrorsMode(jsObject, addonDescriptor.getAddonId());
 	}
 
-
-	
 	private native void setShowErrorsMode(JavaScriptObject obj, String addonId) /*-{
 	
 		try{

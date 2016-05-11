@@ -15,10 +15,11 @@ public class PageScore {
 	private final int	checkCount;
 	private final int	errorCount;
 	private final int 	mistakeCount;
+	private int weight;
 	private boolean hasScore = true;
-	
-	
-	
+
+
+
 	public PageScore(float score, float maxScore, int checkCount,
 			int errorCount, int mistakeCount)
 	{
@@ -29,7 +30,7 @@ public class PageScore {
 		this.mistakeCount = mistakeCount;
 	}
 
-	
+
 	public PageScore(float score, float maxScore)
 	{
 		this.score = score;
@@ -39,7 +40,7 @@ public class PageScore {
 		this.mistakeCount = 0;
 	}
 
-	
+
 	public PageScore() {
 		this.score = 0;
 		this.maxScore = 0;
@@ -56,7 +57,7 @@ public class PageScore {
 	public float getScore(){
 		return score;
 	}
-	
+
 	/**
 	 * @return max score
 	 */
@@ -69,24 +70,20 @@ public class PageScore {
 	 */
 	public int getPercentageScore() {
 
-		if(maxScore > 0){
+		if (maxScore > 0) {
 			return (int) (score*100/maxScore);
 		}
-		else if(hasScore){
-			return 100;
-		}
-		else{
-			return 0;
-		}
+
+		return hasScore ? 100 : 0;
 	}
-	
+
 	/**
 	 * @return No of check pressed on the page
 	 */
 	public int getCheckCount(){
 		return checkCount;
 	}
-	
+
 	/**
 	 * @return No of errors left on the page
 	 */
@@ -102,7 +99,7 @@ public class PageScore {
 
 	public String getAsString() {
 		HashMap<String, String> data = new HashMap<String, String>();
-		
+
 		data.put("score", Float.toString(score));
 		data.put("maxScore", Float.toString(maxScore));
 		data.put("checkCount", Integer.toString(checkCount));
@@ -124,43 +121,50 @@ public class PageScore {
 
 
 	public PageScore incrementCounters() {
-		return new PageScore(score, maxScore, checkCount+1, 
-				errorCount, mistakeCount+errorCount);  
+		return new PageScore(score, maxScore, checkCount+1,
+				errorCount, mistakeCount+errorCount);
 	}
-	
+
 	public PageScore increaseMistakeCounter() {
-		return new PageScore(score, maxScore, checkCount, 
+		return new PageScore(score, maxScore, checkCount,
 				errorCount, mistakeCount+1);
 	}
-	
+
 	public PageScore incrementCheckCounter() {
-		return new PageScore(score, maxScore, checkCount+1, 
+		return new PageScore(score, maxScore, checkCount+1,
 				errorCount, mistakeCount);
 	}
 
 	public PageScore reset() {
-		return new PageScore(0, maxScore, checkCount, 0, mistakeCount);  
+		return new PageScore(0, maxScore, checkCount, 0, mistakeCount);
 	}
-	
+
 	public PageScore resetAllScores() {
 		return new PageScore(0, maxScore, 0, 0, 0);
 	}
-	
+
 	public PageScore resetScoreAndMistakes() {
 		return new PageScore(0, maxScore, checkCount, 0, 0);
 	}
-	
+
 	public PageScore resetScoreAndChecks() {
 		return new PageScore(0, maxScore, 0, 0, mistakeCount);
 	}
 
 	public PageScore updateScore(float score, float maxScore, int errorCount) {
-		return new PageScore(score, maxScore, checkCount, 
-				errorCount, mistakeCount);  
+		return new PageScore(score, maxScore, checkCount, errorCount, mistakeCount);
 	}
-	
+
 	public boolean hasScore(){
 		return hasScore;
+	}
+
+	public void setWeight(int w) {
+		this.weight = w;
+	}
+
+	public int getWeight() {
+		return this.weight;
 	}
 
 }

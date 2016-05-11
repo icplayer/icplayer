@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -43,6 +44,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		minusErrors
 	}
 
+	public enum PageScoreWeight {
+		defaultWeight, // 1
+		maxPageScore,  // sum of modules scoring
+		custom
+	}
+
 	private String id;
 	private String name;
 	private final String href;
@@ -68,6 +75,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		put("verticals", new ArrayList<Ruler>());
 		put("horizontals", new ArrayList<Ruler>());
 	}};
+	private PageScoreWeight pageScoreWeightMode = PageScoreWeight.defaultWeight;
+	private int modulesMaxScore = 0;
+	private int pageWeight = 1;
+	private int pageCustomWeight = 1;
 
 	public Page(String name, String url) {
 		super("Page");
@@ -80,6 +91,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addPropertyReportable();
 		addPropertyPreview();
 		addPropertyScoreType();
+		addPropertyWeightScoreMode();
+		addPropertyWeightScoreValue();
 	}
 
 	@Override
@@ -111,6 +124,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	public ScoringType getScoringType() {
 		return scoringType;
+	}
+
+	public PageScoreWeight getPageScoreWeight() {
+		return pageScoreWeightMode;
 	}
 
 	@Override
@@ -161,34 +178,35 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
+		xml += " version='2'";
 
-		if(!cssClass.isEmpty()){
+		if (!cssClass.isEmpty()) {
 			String encodedClass = StringUtils.escapeXML(cssClass);
 			xml += " class='" + encodedClass + "'";
 		}
-		if(!inlineStyles.isEmpty()){
+		if (!inlineStyles.isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(inlineStyles);
 			xml += " style='" + encodedStyle + "'";
 		}
-
 		xml += ">";
 
+		// modules
 		xml += "<modules>";
-
 		for(IModuleModel module : modules){
 			xml += module.toXML();
 		}
-		xml += 	"</modules>";
+		xml += "</modules>";
 
+		// groups
 		xml += "<groups>";
 		if (groupedModules != null) {
 			for(Group group: groupedModules) {
 				xml += group.toXML();
 			}
 		}
+		xml += "</groups>";
 
-		xml += 	"</groups>";
-
+		// editorRulers
 		xml += "<editorRulers>";
 		if (rulers != null) {
 			List<Ruler> verticalRulers = rulers.get("verticals");
@@ -206,10 +224,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 				}
 			}
 		}
+		xml += "</editorRulers>";
 
-		xml += 	"</editorRulers>" + "</page>";
+		// page weight
+		xml += "<page-weight value='[value]' mode='[mode]'></page-weight>"
+				.replace("[value]", pageWeight + "")
+				.replace("[mode]", getPageScoreWeight().toString());
 
-		return XMLUtils.removeIllegalCharacters(xml);
+		return XMLUtils.removeIllegalCharacters(xml + "</page>");
 	}
 
 	public void reload(Element rootElement) {
@@ -217,6 +239,36 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
         name = StringUtils.unescapeXML(rawName);
 		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable");
+	}
+
+	@Override
+	public void setPageWeight(int w) {
+		this.pageWeight = w;
+	}
+
+	@Override
+	public int getPageWeight() {
+		return this.pageWeight;
+	}
+
+	@Override
+	public void setPageCustomWeight(int w) {
+		this.pageCustomWeight = w;
+	}
+
+	@Override
+	public int getPageCustomWeight() {
+		return this.pageCustomWeight;
+	}
+
+	@Override
+	public void setModulesMaxScore(int s) {
+		this.modulesMaxScore = s;
+	}
+
+	@Override
+	public int getModulesMaxScore() {
+		return this.modulesMaxScore;
 	}
 
 	@Override
@@ -228,6 +280,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		loadModules(rootElement);
 		loadGroupedModules(rootElement);
 		loadRulers(rootElement);
+		loadWeight(rootElement);
 		loaded = true;
 	}
 
@@ -328,6 +381,21 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		}
 
 		setRulers(verticals, horizontals);
+	}
+
+	// TODO
+	private void loadWeight(Element rootElement) {
+		try {
+			final Node weightElement = rootElement.getElementsByTagName("page-weight").item(0);
+			final String value = XMLUtils.getAttributeAsString((Element) weightElement, "value");
+			final String mode = XMLUtils.getAttributeAsString((Element) weightElement, "mode");
+
+			this.pageScoreWeightMode = setWeightFromString(mode);
+			this.pageWeight = (value == "" ? 1 : Integer.parseInt(value));
+		} catch (Exception e) {
+			this.pageScoreWeightMode = PageScoreWeight.defaultWeight;
+			this.pageWeight = 1;
+		}
 	}
 
 	private void addPropertyName() {
@@ -694,23 +762,139 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addProperty(property);
 	}
 
-	private void setScoreFromString(String scoreName) {
+	public void setPageMaxScore(int maxScore) {
+		pageWeight = maxScore;
+	}
 
-		if(scoreName != null){
-			for(ScoringType st : ScoringType.values()){
-				if(st.toString().equals(scoreName)){
-					scoringType = st;
+	// TODO
+	private void addPropertyWeightScoreMode() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				setWeightFromString(newValue);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return pageScoreWeightMode.toString();
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("weight_mode");
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return PageScoreWeight.values().length;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return PageScoreWeight.values()[index].toString();
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("weight_mode");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
+	protected boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
+		try {
+			pageWeight = Integer.parseInt(newValue);
+			sendPropertyChangedEvent(property);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
+	// TODO
+	private void addPropertyWeightScoreValue() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				isNewValueMaxScoreValid(newValue, this);
+			}
+
+			@Override
+			public String getValue() {
+				return pageWeight > 0 ? Integer.toString(pageWeight) : "";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("weight_value");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("weight_value");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
+	private void setScoreFromString(String scoreName) {
+		if (scoreName != null) {
+			for (ScoringType st : ScoringType.values()) {
+				if (st.toString().equals(scoreName)) {
+					this.scoringType = st;
 				}
 			}
 		}
 	}
 
+	private PageScoreWeight setWeightFromString(String weight) {
+		if (weight != null) {
+			for (PageScoreWeight pw : PageScoreWeight.values()) {
+				if (pw.toString().equals(weight)) {
+					pageScoreWeightMode = pw;
+					return pw;
+				}
+			}
+		}
+		return PageScoreWeight.defaultWeight;
+	}
 
 	@Override
 	public JavaScriptObject toJavaScript() {
 		return javaScriptInterface(this);
 	}
 
+	private JsArrayString getModulesListAsJS() {
+		List<String> ids = new ArrayList<String>();
+	    JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
+
+		for(IModuleModel module : modules) {
+			ids.add(module.getId());
+		}
+		
+	    for (String string : ids) {
+	        jsArray.push(string);
+	    }
+	    
+	    return jsArray;
+	}
+	
 	/**
 	 * Get JavaScript interface to the page
 	 * @param x
@@ -737,8 +921,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
 		}
 
+		page.getModulesAsJS = function() {
+			return x.@com.lorepo.icplayer.client.model.Page::getModulesListAsJS()();
+		}
+
 		page.getModules = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::getModulesList()();
+		}
+
+		page.getPageWeight = function() {
+			return x.@com.lorepo.icplayer.client.model.Page::getPageWeight()();
 		}
 
 		return page;
@@ -792,7 +984,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 				g.remove(module);
 			}
 		}
-		
+
 		modules.remove(module);
 	}
 }

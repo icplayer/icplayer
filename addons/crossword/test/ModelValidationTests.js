@@ -18,7 +18,13 @@ TestCase("Model validation", {
             "Word numbers": "",
             "Marked column index": "4",
             "Marked row index": ""
-        }
+        };
+
+        sinon.stub(this.presenter, 'isBlockWrongAnswers');
+    },
+
+    tearDown : function() {
+        this.presenter.isBlockWrongAnswers.restore();
     },
 
     'test proper model': function() {

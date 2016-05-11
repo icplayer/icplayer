@@ -38,6 +38,7 @@ public class TextModel extends BasicModuleModel {
 	public String rawText;
 	public String gapUniqueId = "";
 	private String valueType = "All";
+	private boolean blockWrongAnswers = false;
 
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -55,6 +56,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyKeepOriginalOrder();
 		addPropertyClearPlaceholderOnFocus();
 		addPropertyValueType();
+		addPropertyBlockWrongAnswers();
 	}
 
 	@Override
@@ -105,6 +107,7 @@ public class TextModel extends BasicModuleModel {
 					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
 					valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
+					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 					if (rawText == null) {
 						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 					}
@@ -160,6 +163,7 @@ public class TextModel extends BasicModuleModel {
 				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive +
 				"' openLinksinNewTab='" + openLinksinNewTab +
 				"' valueType='" + valueType +
+				"' blockWrongAnswers='" + blockWrongAnswers +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 
@@ -509,6 +513,43 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyBlockWrongAnswers() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+				if (value!= blockWrongAnswers) {
+					blockWrongAnswers = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return blockWrongAnswers ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("block_wrong_answers");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("block_wrong_answers");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
 
 	private void addPropertyIsCaseSensitive() {
 
@@ -664,6 +705,10 @@ public class TextModel extends BasicModuleModel {
 
 	public boolean isDisabled() {
 		return isDisabled;
+	}
+	
+	public boolean shouldBlockWrongAnswers() {
+		return blockWrongAnswers;
 	}
 
 	public void setIsDisabled(boolean value) {

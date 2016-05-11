@@ -6,6 +6,8 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
@@ -22,7 +24,8 @@ public class TextView extends HTML implements IDisplay{
 	private ITextViewListener listener;
 	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
-
+	private boolean moduleHasFocus = false;
+	private int clicks = 0;
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -169,7 +172,7 @@ public class TextView extends HTML implements IDisplay{
 	public void addListener(ITextViewListener l) {
 		listener = l;
 	}
-	
+
 	@Override
 	public void setDroppedElements(String id, String element) {
 		for(TextElementDisplay gap : textElements){
@@ -179,11 +182,11 @@ public class TextView extends HTML implements IDisplay{
 			}
 		}
 	}
-	
+
 	@Override
 	public HashMap<String, String> getDroppedElements() {
 		HashMap<String, String> droppedElements = new HashMap<String, String>();
-		
+
 		for(TextElementDisplay gap : textElements){
 			String helper = gap.getDroppedElement();
 			if(helper != null){
@@ -191,11 +194,11 @@ public class TextView extends HTML implements IDisplay{
 				droppedElements.put(gap.getId(), escaped);
 			}
 		}
-		
+
 		return droppedElements;
 	}
 
-	
+
 	@Override
 	public void setValue(String id, String value) {
 		for(TextElementDisplay gap : textElements){
@@ -228,10 +231,15 @@ public class TextView extends HTML implements IDisplay{
 	public void refreshMath() {
 		MathJax.refreshMathJax(getElement());
 	}
+	
+	public void rerenderMathJax (){
+		MathJax.rerenderMathJax(getElement());
+	}
 
 	@Override
 	public void hide() {
 		getElement().getStyle().setProperty("visibility", "hidden");
+		getElement().getStyle().setProperty("display", "none");
 	}
 
 	@Override
@@ -239,11 +247,109 @@ public class TextView extends HTML implements IDisplay{
 		Element element = getElement();
 		if (element.getStyle().getVisibility().equals("hidden")) {
 			element.getStyle().setProperty("visibility", "visible");
+			element.getStyle().setProperty("display", "block");
 
 			if (callRefreshMath) {
 				refreshMath();
+				if(!(module.hasMathGaps() || module.hasDraggableGaps())){
+					rerenderMathJax();
+				}
 			}
 		}
 	}
 
+	private int getTextElementsSize() {
+		return textElements.size();
+	}
+	
+	private void skip() {
+		int size = getTextElementsSize();
+
+		if (size == 0) return;
+		clicks++;
+		
+		if (clicks >= size && size > 0) {
+			clicks = 0;
+		}
+		
+		TextElementDisplay gap = textElements.get(clicks);
+		gap.setFocusGap(true);
+	}
+	
+	private void enter() {
+    	TextElementDisplay gap = null;
+
+		if(textElements.size() > 0) {
+    		gap = textElements.get(0);
+		}
+
+		if (gap != null && !moduleHasFocus) {
+			gap.setFocusGap(true);
+			moduleHasFocus = true;
+		}
+	}
+	
+	private void escape() {
+		for (TextElementDisplay gap : textElements) {
+			gap.setFocusGap(false);
+			moduleHasFocus = false;
+		}
+	}
+	
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			event.preventDefault();
+			enter();
+		}
+
+		if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			escape();
+		}
+		
+		if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
+			skip();
+		}
+	}
+
+	public native void connectDOMNodeRemovedEvent (String id) /*-{
+		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
+			addon = $addon[0];
+
+		function onDOMNodeRemoved (event) {
+			var $droppableElements, $draggableElements;
+			if (event.target !== addon) {
+				return;
+			}
+
+			$wnd.MathJax.Hub.getAllJax().forEach(function (mathJaxElement) {
+				mathJaxElement.Detach();
+				mathJaxElement.Remove();
+			});
+
+			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+
+			$droppableElements = $addon.find(".ui-droppable");
+			$draggableElements = $addon.find(".ui-draggable");
+
+			$droppableElements.droppable("destroy");
+			$draggableElements.draggable("destroy");
+
+			$droppableElements = null;
+			$draggableElements = null;
+			addon = null;
+			$addon = null;
+		}
+
+		if (addon && addon.addEventListener) {
+		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+		} else {
+            $addon = null;
+            addon = null;
+        }
+	}-*/;
 }

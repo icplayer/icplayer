@@ -8,5 +8,6 @@
 		<property name="Is activity" type="boolean" nameLabel="PointsLines_property_is_activity"/>
 		<property name="Is disabled" type="boolean" nameLabel="PointsLines_property_is_disabled"/>
         <property name="Blocked lines" type="text" nameLabel="PointsLines_property_blocked_lines"/>
+        <property name="Block wrong answers" type="boolean" nameLabel="PointsLines_property_block_wrong_answers"/>
 	</model>
 </addon>

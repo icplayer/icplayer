@@ -68,7 +68,16 @@
     color: #ffffff;
 }
 
+.print-report-popup .print-report-form button.export-report-form-confirm-btn {
+    background: #0000ff;
+    color: #ffffff;
+}
+
 .print-report-popup .print-report-form button.print-report-form-cancel-btn {
     background: #ff0000;
     color: #ffffff;
+}
+
+.export-button {
+    width: 100%;
 }

@@ -416,6 +416,22 @@ function AddonWritingCalculations_create() {
         return maxScore === score && errorCount === 0;
     };
 
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'isAllOK': presenter.isAllOK
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.isAllOK = function () {
+        var maxScore = presenter.getPoints("all"),
+            score = presenter.getPoints("correct"),
+            errorCount = presenter.getPoints("incorrect");
+
+        return maxScore === score && errorCount === 0;
+    };
+
     presenter.isEqual = function(answer, correctAnswer) {
         return answer.value === correctAnswer.value && answer.rowIndex === correctAnswer.rowIndex && answer.cellIndex === correctAnswer.cellIndex;
     };

@@ -77,55 +77,138 @@ function AddonGlossary_create(){
     };
 
     presenter.openDialogEventHandler = function(event, ui) {
-        var $dialog  = $(event.target).closest('.ui-dialog');
-        var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
-        var isPopup =  $(presenter.$ICPage).is('.ic_popup_page');
-        var isMarginalPage =  $(presenter.$ICPage).is('.ic_footer') || (presenter.$ICPage).is('.ic_header');
+        try{
+            var $dialog  = $(event.target).closest('.ui-dialog');
+            var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
+            var isPopup =  $(presenter.$ICPage).is('.ic_popup_page');
+            var isMarginalPage =  $(presenter.$ICPage).is('.ic_footer') || (presenter.$ICPage).is('.ic_header');
 
-        var presentationPosition = $(presenter.$ICPage).offset();
-        var presentationWidth = $(presenter.$ICPage).outerWidth();
-        var presentationHeight = isMarginalPage ?  $('.ic_page').outerHeight() : $(presenter.$ICPage).outerHeight();
-        var dialogWidth = $dialog.outerWidth();
-        var dialogHeight = $dialog.outerHeight();
-        var windowHeight = $(top.window).height();
-        var scrollTop = $(top.window).scrollTop();
-        var previewFrame = 0;
-        var popupTop = 0;
-        var popupLeft = 0;
-        var topPosition = 0;
+            var presentationPosition = $(presenter.$ICPage).offset();
+            var presentationWidth = $(presenter.$ICPage).outerWidth();
+            var presentationHeight = isMarginalPage ?  $('.ic_page').outerHeight() : $(presenter.$ICPage).outerHeight();
+            var dialogWidth = $dialog.outerWidth();
+            var dialogHeight = $dialog.outerHeight();
+            var windowHeight = $(top.window).height();
+            var scrollTop = $(top.window).scrollTop();
+            var previewFrame = 0;
+            var popupTop = 0;
+            var popupLeft = 0;
+            var topPosition = 0;
 
-        if (isPreview) {
-            scrollTop = $(presenter.$ICPage).scrollTop();
-            if (scrollTop > 0)
-                previewFrame = $(presenter.$ICPage).parent().parent().parent().offset().top - $(".gwt-DialogBox").offset().top;
-            windowHeight = ($(presenter.$ICPage).parent().parent().parent().height());
-            presentationPosition.top = 0;
-        }
+            if (isPreview) {
+                scrollTop = $(presenter.$ICPage).scrollTop();
+                if (scrollTop > 0)
+                    previewFrame = $(presenter.$ICPage).parent().parent().parent().offset().top - $(".gwt-DialogBox").offset().top;
+                windowHeight = ($(presenter.$ICPage).parent().parent().parent().height());
+                presentationPosition.top = 0;
+            }
 
-        if (isPopup) {
-            scrollTop = $(presenter.$ICPage).scrollTop();
-            popupTop =  presentationPosition.top;
-            if ($(top.window).scrollTop() > 0) presentationPosition.top = 0;
-        }
+            if (isPopup) {
+                scrollTop = $(presenter.$ICPage).scrollTop();
+                popupTop =  presentationPosition.top;
+                if ($(top.window).scrollTop() > 0) presentationPosition.top = 0;
+            }
 
-        var visibleArea = presenter.estimateVisibleArea(presentationPosition.top, presentationHeight, scrollTop, windowHeight);
-        var availableHeight = visibleArea.bottom - visibleArea.top;
+            var visibleArea = presenter.estimateVisibleArea(presentationPosition.top, presentationHeight, scrollTop, windowHeight);
+            var availableHeight = visibleArea.bottom - visibleArea.top;
 
-        if (dialogHeight >= availableHeight) {
-            dialogHeight = presenter.calculateReducedDialogHeight($dialog, availableHeight);
-            $dialog.css({
-                height: dialogHeight + 'px'
-            });
-        }
+            if (dialogHeight >= availableHeight) {
+                dialogHeight = presenter.calculateReducedDialogHeight($dialog, availableHeight);
+                $dialog.css({
+                    height: dialogHeight + 'px'
+                });
+            }
 
-        function getAndroidVersion(ua) {
-            var ua = ua || navigator.userAgent;
-            var match = ua.match(/Android\s([0-9\.]*)/);
-            return match ? match[1] : false;
-        };
+            function getAndroidVersion(ua) {
+                var ua = ua || navigator.userAgent;
+                var match = ua.match(/Android\s([0-9\.]*)/);
+                return match ? match[1] : false;
+            };
 
-        if(parseFloat(getAndroidVersion())=='4.1'){
+            if(parseFloat(getAndroidVersion())=='4.1'){
+                if (window !== window.top) {
+                    var ancestorData;
+                    for (i=0; i<presenter.ancestorsData.length; i++)
+                    {
+                        ancestorData = presenter.ancestorsData[i];
+                        $(ancestorData.wnd).scrollTop(ancestorData.offset);
+                    }
+                    presenter.ancestorsData = undefined;
+                }
+            }
+
+            if (isPopup || isPreview) {
+                popupLeft = presentationPosition.left;
+                topPosition = parseInt((availableHeight - dialogHeight) / 2, 10);
+            }
+            else {
+                topPosition = parseInt(( windowHeight - dialogHeight) / 2, 10) ;
+            }
+
+            var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) / 2, 10);
+            var leftPosition = presentationPosition.left + presentationHorizontalOffset;
+
+            // adjust top position if Player was embedded in iframe (i.e. EverTeach)
             if (window !== window.top) {
+                var iframe = window.parent.document.getElementsByTagName('iframe');
+                var iframeDialogHeight = parseInt($dialog.height(), 10);
+                iframeDialogHeight += DOMOperationsUtils.calculateOuterDistances(DOMOperationsUtils.getOuterDimensions($dialog)).vertical;
+
+                //topPosition -= scrollTop;
+
+                if (topPosition < 0) {
+                    topPosition = 0;
+                } else if (topPosition > $(window).height() - iframeDialogHeight) {
+                    topPosition = $(window).height() - iframeDialogHeight;
+                }
+            }
+
+
+            if ($(window).scrollTop() > popupTop && isPopup) {
+                topPosition += ($(window).scrollTop() - popupTop);
+            }
+
+            $dialog.css({
+                left: (leftPosition - popupLeft) + 'px',
+                top: (topPosition + scrollTop + previewFrame) + 'px',
+                'font-size': '18px',
+                'font-family': 'Trebuchet MS, Tahoma, Verdana, Arial, sans-serif'
+            });
+
+            $dialog.find('.ui-dialog-content').css({
+                color: 'black'
+            });
+
+            if(isPopup || isPreview) {
+                // For Preview and Popup dialog is moved to appropriate page
+                var $overlay = $(".ui-widget-overlay");
+                $(presenter.$view.closest(".ui-widget-overlay")).remove();
+                if (isPreview) {
+                    $(".ic_page_panel").children(".ic_page").children().last().after($overlay);
+                }
+                else {
+                    $dialog.before($overlay);
+                }
+            }
+
+            // due to the inability to close the dialog, when any video is under close button
+            var videos = presenter.$ICPage.find('video');
+            $.each(videos, function(){
+                $(this).removeAttr('controls');
+            });
+        }catch(e){}
+    };
+
+    presenter.closeDialogEventHandler = function() {
+        // due to the inability to close the dialog, when any video is under close button
+        try{
+            var videos = presenter.$ICPage.find('video');
+            $.each(videos, function(){
+                $(this).attr('controls', 'controls');
+            });
+            presenter.dialog.css("maxHeight", "none");
+
+            if (presenter.ancestorsData !== undefined) {
                 var ancestorData;
                 for (i=0; i<presenter.ancestorsData.length; i++)
                 {
@@ -134,87 +217,7 @@ function AddonGlossary_create(){
                 }
                 presenter.ancestorsData = undefined;
             }
-        }
-
-        if (isPopup || isPreview) {
-            popupLeft = presentationPosition.left;
-            topPosition = parseInt((availableHeight - dialogHeight) / 2, 10);
-        }
-        else {
-            topPosition = parseInt(( windowHeight - dialogHeight) / 2, 10) ;
-        }
-
-        var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) / 2, 10);
-        var leftPosition = presentationPosition.left + presentationHorizontalOffset;
-
-        // adjust top position if Player was embedded in iframe (i.e. EverTeach)
-        if (window !== window.top) {
-            var iframe = window.parent.document.getElementsByTagName('iframe');
-            var iframeDialogHeight = parseInt($dialog.height(), 10);
-            iframeDialogHeight += DOMOperationsUtils.calculateOuterDistances(DOMOperationsUtils.getOuterDimensions($dialog)).vertical;
-
-            //topPosition -= scrollTop;
-
-            if (topPosition < 0) {
-                topPosition = 0;
-            } else if (topPosition > $(window).height() - iframeDialogHeight) {
-                topPosition = $(window).height() - iframeDialogHeight;
-            }
-        }
-
-
-        if ($(window).scrollTop() > popupTop && isPopup) {
-            topPosition += ($(window).scrollTop() - popupTop);
-        }
-
-        $dialog.css({
-            left: (leftPosition - popupLeft) + 'px',
-            top: (topPosition + scrollTop + previewFrame) + 'px',
-            'font-size': '18px',
-            'font-family': 'Trebuchet MS, Tahoma, Verdana, Arial, sans-serif'
-        });
-
-        $dialog.find('.ui-dialog-content').css({
-            color: 'black'
-        });
-
-        if(isPopup || isPreview) {
-            // For Preview and Popup dialog is moved to appropriate page
-            var $overlay = $(".ui-widget-overlay");
-            $(presenter.$view.closest(".ui-widget-overlay")).remove();
-            if (isPreview) {
-                $(".ic_page_panel").children(".ic_page").children().last().after($overlay);
-            }
-            else {
-                $dialog.before($overlay);
-            }
-        }
-
-        // due to the inability to close the dialog, when any video is under close button
-        var videos = presenter.$ICPage.find('video');
-        $.each(videos, function(){
-            $(this).removeAttr('controls');
-        });
-
-    };
-
-    presenter.closeDialogEventHandler = function() {
-        // due to the inability to close the dialog, when any video is under close button
-        var videos = presenter.$ICPage.find('video');
-        $.each(videos, function(){
-            $(this).attr('controls', 'controls');
-        });
-        presenter.dialog.css("maxHeight", "none");
-
-        if (presenter.ancestorsData !== undefined) {
-            var ancestorData;
-            for (i=0; i<presenter.ancestorsData.length; i++)
-            {
-                ancestorData = presenter.ancestorsData[i];
-                $(ancestorData.wnd).scrollTop(ancestorData.offset);
-            }
-            presenter.ancestorsData = undefined;
-        }
+        }catch(e){}
     };
 
     presenter.show = function(id) {
@@ -236,17 +239,19 @@ function AddonGlossary_create(){
     };
 
     presenter.catchScroll = function() {
-        if (window.parent != window && presenter.ancestorsData === undefined) {
-            var current_window = window;
-            presenter.ancestorsData = [];
-            while (current_window != current_window.parent) {
-                presenter.ancestorsData.push({
-                    wnd: current_window.parent,
-                    offset: $(current_window.parent).scrollTop()
-                });
-                current_window = current_window.parent;
+        try{
+            if (window.parent != window && presenter.ancestorsData === undefined) {
+                var current_window = window;
+                presenter.ancestorsData = [];
+                while (current_window != current_window.parent) {
+                    presenter.ancestorsData.push({
+                        wnd: current_window.parent,
+                        offset: $(current_window.parent).scrollTop()
+                    });
+                    current_window = current_window.parent;
+                }
             }
-        }
+        }catch(e){}
     }
 
     presenter.initializeView = function(view, model) {

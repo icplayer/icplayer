@@ -587,8 +587,7 @@ function Addongamememo_create(){
                 $container.find('div.front_A').css('background', 'transparent');
             }else{
                 $container.find('div.front_A').css({
-                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')',
-                    'background-repeat': 'no-repeat'
+                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')'
                 });
             }
         }
@@ -613,8 +612,7 @@ function Addongamememo_create(){
                 $container.find('div.front_B').css('background', 'transparent');
             }else{
                 $container.find('div.front_B').css({
-                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')',
-                    'background-repeat': 'no-repeat'
+                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')'
                 });
             }
         }

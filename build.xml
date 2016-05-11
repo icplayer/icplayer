@@ -196,15 +196,6 @@
   <!--<target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests" />-->
   <target name="build.full" depends="clean, gwtc" description="Build this project with addon tests" />
 
-  <target name="copy.dictionary">
-	<delete file="${libs}/dictionaries/com/dictionary.js" />
-	<copy todir="${libs}/dictionaries/com">
-		<fileset dir="${libs}">
-			<include name="dictionary.js" />
-		</fileset>
-    </copy>
-  </target>
-  
   <target name="create.package" >
     <delete dir="dist" failonerror="false" />
     <mkdir dir="dist/build" />
@@ -220,7 +211,6 @@
   </target>
 
   <target name="dist" depends="validate-translations-javascript, build" description="Create player package">
-	<antcall target="copy.dictionary" />
     <antcall target="create.package" />
   </target>
 

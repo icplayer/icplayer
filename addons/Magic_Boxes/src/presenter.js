@@ -382,6 +382,8 @@ function AddonMagic_Boxes_create() {
                 applySelectionStyle(row, column);
             }
         }
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.configuration.isVisible = presenter.isVisibleByDefault;
     };
 
     presenter.setShowErrorsMode = function() {
@@ -488,7 +490,10 @@ function AddonMagic_Boxes_create() {
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
 
-        return presenter.serializeGridSelection(gridSelection, rows, columns);
+        return JSON.stringify({
+            serializeGridSelection: presenter.serializeGridSelection(gridSelection, rows, columns),
+            isVisible: presenter.configuration.isVisible
+        });
     };
 
     presenter.setState = function(state) {
@@ -499,7 +504,16 @@ function AddonMagic_Boxes_create() {
 
         initGridSelection();
 
-        var dematerialisedState = presenter.deserialiseGridSelection(state);
+        var serializeGridSelection, parsedState;
+        if (state.indexOf("}") > -1 && state.indexOf("{") > -1){
+            parsedState = JSON.parse(state);
+            serializeGridSelection = parsedState.serializeGridSelection;
+        }else{
+            serializeGridSelection = state;
+            parsedState = undefined;
+        }
+
+        var dematerialisedState = presenter.deserialiseGridSelection(serializeGridSelection);
 
         for(var i = 0; i < dematerialisedState.length; i++) {
             row = parseInt(dematerialisedState[i] / columns, 10);
@@ -512,14 +526,24 @@ function AddonMagic_Boxes_create() {
                 applySelectionStyle(row, column);
             }
         }
+
+        if(parsedState){
+            if(parsedState.isVisible != undefined){
+                presenter.setVisibility(parsedState.isVisible);
+                presenter.configuration.isVisible = parsedState.isVisible;
+            }
+        }
     };
 
     function presenterLogic(view, model, preview){
         presenter.answerWords = {};
         viewContainer = $(view);
+        presenter.view = viewContainer;
         gridContainerWrapper = viewContainer.find(".magicGridWrapper:first");
         gridContainer = gridContainerWrapper.find(".magicGrid:first");
         presenter.configuration = presenter.validateModel(model);
+
+        presenter.setVisibility(presenter.configuration.isVisible);
 
         if(presenter.configuration.answers){
             for(var i = 0; i< presenter.configuration.answers.length; i++){
@@ -977,7 +1001,9 @@ function AddonMagic_Boxes_create() {
             rows: gridValidationResult.rows,
             gridElements: gridValidationResult.gridElements,
             answers: answersValidationResult.answers,
-            checkByWords: ModelValidationUtils.validateBoolean(model['CheckByWords'])
+            checkByWords: ModelValidationUtils.validateBoolean(model['CheckByWords']),
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"])
         };
     };
 
@@ -987,10 +1013,26 @@ function AddonMagic_Boxes_create() {
         var commands = {
             'isAllOK': presenter.isAllOK,
             'showAnswers' : presenter.showAnswers,
-            'hideAnswers' : presenter.hideAnswers
+            'hideAnswers' : presenter.hideAnswers,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
     };
 
     presenter.isAllOK = function () {

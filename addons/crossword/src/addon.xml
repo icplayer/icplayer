@@ -16,5 +16,6 @@
 		<property name="Word numbers" nameLabel="crossword_property_word_numbers" type="{both, horizontal, vertical, none}" />
 		<property name="Marked column index" nameLabel="crossword_property_marked_column_index" type="string" />
 		<property name="Marked row index" nameLabel="crossword_property_marked_row_index" type="string" />
+        <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="crossword_property_block_wrong_answers" type="boolean" />
 	</model>
 </addon>

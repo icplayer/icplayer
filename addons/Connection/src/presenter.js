@@ -62,6 +62,7 @@ function AddonConnection_create() {
         this.stack = [];
         this.ids = [];
         this.sendEvents = sendEvents;
+        this.shouldFireEvent = true;
 
         this.setSendEvents = function (value) {
             this.sendEvents = value;
@@ -83,6 +84,10 @@ function AddonConnection_create() {
             if (this.sendEvents) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
                 presenter.sendEvent(pair[0], pair[1], 1, score);
+                if(score == 0 && presenter.blockWrongAnswers){
+                    this.shouldFireEvent = false;
+                    this.remove(line);
+                }
             }
         };
 
@@ -116,10 +121,11 @@ function AddonConnection_create() {
                 }
             }
 
-            if (this.sendEvents) {
+            if (this.sendEvents && this.shouldFireEvent) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
                 presenter.sendEvent(pair[0], pair[1], 0, score);
             }
+            this.shouldFireEvent = true;
         };
 
         this.clear = function () {
@@ -225,6 +231,7 @@ function AddonConnection_create() {
         presenter.model = model;
         eventBus = playerController.getEventBus();
         addonID = model.ID;
+        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
 
         presenter.initialize(presenter.view, presenter.model, false);
 

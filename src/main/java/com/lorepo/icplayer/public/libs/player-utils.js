@@ -48,6 +48,7 @@
                 sumOfMaxScore = 0.0,
                 sumOfScaledScore = 0.0,
                 sumOfMistakes = 0,
+                sumOfWeights = 0,
                 pageScaledScore = 0,
                 count = 0, i, page, score,
                 paginatedResults = [];
@@ -64,12 +65,14 @@
                         pageScaledScore = page.isVisited() ? 1 : 0;
                     }
 
-                    sumOfScaledScore += pageScaledScore;
+                    var weight = page.getPageWeight() || 1;
+                    sumOfScaledScore += pageScaledScore * weight;
                     sumOfScore += score.score;
                     sumOfErrors += score.errorCount;
                     sumOfChecks += score.checkCount;
                     sumOfMaxScore += score.maxScore;
                     sumOfMistakes += score.mistakeCount;
+                    sumOfWeights += weight;
 
                     paginatedResults[count] = {
                         "page_number": (i + 1),
@@ -89,7 +92,7 @@
 
             var scaledScore = 0;
             if (count > 0) {
-                scaledScore = Math.floor((sumOfScaledScore / count) * 100) / 100;
+                scaledScore = Math.floor((sumOfScaledScore / sumOfWeights) * 100) / 100;
             }
 
             totalTime = parseInt(this.timeService.getTotalTime(), 10);

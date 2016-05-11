@@ -2173,7 +2173,7 @@ function AddonLine_Number_create() {
         }
 
         validatedStep = ModelValidationUtils.validateFloatInRange(validatedStep.value,
-            presenter.maxFromArray([max, min].map(presenter.abs)), 0);
+            presenter.maxFromArray([max, min].map(presenter.abs)), 0, precision);
         validatedStep.precision = precision;
 
         if(validatedStep.value == 0) {

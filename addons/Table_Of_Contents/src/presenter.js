@@ -76,6 +76,37 @@ function AddonTable_Of_Contents_create(){
         return $list.outerHeight();
     }
 
+    function generateComboElement (text, isPreview) {
+        var element;
+
+        if(!isPreview){
+            var presentation = presentationController.getPresentation();
+            var currentPageName = presentation.getPage(presentationController.getCurrentPageIndex()).getName();
+
+            if(text == currentPageName){
+                element = $('<option selected></option>');
+            }else{
+                element = $('<option></option>');
+            }
+        }else{
+            element = $('<option></option>');
+        }
+        element.text(text);
+
+        return element;
+    }
+
+    function generateComboList (isPreview) {
+        var selectionList = $('<select class="comboList"></select>');
+        presenter.$view.find('.table-of-contents').append(selectionList);
+        var comboList = presenter.$view.find('.comboList');
+        $(comboList).css("width", "100%");
+
+        for (var i = 0; i < presenter.pages.length; i++) {
+            comboList.append(generateComboElement(presenter.pages[i].name, isPreview));
+        }
+    }
+
     presenter.pageStartIndex = function(page) {
         var index = 0;
         for (var i = 0; i < page; i++) {
@@ -153,11 +184,11 @@ function AddonTable_Of_Contents_create(){
             currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId(),
             pageName;
 
-        $list.find('li a').each(function () {
-            $(this).click(function (event) {
+        if(presenter.configuration.displayType == 'comboList'){
+            presenter.$view.find('.comboList').change(function(event){
                 event.stopPropagation();
                 event.preventDefault();
-                pageName = $(this).text();
+                pageName = $(this).val();
                 for(var p in presenter.pages) {
                     var page = presenter.pages[p];
 
@@ -166,7 +197,22 @@ function AddonTable_Of_Contents_create(){
                     }
                 }
             });
-        });
+        }else{
+            $list.find('li a').each(function () {
+                $(this).click(function (event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    pageName = $(this).text();
+                    for(var p in presenter.pages) {
+                        var page = presenter.pages[p];
+
+                        if (currentPageIndex !== page.index && pageName === page.name) {
+                            commander.gotoPageIndex(page.numberOfIndex);
+                        }
+                    }
+                });
+            });
+        }
     }
 
     function handlePaginationMouseActions() {
@@ -202,21 +248,34 @@ function AddonTable_Of_Contents_create(){
 
         setElementsDimensions(model.Width, model.Height);
 
-        var listHeight = generateListElements(),
-            spareHeight = elementsHeights.wrapper - elementsHeights.title;
+        if(presenter.configuration.displayType == "comboList"){
+            generateComboList(isPreview);
+        }else{
+            var listHeight = generateListElements(),
+                spareHeight = elementsHeights.wrapper - elementsHeights.title;
 
-        var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
-        if (!isSpaceSufficient($list, spareHeight)) {
-            reportInsufficientSpace();
+            var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
+            if (!isSpaceSufficient($list, spareHeight)) {
+                reportInsufficientSpace();
+            }
         }
 
-        if (listHeight > spareHeight) {
+        if ((listHeight > spareHeight) && (presenter.configuration.displayType == "default" || presenter.configuration.displayType == "" || presenter.configuration.displayType == undefined)) {
             if (!paginateList(spareHeight - elementsHeights.pagination, isPreview)) {
                 reportInsufficientSpace();
             }
         } else {
             presenter.$view.find('.table-of-contents-pagination').hide();
         }
+
+        if(presenter.configuration.displayType == "list"){
+            var titleHeight = presenter.$view.find('.table-of-contents-title').height();
+            presenter.$view.find(".table-of-contents-list").css({
+               "height":  model.Height-titleHeight+"px",
+               "overflow-y": "scroll"
+            });
+        }
+
         if (!isPreview) handleMouseClickActions();
         if (!ModelValidationUtils.isStringEmpty(model['Header'])) {
         	presenter.$view.find('.table-of-contents .table-of-contents-title').text(model['Header'])
@@ -257,7 +316,8 @@ function AddonTable_Of_Contents_create(){
         return {
             ID: model.ID,
             isValid: true,
-            hiddenPages: pagesValidationResult.value
+            hiddenPages: pagesValidationResult.value,
+            displayType: model.displayType
         };
     };
 

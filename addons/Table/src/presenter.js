@@ -198,6 +198,15 @@ function AddonTable_create() {
         }else{
             presenter.mainLogic(isPreview);
         }
+
+        if(isPreview) {
+            presenter.setEditorGapWidth();
+        }
+    };
+
+    presenter.setEditorGapWidth = function () {
+        presenter.$view.find('input').css("width", presenter.configuration.gapWidth.value+"px");
+        presenter.$view.find('span').css("width", presenter.configuration.gapWidth.value+"px");
     };
 
     presenter.mainLogic = function (isPreview) {
@@ -1468,6 +1477,8 @@ function AddonTable_create() {
 
                 if (stateData.value == "") {
                     this.gaps[index].destroyDraggableProperty();
+                }else{
+                    this.gaps[index].addCssClass("gapFilled");
                 }
 
             }, this);

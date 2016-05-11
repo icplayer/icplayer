@@ -9,5 +9,6 @@
         <property name="isNotActivity" displayName="Is Not Activity" nameLabel="Coloring_property_is_not_activity" type="boolean" />
         <property name="isDisabled" displayName="Is Disabled" nameLabel="Coloring_property_is_disabled" type="boolean" />
         <property name="disableFill" displayName="Disable fill on click" nameLabel="Coloring_property_disable_fill" type="boolean" />
+        <property name="colorCorrect" displayName="Color correct" nameLabel="Coloring_property_color_correct" type="boolean" />
     </model>
 </addon>

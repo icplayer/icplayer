@@ -56,7 +56,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		this.playerServices = services;
 		this.setVisible(module.isVisible());
 
-		connectHandlers();
+		try{
+			connectHandlers();
+		}catch(Exception e){
+		}
 	}
 
 	private void connectHandlers() {
