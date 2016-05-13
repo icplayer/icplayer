@@ -16,4 +16,5 @@ public interface ITextViewListener {
 	public void onGapStopped(String gapId);
 	public void onGapDropped(String id);
 	public void onKeyAction(String gapId, Element element);
+	public void onUserAction(String id, String newValue);
 }

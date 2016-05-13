@@ -1,4 +1,5 @@
 ﻿var ice_dictionary = {
+	"user_action_events": "User action events",
 	"main_tab": "Main",
 	"commons_tab": "Commons",
 	"save_changes": "You have made changes, do you want to save them?",

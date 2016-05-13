@@ -51,6 +51,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
 					listener.onValueEdited(gapInfo.getId(), getText());
+					listener.onUserAction(gapInfo.getId(), getText());
 				}
 			});
 			

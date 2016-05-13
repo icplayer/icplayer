@@ -589,6 +589,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
 			@Override
+			public void onUserAction(String id, String newValue) {
+				valueChangedOnUserAction(id, newValue);
+			}
+			
+			@Override
 			public void onValueChanged(String id, String newValue) {
 				valueChanged(id, newValue);
 			}
@@ -597,7 +602,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			public void onValueEdited(String id, String newValue) {
 				valueEdited(id, newValue);
 			}
-
+			
 			@Override
 			public void onLinkClicked(LinkType type, String link, String target) {
 				if (type == LinkType.PAGE) {
@@ -677,7 +682,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		playerServices.getEventBus().fireEvent(valueEvent);
 	}
 
-	protected void valueChanged(String id, String newValue) {
+	protected void valueChangeLogic(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
 		if (newValue == gap.getPlaceHolder()) {
 			newValue = "";
@@ -699,6 +704,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		
 		playerServices.getEventBus().fireEvent(valueEvent);
+	}
+	
+	protected void valueChangedOnUserAction(String id, String newValue) {
+		if(module.isUserActionEvents()){
+			valueChangeLogic(id, newValue);
+		}
+	}
+	
+	protected void valueChanged(String id, String newValue) {
+		if(!module.isUserActionEvents()){
+			valueChangeLogic(id, newValue);
+		}
 	}
 
 	protected void valueEdited(String id, String newValue) {

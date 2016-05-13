@@ -1,4 +1,5 @@
 ﻿var ice_dictionary_pl = {
+	"user_action_events": "User action events",
 	"fill_required_field": "Uzupełnij wymagane pole",
 	"enable_keep_order_property": "Aby ręcznie zdefiniować poprawną odpowiedź, należy zaznaczyć opcję Zachowaj kolejność oryginalną",
 	"complete_inputs": "Upewnij się, czy wszystkie wymagane pola zostały uzupełnione",
