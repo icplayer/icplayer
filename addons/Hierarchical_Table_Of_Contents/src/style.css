@@ -1,0 +1,98 @@
+.hier_report {
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid gray;
+    background-color: white;
+    color: gray;
+    overflow: auto;
+}
+
+.hier_report td{
+    padding: 10px;
+}
+
+.hier_report-header{
+    font-weight: bold;
+    color: black !important;
+    background-color: #bde0ff;
+}
+.hier_report-footer{
+    font-weight: bold;
+    color: black !important;
+    background-color: #bde0ff;
+}
+
+.hier_report-chapter{
+    background-color: Lavender;
+}
+
+.hier_report-odd{
+    background-color: AliceBlue;
+}
+
+.hier_report-even{
+    background-color: #f0f1ff;
+}
+
+.hier_report-progress {
+    text-align:center;
+    color:#0A8DBD;
+    display: inline-block;
+    width: 190px;
+}
+
+.hier_report-checks {
+    width: 10%;
+    color: green;
+    text-align: center;
+}
+
+.hier_report-mistakes {
+    width: 10%;
+    color: #990000;
+    text-align: center;
+}
+
+.hier_report-errors {
+    width: 10%;
+    color: red;
+    text-align: center;
+}
+
+.hier_report-page-score {
+    width: 10%;
+    color: blue;
+    text-align: center;
+}
+
+.hier_report-page-non-max-score, .hier_report-page-max-score {
+    width: 10%;
+    text-align: center;
+}
+
+.ui-progressbar {
+    padding:2px;
+    width:	130px  !important;
+    height: 15px    !important;
+    border-radius: 5px;
+    border:2px solid #02789F;
+    background-color: #3CC6CD;
+    border-radius: 5px;
+    float: left;
+}
+
+.hier_drag-source{
+    border: 1px solid orange;
+}
+
+.hier_report .treegrid-expander {
+	float: left;
+}
+
+.hier_report .treegrid-indent {
+	float: left;
+}
+
+.hier_report .text-wrapper {
+	overflow: hidden;
+}
