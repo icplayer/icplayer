@@ -1,5 +1,5 @@
 ﻿var ice_dictionary_pl = {
-	"user_action_events": "User action events",
+	"user_action_events": "Zdarzenia dot. działań użytkownika",
 	"fill_required_field": "Uzupełnij wymagane pole",
 	"enable_keep_order_property": "Aby ręcznie zdefiniować poprawną odpowiedź, należy zaznaczyć opcję Zachowaj kolejność oryginalną",
 	"complete_inputs": "Upewnij się, czy wszystkie wymagane pola zostały uzupełnione",
@@ -1354,9 +1354,9 @@
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start",
-    "Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
-    "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
-    "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
-    "Hierarchical_Table_Of_Contents_property_display_only_chapters": "Display only chapters",
-    "Hierarchical_Table_Of_Contents_property_show_pages": "Show pages"
+    "Hierarchical_Table_Of_Contents_info": "Umożliwia wyświetlenie hierarchicznego spisu treści razem z linkami odwołującymi się do odpowiednich stron.",
+    "Hierarchical_Table_Of_Contents_name": "Hierarchiczny spis treści",
+    "Hierarchical_Table_Of_Contents_property_title_label": "Etykieta tytułu",
+    "Hierarchical_Table_Of_Contents_property_display_only_chapters": "Wyświetl tylko rozdziały",
+    "Hierarchical_Table_Of_Contents_property_show_pages": "Pokaż strony"
 };
