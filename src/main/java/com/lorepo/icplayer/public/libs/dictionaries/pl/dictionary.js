@@ -1,4 +1,10 @@
 ﻿var ice_dictionary_pl = {
+	"select_max_10_items": "You can select maximum 10 items",
+	"manage_favourites": "Manage favourites",
+	"select_fav_modules": "Select favourite modules",
+	"can_not_save_fav_modules": "Non-logged user can not save their favourite modules",
+	"favourite_menu": "Ulubione",
+	"favourite_modules": "Ulubione",
 	"user_action_events": "User action events",
 	"fill_required_field": "Uzupełnij wymagane pole",
 	"enable_keep_order_property": "Aby ręcznie zdefiniować poprawną odpowiedź, należy zaznaczyć opcję Zachowaj kolejność oryginalną",
