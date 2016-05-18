@@ -276,6 +276,12 @@ public class JavaScriptPlayerServices {
 			commands.hideNavigationPanels = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideNavigationPanels()();
 			};
+			commands.showPopup = function(pageName, additionalClasses) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showPopup(Ljava/lang/String;Ljava/lang/String;)(pageName, additionalClasses);
+			};
+			commands.closePopup = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::closePopup()();
+			};
 
 			return commands;
 		};
@@ -414,6 +420,14 @@ public class JavaScriptPlayerServices {
 		return playerServices;
 	}-*/;
 
+	private void showPopup(String pageName, String additinalClasses){
+		playerServices.getCommands().showPopup(pageName, additinalClasses);
+	}
+	
+	private void closePopup(){
+		playerServices.getCommands().closePopup();
+	}
+	
 	private String getContentType(String href){
 		return playerServices.getAssetsService().getContentType(href);
 	}

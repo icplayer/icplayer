@@ -1,3 +1,4 @@
+2016-05-18 Added showPopup and closePopup commands
 2016-05-13 Added new addon Hierarchical Table of Contents
 2016-05-13 Added User action events property in Text module
 2016-05-10 Added class on hover in Image Identification module
