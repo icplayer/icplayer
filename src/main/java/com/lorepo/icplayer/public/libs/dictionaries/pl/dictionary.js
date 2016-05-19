@@ -1,8 +1,8 @@
 ﻿var ice_dictionary_pl = {
-	"select_max_10_items": "You can select maximum 10 items",
-	"manage_favourites": "Manage favourites",
-	"select_fav_modules": "Select favourite modules",
-	"can_not_save_fav_modules": "Non-logged user can not save their favourite modules",
+	"select_max_10_items": "Możesz wybrać nie więcej niż 10 elementów.",
+	"manage_favourites": "Zarządzaj ulubionymi",
+	"select_fav_modules": "Wybierz ulubione moduły",
+	"can_not_save_fav_modules": "Niezalogowany użytkownik nie może wybrać ulubionych modułów.",
 	"favourite_menu": "Ulubione",
 	"favourite_modules": "Ulubione",
 	"user_action_events": "Zdarzenia dot. działań użytkownika",
