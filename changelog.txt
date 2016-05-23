@@ -1,3 +1,4 @@
+2016-05-23 Added playing event in Audio and Video modules
 2016-05-18 Added reseting poster before adding new one in Video module
 2016-05-18 Added showPopup and closePopup commands
 2016-05-13 Added new addon Hierarchical Table of Contents

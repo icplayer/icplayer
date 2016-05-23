@@ -373,12 +373,28 @@ function AddonAudio_create(){
         presenter.audio = audio;
     }
 
+    presenter.sendOnPLayingEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': 'playing',
+            'score': ''
+        };
+
+        eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    function AddonAudio_onAudioPlaying () {
+        presenter.sendOnPLayingEvent();
+    }
+
     function AddonAudio_attachEventListeners(audio) {
         audio.addEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
         audio.addEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
         audio.addEventListener('volumechange', AddonAudio_onVolumeChanged, false);
         audio.addEventListener('ended', AddonAudio_onAudioEnded , false);
         audio.addEventListener('click', AddonAudio_onAudioClick, false);
+        audio.addEventListener('playing', AddonAudio_onAudioPlaying, false);
     }
 
     function AddonAudio_onAudioEnded () {
@@ -468,6 +484,7 @@ function AddonAudio_create(){
         presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
         presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
         presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
+        presenter.audio.removeEventListener('playing', AddonAudio_onAudioPlaying, false);
         presenter.audio.setAttribute('src', '');
         presenter.audio.load();
         presenter.audio = null;
@@ -530,7 +547,8 @@ function AddonAudio_create(){
             displayTime: ModelValidationUtils.validateBoolean(model.displayTime),
             defaultControls: defaultControls,
             useBrowserControls: useBrowserControls,
-            isHtmlPlayer: defaultControls && !useBrowserControls
+            isHtmlPlayer: defaultControls && !useBrowserControls,
+            addonID: model.ID
         };
     };
 
