@@ -14,9 +14,9 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
+import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
-import com.lorepo.icplayer.client.xml.content.IContentFactory;
-import com.lorepo.icplayer.client.xml.content.IContentLoadingListener;
 
 public class PlayerApp{
 
@@ -57,11 +57,11 @@ public class PlayerApp{
 	private void loadPage(String url, int pageIndex, final boolean isCommonPage) {
 		startPageIndex = pageIndex;
 		
-		IContentFactory contentFactory = ContentFactory.getInstance();
+		IXMLFactory contentFactory = ContentFactory.getInstance(this.pagesSubset);
 		
-		contentFactory.load(url, this.pagesSubset, new IContentLoadingListener() {
-			public void onFinishedLoading(Content content) {
-				contentModel = content;
+		contentFactory.load(url, new IProducingLoadingListener() {
+			public void onFinishedLoading(Object content) {
+				contentModel = (Content) content;
 				contentModel.connectHandlers();
 				JavaScriptUtils.log(contentModel);
 				initPlayer(isCommonPage);

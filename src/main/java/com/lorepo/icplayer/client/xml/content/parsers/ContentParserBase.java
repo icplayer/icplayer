@@ -12,20 +12,27 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
-public abstract class ContentParserBase {
+public abstract class ContentParserBase implements IContentParser {
 	
 	protected String PAGES_KEY = "pages";
 	protected String COMMONS_KEY = "commons";
 	protected String HEADER_PAGE = "header";
 	protected String FOOTER_PAGE = "footer";
+	protected String version;
+	protected ArrayList<Integer> pagesSubset;
 	
 	public ContentParserBase() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Content parse(Element rootNode, ArrayList<Integer> pagesSubset) {
+	public void setPagesSubset(ArrayList<Integer> pagesSubset) {
+		this.pagesSubset = pagesSubset;
+	}
+	
+	public Object parse(Element rootNode) {
 		Content content = new Content();
 		
 		String contentName = this.parseName(rootNode);
@@ -55,7 +62,7 @@ public abstract class ContentParserBase {
 					content = this.parseLayouts(content, child);
 				}
 				else if(name.compareTo("pages") == 0){
-					HashMap<String, PageList> pagesHashmap = this.parsePages(child, pagesSubset);
+					HashMap<String, PageList> pagesHashmap = this.parsePages(child, this.pagesSubset);
 					PageList pages = pagesHashmap.get(this.PAGES_KEY);
 					PageList commons = pagesHashmap.get(this.COMMONS_KEY);
 					
@@ -85,17 +92,141 @@ public abstract class ContentParserBase {
 	
 	protected abstract Content parseLayouts(IContentBuilder content, Element child);
 
-	protected abstract ArrayList<IAsset> parseAssets(Element child);
 
-	protected abstract String parsePageName(Element child, String header_PAGE2);
+	protected String parsePageName(Element rootElement, String pageNode) {
+		String name = null;
+		
+		NodeList children = rootElement.getChildNodes();
+		
+		for(int i = 0; i < children.getLength(); i++){
+			if(children.item(i) instanceof Element){
+				Element node = (Element)children.item(i);
+				if(node.getNodeName().compareTo(pageNode) == 0){
+					name = node.getAttribute("ref");
+				}
+			}
+		}
+		
+		return name;
+	}
 
-	protected abstract HashMap<String, PageList> parsePages(Element child, ArrayList<Integer> pagesSubset);
 
-	protected abstract HashMap<String, AddonDescriptor> parseAddonDescriptors(Element child);
+	protected HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) {
+		HashMap<String, AddonDescriptor> addonDescriptors = new HashMap<String, AddonDescriptor>();
+		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
+		
+		for(int i = 0; i < descriptorNodes.getLength(); i++){
+			Element node = (Element)descriptorNodes.item(i);
+			String addonId = node.getAttribute("addonId");
+			String href = StringUtils.unescapeXML(node.getAttribute("href"));
+			addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
+		}
 
-	protected abstract HashMap<String, String> parseMetadata(Element child);
+		return addonDescriptors;
+	}
+
+	protected HashMap<String, String> parseMetadata(Element rootElement) {
+		HashMap<String, String> metadata = new HashMap<String, String>();
+		NodeList entries = rootElement.getElementsByTagName("entry");
+		
+		for(int i = 0; i < entries.getLength(); i++){
+			Element node = (Element)entries.item(i);
+			String key = StringUtils.unescapeXML(node.getAttribute("key"));
+			String value = StringUtils.unescapeXML(node.getAttribute("value"));
+			
+			if(value == null || value.length() == 0){
+				metadata.remove(key);
+			}
+			else{
+				metadata.put(key, value);
+			}
+		}
+		
+		return metadata;
+	}
 
 	protected abstract HashMap<String, String> parseStyles(Element child);
+	
+	protected ArrayList<IAsset> parseAssets(Element rootElement) {
+		ArrayList<IAsset> assets = new ArrayList<IAsset>();
+		
+		AssetFactory factory = new AssetFactory();
+		
+		NodeList assetsNodes = rootElement.getElementsByTagName("asset");
+		for(int i = 0; i < assetsNodes.getLength(); i++){
+
+			Element node = (Element)assetsNodes.item(i);
+			String href = StringUtils.unescapeXML(node.getAttribute("href"));
+			String type = StringUtils.unescapeXML(node.getAttribute("type"));
+			IAsset asset = factory.createAsset(type, href);
+			if(asset != null){
+				addAsset(asset, assets);
+				asset.setTitle(StringUtils.unescapeXML(node.getAttribute("title")));
+				asset.setFileName(StringUtils.unescapeXML(node.getAttribute("fileName")));
+				asset.setContentType(StringUtils.unescapeXML(node.getAttribute("contentType")));
+			}
+		}
+		return assets;
+	}
+	
+	public void addAsset(IAsset asset, ArrayList<IAsset> assets){
+		
+		String href = asset.getHref(); 
+		
+		if(href == null){
+			return;
+		}
+		
+		String escaped = StringUtils.escapeHTML(href);
+		if(escaped.compareTo(href) != 0){
+			return;
+		}
+			
+		boolean foundURL = false;
+			
+		for(IAsset a : assets){
+			if(a.getHref().compareTo(asset.getHref()) == 0){
+				foundURL = true;
+				break;
+			}
+		}
+			
+		if(	!foundURL){
+			assets.add(asset);
+		}
+	}
+	
+	
+	
+	protected HashMap<String, PageList> parsePages(Element rootElement, ArrayList<Integer> pageSubset) {
+		HashMap<String, PageList> pagesHashMap = new HashMap<String, PageList>();
+		NodeList children = rootElement.getChildNodes();
+		
+		PageList pages = new PageList("root");
+		pages.load(rootElement, null, pageSubset, 0);
+		
+		pagesHashMap.put("pages", pages);
+		for(int i = 0; i < children.getLength(); i++){
+			if(children.item(i) instanceof Element){
+				Element node = (Element)children.item(i);
+				if(node.getNodeName().compareTo("folder") == 0){
+					PageList commonPages = new PageList("commons");
+					commonPages.load(node, null, null, 0);
+					pagesHashMap.put("commons", commonPages);
+					break;
+				}
+			}
+		}
+		
+		return pagesHashMap;
+	}
+
+	
+	public String getVersion() {
+		return this.version;
+	}
+	
+	
 
 	protected String parseName(Element rootElement) {
 		String name = XMLUtils.getAttributeAsString(rootElement, "name");

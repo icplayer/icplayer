@@ -3,22 +3,18 @@ package com.lorepo.icplayer.client.xml.content.parsers;
 import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
-import com.lorepo.icplayer.client.xml.content.IContentParser;
 import com.google.gwt.xml.client.NodeList;
 
 
-public class ContentParser_v1 extends ContentParser_v0 implements IContentParser {
+public class ContentParser_v1 extends ContentParserBase {
 
-	private String version = "2";
-	
 	public ContentParser_v1() {
-		// TODO Auto-generated constructor stub
+		this.version = "2";
 	}
 	
 	protected HashMap<String,String> parseStyles(Element rootElement) {
@@ -42,12 +38,10 @@ public class ContentParser_v1 extends ContentParser_v0 implements IContentParser
 			styles.put("default", "");
 		}
 		
-		JavaScriptUtils.log("=========");
-		JavaScriptUtils.log(styles);
-		JavaScriptUtils.log("=========");
 		return styles;
 	}
 	
+	@Override
 	protected Content parseLayouts(IContentBuilder content, Element child) {
 		NodeList childrenNodes = child.getChildNodes();
 		for(int i = 0; i < childrenNodes.getLength(); i++) {

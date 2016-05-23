@@ -28,25 +28,23 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
 import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
+import com.lorepo.icplayer.client.xml.page.IPageBuilder;
 
-public class Page extends BasicPropertyProvider implements IStyledModule, IPage {
+public class Page extends BasicPropertyProvider implements IStyledModule, IPage, IPageBuilder {
 
 	private IPlayerServices playerServices;
+
 	public enum LayoutType {
-		percentage,
-		pixels,
-		responsive
+		percentage, pixels, responsive
 	}
 
 	public enum ScoringType {
-		percentage,
-		zeroOne,
-		minusErrors
+		percentage, zeroOne, minusErrors
 	}
 
 	public enum PageScoreWeight {
 		defaultWeight, // 1
-		maxPageScore,  // sum of modules scoring
+		maxPageScore, // sum of modules scoring
 		custom
 	}
 
@@ -71,10 +69,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	private int index;
 	private List<Group> groupedModules = new ArrayList<Group>();
 	@SuppressWarnings("serial")
-	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>(){{
-		put("verticals", new ArrayList<Ruler>());
-		put("horizontals", new ArrayList<Ruler>());
-	}};
+	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>() {
+		{
+			put("verticals", new ArrayList<Ruler>());
+			put("horizontals", new ArrayList<Ruler>());
+		}
+	};
 	private PageScoreWeight pageScoreWeightMode = PageScoreWeight.defaultWeight;
 	private int modulesMaxScore = 0;
 	private int pageWeight = 1;
@@ -101,7 +101,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	}
 
 	@Override
-	public String getBaseURL(){
+	public String getBaseURL() {
 		return baseURL;
 	}
 
@@ -136,19 +136,20 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	}
 
 	public boolean isLoaded() {
-		return loaded;
+		return this.loaded;
 	}
 
 	public void release() {
 		for (IModuleModel module : modules) {
 			module.release();
 		}
-		loaded = false;
+		this.loaded = false;
 	}
 
 	@Override
-	public String toString(){
-		return "ID: " + name + ", href: " + href + " modules#: " + modules.size();
+	public String toString() {
+		return "ID: " + name + ", href: " + href + " modules#: "
+				+ modules.size();
 	}
 
 	public void setName(String name) {
@@ -158,6 +159,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	/**
 	 * Ustawienie sposobu layoutowania strony
+	 * 
 	 * @param pos
 	 */
 	public void setLayout(LayoutType newLayout) {
@@ -166,7 +168,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	/**
 	 * Serialize page to XML format
-	 * @param includeAll - If true save name and isReportable property
+	 * 
+	 * @param includeAll
+	 *            - If true save name and isReportable property
 	 */
 	@Override
 	public String toXML() {
@@ -192,7 +196,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		// modules
 		xml += "<modules>";
-		for(IModuleModel module : modules){
+		for (IModuleModel module : modules) {
 			xml += module.toXML();
 		}
 		xml += "</modules>";
@@ -200,7 +204,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		// groups
 		xml += "<groups>";
 		if (groupedModules != null) {
-			for(Group group: groupedModules) {
+			for (Group group : groupedModules) {
 				xml += group.toXML();
 			}
 		}
@@ -228,8 +232,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		// page weight
 		xml += "<page-weight value='[value]' mode='[mode]'></page-weight>"
-				.replace("[value]", pageWeight + "")
-				.replace("[mode]", getPageScoreWeight().toString());
+				.replace("[value]", pageWeight + "").replace("[mode]",
+						getPageScoreWeight().toString());
 
 		return XMLUtils.removeIllegalCharacters(xml + "</page>");
 	}
@@ -237,8 +241,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	public void reload(Element rootElement) {
 		load(rootElement, baseURL);
 		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
-        name = StringUtils.unescapeXML(rawName);
-		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable");
+		name = StringUtils.unescapeXML(rawName);
+		reportable = XMLUtils
+				.getAttributeAsBoolean(rootElement, "isReportable");
 	}
 
 	@Override
@@ -285,10 +290,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	}
 
 	private void loadPageAttributes(Element rootElement) {
-
 		width = XMLUtils.getAttributeAsInt(rootElement, "width");
 		height = XMLUtils.getAttributeAsInt(rootElement, "height");
-		String style = StringUtils.unescapeXML(rootElement.getAttribute("style"));
+		String style = StringUtils.unescapeXML(rootElement
+				.getAttribute("style"));
 		String css = URLUtils.resolveCSSURL(baseURL, style);
 		setInlineStyle(css);
 		setStyleClass(rootElement.getAttribute("class"));
@@ -309,22 +314,25 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	private void loadModules(Element rootElement) {
 
 		ModuleFactory moduleFactory = new ModuleFactory(null);
-		Element modulesNode = (Element)rootElement.getElementsByTagName("modules").item(0);
+		Element modulesNode = (Element) rootElement.getElementsByTagName(
+				"modules").item(0);
 		NodeList moduleNodeList = modulesNode.getChildNodes();
 
-		for(int i = 0; i < moduleNodeList.getLength(); i++) {
+		for (int i = 0; i < moduleNodeList.getLength(); i++) {
 			Node node = moduleNodeList.item(i);
 
-			if(node instanceof Element){
-				IModuleModel module = moduleFactory.createModel(node.getNodeName());
+			if (node instanceof Element) {
+				IModuleModel module = moduleFactory.createModel(node
+						.getNodeName());
 
-				if(module != null){
+				if (module != null) {
 					module.load((Element) node, getBaseURL());
 
-					if(ModuleFactoryUtils.isCheckAnswersButton(module)) {
+					if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
 						module = new CheckButtonModule();
 						module.load((Element) node, getBaseURL());
-					};
+					}
+					;
 
 					this.modules.add(module);
 				}
@@ -341,7 +349,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		this.groupedModules.clear();
 
-		for (int i = 0; i < groupNodes.getLength(); i++) { // for each group node
+		for (int i = 0; i < groupNodes.getLength(); i++) { // for each group
+															// node
 			Element groupNode = (Element) groupNodes.item(i); // get it one
 			Group group = new Group(this);
 			this.groupedModules.add(group.loadGroupFromXML(groupNode));
@@ -350,11 +359,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	private void loadRulers(Element rootElement) {
 		NodeList verticalRulers = rootElement.getElementsByTagName("vertical");
-		NodeList horizontalRulers = rootElement.getElementsByTagName("horizontal");
+		NodeList horizontalRulers = rootElement
+				.getElementsByTagName("horizontal");
 		List<Ruler> verticals = new ArrayList<Ruler>();
 		List<Ruler> horizontals = new ArrayList<Ruler>();
 
-		if (verticalRulers.getLength() == 0 && horizontalRulers.getLength() == 0) {
+		if (verticalRulers.getLength() == 0
+				&& horizontalRulers.getLength() == 0) {
 			return;
 		}
 
@@ -365,7 +376,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			Ruler ruler = new Ruler();
 
 			ruler.setType("vertical");
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
+			ruler.setPosition((int) Double.parseDouble(rulerNode
+					.getFirstChild().getNodeValue()));
 
 			verticals.add(ruler);
 		}
@@ -375,7 +387,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			Ruler ruler = new Ruler();
 
 			ruler.setType("horizontal");
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
+			ruler.setPosition((int) Double.parseDouble(rulerNode
+					.getFirstChild().getNodeValue()));
 
 			horizontals.add(ruler);
 		}
@@ -386,9 +399,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	// TODO
 	private void loadWeight(Element rootElement) {
 		try {
-			final Node weightElement = rootElement.getElementsByTagName("page-weight").item(0);
-			final String value = XMLUtils.getAttributeAsString((Element) weightElement, "value");
-			final String mode = XMLUtils.getAttributeAsString((Element) weightElement, "mode");
+			final Node weightElement = rootElement.getElementsByTagName(
+					"page-weight").item(0);
+			final String value = XMLUtils.getAttributeAsString(
+					(Element) weightElement, "value");
+			final String mode = XMLUtils.getAttributeAsString(
+					(Element) weightElement, "mode");
 
 			this.pageScoreWeightMode = setWeightFromString(mode);
 			this.pageWeight = (value == "" ? 1 : Integer.parseInt(value));
@@ -432,7 +448,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addProperty(propertyName);
 	}
 
-
 	private void addPropertyWidth() {
 
 		IProperty property = new IProperty() {
@@ -441,7 +456,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 			public void setValue(String newValue) {
 				try {
 					width = Integer.parseInt(newValue);
-				} catch(NumberFormatException e) {
+				} catch (NumberFormatException e) {
 					width = 0;
 				}
 				sendPropertyChangedEvent(this);
@@ -470,7 +485,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		addProperty(property);
 	}
-
 
 	private void addPropertyHeight() {
 
@@ -510,7 +524,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addProperty(property);
 	}
 
-
 	private void addPropertyReportable() {
 
 		IBooleanProperty property = new IBooleanProperty() {
@@ -549,7 +562,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addProperty(property);
 	}
 
-
 	private void addPropertyPreview() {
 
 		propertyName = new IImageProperty() {
@@ -584,7 +596,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addProperty(propertyName);
 	}
 
-
 	@Override
 	public void addStyleListener(IStyleListener listener) {
 		styleListener = listener;
@@ -603,27 +614,25 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	@Override
 	public void setInlineStyle(String inlineStyle) {
 
-		if(inlineStyle != null){
+		if (inlineStyle != null) {
 			this.inlineStyles = inlineStyle;
-			if(styleListener != null){
+			if (styleListener != null) {
 				styleListener.onStyleChanged();
 			}
 		}
 	}
-
 
 	@Override
 	public void setStyleClass(String styleClass) {
 
-		if(styleClass != null){
+		if (styleClass != null) {
 			this.cssClass = styleClass;
 
-			if(styleListener != null){
+			if (styleListener != null) {
 				styleListener.onStyleChanged();
 			}
 		}
 	}
-
 
 	@Override
 	public String getClassNamePrefix() {
@@ -637,7 +646,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	@Override
 	public List<String> getModulesList() {
 		List<String> ids = new ArrayList<String>();
-		for(IModuleModel module : modules) {
+		for (IModuleModel module : modules) {
 			ids.add(module.getId());
 		}
 
@@ -648,28 +657,26 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		return width;
 	}
 
-
 	public int getHeight() {
 		return height;
 	}
 
-
-	public void setReportable(boolean reportable){
+	public void setReportable(boolean reportable) {
 		this.reportable = reportable;
 	}
 
 	@Override
-	public boolean isReportable(){
+	public boolean isReportable() {
 		return reportable;
 	}
 
 	public String createUniquemoduleId(String baseName) {
 		String name;
 
-		for(int i = 1; i < 100; i++) {
+		for (int i = 1; i < 100; i++) {
 
 			name = baseName + i;
-			if( modules.getModuleById(name) == null ){
+			if (modules.getModuleById(name) == null) {
 				return name;
 			}
 		}
@@ -677,25 +684,22 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		return baseName + "_new";
 	}
 
-
 	public void outstreachHeight(int position, int amount) {
 
 		int visibleHeight = getHeight() - amount;
-		for(IModuleModel module : getModules()){
-			if(module.getTop() > position && module.getTop() < visibleHeight){
+		for (IModuleModel module : getModules()) {
+			if (module.getTop() > position && module.getTop() < visibleHeight) {
 				module.disableChangeEvent(true);
-				module.setTop(module.getTop()+amount);
+				module.setTop(module.getTop() + amount);
 				module.disableChangeEvent(false);
 			}
 		}
 	}
 
-
 	@Override
 	public String getPreview() {
 		return previewURL;
 	}
-
 
 	public void setPreview(String preview) {
 		this.previewURL = preview;
@@ -810,7 +814,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		addProperty(property);
 	}
 
-	protected boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
+	protected boolean isNewValueMaxScoreValid(String newValue,
+			IProperty property) {
 		try {
 			pageWeight = Integer.parseInt(newValue);
 			sendPropertyChangedEvent(property);
@@ -882,42 +887,44 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	private JsArrayString getModulesListAsJS() {
 		List<String> ids = new ArrayList<String>();
-	    JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
+		JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
 
-		for(IModuleModel module : modules) {
+		for (IModuleModel module : modules) {
 			ids.add(module.getId());
 		}
-		
-	    for (String string : ids) {
-	        jsArray.push(string);
-	    }
-	    
-	    return jsArray;
+
+		for (String string : ids) {
+			jsArray.push(string);
+		}
+
+		return jsArray;
 	}
-	
+
 	/**
 	 * Get JavaScript interface to the page
+	 * 
 	 * @param x
 	 * @return
 	 */
 	private native static JavaScriptObject javaScriptInterface(Page x) /*-{
 
-		var page = function(){}
+		var page = function() {
+		}
 		page.type = "page";
-		page.getId = function(){
+		page.getId = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::getId()();
 		}
-		page.getName = function(){
+		page.getName = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::getName()();
 		}
-		page.getBaseURL = function(){
+		page.getBaseURL = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::getBaseURL()();
 		}
-		page.isReportable = function(){
+		page.isReportable = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
 		}
 
-		page.isVisited = function(){
+		page.isVisited = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
 		}
 
@@ -954,7 +961,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		}
 
 		pageId = playerServices.getModel().getPage(index).getId();
-		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
+		return playerServices.getScoreService().getPageScoreById(pageId)
+				.hasScore();
 	}
 
 	public void setGroupedModules(List<Group> groupedModules) {
@@ -969,7 +977,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		rulers.put("verticals", verticals);
 		rulers.put("horizontals", horizontals);
 	}
-
+	
 	public List<Ruler> getRulersByType(String type) {
 		return rulers.get(type);
 	}
@@ -986,5 +994,66 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		}
 
 		modules.remove(module);
+	}
+
+	@Override
+	public void setWidth(Integer width) {
+		this.width = width;
+	}
+
+	@Override
+	public void setHeight(Integer height) {
+		this.height = height;
+	}
+
+	@Override
+	public void setStyleCss(String style) {
+		String css = URLUtils.resolveCSSURL(baseURL, style);
+		setInlineStyle(css);
+	}
+
+	@Override
+	public void setScoring(String scoring) {
+		this.setScoreFromString(scoring);
+	}
+
+	@Override
+	public void addModule(IModuleModel module) {
+		this.modules.add(module);
+	}
+
+	@Override
+	public void addGroupModules(Group group) {
+		this.groupedModules.add(group);
+	}
+
+	@Override
+	public void setWeight(Integer weight) {
+		this.pageWeight = weight;
+	}
+
+	@Override
+	public void setWeightMode(PageScoreWeight pageScoreWeightMode) {
+		this.pageScoreWeightMode = pageScoreWeightMode;
+	}
+
+	@Override
+	public void markAsLoaded() {
+		this.loaded = true;
+	}
+
+	@Override
+	public void clearGroupModules() {
+		this.groupedModules.clear();
+	}
+
+	@Override
+	public void clearModules() {
+		this.modules.clear();
+	}
+
+	@Override
+	public void clearRulers() {
+		this.rulers.clear();
 	}
 }

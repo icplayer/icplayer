@@ -15,7 +15,6 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
-import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.content.services.AssetsService;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
@@ -34,6 +33,8 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 public class PlayerController implements IPlayerController{
 
@@ -89,14 +90,14 @@ public class PlayerController implements IPlayerController{
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
 			headerController.setView(playerView.getHeaderView());
-//			headerController.setPage(contentModel.getHeader());
+			headerController.setPage(contentModel.getHeader());
 		}
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
 
 			footerController.setView(playerView.getFooterView());
-//			footerController.setPage(contentModel.getFooter());
+			footerController.setPage(contentModel.getFooter());
 		}
 	}
 
@@ -246,7 +247,6 @@ public class PlayerController implements IPlayerController{
 	}
 
 	public void switchToCommonPage(int index) {
-
 		closeCurrentPages();
 		IPage page;
 		if (pageController2 != null) {
@@ -281,17 +281,16 @@ public class PlayerController implements IPlayerController{
 		sendAnalytics("switch to page", params );
 		// Load new page
 		String baseUrl = contentModel.getBaseUrl();
-		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		playerView.showWaitDialog();
-		reader.load(url, new ILoadListener() {
-
+		
+		PageFactory factory = new PageFactory();
+		factory.load(url, new IProducingLoadingListener() {
 			@Override
-			public void onFinishedLoading(Object obj) {
-				Page page = (Page) obj;
+			public void onFinishedLoading(Object producedItem) {
+				Page page = (Page) producedItem;
 				pageLoaded(page, pageController);
 				if(pageLoadListener != null){
-					pageLoadListener.onFinishedLoading(obj);
+					pageLoadListener.onFinishedLoading(producedItem);
 				}
 				playerView.hideWaitDialog();
 				if(timeStart == 0){
@@ -302,14 +301,15 @@ public class PlayerController implements IPlayerController{
 					scrollViewToBeggining();
 				}
 			}
-
+			
 			@Override
 			public void onError(String error) {
 				playerView.hideWaitDialog();
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
-
+		
+		playerView.showWaitDialog();
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
