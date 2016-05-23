@@ -39,6 +39,7 @@ public class TextModel extends BasicModuleModel {
 	public String gapUniqueId = "";
 	private String valueType = "All";
 	private boolean blockWrongAnswers = false;
+	private boolean userActionEvents = false;
 
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -57,6 +58,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyClearPlaceholderOnFocus();
 		addPropertyValueType();
 		addPropertyBlockWrongAnswers();
+		addPropertyUserActionEvents();
 	}
 
 	@Override
@@ -108,6 +110,8 @@ public class TextModel extends BasicModuleModel {
 					rawText = XMLUtils.getCharacterDataFromElement(textElement);
 					valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
 					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
+					userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
+					
 					if (rawText == null) {
 						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 					}
@@ -164,6 +168,7 @@ public class TextModel extends BasicModuleModel {
 				"' openLinksinNewTab='" + openLinksinNewTab +
 				"' valueType='" + valueType +
 				"' blockWrongAnswers='" + blockWrongAnswers +
+				"' userActionEvents='" + userActionEvents +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 
@@ -702,6 +707,44 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyUserActionEvents() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != userActionEvents) {
+					userActionEvents = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return userActionEvents ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("user_action_events");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("user_action_events");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
@@ -709,6 +752,10 @@ public class TextModel extends BasicModuleModel {
 	
 	public boolean shouldBlockWrongAnswers() {
 		return blockWrongAnswers;
+	}
+	
+	public boolean isUserActionEvents() {
+		return userActionEvents;
 	}
 
 	public void setIsDisabled(boolean value) {

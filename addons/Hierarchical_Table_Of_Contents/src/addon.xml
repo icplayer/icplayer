@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Hierarchical_Table_Of_Contents' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="titleLabel" displayName="Title label" nameLabel="Hierarchical_Table_Of_Contents_property_title_label" type="string" isLocalized="true" />
+        <property name='displayOnlyChapters' displayName="Display only chapters" nameLabel="Hierarchical_Table_Of_Contents_property_display_only_chapters" type='boolean'/>
+        <property name="showPages" displayName="Show Pages" nameLabel="Hierarchical_Table_Of_Contents_property_show_pages" type="{All, Reportable, Not-reportable}" isLocalized="true" />
+    </model>
+</addon>

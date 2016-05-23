@@ -1,3 +1,9 @@
+2016-05-23 Fixed adding empty class to wrong element in Text Identification module
+2016-05-23 Added playing event in Audio and Video modules
+2016-05-18 Added reseting poster before adding new one in Video module
+2016-05-18 Added showPopup and closePopup commands
+2016-05-13 Added new addon Hierarchical Table of Contents
+2016-05-13 Added User action events property in Text module
 2016-05-10 Added class on hover in Image Identification module
 2016-05-10 Fixed issue with indexing pages in DIsable Score Pages in HLR module
 2016-05-09 Added show/hide commands in Text Identification module

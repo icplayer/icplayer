@@ -1,4 +1,5 @@
 ﻿var ice_dictionary = {
+	"user_action_events": "User action events",
 	"main_tab": "Main",
 	"commons_tab": "Commons",
 	"save_changes": "You have made changes, do you want to save them?",
@@ -1301,5 +1302,10 @@
 	"Variable_Storage_name": "Variable storage",
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Name",
-	"Variable_Storage_property_variables_start": "Start"
+	"Variable_Storage_property_variables_start": "Start",
+    "Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
+    "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
+    "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
+    "Hierarchical_Table_Of_Contents_property_display_only_chapters": "Display only chapters",
+    "Hierarchical_Table_Of_Contents_property_show_pages": "Show pages"
 };

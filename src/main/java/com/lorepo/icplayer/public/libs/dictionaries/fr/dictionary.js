@@ -1,4 +1,11 @@
 var ice_dictionary_fr = {
+"select_max_10_items": "You can select maximum 10 items",
+"manage_favourites": "Manage favourites",
+"select_fav_modules": "Select favourite modules",
+"can_not_save_fav_modules": "Non-logged user can not save their favourite modules",
+"favourite_menu": "Favourites",
+"favourite_modules": "Favourites",
+"user_action_events": "User action events",
 "fill_required_field": "Fill required field",
 "enable_keep_order_property": "To set correct answer manually please enable Keep original order property",
 "complete_inputs": "Make sure if all requires fields are filled",
@@ -1314,5 +1321,10 @@ var ice_dictionary_fr = {
 "Variable_Storage_name": "Variable storage",
 "Variable_Storage_property_variables": "Variables",
 "Variable_Storage_property_variables_name": "Name",
-"Variable_Storage_property_variables_start": "Start"
+"Variable_Storage_property_variables_start": "Start",
+"Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
+"Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
+"Hierarchical_Table_Of_Contents_property_title_label": "Title label",
+"Hierarchical_Table_Of_Contents_property_display_only_chapters": "Display only chapters",
+"Hierarchical_Table_Of_Contents_property_show_pages": "Show pages"
 };
