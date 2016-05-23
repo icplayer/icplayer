@@ -289,7 +289,7 @@ function Addontext_identification_create(){
 
         if (presenter.isSelected()) {
             presenter.applySelectionStyle(presenter.isSelected() === presenter.configuration.shouldBeSelected, CSS_CLASSES.CORRECT, CSS_CLASSES.INCORRECT);
-        } else if (presenter.configuration.shouldBeSelected) {
+        } else {
             presenter.applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT)
         }
     };
