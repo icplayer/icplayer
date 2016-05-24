@@ -12,8 +12,9 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
+import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
 
-public abstract class BasicModuleModel extends StyledModule implements IModuleModel {
+public abstract class BasicModuleModel extends StyledModule implements IModuleModel, IModuleModelBuilder {
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;
@@ -70,7 +71,6 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	 */
 	@Override
 	public void load(Element element, String baseUrl) {
-
 		this.baseURL = baseUrl;
 		id = element.getAttribute("id");
 		if (id == null || id.compareTo("null") == 0) {

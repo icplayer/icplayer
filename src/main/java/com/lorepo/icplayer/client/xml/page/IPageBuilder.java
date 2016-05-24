@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.xml.page;
 import com.lorepo.icplayer.client.model.Group;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.model.Page.PageScoreWeight;
+import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 import java.util.List;
@@ -26,4 +27,5 @@ public interface IPageBuilder {
 	public void clearGroupModules();
 	public void clearModules();
 	public void clearRulers();
+	public void addSize(String string, Size size);
 }

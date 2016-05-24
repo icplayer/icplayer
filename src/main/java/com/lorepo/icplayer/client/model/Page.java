@@ -21,6 +21,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
+import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -60,6 +61,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private String baseURL = "";
 	private IStyleListener styleListener;
 	private boolean loaded = false;
+	
+	private HashMap<String, Size> pageSizes = new HashMap<String, Size>();
+	
 	private int width;
 	private int height;
 	private boolean reportable = true;
@@ -1055,5 +1059,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	@Override
 	public void clearRulers() {
 		this.rulers.clear();
+	}
+
+	@Override
+	public void addSize(String sizeName, Size size) {
+		this.pageSizes.put(sizeName, size);
 	}
 }

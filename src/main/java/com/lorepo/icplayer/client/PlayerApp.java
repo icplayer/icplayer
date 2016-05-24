@@ -63,7 +63,6 @@ public class PlayerApp{
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
 				contentModel.connectHandlers();
-				JavaScriptUtils.log(contentModel);
 				initPlayer(isCommonPage);
 			}
 			

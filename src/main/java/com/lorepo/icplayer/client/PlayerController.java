@@ -283,7 +283,7 @@ public class PlayerController implements IPlayerController{
 		String baseUrl = contentModel.getBaseUrl();
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		
-		PageFactory factory = new PageFactory();
+		PageFactory factory = new PageFactory((Page) page);
 		factory.load(url, new IProducingLoadingListener() {
 			@Override
 			public void onFinishedLoading(Object producedItem) {

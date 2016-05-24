@@ -57,7 +57,13 @@ public abstract class XMLVersionAwareFactory implements IXMLFactory {
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
 		String version = XMLUtils.getAttributeAsString(xml, "version", "1");
 		
+		JavaScriptUtils.log("wersja xmla page");
+		JavaScriptUtils.log(version);
+		JavaScriptUtils.log("pobieram parsera");
+		JavaScriptUtils.log(this.parsersMap);
+		JavaScriptUtils.log(this.parsersMap.get(version));
 		Object producedContent = this.parsersMap.get(version).parse(xml);
+		JavaScriptUtils.log(producedContent);
 		
 		return producedContent;
 	}

@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.model.Group;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.model.Page.PageScoreWeight;
+import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
@@ -25,7 +26,6 @@ public abstract class PageParserBase implements IPageParser{
 	protected IPageBuilder page;
 	
 	public PageParserBase() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public void setPage(Page page) {
@@ -40,7 +40,8 @@ public abstract class PageParserBase implements IPageParser{
 
 	public Object parse(Element xml) {
 		this.page.clearModules();
-		this.loadPageAttributes(this.page, xml);
+		this.page = this.loadPageAttributes(this.page, xml);
+		this.page = this.loadPageStyle(this.page, xml);
 		
 		NodeList children = xml.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++) {
@@ -49,11 +50,13 @@ public abstract class PageParserBase implements IPageParser{
 				String name = child.getNodeName();
 				
 				if(name.compareTo("modules") == 0) {
-					this.page = loadModules(this.page, child);
+					this.page = this.loadModules(this.page, child);
 				} else if(name.compareTo("group") == 0) {
-					this.page = loadGroupModules(this.page, child);
+					this.page = this.loadGroupModules(this.page, child);
 				} else if (name.compareTo("page-weight") == 0) {
-					this.page = loadWeight(this.page, child);
+					this.page = this.loadWeight(this.page, child);
+				} else if (name.compareTo("layouts") == 0) {
+					this.page = this.loadLayouts(this.page, child);
 				}
 				
 				this.page = this.loadRulers(this.page, xml);
@@ -64,6 +67,10 @@ public abstract class PageParserBase implements IPageParser{
 		return this.page;
 	}
 	
+
+	protected IPageBuilder loadLayouts(IPageBuilder page, Element child) {
+		return page;
+	}
 
 	private IPageBuilder loadRulers(IPageBuilder page, Element xml) {
 		NodeList verticalRulers = xml.getElementsByTagName("vertical");
@@ -130,11 +137,11 @@ public abstract class PageParserBase implements IPageParser{
 				IModuleModel module = moduleFactory.createModel(node.getNodeName());
 
 				if (module != null) {
-					module.load((Element) node, page.getBaseURL());
+					module.load((Element) node, page.getBaseURL(), this.getVersion());
 
 					if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
 						module = new CheckButtonModule();
-						module.load((Element) node, page.getBaseURL());
+						module.load((Element) node, page.getBaseURL(), this.getVersion());
 					}
 
 					page.addModule(module);
@@ -173,9 +180,17 @@ public abstract class PageParserBase implements IPageParser{
 	}
 
 	protected IPageBuilder loadPageAttributes(IPageBuilder page, Element xml) {
+		int width = XMLUtils.getAttributeAsInt(xml, "width");
+		int height = XMLUtils.getAttributeAsInt(xml, "height");
+		
+		page.addSize("default", new Size(width, height));
+		
 		page.setWidth(XMLUtils.getAttributeAsInt(xml, "width"));
 		page.setHeight(XMLUtils.getAttributeAsInt(xml, "height"));
-		
+		return page;
+	}
+	
+	protected IPageBuilder loadPageStyle(IPageBuilder page, Element xml) {
 		page.setStyleCss(StringUtils.unescapeXML(xml.getAttribute("style")));
 		page.setStyleClass(xml.getAttribute("class"));
 

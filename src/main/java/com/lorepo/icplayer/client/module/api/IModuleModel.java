@@ -18,4 +18,5 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public String getButtonType();
 	public boolean isModuleInEditorVisible();
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility);
+	public void load(Element node, String baseURL, String version);
 }
