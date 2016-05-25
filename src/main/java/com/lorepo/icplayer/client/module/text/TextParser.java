@@ -32,6 +32,7 @@ public class TextParser {
 	private boolean skipGaps = false;
 	private int gapWidth = 0;
 	private int gapMaxLength = 0;
+	private boolean editorMode = false;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -64,6 +65,13 @@ public class TextParser {
 		openLinksinNewTab = linksTarget;
 	}
 
+	// parse srcText for editor in HTMLWidget as rendered view
+	public ParserResult parse(String srcText, boolean editorMode) {
+		this.editorMode = true;
+		
+		return parse(srcText);
+	}
+	
 	public ParserResult parse(String srcText) {
 
 		parserResult = new ParserResult();
@@ -149,7 +157,7 @@ public class TextParser {
 		return output;
 	}
 
-	private static boolean isInMath(String text) {
+	public static boolean isInMath(String text) {
 		int endIndex = text.indexOf("\\)");
 		if (endIndex > 0) {
 			int startIndex = text.indexOf("\\(");
@@ -174,8 +182,8 @@ public class TextParser {
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			replaceText = "<input id='" + id + "' type='edit' size='"
-					+ answer.length() + "' class='ic_gap'/>";
+			replaceText = "<input id='" + id + "' type='edit' data-gap='editable' data-gap-value='\\gap{" + answer + "}' size='"
+					+ answer.length() + "' class='ic_gap'" + (editorMode ? "readonly" : "") + "/>";
 
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
 					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
@@ -201,8 +209,8 @@ public class TextParser {
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			placeholder = StringUtils.unescapeXML(placeholder);
-			replaceText = "<input id='" + id + "' type='edit' size='"
-					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"' />";
+			replaceText = "<input data-gap='filled' data-gap-value='\\filledGap{" + placeholder + "|" + answer +"}' id='" + id + "' type='edit' size='"
+					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"'" + (editorMode ? "readonly" : "") + "/>";
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			gi.setPlaceHolder(placeholder);
 			gi.addAnswer(answer);
@@ -328,20 +336,23 @@ public class TextParser {
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer,
 							Integer.parseInt(value));
 					parserResult.choiceInfos.add(info);
-					replaceText = "<select id='" + id
-							+ "' class='ic_inlineChoice'>";
-					replaceText += "<option value='-'>---</option>";
-					for (int i = 0; i < answers.length; i++) {
-						info.addDistractor(answers[i].trim());
+					if (editorMode) {
+						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
+					} else {
+						replaceText = "<select id='" + id + "' class='ic_inlineChoice'>";
+						replaceText += "<option value='-'>---</option>";
+						for (int i = 0; i < answers.length; i++) {
+							info.addDistractor(answers[i].trim());
+						}
+						Iterator<String> distractors = info.getDistractors();
+						while (distractors.hasNext()) {
+							String dist = distractors.next();
+							String itemValue = StringUtils.escapeXML(dist);
+							replaceText += "<option value='" + itemValue + "'>" + dist
+									+ "</option>";
+						}
+						replaceText += "</select>";
 					}
-					Iterator<String> distractors = info.getDistractors();
-					while (distractors.hasNext()) {
-						String dist = distractors.next();
-						String itemValue = StringUtils.escapeXML(dist);
-						replaceText += "<option value='" + itemValue + "'>" + dist
-								+ "</option>";
-					}
-					replaceText += "</select>";
 				}
 			}
 		} catch (Exception e) {}
@@ -376,20 +387,23 @@ public class TextParser {
 						parserResult.choiceInfos.add(info);
 					}
 				}
-				
+
 				if (info != null) {
-					replaceText = "<select id='" + id
-							+ "' class='ic_inlineChoice'>";
-					replaceText += "<option value='-'>---</option>";
-					
-					for (int i = 0; i < answers.length; i++) {
-						String dist = answers[i].trim();
-						info.addDistractorInOrder(dist);
-						String itemValue = StringUtils.escapeXML(dist);
-						replaceText += "<option value='" + itemValue + "'>" + dist
-								+ "</option>";
+					if (editorMode) {					
+						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
+					} else {
+						replaceText = "<select id='" + id + "' class='ic_inlineChoice'>";
+						replaceText += "<option value='-'>---</option>";
+						
+						for (int i = 0; i < answers.length; i++) {
+							String dist = answers[i].trim();
+							info.addDistractorInOrder(dist);
+							String itemValue = StringUtils.escapeXML(dist);
+							replaceText += "<option value='" + itemValue + "'>" + dist
+									+ "</option>";
+						}
+						replaceText += "</select>";
 					}
-					replaceText += "</select>";
 				}
 			}
 		}
@@ -542,7 +556,7 @@ public class TextParser {
 		return output + input;
 	}
 
-	private static int findClosingBracket(String input) {
+	public static int findClosingBracket(String input) {
 
 		int counter = 0;
 

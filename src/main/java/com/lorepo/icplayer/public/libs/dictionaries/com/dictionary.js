@@ -1,4 +1,8 @@
 ﻿var ice_dictionary_en = {
+	"edit_editable_gap": "Edit an editable/draggable gap",
+	"edit_dropdown_gap": "Edit a dropdown gap",
+	"edit_filled_gap": "Edit a filled gap",
+	"rendered_view": "Rendered view: ",
 	"select_max_10_items": "You can select maximum 10 items",
 	"manage_favourites": "Manage favourites",
 	"select_fav_modules": "Select favourite modules",
