@@ -722,7 +722,11 @@ function Addoncrossword_create(){
     };
 
     presenter.isAllOK = function() {
-        return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+            return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+        }else{
+            return false;
+        }
     };
 
     function getEventObject(it, val, sc) {
