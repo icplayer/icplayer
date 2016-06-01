@@ -5,6 +5,7 @@ function AddonImage_Identification_create(){
     var eventBus;
 
     presenter.lastEvent = null;
+    presenter.isDisabled = false;
 
     var CSS_CLASSES = {
         ELEMENT : "image-identification-element",
@@ -26,6 +27,10 @@ function AddonImage_Identification_create(){
     }
 
     function clickLogic() {
+        if(presenter.isDisabled){
+            return;
+        }
+
         if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
         presenter.toggleSelectionState(true);
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
@@ -209,10 +214,24 @@ function AddonImage_Identification_create(){
             'markAsEmpty': presenter.markAsEmpty,
             'removeMark': presenter.removeMark,
             'showAnswers': presenter.showAnswers,
-            'hideAnswers': presenter.hideAnswers
+            'hideAnswers': presenter.hideAnswers,
+            'disable': presenter.disable,
+            'enable': presenter.enable
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.disable = function() {
+        presenter.isDisabled = true;
+        var $element = presenter.$view.find('div:first');
+        $($element).addClass('image-identification-element-disabled');
+    };
+
+    presenter.enable = function() {
+        presenter.isDisabled = false;
+        var $element = presenter.$view.find('div:first');
+        $($element).removeClass('image-identification-element-disabled');
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -310,7 +329,8 @@ function AddonImage_Identification_create(){
     presenter.getState = function() {
         return JSON.stringify({
             isSelected: presenter.configuration.isSelected,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isVisible,
+            isDisabled: presenter.isDisabled
         });
     };
 
@@ -332,6 +352,10 @@ function AddonImage_Identification_create(){
 
         if (presenter.configuration.isImageLoaded) {
             loadImageEndCallback();
+        }
+
+        if(state.isDisabled != undefined){
+            presenter.isDisabled = state.isDisabled;
         }
     };
 
