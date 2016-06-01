@@ -7,6 +7,7 @@ function Addontext_identification_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.lastEvent = null;
+    presenter.isDisabled = false;
     
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -46,6 +47,10 @@ function Addontext_identification_create(){
     };
 
     presenter.clickHandler = function (e) {
+        if(presenter.isDisabled){
+            return;
+        }
+
         e.stopPropagation();
         if (presenter.configuration.isErrorCheckMode) return;
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
@@ -234,10 +239,24 @@ function Addontext_identification_create(){
             'markAsEmpty': presenter.markAsEmpty,
             'isAllOK': presenter.isAllOK,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'disable': presenter.disable,
+            'enable': presenter.enable
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.disable = function() {
+        presenter.isDisabled = true;
+        var $element = viewContainer.find('div.text-identification-container');
+        $element.addClass("text-identification-element-disabled");
+    };
+
+    presenter.enable = function() {
+        presenter.isDisabled = false;
+        var $element = viewContainer.find('div.text-identification-container');
+        $element.removeClass("text-identification-element-disabled");
     };
 
     presenter.registerMathJaxListener = function (isPreview) {
@@ -315,7 +334,8 @@ function Addontext_identification_create(){
 
         return JSON.stringify({
             isSelected: presenter.isSelected() ? 'True' : 'False',
-            isVisible: presenter.isVisible
+            isVisible: presenter.isVisible,
+            isDisabled: presenter.isDisabled
         });
     };
 
@@ -337,6 +357,10 @@ function Addontext_identification_create(){
             if(parsedState.isVisible != undefined){
                 presenter.setVisibility(parsedState.isVisible);
                 presenter.isVisible = parsedState.isVisible;
+            }
+
+            if(parsedState.isDisabled != undefined){
+                presenter.isDisabled = parsedState.isDisabled;
             }
         }
     };

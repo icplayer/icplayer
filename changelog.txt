@@ -1,3 +1,4 @@
+2016-06-01 Added disable/enable commands in Text Identification module
 2016-06-01 Added parsing rendered definition gaps to gaps syntax
 2016-06-01 Fixed tests in Video module
 2016-06-01 Fixed problem with setting poster on Firefox in Video module
