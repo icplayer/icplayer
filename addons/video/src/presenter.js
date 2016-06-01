@@ -569,8 +569,16 @@ function Addonvideo_create() {
     presenter.addAttributePoster = function(video, posterSource) {
         if (posterSource) {
             if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
-                video.attr('poster', '');
-                video.attr('poster', posterSource);
+                if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
+                    var tmpVideo = video;
+                    video.remove();
+                    $(tmpVideo).attr('poster', '');
+                    $(tmpVideo).attr('poster', posterSource);
+                    presenter.videoContainer.append(tmpVideo);
+                }else{
+                    video.attr('poster', '');
+                    video.attr('poster', posterSource);
+                }
                 return;
             }
 
