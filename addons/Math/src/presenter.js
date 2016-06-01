@@ -18,6 +18,7 @@ function AddonMath_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('PageLoaded', this);
+        presenter.eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.createPreview = function (view, model) {
@@ -182,7 +183,8 @@ function AddonMath_create() {
             onIncorrectEvent: model.onIncorrect,
             onPartialEvent: model.onPartiallyCompleted,
             separators: separators,
-            emptyAnswer: emptyAnswer
+            emptyAnswer: emptyAnswer,
+            addonID: model.ID
         };
     };
 
@@ -524,6 +526,23 @@ function AddonMath_create() {
         presenter.isShowAnswers = false;
     };
 
+    presenter.isAllOK = function () {
+        return presenter.getMaxScore() === presenter.getScore();
+    };
+
+    presenter.createAllOKEventData = function (){
+        return{
+            'source': presenter.configuration.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        }
+    };
+
+    presenter.sendAllOKEvent = function (){
+        presenter.eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData());
+    };
+
     presenter.executeCommand = function(name, params) {
         if (presenter.isErrorMode) return;
 
@@ -531,7 +550,8 @@ function AddonMath_create() {
             'evaluate': presenter.evaluate,
             'isAttempted': presenter.isAttempted,
             'showAnswers': presenter.showAnswers,
-            'hideAnswers': presenter.hideAnswers
+            'hideAnswers': presenter.hideAnswers,
+            'isAllOK': presenter.isAllOK
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -627,11 +647,21 @@ function AddonMath_create() {
         }
     };
 
-    presenter.onEventReceived = function(eventName) {
+    presenter.allOkSent = false;
+
+    presenter.onEventReceived = function(eventName, eventData) {
         switch(eventName) {
             case 'ShowAnswers': presenter.showAnswers(); break;
             case 'HideAnswers': presenter.hideAnswers(); break;
             case 'PageLoaded': markModules(); break;
+            case 'ValueChanged':
+                if (presenter.isAllOK() && !presenter.allOkSent) {
+                    presenter.allOkSent = true;
+                    presenter.sendAllOKEvent();
+                }else if(!presenter.isAllOK()){
+                    presenter.allOkSent = false;
+                }
+                break;
         }
     };
 
