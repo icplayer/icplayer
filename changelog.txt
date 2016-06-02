@@ -1,3 +1,4 @@
+2016-06-02 Added Remove dragged element property to Connection module
 2016-06-01 Added allOK event and command in Math module
 2016-06-01 Added disable/enable commands in Image Identification module
 2016-06-01 Added disable/enable commands in Text Identification module

@@ -438,6 +438,7 @@
 	"Connection_property_random_order_left_column" : "Kolejność losowa w lewej kolumnie",
 	"Connection_property_random_order_right_column" : "Kolejność losowa w prawej kolumnie",
 	"Connection_property_show_answers_line_color" : "Kolor linii w Pokaż odpowiedzi",
+    "Connection_property_remove_dragged_element": "Remove dragged element",
 	"Connector_info" : "Specjalny rodzaj Addonu, który umożliwia łączenie wielu Addonów i modułów w taki sposób, aby powstały w pełni interaktywne ćwiczenia.",
 	"Connector_name" : "Łącznik",
 	"Connector_property_tasks": "Zadania",

@@ -268,6 +268,7 @@ function AddonConnection_create() {
         }
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
 
@@ -404,6 +405,11 @@ function AddonConnection_create() {
     }
 
     function clickLogic(element) {
+        if (basicClickLogic(element))
+            redraw();
+    }
+
+    function basicClickLogic(element) {
         // workaround for android webView
         // http://code.google.com/p/android/issues/detail?id=38808
         var current = new Date().getTime();
@@ -467,9 +473,9 @@ function AddonConnection_create() {
             }
         }
 
-        redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
+        return true;
     }
 
     presenter.registerListeners = function (view) {
@@ -507,9 +513,9 @@ function AddonConnection_create() {
             element.each(function(){
                 var e = $(this);
                 e.draggable({
-                    revert: "invalid",
-                    opacity: 0.7,
-                    helper: "clone",
+                    revert: presenter.removeDraggedElement ? true : "invalid",
+                    opacity: presenter.removeDraggedElement ? 1 : 0.7,
+                    helper: presenter.removeDraggedElement ? "original": "clone",
                     cursorAt: {
                         left: Math.round(e.find('.inner').width()/2),
                         top: Math.round(e.find('.inner').height()/2)
@@ -524,9 +530,14 @@ function AddonConnection_create() {
                         selectedItem = null;
                         ui.helper.zIndex(100);
                         clickLogic(this);
-                        ui.helper.find('.icon').remove();
-                        ui.helper.width($(this).find('.inner').width());
-                        ui.helper.height($(this).find('.inner').height());
+                        if (presenter.removeDraggedElement) {
+                            ui.helper.find('.icon').hide();
+                            ui.helper.removeClass('selected');
+                        } else {
+                            ui.helper.find('.icon').remove();
+                            ui.helper.width($(this).find('.inner').width());
+                            ui.helper.height($(this).find('.inner').height());
+                        }
                         if ($(this).parents('.connectionLeftColumn').length) {
                             draggedElementColumn = 'left';
                         } else {
@@ -535,7 +546,11 @@ function AddonConnection_create() {
                     },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
-                        ui.helper.remove();
+                        if (presenter.removeDraggedElement) {
+                            ui.helper.find('.icon').show();
+                        } else {
+                            ui.helper.remove();
+                        }
                         redraw();
                     }
                 });
@@ -543,7 +558,7 @@ function AddonConnection_create() {
                 e.droppable({
                     drop: function (event, ui) {
                         $(this).removeClass('selected');
-                        clickLogic(this);
+                        basicClickLogic(this);
                         ui.draggable.removeClass('selected');
                         if (presenter.lastEvent) {
                             presenter.lastEvent.type = "touchend";
