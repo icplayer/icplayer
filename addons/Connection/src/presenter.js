@@ -11,6 +11,7 @@ function AddonConnection_create() {
     presenter.elements = [];
     presenter.lastClickTime = 0;
     presenter.lastEvent = null;
+    presenter.disabledConnections = [];
 
     var connections;
     var singleMode = false;
@@ -447,6 +448,11 @@ function AddonConnection_create() {
                 }
             }
         } else {
+            if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
+                return;
+            }
+            console.log($(element).attr('id'));
+            console.log(selectedItem.attr('id'));
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
@@ -1109,10 +1115,65 @@ function AddonConnection_create() {
             'showAnswers': presenter.showAnswers,
             'show': presenter.show,
             'hide': presenter.hide,
-            'hideAnswers': presenter.hideAnswers
+            'hideAnswers': presenter.hideAnswers,
+            'disable': presenter.disableCommand,
+            'enable': presenter.enableCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.disableCommand = function (params) {
+        presenter.disable(params[0], params[1]);
+    };
+
+    presenter.disable = function(id1, id2) {
+        presenter.disabledConnections.push({id1: id1, id2: id2});
+    };
+
+    presenter.enableCommand = function (params) {
+        presenter.enable(params[0], params[1]);
+    };
+
+    function convertIds (id1, id2){
+        id1 = id1.toString();
+        id2 = id2.toString();
+
+        id1 = id1.substr(id1.indexOf("-") + 1);
+        id2 = id2.substr(id2.indexOf("-") + 1);
+
+        return {
+            id1: id1,
+            id2: id2
+        }
+    }
+
+    presenter.enable = function(id1, id2) {
+        var convertedIds = convertIds(id1, id2);
+        id1 = convertedIds.id1;
+        id2 = convertedIds.id2;
+
+        for (var i=0; i < presenter.disabledConnections.length; i++){
+            if((presenter.disabledConnections[i].id1 == id1 && presenter.disabledConnections[i].id2 == id2) ||
+                (presenter.disabledConnections[i].id1 == id2 && presenter.disabledConnections[i].id2 == id1)){
+                presenter.disabledConnections.splice(i, 1);
+            }
+        }
+    };
+
+    presenter.checkIfConnectionDisabled = function (id1, id2) {
+        var convertedIds = convertIds(id1, id2);
+        id1 = convertedIds.id1;
+        id2 = convertedIds.id2;
+
+        for (var i=0; i < presenter.disabledConnections.length; i++){
+            if((presenter.disabledConnections[i].id1 == id1 && presenter.disabledConnections[i].id2 == id2) ||
+                (presenter.disabledConnections[i].id1 == id2 && presenter.disabledConnections[i].id2 == id1)){
+                return true;
+            }
+        }
+
+        return false;
     };
 
     presenter.onEventReceived = function (eventName) {
