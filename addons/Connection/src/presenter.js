@@ -949,6 +949,7 @@ function AddonConnection_create() {
         redraw();
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
+        presenter.disabledConnections = [];
     };
 
     presenter.getErrorCount = function () {
