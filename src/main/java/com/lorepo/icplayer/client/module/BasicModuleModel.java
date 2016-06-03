@@ -79,6 +79,8 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			id = StringUtils.unescapeXML(id);
 		}
 		
+		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory();
+		
 		int left = XMLUtils.getAttributeAsInt(element, "left");
 		int top = XMLUtils.getAttributeAsInt(element, "top");
 		int width = XMLUtils.getAttributeAsInt(element, "width");
@@ -241,6 +243,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
 		this.isModuleVisibleInEditor = moduleInEditorVisibility;
+	}
+	
+	public void setBaseUrl(String baseUrl) {
+		this.baseURL = baseUrl;
 	}
 	
 	@Override

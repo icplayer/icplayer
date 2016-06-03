@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module;
 
+import java.util.HashMap;
+
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -28,6 +30,8 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	private IProperty bottomProperty;
 	private IProperty widthProperty;
 	private IProperty heightProperty;
+	
+	private HashMap<String, HashMap<String, Integer>> positions = new HashMap<String, HashMap<String, Integer>>();
 	
 	private boolean disableChangeEvent = false;
 	
