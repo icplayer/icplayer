@@ -78,9 +78,6 @@ function AddonDrawing_create() {
             tmp_canvas = presenter.configuration.canvas;
         }
 
-        e.preventDefault();
-        e.stopPropagation();
-
         var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
         var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
 
@@ -161,11 +158,14 @@ function AddonDrawing_create() {
         }, false);
     };
 
+    presenter.onMobilePaintWithoutPropagation = function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        presenter.onMobilePaint(e);
+    };
+
     function connectTouchEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('touchstart', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
             setOverflowWorkAround(true);
 
             if (!presenter.configuration.isPencil) {
@@ -175,15 +175,13 @@ function AddonDrawing_create() {
             presenter.zoom = getZoom();
             presenter.isStarted = true;
             presenter.onMobilePaint(e);
-            tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
+            tmp_canvas.addEventListener('touchmove', presenter.onMobilePaintWithoutPropagation);
         }, false);
 
         tmp_canvas.addEventListener('touchend', function (e) {
-            e.stopPropagation();
-
             setOverflowWorkAround(false);
 
-            tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
+            tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
             ctx.drawImage(tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
@@ -209,8 +207,6 @@ function AddonDrawing_create() {
         }, false);
 
         $(tmp_canvas).on('mouseleave', function (e) {
-            e.stopPropagation();
-
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
@@ -221,8 +217,6 @@ function AddonDrawing_create() {
         });
 
         tmp_canvas.addEventListener('mousedown', function (e) {
-            e.stopPropagation();
-
             setOverflowWorkAround(true);
 
             if (!presenter.configuration.isPencil) {
@@ -251,8 +245,6 @@ function AddonDrawing_create() {
         }, false);
 
         tmp_canvas.addEventListener('mouseup', function (e) {
-            e.stopPropagation();
-
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
