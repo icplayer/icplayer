@@ -263,9 +263,6 @@ function AddonLearnPen_create() {
             presenter.turnOnEventListeners();
         }
 
-//        setOverflowWorkAround(true);
-//        presenter.$view.parents("*").css("overflow", "visible");
-
         presenter.setVisibility(presenter.configuration.isVisible);
     }
 
@@ -369,8 +366,6 @@ function AddonLearnPen_create() {
             });
 
             canvas.on('touchstart', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
                 presenter.data.isStarted = true;
                 presenter.noDraw = false;
 
@@ -401,8 +396,6 @@ function AddonLearnPen_create() {
             });
 
             canvas.on('mousedown', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
                 //updateDrawingData(e);
                 presenter.data.isStarted = true;
                 presenter.noDraw = false;
