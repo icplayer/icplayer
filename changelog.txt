@@ -1,3 +1,4 @@
+2016-06-06 Improved usability of CrossWord addon
 2016-06-02 Fixed issue with LearnPen_Report fetching data from drawing addons
 2016-06-02 Added Remove dragged element property to Connection module
 2016-06-01 Added allOK event and command in Math module
