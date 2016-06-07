@@ -43,8 +43,84 @@ function AddonFigureDrawing_create(){
             case 'allLinesDrawn'.toLowerCase():
                 presenter.allLinesDrawn();
                 break;
+            case 'isDrawn'.toLowerCase():
+                presenter.isDrawn(params[0],params[1],params[2],params[3]);
+                break;
+            case 'countDrawnLines'.toLowerCase():
+                presenter.countDrawnLines();
+                break;
+            case 'markAsCorrect'.toLowerCase():
+                presenter.markAsCorrect();
+                break;
+            case 'markAsWrong'.toLowerCase():
+                presenter.markAsWrong();
+                break;
+            case 'markAsNeutral'.toLowerCase():
+                presenter.markAsNeutral();
+                break;
         }
     };
+    presenter.markAsCorrect = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.$view.find('.figure').removeClass('wrong');
+        presenter.$view.find('.figure').addClass('correct');
+    };
+
+    presenter.markAsWrong = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.$view.find('.figure').removeClass('correct');
+        presenter.$view.find('.figure').addClass('wrong');
+    };
+
+    presenter.markAsNeutral = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.$view.find('.figure').removeClass('correct');
+        presenter.$view.find('.figure').removeClass('wrong');
+    };
+
+    presenter.isDrawn = function(column1, row1, column2, row2) {
+        var firstRow, firstColumn, secondRow, secondColumn, col1, col2, ro1, ro2, i;
+        if (column1 < column2 || (column1 == column2 && row1 < row2)) {
+            firstColumn = column1;
+            firstRow = row1;
+            secondColumn = column2;
+            secondRow = row2;
+        } else {
+            firstColumn = column2;
+            firstRow = row2;
+            secondColumn = column1;
+            secondRow = row1;
+        }
+        var steps = Math.abs(gcd(secondRow-firstRow, secondColumn-firstColumn));
+        if (presenter.grid3D && (secondRow-firstRow+secondColumn-firstColumn)/steps %2 != 0) steps = 0.5 * steps;
+        var stepX = parseInt((secondColumn-firstColumn)/steps);
+        var	stepY = parseInt((secondRow-firstRow)/steps);
+        col1 = firstColumn;
+        ro1 = firstRow;
+        for (i = 1; i <= steps; i++) {
+            col2 = col1 + stepX;
+            ro2 = ro1 + stepY;
+            line = presenter.$view.find('#line_'+col1+'_'+ro1+'_'+col2+'_'+ro2);
+            if (line.length <= 0) {
+                return false
+            }
+            col1 = col2;
+            ro1 = ro2;
+        }
+        return true;
+    };
+
+    presenter.countDrawnLines = function() {
+        var numberOfLines = presenter.$view.find('.line').not('.nonremovable').length;
+        return numberOfLines;
+    };
+
     presenter.allLinesDrawn = function() {
         var answer = true;
         if (presenter.activity && !presenter.error) {
@@ -605,7 +681,6 @@ function AddonFigureDrawing_create(){
             presenter.$view.find('.canvas').remove();
         };
         var point1, point2;
-
         presenter.$view.find('.point').on('mouseup touchend', function(e){
             if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && timeClick) {
                 e.stopPropagation();
@@ -929,6 +1004,8 @@ function AddonFigureDrawing_create(){
         presenter.$view.find('.line').removeClass('correct');
         presenter.$view.find('.line').removeClass('wrong');
         presenter.$view.find('.icon-container').remove();
+        presenter.$view.find('.figure').removeClass('correct');
+        presenter.$view.find('.figure').removeClass('wrong');
     };
     presenter.setShowErrorsMode = function() {
         var i, j, line, color, lineCounter;
@@ -976,7 +1053,7 @@ function AddonFigureDrawing_create(){
         var LinesIds = new Array();
         for (i = 0; i < Lines.length; i++) {
             LinesIds.push(Lines[i].id);
-        }
+        };
         return JSON.stringify({
             isStarted : presenter.isStarted,
             disabled : presenter.disabled,
