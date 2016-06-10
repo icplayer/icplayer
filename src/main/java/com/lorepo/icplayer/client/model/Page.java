@@ -296,8 +296,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private void loadPageAttributes(Element rootElement) {
 		width = XMLUtils.getAttributeAsInt(rootElement, "width");
 		height = XMLUtils.getAttributeAsInt(rootElement, "height");
-		String style = StringUtils.unescapeXML(rootElement
-				.getAttribute("style"));
+		String style = StringUtils.unescapeXML(rootElement.getAttribute("style"));
 		String css = URLUtils.resolveCSSURL(baseURL, style);
 		setInlineStyle(css);
 		setStyleClass(rootElement.getAttribute("class"));
@@ -318,16 +317,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private void loadModules(Element rootElement) {
 
 		ModuleFactory moduleFactory = new ModuleFactory(null);
-		Element modulesNode = (Element) rootElement.getElementsByTagName(
-				"modules").item(0);
+		Element modulesNode = (Element) rootElement.getElementsByTagName("modules").item(0);
 		NodeList moduleNodeList = modulesNode.getChildNodes();
 
 		for (int i = 0; i < moduleNodeList.getLength(); i++) {
 			Node node = moduleNodeList.item(i);
 
 			if (node instanceof Element) {
-				IModuleModel module = moduleFactory.createModel(node
-						.getNodeName());
+				IModuleModel module = moduleFactory.createModel(node.getNodeName());
 
 				if (module != null) {
 					module.load((Element) node, getBaseURL());
@@ -335,8 +332,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 					if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
 						module = new CheckButtonModule();
 						module.load((Element) node, getBaseURL());
-					}
-					;
+					};
 
 					this.modules.add(module);
 				}
@@ -354,7 +350,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		this.groupedModules.clear();
 
 		for (int i = 0; i < groupNodes.getLength(); i++) { // for each group
-															// node
 			Element groupNode = (Element) groupNodes.item(i); // get it one
 			Group group = new Group(this);
 			this.groupedModules.add(group.loadGroupFromXML(groupNode));
@@ -363,13 +358,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	private void loadRulers(Element rootElement) {
 		NodeList verticalRulers = rootElement.getElementsByTagName("vertical");
-		NodeList horizontalRulers = rootElement
-				.getElementsByTagName("horizontal");
+		NodeList horizontalRulers = rootElement.getElementsByTagName("horizontal");
 		List<Ruler> verticals = new ArrayList<Ruler>();
 		List<Ruler> horizontals = new ArrayList<Ruler>();
 
-		if (verticalRulers.getLength() == 0
-				&& horizontalRulers.getLength() == 0) {
+		if (verticalRulers.getLength() == 0 && horizontalRulers.getLength() == 0) {
 			return;
 		}
 
@@ -380,8 +373,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			Ruler ruler = new Ruler();
 
 			ruler.setType("vertical");
-			ruler.setPosition((int) Double.parseDouble(rulerNode
-					.getFirstChild().getNodeValue()));
+			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
 
 			verticals.add(ruler);
 		}
@@ -391,8 +383,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			Ruler ruler = new Ruler();
 
 			ruler.setType("horizontal");
-			ruler.setPosition((int) Double.parseDouble(rulerNode
-					.getFirstChild().getNodeValue()));
+			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
 
 			horizontals.add(ruler);
 		}
@@ -400,15 +391,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		setRulers(verticals, horizontals);
 	}
 
-	// TODO
 	private void loadWeight(Element rootElement) {
 		try {
-			final Node weightElement = rootElement.getElementsByTagName(
-					"page-weight").item(0);
-			final String value = XMLUtils.getAttributeAsString(
-					(Element) weightElement, "value");
-			final String mode = XMLUtils.getAttributeAsString(
-					(Element) weightElement, "mode");
+			final Node weightElement = rootElement.getElementsByTagName("page-weight").item(0);
+			final String value = XMLUtils.getAttributeAsString((Element) weightElement, "value");
+			final String mode = XMLUtils.getAttributeAsString((Element) weightElement, "mode");
 
 			this.pageScoreWeightMode = setWeightFromString(mode);
 			this.pageWeight = (value == "" ? 1 : Integer.parseInt(value));
@@ -818,8 +805,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addProperty(property);
 	}
 
-	protected boolean isNewValueMaxScoreValid(String newValue,
-			IProperty property) {
+	protected boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
 		try {
 			pageWeight = Integer.parseInt(newValue);
 			sendPropertyChangedEvent(property);
@@ -829,7 +815,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 	}
 
-	// TODO
 	private void addPropertyWeightScoreValue() {
 		IProperty property = new IProperty() {
 
@@ -965,8 +950,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 
 		pageId = playerServices.getModel().getPage(index).getId();
-		return playerServices.getScoreService().getPageScoreById(pageId)
-				.hasScore();
+		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
 	}
 
 	public void setGroupedModules(List<Group> groupedModules) {

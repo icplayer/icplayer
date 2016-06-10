@@ -114,7 +114,6 @@ public class ContentDataLoader {
 			@Override
 			public void onError(String error) {
 				JavaScriptUtils.log("Error loading page: " + error);
-				JavaScriptUtils.trace();
 			}
 		});
 	}

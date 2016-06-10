@@ -9,7 +9,6 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -77,7 +76,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	public List<Page> getAllPages(){
 		List<Page> pages = new Vector<Page>();
 		for(IContentNode node : nodes){
-			JavaScriptUtils.log(node);
 			if(node instanceof Page){
 				Page addingPage = (Page) node;
 				pages.add(addingPage);

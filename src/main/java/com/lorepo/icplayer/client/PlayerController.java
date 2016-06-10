@@ -90,14 +90,14 @@ public class PlayerController implements IPlayerController{
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
 			headerController.setView(playerView.getHeaderView());
-			headerController.setPage(contentModel.getHeader());
+//			headerController.setPage(contentModel.getHeader());
 		}
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
 
 			footerController.setView(playerView.getFooterView());
-			footerController.setPage(contentModel.getFooter());
+//			footerController.setPage(contentModel.getFooter());
 		}
 	}
 
@@ -282,7 +282,9 @@ public class PlayerController implements IPlayerController{
 		// Load new page
 		String baseUrl = contentModel.getBaseUrl();
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		
+
+        playerView.showWaitDialog();
+
 		PageFactory factory = new PageFactory((Page) page);
 		factory.load(url, new IProducingLoadingListener() {
 			@Override
@@ -309,7 +311,7 @@ public class PlayerController implements IPlayerController{
 			}
 		});
 		
-		playerView.showWaitDialog();
+
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
