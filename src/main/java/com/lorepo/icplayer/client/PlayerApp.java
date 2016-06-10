@@ -264,6 +264,7 @@ public class PlayerApp{
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 		loader.addAddons(contentModel.getAddonDescriptors().values());
+		
 		if(contentModel.getHeader() != null){
 			loader.addPage(contentModel.getHeader());
 		}
@@ -278,6 +279,7 @@ public class PlayerApp{
 			}
 
 			public void onError(String error) {
+				JavaScriptUtils.log("Error at loading Addons: " + error);
 			}
 		});
 	}

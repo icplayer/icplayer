@@ -14,6 +14,8 @@ import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.AddonDescriptorFactory;
 import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 
 /**
@@ -100,20 +102,19 @@ public class ContentDataLoader {
 	}
 
 	private void loadPage(Page page) {
-
-		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-
-		reader.load(url, new ILoadListener() {
-			
+		
+		PageFactory factory = new PageFactory((Page) page);
+		factory.load(url, new IProducingLoadingListener() {
 			@Override
-			public void onFinishedLoading(Object obj) {
+			public void onFinishedLoading(Object producedItem) {
 				resourceLoaded();
 			}
-
+			
 			@Override
 			public void onError(String error) {
 				JavaScriptUtils.log("Error loading page: " + error);
+				JavaScriptUtils.trace();
 			}
 		});
 	}

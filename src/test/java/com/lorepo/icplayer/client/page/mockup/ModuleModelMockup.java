@@ -246,4 +246,10 @@ public class ModuleModelMockup implements IModuleModel {
 		return null;
 	}
 
+	@Override
+	public void load(Element node, String baseURL, String version) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

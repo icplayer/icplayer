@@ -11,11 +11,15 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class ContentParser_v0 extends ContentParserBase{
 	
-	String version = "1";
+	public ContentParser_v0() {
+		this.version = "1";
+	}
 	
 	@Override
 	public Object parse(Element xml) {
-		IContentBuilder content = (IContentBuilder) super.parse(xml);
+		Object parsedContent = super.parse(xml);
+
+		IContentBuilder content = (IContentBuilder) parsedContent;
 		
 		return this.parseLayouts(content, null);
 	}

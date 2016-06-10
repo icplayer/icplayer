@@ -15,7 +15,6 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	protected IModuleModelBuilder module;
 	
 	public ModuleModelParser_base() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -26,17 +25,25 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	@Override
 	public Object parse(Element xml) {
 		NodeList nodes = xml.getChildNodes();
+		this.parsePosition(xml);
+		this.parseModuleAttributes(xml);
+		
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
 			
-			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
+			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element) {
 				this.module.setButtonType(StringUtils.unescapeXML(((Element) childNode).getAttribute("type")));
-			}
-			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
+			}else if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element) {
 				this.module.loadLayout((Element) childNode);
+			} else if(childNode.getNodeName().compareTo("layouts") == 0 && childNode instanceof Element) {
+				this.parseLayouts((Element) childNode);
 			}
 		}
 		return this.module;
+	}
+
+	protected void parseLayouts(Element childNode) {
+		
 	}
 
 	protected void parsePosition(Element xml) {

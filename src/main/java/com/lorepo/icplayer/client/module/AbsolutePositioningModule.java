@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module;
 
 import java.util.HashMap;
 
+import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -15,7 +16,7 @@ import com.lorepo.icplayer.client.module.api.IRectangleItem;
  */
 class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem {
 
-	protected LayoutDefinition layout;
+	protected HashMap<String, LayoutDefinition> layoutsDefinitions = new HashMap<String, LayoutDefinition>();
 	private int	left;
 	private int	right;
 	private int	top;
@@ -32,12 +33,13 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	private IProperty heightProperty;
 	
 	private HashMap<String, HashMap<String, Integer>> positions = new HashMap<String, HashMap<String, Integer>>();
+	protected String positionType = "default";
 	
 	private boolean disableChangeEvent = false;
 	
 	public AbsolutePositioningModule(String name){
 		super(name);
-		layout = new LayoutDefinition();
+		this.layoutsDefinitions.put("default", new LayoutDefinition());
 	}
 
 	protected void registerPositionProperties() {
@@ -52,43 +54,58 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	
 	@Override
 	public ILayoutDefinition getLayout(){
-		return layout;
+		return this.layoutsDefinitions.get(this.positionType);
+	}
+	
+	private int getPositionValue(String attribute) {
+		return this.positions.get(this.positionType).get(attribute);
+	}
+	
+	private void setPositionValue(String attribute, int value) {
+		HashMap<String, Integer> position = this.positions.get(this.positionType);
+		position.put(attribute, value);
+		
+		this.positions.put(this.positionType, position);
 	}
 	
 	@Override
 	public int getLeft() {
-		return left;
+		return this.getPositionValue("left");
 	}
 	
 	@Override
 	public int getRight() {
-		return right;
+		return this.getPositionValue("right");
 	}
 
 	@Override
 	public int getTop() {
-		return top;
+		return this.getPositionValue("top");
 	}
 
 	@Override
 	public int getBottom() {
-		return bottom;
+		return this.getPositionValue("bottom");
 	}
 
 	@Override
 	public int getWidth() {
-		return width;
+		return this.getPositionValue("width");
 	}
 
 	@Override
 	public int getHeight() {
-		return height;
+		return this.getPositionValue("height");
+	}
+	
+	protected String getLayoutXML() {
+		return this.layoutsDefinitions.get(this.positionType).toXML();
 	}
 
 	@Override
 	public void setLeft(int left) {
 
-		this.left = left;
+		this.setPositionValue("left", left);
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(leftProperty);
 		}
@@ -97,7 +114,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public void setRight(int right) {
 
-		this.right = right;
+		this.setPositionValue("right", right);
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(rightProperty);
 		}
@@ -106,7 +123,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public void setTop(int top) {
 
-		this.top = top;
+		this.setPositionValue("top", top);
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(topProperty);
 		}
@@ -115,7 +132,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public void setBottom(int bottom) {
 
-		this.bottom = bottom;
+		this.setPositionValue("bottom", bottom);
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(bottomProperty);
 		}
@@ -124,7 +141,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public void setWidth(int width) {
 
-		this.width = width;
+		this.setPositionValue("width", width);
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(widthProperty);
 		}
@@ -133,7 +150,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public void setHeight(int height) {
 
-		this.height = height;
+		this.setPositionValue("height", height);
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(heightProperty);
 		}
@@ -155,7 +172,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getValue() {
-				return layout.getName();
+				return layoutsDefinitions.get(positionType).getName();
 			}
 			
 			@Override
@@ -165,7 +182,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 			@Override
 			public LayoutDefinition getLayout() {
-				return layout;
+				return layoutsDefinitions.get(positionType);
 			}
 
 			@Override
@@ -190,14 +207,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					left = Integer.parseInt(newValue);
+					setPositionValue("left", Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(layout.hasLeft()){
+				if(getLayout().hasLeft()){
 					return Integer.toString(left);
 				}
 				else{
@@ -232,14 +249,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					top = Integer.parseInt(newValue);
+					setPositionValue("top", Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(layout.hasTop()){
+				if(getLayout().hasTop()){
 					return Integer.toString(top);
 				}
 				else{
@@ -273,14 +290,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					width = Integer.parseInt(newValue);
+					setPositionValue("width", Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(layout.hasWidth()){
+				if(getLayout().hasWidth()){
 					return Integer.toString(width);
 				}
 				else{
@@ -314,14 +331,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					height = Integer.parseInt(newValue);
+					setPositionValue("height", Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(layout.hasHeight()){
+				if(getLayout().hasHeight()){
 					return Integer.toString(height);
 				}
 				else{
@@ -361,14 +378,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					right = Integer.parseInt(newValue);
+					setPositionValue("right", Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(layout.hasRight()){
+				if(getLayout().hasRight()){
 					return Integer.toString(right);
 				}
 				else{
@@ -403,14 +420,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					bottom = Integer.parseInt(newValue);
+					setPositionValue("bottom", Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(layout.hasBottom()){
+				if(getLayout().hasBottom()){
 					return Integer.toString(bottom);
 				}
 				else{
@@ -436,5 +453,10 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		
 		addProperty(bottomProperty);
 	}
-
+	
+	public void loadLayout(Element node) {
+		LayoutDefinition layout = this.layoutsDefinitions.get("default");
+		layout.load(node);
+		this.layoutsDefinitions.put("default", layout);
+	}
 }

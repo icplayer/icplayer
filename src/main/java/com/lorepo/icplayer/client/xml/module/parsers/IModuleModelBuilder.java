@@ -15,4 +15,7 @@ public interface IModuleModelBuilder {
 	public void setPosition(String name, HashMap<String, Integer> position);
 	public void setButtonType(String buttonType);
 	public void loadLayout(Element xml);
+	public void setIsVisible(String name, boolean isVisible);
+	public void setIsLocked(String name, boolean isLocked);
+	public void setIsVisibleInEditor(String name, boolean isVisibleInEditor);
 }

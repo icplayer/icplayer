@@ -364,29 +364,4 @@ public class ButtonModule extends BasicModuleModel {
 	public String getClassNamePrefix() {
 		return getType().toString();
 	}
-
-	@Override
-	public void setID(String id) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setIsVisible(Boolean isVisible) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setIsLocked(Boolean isLocked) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

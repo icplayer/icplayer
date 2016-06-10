@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module;
 
+
 import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
@@ -21,15 +22,19 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;
-	private boolean isVisible = true;
-	private boolean isLocked = false;
+	private HashMap<String, Boolean> isVisible = new HashMap<String, Boolean>();
+	private HashMap<String, Boolean> isLocked = new HashMap<String, Boolean>();
+	private HashMap<String, Boolean> isModuleVisibleInEditor = new HashMap<String, Boolean>();
 	private String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
-	private boolean isModuleVisibleInEditor = true;
+
 	
 	protected BasicModuleModel(String typeName, String name){
 		super(name);
+		this.isVisible.put(this.positionType, true);
+		this.isLocked.put(this.positionType, false);
+		this.isModuleVisibleInEditor.put(this.positionType, true);
 		this.moduleTypeName = typeName;
 		this.moduleName = name;
 		id = UUID.uuid(6);
@@ -102,9 +107,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		int height = XMLUtils.getAttributeAsInt(element, "height");
 		int right = XMLUtils.getAttributeAsInt(element, "right");
 		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
-		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
-		isLocked = XMLUtils.getAttributeAsBoolean(element, "isLocked", false);
-		isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true);
+		isVisible.put(this.positionType, XMLUtils.getAttributeAsBoolean(element, "isVisible", true));
+		isLocked.put(this.positionType, XMLUtils.getAttributeAsBoolean(element, "isLocked", false));
+		isModuleVisibleInEditor.put(this.positionType, XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true));
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
@@ -122,11 +127,15 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
 				buttonType = StringUtils.unescapeXML(((Element) childNode).getAttribute("type"));
 				setButtonType(buttonType);
-			}
-			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
-				layout.load((Element) childNode);
+			}else if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
+				this.loadLayout((Element) childNode);
+			}else if(childNode.getNodeName().compareTo("layouts") == 0 && childNode instanceof Element) {
+				parseLayouts((Element) childNode);
 			}
 		}
+	}
+
+	private void parseLayouts(Element childNode) {
 	}
 
 	public void setButtonType(String type) {
@@ -156,10 +165,6 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		}
 		
 		return xml;
-	}
-
-	protected String getLayoutXML() {
-		return layout.toXML();
 	}
 
 	private void addPropertyId() {
@@ -204,15 +209,15 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
 				
-				if (value != isVisible) {
-					isVisible = value;
+				if (value != isVisible()) {
+					setIsVisible(value);
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				return isVisible ? "True" : "False";
+				return isVisible() ? "True" : "False";
 			}
 			
 			@Override
@@ -236,15 +241,15 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	public boolean isVisible() {
-		return isVisible;
+		return this.isVisible.get(this.positionType);
 	}
 
 	public void lock(boolean state) {
-		isLocked = state;
+		this.isLocked.put(this.positionType, state);
 	}
 	
 	public boolean isLocked() {
-		return isLocked;
+		return isLocked.get(this.positionType);
 	}
 	
 	public String getBaseURL() {
@@ -252,11 +257,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	public boolean isModuleInEditorVisible() {
-		return this.isModuleVisibleInEditor;
+		return this.isModuleVisibleInEditor.get(this.positionType);
 	}
 	
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
-		this.isModuleVisibleInEditor = moduleInEditorVisibility;
+		this.isModuleVisibleInEditor.put(this.positionType, moduleInEditorVisibility);
 	}
 	
 	public void setBaseUrl(String baseUrl) {
@@ -275,21 +280,31 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	@Override
 	public void setIsVisible(Boolean isVisible) {
-		this.isVisible = isVisible;
+		this.isVisible.put(this.positionType, isVisible);
 	}
 	
 	@Override
 	public void setIsLocked(Boolean isLocked) {
-		this.isLocked = isLocked;
+		this.isLocked.put(this.positionType, isLocked);
 	}
 	
 	@Override
 	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
-		this.isModuleVisibleInEditor = isVisible;
+		this.isModuleVisibleInEditor.put(this.positionType, isVisibleInEditor);
 	}
 	
 	@Override
-	public void setButtonType(String buttonType) {
-		this.buttonType = buttonType;
+	public void setIsVisible(String name, boolean isVisible) {
+		this.isVisible.put(name, isVisible);
+	}
+	
+	@Override
+	public void setIsLocked(String name, boolean isLocked) {
+		this.isLocked.put(name, isLocked);
+	}
+	
+	@Override
+	public void setIsVisibleInEditor(String name, boolean isVisibleInEditor) {
+		this.isModuleVisibleInEditor.put(name, isVisibleInEditor);
 	}
 }
