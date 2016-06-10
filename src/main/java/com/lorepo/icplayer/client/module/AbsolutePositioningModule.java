@@ -138,6 +138,10 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			sendPropertyChangedEvent(heightProperty);
 		}
 	}
+	
+	public void setPosition(String name, HashMap<String, Integer> position) {
+		this.positions.put(name, position);
+	}
 
 
 	private void addPropertyLayout() {

@@ -153,6 +153,16 @@ private boolean resetChecks = false;
 
 		super.load(node, baseUrl);
 		
+		parseNode(node);
+	}
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
+
+	private void parseNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -186,5 +196,4 @@ private boolean resetChecks = false;
 			+ modelToXML()
 			+ "</lessonResetModule>";
 	}
-	
 }

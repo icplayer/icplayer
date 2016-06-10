@@ -24,6 +24,9 @@ public class ShapeModule extends BasicModuleModel {
 		super("Shape", DictionaryWrapper.get("shape_module"));
 	}
 
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+	}
 	
 	@Override
 	public void load(Element node, String baseUrl) {

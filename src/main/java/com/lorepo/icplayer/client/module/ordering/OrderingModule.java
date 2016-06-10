@@ -68,11 +68,21 @@ public class OrderingModule extends BasicModuleModel {
 	public String getOptionalOrder() {
 		return optionalOrder;
 	}
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
 		super.load(node, baseUrl);
 
+		parseNode(node);
+	}
+
+	private void parseNode(Element node) {
 		items.clear();
 		// Read ordering node
 		NodeList nodeList = node.getElementsByTagName("ordering");

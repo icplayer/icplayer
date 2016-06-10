@@ -1,5 +1,9 @@
 package com.lorepo.icplayer.client.xml.module.parsers;
 
+import java.util.HashMap;
+
+import com.google.gwt.xml.client.Element;
+
 public interface IModuleModelBuilder {
 	public void setBaseUrl(String baseUrl);
 	public void setID(String id);
@@ -8,5 +12,7 @@ public interface IModuleModelBuilder {
 	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor);
 	public void setInlineStyle(String css);
 	public void setStyleClass(String classString);
-	
+	public void setPosition(String name, HashMap<String, Integer> position);
+	public void setButtonType(String buttonType);
+	public void loadLayout(Element xml);
 }

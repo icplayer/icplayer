@@ -44,12 +44,22 @@ public class AddonModel extends BasicModuleModel {
 		return getModuleTypeName();
 	}	
 	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
+	
 	@Override
 	public void load(Element rootElement, String baseUrl) {
 
 		super.load(rootElement, baseUrl);
 
-		this.baseURL = baseUrl;
+		parseNode(rootElement);
+	}
+
+
+	private void parseNode(Element rootElement) {
 		addonParams.clear();
 		addonId = rootElement.getAttribute("addonId");
 		loadProperties(rootElement);

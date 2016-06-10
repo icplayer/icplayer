@@ -84,11 +84,21 @@ public class TextModel extends BasicModuleModel {
 	public int getGapWidth(){
 		return gapWidth;
 	}
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
 		super.load(node, baseUrl);
 
+		parseNode(node);
+	}
+
+	private void parseNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 
@@ -789,5 +799,4 @@ public class TextModel extends BasicModuleModel {
 	public String getValueType() {
 		return valueType;
 	}
-
 }

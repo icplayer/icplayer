@@ -20,12 +20,21 @@ public class CheckButtonModule extends BasicModuleModel {
 		addPropertyCheckTitle();
 		addPropertyUnCheckTitle();
 	}
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		parseNode(node);
+	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
 
 		super.load(node, baseUrl);
 		
+		parseNode(node);
+	}
+
+	private void parseNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -138,5 +147,29 @@ public class CheckButtonModule extends BasicModuleModel {
 		};
 		
 		addProperty(property);
+	}
+
+	@Override
+	public void setID(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIsVisible(Boolean isVisible) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIsLocked(Boolean isLocked) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
+		// TODO Auto-generated method stub
+		
 	}
 }

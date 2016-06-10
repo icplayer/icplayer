@@ -30,12 +30,22 @@ public class ReportModule extends BasicModuleModel {
 		addPropertyTitleWidth();
 	}
 
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
 	
 	@Override
 	public void load(Element node, String baseUrl) {
 
 		super.load(node, baseUrl);
 		
+		parseNode(node);
+	}
+
+
+	private void parseNode(Element node) {
 		NodeList labels = node.getElementsByTagName("labels");
 		if(labels.getLength() > 0){
 			Element labelsElement = (Element)labels.item(0);

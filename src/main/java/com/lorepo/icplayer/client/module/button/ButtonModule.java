@@ -41,10 +41,20 @@ public class ButtonModule extends BasicModuleModel {
 	}
 	
 	@Override
+	public void load(Element node, String baseURL, String version) {
+		super.load(node, baseURL, version);
+		
+		this.parseNode(node);
+	}
+	
+	@Override
 	public void load(Element node, String baseUrl) {
-
 		super.load(node, baseUrl);
 		
+		this.parseNode(node);
+	}
+	
+	private void parseNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++) {
 			
@@ -353,6 +363,30 @@ public class ButtonModule extends BasicModuleModel {
 	@Override
 	public String getClassNamePrefix() {
 		return getType().toString();
+	}
+
+	@Override
+	public void setID(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIsVisible(Boolean isVisible) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIsLocked(Boolean isLocked) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -163,10 +163,20 @@ public class LimitedCheckModule extends BasicModuleModel {
 	}
 	
 	@Override
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		parseNode(node);
+	}
+	
+	@Override
 	public void load(Element node, String baseUrl) {
 
 		super.load(node, baseUrl);
 		
+		parseNode(node);
+	}
+
+	private void parseNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			

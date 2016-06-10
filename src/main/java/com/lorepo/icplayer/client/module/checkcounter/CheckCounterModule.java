@@ -24,8 +24,4 @@ public class CheckCounterModule extends BasicModuleModel{
 		
 		return xml;
 	}
-
-
-
-
 }

@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module;
 
+import java.util.HashMap;
+
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -12,6 +14,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
+import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
 import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
 
 public abstract class BasicModuleModel extends StyledModule implements IModuleModel, IModuleModelBuilder {
@@ -64,6 +67,20 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public void release() {
 	}
 	
+	@Override
+	public void setInlineStyle(String style) {
+		String css = URLUtils.resolveCSSURL(this.baseURL, style);
+		super.setInlineStyle(css);
+	}
+	
+	@Override
+	public void load(Element element, String baseUrl, String version) {
+		this.baseURL = baseUrl;
+		
+		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
+		factory.produce(element, version);
+	}
+	
 	/**
 	 * Load attributes common to all modules:
 	 * - position
@@ -78,8 +95,6 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		} else {
 			id = StringUtils.unescapeXML(id);
 		}
-		
-		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory();
 		
 		int left = XMLUtils.getAttributeAsInt(element, "left");
 		int top = XMLUtils.getAttributeAsInt(element, "top");
@@ -97,8 +112,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		setRight(right);
 		setBottom(bottom);
 		String style = StringUtils.unescapeXML(element.getAttribute("style"));
-		String css = URLUtils.resolveCSSURL(baseURL, style);
-		setInlineStyle(css);
+		setInlineStyle(style);
 		setStyleClass(StringUtils.unescapeXML( element.getAttribute("class") ));
 		
 		NodeList nodes = element.getChildNodes();
@@ -115,7 +129,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		}
 	}
 
-	private void setButtonType(String type) {
+	public void setButtonType(String type) {
 		this.buttonType = type;
 	}
 
@@ -252,5 +266,30 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	@Override
 	public void addNameValidator(INameValidator validator) {
 		this.nameValidator = validator;
+	}
+	
+	@Override
+	public void setID(String id) {
+		this.id = id;
+	}
+	
+	@Override
+	public void setIsVisible(Boolean isVisible) {
+		this.isVisible = isVisible;
+	}
+	
+	@Override
+	public void setIsLocked(Boolean isLocked) {
+		this.isLocked = isLocked;
+	}
+	
+	@Override
+	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
+		this.isModuleVisibleInEditor = isVisible;
+	}
+	
+	@Override
+	public void setButtonType(String buttonType) {
+		this.buttonType = buttonType;
 	}
 }

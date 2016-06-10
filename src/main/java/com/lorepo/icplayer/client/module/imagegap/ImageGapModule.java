@@ -42,11 +42,21 @@ public class ImageGapModule extends BasicModuleModel {
 	public String getAnswerId() {
 		return answerId;
 	}
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
 		super.load(node, baseUrl);
 
+		parseNode(node);
+	}
+
+	private void parseNode(Element node) {
 		loadEvents(node);
 
 		NodeList nodes = node.getChildNodes();

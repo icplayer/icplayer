@@ -73,12 +73,22 @@ public class ChoiceModel extends BasicModuleModel{
 	public boolean isMulti() {
 		return isMulti;
 	}
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node, baseUrl);
+	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
 	
 		super.load(node, baseUrl);
 		
+		parseNode(node, baseUrl);
+	}
+
+	private void parseNode(Element node, String baseUrl) {
 		options.clear();
 		maxScore = 0;
 		
@@ -105,7 +115,6 @@ public class ChoiceModel extends BasicModuleModel{
 		
 			addOption(option);
 		}
-		
 	}
 
 	/**

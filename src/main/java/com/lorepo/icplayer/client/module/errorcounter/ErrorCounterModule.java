@@ -35,12 +35,21 @@ public class ErrorCounterModule extends BasicModuleModel{
 		
 		return xml;
 	}
-
+	
+	public void load(Element node, String baseUrl, String version) {
+		super.load(node, baseUrl, version);
+		
+		parseNode(node);
+	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
-	
 		super.load(node, baseUrl);
+		parseNode(node);
+	}
+
+
+	private void parseNode(Element node) {
 		NodeList counters = node.getElementsByTagName("counter");
 		if(counters.getLength() > 0){
 			Element counterElement = (Element)counters.item(0);
@@ -48,7 +57,6 @@ public class ErrorCounterModule extends BasicModuleModel{
 			showMistakeCounter = XMLUtils.getAttributeAsBoolean(counterElement, "showMistakeCounter", true);
 			realTimeCalculation = XMLUtils.getAttributeAsBoolean(counterElement, "realTimeCalculation", false);
 		}
-		
 	}
 	
 	
