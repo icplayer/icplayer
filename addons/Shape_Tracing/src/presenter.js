@@ -630,9 +630,11 @@ function AddonShape_Tracing_create() {
         }
     }
 
-    function draw(e) {
-        e.stopPropagation();
-        e.preventDefault();
+    function draw(e, notPropagate) {
+        if (notPropagate) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
 
         updateCursorPosition(e);
 
@@ -699,14 +701,12 @@ function AddonShape_Tracing_create() {
         var isWorkaroundOn = false;
 
         $canvas.on('touchstart', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
             presenter.data.numberOfLines++;
 
             if (presenter.data.isPencilActive) {
                 presenter.data.isStarted = true;
                 setOverflowWorkAround(true);
-                draw(e);
+                draw(e, false);
             } else {
                 resetAddon(false);
             }
@@ -718,7 +718,7 @@ function AddonShape_Tracing_create() {
                 if (!isWorkaroundOn) {
                     setOverflowWorkAround(true);
                 }
-                draw(e);
+                drawWithoutPropagation(e);
             } else {
                 resetAddon(false);
             }
@@ -740,15 +740,18 @@ function AddonShape_Tracing_create() {
             isWorkaroundOn = false;
         });
     }
+    
+    function drawWithoutPropagation (e) {
+        draw(e, true);
+    }
 
     function connectMouseEvents($canvas) {
         var isDown = false;
 
         $canvas.on('mousedown', function(e) {
-            e.stopPropagation();
             isDown = true;
-            draw(e);
-            $canvas.on('mousemove', draw);
+            draw(e, false);
+            $canvas.on('mousemove', drawWithoutPropagation);
 
             if (presenter.data.isPencilActive) {
                 presenter.data.isStarted = true;
@@ -759,7 +762,7 @@ function AddonShape_Tracing_create() {
         });
 
         $canvas.on('mouseup mouseleave', function() {
-            $canvas.off('mousemove', draw);
+            $canvas.off('mousemove', drawWithoutPropagation);
             if (isDown && presenter.data.isPencilActive) {
                 eventCreator();
                 isDown = false;

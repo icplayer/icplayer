@@ -1,3 +1,18 @@
+2016-06-10 Added ValueChange Event to ZoomImage module
+2016-06-07 Added fixes to Fraction Binder modules
+2016-06-07 Added commend disable do Connection module
+2016-06-07 Added new version of Figure Drawing module
+2016-06-06 Improved usability of CrossWord addon
+2016-06-02 Fixed issue with LearnPen_Report fetching data from drawing addons
+2016-06-02 Added Remove dragged element property to Connection module
+2016-06-01 Added allOK event and command in Math module
+2016-06-01 Added disable/enable commands in Image Identification module
+2016-06-01 Added disable/enable commands in Text Identification module
+2016-06-01 Added parsing rendered definition gaps to gaps syntax
+2016-06-01 Fixed tests in Video module
+2016-06-01 Fixed problem with setting poster on Firefox in Video module
+2016-05-30 Fixed sending allOK event in Crossword module
+2016-05-25 Added parsing for views of gaps in editor
 2016-05-23 Fixed adding empty class to wrong element in Text Identification module
 2016-05-23 Added playing event in Audio and Video modules
 2016-05-18 Added reseting poster before adding new one in Video module

@@ -9,48 +9,24 @@ function AddonLearnPen_Report_create() {
 
     function round(n, precision) { return Math.round(n * Math.pow(10, precision)) / Math.pow(10, precision); }
 
-    Array.prototype.getLastElements = Array.prototype.getLastElements || function(num) {
+    function getLastElements (array, num) {
         num = num || 1;
 
-        if (this.length < num) {
+        if (array.length < num) {
             return this;
         }
 
-        return this.slice(this.length - num);
-    };
-
-    var addons = {
-        "addon_Drawing": false,
-        "addon_Shape_Tracing": false,
-        "addon_LearnPen": false
-    };
-
-    for (var addon in addons) {
-        $('.'+addon).find('canvas').on('mousedown', function (){
-            addons[addon] = true;
-        });
-
-        $('.'+addon).find('canvas').on('mouseup mouseleave', function (){
-            addons[addon] = false;
-        });
-
-        $('.'+addon).find('canvas').on('touchstart', function (){
-            addons[addon] = true;
-        });
-
-        $('.'+addon).find('canvas').on('touchend', function (){
-            addons[addon] = false;
-        });
+        return this.slice(array.length - num);
     }
 
     function shouldGetDataFromSensors (){
-        var shouldGet = false;
-        for (var addon in addons) {
-            if(addons[addon] == true){
-                shouldGet = true;
+        for (var addon in presenter.addons) {
+            if(presenter.addons[addon] == true){
+                return true;
             }
         }
-        return shouldGet;
+
+        return false;
     }
 
     function getColorFromStatus(status) {
@@ -65,7 +41,25 @@ function AddonLearnPen_Report_create() {
 
     function half(v) { return parseInt(v / 2, 10); }
 
+    function hookToDrawingAreas(addon) {
+        var $addon = $('.' + addon);
+
+        $addon.on('mousedown touchstart', 'canvas', function (){
+            presenter.addons[addon] = true;
+        });
+
+        $addon.on('mouseup mouseleave touchend', 'canvas', function (){
+            presenter.addons[addon] = false;
+        });
+    }
+
     var presenter = function() {};
+    
+    presenter.addons = {
+        "addon_Drawing": false,
+        "addon_Shape_Tracing": false,
+        "addon_LearnPen": false
+    };
 
     presenter.data = {
         $canvas: null,
@@ -124,54 +118,40 @@ function AddonLearnPen_Report_create() {
     };
 
     function toPercent(val) { return parseInt(val / 1024 * 100); }
-
-    function getCurrentDataFromSensor() {
-        var learnPenData = window.LearnPen;
-
-//        var filteredData = {
-//            isValid: true,
-//            a: toPercent(Math.floor(Math.random() * 1000)),
-//            b: toPercent(Math.floor(Math.random() * 1000)),
-//            c: toPercent(Math.floor(Math.random() * 1000)),
-//            p: toPercent(Math.floor(Math.random() * 1000))
-//        };
-
-        var filteredData = {
-            isValid: false,
-            a: learnPenData ? toPercent(learnPenData.getA()) : 0,
-            b: learnPenData ? toPercent(learnPenData.getB()) : 0,
-            c: learnPenData ? toPercent(learnPenData.getC()) : 0,
-            p: learnPenData ? toPercent(learnPenData.getP()) : 0
-        };
-
-        if(learnPenData) {
-            filteredData = filterData(learnPenData)
-        }
-        return filteredData;
+    
+    function isDataNotNoise(element, index, array) {
+        return element >= 200;
     }
 
-    function filterData(learnPenData) {
-        function isDataNotNoise(element, index, array) {
-            return element >= 200;
+
+    function getCurrentDataFromSensor() {
+        if(window.LearnPen) {
+            var a = window.LearnPen.getA();
+            var b = window.LearnPen.getB();
+            var c = window.LearnPen.getC();
+            var p = window.LearnPen.getP();
+            var isValid = [a, b, c].some(isDataNotNoise);
+            
+            if(!isValid) {
+                isValid = (p >= 200);
+            }
+
+            return {
+                isValid: isValid,
+                a: toPercent(a),
+                b: toPercent(b),
+                c: toPercent(c),
+                p: toPercent(p)
+            };
+        } else {
+            return {
+                isValid: true,
+                a: toPercent(Math.floor(Math.random() * 1000)),
+                b: toPercent(Math.floor(Math.random() * 1000)),
+                c: toPercent(Math.floor(Math.random() * 1000)),
+                p: toPercent(Math.floor(Math.random() * 1000))
+            };            
         }
-
-        var a = learnPenData.getA();
-        var b = learnPenData.getB();
-        var c = learnPenData.getC();
-        var p = learnPenData.getP();
-
-        var isValid = [a, b, c].some(isDataNotNoise);
-        if(!isValid) {
-            isValid = (p >= 200);
-        }
-
-        return {
-            isValid: isValid,
-            a: toPercent(a),
-            b: toPercent(b),
-            c: toPercent(c),
-            p: toPercent(p)
-        };
     }
 
     function getSensorHistory(historyArray, sensorsArray) {
@@ -187,11 +167,14 @@ function AddonLearnPen_Report_create() {
     }
 
     function getValues() {
+        var returnedData;
         if (presenter.configuration.calculateFromLastValues === 0) {
-            return getSensorHistory(presenter.data.sensorsDataHistory, getSensorsConfiguration());
+            returnedData = getSensorHistory(presenter.data.sensorsDataHistory, getSensorsConfiguration());
         } else {
-            return getSensorHistory(presenter.data.sensorsDataHistory, getSensorsConfiguration()).getLastElements(presenter.configuration.calculateFromLastValues);
+            returnedData = getSensorHistory(getLastElements(presenter.data.sensorsDataHistory, getSensorsConfiguration(), presenter.configuration.calculateFromLastValues));
         }
+
+        return returnedData;
     }
 
     function getSensorsConfiguration () {
@@ -264,8 +247,6 @@ function AddonLearnPen_Report_create() {
             cStatus: 0,
             pStatus: 0
         };
-
-        updateSensorDataHistory(getCurrentDataFromSensor());
 
         getValues().forEach(function(sensorDataObj, _, arr) {
             switch (presenter.configuration.sensor) {
@@ -417,6 +398,39 @@ function AddonLearnPen_Report_create() {
         }
     };
 
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
+        presenter.eventBus.addEventListener('PageLoaded', this);
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "PageLoaded") {
+            for (var addon in presenter.addons) {
+                if (presenter.addons.hasOwnProperty(addon)) {
+                    hookToDrawingAreas(addon);
+                }
+            }
+        }
+    };
+
+
+    presenter.run = function(view, model) {
+        presenter.view = view;
+        presenterLogic(view, model, false);
+
+        if (!presenter.configuration.isDisable) {
+            presenter.record();
+        }
+
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
+    };
+
     function presenterLogic(view, model, isPreview) {
         presenter.$view = $(view);
 
@@ -438,11 +452,10 @@ function AddonLearnPen_Report_create() {
         presenter.data.isPreview = isPreview;
     }
 
-    presenter.run = function(view, model) {
-        presenterLogic(view, model, false);
-
-        if (!presenter.configuration.isDisable) {
-            presenter.record();
+    presenter.destroy = function () {
+        if (presenter.data.isIntervalOn) {
+            clearInterval(presenter.data.intervalId);
+            presenter.data.isIntervalOn = false;
         }
     };
 
@@ -645,13 +658,18 @@ function AddonLearnPen_Report_create() {
     }
 
     presenter.displayCurrentData = function() {
-        if(shouldGetDataFromSensors()){
-            presenter.displayData();
+        var shouldUpdate = shouldGetDataFromSensors();
+        if (shouldUpdate){
+            var dataFromSensors = getCurrentDataFromSensor();
+            updateSensorDataHistory(dataFromSensors);
         }
+
+        var data = presenter.getData();
+        presenter.displayData(data);
     };
 
-    presenter.displayData = function () {
-        var data = presenter.data.isPreview ? {
+    presenter.getData = function getData() {
+        return presenter.data.isPreview ? {
             above: 1,
             correct: 1,
             below: 1,
@@ -660,7 +678,9 @@ function AddonLearnPen_Report_create() {
             cStatus: 0,
             pStatus: 0
         } : prepareData();
+    };
 
+    presenter.displayData = function (data) {
         switch (presenter.configuration.graphType) {
             case presenter.GRAPH['Pie chart']: generatePieChart(data.above, data.correct, data.below); break;
             case presenter.GRAPH['Four circles']: generateFourCircles(data.aStatus, data.bStatus, data.cStatus, data.pStatus); break;
@@ -675,7 +695,7 @@ function AddonLearnPen_Report_create() {
 
     presenter.reset = function() {
         presenter.data.sensorsDataHistory = [];
-        presenter.displayData();
+        presenter.displayData(presenter.getData());
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
@@ -755,10 +775,6 @@ function AddonLearnPen_Report_create() {
     presenter.setWorkMode = function() {
         presenter.record();
     };
-
-    // presenter.getErrorCount = function() { };
-    // presenter.getMaxScore = function() { };
-    // presenter.getScore = function() { };
 
     return presenter;
 }

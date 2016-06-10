@@ -1,4 +1,8 @@
 ﻿var ice_dictionary_en = {
+	"edit_editable_gap": "Edit an editable/draggable gap",
+	"edit_dropdown_gap": "Edit a dropdown gap",
+	"edit_filled_gap": "Edit a filled gap",
+	"rendered_view": "Rendered view: ",
 	"select_max_10_items": "You can select maximum 10 items",
 	"manage_favourites": "Manage favourites",
 	"select_fav_modules": "Select favourite modules",
@@ -438,6 +442,7 @@
 	"Connection_property_random_order_left_column": "Random order left column",
 	"Connection_property_random_order_right_column": "Random order right column",
 	"Connection_property_show_answers_line_color": "Show answers line color",
+    "Connection_property_remove_dragged_element": "Remove dragged element",
 	"Connector_info": "A special type of addon that allows to combine multiple addons and modules in fully interactive, responsive activities.",
 	"Connector_name": "Connector",
 	"Connector_property_tasks": "Tasks",

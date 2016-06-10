@@ -6,9 +6,10 @@ AddAttributeTests.prototype.setUp = function() {
 
 AddAttributeTests.prototype.testAddPosterAttribute = function() {
 	// Given
+    this.presenter.videoContainer = $('<div></div>');
 	var video = $('<video></video>');
 	var src = "/media/image.jpg";
-	var expectedVideo = $('<video poster="/media/image.jpg"></video>')
+	var expectedVideo = $('<video poster="/media/image.jpg"></video>');
 	
 	// When
 	this.presenter.addAttributePoster(video, src);

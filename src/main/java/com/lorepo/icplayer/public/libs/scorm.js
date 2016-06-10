@@ -148,8 +148,16 @@ function getScorm() {
 	}
 
 	scorm.setSessionTime = function(time) {
+		/**
+		 * This is what the SCORM 2004 4th edition API expects:
+		 * The format is extensive and flexible so we will cut it to just seconds and 2 digits of a fraction of a second
+		 * ie. PT5643.54S which means 5643 seconds and 540 milliseconds
+		 */
+		var cents = Math.floor(time % 1000 / 10)
+		var seconds = Math.floor(time /1000)
+		var time_string = "PT"+seconds+"."+cents+"S"
 		if (initialized == true) {
-			return API.SetValue("cmi.session_time", time);
+			return API.SetValue("cmi.session_time", time_string);
 		}
 		return false;
 	}

@@ -140,13 +140,22 @@ function getScorm_1_2() {
 		}
 		return false;
 	}
+	
 
 	scorm.setSessionTime = function(time) {
+		/**
+		 * This is what the SCORM 1.2 API expects
+		 * A CMITimespan data item consists of a string in the following format HHHH:MM:SS.SS, where HHHH is the number of hours, MM number of minutes and SS.SS the number of seconds.
+		 * The number of hours must be at least two digits, such as "01".	
+		 * The number of minutes must always consist of two digits.
+		 * The number of seconds shall contain 2 digits, with an optional decimal point and 1 or 2 additional digits.
+		 */
+		var cents =  Math.floor(time % 1000 /10)
 		time = time / 1000;
 		var h = Math.floor(time/3600);
 		var m = Math.floor((time-h*3600)/60);
-		var s = time % 60;
-		var formatted = (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+		var s = Math.floor(time % 60);
+		var formatted = (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s + "." + cents;
 		if (initialized == true) {
 			return API.LMSSetValue("cmi.core.session_time", formatted);
 		}

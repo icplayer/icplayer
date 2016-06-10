@@ -11,6 +11,7 @@ function AddonConnection_create() {
     presenter.elements = [];
     presenter.lastClickTime = 0;
     presenter.lastEvent = null;
+    presenter.disabledConnections = [];
 
     var connections;
     var singleMode = false;
@@ -267,6 +268,7 @@ function AddonConnection_create() {
         }
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
 
@@ -403,6 +405,11 @@ function AddonConnection_create() {
     }
 
     function clickLogic(element) {
+        if (basicClickLogic(element))
+            redraw();
+    }
+
+    function basicClickLogic(element) {
         // workaround for android webView
         // http://code.google.com/p/android/issues/detail?id=38808
         var current = new Date().getTime();
@@ -447,6 +454,11 @@ function AddonConnection_create() {
                 }
             }
         } else {
+            if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
+                return;
+            }
+            console.log($(element).attr('id'));
+            console.log(selectedItem.attr('id'));
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
@@ -461,9 +473,9 @@ function AddonConnection_create() {
             }
         }
 
-        redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
+        return true;
     }
 
     presenter.registerListeners = function (view) {
@@ -501,9 +513,9 @@ function AddonConnection_create() {
             element.each(function(){
                 var e = $(this);
                 e.draggable({
-                    revert: "invalid",
-                    opacity: 0.7,
-                    helper: "clone",
+                    revert: presenter.removeDraggedElement ? true : "invalid",
+                    opacity: presenter.removeDraggedElement ? 1 : 0.7,
+                    helper: presenter.removeDraggedElement ? "original": "clone",
                     cursorAt: {
                         left: Math.round(e.find('.inner').width()/2),
                         top: Math.round(e.find('.inner').height()/2)
@@ -518,9 +530,14 @@ function AddonConnection_create() {
                         selectedItem = null;
                         ui.helper.zIndex(100);
                         clickLogic(this);
-                        ui.helper.find('.icon').remove();
-                        ui.helper.width($(this).find('.inner').width());
-                        ui.helper.height($(this).find('.inner').height());
+                        if (presenter.removeDraggedElement) {
+                            ui.helper.find('.icon').hide();
+                            ui.helper.removeClass('selected');
+                        } else {
+                            ui.helper.find('.icon').remove();
+                            ui.helper.width($(this).find('.inner').width());
+                            ui.helper.height($(this).find('.inner').height());
+                        }
                         if ($(this).parents('.connectionLeftColumn').length) {
                             draggedElementColumn = 'left';
                         } else {
@@ -529,7 +546,11 @@ function AddonConnection_create() {
                     },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
-                        ui.helper.remove();
+                        if (presenter.removeDraggedElement) {
+                            ui.helper.find('.icon').show();
+                        } else {
+                            ui.helper.remove();
+                        }
                         redraw();
                     }
                 });
@@ -537,7 +558,7 @@ function AddonConnection_create() {
                 e.droppable({
                     drop: function (event, ui) {
                         $(this).removeClass('selected');
-                        clickLogic(this);
+                        basicClickLogic(this);
                         ui.draggable.removeClass('selected');
                         if (presenter.lastEvent) {
                             presenter.lastEvent.type = "touchend";
@@ -928,6 +949,7 @@ function AddonConnection_create() {
         redraw();
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
+        presenter.disabledConnections = [];
     };
 
     presenter.getErrorCount = function () {
@@ -1109,10 +1131,65 @@ function AddonConnection_create() {
             'showAnswers': presenter.showAnswers,
             'show': presenter.show,
             'hide': presenter.hide,
-            'hideAnswers': presenter.hideAnswers
+            'hideAnswers': presenter.hideAnswers,
+            'disable': presenter.disableCommand,
+            'enable': presenter.enableCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.disableCommand = function (params) {
+        presenter.disable(params[0], params[1]);
+    };
+
+    presenter.disable = function(id1, id2) {
+        presenter.disabledConnections.push({id1: id1, id2: id2});
+    };
+
+    presenter.enableCommand = function (params) {
+        presenter.enable(params[0], params[1]);
+    };
+
+    function convertIds (id1, id2){
+        id1 = id1.toString();
+        id2 = id2.toString();
+
+        id1 = id1.substr(id1.indexOf("-") + 1);
+        id2 = id2.substr(id2.indexOf("-") + 1);
+
+        return {
+            id1: id1,
+            id2: id2
+        }
+    }
+
+    presenter.enable = function(id1, id2) {
+        var convertedIds = convertIds(id1, id2);
+        id1 = convertedIds.id1;
+        id2 = convertedIds.id2;
+
+        for (var i=0; i < presenter.disabledConnections.length; i++){
+            if((presenter.disabledConnections[i].id1 == id1 && presenter.disabledConnections[i].id2 == id2) ||
+                (presenter.disabledConnections[i].id1 == id2 && presenter.disabledConnections[i].id2 == id1)){
+                presenter.disabledConnections.splice(i, 1);
+            }
+        }
+    };
+
+    presenter.checkIfConnectionDisabled = function (id1, id2) {
+        var convertedIds = convertIds(id1, id2);
+        id1 = convertedIds.id1;
+        id2 = convertedIds.id2;
+
+        for (var i=0; i < presenter.disabledConnections.length; i++){
+            if((presenter.disabledConnections[i].id1 == id1 && presenter.disabledConnections[i].id2 == id2) ||
+                (presenter.disabledConnections[i].id1 == id2 && presenter.disabledConnections[i].id2 == id1)){
+                return true;
+            }
+        }
+
+        return false;
     };
 
     presenter.onEventReceived = function (eventName) {

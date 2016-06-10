@@ -29,5 +29,6 @@
         <property name="Random order right column" nameLabel="Connection_property_random_order_right_column" type="boolean" />
         <property name="Show answers line color" nameLabel="Connection_property_show_answers_line_color" type="string" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Connection_property_block_wrong_answers" type="boolean" />
+		<property name="removeDraggedElement" displayName="Remove dragged element" nameLabel="Connection_property_remove_dragged_element" type="boolean" />
 	</model>
 </addon>

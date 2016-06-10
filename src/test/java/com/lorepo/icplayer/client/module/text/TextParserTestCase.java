@@ -40,8 +40,8 @@ public class TextParserTestCase {
 	@Test
 	public void testInputMarkup() {
 		
-		String expected = "This is <input id='-1' type='edit' size='3' class='ic_gap'/>" + 
-		" and <input id='-2' type='edit' size='2' class='ic_gap'/>";
+		String expected = "This is <input id='-1' type='edit' data-gap='editable' data-gap-value='\\gap{ala}' size='3' class='ic_gap'/>" + 
+		" and <input id='-2' type='edit' data-gap='editable' data-gap-value='\\gap{as}' size='2' class='ic_gap'/>";
 		TextParser parser = new TextParser();
 		String srcText ="This is {{2:ala}} and {{2:as}}";
 		ParserResult parsed;

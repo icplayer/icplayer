@@ -1,4 +1,8 @@
 var ice_dictionary_fr = {
+"edit_editable_gap": "Edit an editable/draggable gap",
+"edit_dropdown_gap": "Edit a dropdown gap",
+"edit_filled_gap": "Edit a filled gap",
+"rendered_view": "Rendered view: ",
 "select_max_10_items": "You can select maximum 10 items",
 "manage_favourites": "Manage favourites",
 "select_fav_modules": "Select favourite modules",
@@ -434,6 +438,7 @@ var ice_dictionary_fr = {
 "Connection_property_random_order_left_column": "Affichage aléatoire de la colonne de gauche",
 "Connection_property_random_order_right_column": "Affichage aléatoire de la colonne de droite",
 "Connection_property_show_answers_line_color": "Couleur des liens des réponses",
+"Connection_property_remove_dragged_element": "Remove dragged element",
 "Connector_info": "Module externe qui permet de associer plusieurs modules externes à des activités entièrement interactives.",
 "Connector_name": "Connecteur",
 "Connector_property_tasks": "Tâches",

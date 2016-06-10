@@ -1,6 +1,20 @@
 function AddonZoom_Image_create() {
 
     var presenter = function() {};
+    var eventBus;
+
+    function setup_presenter() {
+        presenter.$player = null;
+        presenter.view = null;
+        presenter.$view = null;
+        presenter.$image = null;
+        presenter.removeOpenedDialog = null;
+        presenter.bigImageCreated = null;
+        presenter.bigImageLoaded = null;
+        presenter.createPopUp = null;
+    };
+
+    setup_presenter();
 
     function setSmallImage(url) {
         var $image = $('<img class="small">');
@@ -25,6 +39,10 @@ function AddonZoom_Image_create() {
 
         return returnCorrectObject(image);
     }
+
+    presenter.setPlayerController = function(controller) {
+        eventBus = controller.getEventBus();
+    };
 
     presenter.validateModel = function(model) {
 
@@ -53,6 +71,7 @@ function AddonZoom_Image_create() {
     };
 
     presenter.presenterLogic = function(view, model, isPreview) {
+        presenter.view = view;
         presenter.$view = $(view);
 
         presenter.configuration = presenter.validateModel(model);
@@ -65,12 +84,29 @@ function AddonZoom_Image_create() {
 
         if (!isPreview) {
             presenter.eventType = MobileUtils.isMobileUserAgent(navigator.userAgent) ? "touchend" : "click";
-            turnOnEventListeners();
+            presenter.$view.find(".icon").on(presenter.eventType, presenter.createPopUp);
         }
 
         presenter.setVisibility(presenter.configuration.isVisible);
 
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
+
         return false;
+    };
+
+    presenter.destroy = function () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.$view.find(".icon").off(presenter.eventType, presenter.createPopUp);
+        if (presenter.$image !== null) {
+            presenter.$image.off();
+        }
+        setup_presenter();
+        setup_presenter = null;
+
     };
 
     presenter.run = function(view, model) {
@@ -115,77 +151,80 @@ function AddonZoom_Image_create() {
         return dialog;
     }
 
-    function turnOnEventListeners() {
-        function createPopUp(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            var img = new Image();
-            img.onload = function() {
-
-                var $player;
-                if(document.getElementById('_icplayer') != null){
-                    $player = document.getElementById('_icplayer');
-                }else{
-                    $player = document.getElementsByClassName('ic_page_panel');
-                }
-
-                var dialogSize = calculateImageSize(this);
-
-                presenter.$image = $("<img class='big' src='" + img.src + "'>");
-                presenter.$image.appendTo(presenter.$view);
-                presenter.$image.dialog({
-                    height: dialogSize.height,
-                    width: dialogSize.width,
-                    modal: true,
-                    resizable: false,
-                    draggable: false,
-                    show: {
-                        effect: "fade",
-                        duration: 1000
-                    },
-                    position: {
-                        my: "center",
-                        at: "center",
-                        of: $player
-                    },
-                    create: function() {
-                        var $close = $('<div class="close-button-ui-dialog">');
-                        $close.on('click', function() {
-                            presenter.$image.dialog('close');
-                        });
-
-                        $(this).parents(".ui-dialog").append($close);
-
-                        var $closeCross= $('<div class="close-cross-ui-dialog">');
-                        $closeCross.html('&times;');
-                        $(this).parents(".ui-dialog").children(".close-button-ui-dialog").append($closeCross);
-
-                        $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").css("display", "none");
-                        $(this).parents(".ui-dialog").css("padding", 0);
-                        $(this).parents(".ui-dialog").css("border", 0);
-                        $(this).parents(".ui-dialog:first").find(".ui-dialog-content").css("padding", 0);
-                    },
-                    open: function() {
-                        $('.ui-widget-overlay').on(presenter.eventType, remove);
-                    }
-                });
-                presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
-                presenter.$image.on(presenter.eventType, remove);
-            };
-
-            img.src = presenter.configuration.bigImage;
-
-            function remove(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                $(".zoom-image-wraper").remove();
-                $(".big").remove();
-            }
-        }
-        presenter.$view.find(".icon").on(presenter.eventType, createPopUp);
+    function sendEvent(value) {
+        var eventData = {
+            source: presenter.configuration.ID,
+            value: value
+        };
+        eventBus.sendEvent('ValueChanged', eventData);
     }
+
+    presenter.removeOpenedDialog = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        $(".zoom-image-wraper").remove();
+        $(".big").remove();
+        sendEvent(0);
+    };
+
+    presenter.bigImageCreated = function() {
+        var $close = $('<div class="close-button-ui-dialog">');
+        $close.on('click', presenter.removeOpenedDialog);
+
+        $(this).parents(".ui-dialog").append($close);
+
+        var $closeCross= $('<div class="close-cross-ui-dialog">');
+        $closeCross.html('&times;');
+        $(this).parents(".ui-dialog").children(".close-button-ui-dialog").append($closeCross);
+
+        $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").css("display", "none");
+        $(this).parents(".ui-dialog").css("padding", 0);
+        $(this).parents(".ui-dialog").css("border", 0);
+        $(this).parents(".ui-dialog:first").find(".ui-dialog-content").css("padding", 0);
+        sendEvent(1);
+    };
+
+    presenter.bigImageLoaded = function(){
+        if(document.getElementById('_icplayer') != null){
+            presenter.$player  = document.getElementById('_icplayer');
+        }else{
+            presenter.$player  = document.getElementsByClassName('ic_page_panel');
+        }
+
+        var dialogSize = calculateImageSize(this);
+
+        presenter.$image.appendTo(presenter.$view);
+        presenter.$image.dialog({
+            height: dialogSize.height,
+            width: dialogSize.width,
+            modal: true,
+            resizable: false,
+            draggable: false,
+            show: {
+                effect: "fade",
+                duration: 1000
+            },
+            position: {
+                my: "center",
+                at: "center",
+                of: presenter.$player
+            },
+            create: presenter.bigImageCreated,
+            open: function() {
+                $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
+            }
+        });
+        presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
+        presenter.$image.on(presenter.eventType, presenter.removeOpenedDialog);
+    };
+
+    presenter.createPopUp = function createPopUp(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        presenter.$image = $("<img class='big' src='" + presenter.configuration.bigImage + "'>");
+        presenter.$image.on("load", presenter.bigImageLoaded);
+    };
 
     presenter.executeCommand = function (name, params) {
         var commands = {

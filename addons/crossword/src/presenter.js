@@ -22,6 +22,15 @@ function Addoncrossword_create(){
     presenter.disableAutomaticWordNumbering = false;
     presenter.markedColumnIndex = 0;
     presenter.markedRowIndex = 0;
+    presenter.maxTabIndex = 0;
+    presenter.SPECIAL_KEYS = {
+        DELETE: 46,
+        BACKSPACE: 8,
+        TAB: 9,
+        ESCAPE: 27,
+        SHIFT: 16,
+        CTRL: 17
+    };
 
     presenter.numberOfConstantLetters = 0;
 
@@ -129,9 +138,20 @@ function Addoncrossword_create(){
         }
     };
 
-    presenter.onCellInputKeyUp = function(event) {
+    var dictValues = function(dict) {
+        var values = [];
+        var keys = Object.keys(dict);
+        keys.filter(function(key){
+            values.push(dict[key])
+        });
+        return values;
+    };
+
+    presenter.SPECIAL_KEYS_CODES = dictValues(presenter.SPECIAL_KEYS);
+
+    var validateSpecialKey = function(event) {
         // Allow: backspace, delete, tab, shift and escape
-        if ( event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || event.keyCode == 16 ||
+        if (presenter.SPECIAL_KEYS_CODES.indexOf(event.keyCode) > -1 ||
             // Allow:  dot
             (event.keyCode == 190) ||
             // Allow: Ctrl+A
@@ -139,10 +159,65 @@ function Addoncrossword_create(){
             // Allow: home, end, left, right
             (event.keyCode >= 35 && event.keyCode <= 39)) {
             // let it happen, don't do anything
-            return;
+            return true;
+        }
+        return false;
+    };
+
+    presenter.onCellInputKeyUp = function(event) {
+        if (validateSpecialKey(event)) {
+            return
         }
 
-        event.target.value = event.target.value.toUpperCase();
+        var target = event.target;
+        var $target = $(target);
+
+        target.value = target.value.toUpperCase();
+
+        if ($target.val()) {
+            var next_tab_index = target.tabIndex +1;
+            if (presenter.blockWrongAnswers) {
+                var usersLetter = target.value;
+                var pos = presenter.getPosition($target.parent(''));
+                var correctLetter = presenter.crossword[pos.y][pos.x][0];
+                if (usersLetter !== correctLetter) {
+                    presenter.sendScoreEvent(pos, usersLetter, false);
+                    target.value = '';
+                    return;
+                }
+            }
+
+            if (next_tab_index < presenter.maxTabIndex) {
+                presenter.$view.find('[tabindex=' + next_tab_index + ']').focus();
+            } else {
+                $target.blur();
+            }
+        }
+    };
+
+    presenter.onCellInputKeyDown = function(event) {
+        if (event.keyCode == presenter.SPECIAL_KEYS.BACKSPACE) {
+            var $target = $(event.target);
+            if (!$target.val()) {
+                var previous_tab_index = event.target.tabIndex - 1;
+                if (previous_tab_index >= presenter.tabIndexBase) {
+                    var previous_element = presenter.$view.find('[tabindex=' + previous_tab_index + ']');
+                    previous_element.focus();
+                    previous_element.val('');
+                    return;
+                }
+            }
+        }
+        if (validateSpecialKey(event)) {
+            return
+        }
+
+        // clear previous value
+        var $target = $(event.target);
+        if ($target.val()) {
+            $target.val("");
+        }
+
     };
 
     presenter.onCellInputFocus = function(event) {
@@ -244,6 +319,7 @@ function Addoncrossword_create(){
                         input
                             .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++)
                             .keyup(presenter.onCellInputKeyUp)
+                            .keydown(presenter.onCellInputKeyDown)
                             .focus(presenter.onCellInputFocus)
                             .mouseup(presenter.onCellInputMouseUp)
                             .focusout(presenter.onCellInputFocusOut)
@@ -281,6 +357,8 @@ function Addoncrossword_create(){
                         }
                     }
                 }
+
+                presenter.maxTabIndex = presenter.tabIndexBase + tabIndexOffset;
 
                 // Cell borders
                 var borderStyle;
@@ -722,7 +800,11 @@ function Addoncrossword_create(){
     };
 
     presenter.isAllOK = function() {
-        return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+            return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
+        }else{
+            return false;
+        }
     };
 
     function getEventObject(it, val, sc) {
