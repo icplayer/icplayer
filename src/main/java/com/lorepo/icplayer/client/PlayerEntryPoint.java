@@ -10,6 +10,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private PlayerApp theApplication;
 	private JavaScriptObject pageLoadedListener;
+	private JavaScriptObject pageScrollToListener;
 	private JavaScriptObject statusChangedListener;
 
 	/**
@@ -62,6 +63,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			
 			player.onPageLoaded = function(listener){
 			  	entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
+			};
+			
+			player.onPageScrollTo = function(listener){
+			  	entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageScrollToListener = listener;
 			};
 			
 			player.forceScoreUpdate = function(listener){
@@ -161,6 +166,12 @@ public class PlayerEntryPoint implements EntryPoint {
 			callback();
 		}
 	}-*/;
+	
+	private static native void fireScrollTo(JavaScriptObject callback, int top) /*-{
+		if (callback != null) {
+			callback(top);
+		}
+	}-*/;
 
 	private static native void fireStatusChanged(JavaScriptObject callback, String type, String source, String value) /*-{
 		if (callback != null) {
@@ -174,5 +185,12 @@ public class PlayerEntryPoint implements EntryPoint {
 		String source = Integer.toString(currentPageIndex + 1);
 		fireStatusChanged(statusChangedListener, "PageLoaded", source, "");
 	}
-
+	
+	public void onScrollTo(int top) {
+		fireScrollTo(pageScrollToListener, top);
+	}
+	
+	public JavaScriptObject getPageScrollToObject() {
+		return pageScrollToListener;
+	}
 }

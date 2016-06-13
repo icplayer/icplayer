@@ -55,9 +55,9 @@ public class PlayerController implements IPlayerController{
 	private String analyticsId;
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
-	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
-
-	public PlayerController(Content content, PlayerView view, boolean bookMode){
+	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();	
+	
+	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		contentModel = content;
 		playerView = view;
 		playerView.setPlayerController(this);
@@ -69,7 +69,7 @@ public class PlayerController implements IPlayerController{
 		createPageControllers(bookMode);
 		scoreService.setPlayerService(pageController1.getPlayerServices());
 		timeService = new TimeService();
-		keyboardController.run();
+		keyboardController.run(entryPoint);
 	}
 
 	private void createPageControllers(boolean bookMode) {

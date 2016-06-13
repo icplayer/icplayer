@@ -235,7 +235,7 @@ public class PlayerApp{
 	private void initPlayer(final boolean isCommonPage) {
 		
 		PlayerView playerView = new PlayerView();
-		playerController = new PlayerController(contentModel, playerView, bookMode);
+		playerController = new PlayerController(contentModel, playerView, bookMode, entryPoint);
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
