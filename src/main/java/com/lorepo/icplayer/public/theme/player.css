@@ -971,4 +971,7 @@ hr, table, fieldset {
 .ic_option_border {
 	border: 1px solid black;
 }
+
+.keyboard_navigation_active_element {
+    outline: dashed 2px #00ff44;
 }

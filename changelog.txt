@@ -1,3 +1,4 @@
+2016-06-15 Added keyboard navigation to TrueFalse module
 2016-06-13 Added scrolling window to active module in keyboard navigation
 2016-06-10 Added ValueChange Event to ZoomImage module
 2016-06-07 Added fixes to Fraction Binder modules
