@@ -434,11 +434,7 @@ function Addongamememo_create(){
 
         if(presenter.useTwoStyles) {
             var clickedStyle;
-            if(presenter.imageMode == 'KeepAspect'){
-                clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().parent().find('.card').attr('card_style')));
-            }else{
-                clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
-            }
+            clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
             if(clickedStyle == presenter.cardClickedStyle) {
                 return;
             }
