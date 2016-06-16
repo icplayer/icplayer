@@ -457,8 +457,6 @@ function AddonConnection_create() {
             if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
                 return;
             }
-            console.log($(element).attr('id'));
-            console.log(selectedItem.attr('id'));
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
