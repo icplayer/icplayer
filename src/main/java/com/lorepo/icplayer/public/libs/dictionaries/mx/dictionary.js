@@ -1057,6 +1057,7 @@
 	"PointsLines_property_is_disabled": "Esta deshabilitado",
     "PointsLines_property_blocked_lines": "Blocked lines",
 	"PointsLines_property_block_wrong_answers": "Block wrong answers",
+	"PointsLines_property_single_connection": "Single Connection",
 	"EdgeAnimation_info": "Permite a incrustar animaciones y otros proyectos creados en el programa Adobe Edge Animate. En el addon se puede utilizar más de una animación y para hacer que funcione, es necesario configurar ciertas propiedades en el menú lateral del addon, incluyendo Animaciones, Imágenes y Animación inicial.",
 	"EdgeAnimation_name": "Animación Edge",
 	"EdgeAnimation_property_animations": "Animaciones",

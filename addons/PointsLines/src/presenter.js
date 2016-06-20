@@ -197,6 +197,13 @@ function AddonPointsLines_create() {
         var eventData = presenter.createEventData(line, state, score);
         if(parseInt(score, 10) === 0 && presenter.blockWrongAnswers) {
             uncheckLine(line);
+            if(presenter.singleMode) {
+                var splittedLine = line.split("_"),
+                    point1 = splittedLine[1],
+                    point2 = splittedLine[2];
+                presenter.pointsConnected[point1] = 0;
+                presenter.pointsConnected[point2] = 0;
+            }
         }
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
@@ -419,6 +426,7 @@ function AddonPointsLines_create() {
         var coords = presenter.model['Points'];
         presenter.activity = ModelValidationUtils.validateBoolean(presenter.model['Is activity']);
         presenter.disabled = ModelValidationUtils.validateBoolean(presenter.model['Is disabled']);
+        presenter.singleMode = ModelValidationUtils.validateBoolean(presenter.model['Single']);
         presenter.initDisabled = presenter.disabled;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.initIsVisible = presenter.isVisible;
@@ -438,6 +446,7 @@ function AddonPointsLines_create() {
         }
         presenter.drawPoints();
         numberOfPoints = presenter.points.length;
+        if (presenter.singleMode) presenter.pointsConnected =  new Array(numberOfPoints);
         presenter.startingLines = getLines(startingLines, numberOfPoints, 1);
         if (presenter.startingLines === false) {
             con.text(presenter.ERROR_CODES[presenter.error]);
@@ -449,10 +458,19 @@ function AddonPointsLines_create() {
             con.text(presenter.ERROR_CODES[presenter.error]);
             return;
         }
+        if (presenter.singleMode) {
+            for ( var i = 0; i < numberOfPoints; i++) {
+                presenter.pointsConnected[i] = 0;
+            }
+        };
         for ( var i = 0; i < numberOfPoints; i++) {
             for ( var j = i; j < numberOfPoints; j++) {
                 if (presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) {
                     presenter.drawLine(i, j);
+                    if (presenter.singleMode) {
+                        presenter.pointsConnected[i] = 1;
+                        presenter.pointsConnected[j] = 1;
+                    }
                 }
             }
         }
@@ -472,25 +490,36 @@ function AddonPointsLines_create() {
             point1 = Math.min(parseInt(presenter.selectedPoint,10),parseInt(i,10));
             point2 = Math.max(parseInt(presenter.selectedPoint,10),parseInt(i,10));
             if (presenter.currentLines[point1][point2] === 0 && presenter.blockedLines[point1][point2] != 1) {
-                presenter.drawLine(point1,point2);
-                presenter.currentLines[point1][point2] = 1;
-                line = 'line_'+(point1)+'_'+(point2);
-                if (presenter.startingLines[point1][point2] === 0 && presenter.answer[point1][point2] == 1) {
-                    score = 1;
+                if(presenter.singleMode && (presenter.pointsConnected[point1]== 1 || presenter.pointsConnected[point2] == 1)) {
                 } else {
-                    score = 0;
+                    if (presenter.singleMode) {
+                        presenter.pointsConnected[point1] = 1;
+                        presenter.pointsConnected[point2] = 1;
+                    };
+                    presenter.drawLine(point1,point2);
+                    presenter.currentLines[point1][point2] = 1;
+                    line = 'line_'+(point1)+'_'+(point2);
+                    if (presenter.startingLines[point1][point2] === 0 && presenter.answer[point1][point2] == 1) {
+                        score = 1;
+                    } else {
+                        score = 0;
+                    }
+                    presenter.triggerLineEvent(line,1,score);
+                    line = 'all';
+                    score = '';
+                    if (presenter.isAllOK() && presenter.activity) {
+                        presenter.triggerLineEvent(line,score,score);
+                    }
+                    presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
+                    presenter.selectedPoint = -1;
                 }
-                presenter.triggerLineEvent(line,1,score);
-                line = 'all';
-                score = '';
-                if (presenter.isAllOK() && presenter.activity) {
-                    presenter.triggerLineEvent(line,score,score);
-                }
-                presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
-                presenter.selectedPoint = -1;
             } else if (presenter.currentLines[point1][point2] == 1) {
                 presenter.$view.find('#line_'+(point1)+'_'+(point2)).remove();
                 presenter.currentLines[point1][point2] = 0;
+                if (presenter.singleMode) {
+                    presenter.pointsConnected[point1] = 0;
+                    presenter.pointsConnected[point2] = 0;
+                };
                 line = 'line_'+(point1)+'_'+(point2);
                 if (presenter.startingLines[point1][point2] == 1 && presenter.answer[point1][point2] === 0) {
                     score = 1;
@@ -558,23 +587,30 @@ function AddonPointsLines_create() {
                     }
                     j = parseInt($(this).attr('order_value'),10)-1;
                     if (presenter.draw !== j && presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.blockedLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] != 1) {
-                        presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
-                        presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
-                        line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
-                        if (presenter.selectedPoint !== -1) {
-                            presenter.$view.find('#point_'+presenter.addonID+'_'+i).removeClass('selected');
-                            presenter.selectedPoint = -1;
-                        }
-                        if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
-                            score = 1;
+                        if(presenter.singleMode && (presenter.pointsConnected[j]== 1 || presenter.pointsConnected[presenter.draw] == 1)) {
                         } else {
-                            score = 0;
-                        }
-                        presenter.triggerLineEvent(line,1,score);
-                        line = 'all';
-                        score = '';
-                        if (presenter.isAllOK() && presenter.activity) {
-                            presenter.triggerLineEvent(line,score,score);
+                            if(presenter.singleMode) {
+                                presenter.pointsConnected[j] = 1;
+                                presenter.pointsConnected[presenter.draw] = 1;
+                            }
+                            presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
+                            presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
+                            line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
+                            if (presenter.selectedPoint !== -1) {
+                                presenter.$view.find('#point_'+presenter.addonID+'_'+i).removeClass('selected');
+                                presenter.selectedPoint = -1;
+                            }
+                            if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
+                                score = 1;
+                            } else {
+                                score = 0;
+                            }
+                            presenter.triggerLineEvent(line,1,score);
+                            line = 'all';
+                            score = '';
+                            if (presenter.isAllOK() && presenter.activity) {
+                                presenter.triggerLineEvent(line,score,score);
+                            }
                         }
                     }
                 }
@@ -636,24 +672,31 @@ function AddonPointsLines_create() {
                         }
                     }
                     if (j !== -1 && presenter.draw !== j && presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0  && presenter.blockedLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] != 1) {
-                        presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
-                        presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
-                        line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
-                        if (presenter.selectedPoint !== -1) {
-                            presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
-                            presenter.selectedPoint = -1;
-                        }
-
-                        if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
-                            score = 1;
+                        if(presenter.singleMode && (presenter.pointsConnected[j]== 1 || presenter.pointsConnected[presenter.draw] == 1)) {
                         } else {
-                            score = 0;
-                        }
-                        presenter.triggerLineEvent(line,1,score);
-                        if (presenter.isAllOK() && presenter.activity) {
-                            line = 'all';
-                            score = '';
-                            presenter.triggerLineEvent(line,score,score);
+                            if(presenter.singleMode) {
+                                presenter.pointsConnected[j] = 1;
+                                presenter.pointsConnected[presenter.draw] = 1;
+                            }
+                            presenter.drawLine(Math.min(presenter.draw,j),Math.max(presenter.draw,j));
+                            presenter.currentLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] = 1;
+                            line = 'line_'+(Math.min(presenter.draw,j))+'_'+(Math.max(presenter.draw,j));
+                            if (presenter.selectedPoint !== -1) {
+                                presenter.$view.find('#point_'+presenter.addonID+'_'+presenter.selectedPoint).removeClass('selected');
+                                presenter.selectedPoint = -1;
+                            }
+
+                            if (presenter.startingLines[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 0 && presenter.answer[Math.min(presenter.draw,j)][Math.max(presenter.draw,j)] === 1) {
+                                score = 1;
+                            } else {
+                                score = 0;
+                            }
+                            presenter.triggerLineEvent(line,1,score);
+                            if (presenter.isAllOK() && presenter.activity) {
+                                line = 'all';
+                                score = '';
+                                presenter.triggerLineEvent(line,score,score);
+                            }
                         }
                     }
                 }
@@ -767,11 +810,21 @@ function AddonPointsLines_create() {
             presenter.hideAnswers();
         }
         var numberOfPoints = presenter.points.length;
-        for (var i = 0; i < numberOfPoints; i++) {
+        if (presenter.singleMode) {
+            for ( var i = 0; i < numberOfPoints; i++) {
+                presenter.pointsConnected[i] = 0;
+            }
+        };
+        for (i = 0; i < numberOfPoints; i++) {
             for (var j = i; j < numberOfPoints; j++) {
                 presenter.currentLines[i][j] = presenter.startingLines[i][j];
-                if ((presenter.startingLines[i][j] == 1 || presenter.startingLines[i][j] == 2) && (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)) {
-                    presenter.drawLine(i, j);
+                if (presenter.startingLines[i][j] == 1 || presenter.startingLines[i][j] == 2) {
+                    if (presenter.$view.find('#line_' + (i) + '_' + (j)).length <= 0)
+                        presenter.drawLine(i, j);
+                    if (presenter.singleMode) {
+                        presenter.pointsConnected[i] = 1;
+                        presenter.pointsConnected[j] = 1;
+                    }
                 } else if (presenter.startingLines[i][j] === 0 && presenter.$view.find('#line_' + (i) + '_' + (j)).length == 1) {
                     presenter.$view.find('#line_' + (i) + '_' + (j)).remove();
                 }
@@ -797,13 +850,15 @@ function AddonPointsLines_create() {
         return JSON.stringify({
             currentLines : presenter.currentLines,
             disabled : presenter.disabled,
-            visible : presenter.isVisible
+            visible : presenter.isVisible,
+            single : presenter.pointsConnected
         });
     };
 
     presenter.setState = function(state) {
         presenter.currentLines = JSON.parse(state).currentLines;
         presenter.disabled = JSON.parse(state).disabled;
+        presenter.pointsConnected = JSON.parse(state).single;
         if (presenter.error == false) {
             if (presenter.disabled) {
                 presenter.disable();
