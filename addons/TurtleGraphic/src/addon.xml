@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='TurtleGraphic' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="isNotActivity" displayName="Is not an activity" nameLabel="TurtleGraphic_property_is_not_activity" type="boolean" />
+		<property name="correctCode" displayName="Correct Code" nameLabel="TurtleGraphic_property_correct_code" type="text" />
+	</model>
+</addon>
