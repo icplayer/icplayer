@@ -1,4 +1,6 @@
 ﻿var ice_dictionary_pl = {
+	"confirm_yes": "yes",
+	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
 	"edit_dropdown_gap": "Edit a dropdown gap",
 	"edit_filled_gap": "Edit a filled gap",
