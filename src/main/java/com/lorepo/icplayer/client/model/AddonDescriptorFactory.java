@@ -132,7 +132,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Variable_Storage", "scripting_menu");
 		addDescriptor("TurtleGraphic", "scripting_menu");
 		addDescriptor("TurtleTextCode", "scripting_menu");
-		addDescriptor("BlockyCodeEditor", "scripting_menu");
+		addDescriptor("Grid_Scene", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");

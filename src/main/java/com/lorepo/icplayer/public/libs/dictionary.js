@@ -1317,5 +1317,11 @@
     "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
     "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
     "Hierarchical_Table_Of_Contents_property_display_only_chapters": "Display only chapters",
-    "Hierarchical_Table_Of_Contents_property_show_pages": "Show pages"
+    "Hierarchical_Table_Of_Contents_property_show_pages": "Show pages",
+	"Grid_Scene_name" : "Grid Scene",
+    "Grid_Scene_info" : "Allows to draw by commands",
+    "Grid_Scene_property_rows" : "Rows",
+    "Grid_Scene_property_columns" : "Columns",
+    "Grid_Scene_property_color" : "Color",
+    "Grid_Scene_property_initial_design" : "Initial design"
 };
