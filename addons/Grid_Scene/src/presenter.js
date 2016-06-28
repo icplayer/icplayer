@@ -4,11 +4,87 @@ function AddonGrid_Scene_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
-    presenter.lastEvent = null;
 
     presenter.ERROR_CODES = {
-        GS01: "Columns and rows must be a positive integer"
+        GS01: "Columns and rows must be a positive integer",
+        GS02: "Delay have to be a positive integer",
+        GS03: "Labels have to be a valid JSON string",
     };
+
+    presenter.configuration = {
+        isError : true,
+        isVisible : true,
+        visibleByDefault : true,
+        addonID : null,
+        rows : null,
+        columns : null,
+        color : null,
+        startPoint: null,
+        hasDelay: false,
+        delay: 0,
+        queLoopTimer: null,
+        commandQueue: [],
+        blockLabels: {},
+        commandsLabels: {}
+    };
+    
+    presenter.LABELS = {
+        "command_clear": "clear",
+        "command_mark": "mark",
+        "command_drawLeft": "drawLeft",
+        "command_drawRight": "drawRight",
+        "command_drawUp": "drawUp",
+        "command_drawDown": "drawDown",
+        "command_setColor": "setColor",
+        "command_start": "start",
+        "command_clearMark": "clearMark",
+        "block_mark": "mark",
+        "block_x": "x",
+        "block_y": "y",
+        "block_clear": "clear",
+        "block_drawLeft": "drawLeft",
+        "block_steps": "steps",
+        "block_drawRight": "drawRight",
+        "block_drawUp": "drawUp",
+        "block_drawDown": "drawDown",
+        "block_setColor": "setColor",
+        "block_start": "start",
+        "block_clearMark": "clearMark"
+    };
+
+    function delayDecorator(func) {
+        if (presenter.configuration.hasDelay) {
+            return function () {
+                presenter.configuration.commandQueue.push({
+                    function: func,
+                    args: arguments
+                });
+            }
+        } else {
+            return func;
+        }
+    }
+
+    function applyDecorator (func) {
+        return function (args) {
+            return func.apply(null, args);
+        };
+    }
+
+    function applyDelayDecorator (func) {
+        if (presenter.configuration.hasDelay) {
+            return function (args) {
+                presenter.configuration.commandQueue.push({
+                    function: func,
+                    args: args
+                });
+            };
+        } else {
+            return function (args) {
+                return func.apply(null, args);
+            };
+        }
+    }
 
     var gridContainerWrapper;
     var gridContainer;
@@ -122,10 +198,6 @@ function AddonGrid_Scene_create(){
         }
     };
 
-    presenter.colorSquareCommand = function (command) {
-        presenter.colorSquare(command[0], command[1]);
-    };
-
     presenter.colorSquare = function (x, y){
         var coordinates = x+"-"+ y,
             element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
@@ -134,11 +206,7 @@ function AddonGrid_Scene_create(){
         element.attr('colored', 'true');
     };
 
-    presenter.resetSquareCommand = function (command) {
-        presenter.resetSquare(command[0], command[1]);
-    };
-
-    presenter.resetSquare = function (x, y){
+    presenter.resetMark = function (x, y){
         var coordinates = x+"-"+ y,
             element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
 
@@ -165,25 +233,52 @@ function AddonGrid_Scene_create(){
     }
 
     function presenterLogic(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        presenter.view = view;
+        presenter.$view = $(view);
+        presenter.configuration = $.extend({}, presenter.configuration, presenter.validateModel(model));
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
-        presenter.$view = $(view);
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
 
         initGrid(model);
-
-        // if(presenter.configuration.initialDesign){
-        //     presenter.validateInstructions(presenter.configuration.initialDesign);
-        // }
-
         presenter.setVisibility(presenter.configuration.isVisible);
+
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
+
+        if (!isPreview) {
+            presenter.setQueLoopTimer();
+        }
     }
+
+    presenter.setQueLoopTimer = function () {
+        if(presenter.configuration.hasDelay) {
+            presenter.configuration.queLoopTimer = setInterval(presenter.queLoop, presenter.configuration.delay)
+        }
+    };
+
+    presenter.queLoop = function () {
+        if (presenter.configuration.commandQueue.length > 0) {
+            var task = presenter.configuration.commandQueue.shift();
+            task.function.apply(null, task.args);
+        }
+    };
+    presenter.destroy = function () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.$view = null;
+        presenter.view = null;
+        presenter.configuration = null;
+        clearInterval(presenter.queLoopTimer);
+    };
+
 
     presenter.validateModel = function(model) {
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
@@ -200,6 +295,16 @@ function AddonGrid_Scene_create(){
             color = 'black';
         }
 
+        var validatedDelay = presenter.validateDelay(model);
+        if (!validatedDelay.isValid) {
+            return validatedDelay;
+        }
+
+        var validatedLabels = presenter.validateLabels(model["labels"]);
+        if (!validatedLabels.isValid) {
+            return validatedLabels;
+        }
+
         return {
             'isError' : false,
             'isVisible' : validatedIsVisible,
@@ -207,9 +312,52 @@ function AddonGrid_Scene_create(){
             'addonID' : addonID,
             'rows' : rows.value,
             'columns' : columns.value,
-            'initialDesign' : model['Initial design'],
-            'color' : color
+            'color' : color,
+            'startPoint': null,
+            'hasDelay': validatedDelay.hasDelay,
+            'delay': validatedDelay.delay,
+            'labels': validatedLabels.value,
         };
+    };
+
+    presenter.validateLabels = function validateLabels(labels) {
+        var trimmedLabels = labels.trim();
+
+        var result;
+        if (trimmedLabels == "") {
+            result = {};
+        } else {
+            try {
+                result = JSON.parse(trimmedLabels);
+            } catch (e) {
+                return presenter.getErrorObject("GS03");
+            }
+        }
+
+        return {
+            isValid: true,
+            value: result
+        };
+    };
+
+    presenter.validateDelay = function(model) {
+        function getDelayObject (isValid, hasDelay, delay) {return {isValid: isValid, hasDelay: hasDelay, delay: delay};}
+
+        var trimmedDelay = model["delay"].trim();
+        if (trimmedDelay == "") {
+            return getDelayObject(true, false, 0);
+        }
+
+        var parsedDelay = Number(trimmedDelay);
+        if(isNaN(parsedDelay)) {
+            return presenter.getErrorObject("GS02");
+        }
+
+        if (parsedDelay > 0) {
+            return getDelayObject(true, true, parsedDelay);
+        } else {
+            return getDelayObject(true, false, parsedDelay);
+        }
     };
 
     presenter.getErrorObject = function (errorCode) {
@@ -234,68 +382,209 @@ function AddonGrid_Scene_create(){
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'colorSquare' : presenter.colorSquareCommand,
-            'resetSquare' : presenter.resetSquareCommand,
-            'reset' : presenter.reset
+            'mark' : applyDelayDecorator(presenter.mark),
+            'drawLeft': applyDelayDecorator(presenter.drawLeft),
+            'drawRight': applyDelayDecorator(presenter.drawRight),
+            'drawDown': applyDelayDecorator(presenter.drawDown),
+            'drawUp': applyDelayDecorator(presenter.drawUp),
+            'start': applyDelayDecorator(presenter.setStartPoint),
+            'setColor': applyDelayDecorator(presenter.setColor),
+            'clearMark' : applyDelayDecorator(presenter.resetMark),
+            'clear': applyDelayDecorator(presenter.reset),
+            'reset' : presenter.reset,
+            'executeCode': applyDecorator(presenter.executeCode)
         };
 
         Commands.dispatch(commands, name, params, presenter);
-    };
-
-    presenter.resetAll = function () {
-        presenter.$view.find('.cell-element').each(function () {
-            $(this).css('background-color', 'transparent');
-            $(this).attr('colored', 'false');
-        });
     };
 
     presenter.reset = function(){
         presenter.$view.find('.cell-element').each(function () {
             if($(this).attr('colored') == 'true'){
                 var coordinates = $(this).attr('coordinates').split('-');
-                presenter.resetSquare(coordinates[0], coordinates[1]);
+                presenter.resetMark(coordinates[0], coordinates[1]);
             }
         });
-
-        if(presenter.configuration.initialDesign){
-            presenter.validateInstructions(presenter.configuration.initialDesign);
-        }
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
     };
+    
 
-    presenter.getState = function(){
-        var coordinates = [];
-        presenter.$view.find('.cell-element').each(function () {
-            if($(this).attr('colored') == 'true'){
-                coordinates.push($(this).attr('coordinates'));
-            }
-        });
+    function validateDrawingCommandsArgs(x, y, numberOfSteps) {
 
-        var state = {
-            'coordinates' : coordinates
+        var parsedX = Number(x);
+        var parsedY = Number(y);
+        var parsedSteps = Number(numberOfSteps);
+
+        if (y == undefined && numberOfSteps == undefined) {
+            parsedSteps = parsedX;
+        }
+
+        var result;
+
+        if (!isNaN(parsedX)
+            && !isNaN(parsedY)
+            && !isNaN(parsedSteps)) {
+            return {
+                isError: false,
+                "x": parseInt(parsedX, 10),
+                "y": parseInt(parsedY, 10),
+                "steps": parseInt(parsedSteps, 10)
+            };
+        }
+
+        result = {
+            isError: true,
+            x: parsedX,
+            y: parsedY,
+            steps: parsedSteps
         };
 
-        return JSON.stringify(state);
+        if (parsedSteps < 0) {
+            result.steps = undefined;
+        }
+
+        return result;
+    }
+    
+    presenter.startPointDecorator = function (func) {
+        return function () {
+            var result = func.apply(null, arguments);
+            if (result.isError && presenter.configuration.startPoint === null) {
+                return result
+            } else if (result.isError && presenter.configuration.startPoint !== null) {
+                result.isError = false;
+                result.x = presenter.configuration.startPoint.x;
+                result.y = presenter.configuration.startPoint.y;
+                return result;
+            }
+
+            return result;
+        };
     };
 
-    presenter.setState = function(state){
-        if (ModelValidationUtils.isStringEmpty(state)) {
+    presenter.drawHorizontalLine = function (from, to, y) {
+        for (var i = from; i < to; i++) {
+            presenter.colorSquare(i, y);
+        }
+    };
+
+    presenter.drawVerticalLine = function (from, to, x) {
+        for (var i = from; i < to; i++) {
+            presenter.colorSquare(x, i);
+        }
+    };
+
+    presenter.mark = function (x, y) {
+        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, 1);
+        if(validateArgs.isError) {
+            return;
+        }
+        presenter.colorSquare(validateArgs.x, validateArgs.y);
+    };
+
+    presenter.drawLeft = function (x, y, numberOfSteps) {
+        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
+        if(validateArgs.isError) {
+            return;
+        }
+        presenter.drawHorizontalLine(validateArgs.x - (validateArgs.steps - 1), validateArgs.x + 1, validateArgs.y);
+    };
+
+    presenter.drawRight = function (x, y, numberOfSteps) {
+        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
+        if(validateArgs.isError) {
+            return;
+        }
+        presenter.drawHorizontalLine(validateArgs.x, validateArgs.x + validateArgs.steps, validateArgs.y);
+    };
+
+    presenter.drawUp = function (x, y, numberOfSteps) {
+        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
+        if(validateArgs.isError) {
+            return;
+        }
+        presenter.drawVerticalLine(validateArgs.y, validateArgs.y + validateArgs.steps, validateArgs.x);
+    };
+
+    presenter.drawDown = function (x, y, numberOfSteps) {
+        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
+        if(validateArgs.isError) {
+            return;
+        }
+        presenter.drawVerticalLine(validateArgs.y - (validateArgs.steps - 1), validateArgs.y + 1, validateArgs.x);
+    };
+
+    presenter.setColor = function (color) {
+        if (color.trim() === '') {
             return;
         }
 
-        var parsed = JSON.parse(state);
+        presenter.configuration.color = color;
+    };
 
-        var coordinates = parsed.coordinates;
+    presenter.setStartPoint = function (x, y) {
+        var parsedX = Number(x);
+        var parsedY = Number(y);
 
-        presenter.resetAll();
+        if (isNaN(parsedX) || isNaN(parsedY)) {
+            return
+        }
 
-        if(coordinates){
-            for(var i = 0; i < coordinates.length; i++){
-                var coordinate = coordinates[i].split('-');
-                presenter.colorSquare(coordinate[0], coordinate[1]);
+        presenter.configuration.startPoint = {
+            "x": parseInt(parsedX, 10),
+            "y": parseInt(parsedY, 10)
+        };
+    };
+    
+    presenter.getSceneCommands = function () {
+        var commandsLabels = $.extend({}, presenter.LABELS, presenter.configuration.labels);
+        var commands = {
+            command_clear: delayDecorator(presenter.reset),
+            command_mark: delayDecorator(presenter.mark),
+            command_drawLeft: delayDecorator(presenter.drawLeft),
+            command_drawRight: delayDecorator(presenter.drawRight),
+            command_drawUp: delayDecorator(presenter.drawUp),
+            command_drawDown: delayDecorator(presenter.drawDown),
+            command_setColor: delayDecorator(presenter.setColor),
+            command_start: delayDecorator(presenter.setStartPoint),
+            command_clearMark: delayDecorator(presenter.resetMark),
+        };
+
+        var result = {};
+        for (var key in commands) {
+            var label = commandsLabels[key];
+            result[label] = commands[key];
+        }
+
+        return result;
+    };
+
+    presenter.executeCode = function (code) {
+        with (presenter.getSceneCommands()) {
+            try {
+                eval(code);
+            } catch (e) {
+                console.log(e);
             }
         }
+    };
+
+    presenter.addCustomBlocks = function () {
+        window.BlocklyCustomBlocks.SceneGrid.addBlocks(presenter.configuration.labels);
+    };
+    
+    presenter.getToolboxCategoryXML = function () {
+        var category = "<category name=\"GridScene\">";
+        
+        BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.forEach(function (element) {
+            var block = StringUtils.format("<block type=\"{0}\"></block>", element);
+            category = StringUtils.format("{0}{1}", category, block); 
+        });
+        
+        category = StringUtils.format("{0}{1}", category, "</category>");
+        
+        return category;
     };
 
     return presenter;

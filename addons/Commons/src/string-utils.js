@@ -47,6 +47,33 @@
 
         endsWith: function endsWith(baseString, suffix) {
             return baseString.indexOf(suffix, baseString.length - suffix.length) !== -1;
+        },
+
+        /**
+         * Python String function format for javascript
+         * Usage -> format("Ala ma {0} i {1}", "kota", "psa") -> "Ala ma kota i psa"
+         * @returns {String} String formated with args inserted into {index}
+         */
+        format: function () {
+            /*
+             zrodlo: http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
+             */
+            if (arguments.length == 0) {
+                return undefined;
+            }
+
+            var str = arguments[0].toString();
+
+            if (arguments.length == 1) {
+                return str;
+            }
+
+            var key = 0;
+            for (var i = 1; i < arguments.length; i++) {
+                str = str.replace(RegExp("\\{" + key + "\\}", "gi"), arguments[i]);
+                key++;
+            }
+            return str;
         }
 
     }

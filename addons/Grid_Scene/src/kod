@@ -1,0 +1,67 @@
+clear();
+
+mark(10,10);
+setColor("green");
+drawUp(10, 11, 5);
+setColor("yellow");
+drawLeft(9, 10, 5);
+setColor("purple");
+drawRight(11, 10, 5);
+setColor("orange");
+drawDown(10, 9, 5);
+clearMark(10, 10)
+
+================
+clear();
+
+start(10,10);
+setColor("green");
+drawUp(5);
+setColor("yellow");
+drawLeft(5);
+setColor("purple");
+drawRight(5);
+setColor("orange");
+drawDown(5);
+clearMark(10, 10);
+drawLeft(20,20, 5);
+
+==========
+Grid_Scene1.clear();
+
+Grid_Scene1.mark(10,10);
+Grid_Scene1.setColor("green");
+Grid_Scene1.drawUp(10, 11, 5);
+Grid_Scene1.setColor("yellow");
+Grid_Scene1.drawLeft(9, 10, 5);
+Grid_Scene1.setColor("purple");
+Grid_Scene1.drawRight(11, 10, 5);
+Grid_Scene1.setColor("orange");
+Grid_Scene1.drawDown(10, 9, 5);
+Grid_Scene1.clearMark(10, 10)
+
+
+======
+Grid_Scene1.clear();
+
+Grid_Scene1.start(10,10);
+Grid_Scene1.setColor("green");
+Grid_Scene1.drawUp(5);
+Grid_Scene1.setColor("yellow");
+Grid_Scene1.drawLeft(5);
+Grid_Scene1.setColor("purple");
+Grid_Scene1.drawRight(5);
+Grid_Scene1.setColor("orange");
+Grid_Scene1.drawDown(5);
+Grid_Scene1.clearMark(10, 10);
+Grid_Scene1.drawLeft(20,20, 5);
+
+* clear();
+* mark(x, y);
+* drawLeft(x, y, steps);
+* drawRight(x, y, steps);
+* drawUp(x, y, steps);
+* drawDown(x, y, steps);
+* setColor(color);
+* start(x, y);
+* clearMark(x, y);

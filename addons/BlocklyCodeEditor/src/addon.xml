@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='BlocklyCodeEditor' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+			<property name="sceneID" nameLabel="BlocklyCodeEditor_property_scene_id" type="string" />
+			<property name="hideRun" displayName="Hide Run" nameLabel="BlocklyCodeEditor_property_hide_run" type="boolean" />
+			<property name="addSceneToolbox" displayName="Add Scene Toolbox" nameLabel="BlocklyCodeEditor_property_add_scene_toolbox" type="boolean" />
+			<property name="toolbox" displayName="Toolbox" nameLabel="BlocklyCodeEditor_property_toolbox" type="text" />
+	</model>
+</addon>

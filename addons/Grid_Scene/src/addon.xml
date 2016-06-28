@@ -5,6 +5,7 @@
         <property name="Rows" nameLabel="Grid_Scene_property_rows" type="string" />
         <property name="Columns" nameLabel="Grid_Scene_property_columns" type="string" />
         <property name="Color" nameLabel="Grid_Scene_property_color" type="string" />
-        <property name="Initial design" nameLabel="Grid_Scene_property_initial_design" type="text" />
+        <property name="delay" nameLabel="Grid_Scene_property_delay" type="string" />
+        <property name="labels" nameLabel="Grid_Scene_property_labels" type="text"/>
 	</model>
 </addon>

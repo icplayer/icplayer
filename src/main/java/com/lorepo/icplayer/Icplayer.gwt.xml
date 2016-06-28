@@ -75,9 +75,12 @@
     <script src="libs/logo/logo.js"/>
     <script src="libs/logo/turtle.js"/>
 
-    <script src="libs/blockly/blockly_compressed.js"></script>
-    <script src="libs/blockly/blocks_compressed.js"></script>
-    <script src="libs/blockly/javascript_compressed.js"></script>
+    <script src="libs/ace/ace.js"/>
+
+    <script src="libs/blockly/blockly_compressed.js"/>
+    <script src="libs/blockly/blocks_compressed.js"/>
+    <script src="libs/blockly/en.js"/>
+    <script src="libs/blockly/javascript_compressed.js"/>
 
 
     <entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>

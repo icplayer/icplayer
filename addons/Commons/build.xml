@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="3.1.0" />
+    <property name="version" value="4.0.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -28,6 +28,7 @@
             <arg line="--js src/internationalization.js" />
             <arg line="--js src/loadedPromise.js" />
             <arg line="--js src/events.js" />
+            <arg line="--js src/blocklyCustomBlocks/sceneGrid.js" />
             <arg line="--js_output_file bin/commons-${version}/commons.js" />
         </java>
 
@@ -51,6 +52,7 @@
  * - Text Parser Proxy
  * - Loaded Promise
  * - Events Utils
+ * - Blockly Custom Scene Blocks
  */</concat>
 
     </target>

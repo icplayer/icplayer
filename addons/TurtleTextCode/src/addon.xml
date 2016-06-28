@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-
-<addon id='TurtleTextCode' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
-	<model>
-		<property name="TurtleGraphicID" nameLabel="TurtleTextCode_property_turtle_graphic_id" type="string" />
-	</model>
-</addon>
