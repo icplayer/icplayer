@@ -265,6 +265,8 @@ var ice_dictionary_fr = {
 "page_index" : "Index de la page",
 "on_click" : "au clic",
 "additional_classes" : "Classes supplémentaires",
+"popup_left_position" : "Popup left position",
+"popup_top_position" : "Popup top position",
 "text_parse_error": "Syntaxe du champ incorrecte",
 "button_module": "Bouton",
 "standard_button" : "Standard",

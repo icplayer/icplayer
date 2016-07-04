@@ -32,7 +32,8 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public void showPopup(String pageName, String additionalClasses) {
+	public void showPopup(String pageName, String top, String left,
+			String additionalClasses) {
 	}
 
 	@Override

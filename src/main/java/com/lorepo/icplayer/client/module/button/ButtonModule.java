@@ -30,6 +30,8 @@ public class ButtonModule extends BasicModuleModel {
 	private String onClick;
 	private String pageIndex;
 	private String additionalClasses = "";
+	private String popupTopPosition = "";
+	private String popupLeftPosition = "";
 	
 	public ButtonModule() {
 		super("Button", DictionaryWrapper.get("button_module"));
@@ -57,6 +59,8 @@ public class ButtonModule extends BasicModuleModel {
 					onClick = childElement.getAttribute("onclick");
 					additionalClasses = childElement.getAttribute("additionalClasses");
 					pageIndex = childElement.getAttribute("pageIndex");
+					popupTopPosition = childElement.getAttribute("popupTopPosition");
+					popupLeftPosition = childElement.getAttribute("popupLeftPosition");
 				}
 			}
 		}
@@ -83,6 +87,8 @@ public class ButtonModule extends BasicModuleModel {
 
 		if (type == ButtonType.popup) {
 			xml += " additionalClasses='" + StringUtils.escapeXML(additionalClasses) + "'";
+			xml += " popupLeftPosition='" + StringUtils.escapeXML(popupLeftPosition) + "'";
+			xml += " popupTopPosition='" + StringUtils.escapeXML(popupTopPosition) + "'";
 		}
 		if (type == ButtonType.gotoPage) {
 			xml += " pageIndex='" + StringUtils.escapeXML(pageIndex) + "'";
@@ -127,6 +133,8 @@ public class ButtonModule extends BasicModuleModel {
 		if(type == ButtonType.popup) {
 			addPropertyPage();
 			addPropertyAdditionalClasses();
+			addPropertyPopupTopPosition();
+			addPropertyPopupLeftPosition();
 		}
 		else if(type == ButtonType.gotoPage) {
 			addPropertyPage();
@@ -234,6 +242,82 @@ public class ButtonModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("page_index");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	public String getPopupTopPosition() {
+		return popupTopPosition;
+	}
+	
+	public String getPopupLeftPosition() {
+		return popupLeftPosition;
+	}
+	
+	private void addPropertyPopupTopPosition() {
+		
+		IProperty property = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				popupTopPosition = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return popupTopPosition;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("popup_top_position");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("popup_top_position");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyPopupLeftPosition() {
+		
+		IProperty property = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				popupLeftPosition = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return popupLeftPosition;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("popup_left_position");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("popup_left_position");
 			}
 
 			@Override

@@ -265,6 +265,8 @@
 	"page_index" : "Indeks strony",
 	"on_click" : "Na kliknięcie",
 	"additional_classes" : "Dodatkowe klasy",
+	"popup_left_position" : "Popup left position",
+	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Nieprawidłowa składnia w luce",
 	"button_module" : "Przycisk",
 	"standard_button" : "Standardowy",

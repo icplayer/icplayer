@@ -94,7 +94,8 @@ public class PlayerControllerMockup implements IPlayerController {
 
 
 	@Override
-	public void showPopup(String pageName, String additionalClasses) {
+	public void showPopup(String pageName, String top, String left,
+			String additionalClasses) {
 		// TODO Auto-generated method stub
 		
 	}

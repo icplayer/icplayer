@@ -268,6 +268,8 @@
 	"page_index" : "Page Index",
 	"on_click" : "onClick",
 	"additional_classes" : "Additional classes",
+	"popup_left_position" : "Popup left position",
+	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Incorrect gap's syntax",
 	"button_module": "Button",
 	"standard_button" : "Standard",
