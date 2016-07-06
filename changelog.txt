@@ -1,3 +1,4 @@
+2016-07-06 Fixed issues with static header and footer
 2016-07-04 Added positioning to Popup button
 2016-06-29 Removed sending event from drawRange commend from Line Number module
 2016-06-20 Added property Single Connection to PointsLines module
