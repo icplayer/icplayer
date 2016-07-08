@@ -50,3 +50,8 @@
 .connectionContainer .content .connectionItemWrapper {
     padding: 0px;
 }
+
+.connection_line {
+    position: absolute;
+    height:2px;
+}
