@@ -1,4 +1,6 @@
 ﻿var ice_dictionary_mx = {
+	"confirm_yes": "yes",
+	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
 	"edit_dropdown_gap": "Edit a dropdown gap",
 	"edit_filled_gap": "Edit a filled gap",
@@ -263,6 +265,8 @@
 	"page_index" : "Page Index",
 	"on_click" : "Al dar Click",
 	"additional_classes" : "Clases adicionales",
+	"popup_left_position" : "Popup left position",
+	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Incorrect gap's syntax",
 	"button_module" : "Botón",
 	"standard_button" : "Estándar",
@@ -1057,6 +1061,7 @@
 	"PointsLines_property_is_disabled": "Esta deshabilitado",
     "PointsLines_property_blocked_lines": "Blocked lines",
 	"PointsLines_property_block_wrong_answers": "Block wrong answers",
+	"PointsLines_property_single_connection": "Single Connection",
 	"EdgeAnimation_info": "Permite a incrustar animaciones y otros proyectos creados en el programa Adobe Edge Animate. En el addon se puede utilizar más de una animación y para hacer que funcione, es necesario configurar ciertas propiedades en el menú lateral del addon, incluyendo Animaciones, Imágenes y Animación inicial.",
 	"EdgeAnimation_name": "Animación Edge",
 	"EdgeAnimation_property_animations": "Animaciones",

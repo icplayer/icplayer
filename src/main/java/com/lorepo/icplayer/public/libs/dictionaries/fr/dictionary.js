@@ -1,4 +1,6 @@
 var ice_dictionary_fr = {
+"confirm_yes": "yes",
+"confirm_no": "no",
 "edit_editable_gap": "Edit an editable/draggable gap",
 "edit_dropdown_gap": "Edit a dropdown gap",
 "edit_filled_gap": "Edit a filled gap",
@@ -263,6 +265,8 @@ var ice_dictionary_fr = {
 "page_index" : "Index de la page",
 "on_click" : "au clic",
 "additional_classes" : "Classes supplémentaires",
+"popup_left_position" : "Popup left position",
+"popup_top_position" : "Popup top position",
 "text_parse_error": "Syntaxe du champ incorrecte",
 "button_module": "Bouton",
 "standard_button" : "Standard",
@@ -1057,6 +1061,7 @@ var ice_dictionary_fr = {
 "PointsLines_property_is_disabled": "Est désactivé",
 "PointsLines_property_blocked_lines": "Lignes bloquées",
 "PointsLines_property_block_wrong_answers": "Block wrong answers",
+"PointsLines_property_single_connection": "Single Connection",
 "EdgeAnimation_info" : "Permet d'intégrer des animations et d'autres projets créés dans le programme Adobe Edge Animate. Plus d'une animation peuvent être utilisées dans ce module. Pour qu'il fonctionne, il est nécessaire de configurer certaines propriétés dans le menu latéral, comme les animations, les images et l'animation initiale.",
 "EdgeAnimation_name" : "Bordure de l'animation",
 "EdgeAnimation_property_animations" : "Animations",

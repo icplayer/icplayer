@@ -1,3 +1,14 @@
+2016-07-19 Fixed issue with https in Vimeo module
+2016-07-13 Added removeWrongColors command in Connection module
+2016-07-08 Added dragging line in Connection module
+2016-07-07 Added show/hide commands in Memo Game module
+2016-07-06 Fixed issue with displaying score in Hierarchical Lesson Report
+2016-07-06 Fixed issues with static header and footer
+2016-07-04 Added positioning to Popup button
+2016-06-29 Removed sending event from drawRange commend from Line Number module
+2016-06-20 Added property Single Connection to PointsLines module
+2016-06-16 Fixed Memo Game crash in KeepAspect Image Mode
+2016-06-15 Added keyboard navigation to TrueFalse module
 2016-06-13 Added scrolling window to active module in keyboard navigation
 2016-06-10 Added ValueChange Event to ZoomImage module
 2016-06-07 Added fixes to Fraction Binder modules

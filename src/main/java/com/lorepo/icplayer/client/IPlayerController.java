@@ -26,7 +26,7 @@ public interface IPlayerController {
 	void switchToNextPage();
 	long getTimeElapsed();
 	PlayerView getView();
-	void showPopup(String pageName, String additionalClasses);
+	//void showPopup(String pageName, String additionalClasses);
 	void closePopup();
 	void sendAnalytics(String event, HashMap<String, String> params);
 	boolean isBookMode();
@@ -36,4 +36,5 @@ public interface IPlayerController {
 	IPresenter findHeaderModule(String name);
 	IPresenter findFooterModule(String name);
 	void switchToCommonPage(String commonPageName);
+	void showPopup(String pageName, String top, String left, String additionalClasses);
 }

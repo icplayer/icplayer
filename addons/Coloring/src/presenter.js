@@ -162,11 +162,11 @@ function AddonColoring_create(){
         return (presenter.allColoredPixels.indexOf(area.pixelPosition) != -1);
     }
 
-    presenter.clearArea = function (x, y) {
-        presenter.fillArea(x, y, '255 255 255 255');
+    presenter.clearArea = function (x, y, isRemovingWrongColor) {
+        presenter.fillArea(x, y, '255 255 255 255', isRemovingWrongColor);
     };
 
-    presenter.fillArea = function (x, y, color) {
+    presenter.fillArea = function (x, y, color, isRemovingWrongColor) {
         presenter.isColored = true;
 
         presenter.click = {
@@ -184,11 +184,10 @@ function AddonColoring_create(){
                 DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.errorCodes, validatedDefaultFillingColor.errorCode);
                 return;
             }
-
             presenter.fillColor = validatedDefaultFillingColor.value;
         }
 
-        if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
+        if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) || isRemovingWrongColor) {
             if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
@@ -220,9 +219,9 @@ function AddonColoring_create(){
                         a = area.colorToFill[3],
                         color = r + " " + g + " " + b + " " + a;
                 if(r != -1){
-                    presenter.fillArea(area.x, area.y, color);
+                    presenter.fillArea(area.x, area.y, color, false);
                 }else{
-                    presenter.fillArea(area.x, area.y, '0 0 0 0');
+                    presenter.fillArea(area.x, area.y, '0 0 0 0', false);
                 }
             }
         });
@@ -731,6 +730,20 @@ function AddonColoring_create(){
         return presenter.getColorAtPoint(x, y).join(' ');
     };
 
+    presenter.removeWrongColors = function () {
+        $.each(presenter.configuration.areas, function() {
+            var area = this;
+
+            if(!presenter.shouldBeTakenIntoConsideration(area)) {
+                return true; // continue
+            }
+
+            if (!isCorrect(area)) {
+                presenter.clearArea(area.x, area.y, true);
+            }
+        });
+    };
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
@@ -746,7 +759,8 @@ function AddonColoring_create(){
             'hideAnswers' : presenter.hideAnswers,
             'fillArea' : presenter.fillAreaCommand,
             'clearArea' : presenter.clearAreaCommand,
-            'getColor' : presenter.getColor
+            'getColor' : presenter.getColor,
+            'removeWrongColors': presenter.removeWrongColors
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -759,11 +773,11 @@ function AddonColoring_create(){
     };
 
     presenter.clearAreaCommand = function (coordinates){
-        presenter.clearArea(coordinates[0], coordinates[1]);
+        presenter.clearArea(coordinates[0], coordinates[1], false);
     };
 
     presenter.fillAreaCommand = function(coordinatesAndColor) {
-        presenter.fillArea(coordinatesAndColor[0], coordinatesAndColor[1], coordinatesAndColor[2]);
+        presenter.fillArea(coordinatesAndColor[0], coordinatesAndColor[1], coordinatesAndColor[2], false);
     };
 
     presenter.setColorCommand = function(color) {

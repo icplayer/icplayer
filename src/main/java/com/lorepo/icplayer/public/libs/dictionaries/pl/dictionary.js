@@ -1,4 +1,6 @@
 ﻿var ice_dictionary_pl = {
+	"confirm_yes": "yes",
+	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
 	"edit_dropdown_gap": "Edit a dropdown gap",
 	"edit_filled_gap": "Edit a filled gap",
@@ -263,6 +265,8 @@
 	"page_index" : "Indeks strony",
 	"on_click" : "Na kliknięcie",
 	"additional_classes" : "Dodatkowe klasy",
+	"popup_left_position" : "Popup left position",
+	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Nieprawidłowa składnia w luce",
 	"button_module" : "Przycisk",
 	"standard_button" : "Standardowy",
@@ -1056,6 +1060,7 @@
 	"PointsLines_property_is_disabled": "Jest wyłączony",
     "PointsLines_property_blocked_lines": "Zablokowane linie",
 	"PointsLines_property_block_wrong_answers": "Zablokuj błędne odpowiedzi",
+	"PointsLines_property_single_connection": "Single Connection",
 	"EdgeAnimation_info" : "Pozwala na osadzenie w prezentacji animacji utworzonej w programie Adobe Edge Animate. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane właściwości w menu bocznym.",
 	"EdgeAnimation_name" : "Animacja Adobe Edge",
 	"EdgeAnimation_property_animations" : "Animacje",

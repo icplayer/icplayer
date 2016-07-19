@@ -21,8 +21,8 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
-	public void showPopup(String pageName, String additionalClasses) {
-		controller.showPopup(pageName, additionalClasses);
+	public void showPopup(String pageName, String top, String left, String additionalClasses) {
+		controller.showPopup(pageName, top, left, additionalClasses);
 	}
 
 	@Override

@@ -276,8 +276,8 @@ public class JavaScriptPlayerServices {
 			commands.hideNavigationPanels = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideNavigationPanels()();
 			};
-			commands.showPopup = function(pageName, additionalClasses) {
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showPopup(Ljava/lang/String;Ljava/lang/String;)(pageName, additionalClasses);
+			commands.showPopup = function(pageName, top, left, additionalClasses) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showPopup(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(pageName, top, left, additionalClasses);
 			};
 			commands.closePopup = function() {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::closePopup()();
@@ -420,8 +420,8 @@ public class JavaScriptPlayerServices {
 		return playerServices;
 	}-*/;
 
-	private void showPopup(String pageName, String additinalClasses){
-		playerServices.getCommands().showPopup(pageName, additinalClasses);
+	private void showPopup(String pageName, String top, String left, String additinalClasses){
+		playerServices.getCommands().showPopup(pageName, top, left, additinalClasses);
 	}
 	
 	private void closePopup(){

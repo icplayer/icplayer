@@ -107,15 +107,34 @@ public class PlayerApp{
 	}
 
 	public static native int getScreenHeight() /*-{
-		return $wnd.innerHeight;
+		if ($wnd.location !== $wnd.parent.location){
+			var offsetIframe = $wnd.get_iframe().offset().top;
+			return $wnd.parent.innerHeight - offsetIframe;
+		} else {
+			return $wnd.innerHeight;
+		}
 	}-*/;
 	
 	public static native int getPageHeight() /*-{
-		return $wnd.$(".ic_page").css("height").replace("px","");
+		return $wnd.$("table.ic_player").css("height").replace("px","");
 	}-*/;
 	
 	public static native void removeStaticFooter() /*-{
 		$wnd.$(".ic_footer").parent().removeClass("ic_static_footer");
+	}-*/;
+	
+	public static native void registerGetIframe() /*-{
+	$wnd.get_iframe = function (){
+		var current_location = $wnd.location.href,
+		outer_window = $wnd.parent,
+	  	iframe = null;
+	  	outer_window.$('iframe').each(function(){
+	  		if (this.src == current_location) {
+	  			iframe = $wnd.$(this);
+	  		}
+	  	});
+	  	return iframe;
+	  }
 	}-*/;
 	
 	public static native void setPageTopAndStaticHeader(int top) /*-{
@@ -130,7 +149,7 @@ public class PlayerApp{
 	  	if(referrer.indexOf($wnd.location.origin) > -1){
 		  $wnd.parent.addEventListener('scroll', function () {
 		  	var parentScroll = $wnd.parent.scrollY;
-		  	var offsetIframe = $wnd.parent.$('iframe').offset().top;
+		  	var offsetIframe = $wnd.get_iframe().offset().top;
 		  	if(parentScroll > offsetIframe){
 		 		$wnd.$(".ic_static_header").css("top", parentScroll-offsetIframe);
 		  	}else{
@@ -179,7 +198,7 @@ public class PlayerApp{
 		  $wnd.parent.addEventListener('scroll', function () {
 		  	var parentScroll = $wnd.parent.scrollY;
 			sum = parseInt(window.top.innerHeight, 10)-offsetIframe-parseInt(icFooterHeight, 10)+parentScroll;
-		  	if(sum >= ($wnd.parent.$('iframe').height()-parseInt(icFooterHeight, 10))){
+		  	if(sum >= ($wnd.get_iframe().height()-parseInt(icFooterHeight, 10))){
 		  		$wnd.$(".ic_static_footer").css("top", "auto")
 		  	}else{
 		  		$wnd.$(".ic_static_footer").css("top", sum+"px");
@@ -220,12 +239,10 @@ public class PlayerApp{
 	}
 	
 	public void makeFooterStatic() {
+		removeStaticFooter();
 		if(getScreenHeight() < getPageHeight()){		
-			//int headerHeight = contentModel.getHeader().getHeight();
 			int headerHeight = getHeaderHeight();
 			setStaticFooter(headerHeight, isStaticHeader);
-		}else{
-			removeStaticFooter();
 		}
 	}
 	
@@ -239,10 +256,9 @@ public class PlayerApp{
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
+		registerGetIframe();
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
-				entryPoint.onPageLoaded();
-				
 				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0){
 					makeHeaderStatic();
 				}
@@ -250,6 +266,8 @@ public class PlayerApp{
 				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0){
 					makeFooterStatic();
 				}
+				
+				entryPoint.onPageLoaded();
 			}
 			public void onError(String error) {
 			}

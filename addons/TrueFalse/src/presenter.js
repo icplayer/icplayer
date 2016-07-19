@@ -5,6 +5,10 @@ function AddonTrueFalse_create() {
     presenter.type = "";
     presenter.lastEvent = null;
     presenter.isShowAnswersActive = false;
+    presenter.keyboardNavigationActive = false;
+    presenter.keyboardNavigationCurrentElement = null;
+    presenter.keyboardNavigationElements = [];
+    presenter.keyboardNavigationElementsLen = 0;
 
     var possibleChoices = [];
     var multi = false;
@@ -299,6 +303,13 @@ function AddonTrueFalse_create() {
 
         if (textParser !== null) { // Actions performed only in Player mode
             textParser.connectLinks($(view));
+        }
+
+        if (!preview) {
+            presenter.$view.find('.tf_' + presenter.type + '_image').each(function(index, element){
+                presenter.keyboardNavigationElements[index] = $(element);
+            });
+            presenter.keyboardNavigationElementsLen = presenter.keyboardNavigationElements.length;
         }
     };
 
@@ -666,6 +677,94 @@ function AddonTrueFalse_create() {
 
         delete presenter.currentState;
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.keyboardController = function(keycode) {
+        $(document).on('keydown', function(e) {
+            e.preventDefault();
+            $(this).off('keydown');
+        });
+
+        var keys = {
+            ENTER: 13,
+            ESCAPE: 27,
+            SPACE: 32,
+            ARROW_LEFT: 37,
+            ARROW_UP: 38,
+            ARROW_RIGHT: 39,
+            ARROW_DOWN: 40
+        };
+
+        function mark_current_element(new_position_index){
+            if (presenter.keyboardNavigationCurrentElement) {
+                presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+            }
+            presenter.keyboardNavigationCurrentElementIndex = new_position_index;
+            presenter.keyboardNavigationCurrentElement = presenter.keyboardNavigationElements[new_position_index];
+            presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+        }
+
+        var enter = function (){
+            if (presenter.keyboardNavigationActive){
+                return;
+            }
+            presenter.keyboardNavigationActive = true;
+            mark_current_element(0);
+        };
+
+        function swicht_element(move){
+            var new_position_index = presenter.keyboardNavigationCurrentElementIndex + move;
+            if (new_position_index >= presenter.keyboardNavigationElementsLen) {
+                new_position_index = new_position_index - presenter.keyboardNavigationElementsLen;
+            } else if (new_position_index < 0) {
+                new_position_index = presenter.keyboardNavigationElementsLen + new_position_index;
+            }
+            mark_current_element(new_position_index);
+        }
+
+        var next_element = function (){
+            swicht_element(1);
+        };
+
+        var previous_element = function (){
+            swicht_element(-1);
+        };
+
+        var next_question = function () {
+            swicht_element(possibleChoices.length);
+        };
+
+        var previous_question = function () {
+            swicht_element(-possibleChoices.length);
+        };
+
+        var mark = function (){
+            presenter.keyboardNavigationCurrentElement.click();
+        };
+
+        var escape = function (){
+            if (!presenter.keyboardNavigationActive){
+                return;
+            }
+            presenter.keyboardNavigationActive = false;
+            presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+            presenter.keyboardNavigationCurrentElement = null;
+        };
+
+        var mapping = {};
+        mapping[keys.ENTER] = enter;
+        mapping[keys.ESCAPE] = escape;
+        mapping[keys.SPACE] = mark;
+        mapping[keys.ARROW_LEFT] = previous_element;
+        mapping[keys.ARROW_UP] = previous_question;
+        mapping[keys.ARROW_RIGHT] = next_element;
+        mapping[keys.ARROW_DOWN] = next_question;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {
+        }
+
     };
 
     return presenter;

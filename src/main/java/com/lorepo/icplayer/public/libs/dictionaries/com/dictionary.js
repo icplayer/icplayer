@@ -1,4 +1,6 @@
 ﻿var ice_dictionary_en = {
+	"confirm_yes": "yes",
+	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
 	"edit_dropdown_gap": "Edit a dropdown gap",
 	"edit_filled_gap": "Edit a filled gap",
@@ -266,6 +268,8 @@
 	"page_index" : "Page Index",
 	"on_click" : "onClick",
 	"additional_classes" : "Additional classes",
+	"popup_left_position" : "Popup left position",
+	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Incorrect gap's syntax",
 	"button_module": "Button",
 	"standard_button" : "Standard",
@@ -1089,6 +1093,7 @@
 	"PointsLines_property_is_disabled": "Is disabled",
     "PointsLines_property_blocked_lines": "Blocked lines",
 	"PointsLines_property_block_wrong_answers": "Block wrong answers",
+	"PointsLines_property_single_connection": "Single Connection",
 	"EdgeAnimation_info" : "Enables to embed animations and other projects created in Adobe Edge Animate program. More than one animation can be used in the addon and to make it work, it is necessary to configure certain properties in the addon’s side menu, including Animations, Images and Initial animation.",
 	"EdgeAnimation_name" : "Edge Animation",
 	"EdgeAnimation_property_animations" : "Animations",
