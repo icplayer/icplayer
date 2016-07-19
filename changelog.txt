@@ -1,3 +1,4 @@
+2016-07-19 Fixed issue with https in Vimeo module
 2016-07-13 Added removeWrongColors command in Connection module
 2016-07-08 Added dragging line in Connection module
 2016-07-07 Added show/hide commands in Memo Game module
