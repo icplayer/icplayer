@@ -321,8 +321,11 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.validateLabels = function validateLabels(labels) {
-        var trimmedLabels = labels.trim();
+        if (labels == undefined) {
+            return {};
+        }
 
+        var trimmedLabels = labels.trim();
         var result;
         if (trimmedLabels == "") {
             result = {};
@@ -343,9 +346,13 @@ function AddonGrid_Scene_create(){
     presenter.validateDelay = function(model) {
         function getDelayObject (isValid, hasDelay, delay) {return {isValid: isValid, hasDelay: hasDelay, delay: delay};}
 
+        if (model["delay"] == undefined) {
+            return getDelayObject(true, false);
+        }
+
         var trimmedDelay = model["delay"].trim();
         if (trimmedDelay == "") {
-            return getDelayObject(true, false, 0);
+            return getDelayObject(true, false);
         }
 
         var parsedDelay = Number(trimmedDelay);
