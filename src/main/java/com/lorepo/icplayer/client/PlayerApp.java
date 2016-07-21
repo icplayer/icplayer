@@ -192,7 +192,7 @@ public class PlayerApp{
 	  if ($wnd.location !== $wnd.parent.location){
 	  	var referrer = $doc.referrer;
 	  	if(referrer.indexOf($wnd.location.origin) > -1){
-	  	var offsetIframe = $wnd.parent.$('#_icplayer').offset().top;
+	  	var offsetIframe = $wnd.get_iframe().offset().top;
 	  	var sum = parseInt(window.top.innerHeight, 10)-offsetIframe-parseInt(icFooterHeight, 10);
 	  	$wnd.$(".ic_static_footer").css("top", sum+"px");
 		  $wnd.parent.addEventListener('scroll', function () {
