@@ -441,8 +441,6 @@ function AddonAudio_create(){
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
         eventBus.addEventListener('ValueChanged', this);
-
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.createPreview = function AddonAudio_createPreview (view, model){
@@ -454,6 +452,7 @@ function AddonAudio_create(){
 
         presenter.view = view;
         presenter.$view = $(view);
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         AddonAudio_createView(view, upgradedModel, isPreview);

@@ -9,7 +9,6 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.content.services.TimeService;
-import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
