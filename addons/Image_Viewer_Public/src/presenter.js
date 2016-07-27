@@ -650,6 +650,10 @@ function AddonImage_Viewer_Public_create() {
             if (presenter.configuration.defaultVisibility) {
                 presenter.displayLabels(1);
             }
+
+            if (!configuration.showWatermark) {
+                hideWatermarkIfVisible();
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+2016-07-27 Fixed displaying watermark in Image Viewer module
 2016-07-22 Fixed memory leaks in TextAudio and Audio module
 2016-07-21 Fixed issue with static footer when lesson is in iframe
 2016-07-19 Fixed issue with https in Vimeo module
