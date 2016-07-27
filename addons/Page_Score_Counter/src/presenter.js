@@ -26,7 +26,7 @@ function AddonPage_Score_Counter_create(){
     presenter.createEventData = function (score) {
         return {
             'source': presenter.configuration.addonID,
-            'item': '',
+            'item': 'pageScore',
             'value' : '',
             'score': score
         };
@@ -94,9 +94,11 @@ function AddonPage_Score_Counter_create(){
 
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "ValueChanged" && eventData.source != presenter.configuration.addonID) {
-            presenter.countScore();
-            updateView();
-            presenter.sendEvent('ValueChanged', presenter.createEventData(presenter.currentScore));
+            if(eventData.item != 'pageScore'){
+                presenter.countScore();
+                updateView();
+                presenter.sendEvent('ValueChanged', presenter.createEventData(presenter.currentScore));
+            }
         }
         if (eventName == 'PageLoaded') {
             presenter.countScore();
