@@ -649,6 +649,7 @@
 	"gamememo_property_keep_cards_aspect_ratio": "Keep cards aspect ratio",
 	"gamememo_property_show_cards_for_preview": "Show cards for preview",
     "gamememo_property_image_mode": "Image Mode",
+    "gamememo_property_keep_wrong_marking": "Keep wrong marking",
 	"MultiAudio_info": "It is an upgraded version of the Audio addon. It has been additionally enriched with new features, such as uploading multiple audio files, enabling loop for each file individually, jumping between files and the improved interface selection.",
 	"MultiAudio_name": "MultiAudio",
 	"MultiAudio_property_files": "Files",

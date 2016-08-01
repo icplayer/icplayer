@@ -1,3 +1,4 @@
+2016-08-01 Added new property to keep wrong marks in Memo Gama module
 2016-08-01 Fixed displaying coordinates in editor in Line Selection module
 2016-07-27 Fixed problem with removing listeners in Source List
 2016-07-27 Fixed problem with sending events in Page Score Counter module

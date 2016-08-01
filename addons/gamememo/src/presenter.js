@@ -193,6 +193,7 @@ function Addongamememo_create(){
         presenter.styleBImage = model['Image for style B'] != '' ? model['Image for style B'] : null;
         presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['Is Not Activity']));
         presenter.imageMode = model['Image Mode'];
+        presenter.keppWrongMarking = ModelValidationUtils.validateBoolean(model['Keep wrong marking']);
 
         var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
@@ -289,7 +290,9 @@ function Addongamememo_create(){
         cell.parent().append(mark);
 
         setMarkHeight(mark);
-        fadeOutMark(mark, 1300)
+        if (!presenter.keppWrongMarking) {
+            fadeOutMark(mark, 1300)
+        }
     };
 
     presenter.markCardTick = function(cell, heightProbeCell) {
@@ -498,6 +501,11 @@ function Addongamememo_create(){
                 presenter.cardClickedSecond = null;
                 presenter.cardClickedFirstId = null;
                 presenter.cardClickedSecondId = null;
+
+                if (presenter.keppWrongMarking) {
+                    var mark = presenter.viewContainer.find('.mismatch_mark');
+                    fadeOutMark(mark, 1000);
+                }
 
                 break;
         }
