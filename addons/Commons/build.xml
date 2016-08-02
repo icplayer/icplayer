@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="3.1.0" />
+    <property name="version" value="4.0.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -13,7 +13,6 @@
 
         <java jar="../tools/closure.jar" fork="true">
             <arg line="--js src/model-validation.js" />
-            <arg line="--js src/loading-screen.js" />
             <arg line="--js src/dom-operations.js" />
             <arg line="--js src/statefull-addon-object.js" />
             <arg line="--js src/draggable-droppable-object.js" />
@@ -36,7 +35,6 @@
  * @version ${version}
  * Components:
  * - Model Validation Utils
- * - Loading Screen
  * - DOM Operations
  * - Statefull Addon Object
  * - Draggable Droppable Object
