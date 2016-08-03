@@ -741,6 +741,7 @@ function Addongamememo_create(){
 
                 cell.children(".front").css('visibility', 'hidden');
                 cell.children(".back").css('visibility', 'visible');
+                cell.addClass("was-clicked");
             }
         }
 

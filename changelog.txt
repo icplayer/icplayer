@@ -1,4 +1,5 @@
-2015-07-23 Added compiled Commons library in version 4.0.0 to icplayer libs
+2016-08-03 Fixed checking answers in Memo Game module
+2016-08-02 Added compiled Commons library in version 4.0.0 to icplayer libs
 2016-08-02 Removing loading-screen from commons
 2016-08-01 Added new property to keep wrong marks in Memo Gama module
 2016-08-01 Fixed displaying coordinates in editor in Line Selection module
