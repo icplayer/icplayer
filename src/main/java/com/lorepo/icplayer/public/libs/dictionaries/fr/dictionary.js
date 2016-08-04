@@ -825,6 +825,7 @@ var ice_dictionary_fr = {
 "External_Link_Button_property_title": "Titre",
 "External_Link_Button_property_image": "Image",
 "External_Link_Button_property_uri": "URL",
+"External_Link_Button_property_target_type": "Target type",
 "Slider_info": "Permet d'ajouter la fonction glisser dans une activité. Il est possible de faire glisser une image d'une position à une autre, ou encore de choisir où le curseur doit être déplacé.",
 "Slider_name": "Glisser",
 "Slider_property_image_element": "Élément de l'image",

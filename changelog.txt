@@ -1,3 +1,4 @@
+2016-08-04 Added Target type property in External Link Button module
 2016-08-03 Fixed displaying viewBox in SVG module
 2016-08-03 Fixed checking answers in Memo Game module
 2016-08-02 Added compiled Commons library in version 4.0.0 to icplayer libs

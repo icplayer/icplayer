@@ -52,7 +52,15 @@ function AddonExternal_Link_Button_create() {
     presenter.createElements = function (wrapper) {
         var $ahref = $(document.createElement('a'));
         $ahref.attr('href',presenter.configuration.URI);
-        $ahref.attr('target','_blank');
+
+        if (presenter.configuration.targetType == 'Blank'){
+            $ahref.attr('target','_blank');
+        } else if (presenter.configuration.targetType == 'Top') {
+            $ahref.attr('target','_top');
+        } else {
+            $ahref.attr('target','_blank');
+        }
+
         $ahref.click(function (event) { event.stopPropagation(); });
 
         var $element = $(document.createElement('div'));
@@ -165,7 +173,8 @@ function AddonExternal_Link_Button_create() {
             image: image.value,
             URI: model.URI,
             isVisible: isVisible,
-            isVisibleByDefault: isVisible
+            isVisibleByDefault: isVisible,
+            targetType: model['targetType']
         };
     };
 

@@ -824,6 +824,7 @@ var ice_dictionary_mx = {
 	"External_Link_Button_property_title": "Titulo",
 	"External_Link_Button_property_image": "Imagen",
 	"External_Link_Button_property_uri": "URL",
+    "External_Link_Button_property_target_type": "Target type",
 	"Slider_info": "Permite añadir el slider a la actividad. Hace posible ambos deslizar una imagen de una posición a otra, o marcar con el ratón una posición a cual se quiere mover el slider.",
 	"Slider_name": "Slider",
 	"Slider_property_image_element": "Imagen",

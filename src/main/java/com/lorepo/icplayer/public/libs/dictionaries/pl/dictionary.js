@@ -823,6 +823,7 @@
 	"External_Link_Button_property_title": "Tytuł",
 	"External_Link_Button_property_image": "Obraz",
 	"External_Link_Button_property_uri": "URL",
+    "External_Link_Button_property_target_type": "Target type",
 	"Slider_info" : "Pozwala na wstawienie do prezentacji funkcji suwaka, dzięki której można przesunąć obraz na inną pozycję lub zaznaczyć miejsce, gdzie obraz ma zostać przeniesiony.",
 	"Slider_name" : "Suwak",
 	"Slider_property_image_element": "Element obrazkowy",

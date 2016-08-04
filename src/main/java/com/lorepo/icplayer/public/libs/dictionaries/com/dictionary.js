@@ -828,6 +828,7 @@
 	"External_Link_Button_property_title": "Title",
 	"External_Link_Button_property_image": "Image",
 	"External_Link_Button_property_uri": "URL",
+    "External_Link_Button_property_target_type": "Target type",
 	"Slider_info": "Allows to add the slider functionality to an activity. It is possible to either slide an image from one position to another or select the position that a slider is to be moved to.",
 	"Slider_name": "Slider",
 	"Slider_property_image_element": "Image element",

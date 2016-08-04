@@ -5,5 +5,6 @@
 		<property name="Title" nameLabel="External_Link_Button_property_title" type="string" isLocalized="true" />
 		<property name="Image" nameLabel="External_Link_Button_property_image" type="image" />
 		<property name="URI" displayName="URL" nameLabel="External_Link_Button_property_uri" type="string" />
+        <property name="targetType" displayName="Target type" nameLabel="External_Link_Button_property_target_type" type="{Blank, Top}" />
 	</model>
 </addon>
