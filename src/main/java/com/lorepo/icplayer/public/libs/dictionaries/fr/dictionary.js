@@ -1,5 +1,4 @@
 var ice_dictionary_fr = {
-
 "confirm_yes": "oui",
 "confirm_no": "non",
 "edit_editable_gap": "Editer un champ éditable/en glisser-déposer",
@@ -890,7 +889,7 @@ var ice_dictionary_fr = {
 "Table_Of_Contents_name": "Table des matiàres",
 "Table_Of_Contents_property_header": "En-tete",
 "Table_Of_Contents_property_dont_show_pages": "Ne pas afficher les pages",
-    "Table_Of_Contents_property_display_type": "Afficher le Type",
+"Table_Of_Contents_property_display_type": "Afficher le Type",
 "text_identification_info": "Permet d'ajouter une sélection multiple de textes avec du contenu HTML à la présentation, dans laquelle chaque élément fonctionne en mode sélection unique.",
 "text_identification_name": "Identification de texte",
 "text_identification_property_text": "Texte",
@@ -1324,7 +1323,6 @@ var ice_dictionary_fr = {
 "Print_Report_property_total_label": "Etiquette Résultat total",
 "Print_Report_property_print_report_label": "Etiquette Imprimer le rapport",
 "Print_Report_property_close_report_label": "Etiquette Fermer le rapport",
- 
 "weight_mode": "Mode de calcul par pondération",
 "weight_value": "Personnaliser la valeur du calcul",
 "Print_Report_property_date_label": "Format de date",
@@ -1340,5 +1338,13 @@ var ice_dictionary_fr = {
 "Hierarchical_Table_Of_Contents_name": "Table des matières hiérarchique",
 "Hierarchical_Table_Of_Contents_property_title_label": "Texte du titre",
 "Hierarchical_Table_Of_Contents_property_display_only_chapters": "N’affiche que les chapitres",
-"Hierarchical_Table_Of_Contents_property_show_pages": "Montrer les pages"
+"Hierarchical_Table_Of_Contents_property_show_pages": "Montrer les pages",
+"Iframe_info": "This addon allows users to connection between iframe and addon",
+"Iframe_name": "IFrame",
+"IFrame_property_iframe_url": "Iframe URL",
+"IFrame_property_file_list" : "File list",
+"IFrame_property_file": "File",
+"IFrame_property_id": "ID",
+"IFrame_property_index_file": "Index file",
+"IFrame_property_communication_id": "Communication id"
 };

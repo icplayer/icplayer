@@ -1338,5 +1338,13 @@ var ice_dictionary_mx = {
 	"Hierarchical_Table_Of_Contents_name": "Índice Jerárquico",
 	"Hierarchical_Table_Of_Contents_property_title_label": "Etiqueta para título",
 	"Hierarchical_Table_Of_Contents_property_display_only_chapters": "Mostrar solamente capítulos",
-	"Hierarchical_Table_Of_Contents_property_show_pages": "Mostrar páginas"
+	"Hierarchical_Table_Of_Contents_property_show_pages": "Mostrar páginas",
+	"Iframe_info": "This addon allows users to connection between iframe and addon",
+	"Iframe_name": "IFrame",
+	"IFrame_property_iframe_url": "Iframe URL",
+	"IFrame_property_file_list" : "File list",
+	"IFrame_property_file": "File",
+	"IFrame_property_id": "ID",
+	"IFrame_property_index_file": "Index file",
+	"IFrame_property_communication_id": "Communication id"
 };

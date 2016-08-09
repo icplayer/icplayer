@@ -1346,5 +1346,13 @@
     "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
     "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
     "Hierarchical_Table_Of_Contents_property_display_only_chapters": "Display only chapters",
-    "Hierarchical_Table_Of_Contents_property_show_pages": "Show pages"
+    "Hierarchical_Table_Of_Contents_property_show_pages": "Show pages",
+	"Iframe_info": "This addon allows users to connection between iframe and addon",
+	"Iframe_name": "IFrame",
+	"IFrame_property_iframe_url": "Iframe URL",
+	"IFrame_property_file_list" : "File list",
+	"IFrame_property_file": "File",
+	"IFrame_property_id": "ID",
+	"IFrame_property_index_file": "Index file",
+	"IFrame_property_communication_id": "Communication id"
 };

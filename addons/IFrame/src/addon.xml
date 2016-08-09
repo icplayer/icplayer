@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Iframe' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="iframeURL" displayName="Iframe URL" nameLabel="IFrame_property_iframe_url" type="string"/>
+        <property name="fileList" displayName="File List" nameLabel="IFrame_property_file_list" type="list">
+            <property name="file" displayName="File" nameLabel="IFrame_property_file" type="file"/>
+            <property name="id" displayName="ID" nameLabel="IFrame_property_id" type="string" />
+        </property>
+        <property name="index" displayName="Index File" nameLabel="IFrame_property_index_file" type="file"/>
+        <property name="communicationID" displayName="Communication ID" nameLabel="IFrame_property_communication_id" type="string"/>
+    </model>
+</addon>
