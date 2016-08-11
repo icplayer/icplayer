@@ -1,3 +1,4 @@
+2016-28-11 Added exchange URL to scheme-less URL in addon descriptor factory
 2016-08-09 Added new addon IFrame
 2016-08-04 Added Target type property in External Link Button module
 2016-08-03 Fixed displaying viewBox in SVG module

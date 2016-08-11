@@ -359,6 +359,7 @@ var ice_dictionary_fr = {
 "page_exported": "Page copiée",
 "cant_import_page": "Aucune page n'est disponible pour l'import",
 "add_module_menu": "Ajouter un module",
+"schemeless_url_warning": "Resource available via HTTPS and HTTP should be provided with schemeless URL.<br />For more information see <a href='//www.mauthor.com/doc/en/page/Online-resources' target='_blank'>documentation.</a>",
 "Viewer_3D_info": "Une visionneuse d'objet 3D qui permet de créer des modèles en 3D au format de fichier Wavefront OBJ.",
 "Viewer_3D_name": "Visionneuse 3D",
 "Viewer_3D_property_obj_file": "Fichier OBJ",

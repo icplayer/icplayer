@@ -140,7 +140,8 @@ public class AddonDescriptorFactory {
 	}
 
 	private void addDescriptor(String id, String category) {
-		String url = GWT.getModuleBaseURL() + "addons/" + id + ".xml";
+		String moduleBaseURL = GWT.getModuleBaseURL().replaceFirst("^(http://|https://)", "//");
+		String url = moduleBaseURL + "addons/" + id + ".xml";
 		String name = DictionaryWrapper.get(id + "_name");
 
 		AddonEntry entry = new AddonEntry(id, name, url, category);

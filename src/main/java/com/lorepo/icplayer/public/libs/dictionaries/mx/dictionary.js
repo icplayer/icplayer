@@ -1,4 +1,4 @@
-var ice_dictionary_mx = {
+﻿var ice_dictionary_mx = {
 	"confirm_yes": "si",
 	"confirm_no": "no",
 	"edit_editable_gap": "Editar hueco editable/arrastrable",
@@ -359,6 +359,7 @@ var ice_dictionary_mx = {
 	"page_exported": "Página exportada",
 	"cant_import_page": "No hay páginas disponibles para importar",
 	"add_module_menu": "Añadir módulo",
+	"schemeless_url_warning": "Resource available via HTTPS and HTTP should be provided with schemeless URL.<br />For more information see <a href='//www.mauthor.com/doc/en/page/Online-resources' target='_blank'>documentation.</a>",
 	"Viewer_3D_info": "Visor de objetos 3D que utiliza el formato OBJ abierto.",
 	"Viewer_3D_name": "Visualizador de 3D",
 	"Viewer_3D_property_obj_file": "Archivo OBJ",

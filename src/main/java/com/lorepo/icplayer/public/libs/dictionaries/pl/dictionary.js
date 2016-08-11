@@ -359,6 +359,7 @@
 	"page_exported" : "Strona skopiowana",
 	"cant_import_page" : "Brak strony do zaimportowania",
 	"add_module_menu" : "Dodaj moduł",
+	"schemeless_url_warning": "Resource available via HTTPS and HTTP should be provided with schemeless URL.<br />For more information see <a href='//www.mauthor.com/doc/en/page/Online-resources' target='_blank'>documentation.</a>",
 	"Viewer_3D_info" : "Przeglądarka obiektów 3D, która pozwala tworzyć modele 3D w formacie pliku Wavefront OBJ.",
 	"Viewer_3D_name" : "Obiekt 3D",
 	"Viewer_3D_property_obj_file": "Plik OBJ",
