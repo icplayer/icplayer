@@ -270,6 +270,7 @@ public class PlayerApp{
 				entryPoint.onPageLoaded();
 			}
 			public void onError(String error) {
+				JavaScriptUtils.log("Loading pages error: " + error);
 			}
 		});
 		
@@ -280,6 +281,7 @@ public class PlayerApp{
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		
 		loader.addAddons(contentModel.getAddonDescriptors().values());
 		if(contentModel.getHeader() != null){
 			loader.addPage(contentModel.getHeader());
@@ -294,6 +296,7 @@ public class PlayerApp{
 			}
 
 			public void onError(String error) {
+				JavaScriptUtils.log("Loading ContentData have failed, error: " + error);
 			}
 		});
 	}

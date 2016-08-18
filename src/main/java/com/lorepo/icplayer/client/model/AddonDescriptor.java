@@ -73,7 +73,6 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 	@Override
 	public void load(Element rootElement, String baseUrl) {
-		
 		id = rootElement.getAttribute("id");
 		
 		loadModel(rootElement);

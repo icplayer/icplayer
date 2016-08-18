@@ -9,67 +9,10 @@
     <inherits name='com.lorepo.icf.Utils'/>
     <inherits name='com.lorepo.icf.Scripting'/>
 
-    <stylesheet src="theme/player.css"/>
-    <stylesheet src="libs/jquery-ui.css"/>
-
-    <script src="libs/player-utils.js"/>
-    <script src="libs/buzz.min.js"/>
-    <script src="libs/jcanvas.min.js"/>
-    <script src="libs/jquery-ui.js"/>
-    <script src="libs/jquery-csv.js"/>
-    <script src="libs/jquery.dotimeout.js"/>
-    <script src="libs/jquery.imgpreload.js"/>
-    <script src="libs/jquery.mousewheel.js"/>
-    <script src="libs/js-expression-eval.js"/>
-    <script src="libs/raphael-min.js"/>
-    <script src="libs/raphael.free_transform.min.js"/>
-    <script src="libs/jquery.svg.min.js"/>
-    <script src="libs/jquery.svganim.min.js"/>
-    <script src="libs/jquery.svgdom.min.js"/>
-    <script src="libs/expression-evaluator.js"/>
-    <script src="libs/commons.js"/>
-    <script src="libs/dictionaries/com/dictionary.js"/>
-    <script src="libs/dictionaries/fr/dictionary.js"/>
-    <script src="libs/dictionaries/mx/dictionary.js"/>
-    <script src="libs/dictionaries/pl/dictionary.js"/>
-    <script src="libs/aop.min.js"/>
-    <script src="libs/scorm.js"/>
-    <script src="libs/scorm_1_2.js"/>
+    <stylesheet src="build/dist/styles.min.css"/>
+    <script src="build/dist/libs.min.js"/>
+    <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>
-    <script src="libs/jsc3d.min.js"/>
-    <script src="libs/htmlparser.min.js"/>
-    <script src="libs/jquery.ui.touch-punch.min.js"/>
-    <script src="libs/jquery.keyboard.min.js"/>
-    <script src="libs/kinetic-v5.1.0.min.js"/>
-    <script src="libs/google-swiffy-7.4.js"/>
-    <script src="libs/sonic.js"/>
-	<script src="libs/zoom.js"/>
-    <script src="libs/FileSaver.js"/>
-    <script src="libs/blob.js"/>
-
-    <script src="libs/eKeyboard_layouts/french.js"/>
-    <script src="libs/eKeyboard_layouts/german.js"/>
-    <script src="libs/eKeyboard_layouts/polish.js"/>
-    <script src="libs/eKeyboard_layouts/spanish.js"/>
-
-    <script src="libs/jqplot/jquery.jqplot.min.js"/>
-    <script src="libs/jqplot/jqplot.barRenderer.min.js"/>
-    <script src="libs/jqplot/jqplot.categoryAxisRenderer.min.js"/>
-    <script src="libs/jqplot/jqplot.cursor.min.js"/>
-    <script src="libs/jqplot/jqplot.pointLabels.min.js"/>
-
-    <script src="libs/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
-    <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
-
-    <script src="libs/createjs/easeljs-0.4.1.min.js"/>
-    <script src="libs/createjs/tweenjs-0.2.0.min.js"/>
-    <script src="libs/createjs/movieclip-0.4.1.min.js"/>
-    <script src="libs/createjs/ypreloadjs1.3.0.min.js"/>
-    <script src="libs/createjs/ysoundjs1.3.0.min.js"/>
-
-    <script src="libs/ydp/ButtonDecorator.min.js"/>
-    <script src="libs/ydp/Delegate.min.js"/>
-    <script src="libs/ydp/Slider.min.js"/>
 
     <entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 
