@@ -37,7 +37,7 @@
     </target>
 
     <path id="yuicompressor.classpath">
-        <fileset dir="${yui.compressor.dir}">
+        <fileset dir="tools">
             <include name="**/*.jar"/>
         </fileset>
     </path>
@@ -84,63 +84,65 @@
     <target name="js.concatenate" depends="init, js.compress" description="Concatenates specified JavaScript files">
         <echo>Concanetate js files into single one</echo>
         <concat destfile="${libs.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
-            <file name="${build.temp.folder}/player-utils.js"/>
-            <file name="${build.temp.folder}/buzz.min.js"/>
-            <file name="${build.temp.folder}/jcanvas.min.js"/>
-            <file name="${build.temp.folder}/jquery-ui.js"/>
-            <file name="${build.temp.folder}/jquery-csv.js"/>
-            <file name="${build.temp.folder}/jquery.dotimeout.js"/>
-            <file name="${build.temp.folder}/jquery.imgpreload.js"/>
-            <file name="${build.temp.folder}/jquery.mousewheel.js"/>
-            <file name="${build.temp.folder}/js-expression-eval.js"/>
-            <file name="${build.temp.folder}/raphael-min.js"/>
-            <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
-            <file name="${build.temp.folder}/jquery.svg.min.js"/>
-            <file name="${build.temp.folder}/jquery.svganim.min.js"/>
-            <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
-            <file name="${build.temp.folder}/expression-evaluator.js"/>
-            <file name="${build.temp.folder}/commons.js"/>
-            <file name="${build.temp.folder}/dictionaries/com/dictionary.js"/>
-            <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
-            <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
-            <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
-            <file name="${build.temp.folder}/aop.min.js"/>
-            <file name="${build.temp.folder}/scorm.js"/>
-            <file name="${build.temp.folder}/scorm_1_2.js"/>
-            <file name="${build.temp.folder}/tinymce.min.js"/>
-            <file name="${build.temp.folder}/jsc3d.min.js"/>
-            <file name="${build.temp.folder}/htmlparser.min.js"/>
-            <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
-            <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
-            <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
-            <file name="${build.temp.folder}/google-swiffy-7.4.js"/>
-            <file name="${build.temp.folder}/sonic.js"/>
-            <file name="${build.temp.folder}/zoom.js"/>
-            <file name="${build.temp.folder}/FileSaver.js"/>
-            <file name="${build.temp.folder}/blob.js"/>
-        
-            <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
-            <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
-            <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
-            <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
-        
-            <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
-            <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>
-            <file name="${build.temp.folder}/jqplot/jqplot.categoryAxisRenderer.min.js"/>
-            <file name="${build.temp.folder}/jqplot/jqplot.cursor.min.js"/>
-            <file name="${build.temp.folder}/jqplot/jqplot.pointLabels.min.js"/>
-        
-            <file name="${build.temp.folder}/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
+            <filelist>
+                <file name="${build.temp.folder}/player-utils.js"/>
+                <file name="${build.temp.folder}/buzz.min.js"/>
+                <file name="${build.temp.folder}/jcanvas.min.js"/>
+                <file name="${build.temp.folder}/jquery-ui.js"/>
+                <file name="${build.temp.folder}/jquery-csv.js"/>
+                <file name="${build.temp.folder}/jquery.dotimeout.js"/>
+                <file name="${build.temp.folder}/jquery.imgpreload.js"/>
+                <file name="${build.temp.folder}/jquery.mousewheel.js"/>
+                <file name="${build.temp.folder}/js-expression-eval.js"/>
+                <file name="${build.temp.folder}/raphael-min.js"/>
+                <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
+                <file name="${build.temp.folder}/jquery.svg.min.js"/>
+                <file name="${build.temp.folder}/jquery.svganim.min.js"/>
+                <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
+                <file name="${build.temp.folder}/expression-evaluator.js"/>
+                <file name="${build.temp.folder}/commons.js"/>
+                <file name="${build.temp.folder}/dictionaries/com/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
+                <file name="${build.temp.folder}/aop.min.js"/>
+                <file name="${build.temp.folder}/scorm.js"/>
+                <file name="${build.temp.folder}/scorm_1_2.js"/>
+                <file name="${build.temp.folder}/tinymce.min.js"/>
+                <file name="${build.temp.folder}/jsc3d.min.js"/>
+                <file name="${build.temp.folder}/htmlparser.min.js"/>
+                <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
+                <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
+                <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
+                <file name="${build.temp.folder}/google-swiffy-7.4.js"/>
+                <file name="${build.temp.folder}/sonic.js"/>
+                <file name="${build.temp.folder}/zoom.js"/>
+                <file name="${build.temp.folder}/FileSaver.js"/>
+                <file name="${build.temp.folder}/blob.js"/>
 
-            <file name="${build.temp.folder}/createjs/easeljs-0.4.1.min.js"/>
-            <file name="${build.temp.folder}/createjs/tweenjs-0.2.0.min.js"/>
-            <file name="${build.temp.folder}/createjs/movieclip-0.4.1.min.js"/>
-            <file name="${build.temp.folder}/createjs/ypreloadjs1.3.0.min.js"/>
-            <file name="${build.temp.folder}/createjs/ysoundjs1.3.0.min.js"/>
-        
-            <file name="${build.temp.folder}/ydp/ButtonDecorator.min.js"/>
-            <file name="${build.temp.folder}/ydp/Delegate.min.js"/>
-            <file name="${build.temp.folder}/ydp/Slider.min.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
+
+                <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.cursor.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.pointLabels.min.js"/>
+
+                <file name="${build.temp.folder}/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
+
+                <file name="${build.temp.folder}/createjs/easeljs-0.4.1.min.js"/>
+                <file name="${build.temp.folder}/createjs/tweenjs-0.2.0.min.js"/>
+                <file name="${build.temp.folder}/createjs/movieclip-0.4.1.min.js"/>
+                <file name="${build.temp.folder}/createjs/ypreloadjs1.3.0.min.js"/>
+                <file name="${build.temp.folder}/createjs/ysoundjs1.3.0.min.js"/>
+
+                <file name="${build.temp.folder}/ydp/ButtonDecorator.min.js"/>
+                <file name="${build.temp.folder}/ydp/Delegate.min.js"/>
+                <file name="${build.temp.folder}/ydp/Slider.min.js"/>
+            </filelist>
         </concat>
         <echo>Concanetating success</echo>
     </target>
