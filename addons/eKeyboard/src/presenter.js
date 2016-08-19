@@ -265,23 +265,6 @@ function AddoneKeyboard_create(){
             }
 
             if (!isPreview) {
-                if (presenter.configuration.customLayout.length > 0) {
-                    try {
-                        eval('presenter.configuration.customLayout = ' + presenter.configuration.customLayout);
-                    } catch(e) {
-                        presenter.ERROR_CODES['evaluationError'] = e.message;
-                        DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
-                    }
-                }
-
-                if (presenter.configuration.customDisplay.length > 0) {
-                    try {
-                        eval('presenter.configuration.customDisplay = ' + presenter.configuration.customDisplay);
-                    } catch(e) {
-                        presenter.ERROR_CODES['evaluationError'] = e.message;
-                        DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
-                    }
-                }
                 presenter.configuration.customLayout.id = new Date().getTime();
 
                 var defaultDisplay = {
@@ -308,14 +291,15 @@ function AddoneKeyboard_create(){
                     space  : '&nbsp;:Space',
                     t      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
                     tab    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-                }
+                };
 
                 var customDisplay = presenter.configuration.customDisplay;
                 var display = $.extend(defaultDisplay, customDisplay);
 
                 if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
-                    $('input').addClass('ui-keyboard-lockedinput');
-                    $('input').attr("readonly", true);
+                    var $input = $('input');
+                    $input.addClass('ui-keyboard-lockedinput');
+                    $input.attr("readonly", true);
                 }
 
                 $(presenter.configuration.workWithViews).find('input').on('click', function() {

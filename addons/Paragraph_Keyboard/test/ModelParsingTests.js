@@ -80,10 +80,13 @@ TestCase("[Paragraph] Model parsing", {
     },
 
     'test custom toolbar available buttons': function() {
-        var model = {
-            'Custom toolbar': 'newdocument bold italic underline strikethrough alignleft aligncenter alignright ' +
+        var toolbar = 'newdocument bold italic underline strikethrough alignleft aligncenter alignright ' +
                               'alignjustify styleselect formatselect fontselect fontsizeselect ' +
-                              'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript |'
+                              'bullist numlist outdent indent blockquote undo redo removeformat subscript superscript';
+
+        var model = {
+            'Custom toolbar': toolbar,
+            "Width": toolbar.split(" ").length * this.presenter.DEFAULTS.BUTTON_WIDTH + this.presenter.DEFAULTS.FORMAT_WIDTH
         };
 
         var validatedModel = this.presenter.parseModel(model);
@@ -92,8 +95,10 @@ TestCase("[Paragraph] Model parsing", {
     },
 
     'test custom toolbar unavailable buttons removed silently': function() {
+        var toolbar = 'italic underline bold test fake button';
         var model = {
-            'Custom toolbar': 'italic underline bold test fake button'
+            'Custom toolbar': toolbar,
+            "Width": toolbar.split(" ").length * this.presenter.DEFAULTS.BUTTON_WIDTH
         };
 
         var validatedModel = this.presenter.parseModel(model);
@@ -103,7 +108,8 @@ TestCase("[Paragraph] Model parsing", {
 
     'test blank custom toolbar': function() {
         var model = {
-            'Custom toolbar': ''
+            'Custom toolbar': '',
+            "Width": this.presenter.DEFAULTS.TOOLBAR.length * this.presenter.DEFAULTS.BUTTON_WIDTH
         };
 
         var validatedModel = this.presenter.parseModel(model);

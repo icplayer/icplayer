@@ -1,12 +1,35 @@
 function AddonParagraph_create() {
     var presenter = function () {};
-    var editorID;
-    var editorDOM;
-    var isVisible;
 
     presenter.placeholder = null;
+    presenter.editor = null;
+    presenter.jQueryTinyMCEHTML = null;
+    presenter.$tinyMCEToolbar = null;
+    presenter.tinyMceContainer = null;
+    presenter.editor = null;
+    presenter.playerController = null;
+    presenter.isVisibleValue = null;
 
-    presenter.executeCommand = function(name, params) {
+    presenter.LANGUAGES = {
+        DEFAULT: "en_GB",
+        FRENCH: "fr_FR"
+    };
+
+    presenter.DEFAULTS = {
+        TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
+        FONT_FAMILY: 'Verdana,Arial,Helvetica,sans-serif',
+        FONT_SIZE: '11px',
+        BUTTON_WIDTH: 37,
+        FORMAT_WIDTH: 85,
+        STYLE_SELECT_NAME: "styleselect"
+    };
+
+    presenter.ALLOWED_TOOLBAR_BUTTONS = 'customBold customUnderline customItalic newdocument bold italic underline strikethrough alignleft aligncenter '+
+        'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
+        'bullist numlist outdent indent blockquote undo redo '+
+        'removeformat subscript superscript forecolor backcolor |'.split(' ');
+
+    presenter.executeCommand = function AddonParagraph_executeCommand(name, params) {
         if (!presenter.configuration.isValid) { return; }
 
         var commands = {
@@ -18,48 +41,86 @@ function AddonParagraph_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.DEFAULTS = {
-        TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
-        FONT_FAMILY: 'Verdana,Arial,Helvetica,sans-serif',
-        FONT_SIZE: '11px'
-    };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function AddonParagraph_setVisibility(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         if (isVisible) {
             presenter.$view.find(".paragraph-wrapper").show();
         } else {
             presenter.$view.find(".paragraph-wrapper").hide();
         }
+
+        presenter.isVisibleValue = isVisible;
     };
 
-    presenter.createPreview = function(view, model) {
+    presenter.createPreview = function AddonParagraph_createPreview(view, model) {
         presenter.initializeEditor(view, model);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
     };
 
-    presenter.run = function(view, model) {
-        presenter.pageLoadedDeferred = new $.Deferred();
-        presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
-
+    presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model);
-
-        var ua = window.navigator.userAgent,
-            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
-            webkit = !!ua.match(/WebKit/i),
-            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
-
-        if (iOSSafari) {
-            presenter.pageLoaded.then(function() {
-                presenter.myVar = setInterval(function(){
-                    findIframeAndSetStyles();
-                }, 1000);
-            });
-        }
     };
 
-    function findIframeAndSetStyles() {
+    presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
+        presenter.view = view;
+        presenter.$view = $(view);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.$view.on('click', function viewClickHandler(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
+
+        presenter.placeholder = new presenter.placeholderElement();
+        presenter.configuration.plugins = presenter.getPlugins();
+        presenter.addPlugins();
+
+        tinymce.init(presenter.getTinymceInitConfiguration(presenter.getTinyMceSelector())).then(function (editors) {
+            presenter.editor = editors[0];
+            presenter.onInit();
+
+            var ua = window.navigator.userAgent,
+                iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+                webkit = !!ua.match(/WebKit/i),
+                iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+
+            if (iOSSafari) {
+                presenter.findIframeAndSetStyles();
+            }
+        });
+
+        presenter.setVisibility(presenter.configuration.isVisible);
+    };
+
+    presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
+        return '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
+    };
+
+    presenter.getTinymceInitConfiguration = function AddonParagraph_getTinyMceConfiguration(selector) {
+        var layoutType = presenter.configuration.layoutType;
+
+        return {
+            plugins: presenter.configuration.plugins,
+            selector : selector,
+            width: presenter.configuration.width,
+            height: presenter.configuration.textAreaHeight,
+            statusbar: false,
+            menubar: false,
+            toolbar: layoutType === "Default" ? presenter.configuration.toolbar : presenter.getSpecifyToolbar(layoutType),
+            content_css: presenter.configuration.content_css,
+            setup: presenter.setup,
+            language: layoutType === "Default" ? presenter.LANGUAGES.DEFAULT : presenter.LANGUAGES.FRENCH
+        };
+    };
+
+     presenter.findIframeAndSetStyles = function AddonParagraph_findIframeAndSetStyles() {
         var iframe = presenter.$view.find(".paragraph-wrapper").find("iframe"),
             body = $(iframe).contents().find("#tinymce"),
             element = body.find("p");
@@ -76,30 +137,55 @@ function AddonParagraph_create() {
         });
 
         presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
+    };
 
-        if (iframe.length > 0){
-            clearInterval(presenter.myVar);
+    presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
+        if (!controls) {
+            controls = presenter.DEFAULTS.TOOLBAR;
         }
-    }
 
-    presenter.onEventReceived = function(eventName) {
-        if (eventName == 'PageLoaded') {
-            presenter.pageLoadedDeferred.resolve();
+        controls = controls.split(" ");
+        if (controls.indexOf("|") != -1) {
+            return presenter.parseToolbarWithGroups(controls, width);
+        } else {
+            return presenter.parseToolbarWithoutGroups(controls, width);
         }
     };
 
-    presenter.validateToolbar = function(controls) {
-        if (!controls) {
-            return presenter.DEFAULTS.TOOLBAR;
+    presenter.parseToolbarWithGroups = function (controls, toolbarWidth) {
+        var controlGroups = controls.join(" ").split("|");
+        return controlGroups.filter(function (group) {
+            return group.trim().length > 0;
+        }).map(function (group) {
+            return presenter.parseToolbarWithoutGroups(group.trim().split(" "), toolbarWidth);
+        }).join(" | ");
+    };
+
+    presenter.parseToolbarWithoutGroups = function (controls, toolbarWidth) {
+        var filteredControls = controls.filter(function(param){
+            return presenter.ALLOWED_TOOLBAR_BUTTONS.indexOf(param) != -1;
+        });
+
+        var result = "";
+        var bufor = 0;
+        var widthToAdd = 0;
+        for(var i = 0; i < filteredControls.length; i++) {
+            if (filteredControls[i] !== presenter.DEFAULTS.STYLE_SELECT_NAME) {
+                widthToAdd = presenter.DEFAULTS.BUTTON_WIDTH;
+            } else {
+                widthToAdd = presenter.DEFAULTS.FORMAT_WIDTH;
+            }
+
+            if (bufor + widthToAdd < toolbarWidth) {
+                bufor += widthToAdd;
+                result += filteredControls[i].trim() + " ";
+            } else {
+                bufor = widthToAdd;
+                result += "| " + filteredControls[i].trim() + " ";
+            }
         }
-        var allowedButtons = 'customBold customUnderline customItalic newdocument bold italic underline strikethrough alignleft aligncenter '+
-                             'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
-                             'bullist numlist outdent indent blockquote undo redo '+
-                             'removeformat subscript superscript forecolor backcolor |'.split(' ');
-        controls = controls.split(' ');
-        return controls.filter(function(param){
-            return allowedButtons.indexOf(param) != -1
-        }).join(' ');
+
+        return result.trim();
     };
 
     /**
@@ -108,11 +194,11 @@ function AddonParagraph_create() {
      * @param model
      * @returns {{fontFamily: *, fontSize: *}}
      */
-    presenter.validateModel = function (model) {
+    presenter.validateModel = function AddonParagraph_validateModel(model) {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
-            toolbar = presenter.validateToolbar(model['Custom toolbar']),
+            toolbar = presenter.validateToolbar(model['Custom toolbar'], model.Width),
             height = model.Height,
             hasDefaultFontFamily = false,
             hasDefaultFontSize = false,
@@ -158,7 +244,7 @@ function AddonParagraph_create() {
      * for prototype purpose. Also the set of controls is static and it could be be moved to
      * configuration.
      */
-    presenter.getPlugins = function () {
+    presenter.getPlugins = function AddonParagraph_getPlugins() {
         var plugins = [];
         if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
             presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
@@ -187,112 +273,107 @@ function AddonParagraph_create() {
         return upgradedModel;
     };
 
-    presenter.initializeEditor = function(view, model) {
-        presenter.$view = $(view);
-        var upgradedModel = presenter.upgradeModel(model);
-        presenter.configuration = presenter.validateModel(upgradedModel);
+    presenter.destroy = function AddonParagraph_destroy() {
+        if (event.target !== presenter.view) {
+            return;
+        }
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
-        presenter.$view.on('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-        });
+        presenter.placeholder = null;
+        presenter.editor.destroy();
+        presenter.jQueryTinyMCEHTML.off();
+        tinymce.remove();
 
-        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
-        var selector = '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
+        presenter.$view.off();
+        presenter.$tinyMCEToolbar.off();
 
-        presenter.configuration.plugins = presenter.getPlugins();
-        presenter.addPlugins();
-
-        tinymce.init(presenter.getTinymceInitConfiguration(selector));
-
-        isVisible = presenter.configuration.isVisible;
-        presenter.setVisibility(presenter.configuration.isVisible);
+        tinymce.AddOnManager.PluginManager.items.length = 0;
+        presenter.$tinyMCEToolbar = null;
+        presenter.jQueryTinyMCEHTML = null;
+        presenter.configuration = null;
+        presenter.$view = null;
+        presenter.view = null;
+        presenter.editor = null;
+        presenter.isVisibleValue = null;
+        presenter.findIframeAndSetStyles = null;
+        presenter.getSpecifyToolbar = null;
+        presenter.addStylesToButton = null;
+        presenter.getButton = null;
+        presenter.onBlur = null;
+        presenter.onFocus = null;
+        presenter.onInit = null;
+        presenter.setIframeHeight = null;
+        presenter.destroy = null;
+        presenter.tinyMceContainer = null;
+        presenter.editor = null;
+        presenter.playerController = null;
+        presenter.LANGUAGES = null;
     };
 
-    presenter.getTinymceInitConfiguration = function(selector) {
-        var layoutType = presenter.configuration.layoutType;
-
-        return {
-            plugins: presenter.configuration.plugins,
-            selector : selector,
-            width: presenter.configuration.width,
-            height: presenter.configuration.textAreaHeight,
-            statusbar: false,
-            menubar: false,
-            toolbar: layoutType === "Default" ? presenter.configuration.toolbar : getSpecifyToolbar(layoutType),
-            oninit: presenter.onInit,
-            content_css: presenter.configuration.content_css,
-            setup: presenter.setup,
-            language: layoutType === "Default" ? '' : 'fr_FR',
-            language_url : layoutType === "Default" ? '' : '/langs/fr_FR.js'
-        };
-    };
-
-    presenter.addPlugins = function() {
+    presenter.addPlugins = function AddonParagraph_addPlugins() {
         if (presenter.configuration.isPlaceholderSet) {
             presenter.addPlaceholderPlugin();
         }
     };
 
-    presenter.makePluginName = function(addonID) {
+    presenter.makePluginName = function AddonParagraph_makePluginName(addonID) {
         var name = 'placeholder';
         addonID.replace(/[a-z0-9]+/gi, function(x) {
             name += "_" + x;
         });
+
         return name;
     };
 
-    presenter.addPlaceholderPlugin = function () {
-        tinymce.PluginManager.add(presenter.configuration.pluginName, function(ed) {
-            editorID = ed.id;
-            var editor = tinymce.get(editorID);
+     presenter.onFocus = function AddonParagraph_onFocus() {
+        if (presenter.placeholder.isSet) {
+            presenter.placeholder.removePlaceholder();
+            presenter.placeholder.shouldBeSet = (presenter.placeholder.getEditorContent() == "");
+        }
+    };
+
+     presenter.onBlur = function AddonParagraph_onBlur() {
+        if (presenter.placeholder.shouldBeSet) {
+            presenter.placeholder.addPlaceholder();
+        } else {
+            presenter.placeholder.removePlaceholder();
+        }
+    };
+
+    presenter.addPlaceholderPlugin = function AddonParagraph_addPlaceholderPlugin() {
+        tinymce.PluginManager.add(presenter.configuration.pluginName, function(editor) {
             editor.on('init', function () {
-                presenter.placeholder = new presenter.placeholderElement(editor);
-
-                editor.on('blur', onBlur);
-                editor.on('focus', onFocus);
-
-                function onFocus() {
-                   if (presenter.placeholder.isSet) {
-                       presenter.placeholder.removePlaceholder();
-                       presenter.placeholder.shouldBeSet = (presenter.placeholder.getEditorContent() == "");
-                   }
-                }
-
-                function onBlur() {
-                    if (presenter.placeholder.shouldBeSet) {
-                        presenter.placeholder.addPlaceholder();
-                    } else {
-                        presenter.placeholder.removePlaceholder();
-                    }
-                }
+                presenter.placeholder.init(editor.id);
+                editor.on('blur', presenter.onBlur);
+                editor.on('focus', presenter.onFocus);
             });
         });
     };
 
-    presenter.placeholderElement = function(editor){
-        editorID = editor.id;
+    presenter.placeholderElement = function AddonParagraph_placeholderElement() {
         this.isSet = true;
         this.shouldBeSet = false;
         this.placeholderText = presenter.configuration.placeholderText;
-        this.contentAreaContainer = tinymce.get(editorID).getBody();
-
-        tinymce.DOM.setStyle(this.contentAreaContainer, 'position', 'relative');
-
+        this.contentAreaContainer = null;
+        this.el = null;
         this.attrs = {style: {position: 'absolute', top:'5px', left:0, color: '#888', padding: '1%', width:'98%', overflow: 'hidden'} };
-
-        this.el = tinymce.get(editorID).dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
-        tinymce.DOM.addClass(this.el, "placeholder");
-        return this;
     };
 
-    presenter.placeholderElement.prototype.addPlaceholder = function() {
-        this.el = tinymce.get(editorID).dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
-        tinymce.get(editorID).dom.addClass(this.el, "placeholder");
+    presenter.placeholderElement.prototype.init = function AddonParagraph_placeholderElement_init() {
+        this.contentAreaContainer = presenter.editor.getBody();
+        this.el = presenter.editor.dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+
+        tinymce.DOM.setStyle(this.contentAreaContainer, 'position', 'relative');
+        tinymce.DOM.addClass(this.el, "placeholder");
+    };
+
+    presenter.placeholderElement.prototype.addPlaceholder = function AddonParagraph_addPlaceholder() {
+        this.el = presenter.editor.dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+        presenter.editor.dom.addClass(this.el, "placeholder");
         this.isSet = true;
     };
 
-    presenter.placeholderElement.prototype.setPlaceholderAfterEditorChange = function () {
+    presenter.placeholderElement.prototype.setPlaceholderAfterEditorChange = function AddonParagraph_setPlaceholderAfterEditorChange() {
         if (this.getEditorContent() == "") {
             this.shouldBeSet = true;
         } else {
@@ -301,22 +382,22 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.placeholderElement.prototype.removePlaceholder = function () {
+    presenter.placeholderElement.prototype.removePlaceholder = function AddonParagraph_removePlaceholder() {
         this.isSet = false;
-        tinymce.get(editorID).dom.remove(this.el);
+        presenter.editor.dom.remove(this.el);
     };
 
-    presenter.placeholderElement.prototype.getEditorContent = function () {
-        return tinymce.get(editorID).getContent();
+    presenter.placeholderElement.prototype.getEditorContent = function AddonParagraph_getEditorContent() {
+        return presenter.editor.getContent();
     };
 
-    presenter.onTinymceChange = function (editor, event) {
+    presenter.onTinymceChange = function AddonParagraph_onTinymceChange(editor, event) {
         if (presenter.configuration.isPlaceholderSet) {
             presenter.placeholder.setPlaceholderAfterEditorChange();
         }
     };
 
-    function getSpecifyToolbar(language) {
+     presenter.getSpecifyToolbar = function AddonParagraph_getSpecifyToolbar(language) {
         var toolbar = "";
 
         if (language === "French") {
@@ -324,19 +405,19 @@ function AddonParagraph_create() {
         }
 
         return toolbar;
-    }
+    };
 
-    function addStylesToButton() {
-        var boldButton = presenter.$view.find("[aria-label='" + getButton("Bold").title + "'] button"),
-            italicButton = presenter.$view.find("[aria-label='" + getButton("Italic").title + "'] button"),
-            underlineButton = presenter.$view.find("[aria-label='" + getButton("Underline").title + "'] button");
+     presenter.addStylesToButton =  function AddonParagraph_addStylesToButton() {
+        var boldButton = presenter.$view.find("[aria-label='" + presenter.getButton("Bold").title + "'] button"),
+            italicButton = presenter.$view.find("[aria-label='" + presenter.getButton("Italic").title + "'] button"),
+            underlineButton = presenter.$view.find("[aria-label='" + presenter.getButton("Underline").title + "'] button");
 
         boldButton.css({'font-family': 'tinymce', 'font-size': '18px', 'font-weight': 'bold'});
         italicButton.css({'font-family': 'tinymce', 'font-size': '18px', 'font-weight': 'bold', 'font-style': 'italic'});
         underlineButton.css({'font-family': 'tinymce', 'font-size': '18px', 'font-weight': 'bold', 'text-decoration': 'underline'});
-    }
+    };
 
-    function getButton(type) {
+     presenter.getButton = function AddonParagraph_getButton(type) {
         var layoutLanguage = presenter.configuration.layoutType;
 
         var french = {
@@ -352,17 +433,17 @@ function AddonParagraph_create() {
                 text: 'I',
                 title: 'Italic'
             }
-        }
+        };
 
         var languages = {
             French: french
-        }
+        };
 
         return languages[layoutLanguage][type];
-    }
+    };
 
-    function createButton(editor, type) {
-        var button = getButton(type);
+     presenter.createButton = function AddonParagraph_createButton(editor, type) {
+        var button = presenter.getButton(type);
 
         return {
             text: button.text,
@@ -371,43 +452,65 @@ function AddonParagraph_create() {
             onclick: function() {
                 editor.execCommand(type);
             }
-        }
-    }
+        };
+    };
 
-    presenter.setup = function (ed) {
+    presenter.setup = function AddonParagraph_setup(ed) {
+        if (presenter.editor == null) {
+            presenter.editor = ed;
+        }
+
         ed.on("NodeChange", presenter.onNodeChange);
         ed.on("keyup", presenter.onTinymceChange);
         if (presenter.configuration.layoutType !== "Default") {
-            ed.addButton('customBold', createButton(this, "Bold"));
-            ed.addButton('customItalic', createButton(this, "Italic"));
-            ed.addButton('customUnderline', createButton(this, "Underline"));
+            ed.addButton('customBold', presenter.createButton(this, "Bold"));
+            ed.addButton('customItalic', presenter.createButton(this, "Italic"));
+            ed.addButton('customUnderline', presenter.createButton(this, "Underline"));
         }
     };
 
-    presenter.setStyles = function () {
-        if (!editorDOM) return;
-        
+    presenter.onNodeChange = function AddonParagraph_onNodeChange() {
+        presenter.setStyles();
+    };
+
+    presenter.setStyles = function AddonParagraph_setStyles() {
+        if (presenter.editor == null) {
+            return;
+        }
+
         var hasDefaultFontFamily = presenter.configuration.hasDefaultFontFamily,
             hasDefaultFontSize = presenter.configuration.hasDefaultFontSize,
             hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
 
-        if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss)
-            {
-            var elements = [ editorDOM.select('p'), editorDOM.select('ol'), editorDOM.select('ul') ], i;
+        if (presenter.editor.dom.$("placeholder").length > 0) {
+            return;
+        }
 
-            for (i = 0; i < elements.length; i++) {
+        if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss) {
+            var elements = [ presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul')];
+
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].length == 0) {
+                    continue;
+                }
+
                 if (!hasDefaultFontFamily || !hasContentCss) {
-                    editorDOM.setStyle(elements[i], 'font-family', presenter.configuration.fontFamily);
-                    }
+                    elements[i].css('font-family', presenter.configuration.fontFamily);
+                }
+
                 if (!hasDefaultFontSize || !hasContentCss) {
-                    editorDOM.setStyle(elements[i], 'font-size', presenter.configuration.fontSize);
-                    }
+                    elements[i].css('font-size', presenter.configuration.fontSize);
                 }
             }
+        }
     };
 
-    presenter.setIframeHeight = function() {
-        var $editor = presenter.$view.find('#' + editorID + '_ifr'),
+    presenter.setIframeHeight = function AddonParagraph_setIframeHeight() {
+        if (presenter.$view == null) {
+            return;
+        }
+
+        var $editor = presenter.$view.find('#' + presenter.editor.id + '_ifr'),
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
@@ -417,110 +520,91 @@ function AddonParagraph_create() {
         $editor.height(editorHeight);
     };
 
-    presenter.onInit = function() {
-        editorID = tinymce.activeEditor.id;
-        editorDOM = tinymce.activeEditor.dom;
-
+    presenter.onInit = function AddonParagraph_onInit() {
         if (presenter.configuration.isToolbarHidden) {
             presenter.$view.find('.mce-container.mce-panel.mce-first').remove();
             presenter.$view.find('.mce-edit-area').css('border-top-width', '0');
         }
 
-        presenter.window = tinymce.get(editorID).contentWindow;
-        $(editorDOM.select('html')).click(function () {
-            presenter.window.focus();
-            $(tinymce.get(editorID).contentDocument).find('body').focus();
+        presenter.jQueryTinyMCEHTML = $(presenter.editor.dom.select('html'));
+        presenter.jQueryTinyMCEHTML.click(function editorDOMSelectClick() {
+            presenter.editor.contentWindow.focus();
+            $(presenter.editor.contentDocument).find('body').focus();
         });
 
-        var stylesheetFullPath = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "addons/resources/style.css");
-        tinyMCE.activeEditor.dom.loadCSS(stylesheetFullPath);
-
-        tinymce.activeEditor.dom.setStyle(tinymce.activeEditor.dom.select('body'), 'height', '100%');
+        presenter.editor.dom.loadCSS(DOMOperationsUtils.getResourceFullPath(presenter.playerController, "addons/resources/style.css"));
+        presenter.editor.dom.$("body").css("height", "100%");
 
         presenter.setStyles();
-
         if (presenter.configuration.state !== undefined) {
-            tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
+            presenter.editor.setContent(presenter.configuration.state, {format : 'raw'});
         }
 
-        presenter.$view.find('.mce-toolbar').on('resize', presenter.setIframeHeight);
+        presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
+        presenter.$tinyMCEToolbar.on('resize', presenter.setIframeHeight);
 
-        presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border', 0);
+        presenter.tinyMceContainer = presenter.$view.find('.mce-container.mce-panel.mce-tinymce');
+        presenter.tinyMceContainer.css('border', 0);
 
-        // wait till toolbar render
-        var intervalId = setInterval(function () {
-            var toolbarHeight = presenter.$view.find('.mce-toolbar').height();
-            if (toolbarHeight < 110 && toolbarHeight > 0) {
-                clearInterval(intervalId);
-                presenter.setIframeHeight();
-            }
-        }, 50);
 
         if (presenter.configuration.layoutType !== "Default") {
-            addStylesToButton();
+            presenter.addStylesToButton();
         }
     };
 
-    presenter.setPlayerController = function (controller) {
+    presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = controller.getEventBus();
-        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
-    presenter.onNodeChange = function () {
-        presenter.setStyles();
-    };
-
-    presenter.getState = function() {
+    presenter.getState = function AddonParagraph_getState() {
         var tinymceState;
-        if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
-            tinymceState = tinymce.get(editorID).getContent({format : 'raw'});
+        if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
+            tinymceState = presenter.editor.getContent({format : 'raw'});
         } else {
             tinymceState = '';
         }
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
-            'isVisible' : isVisible
+            'isVisible' : presenter.isVisibleValue
         });
     };
 
-    presenter.setState = function(state) {
+    presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
             tinymceState = parsedState.tinymceState;
 
-        isVisible = parsedState.isVisible;
-        presenter.setVisibility(isVisible);
+        presenter.configuration.isVisible = parsedState.isVisible;
+        presenter.setVisibility(presenter.configuration.isVisible);
 
         if (tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
-            if (editorID !== undefined) {
-                tinymce.get(editorID).setContent(tinymceState, {format: 'raw'});
+            if (presenter.editor != null) {
+                presenter.editor.setContent(tinymceState, {format: 'raw'});
             } else {
                 presenter.configuration.state = tinymceState;
             }
         }
     };
 
-    presenter.reset = function() {
+    presenter.reset = function AddonParagraph_reset() {
         presenter.setVisibility(presenter.configuration.isVisible);
-        isVisible = presenter.configuration.isVisible;
-
-        var selector = '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
-        tinymce.activeEditor = tinymce.init(presenter.getTinymceInitConfiguration(selector));
+        presenter.placeholder.removePlaceholder();
+        presenter.editor.setContent('');
+        presenter.placeholder.addPlaceholder();
     };
 
-    presenter.show = function() {
-        isVisible = true;
+    presenter.show = function AddonParagraph_show() {
+        presenter.configuration.isVisible = true;
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function() {
-        isVisible = false;
+    presenter.hide = function AddonParagraph_hide() {
+        presenter.configuration.isVisible = false;
         presenter.setVisibility(false);
     };
 
-    presenter.isVisible = function() {
-        return isVisible;
+    presenter.isVisible = function AddonParagraph_isVisible() {
+        return presenter.configuration.isVisible;
     };
 
     return presenter;

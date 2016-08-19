@@ -1,3 +1,4 @@
+2016-06-19 Updated tinymce library from version 4.0b2 to 4.4.0, fixed memory leaks issues in Paragraph and Paragraph_eKeyboard
 2016-08-18 Fixed ant build scripts issues with paths for Ubuntu platform
 2016-08-18 Added fetching all libraries in 1 reuqest, addons xml loaded in 1 request
 2016-08-11 Added exchange URL to scheme-less URL in addon descriptor factory

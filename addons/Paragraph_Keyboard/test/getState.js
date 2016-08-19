@@ -5,16 +5,10 @@ TestCase("[Paragraph] getState method", {
     },
 
     'test getState for existing editor': function () {
-        var editor = {
+        this.presenter.editor = {
             id: "mce_1",
             getContent: function () {
                 return "Content";
-            }
-        };
-
-        window.tinymce = {
-            get: function () {
-                return editor
             }
         };
 
@@ -24,15 +18,9 @@ TestCase("[Paragraph] getState method", {
     },
 
     'test getState for incomplete editor': function () {
-        var editor = {
+        this.presenter.editor = {
             setContent: function (state) {
                 return state;
-            }
-        };
-
-        window.tinymce = {
-            get: function () {
-                return editor
             }
         };
 
@@ -41,13 +29,6 @@ TestCase("[Paragraph] getState method", {
         assertEquals("", state.tinymceState);
     },
     'test getState for non existed editor': function () {
-
-        window.tinymce = {
-            get: function () {
-                return undefined
-            }
-        };
-
         var state = JSON.parse(this.presenter.getState());
 
         assertEquals("", state.tinymceState);
