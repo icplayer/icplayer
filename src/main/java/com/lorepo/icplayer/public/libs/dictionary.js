@@ -135,6 +135,7 @@
 	"update_style" : "Update style",
 	"cant_load_document" : "Can't load document: ",
 	"cant_add_page" : "Can't add page: ",
+	"to_many_pages_warning" : "The Lesson has too many pages.<br />A large number of pages may cause many problems.<br />It is recommended to prepare more Lessons with fewer pages.<br />Please see <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>documentation</a>for more details.",
 	"outstretch_height" : "Outstretch height",
 	"split_page" : "Split page",
 	"amount" : "Amount",

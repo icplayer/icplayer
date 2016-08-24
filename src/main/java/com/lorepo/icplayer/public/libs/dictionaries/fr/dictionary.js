@@ -154,6 +154,7 @@ var ice_dictionary_fr = {
 "presentation_saved" : "La présentation a été sauvegardée.",
 "page_saved" : "La page a été sauvegardée.",
 "saving_changes" : "Modifications en cours de sauvegarde",
+"to_many_pages_warning" : "The Lesson has too many pages.<br />A large number of pages may cause many problems.<br />It is recommended to prepare more Lessons with fewer pages.<br />Please see <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>documentation</a>for more details.",
 "cant_save_page" : "Impossible de sauvegarder la page :",
 "cant_save_page_Forbidden": "Impossible de sauvegarder la page. Vous avez probablement été déconnecté.",
 "properties" : "Propriétés",

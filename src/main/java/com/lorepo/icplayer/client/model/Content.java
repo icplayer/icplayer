@@ -35,7 +35,8 @@ public class Content implements IXMLSerializable, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-
+	private int maxPagesCount = 100;
+	
 	public Content(){
 
 		pages = new PageList("root");
@@ -125,7 +126,10 @@ public class Content implements IXMLSerializable, IContent {
 		return pages;
 	}
 
-
+	public int getMaxPagesCount() {
+		return maxPagesCount;
+	}
+	
 	@Override
 	public PageList	getCommonPages(){
 		return commonPages;
@@ -511,6 +515,11 @@ public class Content implements IXMLSerializable, IContent {
 		return weights;
 	}
 
+	public boolean isPageLimitExceeded() {
+		if(getPageCount() + getCommonPages().size() > getMaxPagesCount()) 
+			return true;
+		return false;
+	}
 
 
 }

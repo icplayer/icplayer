@@ -153,6 +153,7 @@
 	"please_wait" : "Zanim zamkniesz edytor zaczekaj, aż strona zostanie zapisana.",
 	"presentation_saved" : "Prezentacja zapisana.",
 	"page_saved" : "Strona zapisana.",
+	"to_many_pages_warning" : "The Lesson has too many pages.<br />A large number of pages may cause many problems.<br />It is recommended to prepare more Lessons with fewer pages.<br />Please see <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>documentation</a>for more details.",
 	"saving_changes" : "Zapisywanie zmian",
 	"cant_save_page" : "Nie można zapisać strony: ",
 	"cant_save_page_Forbidden": "Nie można zapisać strony. Prawdopodobnie zostałeś wylogowany.",

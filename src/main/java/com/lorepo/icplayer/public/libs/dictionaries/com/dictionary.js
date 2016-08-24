@@ -156,6 +156,7 @@
 	"page_saved" : "Page saved.",
 	"saving_changes" : "Saving changes",
 	"cant_save_page" : "Can't save page: ",
+	"to_many_pages_warning" : "The Lesson has too many pages.<br />A large number of pages may cause many problems.<br />It is recommended to prepare more Lessons with fewer pages.<br /><p style='margin-top:5px'>Please see <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>documentation</a> for more details.</p>",
 	"cant_save_page_Forbidden": "Can't save page. Probably you have been logged out.",
 	"properties" : "Properties",
 	"module_title" : "Module: ",
