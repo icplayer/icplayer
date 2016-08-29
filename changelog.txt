@@ -1,3 +1,4 @@
+2016-08-29 Fixed problem with Player crashes when properties "static header" / "static footer" are marked and lesson doesn't have header / footer
 2016-08-24 Added notification functions and pages limit to Content.
 2016-08-19 Updated tinymce library from version 4.0b2 to 4.4.0, fixed memory leaks issues in Paragraph and Paragraph_eKeyboard
 2016-08-18 Fixed ant build scripts issues with paths for Ubuntu platform

@@ -232,7 +232,6 @@ public class PlayerApp{
 	}-*/;
 	
 	public void makeHeaderStatic() {
-		//int headerHeight = contentModel.getHeader().getHeight();
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
 		isStaticHeader = true;
@@ -259,11 +258,11 @@ public class PlayerApp{
 		registerGetIframe();
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
-				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0){
+				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0 && playerController.hasHeader()){
 					makeHeaderStatic();
 				}
 
-				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0){
+				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()){
 					makeFooterStatic();
 				}
 				
