@@ -36,7 +36,7 @@ public class Content implements IXMLSerializable, IContent {
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
 	private int maxPagesCount = 100;
-	
+
 	public Content(){
 
 		pages = new PageList("root");
@@ -126,10 +126,16 @@ public class Content implements IXMLSerializable, IContent {
 		return pages;
 	}
 
+	public boolean addonIsLoaded(String addonName) {
+		if(this.addonDescriptors.containsKey(addonName)) {
+			return true;
+		}
+		return false;
+	}
 	public int getMaxPagesCount() {
 		return maxPagesCount;
 	}
-	
+
 	@Override
 	public PageList	getCommonPages(){
 		return commonPages;
@@ -516,7 +522,7 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 	public boolean isPageLimitExceeded() {
-		if(getPageCount() + getCommonPages().size() > getMaxPagesCount()) 
+		if(getPageCount() + getCommonPages().size() > getMaxPagesCount())
 			return true;
 		return false;
 	}

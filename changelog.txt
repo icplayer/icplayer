@@ -1,3 +1,4 @@
+2016-08-30 Added function addonIsLoaded to Content, Fixed bug with thumbnail in YouTube Addon
 2016-08-30 Added hiding subtitles in Video module
 2016-08-29 Fixed problem with Player crashes when properties "static header" / "static footer" are marked and lesson doesn't have header / footer
 2016-08-24 Added notification functions and pages limit to Content.
