@@ -924,6 +924,7 @@
 	"video_property_show_video": "Show video",
 	"video_property_narration": "Narration",
 	"video_property_hide_default_controls": "Hide default controls",
+    "video_property_hide_subtitles" : "Hide subtitles",
 	"WritingCalculations_info": "Allows to create math activities that involve writing calculations: multiplication, division, addition, or subtraction.",
 	"WritingCalculations_name": "Writing Calculations",
 	"WritingCalculations_property_value": "Value",

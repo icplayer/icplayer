@@ -11,6 +11,7 @@ function Addonvideo_create() {
     presenter.captions = [];
     presenter.configuration = {};
     presenter.captionDivs = [];
+    presenter.areSubtitlesHidden = false;
 
     var height;
 
@@ -349,6 +350,7 @@ function Addonvideo_create() {
         presenter.addonID = model.ID;
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isCurrentlyVisible = true;
+        presenter.shouldHideSubtitles = ModelValidationUtils.validateBoolean(model["Hide subtitles"]);
         var upgradedModel = this.upgradeModel(model);
         presenter.files = upgradedModel.Files;
         presenter.defaultControls = !ModelValidationUtils.validateBoolean(upgradedModel['Hide default controls']);
@@ -379,6 +381,12 @@ function Addonvideo_create() {
                 presenter.destroy();
             }
         });
+
+        if (presenter.shouldHideSubtitles) {
+            presenter.hideSubtitles();
+        } else {
+            presenter.showSubtitles();
+        }
     };
 
     presenter.sendOnPLayingEvent = function () {
@@ -534,7 +542,8 @@ function Addonvideo_create() {
             currentTime : this.video.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
             isPaused: isPaused,
-            currentMovie: this.currentMovie
+            currentMovie: this.currentMovie,
+            areSubtitlesHidden: presenter.areSubtitlesHidden
         });
     };
 
@@ -557,6 +566,14 @@ function Addonvideo_create() {
                 this.startTime = currentTime;
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
                 $(this).off('canplay');
+            }
+
+            if(state.areSubtitlesHidden != undefined) {
+                if (state.areSubtitlesHidden) {
+                    presenter.hideSubtitles();
+                } else {
+                    presenter.showSubtitles();
+                }
             }
         });
     };
@@ -673,6 +690,12 @@ function Addonvideo_create() {
                 }
 
                 $(this).unbind("canplay");
+
+                if (presenter.areSubtitlesHidden) {
+                    presenter.hideSubtitles();
+                } else {
+                    presenter.showSubtitles();
+                }
             });
             // Android devices have problem with loading content.
             this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
@@ -787,6 +810,16 @@ function Addonvideo_create() {
         };
     };
 
+    presenter.showSubtitles = function () {
+        presenter.$view.find('.captions').show();
+        presenter.areSubtitlesHidden = false;
+    };
+
+    presenter.hideSubtitles = function () {
+        presenter.$view.find('.captions').hide();
+        presenter.areSubtitlesHidden = true;
+    };
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
@@ -797,7 +830,9 @@ function Addonvideo_create() {
             'jumpToID': presenter.jumpToIDCommand,
             'seek': presenter.seekCommand,
             'play' : presenter.play,
-            'stop' : presenter.stop
+            'stop' : presenter.stop,
+            'showSubtitles' : presenter.showSubtitles,
+            'hideSubtitles' : presenter.hideSubtitles
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -973,6 +1008,12 @@ function Addonvideo_create() {
         }
 
         presenter.reload();
+
+        if (presenter.shouldHideSubtitles) {
+            presenter.hideSubtitles();
+        } else {
+            presenter.showSubtitles();
+        }
     };
 
     presenter.getVideo = function() {
