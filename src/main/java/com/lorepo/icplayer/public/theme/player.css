@@ -83,7 +83,7 @@ hr, table, fieldset {
 }
 
 .ic_navi_button {
-	background-image: url('../../theme/images/page.png');
+	background-image: url('images/page.png');
 	background-size:50px 60px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -160,12 +160,12 @@ hr, table, fieldset {
 
 
 .ic_navi_panel_prev {
-    background-image: url('../../theme/images/nav_prev_page.svg');
+    background-image: url('images/nav_prev_page.svg');
     border-radius: 0 50px 50px 0;
 }
 
 .ic_navi_panel_next {
-    background-image: url('../../theme/images/nav_next_page.svg');
+    background-image: url('images/nav_next_page.svg');
     border-radius: 50px 0 0 50px;
 }
 
@@ -178,21 +178,21 @@ hr, table, fieldset {
 }
 
 .ic_audio-load{
-	background-image	:url('../../theme/images/wait_animation.gif');
+	background-image	:url('images/wait_animation.gif');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
 }
 
 .ic_audio-start{
-	background-image	:url('../../theme/images/media-playback-start.png');
+	background-image	:url('images/media-playback-start.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
 }
 
 .ic_audio-stop{
-	background-image	:url('../../theme/images/media-playback-stop.png');
+	background-image	:url('images/media-playback-stop.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
@@ -200,7 +200,7 @@ hr, table, fieldset {
 
 
 .ic_button_nextpage{
-	background-image	:url('../../theme/images/next_page.png');
+	background-image	:url('images/next_page.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
@@ -212,11 +212,11 @@ hr, table, fieldset {
 
 .ic_button_nextpage-down-hovering
 {
-	background-image	:url('../../theme/images/next_page.png');
+	background-image	:url('images/next_page.png');
 }
 
 .ic_button_prevpage{
-	background-image	:url('../../theme/images/prev_page.png');
+	background-image	:url('images/prev_page.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
@@ -228,11 +228,11 @@ hr, table, fieldset {
 
 .ic_button_prevpage-down-hovering
 {
-	background-image	:url('../../theme/images/prev_page.png');
+	background-image	:url('images/prev_page.png');
 }
 
 .ic_button_gotopage{
-	background-image	:url('../../theme/images/goto_page.png');
+	background-image	:url('images/goto_page.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
@@ -240,77 +240,77 @@ hr, table, fieldset {
 
 
 .ic_button_check{
-	background-image	:url('../../theme/images/check.png');
+	background-image	:url('images/check.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
 }
 
 .ic_button_uncheck{
-	background-image	:url('../../theme/images/uncheck.png');
+	background-image	:url('images/uncheck.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
 }
 
 .ic_button_reset{
-	background-image	:url('../../theme/images/reset.png');
+	background-image	:url('images/reset.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_limited_reset {
-	background-image	:url('../../theme/images/reset.png');
+	background-image	:url('images/reset.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_lesson_reset {
-	background-image	:url('../../theme/images/reset.png');
+	background-image	:url('images/reset.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_popup{
-	background-image	:url('../../theme/images/popup.png');
+	background-image	:url('images/popup.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_cancel{
-	background-image	:url('../../theme/images/cancel.png');
+	background-image	:url('images/cancel.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_send{
-	background-image	:url('../../theme/images/send.png');
+	background-image	:url('images/send.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_standard{
-	background-image	:url('../../theme/images/standard-button.png');
+	background-image	:url('images/standard-button.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
 
 .ic_button_limited_check {
-	background-image	:url('../../theme/images/check.png');
+	background-image	:url('images/check.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
 }
 
 .ic_button_limited_uncheck {
-	background-image	:url('../../theme/images/uncheck.png');
+	background-image	:url('images/uncheck.png');
 	background-repeat	:no-repeat;
 	background-position	:center; 	
 	cursor: pointer;
@@ -323,14 +323,14 @@ hr, table, fieldset {
 .ic_gap-correct,
 .ic_filled_gap-correct{
 	padding-left:16px;
-	background-image:url('../../theme/images/correct.png');
+	background-image:url('images/correct.png');
 	background-repeat:no-repeat;
 }
 
 .ic_gap-wrong,
 .ic_filled_gap-wrong{
 	padding-left:16px;
-	background-image:url('../../theme/images/wrong.png');
+	background-image:url('images/wrong.png');
 	background-repeat:no-repeat;
 }
 
@@ -342,7 +342,7 @@ hr, table, fieldset {
 
 .ic_draggableGapEmpty-correct{
 	padding-left:16px;
-	background-image:url('../../theme/images/correct.png');
+	background-image:url('images/correct.png');
 	background-repeat:no-repeat;
 }
 
@@ -352,7 +352,7 @@ hr, table, fieldset {
 
 .ic_draggableGapEmpty-wrong{
 	padding-left:16px;
-	background-image:url('../../theme/images/wrong.png');
+	background-image:url('images/wrong.png');
 	background-repeat:no-repeat;
 }
 
@@ -368,13 +368,13 @@ hr, table, fieldset {
 
 .ic_draggableGapFilled-correct{
 	padding-left:16px;
-	background-image:url('../../theme/images/correct.png');
+	background-image:url('images/correct.png');
 	background-repeat:no-repeat;
 }
 
 .ic_draggableGapFilled-wrong{
 	padding-left:16px;
-	background-image:url('../../theme/images/wrong.png');
+	background-image:url('images/wrong.png');
 	background-repeat:no-repeat;
 }
 
@@ -422,36 +422,36 @@ hr, table, fieldset {
 }
 
 .ic_moption-up{
-	background-image:url('../../theme/images/checkbox-up.png');
+	background-image:url('images/checkbox-up.png');
 }
 
 .ic_moption-up-hovering{
-	background-image:url('../../theme/images/checkbox-up.png');
+	background-image:url('images/checkbox-up.png');
 }
 
 .ic_moption-down{
-	background-image:url('../../theme/images/checkbox-down.png');
+	background-image:url('images/checkbox-down.png');
 }
 
 .ic_moption-down-hovering{
-	background-image:url('../../theme/images/checkbox-down.png');
+	background-image:url('images/checkbox-down.png');
 }
 
 .ic_moption-up-correct{
-	background-image:url('../../theme/images/checkbox-up-disabled.png');
+	background-image:url('images/checkbox-up-disabled.png');
 }
 
 .ic_moption-up-wrong{
-	background-image:url('../../theme/images/checkbox-up-disabled.png');
+	background-image:url('images/checkbox-up-disabled.png');
 }
 
 .ic_moption-down-correct,
 .ic_moption-down-correct-answer {
-	background-image:url('../../theme/images/checkbox-down-correct.png');
+	background-image:url('images/checkbox-down-correct.png');
 }
 
 .ic_moption-down-wrong{
-	background-image:url('../../theme/images/checkbox-down-wrong.png');
+	background-image:url('images/checkbox-down-wrong.png');
 }
 
 /**
@@ -470,36 +470,36 @@ hr, table, fieldset {
 }
 
 .ic_soption-up{
-	background-image:url('../../theme/images/radio-up.png');
+	background-image:url('images/radio-up.png');
 }
 
 .ic_soption-up-hovering{
-	background-image:url('../../theme/images/radio-up.png');
+	background-image:url('images/radio-up.png');
 }
 
 .ic_soption-down{
-	background-image:url('../../theme/images/radio-down.png');
+	background-image:url('images/radio-down.png');
 }
 
 .ic_soption-down-hovering{
-	background-image:url('../../theme/images/radio-down.png');
+	background-image:url('images/radio-down.png');
 }
 
 .ic_soption-up-correct{
-	background-image:url('../../theme/images/radio-up-disabled.png');
+	background-image:url('images/radio-up-disabled.png');
 }
 
 .ic_soption-up-wrong{
-	background-image:url('../../theme/images/radio-up-disabled.png');
+	background-image:url('images/radio-up-disabled.png');
 }
 
 .ic_soption-down-correct,
 .ic_soption-down-correct-answer {
-	background-image:url('../../theme/images/radio-down-correct.png');
+	background-image:url('images/radio-down-correct.png');
 }
 
 .ic_soption-down-wrong{
-	background-image:url('../../theme/images/radio-down-wrong.png');
+	background-image:url('images/radio-down-wrong.png');
 }
 
 /**
@@ -730,13 +730,13 @@ hr, table, fieldset {
   background: white;
 }
 .ic_popup .dialogBottomCenter {
-  background: url(../../theme/images/hborder.png) repeat-x 0px -2145px;
+  background: url(images/hborder.png) repeat-x 0px -2145px;
 }
 .ic_popup .dialogMiddleLeft {
-  background: url(../../theme/images/vborder.png) repeat-y -31px 0px;
+  background: url(images/vborder.png) repeat-y -31px 0px;
 }
 .ic_popup .dialogMiddleRight {
-  background: url(../../theme/images/vborder.png) repeat-y -32px 0px;
+  background: url(images/vborder.png) repeat-y -32px 0px;
 }
 .ic_popup .dialogTopLeftInner {
   width: 10px;
@@ -758,16 +758,16 @@ hr, table, fieldset {
   zoom: 1;
 }
 .ic_popup .dialogTopLeft {
-  background: url(../../theme/images/circles.png) no-repeat -20px 0px;
+  background: url(images/circles.png) no-repeat -20px 0px;
 }
 .ic_popup .dialogTopRight {
-  background: url(../../theme/images/circles.png) no-repeat -28px 0px;
+  background: url(images/circles.png) no-repeat -28px 0px;
 }
 .ic_popup .dialogBottomLeft {
-  background: url(../../theme/images/circles.png) no-repeat 0px -36px;
+  background: url(images/circles.png) no-repeat 0px -36px;
 }
 .ic_popup .dialogBottomRight {
-  background: url(../../theme/images/circles.png) no-repeat -8px -36px;
+  background: url(images/circles.png) no-repeat -8px -36px;
 }
 
 
@@ -819,13 +819,13 @@ hr, table, fieldset {
   background: white;
 }
 .gwt-DialogBox .dialogBottomCenter {
-  background: url(../../theme/images/hborder.png) repeat-x 0px -2145px;
+  background: url(images/hborder.png) repeat-x 0px -2145px;
 }
 .gwt-DialogBox .dialogMiddleLeft {
-  background: url(../../theme/images/vborder.png) repeat-y -31px 0px;
+  background: url(images/vborder.png) repeat-y -31px 0px;
 }
 .gwt-DialogBox .dialogMiddleRight {
-  background: url(../../theme/images/vborder.png) repeat-y -32px 0px;
+  background: url(images/vborder.png) repeat-y -32px 0px;
 }
 .gwt-DialogBox .dialogTopLeftInner {
   width: 10px;
@@ -847,16 +847,16 @@ hr, table, fieldset {
   zoom: 1;
 }
 .gwt-DialogBox .dialogTopLeft {
-  background: url(../../theme/images/circles.png) no-repeat -20px 0px;
+  background: url(images/circles.png) no-repeat -20px 0px;
 }
 .gwt-DialogBox .dialogTopRight {
-  background: url(../../theme/images/circles.png) no-repeat -28px 0px;
+  background: url(images/circles.png) no-repeat -28px 0px;
 }
 .gwt-DialogBox .dialogBottomLeft {
-  background: url(../../theme/images/circles.png) no-repeat 0px -36px;
+  background: url(images/circles.png) no-repeat 0px -36px;
 }
 .gwt-DialogBox .dialogBottomRight {
-  background: url(../../theme/images/circles.png) no-repeat -8px -36px;
+  background: url(images/circles.png) no-repeat -8px -36px;
 }
 * html .gwt-DialogBox .dialogTopLeftInner {
   width: 10px;

@@ -9,7 +9,10 @@
     <inherits name='com.lorepo.icf.Utils'/>
     <inherits name='com.lorepo.icf.Scripting'/>
 
-    <stylesheet src="build/dist/styles.min.css"/>
+
+    <stylesheet src="theme/player.css"/>
+    <stylesheet src="libs/jquery-ui.css"/>
+    <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
     <script src="build/dist/libs.min.js"/>
     <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>

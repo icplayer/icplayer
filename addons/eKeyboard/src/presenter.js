@@ -265,6 +265,23 @@ function AddoneKeyboard_create(){
             }
 
             if (!isPreview) {
+                if (presenter.configuration.customLayout.length > 0) {
+                    try {
+                        eval('presenter.configuration.customLayout = ' + presenter.configuration.customLayout);
+                    } catch(e) {
+                        presenter.ERROR_CODES['evaluationError'] = e.message;
+                        DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
+                    }
+                }
+
+                if (presenter.configuration.customDisplay.length > 0) {
+                    try {
+                        eval('presenter.configuration.customDisplay = ' + presenter.configuration.customDisplay);
+                    } catch(e) {
+                        presenter.ERROR_CODES['evaluationError'] = e.message;
+                        DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
+                    }
+                }
                 presenter.configuration.customLayout.id = new Date().getTime();
 
                 var defaultDisplay = {
@@ -297,9 +314,8 @@ function AddoneKeyboard_create(){
                 var display = $.extend(defaultDisplay, customDisplay);
 
                 if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
-                    var $input = $('input');
-                    $input.addClass('ui-keyboard-lockedinput');
-                    $input.attr("readonly", true);
+                    $('input').addClass('ui-keyboard-lockedinput');
+                    $('input').attr("readonly", true);
                 }
 
                 $(presenter.configuration.workWithViews).find('input').on('click', function() {

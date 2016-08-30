@@ -3,14 +3,11 @@
     <property file="build.properties" />
     <property name="public" location="src/main/java/com/lorepo/icplayer/public"/>
     <property name="libs" location="${public}/libs" />
-    <property name="libs.css" location="${libs}/css" />
     <property name="build.folder" location="${public}/build"/>
     <property name="build.temp.folder" location="${build.folder}/temp"/>
-    <property name="build.temp.css.folder" location="${build.folder}/temp/css"/>
     <property name="build.temp.addons.folder" location="${build.folder}/temp/addons"/>
     <property name="build.dist.folder" location="${build.folder}/dist"/>
     <property name="libs.destination.file" location="${build.dist.folder}/libs.min.js"/>
-    <property name="css.destination.file" location="${build.dist.folder}/styles.min.css"/>
     <property name="addons.folder" location="${public}/addons"/>
     <property name="addons.temp.file" location="${build.temp.addons.folder}/addons.temp.xml"/>
     <property name="addons.temp.header.file" location="${build.temp.addons.folder}/addons.header.temp.xml"/>
@@ -18,13 +15,11 @@
 
     <target name="init" description="Creating folder structure for compressing process">
         <mkdir dir="${build.temp.folder}"/>
-        <mkdir dir="${build.temp.css.folder}"/>
         <mkdir dir="${build.dist.folder}"/>
         <mkdir dir="${build.temp.addons.folder}"/>
     </target>
 
     <target name="clear.temp" depends="clear.addons">
-        <delete dir="${build.temp.css.folder}" failonerror="false" />
         <delete dir="${build.temp.folder}" failonerror="false" />
     </target>
 
@@ -147,30 +142,6 @@
         <echo>Concanetating success</echo>
     </target>
 
-    <!--Minify CSS files-->
-    <target name="css.compress" depends="init" description="Minifies CSS files">
-        <taskdef name="yuicompressor"
-                 classname="com.metrosix.yuicompressor.anttask.YuiCompressorTask"
-                 classpathref="yuicompressor.classpath"/>
-        <yuicompressor todir="${build.temp.css.folder}"
-        maxcolumnwidth="7500">
-            <fileset dir="${libs.css}">
-                <include name="**/*.css"/>
-            </fileset>
-        </yuicompressor>
-        <echo>Ended minifying css files</echo>
-    </target>
-
-    <!--Concatenate CSS files-->
-    <target name="css.concatenate" depends="init, css.compress" description="Concatenates specified CSS files">
-        <concat destfile="${css.destination.file}" encoding="UTF-8" outputencoding="UTF-8">
-            <fileset dir="${libs.css}"
-                     includes="**/*.css">
-            </fileset>
-        </concat>
-        <echo>Finished concanetating css files</echo>
-    </target>
-
     <target name="addons.compress" description="Concatenates all addons to build/dist/folder" depends="init, clear.addons">
 		<ant dir="./addons"/>
         <echo>Concanetate addons files into single xml</echo>
@@ -199,11 +170,10 @@
 
 
     <!-- MAIN TASK -->
-    <target name="bundle-libs" description="Minify and merge css and js files to build/dist" depends="clear.full, init">
-        <echo>Bundling libs and css</echo>
+    <target name="bundle-libs" description="Minify and merge js files to build/dist" depends="clear.full, init">
+        <echo>Bundling libs</echo>
         <antcall target="compile.and.copy.commons"/>
         <antcall target="js.concatenate"/>
-        <antcall target="css.concatenate"/>
         <antcall target="addons.compress"/>
         <antcall target="clear.temp"/>
         <echo>Bundling ended with: SUCCESS</echo>
