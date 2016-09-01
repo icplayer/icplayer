@@ -308,7 +308,7 @@ function AddoneKeyboard_create(){
                     space  : '&nbsp;:Space',
                     t      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
                     tab    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-                }
+                };
 
                 var customDisplay = presenter.configuration.customDisplay;
                 var display = $.extend(defaultDisplay, customDisplay);

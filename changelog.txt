@@ -1,3 +1,25 @@
+2016-08-30 Fixed issue with relative urls in css and eKeyboard styling
+2016-08-30 Added function addonIsLoaded to Content, Fixed bug with thumbnail in YouTube Addon
+2016-08-30 Added hiding subtitles in Video module
+2016-08-29 Fixed problem with Player crashes when properties "static header" / "static footer" are marked and lesson doesn't have header / footer
+2016-08-24 Added notification functions and pages limit to Content.
+2016-08-19 Updated tinymce library from version 4.0b2 to 4.4.0, fixed memory leaks issues in Paragraph and Paragraph_eKeyboard
+2016-08-18 Fixed ant build scripts issues with paths for Ubuntu platform
+2016-08-18 Added fetching all libraries in 1 reuqest, addons xml loaded in 1 request
+2016-08-11 Added exchange URL to scheme-less URL in addon descriptor factory
+2016-08-09 Added new addon IFrame
+2016-08-04 Added Target type property in External Link Button module
+2016-08-03 Fixed displaying viewBox in SVG module
+2016-08-03 Fixed checking answers in Memo Game module
+2016-08-02 Added compiled Commons library in version 4.0.0 to icplayer libs
+2016-08-02 Removing loading-screen from commons
+2016-08-01 Added new property to keep wrong marks in Memo Gama module
+2016-08-01 Fixed displaying coordinates in editor in Line Selection module
+2016-07-27 Fixed problem with removing listeners in Source List
+2016-07-27 Fixed problem with sending events in Page Score Counter module
+2016-07-27 Fixed displaying watermark in Image Viewer module
+2016-07-22 Fixed memory leaks in TextAudio and Audio module
+2016-07-21 Fixed issue with static footer when lesson is in iframe
 2016-07-19 Fixed issue with https in Vimeo module
 2016-07-13 Added removeWrongColors command in Connection module
 2016-07-08 Added dragging line in Connection module

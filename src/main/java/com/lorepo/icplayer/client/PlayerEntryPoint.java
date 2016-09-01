@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.

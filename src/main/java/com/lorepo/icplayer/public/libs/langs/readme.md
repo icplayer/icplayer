@@ -1,1 +1,1 @@
-This is where language files should be placed.
+This is where language files should be placed for TinyMce library

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project basedir=".">
+    <property file="build.properties" />
+    <property name="public" location="src/main/java/com/lorepo/icplayer/public"/>
+    <property name="libs" location="${public}/libs" />
+    <property name="build.folder" location="${public}/build"/>
+    <property name="build.temp.folder" location="${build.folder}/temp"/>
+    <property name="build.temp.addons.folder" location="${build.folder}/temp/addons"/>
+    <property name="build.dist.folder" location="${build.folder}/dist"/>
+    <property name="libs.destination.file" location="${build.dist.folder}/libs.min.js"/>
+    <property name="addons.folder" location="${public}/addons"/>
+    <property name="addons.temp.file" location="${build.temp.addons.folder}/addons.temp.xml"/>
+    <property name="addons.temp.header.file" location="${build.temp.addons.folder}/addons.header.temp.xml"/>
+    <property name="addons.destination.file" location="${build.dist.folder}/addons.min.xml"/>
+
+    <target name="init" description="Creating folder structure for compressing process">
+        <mkdir dir="${build.temp.folder}"/>
+        <mkdir dir="${build.dist.folder}"/>
+        <mkdir dir="${build.temp.addons.folder}"/>
+    </target>
+
+    <target name="clear.temp" depends="clear.addons">
+        <delete dir="${build.temp.folder}" failonerror="false" />
+    </target>
+
+    <target name="clear.addons">
+        <delete dir="${build.temp.addons.folder}" failonerror="false" />
+    </target>
+
+    <target name="clear.full" depends="clear.temp">
+        <delete dir="${build.folder}" failonerror="false" />
+    </target>
+
+    <path id="yuicompressor.classpath">
+        <fileset dir="tools">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="js.compress">
+        <echo>Compressing js files with yui compressor</echo>
+        <taskdef name="yuicompressor"
+                 classname="com.metrosix.yuicompressor.anttask.YuiCompressorTask"
+                 classpathref="yuicompressor.classpath"/>
+        <yuicompressor todir="${build.temp.folder}"
+        preserveallsemicolons="true"
+        maxcolumnwidth="7500"
+        preservestringliterals="true">
+            <fileset dir="${libs}">
+                <exclude name="**/dictionaries/com/*"/>
+                <exclude name="**/dictionaries/fr/*"/>
+                <exclude name="**/dictionaries/pl/*"/>
+                <exclude name="**/dictionaries/mx/*"/>
+                <exclude name="**/dictionary.js"/>
+                <exclude name="**/commons.js"/>
+                <exclude name="**/*.min.js"/>
+                <exclude name="**/plugins/**"/>
+                <exclude name="**/langs/**"/>
+                <include name="**/*.js"/>
+            </fileset>
+        </yuicompressor>
+
+        <copy todir="${build.temp.folder}">
+            <fileset dir="${libs}">
+                <exclude name="**/theme.min.js"/>
+                <exclude name="**/tinymce.min.js"/>
+                <exclude name="**/plugins/**"/>
+                <exclude name="**/langs/**"/>
+                <include name="**/dictionaries/**"/>
+                <include name="**/*.min.js"/>
+                <include name="**/commons.js"/>
+            </fileset>
+        </copy>
+        <echo>Compressing success</echo>
+    </target>
+
+
+    <!--Concatenate JS files-->
+    <target name="js.concatenate" depends="init, js.compress" description="Concatenates specified JavaScript files">
+        <echo>Concanetate js files into single one</echo>
+        <concat destfile="${libs.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
+                <file name="${build.temp.folder}/player-utils.js"/>
+                <file name="${build.temp.folder}/buzz.min.js"/>
+                <file name="${build.temp.folder}/jcanvas.min.js"/>
+                <file name="${build.temp.folder}/jquery-ui.js"/>
+                <file name="${build.temp.folder}/jquery-csv.js"/>
+                <file name="${build.temp.folder}/jquery.dotimeout.js"/>
+                <file name="${build.temp.folder}/jquery.imgpreload.js"/>
+                <file name="${build.temp.folder}/jquery.mousewheel.js"/>
+                <file name="${build.temp.folder}/js-expression-eval.js"/>
+                <file name="${build.temp.folder}/raphael-min.js"/>
+                <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
+                <file name="${build.temp.folder}/jquery.svg.min.js"/>
+                <file name="${build.temp.folder}/jquery.svganim.min.js"/>
+                <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
+                <file name="${build.temp.folder}/expression-evaluator.js"/>
+                <file name="${build.temp.folder}/commons.js"/>
+                <file name="${build.temp.folder}/dictionaries/com/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
+                <file name="${build.temp.folder}/aop.min.js"/>
+                <file name="${build.temp.folder}/scorm.js"/>
+                <file name="${build.temp.folder}/scorm_1_2.js"/>
+                <file name="${build.temp.folder}/tinymce.min.js"/>
+                <file name="${build.temp.folder}/jsc3d.min.js"/>
+                <file name="${build.temp.folder}/htmlparser.min.js"/>
+                <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
+                <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
+                <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
+                <file name="${build.temp.folder}/google-swiffy-7.4.js"/>
+                <file name="${build.temp.folder}/sonic.js"/>
+                <file name="${build.temp.folder}/zoom.js"/>
+                <file name="${build.temp.folder}/FileSaver.js"/>
+                <file name="${build.temp.folder}/blob.js"/>
+
+                <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
+
+                <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.cursor.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.pointLabels.min.js"/>
+
+                <file name="${build.temp.folder}/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
+
+                <file name="${build.temp.folder}/createjs/easeljs-0.4.1.min.js"/>
+                <file name="${build.temp.folder}/createjs/tweenjs-0.2.0.min.js"/>
+                <file name="${build.temp.folder}/createjs/movieclip-0.4.1.min.js"/>
+                <file name="${build.temp.folder}/createjs/ypreloadjs1.3.0.min.js"/>
+                <file name="${build.temp.folder}/createjs/ysoundjs1.3.0.min.js"/>
+
+                <file name="${build.temp.folder}/ydp/ButtonDecorator.min.js"/>
+                <file name="${build.temp.folder}/ydp/Delegate.min.js"/>
+                <file name="${build.temp.folder}/ydp/Slider.min.js"/>
+            </filelist>
+        </concat>
+        <echo>Concanetating success</echo>
+    </target>
+
+    <target name="addons.compress" description="Concatenates all addons to build/dist/folder" depends="init, clear.addons">
+		<ant dir="./addons"/>
+        <echo>Concanetate addons files into single xml</echo>
+        <concat destfile="${addons.temp.file}" encoding="UTF-8" outputencoding="UTF-8">
+            <fileset
+                    dir="${addons.folder}"
+                    includes="*.xml"
+            />
+        </concat>
+        <replace file="${addons.temp.file}" token="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;" />
+        <echo file="${addons.temp.header.file}" append="true" encoding="UTF-8">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;</echo>
+        <echo file="${addons.temp.header.file}" append="true" encoding="UTF-8">&lt;addons&gt;</echo>
+        <concat destfile="${addons.destination.file}" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist dir="${build.temp.addons.folder}"
+                      files="${addons.temp.header.file}, ${addons.temp.file}"/>
+        </concat>
+        <echo file="${addons.destination.file}" append="true" encoding="UTF-8">&lt;/addons&gt;</echo>
+        <antcall target="clear.addons"/>
+        <echo>Concanetating success</echo>
+    </target>
+
+    <target name="compile.and.copy.commons">
+        <ant dir="./addons/Commons" target="publish"/>
+        <ant dir="./addons/Commons" target="clear"/>
+    </target>
+
+
+    <!-- MAIN TASK -->
+    <target name="bundle-libs" description="Minify and merge js files to build/dist" depends="clear.full, init">
+        <echo>Bundling libs</echo>
+        <antcall target="compile.and.copy.commons"/>
+        <antcall target="js.concatenate"/>
+        <antcall target="addons.compress"/>
+        <antcall target="clear.temp"/>
+        <echo>Bundling ended with: SUCCESS</echo>
+    </target>
+</project>

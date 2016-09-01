@@ -89,14 +89,11 @@ public class PlayerController implements IPlayerController{
 			playerView.showHeader();
 			headerController = new PageController(pageController1.getPlayerServices());
 			headerController.setView(playerView.getHeaderView());
-//			headerController.setPage(contentModel.getHeader());
 		}
 		if(contentModel.getFooter() != null){
 			playerView.showFooter();
 			footerController = new PageController(pageController1.getPlayerServices());
-
 			footerController.setView(playerView.getFooterView());
-//			footerController.setPage(contentModel.getFooter());
 		}
 	}
 
@@ -536,6 +533,14 @@ public class PlayerController implements IPlayerController{
 	public ITimeService getTimeService() {
 		updateTimeForCurrentPages();
 		return timeService;
+	}
+	
+	public boolean hasHeader() {
+		return headerController != null;
+	}
+	
+	public boolean hasFooter() {
+		return footerController != null;
 	}
 
 

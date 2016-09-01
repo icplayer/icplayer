@@ -112,6 +112,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Vimeo", "media_menu");
 		addDescriptor("YouTube_Addon", "media_menu");
 		addDescriptor("Zoom_Image", "media_menu");
+		addDescriptor("Iframe", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
@@ -143,7 +144,8 @@ public class AddonDescriptorFactory {
 	}
 
 	private void addDescriptor(String id, String category) {
-		String url = GWT.getModuleBaseURL() + "addons/" + id + ".xml";
+		String moduleBaseURL = GWT.getModuleBaseURL().replaceFirst("^(http://|https://)", "//");
+		String url = moduleBaseURL + "addons/" + id + ".xml";
 		String name = DictionaryWrapper.get(id + "_name");
 
 		AddonEntry entry = new AddonEntry(id, name, url, category);

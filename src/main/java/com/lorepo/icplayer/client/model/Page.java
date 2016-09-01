@@ -383,7 +383,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		setRulers(verticals, horizontals);
 	}
 
-	// TODO
 	private void loadWeight(Element rootElement) {
 		try {
 			final Node weightElement = rootElement.getElementsByTagName("page-weight").item(0);
@@ -684,7 +683,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		for(IModuleModel module : getModules()){
 			if(module.getTop() > position && module.getTop() < visibleHeight){
 				module.disableChangeEvent(true);
-				module.setTop(module.getTop()+amount);
+				module.setTop(module.getTop() + amount);
 				module.disableChangeEvent(false);
 			}
 		}
@@ -766,7 +765,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		pageWeight = maxScore;
 	}
 
-	// TODO
 	private void addPropertyWeightScoreMode() {
 		IProperty property = new IEnumSetProperty() {
 
@@ -820,7 +818,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		}
 	}
 
-	// TODO
 	private void addPropertyWeightScoreValue() {
 		IProperty property = new IProperty() {
 

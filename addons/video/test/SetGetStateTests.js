@@ -18,7 +18,7 @@ SetGetStateTests.prototype.testGetState = function() {
     var stateString = this.presenter.getState();
 
     // Then
-    assertEquals('{\"currentTime\":0,\"isCurrentlyVisible\":false,\"isPaused\":true,\"currentMovie\":1}', stateString);
+    assertEquals('{\"currentTime\":0,\"isCurrentlyVisible\":false,\"isPaused\":true,\"currentMovie\":1,\"areSubtitlesHidden\":false}', stateString);
 };
 
 SetGetStateTests.prototype.testSetState = function() {

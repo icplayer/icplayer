@@ -953,9 +953,6 @@ function AddonTextAudio_create() {
     };
 
     presenter.run = function AddonTextAudio_run (view, model) {
-        presenter.view = view;
-        presenter.$view = $(view);
-
         presenter.initialize(view, model, false);
 
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -966,8 +963,6 @@ function AddonTextAudio_create() {
         presenter.addonID = model.ID;
 
         presenter.eventBus.addEventListener('ValueChanged', this);
-
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.onAudioLoadedData = function AddonTextAudio_onAudioLoadedData () {
@@ -1085,18 +1080,19 @@ function AddonTextAudio_create() {
     };
 
     presenter.createPreview = function AddonTextAudio_createPreview (view, model) {
-        presenter.view = view;
-        presenter.$view = $(view);
         presenter.initialize(view, model, true);
     };
 
     presenter.initialize = function AddonTextAudio_initialize (view, model, isPreview) {
+        presenter.view = view;
+        presenter.$view = $(view);
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+
         buzz.defaults.preload = 'auto';
         buzz.defaults.autoplay = false;
         buzz.defaults.loop = false;
 
         presenter.slidesSpanElements = [];
-
 
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);

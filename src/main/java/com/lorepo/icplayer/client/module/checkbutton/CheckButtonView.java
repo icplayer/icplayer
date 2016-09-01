@@ -7,7 +7,6 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter.IDisplay;
 
 public class CheckButtonView extends PushButton implements IDisplay {

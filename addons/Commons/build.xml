@@ -13,7 +13,6 @@
 
         <java jar="../tools/closure.jar" fork="true">
             <arg line="--js src/model-validation.js" />
-            <arg line="--js src/loading-screen.js" />
             <arg line="--js src/dom-operations.js" />
             <arg line="--js src/statefull-addon-object.js" />
             <arg line="--js src/draggable-droppable-object.js" />
@@ -37,7 +36,6 @@
  * @version ${version}
  * Components:
  * - Model Validation Utils
- * - Loading Screen
  * - DOM Operations
  * - Statefull Addon Object
  * - Draggable Droppable Object
@@ -55,6 +53,10 @@
  * - Blockly Custom Scene Blocks
  */</concat>
 
+    </target>
+
+    <target name="clear">
+        <delete dir="bin" failonerror="false" />
     </target>
 
     <target name="publish" depends="compile" description="Publish new version of commons to ICPlayer libs">

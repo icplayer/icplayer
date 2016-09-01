@@ -1,0 +1,35 @@
+package com.lorepo.icplayer.client.addonsLoader;
+
+import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;
+import com.lorepo.icplayer.client.addonsLoader.LocalAddonsLoader;
+import com.lorepo.icplayer.client.addonsLoader.PrivateAddonLoader;
+import com.lorepo.icplayer.client.model.AddonDescriptor;
+import com.lorepo.icplayer.client.model.AddonDescriptorFactory;
+
+public class AddonLoaderFactory {
+	
+
+
+	private AddonDescriptorFactory localAddons;
+	private String baseUrl;
+	
+	public AddonLoaderFactory(String baseUrl) {
+		this.baseUrl = baseUrl;
+		this.localAddons = AddonDescriptorFactory.getInstance();
+	}
+
+	public IAddonLoader getAddonLoader(final AddonDescriptor descriptor) {
+		IAddonLoader loader;
+		if(localAddons.isLocalAddon(descriptor.getAddonId())) {
+			LocalAddonsLoader localLoader = LocalAddonsLoader.getInstance();
+			localLoader.setAddonDescriptor(descriptor);
+			loader = localLoader;
+		} else {
+			String url = URLUtils.resolveURL(this.baseUrl, descriptor.getHref());
+			loader = new PrivateAddonLoader(descriptor, url);
+		}
+
+		return loader;
+	}
+}

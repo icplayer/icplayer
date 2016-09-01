@@ -192,7 +192,7 @@ public class PlayerApp{
 	  if ($wnd.location !== $wnd.parent.location){
 	  	var referrer = $doc.referrer;
 	  	if(referrer.indexOf($wnd.location.origin) > -1){
-	  	var offsetIframe = $wnd.parent.$('#_icplayer').offset().top;
+	  	var offsetIframe = $wnd.get_iframe().offset().top;
 	  	var sum = parseInt(window.top.innerHeight, 10)-offsetIframe-parseInt(icFooterHeight, 10);
 	  	$wnd.$(".ic_static_footer").css("top", sum+"px");
 		  $wnd.parent.addEventListener('scroll', function () {
@@ -232,7 +232,6 @@ public class PlayerApp{
 	}-*/;
 	
 	public void makeHeaderStatic() {
-		//int headerHeight = contentModel.getHeader().getHeight();
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
 		isStaticHeader = true;
@@ -259,17 +258,18 @@ public class PlayerApp{
 		registerGetIframe();
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
-				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0){
+				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0 && playerController.hasHeader()){
 					makeHeaderStatic();
 				}
 
-				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0){
+				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()){
 					makeFooterStatic();
 				}
 				
 				entryPoint.onPageLoaded();
 			}
 			public void onError(String error) {
+				JavaScriptUtils.log("Loading pages error: " + error);
 			}
 		});
 		
@@ -280,6 +280,7 @@ public class PlayerApp{
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		
 		loader.addAddons(contentModel.getAddonDescriptors().values());
 		if(contentModel.getHeader() != null){
 			loader.addPage(contentModel.getHeader());
@@ -294,6 +295,7 @@ public class PlayerApp{
 			}
 
 			public void onError(String error) {
+				JavaScriptUtils.log("Loading ContentData have failed, error: " + error);
 			}
 		});
 	}
