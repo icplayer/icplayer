@@ -9,6 +9,8 @@ function AddonGrid_Scene_create(){
         GS01: "Columns and rows must be a positive integer",
         GS02: "Delay have to be a positive integer",
         GS03: "Labels have to be a valid JSON string",
+        WA01: "Point in answer must have two values",
+        WA02: "Answer have non number value"
     };
 
     presenter.configuration = {
@@ -52,6 +54,8 @@ function AddonGrid_Scene_create(){
         "block_clearMark": "clearMark"
     };
 
+    presenter.coloredGrid = [];
+
     function delayDecorator(func) {
         if (presenter.configuration.hasDelay) {
             return function () {
@@ -89,10 +93,31 @@ function AddonGrid_Scene_create(){
     var gridContainerWrapper;
     var gridContainer;
 
+    presenter.initColoredGridArray = function Grid_Addon_initColoredGridArray(rows, columns) {
+        for (var rows_index = 0; rows_index < rows; rows_index++) {
+            presenter.coloredGrid[rows_index] = [];
+            for (var columns_index = 0; columns_index < columns; columns_index++) {
+                presenter.coloredGrid[rows_index][columns_index] = false;
+            }
+        }
+    };
+
+    presenter.setColoredGridArray = function Grid_Addon_set_colored_grid_array (array) {
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+        for (var rows_index = 0; rows_index < rows; rows_index++) {
+            for (var columns_index = 0; columns_index < columns; columns_index++) {
+                if (array[rows_index][columns_index]) {
+                    presenter.mark(columns_index+1, rows_index+1);
+                }
+            }
+        }
+    };
+
     function initGrid(model) {
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
-
+        presenter.initColoredGridArray(rows,columns);
         for(var row = 0; row < rows; row++) {
             for(var column = 0; column < columns; column++) {
                 var wrapperElement = $(document.createElement('div'));
@@ -202,6 +227,8 @@ function AddonGrid_Scene_create(){
         var coordinates = x+"-"+ y,
             element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
 
+        presenter.coloredGrid[y-1][x-1] = true;
+
         element.css('background-color', presenter.configuration.color);
         element.attr('colored', 'true');
     };
@@ -209,6 +236,8 @@ function AddonGrid_Scene_create(){
     presenter.resetMark = function (x, y){
         var coordinates = x+"-"+ y,
             element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
+
+        presenter.coloredGrid[y-1][x-1] = false;
 
         element.css('background-color', 'transparent');
         element.attr('colored', 'false');
@@ -242,6 +271,8 @@ function AddonGrid_Scene_create(){
             return;
         }
 
+        console.log(JSON.stringify(configuration));
+
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
 
@@ -273,10 +304,10 @@ function AddonGrid_Scene_create(){
     };
     presenter.destroy = function () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        clearInterval(presenter.configuration.queLoopTimer);
         presenter.$view = null;
         presenter.view = null;
         presenter.configuration = null;
-        clearInterval(presenter.queLoopTimer);
     };
 
 
@@ -285,7 +316,6 @@ function AddonGrid_Scene_create(){
             addonID = model['ID'],
             rows = ModelValidationUtils.validatePositiveInteger(model['Rows']),
             columns = ModelValidationUtils.validatePositiveInteger(model['Columns']);
-
         if(!rows.isValid || !columns.isValid){
             return returnErrorObject('GS01');
         }
@@ -305,6 +335,11 @@ function AddonGrid_Scene_create(){
             return validatedLabels;
         }
 
+        var validatedAnswer = presenter.validateAnswer(model["answer"]);
+        if (!validatedAnswer.isValid) {
+            return validatedAnswer;
+        }
+
         return {
             'isError' : false,
             'isVisible' : validatedIsVisible,
@@ -317,6 +352,7 @@ function AddonGrid_Scene_create(){
             'hasDelay': validatedDelay.hasDelay,
             'delay': validatedDelay.delay,
             'labels': validatedLabels.value,
+            'answers': validatedAnswer.value
         };
     };
 
@@ -367,6 +403,34 @@ function AddonGrid_Scene_create(){
         }
     };
 
+    presenter.validateAnswer = function (answer) {
+        console.log(answer);
+        var splitedAnswers = answer.split("\n");
+        var answers = [];
+        for (var index = 0; index < splitedAnswers.length; i++){
+            var answer = splitedAnswers[index].split(";");
+            console.log(answer);
+            if (answer.length != 2) {
+                return presenter.getErrorObject("WA01");
+            }
+
+            var x = parseInt(answer[0]);
+            var y = parseInt(answer[1]);
+            if (isNaN(x) || isNaN(y)) {
+                return presenter.getErrorObject("WA02");
+            }
+
+            answers.push({
+                x: x,
+                y: y
+            });
+        }
+        return {
+            isValid: true,
+            value: answers
+        };
+    };
+
     presenter.getErrorObject = function (errorCode) {
         return {isValid: false, isError: true, errorCode: errorCode};
     };
@@ -412,6 +476,10 @@ function AddonGrid_Scene_create(){
                 presenter.resetMark(coordinates[0], coordinates[1]);
             }
         });
+
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+        presenter.initColoredGridArray(rows,columns);
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
     };
@@ -593,6 +661,17 @@ function AddonGrid_Scene_create(){
         
         return category;
     };
+
+    presenter.getState = function Grid_Scene_get_state () {
+        return JSON.stringify(presenter.coloredGrid);
+    };
+
+    presenter.setState = function Grid_Scene_set_state (state) {
+        if (state != null) {
+            presenter.setColoredGridArray(JSON.parse(state));
+        }
+    };
+
 
     return presenter;
 }

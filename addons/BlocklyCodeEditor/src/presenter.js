@@ -60,7 +60,10 @@ function AddonBlocklyCodeEditor_create () {
         isPreviewDecorator(presenter.connectHandlers)();
 
 
-        presenter.configuration.workspace = Blockly.inject($(view).find(".editor")[0], {toolbox: presenter.getToolboxXML()});
+        presenter.configuration.workspace = Blockly.inject($(view).find(".editor")[0], {
+            toolbox: presenter.getToolboxXML(),
+            sounds: false
+        });
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -289,6 +292,16 @@ function AddonBlocklyCodeEditor_create () {
                 'transform'         : StringUtils.format("translate({0}px, 0)", transformValue)
             });
         }
+    };
+
+    presenter.getState = function Blockly_Code_Edtior_get_state () {
+        var xml = Blockly.Xml.workspaceToDom(presenter.configuration.workspace);
+        return JSON.stringify(Blockly.Xml.domToText(xml));
+    };
+
+    presenter.setState = function Blockly_Code_Editor_set_state (state) {
+        var xml = Blockly.Xml.textToDom(JSON.parse(state));
+        Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
     };
 
     return presenter;

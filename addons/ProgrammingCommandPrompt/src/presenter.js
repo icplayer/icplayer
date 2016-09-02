@@ -58,8 +58,6 @@ function AddonProgrammingCommandPrompt_create () {
             height: presenter.$view.height()
         });
         presenter.editor = ace.edit(editor[0]);
-
-
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
                 presenter.destroy();
@@ -76,10 +74,14 @@ function AddonProgrammingCommandPrompt_create () {
         presenter.configuration.sceneModule = presenter.playerController.getModule(presenter.configuration.sceneID);
         presenter.$view.find(".run").click(function () {
             if (presenter.configuration.sceneModule !== null) {
-                var code = presenter.editor.getValue();
+                var code = presenter.getWorkspaceCode();
                 presenter.configuration.sceneModule.executeCode(code);
             }
         });        
+    };
+
+    presenter.setCode = function Programming_Command_Prompt_set_code (code) {
+        presenter.editor.setValue(code, code.length+1);
     };
 
     presenter.setRunButton = function () {
@@ -127,6 +129,13 @@ function AddonProgrammingCommandPrompt_create () {
         }
     };
     
-    
+    presenter.getState = function Programming_Command_Prompt_get_state () {
+        return JSON.stringify(presenter.getWorkspaceCode());
+    };
+
+    presenter.setState = function Programming_Command_Prompt_set_state (state) {
+        presenter.setCode(JSON.parse(state));
+    };
+
     return presenter;
 }

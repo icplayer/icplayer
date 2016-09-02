@@ -7,5 +7,6 @@
         <property name="Color" nameLabel="Grid_Scene_property_color" type="string" />
         <property name="delay" nameLabel="Grid_Scene_property_delay" type="string" />
         <property name="labels" nameLabel="Grid_Scene_property_labels" type="text"/>
+        <property name="answer" nameLabel="Grid_Scene_property_answer" type="text"/>
 	</model>
 </addon>
