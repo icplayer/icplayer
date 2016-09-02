@@ -271,8 +271,6 @@ function AddonGrid_Scene_create(){
             return;
         }
 
-        console.log(JSON.stringify(configuration));
-
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
 
@@ -335,10 +333,10 @@ function AddonGrid_Scene_create(){
             return validatedLabels;
         }
 
-        var validatedAnswer = presenter.validateAnswer(model["answer"]);
-        if (!validatedAnswer.isValid) {
-            return validatedAnswer;
-        }
+        // var validatedAnswer = presenter.validateAnswer(model["answer"]);
+        // if (!validatedAnswer.isValid) {
+        //     return validatedAnswer;
+        // }
 
         return {
             'isError' : false,
@@ -352,7 +350,7 @@ function AddonGrid_Scene_create(){
             'hasDelay': validatedDelay.hasDelay,
             'delay': validatedDelay.delay,
             'labels': validatedLabels.value,
-            'answers': validatedAnswer.value
+            // 'answers': validatedAnswer.value
         };
     };
 
@@ -404,12 +402,10 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.validateAnswer = function (answer) {
-        console.log(answer);
         var splitedAnswers = answer.split("\n");
         var answers = [];
         for (var index = 0; index < splitedAnswers.length; i++){
             var answer = splitedAnswers[index].split(";");
-            console.log(answer);
             if (answer.length != 2) {
                 return presenter.getErrorObject("WA01");
             }

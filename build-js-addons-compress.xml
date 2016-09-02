@@ -137,6 +137,12 @@
                 <file name="${build.temp.folder}/ydp/ButtonDecorator.min.js"/>
                 <file name="${build.temp.folder}/ydp/Delegate.min.js"/>
                 <file name="${build.temp.folder}/ydp/Slider.min.js"/>
+
+                <file name="${build.temp.folder}/ace/ace.min.js"/>
+                <file name="${build.temp.folder}/blockly/blockly_compressed.min.js"/>
+                <file name="${build.temp.folder}/blockly/blocks_compressed.min.js"/>
+                <file name="${build.temp.folder}/blockly/en.min.js"/>
+                <file name="${build.temp.folder}/blockly/javascript_compressed.min.js"/>
             </filelist>
         </concat>
         <echo>Concanetating success</echo>

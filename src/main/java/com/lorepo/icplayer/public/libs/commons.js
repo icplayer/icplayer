@@ -63,7 +63,7 @@ this.appendValueInput("x").setCheck("Number").appendField(m.block_x);this.append
 return StringUtils.format("{0}({1}, {2}, {3});\n",m.command_clearMark,b(c))};d=!0}};e.BlocklyCustomBlocks=e.BlocklyCustomBlocks||{};e.BlocklyCustomBlocks.SceneGrid=e.BlocklyCustomBlocks.SceneGrid||a})(window);
 /**
  * Player Addons Commons library
- * @version 4.0.0
+ * @version 0.376
  * Components:
  * - Model Validation Utils
  * - DOM Operations
