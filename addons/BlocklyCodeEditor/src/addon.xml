@@ -5,6 +5,22 @@
 			<property name="sceneID" nameLabel="BlocklyCodeEditor_property_scene_id" type="string" />
 			<property name="hideRun" displayName="Hide Run" nameLabel="BlocklyCodeEditor_property_hide_run" type="boolean" />
 			<property name="addSceneToolbox" displayName="Add Scene Toolbox" nameLabel="BlocklyCodeEditor_property_add_scene_toolbox" type="boolean" />
-			<property name="toolbox" displayName="Toolbox" nameLabel="BlocklyCodeEditor_property_toolbox" type="text" />
+			<property name="maxBlocksLimit" displayName="Block limit" nameLabel="BlocklyCodeEditor_property_max_block_limit" type="string"/>
+			<property name="toolbox" displayName="Toolbox" nameLabel="BlocklyCodeEditor_property_toolbox" type="list">
+				<property name="blockName" displayName="Block Name" nameLabel="BlocklyCodeEditor_property_block_name" type="string"/>
+				<property name="blockCategory" displayName="Block Category" nameLabel="BlocklyCodeEditor_property_block_category" type="string"/>
+				<property name="blockIsVisible" displayName="Is Visible" nameLabel="BlocklyCodeEditor_property_block_is_visible" type="boolean"/>
+			</property>
+			<property name="customBlocks" displayName="Custom Blocks" nameLabel="BlocklyCodeEditor_property_custom_blocks" type="list">
+				<property name="customBlockName" displayName="Name" nameLabel="BlocklyCodeEditor_property_custom_block_name" type="string"/>
+				<property name="customBlockTitle" displayName="Title" nameLabel="BlocklyCodeEditor_property_custom_block_title" type="string"/>
+				<property name="customBlockColor" displayName="Color" nameLabel="BlocklyCodeEditor_property_custom_block_color" type="string"/>
+				<property name="customBlockInputs" displayName="Inputs" nameLabel="BlocklyCodeEditor_property_custom_block_inputs" type="string"/>
+				<property name="customBlockInputsType" displayName="Inputs Type" nameLabel="BlocklyCodeEditor_property_custom_block_inputs_type" type="string"/>
+				<property name="customBlockInputsText" displayName="Inputs Text" nameLabel="BlocklyCodeEditor_property_custom_block_inputs_text" type="string"/>
+				<property name="customBlockCode" displayName="Code" nameLabel="BlocklyCodeEditor_property_custom_block_code" type="text"/>
+				<property name="customBlockOutput" displayName="Connection" nameLabel="BlocklyCodeEditor_property_custom_block_output" type="string"/>
+				<property name="customBlockOutputType" displayName="Connection Type" nameLabel="BlocklyCodeEditor_property_custom_block_output_type" type="string"/>
+			</property>
 	</model>
 </addon>

@@ -6,7 +6,16 @@
         <property name="Columns" nameLabel="Grid_Scene_property_columns" type="string" />
         <property name="Color" nameLabel="Grid_Scene_property_color" type="string" />
         <property name="delay" nameLabel="Grid_Scene_property_delay" type="string" />
-        <property name="labels" nameLabel="Grid_Scene_property_labels" type="text"/>
-        <property name="answer" nameLabel="Grid_Scene_property_answer" type="text"/>
+        <property name="labels" nameLabel="Grid_Scene_property_labels" type="text" />
+        <property name="commands" nameLabel="Grid_Scene_property_commands" type="list">
+            <property name="command_name" nameLabel="Grid_Scene_property_command_name" type="string"/>
+            <property name="command_arguments" nameLabel="Grid_Scene_property_command_arguments" type="string"/>
+            <property name="command_code" nameLabel="Grid_Scene_property_command_code" type="text"/>
+        </property>
+        <property name="excluded_commands" nameLabel="Grid_Scene_property_exclude_commands" type="list" >
+            <property name="command_name" nameLabel="Grid_Scene_property_exclude_command_name" type="string"/>
+            <property name="command_is_excluded" nameLabel="Grid_Scene_property_exclude_command_is_excluded" type="boolean" />
+        </property>
+
 	</model>
 </addon>

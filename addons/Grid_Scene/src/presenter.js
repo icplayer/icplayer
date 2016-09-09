@@ -10,7 +10,9 @@ function AddonGrid_Scene_create(){
         GS02: "Delay have to be a positive integer",
         GS03: "Labels have to be a valid JSON string",
         WA01: "Point in answer must have two values",
-        WA02: "Answer have non number value"
+        WA02: "Answer have non number value",
+        CE01: "All commands must have name",
+        CE02: "All commands must have code"
     };
 
     presenter.configuration = {
@@ -21,13 +23,13 @@ function AddonGrid_Scene_create(){
         rows : null,
         columns : null,
         color : null,
-        startPoint: null,
         hasDelay: false,
         delay: 0,
         queLoopTimer: null,
         commandQueue: [],
         blockLabels: {},
-        commandsLabels: {}
+        commandsLabels: {},
+        excludedCommands: {}
     };
     
     presenter.LABELS = {
@@ -37,24 +39,34 @@ function AddonGrid_Scene_create(){
         "command_drawRight": "drawRight",
         "command_drawUp": "drawUp",
         "command_drawDown": "drawDown",
+        "command_drawLeftFrom": "drawLeftFrom",
+        "command_drawRightFrom": "drawRightFrom",
+        "command_drawUpFrom": "drawUpFrom",
+        "command_drawDownFrom": "drawDownFrom",
         "command_setColor": "setColor",
-        "command_start": "start",
+        "command_setCursor": "setCursor",
         "command_clearMark": "clearMark",
         "block_mark": "mark",
         "block_x": "x",
         "block_y": "y",
         "block_clear": "clear",
-        "block_drawLeft": "drawLeft",
         "block_steps": "steps",
+        "block_drawLeft": "drawLeft",
         "block_drawRight": "drawRight",
         "block_drawUp": "drawUp",
         "block_drawDown": "drawDown",
+        "block_drawLeftFrom": "drawLeftFrom",
+        "block_drawRightFrom": "drawRightFrom",
+        "block_drawUpFrom": "drawUpFrom",
+        "block_drawDownFrom": "drawDownFrom",
         "block_setColor": "setColor",
-        "block_start": "start",
+        "block_setCurstor": "setCursor",
         "block_clearMark": "clearMark"
     };
 
     presenter.coloredGrid = [];
+
+    presenter.actualCursorPosition = [1,1];
 
     function delayDecorator(func) {
         if (presenter.configuration.hasDelay) {
@@ -117,6 +129,7 @@ function AddonGrid_Scene_create(){
     function initGrid(model) {
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
+
         presenter.initColoredGridArray(rows,columns);
         for(var row = 0; row < rows; row++) {
             for(var column = 0; column < columns; column++) {
@@ -224,21 +237,22 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.colorSquare = function (x, y){
-        var coordinates = x+"-"+ y,
-            element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
-
-        presenter.coloredGrid[y-1][x-1] = true;
+        var coordinates = x+"-"+ y;
+        var element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
 
         element.css('background-color', presenter.configuration.color);
         element.attr('colored', 'true');
     };
 
     presenter.resetMark = function (x, y){
-        var coordinates = x+"-"+ y,
-            element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
-
-        presenter.coloredGrid[y-1][x-1] = false;
-
+        presenter.actualCursorPosition = [x,y];
+        var coordinates = x+"-"+ y;
+        var element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
+        if (ModelValidationUtils.validateIntegerInRange(x, presenter.configuration.columns + 1, 1).isValid != false) {
+            if (ModelValidationUtils.validateIntegerInRange(y, presenter.configuration.rows + 1, 1).isValid != false) {
+                presenter.coloredGrid[y - 1][x - 1] = false;
+            }
+        }
         element.css('background-color', 'transparent');
         element.attr('colored', 'false');
     };
@@ -271,7 +285,6 @@ function AddonGrid_Scene_create(){
             return;
         }
 
-        console.log(JSON.stringify(configuration));
 
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
@@ -316,6 +329,7 @@ function AddonGrid_Scene_create(){
             addonID = model['ID'],
             rows = ModelValidationUtils.validatePositiveInteger(model['Rows']),
             columns = ModelValidationUtils.validatePositiveInteger(model['Columns']);
+
         if(!rows.isValid || !columns.isValid){
             return returnErrorObject('GS01');
         }
@@ -335,11 +349,10 @@ function AddonGrid_Scene_create(){
             return validatedLabels;
         }
 
-        var validatedAnswer = presenter.validateAnswer(model["answer"]);
-        if (!validatedAnswer.isValid) {
-            return validatedAnswer;
+        var validatedCommands = presenter.validateCommands(model["commands"]);
+        if (!validatedCommands.isValid) {
+            return validatedCommands
         }
-
         return {
             'isError' : false,
             'isVisible' : validatedIsVisible,
@@ -352,7 +365,56 @@ function AddonGrid_Scene_create(){
             'hasDelay': validatedDelay.hasDelay,
             'delay': validatedDelay.delay,
             'labels': validatedLabels.value,
-            'answers': validatedAnswer.value
+            'customCommands': validatedCommands.value,
+            'excludedCommands': presenter.validateExcludedCommands(model["excluded_commands"]).value
+        };
+    };
+
+    presenter.validateExcludedCommands = function Grid_Scene_validate_excluded_commands (excludedCommands) {
+        var excludedCommandsList = [];
+        for (var index = 0; index < excludedCommands.length; index++) {
+            excludedCommandsList[excludedCommands[index]["command_name"]] = {
+                isExcluded: ModelValidationUtils.validateBoolean(excludedCommands[index]["command_is_excluded"])
+            };
+        }
+
+        return {
+            isValidate: true,
+            value: excludedCommandsList
+        };
+    };
+
+    presenter.validateCommand = function Grid_Scene_validate_command (command) {
+        if (ModelValidationUtils.isStringEmpty(command['command_name'])) {
+            return {
+                isValid: true,
+                name: null
+            };
+        }
+        return {
+            isValid: true,
+            name: command['command_name'],
+            arguments: command['command_arguments'],
+            code: command['command_code']
+        };
+
+    };
+
+    presenter.validateCommands = function Grid_Scene_validate_commands (commands) {
+        var validatedCommands = [];
+
+        for (var key in commands) {
+            if (commands.hasOwnProperty(key)) {
+                var validatedCommand = presenter.validateCommand(commands[key]);
+                if (validatedCommand.name != null) {
+                    validatedCommands.push(validatedCommand);
+                }
+            }
+        }
+
+        return {
+            isValid: true,
+            value: validatedCommands
         };
     };
 
@@ -404,12 +466,10 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.validateAnswer = function (answer) {
-        console.log(answer);
         var splitedAnswers = answer.split("\n");
         var answers = [];
-        for (var index = 0; index < splitedAnswers.length; i++){
+        for (var index = 0; index < splitedAnswers.length; index++){
             var answer = splitedAnswers[index].split(";");
-            console.log(answer);
             if (answer.length != 2) {
                 return presenter.getErrorObject("WA01");
             }
@@ -458,7 +518,11 @@ function AddonGrid_Scene_create(){
             'drawRight': applyDelayDecorator(presenter.drawRight),
             'drawDown': applyDelayDecorator(presenter.drawDown),
             'drawUp': applyDelayDecorator(presenter.drawUp),
-            'start': applyDelayDecorator(presenter.setStartPoint),
+            'drawLeftFrom':applyDelayDecorator(presenter.drawLeft),
+            'drawRightFrom': applyDelayDecorator(presenter.drawRight),
+            'drawDownFrom': applyDelayDecorator(presenter.drawDown),
+            'drawUpFrom': applyDelayDecorator(presenter.drawUp),
+            'setCursor': applyDelayDecorator(presenter.setCursor),
             'setColor': applyDelayDecorator(presenter.setColor),
             'clearMark' : applyDelayDecorator(presenter.resetMark),
             'clear': applyDelayDecorator(presenter.reset),
@@ -482,112 +546,80 @@ function AddonGrid_Scene_create(){
         presenter.initColoredGridArray(rows,columns);
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
+        presenter.actualCursorPosition = [1,1];
     };
-    
 
-    function validateDrawingCommandsArgs(x, y, numberOfSteps) {
-
-        var parsedX = Number(x);
-        var parsedY = Number(y);
-        var parsedSteps = Number(numberOfSteps);
-
-        if (y == undefined && numberOfSteps == undefined) {
-            parsedSteps = parsedX;
+    presenter.setCursor = function (x, y) {
+        if(!isNaN(parseInt(x)) && !isNaN(parseInt(y))) {
+            presenter.actualCursorPosition = [x, y];
         }
-
-        var result;
-
-        if (!isNaN(parsedX)
-            && !isNaN(parsedY)
-            && !isNaN(parsedSteps)) {
-            return {
-                isError: false,
-                "x": parseInt(parsedX, 10),
-                "y": parseInt(parsedY, 10),
-                "steps": parseInt(parsedSteps, 10)
-            };
-        }
-
-        result = {
-            isError: true,
-            x: parsedX,
-            y: parsedY,
-            steps: parsedSteps
-        };
-
-        if (parsedSteps < 0) {
-            result.steps = undefined;
-        }
-
-        return result;
-    }
-    
-    presenter.startPointDecorator = function (func) {
-        return function () {
-            var result = func.apply(null, arguments);
-            if (result.isError && presenter.configuration.startPoint === null) {
-                return result
-            } else if (result.isError && presenter.configuration.startPoint !== null) {
-                result.isError = false;
-                result.x = presenter.configuration.startPoint.x;
-                result.y = presenter.configuration.startPoint.y;
-                return result;
-            }
-
-            return result;
-        };
     };
 
     presenter.drawHorizontalLine = function (from, to, y) {
-        for (var i = from; i < to; i++) {
-            presenter.colorSquare(i, y);
+        if (from <= to) {
+            for (var i = from; i <= to; i++) {
+                presenter.mark(i, y);
+            }
+        } else {
+            for (var i = from; i >= to; i--) {
+                presenter.mark(i, y);
+            }
         }
     };
 
     presenter.drawVerticalLine = function (from, to, x) {
-        for (var i = from; i < to; i++) {
-            presenter.colorSquare(x, i);
+        if (from <= to) {
+            for (var i = from; i <= to; i++) {
+                presenter.mark(x, i);
+            }
+        } else {
+            for (var i = from; i >= to; i--) {
+                presenter.mark(x, i);
+            }
         }
+
     };
 
-    presenter.mark = function (x, y) {
-        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, 1);
-        if(validateArgs.isError) {
-            return;
+    presenter.mark = function mark (x, y) {
+        presenter.actualCursorPosition = [x,y];
+        if (ModelValidationUtils.validateIntegerInRange(x, presenter.configuration.columns + 1, 1).isValid != false) {
+            if (ModelValidationUtils.validateIntegerInRange(y, presenter.configuration.rows + 1, 1).isValid != false) {
+                presenter.coloredGrid[y - 1][x - 1] = true;
+            }
         }
-        presenter.colorSquare(validateArgs.x, validateArgs.y);
+        presenter.colorSquare(x, y);
     };
 
     presenter.drawLeft = function (x, y, numberOfSteps) {
-        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
-        if(validateArgs.isError) {
-            return;
+        if (arguments.length == 1) {
+            presenter.drawHorizontalLine( presenter.actualCursorPosition[0] - 1, presenter.actualCursorPosition[0] - x, presenter.actualCursorPosition[1]);
+        } else {
+            presenter.drawHorizontalLine(x, x - numberOfSteps + 1 , y);
         }
-        presenter.drawHorizontalLine(validateArgs.x - (validateArgs.steps - 1), validateArgs.x + 1, validateArgs.y);
     };
 
     presenter.drawRight = function (x, y, numberOfSteps) {
-        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
-        if(validateArgs.isError) {
-            return;
+        if (arguments.length == 1) {
+            presenter.drawHorizontalLine(presenter.actualCursorPosition[0] + 1, presenter.actualCursorPosition[0] + x, presenter.actualCursorPosition[1]);
+        } else {
+            presenter.drawHorizontalLine(x, x + numberOfSteps - 1, y);
         }
-        presenter.drawHorizontalLine(validateArgs.x, validateArgs.x + validateArgs.steps, validateArgs.y);
     };
 
     presenter.drawUp = function (x, y, numberOfSteps) {
-        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
-        if(validateArgs.isError) {
-            return;
+        if (arguments.length == 1) {
+            presenter.drawVerticalLine(presenter.actualCursorPosition[1] + 1, presenter.actualCursorPosition[1] + x, presenter.actualCursorPosition[0]);
+        } else {
+            presenter.drawVerticalLine(y, y + numberOfSteps - 1, x);
         }
-        presenter.drawVerticalLine(validateArgs.y, validateArgs.y + validateArgs.steps, validateArgs.x);
     };
 
     presenter.drawDown = function (x, y, numberOfSteps) {
-        var validateArgs = presenter.startPointDecorator(validateDrawingCommandsArgs)(x, y, numberOfSteps);
-        if(validateArgs.isError) {
-            return;
+        if (arguments.length == 1) {
+            presenter.drawVerticalLine(presenter.actualCursorPosition[1] - 1, presenter.actualCursorPosition[1]  - x, presenter.actualCursorPosition[0]);
+        } else {
+            presenter.drawVerticalLine(y, y - numberOfSteps + 1, x);
         }
-        presenter.drawVerticalLine(validateArgs.y - (validateArgs.steps - 1), validateArgs.y + 1, validateArgs.x);
     };
 
     presenter.setColor = function (color) {
@@ -598,20 +630,17 @@ function AddonGrid_Scene_create(){
         presenter.configuration.color = color;
     };
 
-    presenter.setStartPoint = function (x, y) {
-        var parsedX = Number(x);
-        var parsedY = Number(y);
-
-        if (isNaN(parsedX) || isNaN(parsedY)) {
-            return
-        }
-
-        presenter.configuration.startPoint = {
-            "x": parseInt(parsedX, 10),
-            "y": parseInt(parsedY, 10)
-        };
+    presenter.generateFunction = function Grid_Scene_generate_function (code, name, args) {
+        return eval ("(function() { return function(" + args + "){" + code + "}}())");
     };
-    
+
+    function isExcluded(name, excludedCommands) {
+        if ((excludedCommands[name] != null) && (excludedCommands[name]['isExcluded'])) {
+            return true;
+        }
+        return false;
+    }
+
     presenter.getSceneCommands = function () {
         var commandsLabels = $.extend({}, presenter.LABELS, presenter.configuration.labels);
         var commands = {
@@ -621,8 +650,12 @@ function AddonGrid_Scene_create(){
             command_drawRight: delayDecorator(presenter.drawRight),
             command_drawUp: delayDecorator(presenter.drawUp),
             command_drawDown: delayDecorator(presenter.drawDown),
+            command_drawLeftFrom: delayDecorator(presenter.drawLeft),
+            command_drawRightFrom: delayDecorator(presenter.drawRight),
+            command_drawUpFrom: delayDecorator(presenter.drawUp),
+            command_drawDownFrom: delayDecorator(presenter.drawDown),
             command_setColor: delayDecorator(presenter.setColor),
-            command_start: delayDecorator(presenter.setStartPoint),
+            command_setCursor: delayDecorator(presenter.setCursor),
             command_clearMark: delayDecorator(presenter.resetMark),
         };
 
@@ -632,16 +665,43 @@ function AddonGrid_Scene_create(){
             result[label] = commands[key];
         }
 
+        var excludedCommands = presenter.configuration.excludedCommands;
+        for (var excludedCommandName in excludedCommands) {
+            if (isExcluded(excludedCommandName, excludedCommands)) {
+                result[excludedCommandName] = delayDecorator(presenter.generateFunction("","empty",""));
+            }
+        }
+
         return result;
     };
 
+    presenter.getCustomFunctions = function () {
+        var customCommands = presenter.configuration.customCommands;
+        var excludedCommands = presenter.configuration.excludedCommands;
+        var customFunctions = "";
+        for (var index = 0; index < customCommands.length; index++) {
+            var customCommand = customCommands[index];
+            if (!isExcluded(customCommand['name'], excludedCommands)) {
+                customFunctions += "function " + customCommand['name'] + "(" + customCommand['arguments'] + "){" + customCommand['code'] + "};";
+            }
+            else {
+                customFunctions += "function " + customCommand['name'] + "(){};";
+            }
+        }
+        return customFunctions;
+    };
+
     presenter.executeCode = function (code) {
+        presenter.actualCursorPosition = [1,1];
         with (presenter.getSceneCommands()) {
+            var customFunctions = presenter.getCustomFunctions();
+            eval(customFunctions);
             try {
                 eval(code);
             } catch (e) {
                 console.log(e);
             }
+
         }
     };
 

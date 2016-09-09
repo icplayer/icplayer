@@ -22,8 +22,12 @@
         'scene_grid_drawright',
         'scene_grid_drawup',
         'scene_grid_drawdown',
+        'scene_grid_drawleftfrom',
+        'scene_grid_drawrightfrom',
+        'scene_grid_drawupfrom',
+        'scene_grid_drawdownfrom',
         'scene_grid_setcolor',
-        'scene_grid_start',
+        'scene_grid_setcursor',
         'scene_grid_clearmark'
     ];
 
@@ -34,20 +38,28 @@
         "command_drawRight": "drawRight",
         "command_drawUp": "drawUp",
         "command_drawDown": "drawDown",
+        "command_drawLeftFrom": "drawLeftFrom",
+        "command_drawRightFrom": "drawRightFrom",
+        "command_drawUpFrom": "drawUpFrom",
+        "command_drawDownFrom": "drawDownFrom",
         "command_setColor": "setColor",
-        "command_start": "start",
+        "command_setCursor": "setCursor",
         "command_clearMark": "clearMark",
         "block_mark": "mark",
         "block_x": "x",
         "block_y": "y",
         "block_clear": "clear",
-        "block_drawLeft": "drawLeft",
         "block_steps": "steps",
+        "block_drawLeft": "drawLeft",
         "block_drawRight": "drawRight",
         "block_drawUp": "drawUp",
         "block_drawDown": "drawDown",
+        "block_drawLeftFrom": "drawLeftFrom",
+        "block_drawRightFrom": "drawRightFrom",
+        "block_drawUpFrom": "drawUpFrom",
+        "block_drawDownFrom": "drawDownFrom",
         "block_setColor": "setColor",
-        "block_start": "start",
+        "block_setCursor": "setCursor",
         "block_clearMark": "clearMark"
     };
 
@@ -64,17 +76,114 @@
         
         markBlock(labels);
         clearBlock(labels);
+        drawLeftFromBlock(labels);
+        drawRightFromBlock(labels);
+        drawUpFromBlock(labels);
+        drawDownFromBlock(labels);
         drawLeftBlock(labels);
         drawRightBlock(labels);
         drawUpBlock(labels);
         drawDownBlock(labels);
         setColorBlock(labels);
-        startBlock(labels);
+        setCursorBlock(labels);
         clearMarkBlock(labels);
 
         initialized = true;
     };
 
+    function drawUpBlock(labels) {
+        Blockly.Blocks['scene_grid_drawup'] = {
+            init: function() {
+                this.appendDummyInput()
+                    .appendField(labels["block_drawUp"]);
+                this.appendValueInput("steps")
+                    .setCheck("Number")
+                    .appendField(labels["block_steps"]);
+                this.setInputsInline(true);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(120);
+                this.setTooltip('');
+                this.setHelpUrl('http://www.example.com/');
+            }
+        };
+
+        Blockly.JavaScript['scene_grid_drawup'] = function(block) {
+            var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
+            var code = StringUtils.format("{0}({1});\n", labels["command_drawUp"], emptyAsUndefined(value_steps));
+            return code;
+        };
+    }
+    function drawDownBlock(labels) {
+        Blockly.Blocks['scene_grid_drawdown'] = {
+            init: function() {
+                this.appendDummyInput()
+                    .appendField(labels["block_drawDown"]);
+                this.appendValueInput("steps")
+                    .setCheck("Number")
+                    .appendField(labels["block_steps"]);
+                this.setInputsInline(true);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(150);
+                this.setTooltip('');
+                this.setHelpUrl('http://www.example.com/');
+            }
+        };
+
+        Blockly.JavaScript['scene_grid_drawdown'] = function(block) {
+            var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
+            var code = StringUtils.format("{0}({1});\n", labels["command_drawDown"], emptyAsUndefined(value_steps));
+            return code;
+        };
+
+    }
+    function drawLeftBlock(labels) {
+        Blockly.Blocks['scene_grid_drawleft'] = {
+            init: function() {
+                this.appendDummyInput()
+                    .appendField(labels["block_drawLeft"]);
+                this.appendValueInput("steps")
+                    .setCheck("Number")
+                    .appendField(labels["block_steps"]);
+                this.setInputsInline(true);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(195);
+                this.setTooltip('');
+                this.setHelpUrl('http://www.example.com/');
+            }
+        };
+
+        Blockly.JavaScript['scene_grid_drawleft'] = function(block) {
+            var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
+            var code = StringUtils.format("{0}({1});\n", labels["command_drawLeft"], emptyAsUndefined(value_steps));
+            return code;
+        };
+    }
+    function drawRightBlock(labels) {
+        Blockly.Blocks['scene_grid_drawright'] = {
+            init: function() {
+                this.appendDummyInput()
+                    .appendField(labels["block_drawRight"]);
+                this.appendValueInput("steps")
+                    .setCheck("Number")
+                    .appendField(labels["block_steps"]);
+                this.setInputsInline(true);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(270);
+                this.setTooltip('');
+                this.setHelpUrl('http://www.example.com/');
+            }
+        };
+
+        Blockly.JavaScript['scene_grid_drawright'] = function(block) {
+            var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
+            var code = StringUtils.format("{0}({1});\n", labels["command_drawRight"], emptyAsUndefined(value_steps));
+            return code;
+        };
+    }
     function markBlock(labels) {
         Blockly.Blocks['scene_grid_mark'] = {
             init: function() {
@@ -122,11 +231,11 @@
         };
     }
 
-    function drawLeftBlock (labels) {
-        Blockly.Blocks['scene_grid_drawleft'] = {
+    function drawLeftFromBlock (labels) {
+        Blockly.Blocks['scene_grid_drawleftfrom'] = {
             init: function() {
                 this.appendDummyInput()
-                    .appendField(labels["block_drawLeft"]);
+                    .appendField(labels["block_drawLeftFrom"]);
                 this.appendValueInput("x")
                     .setCheck("Number")
                     .appendField(labels["block_x"]);
@@ -145,20 +254,20 @@
             }
         };
 
-        Blockly.JavaScript['scene_grid_drawleft'] = function(block) {
+        Blockly.JavaScript['scene_grid_drawleftfrom'] = function(block) {
             var value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
             var value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
             var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
-            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawLeft"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
+            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawLeftFrom"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
             return code;
         };
     }
 
-    function drawRightBlock (labels) {
-        Blockly.Blocks['scene_grid_drawright'] = {
+    function drawRightFromBlock (labels) {
+        Blockly.Blocks['scene_grid_drawrightfrom'] = {
             init: function() {
                 this.appendDummyInput()
-                    .appendField(labels["block_drawRight"]);
+                    .appendField(labels["block_drawRightFrom"]);
                 this.appendValueInput("x")
                     .setCheck("Number")
                     .appendField(labels["block_x"]);
@@ -177,20 +286,20 @@
             }
         };
 
-        Blockly.JavaScript['scene_grid_drawright'] = function(block) {
+        Blockly.JavaScript['scene_grid_drawrightfrom'] = function(block) {
             var value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
             var value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
             var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
-            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawRight"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
+            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawRightFrom"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
             return code;
         };
     }
 
-    function drawUpBlock(labels) {
-        Blockly.Blocks['scene_grid_drawup'] = {
+    function drawUpFromBlock(labels) {
+        Blockly.Blocks['scene_grid_drawupfrom'] = {
             init: function() {
                 this.appendDummyInput()
-                    .appendField(labels["block_drawUp"]);
+                    .appendField(labels["block_drawUpFrom"]);
                 this.appendValueInput("x")
                     .setCheck("Number")
                     .appendField(labels["block_x"]);
@@ -209,20 +318,20 @@
             }
         };
 
-        Blockly.JavaScript['scene_grid_drawup'] = function(block) {
+        Blockly.JavaScript['scene_grid_drawupfrom'] = function(block) {
             var value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
             var value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
             var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
-            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawUp"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
+            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawUpFrom"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
             return code;
         };
     }
 
-    function drawDownBlock(labels) {
-        Blockly.Blocks['scene_grid_drawdown'] = {
+    function drawDownFromBlock(labels) {
+        Blockly.Blocks['scene_grid_drawdownfrom'] = {
             init: function() {
                 this.appendDummyInput()
-                    .appendField(labels["block_drawDown"]);
+                    .appendField(labels["block_drawDownFrom"]);
                 this.appendValueInput("x")
                     .setCheck("Number")
                     .appendField(labels["block_x"]);
@@ -241,11 +350,11 @@
             }
         };
 
-        Blockly.JavaScript['scene_grid_drawdown'] = function(block) {
+        Blockly.JavaScript['scene_grid_drawdownfrom'] = function(block) {
             var value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
             var value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
             var value_steps = Blockly.JavaScript.valueToCode(block, 'steps', Blockly.JavaScript.ORDER_ATOMIC);
-            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawDown"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
+            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_drawDownFrom"], emptyAsUndefined(value_x), emptyAsUndefined(value_y), emptyAsUndefined(value_steps));
             return code;
         };
     }
@@ -275,11 +384,11 @@
         };
     }
 
-    function startBlock(labels) {
-        Blockly.Blocks['scene_grid_start'] = {
+    function setCursorBlock(labels) {
+        Blockly.Blocks['scene_grid_setcursor'] = {
             init: function() {
                 this.appendDummyInput()
-                    .appendField(labels["block_start"]);
+                    .appendField(labels["block_setCursor"]);
                 this.appendValueInput("x")
                     .setCheck("Number")
                     .appendField(labels["block_x"]);
@@ -295,10 +404,10 @@
             }
         };
 
-        Blockly.JavaScript['scene_grid_start'] = function(block) {
+        Blockly.JavaScript['scene_grid_setcursor'] = function(block) {
             var value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
             var value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
-            var code = StringUtils.format("{0}({1}, {2});\n", labels["command_start"], emptyAsUndefined(value_x), emptyAsUndefined(value_y));
+            var code = StringUtils.format("{0}({1}, {2});\n", labels["command_setCursor"], emptyAsUndefined(value_x), emptyAsUndefined(value_y));
             return code;
         };
     }
