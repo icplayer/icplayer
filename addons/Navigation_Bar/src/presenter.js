@@ -789,21 +789,23 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.isPageOK = function () {
-      for (var i=0; i<presenter.pageCount; i++){
-          if(presenter.presentation.getPage(i).isReportable() && presenter.presentation.getPage(i).isVisited()){
-              var percentageScore = presenter.getPercentageScore(i);
-              var id = presenter.presentation.getPage(i).getId();
-              var pageScore = presenter.scoreService.getPageScoreById(id);
+        var visibleElements = presenter.$view.find('.navigationbar-indexed-element');
+        visibleElements.each( function () {
+            var pageNumber = $(this).attr('data-page-number');
+            if(presenter.presentation.getPage(pageNumber-1).isReportable() && presenter.presentation.getPage(pageNumber-1).isVisited()){
+              var percentageScore = presenter.getPercentageScore(pageNumber-1);
+              var id = presenter.presentation.getPage(pageNumber-1).getId();
+              var pageScore = presenter.scoreService.getPageScoreById(pageNumber-1);
 
               if(isNaN(percentageScore)){
                   percentageScore = 100;
               }
 
               if(percentageScore == 100 && pageScore.errorCount == 0){
-                  presenter.$wrapper.find("[data-page-number='" + (i+1) + "']").addClass("navigationbar-page-ok");
+                  presenter.$wrapper.find("[data-page-number='" + pageNumber + "']").addClass("navigationbar-page-ok");
               }
-          }
-      }
+            }
+        });
     };
 
     presenter.createPreview = function(view, model) {
