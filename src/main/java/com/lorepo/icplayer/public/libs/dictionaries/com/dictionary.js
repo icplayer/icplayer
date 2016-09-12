@@ -31,6 +31,8 @@
 	"documentation_error": "Cannot load documentation.",
 	"documention_loading": "Loading. Please wait.",
 	"documentation_notification": "New feature! Documentation is now available in editor.<br> All you need to do is click on \"?\" button in properties panel.",
+	"notification_plainCloseButton": "Close",
+	"notification_notShowButton": "Do not show this again",
 	"main_tab": "Main",
 	"commons_tab": "Commons",
 	"save_changes": "You have made changes, do you want to save them?",

@@ -31,6 +31,8 @@ var ice_dictionary_mx = {
 	"documentation_error": "No se puede cargar la documentación.",
 	"documention_loading": "Cargando. Por favor, esperar.",
 	"documentation_notification": "¡Nueva caracteristica! La documentación está ahora disponible en el editor. <br> Solamente hay que hacer un clic en el botón \" ? \" en panel de Propiedades.",
+	"notification_plainCloseButton": "Close",
+	"notification_notShowButton": "Do not show this again",
 	"main_tab": "Principales",
 	"commons_tab": "Comunes",
 	"save_changes": "Has hecho cambios. ¿No quieres guardarlos?",

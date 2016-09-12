@@ -31,6 +31,8 @@
 	"documentation_error": "Nie można wczytać dokumentacji.",
 	"documention_loading": "Ładowanie. Proszę czekać.",
 	"documentation_notification": "Nowa funkcja! Dostęp do dokumentacji (na razie tylko w j. angielskim) można teraz uzyskać bezpośrednio z edytora.<br> Wystarczy kliknąć w przycisk \"?\" w panelu Właściwości.",
+	"notification_plainCloseButton": "Close",
+	"notification_notShowButton": "Do not show this again",
 	"main_tab": "Głowne",
 	"commons_tab": "Wspólne",
 	"save_changes": "Zostały wprowadzone zmiany. Czy chcesz je zapisać?",

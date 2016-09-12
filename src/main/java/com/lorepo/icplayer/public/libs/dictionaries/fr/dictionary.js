@@ -31,6 +31,8 @@ var ice_dictionary_fr = {
 "documentation_error": "Impossible de charger l’aide.",
 "documention_loading": "Chargement en cours. Merci de patienter.",
 "documentation_notification": "Nouveauté ! L’aide est désormais accessible dans l’éditeur.<br> Il suffit de cliquer sur le bouton \"?\" dans le menu propriétés.",
+"notification_plainCloseButton": "Close",
+"notification_notShowButton": "Do not show this again",
 "main_tab": "pages",
 "commons_tab": "Eléments communs",
 "save_changes": "Vous avez fait des changements, voulez-vous les sauvegarder ?",
