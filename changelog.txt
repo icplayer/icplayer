@@ -1,3 +1,4 @@
+2016-09-14 Added new property buttons width and buttons number in Assessments Navigation Bar addon
 2016-09-08 Fixed checking pages scores in Navigation Bar module
 2016-08-30 Fixed issue with relative urls in css and eKeyboard styling
 2016-08-30 Added function addonIsLoaded to Content, Fixed bug with thumbnail in YouTube Addon

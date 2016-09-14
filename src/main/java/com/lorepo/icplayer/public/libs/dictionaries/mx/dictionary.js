@@ -1267,6 +1267,8 @@ var ice_dictionary_mx = {
 	"Assessments_Navigation_Bar_name": "Barra de navegación - Modo aleatorio",
 	"Assessments_Navigation_Bar_property_sections": "Secciones",
 	"Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Marcar inmediatamente las páginas ya iniciadas",
+	"Assessments_Navigation_Bar_property_number_of_buttons": "Number of buttons",
+	"Assessments_Navigation_Bar_property_width_of_buttons": "Width of buttons",
 	"Line_Selection_name": "Selección de líneas",
 	"Line_Selection_info": "Permite agregar una actividad de seleccionar las líneas rectas.",
 	"Line_Selection_property_is_activity": "Es actividad",

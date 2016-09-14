@@ -3,5 +3,7 @@
     <model>
         <property name='Sections' type='text' nameLabel="Assessments_Navigation_Bar_property_sections"/>
         <property name='addClassAreAllAttempted' type='boolean' displayName='Real-time navigationbar-page-attempted' nameLabel="Assessments_Navigation_Bar_property_add_class_are_all_attempted"/>
+        <property name='userButtonsNumber' type='string' displayName='Number of buttons' nameLabel="Assessments_Navigation_Bar_property_number_of_buttons"/>
+        <property name='userButtonsWidth' type='string' displayName='Width of buttons' nameLabel="Assessments_Navigation_Bar_property_width_of_buttons"/>
     </model>
 </addon>

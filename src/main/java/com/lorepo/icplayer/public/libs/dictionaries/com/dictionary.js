@@ -1279,6 +1279,8 @@
     "Assessments_Navigation_Bar_name": "Assessments Navigation Bar",
     "Assessments_Navigation_Bar_property_sections": "Sections",
     "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Real-time navigationbar-page-attempted",
+	"Assessments_Navigation_Bar_property_number_of_buttons": "Number of buttons",
+	"Assessments_Navigation_Bar_property_width_of_buttons": "Width of buttons",
     "Line_Selection_name" : "Line Selection",
     "Line_Selection_info" : "Allows to add selectable lines to the presentation",
     "Line_Selection_property_is_activity" : "Is Activity",

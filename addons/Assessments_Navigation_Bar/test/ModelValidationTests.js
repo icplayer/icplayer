@@ -164,3 +164,220 @@ TestCase("[Assessments_Navigation_Bar] Parse pages from range", {
         assertEquals(3, validationResult.errorData["section"]);
     }
 });
+
+TestCase("[Assessments Navigation Bar] Parse buttons width", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+    },
+
+    'test should parse empty string as no value provided': function () {
+        var result = this.presenter.parseButtonsWidth("      ");
+
+        assertTrue(result.isValid);
+        assertUndefined(result.value);
+    },
+
+    'test should parse string to integers': function () {
+        var result = this.presenter.parseButtonsWidth("  42.5");
+
+        assertTrue(result.isValid);
+        assertEquals(42, result.value);
+
+        result = this.presenter.parseButtonsWidth("10");
+
+        assertTrue(result.isValid);
+        assertEquals(10, result.value);
+
+        result = this.presenter.parseButtonsWidth("10asfdafdsa");
+
+        assertFalse(result.isValid);
+    },
+
+    'test should parse negative or 0 buttons to error': function () {
+        var result = this.presenter.parseButtonsWidth("0");
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_09");
+        assertUndefined(result.errorData);
+
+        var result = this.presenter.parseButtonsWidth("-15");
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_09");
+        assertUndefined(result.errorData);
+    },
+
+    'test should parse non numeric string to error': function (){
+        var result = this.presenter.parseButtonsWidth("asdfhjla  d sfva");
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_10");
+        assertUndefined(result.errorData);
+    }
+});
+
+TestCase("[Assessments Navigation Bar] Parse buttons number", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+    },
+
+    'test should parse empty string as no value provided': function () {
+        var result = this.presenter.parseButtonsNumber("      ", 10);
+
+        assertTrue(result.isValid);
+        assertUndefined(result.value);
+    },
+
+    'test should parse string to integers': function () {
+        var result = this.presenter.parseButtonsNumber("  42.5", 50);
+
+        assertTrue(result.isValid);
+        assertEquals(42, result.value);
+
+        result = this.presenter.parseButtonsNumber("10", 20);
+
+        assertTrue(result.isValid);
+        assertEquals(10, result.value);
+
+        result = this.presenter.parseButtonsNumber("10asfdafdsa", 20);
+        assertFalse(result.isValid);
+    },
+
+    'test should parse negative or 0 buttons to error': function () {
+        var result = this.presenter.parseButtonsNumber("0", 10);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_06");
+        assertUndefined(result.errorData);
+
+        result = this.presenter.parseButtonsNumber("-15", 10);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_06");
+        assertUndefined(result.errorData);
+    },
+
+    'test should parse non numeric string to error': function (){
+        var result = this.presenter.parseButtonsNumber("asdfhjla  d sfva", 10);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_07");
+        assertUndefined(result.errorData);
+    },
+
+    'test should be equal or less than number of pages in sections': function (){
+        var result = this.presenter.parseButtonsNumber("20", 10);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_08");
+        assertUndefined(result.errorData);
+    }
+});
+
+TestCase("[Assessments Navigation Bar] validateModel", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.stubs = {
+            validateSections: sinon.stub(this.presenter, 'validateSections'),
+            parseButtonsNumber: sinon.stub(this.presenter, 'parseButtonsNumber'),
+            parseButtonsWidth: sinon.stub(this.presenter, 'parseButtonsWidth'),
+            calculateNumberOfPages: sinon.stub(this.presenter, 'calculateNumberOfPages')
+        }
+    },
+
+    tearDown: function () {
+        this.presenter.validateSections.restore();
+        this.presenter.parseButtonsNumber.restore();
+        this.presenter.parseButtonsWidth.restore();
+        this.presenter.calculateNumberOfPages.restore();
+    },
+
+    'test should validate and parse all properties': function () {
+        this.stubs.validateSections.returns({
+            isValid: true
+        });
+
+        this.stubs.parseButtonsNumber.returns({
+            isValid: true
+        });
+
+        this.stubs.parseButtonsWidth.returns({
+            isValid: true
+        });
+
+        this.presenter.validateModel({});
+
+        assertTrue(this.stubs.validateSections.calledOnce);
+        assertTrue(this.stubs.parseButtonsNumber.calledOnce);
+        assertTrue(this.stubs.parseButtonsWidth.calledOnce);
+    },
+
+    'test should return model from values of validations': function () {
+        var returnedSections = {
+            isValid: true,
+            sections: ["asdk;ljasv;ckxzjvzxc"]
+        };
+
+        var returnedButtonsNumber = {
+            isValid: true,
+            value: 5
+        };
+
+        var returnedButtonsWidth = {
+            isValid: true,
+            value: "asdfsafdas"
+        };
+
+        this.stubs.validateSections.returns(returnedSections);
+        this.stubs.parseButtonsNumber.returns(returnedButtonsNumber);
+        this.stubs.parseButtonsWidth.returns(returnedButtonsWidth);
+
+        var result = this.presenter.validateModel({});
+
+        assertTrue(this.stubs.validateSections.calledOnce);
+        assertTrue(this.stubs.parseButtonsNumber.calledOnce);
+        assertTrue(this.stubs.parseButtonsWidth.calledOnce);
+
+        assertEquals(returnedSections.sections, result.sections);
+        assertEquals(returnedButtonsNumber.value, result.userButtonsNumber);
+        assertEquals(returnedButtonsWidth.value, result.userButtonsWidth);
+    }
+});
+
+TestCase("[Assessments Navigation Bar] Model Validation", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.validModel = {
+            Sections: "1-4; latweZadania; 1, 2, 3, 4",
+            userButtonsNumber: "3",
+            userButtonsWidth: "40",
+            ID: "addonID",
+            addClassAreAllAttempted: "True"
+        };
+
+        this.expectedResult = {
+            isValid: true,
+            sections: [
+                {
+                    pages: [0, 1, 2, 3],
+                    sectionName: "latweZadania",
+                    pagesDescriptions: ["1", "2", "3", "4"]
+                }
+            ],
+            addClassAreAllAttempted: true,
+            addonID: "addonID",
+            userButtonsNumber: 3,
+            userButtonsWidth: 40,
+            numberOfPages: 4
+        };
+    },
+
+    'test parsing valid model': function () {
+        var result = this.presenter.validateModel(this.validModel);
+        assertEquals(this.expectedResult, result);
+    }
+});
