@@ -13,6 +13,8 @@ import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
@@ -241,7 +243,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}
 
-
 	private JavaScriptObject createModel(IPropertyProvider provider) {
 
 		JavaScriptObject jsModel = JavaScriptObject.createArray();
@@ -255,8 +256,21 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 					addToJSArray(listModel, providerModel);
 				}
 				addPropertyToJSArray(jsModel, property.getName(), listModel);
-			}
-			else{
+			} else if (property instanceof IStaticListProperty) {
+				IStaticListProperty listProperty = (IStaticListProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createArray();
+				for(int j = 0; j < listProperty.getChildrenCount(); j++){
+					IPropertyProvider child = listProperty.getChild(j);
+					JavaScriptObject childModel = createModel(child);
+					addPropertyToJSArray(listModel, child.getProperty(0).getName(), childModel);
+				}
+				addPropertyToJSArray(jsModel, property.getName(), listModel);
+			} else if (property instanceof IStaticRowProperty) {
+				IStaticRowProperty listProperty = (IStaticRowProperty) property;
+				for(int j = 0; j < listProperty.getChildrenCount(); j++){
+					addPropertyToModel(jsModel,listProperty.getChild(j).getProperty(0));
+				}
+			} else{
 				addPropertyToModel(jsModel, property);
 			}
 		}

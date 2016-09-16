@@ -14,6 +14,7 @@ public class AddonProperty {
 	private String name;
 	private String displayName;
 	private String type;
+	private String value;
 	private boolean isLocalized = false;
 	private List<AddonProperty> childProperties = new ArrayList<AddonProperty>();
 	private boolean isDefault = false;
@@ -37,6 +38,13 @@ public class AddonProperty {
 		return displayName;
 	}
 	
+	public String getValue() {
+		return this.value;
+	}
+	
+	public void setValue (String value) {
+		this.value = value;
+	}
 	
 	public String getType(){
 		return type;
@@ -67,6 +75,8 @@ public class AddonProperty {
 
 		isDefault = XMLUtils.getAttributeAsBoolean(rootElement, "isDefault");
 		
+		value = XMLUtils.getAttributeAsString(rootElement, "value");
+		
 		if(type.compareTo("list") == 0){
 			
 			NodeList optionNodes = rootElement.getChildNodes();
@@ -80,6 +90,32 @@ public class AddonProperty {
 					childProperties.add(property);
 				}
 			}
+		} else if(type.compareTo("staticlist") == 0) {
+			
+			NodeList optionNodes = rootElement.getChildNodes();
+			for(int i = 0; i < optionNodes.getLength(); i++){                        
+		
+				Node node = optionNodes.item(i);
+				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){
+					if(XMLUtils.getAttributeAsString((Element)node, "type").compareTo("staticrow") == 0) {
+						Element element = (Element)optionNodes.item(i);
+						AddonProperty property = new AddonProperty();
+						property.load(element);
+						childProperties.add(property);
+					}
+				}
+			}	
+		} else if(type.compareTo("staticrow") == 0) {
+			NodeList optionNodes = rootElement.getChildNodes();
+			for(int i = 0; i < optionNodes.getLength(); i++){                        
+				Node node = optionNodes.item(i);
+				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){	
+					Element element = (Element)optionNodes.item(i);
+					AddonProperty property = new AddonProperty();
+					property.load(element);
+					childProperties.add(property);
+				}
+			}	
 		}
 	}
 
