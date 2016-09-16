@@ -8,28 +8,44 @@ function AddonGrid_Scene_create(){
     presenter.ERROR_CODES = {
         GS01: "Columns and rows must be a positive integer",
         GS02: "Delay have to be a positive integer",
-        GS03: "Labels have to be a valid JSON string",
+        GS03: "Commands have to be a valid JSON string",
+        GS04: "Error while getting file with commands. Check url.",
         WA01: "Point in answer must have two values",
         WA02: "Answer have non number value",
         CE01: "All commands must have name",
-        CE02: "All commands must have code"
+        CE02: "All commands must have code",
+        CP01: "Custom Command must have command_arguments property",
+        CP02: "Custom Command must have is_disabled property",
+        CP03: "Custom Command must have command_code property",
+        CP04: "Custom Command must have command_name property",
+        CP05: "Custom Command must have valid JS name",
+        CP06: "Custom Command arguments must have valid JS name",
+        CP07: "Multiple Custom Command declared",
+        AE01: "Multiple alias declaration in default commands",
+        DA01: "Default Command alias must have valid JS name",
+        DA02: "Default Command Arguments aliases must have valid JS names"
     };
 
     presenter.configuration = {
         isError : true,
         isVisible : true,
+        isPreview: false,
         visibleByDefault : true,
         addonID : null,
         rows : null,
         columns : null,
         color : null,
         hasDelay: false,
+        isErrorMode: false,
+        isSavingAnswer: false,
         delay: 0,
         queLoopTimer: null,
         commandQueue: [],
         blockLabels: {},
         commandsLabels: {},
-        excludedCommands: {}
+        excludedCommands: {},
+        answerCode: "",
+        isShowingAnswers: false
     };
     
     presenter.LABELS = {
@@ -64,8 +80,26 @@ function AddonGrid_Scene_create(){
         "block_clearMark": "clearMark"
     };
 
-    presenter.coloredGrid = [];
 
+    presenter.originalCommands = null;
+
+    presenter.commandsArgs = {
+        "command_clear": "",
+        "command_mark": "x, y",
+        "command_drawLeft": "steps",
+        "command_drawRight": "steps",
+        "command_drawUp": "steps",
+        "command_drawDown": "steps",
+        "command_drawLeftFrom": "x, y, steps",
+        "command_drawRightFrom": "x, y, steps",
+        "command_drawUpFrom": "x, y, steps",
+        "command_drawDownFrom": "x, y, steps",
+        "command_setColor": "color",
+        "command_setCursor": "x, y",
+        "command_clearMark": "x, y"
+    };
+
+    presenter.coloredGrid = [];
     presenter.actualCursorPosition = [1,1];
 
     function delayDecorator(func) {
@@ -102,6 +136,12 @@ function AddonGrid_Scene_create(){
         }
     }
 
+    function isValidName (name) {
+        if (name.trim().match(/^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/) === null)
+            return false;
+        return true;
+    }
+
     var gridContainerWrapper;
     var gridContainer;
 
@@ -109,7 +149,7 @@ function AddonGrid_Scene_create(){
         for (var rows_index = 0; rows_index < rows; rows_index++) {
             presenter.coloredGrid[rows_index] = [];
             for (var columns_index = 0; columns_index < columns; columns_index++) {
-                presenter.coloredGrid[rows_index][columns_index] = false;
+                presenter.coloredGrid[rows_index][columns_index] = "Empty";
             }
         }
     };
@@ -119,7 +159,8 @@ function AddonGrid_Scene_create(){
         var columns = presenter.configuration.columns;
         for (var rows_index = 0; rows_index < rows; rows_index++) {
             for (var columns_index = 0; columns_index < columns; columns_index++) {
-                if (array[rows_index][columns_index]) {
+                if (array[rows_index][columns_index] != "Empty") {
+                    presenter.setColor(array[rows_index][columns_index]);
                     presenter.mark(columns_index+1, rows_index+1);
                 }
             }
@@ -237,11 +278,13 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.colorSquare = function (x, y){
-        var coordinates = x+"-"+ y;
-        var element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
+        if (!presenter.configuration.isSavingAnswer) {
+            var coordinates = x + "-" + y;
+            var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
 
-        element.css('background-color', presenter.configuration.color);
-        element.attr('colored', 'true');
+            element.css('background-color', presenter.configuration.color);
+            element.attr('colored', 'true');
+        }
     };
 
     presenter.resetMark = function (x, y){
@@ -250,10 +293,10 @@ function AddonGrid_Scene_create(){
         var element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
         if (ModelValidationUtils.validateIntegerInRange(x, presenter.configuration.columns + 1, 1).isValid != false) {
             if (ModelValidationUtils.validateIntegerInRange(y, presenter.configuration.rows + 1, 1).isValid != false) {
-                presenter.coloredGrid[y - 1][x - 1] = false;
+                presenter.coloredGrid[y - 1][x - 1] = "Empty";
             }
         }
-        element.css('background-color', 'transparent');
+        element.css('background-color', '');
         element.attr('colored', 'false');
     };
     
@@ -265,6 +308,8 @@ function AddonGrid_Scene_create(){
 
     presenter.run = function(view, model){
         presenterLogic(view, model, false);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model){
@@ -275,16 +320,74 @@ function AddonGrid_Scene_create(){
         return { isError: true, errorCode: errorCode };
     }
 
+    presenter.generateOriginalCommands = function (withDelay) {
+        if (withDelay) {
+            presenter.originalCommands = {
+                command_clear: delayDecorator(presenter.reset),
+                command_mark: delayDecorator(presenter.mark),
+                command_drawLeft: delayDecorator(presenter.drawLeft),
+                command_drawRight: delayDecorator(presenter.drawRight),
+                command_drawUp: delayDecorator(presenter.drawUp),
+                command_drawDown: delayDecorator(presenter.drawDown),
+                command_drawLeftFrom: delayDecorator(presenter.drawLeft),
+                command_drawRightFrom: delayDecorator(presenter.drawRight),
+                command_drawUpFrom: delayDecorator(presenter.drawUp),
+                command_drawDownFrom: delayDecorator(presenter.drawDown),
+                command_setColor: delayDecorator(presenter.setColor),
+                command_setCursor: delayDecorator(presenter.setCursor),
+                command_clearMark: delayDecorator(presenter.resetMark)
+            };
+        } else {
+            presenter.originalCommands = {
+                command_clear: (presenter.reset),
+                command_mark: (presenter.mark),
+                command_drawLeft: (presenter.drawLeft),
+                command_drawRight: (presenter.drawRight),
+                command_drawUp: (presenter.drawUp),
+                command_drawDown: (presenter.drawDown),
+                command_drawLeftFrom: (presenter.drawLeft),
+                command_drawRightFrom: (presenter.drawRight),
+                command_drawUpFrom: (presenter.drawUp),
+                command_drawDownFrom: (presenter.drawDown),
+                command_setColor: (presenter.setColor),
+                command_setCursor: (presenter.setCursor),
+                command_clearMark: (presenter.resetMark)
+            };
+        }
+    };
+
+    presenter.saveAnswer = function Grid_Scene_save_answer(isPreview) {
+        if (!isPreview) {
+            presenter.configuration.isSavingAnswer = true;
+        }
+
+        presenter.generateOriginalCommands(false);
+        presenter.executeCode(presenter.configuration.answerCode);
+        presenter.generateOriginalCommands(true);
+        presenter.configuration.answer = $.extend(true,[], presenter.coloredGrid);
+
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+        presenter.initColoredGridArray(rows,columns);
+
+        presenter.configuration.isSavingAnswer = false;
+
+    };
+
     function presenterLogic(view, model, isPreview) {
+
+        presenter.configuration.isPreview = isPreview;
+
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.configuration = $.extend({}, presenter.configuration, presenter.validateModel(model));
 
+        presenter.configuration = $.extend({}, presenter.configuration, presenter.validateModel(model));
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
+        presenter.generateOriginalCommands(true);
 
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
@@ -298,9 +401,13 @@ function AddonGrid_Scene_create(){
             }
         });
 
+
+
         if (!isPreview) {
             presenter.setQueLoopTimer();
         }
+
+        presenter.saveAnswer(isPreview);
     }
 
     presenter.setQueLoopTimer = function () {
@@ -321,14 +428,34 @@ function AddonGrid_Scene_create(){
         presenter.$view = null;
         presenter.view = null;
         presenter.configuration = null;
+        presenter.originalCommands = null;
+        presenter.commandsArgs = null;
+        presenter.coloredGrid = null;
+        presenter.actualCursorPosition = null;
+        presenter.lastState = null;
     };
 
 
+    function haveDuplicatedValue(firstDict, secondDict) {
+        for (var key in firstDict) {
+            for (var comparedKey in secondDict) {
+                if (firstDict.hasOwnProperty(key) && secondDict.hasOwnProperty(comparedKey)) {
+                    if (key != comparedKey) {
+                        if (firstDict[key] == secondDict[comparedKey]) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     presenter.validateModel = function(model) {
-        var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
-            addonID = model['ID'],
-            rows = ModelValidationUtils.validatePositiveInteger(model['Rows']),
-            columns = ModelValidationUtils.validatePositiveInteger(model['Columns']);
+        var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        var addonID = model['ID'];
+        var rows = ModelValidationUtils.validatePositiveInteger(model['Rows']);
+        var columns = ModelValidationUtils.validatePositiveInteger(model['Columns']);
 
         if(!rows.isValid || !columns.isValid){
             return returnErrorObject('GS01');
@@ -343,16 +470,40 @@ function AddonGrid_Scene_create(){
         if (!validatedDelay.isValid) {
             return validatedDelay;
         }
-
-        var validatedLabels = presenter.validateLabels(model["labels"]);
-        if (!validatedLabels.isValid) {
-            return validatedLabels;
+        var validatedDefaultCommands = presenter.validateDefaultCommands(model);
+        if (!validatedDefaultCommands.isValid) {
+            return validatedDefaultCommands;
         }
 
-        var validatedCommands = presenter.validateCommands(model["commands"]);
-        if (!validatedCommands.isValid) {
-            return validatedCommands
+        var validatedTranslations = validatedDefaultCommands.value.translations;
+        if (haveDuplicatedValue(validatedTranslations, validatedTranslations)) {
+            return presenter.getErrorObject("AE01");
         }
+
+        presenter.commandsArgs = $.extend(presenter.commandsArgs, validatedDefaultCommands.value.argumentsTranslation);
+
+        var validatedCustomCommands = presenter.validateCustomCommands(model['custom_commands']);
+        if (!validatedCustomCommands.isValid) {
+            return validatedCustomCommands;
+        }
+
+        var validatedCommandsFromFile = presenter.validateCommandsJSON(model['json_commands']);
+        if (!validatedCommandsFromFile.isValid) {
+            return validatedCommandsFromFile;
+        }
+
+        var mergedCustomCommands = $.merge(validatedCustomCommands.value.commands,
+                                 validatedCommandsFromFile.value.commands);
+
+        var customCommandsNames = {};
+        for (var i = 0; i < mergedCustomCommands.length; i++) {
+            customCommandsNames[i] = mergedCustomCommands[i].name;
+        }
+
+        if (haveDuplicatedValue(customCommandsNames, customCommandsNames)) {
+            return presenter.getErrorObject("CP07");
+        }
+
         return {
             'isError' : false,
             'isVisible' : validatedIsVisible,
@@ -364,82 +515,173 @@ function AddonGrid_Scene_create(){
             'startPoint': null,
             'hasDelay': validatedDelay.hasDelay,
             'delay': validatedDelay.delay,
-            'labels': validatedLabels.value,
-            'customCommands': validatedCommands.value,
-            'excludedCommands': presenter.validateExcludedCommands(model["excluded_commands"]).value
+            'labels': validatedTranslations,
+            'customCommands': mergedCustomCommands,
+            'excludedCommands': $.extend({},validatedCustomCommands.value.excludedCommands,
+                                    validatedDefaultCommands.value.excludedCommands,
+                                    validatedCommandsFromFile.value.excludedCommands),
+            'answerCode': model['answer']
         };
     };
 
-    presenter.validateExcludedCommands = function Grid_Scene_validate_excluded_commands (excludedCommands) {
-        var excludedCommandsList = [];
-        for (var index = 0; index < excludedCommands.length; index++) {
-            excludedCommandsList[excludedCommands[index]["command_name"]] = {
-                isExcluded: ModelValidationUtils.validateBoolean(excludedCommands[index]["command_is_excluded"])
-            };
-        }
-
-        return {
-            isValidate: true,
-            value: excludedCommandsList
-        };
-    };
-
-    presenter.validateCommand = function Grid_Scene_validate_command (command) {
-        if (ModelValidationUtils.isStringEmpty(command['command_name'])) {
-            return {
-                isValid: true,
-                name: null
-            };
+    presenter.validateDefaultCommand = function Grid_Scene_validate_default_command (key, command) {
+        if (!ModelValidationUtils.isStringEmpty(command['alias'].trim())) {
+            if (!isValidName(command['alias'])) {
+                return presenter.getErrorObject("DA01");
+            }
         }
         return {
             isValid: true,
-            name: command['command_name'],
-            arguments: command['command_arguments'],
-            code: command['command_code']
+            value : {
+                validatedTranslation: command['alias'],
+                validatedIsExcluded: ModelValidationUtils.validateBoolean(command['is_disabled']),
+                validatedArgumentsTranslation: command['arguments_aliases']
+            }
         };
-
     };
 
-    presenter.validateCommands = function Grid_Scene_validate_commands (commands) {
-        var validatedCommands = [];
-
-        for (var key in commands) {
-            if (commands.hasOwnProperty(key)) {
-                var validatedCommand = presenter.validateCommand(commands[key]);
-                if (validatedCommand.name != null) {
-                    validatedCommands.push(validatedCommand);
+    presenter.validateDefaultCommands = function Grid_Scene_validate_default_commands (model) {
+        var translations = {};
+        var excludedCommands = {};
+        var argumentsTranslation = {};
+        var defaultCommands = model['default_commands'];
+        for (var key in defaultCommands) {
+            if (defaultCommands.hasOwnProperty(key)) {
+                var validatedDefaultCommand = presenter.validateDefaultCommand(key, defaultCommands[key]);
+                if (!validatedDefaultCommand.isValid) {
+                    return validatedDefaultCommand;
+                }
+                if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedTranslation)) {
+                    translations[key] = validatedDefaultCommand.value.validatedTranslation;
+                }
+                if (validatedDefaultCommand.value.validatedIsExcluded) {
+                    excludedCommands[key] = true;
+                }
+                if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedArgumentsTranslation)){
+                    argumentsTranslation[key] = validatedDefaultCommand.value.validatedArgumentsTranslation;
                 }
             }
         }
 
         return {
             isValid: true,
-            value: validatedCommands
+            value: {
+                translations: translations,
+                excludedCommands: excludedCommands,
+                argumentsTranslation: argumentsTranslation
+            }
+        }
+    };
+
+    presenter.validateCustomCommand = function Grid_Scene_validate_command (command) {
+
+        if (!command.hasOwnProperty('command_arguments')) {
+            return presenter.getErrorObject("CP01");
+        }
+        if (!command.hasOwnProperty('is_disabled')) {
+            return presenter.getErrorObject("CP02");
+        }
+        if (!command.hasOwnProperty('command_code')) {
+            return presenter.getErrorObject("CP03");
+        }
+        if (!command.hasOwnProperty('command_name')) {
+            return presenter.getErrorObject("CP04");
+        }
+
+        if (ModelValidationUtils.isStringEmpty(command['command_name'])) {
+            return {
+                isValid: true,
+                name: null
+            };
+        }
+
+        if (!isValidName(command['command_name'])) {   //REGEX to check name
+            return presenter.getErrorObject("CP05");
+        }
+
+        if (!ModelValidationUtils.isStringEmpty(command['command_arguments'].trim())) {
+            var argumentsSplited = command['command_arguments'].split(",");
+            for (var key in argumentsSplited) {
+                if(argumentsSplited.hasOwnProperty(key)) {
+                    if(!isValidName(argumentsSplited[key])) { //REGEX to check name
+                        return presenter.getErrorObject("CP06");
+                    }
+                }
+            }
+        }
+
+
+        return {
+            isValid: true,
+            name: command['command_name'],
+            arguments: command['command_arguments'],
+            code: command['command_code'],
+            isExcluded: ModelValidationUtils.validateBoolean(command['is_disabled'])
         };
     };
 
-    presenter.validateLabels = function validateLabels(labels) {
-        if (labels == undefined) {
-            return {};
-        }
+    presenter.validateCustomCommands = function Grid_Scene_validate_commands (commands) {
+        var validatedCommands = [];
+        var excludedCommands = {};
 
-        var trimmedLabels = labels.trim();
-        var result;
-        if (trimmedLabels == "") {
-            result = {};
-        } else {
-            try {
-                result = JSON.parse(trimmedLabels);
-            } catch (e) {
-                return presenter.getErrorObject("GS03");
+        for (var key in commands) {
+            if (commands.hasOwnProperty(key)) {
+                var validatedCommand = presenter.validateCustomCommand(commands[key]);
+                if (!validatedCommand.isValid) {
+                    return validatedCommand;
+                }
+
+                if (validatedCommand.name != null) {
+                    validatedCommands.push(validatedCommand);
+                    if (validatedCommand.isExcluded) {
+                        excludedCommands[validatedCommand.name] = validatedCommand.isExcluded;
+                    }
+                }
             }
         }
 
         return {
             isValid: true,
-            value: result
+            value: {
+                commands: validatedCommands,
+                excludedCommands: excludedCommands
+            }
         };
     };
+
+    presenter.validateCommandsJSON = function Grid_Scene_validate_commands_file (commands) {
+        if (commands == undefined) {
+            return {};
+        }
+
+        var trimmedCommands = commands.trim();
+        var result;
+
+        if (trimmedCommands == "") {
+            result = {};
+        } else {
+            var data = commands.replace(/\r?\n|\r/g,""); //removing all new lines
+            data = data.replace(/\t/g," "); //removing tabulators
+
+            try {
+                result = JSON.parse(data);
+            } catch (e) {
+                return  presenter.getErrorObject("GS03");
+            }
+        }
+
+        var validatedCustomCommands = presenter.validateCustomCommands(result);
+        if (!validatedCustomCommands.isValid) {
+            return validatedCustomCommands;
+        }
+
+        return {
+            isValid: true,
+            value: validatedCustomCommands.value
+        };
+    };
+
+
 
     presenter.validateDelay = function(model) {
         function getDelayObject (isValid, hasDelay, delay) {return {isValid: isValid, hasDelay: hasDelay, delay: delay};}
@@ -465,32 +707,6 @@ function AddonGrid_Scene_create(){
         }
     };
 
-    presenter.validateAnswer = function (answer) {
-        var splitedAnswers = answer.split("\n");
-        var answers = [];
-        for (var index = 0; index < splitedAnswers.length; index++){
-            var answer = splitedAnswers[index].split(";");
-            if (answer.length != 2) {
-                return presenter.getErrorObject("WA01");
-            }
-
-            var x = parseInt(answer[0]);
-            var y = parseInt(answer[1]);
-            if (isNaN(x) || isNaN(y)) {
-                return presenter.getErrorObject("WA02");
-            }
-
-            answers.push({
-                x: x,
-                y: y
-            });
-        }
-        return {
-            isValid: true,
-            value: answers
-        };
-    };
-
     presenter.getErrorObject = function (errorCode) {
         return {isValid: false, isError: true, errorCode: errorCode};
     };
@@ -507,6 +723,69 @@ function AddonGrid_Scene_create(){
 
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.getDefaultCommandsToText = function Grid_Scene_get_commands (withParams) {
+        var functions = "";
+        var labels = presenter.configuration.labels;
+
+        if (withParams === undefined) {
+            withParams = false;
+        }
+
+        for (var key in presenter.originalCommands) {
+            if (presenter.originalCommands.hasOwnProperty(key)) {
+                if (!(key in presenter.configuration.excludedCommands)) {
+                    var functionText = "";
+                    var args = "";
+
+                    if (key in labels) {
+                        functionText = labels[key];
+                    } else {
+                        functionText = presenter.LABELS[key];
+                    }
+
+                    if (withParams) {
+                        args = "(" + presenter.commandsArgs[key] + ")";
+                    }
+
+                    functions += functionText + args + "<br />";
+                }
+            }
+        }
+        return functions;
+    };
+
+    presenter.getCustomCommandsToText = function Grid_Screne_get_custom_commands (withParams) {
+        var commands = "";
+
+        if (withParams === undefined) {
+            withParams = false;
+        }
+
+        var customCommands = presenter.configuration.customCommands;
+        for (var key in customCommands) {
+            if (customCommands.hasOwnProperty(key)) {
+                if (!(customCommands[key].name in presenter.configuration.excludedCommands)) {
+                    var args ="";
+
+                    if (withParams) {
+                        args = "(" + customCommands[key].arguments + ")";
+                    }
+
+                    commands += customCommands[key].name + args + "<br />";
+                }
+            }
+        }
+        return commands;
+    };
+
+    presenter.getCommandsToText = function Grid_Screne_get_custom_commands (withParams) {
+        if (withParams === undefined) {
+            withParams = false;
+        }
+
+        return presenter.getDefaultCommandsToText(withParams) + presenter.getCustomCommandsToText(withParams);
     };
 
     presenter.executeCommand = function(name, params) {
@@ -527,7 +806,11 @@ function AddonGrid_Scene_create(){
             'clearMark' : applyDelayDecorator(presenter.resetMark),
             'clear': applyDelayDecorator(presenter.reset),
             'reset' : presenter.reset,
-            'executeCode': applyDecorator(presenter.executeCode)
+            'executeCode': applyDecorator(presenter.executeCode),
+            'getDefaultCommands': presenter.getDefaultCommandsToText,
+            'getCustomCommands': presenter.getCustomCommandsToText,
+            'getCommands': presenter.getCommandsToText,
+            'isAllOK': presenter.isAllOK
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -535,6 +818,7 @@ function AddonGrid_Scene_create(){
 
     presenter.reset = function(){
         presenter.$view.find('.cell-element').each(function () {
+            $(this).removeClass('wrong').removeClass('correct');
             if($(this).attr('colored') == 'true'){
                 var coordinates = $(this).attr('coordinates').split('-');
                 presenter.resetMark(coordinates[0], coordinates[1]);
@@ -547,6 +831,9 @@ function AddonGrid_Scene_create(){
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
         presenter.actualCursorPosition = [1,1];
+        presenter.configuration.isErrorMode = false;
+        presenter.configuration.isShowingAnswers = false;
+
     };
 
     presenter.setCursor = function (x, y) {
@@ -584,7 +871,7 @@ function AddonGrid_Scene_create(){
         presenter.actualCursorPosition = [x,y];
         if (ModelValidationUtils.validateIntegerInRange(x, presenter.configuration.columns + 1, 1).isValid != false) {
             if (ModelValidationUtils.validateIntegerInRange(y, presenter.configuration.rows + 1, 1).isValid != false) {
-                presenter.coloredGrid[y - 1][x - 1] = true;
+                presenter.coloredGrid[y - 1][x - 1] = presenter.configuration.color;
             }
         }
         presenter.colorSquare(x, y);
@@ -592,32 +879,40 @@ function AddonGrid_Scene_create(){
 
     presenter.drawLeft = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
+            if (parseInt(x) <= 0) return;
             presenter.drawHorizontalLine( presenter.actualCursorPosition[0] - 1, presenter.actualCursorPosition[0] - x, presenter.actualCursorPosition[1]);
         } else {
+            if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawHorizontalLine(x, x - numberOfSteps + 1 , y);
         }
     };
 
     presenter.drawRight = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
+            if (parseInt(x) <= 0) return;
             presenter.drawHorizontalLine(presenter.actualCursorPosition[0] + 1, presenter.actualCursorPosition[0] + x, presenter.actualCursorPosition[1]);
         } else {
+            if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawHorizontalLine(x, x + numberOfSteps - 1, y);
         }
     };
 
     presenter.drawUp = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
+            if (parseInt(x) <= 0) return;
             presenter.drawVerticalLine(presenter.actualCursorPosition[1] + 1, presenter.actualCursorPosition[1] + x, presenter.actualCursorPosition[0]);
         } else {
+            if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawVerticalLine(y, y + numberOfSteps - 1, x);
         }
     };
 
     presenter.drawDown = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
+            if (parseInt(x) <= 0) return;
             presenter.drawVerticalLine(presenter.actualCursorPosition[1] - 1, presenter.actualCursorPosition[1]  - x, presenter.actualCursorPosition[0]);
         } else {
+            if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawVerticalLine(y, y - numberOfSteps + 1, x);
         }
     };
@@ -626,16 +921,15 @@ function AddonGrid_Scene_create(){
         if (color.trim() === '') {
             return;
         }
-
         presenter.configuration.color = color;
     };
 
-    presenter.generateFunction = function Grid_Scene_generate_function (code, name, args) {
+    presenter.generateCommand = function Grid_Scene_generate_command (code, name, args) {
         return eval ("(function() { return function(" + args + "){" + code + "}}())");
     };
 
     function isExcluded(name, excludedCommands) {
-        if ((excludedCommands[name] != null) && (excludedCommands[name]['isExcluded'])) {
+        if ((excludedCommands[name] != null) && (excludedCommands[name])) {
             return true;
         }
         return false;
@@ -643,21 +937,17 @@ function AddonGrid_Scene_create(){
 
     presenter.getSceneCommands = function () {
         var commandsLabels = $.extend({}, presenter.LABELS, presenter.configuration.labels);
-        var commands = {
-            command_clear: delayDecorator(presenter.reset),
-            command_mark: delayDecorator(presenter.mark),
-            command_drawLeft: delayDecorator(presenter.drawLeft),
-            command_drawRight: delayDecorator(presenter.drawRight),
-            command_drawUp: delayDecorator(presenter.drawUp),
-            command_drawDown: delayDecorator(presenter.drawDown),
-            command_drawLeftFrom: delayDecorator(presenter.drawLeft),
-            command_drawRightFrom: delayDecorator(presenter.drawRight),
-            command_drawUpFrom: delayDecorator(presenter.drawUp),
-            command_drawDownFrom: delayDecorator(presenter.drawDown),
-            command_setColor: delayDecorator(presenter.setColor),
-            command_setCursor: delayDecorator(presenter.setCursor),
-            command_clearMark: delayDecorator(presenter.resetMark),
-        };
+
+        var commands = $.extend(true, {}, presenter.originalCommands);
+        var excludedCommands = presenter.configuration.excludedCommands;
+
+        for (var key in excludedCommands) {
+            if (excludedCommands.hasOwnProperty(key)) {
+                if (key in commands) {
+                    commands[key] = delayDecorator(presenter.generateCommand("", "empty", ""));
+                }
+            }
+        }
 
         var result = {};
         for (var key in commands) {
@@ -665,43 +955,41 @@ function AddonGrid_Scene_create(){
             result[label] = commands[key];
         }
 
-        var excludedCommands = presenter.configuration.excludedCommands;
-        for (var excludedCommandName in excludedCommands) {
-            if (isExcluded(excludedCommandName, excludedCommands)) {
-                result[excludedCommandName] = delayDecorator(presenter.generateFunction("","empty",""));
-            }
-        }
-
         return result;
     };
 
-    presenter.getCustomFunctions = function () {
+    presenter.getCustomCommands = function () {
         var customCommands = presenter.configuration.customCommands;
         var excludedCommands = presenter.configuration.excludedCommands;
-        var customFunctions = "";
+        var customCommandsString = "";
         for (var index = 0; index < customCommands.length; index++) {
             var customCommand = customCommands[index];
             if (!isExcluded(customCommand['name'], excludedCommands)) {
-                customFunctions += "function " + customCommand['name'] + "(" + customCommand['arguments'] + "){" + customCommand['code'] + "};";
+                customCommandsString += "function " + customCommand['name'] + "(" + customCommand['arguments'] + "){" + customCommand['code'] + "};";
             }
             else {
-                customFunctions += "function " + customCommand['name'] + "(){};";
+                customCommandsString += "function " + customCommand['name'] + "(){};";
             }
         }
-        return customFunctions;
+        return customCommandsString;
     };
 
     presenter.executeCode = function (code) {
+        if (presenter.configuration.isShowingAnswers) return;
+        if (presenter.configuration.isErrorMode) return;
         presenter.actualCursorPosition = [1,1];
         with (presenter.getSceneCommands()) {
-            var customFunctions = presenter.getCustomFunctions();
-            eval(customFunctions);
+            var customCommands = presenter.getCustomCommands();
+            eval(customCommands);
             try {
                 eval(code);
             } catch (e) {
-                console.log(e);
+                //console.log(e);
             }
 
+        }
+        if (presenter.isAllOK()) {
+            sendAllOKEvent();
         }
     };
 
@@ -732,6 +1020,134 @@ function AddonGrid_Scene_create(){
         }
     };
 
+    presenter.getMaxScore = function Grid_Scene_get_max_score () {
+        return 1;
+    };
+
+    presenter.getScore = function Grid_Scene_get_score () {
+        if (presenter.configuration.isErrorMode) {
+            return 0;
+        }
+        if (presenter.configuration.isShowingAnswers) {
+            return 0;
+        }
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+        var answer = presenter.configuration.answer;
+        var actualState = presenter.coloredGrid;
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < columns; j++) {
+                if (actualState[i][j] != answer[i][j]) {
+                    return 0;
+                }
+            }
+        }
+
+        if (!presenter.configuration.isErrorMode) {
+            return 1;
+        }
+        return 0;
+    };
+
+
+
+
+    presenter.setWorkMode = function () {
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+        for (var i = 0; i < columns; i++){
+            for (var j = 0; j < rows; j++){
+                var coordinates = (i + 1) + "-" +(1 + j);
+                var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
+                element.removeClass('wrong').removeClass('correct');
+            }
+        }
+        presenter.configuration.isErrorMode = false;
+        presenter.setColoredGridArray(presenter.coloredGrid);
+    };
+
+    presenter.setShowErrorsMode = function () {
+        if (presenter.configuration.isShowingAnswers) {
+            presenter.hideAnswers();
+        }
+        var rows = presenter.configuration.rows;
+        var columns = presenter.configuration.columns;
+        var answer = presenter.configuration.answer;
+        var actualState = presenter.coloredGrid;
+
+        for (var i = 0; i < columns; i++){
+            for (var j = 0; j < rows; j++){
+                var coordinates = (i + 1) + "-" +(j + 1);
+                var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
+                element.css('background-color', '');
+                if (answer[j][i] == actualState[j][i]) {
+                    element.addClass('correct');
+                } else {
+                    element.addClass('wrong');
+                }
+            }
+        }
+        presenter.configuration.isErrorMode = true;
+    };
+
+    presenter.showAnswers = function AddonIFrame_Communication_show_answers () {
+        if(presenter.configuration.isErrorMode) {
+            presenter.setWorkMode();
+        }
+        presenter.lastState = $.extend(true,[], presenter.coloredGrid);
+        presenter.generateOriginalCommands(false);
+        presenter.reset();
+        presenter.configuration.isShowingAnswers = true;
+        presenter.setColoredGridArray(presenter.configuration.answer);
+    };
+
+    presenter.hideAnswers = function AddonIFrame_Communication_hide_answers () {
+        presenter.configuration.isShowingAnswers = false;
+        presenter.reset();
+        presenter.coloredGrid = presenter.lastState;
+        presenter.lastState = null;
+        presenter.setColoredGridArray(presenter.coloredGrid);
+        presenter.generateOriginalCommands(true);
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        } else if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.isAllOK = function () {
+        if (!presenter.configuration.isSavingAnswer) {
+            if (!presenter.configuration.isPreview) {
+                var rows = presenter.configuration.rows;
+                var columns = presenter.configuration.columns;
+                var answer = presenter.configuration.answer;
+                var actualState = presenter.coloredGrid;
+                for (var i = 0; i < rows; i++) {
+                    for (var j = 0; j < columns; j++) {
+                        if (actualState[i][j] != answer[i][j]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    };
+
+    function sendAllOKEvent() {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': 'all',
+            'value': '',
+            'score': ''
+        };
+        if (presenter.eventBus != null) {
+            presenter.eventBus.sendEvent('ValueChanged', eventData);
+        }
+    }
 
     return presenter;
 }
