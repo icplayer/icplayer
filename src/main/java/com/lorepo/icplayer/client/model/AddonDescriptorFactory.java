@@ -88,7 +88,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Table_Of_Contents", "navigation_menu");
 		addDescriptor("Hierarchical_Table_Of_Contents", "navigation_menu");
 
-		// MEDIA
+		// SCRIPTING
 		addDescriptor("Viewer_3D", "media_menu");
 		addDescriptor("Animation", "media_menu");
 		addDescriptor("Audio", "media_menu");
@@ -131,7 +131,6 @@ public class AddonDescriptorFactory {
 		addDescriptor("Slider", "scripting_menu");
 		addDescriptor("MenuPanel", "scripting_menu");
 		addDescriptor("Variable_Storage", "scripting_menu");
-		addDescriptor("TurtleGraphic", "scripting_menu");
 		addDescriptor("ProgrammingCommandPrompt", "scripting_menu");
 		addDescriptor("Grid_Scene", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");

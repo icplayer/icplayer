@@ -10,10 +10,6 @@ function AddonGrid_Scene_create(){
         GS02: "Delay have to be a positive integer",
         GS03: "Commands have to be a valid JSON string",
         GS04: "Error while getting file with commands. Check url.",
-        WA01: "Point in answer must have two values",
-        WA02: "Answer have non number value",
-        CE01: "All commands must have name",
-        CE02: "All commands must have code",
         CP01: "Custom Command must have command_arguments property",
         CP02: "Custom Command must have is_disabled property",
         CP03: "Custom Command must have command_code property",
@@ -26,28 +22,6 @@ function AddonGrid_Scene_create(){
         DA02: "Default Command Arguments aliases must have valid JS names"
     };
 
-    presenter.configuration = {
-        isError : true,
-        isVisible : true,
-        isPreview: false,
-        visibleByDefault : true,
-        addonID : null,
-        rows : null,
-        columns : null,
-        color : null,
-        hasDelay: false,
-        isErrorMode: false,
-        isSavingAnswer: false,
-        delay: 0,
-        queLoopTimer: null,
-        commandQueue: [],
-        blockLabels: {},
-        commandsLabels: {},
-        excludedCommands: {},
-        answerCode: "",
-        isShowingAnswers: false
-    };
-    
     presenter.LABELS = {
         "command_clear": "clear",
         "command_mark": "mark",
@@ -78,6 +52,28 @@ function AddonGrid_Scene_create(){
         "block_setColor": "setColor",
         "block_setCurstor": "setCursor",
         "block_clearMark": "clearMark"
+    };
+
+    presenter.configuration = {
+        isError : true,
+        isVisible : true,
+        isPreview: false,
+        visibleByDefault : true,
+        addonID : null,
+        rows : null,
+        columns : null,
+        color : null,
+        hasDelay: false,
+        isErrorMode: false,
+        isSavingAnswer: false,
+        delay: 0,
+        queLoopTimer: null,
+        commandQueue: [],
+        blockLabels: {},
+        commandsLabels: {},
+        excludedCommands: {},
+        answerCode: "",
+        isShowingAnswers: false
     };
 
 
@@ -137,9 +133,21 @@ function AddonGrid_Scene_create(){
     }
 
     function isValidName (name) {
-        if (name.trim().match(/^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/) === null)
+        /*
+        Variable name is valid JS name
+        e.g. : 12SomeName -> null
+               SomeName12 -> array
+               $someName -> array
+         */
+        if (name.trim().match(/^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/) === null) {
             return false;
+        }
+
         return true;
+    }
+
+    function returnErrorObject(errorCode) {
+        return { isError: true, errorCode: errorCode };
     }
 
     var gridContainerWrapper;
@@ -157,14 +165,18 @@ function AddonGrid_Scene_create(){
     presenter.setColoredGridArray = function Grid_Addon_set_colored_grid_array (array) {
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
+
         for (var rows_index = 0; rows_index < rows; rows_index++) {
             for (var columns_index = 0; columns_index < columns; columns_index++) {
                 if (array[rows_index][columns_index] != "Empty") {
                     presenter.setColor(array[rows_index][columns_index]);
                     presenter.mark(columns_index+1, rows_index+1);
+                } else {
+                    presenter.resetMark(columns_index+1, rows_index+1);
                 }
             }
         }
+
     };
 
     function initGrid(model) {
@@ -269,14 +281,6 @@ function AddonGrid_Scene_create(){
         };
     }
 
-    presenter.validateInstructions = function (modelInstructions) {
-        var instructions = modelInstructions.split("\n");
-        for(var i=0; i < instructions.length; i++) {
-            var instruction = instructions[i].split(' ');
-            presenter.colorSquare(instruction[0], instruction[1]);
-        }
-    };
-
     presenter.colorSquare = function (x, y){
         if (!presenter.configuration.isSavingAnswer) {
             var coordinates = x + "-" + y;
@@ -307,75 +311,16 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.run = function(view, model){
-        presenterLogic(view, model, false);
+        presenter.presenterLogic(view, model, false);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model){
-        presenterLogic(view, model, true);
+        presenter.presenterLogic(view, model, true);
     };
 
-    function returnErrorObject(errorCode) {
-        return { isError: true, errorCode: errorCode };
-    }
-
-    presenter.generateOriginalCommands = function (withDelay) {
-        if (withDelay) {
-            presenter.originalCommands = {
-                command_clear: delayDecorator(presenter.reset),
-                command_mark: delayDecorator(presenter.mark),
-                command_drawLeft: delayDecorator(presenter.drawLeft),
-                command_drawRight: delayDecorator(presenter.drawRight),
-                command_drawUp: delayDecorator(presenter.drawUp),
-                command_drawDown: delayDecorator(presenter.drawDown),
-                command_drawLeftFrom: delayDecorator(presenter.drawLeft),
-                command_drawRightFrom: delayDecorator(presenter.drawRight),
-                command_drawUpFrom: delayDecorator(presenter.drawUp),
-                command_drawDownFrom: delayDecorator(presenter.drawDown),
-                command_setColor: delayDecorator(presenter.setColor),
-                command_setCursor: delayDecorator(presenter.setCursor),
-                command_clearMark: delayDecorator(presenter.resetMark)
-            };
-        } else {
-            presenter.originalCommands = {
-                command_clear: (presenter.reset),
-                command_mark: (presenter.mark),
-                command_drawLeft: (presenter.drawLeft),
-                command_drawRight: (presenter.drawRight),
-                command_drawUp: (presenter.drawUp),
-                command_drawDown: (presenter.drawDown),
-                command_drawLeftFrom: (presenter.drawLeft),
-                command_drawRightFrom: (presenter.drawRight),
-                command_drawUpFrom: (presenter.drawUp),
-                command_drawDownFrom: (presenter.drawDown),
-                command_setColor: (presenter.setColor),
-                command_setCursor: (presenter.setCursor),
-                command_clearMark: (presenter.resetMark)
-            };
-        }
-    };
-
-    presenter.saveAnswer = function Grid_Scene_save_answer(isPreview) {
-        if (!isPreview) {
-            presenter.configuration.isSavingAnswer = true;
-        }
-
-        presenter.generateOriginalCommands(false);
-        presenter.executeCode(presenter.configuration.answerCode);
-        presenter.generateOriginalCommands(true);
-        presenter.configuration.answer = $.extend(true,[], presenter.coloredGrid);
-
-        var rows = presenter.configuration.rows;
-        var columns = presenter.configuration.columns;
-        presenter.initColoredGridArray(rows,columns);
-        presenter.setColor(presenter.configuration.defaultColor);
-        presenter.configuration.isSavingAnswer = false;
-
-    };
-
-    function presenterLogic(view, model, isPreview) {
-
+    presenter.presenterLogic = function(view, model, isPreview) {
         presenter.configuration.isPreview = isPreview;
 
         presenter.view = view;
@@ -386,8 +331,6 @@ function AddonGrid_Scene_create(){
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
-
-        presenter.generateOriginalCommands(true);
 
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
@@ -408,7 +351,45 @@ function AddonGrid_Scene_create(){
         }
 
         presenter.saveAnswer(isPreview);
-    }
+    };
+
+    presenter.saveAnswer = function Grid_Scene_save_answer(isPreview) {
+        if (!isPreview) {
+            presenter.configuration.isSavingAnswer = true;
+        }
+
+        var originalDelay = presenter.configuration.hasDelay;
+        presenter.configuration.hasDelay = false;
+        presenter.generateOriginalCommands();
+
+        presenter.executeCode(presenter.configuration.answerCode);
+        presenter.configuration.hasDelay = originalDelay;
+        presenter.generateOriginalCommands();
+        presenter.configuration.answer = $.extend(true,[], presenter.coloredGrid);
+
+        presenter.initColoredGridArray(presenter.configuration.rows, presenter.configuration.columns);
+        presenter.setColor(presenter.configuration.defaultColor);
+        presenter.configuration.isSavingAnswer = false;
+
+    };
+
+    presenter.generateOriginalCommands = function () {
+        presenter.originalCommands = {
+                command_clear: delayDecorator(presenter.reset),
+                command_mark: delayDecorator(presenter.mark),
+                command_drawLeft: delayDecorator(presenter.drawLeft),
+                command_drawRight: delayDecorator(presenter.drawRight),
+                command_drawUp: delayDecorator(presenter.drawUp),
+                command_drawDown: delayDecorator(presenter.drawDown),
+                command_drawLeftFrom: delayDecorator(presenter.drawLeft),
+                command_drawRightFrom: delayDecorator(presenter.drawRight),
+                command_drawUpFrom: delayDecorator(presenter.drawUp),
+                command_drawDownFrom: delayDecorator(presenter.drawDown),
+                command_setColor: delayDecorator(presenter.setColor),
+                command_setCursor: delayDecorator(presenter.setCursor),
+                command_clearMark: delayDecorator(presenter.resetMark)
+        };
+    };
 
     presenter.setQueLoopTimer = function () {
         if(presenter.configuration.hasDelay) {
@@ -651,7 +632,7 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.validateCommandsJSON = function Grid_Scene_validate_commands_file (commands) {
-        if (commands == undefined) {
+        if (commands === undefined) {
             return {};
         }
 
@@ -661,8 +642,17 @@ function AddonGrid_Scene_create(){
         if (trimmedCommands == "") {
             result = {};
         } else {
+            /*
+            Remove all new lines from text
+            e.g. : "Something
+                    Here" -> "SomethingHere"
+             */
             var data = commands.replace(/\r?\n|\r/g,""); //removing all new lines
-            data = data.replace(/\t/g," "); //removing tabulators
+            /*
+            Change all tabulators to space in text
+            e.g. : "Something    Here" -> "Something here"
+             */
+            data = data.replace(/\t/g," ");
 
             try {
                 result = JSON.parse(data);
@@ -736,11 +726,11 @@ function AddonGrid_Scene_create(){
 
         for (var key in presenter.originalCommands) {
             if (presenter.originalCommands.hasOwnProperty(key)) {
-                if (!(key in presenter.configuration.excludedCommands)) {
+                if (!(presenter.configuration.excludedCommands.hasOwnProperty(key))) {
                     var functionText = "";
                     var args = "";
 
-                    if (key in labels) {
+                    if (labels.hasOwnProperty(key)) {
                         functionText = labels[key];
                     } else {
                         functionText = presenter.LABELS[key];
@@ -945,7 +935,7 @@ function AddonGrid_Scene_create(){
 
         for (var key in excludedCommands) {
             if (excludedCommands.hasOwnProperty(key)) {
-                if (key in commands) {
+                if (commands.hasOwnProperty(key)) {
                     commands[key] = delayDecorator(presenter.generateCommand("", "empty", ""));
                 }
             }
@@ -977,19 +967,22 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.executeCode = function (code) {
-        if (presenter.configuration.isShowingAnswers) return;
-        if (presenter.configuration.isErrorMode) return;
+        if (presenter.configuration.isShowingAnswers || presenter.configuration.isErrorMode)  {
+            return;
+        }
+
         presenter.actualCursorPosition = [1,1];
         with (presenter.getSceneCommands()) {
             var customCommands = presenter.getCustomCommands();
-            eval(customCommands);
             try {
+                eval(customCommands);
                 eval(code);
             } catch (e) {
                 //console.log(e);
             }
 
         }
+
         if (presenter.isAllOK()) {
             sendAllOKEvent();
         }
@@ -1099,7 +1092,6 @@ function AddonGrid_Scene_create(){
             presenter.setWorkMode();
         }
         presenter.lastState = $.extend(true,[], presenter.coloredGrid);
-        presenter.generateOriginalCommands(false);
         presenter.reset();
         presenter.configuration.isShowingAnswers = true;
         presenter.setColoredGridArray(presenter.configuration.answer);
@@ -1111,7 +1103,6 @@ function AddonGrid_Scene_create(){
         presenter.coloredGrid = presenter.lastState;
         presenter.lastState = null;
         presenter.setColoredGridArray(presenter.coloredGrid);
-        presenter.generateOriginalCommands(true);
     };
 
     presenter.onEventReceived = function (eventName) {

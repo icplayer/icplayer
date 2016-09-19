@@ -14,7 +14,6 @@ public class AddonProperty {
 	private String name;
 	private String displayName;
 	private String type;
-	private String value;
 	private boolean isLocalized = false;
 	private List<AddonProperty> childProperties = new ArrayList<AddonProperty>();
 	private boolean isDefault = false;
@@ -36,14 +35,6 @@ public class AddonProperty {
 	
 	public String getDisplayName(){
 		return displayName;
-	}
-	
-	public String getValue() {
-		return this.value;
-	}
-	
-	public void setValue (String value) {
-		this.value = value;
 	}
 	
 	public String getType(){
@@ -74,8 +65,6 @@ public class AddonProperty {
 		isLocalized = XMLUtils.getAttributeAsBoolean(rootElement, "isLocalized", false);
 
 		isDefault = XMLUtils.getAttributeAsBoolean(rootElement, "isDefault");
-		
-		value = XMLUtils.getAttributeAsString(rootElement, "value");
 		
 		if(type.compareTo("list") == 0){
 			
