@@ -4,7 +4,7 @@
 	<model>
 		<property name='Mode' nameLabel="Text_Selection_property_mode" type='{Mark phrases to select, All selectable}'/>
 		<property name='Selection type' nameLabel="Text_Selection_property_selection_type" type='{Single select, Multiselect}'/>
-		<property name='Text' nameLabel="Text_Selection_property_text" type='html' isLocalized="true"/>
+		<property name='Text' nameLabel="Text_Selection_property_text" type='html' isLocalized="true" isDefault="true"/>
         <property name='Enable letters selections' nameLabel="Text_Selection_property_enable_letters_selections" type='boolean'/>
         <property name="isNotActivity" displayName="Is Not Activity" nameLabel="Text_Selection_property_is_not_activity" type="boolean" />
 	</model>

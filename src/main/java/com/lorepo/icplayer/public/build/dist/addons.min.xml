@@ -14350,7 +14350,7 @@
 	<model>
 		<property isLocalized="true" name="Text" nameLabel="Double_State_Button_property_text" type="string"/>
 		<property name="Image" nameLabel="Double_State_Button_property_image" type="image"/>
-		<property name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event"/>
+		<property isDefault="true" name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event"/>
 		<property isLocalized="true" name="Text selected" nameLabel="Double_State_Button_property_text_selected" type="string"/>
 		<property name="Image selected" nameLabel="Double_State_Button_property_image_selected" type="image"/>
 		<property name="onDeselected" nameLabel="Double_State_Button_property_on_deselected" type="event"/>
@@ -39147,7 +39147,7 @@ canvas {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="MenuPanel" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property displayName="Menu Items" name="MenuItems" nameLabel="MenuPanel_property_menu_items" type="list">
+        <property displayName="Menu Items" isDefault="true" name="MenuItems" nameLabel="MenuPanel_property_menu_items" type="list">
             <property displayName="Id" name="id" nameLabel="MenuPanel_property_id" type="string"/>
             <property displayName="Title" name="title" nameLabel="MenuPanel_property_title" type="string"/>
             <property displayName="Parent Id" name="parentId" nameLabel="MenuPanel_property_parent_id" type="string"/>
@@ -39650,7 +39650,7 @@ canvas {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="MultiAudio" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Files" nameLabel="MultiAudio_property_files" type="list">
+		<property isDefault="true" name="Files" nameLabel="MultiAudio_property_files" type="list">
 			<property name="ID" nameLabel="MultiAudio_property_id" type="string"/>
 			<property name="Mp3" nameLabel="MultiAudio_property_mp3" type="audio"/>
 			<property name="Ogg" nameLabel="MultiAudio_property_ogg" type="audio"/>
@@ -40119,7 +40119,7 @@ canvas {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Multiple_Audio_Controls_Binder" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Connections" nameLabel="Multiple_Audio_Controls_Binder_property_connections" type="text"/>
+		<property isDefault="true" name="Connections" nameLabel="Multiple_Audio_Controls_Binder_property_connections" type="text"/>
 	</model>
 <css/><view/><preview/><presenter>function AddonMultiple_Audio_Controls_Binder_create() {&#13;
     var presenter = function () {};&#13;
@@ -41352,21 +41352,23 @@ canvas {&#13;
     };&#13;
 &#13;
     presenter.isPageOK = function () {&#13;
-      for (var i=0; i&lt;presenter.pageCount; i++){&#13;
-          if(presenter.presentation.getPage(i).isReportable() &amp;&amp; presenter.presentation.getPage(i).isVisited()){&#13;
-              var percentageScore = presenter.getPercentageScore(i);&#13;
-              var id = presenter.presentation.getPage(i).getId();&#13;
-              var pageScore = presenter.scoreService.getPageScoreById(id);&#13;
+        var visibleElements = presenter.$view.find('.navigationbar-indexed-element');&#13;
+        visibleElements.each( function () {&#13;
+            var pageNumber = $(this).attr('data-page-number');&#13;
+            if(presenter.presentation.getPage(pageNumber-1).isReportable() &amp;&amp; presenter.presentation.getPage(pageNumber-1).isVisited()){&#13;
+              var percentageScore = presenter.getPercentageScore(pageNumber-1);&#13;
+              var id = presenter.presentation.getPage(pageNumber-1).getId();&#13;
+              var pageScore = presenter.scoreService.getPageScoreById(pageNumber-1);&#13;
 &#13;
               if(isNaN(percentageScore)){&#13;
                   percentageScore = 100;&#13;
               }&#13;
 &#13;
               if(percentageScore == 100 &amp;&amp; pageScore.errorCount == 0){&#13;
-                  presenter.$wrapper.find("[data-page-number='" + (i+1) + "']").addClass("navigationbar-page-ok");&#13;
+                  presenter.$wrapper.find("[data-page-number='" + pageNumber + "']").addClass("navigationbar-page-ok");&#13;
               }&#13;
-          }&#13;
-      }&#13;
+            }&#13;
+        });&#13;
     };&#13;
 &#13;
     presenter.createPreview = function(view, model) {&#13;
@@ -44068,7 +44070,7 @@ div.paragraph-wrapper textarea {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="PieChart" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Items" nameLabel="PieChart_property_items" type="list">
+        <property isDefault="true" name="Items" nameLabel="PieChart_property_items" type="list">
             <property name="Name" nameLabel="PieChart_property_name" type="string"/>
             <property name="Color" nameLabel="PieChart_property_color" type="string"/>
             <property name="Starting percent" nameLabel="PieChart_property_starting_percent" type="string"/>
@@ -50036,7 +50038,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property name="Columns" nameLabel="Puzzle_property_columns" type="string"/>
 		<property name="Rows" nameLabel="Puzzle_property_rows" type="string"/>
-		<property name="Image" nameLabel="Puzzle_property_image" type="image"/>
+		<property isDefault="true" name="Image" nameLabel="Puzzle_property_image" type="image"/>
 	</model>
 <css>.puzzle-container {&#13;
     border: 2px solid black;&#13;
@@ -50946,7 +50948,7 @@ div.paragraph-wrapper textarea {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="SelectableAddonsBinder" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Addons" nameLabel="SelectableAddonsBinder_property_addons" type="text"/>
+        <property isDefault="true" name="Addons" nameLabel="SelectableAddonsBinder_property_addons" type="text"/>
     </model>
 <css/><view/><preview/><presenter>function AddonSelectableAddonsBinder_create(){&#13;
     var presenter = function () {};&#13;
@@ -52745,7 +52747,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property isLocalized="true" name="Title" nameLabel="Single_State_Button_property_title" type="string"/>
 		<property name="Image" nameLabel="Single_State_Button_property_image" type="image"/>
-		<property name="onClick" nameLabel="Single_State_Button_property_on_click" type="event"/>
+		<property isDefault="true" name="onClick" nameLabel="Single_State_Button_property_on_click" type="event"/>
 		<property name="Disable" nameLabel="Single_State_Button_property_disable" type="boolean"/>
 	</model>
 <css>.singlestate-button-wrapper {&#13;
@@ -58143,7 +58145,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property name="Rows" nameLabel="Table_property_rows" type="string"/>
 		<property name="Columns" nameLabel="Table_property_columns" type="string"/>
-		<property name="Table cells" nameLabel="Table_property_table_cells" type="list">
+		<property isDefault="true" name="Table cells" nameLabel="Table_property_table_cells" type="list">
 			<property name="Row" nameLabel="Table_property_row" type="string"/>
 			<property name="Column" nameLabel="Table_property_column" type="string"/>
 			<property isLocalized="true" name="Content" nameLabel="Table_property_content" type="html"/>
@@ -60233,7 +60235,7 @@ div.paragraph-wrapper textarea {&#13;
         <property displayName="Display time" name="displayTime" nameLabel="TextAudio_property_display_time" type="boolean"/>
         <property displayName="Enable loop" name="enableLoop" nameLabel="TextAudio_property_enable_loop" type="boolean"/>
 
-        <property name="Slides" nameLabel="TextAudio_property_slides" type="list">
+        <property isDefault="true" name="Slides" nameLabel="TextAudio_property_slides" type="list">
             <property isLocalized="true" name="Text" nameLabel="TextAudio_property_text" type="html"/>
             <property isLocalized="true" name="Times" nameLabel="TextAudio_property_times" type="text"/>
             <property displayName="Position and Dimentions" isLocalized="true" name="positionAndDimentions" nameLabel="TextAudio_property_position_and_dimentions" type="text"/>
@@ -61999,7 +62001,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property name="Mode" nameLabel="Text_Selection_property_mode" type="{Mark phrases to select, All selectable}"/>
 		<property name="Selection type" nameLabel="Text_Selection_property_selection_type" type="{Single select, Multiselect}"/>
-		<property isLocalized="true" name="Text" nameLabel="Text_Selection_property_text" type="html"/>
+		<property isDefault="true" isLocalized="true" name="Text" nameLabel="Text_Selection_property_text" type="html"/>
         <property name="Enable letters selections" nameLabel="Text_Selection_property_enable_letters_selections" type="boolean"/>
         <property displayName="Is Not Activity" name="isNotActivity" nameLabel="Text_Selection_property_is_not_activity" type="boolean"/>
 	</model>
@@ -63157,7 +63159,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
         <property displayName="Is not an activity" name="isNotActivity" nameLabel="TrueFalse_property_is_not_activity" type="boolean"/>
 		<property name="Multi" nameLabel="TrueFalse_property_multi" type="boolean"/>
-		<property name="Questions" nameLabel="TrueFalse_property_questions" type="list">
+		<property isDefault="true" name="Questions" nameLabel="TrueFalse_property_questions" type="list">
 			<property isLocalized="true" name="Question" nameLabel="TrueFalse_property_question" type="html"/>
 			<property name="Answer" nameLabel="TrueFalse_property_answer" type="string"/>
 		</property>
@@ -64056,7 +64058,7 @@ div.paragraph-wrapper textarea {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Variable_Storage" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property displayName="Variables" name="Variables" nameLabel="Variable_Storage_property_variables" type="list">
+        <property displayName="Variables" isDefault="true" name="Variables" nameLabel="Variable_Storage_property_variables" type="list">
             <property displayName="Name" name="Name" nameLabel="Variable_Storage_property_variables_name" type="string"/>
             <property displayName="Start value" name="Start" nameLabel="Variable_Storage_property_variables_start" type="string"/>
         </property>
@@ -64828,7 +64830,7 @@ div.viewer-3d-wrapper {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="WritingCalculations" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Value" nameLabel="WritingCalculations_property_value" type="text"/>
+        <property isDefault="true" name="Value" nameLabel="WritingCalculations_property_value" type="text"/>
         <property name="Signs" nameLabel="WritingCalculations_property_signs" type="list">
             <property name="Addition" nameLabel="WritingCalculations_property_addition" type="string"/>
             <property name="Subtraction" nameLabel="WritingCalculations_property_subtraction" type="string"/>
@@ -68096,7 +68098,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="feedback" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Responses" nameLabel="feedback_property_responses" type="list">
+		<property isDefault="true" name="Responses" nameLabel="feedback_property_responses" type="list">
 			<property name="Unique response ID" nameLabel="feedback_property_unique_response_id" type="string"/>
 			<property name="Status" nameLabel="feedback_property_status" type="string"/>
 			<property isLocalized="true" name="Text" nameLabel="feedback_property_text" type="html"/>
@@ -72718,7 +72720,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="text_identification" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property isLocalized="true" name="Text" nameLabel="text_identification_property_text" type="html"/>
+		<property isDefault="true" isLocalized="true" name="Text" nameLabel="text_identification_property_text" type="html"/>
 		<property name="SelectionCorrect" nameLabel="text_identification_property_selection_correct" type="boolean"/>
 		<property name="onSelected" nameLabel="text_identification_property_on_selected" type="event"/>
 		<property name="onDeselected" nameLabel="text_identification_property_on_deselected" type="event"/>

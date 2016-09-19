@@ -22,7 +22,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 	private String href;
 	private String id;
-	private ArrayList<AddonProperty>	propertyNames = new ArrayList<AddonProperty>();
+	private ArrayList<AddonProperty> properties = new ArrayList<AddonProperty>();
 	private ArrayList<String>	resources = new ArrayList<String>();
 	private String viewHtml = "";
 	private String previewHtml = "";
@@ -49,7 +49,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 
 	public List<AddonProperty> getProperties(){
-		return propertyNames;
+		return properties;
 	}
 
 
@@ -87,7 +87,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 	private void loadModel(Element rootElement) {
 		
-		propertyNames.clear();
+		properties.clear();
 		NodeList modelNodes = rootElement.getElementsByTagName("model");
 		if(modelNodes.getLength() > 0){
 			
@@ -99,7 +99,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 					Element element = (Element)optionNodes.item(i);
 					AddonProperty property = new AddonProperty();
 					property.load(element);
-					propertyNames.add(property);
+					properties.add(property);
 				}
 			}
 		}
@@ -178,7 +178,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 		xml += "</metadata>";
 		
 		xml += "<model>";
-		for(AddonProperty addonProperty : propertyNames){
+		for(AddonProperty addonProperty : properties){
 			xml += addonProperty.toXML();
 		}
 		xml += "</model>";
@@ -243,7 +243,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 	
 	public void addProperty(AddonProperty addonProperty) {
 
-		propertyNames.add(addonProperty);
+		properties.add(addonProperty);
 	}
 
 
@@ -254,5 +254,15 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 	
 	public boolean isLoaded(){
 		return isLoaded;
+	}
+	
+	public AddonProperty getDefaultProperty() {
+		for(AddonProperty property : this.properties) {
+			if (property.isDefault()) {
+				return property;
+			}
+		}
+		
+		return null;
 	}
 }

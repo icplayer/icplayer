@@ -4,7 +4,7 @@
 	<model>
 		<property name='Rows' nameLabel="Table_property_rows" type='string' />
 		<property name="Columns" nameLabel="Table_property_columns" type="string" />
-		<property name="Table cells" nameLabel="Table_property_table_cells" type="list">
+		<property name="Table cells" nameLabel="Table_property_table_cells" type="list" isDefault="true">
 			<property name="Row" nameLabel="Table_property_row" type="string" />
 			<property name="Column" nameLabel="Table_property_column" type="string" />
 			<property name="Content" nameLabel="Table_property_content" type="html" isLocalized="true" />

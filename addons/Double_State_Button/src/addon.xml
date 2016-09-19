@@ -4,7 +4,7 @@
 	<model>
 		<property name='Text' nameLabel="Double_State_Button_property_text" type='string' isLocalized="true" />
 		<property name="Image" nameLabel="Double_State_Button_property_image" type="image" />
-		<property name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event" />
+		<property name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event" isDefault="true"/>
 		<property name='Text selected' nameLabel="Double_State_Button_property_text_selected" type='string' isLocalized="true" />
 		<property name="Image selected" nameLabel="Double_State_Button_property_image_selected" type="image" />
 		<property name="onDeselected" nameLabel="Double_State_Button_property_on_deselected" type="event" />

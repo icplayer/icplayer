@@ -49,7 +49,7 @@ function(b){var d=this,c=a._internals.getCurrentTime(),e=a._internals.getLastTar
 a._internals.addCallback(c,d);b.on(e,a._internals.doubleTapHandler)};a.off=function(b){var d=b[0],c=a._internals.getStartEvent();b.off(c,a._internals.doubleTapHandler);a._internals.removeTargetCallbacks(d);a._internals.removeTargetClicks(d)};e.EventsUtils={};e.EventsUtils.DoubleTap=a})(window);
 /**
  * Player Addons Commons library
- * @version 0.376
+ * @version 0.378
  * Components:
  * - Model Validation Utils
  * - DOM Operations

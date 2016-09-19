@@ -4,7 +4,7 @@
 	<model>
 		<property name="Title" nameLabel="Single_State_Button_property_title" type="string" isLocalized="true" />
 		<property name="Image" nameLabel="Single_State_Button_property_image" type="image" />
-		<property name="onClick" nameLabel="Single_State_Button_property_on_click" type="event" />
+		<property name="onClick" nameLabel="Single_State_Button_property_on_click" type="event" isDefault="true"/>
 		<property name="Disable" nameLabel="Single_State_Button_property_disable" type="boolean" />
 	</model>
 </addon>
