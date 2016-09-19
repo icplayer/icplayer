@@ -273,7 +273,7 @@ function AddonParagraph_create() {
         return upgradedModel;
     };
 
-    presenter.destroy = function AddonParagraph_destroy() {
+    presenter.destroy = function AddonParagraph_destroy(event) {
         if (event.target !== presenter.view) {
             return;
         }
