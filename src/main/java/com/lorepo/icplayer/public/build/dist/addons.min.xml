@@ -1850,6 +1850,8 @@
     <model>
         <property name="Sections" nameLabel="Assessments_Navigation_Bar_property_sections" type="text"/>
         <property displayName="Real-time navigationbar-page-attempted" name="addClassAreAllAttempted" nameLabel="Assessments_Navigation_Bar_property_add_class_are_all_attempted" type="boolean"/>
+        <property displayName="Number of buttons" name="userButtonsNumber" nameLabel="Assessments_Navigation_Bar_property_number_of_buttons" type="string"/>
+        <property displayName="Width of buttons" name="userButtonsWidth" nameLabel="Assessments_Navigation_Bar_property_width_of_buttons" type="string"/>
     </model>
 <css>.assessments-navigation-bar-wrapper .navigation-buttons-first .previous {&#13;
     width: 40px;&#13;
@@ -1965,7 +1967,12 @@
         S_02: "Pages range is invalid on section: %section% in sections property.",&#13;
         S_03: "Pages descriptions are invalid on section: %section% in sections property. Number of descriptions is too small.",&#13;
         S_04: "Pages descriptions are invalid on section: %section% in sections property. Number of descriptions is too big.",&#13;
-        S_05: "Section: %section_1% pages numbers cant intersect with page numbers of section: %section_2%."&#13;
+        S_05: "Section: %section_1% pages numbers cant intersect with page numbers of section: %section_2%.",&#13;
+        S_06: "Number of buttons property can't be equal or below 0.",&#13;
+        S_07: "Number of buttons property have to be an integer",&#13;
+        S_08: "Number of buttons can't be greater than number of pages in sections",&#13;
+        S_09: "Buttons width property can't be equal or below 0.",&#13;
+        S_10: "Buttons width property have to be an integer"&#13;
     };&#13;
 &#13;
     presenter.CSS_CLASSES = {&#13;
@@ -1973,6 +1980,19 @@
     };&#13;
     &#13;
     presenter.attemptedButtons = [];&#13;
+&#13;
+    presenter.configuration = {&#13;
+        isValid: undefined,&#13;
+        addonID: undefined,&#13;
+        sections: undefined,&#13;
+        addClassAreAllAttempted: undefined,&#13;
+        userButtonsNumber: undefined,&#13;
+        userButtonsWidth: undefined,&#13;
+        numberOfButtons: undefined,&#13;
+        navigationLeftIndex: 0,&#13;
+        navigationRightIndex: 0,&#13;
+        numberOfPages: 0,&#13;
+    };&#13;
 &#13;
     presenter.showErrorMessage = function(message, substitutions) {&#13;
         var errorContainer;&#13;
@@ -2373,6 +2393,10 @@
             leftIndex = ((this.allPages.length) - numberOfPages)&#13;
         }&#13;
 &#13;
+        if (leftIndex &lt; 0) {&#13;
+            leftIndex = 0;&#13;
+        }&#13;
+&#13;
         for (var i = leftIndex; i &lt; this.allPages.length; i++) {&#13;
             if (numberOfPages == 0) {&#13;
                 break;&#13;
@@ -2507,16 +2531,6 @@
         presenter.$wrapper.append(this.$navigationButtonsLast);&#13;
     };&#13;
 &#13;
-    presenter.NavigationManager.prototype.removeMargins = function () {&#13;
-        this.$sections.css({&#13;
-            "margin-right": ""&#13;
-        });&#13;
-&#13;
-        this.$navigationButtonsFirst.css({&#13;
-           "margin-right": ""&#13;
-        });&#13;
-    };&#13;
-&#13;
     presenter.NavigationManager.prototype.clearStateAndButtons = function () {&#13;
         this.removeSections();&#13;
         this.removeHellips();&#13;
@@ -2549,7 +2563,12 @@
     };&#13;
 &#13;
     presenter.NavigationManager.prototype.calculateNumberOfPages = function (hellipsCount) {&#13;
-        return presenter.configuration.numberOfButtons - 2 - hellipsCount;&#13;
+        var number = presenter.configuration.numberOfButtons - 2 - hellipsCount;&#13;
+        if (number &lt; 1) {&#13;
+            return 1;&#13;
+        } else {&#13;
+            return number;&#13;
+        }&#13;
     };&#13;
 &#13;
     presenter.NavigationManager.prototype.getHellip = function (containerAddFunction, hellipFunction, className) {&#13;
@@ -2596,10 +2615,10 @@
 &#13;
     presenter.NavigationManager.prototype.moveToCurrentPageLogic = function () {&#13;
         for (var i = 0; i &lt; this.actualPages.length; i++) {&#13;
-                if (this.actualPages[i].isActualPage()) {&#13;
-                    return;&#13;
-                }&#13;
+            if (this.actualPages[i].isActualPage()) {&#13;
+                return;&#13;
             }&#13;
+        }&#13;
 &#13;
         this.rightHellip.execute();&#13;
         this.moveToCurrentPage();&#13;
@@ -2615,7 +2634,11 @@
         if (this.shiftCount === 1) {&#13;
             this.leftSideIndex = 0;&#13;
         } else {&#13;
-            this.leftSideIndex -=  (presenter.configuration.numberOfButtons - 4);&#13;
+            if (presenter.configuration.numberOfButtons - 4 &gt; 0) {&#13;
+                this.leftSideIndex -=  (presenter.configuration.numberOfButtons - 4);&#13;
+            } else {&#13;
+                this.leftSideIndex -= 1;&#13;
+            }&#13;
         }&#13;
 &#13;
         this.shiftCount--;&#13;
@@ -2623,14 +2646,29 @@
     };&#13;
 &#13;
     presenter.NavigationManager.prototype.shiftPagesToRight = function () {&#13;
-        if (this.shiftCount === 0) {&#13;
-            this.leftSideIndex += (presenter.configuration.numberOfButtons - 3);&#13;
+        var shift;&#13;
+        if (presenter.configuration.userButtonsNumber) {&#13;
+            shift = (presenter.configuration.numberOfButtons - 2 - this.hellipsCount);&#13;
         } else {&#13;
-            this.leftSideIndex += (presenter.configuration.numberOfButtons - 4);&#13;
+            shift = this.getNormalRightShift();&#13;
         }&#13;
+&#13;
+        if (shift &lt;= 0) {&#13;
+            shift = 1;&#13;
+        }&#13;
+&#13;
+        this.leftSideIndex += shift;&#13;
 &#13;
         this.shiftCount++;&#13;
         this.setSections();&#13;
+    };&#13;
+&#13;
+    presenter.NavigationManager.prototype.getNormalRightShift = function () {&#13;
+        if (this.shiftCount === 0) {&#13;
+            return (presenter.configuration.numberOfButtons - 3);&#13;
+        } else {&#13;
+            return (presenter.configuration.numberOfButtons - 4);&#13;
+        }&#13;
     };&#13;
 &#13;
     presenter.NavigationManager.prototype.setSectionWidth = function ($section) {&#13;
@@ -2662,7 +2700,6 @@
 &#13;
     presenter.NavigationManager.prototype.addSections = function (numberOfPages) {&#13;
         this.actualPages = presenter.sections.getPages(this.leftSideIndex, numberOfPages);&#13;
-&#13;
         var sectionIterator = -1;&#13;
 &#13;
         var len = this.actualPages.length;&#13;
@@ -2738,7 +2775,13 @@
     };&#13;
 &#13;
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {&#13;
-        return ((this.leftSideIndex + presenter.configuration.numberOfButtons - 2 - this.hellipsCount) &lt; presenter.configuration.numberOfPages);&#13;
+        var buttonsWithoutNavigation = presenter.configuration.numberOfButtons - 2;&#13;
+        if (presenter.configuration.userButtonsNumber) {&#13;
+            if (presenter.configuration.userButtonsNumber == 1) {&#13;
+                return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount &lt; presenter.configuration.numberOfPages - 1;&#13;
+            }&#13;
+        }&#13;
+        return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount &lt; presenter.configuration.numberOfPages;&#13;
     };&#13;
 &#13;
     presenter.run = function(view, model){&#13;
@@ -2757,11 +2800,31 @@
         delete presenter.getState;&#13;
     }&#13;
 &#13;
+    presenter.upgradeModel = function (model) {&#13;
+        return presenter.upgradeNumberAndWidthOfButtons(model);&#13;
+    };&#13;
+&#13;
+    presenter.upgradeNumberAndWidthOfButtons = function (model) {&#13;
+        var upgradedModel = {};&#13;
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object&#13;
+&#13;
+        if(model.userButtonsWidth == undefined) {&#13;
+            upgradedModel["userButtonsWidth"] = "";&#13;
+        }&#13;
+&#13;
+        if(model.userButtonsNumber == undefined) {&#13;
+            upgradedModel["userButtonsNumber"] = "";&#13;
+        }&#13;
+&#13;
+        return upgradedModel;&#13;
+    };&#13;
+&#13;
     presenter.runLogic = function (view, model) {&#13;
     	presenter.$view = $(view);&#13;
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');&#13;
 &#13;
-        var validatedModel = presenter.validateModel(model);&#13;
+        var upgradedModel = presenter.upgradeModel(model);&#13;
+        var validatedModel = presenter.validateModel(upgradedModel);&#13;
 &#13;
         if (!validatedModel.isValid) {&#13;
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.errorCode], validatedModel.errorData);&#13;
@@ -2772,13 +2835,14 @@
         presenter.configuration = validatedModel;&#13;
         DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$wrapper);&#13;
 &#13;
-        calculateNumberOfPages();&#13;
-        calculateObjectsSizes();&#13;
+        presenter.calculateObjectsSizes();&#13;
 &#13;
-        initializeAddon();&#13;
+        presenter.initializeAddon();&#13;
 &#13;
         if (presenter.isPreview) {&#13;
             presenter.navigationManager.buttons[0].setAsCurrent();&#13;
+        } else {&#13;
+            presenter.navigationManager.moveToCurrentPage();&#13;
         }&#13;
     };&#13;
 &#13;
@@ -2788,25 +2852,28 @@
         presenter.$wrapper.find(".sections").remove();&#13;
     }&#13;
 &#13;
-    function initializeAddon () {&#13;
+    presenter.initializeAddon = function () {&#13;
         removeMockupDOM();&#13;
 &#13;
         presenter.sections = new presenter.Sections(presenter.configuration.sections);&#13;
         presenter.navigationManager = new presenter.NavigationManager();&#13;
 &#13;
         presenter.navigationManager.setSections();&#13;
-        presenter.navigationManager.moveToCurrentPage();&#13;
-    }&#13;
-&#13;
-    function calculateNumberOfPages () {&#13;
-        presenter.configuration.numberOfPages = presenter.configuration.sections.reduce(function (result, section) {&#13;
-            return result + section.pages.length;&#13;
-        }, 0);&#13;
-    }&#13;
+    };&#13;
 &#13;
     function calculateMaxNumberOfButtons () {&#13;
-        var numberOfButtons = presenter.configuration.maxElementCount &gt; (presenter.configuration.numberOfPages + 2) ?&#13;
-            (presenter.configuration.numberOfPages + 2) : presenter.configuration.maxElementCount;&#13;
+        var numberOfButtons;&#13;
+        if (presenter.configuration.userButtonsNumber) {&#13;
+            numberOfButtons = presenter.configuration.maxElementCount &gt; (presenter.configuration.userButtonsNumber + 2) ?&#13;
+                (presenter.configuration.userButtonsNumber + 2) : presenter.configuration.maxElementCount;&#13;
+&#13;
+            if (numberOfButtons &gt; presenter.configuration.numberOfPages + 2) {&#13;
+                numberOfButtons = (presenter.configuration.numberOfPages + 2);&#13;
+            }&#13;
+        } else {&#13;
+            numberOfButtons = presenter.configuration.maxElementCount &gt; (presenter.configuration.numberOfPages + 2) ?&#13;
+                (presenter.configuration.numberOfPages + 2) : presenter.configuration.maxElementCount;&#13;
+        }&#13;
 &#13;
         presenter.configuration.numberOfButtons = numberOfButtons;&#13;
         presenter.configuration.navigationLeftIndex = 0;&#13;
@@ -2814,7 +2881,12 @@
     }&#13;
 &#13;
     function calculateButtonsSize(elementDistances) {&#13;
-        var elementWidth = parseInt(presenter.$wrapper.width() / presenter.configuration.numberOfButtons - elementDistances.horizontal, 10);&#13;
+        var elementWidth;&#13;
+        if (presenter.configuration.userButtonsWidth) {&#13;
+            elementWidth = presenter.configuration.userButtonsWidth;&#13;
+        } else {&#13;
+            elementWidth = parseInt(presenter.$wrapper.width() / presenter.configuration.numberOfButtons - elementDistances.horizontal, 10);&#13;
+        }&#13;
 &#13;
         var horizontalGap = presenter.$wrapper.width() - (elementWidth + elementDistances.horizontal) * presenter.configuration.maxElementCount;&#13;
 &#13;
@@ -2824,33 +2896,102 @@
         };&#13;
     }&#13;
 &#13;
-    function calculateObjectsSizes () {&#13;
+    presenter.calculateObjectsSizes =   function() {&#13;
         var $element = presenter.$wrapper.find(".previous");&#13;
 &#13;
         var elementDimensions = DOMOperationsUtils.getOuterDimensions($element);&#13;
         var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);&#13;
 &#13;
-        var elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;&#13;
 &#13;
+        var elementBaseWidth;&#13;
+&#13;
+        if (presenter.configuration.userButtonsWidth) {&#13;
+            elementBaseWidth = presenter.configuration.userButtonsWidth;&#13;
+        } else {&#13;
+            elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;&#13;
+        }&#13;
         presenter.configuration.maxElementCount = parseInt((presenter.$wrapper.width()) / elementBaseWidth, 10) - 4;&#13;
 &#13;
         calculateMaxNumberOfButtons();&#13;
         calculateButtonsSize(elementDistances);&#13;
-    }&#13;
+    };&#13;
 &#13;
+    presenter.calculateNumberOfPages = function (sections) {&#13;
+        return sections.reduce(function (result, section) {&#13;
+            return result + section.pages.length;&#13;
+        }, 0);&#13;
+    };&#13;
 &#13;
     presenter.validateModel = function (model) {&#13;
-        var validatedSections = presenter.validateSections(model["Sections"].trim());&#13;
+        var validatedSections = presenter.validateSections(model["Sections"]);&#13;
 &#13;
         if (!validatedSections.isValid) {&#13;
             return validatedSections;&#13;
+        }&#13;
+&#13;
+        var numberOfPages = presenter.calculateNumberOfPages(validatedSections.sections);&#13;
+&#13;
+        var validateButtonsNumber = presenter.parseButtonsNumber(model["userButtonsNumber"], numberOfPages);&#13;
+        if (!validateButtonsNumber.isValid) {&#13;
+            return validateButtonsNumber;&#13;
+        }&#13;
+&#13;
+        var validateButtonsWidth = presenter.parseButtonsWidth(model["userButtonsWidth"]);&#13;
+        if (!validateButtonsNumber.isValid) {&#13;
+            return validateButtonsNumber;&#13;
         }&#13;
 &#13;
         return {&#13;
             isValid: true,&#13;
             addonID: model["ID"],&#13;
             sections: validatedSections.sections,&#13;
-            addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"])&#13;
+            addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"]),&#13;
+            userButtonsNumber: validateButtonsNumber.value,&#13;
+            userButtonsWidth: validateButtonsWidth.value,&#13;
+            numberOfPages: numberOfPages&#13;
+        };&#13;
+    };&#13;
+&#13;
+    presenter.parseButtonsNumber = function (value, numberOfPages) {&#13;
+        var buttonsNumber = presenter.parseNumericProperty(value, "S_06", "S_07");&#13;
+&#13;
+        if (!buttonsNumber.isValid) {&#13;
+            return buttonsNumber;&#13;
+        }&#13;
+&#13;
+        if (buttonsNumber.value &amp;&amp; buttonsNumber.value &gt; numberOfPages) {&#13;
+            return getErrorObject("S_08");&#13;
+        }&#13;
+&#13;
+        return buttonsNumber;&#13;
+    };&#13;
+&#13;
+    presenter.parseButtonsWidth = function (value) {&#13;
+        return presenter.parseNumericProperty(value, "S_09", "S_10");&#13;
+    };&#13;
+&#13;
+    presenter.parseNumericProperty = function (value, belowZeroError, nanError) {&#13;
+        var trimmedValue = value.trim();&#13;
+        if (ModelValidationUtils.isStringEmpty(trimmedValue)) {&#13;
+            return {&#13;
+                isValid: true,&#13;
+                value: undefined&#13;
+            };&#13;
+        }&#13;
+&#13;
+        var parsedValue = Number(trimmedValue);&#13;
+&#13;
+        if (isNaN(parsedValue)) {&#13;
+            return getErrorObject(nanError);&#13;
+        }&#13;
+&#13;
+        if (parsedValue &lt;= 0) {&#13;
+            return getErrorObject(belowZeroError);&#13;
+        }&#13;
+&#13;
+        return {&#13;
+            isValid: true,&#13;
+            value: parseInt(parsedValue, 10)&#13;
         };&#13;
     };&#13;
 &#13;
@@ -2892,6 +3033,7 @@
     }&#13;
 &#13;
     presenter.validateSections = function (sections) {&#13;
+        sections = sections.trim();&#13;
         if (ModelValidationUtils.isStringEmpty(sections)) {&#13;
             return getErrorObject("S_00");&#13;
         }&#13;
@@ -14208,7 +14350,7 @@
 	<model>
 		<property isLocalized="true" name="Text" nameLabel="Double_State_Button_property_text" type="string"/>
 		<property name="Image" nameLabel="Double_State_Button_property_image" type="image"/>
-		<property name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event"/>
+		<property isDefault="true" name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event"/>
 		<property isLocalized="true" name="Text selected" nameLabel="Double_State_Button_property_text_selected" type="string"/>
 		<property name="Image selected" nameLabel="Double_State_Button_property_image_selected" type="image"/>
 		<property name="onDeselected" nameLabel="Double_State_Button_property_on_deselected" type="event"/>
@@ -39005,7 +39147,7 @@ canvas {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="MenuPanel" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property displayName="Menu Items" name="MenuItems" nameLabel="MenuPanel_property_menu_items" type="list">
+        <property displayName="Menu Items" isDefault="true" name="MenuItems" nameLabel="MenuPanel_property_menu_items" type="list">
             <property displayName="Id" name="id" nameLabel="MenuPanel_property_id" type="string"/>
             <property displayName="Title" name="title" nameLabel="MenuPanel_property_title" type="string"/>
             <property displayName="Parent Id" name="parentId" nameLabel="MenuPanel_property_parent_id" type="string"/>
@@ -39508,7 +39650,7 @@ canvas {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="MultiAudio" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Files" nameLabel="MultiAudio_property_files" type="list">
+		<property isDefault="true" name="Files" nameLabel="MultiAudio_property_files" type="list">
 			<property name="ID" nameLabel="MultiAudio_property_id" type="string"/>
 			<property name="Mp3" nameLabel="MultiAudio_property_mp3" type="audio"/>
 			<property name="Ogg" nameLabel="MultiAudio_property_ogg" type="audio"/>
@@ -39977,7 +40119,7 @@ canvas {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Multiple_Audio_Controls_Binder" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Connections" nameLabel="Multiple_Audio_Controls_Binder_property_connections" type="text"/>
+		<property isDefault="true" name="Connections" nameLabel="Multiple_Audio_Controls_Binder_property_connections" type="text"/>
 	</model>
 <css/><view/><preview/><presenter>function AddonMultiple_Audio_Controls_Binder_create() {&#13;
     var presenter = function () {};&#13;
@@ -41210,21 +41352,23 @@ canvas {&#13;
     };&#13;
 &#13;
     presenter.isPageOK = function () {&#13;
-      for (var i=0; i&lt;presenter.pageCount; i++){&#13;
-          if(presenter.presentation.getPage(i).isReportable() &amp;&amp; presenter.presentation.getPage(i).isVisited()){&#13;
-              var percentageScore = presenter.getPercentageScore(i);&#13;
-              var id = presenter.presentation.getPage(i).getId();&#13;
-              var pageScore = presenter.scoreService.getPageScoreById(id);&#13;
+        var visibleElements = presenter.$view.find('.navigationbar-indexed-element');&#13;
+        visibleElements.each( function () {&#13;
+            var pageNumber = $(this).attr('data-page-number');&#13;
+            if(presenter.presentation.getPage(pageNumber-1).isReportable() &amp;&amp; presenter.presentation.getPage(pageNumber-1).isVisited()){&#13;
+              var percentageScore = presenter.getPercentageScore(pageNumber-1);&#13;
+              var id = presenter.presentation.getPage(pageNumber-1).getId();&#13;
+              var pageScore = presenter.scoreService.getPageScoreById(pageNumber-1);&#13;
 &#13;
               if(isNaN(percentageScore)){&#13;
                   percentageScore = 100;&#13;
               }&#13;
 &#13;
               if(percentageScore == 100 &amp;&amp; pageScore.errorCount == 0){&#13;
-                  presenter.$wrapper.find("[data-page-number='" + (i+1) + "']").addClass("navigationbar-page-ok");&#13;
+                  presenter.$wrapper.find("[data-page-number='" + pageNumber + "']").addClass("navigationbar-page-ok");&#13;
               }&#13;
-          }&#13;
-      }&#13;
+            }&#13;
+        });&#13;
     };&#13;
 &#13;
     presenter.createPreview = function(view, model) {&#13;
@@ -43926,7 +44070,7 @@ div.paragraph-wrapper textarea {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="PieChart" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Items" nameLabel="PieChart_property_items" type="list">
+        <property isDefault="true" name="Items" nameLabel="PieChart_property_items" type="list">
             <property name="Name" nameLabel="PieChart_property_name" type="string"/>
             <property name="Color" nameLabel="PieChart_property_color" type="string"/>
             <property name="Starting percent" nameLabel="PieChart_property_starting_percent" type="string"/>
@@ -49894,7 +50038,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property name="Columns" nameLabel="Puzzle_property_columns" type="string"/>
 		<property name="Rows" nameLabel="Puzzle_property_rows" type="string"/>
-		<property name="Image" nameLabel="Puzzle_property_image" type="image"/>
+		<property isDefault="true" name="Image" nameLabel="Puzzle_property_image" type="image"/>
 	</model>
 <css>.puzzle-container {&#13;
     border: 2px solid black;&#13;
@@ -50804,7 +50948,7 @@ div.paragraph-wrapper textarea {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="SelectableAddonsBinder" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Addons" nameLabel="SelectableAddonsBinder_property_addons" type="text"/>
+        <property isDefault="true" name="Addons" nameLabel="SelectableAddonsBinder_property_addons" type="text"/>
     </model>
 <css/><view/><preview/><presenter>function AddonSelectableAddonsBinder_create(){&#13;
     var presenter = function () {};&#13;
@@ -52603,7 +52747,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property isLocalized="true" name="Title" nameLabel="Single_State_Button_property_title" type="string"/>
 		<property name="Image" nameLabel="Single_State_Button_property_image" type="image"/>
-		<property name="onClick" nameLabel="Single_State_Button_property_on_click" type="event"/>
+		<property isDefault="true" name="onClick" nameLabel="Single_State_Button_property_on_click" type="event"/>
 		<property name="Disable" nameLabel="Single_State_Button_property_disable" type="boolean"/>
 	</model>
 <css>.singlestate-button-wrapper {&#13;
@@ -58001,7 +58145,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property name="Rows" nameLabel="Table_property_rows" type="string"/>
 		<property name="Columns" nameLabel="Table_property_columns" type="string"/>
-		<property name="Table cells" nameLabel="Table_property_table_cells" type="list">
+		<property isDefault="true" name="Table cells" nameLabel="Table_property_table_cells" type="list">
 			<property name="Row" nameLabel="Table_property_row" type="string"/>
 			<property name="Column" nameLabel="Table_property_column" type="string"/>
 			<property isLocalized="true" name="Content" nameLabel="Table_property_content" type="html"/>
@@ -60091,7 +60235,7 @@ div.paragraph-wrapper textarea {&#13;
         <property displayName="Display time" name="displayTime" nameLabel="TextAudio_property_display_time" type="boolean"/>
         <property displayName="Enable loop" name="enableLoop" nameLabel="TextAudio_property_enable_loop" type="boolean"/>
 
-        <property name="Slides" nameLabel="TextAudio_property_slides" type="list">
+        <property isDefault="true" name="Slides" nameLabel="TextAudio_property_slides" type="list">
             <property isLocalized="true" name="Text" nameLabel="TextAudio_property_text" type="html"/>
             <property isLocalized="true" name="Times" nameLabel="TextAudio_property_times" type="text"/>
             <property displayName="Position and Dimentions" isLocalized="true" name="positionAndDimentions" nameLabel="TextAudio_property_position_and_dimentions" type="text"/>
@@ -61857,7 +62001,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
 		<property name="Mode" nameLabel="Text_Selection_property_mode" type="{Mark phrases to select, All selectable}"/>
 		<property name="Selection type" nameLabel="Text_Selection_property_selection_type" type="{Single select, Multiselect}"/>
-		<property isLocalized="true" name="Text" nameLabel="Text_Selection_property_text" type="html"/>
+		<property isDefault="true" isLocalized="true" name="Text" nameLabel="Text_Selection_property_text" type="html"/>
         <property name="Enable letters selections" nameLabel="Text_Selection_property_enable_letters_selections" type="boolean"/>
         <property displayName="Is Not Activity" name="isNotActivity" nameLabel="Text_Selection_property_is_not_activity" type="boolean"/>
 	</model>
@@ -63015,7 +63159,7 @@ div.paragraph-wrapper textarea {&#13;
 	<model>
         <property displayName="Is not an activity" name="isNotActivity" nameLabel="TrueFalse_property_is_not_activity" type="boolean"/>
 		<property name="Multi" nameLabel="TrueFalse_property_multi" type="boolean"/>
-		<property name="Questions" nameLabel="TrueFalse_property_questions" type="list">
+		<property isDefault="true" name="Questions" nameLabel="TrueFalse_property_questions" type="list">
 			<property isLocalized="true" name="Question" nameLabel="TrueFalse_property_question" type="html"/>
 			<property name="Answer" nameLabel="TrueFalse_property_answer" type="string"/>
 		</property>
@@ -63914,7 +64058,7 @@ div.paragraph-wrapper textarea {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Variable_Storage" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property displayName="Variables" name="Variables" nameLabel="Variable_Storage_property_variables" type="list">
+        <property displayName="Variables" isDefault="true" name="Variables" nameLabel="Variable_Storage_property_variables" type="list">
             <property displayName="Name" name="Name" nameLabel="Variable_Storage_property_variables_name" type="string"/>
             <property displayName="Start value" name="Start" nameLabel="Variable_Storage_property_variables_start" type="string"/>
         </property>
@@ -64686,7 +64830,7 @@ div.viewer-3d-wrapper {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="WritingCalculations" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Value" nameLabel="WritingCalculations_property_value" type="text"/>
+        <property isDefault="true" name="Value" nameLabel="WritingCalculations_property_value" type="text"/>
         <property name="Signs" nameLabel="WritingCalculations_property_signs" type="list">
             <property name="Addition" nameLabel="WritingCalculations_property_addition" type="string"/>
             <property name="Subtraction" nameLabel="WritingCalculations_property_subtraction" type="string"/>
@@ -67954,7 +68098,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="feedback" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Responses" nameLabel="feedback_property_responses" type="list">
+		<property isDefault="true" name="Responses" nameLabel="feedback_property_responses" type="list">
 			<property name="Unique response ID" nameLabel="feedback_property_unique_response_id" type="string"/>
 			<property name="Status" nameLabel="feedback_property_status" type="string"/>
 			<property isLocalized="true" name="Text" nameLabel="feedback_property_text" type="html"/>
@@ -72576,7 +72720,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="text_identification" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property isLocalized="true" name="Text" nameLabel="text_identification_property_text" type="html"/>
+		<property isDefault="true" isLocalized="true" name="Text" nameLabel="text_identification_property_text" type="html"/>
 		<property name="SelectionCorrect" nameLabel="text_identification_property_selection_correct" type="boolean"/>
 		<property name="onSelected" nameLabel="text_identification_property_on_selected" type="event"/>
 		<property name="onDeselected" nameLabel="text_identification_property_on_deselected" type="event"/>

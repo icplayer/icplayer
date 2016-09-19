@@ -2,7 +2,7 @@
 
 <addon id='WritingCalculations' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name='Value' nameLabel="WritingCalculations_property_value" type='text' />
+        <property name='Value' nameLabel="WritingCalculations_property_value" type='text' isDefault="true"/>
         <property name='Signs' nameLabel="WritingCalculations_property_signs" type='list'>
             <property name='Addition' nameLabel="WritingCalculations_property_addition" type='string' />
             <property name='Subtraction' nameLabel="WritingCalculations_property_subtraction" type='string' />

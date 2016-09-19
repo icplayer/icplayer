@@ -2,7 +2,7 @@
 
 <addon id='text_identification' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Text" nameLabel="text_identification_property_text" type="html" isLocalized="true" />
+		<property name="Text" nameLabel="text_identification_property_text" type="html" isLocalized="true" isDefault="true"/>
 		<property name="SelectionCorrect" nameLabel="text_identification_property_selection_correct" type="boolean" />
 		<property name="onSelected" nameLabel="text_identification_property_on_selected" type="event" />
 		<property name="onDeselected" nameLabel="text_identification_property_on_deselected" type="event" />

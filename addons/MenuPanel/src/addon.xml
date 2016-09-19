@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <addon id='MenuPanel' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="MenuItems" displayName="Menu Items" nameLabel="MenuPanel_property_menu_items" type="list">
+        <property name="MenuItems" displayName="Menu Items" nameLabel="MenuPanel_property_menu_items" type="list" isDefault="true">
             <property name="id" displayName="Id" nameLabel="MenuPanel_property_id" type="string" />
             <property name="title" displayName="Title" nameLabel="MenuPanel_property_title" type="string" />
             <property name="parentId" displayName="Parent Id" nameLabel="MenuPanel_property_parent_id" type="string" />

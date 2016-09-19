@@ -57,7 +57,7 @@ public class AddonModel extends BasicModuleModel {
 
 	
 	private void loadProperties(Element rootElement) {
-		
+
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		NodeList propertiesNodes = rootElement.getElementsByTagName("properties");
 
@@ -71,7 +71,7 @@ public class AddonModel extends BasicModuleModel {
 					Element element = (Element)node;
 					String type = XMLUtils.getAttributeAsString(element, "type");
 					IAddonParam addonParam = paramFactory.createAddonParam(this, type);
-					
+
 					addonParam.load(element, baseURL);
 					addAddonParam(addonParam);
 				}
