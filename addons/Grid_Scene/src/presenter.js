@@ -369,7 +369,7 @@ function AddonGrid_Scene_create(){
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
         presenter.initColoredGridArray(rows,columns);
-
+        presenter.setColor(presenter.configuration.defaultColor);
         presenter.configuration.isSavingAnswer = false;
 
     };
@@ -512,6 +512,7 @@ function AddonGrid_Scene_create(){
             'rows' : rows.value,
             'columns' : columns.value,
             'color' : color,
+            'defaultColor': color,
             'startPoint': null,
             'hasDelay': validatedDelay.hasDelay,
             'delay': validatedDelay.delay,
@@ -830,6 +831,7 @@ function AddonGrid_Scene_create(){
         presenter.initColoredGridArray(rows,columns);
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
+        presenter.configuration.color = presenter.configuration.defaultColor;
         presenter.actualCursorPosition = [1,1];
         presenter.configuration.isErrorMode = false;
         presenter.configuration.isShowingAnswers = false;
@@ -1080,10 +1082,12 @@ function AddonGrid_Scene_create(){
                 var coordinates = (i + 1) + "-" +(j + 1);
                 var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
                 element.css('background-color', '');
-                if (answer[j][i] == actualState[j][i]) {
-                    element.addClass('correct');
-                } else {
-                    element.addClass('wrong');
+                if (actualState[j][i] != "Empty") {
+                    if (answer[j][i] == actualState[j][i]) {
+                        element.addClass('correct');
+                    } else {
+                        element.addClass('wrong');
+                    }
                 }
             }
         }
