@@ -7,7 +7,7 @@ import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticMapProperty;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.AddonProperty;
@@ -129,7 +129,7 @@ public class StaticListAddonParam extends StringAddonParam{
 	@Override
 	public IProperty getAsProperty() {
 
-		IProperty property = new IStaticMapProperty() {
+		IProperty property = new IStaticListProperty() {
 			
 			public void setValue(String newValue) {
 				sendPropertyChangedEvent(this);

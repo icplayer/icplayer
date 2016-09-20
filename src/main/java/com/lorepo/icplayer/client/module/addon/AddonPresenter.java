@@ -13,7 +13,7 @@ import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticMapProperty;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -256,20 +256,24 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 					addToJSArray(listModel, providerModel);
 				}
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
-			} else if (property instanceof IStaticMapProperty) {
-				IStaticMapProperty listProperty = (IStaticMapProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createObject();
+			} else if (property instanceof IStaticListProperty) {
+				IStaticListProperty listProperty = (IStaticListProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createArray();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
 					IPropertyProvider child = listProperty.getChild(j);
 					JavaScriptObject childModel = createModel(child);
-					addPropertyToJSObject(listModel, child.getProperty(0).getName(), childModel);
+					addToJSArray(listModel, childModel);
 				}
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else if (property instanceof IStaticRowProperty) {
 				IStaticRowProperty listProperty = (IStaticRowProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createObject();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
-					addPropertyToModel(jsModel,listProperty.getChild(j).getProperty(0));
+					if (listProperty.getChild(j).getPropertyCount() > 0) {
+						addPropertyToModel(listModel,listProperty.getChild(j).getProperty(0));
+					}
 				}
+				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else{
 				addPropertyToModel(jsModel, property);
 			}
@@ -292,11 +296,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		else if(property instanceof IHtmlProperty){
 			value = StringUtils.updateLinks(value, model.getBaseURL());
 		}
-		addPropertyToJSArray(jsModel, property.getName(), value);
+		addPropertyToJSObject(jsModel, property.getName(), value);
 	}
 	
 	
-	private native void addPropertyToJSArray(JavaScriptObject model, String name, String value)  /*-{
+	private native void addPropertyToJSObject(JavaScriptObject model, String name, String value)  /*-{
 		model[name] = value;
 	}-*/; 
 
