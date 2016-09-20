@@ -13,7 +13,7 @@ import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.properties.IStaticMapProperty;
 import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -255,16 +255,16 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 					JavaScriptObject providerModel = createModel(listProperty.getChild(j));
 					addToJSArray(listModel, providerModel);
 				}
-				addPropertyToJSArray(jsModel, property.getName(), listModel);
-			} else if (property instanceof IStaticListProperty) {
-				IStaticListProperty listProperty = (IStaticListProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createArray();
+				addPropertyToJSObject(jsModel, property.getName(), listModel);
+			} else if (property instanceof IStaticMapProperty) {
+				IStaticMapProperty listProperty = (IStaticMapProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createObject();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
 					IPropertyProvider child = listProperty.getChild(j);
 					JavaScriptObject childModel = createModel(child);
-					addPropertyToJSArray(listModel, child.getProperty(0).getName(), childModel);
+					addPropertyToJSObject(listModel, child.getProperty(0).getName(), childModel);
 				}
-				addPropertyToJSArray(jsModel, property.getName(), listModel);
+				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else if (property instanceof IStaticRowProperty) {
 				IStaticRowProperty listProperty = (IStaticRowProperty) property;
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
@@ -301,7 +301,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/; 
 
 
-	private native void addPropertyToJSArray(JavaScriptObject model, String name, JavaScriptObject obj)  /*-{
+	private native void addPropertyToJSObject(JavaScriptObject model, String name, JavaScriptObject obj)  /*-{
 		model[name] = obj;
 	}-*/; 
 
