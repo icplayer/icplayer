@@ -1,6 +1,3 @@
-/**
- * Created by apietrzak on 2016-09-01.
- */
 // Flood Fill
 // https://github.com/eleks/canvasPaint/blob/master/js/index.js
 

@@ -73,7 +73,8 @@ function AddonGrid_Scene_create(){
         commandsLabels: {},
         excludedCommands: {},
         answerCode: "",
-        isShowingAnswers: false
+        isShowingAnswers: false,
+        isVisible: true
     };
 
 
@@ -718,6 +719,7 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.setVisibility = function(isVisible) {
+        presenter.configuration.visibility = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
@@ -1011,12 +1013,19 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.getState = function Grid_Scene_get_state () {
-        return JSON.stringify(presenter.coloredGrid);
+        return JSON.stringify( {
+            grid: presenter.coloredGrid,
+            visibility: presenter.configuration.isVisible,
+            color: presenter.configuration.color
+        });
     };
 
     presenter.setState = function Grid_Scene_set_state (state) {
         if (state != null) {
-            presenter.setColoredGridArray(JSON.parse(state));
+            var state = JSON.parse(state);
+            presenter.setColoredGridArray(state.grid);
+            presenter.isVisible(state.visibility);
+            presenter.setColor(state.color);
         }
     };
 

@@ -164,12 +164,6 @@ public class StaticListAddonParam extends StringAddonParam{
 			}
 
 			@Override
-			public void removeChildren(int index) {
-				removeItem(index);
-				sendPropertyChangedEvent(this);
-			}
-
-			@Override
 			public void moveChildUp(int index) {
 				moveItemUp(index);
 				sendPropertyChangedEvent(this);
@@ -205,13 +199,6 @@ public class StaticListAddonParam extends StringAddonParam{
 		this.propertyProviders.add(item);
 	}
 	
-	private void removeItem(int index) {
-		if(propertyProviders.size() > 1){
-			propertyProviders.remove(index);
-		}
-	}
-
-
 	private void moveItemUp(int index) {
 		if(index > 0){
 			AddonParamProvider item = propertyProviders.remove(index);

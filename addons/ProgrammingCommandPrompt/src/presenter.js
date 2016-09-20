@@ -137,5 +137,10 @@ function AddonProgrammingCommandPrompt_create () {
         presenter.setCode(JSON.parse(state));
     };
 
+    presenter.reset = function () {
+        presenter.setCode("");
+    };
+
+
     return presenter;
 }
