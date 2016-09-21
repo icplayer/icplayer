@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
 public class AddonParamFactory {
@@ -34,7 +35,9 @@ public class AddonParamFactory {
 			return new StaticRowAddonParam(parent, type);
 		} else if(lowerCaseType.startsWith("{")) {
 			return new EnumAddonParam(parent, type);
-		} 
+		} else if(lowerCaseType.startsWith("editableselect")) {
+			return new EditableSelectAddonParam(parent, type);
+		}
 		
 		return new StringAddonParam(parent, type);
 	}
