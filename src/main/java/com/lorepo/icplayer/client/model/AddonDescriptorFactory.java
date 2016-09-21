@@ -131,6 +131,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Slider", "scripting_menu");
 		addDescriptor("MenuPanel", "scripting_menu");
 		addDescriptor("Variable_Storage", "scripting_menu");
+		addDescriptor("ProgrammingCommandPrompt", "scripting_menu");
+		addDescriptor("Grid_Scene", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");

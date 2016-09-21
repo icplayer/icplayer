@@ -37,7 +37,6 @@ public class AddonProperty {
 		return displayName;
 	}
 	
-	
 	public String getType(){
 		return type;
 	}
@@ -80,6 +79,32 @@ public class AddonProperty {
 					childProperties.add(property);
 				}
 			}
+		} else if(type.compareTo("staticlist") == 0) {
+			
+			NodeList optionNodes = rootElement.getChildNodes();
+			for(int i = 0; i < optionNodes.getLength(); i++){                        
+		
+				Node node = optionNodes.item(i);
+				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){
+					if(XMLUtils.getAttributeAsString((Element)node, "type").compareTo("staticrow") == 0) {
+						Element element = (Element)optionNodes.item(i);
+						AddonProperty property = new AddonProperty();
+						property.load(element);
+						childProperties.add(property);
+					}
+				}
+			}	
+		} else if(type.compareTo("staticrow") == 0) {
+			NodeList optionNodes = rootElement.getChildNodes();
+			for(int i = 0; i < optionNodes.getLength(); i++){                        
+				Node node = optionNodes.item(i);
+				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){	
+					Element element = (Element)optionNodes.item(i);
+					AddonProperty property = new AddonProperty();
+					property.load(element);
+					childProperties.add(property);
+				}
+			}	
 		}
 	}
 

@@ -1,3 +1,4 @@
+2016-09-21 Added Progamming Code Prompt addon. Added Grid Scene addon. Added static list property.
 2016-09-21 Fixed issue with moved droppable area in Connection module
 2016-09-21 Fixed setting gap size in Table module
 2016-09-19 Fixed issue with missing arguments in function in Paragraph addon

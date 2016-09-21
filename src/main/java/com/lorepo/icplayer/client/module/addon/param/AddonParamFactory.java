@@ -26,11 +26,15 @@ public class AddonParamFactory {
 			return new ListAddonParam(parent, type, this);
 		} else if(lowerCaseType.compareTo("text") == 0) {
 			return new TextAddonParam(parent, type);
+		} else if(lowerCaseType.compareTo("staticlist") == 0) {
+			return new StaticListAddonParam(parent, type, this);
 		} else if(lowerCaseType.compareTo("narration") == 0) {
 			return new TextAddonParam(parent, type);
+		} else if(lowerCaseType.compareTo("staticrow") == 0){
+			return new StaticRowAddonParam(parent, type);
 		} else if(lowerCaseType.startsWith("{")) {
 			return new EnumAddonParam(parent, type);
-		}
+		} 
 		
 		return new StringAddonParam(parent, type);
 	}
