@@ -114,7 +114,7 @@
                 <file name="${build.temp.folder}/zoom.js"/>
                 <file name="${build.temp.folder}/FileSaver.js"/>
                 <file name="${build.temp.folder}/blob.js"/>
-
+                <file name="${build.temp.folder}/ace/ace.js"/>
                 <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
                 <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
                 <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
