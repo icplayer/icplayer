@@ -35,6 +35,387 @@ function AddonBlocklyCodeEditor_create () {
         "TOP-BOTTOM" : ""
     };
 
+    presenter.DEFAULT_BLOCKS_LABELS = {
+        "if": "controls_if",
+        "compare": "logic_compare",
+        "logic operation": "logic_operation",
+        "negate": "logic_negate",
+        "boolean": "logic_boolean",
+        "null": "logic_null",
+        "logic ternary": "logic_ternary",
+        "repeat": "controls_repeat_ext",
+        "repeat while/until": "controls_whileUntil",
+        "for": "controls_for",
+        "for each": "controls_forEach",
+        "break": "controls_flow_statements",
+        "number": "math_number",
+        "arithmetic": "math_arithmetic",
+        "basic functions": "math_single",
+        "trigonometry": "math_trig",
+        "constants": "math_constant",
+        "number property": "math_number_property",
+        "round": "math_round",
+        "math list functions": "math_on_list",
+        "modulo": "math_modulo",
+        "constrain": "math_constrain",
+        "random integer": "math_random_int",
+        "random fraction": "math_random_float",
+        "text": "text",
+        "join text": "text_join",
+        "append text": "text_append",
+        "text length": "text_length",
+        "is empty text": "text_isEmpty",
+        "text index of": "text_indexOf",
+        "char at": "text_charAt",
+        "substring": "text_getSubstring",
+        "to upper/lower case": "text_changeCase",
+        "trim": "text_trim",
+        "print": "text_print",
+        "prompt for": "text_prompt_ext",
+        "create list": "lists_create_with",
+        "create list with item": "lists_repeat",
+        "list length": "lists_length",
+        "is empty list": "lists_isEmpty",
+        "list index of": "lists_indexOf",
+        "get list element": "lists_getIndex",
+        "set list element": "lists_setIndex",
+        "get sublist": "lists_getSublist",
+        "create list from": "lists_split",
+        "sort list": "lists_sort",
+        "color picker": "colour_picker",
+        "random color": "colour_random",
+        "RGB color": "colour_rgb",
+        "blend color": "colour_blend",
+        "variable": "math_change",
+        "set variable": "variables_set",
+        "get variable": "variables_get",
+        "custom": "custom"
+    };
+
+    presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS = {
+        "if": [
+            "CONTROLS_IF_MSG_IF",
+            "CONTROLS_IF_MSG_THEN",
+            "CONTROLS_IF_MSG_ELSE",
+            "CONTROLS_IF_MSG_ELSEIF",
+            "CONTROLS_IF_TOOLTIP_1",
+            "CONTROLS_IF_TOOLTIP_2",
+            "CONTROLS_IF_TOOLTIP_3",
+            "CONTROLS_IF_TOOLTIP_4"
+        ],
+        "compare": [
+            "LOGIC_COMPARE_TOOLTIP_EQ",
+            "LOGIC_COMPARE_TOOLTIP_GT",
+            "LOGIC_COMPARE_TOOLTIP_GTE",
+            "LOGIC_COMPARE_TOOLTIP_LT",
+            "LOGIC_COMPARE_TOOLTIP_LTE",
+            "LOGIC_COMPARE_TOOLTIP_NEQ"
+        ],
+        "logic operation": [
+            "LOGIC_OPERATION_AND",
+            "LOGIC_OPERATION_OR",
+            "LOGIC_OPERATION_TOOLTIP_AND",
+            "LOGIC_OPERATION_TOOLTIP_OR"
+        ],
+        "negate": [
+            "NEGATE_TITLE",
+            "LOGIC_NEGATE_TOOLTIP"
+        ],
+        "boolean": [
+            "LOGIC_BOOLEAN_TRUE",
+            "LOGIC_BOOLEAN_FALSE",
+            "LOGIC_BOOLEAN_TOOLTIP"
+        ],
+        "null": [
+            "LOGIC_NULL",
+            "LOGIC_NULL_TOOLTIP"
+        ],
+        "logic ternary": [
+            "LOGIC_TERNARY_CONDITION",
+            "LOGIC_TERNARY_IF_FALSE",
+            "LOGIC_TERNARY_IF_FALSE",
+            "LOGIC_TERNARY_TOOLTIP"
+        ],
+        "repeat": [
+            "CONTROLS_REPEAT_TITLE",
+            "CONTROLS_REPEAT_INPUT_DO",
+            "CONTROLS_REPEAT_TOOLTIP"
+        ],
+        "repeat while/until": [
+            "CONTROLS_WHILEUNTIL_OPERATOR_UNTIL",
+            "CONTROLS_WHILEUNTIL_OPERATOR_WHILE",
+            "CONTROLS_WHILEUNTIL_INPUT_DO",
+            "CONTROLS_WHILEUNTIL_TOOLTIP_UNTIL",
+            "CONTROLS_WHILEUNTIL_TOOLTIP_WHILE"
+        ],
+        "for": [
+            "CONTROLS_FOR_TITLE",
+            "CONTROLS_FOR_INPUT_DO",
+            "CONTROLS_FOR_TOOLTIP"
+        ],
+        "for each": [
+            "CONTROLS_FOREACH_TITLE",
+            "CONTROLS_FOREACH_INPUT_DO",
+            "CONTROLS_FOREACH_TOOLTIP"
+        ],
+        "break": [
+            "CONTROLS_FLOW_STATEMENTS_OPERATOR_BREAK",
+            "CONTROLS_FLOW_STATEMENTS_OPERATOR_CONTINUE",
+            "CONTROLS_FLOW_STATEMENTS_TOOLTIP_BREAK",
+            "CONTROLS_FLOW_STATEMENTS_TOOLTIP_CONTINUE"
+        ],
+        "number": [
+            "MATH_NUMBER_TOOLTIP"
+        ],
+        "arithmetic": [
+            "MATH_ARITHMETIC_TOOLTIP_ADD",
+            "MATH_ARITHMETIC_TOOLTIP_DIVIDE",
+            "MATH_ARITHMETIC_TOOLTIP_MINUS",
+            "MATH_ARITHMETIC_TOOLTIP_MULTIPLY",
+            "MATH_ARITHMETIC_TOOLTIP_POWER"
+        ],
+        "basic functions": [
+            "MATH_SINGLE_OP_ABSOLUTE",
+            "MATH_SINGLE_OP_ROOT",
+            "MATH_SINGLE_TOOLTIP_ABS",
+            "MATH_SINGLE_TOOLTIP_EXP",
+            "MATH_SINGLE_TOOLTIP_LN",
+            "MATH_SINGLE_TOOLTIP_LOG10",
+            "MATH_SINGLE_TOOLTIP_NEG",
+            "MATH_SINGLE_TOOLTIP_POW10",
+            "MATH_SINGLE_TOOLTIP_ROOT"
+        ],
+        "trigonometry": [
+            "MATH_TRIG_ACOS",
+            "MATH_TRIG_ASIN",
+            "MATH_TRIG_ATAN",
+            "MATH_TRIG_COS",
+            "MATH_TRIG_SIN",
+            "MATH_TRIG_TAN",
+            "MATH_TRIG_TOOLTIP_ACOS",
+            "MATH_TRIG_TOOLTIP_ASIN",
+            "MATH_TRIG_TOOLTIP_ATAN",
+            "MATH_TRIG_TOOLTIP_COS",
+            "MATH_TRIG_TOOLTIP_SIN",
+            "MATH_TRIG_TOOLTIP_TAN"
+        ],
+        "constants": [
+            "MATH_CONSTANT_TOOLTIP"
+        ],
+        "number property": [
+            "MATH_IS_EVEN",
+            "MATH_IS_ODD",
+            "MATH_IS_PRIME",
+            "MATH_IS_WHOLE",
+            "MATH_IS_POSITIVE",
+            "MATH_IS_NEGATIVE",
+            "MATH_IS_DIVISIBLE_BY",
+            "MATH_IS_TOOLTIP"
+        ],
+        "round": [
+            "MATH_ROUND_OPERATOR_ROUND",
+            "MATH_ROUND_OPERATOR_ROUNDDOWN",
+            "MATH_ROUND_OPERATOR_ROUNDUP",
+            "MATH_ROUND_TOOLTIP"
+        ],
+        "math list functions": [
+            "MATH_ONLIST_OPERATOR_AVERAGE",
+            "MATH_ONLIST_OPERATOR_MAX",
+            "MATH_ONLIST_OPERATOR_MEDIAN",
+            "MATH_ONLIST_OPERATOR_MIN",
+            "MATH_ONLIST_OPERATOR_MODE",
+            "MATH_ONLIST_OPERATOR_RANDOM",
+            "MATH_ONLIST_OPERATOR_STD_DEV",
+            "MATH_ONLIST_OPERATOR_SUM",
+            "MATH_ONLIST_TOOLTIP_AVERAGE",
+            "MATH_ONLIST_TOOLTIP_MAX",
+            "MATH_ONLIST_TOOLTIP_MEDIAN",
+            "MATH_ONLIST_TOOLTIP_MIN",
+            "MATH_ONLIST_TOOLTIP_MODE",
+            "MATH_ONLIST_TOOLTIP_RANDOM",
+            "MATH_ONLIST_TOOLTIP_STD_DEV",
+            "MATH_ONLIST_TOOLTIP_SUM"
+        ],
+        "modulo": [
+            "MATH_MODULO_TITLE",
+            "MATH_MODULO_TOOLTIP"
+        ],
+        "constrain": [
+            "MATH_CONSTRAIN_TITLE",
+            "MATH_CONSTRAIN_TOOLTIP"
+        ],
+        "random integer": [
+            "MATH_RANDOM_INT_TITLE",
+            "MATH_RANDOM_INT_TOOLTIP"
+        ],
+        "random fraction": [
+            "MATH_RANDOM_FLOAT_TITLE_RANDOM",
+            "MATH_RANDOM_FLOAT_TOOLTIP"
+        ],
+        "text": [
+            "TEXT_TEXT_TOOLTIP"
+        ],
+        "join text": [
+            "TEXT_JOIN_TITLE_CREATEWITH",
+            "TEXT_JOIN_TOOLTIP"
+        ],
+        "append text": [
+            "TEXT_APPEND_APPENDTEXT",
+            "TEXT_APPEND_TO",
+            "TEXT_APPEND_TOOLTIP"
+        ],
+        "text length": [
+            "TEXT_LENGTH_TITLE",
+            "TEXT_LENGTH_TOOLTIP"
+        ],
+        "is empty text": [
+            "TEXT_ISEMPTY_TITLE",
+            "TEXT_ISEMPTY_TOOLTIP"
+        ],
+        "text index of": [
+            "TEXT_INDEXOF_INPUT_INTEXT",
+            "TEXT_INDEXOF_OPERATOR_FIRST",
+            "TEXT_INDEXOF_OPERATOR_LAST",
+            "TEXT_INDEXOF_TOOLTIP"
+        ],
+        "char at": [
+            "TEXT_CHARAT_FIRST",
+            "TEXT_CHARAT_FROM_END",
+            "TEXT_CHARAT_FROM_START",
+            "TEXT_CHARAT_INPUT_INTEXT",
+            "TEXT_CHARAT_LAST",
+            "TEXT_CHARAT_RANDOM",
+            "TEXT_CHARAT_TOOLTIP"
+        ],
+        "substring": [
+            "TEXT_GET_SUBSTRING_END_FROM_END",
+            "TEXT_GET_SUBSTRING_END_FROM_START",
+            "TEXT_GET_SUBSTRING_END_LAST",
+            "TEXT_GET_SUBSTRING_INPUT_IN_TEXT",
+            "TEXT_GET_SUBSTRING_START_FIRST",
+            "TEXT_GET_SUBSTRING_START_FROM_END",
+            "TEXT_GET_SUBSTRING_START_FROM_START",
+            "TEXT_GET_SUBSTRING_TOOLTIP"
+        ],
+        "to upper/lower case": [
+            "TEXT_CHANGECASE_OPERATOR_LOWERCASE",
+            "TEXT_CHANGECASE_OPERATOR_TITLECASE",
+            "TEXT_CHANGECASE_OPERATOR_UPPERCASE",
+            "TEXT_CHANGECASE_TOOLTIP"
+        ],
+        "trim": [
+            "TEXT_TRIM_OPERATOR_BOTH",
+            "TEXT_TRIM_OPERATOR_LEFT",
+            "TEXT_TRIM_OPERATOR_RIGHT",
+            "TEXT_TRIM_TOOLTIP"
+        ],
+        "print": [
+            "TEXT_PRINT_TITLE",
+            "TEXT_PRINT_TOOLTIP"
+        ],
+        "prompt for": [
+            "TEXT_PROMPT_TYPE_NUMBER",
+            "TEXT_PROMPT_TYPE_TEXT",
+            "TEXT_PROMPT_TOOLTIP_NUMBER",
+            "TEXT_PROMPT_TOOLTIP_TEXT"
+        ],
+        "create list": [
+            "LISTS_CREATE_WITH_INPUT_WITH",
+            "LISTS_CREATE_WITH_ITEM_TITLE",
+            "LISTS_CREATE_WITH_ITEM_TOOLTIP"
+        ],
+        "create list with item": [
+            "LISTS_REPEAT_TITLE",
+            "LISTS_REPEAT_TOOLTIP"
+        ],
+        "list length": [
+            "LISTS_LENGTH_TITLE",
+            "LISTS_LENGTH_TOOLTIP"
+        ],
+        "is empty list": [
+            "LISTS_ISEMPTY_TITLE",
+            "LISTS_ISEMPTY_TOOLTIP"
+        ],
+        "list index of": [
+            "LISTS_INDEX_OF_FIRST",
+            "LISTS_INDEX_OF_LAST",
+            "LISTS_INDEX_OF_TOOLTIP"
+        ],
+        "get list element": [
+            "LISTS_GET_INDEX_FIRST",
+            "LISTS_GET_INDEX_FROM_END",
+            "LISTS_GET_INDEX_FROM_START",
+            "LISTS_GET_INDEX_GET",
+            "LISTS_GET_INDEX_GET_REMOVE",
+            "LISTS_GET_INDEX_LAST",
+            "LISTS_GET_INDEX_RANDOM",
+            "LISTS_GET_INDEX_REMOVE",
+            "LISTS_GET_INDEX_TOOLTIP_GET_FIRST",
+            "LISTS_GET_INDEX_TOOLTIP_GET_FROM_END",
+            "LISTS_GET_INDEX_TOOLTIP_GET_FROM_START",
+            "LISTS_GET_INDEX_TOOLTIP_GET_LAST",
+            "LISTS_GET_INDEX_TOOLTIP_GET_RANDOM",
+            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_FIRST",
+            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_FROM_END",
+            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_FROM_START",
+            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_LAST",
+            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_RANDOM",
+            "LISTS_GET_INDEX_TOOLTIP_REMOVE_FIRST",
+            "LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM_END",
+            "LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM_START",
+            "LISTS_GET_INDEX_TOOLTIP_REMOVE_LAST",
+            "LISTS_GET_INDEX_TOOLTIP_REMOVE_RANDOM"
+        ],
+        "set list element": [
+            "LISTS_SET_INDEX_INSERT",
+            "LISTS_SET_INDEX_INPUT_TO",
+            "LISTS_SET_INDEX_SET",
+            "LISTS_SET_INDEX_TOOLTIP_INSERT_FIRST",
+            "LISTS_SET_INDEX_TOOLTIP_INSERT_FROM_END",
+            "LISTS_SET_INDEX_TOOLTIP_INSERT_FROM_START",
+            "LISTS_SET_INDEX_TOOLTIP_INSERT_LAST",
+            "LISTS_SET_INDEX_TOOLTIP_INSERT_RANDOM",
+            "LISTS_SET_INDEX_TOOLTIP_SET_FIRST",
+            "LISTS_SET_INDEX_TOOLTIP_SET_FROM_END",
+            "LISTS_SET_INDEX_TOOLTIP_SET_FROM_START",
+            "LISTS_SET_INDEX_TOOLTIP_SET_LAST",
+
+        ],
+        "get sublist": [
+
+        ],
+        "create list from": [
+
+        ],
+        "sort list": [
+
+        ],
+        "color picker": [
+
+        ],
+        "random color": [
+
+        ],
+        "RGB color": [
+
+        ],
+        "blend color": [
+
+        ],
+        "variable": [
+
+        ],
+        "set variable": [
+
+        ],
+        "get variable": [
+
+        ],
+        "custom": [
+
+        ]
+    };
+
     presenter.configuration = {
         hideRun: null,
         sceneID: null,
@@ -72,6 +453,7 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.runLogic = function (view, model, isPreview) {
+        console.log(model);
         presenter.configuration.isPreview = isPreview;
         presenter.configuration = $.extend(presenter.configuration, presenter.validateModel(model));
 
@@ -161,7 +543,9 @@ function AddonBlocklyCodeEditor_create () {
         var categories = {};
         for (var index = 0; index < toolbox.length; index++) {
             var toolboxElement = toolbox[index];
-            addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'], toolboxElement['blockIsVisible']);
+            console.log(toolboxElement['blockName']);
+            console.log(presenter.DEFAULT_BLOCKS_LABELS[toolboxElement['blockName']]);
+            addToCategory(categories, toolboxElement['blockCategory'], presenter.DEFAULT_BLOCKS_LABELS[toolboxElement['blockName']], toolboxElement['blockIsVisible']);
         }
         return {
             isValid: true,

@@ -1024,7 +1024,7 @@ function AddonGrid_Scene_create(){
         if (state != null) {
             var state = JSON.parse(state);
             presenter.setColoredGridArray(state.grid);
-            presenter.isVisible(state.visibility);
+            presenter.setVisibility(state.visibility);
             presenter.setColor(state.color);
         }
     };
