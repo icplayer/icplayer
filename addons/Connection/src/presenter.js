@@ -2,7 +2,7 @@ function AddonConnection_create() {
     var presenter = function() {};
 
     var playerController;
-    var eventBus; // Modules communication
+    var eventBus;
     var addonID;
 
     presenter.uniqueIDs = [];
@@ -405,8 +405,9 @@ function AddonConnection_create() {
     }
 
     function clickLogic(element) {
-        if (basicClickLogic(element))
+        if (basicClickLogic(element)) {
             redraw();
+        }
     }
 
     function basicClickLogic(element) {
@@ -607,6 +608,7 @@ function AddonConnection_create() {
                 });
 
                 e.droppable({
+                    tolerance: "pointer",
                     drop: function (event, ui) {
                         $(this).removeClass('selected');
                         basicClickLogic(this);

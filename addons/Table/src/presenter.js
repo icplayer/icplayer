@@ -24,6 +24,8 @@ function AddonTable_create() {
     };
 
     var isConnectedWithMath = false;
+    presenter.gapsSize = [];
+
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
         'CL_01': 'Number of columns must be a positive integer!',
@@ -75,7 +77,6 @@ function AddonTable_create() {
         simpleGaps.forEach(function (gap) {
             parsedText = presenter.replaceGapID(gap, parsedText);
             var gapID = presenter.configuration.addonID + gap.id;
-
             presenter.gapsContainer.addGap(new objectType(gapID, gap.answers, 1));
         });
 
@@ -86,11 +87,21 @@ function AddonTable_create() {
         var textParserResult = getParsedHTMLView();
 
         var parsedText = textParserResult.parsedText;
-
         parsedText = changeSimpleGapsIDs(textParserResult.gaps, parsedText, objectType);
         parsedText = changeInlineGapsIDs(textParserResult.inLineGaps, parsedText, objectType);
 
         presenter.$view.html(parsedText);
+
+        presenter.getInputsSize();
+    };
+
+    presenter.getInputsSize = function () {
+        presenter.$view.find('input').each(function () {
+            var inputID = $(this).attr('id'),
+                inputSize = $(this).attr('size');
+
+            presenter.gapsSize.push({id : inputID, size: inputSize})
+        });
     };
 
     presenter.setGapsClassAndWidth = function () {
@@ -201,6 +212,17 @@ function AddonTable_create() {
 
         if(isPreview) {
             presenter.setEditorGapWidth();
+        } else {
+            presenter.setInputsSize();
+        }
+    };
+
+    presenter.setInputsSize = function () {
+        for (var i = 0; i < presenter.gapsSize.length; i++) {
+            var inputId = presenter.gapsSize[i].id,
+                size = presenter.gapsSize[i].size;
+
+            presenter.$view.find('#'+inputId).attr('size', size);
         }
     };
 
