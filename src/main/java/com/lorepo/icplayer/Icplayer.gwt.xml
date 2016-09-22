@@ -17,18 +17,6 @@
     <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>
 
-    <script src="libs/logo/floodfill.js"/>
-    <script src="libs/logo/logo.js"/>
-    <script src="libs/logo/turtle.js"/>
-
-    <script src="libs/ace/ace.js"/>
-
-    <script src="libs/blockly/blockly_compressed.js"/>
-    <script src="libs/blockly/blocks_compressed.js"/>
-    <script src="libs/blockly/en.js"/>
-    <script src="libs/blockly/javascript_compressed.js"/>
-
-
     <entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 
     <source path='client'/>
