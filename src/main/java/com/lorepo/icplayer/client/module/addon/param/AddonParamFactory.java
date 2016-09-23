@@ -36,7 +36,7 @@ public class AddonParamFactory {
 		} else if(lowerCaseType.startsWith("{")) {
 			return new EnumAddonParam(parent, type);
 		} else if(lowerCaseType.startsWith("editableselect")) {
-			return new EditableSelectAddonParam(parent, type);
+			return new EditableSelectAddonParam(parent, type, this);
 		}
 		
 		return new StringAddonParam(parent, type);

@@ -42,15 +42,16 @@ public class AddonParamProvider implements IPropertyProvider{
 
 	public void load(Element rootElement, String baseUrl) {
 		AddonParamFactory paramFactory = new AddonParamFactory();
-		NodeList optionNodes = rootElement.getElementsByTagName("property");
+		NodeList optionNodes = rootElement.getChildNodes();//("property");
 		for(int i = 0; i < optionNodes.getLength(); i++){
-
-			Element element = (Element)optionNodes.item(i);
-			String type = XMLUtils.getAttributeAsString(element, "type");
-			IAddonParam addonParam = paramFactory.createAddonParam(null, type);
-			
-			addonParam.load(element, baseUrl);
-			addonParams.add(addonParam);
+			if (optionNodes.item(i).getNodeName().compareTo("property") == 0) {
+				Element element = (Element)optionNodes.item(i);
+				String type = XMLUtils.getAttributeAsString(element, "type");
+				IAddonParam addonParam = paramFactory.createAddonParam(null, type);
+				
+				addonParam.load(element, baseUrl);
+				addonParams.add(addonParam);
+			}
 		}
 	}
 
