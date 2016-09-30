@@ -2,14 +2,14 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="4.0.0" />
+    <property name="commons.version" value="4.0.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
 
     <target name="compile" description="Compile and minimize source files into one, optimized one" depends="Addon.test">
         <mkdir dir="bin" />
-        <mkdir dir="bin/commons-${version}" />
+        <mkdir dir="bin/commons-${commons.version}" />
 
         <java jar="../tools/closure.jar" fork="true">
             <arg line="--js src/model-validation.js" />
@@ -27,12 +27,12 @@
             <arg line="--js src/internationalization.js" />
             <arg line="--js src/loadedPromise.js" />
             <arg line="--js src/events.js" />
-            <arg line="--js_output_file bin/commons-${version}/commons.js" />
+            <arg line="--js_output_file bin/commons-${commons.version}/commons.js" />
         </java>
 
-        <concat destfile="bin/commons-${version}/commons.js" append="true">/**
+        <concat destfile="bin/commons-${commons.version}/commons.js" append="true">/**
  * Player Addons Commons library
- * @version ${version}
+ * @version ${commons.version}
  * Components:
  * - Model Validation Utils
  * - DOM Operations
@@ -58,9 +58,9 @@
     </target>
 
     <target name="publish" depends="compile" description="Publish new version of commons to ICPlayer libs">
-        <copy file="bin/commons-${version}/commons.js" tofile="../../src/main/java/com/lorepo/icplayer/public/libs/commons.js"/>
+        <copy file="bin/commons-${commons.version}/commons.js" tofile="../../src/main/java/com/lorepo/icplayer/public/libs/commons.js"/>
     </target>
     <target name="publish-to-dir" depends="compile" description="Publish new version of commons to given directory">
-        <copy file="bin/commons-${version}/commons.js" tofile="${publish-directory}/commons.js"/>
+        <copy file="bin/commons-${commons.version}/commons.js" tofile="${publish-directory}/commons.js"/>
     </target>
 </project>
