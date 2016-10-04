@@ -35,12 +35,27 @@ function AddonParagraph_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'isVisible': presenter.isVisible
+            'isVisible': presenter.isVisible,
+            'getText': presenter.getText
         };
 
         Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.getText = function AddonParagraph_getText() {
+        return presenter.editor.getContent({format: 'raw'});
+    };
+
+    presenter.sendOnBlurEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': 'blur',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
 
     presenter.setVisibility = function AddonParagraph_setVisibility(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
@@ -94,6 +109,10 @@ function AddonParagraph_create() {
             if (iOSSafari) {
                 presenter.findIframeAndSetStyles();
             }
+
+            presenter.editor.on('blur', function () {
+                presenter.sendOnBlurEvent();
+            });
         });
 
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -554,6 +573,7 @@ function AddonParagraph_create() {
 
     presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
         presenter.playerController = controller;
+        presenter.eventBus = presenter.playerController.getEventBus();
     };
 
     presenter.getState = function AddonParagraph_getState() {
