@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="commons.version" value="4.0.0" />
+    <property name="commons.version" value="4.1.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -27,6 +27,7 @@
             <arg line="--js src/internationalization.js" />
             <arg line="--js src/loadedPromise.js" />
             <arg line="--js src/events.js" />
+            <arg line="--js src/error-utils.js" />
             <arg line="--js_output_file bin/commons-${commons.version}/commons.js" />
         </java>
 
@@ -49,6 +50,7 @@
  * - Text Parser Proxy
  * - Loaded Promise
  * - Events Utils
+ * - Model Error Utils
  */</concat>
 
     </target>

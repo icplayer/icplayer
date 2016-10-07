@@ -58,6 +58,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Sudoku", "activities_menu");
 		addDescriptor("Table", "activities_menu");
 		addDescriptor("text_identification", "activities_menu");
+		addDescriptor("Text_Coloring", "activities_menu");
 		addDescriptor("Text_Selection", "activities_menu");
 		addDescriptor("TrueFalse", "activities_menu");
 		addDescriptor("WritingCalculations", "activities_menu");

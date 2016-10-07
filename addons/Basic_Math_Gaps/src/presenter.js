@@ -479,15 +479,17 @@ function AddonBasic_Math_Gaps_create(){
     presenter.isErrorsMode = false;
 
     presenter.setShowErrorsMode = function () {
-        if(!presenter.isErrorsMode){
-            presenter.gapsContainer.check(true);
+        if(!presenter.isErrorsMode) {
+            presenter.gapsContainer.check();
             presenter.isErrorsMode = true;
         }
     };
 
     presenter.setWorkMode = function() {
-        presenter.gapsContainer.check(false);
-        presenter.isErrorsMode = false;
+        if (presenter.isErrorsMode) {
+            presenter.gapsContainer.check();
+            presenter.isErrorsMode = false;
+        }
     };
 
     presenter.reset = function(){
@@ -924,6 +926,7 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.hideAnswers = function () {
         presenter.gapsContainer.hideAnswers();
+        presenter.isErrorsMode = false;
     };
 
     presenter.parseItemValue = function (item) {
