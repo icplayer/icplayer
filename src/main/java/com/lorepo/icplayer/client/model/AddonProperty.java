@@ -111,13 +111,9 @@ public class AddonProperty {
 			for(int i = 0; i < optionNodes.getLength(); i++){
 				Node node = optionNodes.item(i);
 				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){	
-					//TODO dodac zczytywanie wartosci
-					JavaScriptUtils.log("Dziecko nr: " + i);
 					Element element = (Element)optionNodes.item(i);
 					AddonProperty property = new AddonProperty();
 					property.load(element);
-					JavaScriptUtils.log(property.displayName);
-					JavaScriptUtils.log(property.name);
 					childProperties.add(property);
 				}
 			}	

@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -15,9 +17,11 @@ import com.lorepo.icplayer.client.module.addon.AddonModel;
 
 public class EditableSelectAddonParam extends StringAddonParam{
 
+	private int added = 0;
+	private int added2 = 0;
 	private AddonParamFactory factory;
 	private ArrayList<IAddonParam> options = new ArrayList<IAddonParam>();
-	private ArrayList<String> types = new ArrayList<String>();
+	private Map<String,String> defaultProperties = new HashMap<String, String>();
 	
 	public EditableSelectAddonParam(AddonModel parent, String type, AddonParamFactory factory) {
 		super(parent, type);
@@ -26,7 +30,6 @@ public class EditableSelectAddonParam extends StringAddonParam{
 	
 	@Override
 	public String toXML(){
-		
 		String xml;
 		
 		xml = "<property";
@@ -39,8 +42,6 @@ public class EditableSelectAddonParam extends StringAddonParam{
 		xml += itemsToXML();
 		
 		xml += "</property>";
-		JavaScriptUtils.log("Load");
-		JavaScriptUtils.log(xml);
 		return xml;
 	}
 	
@@ -50,48 +51,65 @@ public class EditableSelectAddonParam extends StringAddonParam{
 			
 			xml += addonParam.toXML();
 		}
-		
+		xml += "<values>";
+		for(IAddonParam addonParam : options){
+			
+			xml += "<value name = \""+ addonParam.getName() +"\">";
+			xml += defaultProperties.get(addonParam.getName());
+			xml += "</value>";
+		}	
+		xml += "</values>";
 		return xml;
 	}	
 	
 	@Override
 	public void load(Element rootElement, String baseUrl) {
-		JavaScriptUtils.log("Load");
-		JavaScriptUtils.log(rootElement.toString());
 		super.load(rootElement,baseUrl);
+		
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
 		displayName = XMLUtils.getAttributeAsString(rootElement, "displayName");
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
-		JavaScriptUtils.log("Value: " + value);
 		loadItems(rootElement);
+		loadValues(rootElement);
 		
 	}
 
 	private void loadItems(Element rootElement) {
-		JavaScriptUtils.log(rootElement.toString());
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		NodeList optionNodes = rootElement.getElementsByTagName("property");
 		for(int i = 0; i < optionNodes.getLength(); i++){
-
 			Element element = (Element)optionNodes.item(i);
 			String type = XMLUtils.getAttributeAsString(element, "type");
 			IAddonParam addonParam = paramFactory.createAddonParam(null, type);
 			addonParam.load(element, "");
 			this.options.add(addonParam);
-			this.types.add(type);
 		}
+	}
+	
+	private void loadValues(Element rootElement) {
+		NodeList values = rootElement.getElementsByTagName("values");
+		NodeList valuesList = ((Element)values.item(0)).getElementsByTagName("value");
+		for (int j = 0; j < valuesList.getLength(); j++) {
+			this.defaultProperties.put(XMLUtils.getAttributeAsString((Element)valuesList.item(j), "name"), XMLUtils.getText((Element)valuesList.item(j)));
+		}		
 	}
 	
 	public void addOptions (IAddonParam param, String type) {
 		this.options.add(param);	
-		this.types.add(type);
 	}
 	
 	public void setOptions (ArrayList<IAddonParam> options) {
 		this.options = new ArrayList<IAddonParam>();
 		for (IAddonParam element: options) {
-			this.options.add(element.makeCopy());
+			IAddonParam copy = element.makeCopy();
+			copy.getAsProperty().setValue(defaultProperties.get(element.getAsProperty().getName()));
+			this.options.add(copy);
 		}
+	}
+	
+	public void setDefaultProperties (Map<String,String> defaultProperties) { 
+		this.defaultProperties = new HashMap<String, String>(defaultProperties);
+	
 	}
 
 	@Override
@@ -107,6 +125,12 @@ public class EditableSelectAddonParam extends StringAddonParam{
 			
 			@Override
 			public String getValue() {
+				/*for (int i = 0; i < options.size(); i++) {
+					if (options.get(i).getDisplayName() == value) {
+						return options.get(i).getName();
+					}
+				}
+				return options.get(0).getName();*/
 				return value;
 			}
 
@@ -136,10 +160,26 @@ public class EditableSelectAddonParam extends StringAddonParam{
 			}
 
 			@Override
-			public String getAddonType(int index) {
-		
-				return null;
+			public int getSelectedIndex() {
+				for (int i = 0; i < options.size(); i++) {
+					if (options.get(i).getDisplayName() == value) {
+						return i;
+					}
+				}
+				return 0;
 			}
+			
+			@Override
+			public void setDefaultProperties(String propertyName, String value) {
+				defaultProperties.put(propertyName, value);
+				added++;
+			}
+
+			@Override
+			public int getDefaultPropertiesSize() {
+				return added2;
+			}
+
 		};
 		
 		return property;
@@ -152,6 +192,7 @@ public class EditableSelectAddonParam extends StringAddonParam{
 		EditableSelectAddonParam param = new EditableSelectAddonParam(getAddonModel(), type, this.factory);
 		param.setName(name);
 		param.setDisplayName(displayName);
+		param.setDefaultProperties(this.defaultProperties);	//Must be before setOptions!
 		param.setOptions(this.options);
 		return param;
 	}

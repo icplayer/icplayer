@@ -13,10 +13,12 @@ function AddonBlocklyCodeEditor_create () {
     var hasBeenSet = false;
     presenter.ERROR_CODES = {
         "SI01": "Scene id must have value",
+        "SI02": "You must add scene id if you want to add scene toolbox",
         "CN01": "Color must be integer positive value",
         "IE01": "Undefined input or connection type",
         "OE01": "Undefined connection type",
-        "BL01": "Block limit must be  0 or positive integer number"
+        "DE01": "Duplicated elements in toolbox",
+        "BL01": "Block limit must be  0 or positive integer number",
     };
 
     presenter.inputsType = {
@@ -38,66 +40,73 @@ function AddonBlocklyCodeEditor_create () {
     presenter.DEFAULT_BLOCKS_LABELS = {
         "if": "controls_if",
         "compare": "logic_compare",
-        "logic operation": "logic_operation",
+        "logic_operation": "logic_operation",
         "negate": "logic_negate",
         "boolean": "logic_boolean",
         "null": "logic_null",
-        "logic ternary": "logic_ternary",
+        "logic_ternary": "logic_ternary",
         "repeat": "controls_repeat_ext",
-        "repeat while/until": "controls_whileUntil",
+        "repeat_while/until": "controls_whileUntil",
         "for": "controls_for",
-        "for each": "controls_forEach",
+        "for_each": "controls_forEach",
         "break": "controls_flow_statements",
         "number": "math_number",
         "arithmetic": "math_arithmetic",
-        "basic functions": "math_single",
+        "basic_functions": "math_single",
         "trigonometry": "math_trig",
         "constants": "math_constant",
-        "number property": "math_number_property",
+        "number_property": "math_number_property",
         "round": "math_round",
-        "math list functions": "math_on_list",
+        "math_list_functions": "math_on_list",
         "modulo": "math_modulo",
         "constrain": "math_constrain",
-        "random integer": "math_random_int",
-        "random fraction": "math_random_float",
+        "random_integer": "math_random_int",
+        "random_fraction": "math_random_float",
         "text": "text",
-        "join text": "text_join",
-        "append text": "text_append",
-        "text length": "text_length",
-        "is empty text": "text_isEmpty",
-        "text index of": "text_indexOf",
-        "char at": "text_charAt",
+        "join_text": "text_join",
+        "append_text": "text_append",
+        "text_length": "text_length",
+        "is_empty_text": "text_isEmpty",
+        "text_index_of": "text_indexOf",
+        "char_at": "text_charAt",
         "substring": "text_getSubstring",
-        "to upper/lower case": "text_changeCase",
+        "to_upper/lower_case": "text_changeCase",
         "trim": "text_trim",
         "print": "text_print",
-        "prompt for": "text_prompt_ext",
-        "create list": "lists_create_with",
-        "create list with item": "lists_repeat",
-        "list length": "lists_length",
-        "is empty list": "lists_isEmpty",
-        "list index of": "lists_indexOf",
-        "get list element": "lists_getIndex",
-        "set list element": "lists_setIndex",
-        "get sublist": "lists_getSublist",
-        "create list from": "lists_split",
-        "sort list": "lists_sort",
-        "color picker": "colour_picker",
-        "random color": "colour_random",
-        "RGB color": "colour_rgb",
-        "blend color": "colour_blend",
-        "variable": "math_change",
-        "set variable": "variables_set",
-        "get variable": "variables_get",
+        "prompt_for": "text_prompt_ext",
+        "create_list": "lists_create_with",
+        "create_list_with_item": "lists_repeat",
+        "list_length": "lists_length",
+        "is_empty_list": "lists_isEmpty",
+        "list_index_of": "lists_indexOf",
+        "get_list_element": "lists_getIndex",
+        "set_list_element": "lists_setIndex",
+        "get_sublist": "lists_getSublist",
+        "create_list_from": "lists_split",
+        "sort_list": "lists_sort",
+        "color_picker": "colour_picker",
+        "random_color": "colour_random",
+        "RGB_color": "colour_rgb",
+        "blend_color": "colour_blend",
+        "change_variable": "math_change",
+        "set_variable": "variables_set",
+        "get_variable": "variables_get",
         "custom": "custom"
     };
 
     presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS = {
         "if": [
-            "CONTROLS_IF_MSG_IF",
-            "CONTROLS_IF_MSG_THEN",
+            "CONTROLS_IF_ELSE_TOOLTIP",
+            "CONTROLS_IF_HELPURL",
+            "CONTROLS_IF_IF_TOOLTIP",
             "CONTROLS_IF_MSG_ELSE",
             "CONTROLS_IF_MSG_ELSEIF",
+            "CONTROLS_IF_MSG_IF",
+            "CONTROLS_IF_IF_TITLE_IF",
+            "CONTROLS_IF_ELSE_TITLE_ELSE",
+            "CONTROLS_IF_ELSEIF_TITLE_ELSEIF",
+            "CONTROLS_IF_IF_TITLE_IF",
+            "CONTROLS_IF_MSG_THEN",
             "CONTROLS_IF_TOOLTIP_1",
             "CONTROLS_IF_TOOLTIP_2",
             "CONTROLS_IF_TOOLTIP_3",
@@ -111,7 +120,7 @@ function AddonBlocklyCodeEditor_create () {
             "LOGIC_COMPARE_TOOLTIP_LTE",
             "LOGIC_COMPARE_TOOLTIP_NEQ"
         ],
-        "logic operation": [
+        "logic_operation": [
             "LOGIC_OPERATION_AND",
             "LOGIC_OPERATION_OR",
             "LOGIC_OPERATION_TOOLTIP_AND",
@@ -130,7 +139,7 @@ function AddonBlocklyCodeEditor_create () {
             "LOGIC_NULL",
             "LOGIC_NULL_TOOLTIP"
         ],
-        "logic ternary": [
+        "logic_ternary": [
             "LOGIC_TERNARY_CONDITION",
             "LOGIC_TERNARY_IF_FALSE",
             "LOGIC_TERNARY_IF_FALSE",
@@ -141,7 +150,7 @@ function AddonBlocklyCodeEditor_create () {
             "CONTROLS_REPEAT_INPUT_DO",
             "CONTROLS_REPEAT_TOOLTIP"
         ],
-        "repeat while/until": [
+        "repeat_while/until": [
             "CONTROLS_WHILEUNTIL_OPERATOR_UNTIL",
             "CONTROLS_WHILEUNTIL_OPERATOR_WHILE",
             "CONTROLS_WHILEUNTIL_INPUT_DO",
@@ -153,7 +162,7 @@ function AddonBlocklyCodeEditor_create () {
             "CONTROLS_FOR_INPUT_DO",
             "CONTROLS_FOR_TOOLTIP"
         ],
-        "for each": [
+        "for_each": [
             "CONTROLS_FOREACH_TITLE",
             "CONTROLS_FOREACH_INPUT_DO",
             "CONTROLS_FOREACH_TOOLTIP"
@@ -174,7 +183,7 @@ function AddonBlocklyCodeEditor_create () {
             "MATH_ARITHMETIC_TOOLTIP_MULTIPLY",
             "MATH_ARITHMETIC_TOOLTIP_POWER"
         ],
-        "basic functions": [
+        "basic_functions": [
             "MATH_SINGLE_OP_ABSOLUTE",
             "MATH_SINGLE_OP_ROOT",
             "MATH_SINGLE_TOOLTIP_ABS",
@@ -202,7 +211,7 @@ function AddonBlocklyCodeEditor_create () {
         "constants": [
             "MATH_CONSTANT_TOOLTIP"
         ],
-        "number property": [
+        "number_property": [
             "MATH_IS_EVEN",
             "MATH_IS_ODD",
             "MATH_IS_PRIME",
@@ -218,7 +227,7 @@ function AddonBlocklyCodeEditor_create () {
             "MATH_ROUND_OPERATOR_ROUNDUP",
             "MATH_ROUND_TOOLTIP"
         ],
-        "math list functions": [
+        "math_list_functions": [
             "MATH_ONLIST_OPERATOR_AVERAGE",
             "MATH_ONLIST_OPERATOR_MAX",
             "MATH_ONLIST_OPERATOR_MEDIAN",
@@ -244,41 +253,41 @@ function AddonBlocklyCodeEditor_create () {
             "MATH_CONSTRAIN_TITLE",
             "MATH_CONSTRAIN_TOOLTIP"
         ],
-        "random integer": [
+        "random_integer": [
             "MATH_RANDOM_INT_TITLE",
             "MATH_RANDOM_INT_TOOLTIP"
         ],
-        "random fraction": [
+        "random_fraction": [
             "MATH_RANDOM_FLOAT_TITLE_RANDOM",
             "MATH_RANDOM_FLOAT_TOOLTIP"
         ],
         "text": [
             "TEXT_TEXT_TOOLTIP"
         ],
-        "join text": [
+        "join_text": [
             "TEXT_JOIN_TITLE_CREATEWITH",
             "TEXT_JOIN_TOOLTIP"
         ],
-        "append text": [
+        "append_text": [
             "TEXT_APPEND_APPENDTEXT",
             "TEXT_APPEND_TO",
             "TEXT_APPEND_TOOLTIP"
         ],
-        "text length": [
+        "text_length": [
             "TEXT_LENGTH_TITLE",
             "TEXT_LENGTH_TOOLTIP"
         ],
-        "is empty text": [
+        "is_empty_text": [
             "TEXT_ISEMPTY_TITLE",
             "TEXT_ISEMPTY_TOOLTIP"
         ],
-        "text index of": [
+        "text_index_of": [
             "TEXT_INDEXOF_INPUT_INTEXT",
             "TEXT_INDEXOF_OPERATOR_FIRST",
             "TEXT_INDEXOF_OPERATOR_LAST",
             "TEXT_INDEXOF_TOOLTIP"
         ],
-        "char at": [
+        "char_at": [
             "TEXT_CHARAT_FIRST",
             "TEXT_CHARAT_FROM_END",
             "TEXT_CHARAT_FROM_START",
@@ -297,7 +306,7 @@ function AddonBlocklyCodeEditor_create () {
             "TEXT_GET_SUBSTRING_START_FROM_START",
             "TEXT_GET_SUBSTRING_TOOLTIP"
         ],
-        "to upper/lower case": [
+        "to_upper/lower_case": [
             "TEXT_CHANGECASE_OPERATOR_LOWERCASE",
             "TEXT_CHANGECASE_OPERATOR_TITLECASE",
             "TEXT_CHANGECASE_OPERATOR_UPPERCASE",
@@ -313,35 +322,41 @@ function AddonBlocklyCodeEditor_create () {
             "TEXT_PRINT_TITLE",
             "TEXT_PRINT_TOOLTIP"
         ],
-        "prompt for": [
+        "prompt_for": [
             "TEXT_PROMPT_TYPE_NUMBER",
             "TEXT_PROMPT_TYPE_TEXT",
             "TEXT_PROMPT_TOOLTIP_NUMBER",
             "TEXT_PROMPT_TOOLTIP_TEXT"
         ],
-        "create list": [
+        "create_list": [
+            "LISTS_CREATE_WITH_CONTAINER_TITLE_ADD",
+            "LISTS_CREATE_WITH_CONTAINER_TOOLTIP",
             "LISTS_CREATE_WITH_INPUT_WITH",
             "LISTS_CREATE_WITH_ITEM_TITLE",
             "LISTS_CREATE_WITH_ITEM_TOOLTIP"
         ],
-        "create list with item": [
-            "LISTS_REPEAT_TITLE",
-            "LISTS_REPEAT_TOOLTIP"
+        "create_list_with_item": [
+            "LISTS_CREATE_WITH_CONTAINER_TITLE_ADD",
+            "LISTS_CREATE_WITH_CONTAINER_TOOLTIP",
+            "LISTS_CREATE_WITH_INPUT_WITH",
+            "LISTS_CREATE_WITH_TOOLTIP",
+            "LISTS_CREATE_WITH_ITEM_TITLE",
+            "LISTS_CREATE_WITH_ITEM_TOOLTIP"
         ],
-        "list length": [
+        "list_length": [
             "LISTS_LENGTH_TITLE",
             "LISTS_LENGTH_TOOLTIP"
         ],
-        "is empty list": [
+        "is_empty_list": [
             "LISTS_ISEMPTY_TITLE",
             "LISTS_ISEMPTY_TOOLTIP"
         ],
-        "list index of": [
+        "list_index_of": [
             "LISTS_INDEX_OF_FIRST",
             "LISTS_INDEX_OF_LAST",
             "LISTS_INDEX_OF_TOOLTIP"
         ],
-        "get list element": [
+        "get_list_element": [
             "LISTS_GET_INDEX_FIRST",
             "LISTS_GET_INDEX_FROM_END",
             "LISTS_GET_INDEX_FROM_START",
@@ -366,7 +381,7 @@ function AddonBlocklyCodeEditor_create () {
             "LISTS_GET_INDEX_TOOLTIP_REMOVE_LAST",
             "LISTS_GET_INDEX_TOOLTIP_REMOVE_RANDOM"
         ],
-        "set list element": [
+        "set_list_element": [
             "LISTS_SET_INDEX_INSERT",
             "LISTS_SET_INDEX_INPUT_TO",
             "LISTS_SET_INDEX_SET",
@@ -378,40 +393,72 @@ function AddonBlocklyCodeEditor_create () {
             "LISTS_SET_INDEX_TOOLTIP_SET_FIRST",
             "LISTS_SET_INDEX_TOOLTIP_SET_FROM_END",
             "LISTS_SET_INDEX_TOOLTIP_SET_FROM_START",
-            "LISTS_SET_INDEX_TOOLTIP_SET_LAST",
+            "LISTS_SET_INDEX_TOOLTIP_SET_LAST"
 
         ],
-        "get sublist": [
-
+        "get_sublist": [
+            "LISTS_GET_SUBLIST_START_FIRST",
+            "LISTS_GET_SUBLIST_START_FROM_END",
+            "LISTS_GET_SUBLIST_START_FROM_START",
+            "LISTS_GET_SUBLIST_TAIL",
+            "LISTS_GET_SUBLIST_TOOLTIP",
+            "LISTS_INDEX_OF_FIRST"
         ],
-        "create list from": [
-
+        "create_list_from": [
+            "LISTS_CREATE_WITH_CONTAINER_TITLE_ADD",
+            "LISTS_CREATE_WITH_CONTAINER_TOOLTIP",
+            "LISTS_CREATE_WITH_INPUT_WITH",
+            "LISTS_CREATE_WITH_TOOLTIP",
+            "LISTS_CREATE_WITH_ITEM_TITLE",
+            "LISTS_CREATE_WITH_ITEM_TOOLTIP"
         ],
-        "sort list": [
-
+        "sort_list": [
+            "LISTS_SORT_ORDER_ASCENDING",
+            "LISTS_SORT_ORDER_DESCENDING",
+            "LISTS_SORT_TITLE",
+            "LISTS_SORT_TOOLTIP",
+            "LISTS_SORT_TYPE_IGNORECASE",
+            "LISTS_SORT_TYPE_NUMERIC",
+            "LISTS_SORT_TYPE_TEXT"
         ],
-        "color picker": [
-
+        "color_picker": [
+            "COLOUR_PICKER_TOOLTIP"
         ],
-        "random color": [
-
+        "random_color": [
+            "COLOUR_RANDOM_TITLE",
+            "COLOUR_RANDOM_TOOLTIP"
         ],
-        "RGB color": [
-
+        "RGB_color": [
+            "COLOUR_RGB_BLUE",
+            "COLOUR_RGB_GREEN",
+            "COLOUR_RGB_RED",
+            "COLOUR_RGB_TITLE",
+            "COLOUR_RGB_TOOLTIP"
         ],
-        "blend color": [
-
+        "blend_color": [
+            "COLOUR_BLEND_COLOUR1",
+            "COLOUR_BLEND_COLOUR2",
+            "COLOUR_BLEND_RATIO",
+            "COLOUR_BLEND_TITLE",
+            "COLOUR_BLEND_TOOLTIP"
         ],
         "variable": [
-
+            "NEW_VARIABLE",
+            "NEW_VARIABLE_TITLE",
+            "RENAME_VARIABLE",
+            "RENAME_VARIABLE_TITLE"
         ],
-        "set variable": [
-
+        "set_variable": [
+            "VARIABLES_SET",
+            "VARIABLES_SET_CREATE_GET",
+            "VARIABLES_SET_TOOLTIP"
         ],
-        "get variable": [
-
+        "get_variable": [
+            "VARIABLES_DEFAULT_NAME",
+            "VARIABLES_GET_CREATE_SET",
+            "VARIABLES_GET_TOOLTIP"
         ],
-        "custom": [
+        "change_variable" : [
 
         ]
     };
@@ -423,6 +470,7 @@ function AddonBlocklyCodeEditor_create () {
         workspace: null,
         toolboxXML: "",
         addSceneToolbox: false,
+        sceneToolboxName: "",
         isPreview: false,
         isValid: false,
         haveSceneID: true
@@ -510,11 +558,11 @@ function AddonBlocklyCodeEditor_create () {
             value: sceneId
         };
     };
-    function addToCategory(categories, categoryName, blockName, isVisible) {
+    function addToCategory(categories, categoryName, blockName, isDisabled) {
         if (categoryName == '') return;
         if (blockName == '') return;
 
-        if (ModelValidationUtils.validateBoolean(isVisible)) {
+        if (!ModelValidationUtils.validateBoolean(isDisabled)) {
             if (categories[categoryName] == null) {
                 categories[categoryName] = [];
             }
@@ -541,16 +589,47 @@ function AddonBlocklyCodeEditor_create () {
 
     presenter.validateToolbox = function Blockly_Code_Editor_validate_toolbox (toolbox) {
         var categories = {};
+        var elements = [];
+        console.log(toolbox);
+
         for (var index = 0; index < toolbox.length; index++) {
             var toolboxElement = toolbox[index];
-            console.log(toolboxElement['blockName']);
-            console.log(presenter.DEFAULT_BLOCKS_LABELS[toolboxElement['blockName']]);
-            addToCategory(categories, toolboxElement['blockCategory'], presenter.DEFAULT_BLOCKS_LABELS[toolboxElement['blockName']], toolboxElement['blockIsVisible']);
+            if (elements.indexOf(toolboxElement['blockName'].name) != -1) {
+                return {
+                    isValid: false,
+                    errorCode: "DE01"
+                };
+            }
+            elements.push(toolboxElement['blockName'].name);
+            presenter.validateTranslations(toolboxElement);
+            if (toolboxElement['blockName'].name == "custom") {
+                addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].value, toolboxElement['blockIsDisabled']);
+            } else if (toolboxElement['blockName'].name == "scene_commands") {
+                console.log(toolboxElement['blockCategory']);
+                presenter.configuration.sceneToolboxName = toolboxElement['blockCategory'];
+                presenter.configuration.addSceneToolbox = true;
+            } else {
+                addToCategory(categories, toolboxElement['blockCategory'], presenter.DEFAULT_BLOCKS_LABELS[toolboxElement['blockName'].name], toolboxElement['blockIsDisabled']);
+            }
         }
         return {
             isValid: true,
             value: generateXMLFromCategories(categories)
         };
+    };
+
+    presenter.validateTranslations = function (toolboxElement) {
+        if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.hasOwnProperty(toolboxElement['blockName'].name)) {
+            var parsedValue = JSON.parse("{" + toolboxElement['blockName'].value + "}");
+            for (var key in parsedValue) {
+                if (parsedValue.hasOwnProperty(key)) {
+                    Blockly.Msg[StringUtils.format('{0}', key)] = parsedValue[key];
+                }
+            }
+        } else if (toolboxElement['blockName'].name == "toolbox") {
+            var parsedValue = JSON.parse("{" + toolboxElement['blockName'].value + "}");
+            BlocklyCustomBlocks.SceneGrid.LABELS = $.extend({},BlocklyCustomBlocks.SceneGrid.LABELS, parsedValue);
+        }
     };
 
     presenter.validateType = function (type) {
@@ -753,11 +832,21 @@ function AddonBlocklyCodeEditor_create () {
         };
     };
 
+    presenter.validateSceneToolboxName = function (sceneToolboxName) {
+        if(ModelValidationUtils.isStringEmpty(sceneToolboxName)) {
+            return "GridScene";
+        } else {
+            return sceneToolboxName;
+        }
+    };
+
     presenter.validateModel = function (model) {
         var haveSceneID = true;
 
         var validatedToolbox = presenter.validateToolbox(model['toolbox']);
-
+        if (!validatedToolbox.isValid) {
+            return validatedToolbox;
+        }
         var validatedSceneId = presenter.validateSceneId(model["sceneID"]);
         if (!validatedSceneId.isValid) {
           haveSceneID = false;
@@ -775,11 +864,18 @@ function AddonBlocklyCodeEditor_create () {
                 errorCode: "BL01"
             };
         }
+
+        if (!haveSceneID && presenter.configuration.addSceneToolbox) {
+            return {
+                isValid: false,
+                errorCode: "SI02"
+            }
+        }
+
         return {
             isValid: true,
             haveSceneID: haveSceneID,
             hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),
-            addSceneToolbox: ModelValidationUtils.validateBoolean(model["addSceneToolbox"]),
             sceneID: validatedSceneId.value,
             toolboxXML: validatedToolbox.value,
             customBlocksXML: validatedCustomBlocks.value,
@@ -823,20 +919,19 @@ function AddonBlocklyCodeEditor_create () {
 
 
         var toolbox = '<xml>';
-        // toolbox = StringUtils.format("{0}{1}", toolbox, presenter.getTestingCategoryXML());
-        // toolbox = StringUtils.format("{0}{1}", toolbox, presenter.getVariablesCategoryXML());
 
         toolbox = StringUtils.format("{0}{1}", toolbox, presenter.configuration.toolboxXML);
 
         if (presenter.configuration.sceneModule !== null
             && presenter.configuration.sceneModule !== undefined
             && presenter.configuration.addSceneToolbox) {
-            toolbox = StringUtils.format("{0}{1}", toolbox, presenter.configuration.sceneModule.getToolboxCategoryXML());
+            toolbox = StringUtils.format("{0}<category name = \"{2}\">{1}</category>", toolbox, presenter.configuration.sceneModule.getToolboxCategoryXML(), presenter.configuration.sceneToolboxName);
         } else if (presenter.configuration.addSceneToolbox) {
             toolbox = StringUtils.format("{0}{1}", toolbox, "<category name=\"Scene\"></category>");
         }
 
         toolbox = StringUtils.format("{0}{1}", toolbox, "</xml>");
+        console.log(toolbox);
         return toolbox;
     };
 

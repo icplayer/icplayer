@@ -939,7 +939,7 @@
 	"BlocklyCodeEditor_info": "Blockly code editor",
 	"BlocklyCodeEditor_name": "Blockly code editor",
 	"BlocklyCodeEditor_property_scene_id": "Scene ID",
-	"BlocklyCodeEditor_property_hide_run": "Hide Runn",
+	"BlocklyCodeEditor_property_hide_run": "Hide Run",
 	"BlocklyCodeEditor_property_add_scene_toolbox": "Add Scene Toolbox",
 	"BlocklyCodeEditor_property_max_block_limit" :  "Block Limit",
 	"BlocklyCodeEditor_property_toolbox" : "Box",

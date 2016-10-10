@@ -31,6 +31,22 @@
         'scene_grid_clearmark'
     ];
 
+    SceneGridCustomBlocks.CUSTOM_BLOCKS_LIST_TO_COMMAND = {
+        "command_clear" : 'scene_grid_clear',
+        "command_mark" : 'scene_grid_mark',
+        "command_drawLeft" : 'scene_grid_drawleft',
+        "command_drawRight" : 'scene_grid_drawright',
+        "command_drawUp" : 'scene_grid_drawup',
+        "command_drawDown" : 'scene_grid_drawdown',
+        "command_drawLeftFrom" : 'scene_grid_drawleftfrom',
+        "command_drawRightFrom" : 'scene_grid_drawrightfrom',
+        "command_drawUpFrom" : 'scene_grid_drawupfrom',
+        "command_drawDownFrom" : 'scene_grid_drawdownfrom',
+        "command_setColor" : 'scene_grid_setcolor',
+        "command_setCursor" : 'scene_grid_setcursor',
+        "command_clearMark" : 'scene_grid_clearmark'
+    };
+
     SceneGridCustomBlocks.LABELS = {
         "command_clear": "clear",
         "command_mark": "mark",

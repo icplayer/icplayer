@@ -333,6 +333,8 @@ function AddonGrid_Scene_create(){
             return;
         }
 
+        BlocklyCustomBlocks.SceneGrid.LABELS = $.extend({}, presenter.LABELS, presenter.configuration.labels);
+
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-cell:first");
 
@@ -542,6 +544,11 @@ function AddonGrid_Scene_create(){
                         translations[key] = validatedDefaultCommand.value.validatedTranslation;
                     }
                     if (validatedDefaultCommand.value.validatedIsExcluded) {
+                        console.log("Deleting: " + BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
+                        var elementIndex = BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.indexOf(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
+                        if(elementIndex != -1){
+                            BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.splice(elementIndex, 1);
+                        }
                         excludedCommands[key] = true;
                     }
                     if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedArgumentsTranslation)) {
@@ -868,9 +875,12 @@ function AddonGrid_Scene_create(){
 
     presenter.mark = function mark (x, y) {
         presenter.actualCursorPosition = [x,y];
-        if (ModelValidationUtils.validateIntegerInRange(x, presenter.configuration.columns + 1, 1).isValid != false) {
-            if (ModelValidationUtils.validateIntegerInRange(y, presenter.configuration.rows + 1, 1).isValid != false) {
-                presenter.coloredGrid[y - 1][x - 1] = presenter.configuration.color;
+        console.log("Rows: " +  presenter.configuration.rows);
+        console.log(x + ":" + y);
+        console.log(presenter.coloredGrid);
+        if (ModelValidationUtils.validateIntegerInRange(x, parseInt(presenter.configuration.columns), 1).isValid != false) {
+            if (ModelValidationUtils.validateIntegerInRange(y, parseInt(presenter.configuration.rows), 1).isValid != false) {
+                presenter.coloredGrid[parseInt(y - 1)][parseInt(x - 1)] = presenter.configuration.color;
             }
         }
         presenter.colorSquare(x, y);
@@ -1000,14 +1010,13 @@ function AddonGrid_Scene_create(){
     };
     
     presenter.getToolboxCategoryXML = function () {
-        var category = "<category name=\"GridScene\">";
+        var category = "";
         
         BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.forEach(function (element) {
+            console.log(element);
             var block = StringUtils.format("<block type=\"{0}\"></block>", element);
             category = StringUtils.format("{0}{1}", category, block); 
         });
-        
-        category = StringUtils.format("{0}{1}", category, "</category>");
         
         return category;
     };
