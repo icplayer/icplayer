@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Text_Coloring' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="colors" displayName="Colors" type="list" nameLabel="Text_Coloring_property_colors">
+			<property name="id" displayName="Color ID" nameLabel="Text_Coloring_property_color_id" type="string" />
+			<property name="color" displayName="Color" nameLabel="Text_Coloring_property_color" type="string" />
+			<property name="description" displayName="Description" nameLabel="Text_Coloring_property_description" type="string" />
+		</property>
+		<property name="text" displayName="Text" nameLabel="Text_Coloring_property_text" type="text" isDefault="true"/>
+		<property name="buttonsPosition" displayName="Buttons position" nameLabel="Text_Coloring_property_buttons_position" type="{left, top, bottom, right}" />
+		<property name="hideColorsButtons" displayName="Hide Color Buttons" nameLabel="Text_Coloring_property_hide_color_buttons" type="boolean" />
+		<property name="showSetEraserModeButton" displayName="Show set eraser mode button" nameLabel="Text_Coloring_property_show_set_eraser_mode_button" type="boolean" />
+		<property name="eraserButtonText" displayName="Eraser button text" nameLabel="Text_Coloring_property_eraser_button_text" type="string" />
+	</model>
+</addon>

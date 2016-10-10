@@ -25,6 +25,7 @@ function AddonTable_create() {
 
     var isConnectedWithMath = false;
     presenter.gapsSize = [];
+    presenter.isSetShowErrorsMode = false;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -283,6 +284,7 @@ function AddonTable_create() {
     presenter.reset = function () {
         presenter.gapsContainer.reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.isSetShowErrorsMode = false;
     };
 
     presenter.getState = function () {
@@ -816,7 +818,10 @@ function AddonTable_create() {
     };
 
     presenter.setShowErrorsMode = function () {
-        presenter.gapsContainer.check(true);
+        if (!presenter.isSetShowErrorsMode) {
+            presenter.gapsContainer.check();
+            presenter.isSetShowErrorsMode = true;
+        }
 
         if (isConnectedWithMath) {
             presenter.gapsContainer.unlockAllGaps();
@@ -825,7 +830,10 @@ function AddonTable_create() {
     };
 
     presenter.setWorkMode = function () {
-        presenter.gapsContainer.check(false);
+        if (presenter.isSetShowErrorsMode) {
+            presenter.gapsContainer.check();
+            presenter.isSetShowErrorsMode = false;
+        }
 
         presenter.gapsContainer.removeAllGapsClasses();
 
@@ -861,6 +869,7 @@ function AddonTable_create() {
         if (presenter.configuration.isActivity) {
             presenter.gapsContainer.showAnswers();
             presenter.isShowAnswersActive = true;
+            presenter.isSetShowErrorsMode = false;
         }
     };
 
@@ -871,6 +880,7 @@ function AddonTable_create() {
                 presenter.gapsContainer.unlockAllGaps();
             }
             presenter.isShowAnswersActive = false;
+            presenter.isSetShowErrorsMode = false;
         }
     };
 

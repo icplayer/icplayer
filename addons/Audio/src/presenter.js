@@ -384,8 +384,23 @@ function AddonAudio_create(){
         eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.sendOnPauseEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': 'pause',
+            'score': ''
+        };
+
+        eventBus.sendEvent('ValueChanged', eventData);
+    };
+
     function AddonAudio_onAudioPlaying () {
         presenter.sendOnPLayingEvent();
+    }
+
+    function AddonAudio_onAudioPause () {
+        presenter.sendOnPauseEvent();
     }
 
     function AddonAudio_attachEventListeners(audio) {
@@ -395,6 +410,7 @@ function AddonAudio_create(){
         audio.addEventListener('ended', AddonAudio_onAudioEnded , false);
         audio.addEventListener('click', AddonAudio_onAudioClick, false);
         audio.addEventListener('playing', AddonAudio_onAudioPlaying, false);
+        audio.addEventListener('pause', AddonAudio_onAudioPause, false);
     }
 
     function AddonAudio_onAudioEnded () {
@@ -484,6 +500,7 @@ function AddonAudio_create(){
         presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
         presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
         presenter.audio.removeEventListener('playing', AddonAudio_onAudioPlaying, false);
+        presenter.audio.removeEventListener('pause', AddonAudio_onAudioPause, false);
         presenter.audio.setAttribute('src', '');
         presenter.audio.load();
         presenter.audio = null;
@@ -556,7 +573,8 @@ function AddonAudio_create(){
             'play': presenter.play,
             'stop': presenter.stop,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'pause': presenter.pause
         };
 
         Commands.dispatch(commands, name, params, presenter);
