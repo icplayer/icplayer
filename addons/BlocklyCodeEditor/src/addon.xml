@@ -4,64 +4,64 @@
 	<model>
 		<property name="sceneID" nameLabel="BlocklyCodeEditor_property_scene_id" type="string" />
 		<property name="toolbox" displayName="Toolbox" nameLabel="BlocklyCodeEditor_property_toolbox" type="list">
-			<property name="blockName" displayName="Block Name" nameLabel="BlocklyCodeEditor_property_block_name" type="editableselect">
-				<property name="RGB_color" displayName="RGB color" type="text"/>
-				<property name="append_text" displayName="append text" type="text"/>
-				<property name="arithmetic" displayName="arithmetic" type="text"/>
-				<property name="basic_functions" displayName="basic functions" type="text"/>
-				<property name="blend_color" displayName="blend color" type="text"/>
-				<property name="boolean" displayName="boolean" type="text"/>
-				<property name="break" displayName="break" type="text"/>
-				<property name="change_variable" displayName="change variable" type="text"/>
-				<property name="char_at" displayName="char at" type="text"/>
-				<property name="color_picker" displayName="color picker" type="text"/>
-				<property name="compare" displayName="compare" type="text"/>
-				<property name="constants" displayName="constants" type="text"/>
-				<property name="constrain" displayName="constrain" type="text"/>
-				<property name="create_list_from" displayName="create list from" type="text"/>
-				<property name="create_list_with_item" displayName="create list with item" type="text"/>
-				<property name="create_list" displayName="create list" type="text"/>
-				<property name="for_each" displayName="for each" type="text"/>
-				<property name="for" displayName="for" type="text"/>
-				<property name="get_list_element" displayName="get list element" type="text"/>
-				<property name="get_sublist" displayName="get sublist" type="text"/>
-				<property name="get_variable" displayName="get variable" type="text"/>
-				<property name="if" displayName="if" type="text"/>
-				<property name="is_empty_list" displayName="is empty list" type="text"/>
-				<property name="is_empty_text" displayName="is empty text" type="text"/>
-				<property name="join_text" displayName="join text" type="text"/>
-				<property name="list_index_of" displayName="list index of" type="text"/>
-				<property name="list_length" displayName="list length" type="text"/>
-				<property name="logic_operation" displayName="logic operation" type="text"/>
-				<property name="logic_ternary" displayName="logic ternary" type="text"/>
-				<property name="math_list_functions" displayName="math list functions" type="text"/>
-				<property name="modulo" displayName="modulo" type="text"/>
-				<property name="negate" displayName="negate" type="text"/>
-				<property name="null" displayName="null" type="text"/>
-				<property name="number_property" displayName="number property" type="text"/>
-				<property name="number" displayName="number" type="text"/>
-				<property name="print" displayName="print" type="text"/>
-				<property name="prompt_for" displayName="prompt for" type="text"/>
-				<property name="random_color" displayName="random color" type="text"/>
-				<property name="random_fraction" displayName="random fraction" type="text"/>
-				<property name="random_integer" displayName="random integer" type="text"/>
-				<property name="repeat_while/until" displayName="repeat while/until" type="text"/>
-				<property name="repeat" displayName="repeat" type="text"/>
-				<property name="round" displayName="round" type="text"/>
-				<property name="set_list_element" displayName="set list element" type="text"/>
-				<property name="set_variable" displayName="set variable" type="text"/>
-				<property name="sort_list" displayName="sort list" type="text"/>
-				<property name="substring" displayName="substring" type="text"/>
-				<property name="text_index_of" displayName="text index of" type="text"/>
-				<property name="text_length" displayName="text length" type="text"/>
-				<property name="text" displayName="text" type="text"/>
-				<property name="to_upper/lower_case" displayName="to upper/lower case" type="text"/>
-				<property name="trigonometry" displayName="trigonometry" type="text"/>
-				<property name="trim" displayName="trim" type="text"/>
-				<property name="scene_commands" displayName="scene commands" type="text"/>
-				<property name="custom" displayName="custom" type="string"/>
+			<property name="blockName" nameLabel="BlocklyCodeEditor_property_block_name" type="editableselect">
+				<property name="RGB_color" nameLabel="Blockly_translation_RGB_color" type="text"/>
+				<property name="append_text" nameLabel="Blockly_translation_append_text" type="text"/>
+				<property name="arithmetic" nameLabel="Blockly_translation_arithmetic" type="text"/>
+				<property name="basic_functions" nameLabel="Blockly_translation_basic_functions" type="text"/>
+				<property name="blend_color" nameLabel="Blockly_translation_blend_color" type="text"/>
+				<property name="boolean" nameLabel="Blockly_translation_boolean" type="text"/>
+				<property name="break" nameLabel="Blockly_translation_break" type="text"/>
+				<property name="change_variable" nameLabel="Blockly_translation_change_variable" type="text"/>
+				<property name="char_at" nameLabel="Blockly_translation_char_at" type="text"/>
+				<property name="color_picker" nameLabel="Blockly_translation_color_picker" type="text"/>
+				<property name="compare" nameLabel="Blockly_translation_compare" type="text"/>
+				<property name="constants" nameLabel="Blockly_translation_constants" type="text"/>
+				<property name="constrain" nameLabel="Blockly_translation_constrain" type="text"/>
+				<property name="create_list_from" nameLabel="Blockly_translation_create_list_from" type="text"/>
+				<property name="create_list_with_item" nameLabel="Blockly_translation_create_list_with_item" type="text"/>
+				<property name="create_list" nameLabel="Blockly_translation_create_list" type="text"/>
+				<property name="for_each" nameLabel="Blockly_translation_for_each" type="text"/>
+				<property name="for" nameLabel="Blockly_translation_for" type="text"/>
+				<property name="get_list_element" nameLabel="Blockly_translation_get_list_element" type="text"/>
+				<property name="get_sublist" nameLabel="Blockly_translation_get_sublist" type="text"/>
+				<property name="get_variable" nameLabel="Blockly_translation_get_variable" type="text"/>
+				<property name="if" nameLabel="Blockly_translation_if" type="text"/>
+				<property name="is_empty_list" nameLabel="Blockly_translation_is_empty_list" type="text"/>
+				<property name="is_empty_text" nameLabel="Blockly_translation_is_empty_text" type="text"/>
+				<property name="join_text" nameLabel="Blockly_translation_join_text" type="text"/>
+				<property name="list_index_of" nameLabel="Blockly_translation_list_index_of" type="text"/>
+				<property name="list_length" nameLabel="Blockly_translation_list_length" type="text"/>
+				<property name="logic_operation" nameLabel="Blockly_translation_logic_operation" type="text"/>
+				<property name="logic_ternary" nameLabel="Blockly_translation_logic_ternary" type="text"/>
+				<property name="math_list_functions" nameLabel="Blockly_translation_math_list_functions" type="text"/>
+				<property name="modulo" nameLabel="Blockly_translation_modulo" type="text"/>
+				<property name="negate" nameLabel="Blockly_translation_negate" type="text"/>
+				<property name="null" nameLabel="Blockly_translation_null" type="text"/>
+				<property name="number_property" nameLabel="Blockly_translation_number_property" type="text"/>
+				<property name="number" nameLabel="Blockly_translation_number" type="text"/>
+				<property name="print" nameLabel="Blockly_translation_print" type="text"/>
+				<property name="prompt_for" nameLabel="Blockly_translation_prompt_for" type="text"/>
+				<property name="random_color" nameLabel="Blockly_translation_random_color" type="text"/>
+				<property name="random_fraction" nameLabel="Blockly_translation_random_fraction" type="text"/>
+				<property name="random_integer" nameLabel="Blockly_translation_random_integer" type="text"/>
+				<property name="repeat_while/until" nameLabel="Blockly_translation_repeat_while/until" type="text"/>
+				<property name="repeat" nameLabel="Blockly_translation_repeat" type="text"/>
+				<property name="round" nameLabel="Blockly_translation_round" type="text"/>
+				<property name="set_list_element" nameLabel="Blockly_translation_set_list_element" type="text"/>
+				<property name="set_variable" nameLabel="Blockly_translation_set_variable" type="text"/>
+				<property name="sort_list" nameLabel="Blockly_translation_sort_list" type="text"/>
+				<property name="substring" nameLabel="Blockly_translation_substring" type="text"/>
+				<property name="text_index_of" nameLabel="Blockly_translation_text_index_of" type="text"/>
+				<property name="text_length" nameLabel="Blockly_translation_text_length" type="text"/>
+				<property name="text" nameLabel="Blockly_translation_text" type="text"/>
+				<property name="to_upper/lower_case" nameLabel="Blockly_translation_to_upper/lower_case" type="text"/>
+				<property name="trigonometry" nameLabel="Blockly_translation_trigonometry" type="text"/>
+				<property name="trim" nameLabel="Blockly_translation_trim" type="text"/>
+				<property name="scene_commands" nameLabel="Blockly_translation_scene_commands" type="text"/>
+				<property name="custom" nameLabel="Blockly_translation_custom" type="string"/>
 			</property>
-			<property name="blockCategory" displayName="Block Category" nameLabel="BlocklyCodeEditor_property_block_category" type="string"/>
+			<property name="blockCategory" displayName="Category" nameLabel="BlocklyCodeEditor_property_block_category" type="string"/>
 			<property name="blockIsDisabled" displayName="Is Disabled" nameLabel="BlocklyCodeEditor_property_block_is_disabled" type="boolean"/>
 		</property>
 		<property name="customBlocks" displayName="Custom Blocks" nameLabel="BlocklyCodeEditor_property_custom_blocks" type="list">
@@ -70,8 +70,7 @@
 			<property name="customBlockColor" displayName="Color" nameLabel="BlocklyCodeEditor_property_custom_block_color" type="string"/>
 			<property name="customBlockInputs" displayName="Inputs" nameLabel="BlocklyCodeEditor_property_custom_block_inputs" type="string"/>
 			<property name="customBlockInputsType" displayName="Inputs Type" nameLabel="BlocklyCodeEditor_property_custom_block_inputs_type" type="string"/>
-			<property name="customBlockInputsText" displayName="Inputs Text" nameLabel="BlocklyCodeEditor_property_custom_block_inputs_text" type="string"/>
-			<property name="customBlockCode" displayName="Code" nameLabel="BlocklyCodeEditor_property_custom_block_code" type="text"/>
+			<property name="customBlockInputsText" displayName="Inputs Text" nameLabel="BlocklyCodeEditor_property_custom_block_inputs_text" type="string"/>			<property name="customBlockCode" displayName="Code" nameLabel="BlocklyCodeEditor_property_custom_block_code" type="text"/>
 			<property name="customBlockOutput" displayName="Connection" nameLabel="BlocklyCodeEditor_property_custom_block_output" type="{None,Left,Top,Bottom,Top-Bottom}"/>
 			<property name="customBlockOutputType" displayName="Connection Type" nameLabel="BlocklyCodeEditor_property_custom_block_output_type" type="string"/>
 		</property>

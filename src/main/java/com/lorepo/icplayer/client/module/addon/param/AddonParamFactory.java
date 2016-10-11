@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
 public class AddonParamFactory {

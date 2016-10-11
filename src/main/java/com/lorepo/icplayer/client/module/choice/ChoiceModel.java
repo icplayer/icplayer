@@ -302,13 +302,11 @@ public class ChoiceModel extends BasicModuleModel{
 
 			@Override
 			public IProperty getTemplateProperty(int index) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public int getTemplateSize() {
-				// TODO Auto-generated method stub
 				return 0;
 			}
 		};

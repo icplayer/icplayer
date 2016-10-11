@@ -134,17 +134,7 @@ function AddonGrid_Scene_create(){
     }
 
     function isValidName (name) {
-        /*
-        Variable name is valid JS name
-        e.g. : 12SomeName -> null
-               SomeName12 -> array
-               $someName -> array
-         */
-        if (name.trim().match(/^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/) === null) {
-            return false;
-        }
-
-        return true;
+        return ModelValidationUtils.validateJSVariableName(name.trim()).isValid;
     }
 
     function returnErrorObject(errorCode) {
@@ -544,7 +534,6 @@ function AddonGrid_Scene_create(){
                         translations[key] = validatedDefaultCommand.value.validatedTranslation;
                     }
                     if (validatedDefaultCommand.value.validatedIsExcluded) {
-                        console.log("Deleting: " + BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
                         var elementIndex = BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.indexOf(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
                         if(elementIndex != -1){
                             BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.splice(elementIndex, 1);
@@ -875,9 +864,6 @@ function AddonGrid_Scene_create(){
 
     presenter.mark = function mark (x, y) {
         presenter.actualCursorPosition = [x,y];
-        console.log("Rows: " +  presenter.configuration.rows);
-        console.log(x + ":" + y);
-        console.log(presenter.coloredGrid);
         if (ModelValidationUtils.validateIntegerInRange(x, parseInt(presenter.configuration.columns), 1).isValid != false) {
             if (ModelValidationUtils.validateIntegerInRange(y, parseInt(presenter.configuration.rows), 1).isValid != false) {
                 presenter.coloredGrid[parseInt(y - 1)][parseInt(x - 1)] = presenter.configuration.color;
@@ -1013,7 +999,6 @@ function AddonGrid_Scene_create(){
         var category = "";
         
         BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.forEach(function (element) {
-            console.log(element);
             var block = StringUtils.format("<block type=\"{0}\"></block>", element);
             category = StringUtils.format("{0}{1}", category, block); 
         });

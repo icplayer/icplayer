@@ -14,11 +14,13 @@ function AddonBlocklyCodeEditor_create () {
     presenter.ERROR_CODES = {
         "SI01": "Scene id must have value",
         "SI02": "You must add scene id if you want to add scene toolbox",
-        "CN01": "Color must be integer positive value",
+        "CN01": "Color must be integer positive value in range 0..360",
+        "DN01": "Custom block name must be unique",
         "IE01": "Undefined input or connection type",
         "OE01": "Undefined connection type",
         "DE01": "Duplicated elements in toolbox",
         "BL01": "Block limit must be  0 or positive integer number",
+        "VN01": "Input name must be a valid JS variable name"
     };
 
     presenter.inputsType = {
@@ -94,374 +96,62 @@ function AddonBlocklyCodeEditor_create () {
         "custom": "custom"
     };
 
-    presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS = {
-        "if": [
-            "CONTROLS_IF_ELSE_TOOLTIP",
-            "CONTROLS_IF_HELPURL",
-            "CONTROLS_IF_IF_TOOLTIP",
-            "CONTROLS_IF_MSG_ELSE",
-            "CONTROLS_IF_MSG_ELSEIF",
-            "CONTROLS_IF_MSG_IF",
-            "CONTROLS_IF_IF_TITLE_IF",
-            "CONTROLS_IF_ELSE_TITLE_ELSE",
-            "CONTROLS_IF_ELSEIF_TITLE_ELSEIF",
-            "CONTROLS_IF_IF_TITLE_IF",
-            "CONTROLS_IF_MSG_THEN",
-            "CONTROLS_IF_TOOLTIP_1",
-            "CONTROLS_IF_TOOLTIP_2",
-            "CONTROLS_IF_TOOLTIP_3",
-            "CONTROLS_IF_TOOLTIP_4"
-        ],
-        "compare": [
-            "LOGIC_COMPARE_TOOLTIP_EQ",
-            "LOGIC_COMPARE_TOOLTIP_GT",
-            "LOGIC_COMPARE_TOOLTIP_GTE",
-            "LOGIC_COMPARE_TOOLTIP_LT",
-            "LOGIC_COMPARE_TOOLTIP_LTE",
-            "LOGIC_COMPARE_TOOLTIP_NEQ"
-        ],
-        "logic_operation": [
-            "LOGIC_OPERATION_AND",
-            "LOGIC_OPERATION_OR",
-            "LOGIC_OPERATION_TOOLTIP_AND",
-            "LOGIC_OPERATION_TOOLTIP_OR"
-        ],
-        "negate": [
-            "NEGATE_TITLE",
-            "LOGIC_NEGATE_TOOLTIP"
-        ],
-        "boolean": [
-            "LOGIC_BOOLEAN_TRUE",
-            "LOGIC_BOOLEAN_FALSE",
-            "LOGIC_BOOLEAN_TOOLTIP"
-        ],
-        "null": [
-            "LOGIC_NULL",
-            "LOGIC_NULL_TOOLTIP"
-        ],
-        "logic_ternary": [
-            "LOGIC_TERNARY_CONDITION",
-            "LOGIC_TERNARY_IF_FALSE",
-            "LOGIC_TERNARY_IF_FALSE",
-            "LOGIC_TERNARY_TOOLTIP"
-        ],
-        "repeat": [
-            "CONTROLS_REPEAT_TITLE",
-            "CONTROLS_REPEAT_INPUT_DO",
-            "CONTROLS_REPEAT_TOOLTIP"
-        ],
-        "repeat_while/until": [
-            "CONTROLS_WHILEUNTIL_OPERATOR_UNTIL",
-            "CONTROLS_WHILEUNTIL_OPERATOR_WHILE",
-            "CONTROLS_WHILEUNTIL_INPUT_DO",
-            "CONTROLS_WHILEUNTIL_TOOLTIP_UNTIL",
-            "CONTROLS_WHILEUNTIL_TOOLTIP_WHILE"
-        ],
-        "for": [
-            "CONTROLS_FOR_TITLE",
-            "CONTROLS_FOR_INPUT_DO",
-            "CONTROLS_FOR_TOOLTIP"
-        ],
-        "for_each": [
-            "CONTROLS_FOREACH_TITLE",
-            "CONTROLS_FOREACH_INPUT_DO",
-            "CONTROLS_FOREACH_TOOLTIP"
-        ],
-        "break": [
-            "CONTROLS_FLOW_STATEMENTS_OPERATOR_BREAK",
-            "CONTROLS_FLOW_STATEMENTS_OPERATOR_CONTINUE",
-            "CONTROLS_FLOW_STATEMENTS_TOOLTIP_BREAK",
-            "CONTROLS_FLOW_STATEMENTS_TOOLTIP_CONTINUE"
-        ],
-        "number": [
-            "MATH_NUMBER_TOOLTIP"
-        ],
-        "arithmetic": [
-            "MATH_ARITHMETIC_TOOLTIP_ADD",
-            "MATH_ARITHMETIC_TOOLTIP_DIVIDE",
-            "MATH_ARITHMETIC_TOOLTIP_MINUS",
-            "MATH_ARITHMETIC_TOOLTIP_MULTIPLY",
-            "MATH_ARITHMETIC_TOOLTIP_POWER"
-        ],
-        "basic_functions": [
-            "MATH_SINGLE_OP_ABSOLUTE",
-            "MATH_SINGLE_OP_ROOT",
-            "MATH_SINGLE_TOOLTIP_ABS",
-            "MATH_SINGLE_TOOLTIP_EXP",
-            "MATH_SINGLE_TOOLTIP_LN",
-            "MATH_SINGLE_TOOLTIP_LOG10",
-            "MATH_SINGLE_TOOLTIP_NEG",
-            "MATH_SINGLE_TOOLTIP_POW10",
-            "MATH_SINGLE_TOOLTIP_ROOT"
-        ],
-        "trigonometry": [
-            "MATH_TRIG_ACOS",
-            "MATH_TRIG_ASIN",
-            "MATH_TRIG_ATAN",
-            "MATH_TRIG_COS",
-            "MATH_TRIG_SIN",
-            "MATH_TRIG_TAN",
-            "MATH_TRIG_TOOLTIP_ACOS",
-            "MATH_TRIG_TOOLTIP_ASIN",
-            "MATH_TRIG_TOOLTIP_ATAN",
-            "MATH_TRIG_TOOLTIP_COS",
-            "MATH_TRIG_TOOLTIP_SIN",
-            "MATH_TRIG_TOOLTIP_TAN"
-        ],
-        "constants": [
-            "MATH_CONSTANT_TOOLTIP"
-        ],
-        "number_property": [
-            "MATH_IS_EVEN",
-            "MATH_IS_ODD",
-            "MATH_IS_PRIME",
-            "MATH_IS_WHOLE",
-            "MATH_IS_POSITIVE",
-            "MATH_IS_NEGATIVE",
-            "MATH_IS_DIVISIBLE_BY",
-            "MATH_IS_TOOLTIP"
-        ],
-        "round": [
-            "MATH_ROUND_OPERATOR_ROUND",
-            "MATH_ROUND_OPERATOR_ROUNDDOWN",
-            "MATH_ROUND_OPERATOR_ROUNDUP",
-            "MATH_ROUND_TOOLTIP"
-        ],
-        "math_list_functions": [
-            "MATH_ONLIST_OPERATOR_AVERAGE",
-            "MATH_ONLIST_OPERATOR_MAX",
-            "MATH_ONLIST_OPERATOR_MEDIAN",
-            "MATH_ONLIST_OPERATOR_MIN",
-            "MATH_ONLIST_OPERATOR_MODE",
-            "MATH_ONLIST_OPERATOR_RANDOM",
-            "MATH_ONLIST_OPERATOR_STD_DEV",
-            "MATH_ONLIST_OPERATOR_SUM",
-            "MATH_ONLIST_TOOLTIP_AVERAGE",
-            "MATH_ONLIST_TOOLTIP_MAX",
-            "MATH_ONLIST_TOOLTIP_MEDIAN",
-            "MATH_ONLIST_TOOLTIP_MIN",
-            "MATH_ONLIST_TOOLTIP_MODE",
-            "MATH_ONLIST_TOOLTIP_RANDOM",
-            "MATH_ONLIST_TOOLTIP_STD_DEV",
-            "MATH_ONLIST_TOOLTIP_SUM"
-        ],
-        "modulo": [
-            "MATH_MODULO_TITLE",
-            "MATH_MODULO_TOOLTIP"
-        ],
-        "constrain": [
-            "MATH_CONSTRAIN_TITLE",
-            "MATH_CONSTRAIN_TOOLTIP"
-        ],
-        "random_integer": [
-            "MATH_RANDOM_INT_TITLE",
-            "MATH_RANDOM_INT_TOOLTIP"
-        ],
-        "random_fraction": [
-            "MATH_RANDOM_FLOAT_TITLE_RANDOM",
-            "MATH_RANDOM_FLOAT_TOOLTIP"
-        ],
-        "text": [
-            "TEXT_TEXT_TOOLTIP"
-        ],
-        "join_text": [
-            "TEXT_JOIN_TITLE_CREATEWITH",
-            "TEXT_JOIN_TOOLTIP"
-        ],
-        "append_text": [
-            "TEXT_APPEND_APPENDTEXT",
-            "TEXT_APPEND_TO",
-            "TEXT_APPEND_TOOLTIP"
-        ],
-        "text_length": [
-            "TEXT_LENGTH_TITLE",
-            "TEXT_LENGTH_TOOLTIP"
-        ],
-        "is_empty_text": [
-            "TEXT_ISEMPTY_TITLE",
-            "TEXT_ISEMPTY_TOOLTIP"
-        ],
-        "text_index_of": [
-            "TEXT_INDEXOF_INPUT_INTEXT",
-            "TEXT_INDEXOF_OPERATOR_FIRST",
-            "TEXT_INDEXOF_OPERATOR_LAST",
-            "TEXT_INDEXOF_TOOLTIP"
-        ],
-        "char_at": [
-            "TEXT_CHARAT_FIRST",
-            "TEXT_CHARAT_FROM_END",
-            "TEXT_CHARAT_FROM_START",
-            "TEXT_CHARAT_INPUT_INTEXT",
-            "TEXT_CHARAT_LAST",
-            "TEXT_CHARAT_RANDOM",
-            "TEXT_CHARAT_TOOLTIP"
-        ],
-        "substring": [
-            "TEXT_GET_SUBSTRING_END_FROM_END",
-            "TEXT_GET_SUBSTRING_END_FROM_START",
-            "TEXT_GET_SUBSTRING_END_LAST",
-            "TEXT_GET_SUBSTRING_INPUT_IN_TEXT",
-            "TEXT_GET_SUBSTRING_START_FIRST",
-            "TEXT_GET_SUBSTRING_START_FROM_END",
-            "TEXT_GET_SUBSTRING_START_FROM_START",
-            "TEXT_GET_SUBSTRING_TOOLTIP"
-        ],
-        "to_upper/lower_case": [
-            "TEXT_CHANGECASE_OPERATOR_LOWERCASE",
-            "TEXT_CHANGECASE_OPERATOR_TITLECASE",
-            "TEXT_CHANGECASE_OPERATOR_UPPERCASE",
-            "TEXT_CHANGECASE_TOOLTIP"
-        ],
-        "trim": [
-            "TEXT_TRIM_OPERATOR_BOTH",
-            "TEXT_TRIM_OPERATOR_LEFT",
-            "TEXT_TRIM_OPERATOR_RIGHT",
-            "TEXT_TRIM_TOOLTIP"
-        ],
-        "print": [
-            "TEXT_PRINT_TITLE",
-            "TEXT_PRINT_TOOLTIP"
-        ],
-        "prompt_for": [
-            "TEXT_PROMPT_TYPE_NUMBER",
-            "TEXT_PROMPT_TYPE_TEXT",
-            "TEXT_PROMPT_TOOLTIP_NUMBER",
-            "TEXT_PROMPT_TOOLTIP_TEXT"
-        ],
-        "create_list": [
-            "LISTS_CREATE_WITH_CONTAINER_TITLE_ADD",
-            "LISTS_CREATE_WITH_CONTAINER_TOOLTIP",
-            "LISTS_CREATE_WITH_INPUT_WITH",
-            "LISTS_CREATE_WITH_ITEM_TITLE",
-            "LISTS_CREATE_WITH_ITEM_TOOLTIP"
-        ],
-        "create_list_with_item": [
-            "LISTS_CREATE_WITH_CONTAINER_TITLE_ADD",
-            "LISTS_CREATE_WITH_CONTAINER_TOOLTIP",
-            "LISTS_CREATE_WITH_INPUT_WITH",
-            "LISTS_CREATE_WITH_TOOLTIP",
-            "LISTS_CREATE_WITH_ITEM_TITLE",
-            "LISTS_CREATE_WITH_ITEM_TOOLTIP"
-        ],
-        "list_length": [
-            "LISTS_LENGTH_TITLE",
-            "LISTS_LENGTH_TOOLTIP"
-        ],
-        "is_empty_list": [
-            "LISTS_ISEMPTY_TITLE",
-            "LISTS_ISEMPTY_TOOLTIP"
-        ],
-        "list_index_of": [
-            "LISTS_INDEX_OF_FIRST",
-            "LISTS_INDEX_OF_LAST",
-            "LISTS_INDEX_OF_TOOLTIP"
-        ],
-        "get_list_element": [
-            "LISTS_GET_INDEX_FIRST",
-            "LISTS_GET_INDEX_FROM_END",
-            "LISTS_GET_INDEX_FROM_START",
-            "LISTS_GET_INDEX_GET",
-            "LISTS_GET_INDEX_GET_REMOVE",
-            "LISTS_GET_INDEX_LAST",
-            "LISTS_GET_INDEX_RANDOM",
-            "LISTS_GET_INDEX_REMOVE",
-            "LISTS_GET_INDEX_TOOLTIP_GET_FIRST",
-            "LISTS_GET_INDEX_TOOLTIP_GET_FROM_END",
-            "LISTS_GET_INDEX_TOOLTIP_GET_FROM_START",
-            "LISTS_GET_INDEX_TOOLTIP_GET_LAST",
-            "LISTS_GET_INDEX_TOOLTIP_GET_RANDOM",
-            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_FIRST",
-            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_FROM_END",
-            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_FROM_START",
-            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_LAST",
-            "LISTS_GET_INDEX_TOOLTIP_GET_REMOVE_RANDOM",
-            "LISTS_GET_INDEX_TOOLTIP_REMOVE_FIRST",
-            "LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM_END",
-            "LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM_START",
-            "LISTS_GET_INDEX_TOOLTIP_REMOVE_LAST",
-            "LISTS_GET_INDEX_TOOLTIP_REMOVE_RANDOM"
-        ],
-        "set_list_element": [
-            "LISTS_SET_INDEX_INSERT",
-            "LISTS_SET_INDEX_INPUT_TO",
-            "LISTS_SET_INDEX_SET",
-            "LISTS_SET_INDEX_TOOLTIP_INSERT_FIRST",
-            "LISTS_SET_INDEX_TOOLTIP_INSERT_FROM_END",
-            "LISTS_SET_INDEX_TOOLTIP_INSERT_FROM_START",
-            "LISTS_SET_INDEX_TOOLTIP_INSERT_LAST",
-            "LISTS_SET_INDEX_TOOLTIP_INSERT_RANDOM",
-            "LISTS_SET_INDEX_TOOLTIP_SET_FIRST",
-            "LISTS_SET_INDEX_TOOLTIP_SET_FROM_END",
-            "LISTS_SET_INDEX_TOOLTIP_SET_FROM_START",
-            "LISTS_SET_INDEX_TOOLTIP_SET_LAST"
-
-        ],
-        "get_sublist": [
-            "LISTS_GET_SUBLIST_START_FIRST",
-            "LISTS_GET_SUBLIST_START_FROM_END",
-            "LISTS_GET_SUBLIST_START_FROM_START",
-            "LISTS_GET_SUBLIST_TAIL",
-            "LISTS_GET_SUBLIST_TOOLTIP",
-            "LISTS_INDEX_OF_FIRST"
-        ],
-        "create_list_from": [
-            "LISTS_CREATE_WITH_CONTAINER_TITLE_ADD",
-            "LISTS_CREATE_WITH_CONTAINER_TOOLTIP",
-            "LISTS_CREATE_WITH_INPUT_WITH",
-            "LISTS_CREATE_WITH_TOOLTIP",
-            "LISTS_CREATE_WITH_ITEM_TITLE",
-            "LISTS_CREATE_WITH_ITEM_TOOLTIP"
-        ],
-        "sort_list": [
-            "LISTS_SORT_ORDER_ASCENDING",
-            "LISTS_SORT_ORDER_DESCENDING",
-            "LISTS_SORT_TITLE",
-            "LISTS_SORT_TOOLTIP",
-            "LISTS_SORT_TYPE_IGNORECASE",
-            "LISTS_SORT_TYPE_NUMERIC",
-            "LISTS_SORT_TYPE_TEXT"
-        ],
-        "color_picker": [
-            "COLOUR_PICKER_TOOLTIP"
-        ],
-        "random_color": [
-            "COLOUR_RANDOM_TITLE",
-            "COLOUR_RANDOM_TOOLTIP"
-        ],
-        "RGB_color": [
-            "COLOUR_RGB_BLUE",
-            "COLOUR_RGB_GREEN",
-            "COLOUR_RGB_RED",
-            "COLOUR_RGB_TITLE",
-            "COLOUR_RGB_TOOLTIP"
-        ],
-        "blend_color": [
-            "COLOUR_BLEND_COLOUR1",
-            "COLOUR_BLEND_COLOUR2",
-            "COLOUR_BLEND_RATIO",
-            "COLOUR_BLEND_TITLE",
-            "COLOUR_BLEND_TOOLTIP"
-        ],
-        "variable": [
-            "NEW_VARIABLE",
-            "NEW_VARIABLE_TITLE",
-            "RENAME_VARIABLE",
-            "RENAME_VARIABLE_TITLE"
-        ],
-        "set_variable": [
-            "VARIABLES_SET",
-            "VARIABLES_SET_CREATE_GET",
-            "VARIABLES_SET_TOOLTIP"
-        ],
-        "get_variable": [
-            "VARIABLES_DEFAULT_NAME",
-            "VARIABLES_GET_CREATE_SET",
-            "VARIABLES_GET_TOOLTIP"
-        ],
-        "change_variable" : [
-
-        ]
-    };
+    presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS = [
+        "if",
+        "compare",
+        "logic_operation",
+        "negate",
+        "boolean",
+        "null",
+        "logic_ternary",
+        "repeat",
+        "repeat_while/until",
+        "for",
+        "for_each",
+        "break",
+        "number",
+        "arithmetic",
+        "basic_functions",
+        "trigonometry",
+        "constants",
+        "number_property",
+        "round",
+        "math_list_functions",
+        "modulo",
+        "constrain",
+        "random_integer",
+        "random_fraction",
+        "text",
+        "join_text",
+        "append_text",
+        "text_length",
+        "is_empty_text",
+        "text_index_of",
+        "char_at",
+        "substring",
+        "to_upper/lower_case",
+        "trim",
+        "print",
+        "prompt_for",
+        "create_list",
+        "create_list_with_item",
+        "list_length",
+        "is_empty_list",
+        "list_index_of",
+        "get_list_element",
+        "set_list_element",
+        "get_sublist",
+        "create_list_from",
+        "sort_list",
+        "color_picker",
+        "random_color",
+        "RGB_color",
+        "blend_color",
+        "variable",
+        "set_variable",
+        "get_variable",
+        "change_variable"
+    ];
 
     presenter.configuration = {
         hideRun: null,
@@ -473,7 +163,9 @@ function AddonBlocklyCodeEditor_create () {
         sceneToolboxName: "",
         isPreview: false,
         isValid: false,
-        haveSceneID: true
+        haveSceneID: true,
+        isVisible: true,
+        visibleByDefault: true
     };
 
     function isPreviewDecorator(func) {
@@ -501,7 +193,6 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.runLogic = function (view, model, isPreview) {
-        console.log(model);
         presenter.configuration.isPreview = isPreview;
         presenter.configuration = $.extend(presenter.configuration, presenter.validateModel(model));
 
@@ -535,6 +226,8 @@ function AddonBlocklyCodeEditor_create () {
                 presenter.destroy();
             }
         });
+
+        presenter.setVisibility(presenter.configuration.visibleByDefault);
     };
 
     presenter.destroy = function () {
@@ -544,6 +237,50 @@ function AddonBlocklyCodeEditor_create () {
         presenter.$view = null;
         presenter.view = null;
         presenter.configuration = null;
+    };
+    presenter.validateModel = function (model) {
+        var haveSceneID = true;
+        var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+
+        var validatedToolbox = presenter.validateToolbox(model['toolbox']);
+        if (!validatedToolbox.isValid) {
+            return validatedToolbox;
+        }
+        var validatedSceneId = presenter.validateSceneId(model["sceneID"]);
+        if (!validatedSceneId.isValid) {
+          haveSceneID = false;
+        }
+
+        var validatedCustomBlocks = presenter.validateCustomBlocks(model["customBlocks"]);
+        if (!validatedCustomBlocks.isValid) {
+            return validatedCustomBlocks;
+        }
+
+        var validatedBlockLimit = ModelValidationUtils.validateInteger(model['maxBlocksLimit']);
+        if (!validatedBlockLimit.isValid || validatedBlockLimit.value < 0) {
+            return {
+                isValid: false,
+                errorCode: "BL01"
+            };
+        }
+
+        if (!haveSceneID && presenter.configuration.addSceneToolbox) {
+            return {
+                isValid: false,
+                errorCode: "SI02"
+            }
+        }
+
+        return {
+            isValid: true,
+            visibleByDefault : validatedIsVisible,
+            haveSceneID: haveSceneID,
+            hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),
+            sceneID: validatedSceneId.value,
+            toolboxXML: validatedToolbox.value,
+            customBlocksXML: validatedCustomBlocks.value,
+            maxBlocks: validatedBlockLimit.value
+        };
     };
 
     presenter.validateSceneId = function Blockly_Code_Editor_validate_scene_id (sceneId) {
@@ -558,39 +295,10 @@ function AddonBlocklyCodeEditor_create () {
             value: sceneId
         };
     };
-    function addToCategory(categories, categoryName, blockName, isDisabled) {
-        if (categoryName == '') return;
-        if (blockName == '') return;
-
-        if (!ModelValidationUtils.validateBoolean(isDisabled)) {
-            if (categories[categoryName] == null) {
-                categories[categoryName] = [];
-            }
-            categories[categoryName].push({
-                name: blockName,
-            });
-        }
-    }
-
-    function generateXMLFromCategories(categories) {
-        var xml = "";
-        for (var categoryName in categories) {
-            xml += "<category name='" + categoryName +"' >";
-            for (var key in categories[categoryName]) {
-                if (categories[categoryName].hasOwnProperty(key)) {
-                    var block = categories[categoryName][key];
-                    xml += "<block type='" + block.name + "'></block>";
-                }
-            }
-            xml += "</category>";
-        }
-        return xml;
-    }
 
     presenter.validateToolbox = function Blockly_Code_Editor_validate_toolbox (toolbox) {
         var categories = {};
         var elements = [];
-        console.log(toolbox);
 
         for (var index = 0; index < toolbox.length; index++) {
             var toolboxElement = toolbox[index];
@@ -605,7 +313,6 @@ function AddonBlocklyCodeEditor_create () {
             if (toolboxElement['blockName'].name == "custom") {
                 addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].value, toolboxElement['blockIsDisabled']);
             } else if (toolboxElement['blockName'].name == "scene_commands") {
-                console.log(toolboxElement['blockCategory']);
                 presenter.configuration.sceneToolboxName = toolboxElement['blockCategory'];
                 presenter.configuration.addSceneToolbox = true;
             } else {
@@ -618,8 +325,39 @@ function AddonBlocklyCodeEditor_create () {
         };
     };
 
+    function generateXMLFromCategories(categories) {
+        var xml = "";
+        for (var categoryName in categories) {
+            if (categories.hasOwnProperty(categoryName)) {
+                xml += "<category name='" + categoryName + "' >";
+                for (var key in categories[categoryName]) {
+                    if (categories[categoryName].hasOwnProperty(key)) {
+                        var block = categories[categoryName][key];
+                        xml += "<block type='" + block.name + "'></block>";
+                    }
+                }
+            }
+            xml += "</category>";
+        }
+        return xml;
+    }
+
+    function addToCategory(categories, categoryName, blockName, isDisabled) {
+        if (categoryName == '') return;
+        if (blockName == '') return;
+
+        if (!ModelValidationUtils.validateBoolean(isDisabled)) {
+            if (categories[categoryName] == null) {
+                categories[categoryName] = [];
+            }
+            categories[categoryName].push({
+                name: blockName
+            });
+        }
+    }
+
     presenter.validateTranslations = function (toolboxElement) {
-        if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.hasOwnProperty(toolboxElement['blockName'].name)) {
+        if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.indexOf(toolboxElement['blockName'].name) != -1) {
             var parsedValue = JSON.parse("{" + toolboxElement['blockName'].value + "}");
             for (var key in parsedValue) {
                 if (parsedValue.hasOwnProperty(key)) {
@@ -654,7 +392,10 @@ function AddonBlocklyCodeEditor_create () {
         }
 
         var validatedInputTypes = [];
-        var separatedInputsType = inputsType.split(",");
+        var separatedInputsType = [];
+        if (!ModelValidationUtils.isStringEmpty(inputsType.trim())) {
+            separatedInputsType = inputsType.split(",");
+        }
         for (var actualPosition = separatedInputsType.length; actualPosition < inputsLength.length; actualPosition++) {
             separatedInputsType.push("Any");
         }
@@ -679,7 +420,7 @@ function AddonBlocklyCodeEditor_create () {
         if (connection.toUpperCase().trim() in presenter.connections) {
             return {
                 isValid: true,
-                value: connection.trim()
+                value: connection.toUpperCase().trim()
             };
         }
         return {
@@ -690,7 +431,7 @@ function AddonBlocklyCodeEditor_create () {
 
 
     presenter.validateBlock = function (customBlock) {
-        var validatedColor =  ModelValidationUtils.validateInteger(customBlock['customBlockColor']);
+        var validatedColor =  ModelValidationUtils.validateIntegerInRange(customBlock['customBlockColor'], 360, 0);
         if (!validatedColor.isValid) {
             return {
                 isValid: false,
@@ -702,6 +443,15 @@ function AddonBlocklyCodeEditor_create () {
         if (ModelValidationUtils.isStringEmpty(customBlock['customBlockInputs'])) {
             inputs = [];
         }
+        for (var i = 0; i < inputs.length; i++) {
+            if (!ModelValidationUtils.validateJSVariableName(inputs[i]).isValid) {
+                return {
+                    isValid: false,
+                    errorCode: "VN01"
+                };
+            }
+        }
+
         var validatedInputsType = presenter.validateInputsType(customBlock['customBlockInputsType'], inputs.length);
         if (!validatedInputsType.isValid) {
             return validatedInputsType;
@@ -826,6 +576,16 @@ function AddonBlocklyCodeEditor_create () {
                 blocks.push(validatedBlock);
             }
         }
+        var names = [];
+        for (var i = 0; i < blocks.length; i++) {
+            if (names.indexOf(blocks[i].name) != -1) {
+                return {
+                    isValid: false,
+                    errorCode: 'DN01'
+                }
+            }
+            names.push(blocks[i].name);
+        }
         return {
             isValid: true,
             value: presenter.convertCustomBlocksToJS(blocks)
@@ -840,48 +600,7 @@ function AddonBlocklyCodeEditor_create () {
         }
     };
 
-    presenter.validateModel = function (model) {
-        var haveSceneID = true;
 
-        var validatedToolbox = presenter.validateToolbox(model['toolbox']);
-        if (!validatedToolbox.isValid) {
-            return validatedToolbox;
-        }
-        var validatedSceneId = presenter.validateSceneId(model["sceneID"]);
-        if (!validatedSceneId.isValid) {
-          haveSceneID = false;
-        }
-
-        var validatedCustomBlocks = presenter.validateCustomBlocks(model["customBlocks"]);
-        if (!validatedCustomBlocks.isValid) {
-            return validatedCustomBlocks;
-        }
-
-        var validatedBlockLimit = ModelValidationUtils.validateInteger(model['maxBlocksLimit']);
-        if (!validatedBlockLimit.isValid || validatedBlockLimit.value < 0) {
-            return {
-                isValid: false,
-                errorCode: "BL01"
-            };
-        }
-
-        if (!haveSceneID && presenter.configuration.addSceneToolbox) {
-            return {
-                isValid: false,
-                errorCode: "SI02"
-            }
-        }
-
-        return {
-            isValid: true,
-            haveSceneID: haveSceneID,
-            hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),
-            sceneID: validatedSceneId.value,
-            toolboxXML: validatedToolbox.value,
-            customBlocksXML: validatedCustomBlocks.value,
-            maxBlocks: validatedBlockLimit.value
-        };
-    };
 
     presenter.connectHandlers = function() {
         presenter.$view.find(".run").click(function () {
@@ -903,11 +622,29 @@ function AddonBlocklyCodeEditor_create () {
     presenter.executeCommand = function(name, params) {
         var commands = {
             'getWorkspaceCode' : presenter.getWorkspaceCode,
+            'show' : presenter.show,
+            'hide' : presenter.hide
         };
 
         Commands.dispatch(commands, name, params, presenter);
     };
-    
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        presenter.configuration.isVisible= isVisible;
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        $('.blocklyToolboxDiv').css('visibility',isVisible ? 'visible' : 'hidden');
+    };
+
     presenter.getWorkspaceCode = function () {
         return Blockly.JavaScript.workspaceToCode(presenter.configuration.workspace);
     };
@@ -931,7 +668,6 @@ function AddonBlocklyCodeEditor_create () {
         }
 
         toolbox = StringUtils.format("{0}{1}", toolbox, "</xml>");
-        console.log(toolbox);
         return toolbox;
     };
 
@@ -1090,12 +826,18 @@ function AddonBlocklyCodeEditor_create () {
 
     presenter.getState = function Blockly_Code_Edtior_get_state () {
         var xml = Blockly.Xml.workspaceToDom(presenter.configuration.workspace);
-        return JSON.stringify(Blockly.Xml.domToText(xml));
+        var value = {
+            code : Blockly.Xml.domToText(xml),
+            isVisible: presenter.configuration.isVisible
+        };
+        return JSON.stringify(value);
     };
 
     presenter.setState = function Blockly_Code_Editor_set_state (state) {
-        var xml = Blockly.Xml.textToDom(JSON.parse(state));
+        var value = JSON.parse(state);
+        var xml = Blockly.Xml.textToDom(value.code);
         Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
+        presenter.setVisibility(value.isVisible);
     };
 
     return presenter;
