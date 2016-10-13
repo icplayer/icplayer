@@ -19,7 +19,9 @@ function AddonGrid_Scene_create(){
         CP07: "Multiple Custom Command declared",
         AE01: "Multiple alias declaration in default commands",
         DA01: "Default Command alias must have valid JS name",
-        DA02: "Default Command Arguments aliases must have valid JS names"
+        DA02: "Default Command Arguments aliases must have valid JS names",
+        BG01: "Exceeded maximum column number"m
+        BG02: "Exceeded maximum row number"
     };
 
     presenter.LABELS = {
@@ -832,12 +834,16 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.setCursor = function (x, y) {
+        console.log("Set cursor");
         if(!isNaN(parseInt(x)) && !isNaN(parseInt(y))) {
             presenter.actualCursorPosition = [x, y];
         }
     };
 
     presenter.drawHorizontalLine = function (from, to, y) {
+        console.log(from);
+        console.log(to);
+        console.log(y);
         if (from <= to) {
             for (var i = from; i <= to; i++) {
                 presenter.mark(i, y);
@@ -863,6 +869,9 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.mark = function mark (x, y) {
+        x = parseInt(x);
+        y = parseInt(y);
+        console.log(x, ":", y);
         presenter.actualCursorPosition = [x,y];
         if (ModelValidationUtils.validateIntegerInRange(x, parseInt(presenter.configuration.columns), 1).isValid != false) {
             if (ModelValidationUtils.validateIntegerInRange(y, parseInt(presenter.configuration.rows), 1).isValid != false) {
@@ -874,9 +883,13 @@ function AddonGrid_Scene_create(){
 
     presenter.drawLeft = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
-            if (parseInt(x) <= 0) return;
+            x = parseInt(x);
+            if (x <= 0) return;
             presenter.drawHorizontalLine( presenter.actualCursorPosition[0] - 1, presenter.actualCursorPosition[0] - x, presenter.actualCursorPosition[1]);
         } else {
+            x = parseInt(x);
+            y = parseInt(y);
+            numberOfSteps = parseInt(numberOfSteps);
             if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawHorizontalLine(x, x - numberOfSteps + 1 , y);
         }
@@ -884,9 +897,14 @@ function AddonGrid_Scene_create(){
 
     presenter.drawRight = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
-            if (parseInt(x) <= 0) return;
+            x = parseInt(x);
+            if (x <= 0) return;
+            console.log("Position: " + presenter.actualCursorPosition[1]);
             presenter.drawHorizontalLine(presenter.actualCursorPosition[0] + 1, presenter.actualCursorPosition[0] + x, presenter.actualCursorPosition[1]);
         } else {
+            x = parseInt(x);
+            y = parseInt(y);
+            numberOfSteps = parseInt(numberOfSteps);
             if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawHorizontalLine(x, x + numberOfSteps - 1, y);
         }
@@ -894,9 +912,13 @@ function AddonGrid_Scene_create(){
 
     presenter.drawUp = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
-            if (parseInt(x) <= 0) return;
+            x = parseInt(x);
+            if (x <= 0) return;
             presenter.drawVerticalLine(presenter.actualCursorPosition[1] + 1, presenter.actualCursorPosition[1] + x, presenter.actualCursorPosition[0]);
         } else {
+            x = parseInt(x);
+            y = parseInt(y);
+            numberOfSteps = parseInt(numberOfSteps);
             if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawVerticalLine(y, y + numberOfSteps - 1, x);
         }
@@ -904,9 +926,13 @@ function AddonGrid_Scene_create(){
 
     presenter.drawDown = function (x, y, numberOfSteps) {
         if (arguments.length == 1) {
-            if (parseInt(x) <= 0) return;
+            x = parseInt(x);
+            if (x <= 0) return;
             presenter.drawVerticalLine(presenter.actualCursorPosition[1] - 1, presenter.actualCursorPosition[1]  - x, presenter.actualCursorPosition[0]);
         } else {
+            x = parseInt(x);
+            y = parseInt(y);
+            numberOfSteps = parseInt(numberOfSteps);
             if (parseInt(numberOfSteps) <= 0) return;
             presenter.drawVerticalLine(y, y - numberOfSteps + 1, x);
         }
@@ -974,7 +1000,6 @@ function AddonGrid_Scene_create(){
             return;
         }
 
-        presenter.actualCursorPosition = [1,1];
         with (presenter.getSceneCommands()) {
             var customCommands = presenter.getCustomCommands();
             try {
