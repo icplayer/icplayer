@@ -20,7 +20,7 @@ function AddonGrid_Scene_create(){
         AE01: "Multiple alias declaration in default commands",
         DA01: "Default Command alias must have valid JS name",
         DA02: "Default Command Arguments aliases must have valid JS names",
-        BG01: "Exceeded maximum column number"m
+        BG01: "Exceeded maximum column number",
         BG02: "Exceeded maximum row number"
     };
 
@@ -180,10 +180,10 @@ function AddonGrid_Scene_create(){
         for(var row = 0; row < rows; row++) {
             for(var column = 0; column < columns; column++) {
                 var wrapperElement = $(document.createElement('div'));
-                wrapperElement.addClass('cell-element-wrapper');
+                wrapperElement.addClass('grid-scene-cell-element-wrapper');
 
                 var selectableElement = $(document.createElement('div'));
-                selectableElement.addClass('cell-element');
+                selectableElement.addClass('grid-scene-cell-element');
                 selectableElement.attr('coordinates', (column+1)+"-"+((rows-row)));
 
                 wrapperElement.append(selectableElement);
@@ -194,10 +194,10 @@ function AddonGrid_Scene_create(){
         var gridContainerWrapperDimensions = getElementDimensions(gridContainerWrapper);
         var gridContainerWrapperDistances = calculateInnerDistance(gridContainerWrapperDimensions);
 
-        var wrapperDimensions = getElementDimensions(gridContainerWrapper.find('.cell-element-wrapper:first')[0]);
+        var wrapperDimensions = getElementDimensions(gridContainerWrapper.find('.grid-scene-cell-element-wrapper:first')[0]);
         var wrapperDistances = calculateInnerDistance(wrapperDimensions);
 
-        var elementDimensions = getElementDimensions(gridContainerWrapper.find('.cell-element:first')[0]);
+        var elementDimensions = getElementDimensions(gridContainerWrapper.find('.grid-scene-cell-element:first')[0]);
         var elementDistances = calculateInnerDistance(elementDimensions);
 
         var wrapperWidth = parseInt((model.Width - gridContainerWrapperDistances.horizontal - (wrapperDistances.horizontal * columns)) / columns, 10);
@@ -220,14 +220,14 @@ function AddonGrid_Scene_create(){
         var vertical = verticalGapHeight / rows;
         var horizontal = horizontalGapHeight / columns;
 
-        gridContainer.find(".cell-element-wrapper").each(function() {
+        gridContainer.find(".grid-scene-cell-element-wrapper").each(function() {
             var index = $(this).index();
             var selectedRow = parseInt(index / columns, 10);
 
             $(this).width(wrapperWidth + horizontal + 2);
             $(this).height(wrapperHeight + vertical + 2);
 
-            var selectableElement = $(this).find('.cell-element:first');
+            var selectableElement = $(this).find('.grid-scene-cell-element:first');
 
             var lineHeight = selectedRow === rows -1 ? elementHeight + verticalGapHeight : elementHeight;
             selectableElement.css('line-height', lineHeight + "px");
@@ -277,7 +277,7 @@ function AddonGrid_Scene_create(){
     presenter.colorSquare = function (x, y){
         if (!presenter.configuration.isSavingAnswer) {
             var coordinates = x + "-" + y;
-            var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
+            var element = presenter.$view.find('.grid-scene-cell-element[coordinates="' + coordinates + '"]');
 
             element.css('background-color', presenter.configuration.color);
             element.attr('colored', 'true');
@@ -287,7 +287,7 @@ function AddonGrid_Scene_create(){
     presenter.resetMark = function (x, y){
         presenter.actualCursorPosition = [x,y];
         var coordinates = x+"-"+ y;
-        var element = presenter.$view.find('.cell-element[coordinates="'+ coordinates +'"]');
+        var element = presenter.$view.find('.grid-scene-cell-element[coordinates="'+ coordinates +'"]');
         if (ModelValidationUtils.validateIntegerInRange(x, presenter.configuration.columns + 1, 1).isValid != false) {
             if (ModelValidationUtils.validateIntegerInRange(y, presenter.configuration.rows + 1, 1).isValid != false) {
                 presenter.coloredGrid[y - 1][x - 1] = "Empty";
@@ -431,7 +431,19 @@ function AddonGrid_Scene_create(){
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         var addonID = model['ID'];
         var rows = ModelValidationUtils.validatePositiveInteger(model['Rows']);
+        if (rows.value > 40) {
+            return {
+                isValid: false,
+                errorCode: "BG02"
+            }
+        }
         var columns = ModelValidationUtils.validatePositiveInteger(model['Columns']);
+        if (columns.value > 40) {
+            return {
+                isValid: false,
+                errorCode: "BG01"
+            }
+        }
 
         if(!rows.isValid || !columns.isValid){
             return returnErrorObject('GS01');
@@ -813,8 +825,8 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.reset = function(){
-        presenter.$view.find('.cell-element').each(function () {
-            $(this).removeClass('wrong').removeClass('correct');
+        presenter.$view.find('.grid-scene-cell-element').each(function () {
+            $(this).removeClass('grid-scene-wrong').removeClass('grid-scene-correct');
             if($(this).attr('colored') == 'true'){
                 var coordinates = $(this).attr('coordinates').split('-');
                 presenter.resetMark(coordinates[0], coordinates[1]);
@@ -1086,8 +1098,8 @@ function AddonGrid_Scene_create(){
         for (var i = 0; i < columns; i++){
             for (var j = 0; j < rows; j++){
                 var coordinates = (i + 1) + "-" +(1 + j);
-                var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
-                element.removeClass('wrong').removeClass('correct');
+                var element = presenter.$view.find('.grid-scene-cell-element[coordinates="' + coordinates + '"]');
+                element.removeClass('grid-scene-wrong').removeClass('grid-scene-correct');
             }
         }
         presenter.configuration.isErrorMode = false;
@@ -1106,13 +1118,13 @@ function AddonGrid_Scene_create(){
         for (var i = 0; i < columns; i++){
             for (var j = 0; j < rows; j++){
                 var coordinates = (i + 1) + "-" +(j + 1);
-                var element = presenter.$view.find('.cell-element[coordinates="' + coordinates + '"]');
+                var element = presenter.$view.find('.grid-scene-cell-element[coordinates="' + coordinates + '"]');
                 element.css('background-color', '');
                 if (actualState[j][i] != "Empty") {
                     if (answer[j][i] == actualState[j][i]) {
-                        element.addClass('correct');
+                        element.addClass('grid-scene-correct');
                     } else {
-                        element.addClass('wrong');
+                        element.addClass('grid-scene-wrong');
                     }
                 }
             }

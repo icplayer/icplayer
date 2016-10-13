@@ -1,15 +1,15 @@
-.cellGridWrapper {
+.grid-scene-wrapper {
     width: 100%;
     height: 100%;
 }
 
-.cellGrid {
+.grid-scene-cell {
     margin: 0;
     padding: 0;
     border: none;
 }
 
-.cell-element {
+.grid-scene-cell-element {
     float: left;
     padding: 0;
     margin: 0;
@@ -18,7 +18,7 @@
     height: 100%;
 }
 
-.cell-element-wrapper {
+.grid-scene-cell-element-wrapper {
     float: left;
     padding: 0;
     margin: 0;
@@ -30,3 +30,10 @@
     box-sizing:border-box;
 }
 
+.grid-scene-correct {
+    background-color: green;
+}
+
+.grid-scene-wrong {
+    background-color: red;
+}
