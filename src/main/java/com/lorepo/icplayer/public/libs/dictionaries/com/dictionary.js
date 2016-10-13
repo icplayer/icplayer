@@ -1010,6 +1010,7 @@
 	"BlocklyCodeEditor_property_custom_block_output_type" : "Connection Types",
 	"BlocklyCodeEditor_property_max_block_limit" : "Block Limit",
 	"BlocklyCodeEditor_property_hide_run" : "Hide Run",
+	"BlocklyCodeEditor_property_blocksTranslation": "Blocks Translation",
 	"video_info": "Allows to upload and embed video files together with matching captions. To make the addon work on all common browsers and operating systems, it is necessary to upload the files in three formats: mp4, ogg and WebM. The addon can be configured with multiple video files which can be changed dynamically using standard buttons.",
 	"video_name": "Video",
 	"video_property_files": "Files",

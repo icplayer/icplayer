@@ -328,7 +328,7 @@ function AddonGrid_Scene_create(){
         BlocklyCustomBlocks.SceneGrid.LABELS = $.extend({}, presenter.LABELS, presenter.configuration.labels);
 
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
-        gridContainer = gridContainerWrapper.find(".grid-cell:first");
+        gridContainer = gridContainerWrapper.find(".grid-scene-cell:first");
 
         initGrid(model);
         presenter.setVisibility(presenter.configuration.isVisible);
