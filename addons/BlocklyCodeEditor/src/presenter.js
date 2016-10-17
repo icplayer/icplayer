@@ -164,7 +164,6 @@ function AddonBlocklyCodeEditor_create () {
         presenter.setRunButton();
         isPreviewDecorator(presenter.connectHandlers)();
 
-
         presenter.configuration.workspace = Blockly.inject($(view).find(".editor")[0], {
             toolbox: presenter.getToolboxXML(),
             sounds: false,
@@ -173,6 +172,11 @@ function AddonBlocklyCodeEditor_create () {
 
         eval(presenter.configuration.customBlocksXML.code);
         eval(presenter.configuration.customBlocksXML.stub);
+
+
+        if(isPreview) {
+            presenter.coverToolbox();
+        }
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -189,6 +193,18 @@ function AddonBlocklyCodeEditor_create () {
         presenter.$view = null;
         presenter.view = null;
         presenter.configuration = null;
+    };
+
+    presenter.coverToolbox = function () {
+        var cover = document.createElement('div');
+        cover.id = 'blocklyCover';
+        cover.style.top =  0;
+        cover.style.position = 'absolute';
+        cover.style.width = '100%';
+        cover.style.height = '100%';
+        var toolbox = document.getElementsByClassName('blocklyToolboxDiv')
+        toolbox[0].appendChild(cover);
+
     };
 
     presenter.validateModel = function (model) {
@@ -327,6 +343,7 @@ function AddonBlocklyCodeEditor_create () {
                 }
             }
             elements.push(toolboxElement['blockName'].name);
+
             var validatedTranslations = presenter.validateTranslations(toolboxElement);
             if (!validatedTranslations.isValid) {
                 return validatedTranslations;
@@ -335,8 +352,7 @@ function AddonBlocklyCodeEditor_create () {
             if (toolboxElement['blockName'].name == "custom") {
                 addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].value, toolboxElement['blockIsDisabled']);
             } else if (toolboxElement['blockName'].name == "scene_commands") {
-                presenter.configuration.addSceneToolbox = true;
-                addToCategory(categories, toolboxElement['blockCategory'], "custom", toolboxElement['blockIsDisabled']);
+                addToCategory(categories, toolboxElement['blockCategory'], "scene_commands", toolboxElement['blockIsDisabled']);
             } else {
                 addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].name, toolboxElement['blockIsDisabled']);
             }
@@ -374,11 +390,12 @@ function AddonBlocklyCodeEditor_create () {
         if (categories[categoryName] == null) {
                 categories[categoryName] = [];
         }
-        if (blockName != "custom") {
+        if (blockName != "scene_commands") {
             categories[categoryName].push({
                 name: blockName
             });
         } else {
+            presenter.configuration.addSceneToolbox = true;
             presenter.configuration.sceneToolboxName = categoryName;
         }
     }
