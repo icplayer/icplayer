@@ -817,9 +817,9 @@ function AddonGrid_Scene_create(){
             'clear': applyDelayDecorator(presenter.reset),
             'reset' : presenter.reset,
             'executeCode': applyDecorator(presenter.executeCode),
-            'getDefaultCommands': presenter.getDefaultCommandsToText,
-            'getCustomCommands': presenter.getCustomCommandsToText,
-            'getCommands': presenter.getCommandsToText,
+            'getDefaultCommands': applyDelayDecorator(presenter.getDefaultCommandsToText),
+            'getCustomCommands': applyDelayDecorator(presenter.getCustomCommandsToText),
+            'getCommands': applyDelayDecorator(presenter.getCommandsToText),
             'isAllOK': presenter.isAllOK
         };
 
@@ -903,6 +903,8 @@ function AddonGrid_Scene_create(){
         }
     };
 
+    presenter.drawLeftFrom = presenter.drawLeft;
+
     presenter.drawRight = function (x, y, numberOfSteps) {
         x = parseInt(x, 10);
         y = parseInt(y, 10);
@@ -917,6 +919,8 @@ function AddonGrid_Scene_create(){
         }
     };
 
+    presenter.drawRightFrom = presenter.drawRight;
+
     presenter.drawUp = function (x, y, numberOfSteps) {
         x = parseInt(x, 10);
         y = parseInt(y, 10);
@@ -930,6 +934,8 @@ function AddonGrid_Scene_create(){
         }
     };
 
+    presenter.drawUpFrom = presenter.drawUp;
+
     presenter.drawDown = function (x, y, numberOfSteps) {
         x = parseInt(x, 10);
         y = parseInt(y, 10);
@@ -942,6 +948,8 @@ function AddonGrid_Scene_create(){
             presenter.drawVerticalLine(y, y - numberOfSteps + 1, x);
         }
     };
+
+    presenter.drawDownFrom = presenter.drawDown;
 
     presenter.setColor = function (color) {
         if (color.trim() === '') {

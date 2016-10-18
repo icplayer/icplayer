@@ -137,6 +137,8 @@ function AddonBlocklyCodeEditor_create () {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
         presenter.eventBus.addEventListener('PageLoaded', this, true);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.runLogic = function (view, model, isPreview) {
@@ -195,18 +197,6 @@ function AddonBlocklyCodeEditor_create () {
         presenter.configuration = null;
     };
 
-    presenter.coverToolbox = function () {
-        var cover = document.createElement('div');
-        cover.id = 'blocklyCover';
-        cover.style.top =  0;
-        cover.style.position = 'absolute';
-        cover.style.width = '100%';
-        cover.style.height = '100%';
-        var toolbox = document.getElementsByClassName('blocklyToolboxDiv')
-        toolbox[0].appendChild(cover);
-
-    };
-
     presenter.validateModel = function (model) {
         var haveSceneID = true;
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
@@ -226,17 +216,14 @@ function AddonBlocklyCodeEditor_create () {
             return validatedCustomBlocks;
         }
 
+        var validatedBlockLimit = presenter.validateBlockLimit(model['maxBlocksLimit']);
+        if (!validatedBlockLimit.isValid) {
+            return validatedBlockLimit;
+        }
+
         var validatedToolboxNamesWithCustomBlocks = presenter.validateToolboxNamesWithCustomBlocks(validatedToolbox.value.categories, validatedCustomBlocks);
         if (!validatedToolboxNamesWithCustomBlocks.isValid) {
             return validatedToolboxNamesWithCustomBlocks;
-        }
-
-        var validatedBlockLimit = ModelValidationUtils.validateInteger(model['maxBlocksLimit']);
-        if (!validatedBlockLimit.isValid || validatedBlockLimit.value < 0) {
-            return {
-                isValid: false,
-                errorCode: "BL01"
-            };
         }
 
         var validatedBlocksTranslations = presenter.validateBlocksTranslation(model['blocksTranslation']);
@@ -263,6 +250,22 @@ function AddonBlocklyCodeEditor_create () {
             blocksTranslation: $.extend(validatedToolbox.value.translations, validatedBlocksTranslations.value)
         };
     };
+
+    presenter.validateBlockLimit = function (blockModel) {
+        if (ModelValidationUtils.isStringEmpty(blockModel.trim())) {
+            model['maxBlocksLimit'] = 0;
+        }
+        var validatedBlockLimit = ModelValidationUtils.validateInteger(blockModel);
+        if (!validatedBlockLimit.isValid || validatedBlockLimit.value < 0) {
+            return {
+                isValid: false,
+                errorCode: "BL01"
+            };
+        }
+
+        return validatedBlockLimit;
+    };
+
 
     presenter.validateBlocksTranslation = function (blocksTranslations) {
         if (ModelValidationUtils.isStringEmpty(blocksTranslations.trim())){
@@ -665,22 +668,26 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.connectHandlers = function() {
-        presenter.$view.find(".run").click(function () {
+        var runButton = presenter.$view.find(".run");
+        runButton.click(function () {
             if (presenter.configuration.sceneModule !== null) {
                 var code = Blockly.JavaScript.workspaceToCode(presenter.configuration.workspace);
                 presenter.configuration.sceneModule.executeCode(code);
             }
         });
+        runButton = null;
     };
 
     presenter.setRunButton = function() {
         if (presenter.configuration.hideRun) {
-            presenter.$view.find(".run").css({
+            var runButton = presenter.$view.find(".run");
+            runButton.css({
                 "display": "none"
             });
+            runButton = null;
         }
     };
-    
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'getWorkspaceCode' : presenter.getWorkspaceCode,
@@ -728,9 +735,14 @@ function AddonBlocklyCodeEditor_create () {
                     isPreviewDecorator(presenter.updateToolbox)();
                 }
                 presenter.toolboxPositionFix();
+            } else if (eventName == "ShowAnswers") {
+                presenter.showAnswers();
+            } else if (eventName == "HideAnswers") {
+                presenter.hideAnswers();
             }
         }
     };
+
 
     presenter.toolboxPositionFix = function () {
         if (!hasBeenSet) {
@@ -738,14 +750,13 @@ function AddonBlocklyCodeEditor_create () {
             var $toolbox = $(".blocklyToolboxDiv");
             if ($toolbox.length > 0 && headerHeight !== undefined && headerHeight !== null) {
                 $toolbox.css({
-                    "top": ($toolbox.position().top + headerHeight) + "px"
+                    "top": (presenter.$view.position().top + headerHeight) + "px"
                 });
-
                 hasBeenSet = true;
             }
         }
     };
-    
+
     presenter.addCustomBlocks = function () {
         if ((presenter.configuration.sceneModule !== null && presenter.configuration.sceneModule !== undefined)) {
             if (presenter.configuration.sceneModule.addCustomBlocks !== null) {
@@ -753,7 +764,7 @@ function AddonBlocklyCodeEditor_create () {
             }
         }
     };
- 
+
     presenter.getSceneModuleOnPageLoaded = function () {
         if (presenter.configuration.sceneModule === null || presenter.configuration.sceneModule === undefined) {
             presenter.configuration.sceneModule = presenter.playerController.getModule(presenter.configuration.sceneID);
@@ -794,6 +805,63 @@ function AddonBlocklyCodeEditor_create () {
         var xml = Blockly.Xml.textToDom(value.code);
         Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
         presenter.setVisibility(value.isVisible);
+    };
+
+    presenter.reset = function () {
+        presenter.configuration.workspace.clear();
+    };
+
+    presenter.setShowErrorsMode = function () {
+        presenter.setWorkMode();
+        presenter.coverToolbox();
+        presenter.coverAddon();
+    };
+
+    presenter.setWorkMode = function () {
+        presenter.removeToolboxCover();
+        presenter.removeAddonCover();
+    };
+
+    presenter.showAnswers = function () {
+        presenter.setShowErrorsMode();
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.setWorkMode();
+    };
+
+    presenter.coverAddon = function () {
+        var cover = $("<div>").attr({
+            id: "blocklyAddonCover"
+        }).addClass("blockly-cover");
+        presenter.$view.append(cover);
+    };
+
+    presenter.removeAddonCover = function () {
+        var element = presenter.$view.find('.blockly-cover');
+        element.remove();
+        element = null;
+    };
+
+    presenter.coverToolbox = function () {
+        var toolbox = document.getElementsByClassName('blocklyToolboxDiv');
+        if (toolbox.length != 0) {
+            var cover = document.createElement('div');
+            cover.id = 'blocklyCover';
+            cover.style.top = 0;
+            cover.style.position = 'absolute';
+            cover.style.width = '100%';
+            cover.style.height = '100%';
+            toolbox[0].appendChild(cover);
+        }
+
+    };
+
+    presenter.removeToolboxCover = function () {
+        var toolboxCover = document.getElementById('blocklyCover');
+        if (toolboxCover !== null) {
+            toolboxCover.parentNode.removeChild(toolboxCover);
+        }
     };
 
     return presenter;
