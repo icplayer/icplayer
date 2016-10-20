@@ -131,6 +131,14 @@ function AddonBlocklyCodeEditor_create () {
 
     presenter.createPreview = function (view, model) {
         presenter.runLogic(view, model, true);
+        presenter.coverToolbox();
+
+        $("#content").scroll(function () {
+            var $toolbox = $(".blocklyToolboxDiv");
+            $toolbox.css({
+                    "top": ($(view).offset().top) + "px"
+            });
+        });
     };
     
     presenter.setPlayerController = function (controller) {
@@ -165,27 +173,28 @@ function AddonBlocklyCodeEditor_create () {
 
         presenter.setRunButton();
         isPreviewDecorator(presenter.connectHandlers)();
+        /*
+            Without that timeout, toolbox can't calculate position (parallel editor calculate header size) therefore his position was wrong
+         */
+        setTimeout(function () {
+            presenter.configuration.workspace = Blockly.inject($(view).find(".editor")[0], {
+                toolbox: presenter.getToolboxXML(),
+                sounds: false,
+                maxBlocks: presenter.configuration.maxBlocks
+            });
 
-        presenter.configuration.workspace = Blockly.inject($(view).find(".editor")[0], {
-            toolbox: presenter.getToolboxXML(),
-            sounds: false,
-            maxBlocks: presenter.configuration.maxBlocks
-        });
 
-        eval(presenter.configuration.customBlocksXML.code);
-        eval(presenter.configuration.customBlocksXML.stub);
+            eval(presenter.configuration.customBlocksXML.code);
+            eval(presenter.configuration.customBlocksXML.stub);
 
 
-        if(isPreview) {
-            presenter.coverToolbox();
-        }
-
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
-        presenter.setVisibility(presenter.configuration.visibleByDefault);
+            presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+                if (ev.target === this) {
+                    presenter.destroy();
+                }
+            });
+            presenter.setVisibility(presenter.configuration.visibleByDefault);
+        }, 0);
     };
 
     presenter.destroy = function () {
@@ -726,20 +735,27 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (presenter.configuration.haveSceneID && presenter.configuration.isValid) {
-            if (eventName == "PageLoaded") {
-                presenter.configuration.pageLoaded = true;
-                isPreviewDecorator(presenter.getSceneModuleOnPageLoaded)();
-                isPreviewDecorator(presenter.addCustomBlocks)();
-                if (presenter.configuration.addSceneToolbox) {
-                    isPreviewDecorator(presenter.updateToolbox)();
-                }
-                presenter.toolboxPositionFix();
-            } else if (eventName == "ShowAnswers") {
-                presenter.showAnswers();
-            } else if (eventName == "HideAnswers") {
-                presenter.hideAnswers();
+
+        if (eventName == "PageLoaded") {
+
+            if (presenter.configuration.haveSceneID && presenter.configuration.isValid) {
+                /*
+                    Jump behind addon initialization in queue
+                 */
+                setTimeout(function () {
+                    presenter.configuration.pageLoaded = true;
+                    isPreviewDecorator(presenter.getSceneModuleOnPageLoaded)();
+                    isPreviewDecorator(presenter.addCustomBlocks)();
+                    if (presenter.configuration.addSceneToolbox) {
+                        isPreviewDecorator(presenter.updateToolbox)();
+                    }
+                } , 0);
             }
+            presenter.toolboxPositionFix();
+        } else if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        } else if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
         }
     };
 
@@ -801,13 +817,20 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.setState = function Blockly_Code_Editor_set_state (state) {
-        var value = JSON.parse(state);
-        var xml = Blockly.Xml.textToDom(value.code);
-        Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
-        presenter.setVisibility(value.isVisible);
+        /*
+            After jump in queue to repair toolbox position in runLogic, editor try to put state but addon don't have workspace initialized, therefore
+            here is jump in queue behind initialization workspace
+         */
+        setTimeout(function () {
+            var value = JSON.parse(state);
+            var xml = Blockly.Xml.textToDom(value.code);
+            Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
+            presenter.setVisibility(value.isVisible);
+        }, 0);
     };
 
     presenter.reset = function () {
+        presenter.setWorkMode();
         presenter.configuration.workspace.clear();
     };
 
@@ -854,7 +877,6 @@ function AddonBlocklyCodeEditor_create () {
             cover.style.height = '100%';
             toolbox[0].appendChild(cover);
         }
-
     };
 
     presenter.removeToolboxCover = function () {
