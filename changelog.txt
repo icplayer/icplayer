@@ -1,3 +1,4 @@
+2016-10-21 Fixed issue with pen and marker tools in IWB Toolbar module
 2016-10-07 Added new addon Text Coloring, added new commons ErrorUtils and fixed SAO depedencies
 2016-10-04 Added getText command in Paragraph module
 2016-09-29 Fixed setting state in Paragraph module
