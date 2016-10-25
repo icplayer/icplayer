@@ -58,7 +58,7 @@
 				<property name="text_changeCase" nameLabel="Blockly_translation_to_upper/lower_case" type="text"/>
 				<property name="math_trig" nameLabel="Blockly_translation_trigonometry" type="text"/>
 				<property name="text_trim" nameLabel="Blockly_translation_trim" type="text"/>
-				<property name="scene_commands" nameLabel="Blockly_translation_scene_commands" type="text"/>
+				<property name="grid_scene_commands" nameLabel="Blockly_translation_scene_commands" type="text"/>
 				<property name="custom" nameLabel="Blockly_translation_custom" type="string"/>
 			</property>
 			<property name="blockCategory" displayName="Category" nameLabel="BlocklyCodeEditor_property_block_category" type="string"/>

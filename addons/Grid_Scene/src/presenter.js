@@ -555,6 +555,11 @@ function AddonGrid_Scene_create(){
                             BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.splice(elementIndex, 1);
                         }
                         excludedCommands[key] = true;
+                    } else {
+                        var elementIndex = BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.indexOf(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
+                        if(elementIndex == -1) {
+                            BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.push(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
+                        }
                     }
                     if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedArgumentsTranslation)) {
                         argumentsTranslation[key] = validatedDefaultCommand.value.validatedArgumentsTranslation;
