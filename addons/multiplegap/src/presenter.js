@@ -221,6 +221,9 @@ function Addonmultiplegap_create(){
 
         container.click(presenter.acceptDraggable);
         container.droppable({drop: function(event, ui) {
+            if(!presenter.configuration.isVisible){
+                return;
+            }
             event.stopPropagation();
             event.preventDefault();
             container.click();
