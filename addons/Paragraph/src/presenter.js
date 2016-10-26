@@ -598,7 +598,7 @@ function AddonParagraph_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
 
         if (tinymceState!=undefined && tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
-            if (presenter.editor != null) {
+            if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
             } else {
                 presenter.configuration.state = tinymceState;
