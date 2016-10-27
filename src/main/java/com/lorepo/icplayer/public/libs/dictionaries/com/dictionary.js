@@ -994,7 +994,7 @@
 	"Blockly_translation_to_upper/lower_case" : "to upper/lower case" ,
 	"Blockly_translation_trigonometry" : "trigonometry" ,
 	"Blockly_translation_trim" : "trim" ,
-	"Blockly_translation_scene_commands" : "scene commands" ,
+	"Blockly_translation_scene_commands" : "grid scene commands" ,
 	"Blockly_translation_custom" : "custom",
 	"BlocklyCodeEditor_property_block_category": "Category",
 	"BlocklyCodeEditor_property_block_is_disabled" : "Is Disabled",

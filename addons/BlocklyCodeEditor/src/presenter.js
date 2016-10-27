@@ -11,7 +11,6 @@ function AddonBlocklyCodeEditor_create () {
     var presenter = function () {};
 
 
-    var hasBeenSet = false;
     presenter.ERROR_CODES = {
         "SI01": "Scene id must have value",
         "SI02": "You must add scene id if you want to add scene toolbox",
@@ -36,13 +35,12 @@ function AddonBlocklyCodeEditor_create () {
         "STRING" : "String",
         "ARRAY" : "Array"
     };
-
     presenter.connections = {
         "NONE" : function Blockly_NONE_Connection_function () {return "" },
-        "LEFT" : function Blockly_LEFT_Connection_function () {return "this.setOutput(true,'" },
-        "TOP" :  function Blockly_TOP_Connection_function () {return "this.setPreviousStatement(true,'"},
-        "BOTTOM" : function Blockly_BOTTOM_Connection_function () {return "this.setNextStatement(true,'"},
-        "TOP-BOTTOM" : function Blockly_TOP_BOTTOM_Connection_function () {return "" }
+        "LEFT" : function Blockly_LEFT_Connection_function (type) {return "this.setOutput(true,'" + type + "');"; },
+        "TOP" :  function Blockly_TOP_Connection_function (type) {return "this.setPreviousStatement(true,'" + type + "');";},
+        "BOTTOM" : function Blockly_BOTTOM_Connection_function (type) {return "this.setNextStatement(true,'" + type + "');";},
+        "TOP-BOTTOM" : function Blockly_TOP_BOTTOM_Connection_function (firstType, secondType) { return presenter.connections["TOP"](firstType) + presenter.connections["BOTTOM"](secondType); }
     };
 
     presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS = [
@@ -125,9 +123,7 @@ function AddonBlocklyCodeEditor_create () {
         if (!presenter.configuration.isPreview) {
             return func;
         } else {
-            return function Blockly_empty_preview_decorator_function () {
-
-            };
+            return function Blockly_empty_preview_decorator_function () {};
         }
     }
 
@@ -135,27 +131,8 @@ function AddonBlocklyCodeEditor_create () {
         presenter.runLogic(view, model, false);
     };
 
-
     presenter.createPreview = function Blockly_createPreview_function (view, model) {
-        setTimeout(function Blockly_timeout_runLogic_function() {
-            presenter.runLogic(view, model, true);
-            window.BlocklyCustomBlocks.SceneGrid.addBlocks();
-            presenter.scrollToolboxPreviewFix();
-            presenter.coverToolbox();
-        }, 0);
-    };
-     presenter.scrollToolboxPreviewFix = function Blockly_scrollToolboxPreviewFix_function () {
-        var content = $("#content");
-        content.scroll(presenter.scrollFixHandler);
-        content = null;
-    };
-
-    presenter.scrollFixHandler = function Blockly_scrollFixHandler_function () {
-        var $toolbox = $(".blocklyToolboxDiv");
-        $toolbox.css({
-            "top": ($(view).offset().top) + "px"
-        });
-        $toolbox = null;
+        presenter.runLogic(view, model, true);
     };
 
     presenter.setPlayerController = function Blockly_setPlayerController_function (controller) {
@@ -164,6 +141,29 @@ function AddonBlocklyCodeEditor_create () {
         presenter.eventBus.addEventListener('PageLoaded', this, true);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+    };
+
+    presenter.createWorkspace = function (view, isPreview) {
+        var $editor = $(view).find(".editor")[0];
+        var toolboxXML = "";
+        if (isPreview) {
+            toolboxXML = presenter.getPreviewToolbox();
+        } else {
+            toolboxXML = presenter.getToolboxXML();
+        }
+
+        presenter.configuration.workspace = Blockly.inject($editor, {
+            toolbox: toolboxXML,
+            sounds: false,
+            maxBlocks: presenter.configuration.maxBlocks
+        });
+    };
+
+    presenter.setEditorCss = function () {
+        presenter.$view.find(".editor").css({
+            width: presenter.$view.width(),
+            height: presenter.$view.height()
+        });
     };
 
     presenter.runLogic = function Blockly_runLogic_function (view, model, isPreview) {
@@ -178,59 +178,36 @@ function AddonBlocklyCodeEditor_create () {
         presenter.view = view;
         presenter.$view = $(view);
 
-        presenter.addBlocksTranslations();
-
-        presenter.$view.find(".editor").css({
-            width: presenter.$view.width(),
-            height: presenter.$view.height()
-        });
-
         presenter.setRunButton();
-        presenter.setRunButton();
-        isPreviewDecorator(presenter.connectHandlers)();
-        var $editor = $(view).find(".editor")[0];
-        presenter.configuration.workspace = Blockly.inject($editor, {
-            toolbox: presenter.getToolboxXML(),
-            sounds: false,
-            maxBlocks: presenter.configuration.maxBlocks
-        });
-        $editor = null;
-
+        presenter.setEditorCss();
+        presenter.createWorkspace(view, isPreview);
 
         eval(presenter.configuration.customBlocksXML.code);
         eval(presenter.configuration.customBlocksXML.stub);
 
+        presenter.setVisibility(presenter.configuration.visibleByDefault);
+
+        isPreviewDecorator(presenter.connectHandlers)();
+
+        isPreviewDecorator(presenter.updateToolbox)();
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {
             if (ev.target === this) {
                 presenter.destroy();
             }
         });
-        presenter.setVisibility(presenter.configuration.visibleByDefault);
-        if (isPreview) {
-            setTimeout(function Bloklcy_setTimeoutForUpdate_function () {
-                presenter.updateToolbox();
-            }, 0);
-        }
     };
 
     presenter.addBlocksTranslations = function Blockly_addGoogleBlocksTranslations_function () {
         for (var key in presenter.configuration.blocksTranslation) {
             if (presenter.configuration.blocksTranslation.hasOwnProperty(key)) {
-                if (BlocklyCustomBlocks.SceneGrid.LABELS.hasOwnProperty(key)) {
-                    BlocklyCustomBlocks.SceneGrid.LABELS[key] = presenter.configuration.blocksTranslation[key];
-                } else {
-                    Blockly.Msg[StringUtils.format('{0}', key)] = presenter.configuration.blocksTranslation[key];
-                }
+                Blockly.Msg[StringUtils.format('{0}', key)] = presenter.configuration.blocksTranslation[key];
             }
         }
     };
 
-
-
     presenter.destroy = function Blockly_destroy_function () {
         var key, i;
-        console.log(presenter.configuration.workspace);
         if (presenter.configuration.isPreview) {
             $("#content").off("scroll", presenter.scrollFixHandler);
         }
@@ -238,9 +215,6 @@ function AddonBlocklyCodeEditor_create () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration.workspace.dispose();
 
-        for (key in presenter.configuration.workspace) {
-            presenter.configuration.workspace[key] = null;
-        }
         presenter.configuration.workspace = null;
 
         presenter.$view.find(".run").off();
@@ -304,7 +278,6 @@ function AddonBlocklyCodeEditor_create () {
         presenter.getWorkspaceCode = null;
         presenter.getToolboxXML = null;
         presenter.onEventReceived = null;
-        presenter.toolboxPositionFix = null;
         presenter.addCustomBlocks = null;
         presenter.getSceneModuleOnPageLoaded = null;
         presenter.updateToolbox = null;
@@ -553,7 +526,7 @@ function AddonBlocklyCodeEditor_create () {
 
     presenter.validateTranslations = function Blockly_validateTranslations_function (toolboxElement) {
 
-        if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.indexOf(toolboxElement['blockName'].name) != -1) {
+        if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.indexOf(toolboxElement['blockName'].name) != -1 || (toolboxElement['blockName'].name == "grid_scene_commands")) {
             var parsedValue = "";
             try {
                 parsedValue = JSON.parse(toolboxElement['blockName'].value);
@@ -567,18 +540,8 @@ function AddonBlocklyCodeEditor_create () {
                 isValid: true,
                 value: parsedValue
             }
-        } else if (toolboxElement['blockName'].name == "grid_scene_commands") {
-            var parsedValue = "";
-            try {
-                parsedValue =JSON.parse(toolboxElement['blockName'].value);
-            } catch (error){
-               return {
-                    isValid: false,
-                    errorCode: "TP01"
-                };
-            }
-            BlocklyCustomBlocks.SceneGrid.LABELS = $.extend({},BlocklyCustomBlocks.SceneGrid.LABELS, parsedValue);
         }
+
         return {
             isValid: true,
             value: {}
@@ -761,10 +724,9 @@ function AddonBlocklyCodeEditor_create () {
         }
 
         if (customBlock.connection.toUpperCase() != "NONE" && customBlock.connection.toUpperCase() != "TOP-BOTTOM") {
-            stub += StringUtils.format("{0}{1}{2}", presenter.connections[customBlock.connection.toUpperCase()](), customBlock.connectionType[0], "');");
+            stub += presenter.connections[customBlock.connection.toUpperCase()](customBlock.connectionType[0]);
         } else if (customBlock.connection.toUpperCase() == "TOP-BOTTOM") {
-            stub += StringUtils.format("{0}{1}{2}", presenter.connections["TOP"](), customBlock.connectionType[0], "');");
-            stub += StringUtils.format("{0}{1}{2}", presenter.connections["BOTTOM"](), customBlock.connectionType[1], "');");
+            stub += presenter.connections["TOP-BOTTOM"](customBlock.connectionType[0], customBlock.connectionType[1]);
         }
 
         stub += StringUtils.format("this.setColour({0});", customBlock.color);
@@ -838,7 +800,6 @@ function AddonBlocklyCodeEditor_create () {
             runButton.css({
                 "display": "none"
             });
-            runButton = null;
         }
     };
 
@@ -863,7 +824,7 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.setVisibility = function Blockly_setVisibility_function (isVisible) {
-        presenter.configuration.isVisible= isVisible;
+        presenter.configuration.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         var $blocklyToolboxDiv = $('.blocklyToolboxDiv');
         $blocklyToolboxDiv.css('visibility', isVisible ? 'visible' : 'hidden');
@@ -879,6 +840,45 @@ function AddonBlocklyCodeEditor_create () {
         toolbox = StringUtils.format("{0}{1}", toolbox, generateXMLFromCategories(presenter.configuration.toolboxXML));
         toolbox = StringUtils.format("{0}{1}", toolbox, generateXMLWithoutCategories(presenter.configuration.toolboxXML));
         toolbox = StringUtils.format("{0}{1}", toolbox, "</xml>");
+        return toolbox;
+    };
+
+    presenter.getPreviewToolbox = function () {
+        var toolbox = "";
+            toolbox += "<xml>";
+            toolbox += "<block type=\"lists_create_with\">";
+            toolbox += "<mutation items=\"3\"></mutation>";
+            toolbox += "</block>";
+            toolbox += "<block type=\"controls_repeat_ext\">";
+            toolbox += "<value name=\"TIMES\">";
+            toolbox += "<shadow type=\"math_number\">";
+            toolbox += "<field name=\"NUM\">10</field>";
+            toolbox += "</shadow>";
+            toolbox += "</value>";
+            toolbox += "</block>";
+            toolbox += "<block type=\"math_constant\">";
+            toolbox += "<field name=\"CONSTANT\">PI</field>";
+            toolbox += "</block>";
+            toolbox += "<block type=\"controls_for\">";
+            toolbox += "<field name=\"VAR\">i</field>";
+            toolbox += "<value name=\"FROM\">";
+            toolbox += "<shadow type=\"math_number\">";
+            toolbox += "<field name=\"NUM\">1</field>";
+            toolbox += "</shadow>";
+            toolbox += "</value>";
+            toolbox += "<value name=\"TO\">";
+            toolbox += "<shadow type=\"math_number\">";
+            toolbox += "<field name=\"NUM\">10</field>";
+            toolbox += "</shadow>";
+            toolbox += "</value>";
+            toolbox += "<value name=\"BY\">";
+            toolbox += "<shadow type=\"math_number\">";
+            toolbox += "<field name=\"NUM\">1</field>";
+            toolbox += "</shadow>";
+            toolbox += "</value>";
+            toolbox += "</block>";
+            toolbox += "</xml>";
+
         return toolbox;
     };
 
@@ -925,15 +925,20 @@ function AddonBlocklyCodeEditor_create () {
     presenter.onEventReceived = function Blockly_onEventReceived_function (eventName, eventData) {
 
         if (eventName == "PageLoaded") {
+            if (presenter.configuration.pageLoaded ) {
+                return;
+            }
+            presenter.addBlocksTranslations();
             presenter.getSceneModuleOnPageLoaded();
-            presenter.addCustomBlocks();
-            if (!presenter.configuration.pageLoaded ) {
+            var sceneData = presenter.getSceneData();
+            if (sceneData !== undefined) {
                 if (presenter.configuration.addSceneToolbox) {
+                    presenter.scenesInitialization[sceneData.type](sceneData);
                     presenter.updateToolbox();
                 }
             }
+
             presenter.configuration.pageLoaded = true;
-            presenter.toolboxPositionFix();
         } else if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         } else if (eventName == "HideAnswers") {
@@ -942,29 +947,40 @@ function AddonBlocklyCodeEditor_create () {
     };
 
 
-    presenter.toolboxPositionFix = function Blockly_toolboxPositionFix_function () {
-        if (!hasBeenSet) {
-            var headerHeight = $(".ic_header");
-            headerHeight = headerHeight.height();
-            var $toolbox = $(".blocklyToolboxDiv");
-            if ($toolbox.length > 0 && headerHeight !== undefined && headerHeight !== null) {
-                $toolbox.css({
-                    "top": (presenter.$view.position().top + headerHeight) + "px"
-                });
-                hasBeenSet = true;
+
+    presenter.gridSceneInitialization = function (data) {
+        for (var key in data.labels) {
+            if (data.labels.hasOwnProperty(key) && presenter.configuration.blocksTranslation.hasOwnProperty(key)) {
+                data.labels[key] = presenter.configuration.blocksTranslation[key];
             }
-            headerHeight = null;
         }
+        BlocklyCustomBlocks.SceneGrid.addBlocks(data.labels);
+
+
+        if (presenter.configuration.addSceneToolbox) {
+            for (var key in data.availableBlocks) {
+                if (data.availableBlocks.hasOwnProperty(key)) {
+                    presenter.configuration.toolboxXML[presenter.configuration.sceneToolboxName].push({
+                        name: key,
+                        isCategory: presenter.configuration.sceneToolboxIsCategory
+                    });
+                }
+            }
+        }
+
     };
 
-    presenter.addCustomBlocks = function Blockly_addCustomBlocks_function () {
+    presenter.scenesInitialization = {
+        "GridScene" : presenter.gridSceneInitialization
+    };
+
+    presenter.getSceneData = function Blockly_getSceneData () {
         if ((presenter.configuration.sceneModule !== null && presenter.configuration.sceneModule !== undefined)) {
-            if (presenter.configuration.sceneModule.addCustomBlocks !== null) {
-                presenter.configuration.sceneModule.addCustomBlocks();
-                return;
+            if (presenter.configuration.sceneModule.getBlocklyData !== undefined && presenter.configuration.sceneModule.getBlocklyData !== null) {
+                return presenter.configuration.sceneModule.getBlocklyData();
             }
         }
-        window.BlocklyCustomBlocks.SceneGrid.addBlocks();
+        return undefined;
     };
 
     presenter.getSceneModuleOnPageLoaded = function Blockly_getSceneModuleOnPageLoaded_function () {
@@ -974,17 +990,7 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.updateToolbox = function Blockly_updateToolbox_function () {
-        if (presenter.configuration.addSceneToolbox) {
-            BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.forEach(function (element) {
-                presenter.configuration.toolboxXML[presenter.configuration.sceneToolboxName].push({
-                    name: element,
-                    isCategory: presenter.configuration.sceneToolboxIsCategory
-                });
-            });
-
-        }
         presenter.configuration.workspace.updateToolbox(presenter.getToolboxXML());
-
         var transformValue = $(".blocklyToolboxDiv");
         transformValue = transformValue.width();
         presenter.$view.find('.blocklyFlyout').css({
@@ -994,8 +1000,6 @@ function AddonBlocklyCodeEditor_create () {
             '-o-transform'      : StringUtils.format("translate({0}px, 0)", transformValue),
             'transform'         : StringUtils.format("translate({0}px, 0)", transformValue)
         });
-        transformValue = null;
-
     };
 
     presenter.getState = function Blockly_Code_Edtior_get_state () {
@@ -1042,17 +1046,15 @@ function AddonBlocklyCodeEditor_create () {
         var cover = $("<div>");
         cover.addClass("blockly-cover");
         presenter.$view.append(cover);
-        cover = null;
     };
 
     presenter.removeAddonCover = function Blockly_removeAddonCover_function () {
         var element = presenter.$view.find('.blockly-cover');
         element.remove();
-        element = null;
     };
 
     presenter.coverToolbox = function Blockly_coverToolbox_function () {
-        var toolbox = document.getElementsByClassName('blocklyToolboxDiv');
+        var toolbox = presenter.view.getElementsByClassName('blocklyToolboxDiv');
         if (toolbox.length != 0) {
             var cover = document.createElement('div');
             cover.className = 'toolboxCover blockly-cover';
@@ -1061,10 +1063,9 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.removeToolboxCover = function Blockly_removeToolboxCover_function () {
-        var toolboxCover = document.getElementsByClassName('toolboxCover blockly-cover');
+        var toolboxCover = presenter.view.getElementsByClassName('toolboxCover blockly-cover');
         if (toolboxCover !== null && toolboxCover !== undefined) {
             if (toolboxCover.length > 0) {
-                console.log(toolboxCover);
                 toolboxCover[0].parentNode.removeChild(toolboxCover[0]);
             }
         }

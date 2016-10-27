@@ -52,8 +52,24 @@ function AddonGrid_Scene_create(){
         "block_drawUpFrom": "drawUpFrom",
         "block_drawDownFrom": "drawDownFrom",
         "block_setColor": "setColor",
-        "block_setCurstor": "setCursor",
+        "block_setCursor": "setCursor",
         "block_clearMark": "clearMark"
+    };
+
+    presenter.DEFAULT_COMMANDS_TO_BLOCKS = {
+        "command_clear" : 'scene_grid_clear',
+        "command_mark" : 'scene_grid_mark',
+        "command_drawLeft" : 'scene_grid_drawleft',
+        "command_drawRight" : 'scene_grid_drawright',
+        "command_drawUp" : 'scene_grid_drawup',
+        "command_drawDown" : 'scene_grid_drawdown',
+        "command_drawLeftFrom" : 'scene_grid_drawleftfrom',
+        "command_drawRightFrom" : 'scene_grid_drawrightfrom',
+        "command_drawUpFrom" : 'scene_grid_drawupfrom',
+        "command_drawDownFrom" : 'scene_grid_drawdownfrom',
+        "command_setColor" : 'scene_grid_setcolor',
+        "command_setCursor" : 'scene_grid_setcursor',
+        "command_clearMark" : 'scene_grid_clearmark'
     };
 
     presenter.configuration = {
@@ -326,7 +342,6 @@ function AddonGrid_Scene_create(){
             return;
         }
 
-        BlocklyCustomBlocks.SceneGrid.LABELS = $.extend({}, presenter.LABELS, presenter.configuration.labels);
 
         gridContainerWrapper = presenter.$view.find(".grid-scene-wrapper:first");
         gridContainer = gridContainerWrapper.find(".grid-scene-cell:first");
@@ -550,16 +565,7 @@ function AddonGrid_Scene_create(){
                         translations[key] = validatedDefaultCommand.value.validatedTranslation;
                     }
                     if (validatedDefaultCommand.value.validatedIsExcluded) {
-                        var elementIndex = BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.indexOf(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
-                        if(elementIndex != -1){
-                            BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.splice(elementIndex, 1);
-                        }
                         excludedCommands[key] = true;
-                    } else {
-                        var elementIndex = BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.indexOf(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
-                        if(elementIndex == -1) {
-                            BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.push(BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST_TO_COMMAND[key]);
-                        }
                     }
                     if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedArgumentsTranslation)) {
                         argumentsTranslation[key] = validatedDefaultCommand.value.validatedArgumentsTranslation;
@@ -614,7 +620,6 @@ function AddonGrid_Scene_create(){
                 }
             }
         }
-
 
         return {
             isValid: true,
@@ -883,6 +888,10 @@ function AddonGrid_Scene_create(){
 
     };
 
+    presenter.clear = presenter.reset;
+
+    presenter.clearMark = presenter.resetMark;
+
     presenter.mark = function mark (x, y) {
         x = parseInt(x, 10);
         y = parseInt(y, 10);
@@ -1035,21 +1044,6 @@ function AddonGrid_Scene_create(){
         }
     };
 
-    presenter.addCustomBlocks = function () {
-        window.BlocklyCustomBlocks.SceneGrid.addBlocks(presenter.configuration.labels);
-    };
-    
-    presenter.getToolboxCategoryXML = function () {
-        var category = "";
-        
-        BlocklyCustomBlocks.SceneGrid.CUSTOM_BLOCKS_LIST.forEach(function (element) {
-            var block = StringUtils.format("<block type=\"{0}\"></block>", element);
-            category = StringUtils.format("{0}{1}", category, block); 
-        });
-        
-        return category;
-    };
-
     presenter.getState = function Grid_Scene_get_state () {
         return JSON.stringify( {
             grid: presenter.coloredGrid,
@@ -1075,15 +1069,10 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.getScore = function Grid_Scene_get_score () {
-        if (presenter.configuration.isErrorMode) {
-            return 0;
-        }
         if (presenter.configuration.isShowingAnswers) {
             return 0;
         }
-        if (!presenter.configuration.isAnswer) {
-            return 0;
-        }
+
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
         var answer = presenter.configuration.answer;
@@ -1205,6 +1194,23 @@ function AddonGrid_Scene_create(){
             }
         }
         return true;
+    };
+
+    presenter.getBlocklyData = function () {
+        var excludedBlocks = {};
+        for (var key in presenter.DEFAULT_COMMANDS_TO_BLOCKS) {
+            if (presenter.DEFAULT_COMMANDS_TO_BLOCKS.hasOwnProperty(key)) {
+                if (!presenter.configuration.excludedCommands.hasOwnProperty(key)) {
+                    excludedBlocks[presenter.DEFAULT_COMMANDS_TO_BLOCKS[key]] = true;
+                }
+            }
+        }
+        return {
+            "type": "GridScene",
+            "labels": $.extend({}, presenter.LABELS, presenter.configuration.labels),
+            "availableBlocks" : excludedBlocks
+
+        }
     };
 
     function sendRunEvent () {
