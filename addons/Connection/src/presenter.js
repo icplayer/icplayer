@@ -199,6 +199,9 @@ function AddonConnection_create() {
             if ($(message[1]).hasClass('ic_page')) {
                 presenter.mathJaxProcessEndedDeferred.resolve();
             }
+            if ($(message[1]).hasClass('ic_popup_page')) {
+                presenter.mathJaxProcessEndedDeferred.resolve();
+            }
         });
 
         playerController = controller;
