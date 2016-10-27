@@ -69,7 +69,7 @@
 }
 
 .iwb-toolbar-mask.pen-mask {
-    z-index: 999;
+    z-index: 99;
 }
 
 .iwb_tmp_canvas {
@@ -82,7 +82,7 @@
 }
 
 .iwb-toolbar-mask.marker-mask {
-    z-index: 1000;
+    z-index: 100;
 }
 
 .iwb-toolbar-mask canvas {

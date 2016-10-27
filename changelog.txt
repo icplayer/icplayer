@@ -1,3 +1,9 @@
+2016-10-27 Fixed operating on module in popup page in Connection and eKeyboard modules
+2016-10-27 Fixed setting space after punctuation marks in Text Coloring module
+2016-10-26 Fixed problem with saving state in Paragraph module
+2016-10-25 Fixed issue with setting element to invisible module in Multiplagap module
+2016-10-24 Fixed saving and closing notes in IWB Toolbar
+2016-10-21 Fixed issue with pen and marker tools in IWB Toolbar module
 2016-10-07 Added new addon Text Coloring, added new commons ErrorUtils and fixed SAO depedencies
 2016-10-04 Added getText command in Paragraph module
 2016-09-29 Fixed setting state in Paragraph module

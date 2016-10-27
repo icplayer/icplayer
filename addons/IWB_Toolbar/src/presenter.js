@@ -2255,21 +2255,26 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.Note.prototype.connectHandlers = function () {
-        this.$closeButton.on('click', function(e) {
-            e.stopPropagation();
+        this.$closeButton.on('click', {"note": this}, function(event) {
+            event.stopPropagation();
             var confirmation = presenter.$removeConfirmationBox;
             confirmation.css('top', $(window).scrollTop() + 10 + 'px');
             confirmation.show();
-            confirmation.find('.no-button').on(getTouchStartOrMouseDownEventName(), function(e) {
+            confirmation.find('.no-button').on(getTouchStartOrMouseDownEventName(),function(e) {
                 e.stopPropagation();
                 confirmation.hide();
             });
-            confirmation.find('.yes-button').on(getTouchStartOrMouseDownEventName(), function(e) {
+            confirmation.find('.yes-button').on(getTouchStartOrMouseDownEventName(), {"note": event.data.note}, function(e) {
                 e.stopPropagation();
-                this.destroy();
+                var note = e.data.note;
+
+                presenter.noteObjects = presenter.noteObjects.filter(function (note) {
+                    return note != this;
+                }, note);
+                note.destroy();
                 confirmation.hide();
-            }.bind(this));
-        }.bind(this));
+            });
+        });
 
         this.connectNoteEditHandler();
     };
@@ -2316,31 +2321,33 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.Note.prototype.destroy = function () {
-        var $note = this.$note.draggable("destroy");
-        $note.off();
-        this.$note.off();
-        this.$header.off();
-        this.$date.off();
-        this.$closeButton.off();
-        this.$noteBody.off();
-        if (this.$textarea !== null) {
-            this.$textarea.off();
+        if(this.$note) {
+            var $note = this.$note.draggable("destroy");
+            $note.off();
+            this.$note.off();
+            this.$header.off();
+            this.$date.off();
+            this.$closeButton.off();
+            this.$noteBody.off();
+            if (this.$textarea !== null) {
+                this.$textarea.off();
+            }
+
+            if (this.$buttonSave !== null) {
+                this.$buttonSave.off();
+            }
+
+            window.EventsUtils.DoubleTap.off(this.$note);
+
+            this.$note.remove();
+            this.$note = null;
+            this.$header = null;
+            this.$date = null;
+            this.$closeButton = null;
+            this.$noteBody = null;
+            this.$textarea = null;
+            this.$buttonSave = null;
         }
-
-        if (this.$buttonSave !== null) {
-            this.$buttonSave.off();
-        }
-
-        window.EventsUtils.DoubleTap.off(this.$note);
-
-        this.$note.remove();
-        this.$note = null;
-        this.$header = null;
-        this.$date = null;
-        this.$closeButton = null;
-        this.$noteBody = null;
-        this.$textarea = null;
-        this.$buttonSave = null;
     };
     
     presenter.Note.prototype.getState = function () {

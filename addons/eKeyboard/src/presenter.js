@@ -254,6 +254,12 @@ function AddoneKeyboard_create(){
                     mathJaxDeferred.resolve();
                 }
             }
+
+            if ($(message[1]).hasClass('ic_popup_page')) {
+                if(mathJaxDeferred.state() != 'resolved'){
+                    mathJaxDeferred.resolve();
+                }
+            }
         });
 
         $.when(presenter.pageLoaded, mathJaxProcessEnded).then(function() {
@@ -435,6 +441,12 @@ function AddoneKeyboard_create(){
                             dialogBox.append(keyboard['$keyboard']);
                         }
 
+                        var parent = keyboard['$keyboard'].parent(),
+                            popup = parent.find('.ic_popup');
+
+                        if(popup.length > 0){
+                            popup.append(keyboard['$keyboard']);
+                        }
                     },
                     visible: function(e, keyboard, el) {
 

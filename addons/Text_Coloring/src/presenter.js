@@ -720,7 +720,7 @@ function AddonText_Coloring_create() {
         if (parsedSelectableWord.normal === undefined) {
             return [selectableWord, getSpaceToken()];
         } else {
-            return [selectableWord, getWordToken(parsedSelectableWord.normal)];
+            return [selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
         }
     };
 
