@@ -88,7 +88,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(120);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -98,6 +98,7 @@
             return code;
         };
     }
+
     function drawDownBlock(labels) {
         Blockly.Blocks['scene_grid_drawdown'] = {
             init: function() {
@@ -111,7 +112,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(150);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -120,8 +121,8 @@
             var code = StringUtils.format("{0}({1});\n", labels["command_drawDown"], emptyAsUndefined(value_steps));
             return code;
         };
-
     }
+
     function drawLeftBlock(labels) {
         Blockly.Blocks['scene_grid_drawleft'] = {
             init: function() {
@@ -135,7 +136,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(195);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -145,6 +146,7 @@
             return code;
         };
     }
+
     function drawRightBlock(labels) {
         Blockly.Blocks['scene_grid_drawright'] = {
             init: function() {
@@ -158,7 +160,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(270);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -168,6 +170,7 @@
             return code;
         };
     }
+
     function markBlock(labels) {
         Blockly.Blocks['scene_grid_mark'] = {
             init: function() {
@@ -186,7 +189,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(260);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -205,7 +208,7 @@
                     .appendField(labels["block_clear"]);
                 this.setColour(0);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -234,7 +237,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(195);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -266,7 +269,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(270);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -298,7 +301,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(120);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -330,7 +333,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(150);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -356,7 +359,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(300);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -384,7 +387,7 @@
                 this.setNextStatement(true, null);
                 this.setColour(300);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
@@ -412,14 +415,14 @@
                 this.setNextStatement(true, null);
                 this.setColour(210);
                 this.setTooltip('');
-                this.setHelpUrl('http://www.example.com/');
+                this.setHelpUrl('http://mauthor.com/doc/en/page/Blockly-Code-Editor');
             }
         };
 
         Blockly.JavaScript['scene_grid_clearmark'] = function(block) {
             var value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
             var value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
-            var code = StringUtils.format("{0}({1}, {2}, {3});\n", labels["command_clearMark"], emptyAsUndefined(value_x));
+            var code = StringUtils.format("{0}({1}, {2});\n", labels["command_clearMark"], emptyAsUndefined(value_x), emptyAsUndefined(value_y));
             return code;
         };
     }

@@ -25,7 +25,8 @@ function AddonBlocklyCodeEditor_create () {
         "VN01": "Input name must be a valid JS variable name",
         "UB01": "Undefined block in toolbox",
         "TP01": "Translation in Toolbox is not a valid JSON.",
-        "TP02": "Translation is not a valid JSON"
+        "TP02": "Translation is not a valid JSON",
+        "VE01": "Variable editor must have category name"
     };
 
     presenter.inputsType = {
@@ -36,7 +37,7 @@ function AddonBlocklyCodeEditor_create () {
         "ARRAY" : "Array"
     };
     presenter.connections = {
-        "NONE" : function Blockly_NONE_Connection_function () {return "" },
+        "NONE" : function Blockly_NONE_Connection_function () {return ""; },
         "LEFT" : function Blockly_LEFT_Connection_function (type) {return "this.setOutput(true,'" + type + "');"; },
         "TOP" :  function Blockly_TOP_Connection_function (type) {return "this.setPreviousStatement(true,'" + type + "');";},
         "BOTTOM" : function Blockly_BOTTOM_Connection_function (type) {return "this.setNextStatement(true,'" + type + "');";},
@@ -83,6 +84,7 @@ function AddonBlocklyCodeEditor_create () {
          "lists_create_with",
          "lists_repeat",
          "lists_length",
+         "lists_getIndex",
          "lists_isEmpty",
          "lists_indexOf",
          "lists_setIndex",
@@ -95,11 +97,12 @@ function AddonBlocklyCodeEditor_create () {
          "colour_blend",
          "math_change",
          "variables_set",
-         "variables_get"
+         "variables_get",
+         "variables_editor"
     ];
 
     presenter.javaScriptBlocksCode = [];
-    presenter.stubBlocks = [];
+    presenter.blockDefinitions = [];
 
     presenter.configuration = {
         hideRun: null,
@@ -143,29 +146,6 @@ function AddonBlocklyCodeEditor_create () {
         presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
-    presenter.createWorkspace = function (view, isPreview) {
-        var $editor = $(view).find(".editor")[0];
-        var toolboxXML = "";
-        if (isPreview) {
-            toolboxXML = presenter.getPreviewToolbox();
-        } else {
-            toolboxXML = presenter.getToolboxXML();
-        }
-
-        presenter.configuration.workspace = Blockly.inject($editor, {
-            toolbox: toolboxXML,
-            sounds: false,
-            maxBlocks: presenter.configuration.maxBlocks
-        });
-    };
-
-    presenter.setEditorCss = function () {
-        presenter.$view.find(".editor").css({
-            width: presenter.$view.width(),
-            height: presenter.$view.height()
-        });
-    };
-
     presenter.runLogic = function Blockly_runLogic_function (view, model, isPreview) {
         presenter.configuration.isPreview = isPreview;
         presenter.configuration = $.extend(presenter.configuration, presenter.validateModel(model));
@@ -181,9 +161,7 @@ function AddonBlocklyCodeEditor_create () {
         presenter.setRunButton();
         presenter.setEditorCss();
         presenter.createWorkspace(view, isPreview);
-
-        eval(presenter.configuration.customBlocksXML.code);
-        eval(presenter.configuration.customBlocksXML.stub);
+        presenter.addUserBlocks();
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
 
@@ -196,6 +174,34 @@ function AddonBlocklyCodeEditor_create () {
                 presenter.destroy();
             }
         });
+    };
+
+    presenter.createWorkspace = function (view, isPreview) {
+        var editor = $(view).find(".blockly-code-editor-editor")[0];
+        var toolboxXML = "";
+        if (isPreview) {
+            toolboxXML = presenter.getPreviewToolbox();
+        } else {
+            toolboxXML = presenter.getToolboxXML();
+        }
+
+        presenter.configuration.workspace = Blockly.inject(editor, {
+            toolbox: toolboxXML,
+            sounds: false,
+            maxBlocks: presenter.configuration.maxBlocks
+        });
+    };
+
+    presenter.setEditorCss = function () {
+        presenter.$view.find(".blockly-code-editor-editor").css({
+            width: presenter.$view.width(),
+            height: presenter.$view.height()
+        });
+    };
+
+    presenter.addUserBlocks = function () {
+        eval(presenter.configuration.customBlocksXML.code);
+        eval(presenter.configuration.customBlocksXML.blockDefinitions);
     };
 
     presenter.addBlocksTranslations = function Blockly_addGoogleBlocksTranslations_function () {
@@ -217,27 +223,28 @@ function AddonBlocklyCodeEditor_create () {
 
         presenter.configuration.workspace = null;
 
-        presenter.$view.find(".run").off();
+        presenter.$view.find(".blockly-code-editor-run").off();
         presenter.$view = null;
         presenter.view = null;
         presenter.configuration = null;
 
-        for(i = 0; i < presenter.javaScriptBlocksCode.length; i++) {
+        for (i = 0; i < presenter.javaScriptBlocksCode.length; i++) {
             delete Blockly.JavaScript[presenter.javaScriptBlocksCode[i]];
         }
 
-        for(i = 0; i < presenter.stubBlocks.length; i++) {
-            delete Blockly.Blocks[presenter.stubBlocks[i]];
+        for (i = 0; i < presenter.blockDefinitions.length; i++) {
+            delete Blockly.Blocks[presenter.blockDefinitions[i]];
         }
 
         presenter.javaScriptBlocksCode = null;
-        presenter.stubBlocks = null;
+        presenter.blockDefinitions = null;
 
         for (key in presenter.connections) {
             if (presenter.connections.hasOwnProperty(key)) {
                 presenter.connections[key] = null;
             }
         }
+
         presenter.connections = null;
         presenter.removePresenterFunctions();
     };
@@ -294,6 +301,39 @@ function AddonBlocklyCodeEditor_create () {
         presenter.removeToolboxCover = null;
     };
 
+    presenter.validateIfToolboxHaveOnlyCategoryOrNot = function (validatedToolbox) {
+        var isCategory = false;
+        var isWithoutCategory = false;
+        for (var key in validatedToolbox.value.categories) {
+            if (validatedToolbox.value.categories.hasOwnProperty(key)) {
+                var blocks = validatedToolbox.value.categories[key];
+                for (var i = 0; i < blocks.length; i++) {
+                    if (blocks[i].isCategory) {
+                        isCategory = true;
+                    } else {
+                        isWithoutCategory = true;
+                    }
+                }
+            }
+
+            if (isCategory && isWithoutCategory) {
+                break;
+            }
+        }
+
+        if (presenter.configuration.addSceneToolbox) {
+            if (presenter.configuration.sceneToolboxIsCategory) {
+                isCategory = true;
+            } else {
+                isWithoutCategory = true;
+            }
+        }
+
+        return {
+            isError: isCategory === isWithoutCategory,
+            errorCode: "CE01"
+        };
+    };
     presenter.validateModel = function Blockly_validateModel_function(model) {
         var haveSceneID = true;
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
@@ -305,7 +345,7 @@ function AddonBlocklyCodeEditor_create () {
 
         var validatedSceneId = presenter.validateSceneId(model["sceneID"]);
         if (!validatedSceneId.isValid) {
-          haveSceneID = false;
+            haveSceneID = false;
         }
 
         var validatedCustomBlocks = presenter.validateCustomBlocks(model["customBlocks"]);
@@ -328,39 +368,14 @@ function AddonBlocklyCodeEditor_create () {
             return validatedBlocksTranslations;
         }
 
-        var isCategory = false;
-        var isWithoutCategory = false;
-        for (var key in validatedToolbox.value.categories) {
-            if (validatedToolbox.value.categories.hasOwnProperty(key)) {
-                var blocks = validatedToolbox.value.categories[key];
-                for (var i = 0; i < blocks.length; i++) {
-                    if (blocks[i].isCategory) {
-                        isCategory = true;
-                    } else {
-                        isWithoutCategory = true;
-                    }
-                }
-            }
-        }
-
-        if (presenter.configuration.addSceneToolbox) {
-            if (presenter.configuration.sceneToolboxIsCategory) {
-                isCategory = true;
-            } else {
-                isWithoutCategory = true;
-            }
-        }
-
-        if (isCategory == isWithoutCategory) {
-            return {
-                isValid: false,
-                errorCode: "CE01"
-            }
+        var validatedMixedCategories = presenter.validateIfToolboxHaveOnlyCategoryOrNot(validatedToolbox);
+        if (validatedMixedCategories.isError) {
+            return validatedMixedCategories;
         }
 
         return {
             isValid: true,
-            visibleByDefault : validatedIsVisible,
+            visibleByDefault: validatedIsVisible,
             haveSceneID: haveSceneID,
             hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),
             sceneID: validatedSceneId.value,
@@ -375,6 +390,7 @@ function AddonBlocklyCodeEditor_create () {
         if (ModelValidationUtils.isStringEmpty(blockModel.trim())) {
             blockModel = "0";
         }
+
         var validatedBlockLimit = ModelValidationUtils.validateInteger(blockModel);
         if (!validatedBlockLimit.isValid || validatedBlockLimit.value < 0) {
             return {
@@ -423,11 +439,11 @@ function AddonBlocklyCodeEditor_create () {
         for (var key in toolbox) {
             if (toolbox.hasOwnProperty(key)) {
                 var category = toolbox[key];
-                for (var i = 0; i < category.length; i++) {
-                    if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.indexOf(category[i].name)  == -1) {
+                for (var blockInCategoryIndex = 0; blockInCategoryIndex < category.length; blockInCategoryIndex++) {
+                    if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.indexOf(category[blockInCategoryIndex].name)  == -1) {
                         var founded = false;
-                        for (var j = 0; j < customblocks.value.length; j++) {
-                            if (customblocks.value[j].name == category[i].name) {
+                        for (var customBlockIndex = 0; customBlockIndex < customblocks.value.length; customBlockIndex++) {
+                            if (customblocks.value[customBlockIndex].name == category[blockInCategoryIndex].name) {
                                 founded = true;
                                 break;
                             }
@@ -442,6 +458,7 @@ function AddonBlocklyCodeEditor_create () {
                 }
             }
         }
+
         return {
             isValid: true
         }
@@ -464,7 +481,8 @@ function AddonBlocklyCodeEditor_create () {
     presenter.validateToolbox = function Blockly_Code_Editor_validate_toolbox (toolbox) {
         var categories = {};
         var elements = [];
-        var tranlations = {};
+        var translations = {};
+
         for (var index = 0; index < toolbox.length; index++) {
             var toolboxElement = toolbox[index];
             if (toolboxElement['blockName'].name != "custom") {
@@ -481,20 +499,26 @@ function AddonBlocklyCodeEditor_create () {
             if (!validatedTranslations.isValid) {
                 return validatedTranslations;
             }
-            $.extend(tranlations, validatedTranslations.value);
+
+            $.extend(translations, validatedTranslations.value);
+            var validatedCategory = null;
             if (toolboxElement['blockName'].name == "custom") {
-                addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].value, toolboxElement['blockIsDisabled']);
+                validatedCategory = addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].value, toolboxElement['blockIsDisabled']);
             } else if (toolboxElement['blockName'].name == "grid_scene_commands") {
-                addToCategory(categories, toolboxElement['blockCategory'], "grid_scene_commands", toolboxElement['blockIsDisabled']);
+                validatedCategory = addToCategory(categories, toolboxElement['blockCategory'], "grid_scene_commands", toolboxElement['blockIsDisabled']);
             } else {
-                addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].name, toolboxElement['blockIsDisabled']);
+                validatedCategory = addToCategory(categories, toolboxElement['blockCategory'], toolboxElement['blockName'].name, toolboxElement['blockIsDisabled']);
+            }
+            if (!validatedCategory.isValid) {
+                return validatedCategory;
             }
         }
+
         return {
             isValid: true,
             value: {
                 categories: categories,
-                translations: tranlations
+                translations: translations
             }
         };
     };
@@ -502,16 +526,35 @@ function AddonBlocklyCodeEditor_create () {
 
 
     function addToCategory(categories, categoryName, blockName, isDisabled) {
-        if (blockName == '') return;
-        if (ModelValidationUtils.validateBoolean(isDisabled)) return;
+        if (blockName == '') {
+            return {
+                isValid: true
+            };
+        }
+
+        if (ModelValidationUtils.validateBoolean(isDisabled)) {
+            return {
+                isValid: true
+            };
+        }
+
         var haveCategory = true;
-        if (categoryName.trim() == '') {
+        if (categoryName.trim() === '') {
             haveCategory = false;
             categoryName = "Empty";
         }
-        if (categories[categoryName] == null) {
-                categories[categoryName] = [];
+
+        if (blockName === "variables_editor" && !haveCategory) {
+            return {
+                isValid: false,
+                errorCode: "VE01"
+            };
         }
+
+        if (categories[categoryName] == null) {
+            categories[categoryName] = [];
+        }
+
         if (blockName != "grid_scene_commands") {
             categories[categoryName].push({
                 name: blockName,
@@ -522,10 +565,12 @@ function AddonBlocklyCodeEditor_create () {
             presenter.configuration.sceneToolboxIsCategory = haveCategory;
             presenter.configuration.sceneToolboxName = categoryName;
         }
+        return {
+            isValid: true
+        };
     }
 
     presenter.validateTranslations = function Blockly_validateTranslations_function (toolboxElement) {
-
         if (presenter.DEFAULT_BLOCKS_TRANSLATION_LABELS.indexOf(toolboxElement['blockName'].name) != -1 || (toolboxElement['blockName'].name == "grid_scene_commands")) {
             var parsedValue = "";
             try {
@@ -676,76 +721,96 @@ function AddonBlocklyCodeEditor_create () {
 
 
     presenter.convertCustomBlockToJS = function Blockly_convertCustomBlockToJS_function (customBlock) {
-        var stub = this.createStub(customBlock);
-        var code = this.createCode(customBlock);
+        var blockDefinitions = presenter.createBlockDefinition(customBlock);
+        var code = presenter.createCode(customBlock);
+
+        presenter.blockDefinitions.push(customBlock.name);
+        presenter.javaScriptBlocksCode.push(customBlock.name);
 
         return {
-            stub: stub,
+            blockDefinitions: blockDefinitions,
             code: code
         };
     };
 
     presenter.createCode = function Blockly_createCode_function (customBlock) {
-        presenter.javaScriptBlocksCode.push(customBlock.name);
+        var variables = presenter.getCustomBlockVariablesCode(customBlock);
+
         var code = StringUtils.format("Blockly.JavaScript['{0}'] = function(block) {", customBlock.name);
+        code = presenter.extractInputsValuesFromBlock(customBlock, code);
+        code = presenter.addVariablesToCode(customBlock, code, variables);
+        code += "return code;};";
+
+        return code;
+    };
+
+    presenter.getCustomBlockVariablesCode = function (customBlock) {
+        var variables = "";
+        for (var inputIndex = 0; inputIndex < customBlock.inputs.length; inputIndex++) {
+            variables += StringUtils.format("'var {0} = ' + {1} + ';' + ", customBlock.inputs[inputIndex], customBlock.inputs[inputIndex]);
+        }
+        return variables;
+    };
+
+    presenter.extractInputsValuesFromBlock = function (customBlock, code) {
         for (var inputKey in customBlock.inputs) {
             if (customBlock.inputs.hasOwnProperty(inputKey)) {
                 code += StringUtils.format("var {0} = Blockly.JavaScript.valueToCode(block, '{1}', Blockly.JavaScript.ORDER_ATOMIC);", customBlock.inputs[inputKey], customBlock.inputs[inputKey]);
             }
         }
-
-        var variables = "";
-        for (var inputIndex = 0; inputIndex < customBlock.inputs.length; inputIndex++) {
-            variables += StringUtils.format("'var {0} = ' + {1} + ';' + ", customBlock.inputs[inputIndex], customBlock.inputs[inputIndex]);
-        }
-
-        if (customBlock.connection.toUpperCase() == "LEFT") {
-            code += StringUtils.format("var code = [eval('(function Blockly_createCode_function_creating (){{0}}())'), Blockly.JavaScript.ORDER_ATOMIC];", customBlock.code);
-        } else {
-            code += StringUtils.format("var code = {0}'{1}';", variables, customBlock.code);
-        }
-        code += "return code;};";
         return code;
     };
 
-    presenter.createStub = function Blockly_createStub_function (customBlock) {
-        presenter.stubBlocks.push(customBlock.name);
-        var stub = StringUtils.format("Blockly.Blocks['{0}'] = { ", customBlock.name);
-        stub += "init: function Blockly_init_function_creating() {";
-        if (customBlock.title != null) {
-            stub += StringUtils.format("this.appendDummyInput().appendField('{0}');", customBlock.title);
+    presenter.addVariablesToCode = function (customBlock, code, variables) {
+        if (customBlock.connection.toUpperCase() === "LEFT") {
+            return code + StringUtils.format("var code = [eval('(function Blockly_createCode_function_creating (){{0}}())'), Blockly.JavaScript.ORDER_ATOMIC];", customBlock.code);
+        } else {
+            return code + StringUtils.format("var code = {0}'{1}';", variables, customBlock.code);
         }
+    };
+
+    presenter.createBlockDefinition = function Blockly_createBlockDefinition_function (customBlock) {
+        var blockDefinition = StringUtils.format("Blockly.Blocks['{0}'] = { ", customBlock.name)
+            + "init: function Blockly_init_function_creating() {";
+
+        if (customBlock.title != null) {
+            blockDefinition += StringUtils.format("this.appendDummyInput().appendField('{0}');", customBlock.title);
+        }
+
         for (var inputKey in customBlock.inputs) {
             if (customBlock.inputs.hasOwnProperty(inputKey)) {
-                stub += StringUtils.format("this.appendValueInput('{0}')", customBlock.inputs[inputKey]);
-                stub += StringUtils.format(".setCheck('{0}')", customBlock.inputsType[inputKey]);
-                stub += StringUtils.format(".appendField('{0}');", customBlock.inputsText[inputKey]);
+                blockDefinition += StringUtils.format("this.appendValueInput('{0}')", customBlock.inputs[inputKey]);
+                blockDefinition += StringUtils.format(".setCheck('{0}')", customBlock.inputsType[inputKey]);
+                blockDefinition += StringUtils.format(".appendField('{0}');", customBlock.inputsText[inputKey]);
             }
         }
 
         if (customBlock.connection.toUpperCase() != "NONE" && customBlock.connection.toUpperCase() != "TOP-BOTTOM") {
-            stub += presenter.connections[customBlock.connection.toUpperCase()](customBlock.connectionType[0]);
+            blockDefinition += presenter.connections[customBlock.connection.toUpperCase()](customBlock.connectionType[0]);
         } else if (customBlock.connection.toUpperCase() == "TOP-BOTTOM") {
-            stub += presenter.connections["TOP-BOTTOM"](customBlock.connectionType[0], customBlock.connectionType[1]);
+            blockDefinition += presenter.connections["TOP-BOTTOM"](customBlock.connectionType[0], customBlock.connectionType[1]);
         }
 
-        stub += StringUtils.format("this.setColour({0});", customBlock.color);
-        stub += StringUtils.format("this.setTooltip('');}};");
-        return stub;
+        blockDefinition += StringUtils.format("this.setColour({0});", customBlock.color);
+        blockDefinition += StringUtils.format("this.setTooltip('');}};");
+
+        return blockDefinition;
     };
 
     presenter.convertCustomBlocksToJS = function Blockly_convertCustomBlocksToJS_function (customBlocks) {
         var stringJS = {
-            stub: "",
+            blockDefinitions: "",
             code: ""
         };
+
         for (var key in customBlocks) {
             if (customBlocks.hasOwnProperty(key)) {
                 var convertedCode = presenter.convertCustomBlockToJS(customBlocks[key]);
-                stringJS.stub += convertedCode.stub;
+                stringJS.blockDefinitions += convertedCode.blockDefinitions;
                 stringJS.code += convertedCode.code;
             }
         }
+
         return stringJS;
     };
 
@@ -768,7 +833,7 @@ function AddonBlocklyCodeEditor_create () {
         }
 
         for (var i = 0; i < blocks.length; i++) {
-            if (names.indexOf(blocks[i].name) != -1) {
+            if (names.indexOf(blocks[i].name) !== -1) {
                 return {
                     isValid: false,
                     errorCode: 'DN01'
@@ -784,20 +849,19 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.connectHandlers = function Blockly_connectHandlers_function() {
-        var runButton = presenter.$view.find(".run");
-        runButton.click(function Blockly_runClick_function () {
+        var $runButton = presenter.$view.find(".blockly-code-editor-run");
+        $runButton.click(function Blockly_runClick_function () {
             if (presenter.configuration.sceneModule !== null) {
                 var code = Blockly.JavaScript.workspaceToCode(presenter.configuration.workspace);
                 presenter.configuration.sceneModule.executeCode(code);
             }
         });
-        runButton = null;
     };
 
     presenter.setRunButton = function Blockly_setRunButton_function () {
         if (presenter.configuration.hideRun) {
-            var runButton = presenter.$view.find(".run");
-            runButton.css({
+            var $runButton = presenter.$view.find(".blockly-code-editor-run");
+            $runButton.css({
                 "display": "none"
             });
         }
@@ -815,12 +879,10 @@ function AddonBlocklyCodeEditor_create () {
 
     presenter.hide = function Blockly_hide_function () {
         presenter.setVisibility(false);
-        presenter.configuration.isVisible = false;
     };
 
     presenter.show = function Blockly_show_function () {
         presenter.setVisibility(true);
-        presenter.configuration.isVisible = true;
     };
 
     presenter.setVisibility = function Blockly_setVisibility_function (isVisible) {
@@ -828,7 +890,6 @@ function AddonBlocklyCodeEditor_create () {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         var $blocklyToolboxDiv = $('.blocklyToolboxDiv');
         $blocklyToolboxDiv.css('visibility', isVisible ? 'visible' : 'hidden');
-        $blocklyToolboxDiv = null;
     };
 
     presenter.getWorkspaceCode = function Blockly_getWorkspaceCode_function () {
@@ -844,40 +905,39 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.getPreviewToolbox = function () {
-        var toolbox = "";
-            toolbox += "<xml>";
-            toolbox += "<block type=\"lists_create_with\">";
-            toolbox += "<mutation items=\"3\"></mutation>";
-            toolbox += "</block>";
-            toolbox += "<block type=\"controls_repeat_ext\">";
-            toolbox += "<value name=\"TIMES\">";
-            toolbox += "<shadow type=\"math_number\">";
-            toolbox += "<field name=\"NUM\">10</field>";
-            toolbox += "</shadow>";
-            toolbox += "</value>";
-            toolbox += "</block>";
-            toolbox += "<block type=\"math_constant\">";
-            toolbox += "<field name=\"CONSTANT\">PI</field>";
-            toolbox += "</block>";
-            toolbox += "<block type=\"controls_for\">";
-            toolbox += "<field name=\"VAR\">i</field>";
-            toolbox += "<value name=\"FROM\">";
-            toolbox += "<shadow type=\"math_number\">";
-            toolbox += "<field name=\"NUM\">1</field>";
-            toolbox += "</shadow>";
-            toolbox += "</value>";
-            toolbox += "<value name=\"TO\">";
-            toolbox += "<shadow type=\"math_number\">";
-            toolbox += "<field name=\"NUM\">10</field>";
-            toolbox += "</shadow>";
-            toolbox += "</value>";
-            toolbox += "<value name=\"BY\">";
-            toolbox += "<shadow type=\"math_number\">";
-            toolbox += "<field name=\"NUM\">1</field>";
-            toolbox += "</shadow>";
-            toolbox += "</value>";
-            toolbox += "</block>";
-            toolbox += "</xml>";
+        var toolbox = "<xml>";
+        toolbox += "<block type=\"lists_create_with\">";
+        toolbox += "<mutation items=\"3\"></mutation>";
+        toolbox += "</block>";
+        toolbox += "<block type=\"controls_repeat_ext\">";
+        toolbox += "<value name=\"TIMES\">";
+        toolbox += "<shadow type=\"math_number\">";
+        toolbox += "<field name=\"NUM\">10</field>";
+        toolbox += "</shadow>";
+        toolbox += "</value>";
+        toolbox += "</block>";
+        toolbox += "<block type=\"math_constant\">";
+        toolbox += "<field name=\"CONSTANT\">PI</field>";
+        toolbox += "</block>";
+        toolbox += "<block type=\"controls_for\">";
+        toolbox += "<field name=\"VAR\">i</field>";
+        toolbox += "<value name=\"FROM\">";
+        toolbox += "<shadow type=\"math_number\">";
+        toolbox += "<field name=\"NUM\">1</field>";
+        toolbox += "</shadow>";
+        toolbox += "</value>";
+        toolbox += "<value name=\"TO\">";
+        toolbox += "<shadow type=\"math_number\">";
+        toolbox += "<field name=\"NUM\">10</field>";
+        toolbox += "</shadow>";
+        toolbox += "</value>";
+        toolbox += "<value name=\"BY\">";
+        toolbox += "<shadow type=\"math_number\">";
+        toolbox += "<field name=\"NUM\">1</field>";
+        toolbox += "</shadow>";
+        toolbox += "</value>";
+        toolbox += "</block>";
+        toolbox += "</xml>";
 
         return toolbox;
     };
@@ -898,6 +958,7 @@ function AddonBlocklyCodeEditor_create () {
 
     function generateXMLFromCategories(categories) {
         var xml = "";
+        var variables_editor_xml = "";
         for (var categoryName in categories) {
             var category = "";
             var categoryIsNotEmpty = false;
@@ -906,6 +967,10 @@ function AddonBlocklyCodeEditor_create () {
                 for (var key in categories[categoryName]) {
                     if (categories[categoryName].hasOwnProperty(key)) {
                         var block = categories[categoryName][key];
+                        if (block.name === 'variables_editor') {
+                            variables_editor_xml = "<category name='" + categoryName + "' custom='VARIABLE'></category>";
+                            continue;
+                        }
                         if (!block.isCategory) {
                             continue;
                         }
@@ -919,11 +984,11 @@ function AddonBlocklyCodeEditor_create () {
                 xml += category;
             }
         }
+        xml += variables_editor_xml;
         return xml;
     }
 
     presenter.onEventReceived = function Blockly_onEventReceived_function (eventName, eventData) {
-
         if (eventName == "PageLoaded") {
             if (presenter.configuration.pageLoaded ) {
                 return;
@@ -947,39 +1012,13 @@ function AddonBlocklyCodeEditor_create () {
     };
 
 
-
-    presenter.gridSceneInitialization = function (data) {
-        for (var key in data.labels) {
-            if (data.labels.hasOwnProperty(key) && presenter.configuration.blocksTranslation.hasOwnProperty(key)) {
-                data.labels[key] = presenter.configuration.blocksTranslation[key];
-            }
-        }
-        BlocklyCustomBlocks.SceneGrid.addBlocks(data.labels);
-
-
-        if (presenter.configuration.addSceneToolbox) {
-            for (var key in data.availableBlocks) {
-                if (data.availableBlocks.hasOwnProperty(key)) {
-                    presenter.configuration.toolboxXML[presenter.configuration.sceneToolboxName].push({
-                        name: key,
-                        isCategory: presenter.configuration.sceneToolboxIsCategory
-                    });
-                }
-            }
-        }
-
-    };
-
-    presenter.scenesInitialization = {
-        "GridScene" : presenter.gridSceneInitialization
-    };
-
     presenter.getSceneData = function Blockly_getSceneData () {
         if ((presenter.configuration.sceneModule !== null && presenter.configuration.sceneModule !== undefined)) {
             if (presenter.configuration.sceneModule.getBlocklyData !== undefined && presenter.configuration.sceneModule.getBlocklyData !== null) {
                 return presenter.configuration.sceneModule.getBlocklyData();
             }
         }
+
         return undefined;
     };
 
@@ -991,14 +1030,14 @@ function AddonBlocklyCodeEditor_create () {
 
     presenter.updateToolbox = function Blockly_updateToolbox_function () {
         presenter.configuration.workspace.updateToolbox(presenter.getToolboxXML());
-        var transformValue = $(".blocklyToolboxDiv");
-        transformValue = transformValue.width();
+        var transformValueWidth = $(".blocklyToolboxDiv").width();
+
         presenter.$view.find('.blocklyFlyout').css({
-            '-webkit-transform' : StringUtils.format("translate({0}px, 0)", transformValue),
-            '-moz-transform'    : StringUtils.format("translate({0}px, 0)", transformValue),
-            '-ms-transform'     : StringUtils.format("translate({0}px, 0)", transformValue),
-            '-o-transform'      : StringUtils.format("translate({0}px, 0)", transformValue),
-            'transform'         : StringUtils.format("translate({0}px, 0)", transformValue)
+            '-webkit-transform' : StringUtils.format("translate({0}px, 0)", transformValueWidth),
+            '-moz-transform'    : StringUtils.format("translate({0}px, 0)", transformValueWidth),
+            '-ms-transform'     : StringUtils.format("translate({0}px, 0)", transformValueWidth),
+            '-o-transform'      : StringUtils.format("translate({0}px, 0)", transformValueWidth),
+            'transform'         : StringUtils.format("translate({0}px, 0)", transformValueWidth)
         });
     };
 
@@ -1069,6 +1108,30 @@ function AddonBlocklyCodeEditor_create () {
                 toolboxCover[0].parentNode.removeChild(toolboxCover[0]);
             }
         }
+    };
+
+    presenter.gridSceneInitialization = function (data) {
+        for (var key in data.labels) {
+            if (data.labels.hasOwnProperty(key) && presenter.configuration.blocksTranslation.hasOwnProperty(key)) {
+                data.labels[key] = presenter.configuration.blocksTranslation[key];
+            }
+        }
+        BlocklyCustomBlocks.SceneGrid.addBlocks(data.labels);
+
+        if (presenter.configuration.addSceneToolbox) {
+            for (var key in data.availableBlocks) {
+                if (data.availableBlocks.hasOwnProperty(key)) {
+                    presenter.configuration.toolboxXML[presenter.configuration.sceneToolboxName].push({
+                        name: key,
+                        isCategory: presenter.configuration.sceneToolboxIsCategory
+                    });
+                }
+            }
+        }
+    };
+
+    presenter.scenesInitialization = {
+        "GridScene" : presenter.gridSceneInitialization
     };
 
     return presenter;

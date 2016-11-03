@@ -300,15 +300,6 @@ public class ChoiceModel extends BasicModuleModel{
 				return isDefault;
 			}
 
-			@Override
-			public IProperty getTemplateProperty(int index) {
-				return null;
-			}
-
-			@Override
-			public int getTemplateSize() {
-				return 0;
-			}
 		};
 		
 		addProperty(optionsProperty);

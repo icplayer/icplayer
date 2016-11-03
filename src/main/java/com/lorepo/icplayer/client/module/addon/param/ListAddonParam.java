@@ -135,14 +135,6 @@ public class ListAddonParam extends StringAddonParam{
 			public String getDisplayName() {
 				return displayName;
 			}
-			
-			public int getTemplateSize() {
-				return template.size();
-			}
-			
-			public IProperty getTemplateProperty (int index){
-				return template.get(index).getAsProperty();
-			}
 
 			@Override
 			public int getChildrenCount() {

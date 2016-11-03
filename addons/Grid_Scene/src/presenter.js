@@ -838,7 +838,7 @@ function AddonGrid_Scene_create(){
 
     presenter.reset = function(){
         presenter.$view.find('.grid-scene-cell-element').each(function () {
-            $(this).removeClass('grid-scene-wrong').removeClass('grid-scene-correct');
+            $(this).removeClass('grid-scene-wrong').removeClass('grid-scene-cell-element-wrapper');
             if($(this).attr('colored') == 'true'){
                 var coordinates = $(this).attr('coordinates').split('-');
                 presenter.resetMark(coordinates[0], coordinates[1]);
@@ -1152,6 +1152,9 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.showAnswers = function AddonIFrame_Communication_show_answers () {
+        if (!presenter.configuration.isAnswer) {
+            return 0;
+        }
         if(presenter.configuration.isErrorMode) {
             presenter.setWorkMode();
         }

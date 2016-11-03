@@ -257,16 +257,6 @@ public class OrderingModule extends BasicModuleModel {
 			public boolean isDefault() {
 				return true;
 			}
-
-			@Override
-			public IProperty getTemplateProperty(int index) {
-				return null;
-			}
-
-			@Override
-			public int getTemplateSize() {
-				return 0;
-			}
 		};
 
 		addProperty(itemsProperty);
