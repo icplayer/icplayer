@@ -745,7 +745,7 @@ function AddonGrid_Scene_create(){
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.getDefaultCommandsToText = function Grid_Scene_get_commands (withParams) {
+    presenter.getDefaultCommands = function Grid_Scene_get_commands (withParams) {
         var functions = "";
         var labels = presenter.configuration.labels;
 
@@ -776,7 +776,7 @@ function AddonGrid_Scene_create(){
         return functions;
     };
 
-    presenter.getCustomCommandsToText = function Grid_Screne_get_custom_commands (withParams) {
+    presenter.getCustomCommands = function Grid_Screne_get_custom_commands (withParams) {
         var commands = "";
 
         if (withParams === undefined) {
@@ -800,13 +800,14 @@ function AddonGrid_Scene_create(){
         return commands;
     };
 
-    presenter.getCommandsToText = function Grid_Screne_get_custom_commands (withParams) {
+    presenter.getCommands = function Grid_Screne_get_custom_commands (withParams) {
         if (withParams === undefined) {
             withParams = false;
         }
 
-        return presenter.getDefaultCommandsToText(withParams) + presenter.getCustomCommandsToText(withParams);
+        return presenter.getDefaultCommands(withParams) + presenter.getCustomCommands(withParams);
     };
+
 
     presenter.executeCommand = function(name, params) {
         var commands = {
@@ -827,9 +828,9 @@ function AddonGrid_Scene_create(){
             'clear': applyDelayDecorator(presenter.reset),
             'reset' : presenter.reset,
             'executeCode': applyDecorator(presenter.executeCode),
-            'getDefaultCommands': applyDelayDecorator(presenter.getDefaultCommandsToText),
-            'getCustomCommands': applyDelayDecorator(presenter.getCustomCommandsToText),
-            'getCommands': applyDelayDecorator(presenter.getCommandsToText),
+            'getDefaultCommands': applyDelayDecorator(presenter.getDefaultCommands),
+            'getCustomCommands': applyDelayDecorator(presenter.getCustomCommands),
+            'getCommands': applyDelayDecorator(presenter.getCommands),
             'isAllOK': presenter.isAllOK
         };
 
@@ -1006,7 +1007,7 @@ function AddonGrid_Scene_create(){
         return result;
     };
 
-    presenter.getCustomCommands = function () {
+    presenter.getCustomCommandsToEval = function () {
         var customCommands = presenter.configuration.customCommands;
         var excludedCommands = presenter.configuration.excludedCommands;
         var customCommandsString = "";
@@ -1028,7 +1029,7 @@ function AddonGrid_Scene_create(){
         }
 
         with (presenter.getSceneCommands()) {
-            var customCommands = presenter.getCustomCommands();
+            var customCommands = presenter.getCustomCommandsToEval();
             try {
                 eval(customCommands);
                 eval(code);
