@@ -1,3 +1,4 @@
+2016-11-03 Fixed showAnswer, setShowErrorMode bugs in Grid Scene addon.
 2016-11-03 Added Blockly Code Editor addon. Fixed bugs in Grid Scene. Added property Editable Select and Select for list.
 2016-10-27 Added hiding answers after reset in Image Gap module
 2016-10-27 Fixed operating on module in popup page in Connection and eKeyboard modules
