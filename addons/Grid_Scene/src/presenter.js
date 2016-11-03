@@ -1070,6 +1070,9 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.getScore = function Grid_Scene_get_score () {
+        if (!presenter.configuration.isAnswer) {
+            return 0;
+        }
         if (presenter.configuration.isShowingAnswers) {
             return 0;
         }
@@ -1110,6 +1113,9 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.setWorkMode = function () {
+        if (!presenter.configuration.isAnswer) {
+            return 0;
+        }
         var rows = presenter.configuration.rows;
         var columns = presenter.configuration.columns;
         for (var i = 0; i < columns; i++){
@@ -1166,6 +1172,9 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.hideAnswers = function AddonIFrame_Communication_hide_answers () {
+        if (!presenter.configuration.isAnswer) {
+            return 0;
+        }
         presenter.configuration.isShowingAnswers = false;
         presenter.reset();
         presenter.coloredGrid = presenter.lastState;
