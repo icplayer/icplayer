@@ -68,6 +68,8 @@ function AddonProgrammingCommandPrompt_create () {
         if (!isPreview) {
             presenter.connectHandlers();
         }
+
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
     
     presenter.connectHandlers = function () {
@@ -95,6 +97,8 @@ function AddonProgrammingCommandPrompt_create () {
     presenter.executeCommand = function(name, params) {
         var commands = {
             'getWorkspaceCode' : presenter.getWorkspaceCode,
+            'show': presenter.show,
+            'hide': presenter.hide,
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -117,6 +121,8 @@ function AddonProgrammingCommandPrompt_create () {
             isValid: true,
             sceneID: sceneID,
             sceneModule: null,
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            defaultVisibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
             hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),
         };
     };
@@ -130,17 +136,35 @@ function AddonProgrammingCommandPrompt_create () {
     };
     
     presenter.getState = function Programming_Command_Prompt_get_state () {
-        return JSON.stringify(presenter.getWorkspaceCode());
+        return JSON.stringify({
+            code: presenter.getWorkspaceCode(),
+            isVisible: presenter.configuration.isVisible
+        });
     };
 
     presenter.setState = function Programming_Command_Prompt_set_state (state) {
-        presenter.setCode(JSON.parse(state));
+        var object = JSON.parse(state);
+        presenter.setCode(object.code);
+        presenter.setVisibility(object.isVisible);
     };
 
     presenter.reset = function () {
         presenter.setCode("");
+        presenter.setVisibility(presenter.configuration.defaultVisibility);
     };
 
+    presenter.show = function () {
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        presenter.configuration.isVisible = isVisible;
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
 
     return presenter;
 }

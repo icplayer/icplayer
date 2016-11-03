@@ -189,6 +189,30 @@
     };
 
     /**
+     * Check if the string is valid JS variable name
+     * @method validateJSVariableName
+     *
+     * @param name String with name to validation
+     * @returns {Object} dictionary with isValid = true if is valid js variable name or false.
+     */
+    ModelValidationUtils.validateJSVariableName = function (name) {
+        /*
+        Variable name is valid JS name
+        e.g. : 12SomeName -> null
+               SomeName12 -> array
+               $someName -> array
+         */
+        if(name.match(/^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/) === null) {
+            return {
+                isValid: false
+            }
+        }
+        return {
+            isValid: true
+        };
+    };
+
+    /**
      Validates hex color definition. Proper color starts with '#' character and is 6 characters long.
      @method validateColor
 

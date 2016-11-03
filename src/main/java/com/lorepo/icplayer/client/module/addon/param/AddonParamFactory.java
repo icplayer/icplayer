@@ -34,7 +34,9 @@ public class AddonParamFactory {
 			return new StaticRowAddonParam(parent, type);
 		} else if(lowerCaseType.startsWith("{")) {
 			return new EnumAddonParam(parent, type);
-		} 
+		} else if(lowerCaseType.startsWith("editableselect")) {
+			return new EditableSelectAddonParam(parent, type, this);
+		}
 		
 		return new StringAddonParam(parent, type);
 	}

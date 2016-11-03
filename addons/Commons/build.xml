@@ -28,6 +28,7 @@
             <arg line="--js src/loadedPromise.js" />
             <arg line="--js src/events.js" />
             <arg line="--js src/error-utils.js" />
+            <arg line="--js src/blocklyCustomBlocks/sceneGrid.js" />
             <arg line="--js_output_file bin/commons-${commons.version}/commons.js" />
         </java>
 
@@ -51,6 +52,7 @@
  * - Loaded Promise
  * - Events Utils
  * - Model Error Utils
+ * - Blockly Custom Scene Blocks
  */</concat>
 
     </target>

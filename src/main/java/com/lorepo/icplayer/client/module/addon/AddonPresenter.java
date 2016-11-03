@@ -7,6 +7,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Element;
 import com.lorepo.icf.properties.IAudioProperty;
+import com.lorepo.icf.properties.IEditableSelectProperty;
 import com.lorepo.icf.properties.IFileProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IImageProperty;
@@ -274,6 +275,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 					}
 				}
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
+			} else if (property instanceof IEditableSelectProperty) {
+				IEditableSelectProperty castedProperty = (IEditableSelectProperty)property;
+				JavaScriptObject editableSelectModel = JavaScriptObject.createObject();
+				addPropertyToJSObject(editableSelectModel, "value", castedProperty.getChild(castedProperty.getSelectedIndex()).getValue());
+				addPropertyToJSObject(editableSelectModel, "name", castedProperty.getChild(castedProperty.getSelectedIndex()).getName());
+				addPropertyToJSObject(jsModel, property.getName(), editableSelectModel);
 			} else{
 				addPropertyToModel(jsModel, property);
 			}

@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.addon.param;
 import java.util.ArrayList;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
@@ -72,7 +73,6 @@ public class ListAddonParam extends StringAddonParam{
 
 	@Override
 	public void load(Element rootElement, String baseUrl) {
-		
 		this.baseUrl = baseUrl;
 		propertyProviders.clear();
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
@@ -90,7 +90,6 @@ public class ListAddonParam extends StringAddonParam{
 		if(templateNodes.getLength() > 0){
 			NodeList optionNodes = templateNodes.item(0).getChildNodes();
 			for(int i = 0; i < optionNodes.getLength(); i++){
-
 				if(optionNodes.item(i) instanceof Element){
 					Element element = (Element)optionNodes.item(i);
 					String type = XMLUtils.getAttributeAsString(element, "type");

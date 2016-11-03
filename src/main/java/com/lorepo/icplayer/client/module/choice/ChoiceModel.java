@@ -299,6 +299,7 @@ public class ChoiceModel extends BasicModuleModel{
 			public boolean isDefault() {
 				return isDefault;
 			}
+
 		};
 		
 		addProperty(optionsProperty);
