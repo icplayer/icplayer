@@ -236,8 +236,8 @@ function AddonTable_create() {
         presenter.gapsContainer = new presenter.GapsContainerObject();
 
         var $table = presenter.generateTable(presenter.configuration.contents, isPreview);
-        presenter.setColumnWidth($table, presenter.configuration.columnsWidths);
-        presenter.setRowHeight($table, presenter.configuration.rowsHeight);
+        presenter.setColumnWidth($table, presenter.configuration.columnsWidths, presenter.configuration.rowsHeights);
+        presenter.setRowHeight($table, presenter.configuration.rowsHeights);
         presenter.setVisibility(presenter.configuration.isVisible);
 
         presenter.initializeGaps(isPreview);
@@ -402,13 +402,26 @@ function AddonTable_create() {
         return $table;
     };
 
-    presenter.setColumnWidth = function ($table, columnWidth) {
-        var firstRow = $table.find('.row_1'), i;
+    presenter.setColumnWidth = function ($table, columnWidth, rowsHeights) {
+        var i = 0;
+        if (presenter.configuration.newWidthCalculate) {
+            var rowsNumber = rowsHeights.length;
+            var columsNumber = columnWidth.length;
+            for (var row = 1; row <= rowsNumber; row++) {
+                var foundedRow = $table.find('.row_' + row);
+                for (i = 0; i < columsNumber; i++) {
+                    $(foundedRow[i]).css('width', columnWidth[i]);
+                }
+            }
+        } else {
+            var firstRow = $table.find('.row_1');
 
-        for (i = 0; i < columnWidth.length; i++) {
-            $(firstRow[i]).css('width', columnWidth[i]);
+            for (i = 0; i < columnWidth.length; i++) {
+                $(firstRow[i]).css('width', columnWidth[i]);
+            }
         }
-    };
+};
+
 
     presenter.setRowHeight = function ($table, rowHeight) {
         var i;
@@ -552,6 +565,11 @@ function AddonTable_create() {
      * @return {Object} contents array of contents. Dimensions based on Rows and Columns properties
      */
     presenter.validateModel = function (model) {
+
+        if (model["newWidthCalculate"] === undefined) {
+            model["newWidthCalculate"] = false;
+        }
+
         var validatedRows = ModelValidationUtils.validatePositiveInteger(model.Rows);
         if (!validatedRows.isValid) {
             return { isValid: false, errorCode: 'RW_01' };
@@ -594,7 +612,7 @@ function AddonTable_create() {
             isValid: true,
             contents: validatedContents.content,
             columnsWidths: convertedColumnWidth.dimensions,
-            rowsHeight: convertedRowWidths.dimensions,
+            rowsHeights: convertedRowWidths.dimensions,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isActivity: !ModelValidationUtils.validateBoolean(model["Is not an activity"]),
@@ -602,6 +620,7 @@ function AddonTable_create() {
             isDisabledByDefault: ModelValidationUtils.validateBoolean(model["Is disabled"]),
             isPunctuationIgnored: ModelValidationUtils.validateBoolean(model["Ignore punctuation"]),
             isCaseSensitive: ModelValidationUtils.validateBoolean(model["Case sensitive"]),
+            newWidthCalculate: ModelValidationUtils.validateBoolean(model["newWidthCalculate"]),
             gapWidth: gapWidth,
             gapType: model["Gap Type"]
         };

@@ -42,7 +42,7 @@ TestCase("[Table] Model validation", {
         assertTrue(validatedModel.isValid);
         assertNotUndefined(validatedModel.contents);
         assertEquals([ "auto" , "auto" , "auto" ], validatedModel.columnsWidths);
-        assertEquals([ "auto" , "auto" ], validatedModel.rowsHeight);
+        assertEquals([ "auto" , "auto" ], validatedModel.rowsHeights);
         assertEquals('Table1', validatedModel.addonID);
 
         assertTrue(validatedModel.isVisible);
@@ -145,7 +145,7 @@ TestCase("[Table] Model validation", {
         assertTrue(validatedModel.isValid);
         assertNotUndefined(validatedModel.contents);
         assertEquals([ "auto" , "auto" , "auto" ], validatedModel.columnsWidths);
-        assertEquals([ "auto" , "auto" ], validatedModel.rowsHeight);
+        assertEquals([ "auto" , "auto" ], validatedModel.rowsHeights);
         assertEquals('Table1', validatedModel.addonID);
 
         assertTrue(validatedModel.isVisible);
