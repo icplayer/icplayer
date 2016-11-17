@@ -1204,6 +1204,7 @@ var ice_dictionary_mx = {
 	"Clock_property_correct_answer": "Respuesta correcta",
 	"Clock_property_is_disable": "Inhabilitar",
 	"Clock_property_is_activity": "Es actividad",
+    "Clock_property_continuous_events" : "Continuous events",
 	"SwiffyAnimation_info": "Permite a los usuarios a insertar animaciones y otros proyectos creados en el programa Adobe Flash y convertidos con el complemento Google Swiffy. En primer lugar, es necesario configurar ciertas propiedades en el menú lateral del addon, incluyendo las Animaciones (donde se agrega el archivo Swiffy) y la Animación de inicio. La única manera de controlar las Animaciones Swiffy es usar el comando setVars del addon.",
 	"SwiffyAnimation_name": "Animación Swiffy",
 	"SwiffyAnimation_property_animations": "Animaciones",

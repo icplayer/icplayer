@@ -13,5 +13,6 @@
 		<property name="CorrectAnswer" nameLabel="Clock_property_correct_answer" type="string"/>
 		<property name="isDisable" nameLabel="Clock_property_is_disable" type="boolean"/>
 		<property name="isActivity" nameLabel="Clock_property_is_activity" type="boolean"/>
+        <property name="Continuous events" nameLabel="Clock_property_continuous_events" type="boolean" />
 	</model>
 </addon>

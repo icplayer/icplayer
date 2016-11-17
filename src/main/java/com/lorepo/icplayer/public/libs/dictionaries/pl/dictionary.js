@@ -1203,6 +1203,7 @@
 	"Clock_property_correct_answer": "Poprawna odpowiedź",
 	"Clock_property_is_disable": "Jest wyłączony",
 	"Clock_property_is_activity": "Jest ćwiczeniem",
+    "Clock_property_continuous_events" : "Continuous events",
 	"SwiffyAnimation_info" : "Pozwala na osadzenie animacji utworzonej w programie Adobe Flash i skonwertowanej za pomocą Google Swiffy. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane parametry w menu Właściwości.",
 	"SwiffyAnimation_name" : "Animacja Google Swiffy",
 	"SwiffyAnimation_property_animations" : "Animacje",

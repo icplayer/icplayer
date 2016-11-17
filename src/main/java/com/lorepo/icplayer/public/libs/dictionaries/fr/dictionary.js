@@ -1204,6 +1204,7 @@ var ice_dictionary_fr = {
 "Clock_property_correct_answer": "Bonne réponse",
 "Clock_property_is_disable": "Est désactivé",
 "Clock_property_is_activity": "Est un exercice",
+"Clock_property_continuous_events" : "Continuous events",
 "SwiffyAnimation_info" : "Permet aux utilisateurs d'intégrer des animations et d'autres projets créés dans Adobe Flash et convertis avec le plugin Google Swiffy. Tout d'abord, il est nécessaire de configurer certaines propriétés dans le menu latéral du module, comme les animations (où vous ajoutez le fichier Swiffy) et l'animation initiale. La seule façon de contrôler animations Swiffy est d'utiliser la commande du module externe setVars.",
 "SwiffyAnimation_name" : "Animation Swiffy",
 "SwiffyAnimation_property_animations" : "Animations",

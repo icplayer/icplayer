@@ -17,6 +17,7 @@ function AddonClock_create() {
     presenter.isErrorCheckingMode = false;
     presenter.TimeStandard = 24;
     presenter.showAnswersMode = false;
+    presenter.shouldSendEventTime = null;
 
     function displayText() {
         var textToDisplay = presenter.model['Text to be displayed'], isTextColored = presenter.model['Color text'] === 'True', $textContainer = presenter.$view
@@ -564,6 +565,8 @@ function AddonClock_create() {
             }
         }
 
+        presenter.continousEvents = ModelValidationUtils.validateBoolean(model['Continuous events']);
+
         return true;
     };
 
@@ -629,7 +632,7 @@ function AddonClock_create() {
                     presenter.currentHand = 0;
                     e.stopPropagation();
 
-                    if (presenter.isHandInMove && !presenter.isDisable 	&& !presenter.isErrorCheckingMode) {
+                    if (presenter.isHandInMove && !presenter.isDisable 	&& !presenter.isErrorCheckingMode && !presenter.continousEvents) {
                         presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1 : 0);
                     }
                     presenter.isHandInMove = false;
@@ -662,7 +665,7 @@ function AddonClock_create() {
                         presenter.currentHand = 0;
                         e.stopPropagation();
 
-                        if (presenter.isHandInMove) {
+                        if (presenter.isHandInMove && !presenter.continousEvents) {
                             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
 
                             presenter.isHandInMove = false;
@@ -698,6 +701,10 @@ function AddonClock_create() {
                                 }
                             }
                             e.stopPropagation();
+                            if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                                presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                            }
+                            presenter.shouldSendEventTime = presenter.getCurrentTime();
                         }
 
                     }).mouseleave(function() {
@@ -719,7 +726,7 @@ function AddonClock_create() {
                     function(e) {
                         presenter.currentHand = 0;
                         e.stopPropagation();
-                        if (presenter.isHandInMove) {
+                        if (presenter.isHandInMove && !presenter.continousEvents) {
                             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
                             presenter.isHandInMove = false;
                         }
@@ -755,6 +762,11 @@ function AddonClock_create() {
                                 }
                             }
                             e.stopPropagation();
+
+                            if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                                presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                            }
+                            presenter.shouldSendEventTime = presenter.getCurrentTime();
                         }
 
                     }).mouseleave(function() {
@@ -837,7 +849,9 @@ function AddonClock_create() {
                         e.stopPropagation();
                         e.stopImmediatePropagation();
                         presenter.isHandInMove = false;
-                        presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        if(!presenter.continousEvents) {
+                            presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        }
                     })
                     .on(
                     'touchmove',
@@ -860,6 +874,11 @@ function AddonClock_create() {
                                         .setTimeNotSynhronized();
                                 }
                             }
+
+                            if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                                presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                            }
+                            presenter.shouldSendEventTime = presenter.getCurrentTime();
                         }
                     });
             });
@@ -887,7 +906,9 @@ function AddonClock_create() {
                         e.stopPropagation();
                         e.stopImmediatePropagation();
                         presenter.isHandInMove = false;
-                        presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        if(!presenter.continousEvents) {
+                            presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        }
 
                     })
                     .on(
@@ -912,6 +933,10 @@ function AddonClock_create() {
                                 }
                             }
 
+                            if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                                presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                            }
+                            presenter.shouldSendEventTime = presenter.getCurrentTime();
                         }
                     });
             });

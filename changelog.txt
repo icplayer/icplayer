@@ -1,3 +1,4 @@
+2016-11-17 Added continous events in Clock module
 2016-11-17 Fixed calculating max score in Choice module
 2016-11-16 Removed unicode special characters from Shape Tracing comments
 2016-11-08 Fixed width calculating in Table addon.

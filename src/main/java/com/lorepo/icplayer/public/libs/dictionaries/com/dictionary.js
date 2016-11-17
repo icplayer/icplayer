@@ -1216,6 +1216,7 @@
 	"Clock_property_correct_answer": "Correct Answer",
 	"Clock_property_is_disable": "Is Disabled",
 	"Clock_property_is_activity": "Is Activity",
+    "Clock_property_continuous_events" : "Continuous events",
 	"SwiffyAnimation_info" : "Enables users to embed animations and other projects created in Adobe Flash program and converted with Google Swiffy plugin. First, it is necessary to configure certain properties in the addon’s side menu, including Animations (where you add Swiffy file) and Initial animation. The only way to control swiffy animations is to use the addon’s setVars command.",
 	"SwiffyAnimation_name" : "Swiffy Animation",
 	"SwiffyAnimation_property_animations" : "Animations",
