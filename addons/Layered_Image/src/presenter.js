@@ -350,8 +350,21 @@ function AddonLayered_Image_create() {
 
         setFlag(index - 1, true);
 
-        var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]');
-        $(layer).show();
+        var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]'),
+            $layer = $(layer);
+
+        $layer.show();
+        var backgroundImageUrl = $layer.css('background-image'),
+            backgroundImage = backgroundImageUrl.substring(backgroundImageUrl.indexOf('url(') + 'url('.length, backgroundImageUrl.indexOf(')')).replace(/"/g, ""),
+            timestamp = new Date().getTime();
+
+        if(backgroundImage.indexOf('?') !== -1) {
+            backgroundImage = backgroundImage.substring(0, backgroundImage.indexOf('?'));
+        }
+
+        backgroundImage = backgroundImage + '?' + timestamp;
+        $layer.css('background-image', '');
+        $layer.css('background-image', 'url('+ backgroundImage +')');
     };
 
     presenter.showLayerCommand = function (params) {
