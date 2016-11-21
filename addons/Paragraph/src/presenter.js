@@ -36,10 +36,15 @@ function AddonParagraph_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
-            'getText': presenter.getText
+            'getText': presenter.getText,
+            'isAttempted': presenter.isAttempted
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.isAttempted = function () {
+        return $(presenter.editor.getContent({format: 'raw'})).text() != '';
     };
 
     presenter.getText = function AddonParagraph_getText() {
