@@ -697,9 +697,33 @@ function Addonvideo_create() {
                     presenter.showSubtitles();
                 }
             });
+
             // Android devices have problem with loading content.
             this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
             this.video.load();
+
+            if(ModelValidationUtils.validateBoolean(files[this.currentMovie]['Loop video'])) {
+                if (typeof this.video.loop == 'boolean') {
+                    this.video.loop = true;
+                } else {
+                    $(this.video).on('ended', function () {
+                        this.currentTime = 0;
+                        this.play();
+                    }, false);
+                }
+
+                presenter.isAborted = false;
+
+                $(this.video).on('abort', function() {
+                    presenter.isAborted = true;
+                });
+
+                $(this.video).on('canplay', function() {
+                    if(presenter.isAborted) {
+                        this.play();
+                    }
+                });
+            }
         }
     };
 

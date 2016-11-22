@@ -9,6 +9,7 @@
 			<property name="Subtitles" nameLabel="video_property_subtitles" type="text" isLocalized="true" />
 			<property name="Poster" nameLabel="video_property_poster" type="image" />
 			<property name="ID" nameLabel="video_property_id" type="string" />
+            <property name="Loop video" nameLabel="video_property_loop_video" type="boolean" />
 		</property>
 		<property name="Show video" nameLabel="video_property_show_video" type="string" />
 		<property name="Narration" nameLabel="video_property_narration" type="narration" isLocalized="true" />
