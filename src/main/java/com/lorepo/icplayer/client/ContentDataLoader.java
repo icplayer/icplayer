@@ -13,8 +13,8 @@ import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.addonsLoader.AddonLoaderFactory;
 import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 
 
 /**

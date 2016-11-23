@@ -85,4 +85,11 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 	public HashMap<String, Widget> getWidgets() {
 		return widgets;
 	}
+
+
+	@Override
+	public void outstretchHeight(int y, int difference) {
+		// TODO Auto-generated method stub
+		
+	}
 }

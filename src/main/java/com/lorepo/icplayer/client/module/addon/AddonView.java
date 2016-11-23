@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.addon;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter.IDisplay;
 
 
 /**
@@ -11,7 +12,7 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
  * @author Krzysztof Langner
  *
  */
-public class AddonView extends HTML implements AddonPresenter.IDisplay{
+public class AddonView extends HTML implements IDisplay {
 
 	private AddonModel	module;
 	

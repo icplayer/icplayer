@@ -4,8 +4,8 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;
 import com.lorepo.icplayer.client.addonsLoader.LocalAddonsLoader;
 import com.lorepo.icplayer.client.addonsLoader.PrivateAddonLoader;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
-import com.lorepo.icplayer.client.model.AddonDescriptorFactory;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptorFactory;
 
 public class AddonLoaderFactory {
 	

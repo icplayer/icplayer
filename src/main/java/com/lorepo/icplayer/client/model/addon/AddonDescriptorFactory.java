@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.addon;
 
 import java.util.Collection;
 import java.util.HashMap;

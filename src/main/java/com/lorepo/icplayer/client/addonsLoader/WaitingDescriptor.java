@@ -1,7 +1,7 @@
 package com.lorepo.icplayer.client.addonsLoader;
 
 import com.lorepo.icf.utils.ILoadListener;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 
 public class WaitingDescriptor {
 	

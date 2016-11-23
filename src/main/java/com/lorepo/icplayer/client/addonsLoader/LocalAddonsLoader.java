@@ -18,7 +18,7 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 
 public class LocalAddonsLoader implements IAddonLoader {
 	private static LocalAddonsLoader instance;

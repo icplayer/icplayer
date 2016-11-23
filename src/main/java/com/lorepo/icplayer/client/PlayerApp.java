@@ -33,7 +33,6 @@ public class PlayerApp{
 	private boolean isStaticHeader = false;
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
-		
 		this.divId = id;
 		this.entryPoint = entryPoint;
 	 }
@@ -255,7 +254,7 @@ public class PlayerApp{
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
-		registerGetIframe();
+		this.registerGetIframe();
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0 && playerController.hasHeader()){
@@ -306,6 +305,7 @@ public class PlayerApp{
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 			playerController.getPlayerServices().getTimeService().loadFromString(loadedState.get("time"));
 		}
+		
 		if (isCommonPage) {
 			playerController.switchToCommonPage(startPageIndex);
 		} else {
@@ -357,7 +357,7 @@ public class PlayerApp{
 
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
-		if(data.containsKey("state") && data.containsKey("score")){
+		if(data.containsKey("state") && data.containsKey("score")) {
 			loadedState = data;
 		}
 	}

@@ -21,6 +21,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
+import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -70,15 +71,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	IProperty propertyName;
 	private int index;
 	private List<Group> groupedModules = new ArrayList<Group>();
+	
 	@SuppressWarnings("serial")
 	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>(){{
 		put("verticals", new ArrayList<Ruler>());
 		put("horizontals", new ArrayList<Ruler>());
 	}};
+	
 	private PageScoreWeight pageScoreWeightMode = PageScoreWeight.defaultWeight;
 	private int modulesMaxScore = 0;
 	private int pageWeight = 1;
 	private int pageCustomWeight = 1;
+	public PageHeightModifications heightModifications = new PageHeightModifications();
 
 	public Page(String name, String url) {
 		super("Page");

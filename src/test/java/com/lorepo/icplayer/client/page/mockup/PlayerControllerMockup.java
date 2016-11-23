@@ -195,4 +195,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return timeService;
 	}
 
+
+	@Override
+	public void fireOutstretchHeightEvent() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

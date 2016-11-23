@@ -10,7 +10,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 
-public class PageView extends SimplePanel implements IPageDisplay{
+public class PageView extends SimplePanel implements IPageDisplay {
 
 	private IPageDisplay display;
 	private String styleName;
@@ -34,6 +34,7 @@ public class PageView extends SimplePanel implements IPageDisplay{
 			innerPanel = panel;
 			display = panel;
 		}
+		
 		innerPanel.setStyleName(styleName);
 		setWidget(innerPanel);
 		display.setPage(page);
@@ -76,5 +77,10 @@ public class PageView extends SimplePanel implements IPageDisplay{
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public void outstretchHeight (int y, int difference) {
+		this.display.outstretchHeight(y, difference);
 	}
 }

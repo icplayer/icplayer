@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.addon;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.utils.XMLUtils;
