@@ -661,7 +661,6 @@ function AddonClock_create() {
                     })
                     .mouseup(
                     function(e) {
-
                         presenter.currentHand = 0;
                         e.stopPropagation();
 
@@ -670,6 +669,7 @@ function AddonClock_create() {
 
                             presenter.isHandInMove = false;
                         }
+                        return false;
                     })
                     .mousedown(
                     function(e) {
@@ -681,6 +681,7 @@ function AddonClock_create() {
                             presenter.moveCurrentHand(this);
                             presenter.isHandInMove = true;
                         }
+                        return false;
                     })
                     .mousemove(
                     function(e) {
@@ -730,6 +731,7 @@ function AddonClock_create() {
                             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
                             presenter.isHandInMove = false;
                         }
+                        return false;
                     })
                     .mousedown(
                     function(e) {
@@ -741,7 +743,7 @@ function AddonClock_create() {
                             presenter.moveCurrentHand(this);
                             presenter.isHandInMove = true;
                         }
-
+                        return false;
                     })
                     .mousemove(
                     function(e) {
