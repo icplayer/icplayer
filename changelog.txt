@@ -1,3 +1,4 @@
+2016-11-24 Added multiple answers in filled gap.
 2016-11-23 Added outstretch height command to player controller
 2016-11-22 Added looping in Video module
 2016-11-21 Fixed refreshing animated gifs in Layered Image module
