@@ -215,6 +215,9 @@ function AddonText_Coloring_create() {
 
     TextColoringStateMachine.prototype.onReset = function () {
         presenter.unmarkToken(presenter.$wordTokens);
+
+        presenter.resetColoredWords();
+
         $.makeArray(presenter.$wordTokens).forEach(function (tokenHTML) {
             presenter.removeColorData($(tokenHTML));
         });
@@ -247,31 +250,31 @@ function AddonText_Coloring_create() {
                 top: 'text-coloring-main-container-top-position',
                 left: 'text-coloring-main-container-left-position',
                 bottom: 'text-coloring-main-container-bottom-position',
-                right: 'text-coloring-main-container-right-position',
+                right: 'text-coloring-main-container-right-position'
             },
             colorButtonsContainer: {
                 top: 'text-coloring-colors-buttons-container-top-position',
                 left: 'text-coloring-colors-buttons-container-left-position',
                 bottom: 'text-coloring-colors-buttons-container-bottom-position',
-                right: 'text-coloring-colors-buttons-container-right-position',
+                right: 'text-coloring-colors-buttons-container-right-position'
             },
             eraserButtonContainer: {
                 top: 'text-coloring-eraser-button-container-top-position',
                 left: 'text-coloring-eraser-button-container-left-position',
                 bottom: 'text-coloring-eraser-button-container-bottom-position',
-                right: 'text-coloring-eraser-button-container-right-position',
+                right: 'text-coloring-eraser-button-container-right-position'
             },
             buttonsContainer: {
                 top: 'text-coloring-buttons-container-top-position',
                 left: 'text-coloring-buttons-container-left-position',
                 bottom: 'text-coloring-buttons-container-bottom-position',
-                right: 'text-coloring-buttons-container-right-position',
+                right: 'text-coloring-buttons-container-right-position'
             },
             tokensContainer: {
                 top: 'text-coloring-tokens-container-top-position',
                 left: 'text-coloring-tokens-container-left-position',
                 bottom: 'text-coloring-tokens-container-bottom-position',
-                right: 'text-coloring-tokens-container-right-position',
+                right: 'text-coloring-tokens-container-right-position'
             },
             markings: {
                 correct: 'text-coloring-token-correct-marking',
@@ -285,7 +288,7 @@ function AddonText_Coloring_create() {
     presenter.ERROR_CODES = {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "Color definitions in colors property have to be proper rgb hex e.g #FF0000 (red)",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "Color definitions in colors property must have id",
-        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id",
+        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id"
     };
 
     presenter.ERROR_CODES_KEYS = {
@@ -605,7 +608,7 @@ function AddonText_Coloring_create() {
             showSetEraserButtonMode: ModelValidationUtils.validateBoolean(model.showSetEraserModeButton),
             hideColorsButtons: ModelValidationUtils.validateBoolean(model.hideColorsButtons),
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
-            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible'])
         };
     };
 
@@ -718,9 +721,9 @@ function AddonText_Coloring_create() {
 
         var selectableWord = getSelectableToken(parsedSelectableWord.selectable, parsedColorID.value);
         if (parsedSelectableWord.normal === undefined) {
-            return [selectableWord, getSpaceToken()];
+            return [getWordToken(parsedColorID.wordBefore), selectableWord, getSpaceToken()];
         } else {
-            return [selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
+            return [getWordToken(parsedColorID.wordBefore), selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
         }
     };
 
@@ -728,21 +731,24 @@ function AddonText_Coloring_create() {
         var MARKING_START_OF_COLOR_ID = "\\color{";
         var CHARACTER_NOT_FOUND = -1;
         var MARKING_LENGTH_OF_COLOR_ID = MARKING_START_OF_COLOR_ID.length;
+        var wordBefore = "";
 
         var markingStart = word.substring(0, MARKING_LENGTH_OF_COLOR_ID);
-        if (markingStart == MARKING_START_OF_COLOR_ID) {
+        if (word.indexOf(MARKING_START_OF_COLOR_ID) !== -1) {
+            wordBefore = word.substring(0, word.indexOf(MARKING_START_OF_COLOR_ID));
             var enclosingIndexOfColorID = word.indexOf("}", MARKING_LENGTH_OF_COLOR_ID);
-            if (enclosingIndexOfColorID == CHARACTER_NOT_FOUND) {
-                return {
-                    isError: true
-                };
-            } else {
-                return {
-                    isError: false,
-                    value: word.substring(MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),
-                    enclosingIndex: enclosingIndexOfColorID
+                if (enclosingIndexOfColorID == CHARACTER_NOT_FOUND) {
+                    return {
+                      isError: true
+                    };
+                } else {
+                    return {
+                      isError: false,
+                      value: word.substring(word.indexOf(MARKING_START_OF_COLOR_ID) + MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),//word.substring(MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),
+                      enclosingIndex: enclosingIndexOfColorID,
+                      wordBefore: wordBefore
+                    }
                 }
-            }
         }
 
         return {
@@ -835,6 +841,20 @@ function AddonText_Coloring_create() {
         $(this).removeClass(presenter.defaults.css.hover);
     };
 
+    presenter.resetColoredWords = function () {
+        presenter.$view.find("[class*='text-coloring-colored-with']").each(function () {
+            $(this).removeClass (function (index, css) {
+                return (css.match(/\btext-coloring-colored-with\S+/g) || []).join(' ');
+            });
+        })
+    };
+
+    presenter.resetColoredWord = function (element) {
+        $(element).removeClass(function (index, css) {
+            return (css.match(/\btext-coloring-colored-with\S+/g) || []).join(' ');
+        });
+    };
+
     presenter.underlineWordHandler = function (event) {
         var $element = $(this);
         var wordIndex = $element.data("word-index");
@@ -848,6 +868,7 @@ function AddonText_Coloring_create() {
             presenter.markToken($element, presenter.configuration.activeColor);
             presenter.addColorData($element);
             presenter.sendMarkingEvent(wordIndex);
+            presenter.resetColoredWord($element);
             presenter.addColoredWordCss($element, presenter.configuration.filteredTokens[wordIndex]);
         }
 
@@ -873,7 +894,7 @@ function AddonText_Coloring_create() {
         $element.css({
             "text-decoration": "none",
             "padding-bottom": "none",
-            "border-bottom": "none",
+            "border-bottom": "none"
         });
     };
 
@@ -881,7 +902,7 @@ function AddonText_Coloring_create() {
         $element.css({
             "text-decoration": "none",
             "padding-bottom": "0.1em",
-            "border-bottom": StringUtils.format("0.1em solid {0}", color),
+            "border-bottom": StringUtils.format("0.1em solid {0}", color)
         });
     };
 
@@ -1016,11 +1037,6 @@ function AddonText_Coloring_create() {
             presenter.setActiveColor(colorID);
             presenter.unsetEraserButtonAsActive();
             presenter.setColorButtonAsActive(colorID);
-        } else if (presenter.shouldDisableColoringMode(colorID)) {
-            deleteActiveClass();
-            presenter.disableColoringMode();
-            presenter.unsetColorButtonsAsActive();
-            presenter.activateEraserMode(null);
         } else if (presenter.shouldActivateColoringMode()) {
             presenter.activateColoringMode(colorID);
             presenter.setColorButtonAsActive(colorID);
@@ -1121,7 +1137,8 @@ function AddonText_Coloring_create() {
     presenter.getState = function () {
           return JSON.stringify({
               isVisible: presenter.configuration.isVisible,
-              tokens: presenter.configuration.filteredTokens
+              tokens: presenter.configuration.filteredTokens,
+              activeColorID: presenter.configuration.activeColorID
           });
     };
 
@@ -1139,6 +1156,14 @@ function AddonText_Coloring_create() {
             presenter.hide();
         }
         presenter.colorAllMarkedTokens();
+
+        if(parsedState.activeColorID !== undefined) {
+            if(parsedState.activeColorID == null) {
+                presenter.setEraserMode();
+            } else {
+                presenter.setColor(parsedState.activeColorID);
+            }
+        }
     };
 
     presenter.colorAllMarkedTokens = function () {
@@ -1148,6 +1173,7 @@ function AddonText_Coloring_create() {
             var $token = $(presenter.$wordTokens[token.index]);
             var colorDefinition = presenter.getColorDefinitionById(token.selectionColorID);
             presenter.markToken($token, colorDefinition.color);
+            presenter.addColoredWordCss($token, token);
         });
     };
 
