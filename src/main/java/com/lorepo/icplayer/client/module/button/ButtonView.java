@@ -58,7 +58,7 @@ public class ButtonView extends Composite implements IDisplay {
 			button = new GotoPageButton(module.getOnClick(), module.getPageIndex(), playerServices);
 		}
 		else if(ButtonType.reset == type){
-			button = new ResetButton(pageService);
+			button = new ResetButton(pageService, module.getConfirmReset(), module.getConfirmInfo(), module.getConfirmYesInfo(), module.getConfirmNoInfo());
 		}
 		else{
 			button = new StandardButton(module, playerServices);
