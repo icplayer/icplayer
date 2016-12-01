@@ -1,3 +1,4 @@
+2016-12-01 Added refreshing animated gifs in Image module
 2016-12-01 Fixed problems with coloring ans saving state in Text Coloring module
 2016-11-24 Fixed problem with dragging in Clock addon.
 2016-11-24 Added multiple answers in filled gap.

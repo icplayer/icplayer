@@ -295,6 +295,7 @@ var ice_dictionary_mx = {
 	"errors_property": "Mostrar errores",
 	"image_module": "Módulo de la Imagen",
 	"image_property": "Propiedades de la Imagen",
+    "image_property_animated_gif_refresh" : "Animated gif refresh",
 	"mode_property": "Modo",
 	"real_time_calculation_property": "Calcular en tiempo real",
 	"image_gap_module": "Hueco para Imagen arrastrable",

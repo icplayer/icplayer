@@ -299,6 +299,7 @@
 	"errors_property" : "Show errors",
 	"image_module" : "Image",
 	"image_property" : "Image",
+    "image_property_animated_gif_refresh" : "Animated gif refresh",
 	"mode_property" : "Mode",
 	"image_gap_module" : "Image gap",
 	"image_gap_answer" : "Answer&nbsp;ID",

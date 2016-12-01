@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.image;
 
+import java.util.Random;
+
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -45,6 +47,11 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 				}
 			});
 			
+			if(module.getAnimatedGifRefresh()) {
+				Random rand = new Random();
+				imageUrl = imageUrl + "?" + rand.nextInt(1000000);
+			}
+
 			image.setUrl(imageUrl);
 		}
 

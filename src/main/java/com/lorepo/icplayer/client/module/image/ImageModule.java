@@ -4,10 +4,12 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
@@ -22,6 +24,7 @@ public class ImageModule extends BasicModuleModel {
 	private String imagePath = "";
 	private String baseUrl = "";
 	private DisplayMode mode = DisplayMode.stretch;
+	private boolean animatedGifRefresh = false;
 	
 	
 	public ImageModule() {
@@ -29,6 +32,7 @@ public class ImageModule extends BasicModuleModel {
 		
 		addPropertyImage(true);
 		addPropertyMode();
+		addPropertyAnimatedGifRefresh();
 	}
 
 	
@@ -64,6 +68,7 @@ public class ImageModule extends BasicModuleModel {
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					String modeName = childElement.getAttribute("mode");
 					setModeFromString(modeName);
+					animatedGifRefresh = XMLUtils.getAttributeAsBoolean(childElement, "animatedGifRefresh", false);
 				}
 			}
 		}
@@ -88,7 +93,7 @@ public class ImageModule extends BasicModuleModel {
 		String xml = 
 				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
 				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
-				"mode='"+ mode.toString() + "'/>" +
+				"mode='"+ mode.toString() + "' " + "animatedGifRefresh='" + animatedGifRefresh +"'/>" +
 				"</imageModule>";
 		
 		return xml;
@@ -172,6 +177,48 @@ public class ImageModule extends BasicModuleModel {
 		};
 		
 		addProperty(property);
+	}
+	
+	private void addPropertyAnimatedGifRefresh() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != animatedGifRefresh) {
+					animatedGifRefresh = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return animatedGifRefresh ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_property_animated_gif_refresh");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_property_animated_gif_refresh");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean getAnimatedGifRefresh() {
+		return animatedGifRefresh;
 	}
 
 	

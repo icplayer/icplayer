@@ -295,6 +295,7 @@ var ice_dictionary_fr = {
 "errors_property" : "Afficher les erreurs",
 "image_module" : "Image",
 "image_property" : "Image",
+"image_property_animated_gif_refresh" : "Animated gif refresh",
 "mode_property" : "Mode",
 "image_gap_module" : "Zone Image",
 "image_gap_answer" : "Réponse&nbsp;ID",

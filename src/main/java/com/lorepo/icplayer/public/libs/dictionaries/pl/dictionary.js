@@ -295,6 +295,7 @@
 	"errors_property" : "Pokaż błędy",
 	"image_module" : "Obraz",
 	"image_property" : "Obraz",
+    "image_property_animated_gif_refresh" : "Animated gif refresh",
 	"mode_property" : "Tryb",
 	"image_gap_module" : "Luka obrazkowa",
 	"image_gap_answer" : "ID&nbsp;odpowiedzi",
