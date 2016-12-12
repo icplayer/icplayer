@@ -531,6 +531,7 @@ var ice_dictionary_fr = {
 "Glossary_property_text": "Texte",
 "Glossary_property_description": "Description",
 "Glossary_property_show_in_editor": "Montrer dans l'éditeur",
+"Glossary_property_open_external_link_in": "Open external link in",
 "graph_info": "Permet d'insérer un graphique préprogrammé dans une présentation. Pour que l'activité fonctionne, il suffit de définir quelques propriétés spécifiques dans le menu latéral du module externe.",
 "graph_name": "Graphique",
 "graph_property_is_not_activity": "N'est pas un exercice",

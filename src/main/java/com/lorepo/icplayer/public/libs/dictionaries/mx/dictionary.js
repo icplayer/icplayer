@@ -531,6 +531,7 @@ var ice_dictionary_mx = {
 	"Glossary_property_text": "Texto",
 	"Glossary_property_description": "Descripción",
 	"Glossary_property_show_in_editor": "Mostrar en el editor",
+    "Glossary_property_open_external_link_in": "Open external link in",
 	"graph_info": "Permite insertar un gráfico de barras a la presentación. Para hacer que la actividad funcione, basta con predefinir algunas propiedades específicas en el menú lateral.",
 	"graph_name": "Gráfico de barras",
 	"graph_property_is_not_activity": "No es actividad",

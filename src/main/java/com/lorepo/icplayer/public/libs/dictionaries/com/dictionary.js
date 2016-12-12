@@ -535,6 +535,7 @@
 	"Glossary_property_text": "Text",
 	"Glossary_property_description": "Description",
 	"Glossary_property_show_in_editor": "Show in Editor",
+    "Glossary_property_open_external_link_in": "Open external link in",
 	"graph_info": "Enables to insert a ready-made bar graph into a presentation. To make the activity work, it is enough to predefine a few specific properties in the addon’s side menu.",
 	"graph_name": "Graph",
 	"graph_property_is_not_activity": "Is not an activity",

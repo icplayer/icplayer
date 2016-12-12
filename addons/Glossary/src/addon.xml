@@ -8,5 +8,6 @@
             <property name="Description" nameLabel="Glossary_property_description" type="html" isLocalized="true" />
         </property>
         <property displayName="Show In Editor" name="Visible" nameLabel="Glossary_property_show_in_editor" type="boolean" />
+        <property name="Open external link in" nameLabel="Glossary_property_open_external_link_in" type="{New tab, Same tab}" />
 	</model>
 </addon>

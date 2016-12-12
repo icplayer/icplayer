@@ -1,3 +1,4 @@
+2016-12-12 Added Open external link in property in Glossary module
 2016-12-01 Added confirmation box in Reset module
 2016-12-01 Added refreshing animated gifs in Image module
 2016-12-01 Fixed problems with coloring ans saving state in Text Coloring module

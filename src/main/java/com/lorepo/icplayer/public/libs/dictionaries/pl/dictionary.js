@@ -531,6 +531,7 @@
 	"Glossary_property_text": "Tekst",
 	"Glossary_property_description": "Opis",
 	"Glossary_property_show_in_editor": "Pokaż w edytorze",
+    "Glossary_property_open_external_link_in": "Open external link in",
 	"graph_info" : "Pozwala na wstawienie gotowego wykresu słupkowego do prezentacji, wystarczy zdefiniować kilka podstawowych parametrów w menu Właściwości.",
 	"graph_name" : "Wykres słupkowy",
 	"graph_property_is_not_activity": "Jest ćwiczeniem",
