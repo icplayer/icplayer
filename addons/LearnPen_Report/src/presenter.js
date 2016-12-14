@@ -145,11 +145,17 @@ function AddonLearnPen_Report_create() {
             };
         } else {
             return {
-                isValid: true,
-                a: toPercent(Math.floor(Math.random() * 1000)),
-                b: toPercent(Math.floor(Math.random() * 1000)),
-                c: toPercent(Math.floor(Math.random() * 1000)),
-                p: toPercent(Math.floor(Math.random() * 1000))
+                isValid: false,
+                a: 0,
+                b: 0,
+                c: 0,
+                p: 0
+
+//                isValid: true,
+//                a: toPercent(Math.floor(Math.random() * 1000)),
+//                b: toPercent(Math.floor(Math.random() * 1000)),
+//                c: toPercent(Math.floor(Math.random() * 1000)),
+//                p: toPercent(Math.floor(Math.random() * 1000))
             };            
         }
     }
