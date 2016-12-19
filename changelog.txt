@@ -1,3 +1,4 @@
+2016-12-19 Fixed counting score after showing answers in Writing Calculation module
 2016-12-14 Removed random values from report when stylus is of in LearnPen Report module
 2016-12-12 Added Open external link in property in Glossary module
 2016-12-01 Added confirmation box in Reset module

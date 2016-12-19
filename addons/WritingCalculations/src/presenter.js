@@ -828,10 +828,10 @@ function AddonWritingCalculations_create() {
             presenter.hideAnswers();
         }
         presenter.userAnswers = [];
-        presenter.isShowAnswersActive = true;
         presenter.currentScore = presenter.getScore();
         presenter.currentErrorCount = presenter.getErrorCount();
         presenter.currentMaxScore = presenter.getMaxScore();
+        presenter.isShowAnswersActive = true;
         presenter.clean(true,false);
         var inputs = $(this.$view).find(".writing-calculations-input");
         var correctAnswers = this.correctAnswersList;
