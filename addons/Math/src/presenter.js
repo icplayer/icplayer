@@ -484,6 +484,11 @@ function AddonMath_create() {
         if(presenter.configuration.isError){
             return;
         }
+
+        if (presenter.isShowAnswers) {
+            toggleAnswers(false);
+        }
+
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
         if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) return 0;
@@ -500,6 +505,11 @@ function AddonMath_create() {
         if(presenter.configuration.isError){
             return;
         }
+
+        if (presenter.isShowAnswers) {
+            toggleAnswers(false);
+        }
+
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
 
