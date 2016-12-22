@@ -718,6 +718,7 @@ var ice_dictionary_mx = {
 	"Layered_Image_property_image": "Imagen",
 	"Layered_Image_property_show_at_start": "Mostrar al principio",
 	"Layered_Image_property_image_size": "Tamaño de la imagen",
+    "Layered_Image_property_animated_gif_refresh" : "Animated gif refresh",
 	"Line_info": "Permite a incrustar en la presentación las líneas con diferentes parámetros, incluyendo varios tipos de punta, anchura, color, ángulo de inclinación y la opacidad.",
 	"Line_name": "Línea",
 	"Line_property_rotation_angle": "Ángulo de rotación",

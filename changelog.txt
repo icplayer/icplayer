@@ -1,3 +1,4 @@
+2016-12-22 Added Animated gif refresh property in Layered Image module
 2016-12-20 Fixed counting score after showing answers in Math module
 2016-12-19 Fixed counting score after showing answers in Writing Calculation module
 2016-12-14 Removed random values from report when stylus is of in LearnPen Report module

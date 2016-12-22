@@ -717,6 +717,7 @@
 	"Layered_Image_property_image": "Obraz",
 	"Layered_Image_property_show_at_start": "Pokaż na początku",
 	"Layered_Image_property_image_size": "Rozmiar obrazu",
+    "Layered_Image_property_animated_gif_refresh" : "Animated gif refresh",
 	"Line_info" : "Pozwala na wstawienie do prezentacji linii o różnych parametrach, z uwzględnieniem kilku rodzajów zakończeń, szerokości, koloru, kąta nachylenia i przejrzystości.",
 	"Line_name" : "Linia",
 	"Line_property_rotation_angle": "Kąt rotacji",

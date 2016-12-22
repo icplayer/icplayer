@@ -354,17 +354,19 @@ function AddonLayered_Image_create() {
             $layer = $(layer);
 
         $layer.show();
-        var backgroundImageUrl = $layer.css('background-image'),
-            backgroundImage = backgroundImageUrl.substring(backgroundImageUrl.indexOf('url(') + 'url('.length, backgroundImageUrl.indexOf(')')).replace(/"/g, ""),
-            timestamp = new Date().getTime();
+        if(presenter.configuration.animatedGifRefresh){
+            var backgroundImageUrl = $layer.css('background-image'),
+                backgroundImage = backgroundImageUrl.substring(backgroundImageUrl.indexOf('url(') + 'url('.length, backgroundImageUrl.indexOf(')')).replace(/"/g, ""),
+                timestamp = new Date().getTime();
 
-        if(backgroundImage.indexOf('?') !== -1) {
-            backgroundImage = backgroundImage.substring(0, backgroundImage.indexOf('?'));
+            if(backgroundImage.indexOf('?') !== -1) {
+                backgroundImage = backgroundImage.substring(0, backgroundImage.indexOf('?'));
+            }
+
+            backgroundImage = backgroundImage + '?' + timestamp;
+            $layer.css('background-image', '');
+            $layer.css('background-image', 'url('+ backgroundImage +')');
         }
-
-        backgroundImage = backgroundImage + '?' + timestamp;
-        $layer.css('background-image', '');
-        $layer.css('background-image', 'url('+ backgroundImage +')');
     };
 
     presenter.showLayerCommand = function (params) {
@@ -476,7 +478,8 @@ function AddonLayered_Image_create() {
             layers: validatedLayers.list,
             imageSize: presenter.validateImageSize(model["Image size"]),
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"])
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            animatedGifRefresh: ModelValidationUtils.validateBoolean(model["Animated gif refresh"])
         };
     };
 

@@ -718,6 +718,7 @@ var ice_dictionary_fr = {
 "Layered_Image_property_image": "Image",
 "Layered_Image_property_show_at_start": "Afficher au lancement",
 "Layered_Image_property_image_size": "Taille de l'image",
+"Layered_Image_property_animated_gif_refresh" : "Animated gif refresh",
 "Line_info": "Permet d'intégrer les lignes dans une présentation avec différents paramètres, tels que l'épaisseurs de la ligne, la largeur, la couleur, l'angle de dépression et l'opacité.",
 "Line_name": "Ligne",
 "Line_property_rotation_angle": "Angle de rotation",

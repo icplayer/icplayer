@@ -8,5 +8,6 @@
 			<property name="Show at start" nameLabel="Layered_Image_property_show_at_start" type="boolean" />
 		</property>
 		<property name="Image size" nameLabel="Layered_Image_property_image_size" type="{Original, Keep aspect ratio, Stretch}" />
+        <property name="Animated gif refresh" nameLabel="Layered_Image_property_animated_gif_refresh" type="boolean" />
 	</model>
 </addon>

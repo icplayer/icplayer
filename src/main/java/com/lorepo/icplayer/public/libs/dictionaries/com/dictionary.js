@@ -624,6 +624,7 @@
 	"Layered_Image_property_image": "Image",
 	"Layered_Image_property_show_at_start": "Show at start",
 	"Layered_Image_property_image_size": "Image size",
+    "Layered_Image_property_animated_gif_refresh" : "Animated gif refresh",
     "Line_info": "Allows to embed lines into a presentation with different parameters, including several kinds of line endings, width, color, angle of depression and opacity.",
 	"Line_name": "Line",
 	"Line_property_rotation_angle": "Rotation angle",
