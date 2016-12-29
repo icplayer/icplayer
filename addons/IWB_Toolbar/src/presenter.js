@@ -514,6 +514,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
+        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
     };
 
     presenter.markerDrawingLogic = function IWB_Toolbar_markerDrawingLogic() {
@@ -580,6 +581,7 @@ function AddonIWB_Toolbar_create() {
         }
         presenter.isMouseDown = false;
         setOverflowWorkAround(false);
+        presenter.penDataURL = presenter.canvas[0].toDataURL('image/png');
     };
 
     presenter.drawingLogic = function IWB_Toolbar_drawingLogic() {
@@ -1051,6 +1053,9 @@ function AddonIWB_Toolbar_create() {
         $(".iwb-zoom-cover").remove();
 
         presenter._reset(true, false, false, false, false);
+
+        presenter.penDataURL = null;
+        presenter.markerDataUrl = null;
     };
 
     presenter.noteClickHandler = function IWB_Toolbar_noteClickHandler(button) {
@@ -3326,6 +3331,8 @@ function AddonIWB_Toolbar_create() {
         presenter.data.defaultPenWidth = 1;
         presenter.markerLineWidth = 10;
         presenter.data.eraserThickness = 20;
+        presenter.penDataURL = null;
+        presenter.markerDataUrl = null;
     };
 
     presenter.getErrorCount = function() { return 0; };
@@ -3370,8 +3377,8 @@ function AddonIWB_Toolbar_create() {
            position = presenter.$panel.position(),
            openedPanel = isPanelOpened(),
            drawings = {
-               'pen' : (presenter.penUsed && presenter.canvas) ? presenter.canvas[0].toDataURL('image/png') : null,
-               'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerCanvas[0].toDataURL('image/png') : null
+               'pen' : (presenter.penUsed && presenter.canvas) ? presenter.penDataURL : null,
+               'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerDataUrl : null
            };
 
         clearCanvases();
@@ -3536,7 +3543,7 @@ function AddonIWB_Toolbar_create() {
         var parsedState = JSON.parse(state);
         
         var upgradedState = presenter.upgradeState(parsedState);
-        
+
         presenter.areas = parsedState.areas;
         presenter.stopwatches = parsedState.stopwatches;
         presenter.clocks = parsedState.clocks;
@@ -3569,19 +3576,21 @@ function AddonIWB_Toolbar_create() {
             presenter.markerUsed = true;
         }
 
-        setDrawingState(image1, presenter.ctx, upgradedState.drawings.pen);
-        setDrawingState(image2, presenter.markerCtx, upgradedState.drawings.marker);
+        presenter.penDataURL = upgradedState.drawings.pen;
+        presenter.markerDataUrl = upgradedState.drawings.marker;
+        setDrawingState(new Image(), presenter.ctx, upgradedState.drawings.pen);
+        setDrawingState(new Image(), presenter.markerCtx, upgradedState.drawings.marker);
         
         $.each(parsedState.notes, function(_, noteData) {
             var note = presenter.createNote(noteData);
             presenter.noteObjects.push(note);
             presenter.$pagePanel.find('.ic_page').append(note.getView());
         });
-        
+
         $.each(presenter.clocks, function() {
            presenter.createClock(this);
         });
-        
+
         $.each(presenter.stopwatches, function() {
            presenter.createStopwatch(this, upgradedState.hours, upgradedState.minutes, upgradedState.seconds, upgradedState.stopClicked, upgradedState.startClicked);
         });
@@ -3637,9 +3646,9 @@ function AddonIWB_Toolbar_create() {
         if(presenter.activeFunction){
            presenter.activeButton = presenter.activeFunction;
         }
-        
+
         presenter.isSavedState = true;
-        
+
         if(!presenter.isKeepStateAndPosition){
            if(presenter.isCloseColor){
                presenter.changeColor(presenter.closePenColor, presenter.buttonColor);
