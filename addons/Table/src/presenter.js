@@ -1179,7 +1179,6 @@ function AddonTable_create() {
     presenter.SelectGap.constructor = presenter.SelectGap;
 
     presenter.SelectGap.prototype.connectEvents = function () {
-        this.$view.on("input", this.onEdit.bind(this));
         this.$view.off('change').bind('change', this.onEdit.bind(this));
     };
 
