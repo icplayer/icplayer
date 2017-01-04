@@ -87,6 +87,8 @@ class ResetButton extends PushButton{
 			        dialogBox.show();
 				} else {
 					pageService.reset();
+					removeStyleName("ic_button_reset-up-hovering");
+					removeStyleName("ic_button_reset-down-hovering");
 				}				
 			}
 		});

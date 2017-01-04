@@ -56,6 +56,13 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	public void onBrowserEvent(Event event) {
 	    if( DOM.eventGetType(event) == Event.ONCLICK){
 	    	event.stopPropagation();
+	    	String classNames = getElement().getClassName();
+	    	if(classNames.contains("ic_soption-down-hovering")){
+	    		removeStyleName("ic_soption-down-hovering");
+	    		addStyleName("ic_soption-down");
+	    	}else{
+	    		removeStyleName("ic_soption-up-hovering");
+	    	}
 	    }
 	    super.onBrowserEvent(event);
 	}
