@@ -190,7 +190,6 @@ public class TextParser {
 	private String matchGap(String expression) {
 
 		String replaceText = null;
-
 		int index = expression.indexOf(":");
 		if (index > 0) {
 			String value = expression.substring(0, index).trim();
@@ -224,11 +223,19 @@ public class TextParser {
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			placeholder = StringUtils.unescapeXML(placeholder);
-			replaceText = "<input data-gap='filled' data-gap-value='\\filledGap{" + placeholder + "|" + answer +"}' id='" + id + "' type='edit' size='"
-					+ Math.max(answer.length(), placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"'" + (editorMode ? "readonly" : "") + "/>";
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			gi.setPlaceHolder(placeholder);
-			gi.addAnswer(answer);
+			String[] answers = answer.split("\\|");
+			int maxValue = 0;
+			for (int i = 0; i < answers.length; i++) {
+				if (answers[i].length() > maxValue) {
+					maxValue = answers[i].length();
+				}
+				gi.addAnswer(answers[i]);
+			}
+			replaceText = "<input data-gap='filled' data-gap-value='\\filledGap{" + placeholder + "|" + answer +"}' id='" + id + "' type='edit' size='"
+					+ Math.max(maxValue, placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"'" + (editorMode ? "readonly" : "") + "/>";
+
 			parserResult.gapInfos.add(gi);
 		}
 
@@ -273,18 +280,20 @@ public class TextParser {
 	private String matchDraggableFilledGap(String expression) {
 
 		String replaceText = null;
-
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
 			placeholder = StringUtils.unescapeXML(placeholder);
 			String answer = expression.substring(index + 1).trim();
+			String[] answers = answer.split("\\|");
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			replaceText = "<span id='" + id + "' class='ic_draggableGapEmpty ic_filled_gap'>" + placeholder + "</span>";
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			gi.setPlaceHolder(placeholder);
-			gi.addAnswer(answer);
+			for (int i = 0; i < answers.length; i++) {
+				gi.addAnswer(answers[i]);
+			}
 			parserResult.gapInfos.add(gi);
 		}
 		return replaceText;

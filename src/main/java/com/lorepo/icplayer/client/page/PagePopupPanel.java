@@ -21,11 +21,15 @@ public class PagePopupPanel extends DialogBox {
 	private PageView pageWidget;
 	private PageController pageController;
 	private String additionalClasses;
+	private String top;
+	private String left;
 
-	public PagePopupPanel(Widget parent, PageController pageController, String additionalClasses) {
+	public PagePopupPanel(Widget parent, PageController pageController, String top, String left, String additionalClasses) {
 		this.pageController = pageController;
 		this.parentWidget = parent;
 		this.additionalClasses = additionalClasses;
+		this.top = top;
+		this.left = left;
 	}
 	
 	
@@ -118,8 +122,7 @@ public class PagePopupPanel extends DialogBox {
 	 * Center popup
 	 * @param parentWidget
 	 */
-	public void center() {
-
+	public void center() {		
 		if(parentWidget != null){
 			int left = parentWidget.getAbsoluteLeft();
 			int offsetX = parentWidget.getOffsetWidth() - getOffsetWidth();
@@ -146,10 +149,34 @@ public class PagePopupPanel extends DialogBox {
 				}
 
 			});
-			setPopupPosition(left, top);
+			
+			
+			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){		
+				int propertyLeft = Integer.parseInt(this.left);
+				int propertyTop = Integer.parseInt(this.top);
+				setPopupPosition(propertyLeft, propertyTop);
+			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
+				int propertyTop = Integer.parseInt(this.top);
+				setPopupPosition(left, propertyTop);
+			}else if (this.left != null && this.left != "" && isInteger(this.left)) {
+				int propertyLeft = Integer.parseInt(this.left);
+				setPopupPosition(propertyLeft, top);
+			} else {
+				setPopupPosition(left, top);
+			}
 		}
 	}
 
+	public boolean isInteger(String s) {
+      boolean isValidInteger = false;
+      try{
+         Integer.parseInt(s); 
+         isValidInteger = true;
+      }
+      catch (NumberFormatException ex){}
+ 
+      return isValidInteger;
+	}
 	
 	private void restrictScroll() {
 	

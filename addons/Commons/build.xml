@@ -2,18 +2,17 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="version" value="3.1.0" />
+    <property name="commons.version" value="4.1.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
 
     <target name="compile" description="Compile and minimize source files into one, optimized one" depends="Addon.test">
         <mkdir dir="bin" />
-        <mkdir dir="bin/commons-${version}" />
+        <mkdir dir="bin/commons-${commons.version}" />
 
         <java jar="../tools/closure.jar" fork="true">
             <arg line="--js src/model-validation.js" />
-            <arg line="--js src/loading-screen.js" />
             <arg line="--js src/dom-operations.js" />
             <arg line="--js src/statefull-addon-object.js" />
             <arg line="--js src/draggable-droppable-object.js" />
@@ -28,15 +27,16 @@
             <arg line="--js src/internationalization.js" />
             <arg line="--js src/loadedPromise.js" />
             <arg line="--js src/events.js" />
-            <arg line="--js_output_file bin/commons-${version}/commons.js" />
+            <arg line="--js src/error-utils.js" />
+            <arg line="--js src/blocklyCustomBlocks/sceneGrid.js" />
+            <arg line="--js_output_file bin/commons-${commons.version}/commons.js" />
         </java>
 
-        <concat destfile="bin/commons-${version}/commons.js" append="true">/**
+        <concat destfile="bin/commons-${commons.version}/commons.js" append="true">/**
  * Player Addons Commons library
- * @version ${version}
+ * @version ${commons.version}
  * Components:
  * - Model Validation Utils
- * - Loading Screen
  * - DOM Operations
  * - Statefull Addon Object
  * - Draggable Droppable Object
@@ -51,14 +51,20 @@
  * - Text Parser Proxy
  * - Loaded Promise
  * - Events Utils
+ * - Model Error Utils
+ * - Blockly Custom Scene Blocks
  */</concat>
 
     </target>
 
+    <target name="clear">
+        <delete dir="bin" failonerror="false" />
+    </target>
+
     <target name="publish" depends="compile" description="Publish new version of commons to ICPlayer libs">
-        <copy file="bin/commons-${version}/commons.js" tofile="../../src/main/java/com/lorepo/icplayer/public/libs/commons.js"/>
+        <copy file="bin/commons-${commons.version}/commons.js" tofile="../../src/main/java/com/lorepo/icplayer/public/libs/commons.js"/>
     </target>
     <target name="publish-to-dir" depends="compile" description="Publish new version of commons to given directory">
-        <copy file="bin/commons-${version}/commons.js" tofile="${publish-directory}/commons.js"/>
+        <copy file="bin/commons-${commons.version}/commons.js" tofile="${publish-directory}/commons.js"/>
     </target>
 </project>

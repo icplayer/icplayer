@@ -1,0 +1,39 @@
+.grid-scene-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.grid-scene-cell {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.grid-scene-cell-element {
+    float: left;
+    padding: 0;
+    margin: 0;
+    color: black;
+    width: 100%;
+    height: 100%;
+}
+
+.grid-scene-cell-element-wrapper {
+    float: left;
+    padding: 0;
+    margin: 0;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+}
+
+.grid-scene-correct {
+    background-color: green;
+}
+
+.grid-scene-wrong {
+    background-color: red;
+}

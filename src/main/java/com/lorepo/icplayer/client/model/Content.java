@@ -7,6 +7,10 @@ import java.util.List;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icplayer.client.model.asset.AssetFactory;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -18,10 +22,10 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 public class Content implements IContentBuilder, IContent {
 
 	public enum ScoreType{ first, last }
-	
+
 	private static final String COMMONS_FOLDER = "commons/";
 	private String name = "";
-	private ScoreType scoreType = ScoreType.last; 
+	private ScoreType scoreType = ScoreType.last;
 	private PageList	pages;
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
@@ -35,17 +39,18 @@ public class Content implements IContentBuilder, IContent {
 	private String footerPageName = "commons/footer";
 	private String version = "2";
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
+	private int maxPagesCount = 100;
 
 	public Content(){
 		this.pages = new PageList("root");
 		this.commonPages = new PageList("commons");
 		this.connectHandlers();
 	}
-	
+
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
-	
+
 	public void connectHandlers() {
 		pages.addListener(new IPageListListener() {
 			@Override
@@ -74,10 +79,10 @@ public class Content implements IContentBuilder, IContent {
 				if(listener != null){
 					listener.onChanged(source);
 				}
-				
+
 			}
 		});
-		
+
 		commonPages.addListener(new IPageListListener() {
 			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
@@ -98,38 +103,49 @@ public class Content implements IContentBuilder, IContent {
 			public void onChanged(IContentNode source) {
 			}
 		});
-		
+
 	}
 
-	
+
 	public ScoreType getScoreType(){
 		return scoreType;
 	}
-	
+
 	public void setScoreType(ScoreType scoreType){
 		this.scoreType = scoreType;
 	}
-	
+
 	public void addChangeListener(IContentListener l){
 		listener = l;
 	}
-	
-	
+
+
 	public HashMap<String,AddonDescriptor>	getAddonDescriptors(){
 		return addonDescriptors;
 	}
-	
-	
+
+
 	public PageList	getPages(){
 		return pages;
 	}
-	
-	
+
+    public boolean addonIsLoaded(String addonName) {
+		if(this.addonDescriptors.containsKey(addonName)) {
+			return true;
+		}
+		return false;
+	}
+	public int getMaxPagesCount() {
+		return maxPagesCount;
+	}
+
+
+	@Override
 	public PageList	getCommonPages(){
 		return commonPages;
 	}
-	
-	
+
+
 	public void addAsset(IAsset asset){
 
 		String href = asset.getHref();
@@ -137,33 +153,33 @@ public class Content implements IContentBuilder, IContent {
 		if(href == null){
 			return;
 		}
-		
+
 		String escaped = StringUtils.escapeHTML(href);
 		if(escaped.compareTo(href) != 0){
 			return;
 		}
-			
+
 		boolean foundURL = false;
-			
+
 		for(IAsset a : assets){
 			if(a.getHref().compareTo(asset.getHref()) == 0){
 				foundURL = true;
 				break;
 			}
 		}
-			
+
 		if(	!foundURL){
 
 			assets.add(asset);
 		}
 	}
 
-	
+
 	public IAsset getAsset(int index){
-		
+
 		return assets.get(index);
 	}
-	
+
 	@Override
 	public List<IAsset> getAssets(){
 		return assets;
@@ -175,17 +191,17 @@ public class Content implements IContentBuilder, IContent {
 		return assets.size();
 	}
 
-	
+
 	public String getBaseUrl(){
 		return baseUrl;
 	}
-	
-	
+
+
 	public String getMetadataValue(String key){
 		return metadata.get(key);
 	}
 
-	
+
 	public HashMap<String,String> getStyles(){
 		return styles;
 	}
@@ -201,12 +217,12 @@ public class Content implements IContentBuilder, IContent {
 	 * @return
 	 */
 	public String toXML(){
-	
-		String xml = "<?xml version='1.0' encoding='UTF-8' ?>"; 
+
+		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 
 		String escapedName = StringUtils.escapeXML(name);
 		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version + "'>";
-		
+
 		// Metadata
 		xml += "<metadata>";
 		for(String key : metadata.keySet()){
@@ -215,7 +231,7 @@ public class Content implements IContentBuilder, IContent {
 			xml += "<entry key='" + encodedKey + "' value='" + encodedValue + "'/>";
 		}
 		xml += 	"</metadata>";
-		
+
 		// Addons
 		xml += "<addons>";
 		for(AddonDescriptor descriptor : addonDescriptors.values()){
@@ -234,14 +250,14 @@ public class Content implements IContentBuilder, IContent {
 
 		// Pages
 		xml += toXMLPages();
-		
+
 		// Assets
 		xml += "<assets>";
 		for(IAsset asset : assets){
 			xml += asset.toXML();
 		}
 		xml += 	"</assets>";
-		
+
 		xml += 	"</interactiveContent>";
 		return xml;
 	}
@@ -303,8 +319,8 @@ public class Content implements IContentBuilder, IContent {
 	public IAddonDescriptor getAddonDescriptor(String addonId) {
 		return addonDescriptors.get(addonId);
 	}
-	
-	
+
+
 	public Page findPageByName(String pageName){
 		int index;
 		Page page = null;
@@ -326,18 +342,18 @@ public class Content implements IContentBuilder, IContent {
 
 		return page;
 	}
-	
+
 	public int getCommonPageIndex(String pageId) {
 	    //  -1 if page not found
 		return commonPages.findPageIndexById(pageId);
 	}
-	
-	
+
+
 	public Page getHeader(){
 		return findPageByName(headerPageName);
 	}
-	
-	
+
+
 	public Page getFooter(){
 		return findPageByName(footerPageName);
 	}
@@ -427,4 +443,9 @@ public class Content implements IContentBuilder, IContent {
 		return weights;
 	}
 
+	public boolean isPageLimitExceeded() {
+		if(getPageCount() + getCommonPages().size() > getMaxPagesCount())
+			return true;
+		return false;
+	}
 }

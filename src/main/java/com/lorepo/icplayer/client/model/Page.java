@@ -21,6 +21,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
+import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -61,9 +62,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private String baseURL = "";
 	private IStyleListener styleListener;
 	private boolean loaded = false;
-	
+
 	private HashMap<String, Size> pageSizes = new HashMap<String, Size>();
-	
+
 	private int width;
 	private int height;
 	private boolean reportable = true;
@@ -72,17 +73,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	IProperty propertyName;
 	private int index;
 	private List<Group> groupedModules = new ArrayList<Group>();
+
 	@SuppressWarnings("serial")
-	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>() {
-		{
-			put("verticals", new ArrayList<Ruler>());
-			put("horizontals", new ArrayList<Ruler>());
-		}
-	};
+	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>(){{
+		put("verticals", new ArrayList<Ruler>());
+		put("horizontals", new ArrayList<Ruler>());
+	}};
+
 	private PageScoreWeight pageScoreWeightMode = PageScoreWeight.defaultWeight;
 	private int modulesMaxScore = 0;
 	private int pageWeight = 1;
 	private int pageCustomWeight = 1;
+	public PageHeightModifications heightModifications = new PageHeightModifications();
 
 	public Page(String name, String url) {
 		super("Page");
@@ -152,8 +154,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public String toString() {
-		return "ID: " + name + ", href: " + href + " modules#: "
-				+ modules.size();
+		return "ID: " + name + ", href: " + href + " modules#: " + modules.size();
 	}
 
 	public void setName(String name) {
@@ -163,7 +164,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	/**
 	 * Ustawienie sposobu layoutowania strony
-	 * 
+	 *
 	 * @param pos
 	 */
 	public void setLayout(LayoutType newLayout) {
@@ -172,7 +173,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	/**
 	 * Serialize page to XML format
-	 * 
+	 *
 	 * @param includeAll
 	 *            - If true save name and isReportable property
 	 */
@@ -236,8 +237,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 		// page weight
 		xml += "<page-weight value='[value]' mode='[mode]'></page-weight>"
-				.replace("[value]", pageWeight + "").replace("[mode]",
-						getPageScoreWeight().toString());
+				.replace("[value]", pageWeight + "")
+				.replace("[mode]", getPageScoreWeight().toString());
 
 		return XMLUtils.removeIllegalCharacters(xml + "</page>");
 	}
@@ -245,9 +246,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void reload(Element rootElement) {
 		load(rootElement, baseURL);
 		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
-		name = StringUtils.unescapeXML(rawName);
-		reportable = XMLUtils
-				.getAttributeAsBoolean(rootElement, "isReportable");
+        name = StringUtils.unescapeXML(rawName);
+		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable");
 	}
 
 	@Override
@@ -664,7 +664,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public String createUniquemoduleId(String baseName) {
 		String name;
 
-		for (int i = 1; i < 100; i++) {
+		for(int i = 1; i < 100; i++) {
 
 			name = baseName + i;
 			if (modules.getModuleById(name) == null) {
@@ -761,7 +761,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		pageWeight = maxScore;
 	}
 
-	// TODO
 	private void addPropertyWeightScoreMode() {
 		IProperty property = new IEnumSetProperty() {
 
@@ -876,29 +875,27 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	private JsArrayString getModulesListAsJS() {
 		List<String> ids = new ArrayList<String>();
-		JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
+	    JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
 
 		for (IModuleModel module : modules) {
 			ids.add(module.getId());
 		}
-
-		for (String string : ids) {
-			jsArray.push(string);
-		}
-
-		return jsArray;
+		
+	    for (String string : ids) {
+	        jsArray.push(string);
+	    }
+	    
+	    return jsArray;
 	}
 
 	/**
 	 * Get JavaScript interface to the page
-	 * 
 	 * @param x
 	 * @return
 	 */
 	private native static JavaScriptObject javaScriptInterface(Page x) /*-{
 
-		var page = function() {
-		}
+		var page = function(){}
 		page.type = "page";
 		page.getId = function() {
 			return x.@com.lorepo.icplayer.client.model.Page::getId()();
@@ -965,7 +962,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		rulers.put("verticals", verticals);
 		rulers.put("horizontals", horizontals);
 	}
-	
+
 	public List<Ruler> getRulersByType(String type) {
 		return rulers.get(type);
 	}

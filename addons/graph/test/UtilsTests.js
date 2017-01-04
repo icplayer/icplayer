@@ -1,6 +1,3 @@
-///**
-//* Created by localadm on 2015-02-18.
-//*/
 TestCase("[Graph]  Create Y axis values validation", {
     setUp: function () {
         this.presenter = Addongraph_create();

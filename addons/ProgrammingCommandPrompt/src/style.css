@@ -1,0 +1,13 @@
+.CommandPrompt-wrapper {
+    width: 100%;
+    height: 100%;
+}
+.CommandPrompt-wrapper.editor {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.CommandPrompt-wrapper button {
+    margin-top: 10px;
+}

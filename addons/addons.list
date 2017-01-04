@@ -36,6 +36,7 @@ graph
 Hangman
 Hierarchical_Lesson_Report
 Hierarchical_Table_Of_Contents
+Iframe
 Image_Identification
 Image_Viewer_Public
 Image_Viewer_Button_Controlled_Public
@@ -93,3 +94,7 @@ WritingCalculations
 Vimeo
 YouTube_Addon
 Zoom_Image
+BlocklyCodeEditor
+Grid_Scene
+ProgrammingCommandPrompt
+Text_Coloring

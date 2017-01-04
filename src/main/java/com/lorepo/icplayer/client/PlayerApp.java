@@ -58,14 +58,14 @@ public class PlayerApp{
 		startPageIndex = pageIndex;
 		
 		IXMLFactory contentFactory = ContentFactory.getInstance(this.pagesSubset);
-		
+
 		contentFactory.load(url, new IProducingLoadingListener() {
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
 				contentModel.connectHandlers();
 				initPlayer(isCommonPage);
 			}
-			
+
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load:" + error);
 			}
@@ -109,17 +109,36 @@ public class PlayerApp{
 	}
 
 	public static native int getScreenHeight() /*-{
-		return $wnd.innerHeight;
+		if ($wnd.location !== $wnd.parent.location){
+			var offsetIframe = $wnd.get_iframe().offset().top;
+			return $wnd.parent.innerHeight - offsetIframe;
+		} else {
+			return $wnd.innerHeight;
+		}
 	}-*/;
 	
 	public static native int getPageHeight() /*-{
-		return $wnd.$(".ic_page").css("height").replace("px","");
+		return $wnd.$("table.ic_player").css("height").replace("px","");
 	}-*/;
 	
 	public static native void removeStaticFooter() /*-{
 		$wnd.$(".ic_footer").parent().removeClass("ic_static_footer");
 	}-*/;
 	
+	public static native void registerGetIframe() /*-{
+	$wnd.get_iframe = function (){
+		var current_location = $wnd.location.href,
+		outer_window = $wnd.parent,
+	  	iframe = null;
+	  	outer_window.$('iframe').each(function(){
+	  		if (this.src == current_location) {
+	  			iframe = $wnd.$(this);
+	  		}
+	  	});
+	  	return iframe;
+	  }
+	}-*/;
+
 	public static native void setPageTopAndStaticHeader(int top) /*-{
 	  var page = $wnd.$(".ic_page");
 	  page.css("top", top);
@@ -132,7 +151,7 @@ public class PlayerApp{
 	  	if(referrer.indexOf($wnd.location.origin) > -1){
 		  $wnd.parent.addEventListener('scroll', function () {
 		  	var parentScroll = $wnd.parent.scrollY;
-		  	var offsetIframe = $wnd.parent.$('iframe').offset().top;
+		  	var offsetIframe = $wnd.get_iframe().offset().top;
 		  	if(parentScroll > offsetIframe){
 		 		$wnd.$(".ic_static_header").css("top", parentScroll-offsetIframe);
 		  	}else{
@@ -175,13 +194,13 @@ public class PlayerApp{
 	  if ($wnd.location !== $wnd.parent.location){
 	  	var referrer = $doc.referrer;
 	  	if(referrer.indexOf($wnd.location.origin) > -1){
-	  	var offsetIframe = $wnd.parent.$('#_icplayer').offset().top;
+	  	var offsetIframe = $wnd.get_iframe().offset().top;
 	  	var sum = parseInt(window.top.innerHeight, 10)-offsetIframe-parseInt(icFooterHeight, 10);
 	  	$wnd.$(".ic_static_footer").css("top", sum+"px");
 		  $wnd.parent.addEventListener('scroll', function () {
 		  	var parentScroll = $wnd.parent.scrollY;
 			sum = parseInt(window.top.innerHeight, 10)-offsetIframe-parseInt(icFooterHeight, 10)+parentScroll;
-		  	if(sum >= ($wnd.parent.$('iframe').height()-parseInt(icFooterHeight, 10))){
+		  	if(sum >= ($wnd.get_iframe().height()-parseInt(icFooterHeight, 10))){
 		  		$wnd.$(".ic_static_footer").css("top", "auto")
 		  	}else{
 		  		$wnd.$(".ic_static_footer").css("top", sum+"px");
@@ -215,19 +234,16 @@ public class PlayerApp{
 	}-*/;
 	
 	public void makeHeaderStatic() {
-		//int headerHeight = contentModel.getHeader().getHeight();
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
 		isStaticHeader = true;
-	} 
+	}
 	
 	public void makeFooterStatic() {
-		if(getScreenHeight() < getPageHeight()){		
-			//int headerHeight = contentModel.getHeader().getHeight();
+		removeStaticFooter();
+		if(getScreenHeight() < getPageHeight()){
 			int headerHeight = getHeaderHeight();
 			setStaticFooter(headerHeight, isStaticHeader);
-		}else{
-			removeStaticFooter();
 		}
 	}
 	
@@ -236,23 +252,25 @@ public class PlayerApp{
 	 */
 	private void initPlayer(final boolean isCommonPage) {
 		PlayerView playerView = new PlayerView();
-		playerController = new PlayerController(contentModel, playerView, bookMode);
+		playerController = new PlayerController(contentModel, playerView, bookMode, entryPoint);
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
+		this.registerGetIframe();
 		playerController.addPageLoadListener(new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
-				entryPoint.onPageLoaded();
-				
-				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0){
+				if(contentModel.getMetadataValue("staticHeader").compareTo("true") == 0 && playerController.hasHeader()){
 					makeHeaderStatic();
 				}
 
-				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0){
+				if(contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()){
 					makeFooterStatic();
 				}
+
+				entryPoint.onPageLoaded();
 			}
 			public void onError(String error) {
+				JavaScriptUtils.log("Loading pages error: " + error);
 			}
 		});
 		
@@ -263,12 +281,13 @@ public class PlayerApp{
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+
 		loader.addAddons(contentModel.getAddonDescriptors().values());
-		
+
 		if(contentModel.getHeader() != null){
 			loader.addPage(contentModel.getHeader());
 		}
-		
+
 		if(contentModel.getFooter() != null){
 			loader.addPage(contentModel.getFooter());
 		}
@@ -279,7 +298,7 @@ public class PlayerApp{
 			}
 
 			public void onError(String error) {
-				JavaScriptUtils.log("Error at loading Addons: " + error);
+				JavaScriptUtils.log("Loading ContentData have failed, error: " + error);
 			}
 		});
 	}
@@ -290,6 +309,7 @@ public class PlayerApp{
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 			playerController.getPlayerServices().getTimeService().loadFromString(loadedState.get("time"));
 		}
+
 		if (isCommonPage) {
 			playerController.switchToCommonPage(startPageIndex);
 		} else {
@@ -341,7 +361,7 @@ public class PlayerApp{
 
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
-		if(data.containsKey("state") && data.containsKey("score")){
+		if(data.containsKey("state") && data.containsKey("score")) {
 			loadedState = data;
 		}
 	}

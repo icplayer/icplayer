@@ -11,9 +11,10 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
-import com.lorepo.icplayer.client.model.AddonDescriptorFactory;
+import com.lorepo.icplayer.client.addonsLoader.AddonLoaderFactory;
+import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;
 import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
 
@@ -29,12 +30,11 @@ public class ContentDataLoader {
 	private int count;
 	private Collection<AddonDescriptor> descriptors;
 	private List<Page> pages = new ArrayList<Page>();
-	private List<String> libs = new ArrayList<String>();
-	private AddonDescriptorFactory localAddons;
+	private AddonLoaderFactory addonsLoaderFactory;
 	
 	public ContentDataLoader(String baseUrl) {
 		this.baseUrl = baseUrl;
-		localAddons = AddonDescriptorFactory.getInstance();
+		this.addonsLoaderFactory = new AddonLoaderFactory(baseUrl);
 	}
 
 	public void addPage(Page page) {
@@ -67,15 +67,8 @@ public class ContentDataLoader {
 	}
 
 	private void loadDescriptor(final AddonDescriptor descriptor) {
-		String url;
-		if (localAddons.isLocalAddon(descriptor.getAddonId())) {
-			url = URLUtils.resolveURL(GWT.getModuleBaseURL() + "addons/", descriptor.getAddonId() + ".xml");
-		} else {
-			url = URLUtils.resolveURL(baseUrl, descriptor.getHref());
-		}
-		
-		XMLLoader loader = new XMLLoader(descriptor);
-		loader.load(url, new ILoadListener() {
+		IAddonLoader loader = addonsLoaderFactory.getAddonLoader(descriptor);
+		loader.load(new ILoadListener() {
 			@Override
 			public void onFinishedLoading(Object obj) {
 				DOMInjector.injectJavaScript(descriptor.getCode());
@@ -85,32 +78,22 @@ public class ContentDataLoader {
 			@Override
 			public void onError(String error) {
 				JavaScriptUtils.log("Error loading addon: " + descriptor.getAddonId());
+				JavaScriptUtils.log("Error: " + error.toString());
 				resourceLoaded();
 			}
 		});
 	}
-	
-	protected void addLibrary(String libName) {
-		libName = libName.toLowerCase();
-		for (String lib : libs) {
-			if (lib.compareTo(libName) == 0) {
-				return;
-			}
-		}
-		
-		libs.add(libName);
-	}
 
 	private void loadPage(Page page) {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		
+
 		PageFactory factory = new PageFactory((Page) page);
 		factory.load(url, new IProducingLoadingListener() {
 			@Override
 			public void onFinishedLoading(Object producedItem) {
 				resourceLoaded();
 			}
-			
+
 			@Override
 			public void onError(String error) {
 				JavaScriptUtils.log("Error loading page: " + error);
@@ -135,42 +118,14 @@ public class ContentDataLoader {
 			DOMInjector.injectStyleAtStart(css);
 		}
 	}
-	
-	private native void includeJavaScript(ContentDataLoader x, String url) /*-{
-	  
-		// allow user to set any option except for dataType, cache, and url
-		options = $wnd.jQuery.extend({}, {
-		    dataType: "script",
-		    cache: true,
-		    url: url
-		});
-		
-		
-	  	$wnd.jQuery.ajax(options).done(function(script, status) {
-			console.log("Loaded lib: " + url);
-			x.@com.lorepo.icplayer.client.ContentDataLoader::loadLib()();
-		});
-	}-*/; 
-	
-	
+
 	private void resourceLoaded() {
 		count--;
 		if (count == 0) {
 			addCSSFromAddons();
-			loadLib();
-		}
-	}
-
-	
-	private void loadLib() {
-
-		if(libs.size() > 0){
-			String libName = libs.remove(0);
-			String url = GWT.getModuleBaseURL() + "libs/" + libName;
-			includeJavaScript(this,url);
-		}
-		else if(listener != null){
-			listener.onFinishedLoading(this);
+			if(listener != null){
+				listener.onFinishedLoading(this);
+			}
 		}
 	}
 }

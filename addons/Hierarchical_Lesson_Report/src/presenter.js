@@ -2,6 +2,7 @@ function AddonHierarchical_Lesson_Report_create() {
     var presenter = function () {};
     var presentationController;
     var pageIndex = 0;
+    var absolutePageIndex = 0;
 
     presenter.ERROR_MESSAGES = {
         EXPAND_DEPTH_NOT_NUMERIC: "Depth of expand is not proper",
@@ -53,16 +54,8 @@ function AddonHierarchical_Lesson_Report_create() {
         if (presenter.configuration.showMistakes) headerHTML += "<td class='hier_report-mistakes'> " + presenter.configuration.labels.mistakes + "</td>";
         if (presenter.configuration.showErrors) headerHTML += "<td class='hier_report-errors'> " + presenter.configuration.labels.errors + "</td>";
         if (presenter.configuration.showPageScore) headerHTML += "<td class='hier_report-page-score'>" + presenter.configuration.labels.pageScores + "</td>";
-        if (presenter.configuration.showMaxScoreField) headerHTML += "<td></td>";
+        if (presenter.configuration.showMaxScoreField) headerHTML += "<td class='hier_report-page-max-score'>" + presenter.configuration.labels.maxScoreAward + "</td>";
         $("<tr></tr>").prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
-    }
-
-    function getRealPageIndex(index) {
-        var utils = new PlayerUtils(player);
-        var presentation = utils.getPresentation();
-        var score = utils.getPresentationScore(presentation);
-
-        return parseInt(score.paginatedResult[index].page_number, 10) - 1;
     }
 
     presenter.calculateLessonScaledScore = function () {
@@ -81,20 +74,10 @@ function AddonHierarchical_Lesson_Report_create() {
         $("<td></td>").appendTo($(row)).html(presenter.configuration.labels.total);
 
         if (presenter.configuration.showResults) {
-            var score = resetScore();
-
-            if (!presenter.isPreview)  {
-                score = {
-                    score: presenter.calculateLessonScaledScore(),
-                    count: 1
-                }
-            } else {
-                score = {
-                    score: 0,
-                    count: 1
-                }
-            }
-            createProgressCell(row, score);
+            createProgressCell(row, {
+                score: presenter.isPreview ? 0 : presenter.calculateLessonScaledScore(),
+                count: 1
+            });
         }
 
         if (presenter.configuration.showChecks) {
@@ -165,15 +148,15 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     presenter.getPageScaledScore = function(maxScore, score, isChapter, pageID) {
-        var pageScaledScore = 0;
-
         if (maxScore) {
-            pageScaledScore = score / maxScore;
-        } else if (!presenter.isPreview && !isChapter) {
-            pageScaledScore = presenter.isPageVisited(pageID) ? 1 : 0;
+            return score / maxScore;
         }
 
-        return pageScaledScore;
+        if (!presenter.isPreview && !isChapter) {
+            return presenter.isPageVisited(pageID) ? 1 : 0;
+        }
+
+        return 0;
     };
 
     presenter.getProperScore = function(score, pageId) {
@@ -187,7 +170,7 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     function createScoreCells(row, pageId, index, isChapter) {
-        var isScoreEnable = presenter.configuration.disabledScorePages.indexOf(index) === -1;
+        var isScoreEnable = presenter.configuration.disabledScorePages.indexOf(absolutePageIndex) === -1;
         var score = resetScore();
         if (!presenter.isPreview) {
             score = presentationController.getScore().getPageScoreById(pageId);
@@ -202,7 +185,6 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         if (isScoreEnable) {
-            var pageScaledScore = 0;
 
             if (presenter.configuration.showResults) {
                 createProgressCell(row, score, index, isChapter);
@@ -216,10 +198,7 @@ function AddonHierarchical_Lesson_Report_create() {
             presenter.lessonScore.errors += score.errorCount;
             presenter.lessonScore.score += pageScore;
             presenter.lessonScore.maxScore += score.maxScore;
-
-            pageScaledScore = presenter.getPageScaledScore(score.maxScore, pageScore, isChapter, pageId);
-
-            presenter.lessonScore.scaledScore += pageScaledScore;
+            presenter.lessonScore.scaledScore += presenter.getPageScaledScore(score.maxScore, pageScore, isChapter, pageId);
 
             if (presenter.configuration.showChecks) {
                 var checksCell = document.createElement('td');
@@ -249,8 +228,12 @@ function AddonHierarchical_Lesson_Report_create() {
             }
 
             if (presenter.configuration.showMaxScoreField) {
-                var className = (pageScore === score.maxScore && score.maxScore !== 0 ? "page-max-score" : "page-non-max-score");
-                $("<td></td>").appendTo($(row)).addClass("hier_report-" + className);
+                var isMaxScore = pageScore === score.maxScore && score.maxScore !== 0;
+
+                var $td = $('<td></td>');
+                $td.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
+
+                $(row).append($td);
             }
         } else {
             var c = presenter.configuration;
@@ -260,15 +243,11 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     presenter.insertPageScoreValuesToPage = function(pageScore, score) {
-        var value;
-
         if (score.score == 0 && score.maxScore == 0) {
-            value = presenter.configuration.labels.unvisitedPageScore;
-        } else {
-            value = pageScore + "<span class='hier_report-separator'>/</span>" + score.maxScore;
+            return presenter.configuration.labels.unvisitedPageScore;
         }
 
-        return value;
+        return pageScore + "<span class='hier_report-separator'>/</span>" + score.maxScore;
     };
 
     function generatePageLinks(text, isChapter, pageId) {
@@ -294,59 +273,39 @@ function AddonHierarchical_Lesson_Report_create() {
         var hasChildren = pageScore.count > 0;
 
         if (presenter.configuration.showResults) {
-            var percent = (Math.floor((pageScore.score / pageScore.count) * 100)) || 0;
+            var percent = Math.floor((pageScore.score / pageScore.count) * 100) || 0;
             var progressbar = $(row).find("#progressbar-" + pageIndex);
             if (hasChildren) {
                 $(progressbar).progressbar({value: Math.floor((pageScore.score / pageScore.count) * 100), max: 100});
-                $(progressbar).closest("div").next().html(percent + "%");
+                $(progressbar).closest("div").next().html(percent + '%');
             } else {
-                $(progressbar).closest("div").next().html("-").attr('style','');
+                $(progressbar).closest("div").next().html('-').attr('style', '');
             }
         }
 
         if (presenter.configuration.showChecks) {
-            if (hasChildren) {
-                $(row).find(".hier_report-checks").html(pageScore.checkCount);
-            } else {
-                $(row).find(".hier_report-checks").html("-");
-            }
+            $(row).find(".hier_report-checks").html(hasChildren ? pageScore.checkCount : '-');
         }
 
         if (presenter.configuration.showMistakes) {
-            if (hasChildren) {
-                $(row).find(".hier_report-mistakes").html(pageScore.mistakeCount);
-            } else {
-                $(row).find(".hier_report-mistakes").html("-");
-            }
+            $(row).find(".hier_report-mistakes").html(hasChildren ? pageScore.mistakeCount : '-');
         }
 
         if (presenter.configuration.showErrors) {
-            if (hasChildren) {
-                $(row).find(".hier_report-errors").html(pageScore.errorCount);
-            } else {
-                $(row).find(".hier_report-errors").html("-");
-            }
+            $(row).find(".hier_report-errors").html(hasChildren ? pageScore.errorCount : '-');
         }
 
         if (presenter.configuration.showPageScore) {
-            if (hasChildren) {
-                $(row).find(".hier_report-page-score").html(presenter.insertPageScoreValuesToChapter(pageScore));
-            } else {
-                $(row).find(".hier_report-page-score").html("-");
-            }
+            $(row).find(".hier_report-page-score").html(hasChildren ? presenter.insertPageScoreValuesToChapter(pageScore) : '-');
         }
     }
 
     presenter.insertPageScoreValuesToChapter = function(pageScore) {
-        var value;
-
         if (pageScore.countedMaxScore != 0) {
-            value = pageScore.countedScore + "<span class='hier_report-separator'>/</span>" + pageScore.countedMaxScore;
+            return pageScore.countedScore + "<span class='hier_report-separator'>/</span>" + pageScore.countedMaxScore;
         } else {
-            value = presenter.configuration.labels.unvisitedPageScore;
+            return presenter.configuration.labels.unvisitedPageScore;
         }
-
-        return value;
     };
 
     presenter.updateChapterScore = function(score, update, isEnabled) {
@@ -401,7 +360,7 @@ function AddonHierarchical_Lesson_Report_create() {
         return chapterScore;
     };
 
-    presenter.createTree = function (root, parrentIndex, pageCount) {
+    presenter.createTree = function(root, parrentIndex, pageCount) {
         var chapterIndex = 0,
             chapterScore = resetScore(),
             pageScore = resetScore(),
@@ -410,28 +369,35 @@ function AddonHierarchical_Lesson_Report_create() {
             isEnabled = true;
 
         for (var i = 0; i < pageCount; i++) {
-            var isChapter = (root.get(i).type == "chapter");
+            var isChapter = root.get(i).type == 'chapter';
 
-            if (!isChapter && !root.get(i).isReportable()) continue;
-            if (!isChapter && root.get(i).isReportable()) {
-                isEmpty = false;
-            }
-            var pageId = "chapter";
             if (!isChapter) {
-                pageId = root.get(i).getId();
+                if (root.get(i).isReportable()) {
+                    // at least one page is reportable
+                    isEmpty = false;
+                } else {
+                    absolutePageIndex++;
+                    continue;
+                }
             }
-            var realPageIndex = getRealPageIndex(pageIndex);
-            addRow(root.get(i).getName(), realPageIndex, parrentIndex, isChapter, pageId);
+
+            var pageId = isChapter ? "chapter" : root.get(i).getId();
+
+            addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter, pageId);
+            absolutePageIndex++;
+
             pageScore = presentationController.getScore().getPageScoreById(pageId);
             pageScore.count = 1;
             pageIndex++;
+
             if (isChapter) {
                 chapterIndex = pageIndex - 1;
                 values = presenter.createTree(root.get(i), chapterIndex, root.get(i).size());
                 updateRow(chapterIndex, values.pagesScore);
-                pageScore =  values.pagesScore;
+                pageScore = values.pagesScore;
             }
-            isEnabled = presenter.configuration.disabledScorePages.indexOf(realPageIndex) === -1;
+
+            isEnabled = presenter.configuration.disabledScorePages.indexOf(absolutePageIndex) === -1;
             chapterScore = presenter.updateChapterScore(chapterScore, pageScore, isEnabled);
         }
 
@@ -615,7 +581,6 @@ function AddonHierarchical_Lesson_Report_create() {
             maxScore: 0,
             scaledScore: 0
         };
-
 
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {

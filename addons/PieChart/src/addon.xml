@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <addon id='PieChart' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name='Items' nameLabel="PieChart_property_items" type='list'>
+        <property name='Items' nameLabel="PieChart_property_items" type='list' isDefault="true">
             <property name='Name' nameLabel="PieChart_property_name" type='string'/>
             <property name='Color' nameLabel="PieChart_property_color" type='string'/>
             <property name='Starting percent' nameLabel="PieChart_property_starting_percent" type='string'/>

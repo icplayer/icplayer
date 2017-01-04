@@ -6,7 +6,7 @@
         <property name='displayTime' displayName='Display time' nameLabel='TextAudio_property_display_time' type='boolean' />
         <property name='enableLoop' displayName='Enable loop' nameLabel='TextAudio_property_enable_loop' type='boolean' />
 
-        <property name='Slides' nameLabel='TextAudio_property_slides' type='list'>
+        <property name='Slides' nameLabel='TextAudio_property_slides' type='list' isDefault="true">
             <property name='Text' nameLabel='TextAudio_property_text' type='html' isLocalized='true' />
             <property name='Times' nameLabel='TextAudio_property_times' type='text' isLocalized='true' />
             <property name='positionAndDimentions' displayName="Position and Dimentions" nameLabel='TextAudio_property_position_and_dimentions' type='text' isLocalized='true' />

@@ -112,7 +112,6 @@ public class ChoiceModel extends BasicModuleModel{
 			String optionID = Integer.toString(i+1);
 			ChoiceOption option = new ChoiceOption(optionID);
 			option.load(element, baseUrl);
-		
 			addOption(option);
 		}
 	}
@@ -158,8 +157,17 @@ public class ChoiceModel extends BasicModuleModel{
 	}
 
 	
-	public int getMaxScore() {
+	public int calculateMaxScore() {
+		int maxScore = 0;
+		for (ChoiceOption option : options) {
+			maxScore += option.getValue();
+		}
+		
 		return maxScore;
+	}
+	
+	public int getMaxScore() {		
+		return calculateMaxScore();
 	}
 
 
@@ -308,6 +316,7 @@ public class ChoiceModel extends BasicModuleModel{
 			public boolean isDefault() {
 				return isDefault;
 			}
+
 		};
 		
 		addProperty(optionsProperty);

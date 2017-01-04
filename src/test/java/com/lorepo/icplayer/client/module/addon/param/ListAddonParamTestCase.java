@@ -14,7 +14,7 @@ import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.model.AddonProperty;
+import com.lorepo.icplayer.client.model.addon.AddonProperty;
 
 public class ListAddonParamTestCase {
 

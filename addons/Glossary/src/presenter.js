@@ -236,6 +236,14 @@ function AddonGlossary_create(){
         presenter.addDescription(dialog, dialogData.description);
         dialog.dialog("open");
         presenter.updateLaTeX(dialogData.description);
+
+        var openLinkOption = presenter.model["Open external link in"];
+
+        if (openLinkOption == "New tab" || openLinkOption == "" || openLinkOption == undefined) {
+            presenter.$view.find('.modal-dialog').find('a').attr("target", "_blank");
+        } else {
+            presenter.$view.find('.modal-dialog').find('a').attr("target", "_self");
+        }
     };
 
     presenter.catchScroll = function() {
@@ -252,7 +260,7 @@ function AddonGlossary_create(){
                 }
             }
         }catch(e){}
-    }
+    };
 
     presenter.initializeView = function(view, model) {
         presenter.model = model;

@@ -18,7 +18,7 @@ public interface IPlayerCommands {
 	public void	gotoPage(String name);
 	public void	gotoPageIndex(int index);
 	public void	gotoPageId(String pageId);
-	public void showPopup(String pageName, String additinalClasses);
+	//public void showPopup(String pageName, String additinalClasses);
 	public void closePopup();
 
 	public void executeEventCode(String code);
@@ -31,4 +31,6 @@ public interface IPlayerCommands {
 	void incrementCheckCounter();
 	void increaseMistakeCounter();
 	public void gotoCommonPage(String commonsPageName);
+	void showPopup(String pageName, String top, String left,
+			String additionalClasses);
 }

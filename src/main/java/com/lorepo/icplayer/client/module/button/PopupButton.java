@@ -11,7 +11,7 @@ import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 class PopupButton extends PushButton{
 
 	private final IPlayerServices playerServices;
-	public PopupButton(final String popupName, final IDisplay view, final IPlayerCommands pageService, final String additionalClasses, IPlayerServices services, final ButtonModule module){
+	public PopupButton(final String popupName, final IDisplay view, final IPlayerCommands pageService, final String top, final String left, final String additionalClasses, IPlayerServices services, final ButtonModule module){
 		this.playerServices = services;
 		setStyleName("ic_button_popup");
 		addClickHandler(new ClickHandler() {
@@ -21,7 +21,7 @@ class PopupButton extends PushButton{
 				event.stopPropagation();
 				event.preventDefault();
 				if (!view.isErrorCheckingMode()) {
-					pageService.showPopup(popupName, additionalClasses);
+					pageService.showPopup(popupName, top, left, additionalClasses);
 					ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "clicked", "");
 					playerServices.getEventBus().fireEvent(valueEvent);
 				}

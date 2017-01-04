@@ -3,21 +3,21 @@
     };
  
     function createVideoThumbnailAsync(videoID, viewContainer, addonWidth, addonHeight) {
-        var GDATA_YOUTUBE_FEED = "http://gdata.youtube.com/feeds/api/videos/";
-        var GDATA_YOUTUBE_FEED_PARAMS = "?v=2&alt=jsonc";
-        var feedURL = GDATA_YOUTUBE_FEED + videoID + GDATA_YOUTUBE_FEED_PARAMS;
- 
-        $.get(feedURL, function(jsonResponse) {
-            var thumbnails = jsonResponse["data"]["thumbnail"];
-            var thumbnailURL = thumbnails["hqDefault"] ? thumbnails["hqDefault"] : thumbnails["sqDefault"];
- 
-            var thumbnailElement = document.createElement("img");
-            $(thumbnailElement).attr('src', thumbnailURL);
-            viewContainer.html(thumbnailElement);
-            $(thumbnailElement).css({
-                width: addonWidth + 'px',
-                height: addonHeight + 'px'
-            });
+
+        var feedURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=AIzaSyAhdKL4WhiNG-fPIIC64LR95FNUOwddISs&part=snippet";
+
+        $.when($.get(feedURL)).then(function (jsonResponse) {
+            if (jsonResponse.items.length > 0) {
+                var thumbnails = jsonResponse.items[0].snippet.thumbnails;
+                var thumbnailURL = thumbnails.maxres.url;
+                var thumbnailElement = document.createElement("img");
+                $(thumbnailElement).attr('src', thumbnailURL);
+                viewContainer.html(thumbnailElement);
+                $(thumbnailElement).css({
+                    width: addonWidth + 'px',
+                    height: addonHeight + 'px'
+                });
+            }
         });
     }
  
@@ -256,6 +256,6 @@
 }
 /**
  * YouTube Addon
- * Version 1.5
- * Last update: 02-11-2015
+ * Version 1.6
+ * Last update: 23-08-2016
  */

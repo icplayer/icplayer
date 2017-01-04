@@ -3,10 +3,12 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEventProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.ITextProperty;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
@@ -30,6 +32,12 @@ public class ButtonModule extends BasicModuleModel {
 	private String onClick;
 	private String pageIndex;
 	private String additionalClasses = "";
+	private String popupTopPosition = "";
+	private String popupLeftPosition = "";
+	private boolean confirmReset = false;
+	private String confirmInfo = "";
+	private String confirmYesInfo = "";
+	private String confirmNoInfo = "";
 	
 	public ButtonModule() {
 		super("Button", DictionaryWrapper.get("button_module"));
@@ -67,6 +75,12 @@ public class ButtonModule extends BasicModuleModel {
 					onClick = childElement.getAttribute("onclick");
 					additionalClasses = childElement.getAttribute("additionalClasses");
 					pageIndex = childElement.getAttribute("pageIndex");
+					popupTopPosition = childElement.getAttribute("popupTopPosition");
+					popupLeftPosition = childElement.getAttribute("popupLeftPosition");
+					confirmReset = XMLUtils.getAttributeAsBoolean(childElement, "confirmReset", false);
+					confirmInfo = childElement.getAttribute("confirmInfo");
+					confirmYesInfo = childElement.getAttribute("confirmYesInfo");
+					confirmNoInfo = childElement.getAttribute("confirmNoInfo");
 				}
 			}
 		}
@@ -93,9 +107,17 @@ public class ButtonModule extends BasicModuleModel {
 
 		if (type == ButtonType.popup) {
 			xml += " additionalClasses='" + StringUtils.escapeXML(additionalClasses) + "'";
+			xml += " popupLeftPosition='" + StringUtils.escapeXML(popupLeftPosition) + "'";
+			xml += " popupTopPosition='" + StringUtils.escapeXML(popupTopPosition) + "'";
 		}
 		if (type == ButtonType.gotoPage) {
 			xml += " pageIndex='" + StringUtils.escapeXML(pageIndex) + "'";
+		}
+		if (type == ButtonType.reset) {
+			xml += " confirmReset='" + confirmReset + "'";
+			xml += " confirmInfo='" + StringUtils.escapeXML(confirmInfo) + "'";
+			xml += " confirmYesInfo='" + StringUtils.escapeXML(confirmYesInfo) + "'";
+			xml += " confirmNoInfo='" + StringUtils.escapeXML(confirmNoInfo) + "'";
 		}
 		
 		xml += "/></buttonModule>";
@@ -137,6 +159,8 @@ public class ButtonModule extends BasicModuleModel {
 		if(type == ButtonType.popup) {
 			addPropertyPage();
 			addPropertyAdditionalClasses();
+			addPropertyPopupTopPosition();
+			addPropertyPopupLeftPosition();
 		}
 		else if(type == ButtonType.gotoPage) {
 			addPropertyPage();
@@ -144,7 +168,13 @@ public class ButtonModule extends BasicModuleModel {
 		} 
 		else if(type == ButtonType.standard) {
 			addPropertyOnClick();
-		} 
+		}
+		else if(type == ButtonType.reset) {
+			addPropertyConfirmReset();
+			addPropertyConfirmInfo();
+			addPropertyConfirmYesInfo();
+			addPropertyConfirmNoInfo();
+		}
 	}
 
 
@@ -255,6 +285,82 @@ public class ButtonModule extends BasicModuleModel {
 		addProperty(property);
 	}
 	
+	public String getPopupTopPosition() {
+		return popupTopPosition;
+	}
+	
+	public String getPopupLeftPosition() {
+		return popupLeftPosition;
+	}
+	
+	private void addPropertyPopupTopPosition() {
+		
+		IProperty property = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				popupTopPosition = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return popupTopPosition;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("popup_top_position");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("popup_top_position");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyPopupLeftPosition() {
+		
+		IProperty property = new IProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				popupLeftPosition = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return popupLeftPosition;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("popup_left_position");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("popup_left_position");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
 	private void addPropertyAdditionalClasses() {
 		
 		ITextProperty property = new ITextProperty() {
@@ -287,6 +393,162 @@ public class ButtonModule extends BasicModuleModel {
 		};
 		
 		addProperty(property);
+	}
+	
+	private void addPropertyConfirmInfo() {
+
+		IProperty property = new IProperty() {
+				
+			@Override
+			public void setValue(String newValue) {
+				confirmInfo = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return confirmInfo;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("reset_property_confirm_info");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("reset_property_confirm_info");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyConfirmYesInfo() {
+
+		IProperty property = new IProperty() {
+				
+			@Override
+			public void setValue(String newValue) {
+				confirmYesInfo = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return confirmYesInfo;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("reset_property_confirm_yes");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("reset_property_confirm_yes");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyConfirmNoInfo() {
+
+		IProperty property = new IProperty() {
+				
+			@Override
+			public void setValue(String newValue) {
+				confirmNoInfo = newValue;
+				sendPropertyChangedEvent(this);
+			}
+			
+			@Override
+			public String getValue() {
+				return confirmNoInfo;
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("reset_property_confirm_no");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("reset_property_confirm_no");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyConfirmReset() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= confirmReset) {
+					confirmReset = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return confirmReset ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("reset_property_confirm_reset");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("reset_property_confirm_reset");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getConfirmInfo() {
+		return confirmInfo;
+	}
+	
+	public String getConfirmYesInfo() {
+		return confirmYesInfo;
+	}
+	
+	public String getConfirmNoInfo() {
+		return confirmNoInfo;
+	}
+	
+	public boolean getConfirmReset() {
+		return confirmReset;
 	}
 	
 	private void addPropertyOnClick() {

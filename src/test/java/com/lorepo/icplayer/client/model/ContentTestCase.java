@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
 import com.lorepo.icplayer.client.module.api.player.IChapter;

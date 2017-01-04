@@ -60,7 +60,10 @@ function AddonSVG2_create(){
         var cw = el.attr('width') ? el.attr('width') : containerWidth;
         var ch = el.attr('height') ? el.attr('height') : containerHeight;
 
-        //fit size of svg           
+        //fit size of svg
+        cw = cw.replace("px", "");
+        ch = ch.replace("px", "");
+
         el.attr('viewBox', '0 0 ' + cw + ' ' + ch);
         el.attr('preserveAspectRatio', !aspect ? 'xMinYMin' : 'none');
         el.attr('width', '100%');

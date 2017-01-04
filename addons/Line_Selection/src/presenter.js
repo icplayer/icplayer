@@ -237,16 +237,34 @@ function AddonLine_Selection_create(){
             coordinatesContainer.addClass('coordinates');
             coordinatesContainer.append(xContainer).append(yContainer);
             presenter.wrapper.append(coordinatesContainer);
-            presenter.wrapper.on('mousemove', function(e) {
+            function setCalculatedPosition(e) {
                 coordinations.x = e.originalEvent.pageX || e.originalEvent.touches[0].pageX;
                 coordinations.y = e.originalEvent.pageY || e.originalEvent.touches[0].pageY;
                 presenter.mouseSX = parseInt(coordinations.x,10) - parseInt(presenter.wrapper.offset().left,10);
                 presenter.mouseSY = parseInt(coordinations.y,10) - parseInt(presenter.wrapper.offset().top,10);
                 xContainer.find('.value').html(presenter.mouseSX);
                 yContainer.find('.value').html(presenter.mouseSY);
+            }
+
+            var doesElementExist = function() {
+                var $moduleSelector = $('.moduleSelector[data-id="'+presenter.addonID+'"]');
+
+                if ($moduleSelector.length > 0) {
+                    $moduleSelector.on('mousemove', function(e) {
+                        setCalculatedPosition(e);
+                    });
+
+                    clearInterval(interval);
+                }
+            };
+
+            var interval = setInterval(function() { doesElementExist(); }, 500);
+
+            presenter.wrapper.on('mousemove', function(e) {
+                setCalculatedPosition(e)
             });
         }
-    }
+    };
     presenter.setShowErrorsMode = function(){
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isErrorMode = true;

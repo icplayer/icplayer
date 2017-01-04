@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Group;
 import com.lorepo.icplayer.client.model.Group.ScoringGroupType;
+import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
@@ -42,8 +43,11 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
+		void outstretchHeight(int y, int difference);
 		HashMap<String, Widget> getWidgets();
 	}
+	
+	private String PAGE_HEIGHT_MODIFICATIONS_KEY = "ICPLAYER_PAGE_HEIGHT_MODIFICATIONS";
 
 	private IPageDisplay pageView;
 	private Page currentPage;
@@ -55,6 +59,7 @@ public class PageController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
+	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -109,7 +114,14 @@ public class PageController {
 		}
 		pageView.refreshMathJax();
 
+		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
+	}
+	
+	private void restoreOutstretchHeights() {
+		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
+			this.outstretchHeightWithoutAddingToModifications(data.y, data.height);
+		}
 	}
 
 	protected void valueChanged(ValueChangedEvent event) {
@@ -139,6 +151,7 @@ public class PageController {
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
+			
 			if(presenter != null){
 				presenter.addView(moduleView);
 				presenters.add(presenter);
@@ -293,7 +306,7 @@ public class PageController {
 		}
 	}
 
-	private Score.Result getCurrentScore() {
+	private Result getCurrentScore() {
 		Result groupsResult = calculateScoreModulesInGroups();
 
 		if(groupsResult == null){
@@ -347,22 +360,35 @@ public class PageController {
 				}
 			}
 		}
+		
+		String heightModificationsState = state.get(this.getOutstretchUniqueHeightKey());
+		if (heightModificationsState != null) {
+			this.currentPage.heightModifications.setState(heightModificationsState);	
+		}
 	}
 
 	public HashMap<String, String> getState() {
 
 		HashMap<String, String>	pageState = new HashMap<String, String>();
-		if(currentPage != null){
+		if(this.currentPage != null) {
 			for(IPresenter presenter : presenters){
 				if(presenter instanceof IStateful){
 					IStateful statefulObj = (IStateful)presenter;
 					String state = statefulObj.getState();
-					String key = currentPage.getId() + statefulObj.getSerialId();
+					String key = this.currentPage.getId() + statefulObj.getSerialId();
 					pageState.put(key, state);
 				}
 			}
+			
+			pageState.put(this.getOutstretchUniqueHeightKey(), this.currentPage.heightModifications.getState());
 		}
+		
+		
 		return pageState;
+	}
+	
+	private String getOutstretchUniqueHeightKey() {
+		return this.currentPage.getId() + this.PAGE_HEIGHT_MODIFICATIONS_KEY;
 	}
 
 	public void runScript(String script) {
@@ -423,5 +449,16 @@ public class PageController {
 		}
 
 		return null;
+	}
+
+	public void outstretchHeight(int y, int height) {
+		this.outstretchHeightWithoutAddingToModifications(y, height);
+		this.currentPage.heightModifications.addOutstretchHeight(y, height);
+		this.playerController.fireOutstretchHeightEvent();
+		
+	}
+
+	public void outstretchHeightWithoutAddingToModifications(int y, int height) {
+		this.pageView.outstretchHeight(y, height);
 	}
 }

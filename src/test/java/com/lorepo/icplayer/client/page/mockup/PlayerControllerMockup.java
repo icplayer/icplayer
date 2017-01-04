@@ -9,7 +9,6 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.content.services.TimeService;
-import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
@@ -94,7 +93,8 @@ public class PlayerControllerMockup implements IPlayerController {
 
 
 	@Override
-	public void showPopup(String pageName, String additionalClasses) {
+	public void showPopup(String pageName, String top, String left,
+			String additionalClasses) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -193,6 +193,13 @@ public class PlayerControllerMockup implements IPlayerController {
 	@Override
 	public ITimeService getTimeService() {
 		return timeService;
+	}
+
+
+	@Override
+	public void fireOutstretchHeightEvent() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

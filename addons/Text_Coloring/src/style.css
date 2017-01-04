@@ -1,0 +1,97 @@
+.text-coloring-hover-class {
+	background-color: orange;
+}
+
+.text-coloring-pointer-class {
+	cursor: pointer;
+}
+
+.text-coloring-active-button {
+	background-color: orange;
+}
+
+/*TOP POSITION*/
+.text-coloring-eraser-button-container-top-position {
+	display: inline-block;
+	margin-right: 20px;
+}
+
+.text-coloring-colors-buttons-container-top-position {
+	display: inline-block;
+}
+
+.text-coloring-colors-buttons-container-top-position > .text-coloring-color-button {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.text-coloring-buttons-container-top-position {
+	margin-bottom: 10px;
+}
+
+/*LEFT POSITION*/
+.text-coloring-main-container-left-position {
+	display: table-row;
+}
+
+.text-coloring-buttons-container-left-position {
+	display: table-cell;
+}
+
+.text-coloring-tokens-container-left-position {
+	display: table-cell;
+}
+
+.text-coloring-eraser-button-container-left-position {
+	margin-top: 10px;
+}
+
+.text-coloring-colors-buttons-container-left-position > .text-coloring-color-button{
+	margin-bottom: 10px;
+}
+/*BOTTOM POSITION*/
+.text-coloring-colors-buttons-container-bottom-position {
+	display: inline-block;
+}
+
+.text-coloring-colors-buttons-container-bottom-position > .text-coloring-color-button{
+	margin-right: 10px;
+	display: inline-block;
+}
+
+.text-coloring-eraser-button-container-bottom-position {
+	display: inline-block;
+}
+
+.text-coloring-buttons-container-bottom-position {
+	margin-top: 10px;
+}
+
+/*RIGHT POSITION*/
+.text-coloring-main-container-right-position {
+	display: table-row;
+}
+
+.text-coloring-tokens-container-right-position {
+	display: table-cell;
+}
+
+.text-coloring-buttons-container-right-position {
+	display: table-cell;
+}
+
+.text-coloring-buttons-container-right-position > .text-coloring-color-button {
+	margin-bottom: 10px;
+}
+
+.text-coloring-eraser-button-container-right-position {
+	margin-top: 10px;
+}
+
+.text-coloring-token-correct-marking {
+	background-color: green;
+}
+
+.text-coloring-token-wrong-marking {
+	background-color: red;
+}

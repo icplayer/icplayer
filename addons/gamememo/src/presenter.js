@@ -193,6 +193,7 @@ function Addongamememo_create(){
         presenter.styleBImage = model['Image for style B'] != '' ? model['Image for style B'] : null;
         presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['Is Not Activity']));
         presenter.imageMode = model['Image Mode'];
+        presenter.keppWrongMarking = ModelValidationUtils.validateBoolean(model['Keep wrong marking']);
 
         var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
@@ -204,7 +205,9 @@ function Addongamememo_create(){
         return {
             isError: false,
             ID: model.ID,
-            pairs: model['Pairs']
+            pairs: model['Pairs'],
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible'])
         };
     };
 
@@ -287,7 +290,9 @@ function Addongamememo_create(){
         cell.parent().append(mark);
 
         setMarkHeight(mark);
-        fadeOutMark(mark, 1300)
+        if (!presenter.keppWrongMarking) {
+            fadeOutMark(mark, 1300)
+        }
     };
 
     presenter.markCardTick = function(cell, heightProbeCell) {
@@ -434,11 +439,7 @@ function Addongamememo_create(){
 
         if(presenter.useTwoStyles) {
             var clickedStyle;
-            if(presenter.imageMode == 'KeepAspect'){
-                clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().parent().find('.card').attr('card_style')));
-            }else{
-                clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
-            }
+            clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
             if(clickedStyle == presenter.cardClickedStyle) {
                 return;
             }
@@ -500,6 +501,11 @@ function Addongamememo_create(){
                 presenter.cardClickedSecond = null;
                 presenter.cardClickedFirstId = null;
                 presenter.cardClickedSecondId = null;
+
+                if (presenter.keppWrongMarking) {
+                    var mark = presenter.viewContainer.find('.mismatch_mark');
+                    fadeOutMark(mark, 1000);
+                }
 
                 break;
         }
@@ -699,6 +705,7 @@ function Addongamememo_create(){
         presenter.initializeLogic(view, model);
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.createPreview = function(view, model) {
@@ -710,7 +717,8 @@ function Addongamememo_create(){
         return JSON.stringify({
             score: presenter.score,
             errorCount: presenter.errorCount,
-            cards: presenter.serializedCards
+            cards: presenter.serializedCards,
+            isVisible: presenter.configuration.isVisible
         });
     };
 
@@ -733,7 +741,13 @@ function Addongamememo_create(){
 
                 cell.children(".front").css('visibility', 'hidden');
                 cell.children(".back").css('visibility', 'visible');
+                cell.addClass("was-clicked");
             }
+        }
+
+        if (stateObj.isVisible != undefined) {
+            presenter.configuration.isVisible = stateObj.isVisible;
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
     };
 
@@ -760,6 +774,9 @@ function Addongamememo_create(){
         presenter.concealAllCards();
 
         MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.viewContainer.find(".gamememo_container")[0])});
+
+        presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.getErrorCount = function() {
@@ -787,7 +804,9 @@ function Addongamememo_create(){
         var commands = {
             'isAllOK': presenter.isAllOK,
             'showAnswers' : presenter.showAnswers,
-            'hideAnswers' : presenter.hideAnswers
+            'hideAnswers' : presenter.hideAnswers,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -951,6 +970,21 @@ function Addongamememo_create(){
         presenter.viewContainer.find('.was-clicked').find('.back').css('visibility', 'visible');
 
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.show = function() {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
+    };
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
+    };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.viewContainer.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.viewContainer.css("display", isVisible ? "block" : "none");
     };
 
     return presenter;

@@ -79,7 +79,7 @@ function AddonAnimation_create (){
     };
 
     function setElementsDimensions(wrapper) {
-        var previewReducedSize = DOMOperationsUtils.calculateReducedSize(wrapper, presenter.DOMElements.preview)
+        var previewReducedSize = DOMOperationsUtils.calculateReducedSize(wrapper, presenter.DOMElements.preview);
         $(presenter.DOMElements.preview).css({
             width: previewReducedSize.width,
             height: previewReducedSize.height
@@ -811,6 +811,10 @@ function AddonAnimation_create (){
 
     // This function is from https://github.com/stomita/ios-imagefile-megapixel
     function detectVerticalSquash(img) {
+        if (!navigator.userAgent.match(/(iPad|iPhone|iPod touch);.*CPU.*OS 7_\d/i)){
+            return 1;
+        }
+
         try {
             var iw = img.naturalWidth, ih = img.naturalHeight;
             var canvas = document.createElement('canvas');

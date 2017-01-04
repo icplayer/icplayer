@@ -248,7 +248,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		function onDOMNodeRemoved (event) {
 			var $draggableElements;
 
-			if (event.target.getAttribute("class").split(" ").indexOf("ui-draggable") !== -1) {
+			if (event.target.getAttribute && event.target.getAttribute("class") && event.target.getAttribute("class").split(" ").indexOf("ui-draggable") !== -1) {
 				$wnd.$(event.target).draggable("destroy");
 				return;
 			}

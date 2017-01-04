@@ -72,16 +72,6 @@ public class JavaScriptPlayerServices {
 		connectEventHandlers();
 	}
 
-	public void resetEventListeners() {
-		listeners.clear();
-		listenersDelayed.clear();
-		connectEventHandlers();
-	}
-
-	public JavaScriptObject getJavaScriptObject() {
-		return jsObject;
-	}
-
 	private void connectEventHandlers() {
 
 		EventBus eventBus = playerServices.getEventBus();
@@ -142,6 +132,16 @@ public class JavaScriptPlayerServices {
 			}
 		});
 
+	}
+	
+	public void resetEventListeners() {
+		listeners.clear();
+		listenersDelayed.clear();
+		connectEventHandlers();
+	}
+
+	public JavaScriptObject getJavaScriptObject() {
+		return jsObject;
 	}
 
 	public void clearPageLoadedListeners() {
@@ -237,51 +237,70 @@ public class JavaScriptPlayerServices {
 
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
-			};               			commands.gotoPageIndex = function(index) {
+			};               			
+			
+			commands.gotoPageIndex = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageIndex(I)(index);
 			};
+			
 			commands.gotoPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
 			};
+			
 			commands.executeEventCode = function(code) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::executeEventCode(Ljava/lang/String;)(code);
 			};
+			
 			commands.getTimeElapsed = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getTimeElapsed()();
 			};
+			
 			commands.incrementCheckCounter = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::incrementCheckCounter()();
 			};
+			
 			commands.increaseMistakeCounter = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::increaseMistakeCounter()();
 			};
+			
 			commands.checkAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::checkAnswers()();
 			};
+			
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
 			};
+			
 			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
 			};
+			
 			commands.setNavigationPanelsAutomaticAppearance = function(shouldAppear) {
 				if (typeof shouldAppear != "boolean") {
 					throw new TypeError();
 				}
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setNavigationPanelsAutomaticAppearance(Z)(shouldAppear);
 			};
+			
 			commands.showNavigationPanels = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNavigationPanels()();
 			};
+			
 			commands.hideNavigationPanels = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideNavigationPanels()();
 			};
-			commands.showPopup = function(pageName, additionalClasses) {
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showPopup(Ljava/lang/String;Ljava/lang/String;)(pageName, additionalClasses);
+			
+			commands.showPopup = function(pageName, top, left, additionalClasses) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showPopup(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(pageName, top, left, additionalClasses);
 			};
+			
 			commands.closePopup = function() {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::closePopup()();
 			};
+			
+			commands.outstretchHeight = function (y, height) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(II)(y, height);
+			}
 
 			return commands;
 		};
@@ -420,12 +439,16 @@ public class JavaScriptPlayerServices {
 		return playerServices;
 	}-*/;
 
-	private void showPopup(String pageName, String additinalClasses){
-		playerServices.getCommands().showPopup(pageName, additinalClasses);
+	private void showPopup(String pageName, String top, String left, String additinalClasses){
+		playerServices.getCommands().showPopup(pageName, top, left, additinalClasses);
 	}
 	
 	private void closePopup(){
 		playerServices.getCommands().closePopup();
+	}
+	
+	private void outstretchHeight(int y, int height) {
+		this.playerServices.outstretchHeight(y, height);
 	}
 	
 	private String getContentType(String href){

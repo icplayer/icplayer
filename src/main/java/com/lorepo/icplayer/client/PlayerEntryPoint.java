@@ -10,7 +10,9 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private PlayerApp theApplication;
 	private JavaScriptObject pageLoadedListener;
+	private JavaScriptObject pageScrollToListener;
 	private JavaScriptObject statusChangedListener;
+	private JavaScriptObject outstretchHeightListener;
 
 	/**
 	 * This is the entry point method.
@@ -22,77 +24,84 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private static native void initJavaScriptAPI(PlayerEntryPoint entryPoint) /*-{
 		function createAPI(player) {
-			player.load = function(url, index){
-			  	index = index || 0;
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
-  			};
-  			
-			player.loadCommonPage = function(url, index){
-			  	index = index || 0;
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::loadCommonPage(Ljava/lang/String;I)(url, index);
-  			};
-  			
-		  	player.setConfig = function(config){
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setConfig(Lcom/google/gwt/core/client/JavaScriptObject;)(config);
+			player.load = function(url, index) {
+				index = index || 0;
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
 			};
-			
-			player.onStatusChanged = function(listener){
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
+
+			player.loadCommonPage = function(url, index) {
+				index = index || 0;
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::loadCommonPage(Ljava/lang/String;I)(url, index);
 			};
-			
-			player.setAnalytics = function(id){
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
+
+			player.setConfig = function(config) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setConfig(Lcom/google/gwt/core/client/JavaScriptObject;)(config);
 			};
-			
-			player.getState = function(){
-			    return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
+
+			player.onStatusChanged = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::statusChangedListener = listener;
 			};
-			
-			player.setState = function(state){
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
+
+			player.setAnalytics = function(id) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
 			};
-			
-			player.setPages = function(pages){
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
+
+			player.getState = function() {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
 			};
-			
-			player.getPlayerServices = function(){
-			    return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
+
+			player.setState = function(state) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
 			};
-			
-			player.onPageLoaded = function(listener){
-			  	entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
+
+			player.setPages = function(pages) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setPages(Ljava/lang/String;)(pages);
 			};
-			
-			player.forceScoreUpdate = function(listener){
-			  	entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::forceScoreUpdate()();
+
+			player.getPlayerServices = function() {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getPlayerServices()();
 			};
-		} 
-		
+
+			player.onPageLoaded = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
+			};
+
+			player.onOutstretchHeight = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::outstretchHeightListener = listener;
+			};
+
+			player.onPageScrollTo = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageScrollToListener = listener;
+			};
+
+			player.forceScoreUpdate = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::forceScoreUpdate()();
+			};
+		}
+
 		// CreatePlayer
 		$wnd.icCreatePlayer = function(id) {
-		  var player = entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::createAppPlayer(Ljava/lang/String;)(id);
-		  
-		  createAPI(player);
+			var player = entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::createAppPlayer(Ljava/lang/String;)(id);
 
-		  return player;
+			createAPI(player);
+
+			return player;
 		}
 
 		// Create book
 		$wnd.icCreateBook = function(id, useCover) {
-		  var player = entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
-		  
-		  createAPI(player);
+			var player = entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::createBookPlayer(Ljava/lang/String;Z)(id, useCover);
 
-		  return player;
+			createAPI(player);
+
+			return player;
 		}
 
 		// Call App loaded function
-		if(typeof $wnd.icOnAppLoaded == 'function') {
-		  $wnd.icOnAppLoaded();
-		}
-		else if(typeof $wnd.qpOnAppLoaded == 'function') {
-		  $wnd.qpOnAppLoaded();
+		if (typeof $wnd.icOnAppLoaded == 'function') {
+			$wnd.icOnAppLoaded();
+		} else if (typeof $wnd.qpOnAppLoaded == 'function') {
+			$wnd.qpOnAppLoaded();
 		}
 	}-*/;
 
@@ -103,14 +112,14 @@ public class PlayerEntryPoint implements EntryPoint {
 	 *            wrap this node
 	 */
 	private JavaScriptObject createAppPlayer(String node_id) {
-		theApplication = new PlayerApp(node_id, this);
+		this.theApplication = new PlayerApp(node_id, this);
 		return JavaScriptObject.createFunction();
 	}
 
 	private JavaScriptObject createBookPlayer(String node_id, boolean useCover) {
-		theApplication = new PlayerApp(node_id, this);
-		theApplication.setBookMode();
-		theApplication.showCover(useCover);
+		this.theApplication = new PlayerApp(node_id, this);
+		this.theApplication.setBookMode();
+		this.theApplication.showCover(useCover);
 		return JavaScriptObject.createFunction();
 	}
 
@@ -118,61 +127,80 @@ public class PlayerEntryPoint implements EntryPoint {
 		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
-		theApplication.load(url, pageIndex);
+		this.theApplication.load(url, pageIndex);
 	}
-	
+
 	private void loadCommonPage(String url, int pageIndex) {
 		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
-		theApplication.loadCommonPage(url, pageIndex);
+		this.theApplication.loadCommonPage(url, pageIndex);
 	}
-	
+
 	private void setConfig(JavaScriptObject config) {
-		theApplication.setConfig(config);
+		this.theApplication.setConfig(config);
 	}
 
 	private void forceScoreUpdate() {
-		theApplication.updateScore();
+		this.theApplication.updateScore();
 	}
 
 	private void setAnalytics(String id) {
-		theApplication.setAnalytics(id);
+		this.theApplication.setAnalytics(id);
 	}
 
 	private void setState(String state) {
-		theApplication.setState(state);
+		this.theApplication.setState(state);
 	}
 
 	private void setPages(String pagesSub) {
-		theApplication.setPages(pagesSub);
+		this.theApplication.setPages(pagesSub);
 	}
 
 	private String getState() {
-		return theApplication.getState();
+		return this.theApplication.getState();
 	}
 
 	private JavaScriptObject getPlayerServices() {
-		return theApplication.getPlayerServices().getAsJSObject();
+		return this.theApplication.getPlayerServices().getAsJSObject();
 	}
 
-	private static native void firePageLoaded(JavaScriptObject callback) /*-{
+	private static native void fireCallback(JavaScriptObject callback) /*-{
 		if (callback != null) {
 			callback();
 		}
 	}-*/;
 
-	private static native void fireStatusChanged(JavaScriptObject callback, String type, String source, String value) /*-{
+	private static native void fireScrollTo(JavaScriptObject callback, int top) /*-{
+		if (callback != null) {
+			callback(top);
+		}
+	}-*/;
+
+	private static native void fireStatusChanged(JavaScriptObject callback,
+			String type, String source, String value) /*-{
 		if (callback != null) {
 			callback(type, source, value);
 		}
 	}-*/;
 
 	public void onPageLoaded() {
-		firePageLoaded(pageLoadedListener);
-		final int currentPageIndex = theApplication.getPlayerServices().getCurrentPageIndex();
+		fireCallback(this.pageLoadedListener);
+		final int currentPageIndex = this.theApplication.getPlayerServices()
+				.getCurrentPageIndex();
 		String source = Integer.toString(currentPageIndex + 1);
-		fireStatusChanged(statusChangedListener, "PageLoaded", source, "");
+		fireStatusChanged(this.statusChangedListener, "PageLoaded", source, "");
 	}
 
+	public void onScrollTo(int top) {
+		fireScrollTo(this.pageScrollToListener, top);
+	}
+
+	public JavaScriptObject getPageScrollToObject() {
+		return this.pageScrollToListener;
+	}
+
+	public void fireOutstretchHeightEvent() {
+		fireCallback(this.outstretchHeightListener);
+	}
 }

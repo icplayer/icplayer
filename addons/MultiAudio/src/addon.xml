@@ -2,7 +2,7 @@
 
 <addon id='MultiAudio' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Files' nameLabel="MultiAudio_property_files" type='list'>
+		<property name='Files' nameLabel="MultiAudio_property_files" type='list' isDefault="true">
 			<property name="ID" nameLabel="MultiAudio_property_id" type="string" />
 			<property name="Mp3" nameLabel="MultiAudio_property_mp3" type="audio" />
 			<property name="Ogg" nameLabel="MultiAudio_property_ogg" type="audio" />

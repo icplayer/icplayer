@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="Grid_Scene" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Rows" nameLabel="Grid_Scene_property_rows" type="string" />
+        <property name="Columns" nameLabel="Grid_Scene_property_columns" type="string" />
+        <property name="Color" nameLabel="Grid_Scene_property_color" type="string" />
+        <property name="delay" nameLabel="Grid_Scene_property_delay" type="string" />
+        <property name="default_commands" nameLabel="Grid_Scene_property_default_commands" type="staticlist" isDefault="true">
+            <property name="command_setColor" displayName="setColor(Color)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_clear" displayName="clear()" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_setCursor" displayName="setCursor(x,y)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_mark" displayName="mark(x,y)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_clearMark" displayName="clearMark(x,y)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawLeft" displayName="drawLeft(Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawUp" displayName="drawUp(Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawRight" displayName="drawRight(Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawDown" displayName="drawDown(Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawLeftFrom" displayName="drawLeftFrom(x,y,Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawUpFrom" displayName="drawUpFrom(x,y,Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawRightFrom" displayName="drawRightFrom(x,y,Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+            <property name="command_drawDownFrom" displayName="drawDownFrom(x,y,Steps)" type="staticrow">
+                <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
+                <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
+                <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+            </property>
+        </property>
+        <property name="custom_commands" nameLabel="Grid_Scene_property_custom_commands" type="list">
+            <property name="command_name" nameLabel="Grid_Scene_property_custom_command_name" type="string"/>
+            <property name="command_arguments" nameLabel="Grid_Scene_property_custom_command_arguments" type="string"/>
+            <property name="command_code" nameLabel="Grid_Scene_property_custom_command_code" type="text" />
+            <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
+        </property>
+        <property name="json_commands" nameLabel="Grid_Scene_property_json_commands" type="text" />
+        <property name="answer" nameLabel="Grid_Scene_property_answer" type="text" />
+	</model>
+</addon>

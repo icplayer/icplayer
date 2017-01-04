@@ -254,6 +254,12 @@ function AddoneKeyboard_create(){
                     mathJaxDeferred.resolve();
                 }
             }
+
+            if ($(message[1]).hasClass('ic_popup_page')) {
+                if(mathJaxDeferred.state() != 'resolved'){
+                    mathJaxDeferred.resolve();
+                }
+            }
         });
 
         $.when(presenter.pageLoaded, mathJaxProcessEnded).then(function() {
@@ -308,7 +314,7 @@ function AddoneKeyboard_create(){
                     space  : '&nbsp;:Space',
                     t      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
                     tab    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-                }
+                };
 
                 var customDisplay = presenter.configuration.customDisplay;
                 var display = $.extend(defaultDisplay, customDisplay);
@@ -435,6 +441,12 @@ function AddoneKeyboard_create(){
                             dialogBox.append(keyboard['$keyboard']);
                         }
 
+                        var parent = keyboard['$keyboard'].parent(),
+                            popup = parent.find('.ic_popup');
+
+                        if(popup.length > 0){
+                            popup.append(keyboard['$keyboard']);
+                        }
                     },
                     visible: function(e, keyboard, el) {
 

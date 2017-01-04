@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
@@ -32,10 +34,11 @@ public final class KeyboardNavigationController {
 	private List<String> mainPageWidgets = new ArrayList<String>();
 	private List<String> bookPageWidgets = new ArrayList<String>();
 	private boolean modeOn = false;
+	private PlayerEntryPoint entryPoint;
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice, show_answers, checkbutton;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse;
 		
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
@@ -50,6 +53,8 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void initialSelect() {	
+		if (modulesNames.size() == 0) return; // None of navigation modules on page
+		
 		String moduleName = modulesNames.get(0);
 		Widget w = navigationWidgets.get(moduleName);
 
@@ -114,7 +119,19 @@ public final class KeyboardNavigationController {
 		}
 	}
 	
-	public void run() {
+	private boolean isModuleButton() {
+		Widget currentWidget = navigationWidgets.get(currentModuleName);
+		
+		if (currentWidget!= null) {
+			return currentWidget.getElement().getAttribute("role").equals("button");
+		}
+		
+		return false;
+	}
+	
+	public void run(PlayerEntryPoint entry) {
+		entryPoint = entry;
+				
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
@@ -146,7 +163,8 @@ public final class KeyboardNavigationController {
 	            		return;
 	            	}
 	            	
-	            	if (!moduleIsActivated) {
+	            	if (!moduleIsActivated || isModuleButton()) {
+	            		moduleIsActivated = false; // If button module is activated and we skip to the other button, let's deactivate it
 	            		if (event.isShiftKeyDown()) {
 	            			selectPreviousModule();
 	            		} else {
@@ -278,18 +296,20 @@ public final class KeyboardNavigationController {
 		setModuleStatus(moduleName, true, false);		
 	}
 	
-	private native void scrollToModule(int position) /*-{
-		$wnd.scrollTo(0, position);
+	private static native void firePageLoaded(JavaScriptObject callback) /*-{
+		if (callback != null) {
+			callback();
+		}
 	}-*/;
 	
 	private void selectModule(String moduleName) {
 		Widget widget = navigationWidgets.get(moduleName);
 		widget.getElement().addClassName("ic_selected_module");
 
-		scrollToModule(widget.getAbsoluteTop());
+		entryPoint.onScrollTo(widget.getAbsoluteTop());
 	}
 	
-	private boolean isCommonModule() {
+	private boolean isCommonModule() { 
 		return currentModuleName.charAt(2) == 'h' || currentModuleName.charAt(2) == 'f';
 	}
 	

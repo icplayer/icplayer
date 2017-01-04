@@ -142,4 +142,9 @@ public class PlayerServices implements IPlayerServices {
 	public int getPageWeight() {
 		return pageController.getPage().getPageWeight();
 	}
+
+	@Override
+	public void outstretchHeight(int y, int height) {
+		this.pageController.outstretchHeight(y, height);
+	}
 }

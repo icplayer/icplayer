@@ -203,6 +203,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public void reset() {
+		if (isShowAnswersActive) {
+			hideAnswers();
+		}
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.setImageUrl("");

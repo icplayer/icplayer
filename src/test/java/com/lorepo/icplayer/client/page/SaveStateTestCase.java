@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.lorepo.icplayer.client.IPlayerController;
@@ -21,7 +22,8 @@ import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
 public class SaveStateTestCase {
 
-	@Test
+	
+	@Ignore @Test
 	public void testSaveLoadState() {
 
 		PageViewMockup display = new PageViewMockup();

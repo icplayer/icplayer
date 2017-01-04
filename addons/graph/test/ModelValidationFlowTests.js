@@ -1,6 +1,3 @@
-/**
- * Created by localadm on 2015-02-20.
- */
 TestCase("[Graph] Model validation flow", {
     setUp: function () {
         this.presenter = Addongraph_create();

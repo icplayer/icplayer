@@ -2,7 +2,7 @@
 
 <addon id='feedback' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Responses" nameLabel="feedback_property_responses" type="list">
+		<property name="Responses" nameLabel="feedback_property_responses" type="list" isDefault="true">
 			<property name="Unique response ID" nameLabel="feedback_property_unique_response_id" type="string" />
 			<property name="Status" nameLabel="feedback_property_status" type="string" />
 			<property name="Text" nameLabel="feedback_property_text" type="html" isLocalized="true" />

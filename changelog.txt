@@ -1,3 +1,80 @@
+2017-01-04 Fixed rendering LaTeX afetr showing answers in Math module
+2016-12-29 Fixed issue with doubled events in Table module
+2016-12-29 Fixed saving state of drawings in IWB Toolbar
+2016-12-22 Added Animated gif refresh property in Layered Image module
+2016-12-20 Fixed counting score after showing answers in Math module
+2016-12-19 Fixed counting score after showing answers in Writing Calculation module
+2016-12-14 Removed random values from report when stylus is of in LearnPen Report module
+2016-12-12 Added Open external link in property in Glossary module
+2016-12-01 Added confirmation box in Reset module
+2016-12-01 Added refreshing animated gifs in Image module
+2016-12-01 Fixed problems with coloring ans saving state in Text Coloring module
+2016-11-24 Fixed problem with dragging in Clock addon.
+2016-11-24 Added multiple answers in filled gap.
+2016-11-23 Added outstretch height command to player controller
+2016-11-22 Added looping in Video module
+2016-11-21 Fixed refreshing animated gifs in Layered Image module
+2016-11-21 Added isAttempted command in Paragraph module
+2016-11-17 Added continous events in Clock module
+2016-11-17 Fixed calculating max score in Choice module
+2016-11-16 Removed unicode special characters from Shape Tracing comments
+2016-11-08 Fixed width calculating in Table addon.
+2016-11-03 Fixed showAnswer, setShowErrorMode bugs in Grid Scene addon.
+2016-11-03 Added Blockly Code Editor addon. Fixed bugs in Grid Scene. Added property Editable Select and Select for list.
+2016-10-27 Added hiding answers after reset in Image Gap module
+2016-10-27 Fixed operating on module in popup page in Connection and eKeyboard modules
+2016-10-27 Fixed setting space after punctuation marks in Text Coloring module
+2016-10-26 Fixed problem with saving state in Paragraph module
+2016-10-25 Fixed issue with setting element to invisible module in Multiplagap module
+2016-10-24 Fixed saving and closing notes in IWB Toolbar
+2016-10-21 Fixed issue with pen and marker tools in IWB Toolbar module
+2016-10-07 Added new addon Text Coloring, added new commons ErrorUtils and fixed SAO depedencies
+2016-10-04 Added getText command in Paragraph module
+2016-09-29 Fixed setting state in Paragraph module
+2016-09-27 Fixed displaying animation with transparent background in Animation module
+2016-09-26 Added events on pause and pause command in Audio module
+2016-09-21 Added test from Programming Code Prompt
+2016-09-21 Added Progamming Code Prompt addon. Added Grid Scene addon. Added static list property.
+2016-09-21 Fixed issue with moved droppable area in Connection module
+2016-09-21 Fixed setting gap size in Table module
+2016-09-19 Fixed issue with missing arguments in function in Paragraph addon
+2016-09-19 Added default property to addons: Table, Puzzle, feedback, PieChart, TrueFalse, TextAudio, MenuPanel, MultiAdui, Text_Selection, Variable_storage, text_identification, Double_State_Button, WrittingCalculations, Single_state_Button, SelectableAddonsBinder, Multiple_Audio_Controls_Binder
+2016-09-14 Added new property buttons width and buttons number in Assessments Navigation Bar addon
+2016-09-08 Fixed checking pages scores in Navigation Bar module
+2016-08-30 Fixed issue with relative urls in css and eKeyboard styling
+2016-08-30 Added function addonIsLoaded to Content, Fixed bug with thumbnail in YouTube Addon
+2016-08-30 Added hiding subtitles in Video module
+2016-08-29 Fixed problem with Player crashes when properties "static header" / "static footer" are marked and lesson doesn't have header / footer
+2016-08-24 Added notification functions and pages limit to Content.
+2016-08-19 Updated tinymce library from version 4.0b2 to 4.4.0, fixed memory leaks issues in Paragraph and Paragraph_eKeyboard
+2016-08-18 Fixed ant build scripts issues with paths for Ubuntu platform
+2016-08-18 Added fetching all libraries in 1 reuqest, addons xml loaded in 1 request
+2016-08-11 Added exchange URL to scheme-less URL in addon descriptor factory
+2016-08-09 Added new addon IFrame
+2016-08-04 Added Target type property in External Link Button module
+2016-08-03 Fixed displaying viewBox in SVG module
+2016-08-03 Fixed checking answers in Memo Game module
+2016-08-02 Added compiled Commons library in version 4.0.0 to icplayer libs
+2016-08-02 Removing loading-screen from commons
+2016-08-01 Added new property to keep wrong marks in Memo Gama module
+2016-08-01 Fixed displaying coordinates in editor in Line Selection module
+2016-07-27 Fixed problem with removing listeners in Source List
+2016-07-27 Fixed problem with sending events in Page Score Counter module
+2016-07-27 Fixed displaying watermark in Image Viewer module
+2016-07-22 Fixed memory leaks in TextAudio and Audio module
+2016-07-21 Fixed issue with static footer when lesson is in iframe
+2016-07-19 Fixed issue with https in Vimeo module
+2016-07-13 Added removeWrongColors command in Connection module
+2016-07-08 Added dragging line in Connection module
+2016-07-07 Added show/hide commands in Memo Game module
+2016-07-06 Fixed issue with displaying score in Hierarchical Lesson Report
+2016-07-06 Fixed issues with static header and footer
+2016-07-04 Added positioning to Popup button
+2016-06-29 Removed sending event from drawRange commend from Line Number module
+2016-06-20 Added property Single Connection to PointsLines module
+2016-06-16 Fixed Memo Game crash in KeepAspect Image Mode
+2016-06-15 Added keyboard navigation to TrueFalse module
+2016-06-13 Added scrolling window to active module in keyboard navigation
 2016-06-10 Added ValueChange Event to ZoomImage module
 2016-06-07 Added fixes to Fraction Binder modules
 2016-06-07 Added commend disable do Connection module

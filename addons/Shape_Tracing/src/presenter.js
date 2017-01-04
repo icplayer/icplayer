@@ -111,16 +111,13 @@ function AddonShape_Tracing_create() {
         var deltaY = p1.y - p2.y;
         var deltaX = p1.x - p2.x;
         var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
-
-        /* ANGLES:
-         *
-         *          N (90°)
-         *          ↑
-         * (0°) W ←   → E (180°, -180°)
-         *          ↓
-         *          S (-90°)
+        /*
+            ANGLES:
+            N 90
+            W 0
+            E (180, -180)
+            S (-90)
          */
-
         if (angle >= 112 && angle < 157) {
             return 'NE';
         } else if (angle >= 67 && angle < 112) {

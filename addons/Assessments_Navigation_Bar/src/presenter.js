@@ -10,7 +10,12 @@ function AddonAssessments_Navigation_Bar_create(){
         S_02: "Pages range is invalid on section: %section% in sections property.",
         S_03: "Pages descriptions are invalid on section: %section% in sections property. Number of descriptions is too small.",
         S_04: "Pages descriptions are invalid on section: %section% in sections property. Number of descriptions is too big.",
-        S_05: "Section: %section_1% pages numbers cant intersect with page numbers of section: %section_2%."
+        S_05: "Section: %section_1% pages numbers cant intersect with page numbers of section: %section_2%.",
+        S_06: "Number of buttons property can't be equal or below 0.",
+        S_07: "Number of buttons property have to be an integer",
+        S_08: "Number of buttons can't be greater than number of pages in sections",
+        S_09: "Buttons width property can't be equal or below 0.",
+        S_10: "Buttons width property have to be an integer"
     };
 
     presenter.CSS_CLASSES = {
@@ -18,6 +23,19 @@ function AddonAssessments_Navigation_Bar_create(){
     };
     
     presenter.attemptedButtons = [];
+
+    presenter.configuration = {
+        isValid: undefined,
+        addonID: undefined,
+        sections: undefined,
+        addClassAreAllAttempted: undefined,
+        userButtonsNumber: undefined,
+        userButtonsWidth: undefined,
+        numberOfButtons: undefined,
+        navigationLeftIndex: 0,
+        navigationRightIndex: 0,
+        numberOfPages: 0,
+    };
 
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
@@ -418,6 +436,10 @@ function AddonAssessments_Navigation_Bar_create(){
             leftIndex = ((this.allPages.length) - numberOfPages)
         }
 
+        if (leftIndex < 0) {
+            leftIndex = 0;
+        }
+
         for (var i = leftIndex; i < this.allPages.length; i++) {
             if (numberOfPages == 0) {
                 break;
@@ -552,16 +574,6 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.$wrapper.append(this.$navigationButtonsLast);
     };
 
-    presenter.NavigationManager.prototype.removeMargins = function () {
-        this.$sections.css({
-            "margin-right": ""
-        });
-
-        this.$navigationButtonsFirst.css({
-           "margin-right": ""
-        });
-    };
-
     presenter.NavigationManager.prototype.clearStateAndButtons = function () {
         this.removeSections();
         this.removeHellips();
@@ -594,7 +606,12 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.calculateNumberOfPages = function (hellipsCount) {
-        return presenter.configuration.numberOfButtons - 2 - hellipsCount;
+        var number = presenter.configuration.numberOfButtons - 2 - hellipsCount;
+        if (number < 1) {
+            return 1;
+        } else {
+            return number;
+        }
     };
 
     presenter.NavigationManager.prototype.getHellip = function (containerAddFunction, hellipFunction, className) {
@@ -641,10 +658,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.moveToCurrentPageLogic = function () {
         for (var i = 0; i < this.actualPages.length; i++) {
-                if (this.actualPages[i].isActualPage()) {
-                    return;
-                }
+            if (this.actualPages[i].isActualPage()) {
+                return;
             }
+        }
 
         this.rightHellip.execute();
         this.moveToCurrentPage();
@@ -660,7 +677,11 @@ function AddonAssessments_Navigation_Bar_create(){
         if (this.shiftCount === 1) {
             this.leftSideIndex = 0;
         } else {
-            this.leftSideIndex -=  (presenter.configuration.numberOfButtons - 4);
+            if (presenter.configuration.numberOfButtons - 4 > 0) {
+                this.leftSideIndex -=  (presenter.configuration.numberOfButtons - 4);
+            } else {
+                this.leftSideIndex -= 1;
+            }
         }
 
         this.shiftCount--;
@@ -668,14 +689,29 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.shiftPagesToRight = function () {
-        if (this.shiftCount === 0) {
-            this.leftSideIndex += (presenter.configuration.numberOfButtons - 3);
+        var shift;
+        if (presenter.configuration.userButtonsNumber) {
+            shift = (presenter.configuration.numberOfButtons - 2 - this.hellipsCount);
         } else {
-            this.leftSideIndex += (presenter.configuration.numberOfButtons - 4);
+            shift = this.getNormalRightShift();
         }
+
+        if (shift <= 0) {
+            shift = 1;
+        }
+
+        this.leftSideIndex += shift;
 
         this.shiftCount++;
         this.setSections();
+    };
+
+    presenter.NavigationManager.prototype.getNormalRightShift = function () {
+        if (this.shiftCount === 0) {
+            return (presenter.configuration.numberOfButtons - 3);
+        } else {
+            return (presenter.configuration.numberOfButtons - 4);
+        }
     };
 
     presenter.NavigationManager.prototype.setSectionWidth = function ($section) {
@@ -707,7 +743,6 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addSections = function (numberOfPages) {
         this.actualPages = presenter.sections.getPages(this.leftSideIndex, numberOfPages);
-
         var sectionIterator = -1;
 
         var len = this.actualPages.length;
@@ -783,7 +818,13 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {
-        return ((this.leftSideIndex + presenter.configuration.numberOfButtons - 2 - this.hellipsCount) < presenter.configuration.numberOfPages);
+        var buttonsWithoutNavigation = presenter.configuration.numberOfButtons - 2;
+        if (presenter.configuration.userButtonsNumber) {
+            if (presenter.configuration.userButtonsNumber == 1) {
+                return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < presenter.configuration.numberOfPages - 1;
+            }
+        }
+        return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < presenter.configuration.numberOfPages;
     };
 
     presenter.run = function(view, model){
@@ -802,11 +843,31 @@ function AddonAssessments_Navigation_Bar_create(){
         delete presenter.getState;
     }
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeNumberAndWidthOfButtons(model);
+    };
+
+    presenter.upgradeNumberAndWidthOfButtons = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.userButtonsWidth == undefined) {
+            upgradedModel["userButtonsWidth"] = "";
+        }
+
+        if(model.userButtonsNumber == undefined) {
+            upgradedModel["userButtonsNumber"] = "";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.runLogic = function (view, model) {
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');
 
-        var validatedModel = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        var validatedModel = presenter.validateModel(upgradedModel);
 
         if (!validatedModel.isValid) {
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.errorCode], validatedModel.errorData);
@@ -817,13 +878,14 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.configuration = validatedModel;
         DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$wrapper);
 
-        calculateNumberOfPages();
-        calculateObjectsSizes();
+        presenter.calculateObjectsSizes();
 
-        initializeAddon();
+        presenter.initializeAddon();
 
         if (presenter.isPreview) {
             presenter.navigationManager.buttons[0].setAsCurrent();
+        } else {
+            presenter.navigationManager.moveToCurrentPage();
         }
     };
 
@@ -833,25 +895,28 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.$wrapper.find(".sections").remove();
     }
 
-    function initializeAddon () {
+    presenter.initializeAddon = function () {
         removeMockupDOM();
 
         presenter.sections = new presenter.Sections(presenter.configuration.sections);
         presenter.navigationManager = new presenter.NavigationManager();
 
         presenter.navigationManager.setSections();
-        presenter.navigationManager.moveToCurrentPage();
-    }
-
-    function calculateNumberOfPages () {
-        presenter.configuration.numberOfPages = presenter.configuration.sections.reduce(function (result, section) {
-            return result + section.pages.length;
-        }, 0);
-    }
+    };
 
     function calculateMaxNumberOfButtons () {
-        var numberOfButtons = presenter.configuration.maxElementCount > (presenter.configuration.numberOfPages + 2) ?
-            (presenter.configuration.numberOfPages + 2) : presenter.configuration.maxElementCount;
+        var numberOfButtons;
+        if (presenter.configuration.userButtonsNumber) {
+            numberOfButtons = presenter.configuration.maxElementCount > (presenter.configuration.userButtonsNumber + 2) ?
+                (presenter.configuration.userButtonsNumber + 2) : presenter.configuration.maxElementCount;
+
+            if (numberOfButtons > presenter.configuration.numberOfPages + 2) {
+                numberOfButtons = (presenter.configuration.numberOfPages + 2);
+            }
+        } else {
+            numberOfButtons = presenter.configuration.maxElementCount > (presenter.configuration.numberOfPages + 2) ?
+                (presenter.configuration.numberOfPages + 2) : presenter.configuration.maxElementCount;
+        }
 
         presenter.configuration.numberOfButtons = numberOfButtons;
         presenter.configuration.navigationLeftIndex = 0;
@@ -859,7 +924,12 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     function calculateButtonsSize(elementDistances) {
-        var elementWidth = parseInt(presenter.$wrapper.width() / presenter.configuration.numberOfButtons - elementDistances.horizontal, 10);
+        var elementWidth;
+        if (presenter.configuration.userButtonsWidth) {
+            elementWidth = presenter.configuration.userButtonsWidth;
+        } else {
+            elementWidth = parseInt(presenter.$wrapper.width() / presenter.configuration.numberOfButtons - elementDistances.horizontal, 10);
+        }
 
         var horizontalGap = presenter.$wrapper.width() - (elementWidth + elementDistances.horizontal) * presenter.configuration.maxElementCount;
 
@@ -869,33 +939,102 @@ function AddonAssessments_Navigation_Bar_create(){
         };
     }
 
-    function calculateObjectsSizes () {
+    presenter.calculateObjectsSizes =   function() {
         var $element = presenter.$wrapper.find(".previous");
 
         var elementDimensions = DOMOperationsUtils.getOuterDimensions($element);
         var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
 
-        var elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;
 
+        var elementBaseWidth;
+
+        if (presenter.configuration.userButtonsWidth) {
+            elementBaseWidth = presenter.configuration.userButtonsWidth;
+        } else {
+            elementBaseWidth = parseInt($element.width(), 10) + elementDistances.horizontal;
+        }
         presenter.configuration.maxElementCount = parseInt((presenter.$wrapper.width()) / elementBaseWidth, 10) - 4;
 
         calculateMaxNumberOfButtons();
         calculateButtonsSize(elementDistances);
-    }
+    };
 
+    presenter.calculateNumberOfPages = function (sections) {
+        return sections.reduce(function (result, section) {
+            return result + section.pages.length;
+        }, 0);
+    };
 
     presenter.validateModel = function (model) {
-        var validatedSections = presenter.validateSections(model["Sections"].trim());
+        var validatedSections = presenter.validateSections(model["Sections"]);
 
         if (!validatedSections.isValid) {
             return validatedSections;
+        }
+
+        var numberOfPages = presenter.calculateNumberOfPages(validatedSections.sections);
+
+        var validateButtonsNumber = presenter.parseButtonsNumber(model["userButtonsNumber"], numberOfPages);
+        if (!validateButtonsNumber.isValid) {
+            return validateButtonsNumber;
+        }
+
+        var validateButtonsWidth = presenter.parseButtonsWidth(model["userButtonsWidth"]);
+        if (!validateButtonsNumber.isValid) {
+            return validateButtonsNumber;
         }
 
         return {
             isValid: true,
             addonID: model["ID"],
             sections: validatedSections.sections,
-            addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"])
+            addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"]),
+            userButtonsNumber: validateButtonsNumber.value,
+            userButtonsWidth: validateButtonsWidth.value,
+            numberOfPages: numberOfPages
+        };
+    };
+
+    presenter.parseButtonsNumber = function (value, numberOfPages) {
+        var buttonsNumber = presenter.parseNumericProperty(value, "S_06", "S_07");
+
+        if (!buttonsNumber.isValid) {
+            return buttonsNumber;
+        }
+
+        if (buttonsNumber.value && buttonsNumber.value > numberOfPages) {
+            return getErrorObject("S_08");
+        }
+
+        return buttonsNumber;
+    };
+
+    presenter.parseButtonsWidth = function (value) {
+        return presenter.parseNumericProperty(value, "S_09", "S_10");
+    };
+
+    presenter.parseNumericProperty = function (value, belowZeroError, nanError) {
+        var trimmedValue = value.trim();
+        if (ModelValidationUtils.isStringEmpty(trimmedValue)) {
+            return {
+                isValid: true,
+                value: undefined
+            };
+        }
+
+        var parsedValue = Number(trimmedValue);
+
+        if (isNaN(parsedValue)) {
+            return getErrorObject(nanError);
+        }
+
+        if (parsedValue <= 0) {
+            return getErrorObject(belowZeroError);
+        }
+
+        return {
+            isValid: true,
+            value: parseInt(parsedValue, 10)
         };
     };
 
@@ -937,6 +1076,7 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.validateSections = function (sections) {
+        sections = sections.trim();
         if (ModelValidationUtils.isStringEmpty(sections)) {
             return getErrorObject("S_00");
         }

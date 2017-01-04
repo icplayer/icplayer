@@ -2,7 +2,7 @@ function AddonConnection_create() {
     var presenter = function() {};
 
     var playerController;
-    var eventBus; // Modules communication
+    var eventBus;
     var addonID;
 
     presenter.uniqueIDs = [];
@@ -197,6 +197,9 @@ function AddonConnection_create() {
 
         MathJax.Hub.Register.MessageHook("End Process", function (message) {
             if ($(message[1]).hasClass('ic_page')) {
+                presenter.mathJaxProcessEndedDeferred.resolve();
+            }
+            if ($(message[1]).hasClass('ic_popup_page')) {
                 presenter.mathJaxProcessEndedDeferred.resolve();
             }
         });
@@ -405,8 +408,9 @@ function AddonConnection_create() {
     }
 
     function clickLogic(element) {
-        if (basicClickLogic(element))
+        if (basicClickLogic(element)) {
             redraw();
+        }
     }
 
     function basicClickLogic(element) {
@@ -457,8 +461,6 @@ function AddonConnection_create() {
             if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
                 return;
             }
-            console.log($(element).attr('id'));
-            console.log(selectedItem.attr('id'));
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
@@ -477,6 +479,46 @@ function AddonConnection_create() {
         selectedItem = null;
         return true;
     }
+
+    presenter.drawTempLine = function(x,y) {
+        if ($(presenter.view).find('#connection_line_tmp').length > 0) {
+            $(presenter.view).find('#connection_line_tmp').remove();
+        }
+        var m, angle, d, transform,
+            x1 = parseInt(presenter.iconLeft, 10),
+            y1 = parseInt(presenter.iconTop, 10);
+
+        m = (y-y1)/(x-x1);
+        angle = (Math.atan(m))*180/(Math.PI);
+        d = Math.sqrt(((x-x1)*(x-x1)) + ((y-y1)*(y-y1)));
+        if (x >= x1){
+            transform = (360 + angle) % 360;
+        } else {
+            transform = 180 + angle;
+        }
+
+        var div = $('<div>');
+        div.attr('id','connection_line_tmp');
+        div.attr('class','connection_line');
+        div.attr('style','left: '+x1+'px; top: '+y1+'px');
+        $(presenter.view).prepend(div);
+        $(presenter.view).find('#connection_line_tmp').css({
+            'left': x1,
+            'top': y1,
+            'width': d,
+            'background-color': connectionColor,
+            'transform' : 'rotate('+transform+'deg)',
+            'transform-origin' : '0px 0px',
+            '-ms-transform' : 'rotate('+transform+'deg)',
+            '-ms-transform-origin' : '0px 0px',
+            '-moz-transform' : 'rotate('+transform+'deg)',
+            '-moz-transform-origin' : '0px 0px',
+            '-webkit-transform' : 'rotate('+transform+'deg)',
+            '-webkit-transform-origin' : '0px 0px',
+            '-o-transform' : 'rotate('+transform+'deg)',
+            '-o-transform-origin' : '0px 0px'
+        });
+    };
 
     presenter.registerListeners = function (view) {
 
@@ -521,6 +563,10 @@ function AddonConnection_create() {
                         top: Math.round(e.find('.inner').height()/2)
                     },
                     start: function (event, ui) {
+                        ui.helper.css("visibility", "hidden");
+                        presenter.iconTop = $(e).find(".iconWrapper").position().top + ($(e).find(".iconWrapper").height()/2);
+                        presenter.iconLeft = $(e).find(".iconWrapper").position().left + $(e).find(".iconWrapper").width();
+
                         if (!isSelectionPossible) {
                             event.stopPropagation();
                             event.preventDefault();
@@ -544,6 +590,12 @@ function AddonConnection_create() {
                             draggedElementColumn = 'right';
                         }
                     },
+                    drag: function (event, ui) {
+                        presenter.mouseSX = parseInt(event.pageX,10) - parseInt($(presenter.view).offset().left,10);
+                        presenter.mouseSY = parseInt(event.pageY,10) - parseInt($(presenter.view).offset().top,10);
+
+                        presenter.drawTempLine(presenter.mouseSX, presenter.mouseSY);
+                    },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
                         if (presenter.removeDraggedElement) {
@@ -552,10 +604,14 @@ function AddonConnection_create() {
                             ui.helper.remove();
                         }
                         redraw();
+                        if ($(presenter.view).find('#connection_line_tmp').length > 0) {
+                            $(presenter.view).find('#connection_line_tmp').remove();
+                        }
                     }
                 });
 
                 e.droppable({
+                    tolerance: "pointer",
                     drop: function (event, ui) {
                         $(this).removeClass('selected');
                         basicClickLogic(this);

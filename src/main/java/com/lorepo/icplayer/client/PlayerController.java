@@ -57,53 +57,52 @@ public class PlayerController implements IPlayerController{
 	private boolean showCover = false;
 	private boolean isPopupEnabled = false;
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
+	private PlayerEntryPoint entryPoint;
 
-	public PlayerController(Content content, PlayerView view, boolean bookMode){
-		contentModel = content;
-		playerView = view;
-		playerView.setPlayerController(this);
-		sessionId = UUID.uuid();
-		scoreService = new ScoreService(contentModel.getScoreType());
-		stateService = new StateService();
-		assetsService = new AssetsService(contentModel);
+	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
+		this.entryPoint = entryPoint;
+		this.contentModel = content;
+		this.playerView = view;
+		this.playerView.setPlayerController(this);
+		this.sessionId = UUID.uuid();
+		this.scoreService = new ScoreService(this.contentModel.getScoreType());
+		this.stateService = new StateService();
+		this.assetsService = new AssetsService(this.contentModel);
 
-		createPageControllers(bookMode);
-		scoreService.setPlayerService(pageController1.getPlayerServices());
-		timeService = new TimeService();
-		keyboardController.run();
+		this.createPageControllers(bookMode);
+		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
+		this.timeService = new TimeService();
+		this.keyboardController.run(entryPoint);
 	}
 
 	private void createPageControllers(boolean bookMode) {
-		pageController1 = new PageController(this);
-		keyboardController.setPlayerService(pageController1.getPlayerServices(), false);
-		pageController1.setView(playerView.getPageView(0));
+		this.pageController1 = new PageController(this);
+		this.keyboardController.setPlayerService(this.pageController1.getPlayerServices(), false);
+		this.pageController1.setView(this.playerView.getPageView(0));
 		if(bookMode){
-			playerView.showTwoPages();
-			pageController2 = new PageController(this);
-			keyboardController.setPlayerService(pageController2.getPlayerServices(), true);
-			pageController2.setView(playerView.getPageView(1));
+			this.playerView.showTwoPages();
+			this.pageController2 = new PageController(this);
+			this.keyboardController.setPlayerService(this.pageController2.getPlayerServices(), true);
+			this.pageController2.setView(this.playerView.getPageView(1));
 		}
 	}
 
 	public void initHeaders() {
-		if(contentModel.getHeader() != null){
-			playerView.showHeader();
-			headerController = new PageController(pageController1.getPlayerServices());
-			headerController.setView(playerView.getHeaderView());
-//			headerController.setPage(contentModel.getHeader());
+		if(this.contentModel.getHeader() != null){
+			this.playerView.showHeader();
+			this.headerController = new PageController(this.pageController1.getPlayerServices());
+			this.headerController.setView(this.playerView.getHeaderView());
 		}
-		if(contentModel.getFooter() != null){
-			playerView.showFooter();
-			footerController = new PageController(pageController1.getPlayerServices());
-
-			footerController.setView(playerView.getFooterView());
-//			footerController.setPage(contentModel.getFooter());
+		if(this.contentModel.getFooter() != null){
+			this.playerView.showFooter();
+			this.footerController = new PageController(this.pageController1.getPlayerServices());
+			this.footerController.setView(this.playerView.getFooterView());
 		}
 	}
 
 
 	public void addPageLoadListener(ILoadListener l){
-		pageLoadListener = l;
+		this.pageLoadListener = l;
 	}
 
 	/**
@@ -114,8 +113,8 @@ public class PlayerController implements IPlayerController{
 	public int getCurrentPageIndex(){
 
 		int index = 0;
-		for(int i = 0; i < contentModel.getPageCount(); i++){
-			if(contentModel.getPage(i) == pageController1.getPage()){
+		for(int i = 0; i < this.contentModel.getPageCount(); i++){
+			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
 				index = i;
 				break;
 			}
@@ -126,21 +125,21 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public Content	getModel(){
-		return contentModel;
+		return this.contentModel;
 	}
 
 
 	@Override
 	public PlayerView getView(){
-		return playerView;
+		return this.playerView;
 	}
 
 	@Override
 	public void switchToCommonPage(String pageName) {
-		int index = getModel().getCommonPages().findPageIndexByName(pageName);
+		int index = this.getModel().getCommonPages().findPageIndexByName(pageName);
 
 		if (index > -1) {
-			switchToCommonPage(index);
+			this.switchToCommonPage(index);
 		} else {
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
@@ -153,10 +152,10 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public void switchToPage(String pageName) {
-		int index = getModel().getPages().findPageIndexByName(pageName);
+		int index = this.getModel().getPages().findPageIndexByName(pageName);
 
 		if (index > -1){
-			switchToPage(index);
+			this.switchToPage(index);
 		} else {
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
@@ -164,9 +163,9 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void switchToPageById(String pageId) {
-		int index = getModel().getPages().findPageIndexById(pageId);
+		int index = this.getModel().getPages().findPageIndexById(pageId);
 		if(index > -1){
-			switchToPage(index);
+			this.switchToPage(index);
 		}
 		else{
 			Window.alert("Missing page with id:\n<" + pageId + ">");
@@ -175,15 +174,15 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void switchToPrevPage() {
-		PageList pages = contentModel.getPages();
+		PageList pages = this.contentModel.getPages();
 		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == pageController1.getPage()){
+			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
 				int index = i-1;
-				if(pageController2 != null && index > 0){
+				if(this.pageController2 != null && index > 0){
 					index -= 1;
 				}
 				if(index >= 0){
-					switchToPage(index);
+					this.switchToPage(index);
 				}
 				break;
 			}
@@ -194,15 +193,15 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public void switchToNextPage() {
 
-		PageList pages = contentModel.getPages();
+		PageList pages = this.contentModel.getPages();
 		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == pageController1.getPage()){
-				int index = i+1;
-				if(pageController2 != null && index+1 < pages.getTotalPageCount()){
+			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
+				int index = i + 1;
+				if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
 					index += 1;
 				}
 				if(index < pages.getTotalPageCount()){
-					switchToPage(index);
+					this.switchToPage(index);
 				}
 				break;
 			}
@@ -216,60 +215,61 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public void switchToPage(int index){
-		closeCurrentPages();
+		this.closeCurrentPages();
 		IPage page;
-		if(pageController2 != null){
-			if( (!showCover && index%2 > 0) ||
-				(showCover && index%2 == 0 && index > 0))
+		if(this.pageController2 != null){
+			if( (!this.showCover && index%2 > 0) ||
+				(this.showCover && index%2 == 0 && index > 0))
 			{
 				index -= 1;
 			}
 		}
-		if(index < contentModel.getPages().getTotalPageCount()){
-			page = contentModel.getPage(index);
+		if(index < this.contentModel.getPages().getTotalPageCount()){
+			page = this.contentModel.getPage(index);
 		}
 		else{
-			page = contentModel.getPage(0);
+			page = this.contentModel.getPage(0);
 		}
 
-		if(showCover && index == 0){
-			playerView.showSinglePage();
-			switchToPage(page, pageController1);
+		if(this.showCover && index == 0){
+			this.playerView.showSinglePage();
+			this.switchToPage(page, this.pageController1);
 		}
 		else{
-			switchToPage(page, pageController1);
-			if(pageController2 != null && index+1 < contentModel.getPages().getTotalPageCount()){
-				playerView.showTwoPages();
-				page = contentModel.getPage(index+1);
-				switchToPage(page, pageController2);
+			this.switchToPage(page, this.pageController1);
+			if(this.pageController2 != null && index+1 < this.contentModel.getPages().getTotalPageCount()){
+				this.playerView.showTwoPages();
+				page = this.contentModel.getPage(index+1);
+				this.switchToPage(page, this.pageController2);
 			}
 		}
 	}
 
 	public void switchToCommonPage(int index) {
-		closeCurrentPages();
+
+		this.closeCurrentPages();
 		IPage page;
-		if (pageController2 != null) {
-			if ((!showCover && index % 2 > 0) || (showCover && index % 2 == 0 && index > 0)) {
+		if (this.pageController2 != null) {
+			if ((!this.showCover && index % 2 > 0) || (this.showCover && index % 2 == 0 && index > 0)) {
 				index -= 1;
 			}
 		}
 
-		if (index < contentModel.getCommonPages().getTotalPageCount()) {
-			page = contentModel.getCommonPage(index);
+		if (index < this.contentModel.getCommonPages().getTotalPageCount()) {
+			page = this.contentModel.getCommonPage(index);
 		} else {
-			page = contentModel.getCommonPage(0);
+			page = this.contentModel.getCommonPage(0);
 		}
 
-		if (showCover && index == 0) {
-			playerView.showSinglePage();
-			switchToPage(page, pageController1);
+		if (this.showCover && index == 0) {
+			this.playerView.showSinglePage();
+			this.switchToPage(page, this.pageController1);
 		} else {
-			switchToPage(page, pageController1);
-			if (pageController2 != null && index+1 < contentModel.getCommonPages().getTotalPageCount()) {
-				playerView.showTwoPages();
-				page = contentModel.getCommonPage(index+1);
-				switchToPage(page, pageController2);
+			this.switchToPage(page, this.pageController1);
+			if (this.pageController2 != null && index+1 < this.contentModel.getCommonPages().getTotalPageCount()) {
+				this.playerView.showTwoPages();
+				page = this.contentModel.getCommonPage(index+1);
+				this.switchToPage(page, this.pageController2);
 			}
 		}
 	}
@@ -278,12 +278,12 @@ public class PlayerController implements IPlayerController{
 	private void switchToPage(IPage page, final PageController pageController){
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
-		sendAnalytics("switch to page", params );
+		this.sendAnalytics("switch to page", params );
 		// Load new page
-		String baseUrl = contentModel.getBaseUrl();
+		String baseUrl = this.contentModel.getBaseUrl();
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 
-        playerView.showWaitDialog();
+        this.playerView.showWaitDialog();
 
 		PageFactory factory = new PageFactory((Page) page);
 		factory.load(url, new IProducingLoadingListener() {
@@ -303,36 +303,36 @@ public class PlayerController implements IPlayerController{
 					scrollViewToBeggining();
 				}
 			}
-			
+
 			@Override
 			public void onError(String error) {
 				playerView.hideWaitDialog();
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
-		
+
 
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
-		keyboardController.reset();
+		this.keyboardController.reset();
 
 		pageController.setPage(page);
 
-		keyboardController.addMainToNavigation(pageController1);
-		keyboardController.addSecondToNavigation(pageController2);
+		this.keyboardController.addMainToNavigation(this.pageController1);
+		this.keyboardController.addSecondToNavigation(this.pageController2);
 
-		if(headerController != null){
-			headerController.setPage(contentModel.getHeader());
-			keyboardController.addHeaderToNavigation(headerController);
+		if(this.headerController != null){
+			this.headerController.setPage(this.contentModel.getHeader());
+			this.keyboardController.addHeaderToNavigation(this.headerController);
 		}
 
-		if(footerController != null){
-			footerController.setPage(contentModel.getFooter());
-			keyboardController.addFooterToNavigation(footerController);
+		if(this.footerController != null){
+			this.footerController.setPage(this.contentModel.getFooter());
+			this.keyboardController.addFooterToNavigation(this.footerController);
 		}
 
-		keyboardController.fillModulesNamesList();
+		this.keyboardController.fillModulesNamesList();
 	}
 
 	private static void scrollViewToBeggining() {
@@ -347,115 +347,115 @@ public class PlayerController implements IPlayerController{
 
 
 	private void closeCurrentPages() {
-		closePopup();
-		pageController1.updateScore(false);
+		this.closePopup();
+		this.pageController1.updateScore(false);
 
-		if (isBookMode()) {
-			pageController2.updateScore(false);
+		if (this.isBookMode()) {
+			this.pageController2.updateScore(false);
 		}
 
-		updateState();
+		this.updateState();
 
-		pageController1.closePage();
-		if(isBookMode()){
-			pageController2.closePage();
+		this.pageController1.closePage();
+		if(this.isBookMode()){
+			this.pageController2.closePage();
 		}
 	}
 
 	public void updateScore() {
-		pageController1.updateScore(false);
+		this.pageController1.updateScore(false);
 
-		if (isBookMode()) {
-			pageController2.updateScore(false);
+		if (this.isBookMode()) {
+			this.pageController2.updateScore(false);
 		}
 	}
 
 	private void updateTimeForCurrentPages() {
-		IPage page1 = pageController1.getPage();
+		IPage page1 = this.pageController1.getPage();
 		IPage page2 = null;
-		if (pageController2 != null) {
-			page2 = pageController2.getPage();
+		if (this.pageController2 != null) {
+			page2 = this.pageController2.getPage();
 		}
-		timeService.updateTimeForPages(page1, page2);
+		this.timeService.updateTimeForPages(page1, page2);
 	}
 
 	public void updateState() {
-		updateTimeForCurrentPages();
-		HashMap<String, String> state = pageController1.getState();
-		stateService.addState(state);
-		if(pageController2 != null){
-			state = pageController2.getState();
-			stateService.addState(state);
+		this.updateTimeForCurrentPages();
+		HashMap<String, String> state = this.pageController1.getState();
+		this.stateService.addState(state);
+		if(this.pageController2 != null){
+			state = this.pageController2.getState();
+			this.stateService.addState(state);
 		}
-		if(headerController != null) {
-			state = headerController.getState();
-			stateService.addState(state);
+		if(this.headerController != null) {
+			state = this.headerController.getState();
+			this.stateService.addState(state);
 		}
-		if(footerController != null) {
-			state = footerController.getState();
-			stateService.addState(state);
+		if(this.footerController != null) {
+			state = this.footerController.getState();
+			this.stateService.addState(state);
 		}
 	}
 
 
 	public IPlayerServices getPlayerServices() {
-		return pageController1.getPlayerServices();
+		return this.pageController1.getPlayerServices();
 	}
 
 
 	@Override
 	public long getTimeElapsed() {
-		return (System.currentTimeMillis()-timeStart)/1000;
+		return (System.currentTimeMillis()-this.timeStart)/1000;
 	}
 
 
 	@Override
 	public IScoreService getScoreService() {
-		return scoreService;
+		return this.scoreService;
 	}
 
 	@Override
 	public IAssetsService getAssetsService() {
-		return assetsService;
+		return this.assetsService;
 	}
 
 
 	@Override
 	public IStateService getStateService() {
-		return stateService;
+		return this.stateService;
 	}
 
 
 	@Override
-	public void showPopup(String pageName, String additionalClasses) {
-		if (isPopupEnabled()) {
+	public void showPopup(String pageName, String top, String left, String additionalClasses) {
+		if (this.isPopupEnabled()) {
 			return;
 		}
-		setPopupEnabled(true);
-		Page page  = contentModel.findPageByName(pageName);
+		this.setPopupEnabled(true);
+		Page page  = this.contentModel.findPageByName(pageName);
 		PageController popupPageControler = new PageController(this);
-		popupPanel = new PagePopupPanel(getView(), popupPageControler, additionalClasses);
-		popupPanel.showPage(page, contentModel.getBaseUrl());
+		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses);
+		this.popupPanel.showPage(page, this.contentModel.getBaseUrl());
 	}
 
 
 	@Override
 	public void closePopup() {
-		if(popupPanel != null){
-			popupPanel.close();
-			setPopupEnabled(false);
+		if(this.popupPanel != null){
+			this.popupPanel.close();
+			this.setPopupEnabled(false);
 		}
 	}
 
 
 	@Override
 	public void sendAnalytics(String event, HashMap<String, String> params) {
-		if(analyticsId == null){
+		if(this.analyticsId == null){
 			return;
 		}
 
 		String url = "http://www.bluenotepad.com/api/log?" +
-				"notepad=" + analyticsId + "&session=" + sessionId + "&event=" + event;
+				"notepad=" + this.analyticsId + "&session=" + this.sessionId + "&event=" + event;
 		if( params != null){
 			for(String key : params.keySet()){
 				url += "&" + key + "=" + params.get(key).replace("&nbsp;", " ");
@@ -489,59 +489,71 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public boolean isBookMode() {
-		return pageController2 != null;
+		return this.pageController2 != null;
 	}
 
 
 	@Override
 	public boolean hasCover() {
-		return showCover;
+		return this.showCover;
 	}
 
 
 	@Override
 	public boolean isPopupEnabled() {
-		return isPopupEnabled;
+		return this.isPopupEnabled;
 	}
 
 
 	@Override
 	public void setPopupEnabled(boolean enabled) {
-		isPopupEnabled = enabled;
+		this.isPopupEnabled = enabled;
 	}
 
 
 	@Override
 	public IPresenter findHeaderModule(String id) {
-		if (headerController == null) {
+		if (this.headerController == null) {
 			return null;
 		}
 
-		return headerController.findModule(id);
+		return this.headerController.findModule(id);
 	}
 
 	@Override
 	public IPresenter findFooterModule(String id) {
-		if (footerController == null) {
+		if (this.footerController == null) {
 			return null;
 		}
 
-		return footerController.findModule(id);
+		return this.footerController.findModule(id);
 	}
 
 	@Override
 	public PlayerConfig getPlayerConfig() {
-		return config;
+		return this.config;
 	}
 
 	@Override
 	public ITimeService getTimeService() {
-		updateTimeForCurrentPages();
-		return timeService;
+		this.updateTimeForCurrentPages();
+		return this.timeService;
+	}
+
+	public boolean hasHeader() {
+		return this.headerController != null;
+	}
+
+	public boolean hasFooter() {
+		return this.footerController != null;
 	}
 
 
 	public void setPlayerConfig(PlayerConfig config) {
 		this.config = config;
+	}
+
+	public void fireOutstretchHeightEvent() {
+		this.entryPoint.fireOutstretchHeightEvent();
 	}
 }
