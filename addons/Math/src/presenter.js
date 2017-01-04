@@ -631,6 +631,10 @@ function AddonMath_create() {
                 }
             }
         }
+
+        MathJax.CallBack.Queue().Push(function () {
+            MathJax.Hub.Typeset();
+        });
     }
 
     presenter.moduleAnswersCounter = function (module) {
