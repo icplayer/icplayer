@@ -3,10 +3,10 @@ package com.lorepo.icplayer.client.xml.content;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 
 public interface IContentBuilder {

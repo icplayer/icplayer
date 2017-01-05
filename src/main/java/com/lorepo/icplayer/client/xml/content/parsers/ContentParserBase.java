@@ -5,14 +5,13 @@ import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icplayer.client.model.AddonDescriptor;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
