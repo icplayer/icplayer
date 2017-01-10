@@ -20,9 +20,14 @@ class ResetButton extends PushButton{
 	private String confInfoYes = "";
 	private String confInfoNo = "";
 
+	public static native boolean isiOS() /*-{
+	  return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+	}-*/;
+	
 	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo){
 		
 		setStyleName("ic_button_reset");
+		
 		
 		addClickHandler(new ClickHandler() {
 			
@@ -87,8 +92,11 @@ class ResetButton extends PushButton{
 			        dialogBox.show();
 				} else {
 					pageService.reset();
-					removeStyleName("ic_button_reset-up-hovering");
-					removeStyleName("ic_button_reset-down-hovering");
+					
+					if(isiOS()) {
+						removeStyleName("ic_button_reset-up-hovering");
+						removeStyleName("ic_button_reset-down-hovering");
+					}
 				}				
 			}
 		});

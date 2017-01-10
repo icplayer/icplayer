@@ -16,6 +16,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ToggleButton;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
@@ -52,23 +53,53 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		}
 	}
 
+	public static native boolean isiOS() /*-{
+	  return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+	}-*/;
+	
 	@Override
 	public void onBrowserEvent(Event event) {
 	    if( DOM.eventGetType(event) == Event.ONCLICK){
 	    	event.stopPropagation();
-	    	String classNames = getElement().getClassName();
-	    	if(classNames.contains("ic_soption-down-hovering")){
-	    		removeStyleName("ic_soption-down-hovering");
-	    		addStyleName("ic_soption-down");
-	    	}else{
+	    	event.preventDefault();
+//	    	if(isiOS()) {
+//		    	String classNames = getElement().getClassName();
+//		    	if(classNames.contains("ic_soption-down")){
+//		    		removeStyleName("ic_soption-down-hovering");
+//		    		removeStyleName("ic_soption-down");
+//		    		addStyleName("ic_down-removed");
+//		    	}else{
+//		    		if(classNames.contains("ic_soption-down")){
+//		    			removeStyleName("ic_soption-down");
+//		    		}else{
+//		    			if(!classNames.contains("ic_soption-up-hovering")){
+//		    				addStyleName("ic_soption-down");
+//		    			}
+//		    			
+//		    			if(classNames.contains("ic_down-removed")){
+////		    				removeStyleName("ic_soption-down");
+////		    				removeStyleName("ic_down-removed");
+//		    			}
+//		    		}
+//		    		removeStyleName("ic_soption-up-hovering");
+//		    	}
+//	    	}
+	    	if(isiOS()) {
 	    		removeStyleName("ic_soption-up-hovering");
 	    	}
 	    }
+
 	    super.onBrowserEvent(event);
+	    
+	    if( DOM.eventGetType(event) == Event.ONMOUSEDOWN){
+	    	if(isiOS()) {
+		    	removeStyleName("ic_soption-down-hovering");
+		    	removeStyleName("ic_soption-up-hovering");
+	    	}
+	    }
 	}
 	
 	protected void onAttach() {
-		
 		super.onAttach();
 		connectLinks(parserResult.linkInfos.iterator());
 	}
