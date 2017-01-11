@@ -21,5 +21,6 @@
         <property name="maxScoreAwardLabel" displayName="Max score award label" nameLabel="Hierarchical_Lesson_Report_property_max_score_award_label" type="string" isLocalized="true" />
         <property name='unvisitedPageScoresLabel' displayName="Unvisited page scores label" nameLabel="Hierarchical_Lesson_Report_property_unvisited_page_scores_label" type="string" isLocalized="true" />
         <property name="scoredisabled" displayName="Disable score on pages" nameLabel="Hierarchical_Lesson_Report_property_score_disabled" type="string" />
+        <property name="enablePages" displayName="Enable pages" nameLabel="Hierarchical_Lesson_Report_property_enable_pages" type="string" />
     </model>
 </addon>

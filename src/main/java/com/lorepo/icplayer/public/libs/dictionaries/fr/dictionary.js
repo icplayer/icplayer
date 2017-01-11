@@ -1166,6 +1166,7 @@ var ice_dictionary_fr = {
 "Hierarchical_Lesson_Report_property_unvisited_page_scores_label": "Étiquette des scores d’une page non lue",
 "Hierarchical_Lesson_Report_property_max_score_award_label": "Étiquette de récompense du score maximum",
 "Hierarchical_Lesson_Report_property_page_scores_label": "Étiquette des scores de la page",
+"Hierarchical_Lesson_Report_property_enable_pages": "Enable pages",
 "ConnectingDots_info": "Permet de relier des points qui composent un dessin ou une forme. Le module externe peut être utilisé en animation interactive ou en activité à part entière.",
 "ConnectingDots_name": "Relier des points",
 "ConnectingDots_property_dots": "Coordonnées des points",
