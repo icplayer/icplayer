@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
-import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
-import com.lorepo.icplayer.client.model.asset.AssetFactory;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -30,7 +28,6 @@ public class Content implements IContentBuilder, IContent {
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
-	private ArrayList<Integer> pageSubset = new ArrayList<Integer>();
 	private HashMap<String, String> styles;
 	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
@@ -197,18 +194,32 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 
-	public String getMetadataValue(String key){
+	public String getMetadataValue(String key) {
 		return metadata.get(key);
 	}
 
 
-	public HashMap<String,String> getStyles(){
+	public HashMap<String,String> getStyles() {
 		return styles;
 	}
+	
+	public String getStyle(String styleID) {
+		return styles.get(styleID);
+	}
+
+    public void setMetadataValue(String key, String value){
+
+		if(value == null || value.length() == 0){
+			metadata.remove(key);
+		}
+		else{
+			metadata.put(key, value);
+		}
+	}
+
 
 	public void setPageSubset(ArrayList<Integer> pageList){
 		if (pageList != null) {
-			pageSubset = pageList;
 		}
 	}
 
@@ -395,6 +406,10 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setStyles(HashMap<String, String> styles) {
 		this.styles = styles;
+	}
+	
+	public void setStyle(String key, String style) {
+		this.styles.put(key, style);
 	}
 
 	@Override

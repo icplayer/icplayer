@@ -40,19 +40,19 @@ public class ContentFactory extends XMLVersionAwareFactory {
 		return factory;
 	}
 	
-	@Override
-	protected RequestCallback getContentLoadCallback(final IProducingLoadingListener listener, String fetchUrl) {
-		return this.getContentLoadCallback(listener, this.pagesSubset, fetchUrl);
+	public static IXMLFactory getInstanceWithAllPages() {
+		return ContentFactory.getInstance(new ArrayList<Integer>());
 	}
 	
-	private RequestCallback getContentLoadCallback(final IProducingLoadingListener listener, final ArrayList<Integer> pagesSubset, String fetchUrl) {
+	@Override
+	protected RequestCallback getContentLoadCallback(final IProducingLoadingListener listener, String fetchUrl) {
 		final String url = fetchUrl;
 		
 		return new RequestCallback() {
 			@Override
 			public void onResponseReceived(Request request, Response response) {
 				if (response.getStatusCode() == 200 || response.getStatusCode() == 0) {
-					Content content = produce(response.getText(), pagesSubset, url);
+					Content content = produce(response.getText(), url);
 					listener.onFinishedLoading(content);
 				} else {
 					// Handle the error.  Can get the status text from response.getStatusText()
@@ -67,7 +67,7 @@ public class ContentFactory extends XMLVersionAwareFactory {
 		};
 	}
 
-	protected Content produce(String xmlString, ArrayList<Integer> pagesSubset, String fetchUrl) {
+	protected Content produce(String xmlString, String fetchUrl) {
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
 		String version = XMLUtils.getAttributeAsString(xml, "version", "1");
 		

@@ -247,7 +247,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private JavaScriptObject createModel(IPropertyProvider provider) {
 
 		JavaScriptObject jsModel = JavaScriptObject.createArray();
-		for(int i=0; i < provider.getPropertyCount(); i++){
+		for(int i=0; i < provider.getPropertyCount(); i++) {
 			IProperty property = provider.getProperty(i);
 			if(property instanceof IListProperty){
 				IListProperty listProperty = (IListProperty) property;
@@ -290,7 +290,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 
 	private void addPropertyToModel(JavaScriptObject jsModel, IProperty property){
-		
 		String value = property.getValue();
 		
 		if(	property instanceof IAudioProperty || 

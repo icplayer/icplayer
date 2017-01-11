@@ -149,10 +149,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	protected String getBaseXML(){
 		
 		String escapedId = StringUtils.escapeXML(id);
-		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop()  +
-				"' width='" + getWidth() + "' height='" + getHeight() + "' " +
-				"right='" + getRight() + "' bottom='" + getBottom() + "' " +
-				"isVisible='" + isVisible + "' isLocked='" + isLocked +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor +"'";
+		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop();
+		xml += "' width='" + getWidth() + "' height='" + getHeight() + "' ";
+		xml += "right='" + getRight();
+		xml += "' bottom='" + getBottom() + "' ";
+		xml += "isVisible='" + isVisible + "' isLocked='" + isLocked +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor +"'";
 		
 		if (!getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());

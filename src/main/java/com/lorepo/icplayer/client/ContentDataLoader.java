@@ -9,7 +9,6 @@ import com.google.gwt.core.client.GWT;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.addonsLoader.AddonLoaderFactory;
 import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;

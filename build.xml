@@ -10,7 +10,7 @@
     <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs" />
 
     <!-- Arguments to gwtc and devmode targets -->
-  	<property name="gwt.args" value="" />
+  	<property name="gwt.args" value="-style PRETTY" />
     <import file="build-js-addons-compress.xml"/>
 
     <property name="libs.junit" location="libs/junit-4.9.jar" />

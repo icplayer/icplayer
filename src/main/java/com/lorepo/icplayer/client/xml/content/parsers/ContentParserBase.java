@@ -239,9 +239,9 @@ public abstract class ContentParserBase implements IContentParser {
 		String st = XMLUtils.getAttributeAsString(rootElement, "scoreType");
 		if(st.equals(ScoreType.first.toString())){
 			return ScoreType.first;
+		} else {
+			return ScoreType.last;
 		}
-		
-		return null;
 	}
 
 }

@@ -17,12 +17,6 @@ import com.lorepo.icplayer.client.module.api.IRectangleItem;
 class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem {
 
 	protected HashMap<String, LayoutDefinition> layoutsDefinitions = new HashMap<String, LayoutDefinition>();
-	private int	left;
-	private int	right;
-	private int	top;
-	private int	bottom;
-	private int	width;
-	private int	height;
 
 	private ILayoutProperty layoutProperty;
 	private IProperty leftProperty;
@@ -40,6 +34,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	public AbsolutePositioningModule(String name){
 		super(name);
 		this.layoutsDefinitions.put("default", new LayoutDefinition());
+		this.positions.put(this.positionType, new HashMap<String, Integer>());
 	}
 
 	protected void registerPositionProperties() {
@@ -58,7 +53,8 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	}
 	
 	private int getPositionValue(String attribute) {
-		return this.positions.get(this.positionType).get(attribute);
+		int value = this.positions.get(this.positionType).get(attribute);
+		return value;
 	}
 	
 	private void setPositionValue(String attribute, int value) {
@@ -215,7 +211,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getValue() {
 				if(getLayout().hasLeft()){
-					return Integer.toString(left);
+					return Integer.toString(getLeft());
 				}
 				else{
 					return "";
@@ -257,7 +253,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getValue() {
 				if(getLayout().hasTop()){
-					return Integer.toString(top);
+					return Integer.toString(getTop());
 				}
 				else{
 					return "";
@@ -298,7 +294,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getValue() {
 				if(getLayout().hasWidth()){
-					return Integer.toString(width);
+					return Integer.toString(getWidth());
 				}
 				else{
 					return "";
@@ -339,7 +335,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getValue() {
 				if(getLayout().hasHeight()){
-					return Integer.toString(height);
+					return Integer.toString(getHeight());
 				}
 				else{
 					return "";
@@ -386,7 +382,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getValue() {
 				if(getLayout().hasRight()){
-					return Integer.toString(right);
+					return Integer.toString(getRight());
 				}
 				else{
 					return "";
@@ -428,7 +424,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			@Override
 			public String getValue() {
 				if(getLayout().hasBottom()){
-					return Integer.toString(bottom);
+					return Integer.toString(getBottom());
 				}
 				else{
 					return "";
