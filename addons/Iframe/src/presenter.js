@@ -176,6 +176,7 @@ function AddonIframe_create() {
 
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+        presenter.$view.css('display', isVisible ? 'block' : 'none');
     };
 
     presenter.show = function AddonIFrame_Communication_show () {

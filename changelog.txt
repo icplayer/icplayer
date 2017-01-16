@@ -1,3 +1,4 @@
+2016-01-16 Fixed isVisible property on Safari in Iframe module
 2017-01-11 Added Enable pages property in Hierarchical Lesson Report module
 2017-01-11 Fixed problem with updating additional styles and displaying pages in Navigation Bar module
 2017-01-04 Fixed rendering LaTeX afetr showing answers in Math module
