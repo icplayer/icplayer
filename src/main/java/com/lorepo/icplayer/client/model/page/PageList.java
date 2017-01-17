@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.page;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -368,13 +368,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		var chapter = function(){}
 		chapter.type = "chapter";
 		chapter.getName = function(){
-			return x.@com.lorepo.icplayer.client.model.PageList::getName()();
+			return x.@com.lorepo.icplayer.client.model.page.PageList::getName()();
 		}
 		chapter.size = function(){
-			return x.@com.lorepo.icplayer.client.model.PageList::size()();
+			return x.@com.lorepo.icplayer.client.model.page.PageList::size()();
 		}
 		chapter.get = function(index){
-			return x.@com.lorepo.icplayer.client.model.PageList::getPageAsJavaScript(I)(index);
+			return x.@com.lorepo.icplayer.client.model.page.PageList::getPageAsJavaScript(I)(index);
 		}
 
 		return chapter;

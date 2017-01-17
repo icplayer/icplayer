@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.page;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
+import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.module.ModuleFactory;
@@ -898,32 +899,32 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		var page = function(){}
 		page.type = "page";
 		page.getId = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getId()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getId()();
 		}
 		page.getName = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getName()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getName()();
 		}
 		page.getBaseURL = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getBaseURL()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getBaseURL()();
 		}
 		page.isReportable = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::isReportable()();
 		}
 
 		page.isVisited = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::isVisited()();
 		}
 
 		page.getModulesAsJS = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getModulesListAsJS()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getModulesListAsJS()();
 		}
 
 		page.getModules = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getModulesList()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getModulesList()();
 		}
 
 		page.getPageWeight = function() {
-			return x.@com.lorepo.icplayer.client.model.Page::getPageWeight()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getPageWeight()();
 		}
 
 		return page;

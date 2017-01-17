@@ -5,7 +5,6 @@ import java.util.HashMap;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 
@@ -26,16 +25,16 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 			Node childNode = nodes.item(i);
 			
 			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element) {
-				this.parseSignleLayout(childNode);
+				this.parseSingleLayout(childNode);
 			}
 		}
 	}
 
-	private void parseSignleLayout(Node xml) {
+	private void parseSingleLayout(Node xml) {
 		Boolean isVisible = XMLUtils.getAttributeAsBoolean((Element) xml, "isVisible", true);
 		Boolean isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean((Element) xml, "isModuleVisibleInEditor", true);
 		Boolean isLocked = XMLUtils.getAttributeAsBoolean((Element) xml, "isLocked", false);
-		String name = XMLUtils.getAttributeAsString((Element) xml, "name");
+		String id = XMLUtils.getAttributeAsString((Element) xml, "id");
 		HashMap<String, Integer> absolutePosition = null;
 		LayoutDefinition relativeLayout = new LayoutDefinition();
 		
@@ -50,10 +49,10 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 			}
 		}
 		
-		this.module.setPosition(name, absolutePosition);
-		this.module.setIsVisible(name, isVisible);
-		this.module.setIsLocked(name, isLocked);
-		this.module.setIsVisibleInEditor(name, isModuleVisibleInEditor);
+		this.module.setPosition(id, absolutePosition);
+		this.module.setIsVisible(id, isVisible);
+		this.module.setIsLocked(id, isLocked);
+		this.module.setIsVisibleInEditor(id, isModuleVisibleInEditor);
 	}
 
 	private HashMap<String, Integer> parseAbsoluteLayout(Node node) {

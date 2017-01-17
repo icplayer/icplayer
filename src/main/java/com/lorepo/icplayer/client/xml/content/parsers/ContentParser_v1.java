@@ -6,6 +6,7 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 import com.google.gwt.xml.client.NodeList;
@@ -17,25 +18,26 @@ public class ContentParser_v1 extends ContentParserBase {
 		this.version = "2";
 	}
 	
-	protected HashMap<String,String> parseStyles(Element rootElement) {
-		HashMap<String, String> styles = new HashMap<String, String>();
+	protected HashMap<String,CssStyle> parseStyles(Element rootElement) {
+		HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 
 		NodeList childrenNodes = rootElement.getChildNodes();
 		for(int i = 0; i < childrenNodes.getLength(); i++) {
 			if(childrenNodes.item(i) instanceof Element) {
 				Element childNode = (Element) childrenNodes.item(i);
 				String name = XMLUtils.getAttributeAsString(childNode, "name");
+				String id = XMLUtils.getAttributeAsString(childNode, "id");
 				String style = XMLUtils.getText(childNode);
 				
 				if(style.length() > 0) {
 					style = StringUtils.unescapeXML(style);
-					styles.put(name, style);
+					styles.put(id, new CssStyle(id, name, style));
 				}
 			}
 		}
 		
 		if(styles.keySet().contains("default") == false) {
-			styles.put("default", "");
+			styles.put("default", new CssStyle("default", "default", ""));
 		}
 		
 		return styles;
@@ -46,10 +48,10 @@ public class ContentParser_v1 extends ContentParserBase {
 		NodeList childrenNodes = child.getChildNodes();
 		for(int i = 0; i < childrenNodes.getLength(); i++) {
 			if(childrenNodes.item(i) instanceof Element) {
-				PageLayout pageLayout = new PageLayout();
 				Element layoutNode = (Element) childrenNodes.item(i);
 				String name = XMLUtils.getAttributeAsString(layoutNode, "name");
-				pageLayout.setName(name);
+				String id = XMLUtils.getAttributeAsString(layoutNode, "id");
+				PageLayout pageLayout = new PageLayout(id, name);
 				
 				this.parseLayoutChildren(pageLayout, layoutNode);
 				
@@ -79,10 +81,9 @@ public class ContentParser_v1 extends ContentParserBase {
 	}
 
 	private PageLayout parseTreshold(PageLayout pageLayout, Element tresholdNode) {
-		int left = XMLUtils.getAttributeAsInt(tresholdNode, "left");
 		int right = XMLUtils.getAttributeAsInt(tresholdNode, "right");
 		
-		pageLayout.setTreshold(left, right);
+		pageLayout.setTreshold(right);
 		
 		return pageLayout;
 	}

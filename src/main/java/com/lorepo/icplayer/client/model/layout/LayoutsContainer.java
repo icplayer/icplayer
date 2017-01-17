@@ -13,5 +13,4 @@ public class LayoutsContainer {
 	public void addLayout(PageLayout layout) {
 		this.layoutsMap.put(layout.getName(), layout);
 	}
-
 }

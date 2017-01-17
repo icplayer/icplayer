@@ -2,14 +2,15 @@ package com.lorepo.icplayer.client.model.layout;
 
 public class PageLayout implements PageLayoutBuilder{
 
-	public static int MAX_RIGHT_TRESHOLD = 10000;
+	public static int MAX_TRESHOLD = 100000;
 	private String name;
-	private int leftTreshold;
-	private int rightTreshold;
+	private String id;
+	private int treshold;
 	private String type;
 	
-	public PageLayout() {
-		// TODO Auto-generated constructor stub
+	public PageLayout(String id, String name) {
+		this.id = id;
+		this.name = name;
 	}
 
 	@Override
@@ -18,9 +19,8 @@ public class PageLayout implements PageLayoutBuilder{
 	}
 
 	@Override
-	public void setTreshold(int left, int right) {
-		this.leftTreshold = left;
-		this.rightTreshold = right;
+	public void setTreshold(int value) {
+		this.treshold = value;
 	}
 
 	@Override

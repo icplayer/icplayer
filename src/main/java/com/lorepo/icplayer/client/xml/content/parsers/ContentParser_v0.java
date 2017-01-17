@@ -6,10 +6,11 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
-public class ContentParser_v0 extends ContentParserBase{
+public class ContentParser_v0 extends ContentParserBase {
 	
 	public ContentParser_v0() {
 		this.version = "1";
@@ -24,13 +25,13 @@ public class ContentParser_v0 extends ContentParserBase{
 		return this.parseLayouts(content, null);
 	}
 	
-	protected HashMap<String,String> parseStyles(Element rootElement) {
-		HashMap<String, String> styles = new HashMap<String, String>();
+	protected HashMap<String, CssStyle> parseStyles(Element rootElement) {
+		HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 		
 		String style = XMLUtils.getText(rootElement);
 		if(style.length() > 0){
 			style = StringUtils.unescapeXML(style);
-			styles.put("default", style);
+			styles.put("default", new CssStyle("default", "default", style));
 		}
 	
 		return styles;
@@ -39,9 +40,8 @@ public class ContentParser_v0 extends ContentParserBase{
 	@Override
 	protected Content parseLayouts(IContentBuilder content, Element child) {
 		if (child == null) {
-			PageLayout defaultLayout = new PageLayout();
-			defaultLayout.setName("default");
-			defaultLayout.setTreshold(0, PageLayout.MAX_RIGHT_TRESHOLD);
+			PageLayout defaultLayout = new PageLayout("default", "default");
+			defaultLayout.setTreshold(PageLayout.MAX_TRESHOLD);
 			defaultLayout.setType("default");
 			
 			content.addLayout(defaultLayout);

@@ -4,10 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.IPageListListener;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
@@ -28,7 +34,7 @@ public class Content implements IContentBuilder, IContent {
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
-	private HashMap<String, String> styles;
+	private HashMap<String, CssStyle> styles;
 	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
 	private IContentListener listener;
@@ -199,11 +205,11 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 
-	public HashMap<String,String> getStyles() {
+	public HashMap<String,CssStyle> getStyles() {
 		return styles;
 	}
 	
-	public String getStyle(String styleID) {
+	public CssStyle getStyle(String styleID) {
 		return styles.get(styleID);
 	}
 
@@ -230,9 +236,17 @@ public class Content implements IContentBuilder, IContent {
 	public String toXML(){
 
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
-
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "' version='" + this.version + "'>";
+		
+		Document xmlDocument = XMLParser.createDocument();
+		Element interactiveContent = xmlDocument.createElement("interactiveContent");
+		interactiveContent.setAttribute("name", escapedName);
+		interactiveContent.setAttribute("scoreType", this.scoreType.toString());
+		interactiveContent.setAttribute(version, this.version);
+		xmlDocument.appendChild(interactiveContent);
+		JavaScriptUtils.log(xmlDocument.toString());
+		
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" + this.scoreType + "' version='" + this.version + "'>";
 
 		// Metadata
 		xml += "<metadata>";
@@ -254,7 +268,7 @@ public class Content implements IContentBuilder, IContent {
 		xml += "<styles>";
 		if(styles != null){
 		    for (String key : styles.keySet()) {
-		    	xml += "<style name='" + key + "'>" + StringUtils.escapeHTML(styles.get(key)) + "</style>";
+		    	xml += "<style id='" + key + "'" + "name='" + styles.get(key).name + ">" + StringUtils.escapeHTML(styles.get(key).style) + "</style>";
 		    }
 		}
 		xml += "</styles>";
@@ -404,12 +418,12 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 	@Override
-	public void setStyles(HashMap<String, String> styles) {
+	public void setStyles(HashMap<String, CssStyle> styles) {
 		this.styles = styles;
 	}
 	
-	public void setStyle(String key, String style) {
-		this.styles.put(key, style);
+	public void setStyle(String styleID, CssStyle style) {
+		this.styles.put(styleID, style);
 	}
 
 	@Override

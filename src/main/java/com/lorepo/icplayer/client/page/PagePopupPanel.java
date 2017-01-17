@@ -13,7 +13,7 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
 
 public class PagePopupPanel extends DialogBox {
 

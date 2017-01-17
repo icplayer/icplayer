@@ -2,7 +2,8 @@ package com.lorepo.icplayer.client.module.api.player;
 
 import java.util.List;
 
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
+
 
 
 

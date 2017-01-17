@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icplayer.client.model.Group;
-import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
-import com.lorepo.icplayer.client.model.Page.PageScoreWeight;
 import com.lorepo.icplayer.client.model.layout.Size;
+import com.lorepo.icplayer.client.model.page.Group;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.Page.LayoutType;
+import com.lorepo.icplayer.client.model.page.Page.PageScoreWeight;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;

@@ -1,9 +1,9 @@
 package com.lorepo.icplayer.client.xml.page;
 
-import com.lorepo.icplayer.client.model.Group;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
-import com.lorepo.icplayer.client.model.Page.PageScoreWeight;
 import com.lorepo.icplayer.client.model.layout.Size;
+import com.lorepo.icplayer.client.model.page.Group;
+import com.lorepo.icplayer.client.model.page.Page.LayoutType;
+import com.lorepo.icplayer.client.model.page.Page.PageScoreWeight;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 import java.util.List;

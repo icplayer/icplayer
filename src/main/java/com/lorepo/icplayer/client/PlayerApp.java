@@ -277,7 +277,8 @@ public class PlayerApp{
 		contentModel.setPlayerController(getPlayerServices());
 		
 		RootPanel.get(divId).add(playerView);
-		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles().get("default"));
+		String cssValue = contentModel.getStyles().get("default").name;
+		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
 		DOMInjector.appendStyle(css);
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());

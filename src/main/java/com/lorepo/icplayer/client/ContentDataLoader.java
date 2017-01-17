@@ -12,8 +12,8 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.addonsLoader.AddonLoaderFactory;
 import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;
-import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
 

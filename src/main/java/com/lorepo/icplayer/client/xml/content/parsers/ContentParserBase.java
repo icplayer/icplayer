@@ -8,11 +8,12 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.IAsset;
-import com.lorepo.icplayer.client.model.PageList;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public abstract class ContentParserBase implements IContentParser {
@@ -145,8 +146,6 @@ public abstract class ContentParserBase implements IContentParser {
 		return metadata;
 	}
 
-	protected abstract HashMap<String, String> parseStyles(Element child);
-	
 	protected ArrayList<IAsset> parseAssets(Element rootElement) {
 		ArrayList<IAsset> assets = new ArrayList<IAsset>();
 		
@@ -243,5 +242,6 @@ public abstract class ContentParserBase implements IContentParser {
 			return ScoreType.last;
 		}
 	}
-
+	
+	protected abstract HashMap<String, CssStyle> parseStyles(Element child);
 }
