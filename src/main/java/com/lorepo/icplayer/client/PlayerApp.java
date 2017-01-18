@@ -11,6 +11,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -62,6 +63,7 @@ public class PlayerApp{
 		contentFactory.load(url, new IProducingLoadingListener() {
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
+				JavaScriptUtils.log(contentModel);
 				contentModel.connectHandlers();
 				initPlayer(isCommonPage);
 			}
@@ -277,7 +279,9 @@ public class PlayerApp{
 		contentModel.setPlayerController(getPlayerServices());
 		
 		RootPanel.get(divId).add(playerView);
-		String cssValue = contentModel.getStyles().get("default").name;
+		JavaScriptUtils.log(contentModel.getStyles());
+		CssStyle defaultStyle = contentModel.getStyles().get("default");
+		String cssValue = defaultStyle.style;
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
 		DOMInjector.appendStyle(css);
 

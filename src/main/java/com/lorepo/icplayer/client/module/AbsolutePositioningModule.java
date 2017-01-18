@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IRectangleItem;
@@ -53,7 +54,13 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	}
 	
 	private int getPositionValue(String attribute) {
+		JavaScriptUtils.log("======================getPositionValue===============");
+		JavaScriptUtils.log(this.positions);
+		JavaScriptUtils.log(this.positionType);
+		JavaScriptUtils.log(attribute);
+		JavaScriptUtils.log("=====================================");
 		int value = this.positions.get(this.positionType).get(attribute);
+
 		return value;
 	}
 	
@@ -92,6 +99,10 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public int getHeight() {
 		return this.getPositionValue("height");
+	}
+	
+	public boolean hasPositionValue(String attribute) {
+		return this.positions.get(positionType).containsKey(attribute);
 	}
 	
 	protected String getLayoutXML() {
@@ -200,17 +211,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 		leftProperty = new IProperty() {
 			
+			public String ATTRIBUTE_KEY = "left";
+			public String ATTRIBUTE_NAME = "Left";
+			
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setPositionValue("left", Integer.parseInt(newValue));
+					setPositionValue(ATTRIBUTE_KEY, Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(getLayout().hasLeft()){
+				if(hasPositionValue(ATTRIBUTE_KEY)){
 					return Integer.toString(getLeft());
 				}
 				else{
@@ -220,12 +234,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "Left";
+				return ATTRIBUTE_NAME;
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("left");
+				return DictionaryWrapper.get(ATTRIBUTE_KEY);
 			}
 
 			@Override
@@ -242,17 +256,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 		topProperty = new IProperty() {
 			
+			public String ATTRIBUTE_KEY = "top";
+			public String ATTRIBUTE_NAME = "Top";
+			
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setPositionValue("top", Integer.parseInt(newValue));
+					setPositionValue(ATTRIBUTE_KEY, Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(getLayout().hasTop()){
+				if(hasPositionValue(ATTRIBUTE_KEY)){
 					return Integer.toString(getTop());
 				}
 				else{
@@ -262,12 +279,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "Top";
+				return "ATTRIBUTE_NAME";
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("top");
+				return DictionaryWrapper.get(ATTRIBUTE_KEY);
 			}
 
 			@Override
@@ -283,17 +300,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 		widthProperty = new IProperty() {
 			
+			public String ATTRIBUTE_KEY = "width";
+			public String ATTRIBUTE_NAME = "Width";
+			
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setPositionValue("width", Integer.parseInt(newValue));
+					setPositionValue(ATTRIBUTE_KEY, Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(getLayout().hasWidth()){
+				if(hasPositionValue(ATTRIBUTE_KEY)){
 					return Integer.toString(getWidth());
 				}
 				else{
@@ -303,12 +323,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "Width";
+				return ATTRIBUTE_NAME;
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("width");
+				return DictionaryWrapper.get(ATTRIBUTE_KEY);
 			}
 
 			@Override
@@ -324,17 +344,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 		heightProperty = new IProperty() {
 			
+			public String ATTRIBUTE_KEY = "height";
+			public String ATTRIBUTE_NAME = "Height";
+			
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setPositionValue("height", Integer.parseInt(newValue));
+					setPositionValue(ATTRIBUTE_KEY, Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(getLayout().hasHeight()){
+				if(hasPositionValue(ATTRIBUTE_KEY)){
 					return Integer.toString(getHeight());
 				}
 				else{
@@ -344,12 +367,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "Height";
+				return ATTRIBUTE_NAME;
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("height");
+				return DictionaryWrapper.get(ATTRIBUTE_KEY);
 			}
 
 			@Override
@@ -371,17 +394,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 		rightProperty = new IProperty() {
 			
+			public String ATTRIBUTE_KEY = "right";
+			public String ATTRIBUTE_NAME = "Right";
+			
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setPositionValue("right", Integer.parseInt(newValue));
+					setPositionValue(ATTRIBUTE_KEY, Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(getLayout().hasRight()){
+				if(hasPositionValue(ATTRIBUTE_KEY)){
 					return Integer.toString(getRight());
 				}
 				else{
@@ -391,12 +417,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "Right";
+				return ATTRIBUTE_NAME;
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("right");
+				return DictionaryWrapper.get(ATTRIBUTE_KEY);
 			}
 
 			@Override
@@ -413,17 +439,20 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 		bottomProperty = new IProperty() {
 			
+			public String ATTRIBUTE_KEY = "bottom";
+			public String ATTRIBUTE_NAME = "Bottom"; 
+			
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setPositionValue("bottom", Integer.parseInt(newValue));
+					setPositionValue(ATTRIBUTE_KEY, Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				if(getLayout().hasBottom()){
+				if(hasPositionValue(ATTRIBUTE_KEY)){
 					return Integer.toString(getBottom());
 				}
 				else{
@@ -433,12 +462,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "Bottom";
+				return ATTRIBUTE_NAME;
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("bottom");
+				return DictionaryWrapper.get(ATTRIBUTE_KEY);
 			}
 
 			@Override

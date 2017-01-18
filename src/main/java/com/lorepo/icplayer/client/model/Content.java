@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
@@ -238,14 +235,6 @@ public class Content implements IContentBuilder, IContent {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		String escapedName = StringUtils.escapeXML(name);
 		
-		Document xmlDocument = XMLParser.createDocument();
-		Element interactiveContent = xmlDocument.createElement("interactiveContent");
-		interactiveContent.setAttribute("name", escapedName);
-		interactiveContent.setAttribute("scoreType", this.scoreType.toString());
-		interactiveContent.setAttribute(version, this.version);
-		xmlDocument.appendChild(interactiveContent);
-		JavaScriptUtils.log(xmlDocument.toString());
-		
 		xml += "<interactiveContent name='" + escapedName + "' scoreType='" + this.scoreType + "' version='" + this.version + "'>";
 
 		// Metadata
@@ -349,6 +338,8 @@ public class Content implements IContentBuilder, IContent {
 	public Page findPageByName(String pageName){
 		int index;
 		Page page = null;
+		JavaScriptUtils.log(pageName);
+		JavaScriptUtils.trace();
 		String lowerCaseName = pageName.toLowerCase();
 
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
@@ -375,12 +366,14 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public Page getHeader(){
-		return findPageByName(headerPageName);
+		JavaScriptUtils.log("get header");
+		JavaScriptUtils.log(this.headerPageName);
+		return findPageByName(this.headerPageName);
 	}
 
 
 	public Page getFooter(){
-		return findPageByName(footerPageName);
+		return findPageByName(this.footerPageName);
 	}
 
 

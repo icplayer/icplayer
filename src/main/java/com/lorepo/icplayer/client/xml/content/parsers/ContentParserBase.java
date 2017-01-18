@@ -77,9 +77,14 @@ public abstract class ContentParserBase implements IContentParser {
 					if (commons != null) {
 						content.setCommonPages(commons);	
 					}
-					content.setHeaderPageName(headerPageName);
-					content.setFooterPageName(footerPageName);
 					
+					if (headerPageName != null) {
+						content.setHeaderPageName(headerPageName);	
+					}
+					
+					if (footerPageName != null) {
+						content.setFooterPageName(footerPageName);	
+					}
 				}
 				else if(name.compareTo("assets") == 0){
 					ArrayList<IAsset> assets = this.parseAssets(child);
