@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.page;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,6 +21,8 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.model.page.Group;
+import com.lorepo.icplayer.client.model.page.Page;
 
 
 @RunWith(PowerMockRunner.class)

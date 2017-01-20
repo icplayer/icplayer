@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<property name="Options" type="list">
+	<template>
+		<property name="Name" type="string"/>
+		<property name="Icon" type="image"/>
+	</template>
+	<items>
+		<item>
+			<property name="Name" type="string" value="This is name 1"/>
+			<property name="Icon" type="image" value="icon1.jpg"/>
+		</item>
+		<item>
+			<property name="Name" type="string" value="This is name 2"/>
+			<property name="Icon" type="image" value="icon2.jpg"/>
+		</item>
+		<item>
+			<property name="Name" type="string" value="This is name 3"/>
+			<property name="Icon" type="image" value="icon3.jpg"/>
+		</item>
+	</items>
+</property>
+		

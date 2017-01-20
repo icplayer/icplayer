@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<textModule id="cloze1" left='5' top='30' width='80.0' height='20.0' class="myText">
+	<text isDisabled="false"><![CDATA[median {{1:&lt;|=|&gt;}} mean {{1:&lt;|=|&gt;}} midrange]]></text>
+</textModule>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<imageGapModule id="ig1" left="5" top="5" width="30" height="30">
+	<events>
+		<event name="onCorrect" code="correct()"/>
+		<event name="onWrong" code="wrong()"/>
+		<event name="onEmpty" code="empty()"/>
+	</events>
+	<gap answerId="si1" isActivity="true"/>
+</imageGapModule>

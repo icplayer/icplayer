@@ -1,10 +1,13 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.page;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.lorepo.icplayer.client.model.page.IPageListListener;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 

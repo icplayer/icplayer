@@ -536,6 +536,7 @@ public class AddonModelTestCase {
 		}
 		
 		assertNotNull(foundProperty);
+		System.out.println(foundProperty.getValue());
 		int index = foundProperty.getValue().indexOf("/ala/ma/kota");
 		assertTrue(index > 0);
 	}

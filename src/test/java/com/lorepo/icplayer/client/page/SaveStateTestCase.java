@@ -5,14 +5,20 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import static org.mockito.Mockito.when;
 
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.mockup.services.JsonMockup;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.choice.ChoiceModel;
 import com.lorepo.icplayer.client.module.choice.ChoiceOption;
 import com.lorepo.icplayer.client.module.choice.mockup.ChoiceViewMockup;
@@ -20,15 +26,18 @@ import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(PageHeightModifications.class)
 public class SaveStateTestCase {
 
 	
-	@Ignore @Test
+	@Test
 	public void testSaveLoadState() {
-
 		PageViewMockup display = new PageViewMockup();
 		IPlayerController playerController = new PlayerControllerMockup();
+		
 		PageController pageController = new PageController(playerController);
+
 		pageController.setView(display);
 		PlayerServices playerService = (PlayerServices) pageController.getPlayerServices();
 		playerService.setJsonService(new JsonMockup());
@@ -39,8 +48,10 @@ public class SaveStateTestCase {
 		pageController.setPage(page1);
 		ChoiceViewMockup choiceView1 = (ChoiceViewMockup) display.getViews().get(0);
 		choiceView1.getOptions().get(0).setDown(true);
-		
+
 		HashMap<String, String> state = pageController.getState();
+		
+
 		((StateService)playerService.getStateService()).addState(state);
 		pageController.setPage(page2);
 		pageController.setPage(page1);
@@ -78,6 +89,9 @@ public class SaveStateTestCase {
 	private static Page createPageWithSingleChoice(String pageName, String pageUrl) {
 
 		Page page = new Page(pageName, pageUrl);
+		
+		page.heightModifications = PowerMockito.mock(PageHeightModifications.class);
+		when(page.heightModifications.getState()).thenReturn("[]");
 		
 		ChoiceModel module = new ChoiceModel();
 		module.setId("choice");

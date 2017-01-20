@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.page;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -12,6 +12,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.model.page.IPageListListener;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 

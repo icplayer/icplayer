@@ -20,7 +20,7 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 @RunWith(PowerMockRunner.class)

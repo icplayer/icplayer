@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model;
+package com.lorepo.icplayer.client.model.page;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,7 +32,8 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 
@@ -201,7 +202,6 @@ public class PageTestCase {
 		String xml = page.toXML();
 		
 		parseXML(xml);
-
 	}
 
 	

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -16,6 +17,8 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.report.mockup.ReportDisplayMockup;
+import com.lorepo.icplayer.client.xml.content.ContentFactory;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
 public class PresenterTestCase {
 
@@ -42,11 +45,9 @@ public class PresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 
-		Content model = new Content();
-		model.load(element, "");
-
-		return model;
+		ContentParser_v0 parser = new ContentParser_v0();
+		parser.setPagesSubset(new ArrayList<Integer> ());
+		
+		return (Content) parser.parse(element);
 	}
-
-
 }

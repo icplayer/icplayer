@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<sourceListModule id="sl1" left='5' top='10' width='80' height='40'>
+	<items removable='false'>
+		<item><![CDATA[A]]></item>
+		<item><![CDATA[B]]></item>
+		<item><![CDATA[C]]></item>
+		<item><![CDATA[D]]></item>
+	</items>
+</sourceListModule>

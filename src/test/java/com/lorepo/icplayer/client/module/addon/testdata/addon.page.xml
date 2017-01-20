@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<addonModule id="addon1" addonId="DemoAddon" left='5' top='10' width='80' height='40'>
+	<properties>
+		<property name="Title" displayName="Addon title" type="string" value="This is title"/>
+		<property name="Image" displayName="Image file" type="image" value="myfile.jpg"/>
+		<property name="File" displayName="Test file" type="file" value="testfile.abc"/>
+	</properties>
+</addonModule>
+		

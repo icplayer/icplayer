@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<limitedCheckModule  left="90" top="0" width="10" height="10" style="">
+	<limitedCheck checkText="check" unCheckText="unCheck"><![CDATA[Text1]]></limitedCheck>
+</limitedCheckModule>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<buttonModule  left="45" top="10" width="50" height="50" style="" id="checkAnswers1">
+	<button type="checkAnswers" text="Top" onclick="commons/popup1" additionalClasses="new_class"/>
+</buttonModule>

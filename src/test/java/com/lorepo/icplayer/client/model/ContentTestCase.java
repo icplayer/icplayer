@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,13 +26,18 @@ import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.xml.content.ContentFactory;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
 public class ContentTestCase {
 
 	private boolean receivedEvent = false;
+	private String DEFAULT = "default";
 
 
 	@Test
@@ -60,7 +67,6 @@ public class ContentTestCase {
 		docBuilder = docBuilderFactory.newDocumentBuilder();
 		InputSource is = new InputSource(new StringReader(xml));
         docBuilder.parse(is);
-
 	}
 
 	@Test
@@ -194,7 +200,9 @@ public class ContentTestCase {
 
 		Content model = initContentFromFile("testdata/content.xml");
 
-		int index = model.getStyles().indexOf("ic_page");
+		HashMap<String, CssStyle> styles = model.getStyles();
+		CssStyle defaultStyle = styles.get(this.DEFAULT);
+		int index = defaultStyle.style.indexOf("ic_page");
 		assertTrue(index > 0);
 	}
 
@@ -249,25 +257,25 @@ public class ContentTestCase {
 
 
 	private Content initContentFromFile(String path) throws SAXException, IOException {
-
 		InputStream inputStream = getClass().getResourceAsStream(path);
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
-
-		Content model = new Content();
-		model.load(element, "");
-
-		return model;
+		
+		ContentParser_v0 parser = new ContentParser_v0();
+		parser.setPagesSubset(new ArrayList<Integer> ());
+		
+		return (Content) parser.parse(element);
 	}
 
 	private static Content initContentFromString(String xml) throws SAXException, IOException {
 
-		Content model;
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(new StringInputStream(xml));
-		model = new Content();
-		model.load(element, "");
-		return model;
+		
+		ContentParser_v0 parser = new ContentParser_v0();
+		parser.setPagesSubset(new ArrayList<Integer> ());
+		
+		return (Content) parser.parse(element);
 	}
 
 
@@ -490,12 +498,12 @@ public class ContentTestCase {
 				receivedEvent = true;
 			}
 		});
-
+		
 		IContentNode node = model.getPages().get(3);
 		assertTrue(node instanceof PageList);
 		PageList chapter = (PageList) node;
 		chapter.getProperty(0).setValue("new name");
-
+		
 		assertTrue(receivedEvent);
 	}
 

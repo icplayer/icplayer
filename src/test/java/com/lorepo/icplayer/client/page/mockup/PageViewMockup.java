@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
