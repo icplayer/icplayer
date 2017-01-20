@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.xml.content.parsers;
 import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
@@ -37,8 +36,6 @@ public class ContentParser_v0 extends ContentParserBase {
 		
 		styles.put("default", defaultStyle);
 	
-		JavaScriptUtils.log("zwracam styles");
-		JavaScriptUtils.log(styles);
 		return styles;
 	}
 	

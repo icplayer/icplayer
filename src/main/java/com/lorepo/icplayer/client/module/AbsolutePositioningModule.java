@@ -5,7 +5,6 @@ import java.util.HashMap;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IRectangleItem;
@@ -54,14 +53,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	}
 	
 	private int getPositionValue(String attribute) {
-		JavaScriptUtils.log("======================getPositionValue===============");
-		JavaScriptUtils.log(this.positions);
-		JavaScriptUtils.log(this.positionType);
-		JavaScriptUtils.log(attribute);
-		JavaScriptUtils.log("=====================================");
-		int value = this.positions.get(this.positionType).get(attribute);
-
-		return value;
+		if (this.hasPositionValue(attribute)) {
+			return this.positions.get(this.positionType).get(attribute);
+		} else {
+			return 0;
+		}
 	}
 	
 	private void setPositionValue(String attribute, int value) {
@@ -279,7 +275,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			
 			@Override
 			public String getName() {
-				return "ATTRIBUTE_NAME";
+				return ATTRIBUTE_NAME;
 			}
 
 			@Override

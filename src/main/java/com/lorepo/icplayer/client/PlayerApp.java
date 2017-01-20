@@ -63,7 +63,6 @@ public class PlayerApp{
 		contentFactory.load(url, new IProducingLoadingListener() {
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
-				JavaScriptUtils.log(contentModel);
 				contentModel.connectHandlers();
 				initPlayer(isCommonPage);
 			}
@@ -279,7 +278,6 @@ public class PlayerApp{
 		contentModel.setPlayerController(getPlayerServices());
 		
 		RootPanel.get(divId).add(playerView);
-		JavaScriptUtils.log(contentModel.getStyles());
 		CssStyle defaultStyle = contentModel.getStyles().get("default");
 		String cssValue = defaultStyle.style;
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);

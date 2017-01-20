@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
@@ -50,7 +49,7 @@ public class Content implements IContentBuilder, IContent {
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
-
+	
 	public void connectHandlers() {
 		pages.addListener(new IPageListListener() {
 			@Override
@@ -103,9 +102,17 @@ public class Content implements IContentBuilder, IContent {
 			public void onChanged(IContentNode source) {
 			}
 		});
-
 	}
 
+	@Override
+	public PageList getPagesList() {
+		return this.pages;
+	}
+	
+	@Override
+	public PageList getCommonPagesList() {
+		return this.commonPages;
+	}
 
 	public ScoreType getScoreType(){
 		return scoreType;
@@ -116,7 +123,7 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 	public void addChangeListener(IContentListener l){
-		listener = l;
+		this.listener = l;
 	}
 
 
@@ -234,8 +241,7 @@ public class Content implements IContentBuilder, IContent {
 
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		String escapedName = StringUtils.escapeXML(name);
-		
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" + this.scoreType + "' version='" + this.version + "'>";
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";
 
 		// Metadata
 		xml += "<metadata>";
@@ -253,14 +259,10 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += 	"</addons>";
 
-
-		xml += "<styles>";
 		if(styles != null){
-		    for (String key : styles.keySet()) {
-		    	xml += "<style id='" + key + "'" + "name='" + styles.get(key).name + ">" + StringUtils.escapeHTML(styles.get(key).style) + "</style>";
-		    }
+			CssStyle defaultStyle = styles.get("default");
+			xml += "<style>" + StringUtils.escapeHTML(defaultStyle.style) + "</style>";
 		}
-		xml += "</styles>";
 
 		// Pages
 		xml += toXMLPages();
@@ -338,8 +340,6 @@ public class Content implements IContentBuilder, IContent {
 	public Page findPageByName(String pageName){
 		int index;
 		Page page = null;
-		JavaScriptUtils.log(pageName);
-		JavaScriptUtils.trace();
 		String lowerCaseName = pageName.toLowerCase();
 
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
@@ -366,8 +366,6 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public Page getHeader(){
-		JavaScriptUtils.log("get header");
-		JavaScriptUtils.log(this.headerPageName);
 		return findPageByName(this.headerPageName);
 	}
 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
@@ -25,9 +26,7 @@ public abstract class ContentParserBase implements IContentParser {
 	protected String version;
 	protected ArrayList<Integer> pagesSubset;
 	
-	public ContentParserBase() {
-		// TODO Auto-generated constructor stub
-	}
+	public ContentParserBase() {}
 	
 	public void setPagesSubset(ArrayList<Integer> pagesSubset) {
 		this.pagesSubset = pagesSubset;
@@ -41,6 +40,7 @@ public abstract class ContentParserBase implements IContentParser {
 		
 		content.setScoreType(scoreType);
 		content.setName(contentName);
+		this.setContentDefaultStyle(content);
 
 		NodeList children = rootNode.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++){
@@ -48,6 +48,7 @@ public abstract class ContentParserBase implements IContentParser {
 			if(children.item(i) instanceof Element){
 				Element child = (Element) children.item(i);
 				String name = child.getNodeName(); 
+				
 				if(name.compareTo("metadata") == 0){
 					content.setMetadata(this.parseMetadata(child));
 				}
@@ -63,20 +64,10 @@ public abstract class ContentParserBase implements IContentParser {
 					content = this.parseLayouts(content, child);
 				}
 				else if(name.compareTo("pages") == 0){
-					HashMap<String, PageList> pagesHashmap = this.parsePages(child, this.pagesSubset);
-					PageList pages = pagesHashmap.get(this.PAGES_KEY);
-					PageList commons = pagesHashmap.get(this.COMMONS_KEY);
+					this.parsePages(content, child, this.pagesSubset);
 					
 					String headerPageName = parsePageName(child, this.HEADER_PAGE);
 					String footerPageName = parsePageName(child, this.FOOTER_PAGE);
-					
-					if (pages != null) {
-						content.setPages(pages);						
-					}
-
-					if (commons != null) {
-						content.setCommonPages(commons);	
-					}
 					
 					if (headerPageName != null) {
 						content.setHeaderPageName(headerPageName);	
@@ -96,6 +87,12 @@ public abstract class ContentParserBase implements IContentParser {
 		return content;
 	}
 	
+	private void setContentDefaultStyle(Content content) {
+		HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
+		styles.put("default", new CssStyle("default", "default", ""));
+		content.setStyles(styles);
+	}
+
 	protected abstract Content parseLayouts(IContentBuilder content, Element child);
 
 
@@ -202,27 +199,20 @@ public abstract class ContentParserBase implements IContentParser {
 	
 	
 	
-	protected HashMap<String, PageList> parsePages(Element rootElement, ArrayList<Integer> pageSubset) {
-		HashMap<String, PageList> pagesHashMap = new HashMap<String, PageList>();
+	protected void parsePages(Content content, Element rootElement, ArrayList<Integer> pageSubset) {
 		NodeList children = rootElement.getChildNodes();
 		
-		PageList pages = new PageList("root");
-		pages.load(rootElement, null, pageSubset, 0);
+		content.getPagesList().load(rootElement, null, pageSubset, 0);
 		
-		pagesHashMap.put("pages", pages);
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("folder") == 0){
-					PageList commonPages = new PageList("commons");
-					commonPages.load(node, null, null, 0);
-					pagesHashMap.put("commons", commonPages);
+					content.getCommonPagesList().load(node, null, null, 0);
 					break;
 				}
 			}
 		}
-		
-		return pagesHashMap;
 	}
 
 	

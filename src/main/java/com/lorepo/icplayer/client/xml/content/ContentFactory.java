@@ -67,7 +67,8 @@ public class ContentFactory extends XMLVersionAwareFactory {
 		};
 	}
 
-	protected Content produce(String xmlString, String fetchUrl) {
+	@Override
+	public Content produce(String xmlString, String fetchUrl) {
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
 		String version = XMLUtils.getAttributeAsString(xml, "version", "1");
 		

@@ -54,6 +54,7 @@ public class AddonModel extends BasicModuleModel {
 	public void load(Element rootElement, String baseUrl) {
 
 		super.load(rootElement, baseUrl);
+		this.baseURL = baseUrl;
 
 		parseNode(rootElement);
 	}

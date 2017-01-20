@@ -53,7 +53,7 @@ public abstract class XMLVersionAwareFactory implements IXMLFactory {
 		};
 	}
 
-	protected Object produce(String xmlString, String fetchUrl) {
+	public Object produce(String xmlString, String fetchUrl) {
 
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
 		String version = XMLUtils.getAttributeAsString(xml, "version", "1");

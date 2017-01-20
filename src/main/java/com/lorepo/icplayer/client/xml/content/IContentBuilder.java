@@ -23,4 +23,6 @@ public interface IContentBuilder {
 	public void setHeaderPageName(String name);
 	public void setFooterPageName(String name);
 	public void addLayout(PageLayout pageLayout);
+	public PageList getPagesList();
+	public PageList getCommonPagesList();
 }

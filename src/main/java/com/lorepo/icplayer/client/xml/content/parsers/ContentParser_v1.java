@@ -73,9 +73,19 @@ public class ContentParser_v1 extends ContentParserBase {
 					pageLayout = this.parseTypeNode(pageLayout, child);
 				} else if (nodeName.compareTo("treshold") == 0) {
 					pageLayout = this.parseTreshold(pageLayout, child);
+				} else if (nodeName.compareTo("style") == 0) {
+					pageLayout = this.parseLayoutStyle(pageLayout, child);
 				}
 			}
 		}
+		
+		return pageLayout;
+	}
+
+	private PageLayout parseLayoutStyle(PageLayout pageLayout, Element child) {
+		String styleID = XMLUtils.getAttributeAsString(child,  "id");
+		
+		pageLayout.setCssID(styleID);
 		
 		return pageLayout;
 	}

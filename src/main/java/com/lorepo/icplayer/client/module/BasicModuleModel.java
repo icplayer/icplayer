@@ -153,7 +153,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		xml += "' width='" + getWidth() + "' height='" + getHeight() + "' ";
 		xml += "right='" + getRight();
 		xml += "' bottom='" + getBottom() + "' ";
-		xml += "isVisible='" + isVisible + "' isLocked='" + isLocked +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor +"'";
+		xml += "isVisible='" + isVisible.get(this.positionType) + "' isLocked='" + isLocked.get(this.positionType) +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor.get(this.positionType) +"'";
 		
 		if (!getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());

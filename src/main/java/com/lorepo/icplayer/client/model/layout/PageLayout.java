@@ -7,6 +7,7 @@ public class PageLayout implements PageLayoutBuilder{
 	private String id;
 	private int treshold;
 	private String type;
+	private String styleID;
 	
 	public PageLayout(String id, String name) {
 		this.id = id;
@@ -30,5 +31,10 @@ public class PageLayout implements PageLayoutBuilder{
 
 	public String getName() {
 		return this.name;
+	}
+
+	@Override
+	public void setCssID(String styleID) {
+		this.styleID = styleID;
 	}
 }
