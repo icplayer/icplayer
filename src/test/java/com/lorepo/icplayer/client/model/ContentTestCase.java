@@ -31,7 +31,6 @@ import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
 public class ContentTestCase {

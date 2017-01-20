@@ -1,16 +1,10 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IEditableSelectProperty;
-import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;

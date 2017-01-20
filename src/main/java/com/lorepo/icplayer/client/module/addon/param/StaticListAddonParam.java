@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.addon.param;
 import java.util.ArrayList;
 
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;

@@ -21,12 +21,12 @@ import com.lorepo.icplayer.client.xml.content.ContentFactory;
 
 public class PlayerApp {
 
-	private final String divId;
+	private String divId;
 	private	Content contentModel;
 	private PlayerController playerController;
 	private PlayerConfig playerConfig = new PlayerConfig();
 	/** Score service impl */
-	private final PlayerEntryPoint entryPoint;
+	private PlayerEntryPoint entryPoint;
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
 	private boolean bookMode = false;
@@ -41,7 +41,7 @@ public class PlayerApp {
 		this.entryPoint = entryPoint;
 	}
 
-	public static native int getIFrameSizeAndSetHandlers (boolean isCommonPage, PlayerApp instance) /*-{
+	public static native int getIFrameSize (boolean isCommonPage, PlayerApp instance) /*-{
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 
@@ -57,9 +57,6 @@ public class PlayerApp {
 			frameOffset: 64,
 			windowInnerHeight: 0
 		};
-
-		instance.@com.lorepo.icplayer.client.PlayerApp::setHandlers(Z)(isCommonPage);
-		$wnd.get_iframe();
 	}-*/;
 
 	/**
@@ -278,28 +275,20 @@ public class PlayerApp {
 		return $wnd.$(".ic_header").css("height");
 	}-*/;
 
-	public void makeHeaderStatic() {
-		int headerHeight = getHeaderHeight();
-		setPageTopAndStaticHeader(headerHeight);
-		isStaticHeader = true;
-	}
-
-	public void makeFooterStatic() {
-		removeStaticFooter();
-
-		final int screenHeight = getScreenHeight();
-		final int pageHeight = getPageHeight();
-
-		if (screenHeight < pageHeight) {
-			final int headerHeight = getHeaderHeight();
-			setStaticFooter(headerHeight, isStaticHeader);
-		}
+	/**
+	 * Init player after content is loaded
+	 */
+	private void initPlayer(final boolean isCommonPage) {
+		registerGetIframe(this);
+		getIFrameSize(isCommonPage, this);
+		this._initPlayer(isCommonPage);
+		this.getIframe();
 	}
 	
 	/**
 	 * Init player after content is loaded
 	 */
-	private void setHandlers(final boolean isCommonPage) {
+	private void _initPlayer(final boolean isCommonPage) {
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode, entryPoint);
 		playerController.setPlayerConfig(playerConfig);
@@ -355,14 +344,28 @@ public class PlayerApp {
 			}
 		});
 	}
-
-	/**
-	 * Init player after content is loaded
-	 */
-	private void initPlayer(final boolean isCommonPage) {
-		registerGetIframe(this);
-		getIFrameSizeAndSetHandlers(isCommonPage, this);
+	
+	private void makeHeaderStatic() {
+		int headerHeight = getHeaderHeight();
+		setPageTopAndStaticHeader(headerHeight);
+		isStaticHeader = true;
 	}
+
+	private void makeFooterStatic() {
+		removeStaticFooter();
+
+		final int screenHeight = getScreenHeight();
+		final int pageHeight = getPageHeight();
+
+		if (screenHeight < pageHeight) {
+			final int headerHeight = getHeaderHeight();
+			setStaticFooter(headerHeight, isStaticHeader);
+		}
+	}
+	
+	private static native void getIframe () /*-{
+		$wnd.get_iframe();
+	}-*/;
 
 	private void loadFirstPage(boolean isCommonPage) {
 		if (loadedState != null) {

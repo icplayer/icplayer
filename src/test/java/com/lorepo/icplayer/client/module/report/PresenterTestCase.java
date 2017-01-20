@@ -17,7 +17,6 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.report.mockup.ReportDisplayMockup;
-import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
 public class PresenterTestCase {
