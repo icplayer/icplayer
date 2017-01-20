@@ -1,3 +1,7 @@
+2016-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
+2016-01-16 Fixed isVisible property on Safari in Iframe module
+2017-01-11 Added Enable pages property in Hierarchical Lesson Report module
+2017-01-11 Fixed problem with updating additional styles and displaying pages in Navigation Bar module
 2017-01-04 Fixed rendering LaTeX afetr showing answers in Math module
 2016-12-29 Fixed issue with doubled events in Table module
 2016-12-29 Fixed saving state of drawings in IWB Toolbar

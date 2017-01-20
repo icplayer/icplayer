@@ -138,6 +138,16 @@ function AddonAnimation_create (){
         $(previewImage).remove();
     }
 
+    function getCanvasFromImg(image) {
+        var canvas = document.createElement('canvas');
+        canvas.setAttribute('width', $(image).width());
+        canvas.setAttribute('height', $(image).height());
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+
+        return canvas;
+    }
+
     function animationImageLogic(animationImage) {
         $(animationImage).addClass('animation-hidden-image');
         $(presenter.DOMElements.viewContainer).append(animationImage);
@@ -167,6 +177,12 @@ function AddonAnimation_create (){
         }
         elementWidth = Math.round(elementWidth);
         elementHeight = Math.round(elementHeight);
+        var image = animationImage;
+
+        //Repair bug with jpg in android
+        if (["5.1.1", "5.0.2"].indexOf(window.MobileUtils.getAndroidVersion(navigator.userAgent)) > -1) {
+            image = getCanvasFromImg(animationImage);
+        }
 
         presenter.frames = [];
         var makeFrames = function() {
@@ -177,7 +193,7 @@ function AddonAnimation_create (){
                     canvas.setAttribute('width', elementWidth);
                     canvas.setAttribute('height', elementHeight);
                     ctx = canvas.getContext('2d');
-                    drawImageIOSFix(ctx, animationImage, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
+                    drawImageIOSFix(ctx, image, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
                     presenter.frames[i] = canvas;
                     $(canvas).remove();
                 }
@@ -223,14 +239,17 @@ function AddonAnimation_create (){
                 var animationImage = isFirstPreview ? this[1] : this[0];
 
                 previewImageLogic(previewImage);
-                animationImageLogic(animationImage);
-                hideLoadingScreen();
-
-                loadImagesEndCallback();
+                imageLoadedCallback(animationImage);
             }
         });
     }
 
+    function imageLoadedCallback (image) {
+        animationImageLogic(image);
+        hideLoadingScreen();
+        loadImagesEndCallback();
+
+    }
     function prepareLoadingScreen(containerWidth, containerHeight) {
         if (presenter.configuration.isPreview) return;
 
