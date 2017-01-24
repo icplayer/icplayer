@@ -1,3 +1,4 @@
+2016-01-24 Added events for drawing commands in Grid Scene module
 2016-01-24 Fixed problems on iPad in Paragraph module
 2016-01-24 Fixed saving changes in Choice module
 2016-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
