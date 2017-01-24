@@ -121,6 +121,18 @@ function AddonParagraph_create() {
         });
 
         presenter.setVisibility(presenter.configuration.isVisible);
+
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+
+        if(iOSSafari) {
+            var input = document.createElement("input");
+            input.type = "text";
+            $(input).css('display', 'none');
+            presenter.$view.append(input);
+        }
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -159,6 +171,12 @@ function AddonParagraph_create() {
             '-webkit-hyphens': 'auto',
             'hyphens': 'auto'
         });
+
+        body.css('min-height', 'initial');
+
+         if(presenter.configuration.isToolbarHidden) {
+             iframe.css('height', presenter.configuration.height);
+         }
 
         presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
     };
@@ -587,6 +605,15 @@ function AddonParagraph_create() {
             tinymceState = presenter.editor.getContent({format : 'raw'});
         } else {
             tinymceState = '';
+        }
+
+        // iOS fix to hide keyboard after page change
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+        if(iOSSafari){
+            $('input').focus();
         }
 
         return JSON.stringify({
