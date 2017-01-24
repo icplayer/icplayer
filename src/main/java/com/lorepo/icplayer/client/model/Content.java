@@ -30,15 +30,17 @@ public class Content implements IContentBuilder, IContent {
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
-	private HashMap<String, CssStyle> styles;
 	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	private String version = "2";
+	
+	private HashMap<String, CssStyle> styles;
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
+	
 	private int maxPagesCount = 100;
+	private String version = "2";
 
 	public Content(){
 		this.pages = new PageList("root");
@@ -467,5 +469,9 @@ public class Content implements IContentBuilder, IContent {
 		if(getPageCount() + getCommonPages().size() > getMaxPagesCount())
 			return true;
 		return false;
+	}
+
+	public String getActualStyleID() {
+		return this.layoutsContainer.getActualLayoutStyleID();
 	}
 }

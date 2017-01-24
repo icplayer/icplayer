@@ -13,6 +13,19 @@ public class PageLayout implements PageLayoutBuilder{
 		this.id = id;
 		this.name = name;
 	}
+	
+	public static PageLayout createDefaultPageLayout() {
+		PageLayout defaultPageLayout = new PageLayout("default", "default");
+		defaultPageLayout.setTreshold(PageLayout.MAX_TRESHOLD);
+		defaultPageLayout.setType("default");
+		defaultPageLayout.setCssID("default");
+		
+		return defaultPageLayout;
+	}
+	
+	public String getStyleID () {
+		return this.styleID;
+	}
 
 	@Override
 	public void setName(String name) {

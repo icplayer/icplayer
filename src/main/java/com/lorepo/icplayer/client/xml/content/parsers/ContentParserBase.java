@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public abstract class ContentParserBase implements IContentParser {
@@ -91,8 +92,14 @@ public abstract class ContentParserBase implements IContentParser {
 		content.setStyles(styles);
 	}
 
-	protected abstract Content parseLayouts(IContentBuilder content, Element child);
-
+	protected Content parseLayouts(IContentBuilder content, Element child) {
+		if (child == null) {
+			PageLayout defaultLayout = PageLayout.createDefaultPageLayout();
+			content.addLayout(defaultLayout);
+		}
+		
+		return (Content) content;
+	}
 
 	protected String parsePageName(Element rootElement, String pageNode) {
 		String name = null;
@@ -236,5 +243,17 @@ public abstract class ContentParserBase implements IContentParser {
 		}
 	}
 	
-	protected abstract HashMap<String, CssStyle> parseStyles(Element child);
+	protected HashMap<String, CssStyle> parseStyles(Element rootElement) {
+		HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
+		
+		String style = XMLUtils.getText(rootElement);
+		CssStyle defaultStyle = new CssStyle("default", "default", "");
+		if(style.length() > 0){
+			defaultStyle.style = StringUtils.unescapeXML(style);
+		}
+		
+		styles.put("default", defaultStyle);
+	
+		return styles;
+	}
 }
