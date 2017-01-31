@@ -1,3 +1,4 @@
+2016-01-31 Added setting text parser in Table module
 2016-01-24 Added events for drawing commands in Grid Scene module
 2016-01-24 Fixed problems on iPad in Paragraph module
 2016-01-24 Fixed saving changes in Choice module

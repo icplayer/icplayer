@@ -55,11 +55,11 @@ function AddonTable_create() {
         );
     }
 
-    presenter.parseGaps = function () {
+    presenter.parseGaps = function (isPreview) {
         if (presenter.configuration.gapType == "draggable") {
-            return presenter.parseGapsWrapper(presenter.DraggableDroppableGap);
+            return presenter.parseGapsWrapper(presenter.DraggableDroppableGap, isPreview);
         } else {
-            return presenter.parseGapsWrapper(presenter.EditableInputGap);
+            return presenter.parseGapsWrapper(presenter.EditableInputGap, isPreview);
         }
     };
 
@@ -84,16 +84,18 @@ function AddonTable_create() {
         return parsedText;
     }
 
-    presenter.parseGapsWrapper = function (objectType) {
+    presenter.parseGapsWrapper = function (objectType, isPreview) {
         var textParserResult = getParsedHTMLView();
 
         var parsedText = textParserResult.parsedText;
         parsedText = changeSimpleGapsIDs(textParserResult.gaps, parsedText, objectType);
         parsedText = changeInlineGapsIDs(textParserResult.inLineGaps, parsedText, objectType);
 
-        presenter.$view.html(parsedText);
+        if(!isPreview){
+            presenter.$view.html(parsedText);
 
-        presenter.getInputsSize();
+            presenter.getInputsSize();
+        }
     };
 
     presenter.getInputsSize = function () {
@@ -111,9 +113,7 @@ function AddonTable_create() {
     };
 
     presenter.initializeGaps = function (isPreview) {
-        if (!isPreview) {
-            presenter.parseGaps();
-        }
+        presenter.parseGaps(isPreview);
 
         if(presenter.configuration.gapType == 'math'){
             presenter.gapsContainer.gaps = [];
@@ -164,6 +164,7 @@ function AddonTable_create() {
         presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.table-addon-wrapper');
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
+        presenter.isPreview = isPreview;
 
         if(presenter.configuration.gapType == "math"){
             var mathJaxDeferred = new jQuery.Deferred();
@@ -245,7 +246,16 @@ function AddonTable_create() {
         if (!isPreview) {
             presenter.parseDefinitionLinks();
         } else {
+            var currentView = presenter.$view.html(),
+                properView = presenter.textParser.parseGaps(currentView);
+            presenter.$view.html(properView.parsedText);
+
             replaceInputsInPreview();
+            presenter.setGapsClassAndWidth();
+            presenter.$view.find('input').attr("size", "auto");
+            if (presenter.configuration.gapType == "draggable") {
+                presenter.$view.find('input').addClass("draggable-gap");
+            }
         }
 
         presenter.gapsContainer.replaceGapsDOMWithView();
@@ -263,6 +273,10 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);
+    };
+
+    presenter.setTextParser = function (textParser) {
+        presenter.textParser = new TextParserProxy(textParser());
     };
 
     presenter.getSelectedItem = function () {
@@ -913,7 +927,9 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils = function (configuration) {
-        DraggableDroppableObject.call(this, configuration, presenter.getCSSConfiguration());
+        if(!presenter.isPreview){
+            DraggableDroppableObject.call(this, configuration, presenter.getCSSConfiguration());
+        }
 
         this.gapScore = configuration.gapScore;
         this.gapType = presenter.GapUtils.GAP_TYPE.NORMAL;
@@ -1066,7 +1082,7 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.setGapWidth = function () {
-        if (presenter.configuration.gapWidth.isSet) {
+        if (presenter.configuration.gapWidth.isSet && !presenter.isPreview) {
             this.$view.width(presenter.configuration.gapWidth.value + 'px');
         }
     };
@@ -1372,7 +1388,9 @@ function AddonTable_create() {
     presenter.GapsContainerObject.prototype.replaceGapsDOMWithView = function () {
         this.gaps.forEach(function (gap) {
             gap.$view = presenter.$view.find("#" + gap.getObjectID());
-            gap.connectEvents();
+            if(!presenter.isPreview){
+                gap.connectEvents();
+            }
         });
     };
 
