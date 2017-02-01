@@ -474,4 +474,14 @@ public class Content implements IContentBuilder, IContent {
 	public String getActualStyleID() {
 		return this.layoutsContainer.getActualLayoutStyleID();
 	}
+
+	public String getActualStyle() {
+		CssStyle style = styles.get(this.getActualStyleID());
+		
+		if (style == null) {
+			return styles.get("default").style;
+		}
+		
+		return style.style;
+	}
 }

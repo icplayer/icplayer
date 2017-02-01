@@ -19,10 +19,6 @@ public class LayoutsContainer {
 
 	public String getActualLayoutStyleID() {
 		PageLayout actualLayout = this.layoutsMap.get(this.actualLayoutID);
-		JavaScriptUtils.log("getActualLayoutStyleID");
-		JavaScriptUtils.log(this.layoutsMap);
-		JavaScriptUtils.log(actualLayout);
-		JavaScriptUtils.log("============================");
 		return actualLayout.getStyleID();
 	}
 }
