@@ -4,6 +4,14 @@ function AddoneKeyboard_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
+    presenter.display = null;
+
+    var keyboardIsVisible = true;
+    var closeButtonElement = null;
+    var openButtonElement = null;
+    var lastClickedElement = null;
+    var movedInput = false;
+    var escClicked = false;
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -23,6 +31,53 @@ function AddoneKeyboard_create(){
             'shift': ['\u00c0 \u00c8 \u00c9 \u00cc \u00d2 \u00d9 {shift}'] \
         }"
     };
+
+    function touchStartDecorator(func, element) {
+        //Fix bug with button in android
+        var androidVersion = window.MobileUtils.getAndroidVersion(navigator.userAgent);
+        var rapairAndroidVersion = (["4.1.1", "4.2.2", "4.4.2"].indexOf(androidVersion) !== -1);
+
+        $(element).on('touchstart', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            if (window.MobileUtils.isEventSupported('touchstart') && !rapairAndroidVersion) {
+                func();
+            }
+        });
+
+        $(element).on('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            if (!window.MobileUtils.isEventSupported('touchstart') || rapairAndroidVersion) {
+                func();
+            }
+        });
+    }
+
+    function initializeCloseButton() {
+        closeButtonElement = document.createElement('button');
+        closeButtonElement.className = 'eKeyboard-close-button';
+        closeButtonElement.style.position = 'absolute';
+        closeButtonElement.innerHTML = '<span>\u2716</span>';
+        touchStartDecorator(closeButtonCallBack, closeButtonElement);
+
+    }
+
+    function initializeOpenButton() {
+        openButtonElement = document.createElement('button');
+        openButtonElement.className = 'eKeyboard-open-button';
+        openButtonElement.style.display = 'none';
+        openButtonElement.style.zindex = 'none';
+        $(openButtonElement).on('mousedown', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            showOpenButtonCallback();
+        });
+
+        $("body").append(openButtonElement);
+    }
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -223,8 +278,8 @@ function AddoneKeyboard_create(){
         if (typeof(customDisplay) == 'undefined') {
             customDisplay = '';
         }
-
         return {
+            'ID': model["ID"],
             'isError' : false,
             'workWithViews' : workWithViews,
             'layoutType' : layoutType,
@@ -235,15 +290,26 @@ function AddoneKeyboard_create(){
             'offset' : presenter.validateOffsetData(positionMy.value, positionAt.value),
             'openOnFocus' : !ModelValidationUtils.validateBoolean(model['noOpenOnFocus']),
             'lockInput' : ModelValidationUtils.validateBoolean(model['lockStandardKeyboardInput']),
-            'customDisplay' : customDisplay
+            'customDisplay' : customDisplay,
+            'showCloseButton': ModelValidationUtils.validateBoolean(model['showCloseButton'])
         }
     };
 
     function runLogic(view, model, isPreview) {
         presenter.$view = $(view);
+        presenter.view = view;
+        presenter.isPreview = isPreview;
 
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
+
+        initializeOpenButton(view);
+
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_eKeyboard (ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
 
         var mathJaxDeferred = new jQuery.Deferred(),
             mathJaxProcessEnded = mathJaxDeferred.promise();
@@ -274,7 +340,7 @@ function AddoneKeyboard_create(){
                 if (presenter.configuration.customLayout.length > 0) {
                     try {
                         eval('presenter.configuration.customLayout = ' + presenter.configuration.customLayout);
-                    } catch(e) {
+                    } catch (e) {
                         presenter.ERROR_CODES['evaluationError'] = e.message;
                         DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'evaluationError');
                     }
@@ -318,26 +384,99 @@ function AddoneKeyboard_create(){
 
                 var customDisplay = presenter.configuration.customDisplay;
                 var display = $.extend(defaultDisplay, customDisplay);
+                presenter.display = $.extend(defaultDisplay, customDisplay);
+
 
                 if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
                     $('input').addClass('ui-keyboard-lockedinput');
                     $('input').attr("readonly", true);
                 }
 
-                $(presenter.configuration.workWithViews).find('input').on('click', function() {
-                    $(this).keyboard({
-                    // *** choose layout ***
-                    layout: presenter.configuration.layoutType,
-                    customLayout: presenter.configuration.customLayout,
+                if (DevicesUtils.isInternetExplorer()) {
+                    $(presenter.configuration.workWithViews).find('input').on('mousedown', function () {
+                        $(this).focus();
+                    });
+                }
 
-                    position: {
-                        of : null, // optional - null (attach to input/textarea) or a jQuery object (attach elsewhere)
-                        my : presenter.configuration.positionMy.value,
-                        at : presenter.configuration.positionAt.value,
-                        at2 : presenter.configuration.positionAt.value,
-                        offset : presenter.configuration.offset.value,
-                        collision: 'flip'
-                    },
+                $(presenter.configuration.workWithViews).find('input').on('focus', function () {
+                    lastClickedElement = this;
+                    if (!keyboardIsVisible) {
+                        if ($(this).data('keyboard') !== undefined) {
+                            $(this).data('keyboard').destroy();
+                        }
+                        showOpenButton();
+                    } else {
+                        presenter.createEKeyboard(this, display);
+                        $(this).trigger('showKeyboard');
+                    }
+                });
+
+
+                $(presenter.configuration.workWithViews).find('input').on('forceClick', function () {
+                    if (presenter.configuration.openOnFocus) {
+                        $(this).data('keyboard').reveal();
+                        $(this).data('keyboard').startup();
+                    } else {
+                        $(this).focus();
+                    }
+                });
+
+                $(presenter.configuration.workWithViews).find('input').on('keyup', function (e) {
+                    if (e.keyCode === 27) {
+                        onEscClick(this);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
+                });
+
+                if (presenter.configuration.maxCharacters !== false) {
+                    $(presenter.configuration.workWithViews).find('input').on("change paste keyup", function () {
+                        if ($(this).val().length > presenter.configuration.maxCharacters) {
+                            var self = this;
+                            $(this).val($(this).val().substring(0, presenter.configuration.maxCharacters));
+
+                            if ($(this).data('keyboard') !== undefined) {
+                                //Fix bug with events
+                                setTimeout(function () {
+                                    $(self).data('keyboard').switchInput(true, true);
+                                }, 0);
+                            } else {
+                                lastClickedElement = this;
+                                movedInput = true;
+                                getNextFocusableElement(this, true).focus();
+
+
+                            }
+                        }
+                    });
+                }
+                //This is after setState because validateModel is in promise.
+                if (!keyboardIsVisible) {
+                    $(presenter.configuration.workWithViews).find('input').on('focusout', focusoutCallBack);
+                }
+            }
+        });
+
+    }
+
+    presenter.createEKeyboard = function (element, display) {
+        if ($(element).data('keyboard') !== undefined) {
+            return;
+        }
+
+        $(element).keyboard({
+            // *** choose layout ***
+            layout: presenter.configuration.layoutType,
+            customLayout: presenter.configuration.customLayout,
+            position: {
+                of : null, // optional - null (attach to input/textarea) or a jQuery object (attach elsewhere)
+                my : presenter.configuration.positionMy.value,
+                at : presenter.configuration.positionAt.value,
+                at2 : presenter.configuration.positionAt.value,
+                offset : presenter.configuration.offset.value,
+                collision: 'flip'
+            },
 
                     // preview added above keyboard if true, original input/textarea used if false
                     usePreview: false,
@@ -405,7 +544,7 @@ function AddoneKeyboard_create(){
                     preventPaste: false,
 
                     // Set the max number of characters allowed in the input, setting it to false disables this option
-                    maxLength: presenter.configuration.maxCharacters,
+                    //maxLength: presenter.configuration.maxCharacters,
 
                     // Mouse repeat delay - when clicking/touching a virtual keyboard key, after this delay the key
                     // will start repeating
@@ -421,7 +560,7 @@ function AddoneKeyboard_create(){
                     resetDefault: false,
 
                     // Event (namespaced) on the input to reveal the keyboard. To disable it, just set it to ''.
-                    openOn: presenter.configuration.openOnFocus ? 'focus' : '',
+                    openOn: presenter.configuration.openOnFocus ? 'showKeyboard' : '',
 
                     // When the character is added to the input
                     keyBinding: MobileUtils.isEventSupported("touchend") ? 'touchend' : 'mousedown',
@@ -430,13 +569,16 @@ function AddoneKeyboard_create(){
                     // if user inputs `a the script converts it to à, ^o becomes ô, etc.
                     useCombos: false,
 
+                    // if true, keyboard will not close if you press escape.
+                    ignoreEsc : true,
+
+                    autoAcceptOnEsc : false,
                     // *** Methods ***
                     // Callbacks - add code inside any of these callback functions as desired
-                    initialized: function(e, keyboard, el) {
+                    initialized: function (e, keyboard, el) {
                     },
-                    beforeVisible: function(e, keyboard, el) {
-
-                        if(!keyboard['$keyboard'].parent().hasClass('html')) {
+                    beforeVisible: function (e, keyboard, el) {
+                        if (!keyboard['$keyboard'].parent().hasClass('html')) {
                             var dialogBox = keyboard['$keyboard'].parent().find('.gwt-DialogBox');
                             dialogBox.append(keyboard['$keyboard']);
                         }
@@ -444,32 +586,25 @@ function AddoneKeyboard_create(){
                         var parent = keyboard['$keyboard'].parent(),
                             popup = parent.find('.ic_popup');
 
-                        if(popup.length > 0){
+                        if (popup.length > 0) {
                             popup.append(keyboard['$keyboard']);
                         }
                     },
-                    visible: function(e, keyboard, el) {
-
+                    visible: function (e, keyboard, el) {
                         var isVisibleInViewPort = getIsVisibleInViewPort(keyboard['$keyboard']);
+                        if (!isVisibleInViewPort) {
+                            return;
+                        }
 
                         if (!isVisibleInViewPort.vertical || !isVisibleInViewPort.horizontal) {
                             shiftKeyboard(keyboard, isVisibleInViewPort);
-                            isVisibleInViewPort = getIsVisibleInViewPort(keyboard['$keyboard']);
                         }
-
+                        showCloseButton();
                         keyboard['$keyboard'].draggable();
 
                     },
-                    change: function(e, keyboard, el) {
-                    	var max_chars = presenter.configuration.maxCharacters;
-                    	if ($(el).attr('maxlength')) {
-                    		max_chars = $(el).attr('maxlength');
-                    	}
-
-                        if( $(el).val().length ===  max_chars) {
-                            keyboard.switchInput(true, true);
-                        }
-
+                    change: function (e, keyboard, el) {
+                        $(element).trigger("change");
                     },
                     beforeClose: function(e, keyboard, el, accepted) {
                     },
@@ -478,21 +613,29 @@ function AddoneKeyboard_create(){
                     hidden: function(e, keyboard, el) {},
 
                     switchInput : function(keyboard, goToNext, isAccepted){
-                    	var base = keyboard, kb, stopped = false,
-                				all = $('input, textarea').filter(':enabled'),
-                				indx = all.index(base.$el) + (goToNext ? 1 : -1);
-                				base.$keyboard.show();
-                			if (indx > all.length - 1) {
-                				stopped = keyboard.stopAtEnd;
-                				indx = 0; // go to first input
-                			}
-                			if (indx < 0) {
-                				stopped = keyboard.stopAtEnd;
-                				indx = all.length - 1; // stop or go to last
-                			}
+                        var base = keyboard, kb, stopped = false,
+                            all = $('input, textarea').filter(':enabled'),
+                            indx = all.index(base.$el) + (goToNext ? 1 : -1);
+
+                        if (indx > all.length - 1) {
+                            stopped = keyboard.stopAtEnd;
+                            indx = 0; // go to first input
+                        }
+                        if (indx < 0) {
+                            stopped = keyboard.stopAtEnd;
+                            indx = all.length - 1; // stop or go to last
+                        }
                 			if (!stopped) {
-                				if (!base.close(isAccepted)) { return; }
-                                all.eq(indx).focus();
+                				if (!base.close(isAccepted)) {
+                                return;
+                            }
+                            if (presenter.addonIsWorkingWithElement(all.eq(indx))) {
+                                    presenter.createEKeyboard(all.eq(indx), display);
+                            }
+                            if (keyboardIsVisible) {
+                                all.eq(indx).trigger('forceClick');
+                            }
+                            all.eq(indx).focus();
                 			}
 
                         return false;
@@ -504,13 +647,89 @@ function AddoneKeyboard_create(){
                     // ( like this "keyboard.$preview.val('');" ), if desired
                     // The validate function is called after each input, the "isClosing" value will be false;
                     // when the accept button is clicked, "isClosing" is true
-                    validate    : function(keyboard, value, isClosing) { return true; }
-
-                    });
-
-                    $(this).focus();
+                    validate: function (keyboard, value, isClosing) {
+                        return true;
+                    }
                 });
-            }
+                $(lastClickedElement).trigger('forceClick');
+            };
+
+    function getNextFocusableElement (element, next) {
+        var all = $('input, textarea').filter(':enabled');
+        var indx = all.index(element) + (next ? 1 : -1);
+
+        if (indx > all.length - 1) {
+            indx = 0; // go to first input
+        }
+        if (indx < 0) {
+            indx = all.length - 1; // stop or go to last
+        }
+        return all.eq(indx);
+
+    }
+
+    presenter.addonIsWorkingWithElement = function (element) {
+        return ($(presenter.configuration.workWithViews).find(element).length != 0);
+    };
+
+    function hideOpenButton() {
+        openButtonElement.style.display = 'none';
+    }
+
+    function focusoutCallBack(ev) {
+        if (!keyboardIsVisible && !movedInput) {
+            hideOpenButton();
+        }
+        movedInput = false;
+        ev.preventDefault();
+    }
+
+    function showButtonDecorator(func) {
+        if (presenter.configuration.showCloseButton) {
+            func();
+        }
+    }
+
+    function showCloseButton() {
+        showButtonDecorator(function showCloseButtonDecorator() {
+            initializeCloseButton();
+            $('.ui-keyboard').append(closeButtonElement);
+        });
+    }
+
+    function closeButtonCallBack() {
+        presenter.disable();
+
+        $(lastClickedElement).focus();
+        $(lastClickedElement).click();
+    }
+
+    function showOpenButton() {
+        showButtonDecorator(function showOpenButtonToDecorator() {
+            openButtonElement.style.display = 'block';
+            actualizeOpenButtonPosition($(lastClickedElement));
+        });
+    }
+
+    function showOpenButtonCallback() {
+        hideOpenButton();
+
+        presenter.enable();
+
+        escClicked = false;
+        $(lastClickedElement).click();
+        $(lastClickedElement).focus();
+        $(lastClickedElement).trigger('showKeyboard');
+    }
+
+    function actualizeOpenButtonPosition(element) {
+        $(openButtonElement).position({
+            of: element,
+            my: presenter.configuration.positionMy.value,
+            at: presenter.configuration.positionAt.value,
+            at2: presenter.configuration.positionAt.value,
+            offset: presenter.configuration.offset.value,
+            collision: 'flip'
         });
     }
 
@@ -530,6 +749,10 @@ function AddoneKeyboard_create(){
 
         if (this.length < 1)
             return;
+
+        if ($(element).length == 0) {
+            return;
+        }
 
         var $element = $(element),
             vpWidth = $window.width(),
@@ -552,6 +775,17 @@ function AddoneKeyboard_create(){
         };
     }
 
+    function onEscClick(element) {
+        if (escClicked) {
+            $(element).val("");
+        } else {
+            presenter.disable();
+            escClicked = true;
+        }
+        $(lastClickedElement).focus();
+        $(lastClickedElement).click();
+    }
+
     presenter.run = function(view, model){
         runLogic(view, model, false);
     };
@@ -563,19 +797,51 @@ function AddoneKeyboard_create(){
         if (presenter.configuration.isError) return;
 
         var commands = {
-            'open' : presenter.openCommand
+            'open' : presenter.openCommand,
+            'disable' : presenter.disable,
+            'enable' : presenter.enable
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.sendEvent = function (status) {
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': status
+        });
+    };
+
+    presenter.disable = function () {
+        presenter.sendEvent("disable");
+        if (presenter.configuration.openOnFocus) {
+            keyboardIsVisible = false;
+        }
+        var inputs = $(presenter.configuration.workWithViews).find('input');
+        for (var i = 0; i < inputs.length; i++) {
+            try {
+                $(inputs[i]).data('keyboard').destroy();
+            } catch(err){}
+        }
+
+        $(presenter.configuration.workWithViews).find('input').on('focusout', focusoutCallBack);
+        $(presenter.configuration.workWithViews).find('input').removeClass('ui-keyboard-input ui-keyboard-input-current').removeAttr("readonly");
+    };
+
+    presenter.enable = function () {
+        presenter.sendEvent("enable");
+        keyboardIsVisible = true;
+        $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
     };
 
     presenter.open = function(moduleId, index) {
         var module = presenter.playerController.getModule(moduleId);
         try {
             var input = $(module.getView()).find('input:enabled').get(parseInt(index, 10) - 1);
+            presenter.createEKeyboard(input, presenter.display);
             $(input).data('keyboard').reveal();
         } catch (e) {
-            alert(e.message);
         }
 
     };
@@ -585,6 +851,20 @@ function AddoneKeyboard_create(){
             presenter.open(moduleId[0], moduleId[1]);
         } else {
             presenter.open(moduleId, index);
+        }
+    };
+
+    presenter.destroy = function destroy_addon_eKeyboard_function () {
+        if (presenter.isPreview) {
+            return;
+        }
+
+        $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
+        var inputs = $(presenter.configuration.workWithViews).find('input');
+        for (var i = 0; i < inputs.length; i++) {
+            try {
+                $(inputs[i]).data('keyboard').destroy();
+            } catch(err){}
         }
     };
 
@@ -606,10 +886,14 @@ function AddoneKeyboard_create(){
         return 0;
     };
 
-    presenter.getState = function(){
+    presenter.getState = function () {
+        return JSON.stringify({
+            "isClosed": keyboardIsVisible
+        });
     };
 
-    presenter.setState = function(state){
+    presenter.setState = function (state) {
+        keyboardIsVisible = JSON.parse(state).isClosed;
     };
 
     return presenter;

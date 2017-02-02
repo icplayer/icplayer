@@ -12,5 +12,6 @@
         <property name="noOpenOnFocus" displayName="Don't Open On Focus" nameLabel="eKeyboard_property_no_open_on_focus" type="boolean" />
         <property name="lockStandardKeyboardInput" displayName="Lock Standard Keyboard Input" nameLabel="eKeyboard_property_lock_standard_keyboard_input" type="boolean" />
         <property name="customDisplay" displayName="Custom Display" nameLabel="eKeyboard_property_custom_display" type="text" />
+        <property name="showCloseButton" displayName="Show Close Button" nameLabel="eKeyboard_property_show_close_button" type="boolean"/>
 	</model>
 </addon>
