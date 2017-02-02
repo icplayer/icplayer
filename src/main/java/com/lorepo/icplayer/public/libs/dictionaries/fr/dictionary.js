@@ -314,6 +314,7 @@ var ice_dictionary_fr = {
 "ordering_item_text" : "Texte",
 "ordering_gradually_score": "Résultat progressif",
 "page_progress_module" : "Progression de la page",
+"Page_progress_property_works_with" : "Works with",
 "real_time_calculation_property" : "Calculer en temps réel",
 "report_module" : "Rapport",
 "report_errors" : "Nb. d'erreurs",

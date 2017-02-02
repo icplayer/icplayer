@@ -318,6 +318,7 @@
 	"ordering_item_text" : "Text",
 	"ordering_gradually_score": "Gradually Score",
 	"page_progress_module" : "Page Progress",
+    "Page_progress_property_works_with" : "Works with",
 	"real_time_calculation_property" : "Calculate in real time",
 	"report_module" : "Report",
 	"report_errors" : "No. of errors",

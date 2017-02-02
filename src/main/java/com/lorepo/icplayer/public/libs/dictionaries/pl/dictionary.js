@@ -314,6 +314,7 @@
 	"ordering_item_text" : "Tekst",
 	"ordering_gradually_score": "Punktacja stopniowana",
 	"page_progress_module" : "Wynik strony",
+    "Page_progress_property_works_with" : "Works with",
 	"real_time_calculation_property" : "Oblicz w czasie rzeczywistym",
 	"report_module" : "Raport",
 	"report_errors" : "Liczba błędów",

@@ -315,6 +315,7 @@ var ice_dictionary_mx = {
 	"ordering_item_text": "Texto",
 	"ordering_gradually_score": "Puntuación gradual",
 	"page_progress_module": "Progreso de página",
+    "Page_progress_property_works_with" : "Works with",
 	"report_module": "Reporte",
 	"report_errors": "Errores / acumulados",
 	"report_checks": "Comprobaciones",

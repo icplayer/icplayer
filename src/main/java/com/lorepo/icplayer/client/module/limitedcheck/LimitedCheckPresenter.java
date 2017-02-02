@@ -226,7 +226,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 		return null;
 	}
 	
-	private JavaScriptObject getModulesScore() {
+	public JavaScriptObject getModulesScore() {
 		if (view != null) {
 			ArrayList<IPresenter> modulesPresenters = view.getModulesPresenters();
 			TotalScore score = TotalScore.getFromPresenters(modulesPresenters);
