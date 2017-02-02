@@ -1,10 +1,11 @@
+2017-02-02 Added show/hide commands in Writing Calculations module
 2017-02-02 Added enable/disable button/command in eKeyboard. Fixed changing focus by eKeyboard. Fixed open command in eKeyboard. Changed Esc button action in eKeyboard. Updated jquery.keyboard.min.js.
-2016-01-31 Added setting text parser in Table module
-2016-01-24 Added events for drawing commands in Grid Scene module
-2016-01-24 Fixed problems on iPad in Paragraph module
-2016-01-24 Fixed saving changes in Choice module
-2016-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
-2016-01-16 Fixed isVisible property on Safari in Iframe module
+2017-01-31 Added setting text parser in Table module
+2017-01-24 Added events for drawing commands in Grid Scene module
+2017-01-24 Fixed problems on iPad in Paragraph module
+2017-01-24 Fixed saving changes in Choice module
+2017-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
+2017-01-16 Fixed isVisible property on Safari in Iframe module
 2017-01-11 Added Enable pages property in Hierarchical Lesson Report module
 2017-01-11 Fixed problem with updating additional styles and displaying pages in Navigation Bar module
 2017-01-04 Fixed rendering LaTeX afetr showing answers in Math module
