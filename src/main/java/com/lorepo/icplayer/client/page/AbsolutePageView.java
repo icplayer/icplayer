@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -100,7 +101,35 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		return this.widgets;
 	}
 	
-	public void outstretchHeight(int y, int difference) {
+	public int calculateStaticHeaderFooterHeight() {
+		if (PlayerApp.isStaticHeader() && !PlayerApp.isStaticFooter()) {
+			return Integer.parseInt(PlayerApp.getStaticHeaderHeight());
+		} else if (!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
+			return Integer.parseInt(PlayerApp.getStaticFooterHeight());
+		} else if (PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
+			return Integer.parseInt(PlayerApp.getStaticHeaderHeight()) + Integer.parseInt(PlayerApp.getStaticFooterHeight());
+		} else {
+			return 0;
+		}
+	}
+	
+	public static native void setProperPageHeight(int difference) /*-{
+		var currentHeight = $wnd.$(".ic_content").parent().css("height").replace("px", "");
+		$wnd.$(".ic_content").parent().css("height", parseInt(currentHeight, 10) + difference + "px");
+	}-*/;
+	
+	public static native void setProperFotterPosition () /*-{
+		try {
+			var icFooterHeight = $wnd.$(".ic_footer").css("height").replace("px",""),
+				parentScroll = $wnd.parent.scrollY,
+				offsetIframe = $wnd.get_iframe().offset().top,
+				sum = parseInt(window.top.innerHeight, 10)-offsetIframe-parseInt(icFooterHeight, 10)+parentScroll;
+			$wnd.$(".ic_static_footer").css("top", sum+"px");
+		}catch (e){
+		}
+	}-*/;
+	
+	public void outstretchHeight(int y, int difference, boolean isRestore) {		
 		List<WidgetPositionStruct> widgetsList = this.widgetsPositions.getAllWidgetsFromPoint(y);
 		for (WidgetPositionStruct widgetData: widgetsList) {
 			widgetData.addTopDimensionDifference(difference);
@@ -108,6 +137,27 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			this.setWidgetPosition(widgetData.widget, widgetData.getLeft(), widgetData.getTop());
 		}
 		
-		this.setHeight(this.height + difference);
+		if (difference > 0 && !isRestore) {
+			int height = this.height + difference + calculateStaticHeaderFooterHeight();
+			this.height = this.height + difference;
+			this.setHeight(height + "px");
+			this.createPageDimensions();
+			if (PlayerApp.isStaticFooter()) {
+				setProperFotterPosition();
+			}
+		} else if (difference < 0 && !isRestore) {
+			if (PlayerApp.isStaticHeader() || PlayerApp.isStaticFooter()) {
+				setProperPageHeight(difference);
+			}
+			if(!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
+				int height = this.height + difference + calculateStaticHeaderFooterHeight();
+				this.height = this.height + difference;				
+				this.setHeight(height + "px");
+			}else{
+				setHeight(this.height + difference);
+			}
+		} else {
+			setHeight(this.height + difference);
+		}
 	}
 }

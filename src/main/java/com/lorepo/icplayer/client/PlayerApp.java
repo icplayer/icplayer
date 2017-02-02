@@ -54,7 +54,7 @@ public class PlayerApp {
 			frameOffset: 64,
 			windowInnerHeight: 0
 		};
-
+		
 		instance.@com.lorepo.icplayer.client.PlayerApp::setHandlers(Z)(isCommonPage);
 		$wnd.get_iframe();
 	}-*/;
@@ -170,6 +170,9 @@ public class PlayerApp {
 					}
 				});
 				$wnd.isFrameInDifferentDomain = false;
+				
+				$wnd.isInIframe = ($wnd.location != $wnd.parent.location) ? true : false;
+				
 				return $wnd.playerIFrame;
 			} catch(e) {
 				$wnd.isFrameInDifferentDomain = true;
@@ -183,8 +186,7 @@ public class PlayerApp {
 
 		$wnd.$(".ic_header").parent().addClass("ic_static_header");
 		$wnd.$(".ic_static_header").css("width", page.css("width"));
-
-		if ($wnd.isFrameInDifferentDomain) {
+		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
 			$wnd.addEventListener('message', function(event) {
 				if (event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
@@ -228,17 +230,17 @@ public class PlayerApp {
 
 		page.css("height", pageHeight + icFooterHeight);
 
-		if ($wnd.isFrameInDifferentDomain) {
+		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
 			var offsetIframe = $wnd.iframeSize.frameOffset;
 			var sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight;
-
+			
 			$wnd.$(".ic_static_footer").css("top", sum + "px");
 
 			$wnd.addEventListener('message', function (event) {
 				if (event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
+					offsetIframe = $wnd.iframeSize.notScaledOffset;
 					sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight + scroll;
-
 					if (sum >= ($wnd.iframeSize.height - icFooterHeight)) {
 						$wnd.$(".ic_static_footer").css("top", "auto");
 					} else {
@@ -276,7 +278,23 @@ public class PlayerApp {
 	public static native int getHeaderHeight() /*-{
 		return $wnd.$(".ic_header").css("height");
 	}-*/;
-
+	
+	public static native String getStaticHeaderHeight() /*-{
+		return $wnd.$(".ic_static_header").css("height").replace("px", "");
+	}-*/;
+	
+	public static native String getStaticFooterHeight() /*-{
+		return $wnd.$(".ic_footer").css("height").replace("px", "");
+	}-*/;
+	
+	public static native boolean isStaticFooter() /*-{
+		return $wnd.$(".ic_static_footer").length > 0;
+	}-*/;
+	
+	public static native boolean isStaticHeader() /*-{
+		return $wnd.$(".ic_static_header").length > 0;
+	}-*/;
+	
 	public void makeHeaderStatic() {
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
