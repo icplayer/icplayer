@@ -1353,6 +1353,7 @@
 	"eKeyboard_property_no_open_on_focus": "Don't Open On Focus",
 	"eKeyboard_property_lock_standard_keyboard_input": "Lock Standard Keyboard Input",
 	"eKeyboard_property_custom_display": "Custom Display",
+	"eKeyboard_property_show_close_button": "Show Close Button",
 	"LearnPen_info": "LearnPen Drawing module allows users to draw images on a digital canvas using LearnPen.",
 	"LearnPen_name": "LearnPen Drawing",
 	"LearnPen_property_smart_pen": "LearnPen",

@@ -1341,6 +1341,7 @@ var ice_dictionary_mx = {
 	"eKeyboard_property_no_open_on_focus": "No abrir automáticamente",
 	"eKeyboard_property_lock_standard_keyboard_input": "Bloquear el teclado estándar",
 	"eKeyboard_property_custom_display": "Visualización personalizada",
+	"eKeyboard_property_show_close_button": "Show Close Button",
 	"LearnPen_info": "Permite a dibujar en la pantalla de presentación utilizando la pluma LearnPen.",
 	"LearnPen_name": "Dibujo con la Pluma LearnPen",
 	"LearnPen_property_smart_pen": "Pluma LearnPen",

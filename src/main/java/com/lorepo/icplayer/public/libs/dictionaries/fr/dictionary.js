@@ -1341,6 +1341,7 @@ var ice_dictionary_fr = {
 "eKeyboard_property_no_open_on_focus": "Ne pas ouvrir si on centre",
 "eKeyboard_property_lock_standard_keyboard_input": "Bloquer la saisie sur clavier standard",
 "eKeyboard_property_custom_display": "Personnaliser l'affichage",
+"eKeyboard_property_show_close_button": "Show Close Button",
 "LearnPen_info": "Le module Dessin LearnPen permet aux utilisateurs de dessiner des images dans un canevas numérique en utilisant LearnPen.",
 "LearnPen_name": "Dessin LearnPen",
 "LearnPen_property_smart_pen": "LearnPen",
