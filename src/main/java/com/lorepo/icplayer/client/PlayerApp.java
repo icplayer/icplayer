@@ -52,7 +52,8 @@ public class PlayerApp {
 			offsetTop: 0,
 			height: 0,
 			frameOffset: 64,
-			windowInnerHeight: 0
+			windowInnerHeight: 0,
+			isEditorPreview: false
 		};
 		
 		instance.@com.lorepo.icplayer.client.PlayerApp::setHandlers(Z)(isCommonPage);
@@ -191,6 +192,9 @@ public class PlayerApp {
 				if (event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
 					var playerOffset = $wnd.iframeSize.frameOffset || 64;
+					if($wnd.iframeSize.isEditorPreview){
+						playerOffset = 0;
+					}
 					var top = scroll > playerOffset ? scroll - playerOffset : 0;
 					$wnd.$(".ic_static_header").css("top", top);
 				}
