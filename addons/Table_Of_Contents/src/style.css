@@ -45,3 +45,20 @@
 .table-of-contents-list ul li a {
     text-decoration: none;
 }
+
+.imageContainer {
+    display: inline-block;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.imageElement {
+    width: 100px;
+    height: 140px;
+}
+
+.iconsList {
+    display: flex;
+    width: 100%;
+    overflow: auto;
+}
