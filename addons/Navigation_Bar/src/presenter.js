@@ -547,6 +547,10 @@ function AddonNavigation_Bar_create() {
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
                 presenter.$wrapper.append(dottedElement);
 
+                if(startIndex == presenter.currentIndex && presenter.configuration.firstPageAsCover) {
+                    startIndex = startIndex - 1;
+                }
+
                 for (n = 0; n < numberOfElement; n++) {
                     var indexedElement = generateIndexElementStub(startIndex + 1 + n, navigationBarMoved);
                     presenter.$wrapper.append(indexedElement);
