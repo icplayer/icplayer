@@ -1,3 +1,4 @@
+2017-02-21 Added math.js library and fixed problem with calculating expressions
 2017-02-16 Fixed displaying current page in Navigation Bar module
 2017-02-15 Added icon display type in Table of Contents module
 2017-02-15 Fixed static header and footer

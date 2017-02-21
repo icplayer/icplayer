@@ -101,6 +101,7 @@
                 <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
                 <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
                 <file name="${build.temp.folder}/aop.min.js"/>
+                <file name="${build.temp.folder}/math.js"/>
                 <file name="${build.temp.folder}/scorm.js"/>
                 <file name="${build.temp.folder}/scorm_1_2.js"/>
                 <file name="${build.temp.folder}/tinymce.min.js"/>
