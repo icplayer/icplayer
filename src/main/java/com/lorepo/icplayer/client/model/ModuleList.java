@@ -156,6 +156,4 @@ public class ModuleList extends ArrayList<IModuleModel> {
 		
 		return foundModule;
 	}
-	
-	
 }

@@ -85,6 +85,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private int modulesMaxScore = 0;
 	private int pageWeight = 1;
 	private int pageCustomWeight = 1;
+	private String semiResponsiveLayoutID = "default";
 	public PageHeightModifications heightModifications = new PageHeightModifications();
 
 	public Page(String name, String url) {
@@ -161,6 +162,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void setName(String name) {
 		this.name = name;
 		sendPropertyChangedEvent(propertyName);
+	}
+	
+	public void setSemiResponsiveLayoutID(String newLayoutID) {
+		this.semiResponsiveLayoutID = newLayoutID;
 	}
 
 	/**
@@ -1046,5 +1051,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	@Override
 	public void addSize(String sizeName, Size size) {
 		this.pageSizes.put(sizeName, size);
+	}
+
+	public String getSemiResponsiveLayoutID() {
+		return this.semiResponsiveLayoutID;
 	}
 }

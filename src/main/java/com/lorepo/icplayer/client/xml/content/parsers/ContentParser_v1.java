@@ -8,6 +8,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.layout.PageLayout.PageLayoutTypes;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 import com.google.gwt.xml.client.NodeList;
 
@@ -100,7 +101,7 @@ public class ContentParser_v1 extends ContentParserBase {
 
 	private PageLayout parseTypeNode(PageLayout pageLayout, Element typeNode) {
 		String type = XMLUtils.getAttributeAsString(typeNode, "value");
-		pageLayout.setType(type);
+		pageLayout.setType(PageLayoutTypes.valueOf(type));
 		return pageLayout;
 	}
 }

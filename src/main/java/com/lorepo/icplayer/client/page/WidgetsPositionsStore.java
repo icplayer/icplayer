@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 
 public class WidgetsPositionsStore {
 	

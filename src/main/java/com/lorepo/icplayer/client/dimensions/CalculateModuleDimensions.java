@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.page;
+package com.lorepo.icplayer.client.dimensions;
 
 import java.util.HashMap;
 

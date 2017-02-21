@@ -1,11 +1,10 @@
 package com.lorepo.icplayer.client.xml.module.parsers;
 
-import java.util.HashMap;
-
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 
 public class ModuleParser_v2 extends ModuleModelParser_base {
@@ -35,7 +34,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		Boolean isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean((Element) xml, "isModuleVisibleInEditor", true);
 		Boolean isLocked = XMLUtils.getAttributeAsBoolean((Element) xml, "isLocked", false);
 		String id = XMLUtils.getAttributeAsString((Element) xml, "id");
-		HashMap<String, Integer> absolutePosition = null;
+		ModuleDimensions dimensions = null;
 		LayoutDefinition relativeLayout = new LayoutDefinition();
 		
 		NodeList nodes = xml.getChildNodes();
@@ -43,36 +42,29 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 			Node childNode = nodes.item(i);
 			
 			if(childNode.getNodeName().compareTo("absolute") == 0 && childNode instanceof Element) {
-				absolutePosition = this.parseAbsoluteLayout(childNode);
+				dimensions = this.parseAbsoluteLayout(childNode);
 			} else if (childNode.getNodeName().compareTo("relative") == 0 && childNode instanceof Element) {
 				relativeLayout.load((Element) childNode);
 			}
 		}
 		
-		this.module.setPosition(id, absolutePosition);
+		this.module.addSemiResponsiveDimensions(id, dimensions);
 		this.module.setIsVisible(id, isVisible);
 		this.module.setIsLocked(id, isLocked);
 		this.module.setIsVisibleInEditor(id, isModuleVisibleInEditor);
 	}
 
-	private HashMap<String, Integer> parseAbsoluteLayout(Node node) {
+	private ModuleDimensions parseAbsoluteLayout(Node node) {
 		Element xml = (Element) node;
 		
 		int left = XMLUtils.getAttributeAsInt(xml, "left");
 		int top = XMLUtils.getAttributeAsInt(xml, "top");
-		int width = XMLUtils.getAttributeAsInt(xml, "width");
-		int height = XMLUtils.getAttributeAsInt(xml, "height");
 		int right = XMLUtils.getAttributeAsInt(xml, "right");
 		int bottom = XMLUtils.getAttributeAsInt(xml, "bottom");
+		int width = XMLUtils.getAttributeAsInt(xml, "width");
+		int height = XMLUtils.getAttributeAsInt(xml, "height");
+
 		
-		HashMap<String, Integer> position = new HashMap<String, Integer>();
-		position.put("left", left);
-		position.put("top", top);
-		position.put("width", width);
-		position.put("height", height);
-		position.put("right", right);
-		position.put("bottom", bottom);
-		
-		return position;
+		return new ModuleDimensions(left, right, top, bottom, height, width);
 	}
 }

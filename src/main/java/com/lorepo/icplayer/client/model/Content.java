@@ -21,6 +21,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
+	public static final String DEFAULT_CSS_STYLE_ID = "default";
 	public enum ScoreType{ first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -415,8 +416,8 @@ public class Content implements IContentBuilder, IContent {
 		this.styles = styles;
 	}
 	
-	public void setStyle(String styleID, CssStyle style) {
-		this.styles.put(styleID, style);
+	public void setStyle(CssStyle style) {
+		this.styles.put(style.id, style);
 	}
 
 	@Override
@@ -483,5 +484,17 @@ public class Content implements IContentBuilder, IContent {
 		}
 		
 		return style.style;
+	}
+
+	public void removeFromLayoutsStyle(CssStyle styleToDelete) {
+		this.layoutsContainer.removeFromLayoutsStyle(styleToDelete);
+	}
+
+	public  HashMap<String, PageLayout> getLayouts() {
+		return this.layoutsContainer.getLayouts();
+	}
+	
+	public void setSemiResponsiveLayouts(HashMap<String, PageLayout> layouts) {
+		this.layoutsContainer.setPageLayouts(layouts);
 	}
 }

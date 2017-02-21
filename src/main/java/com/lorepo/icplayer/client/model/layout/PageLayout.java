@@ -1,12 +1,21 @@
 package com.lorepo.icplayer.client.model.layout;
 
+import com.lorepo.icf.utils.UUID;
+
 public class PageLayout implements PageLayoutBuilder{
 
+	public enum PageLayoutTypes {
+		small,
+		medium,
+		large
+	};
+	
+	
 	public static int MAX_TRESHOLD = 100000;
 	private String name;
 	private String id;
 	private int treshold;
-	private String type;
+	private PageLayoutTypes type;
 	private String styleID;
 	
 	public PageLayout(String id, String name) {
@@ -17,10 +26,19 @@ public class PageLayout implements PageLayoutBuilder{
 	public static PageLayout createDefaultPageLayout() {
 		PageLayout defaultPageLayout = new PageLayout("default", "default");
 		defaultPageLayout.setTreshold(PageLayout.MAX_TRESHOLD);
-		defaultPageLayout.setType("default");
+		defaultPageLayout.setType(PageLayoutTypes.small);
 		defaultPageLayout.setCssID("default");
 		
 		return defaultPageLayout;
+	}
+	
+	public static PageLayout createPageLayout(String name, int treshold, PageLayoutTypes type) {
+		PageLayout newPageLayout = new PageLayout(UUID.uuid(), name);
+		newPageLayout.setType(type);
+		newPageLayout.setCssID("default");
+		newPageLayout.setTreshold(treshold);
+		
+		return newPageLayout;
 	}
 	
 	public String getStyleID () {
@@ -35,19 +53,27 @@ public class PageLayout implements PageLayoutBuilder{
 	@Override
 	public void setTreshold(int value) {
 		this.treshold = value;
-	}
+	}	
 
 	@Override
-	public void setType(String type) {
+	public void setType(PageLayoutTypes type) {
 		this.type = type;
 	}
 
 	public String getName() {
 		return this.name;
 	}
+	
+	public String getID() {
+		return this.id;
+	}
 
 	@Override
 	public void setCssID(String styleID) {
 		this.styleID = styleID;
+	}
+	
+	public boolean isThisCssStyle(String styleID) {
+		return this.styleID.compareTo(styleID) == 0;
 	}
 }

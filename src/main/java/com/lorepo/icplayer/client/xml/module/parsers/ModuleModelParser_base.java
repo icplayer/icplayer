@@ -1,13 +1,12 @@
 package com.lorepo.icplayer.client.xml.module.parsers;
 
-import java.util.HashMap;
-
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 
 public abstract class ModuleModelParser_base implements IModuleModelParser {
 
@@ -49,19 +48,14 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	protected void parsePosition(Element xml) {
 		int left = XMLUtils.getAttributeAsInt(xml, "left");
 		int top = XMLUtils.getAttributeAsInt(xml, "top");
-		int width = XMLUtils.getAttributeAsInt(xml, "width");
-		int height = XMLUtils.getAttributeAsInt(xml, "height");
 		int right = XMLUtils.getAttributeAsInt(xml, "right");
 		int bottom = XMLUtils.getAttributeAsInt(xml, "bottom");
+		int width = XMLUtils.getAttributeAsInt(xml, "width");
+		int height = XMLUtils.getAttributeAsInt(xml, "height");
+
 		
-		HashMap<String, Integer> defaultPosition = new HashMap<String, Integer>();
-		defaultPosition.put("left", left);
-		defaultPosition.put("top", top);
-		defaultPosition.put("width", width);
-		defaultPosition.put("height", height);
-		defaultPosition.put("right", right);
-		defaultPosition.put("bottom", bottom);
-		this.module.setPosition("default", defaultPosition);
+		ModuleDimensions dimensions = new ModuleDimensions(left, right, top, bottom, height, width);
+		this.module.addSemiResponsiveDimensions("default", dimensions);
 	}
 	
 	protected void parseModuleAttributes(Element xml) {

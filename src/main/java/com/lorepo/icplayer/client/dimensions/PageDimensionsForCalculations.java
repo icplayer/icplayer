@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.page;
+package com.lorepo.icplayer.client.dimensions;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.AbsolutePanel;

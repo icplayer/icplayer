@@ -28,13 +28,14 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
+	private String semiResponsiveLayout = "default";
 
 	
 	protected BasicModuleModel(String typeName, String name){
 		super(name);
-		this.isVisible.put(this.positionType, true);
-		this.isLocked.put(this.positionType, false);
-		this.isModuleVisibleInEditor.put(this.positionType, true);
+		this.isVisible.put(this.semiResponsiveLayout, true);
+		this.isLocked.put(this.semiResponsiveLayout, false);
+		this.isModuleVisibleInEditor.put(this.semiResponsiveLayout, true);
 		this.moduleTypeName = typeName;
 		this.moduleName = name;
 		id = UUID.uuid(6);
@@ -107,9 +108,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		int height = XMLUtils.getAttributeAsInt(element, "height");
 		int right = XMLUtils.getAttributeAsInt(element, "right");
 		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
-		isVisible.put(this.positionType, XMLUtils.getAttributeAsBoolean(element, "isVisible", true));
-		isLocked.put(this.positionType, XMLUtils.getAttributeAsBoolean(element, "isLocked", false));
-		isModuleVisibleInEditor.put(this.positionType, XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true));
+		isVisible.put(this.semiResponsiveLayout, XMLUtils.getAttributeAsBoolean(element, "isVisible", true));
+		isLocked.put(this.semiResponsiveLayout, XMLUtils.getAttributeAsBoolean(element, "isLocked", false));
+		isModuleVisibleInEditor.put(this.semiResponsiveLayout, XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true));
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
@@ -153,7 +154,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		xml += "' width='" + getWidth() + "' height='" + getHeight() + "' ";
 		xml += "right='" + getRight();
 		xml += "' bottom='" + getBottom() + "' ";
-		xml += "isVisible='" + isVisible.get(this.positionType) + "' isLocked='" + isLocked.get(this.positionType) +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor.get(this.positionType) +"'";
+		xml += "isVisible='" + isVisible.get(this.semiResponsiveLayout) + "' isLocked='" + isLocked.get(this.semiResponsiveLayout) +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor.get(this.semiResponsiveLayout) +"'";
 		
 		if (!getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
@@ -242,15 +243,15 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	public boolean isVisible() {
-		return this.isVisible.get(this.positionType);
+		return this.isVisible.get(this.semiResponsiveLayout);
 	}
 
 	public void lock(boolean state) {
-		this.isLocked.put(this.positionType, state);
+		this.isLocked.put(this.semiResponsiveLayout, state);
 	}
 	
 	public boolean isLocked() {
-		return isLocked.get(this.positionType);
+		return isLocked.get(this.semiResponsiveLayout);
 	}
 	
 	public String getBaseURL() {
@@ -258,11 +259,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	public boolean isModuleInEditorVisible() {
-		return this.isModuleVisibleInEditor.get(this.positionType);
+		return this.isModuleVisibleInEditor.get(this.semiResponsiveLayout);
 	}
 	
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
-		this.isModuleVisibleInEditor.put(this.positionType, moduleInEditorVisibility);
+		this.isModuleVisibleInEditor.put(this.semiResponsiveLayout, moduleInEditorVisibility);
 	}
 	
 	public void setBaseUrl(String baseUrl) {
@@ -281,17 +282,17 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	@Override
 	public void setIsVisible(Boolean isVisible) {
-		this.isVisible.put(this.positionType, isVisible);
+		this.isVisible.put(this.semiResponsiveLayout, isVisible);
 	}
 	
 	@Override
 	public void setIsLocked(Boolean isLocked) {
-		this.isLocked.put(this.positionType, isLocked);
+		this.isLocked.put(this.semiResponsiveLayout, isLocked);
 	}
 	
 	@Override
 	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
-		this.isModuleVisibleInEditor.put(this.positionType, isVisibleInEditor);
+		this.isModuleVisibleInEditor.put(this.semiResponsiveLayout, isVisibleInEditor);
 	}
 	
 	@Override

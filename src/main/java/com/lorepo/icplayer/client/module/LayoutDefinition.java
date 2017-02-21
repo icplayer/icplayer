@@ -19,6 +19,22 @@ public class LayoutDefinition implements ILayoutDefinition{
 	private String bottomRelativeTo = "";
 	private Property bottomRelativeToProperty = Property.bottom;
 	
+	public static LayoutDefinition copy (LayoutDefinition layoutDefinition) {
+		LayoutDefinition copy = new LayoutDefinition();
+		copy.left = layoutDefinition.left;
+		copy.top = layoutDefinition.top;
+		copy.right = layoutDefinition.right;
+		copy.bottom = layoutDefinition.bottom;
+		copy.leftRelativeTo = layoutDefinition.leftRelativeTo;
+		copy.leftRelativeToProperty = layoutDefinition.leftRelativeToProperty;
+		copy.topRelativeTo = layoutDefinition.topRelativeTo;
+		copy.topRelativeToProperty = layoutDefinition.topRelativeToProperty;
+		copy.rightRelativeTo = layoutDefinition.rightRelativeTo;
+		copy.rightRelativeToProperty = layoutDefinition.rightRelativeToProperty;
+		copy.bottomRelativeTo = layoutDefinition.bottomRelativeTo;
+		copy.bottomRelativeToProperty = layoutDefinition.bottomRelativeToProperty;
+		return copy;
+	}
 	
 	@Override
 	public boolean hasLeft() {
