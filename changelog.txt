@@ -1,3 +1,4 @@
+2017-02-23 Fixed highlighting text in Text Audio module
 2017-02-21 Added show answers mode in Puzzle module
 2017-02-21 Added math.js library and fixed problem with calculating expressions
 2017-02-16 Fixed displaying current page in Navigation Bar module
