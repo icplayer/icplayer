@@ -195,6 +195,7 @@ function AddonMath_create() {
                 var parser = math.parser();
 
                 parser.set('variables', this.variables);
+                expression = expression.replace(/&&/g,"and").replace(/\|\|/g, "or").replace(/'/g, '"');
                 parser.eval(expression);
 
                 return parser.get('result');
