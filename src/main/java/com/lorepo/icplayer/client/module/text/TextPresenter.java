@@ -684,7 +684,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void valueChangeLogic(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
-		if (newValue == gap.getPlaceHolder()) {
+		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			newValue = "";
 		}
 		values.put(id, newValue);
@@ -846,7 +846,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			input.setAttribute("placeholder", gap.getPlaceHolder());
 		}
 
-		if (enteredValue.equals(gap.getPlaceHolder())) {
+		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
 	}
@@ -953,7 +953,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		GapInfo gap = getGapInfoById(itemID);
 		String enteredValue = getElementText(gap.getId());
-		if (enteredValue == gap.getPlaceHolder()) {
+		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
 		if (gap.isCorrect(enteredValue)) {
