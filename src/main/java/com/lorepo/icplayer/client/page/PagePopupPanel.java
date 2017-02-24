@@ -223,8 +223,19 @@ public class PagePopupPanel extends DialogBox {
 		return pageWidget;
 	}
 
-
+	public static native void removeHoveringFromButtons() /*-{
+	  var popups = $wnd.$('[id^="OpenPopup"]');
+	  
+	  $wnd.$(popups).each(function () {
+	  	var element = $wnd.$(this),
+  			classNames = element.attr("class");
+  		classNames = classNames.replace(/-hovering/g, "");
+  		element.attr("class", classNames);
+	  });
+	}-*/;
+	
 	public void close() {
+		removeHoveringFromButtons();
 		hide();
 		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
