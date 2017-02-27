@@ -47,4 +47,14 @@ public class LayoutsContainer {
 	public void setPageLayouts(HashMap<String, PageLayout> layouts) {
 		this.layoutsMap = layouts;
 	}
+
+	public void setDefaultSemiResponsiveLayout(String newDefaultLayoutID) {
+		for(PageLayout pageLayout : this.layoutsMap.values()) {
+			if (pageLayout.getID().compareTo(newDefaultLayoutID) == 0) {
+				pageLayout.setIsDefault(true);
+			} else {
+				pageLayout.setIsDefault(false);				
+			}
+		}
+	}
 }

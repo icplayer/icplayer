@@ -1,8 +1,11 @@
 package com.lorepo.icplayer.client.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
@@ -496,5 +499,20 @@ public class Content implements IContentBuilder, IContent {
 	
 	public void setSemiResponsiveLayouts(HashMap<String, PageLayout> layouts) {
 		this.layoutsContainer.setPageLayouts(layouts);
+	}
+
+	public Set<PageLayout> getActualSemiResponsiveLayouts() {
+		HashMap<String, PageLayout> layoutsContainer = this.getLayouts();
+		Collection<PageLayout> layouts = layoutsContainer.values();
+		Set<PageLayout> setsLayouts = new HashSet<PageLayout>(layouts);
+		return setsLayouts;
+	}
+
+	public void setDefaultSemiResponsiveLayout(String newDefaultLayoutID) {
+		this.layoutsContainer.setDefaultSemiResponsiveLayout(newDefaultLayoutID);
+	}
+
+	public CssStyle getStyleBy(String cssStyleID) {
+		return this.styles.get(cssStyleID);
 	}
 }

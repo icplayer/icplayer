@@ -10,17 +10,18 @@ public class PageLayout implements PageLayoutBuilder{
 		large
 	};
 	
-	
 	public static int MAX_TRESHOLD = 100000;
 	private String name;
 	private String id;
 	private int treshold;
 	private PageLayoutTypes type;
 	private String styleID;
+	private boolean isDefault;
 	
 	public PageLayout(String id, String name) {
 		this.id = id;
 		this.name = name;
+		this.isDefault = false;
 	}
 	
 	public static PageLayout createDefaultPageLayout() {
@@ -28,6 +29,7 @@ public class PageLayout implements PageLayoutBuilder{
 		defaultPageLayout.setTreshold(PageLayout.MAX_TRESHOLD);
 		defaultPageLayout.setType(PageLayoutTypes.small);
 		defaultPageLayout.setCssID("default");
+		defaultPageLayout.setIsDefault(true);
 		
 		return defaultPageLayout;
 	}
@@ -59,6 +61,20 @@ public class PageLayout implements PageLayoutBuilder{
 	public void setType(PageLayoutTypes type) {
 		this.type = type;
 	}
+	
+	@Override
+	public void setCssID(String styleID) {
+		this.styleID = styleID;
+	}
+	
+	@Override
+	public void setIsDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+	
+	public boolean isDefault() {
+		return this.isDefault;
+	}
 
 	public String getName() {
 		return this.name;
@@ -66,11 +82,6 @@ public class PageLayout implements PageLayoutBuilder{
 	
 	public String getID() {
 		return this.id;
-	}
-
-	@Override
-	public void setCssID(String styleID) {
-		this.styleID = styleID;
 	}
 	
 	public boolean isThisCssStyle(String styleID) {

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.BasicPropertyProvider;
@@ -8,15 +9,17 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.dimensions.DimensionName;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IRectangleItem;
+import com.lorepo.icplayer.client.module.api.SemiResponsiveLayouts;
 
 /**
  * Function for positioning module on the page
  * 
  * @author Krzysztof Langner
  */
-class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem {
+class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem, SemiResponsiveLayouts {
 
 	private ILayoutProperty layoutProperty;
 	private IProperty leftProperty;
@@ -43,18 +46,6 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		addPropertyHeight();
 		addPropertyRight();
 		addPropertyBottom();
-	}
-	
-	public void addSemiResponsiveDimensions(String name, ModuleDimensions dimensions) {
-		this.semiResponsivePositions.addSemiResponsiveDimensions(name, dimensions);
-	}
-	
-	public HashMap<String,ModuleDimensions> getResponsiveLayouts() {
-		return this.semiResponsivePositions.getAllLayoutsDefinitions();
-	}
-	
-	public void setSemiResponsiveLayout(String semiResponsiveLayout) {
-		this.semiResponsivePositions.setSemiResponsiveLayoutID(semiResponsiveLayout);
 	}
 	
 	@Override
@@ -102,6 +93,26 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	
 	private LayoutDefinition getCurrentLayoutDefinition() {
 		return this.semiResponsivePositions.getCurrentLayoutDefinition();
+	}
+	
+	@Override
+	public void addSemiResponsiveDimensions(String name, ModuleDimensions dimensions) {
+		this.semiResponsivePositions.addSemiResponsiveDimensions(name, dimensions);
+	}
+	
+	@Override
+	public HashMap<String,ModuleDimensions> getResponsiveLayouts() {
+		return this.semiResponsivePositions.getAllLayoutsDefinitions();
+	}
+	
+	@Override
+	public void setSemiResponsiveLayoutID(String semiResponsiveLayout) {
+		this.semiResponsivePositions.setSemiResponsiveLayoutID(semiResponsiveLayout);
+	}
+
+	@Override
+	public void syncSemiResponsiveLayouts(Set<PageLayout> actualSemiResponsiveLayouts) {
+		this.semiResponsivePositions.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
 	}
 	
 	protected String getLayoutXML() {

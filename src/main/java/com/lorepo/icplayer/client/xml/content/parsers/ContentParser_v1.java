@@ -52,8 +52,10 @@ public class ContentParser_v1 extends ContentParserBase {
 				Element layoutNode = (Element) childrenNodes.item(i);
 				String name = XMLUtils.getAttributeAsString(layoutNode, "name");
 				String id = XMLUtils.getAttributeAsString(layoutNode, "id");
-				PageLayout pageLayout = new PageLayout(id, name);
+				boolean isDefault = XMLUtils.getAttributeAsBoolean(layoutNode, "isDefault", false);
 				
+				PageLayout pageLayout = new PageLayout(id, name);
+				pageLayout.setIsDefault(isDefault);
 				this.parseLayoutChildren(pageLayout, layoutNode);
 				
 				content.addLayout(pageLayout);

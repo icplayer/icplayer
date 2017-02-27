@@ -1,13 +1,11 @@
 package com.lorepo.icplayer.client.module.api;
 
-import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
 
-public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyProvider{
+public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyProvider, SemiResponsiveLayouts {
 	public String getModuleTypeName(); // get module type
 	public String getModuleName(); // get translated module name
 	public String getId();
@@ -22,6 +20,4 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public boolean isModuleInEditorVisible();
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility);
 	public void load(Element node, String baseURL, String version);
-	public void setSemiResponsiveLayout(String semiResponsiveLayoutID);
-	public HashMap<String, ModuleDimensions> getResponsiveLayouts();
 }
