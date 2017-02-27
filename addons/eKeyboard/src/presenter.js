@@ -299,6 +299,7 @@ function AddoneKeyboard_create(){
         presenter.$view = $(view);
         presenter.view = view;
         presenter.isPreview = isPreview;
+        presenter.isShowCloseButton = false;
 
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
@@ -685,7 +686,7 @@ function AddoneKeyboard_create(){
     }
 
     function showButtonDecorator(func) {
-        if (presenter.configuration.showCloseButton) {
+        if (presenter.configuration.showCloseButton || presenter.isShowCloseButton) {
             func();
         }
     }
@@ -799,10 +800,15 @@ function AddoneKeyboard_create(){
         var commands = {
             'open' : presenter.openCommand,
             'disable' : presenter.disable,
-            'enable' : presenter.enable
+            'enable' : presenter.enable,
+            'showCloseButton' : presenter.showCloseButton
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.showCloseButton = function () {
+        presenter.isShowCloseButton = true;
     };
 
     presenter.sendEvent = function (status) {
@@ -888,12 +894,18 @@ function AddoneKeyboard_create(){
 
     presenter.getState = function () {
         return JSON.stringify({
-            "isClosed": keyboardIsVisible
+            "isClosed": keyboardIsVisible,
+            "isShowCloseButton": presenter.isShowCloseButton
         });
     };
 
     presenter.setState = function (state) {
-        keyboardIsVisible = JSON.parse(state).isClosed;
+        var parsedState = JSON.parse(state);
+        keyboardIsVisible = parsedState.isClosed;
+
+        if(parsedState.isShowCloseButton != undefined) {
+            presenter.isShowCloseButton = parsedState.isShowCloseButton;
+        }
     };
 
     return presenter;
