@@ -416,7 +416,9 @@ function AddoneKeyboard_create(){
                 $(presenter.configuration.workWithViews).find('input').on('forceClick', function () {
                     if (presenter.configuration.openOnFocus) {
                         $(this).data('keyboard').reveal();
-                        $(this).data('keyboard').startup();
+                        if($(".ic_popup_page").length == 0){
+                            $(this).data('keyboard').startup();
+                        }
                     } else {
                         $(this).focus();
                     }
@@ -628,15 +630,17 @@ function AddoneKeyboard_create(){
                         }
                 			if (!stopped) {
                 				if (!base.close(isAccepted)) {
-                                return;
-                            }
-                            if (presenter.addonIsWorkingWithElement(all.eq(indx))) {
-                                    presenter.createEKeyboard(all.eq(indx), display);
-                            }
-                            if (keyboardIsVisible) {
-                                all.eq(indx).trigger('forceClick');
-                            }
-                            all.eq(indx).focus();
+                                    return;
+                                }
+                                if (presenter.addonIsWorkingWithElement(all.eq(indx))) {
+                                        presenter.createEKeyboard(all.eq(indx), display);
+                                }
+                                if (keyboardIsVisible) {
+                                    all.eq(indx).trigger('forceClick');
+                                }
+                                if($(".ic_popup_page").length == 0){
+                                    all.eq(indx).focus();
+                                }
                 			}
 
                         return false;
