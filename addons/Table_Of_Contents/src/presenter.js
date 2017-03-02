@@ -120,6 +120,10 @@ function AddonTable_Of_Contents_create(){
                 commander = presentationController.getCommands(),
                 currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
 
+            if (currentPageIndex == page.index) {
+                $(anchorElement).addClass('current-page');
+            }
+
             $(anchorElement).click(function (event) {
                 event.stopPropagation();
                 event.preventDefault();
