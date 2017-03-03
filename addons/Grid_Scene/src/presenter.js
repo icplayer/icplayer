@@ -363,6 +363,8 @@ function AddonGrid_Scene_create(){
         }
 
         presenter.saveAnswer(isPreview);
+
+        presenter.startCursorPosition = presenter.actualCursorPosition;
     };
 
     presenter.saveAnswer = function Grid_Scene_save_answer(isPreview) {
@@ -853,10 +855,15 @@ function AddonGrid_Scene_create(){
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
         presenter.configuration.color = presenter.configuration.defaultColor;
-        presenter.actualCursorPosition = [1,1];
+
+        if(presenter.configuration.answer.length > 0){
+            presenter.actualCursorPosition = presenter.startCursorPosition;
+        }else {
+            presenter.actualCursorPosition = [1,1];
+        }
+
         presenter.configuration.isErrorMode = false;
         presenter.configuration.isShowingAnswers = false;
-
     };
 
     presenter.setCursor = function (x, y) {
@@ -1089,6 +1096,10 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.getState = function Grid_Scene_get_state () {
+        if(presenter.configuration.isShowingAnswers) {
+            presenter.hideAnswers();
+        }
+
         return JSON.stringify( {
             grid: presenter.coloredGrid,
             visibility: presenter.configuration.isVisible,
@@ -1170,6 +1181,7 @@ function AddonGrid_Scene_create(){
         }
         presenter.configuration.isErrorMode = false;
         presenter.setColoredGridArray(presenter.coloredGrid);
+        presenter.actualCursorPosition = presenter.currentCursorPosition;
     };
 
     presenter.setShowErrorsMode = function () {
@@ -1198,6 +1210,9 @@ function AddonGrid_Scene_create(){
                 }
             }
         }
+
+        presenter.currentCursorPosition = presenter.actualCursorPosition;
+
         presenter.configuration.isErrorMode = true;
     };
 
@@ -1205,6 +1220,9 @@ function AddonGrid_Scene_create(){
         if (!presenter.configuration.isAnswer) {
             return 0;
         }
+
+        presenter.beforeSACursorPosition = presenter.actualCursorPosition;
+
         if(presenter.configuration.isErrorMode) {
             presenter.setWorkMode();
         }
@@ -1223,6 +1241,7 @@ function AddonGrid_Scene_create(){
         presenter.coloredGrid = presenter.lastState;
         presenter.lastState = null;
         presenter.setColoredGridArray(presenter.coloredGrid);
+        presenter.actualCursorPosition = presenter.beforeSACursorPosition;
     };
 
     presenter.onEventReceived = function (eventName) {
