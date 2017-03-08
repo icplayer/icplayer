@@ -903,6 +903,7 @@ function AddonTable_create() {
             presenter.gapsContainer.showAnswers();
             presenter.isShowAnswersActive = true;
             presenter.isSetShowErrorsMode = false;
+            presenter.renderMathJax();
         }
     };
 
@@ -914,6 +915,7 @@ function AddonTable_create() {
             }
             presenter.isShowAnswersActive = false;
             presenter.isSetShowErrorsMode = false;
+            presenter.renderMathJax();
         }
     };
 
@@ -1360,6 +1362,8 @@ function AddonTable_create() {
         DraggableDroppableObject.prototype.fillGap.call(this, selectedItem);
         this.addCssClass("gapFilled");
         this.notify();
+
+        presenter.renderMathJax();
     };
 
     presenter.DraggableDroppableGap.prototype.makeGapEmpty = function () {
@@ -1620,6 +1624,12 @@ function AddonTable_create() {
 
     presenter.getValue = function (index) {
         return presenter.gapsContainer.getGapValueByIndex((index-1))
+    };
+
+    presenter.renderMathJax = function () {
+        MathJax.CallBack.Queue().Push(function () {
+            MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+        });
     };
 
     return presenter;
