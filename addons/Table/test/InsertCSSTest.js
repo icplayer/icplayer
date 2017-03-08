@@ -40,7 +40,7 @@ TestCase("[CSS] Validate css insertion", {
             ],
             newWidthCalculate : 'True'
         };
-        this.expectedResult = '<tbody><tr><td class=\"row_1 col_1\" style=\"width: 50%; height: 50%;\" rowspan=\"1\" colspan=\"1\">1</td><td class=\"row_1 col_2\" style=\"width: 40%; height: 50%;\" rowspan=\"1\" colspan=\"1\">2</td></tr><tr><td class=\"row_2 col_1\" style=\"width: 50%; height: 40%;\" rowspan=\"1\" colspan=\"1\">3</td><td class=\"row_2 col_2\" style=\"width: 40%; height: 40%;\" rowspan=\"1\" colspan=\"1\">4</td></tr></tbody>';
+        this.expectedResult = '<tbody><tr><td class=\"row_1 col_1\" style=\"width: 50%; height: 50%;\" rowspan=\"1\" colspan=\"1\">1</td><td class=\"row_1 col_2\" style=\"width: 40%; height: 50%;\" rowspan=\"1\" colspan=\"1\">2</td></tr><tr><td class=\"row_2 col_1\" style=\"width: 50%; height: 40%;\" rowspan=\"1\" colspan=\"1\">3</td><td class=\"row_2 col_2\" style=\"width: 40%; height: 40%;\" rowspan=\"1\" colspan=\"1\">4</td></tr></tbody>'.split('').sort().join('');
     },
 
     'test all cells have valid width' : function () {
@@ -50,7 +50,7 @@ TestCase("[CSS] Validate css insertion", {
         this.presenter.setColumnWidth($table, model.columnsWidths, model.rowsHeights);
         this.presenter.setRowHeight($table, model.rowsHeights);
 
-        assertEquals(this.expectedResult, $table.html());
+        assertEquals(this.expectedResult, $table.html().split('').sort().join(''));
 
     }
 
