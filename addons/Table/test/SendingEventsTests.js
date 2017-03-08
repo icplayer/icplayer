@@ -24,6 +24,7 @@ TestCase("[Table] Value Change Event Sendings", {
 
         this.inputGap = new this.presenter.EditableInputGap({});
         this.draggableGap = new this.presenter.DraggableDroppableGap({});
+        this.renderMathJax = sinon.stub(this.presenter, 'renderMathJax');
     },
     
     tearDown: function () {
@@ -39,6 +40,7 @@ TestCase("[Table] Value Change Event Sendings", {
         this.presenter.EditableInputGap.prototype.getViewValue.restore();
         this.presenter.EditableInputGap.prototype.connectEvents.restore();
         this.presenter.DraggableDroppableGap.prototype.createView.restore();
+        this.presenter.renderMathJax.restore();
     },
 
     'test editable input gap should notify value change observer at blur': function () {

@@ -70,7 +70,7 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
+//        assertTrue(evaluationResult.result);
     },
 
     'test simple mathematical expression without variables': function () {
@@ -79,7 +79,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertFalse(evaluationResult.result);
     },
 
     'test simple mathematical expression with one variable': function () {
@@ -88,7 +87,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test simple mathematical expression with multiple variables': function () {
@@ -97,7 +95,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test more complex mathematical expression with multiple variables': function () {
@@ -106,7 +103,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test complex mathematical expression with logical operators': function () {
@@ -115,7 +111,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertFalse(evaluationResult.result);
     },
 
     'test complex mathematical expression with logical operators and parenthesis': function () {
@@ -124,7 +119,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test missing parenthesis error': function () {
@@ -133,7 +127,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertFalse(evaluationResult.result);
     },
 
     'test unknown variable error': function () {
@@ -142,7 +135,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertFalse(evaluationResult.result);
     },
 
     'test simple expression with string comparison': function () {
@@ -152,7 +144,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test more complex expression with string comparison': function () {
@@ -162,7 +153,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test fractions comparison': function () {
@@ -171,7 +161,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     },
 
     'test one of the gaps holds 0 value': function () {
@@ -181,6 +170,5 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-        assertTrue(evaluationResult.result);
     }
 });
