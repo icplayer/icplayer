@@ -7,8 +7,6 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
@@ -25,7 +23,6 @@ import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
-import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -929,5 +926,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public String getSemiResponsiveLayoutID() {
 		return this.semiResponsiveLayoutID;
+	}
+
+	@Override
+	public void load(Element rootElement, String url) {
+		// TODO Auto-generated method stub
+		
 	}
 }
