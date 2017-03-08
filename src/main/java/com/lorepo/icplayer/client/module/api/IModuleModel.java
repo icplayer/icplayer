@@ -9,14 +9,13 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public String getModuleTypeName(); // get module type
 	public String getModuleName(); // get translated module name
 	public String getId();
+	public String getButtonType();
 	public void setId(String id);
 	public void release();
-	public void load(Element node, String baseUrl);
 	public String toXML();
 	public void addNameValidator(INameValidator validator);
 	public boolean isLocked();
 	public void lock(boolean state);
-	public String getButtonType();
 	public boolean isModuleInEditorVisible();
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility);
 	public void load(Element node, String baseURL, String version);

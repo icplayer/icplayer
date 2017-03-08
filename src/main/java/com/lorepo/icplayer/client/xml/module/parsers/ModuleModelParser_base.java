@@ -64,7 +64,7 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 		this.parsePosition(xml);
 		this.module.setIsVisible(XMLUtils.getAttributeAsBoolean(xml, "isVisible", true));
 		this.module.setIsLocked(XMLUtils.getAttributeAsBoolean(xml, "isLocked", false));
-		this.module.setIsModuleVisibleInEditor(XMLUtils.getAttributeAsBoolean(xml, "isModuleVisibleInEditor", true));
+		this.module.setModuleInEditorVisibility(XMLUtils.getAttributeAsBoolean(xml, "isModuleVisibleInEditor", true));
 
 		String style = StringUtils.unescapeXML(xml.getAttribute("style"));
 		this.module.setInlineStyle(style);

@@ -38,21 +38,9 @@ public class ImageSourceModule extends BasicModuleModel {
 		
 		return baseUrl + imagePath;
 	}
-	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
-	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-		
-		parseNode(node);
-	}
-
-	private void parseNode(Element node) {
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -74,12 +62,19 @@ public class ImageSourceModule extends BasicModuleModel {
 	@Override
 	public String toXML() {
 		String removableString = removable ? "True":"False";
-		String xml = 
-				"<imageSourceModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "' isDisabled='" + isDisabled + "'/>" +
-				"</imageSourceModule>";
 		
-		return xml;
+		Element imageSourceModule = XMLUtils.createElement("imageSourceModule");
+		this.setBaseXMLAttributes(imageSourceModule);
+		imageSourceModule.appendChild(this.getLayoutsXML());
+		
+		Element image = XMLUtils.createElement("image");
+		image.setAttribute("src", StringUtils.escapeHTML(imagePath));
+		image.setAttribute("removable", removableString);
+		image.setAttribute("isDisabled", Boolean.toString(this.isDisabled));
+		imageSourceModule.appendChild(image);
+		
+		return imageSourceModule.toString();
+		
 	}
 	
 	private void addPropertyIsDisabled() {

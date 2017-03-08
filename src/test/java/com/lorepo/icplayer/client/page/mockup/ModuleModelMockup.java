@@ -196,11 +196,6 @@ public class ModuleModelMockup implements IModuleModel {
 		
 	}
 
-	@Override
-	public void load(Element node, String baseUrl) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public String toXML() {

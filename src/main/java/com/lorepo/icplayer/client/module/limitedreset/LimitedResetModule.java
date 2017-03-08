@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -106,19 +107,9 @@ public class LimitedResetModule extends BasicModuleModel {
 		addProperty(property);
 	}
 	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		parseNode(node);
-	}
-	
-	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-		
-		parseNode(node);
-	}
 
-	private void parseNode(Element node) {
+	@Override
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -146,9 +137,10 @@ public class LimitedResetModule extends BasicModuleModel {
 	
 	@Override
 	public String toXML() {
-		return "<limitedResetModule " + getBaseXML() + ">" 
-			+ getLayoutXML()
-			+ modelToXML()
-			+ "</limitedResetModule>";
+		Element limitedResetModule = XMLUtils.createElement("limitedResetModule");
+		this.setBaseXMLAttributes(limitedResetModule);
+		limitedResetModule.appendChild(this.getLayoutsXML());
+		limitedResetModule.appendChild(XMLParser.parse(this.modelToXML()));
+		return limitedResetModule.toString();
 	}
 }

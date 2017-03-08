@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.model.layout;
 
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.UUID;
 
 public class PageLayout implements PageLayoutBuilder{
@@ -86,5 +89,30 @@ public class PageLayout implements PageLayoutBuilder{
 	
 	public boolean isThisCssStyle(String styleID) {
 		return this.styleID.compareTo(styleID) == 0;
+	}
+
+	public Element toXML() {
+		Document doc = XMLParser.createDocument();
+		Element layout = doc.createElement("layout");
+		layout.setAttribute("name", this.name);
+		layout.setAttribute("id", this.id);
+		
+		if (this.isDefault()) {
+			layout.setAttribute("isDefault", "true");
+		}
+		
+		Element styleNode = doc.createElement("style");
+		styleNode.setAttribute("id", this.styleID);
+		layout.appendChild(styleNode);
+		
+		Element tresholdNode = doc.createElement("treshold");
+		tresholdNode.setAttribute("width", Integer.toString(this.treshold));
+		layout.appendChild(tresholdNode);
+		
+		Element typeNode = doc.createElement("type");
+		typeNode.setAttribute("value", this.type.toString());
+		layout.appendChild(typeNode);
+		
+		return layout;
 	}
 }

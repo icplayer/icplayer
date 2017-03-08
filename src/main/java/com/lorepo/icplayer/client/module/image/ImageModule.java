@@ -49,22 +49,8 @@ public class ImageModule extends BasicModuleModel {
 			return baseUrl + imagePath;
 		}
 	}
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
-	}
-
-	@Override
-	public void load(Element node, String baseUrl) {
 	
-		super.load(node, baseUrl);
-		
-		parseNode(node);
-	}
-
-
-	private void parseNode(Element node) {
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			
@@ -82,7 +68,6 @@ public class ImageModule extends BasicModuleModel {
 		}
 	}
 	
-	
 	private void setModeFromString(String typeName) {
 		
 		if(typeName != null){
@@ -97,14 +82,19 @@ public class ImageModule extends BasicModuleModel {
 
 	@Override
 	public String toXML() {
+		Element imageModule = XMLUtils.createElement("imageModule");
 		
-		String xml = 
-				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
-				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
-				"mode='"+ mode.toString() + "' " + "animatedGifRefresh='" + animatedGifRefresh +"'/>" +
-				"</imageModule>";
+		this.setBaseXMLAttributes(imageModule);
+		imageModule.appendChild(this.getLayoutsXML());
 		
-		return xml;
+		Element imageElement = XMLUtils.createElement("image");
+		imageElement.setAttribute("src", StringUtils.escapeHTML(imagePath));
+		imageElement.setAttribute("mode", mode.toString());
+		imageElement.setAttribute("animatedGifRefresh", Boolean.toString(animatedGifRefresh));
+		
+		imageModule.appendChild(imageElement);
+		
+		return imageModule.toString();
 	}
 	
 	

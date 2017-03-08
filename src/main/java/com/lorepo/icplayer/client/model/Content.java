@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
@@ -24,8 +27,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
-	public static final String DEFAULT_CSS_STYLE_ID = "default";
-	public enum ScoreType{ first, last }
+	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
 	private String name = "";
@@ -41,6 +43,7 @@ public class Content implements IContentBuilder, IContent {
 	private String footerPageName = "commons/footer";
 	
 	private HashMap<String, CssStyle> styles;
+	private String defaultCSSID = "default";
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 	
 	private int maxPagesCount = 100;
@@ -247,7 +250,8 @@ public class Content implements IContentBuilder, IContent {
 
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "\'";
+		xml += " version=\"" + this.version + "\">";
 
 		// Metadata
 		xml += "<metadata>";
@@ -265,11 +269,21 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += 	"</addons>";
 
-		if(styles != null){
-			CssStyle defaultStyle = styles.get("default");
-			xml += "<style>" + StringUtils.escapeHTML(defaultStyle.style) + "</style>";
+		xml += "<styles>";
+		for(CssStyle style : styles.values()) {
+			Element cssStyle = style.toXML();
+			xml += cssStyle.toString();
 		}
-
+		xml += "</styles>";
+		
+		Document xmlDocument = XMLParser.createDocument();
+		Element layouts = xmlDocument.createElement("layouts");
+		for(PageLayout pageLayout : layoutsContainer.getLayouts().values()) {
+			Element pl = pageLayout.toXML();
+			layouts.appendChild(pl);
+		}
+		xml += layouts.toString();
+		
 		// Pages
 		xml += toXMLPages();
 
@@ -514,5 +528,10 @@ public class Content implements IContentBuilder, IContent {
 
 	public CssStyle getStyleBy(String cssStyleID) {
 		return this.styles.get(cssStyleID);
+	}
+
+	@Override
+	public void setActualLayoutID(String id) {
+		this.layoutsContainer.setActualLayoutID(id);
 	}
 }

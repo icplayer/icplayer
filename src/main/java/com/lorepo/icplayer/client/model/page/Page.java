@@ -14,6 +14,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -22,15 +23,13 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.model.ModuleList;
-import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.model.layout.Size;
+import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
 import com.lorepo.icplayer.client.ui.Ruler;
-import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 import com.lorepo.icplayer.client.xml.page.IPageBuilder;
 
 public class Page extends BasicPropertyProvider implements IStyledModule, IPage, IPageBuilder {
@@ -53,6 +52,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	private String id;
 	private String name;
+	private String version = "3";
 	private final String href;
 	private LayoutType layout = LayoutType.pixels;
 	private ScoringType scoringType = ScoringType.percentage;
@@ -142,6 +142,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public String getName() {
 		return name;
 	}
+	
+	public String getVersion() {
+		return this.version;
+	}
 
 	public boolean isLoaded() {
 		return this.loaded;
@@ -164,25 +168,19 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		sendPropertyChangedEvent(propertyName);
 	}
 	
+
+	public void setBaseURL(String fetchUrl) {
+		this.baseURL = fetchUrl.substring(0, fetchUrl.lastIndexOf("/") + 1);
+	}
+	
 	public void setSemiResponsiveLayoutID(String newLayoutID) {
 		this.semiResponsiveLayoutID = newLayoutID;
 	}
 
-	/**
-	 * Ustawienie sposobu layoutowania strony
-	 *
-	 * @param pos
-	 */
 	public void setLayout(LayoutType newLayout) {
 		layout = newLayout;
 	}
 
-	/**
-	 * Serialize page to XML format
-	 *
-	 * @param includeAll
-	 *            - If true save name and isReportable property
-	 */
 	@Override
 	public String toXML() {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
@@ -193,7 +191,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += " scoring='" + scoringType + "'";
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
-		xml += " version='2'";
+		xml += " version='" + this.version +"'";
 
 		if (!cssClass.isEmpty()) {
 			String encodedClass = StringUtils.escapeXML(cssClass);
@@ -208,7 +206,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		// modules
 		xml += "<modules>";
 		for (IModuleModel module : modules) {
-			xml += module.toXML();
+			String moduleXML = module.toXML();
+			xml += moduleXML;
 		}
 		xml += "</modules>";
 
@@ -246,7 +245,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 				.replace("[value]", pageWeight + "")
 				.replace("[mode]", getPageScoreWeight().toString());
 
-		return XMLUtils.removeIllegalCharacters(xml + "</page>");
+		return StringUtils.removeIllegalCharacters(xml + "</page>");
 	}
 
 	public void reload(Element rootElement) {
@@ -284,131 +283,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	@Override
 	public int getModulesMaxScore() {
 		return this.modulesMaxScore;
-	}
-
-	@Override
-	public void load(Element rootElement, String url) {
-		modules.clear();
-		baseURL = url.substring(0, url.lastIndexOf("/") + 1);
-
-		loadPageAttributes(rootElement);
-		loadModules(rootElement);
-		loadGroupedModules(rootElement);
-		loadRulers(rootElement);
-		loadWeight(rootElement);
-		loaded = true;
-	}
-
-	private void loadPageAttributes(Element rootElement) {
-		width = XMLUtils.getAttributeAsInt(rootElement, "width");
-		height = XMLUtils.getAttributeAsInt(rootElement, "height");
-		String style = StringUtils.unescapeXML(rootElement.getAttribute("style"));
-		String css = URLUtils.resolveCSSURL(baseURL, style);
-		setInlineStyle(css);
-		setStyleClass(rootElement.getAttribute("class"));
-
-		String positioning = rootElement.getAttribute("layout");
-		if (positioning == null || positioning.isEmpty()) {
-			setLayout(LayoutType.percentage);
-		} else if (positioning.equals(LayoutType.responsive.toString())) {
-			setLayout(LayoutType.responsive);
-		} else {
-			setLayout(LayoutType.pixels);
-		}
-
-		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
-		setScoreFromString(scoring);
-	}
-
-	private void loadModules(Element rootElement) {
-
-		ModuleFactory moduleFactory = new ModuleFactory(null);
-		Element modulesNode = (Element) rootElement.getElementsByTagName("modules").item(0);
-		NodeList moduleNodeList = modulesNode.getChildNodes();
-
-		for (int i = 0; i < moduleNodeList.getLength(); i++) {
-			Node node = moduleNodeList.item(i);
-
-			if (node instanceof Element) {
-				IModuleModel module = moduleFactory.createModel(node.getNodeName());
-
-				if (module != null) {
-					module.load((Element) node, getBaseURL());
-
-					if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
-						module = new CheckButtonModule();
-						module.load((Element) node, getBaseURL());
-					};
-
-					this.modules.add(module);
-				}
-			}
-		}
-	}
-
-	private void loadGroupedModules(Element rootElement) {
-		NodeList groupNodes = rootElement.getElementsByTagName("group");
-
-		if (groupNodes.getLength() == 0) {
-			return;
-		}
-
-		this.groupedModules.clear();
-
-		for (int i = 0; i < groupNodes.getLength(); i++) { // for each group
-			Element groupNode = (Element) groupNodes.item(i); // get it one
-			Group group = new Group(this);
-			this.groupedModules.add(group.loadGroupFromXML(groupNode));
-		}
-	}
-
-	private void loadRulers(Element rootElement) {
-		NodeList verticalRulers = rootElement.getElementsByTagName("vertical");
-		NodeList horizontalRulers = rootElement.getElementsByTagName("horizontal");
-		List<Ruler> verticals = new ArrayList<Ruler>();
-		List<Ruler> horizontals = new ArrayList<Ruler>();
-
-		if (verticalRulers.getLength() == 0 && horizontalRulers.getLength() == 0) {
-			return;
-		}
-
-		this.rulers.clear();
-
-		for (int i = 0; i < verticalRulers.getLength(); i++) {
-			Element rulerNode = (Element) verticalRulers.item(i);
-			Ruler ruler = new Ruler();
-
-			ruler.setType("vertical");
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
-
-			verticals.add(ruler);
-		}
-
-		for (int i = 0; i < horizontalRulers.getLength(); i++) {
-			Element rulerNode = (Element) horizontalRulers.item(i);
-			Ruler ruler = new Ruler();
-
-			ruler.setType("horizontal");
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
-
-			horizontals.add(ruler);
-		}
-
-		setRulers(verticals, horizontals);
-	}
-
-	private void loadWeight(Element rootElement) {
-		try {
-			final Node weightElement = rootElement.getElementsByTagName("page-weight").item(0);
-			final String value = XMLUtils.getAttributeAsString((Element) weightElement, "value");
-			final String mode = XMLUtils.getAttributeAsString((Element) weightElement, "mode");
-
-			this.pageScoreWeightMode = setWeightFromString(mode);
-			this.pageWeight = (value == "" ? 1 : Integer.parseInt(value));
-		} catch (Exception e) {
-			this.pageScoreWeightMode = PageScoreWeight.defaultWeight;
-			this.pageWeight = 1;
-		}
 	}
 
 	private void addPropertyName() {

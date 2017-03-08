@@ -12,9 +12,7 @@ import com.lorepo.icplayer.client.model.page.Page.LayoutType;
 import com.lorepo.icplayer.client.model.page.Page.PageScoreWeight;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
 import com.lorepo.icplayer.client.ui.Ruler;
-import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 import com.lorepo.icplayer.client.xml.page.IPageBuilder;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -25,8 +23,7 @@ public abstract class PageParserBase implements IPageParser{
 	protected String version;
 	protected IPageBuilder page;
 	
-	public PageParserBase() {
-	}
+	public PageParserBase() {}
 	
 	public void setPage(Page page) {
 		this.page = page;
@@ -43,6 +40,7 @@ public abstract class PageParserBase implements IPageParser{
 		this.page = this.loadPageAttributes(this.page, xml);
 		this.page = this.loadPageStyle(this.page, xml);
 		
+		int pageVersion = XMLUtils.getAttributeAsInt(xml, "version", 2);
 		NodeList children = xml.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++) {
 			if (children.item(i) instanceof Element) {
@@ -50,7 +48,7 @@ public abstract class PageParserBase implements IPageParser{
 				String name = child.getNodeName();
 				
 				if(name.compareTo("modules") == 0) {
-					this.page = this.loadModules(this.page, child);
+					this.page = this.loadModules(this.page, child, pageVersion);
 				} else if(name.compareTo("group") == 0) {
 					this.page = this.loadGroupModules(this.page, child);
 				} else if (name.compareTo("page-weight") == 0) {
@@ -126,7 +124,7 @@ public abstract class PageParserBase implements IPageParser{
 		return page;
 	}
 
-	protected IPageBuilder loadModules(IPageBuilder page2, Element xml) {
+	protected IPageBuilder loadModules(IPageBuilder page, Element xml, int pageVersion) {
 		ModuleFactory moduleFactory = new ModuleFactory(null);
 		NodeList moduleNodeList = xml.getChildNodes();
 
@@ -137,13 +135,7 @@ public abstract class PageParserBase implements IPageParser{
 				IModuleModel module = moduleFactory.createModel(node.getNodeName());
 
 				if (module != null) {
-					module.load((Element) node, page.getBaseURL(), this.getVersion());
-
-					if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
-						module = new CheckButtonModule();
-						module.load((Element) node, page.getBaseURL(), this.getVersion());
-					}
-
+					module.load((Element) node, page.getBaseURL(), Integer.toString(pageVersion));
 					page.addModule(module);
 				}
 			}

@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 
 public class LayoutDefinition implements ILayoutDefinition{
@@ -127,14 +128,32 @@ public class LayoutDefinition implements ILayoutDefinition{
 		return Property.left;
 	}
 
-	public String toXML() {
-		String xml = "<layout type='" + encodeType() + "'>";
-		xml += "<left relative='" + leftRelativeTo + "' property='" + leftRelativeToProperty + "'/>";
-		xml += "<top relative='" + topRelativeTo + "' property='" + topRelativeToProperty + "'/>";
-		xml += "<right relative='" + rightRelativeTo + "' property='" + rightRelativeToProperty + "'/>";
-		xml += "<bottom relative='" + bottomRelativeTo + "' property='" + bottomRelativeToProperty + "'/>";
-		xml += "</layout>";
-		return xml;
+	public Element toXML() {
+		Element layout = XMLUtils.createElement("relative");
+		layout.setAttribute("type", this.encodeType());
+		
+		Element left = XMLUtils.createElement("left");
+		left.setAttribute("relative", this.leftRelativeTo);
+		left.setAttribute("property", this.leftRelativeToProperty.toString());
+		
+		Element top = XMLUtils.createElement("top");
+		top.setAttribute("relative", this.topRelativeTo);
+		top.setAttribute("property", this.topRelativeToProperty.toString());
+		
+		Element right = XMLUtils.createElement("right");
+		right.setAttribute("relative", this.rightRelativeTo);
+		right.setAttribute("property", this.rightRelativeToProperty.toString());
+		
+		Element bottom = XMLUtils.createElement("bottom");
+		bottom.setAttribute("relative", this.bottomRelativeTo);
+		bottom.setAttribute("property", this.bottomRelativeToProperty.toString());
+		
+		layout.appendChild(left);
+		layout.appendChild(top);
+		layout.appendChild(right);
+		layout.appendChild(bottom);
+		
+		return layout;
 	}
 
 	private String encodeType() {

@@ -43,7 +43,7 @@ public class LayoutsContainer {
 	public void clear() {
 		this.layoutsMap.clear();
 	}
-
+	
 	public void setPageLayouts(HashMap<String, PageLayout> layouts) {
 		this.layoutsMap = layouts;
 	}
@@ -56,5 +56,9 @@ public class LayoutsContainer {
 				pageLayout.setIsDefault(false);				
 			}
 		}
+	}
+
+	public void setActualLayoutID(String id) {
+		this.actualLayoutID = id;
 	}
 }

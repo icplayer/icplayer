@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.shape;
 
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
@@ -24,27 +25,18 @@ public class ShapeModule extends BasicModuleModel {
 		super("Shape", DictionaryWrapper.get("shape_module"));
 	}
 
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-	}
-	
-	@Override
-	public void load(Element node, String baseUrl) {
-
-		super.load(node, baseUrl);
-	}
-
-	
 	/**
 	 * Convert module into XML
 	 */
 	@Override
 	public String toXML() {
+		Element shapeModule = XMLUtils.createElement("shapeModule");
+		this.setBaseXMLAttributes(shapeModule);
+		shapeModule.appendChild(this.getLayoutsXML());
 		
-		String xml = 
-				"<shapeModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"</shapeModule>";
-		
-		return xml;
+		return shapeModule.toString();
 	}
+
+	@Override
+	protected void parseModuleNode(Element element) {}
 }

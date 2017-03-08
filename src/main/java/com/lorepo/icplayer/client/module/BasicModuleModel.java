@@ -1,18 +1,11 @@
 package com.lorepo.icplayer.client.module;
 
-
-import java.util.HashMap;
-
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
-import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
@@ -23,20 +16,13 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;
-	private HashMap<String, Boolean> isVisible = new HashMap<String, Boolean>();
-	private HashMap<String, Boolean> isLocked = new HashMap<String, Boolean>();
-	private HashMap<String, Boolean> isModuleVisibleInEditor = new HashMap<String, Boolean>();
 	private String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
-	private String semiResponsiveLayout = "default";
 
 	
 	protected BasicModuleModel(String typeName, String name){
 		super(name);
-		this.isVisible.put(this.semiResponsiveLayout, true);
-		this.isLocked.put(this.semiResponsiveLayout, false);
-		this.isModuleVisibleInEditor.put(this.semiResponsiveLayout, true);
 		this.moduleTypeName = typeName;
 		this.moduleName = name;
 		id = UUID.uuid(6);
@@ -80,65 +66,23 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		super.setInlineStyle(css);
 	}
 	
-	@Override
-	public void load(Element element, String baseUrl, String version) {
-		this.baseURL = baseUrl;
-		
-		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
-		factory.produce(element, version);
-	}
-	
 	/**
 	 * Load attributes common to all modules:
 	 * - position
 	 * - style
 	 */
 	@Override
-	public void load(Element element, String baseUrl) {
+	public void load(Element element, String baseUrl, String version) {
 		this.baseURL = baseUrl;
-		id = element.getAttribute("id");
-		if (id == null || id.compareTo("null") == 0) {
-			id = UUID.uuid(6);
-		} else {
-			id = StringUtils.unescapeXML(id);
-		}
 		
-		int left = XMLUtils.getAttributeAsInt(element, "left");
-		int top = XMLUtils.getAttributeAsInt(element, "top");
-		int width = XMLUtils.getAttributeAsInt(element, "width");
-		int height = XMLUtils.getAttributeAsInt(element, "height");
-		int right = XMLUtils.getAttributeAsInt(element, "right");
-		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
-		isVisible.put(this.semiResponsiveLayout, XMLUtils.getAttributeAsBoolean(element, "isVisible", true));
-		isLocked.put(this.semiResponsiveLayout, XMLUtils.getAttributeAsBoolean(element, "isLocked", false));
-		isModuleVisibleInEditor.put(this.semiResponsiveLayout, XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true));
-		setLeft(left);
-		setTop(top);
-		setWidth(width);
-		setHeight(height);
-		setRight(right);
-		setBottom(bottom);
-		String style = StringUtils.unescapeXML(element.getAttribute("style"));
-		setInlineStyle(style);
-		setStyleClass(StringUtils.unescapeXML( element.getAttribute("class") ));
+		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
+		factory.produce(element, version);
 		
-		NodeList nodes = element.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
-			Node childNode = nodes.item(i);
-			
-			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
-				buttonType = StringUtils.unescapeXML(((Element) childNode).getAttribute("type"));
-				setButtonType(buttonType);
-			}else if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
-				this.loadLayout((Element) childNode);
-			}else if(childNode.getNodeName().compareTo("layouts") == 0 && childNode instanceof Element) {
-				parseLayouts((Element) childNode);
-			}
-		}
+		this.parseModuleNode(element);
 	}
+	
 
-	private void parseLayouts(Element childNode) {
-	}
+	protected abstract void parseModuleNode(Element element);
 
 	public void setButtonType(String type) {
 		this.buttonType = type;
@@ -148,25 +92,21 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		return buttonType;
 	}
 	
-	protected String getBaseXML(){
-		String escapedId = StringUtils.escapeXML(id);
-		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop();
-		xml += "' width='" + getWidth() + "' height='" + getHeight() + "' ";
-		xml += "right='" + getRight();
-		xml += "' bottom='" + getBottom() + "' ";
-		xml += "isVisible='" + isVisible.get(this.semiResponsiveLayout) + "' isLocked='" + isLocked.get(this.semiResponsiveLayout) +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor.get(this.semiResponsiveLayout) +"'";
+	protected Element setBaseXMLAttributes(Element moduleXML){
+		String escapedId = StringUtils.escapeXML(this.getId());
+		moduleXML.setAttribute("id", escapedId);
 		
-		if (!getInlineStyle().isEmpty()) {
+		if (!this.getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
-			xml += " style='" + encodedStyle + "'";
+			moduleXML.setAttribute("style", encodedStyle);
 		}
 		
 		if (!getStyleClass().isEmpty()) {
 			String encodedStyleClass = StringUtils.escapeXML(getStyleClass());
-			xml += " class='" + encodedStyleClass + "'";
+			moduleXML.setAttribute("class", encodedStyleClass);
 		}
-		
-		return xml;
+
+		return moduleXML;
 	}
 
 	private void addPropertyId() {
@@ -242,28 +182,8 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addProperty(property);
 	}
 	
-	public boolean isVisible() {
-		return this.isVisible.get(this.semiResponsiveLayout);
-	}
-
-	public void lock(boolean state) {
-		this.isLocked.put(this.semiResponsiveLayout, state);
-	}
-	
-	public boolean isLocked() {
-		return isLocked.get(this.semiResponsiveLayout);
-	}
-	
 	public String getBaseURL() {
 		return baseURL;
-	}
-	
-	public boolean isModuleInEditorVisible() {
-		return this.isModuleVisibleInEditor.get(this.semiResponsiveLayout);
-	}
-	
-	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
-		this.isModuleVisibleInEditor.put(this.semiResponsiveLayout, moduleInEditorVisibility);
 	}
 	
 	public void setBaseUrl(String baseUrl) {
@@ -279,34 +199,5 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public void setID(String id) {
 		this.id = id;
 	}
-	
-	@Override
-	public void setIsVisible(Boolean isVisible) {
-		this.isVisible.put(this.semiResponsiveLayout, isVisible);
-	}
-	
-	@Override
-	public void setIsLocked(Boolean isLocked) {
-		this.isLocked.put(this.semiResponsiveLayout, isLocked);
-	}
-	
-	@Override
-	public void setIsModuleVisibleInEditor(Boolean isVisibleInEditor) {
-		this.isModuleVisibleInEditor.put(this.semiResponsiveLayout, isVisibleInEditor);
-	}
-	
-	@Override
-	public void setIsVisible(String name, boolean isVisible) {
-		this.isVisible.put(name, isVisible);
-	}
-	
-	@Override
-	public void setIsLocked(String name, boolean isLocked) {
-		this.isLocked.put(name, isLocked);
-	}
-	
-	@Override
-	public void setIsVisibleInEditor(String name, boolean isVisibleInEditor) {
-		this.isModuleVisibleInEditor.put(name, isVisibleInEditor);
-	}
+
 }

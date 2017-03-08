@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.lessonreset;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -149,20 +150,7 @@ private boolean resetChecks = false;
 	}
 	
 	@Override
-	public void load(Element node, String baseUrl) {
-
-		super.load(node, baseUrl);
-		
-		parseNode(node);
-	}
-	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
-	}
-
-	private void parseNode(Element node) {
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -191,9 +179,11 @@ private boolean resetChecks = false;
 	
 	@Override
 	public String toXML() {
-		return "<lessonResetModule " + getBaseXML() + ">" 
-			+ getLayoutXML()
-			+ modelToXML()
-			+ "</lessonResetModule>";
+		Element lessonResetModule = XMLUtils.createElement("lessonResetModule");
+		this.setBaseXMLAttributes(lessonResetModule);
+		lessonResetModule.appendChild(this.getLayoutsXML());
+		lessonResetModule.appendChild(XMLParser.parse(this.modelToXML()));
+		
+		return lessonResetModule.toString();
 	}
 }

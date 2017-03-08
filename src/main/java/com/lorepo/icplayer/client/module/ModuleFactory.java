@@ -59,6 +59,7 @@ import com.lorepo.icplayer.client.module.sourcelist.SourceListView;
 import com.lorepo.icplayer.client.module.text.TextModel;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.text.TextView;
+import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
 public class ModuleFactory implements IModuleFactory{
 
@@ -137,6 +138,10 @@ public class ModuleFactory implements IModuleFactory{
 		else if(xmlNodeName.compareTo("addonModule") == 0){
 			module = new AddonModel();
 		}
+		
+		if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
+			module = new CheckButtonModule();
+		};
 		
 		return module;
 	}

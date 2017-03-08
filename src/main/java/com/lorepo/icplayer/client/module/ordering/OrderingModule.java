@@ -69,20 +69,8 @@ public class OrderingModule extends BasicModuleModel {
 		return optionalOrder;
 	}
 	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
-	}
-
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-
-		parseNode(node);
-	}
-
-	private void parseNode(Element node) {
+	protected void parseModuleNode(Element node) {
 		items.clear();
 		// Read ordering node
 		NodeList nodeList = node.getElementsByTagName("ordering");
@@ -150,17 +138,26 @@ public class OrderingModule extends BasicModuleModel {
 	 */
 	@Override
 	public String toXML() {
+		Element orderingModule = XMLUtils.createElement("orderingModule");
+		this.setBaseXMLAttributes(orderingModule);
+		orderingModule.appendChild(this.getLayoutsXML());
+		
+		Element ordering = XMLUtils.createElement("ordering");
 
-		String xml = "<orderingModule " + getBaseXML() + ">" + getLayoutXML();
-
-		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" +
-				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) + "'/>";
+		XMLUtils.setBooleanAttribute(ordering, "isVertical", isVertical);
+		XMLUtils.setBooleanAttribute(ordering, "isActivity", isActivity);
+		XMLUtils.setBooleanAttribute(ordering, "allElementsHasSameWidth", allElementsHasSameWidth);
+		XMLUtils.setBooleanAttribute(ordering, "graduallyScore", graduallyScore);
+		ordering.setAttribute("optionalOrder", optionalOrder);
+		orderingModule.appendChild(ordering);
 
 		for (OrderingItem item : items) {
-			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
+			Element itemElement = XMLUtils.createElement("item");
+			itemElement.appendChild(XMLUtils.createCDATASection(item.getText()));
+			orderingModule.appendChild(itemElement);
 		}
-
-		return xml + "</orderingModule>";
+		
+		return orderingModule.toString();
 	}
 
 	public int getMaxScore() {

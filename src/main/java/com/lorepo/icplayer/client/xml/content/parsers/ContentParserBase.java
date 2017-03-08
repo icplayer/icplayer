@@ -118,7 +118,6 @@ public abstract class ContentParserBase implements IContentParser {
 		return name;
 	}
 
-
 	protected HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) {
 		HashMap<String, AddonDescriptor> addonDescriptors = new HashMap<String, AddonDescriptor>();
 		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
@@ -202,8 +201,6 @@ public abstract class ContentParserBase implements IContentParser {
 		}
 	}
 	
-	
-	
 	protected void parsePages(Content content, Element rootElement, ArrayList<Integer> pageSubset) {
 		NodeList children = rootElement.getChildNodes();
 		
@@ -224,8 +221,6 @@ public abstract class ContentParserBase implements IContentParser {
 	public String getVersion() {
 		return this.version;
 	}
-	
-	
 
 	protected String parseName(Element rootElement) {
 		String name = XMLUtils.getAttributeAsString(rootElement, "name");
@@ -252,6 +247,7 @@ public abstract class ContentParserBase implements IContentParser {
 			defaultStyle.style = StringUtils.unescapeXML(style);
 		}
 		
+		defaultStyle.setIsDefault(true);
 		styles.put("default", defaultStyle);
 	
 		return styles;

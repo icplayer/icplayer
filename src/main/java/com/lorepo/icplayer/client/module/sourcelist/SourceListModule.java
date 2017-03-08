@@ -47,24 +47,8 @@ public class SourceListModule extends BasicModuleModel{
 		return removable;
 	}
 	
-	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
-	}
-	
 	@Override
-	public void load(Element rootElement, String baseUrl) {
-	
-		super.load(rootElement, baseUrl);
-		
-		parseNode(rootElement);
-		
-	}
-
-
-	private void parseNode(Element rootElement) {
+	protected void parseModuleNode(Element rootElement) {
 		NodeList nodeList = rootElement.getElementsByTagName("items");
 		if(nodeList.getLength() > 0){
 			Element itemsElement = (Element)nodeList.item(0);
@@ -89,18 +73,24 @@ public class SourceListModule extends BasicModuleModel{
 	
 	@Override
 	public String toXML() {
-		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
+		Element sourceListModule = XMLUtils.createElement("sourceListModule");
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>";
+		this.setBaseXMLAttributes(sourceListModule);
+		sourceListModule.appendChild(this.getLayoutsXML());
 		
+		Element itemsElement = XMLUtils.createElement("items");
+		XMLUtils.setBooleanAttribute(itemsElement, "removable", removable);
+		XMLUtils.setBooleanAttribute(itemsElement, "vertical", vertical);
+		XMLUtils.setBooleanAttribute(itemsElement, "randomOrder", randomOrder);
+
 		for(String item : items){
-			xml += "<item><![CDATA[" + item + "]]></item>";
+			Element itemElement = XMLUtils.createElement("item");
+			itemElement.appendChild(XMLUtils.createCDATASection(item));
+			itemsElement.appendChild(itemElement);
 		}
 
-		xml += "</items>";
-		xml += "</sourceListModule>";
-		
-		return xml;
+		sourceListModule.appendChild(itemsElement);
+		return sourceListModule.toString();
 	}
 
 

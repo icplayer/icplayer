@@ -1,4 +1,8 @@
 var ice_dictionary_mx = {
+	"set_semi_responsive_layout_css_style_title": "Change Semi-Responsive Layout CSS Style",
+	"set_semi_responsive_layout_css_style_accept_action": "Accept",
+	"set_semi_responsive_layout_css_style_decline_action": "Cancel",
+    "semi_responsive_default_mark": "(default)",
     "add_new_style_title": "Add new style",
     "add_new_style_style_name": "Name",
     "add_new_style_add_action": "Add",

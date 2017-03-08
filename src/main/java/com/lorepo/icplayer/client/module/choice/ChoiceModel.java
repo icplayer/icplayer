@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
@@ -73,22 +74,9 @@ public class ChoiceModel extends BasicModuleModel{
 	public boolean isMulti() {
 		return isMulti;
 	}
-	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node, baseUrl);
-	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-	
-		super.load(node, baseUrl);
-		
-		parseNode(node, baseUrl);
-	}
-
-	private void parseNode(Element node, String baseUrl) {
+	protected void parseModuleNode(Element node) {
 		options.clear();
 		maxScore = 0;
 		
@@ -111,7 +99,7 @@ public class ChoiceModel extends BasicModuleModel{
 			Element element = (Element)optionNodes.item(i);
 			String optionID = Integer.toString(i+1);
 			ChoiceOption option = new ChoiceOption(optionID);
-			option.load(element, baseUrl);
+			option.load(element, this.getBaseURL());
 			addOption(option);
 		}
 	}
@@ -136,24 +124,30 @@ public class ChoiceModel extends BasicModuleModel{
 	 */
 	@Override
 	public String toXML() {
+		Element choiceModule = XMLUtils.createElement("choiceModule");
 		
-		String xml = "<choiceModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<choice " +
-				"isMulti='" + isMulti + "' " +
-				"isDisabled='" + isDisabled +  "' " +
-				"isActivity='" + isActivity +  "' " +
-				"randomOrder='" + randomOrder +  "' " +
-				"isHorizontal='" + isHorizontal +  "' " +
-				" />";
-		xml += "<options>";
+		this.setBaseXMLAttributes(choiceModule);
+		choiceModule.appendChild(this.getLayoutsXML());
+		
+		Element choice = XMLUtils.createElement("choice");
+		choice.setAttribute("isMulti", Boolean.toString(isMulti));
+		choice.setAttribute("isDisabled", Boolean.toString(isDisabled));
+		choice.setAttribute("isActivity", Boolean.toString(isActivity));
+		choice.setAttribute("randomOrder", Boolean.toString(randomOrder));
+		choice.setAttribute("isHorizontal", Boolean.toString(isHorizontal));
+		
+		choiceModule.appendChild(choice);
+		
+		String optionsXML = "";
+		optionsXML += "<options>";
 		for(ChoiceOption option : options){
-			xml += option.toXML();
+			optionsXML += option.toXML();
 		}
-		xml += "</options>";
-
-		xml += "</choiceModule>";
-		
-		return xml;
+		optionsXML += "</options>";
+		Element optionsElement = (Element) XMLParser.parse(optionsXML);
+		choiceModule.appendChild(optionsElement);
+	
+		return choiceModule.toString();
 	}
 
 	

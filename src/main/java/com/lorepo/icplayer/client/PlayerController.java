@@ -310,8 +310,6 @@ public class PlayerController implements IPlayerController{
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
-
-
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {

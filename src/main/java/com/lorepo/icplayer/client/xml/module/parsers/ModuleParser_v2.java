@@ -35,6 +35,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		Boolean isLocked = XMLUtils.getAttributeAsBoolean((Element) xml, "isLocked", false);
 		String id = XMLUtils.getAttributeAsString((Element) xml, "id");
 		ModuleDimensions dimensions = null;
+		
 		LayoutDefinition relativeLayout = new LayoutDefinition();
 		
 		NodeList nodes = xml.getChildNodes();
@@ -48,6 +49,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 			}
 		}
 		
+		this.module.setRelativeLayout(id, relativeLayout);
 		this.module.addSemiResponsiveDimensions(id, dimensions);
 		this.module.setIsVisible(id, isVisible);
 		this.module.setIsLocked(id, isLocked);

@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.module.pageprogress;
 
+
+import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
@@ -30,15 +33,15 @@ public class PageProgressModule extends BasicModuleModel{
 	 */
 	@Override
 	public String toXML() {
-		
-		String xml = 
-				"<pageProgressModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"</pageProgressModule>";
-		
-		return xml;
+		Element module = XMLUtils.createElement("pageProgressModule");
+		this.setBaseXMLAttributes(module);
+		module.appendChild(this.getLayoutsXML());
+		return module.toString();
 	}
 
 
-
-
+	@Override
+	protected void parseModuleNode(Element element) {
+		// TODO Auto-generated method stub
+	}
 }

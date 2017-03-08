@@ -26,30 +26,23 @@ public class ErrorCounterModule extends BasicModuleModel{
 	
 	@Override
 	public String toXML() {
+		Element errorCounterModule = XMLUtils.createElement("errorCounterModule");
 		
-		String xml = "<errorCounterModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<counter showErrorCounter='" + showErrorCounter +
-				"' showMistakeCounter='" + showMistakeCounter + 
-				"' realTimeCalculation='" + realTimeCalculation + "'/>";
-		xml += "</errorCounterModule>";
+		this.setBaseXMLAttributes(errorCounterModule);
+		errorCounterModule.appendChild(this.getLayoutsXML());
 		
-		return xml;
+		Element counter = XMLUtils.createElement("counter");
+		counter.setAttribute("showErrorCounter", Boolean.toString(this.showErrorCounter));
+		counter.setAttribute("showMistakeCounter", Boolean.toString(this.showMistakeCounter));
+		counter.setAttribute("realTimeCalculation", Boolean.toString(this.realTimeCalculation));
+		
+		errorCounterModule.appendChild(counter);
+
+		return errorCounterModule.toString();
 	}
 	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
-	}
-
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-		parseNode(node);
-	}
-
-
-	private void parseNode(Element node) {
+	protected void parseModuleNode(Element node) {
 		NodeList counters = node.getElementsByTagName("counter");
 		if(counters.getLength() > 0){
 			Element counterElement = (Element)counters.item(0);

@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -163,20 +164,7 @@ public class LimitedCheckModule extends BasicModuleModel {
 	}
 	
 	@Override
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		parseNode(node);
-	}
-	
-	@Override
-	public void load(Element node, String baseUrl) {
-
-		super.load(node, baseUrl);
-		
-		parseNode(node);
-	}
-
-	private void parseNode(Element node) {
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -206,9 +194,11 @@ public class LimitedCheckModule extends BasicModuleModel {
 
 	@Override
 	public String toXML() {
-		return "<limitedCheckModule " + getBaseXML() + ">" 
-			+ getLayoutXML()
-			+ modelToXML()
-			+ "</limitedCheckModule>";
+		Element limitedCheckModule = XMLUtils.createElement("limitedCheckModule");
+		this.setBaseXMLAttributes(limitedCheckModule);
+		limitedCheckModule.appendChild(this.getLayoutsXML());
+		limitedCheckModule.appendChild(XMLParser.parse(this.modelToXML()));
+		
+		return limitedCheckModule.toString();
 	}
 }

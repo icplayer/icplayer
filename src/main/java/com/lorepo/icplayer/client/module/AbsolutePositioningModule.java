@@ -3,7 +3,9 @@ package com.lorepo.icplayer.client.module;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -115,8 +117,12 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		this.semiResponsivePositions.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
 	}
 	
-	protected String getLayoutXML() {
-		return this.getCurrentLayoutDefinition().toXML();
+	public Element getLayoutsXML() {
+		return this.semiResponsivePositions.toXML();
+	}
+	
+	public void setRelativeLayout(String id, LayoutDefinition relativeLayout) {
+		this.semiResponsivePositions.addRelativeLayout(id, relativeLayout);
 	}
 
 	@Override
@@ -487,5 +493,46 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		LayoutDefinition layout = new LayoutDefinition();
 		layout.load(node);
 		this.semiResponsivePositions.setLayoutDefinition("default", layout);
+	}
+	
+	
+	public boolean isModuleInEditorVisible() {
+		return this.semiResponsivePositions.isModuleInEditorVisible();
+	}
+	
+	public boolean isVisible() {
+		return this.semiResponsivePositions.isVisible();
+	}
+	
+	public boolean isLocked() {
+		return this.semiResponsivePositions.isLocked();
+	}
+	
+	public void setIsVisible(Boolean isVisible) {
+		this.semiResponsivePositions.setIsVisible(isVisible);
+	}
+	
+	public void setIsLocked(Boolean isLocked) {
+		this.semiResponsivePositions.setIsLocked(isLocked);
+	}
+	
+	public void setModuleInEditorVisibility(boolean isVisibleInEditor) {
+		this.semiResponsivePositions.setIsVisibleInEditor(isVisibleInEditor);
+	}
+	
+	public void setIsVisibleInEditor(String name, boolean isVisibleInEditor) {
+		this.semiResponsivePositions.setIsVisibleInEditor(name, isVisibleInEditor);
+	}
+	
+	public void setIsVisible(String name, boolean isVisible) {
+		this.semiResponsivePositions.setIsVisible(name, isVisible);
+	}
+	
+	public void setIsLocked(String name, boolean isLocked) {
+		this.semiResponsivePositions.setIsLocked(name, isLocked);
+	}
+	
+	public void lock(boolean state) {
+		this.semiResponsivePositions.lock(state);
 	}
 }

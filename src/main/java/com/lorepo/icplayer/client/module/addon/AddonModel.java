@@ -42,25 +42,10 @@ public class AddonModel extends BasicModuleModel {
 	@Override
 	public String getProviderName() {
 		return getModuleTypeName();
-	}	
-	
-	public void load(Element node, String baseUrl, String version) {
-		super.load(node, baseUrl, version);
-		
-		parseNode(node);
 	}
 	
 	@Override
-	public void load(Element rootElement, String baseUrl) {
-
-		super.load(rootElement, baseUrl);
-		this.baseURL = baseUrl;
-
-		parseNode(rootElement);
-	}
-
-
-	private void parseNode(Element rootElement) {
+	protected void parseModuleNode(Element rootElement) {
 		addonParams.clear();
 		addonId = rootElement.getAttribute("addonId");
 		loadProperties(rootElement);
@@ -90,23 +75,23 @@ public class AddonModel extends BasicModuleModel {
 		}
 	}
 
-
 	@Override
 	public String toXML() {
+		Element addonModule = XMLUtils.createElement("addonModule");
 		
-		String xml;
+		addonModule.setAttribute("addonId", addonId);
+		this.setBaseXMLAttributes(addonModule);
+		addonModule.appendChild(this.getLayoutsXML());
 		
-			xml = "<addonModule addonId='" + addonId + "' " + getBaseXML() + ">" + getLayoutXML();
-			
-			xml +="<properties>";
-			for(IAddonParam property: addonParams){
-				xml += property.toXML();
-			}
-			xml +="</properties>";
-			
-			xml +="</addonModule>";
+		Element properties = XMLUtils.createElement("properties");
 		
-		return xml;
+		for (IAddonParam property : addonParams) {
+			properties.appendChild(property.toXML());
+		}
+		
+		addonModule.appendChild(properties);
+		
+		return addonModule.toString();
 	}
 
 
@@ -128,7 +113,6 @@ public class AddonModel extends BasicModuleModel {
 		
 		addAddonParam(addonParam);
 	}
-
 
 	public void addAddonParam(IAddonParam param) {
 

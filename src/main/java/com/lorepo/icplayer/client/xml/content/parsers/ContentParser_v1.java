@@ -28,11 +28,14 @@ public class ContentParser_v1 extends ContentParserBase {
 				Element childNode = (Element) childrenNodes.item(i);
 				String name = XMLUtils.getAttributeAsString(childNode, "name");
 				String id = XMLUtils.getAttributeAsString(childNode, "id");
+				boolean isDefault = XMLUtils.getAttributeAsBoolean(childNode, "isDefault", false);
 				String style = XMLUtils.getText(childNode);
 				
 				if(style.length() > 0) {
 					style = StringUtils.unescapeXML(style);
-					styles.put(id, new CssStyle(id, name, style));
+					CssStyle cssStyle = new CssStyle(id, name, style);
+					cssStyle.setIsDefault(isDefault);
+					styles.put(id, cssStyle);
 				}
 			}
 		}
@@ -47,18 +50,22 @@ public class ContentParser_v1 extends ContentParserBase {
 	@Override
 	protected Content parseLayouts(IContentBuilder content, Element child) {
 		NodeList childrenNodes = child.getChildNodes();
+		
 		for(int i = 0; i < childrenNodes.getLength(); i++) {
 			if(childrenNodes.item(i) instanceof Element) {
 				Element layoutNode = (Element) childrenNodes.item(i);
 				String name = XMLUtils.getAttributeAsString(layoutNode, "name");
 				String id = XMLUtils.getAttributeAsString(layoutNode, "id");
 				boolean isDefault = XMLUtils.getAttributeAsBoolean(layoutNode, "isDefault", false);
-				
 				PageLayout pageLayout = new PageLayout(id, name);
 				pageLayout.setIsDefault(isDefault);
 				this.parseLayoutChildren(pageLayout, layoutNode);
 				
 				content.addLayout(pageLayout);
+				
+				if (isDefault) {
+					content.setActualLayoutID(id);
+				}
 			}
 		}
 		
