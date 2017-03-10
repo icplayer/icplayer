@@ -609,7 +609,7 @@ function AddonParagraph_create() {
 
         // iOS fix to hide keyboard after page change
         var ua = window.navigator.userAgent,
-            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            iOS = !!ua.match(/iPad/i),
             webkit = !!ua.match(/WebKit/i),
             iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
         if(iOSSafari){
