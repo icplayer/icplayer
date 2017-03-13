@@ -1,3 +1,4 @@
+2017-03-13 Added filled gap in Table module
 2017-03-10 Fixed problem with zoom on iPhone in Paragraph module
 2017-03-08 Fixed test in Table module
 2017-03-08 Fixed tests in Math and Table modules

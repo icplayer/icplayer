@@ -1384,8 +1384,16 @@ function AddonTable_create() {
         this.gaps.filter(function (gap) {
             return gap.gapType == presenter.GapUtils.GAP_TYPE.NORMAL;
         }).forEach(function (gap) {
-            var gapID = "#" + gap.getObjectID();
-            presenter.$view.find(gapID).replaceWith(gap.getView());
+            var gapID = "#" + gap.getObjectID(),
+                element = presenter.$view.find(gapID),
+                placeholder = element.attr("placeholder");
+
+            element.replaceWith(gap.getView());
+            element = presenter.$view.find(gapID);
+            if(placeholder) {
+                element.attr("placeholder", placeholder);
+                element.removeClass("ic_gap").addClass("ic_filled_gap");
+            }
         });
     };
 
