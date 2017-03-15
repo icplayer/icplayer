@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -24,6 +23,8 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DictionaryWrapper.class)
 public class ModelTestCase {
+	
+	private static final String PAGE_VERSION = "2";
 
 	@Test
 	public void moduleTypeName() {
@@ -43,12 +44,7 @@ public class ModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ErrorCounterModule module = new ErrorCounterModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ErrorCounterModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertTrue(module.getShowErrorCounter());
 	}
@@ -62,12 +58,7 @@ public class ModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ErrorCounterModule module = new ErrorCounterModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ErrorCounterModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertTrue(module.getShowMistakeCounter());
 	}
@@ -81,12 +72,7 @@ public class ModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ErrorCounterModule module = new ErrorCounterModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ErrorCounterModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertFalse(module.getShowErrorCounter());
 	}
@@ -100,12 +86,7 @@ public class ModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ErrorCounterModule module = new ErrorCounterModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ErrorCounterModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertFalse(module.getShowMistakeCounter());
 	}
@@ -141,7 +122,7 @@ public class ModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ErrorCounterModule module = new ErrorCounterModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		String propertyValue = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){

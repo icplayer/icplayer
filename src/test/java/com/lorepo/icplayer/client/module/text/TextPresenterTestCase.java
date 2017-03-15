@@ -29,6 +29,7 @@ import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
 
 public class TextPresenterTestCase {
 
+	private static final String PAGE_VERSION = "2";
 	private TextModel module;
 	private PlayerServicesMockup services;
 	private TextViewMockup display;
@@ -46,7 +47,7 @@ public class TextPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);
@@ -283,7 +284,7 @@ public class TextPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);
@@ -309,7 +310,7 @@ public class TextPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);

@@ -43,7 +43,6 @@ public class Content implements IContentBuilder, IContent {
 	private String footerPageName = "commons/footer";
 	
 	private HashMap<String, CssStyle> styles;
-	private String defaultCSSID = "default";
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 	
 	private int maxPagesCount = 100;
@@ -533,5 +532,15 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setActualLayoutID(String id) {
 		this.layoutsContainer.setActualLayoutID(id);
+	}
+
+	public void setDefaultCSSStyle(String cssStyleID) {
+		for (CssStyle style : this.styles.values()) {
+			if (style.getID().compareTo(cssStyleID) == 0) {
+				style.setIsDefault(true);	
+			} else {
+				style.setIsDefault(false);
+			}
+		}
 	}
 }

@@ -49,7 +49,7 @@ public abstract class PageParserBase implements IPageParser{
 				
 				if(name.compareTo("modules") == 0) {
 					this.page = this.loadModules(this.page, child, pageVersion);
-				} else if(name.compareTo("group") == 0) {
+				} else if(name.compareTo("groups") == 0) {
 					this.page = this.loadGroupModules(this.page, child);
 				} else if (name.compareTo("page-weight") == 0) {
 					this.page = this.loadWeight(this.page, child);
@@ -109,7 +109,9 @@ public abstract class PageParserBase implements IPageParser{
 	private IPageBuilder loadGroupModules(IPageBuilder page, Element xml) {
 		NodeList groupNodes = xml.getElementsByTagName("group");
 
+		System.out.print("parsuje grupy");
 		if (groupNodes.getLength() == 0) {
+			System.out.print("length wynosi 0");
 			return page;
 		}
 
@@ -175,10 +177,9 @@ public abstract class PageParserBase implements IPageParser{
 		int width = XMLUtils.getAttributeAsInt(xml, "width");
 		int height = XMLUtils.getAttributeAsInt(xml, "height");
 		
-		page.addSize("default", new Size(width, height));
-		
-		page.setWidth(XMLUtils.getAttributeAsInt(xml, "width"));
-		page.setHeight(XMLUtils.getAttributeAsInt(xml, "height"));
+		Size size = new Size("default", width, height);
+		size.setIsDefault(true);
+		page.addSize("default", size);
 		return page;
 	}
 	

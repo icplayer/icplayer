@@ -33,10 +33,10 @@ public class ContentParser_v1 extends ContentParserBase {
 				
 				if(style.length() > 0) {
 					style = StringUtils.unescapeXML(style);
-					CssStyle cssStyle = new CssStyle(id, name, style);
-					cssStyle.setIsDefault(isDefault);
-					styles.put(id, cssStyle);
 				}
+				CssStyle cssStyle = new CssStyle(id, name, style);
+				cssStyle.setIsDefault(isDefault);
+				styles.put(id, cssStyle);
 			}
 		}
 		

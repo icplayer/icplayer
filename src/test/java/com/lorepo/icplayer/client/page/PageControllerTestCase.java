@@ -19,12 +19,27 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
+import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v1;
 
 public class PageControllerTestCase {
 
 	private PageViewMockup display;
 	private PageController pageController;
 	
+	private void loadPage(String xmlFile, Page page) {
+		InputStream inputStream = getClass().getResourceAsStream(xmlFile);
+		try {
+			XMLParserMockup xmlParser = new XMLParserMockup();
+			Element element = xmlParser.parser(inputStream);
+			PageParser_v1 parser = new PageParser_v1();
+			parser.setPage(page);
+			page = (Page) parser.parse(element);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public void init(String pageURL) throws SAXException, IOException {
 		
@@ -34,12 +49,8 @@ public class PageControllerTestCase {
 		pageController.setView(display);
 		pageController.setModuleFactory(new ModuleFactoryMockup(pageController.getPlayerServices()));
 		
-		InputStream inputStream = getClass().getResourceAsStream(pageURL);
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
 		Page page = new Page("Sizes", "");
-		page.load(element, "");
+		loadPage(pageURL, page);
 		
 		pageController.setPage(page);
 	}

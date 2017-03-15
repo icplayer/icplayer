@@ -87,7 +87,6 @@ public class SaveStateTestCase {
 	}
 
 	private static Page createPageWithSingleChoice(String pageName, String pageUrl) {
-
 		Page page = new Page(pageName, pageUrl);
 		
 		page.heightModifications = PowerMockito.mock(PageHeightModifications.class);

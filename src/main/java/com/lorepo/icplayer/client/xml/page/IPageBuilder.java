@@ -11,8 +11,8 @@ import java.util.List;
 import com.lorepo.icplayer.client.ui.Ruler;
 
 public interface IPageBuilder {
-	public void setWidth(Integer width);
-	public void setHeight(Integer height);
+	public void setWidth(int width);
+	public void setHeight(int height);
 	public void setStyleCss(String css);
 	public void setStyleClass(String styleClass);
 	public void setLayout(LayoutType layoutType);

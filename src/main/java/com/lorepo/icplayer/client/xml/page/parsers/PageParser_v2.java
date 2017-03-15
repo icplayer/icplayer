@@ -19,13 +19,15 @@ public class PageParser_v2 extends PageParserBase {
 		for(int i = 0; i < children.getLength(); i++) {
 			if (children.item(i) instanceof Element) {
 				Element child = (Element) children.item(i);
+				String layoutID = child.getAttribute("id");
 				int width = XMLUtils.getAttributeAsInt(child, "width");
 				int height = XMLUtils.getAttributeAsInt(child, "height");
-				String name = child.getAttribute("name");
+				boolean isDefault = XMLUtils.getAttributeAsBoolean(child, "isDefault", false);
 				
-				page.addSize(name, new Size(width, height));
+				Size size = new Size(layoutID, width, height);
+				size.setIsDefault(isDefault);
+				page.addSize(layoutID, size);
 			}
-			
 		}
 		
 		return page;

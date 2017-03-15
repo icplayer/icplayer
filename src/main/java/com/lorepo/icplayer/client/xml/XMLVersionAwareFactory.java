@@ -43,7 +43,6 @@ public abstract class XMLVersionAwareFactory implements IXMLFactory {
 					// Handle the error.  Can get the status text from response.getStatusText()
 					listener.onError("Wrong status: " + response.getText());
 				}
-
 			}
 
 			@Override
@@ -54,7 +53,6 @@ public abstract class XMLVersionAwareFactory implements IXMLFactory {
 	}
 
 	public Object produce(String xmlString, String fetchUrl) {
-
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
 		String version = XMLUtils.getAttributeAsString(xml, "version", "1");
 		Object producedContent = this.parsersMap.get(version).parse(xml);
