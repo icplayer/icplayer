@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetModule;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter.IDisplay;
@@ -45,17 +46,18 @@ public class LessonResetView extends PushButton implements IDisplay {
 
 					event.stopPropagation();
 					event.preventDefault();
-					
+
 					if (isDisabled) {
 						return;
 					}
-					
+
 					if (isShowAnswersMode) {
 						playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
 						
 						isShowAnswersMode = false;
 					}
 					
+					playerServices.getEventBus().fireEvent(new ValueChangedEvent(module.getId(), "Lesson Reset", "", ""));
 					playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
 					playerServices.getStateService().resetStates();
 					playerServices.getEventBus().fireEvent(new ResetPageEvent());
