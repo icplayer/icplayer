@@ -40,7 +40,7 @@ public class ContentParser_v1 extends ContentParserBase {
 			}
 		}
 		
-		if(styles.keySet().contains("default") == false) {
+		if(styles.keySet().contains("default") == false && styles.size() == 0) {
 			styles.put("default", new CssStyle("default", "default", ""));
 		}
 		
@@ -101,9 +101,9 @@ public class ContentParser_v1 extends ContentParserBase {
 	}
 
 	private PageLayout parseTreshold(PageLayout pageLayout, Element tresholdNode) {
-		int right = XMLUtils.getAttributeAsInt(tresholdNode, "right");
+		int width = XMLUtils.getAttributeAsInt(tresholdNode, "width");
 		
-		pageLayout.setTreshold(right);
+		pageLayout.setTreshold(width);
 		
 		return pageLayout;
 	}

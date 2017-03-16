@@ -109,9 +109,7 @@ public abstract class PageParserBase implements IPageParser{
 	private IPageBuilder loadGroupModules(IPageBuilder page, Element xml) {
 		NodeList groupNodes = xml.getElementsByTagName("group");
 
-		System.out.print("parsuje grupy");
 		if (groupNodes.getLength() == 0) {
-			System.out.print("length wynosi 0");
 			return page;
 		}
 
