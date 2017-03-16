@@ -281,7 +281,6 @@ public class PlayerApp {
 		return $wnd.$(".ic_header").css("height");
 	}-*/;
 
-
 	public static native String getStaticHeaderHeight() /*-{
 		return $wnd.$(".ic_static_header").css("height").replace("px", "");
 	}-*/;

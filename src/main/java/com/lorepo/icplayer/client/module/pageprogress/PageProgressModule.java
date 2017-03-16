@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.module.pageprogress;
 
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,6 +37,7 @@ public class PageProgressModule extends BasicModuleModel{
 
 		addPropertyWorksWith();
 	}
+
 
 	/**
 	 * Convert module into XML

@@ -106,7 +106,6 @@ public class LimitedResetModule extends BasicModuleModel {
 		
 		addProperty(property);
 	}
-	
 
 	@Override
 	protected void parseModuleNode(Element node) {
@@ -143,4 +142,5 @@ public class LimitedResetModule extends BasicModuleModel {
 		limitedResetModule.appendChild(XMLParser.parse(this.modelToXML()));
 		return limitedResetModule.toString();
 	}
+
 }

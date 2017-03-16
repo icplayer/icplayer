@@ -114,8 +114,7 @@ public class SemiResponsivePositions {
 		}
 	}
 
-	private Set<String> convertToActualLayoutsIDs(
-			Set<PageLayout> actualSemiResponsiveLayouts) {
+	private Set<String> convertToActualLayoutsIDs(Set<PageLayout> actualSemiResponsiveLayouts) {
 		Set<String> actualIDs = new HashSet<String>();
 		for (PageLayout pl : actualSemiResponsiveLayouts) {
 			actualIDs.add(pl.getID());

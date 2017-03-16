@@ -177,7 +177,8 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			sendPropertyChangedEvent(heightProperty);
 		}
 	}
-	
+
+
 	private void addPropertyLayout() {
 
 		layoutProperty = new ILayoutProperty() {
@@ -219,7 +220,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 
 	private void addPropertyLeft() {
 
-		leftProperty = new IProperty() {
+		this.leftProperty = new IProperty() {
 			
 			public String ATTRIBUTE_KEY = DimensionName.LEFT;
 			public String ATTRIBUTE_NAME = "Left";
@@ -258,7 +259,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 			}
 		};
 		
-		addProperty(leftProperty);
+		addProperty(this.leftProperty);
 	}
 
 	

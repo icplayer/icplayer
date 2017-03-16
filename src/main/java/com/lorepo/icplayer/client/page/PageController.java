@@ -112,7 +112,6 @@ public class PageController {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
-		
 		pageView.refreshMathJax();
 
 		this.restoreOutstretchHeights();

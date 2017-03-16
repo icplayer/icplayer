@@ -84,7 +84,7 @@ public class TextModel extends BasicModuleModel {
 	public int getGapWidth(){
 		return gapWidth;
 	}
-	
+
 	@Override
 	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
@@ -112,7 +112,6 @@ public class TextModel extends BasicModuleModel {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
 				setText(rawText);
-
 			}
 		}
 	}

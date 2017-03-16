@@ -47,6 +47,7 @@ public class SourceListModule extends BasicModuleModel{
 		return removable;
 	}
 	
+
 	@Override
 	protected void parseModuleNode(Element rootElement) {
 		NodeList nodeList = rootElement.getElementsByTagName("items");
@@ -68,6 +69,7 @@ public class SourceListModule extends BasicModuleModel{
 		    }
 			items.add(itemText);
 		}
+
 	}
 	
 	

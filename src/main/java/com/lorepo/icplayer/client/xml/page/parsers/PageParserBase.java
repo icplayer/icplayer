@@ -82,28 +82,23 @@ public abstract class PageParserBase implements IPageParser{
 		}
 
 		page.clearRulers();
-		for (int i = 0; i < verticalRulers.getLength(); i++) {
-			Element rulerNode = (Element) verticalRulers.item(i);
-			Ruler ruler = new Ruler();
-
-			ruler.setType("vertical");
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
-
-			verticals.add(ruler);
-		}
-
-		for (int i = 0; i < horizontalRulers.getLength(); i++) {
-			Element rulerNode = (Element) horizontalRulers.item(i);
-			Ruler ruler = new Ruler();
-
-			ruler.setType("horizontal");
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
-
-			horizontals.add(ruler);
-		}
+		this.createRulers(verticalRulers, verticals, "vertical");
+		this.createRulers(horizontalRulers, horizontals, "horizontal");
 
 		page.setRulers(verticals, horizontals);
 		return page;
+	}
+
+	private void createRulers(NodeList rulersNodes, List<Ruler> rulers, String type) {
+		for (int i = 0; i < rulersNodes.getLength(); i++) {
+			Element rulerNode = (Element) rulersNodes.item(i);
+			Ruler ruler = new Ruler();
+
+			ruler.setType(type);
+			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
+
+			rulers.add(ruler);
+		}
 	}
 
 	private IPageBuilder loadGroupModules(IPageBuilder page, Element xml) {

@@ -19,18 +19,18 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
 public class PageList extends BasicPropertyProvider implements IChapter{
-	
+
 	private IPlayerServices playerServices;
 	private final List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
 	public String name;
-	
+
 	public PageList(){
 		this("Chapter");
 	}
-	
 
-	
+
+
 	public PageList(String name){
 		super("Chapter");
 		this.name = name;
@@ -90,43 +90,43 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 	public void insertBefore(int index, IContentNode node){
-		
+
 		nodes.add(index, node);
-		
+
 		if(listener != null){
 			listener.onNodeAdded(node);
 		}
 	}
 
-	
+
 	public IContentNode removePage(int index){
-		
+
 		IContentNode node = nodes.remove(index);
-		
+
 		if(listener != null){
 			listener.onNodeRemoved(node, this);
 		}
-		
+
 		return node;
 	}
 
-	
+
 	public boolean remove(IContentNode node){
-		
+
 		boolean result = nodes.remove(node);
-		
+
 		if(listener != null && result){
 			listener.onNodeRemoved(node, this);
 		}
-		
+
 		return result;
 	}
 
-	
+
 	public boolean removeFromTree(IContentNode node){
-		
+
 		boolean result = nodes.remove(node);
-		
+
 		if(result){
 			if(listener != null){
 				listener.onNodeRemoved(node, this);
@@ -142,13 +142,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				}
 			}
 		}
-		
+
 		return result;
 	}
 
-	
+
 	public boolean remove(String name){
-		
+
 		for(IContentNode node : nodes){
 			if(node instanceof Page){
 				Page page = (Page) node;
@@ -167,29 +167,29 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				}
 			}
 		}
-		
-		
+
+
 		return false;
 	}
 
-	
+
 	public int findPageIndexByName(String pageName) {
 
 		int index = 0;
 		String strippedSourceName = pageName.replaceAll("\\s+", "");
 		List<Page> pages = getAllPages();
 		for(Page page : pages){
-		
+
 			String strippedName = page.getName().replaceAll("\\s+", "");
 			if(strippedName.compareToIgnoreCase(strippedSourceName) == 0){
 				return index;
 			}
 			index++;
 		}
-		
+
 		return -1;
 	}
-	
+
 	public int findPageIndexById(String pageId) {
 
 		int index = 0;
@@ -200,7 +200,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			}
 			index++;
 		}
-		
+
 		return -1;
 	}
 

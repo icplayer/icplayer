@@ -13,7 +13,7 @@ public class PageLayout implements PageLayoutBuilder{
 		large
 	};
 	
-	public static int MAX_TRESHOLD = 100000;
+	public static int MAX_TRESHOLD = 1000000; //TODO ??
 	private String name;
 	private String id;
 	private int treshold;
@@ -28,10 +28,8 @@ public class PageLayout implements PageLayoutBuilder{
 	}
 	
 	public static PageLayout createDefaultPageLayout() {
-		PageLayout defaultPageLayout = new PageLayout("default", "default");
-		defaultPageLayout.setTreshold(PageLayout.MAX_TRESHOLD);
-		defaultPageLayout.setType(PageLayoutTypes.small);
-		defaultPageLayout.setCssID("default");
+		PageLayout defaultPageLayout = PageLayout.createPageLayout("default", PageLayout.MAX_TRESHOLD, PageLayoutTypes.small);
+		defaultPageLayout.id = "default";
 		defaultPageLayout.setIsDefault(true);
 		
 		return defaultPageLayout;

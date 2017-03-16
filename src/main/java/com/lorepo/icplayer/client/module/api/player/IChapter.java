@@ -6,7 +6,6 @@ import com.lorepo.icplayer.client.model.page.Page;
 
 
 
-
 public interface IChapter extends IContentNode {
 	boolean add(IContentNode node);
 	public IContentNode get(int index);

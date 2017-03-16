@@ -125,7 +125,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 
         page.getPreview = function(){
-			return x.@com.lorepo.icplayer.client.model.Page::getPreview()();
+			return x.@com.lorepo.icplayer.client.model.page.Page::getPreview()();
 		}
 
 		page.isVisited = function() {
@@ -153,7 +153,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	@Override
-	public String getBaseURL() {
+	public String getBaseURL(){
 		return baseURL;
 	}
 
@@ -646,8 +646,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void outstreachHeight(int position, int amount) {
 
 		int visibleHeight = getHeight() - amount;
-		for (IModuleModel module : getModules()) {
-			if (module.getTop() > position && module.getTop() < visibleHeight) {
+		for(IModuleModel module : getModules()) {
+			if(module.getTop() > position && module.getTop() < visibleHeight) {
 				module.disableChangeEvent(true);
 				module.setTop(module.getTop() + amount);
 				module.disableChangeEvent(false);
@@ -837,7 +837,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		List<String> ids = new ArrayList<String>();
 	    JsArrayString jsArray = (JsArrayString) JsArrayString.createArray();
 
-		for (IModuleModel module : modules) {
+		for(IModuleModel module : modules) {
 			ids.add(module.getId());
 		}
 		

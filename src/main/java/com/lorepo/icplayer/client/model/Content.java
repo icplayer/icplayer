@@ -144,7 +144,7 @@ public class Content implements IContentBuilder, IContent {
 		return pages;
 	}
 
-    public boolean addonIsLoaded(String addonName) {
+	public boolean addonIsLoaded(String addonName) {
 		if(this.addonDescriptors.containsKey(addonName)) {
 			return true;
 		}
@@ -153,7 +153,6 @@ public class Content implements IContentBuilder, IContent {
 	public int getMaxPagesCount() {
 		return maxPagesCount;
 	}
-
 
 	@Override
 	public PageList	getCommonPages(){
@@ -197,6 +196,7 @@ public class Content implements IContentBuilder, IContent {
 
 	@Override
 	public List<IAsset> getAssets(){
+
 		return assets;
 	}
 

@@ -30,6 +30,7 @@ public class ReportModule extends BasicModuleModel {
 		addPropertyTitleWidth();
 	}
 
+
 	@Override
 	protected void parseModuleNode(Element node) {
 		NodeList labels = node.getElementsByTagName("labels");

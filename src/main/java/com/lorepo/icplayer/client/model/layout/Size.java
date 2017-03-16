@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.model.layout;
 
-import com.lorepo.icf.utils.UUID;
-
 public class Size {
 	
 	private String ID;
@@ -16,8 +14,7 @@ public class Size {
 	}
 	
 	public static Size getCopy(String layoutID, Size size) {
-		Size copy = new Size(layoutID, size.width, size.height);
-		return copy;
+		return new Size(layoutID, size.width, size.height);
 	}
 	
 	public int getWidth() {

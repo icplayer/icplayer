@@ -13,8 +13,7 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	protected String version;
 	protected IModuleModelBuilder module;
 	
-	public ModuleModelParser_base() {
-	}
+	public ModuleModelParser_base() {}
 
 	@Override
 	public String getVersion() {
@@ -41,9 +40,7 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 		return this.module;
 	}
 
-	protected void parseLayouts(Element childNode) {
-		
-	}
+	protected void parseLayouts(Element childNode) {}
 
 	protected void parsePosition(Element xml) {
 		int left = XMLUtils.getAttributeAsInt(xml, "left");
@@ -61,7 +58,6 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	protected void parseModuleAttributes(Element xml) {
 		String id = parseModuleID(xml);
 		this.module.setID(id);
-		this.parsePosition(xml);
 		this.module.setIsVisible(XMLUtils.getAttributeAsBoolean(xml, "isVisible", true));
 		this.module.setIsLocked(XMLUtils.getAttributeAsBoolean(xml, "isLocked", false));
 		this.module.setModuleInEditorVisibility(XMLUtils.getAttributeAsBoolean(xml, "isModuleVisibleInEditor", true));

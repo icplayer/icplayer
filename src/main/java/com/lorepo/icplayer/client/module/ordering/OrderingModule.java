@@ -68,7 +68,7 @@ public class OrderingModule extends BasicModuleModel {
 	public String getOptionalOrder() {
 		return optionalOrder;
 	}
-	
+
 	@Override
 	protected void parseModuleNode(Element node) {
 		items.clear();

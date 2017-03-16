@@ -618,4 +618,5 @@ public class ButtonModule extends BasicModuleModel {
 	public String getClassNamePrefix() {
 		return getType().toString();
 	}
+
 }
