@@ -1059,6 +1059,7 @@
 	"YouTube_Addon_property_id": "ID",
 	"YouTube_Addon_property_url": "URL",
     "YouTube_Addon_property_offline_message" : "Offline message",
+    "YouTube_Addon_property_disable_fullscreen" : "Disable fullscreen",
 	"error_counter_info": "Displays the number of mistakes made on a current presentation page.",
 	"check_counter_info": "Displays the number of times the Check button has been used on a current page.",
 	"lesson_report_info": "Enables to insert a ready-made lesson report, including percentage results for each individual page in a presentation, a total percentage result, and a number of checks and errors. It is possible to modify the look of each part of the report individually.",

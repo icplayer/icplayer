@@ -46,6 +46,7 @@
         var height = model.Height;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isVisibleByDefault = presenter.isVisible;
+        presenter.disableFullscreen = ModelValidationUtils.validateBoolean(model['Disable Fullscreen']);
 
         var viewContainer = $(view);
         var decodedVideoID = presenter.decodeVideoID(model.URL, model.ID);
@@ -81,6 +82,10 @@
                 $(iframe).attr('src', src + "?enablejsapi=1");
                 $(iframe).attr('width', parseInt(width, 10) + 'px');
                 $(iframe).attr('height', parseInt(height, 10) + 'px');
+
+                if(!presenter.disableFullscreen){
+                    $(iframe).attr("allowfullscreen","allowfullscreen");
+                }
 
                 if(doesConnectionExist()){
                     viewContainer.html(iframe);

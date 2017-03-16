@@ -1,3 +1,4 @@
+2017-03-16 Added full screen mode and disable full screen property in YouTube module
 2017-03-15 Fixed resetting bookmarks and added moveToPreviousPage and moveToNextPage commands in Assessment Navigation Bar module
 2017-03-13 Added filled gap in Table module
 2017-03-10 Fixed problem with zoom on iPhone in Paragraph module
