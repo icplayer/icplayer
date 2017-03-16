@@ -11,21 +11,24 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
 
 public class PageProgressPresenter implements IPresenter, IStateful, ICommandReceiver {
 
 	public interface IDisplay extends IModuleView{
-		public void setData(int value);
 		public void show();
 		public void hide();
 		public List<IOptionDisplay> getOptions();
 		public Element getElement();
+		void setData(int value, int maxScore);
 	}
 	
 	private PageProgressModule module;
@@ -34,6 +37,9 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	private int score = 0;
 	private boolean isVisible;
 	private JavaScriptObject jsObject;
+	private int limitedChecksScore = 0;
+	private int limitedChecksMaxScore = 0;
+	private List<String> limitedModules = null;
 	
 	public PageProgressPresenter(PageProgressModule module, IPlayerServices services){
 	
@@ -44,10 +50,37 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		connectHandlers();
 	}
 
+	public static native int getLimitedScore(JavaScriptObject limitedScore) /*-{
+		return limitedScore.score;
+	}-*/;
+	
+	public static native int getLimitedMaxScore(JavaScriptObject limitedScore) /*-{
+		return limitedScore.maxScore;
+	}-*/;
+	
+	private void getLimitedChecksScore () {
+		limitedModules = module.getModules();
+		
+		limitedChecksMaxScore = 0;
+		score = 0;
+		
+		for (String moduleName : limitedModules) {
+			LimitedCheckPresenter limitedCheckModule = (LimitedCheckPresenter) playerServices.getModule(moduleName);
+			if (limitedCheckModule != null) {
+				JavaScriptObject limitedScore = limitedCheckModule.getModulesScore();
+
+				score += getLimitedScore(limitedScore);
+				limitedChecksMaxScore += getLimitedMaxScore(limitedScore);
+			}
+		}
+	}
 	
 	private void updateDisplay() {
-		
-		view.setData(score);
+		if(limitedChecksMaxScore > 0) {
+			view.setData(score, limitedChecksMaxScore);
+		} else {
+			view.setData(score, -1);
+		}
 	}
 	
 	private Element getView(){
@@ -75,17 +108,43 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 							reset();
 						}
 					});
+			
+			playerServices.getEventBus().addHandler(CustomEvent.TYPE,
+				new CustomEvent.Handler() {
+					@Override
+					public void onCustomEventOccurred(CustomEvent event) {
+						HashMap<String, String> data = event.getData();
+						if (module.getModules().contains(data.get("source"))) {
+							updateScore();
+						}
+					}
+				});
+			
+			playerServices.getEventBus().addHandler(ValueChangedEvent.TYPE,
+					new ValueChangedEvent.Handler() {
+						@Override
+						public void onScoreChanged(ValueChangedEvent event) {
+							if (event.getModuleID().toLowerCase().contains("Limited_Reset".toLowerCase()) && module.getRawWorksWith().length() > 0) {
+								updateScore();
+							}
+						}
+					});
+			
 		}
 	}
 	
 	
 	private void updateScore() {
-
-		PageScore pageScore = playerServices.getCommands().getCurrentPageScore();
-		if(pageScore != null){
-			score = pageScore.getPercentageScore();
-			updateDisplay();
+		if(module.getRawWorksWith().length() > 0) {
+			getLimitedChecksScore();
+		} else{
+			PageScore pageScore = playerServices.getCommands().getCurrentPageScore();
+			if(pageScore != null){
+				score = pageScore.getPercentageScore();
+			}
 		}
+		
+		updateDisplay();
 	}
 	
 	@Override
@@ -112,6 +171,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		HashMap<String, String> state = new HashMap<String, String>();
 		
 		state.put("score", Integer.toString(score));
+		state.put("limitedChecksMaxScore", Integer.toString(limitedChecksMaxScore));
 		state.put("isVisible", Boolean.toString(isVisible));
 		
 		return json.toJSONString(state);
@@ -127,6 +187,10 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 			isVisible = Boolean.parseBoolean(state.get("isVisible"));
 			if(isVisible) view.show();
 			else view.hide();
+		}
+		
+		if(state.containsKey("limitedChecksMaxScore")) {
+			limitedChecksMaxScore = Integer.parseInt(state.get("limitedChecksMaxScore"));
 		}
 		
 		if (state.containsKey("score")) {

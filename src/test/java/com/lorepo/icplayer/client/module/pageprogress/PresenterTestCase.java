@@ -26,7 +26,7 @@ public class PresenterTestCase {
 		}
 		
 		@Override
-		public void setData(int value) {
+		public void setData(int value, int limitedMaxScore) {
 			this.value = value;
 		}
 		

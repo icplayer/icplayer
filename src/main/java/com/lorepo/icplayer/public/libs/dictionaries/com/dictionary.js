@@ -1,4 +1,4 @@
-﻿﻿var ice_dictionary_en = {
+﻿var ice_dictionary_en = {
 	"semi_responsive_layout_panel_select_layout_first": "You have to select semi responsive layout.",
 	"semi_responsive_layout_panel_select_css_style_first": "You have to select CSS style.",
 	"semi_responsive_panel_semi_responsive_layouts_title": "Semi Responsive Layouts",
@@ -352,6 +352,7 @@
 	"ordering_item_text" : "Text",
 	"ordering_gradually_score": "Gradually Score",
 	"page_progress_module" : "Page Progress",
+    "Page_progress_property_works_with" : "Works with",
 	"real_time_calculation_property" : "Calculate in real time",
 	"report_module" : "Report",
 	"report_errors" : "No. of errors",
@@ -1386,6 +1387,7 @@
 	"eKeyboard_property_no_open_on_focus": "Don't Open On Focus",
 	"eKeyboard_property_lock_standard_keyboard_input": "Lock Standard Keyboard Input",
 	"eKeyboard_property_custom_display": "Custom Display",
+	"eKeyboard_property_show_close_button": "Show Close Button",
 	"LearnPen_info": "LearnPen Drawing module allows users to draw images on a digital canvas using LearnPen.",
 	"LearnPen_name": "LearnPen Drawing",
 	"LearnPen_property_smart_pen": "LearnPen",

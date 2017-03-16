@@ -101,7 +101,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWeightScoreMode();
 		addPropertyWeightScoreValue();
 	}
-	
+
 	/**
 	 * Get JavaScript interface to the page
 	 * @param x
@@ -122,6 +122,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 		page.isReportable = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::isReportable()();
+		}
+
+        page.getPreview = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::getPreview()();
 		}
 
 		page.isVisited = function() {
@@ -182,7 +186,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getVersion() {
 		return this.version;
 	}
@@ -207,12 +211,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		this.name = name;
 		sendPropertyChangedEvent(propertyName);
 	}
-	
+
 
 	public void setBaseURL(String fetchUrl) {
 		this.baseURL = fetchUrl.substring(0, fetchUrl.lastIndexOf("/") + 1);
 	}
-	
+
 	public void setSemiResponsiveLayoutID(String newLayoutID) {
 		this.semiResponsiveLayoutID = newLayoutID;
 	}
@@ -240,18 +244,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			xml += " style='" + encodedStyle + "'";
 		}
 		xml += ">";
-		
+
 		Element layouts = XMLUtils.createElement("layouts");
 		for (String key : this.pageSizes.keySet()) {
 			Element layout = XMLUtils.createElement("layout");
 			layout.setAttribute("id", key);
-			
+
 			Size size = this.pageSizes.get(key);
 			XMLUtils.setIntegerAttribute(layout, "width", size.getWidth());
 			XMLUtils.setIntegerAttribute(layout, "height", size.getHeight());
 			layouts.appendChild(layout);
 		}
-		
+
 		xml += layouts.toString();
 
 		// modules
@@ -592,7 +596,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		Size size = this.pageSizes.get(this.semiResponsiveLayoutID);
 		return size.getHeight();
 	}
-	
+
 	@Override
 	public void setWidth(int width) {
 		Size size = this.pageSizes.get(this.semiResponsiveLayoutID);
@@ -606,11 +610,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		size.setHeight(height);
 		this.setCurrentSize(size);
 	}
-	
+
 	private void setCurrentSize(Size size) {
 		this.pageSizes.put(this.semiResponsiveLayoutID, size);
 	}
-	
+
 	private Size getCurrentPageSize() {
 		return this.pageSizes.get(this.semiResponsiveLayoutID);
 	}
@@ -963,7 +967,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		String defaultLayoutID = this.findDefaultInActualLayouts(actualSemiResponsiveLayouts);
 		Set<String> actualIDs = getActualIDs(actualSemiResponsiveLayouts);
 		Size defaultSizeBeforeSync = this.getDefaultSize();
-		
+
 		this.ensureDefaultLayout(defaultLayoutID, defaultSizeBeforeSync);
 		this.removeUnsyncLayouts(actualIDs);
 		this.ensureNonSyncedLayouts(defaultLayoutID, actualIDs);
@@ -985,7 +989,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			if (pageLayout.isDefault()) {
 				defaultLayoutID = pageLayout.getID();
 				break;
-			}	
+			}
 		}
 		return defaultLayoutID;
 	}
@@ -997,7 +1001,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			}
 		}
 	}
-	
+
 
 	private void ensureDefaultLayout(String defaultLayoutID, Size defaultSizeBeforeSync) {
 		if (!this.pageSizes.containsKey(defaultLayoutID)) {

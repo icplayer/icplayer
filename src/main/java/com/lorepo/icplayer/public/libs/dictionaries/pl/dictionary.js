@@ -1,4 +1,4 @@
-﻿var ice_dictionary_pl = {
+var ice_dictionary_pl = {
 	"semi_responsive_layout_panel_select_layout_first": "You have to select semi responsive layout.",
 	"semi_responsive_layout_panel_select_css_style_first": "You have to select CSS style.",
 	"semi_responsive_panel_semi_responsive_layouts_title": "Semi Responsive Layouts",
@@ -348,6 +348,7 @@
 	"ordering_item_text" : "Tekst",
 	"ordering_gradually_score": "Punktacja stopniowana",
 	"page_progress_module" : "Wynik strony",
+    "Page_progress_property_works_with" : "Works with",
 	"real_time_calculation_property" : "Oblicz w czasie rzeczywistym",
 	"report_module" : "Raport",
 	"report_errors" : "Liczba błędów",
@@ -1364,7 +1365,7 @@
 	"SVG2_property_skip_aspect_ration": "Pomiń współczynnik proporcji",
 	"eKeyboard_info" : "Wirtualna klawiatura, która pojawia się na ekranie po zaznaczeniu obszaru tekstowego współpracującego z Addonem.",
 	"eKeyboard_name" : "e-Klawiatura",
-        "eKeyboard_property_work_with": "Działa z",
+	"eKeyboard_property_work_with": "Działa z",
 	"eKeyboard_property_layout_type": "Typ układu",
 	"eKeyboard_property_custom_layout": "Układ domyślny",
 	"eKeyboard_property_position_my": "Pozycja \"My\"",
@@ -1373,6 +1374,7 @@
 	"eKeyboard_property_no_open_on_focus": "Nie otwieraj automatycznie",
 	"eKeyboard_property_lock_standard_keyboard_input": "Zablokuj standardową klawiaturę",
 	"eKeyboard_property_custom_display": "Niestandardowe wyświetlanie",
+	"eKeyboard_property_show_close_button": "Show Close Button",
 	"LearnPen_info" : "Umożliwia rysowanie obrazów na ekranie prezentacji z wykorzystaniem modułu LearnPen.",
 	"LearnPen_name" : "Rysowanie z LearnPen",
 	"LearnPen_property_smart_pen": "LearnPen",

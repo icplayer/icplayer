@@ -2,6 +2,13 @@ TestCase("[Table] Presenter logic", {
     setUp: function () {
         this.presenter = AddonTable_create();
 
+        this.presenter.textParser = {
+            parseGaps : function() {
+                return {parsedText : ""}
+            },
+            parsedText: function() {}
+        };
+
         sinon.stub(this.presenter, 'upgradeModel');
         sinon.stub(this.presenter, 'validateModel');
 
@@ -14,6 +21,7 @@ TestCase("[Table] Presenter logic", {
         sinon.stub(this.presenter, 'parseDefinitionLinks');
         sinon.stub(this.presenter, 'initializeGaps');
         sinon.stub(this.presenter, 'setEditorGapWidth');
+        sinon.stub(this.presenter, 'setGapsClassAndWidth');
 
         sinon.stub(DOMOperationsUtils, 'showErrorMessage');
     },
@@ -28,6 +36,7 @@ TestCase("[Table] Presenter logic", {
         this.presenter.parseDefinitionLinks.restore();
         this.presenter.initializeGaps.restore();
         this.presenter.setEditorGapWidth.restore();
+        this.presenter.setGapsClassAndWidth.restore();
 
         DOMOperationsUtils.showErrorMessage.restore();
     },

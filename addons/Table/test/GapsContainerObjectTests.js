@@ -57,11 +57,13 @@ TestCase("[Table] [Gaps Container Object] replaceDOMViewWithGap / replaceGapsDOM
             createView: sinon.stub(DraggableDroppableObject.prototype, 'createView'),
             createViewEditable: sinon.stub(this.presenter.EditableInputGap.prototype, 'createView'),
             replaceWith: sinon.stub(),
+            attr: sinon.stub(),
             find: sinon.stub(this.presenter.$view, 'find')
         };
 
         this.mockFoundElement = {
-            replaceWith: this.stubs.replaceWith
+            replaceWith: this.stubs.replaceWith,
+            attr: this.stubs.attr
         };
 
         this.expectedReplacingElement = {
@@ -103,7 +105,7 @@ TestCase("[Table] [Gaps Container Object] replaceDOMViewWithGap / replaceGapsDOM
 
         this.container.replaceDOMViewWithGap();
 
-        assertEquals(2, this.stubs.find.callCount);
+        assertEquals(4, this.stubs.find.callCount);
     },
 
     'test replaceDOMViewWithGap should find html doms element of gaps IDs': function () {
@@ -113,7 +115,6 @@ TestCase("[Table] [Gaps Container Object] replaceDOMViewWithGap / replaceGapsDOM
         this.container.replaceDOMViewWithGap();
 
         assertEquals(this.expectedID1, this.stubs.find.getCall(0).args[0]);
-        assertEquals(this.expectedID2, this.stubs.find.getCall(1).args[0]);
         assertFalse(this.stubs.find.calledWith(this.expectedID3));
     },
 

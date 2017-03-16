@@ -188,6 +188,8 @@ public class ChoiceOption extends BasicPropertyProvider{
 		if(!rawFeedback.isEmpty()){
 			feedback = StringUtils.unescapeXML(rawFeedback);
 		}
+
+		text = text.replaceAll("<!--[\\s\\S]*?-->", "");
 	}
 	
 	

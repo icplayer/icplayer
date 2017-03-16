@@ -1,10 +1,18 @@
 package com.lorepo.icplayer.client.module.pageprogress;
 
 
+import java.util.LinkedList;
+import java.util.List;
+
+import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.ModuleUtils;
 
 
 /**
@@ -18,6 +26,9 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
  */
 public class PageProgressModule extends BasicModuleModel{
 
+	private String rawWorksWith = "";
+	private List<String> modules = new LinkedList<String>();
+
 	/**
 	 * constructor
 	 * @param services
@@ -25,9 +36,9 @@ public class PageProgressModule extends BasicModuleModel{
 	public PageProgressModule() {
 		super("Page Progress", DictionaryWrapper.get("page_progress_module"));
 
+		addPropertyWorksWith();
 	}
 
-	
 	/**
 	 * Convert module into XML
 	 */
@@ -36,12 +47,75 @@ public class PageProgressModule extends BasicModuleModel{
 		Element module = XMLUtils.createElement("pageProgressModule");
 		this.setBaseXMLAttributes(module);
 		module.appendChild(this.getLayoutsXML());
+		module.appendChild(modelToXML());
 		return module.toString();
 	}
 
 
 	@Override
 	protected void parseModuleNode(Element element) {
-		// TODO Auto-generated method stub
+		NodeList nodes = element.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node childNode = nodes.item(i);
+			if (childNode instanceof Element) {
+				if(childNode.getNodeName().compareTo("pageProgress") == 0) {
+					Element childElement = (Element) childNode;
+
+					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
+					modules = ModuleUtils.getListFromRawText(rawWorksWith);
+				}
+			}
+		}
+	}
+	
+	private Element modelToXML() {
+		Element pageProgress = XMLUtils.createElement("pageProgress");
+		CDATASection section = XMLUtils.createCDATASection(this.rawWorksWith);
+		pageProgress.appendChild(section);
+		
+		return pageProgress;
+	}
+
+	protected String getRawWorksWith() {
+		return rawWorksWith;
+	}
+
+	public List<String> getModules() {
+		return modules;
+	}
+
+	private void addPropertyWorksWith() {
+
+		IStringListProperty property = new IStringListProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				rawWorksWith = newValue.replace("\n", ";");
+				modules = ModuleUtils.getListFromRawText(rawWorksWith);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return rawWorksWith.replace(";", "\n");
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Page_progress_property_works_with");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Page_progress_property_works_with");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
 	}
 }

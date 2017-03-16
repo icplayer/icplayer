@@ -1,5 +1,34 @@
-2016-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
-2016-01-16 Fixed isVisible property on Safari in Iframe module
+2017-03-15 Fixed resetting bookmarks and added moveToPreviousPage and moveToNextPage commands in Assessment Navigation Bar module
+2017-03-13 Added filled gap in Table module
+2017-03-10 Fixed problem with zoom on iPhone in Paragraph module
+2017-03-08 Fixed test in Table module
+2017-03-08 Fixed tests in Math and Table modules
+2017-03-08 Fixed rendering LaTeX in draggable gaps in Table module
+2017-03-03 Fixed executing code after checking, showing and resetting answers in Grid Scene module
+2017-03-02 Added current-page class in Table of Contents module
+2017-03-02 Fixed working in popup in eKeyboard module
+2017-02-27 Fixed expressions with white spaces in Math module
+2017-02-27 Added showCloseButton command in eKeyboard module
+2017-02-24 Fixed parsing expressions in Math module
+2017-02-24 Fixed scoring when placeholder text is the same as correct answer in Text module
+2017-02-24 Fixed removing hover styles in Popup Button module
+2017-02-23 Fixed highlighting text in Text Audio module
+2017-02-21 Added show answers mode in Puzzle module
+2017-02-21 Added math.js library and fixed problem with calculating expressions
+2017-02-16 Fixed displaying current page in Navigation Bar module
+2017-02-15 Added icon display type in Table of Contents module
+2017-02-15 Fixed static header and footer
+2017-02-06 Updated ekeyboard labels in dictionaries.
+2017-02-02 Fixed static header and footer with outstretch height and in fit to window and full screen modes
+2017-02-02 Added Works with property in Page Progress module
+2017-02-02 Added show/hide commands in Writing Calculations module
+2017-02-02 Added enable/disable button/command in eKeyboard. Fixed changing focus by eKeyboard. Fixed open command in eKeyboard. Changed Esc button action in eKeyboard. Updated jquery.keyboard.min.js.
+2017-01-31 Added setting text parser in Table module
+2017-01-24 Added events for drawing commands in Grid Scene module
+2017-01-24 Fixed problems on iPad in Paragraph module
+2017-01-24 Fixed saving changes in Choice module
+2017-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
+2017-01-16 Fixed isVisible property on Safari in Iframe module
 2017-01-11 Added Enable pages property in Hierarchical Lesson Report module
 2017-01-11 Fixed problem with updating additional styles and displaying pages in Navigation Bar module
 2017-01-04 Fixed rendering LaTeX afetr showing answers in Math module

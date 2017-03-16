@@ -28,19 +28,19 @@ TestCase("[Math] Adding prefix to variable in expression", {
     'test variable single occurrence in expression': function () {
         var replacedExpression = this.presenter.replaceVariableNameWithReference('gap1 == 10', 'gap1');
 
-        assertEquals("this.variables['gap1'] == 10", replacedExpression);
+        assertEquals('variables["\gap1\"] == 10', replacedExpression);
     },
 
     'test variable two occurrences in expression': function () {
         var replacedExpression = this.presenter.replaceVariableNameWithReference('gap1 == 10 && gap1 !== gap2', 'gap1');
 
-        assertEquals("this.variables['gap1'] == 10 && this.variables['gap1'] !== gap2", replacedExpression);
+        assertEquals('variables["\gap1\"] == 10 && variables["\gap1\"] !== gap2', replacedExpression);
     },
 
     'test variable multiple occurrences in expression': function () {
         var replacedExpression = this.presenter.replaceVariableNameWithReference('gap1 == gap1 + 10 && gap1 !== gap2', 'gap1');
 
-        assertEquals("this.variables['gap1'] == this.variables['gap1'] + 10 && this.variables['gap1'] !== gap2", replacedExpression);
+        assertEquals('variables["\gap1\"] == variables["\gap1\"] + 10 && variables["\gap1\"] !== gap2', replacedExpression);
     }
 });
 
@@ -57,24 +57,24 @@ TestCase("[Math] Expression conversion", {
     'test expression without variables': function () {
         var convertedExpression = this.presenter.convertExpression('1 + 2 > 4', this.variables);
 
-        assertEquals('this.result = 1 + 2 > 4', convertedExpression);
+        assertEquals('result = 1 + 2 > 4', convertedExpression);
     },
 
     'test expression with single variable occurrence': function () {
         var convertedExpression = this.presenter.convertExpression('1 + 2 > 4 && gap1 + 2 == 3', this.variables);
 
-        assertEquals("this.result = 1 + 2 > 4 && this.variables['gap1'] + 2 == 3", convertedExpression);
+        assertEquals('result = 1 + 2 > 4 && variables[\"gap1\"] + 2 == 3', convertedExpression);
     },
 
     'test expression with single variable multiple occurrences': function () {
         var convertedExpression = this.presenter.convertExpression('1 + 2 > 4 && gap1 + 2 < gap1 + 3', this.variables);
 
-        assertEquals("this.result = 1 + 2 > 4 && this.variables['gap1'] + 2 < this.variables['gap1'] + 3", convertedExpression);
+        assertEquals('result = 1 + 2 > 4 && variables[\"gap1\"] + 2 < variables[\"gap1\"] + 3', convertedExpression);
     },
 
     'test expression with multiple variables occurrences': function () {
         var convertedExpression = this.presenter.convertExpression('1 + 2 > 4 && gap2 + 2 < gap1 + 3 || gap3 > gap1 + gap2', this.variables);
 
-        assertEquals("this.result = 1 + 2 > 4 && this.variables['gap2'] + 2 < this.variables['gap1'] + 3 || this.variables['gap3'] > this.variables['gap1'] + this.variables['gap2']", convertedExpression);
+        assertEquals('result = 1 + 2 > 4 && variables["gap2"] + 2 < variables["gap1"] + 3 || variables["gap3"] > variables["gap1"] + variables["gap2"]', convertedExpression);
     }
 });

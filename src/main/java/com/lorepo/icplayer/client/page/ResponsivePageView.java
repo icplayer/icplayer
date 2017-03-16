@@ -88,7 +88,7 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 
 	@Override
-	public void outstretchHeight(int y, int difference) {
+	public void outstretchHeight(int y, int difference, boolean isRestore) {
 		// TODO Auto-generated method stub
 		
 	}
