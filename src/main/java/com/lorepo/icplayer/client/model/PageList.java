@@ -426,6 +426,11 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	public IChapter getParentChapter(IContentNode node) {
 		IChapter parent = null;
+		
+		if (node == null) {
+			return this;
+		}
+		
 		for(IContentNode item : nodes){
 			if(item == node){
 				parent = this;
