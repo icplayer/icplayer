@@ -3,10 +3,10 @@ package com.lorepo.icplayer.client.module.limitedcheck;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -183,22 +183,27 @@ public class LimitedCheckModule extends BasicModuleModel {
 		}
 	}
 	
-	protected String modelToXML() {
-		String encodedCheck = StringUtils.escapeHTML(checkText);
-		String encodedUnCheck = StringUtils.escapeHTML(unCheckText);
-
-		return "<limitedCheck checkText='" + encodedCheck + "' unCheckText='" + encodedUnCheck + "'>"
-				+ "<![CDATA[" + rawWorksWith + "]]>"
-				+ "</limitedCheck>";
-	}
-
 	@Override
 	public String toXML() {
 		Element limitedCheckModule = XMLUtils.createElement("limitedCheckModule");
 		this.setBaseXMLAttributes(limitedCheckModule);
 		limitedCheckModule.appendChild(this.getLayoutsXML());
-		limitedCheckModule.appendChild(XMLParser.parse(this.modelToXML()));
+		limitedCheckModule.appendChild(this.modelToXML());
 		
 		return limitedCheckModule.toString();
+	}
+	
+	protected Element modelToXML() {
+		String encodedCheck = StringUtils.escapeHTML(checkText);
+		String encodedUnCheck = StringUtils.escapeHTML(unCheckText);
+		
+		Element limitedCheckElement = XMLUtils.createElement("limitedCheck");
+		limitedCheckElement.setAttribute("checkText", encodedCheck);
+		limitedCheckElement.setAttribute("unCheckText", encodedUnCheck);
+		
+		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
+		
+		limitedCheckElement.appendChild(cdata);
+		return limitedCheckElement;
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
@@ -138,15 +137,12 @@ public class ChoiceModel extends BasicModuleModel{
 		
 		choiceModule.appendChild(choice);
 		
-		String optionsXML = "";
-		optionsXML += "<options>";
+		Element optionsElement = XMLUtils.createElement("options");
 		for(ChoiceOption option : options){
-			optionsXML += option.toXML();
+			optionsElement.appendChild(option.toXML());
 		}
-		optionsXML += "</options>";
-		Element optionsElement = (Element) XMLParser.parse(optionsXML);
+		
 		choiceModule.appendChild(optionsElement);
-	
 		return choiceModule.toString();
 	}
 

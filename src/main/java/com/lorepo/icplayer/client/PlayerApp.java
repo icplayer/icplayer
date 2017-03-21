@@ -301,6 +301,7 @@ public class PlayerApp {
 	/**
 	 * Init player after content is loaded
 	 */
+	@SuppressWarnings("static-access")
 	private void initPlayer(final boolean isCommonPage) {
 		registerGetIframe(this);
 		getIFrameSize(isCommonPage, this);

@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.lessonreset;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -168,22 +167,23 @@ private boolean resetChecks = false;
 		}
 	}
 	
-	protected String modelToXML() {
-		String encodedTitle = StringUtils.escapeHTML(title);
-
-		String xml = "<lessonReset title='" + encodedTitle + "' resetMistakes='" + resetMistakes + "' resetChecks='" + resetChecks + "'>"
-				+ "</lessonReset>";
-		
-		return xml;
-	}
-	
 	@Override
 	public String toXML() {
 		Element lessonResetModule = XMLUtils.createElement("lessonResetModule");
 		this.setBaseXMLAttributes(lessonResetModule);
 		lessonResetModule.appendChild(this.getLayoutsXML());
-		lessonResetModule.appendChild(XMLParser.parse(this.modelToXML()));
+		lessonResetModule.appendChild(this.modelToXML());
 		
 		return lessonResetModule.toString();
+	}
+	
+	protected Element modelToXML() {
+		Element lessonResetElement = XMLUtils.createElement("lessonReset");
+		String encodedTitle = StringUtils.escapeHTML(title);
+		lessonResetElement.setAttribute("title", encodedTitle);
+		XMLUtils.setBooleanAttribute(lessonResetElement, "resetMistakes", resetMistakes);
+		XMLUtils.setBooleanAttribute(lessonResetElement, "resetChecks", resetChecks);
+		
+		return lessonResetElement;
 	}
 }

@@ -96,13 +96,13 @@ public class ModuleFactory implements IModuleFactory{
 		else if(xmlNodeName.compareTo("limitedResetModule") == 0){
 			module = new LimitedResetModule();
 		}
-		else if(xmlNodeName.compareTo("lessonResetModule") == 0){
+		else if(xmlNodeName.compareTo("lessonResetModule") == 0) {
 			module = new LessonResetModule();
 		}
-		else if(xmlNodeName.compareTo("choiceModule") == 0){
+		else if(xmlNodeName.compareTo("choiceModule") == 0) {
 			module = new ChoiceModel();
 		}
-		else if(xmlNodeName.compareTo("imageModule") == 0){
+		else if(xmlNodeName.compareTo("imageModule") == 0) {
 			module = new ImageModule();
 		}
 		else if(xmlNodeName.compareTo("imageSourceModule") == 0){
