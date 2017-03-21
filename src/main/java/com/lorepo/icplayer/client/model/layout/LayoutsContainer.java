@@ -65,10 +65,13 @@ public class LayoutsContainer {
 		}
 	}
 
-	public void setActualLayoutID(String id) {
+	public boolean setActualLayoutID(String id) {
 		if (this.layoutsMap.containsKey(id)) {
-			this.actualLayoutID = id;	
+			this.actualLayoutID = id;
+			return true;
 		}
+		
+		return false;
 	}
 
 	public JavaScriptObject toJS() {

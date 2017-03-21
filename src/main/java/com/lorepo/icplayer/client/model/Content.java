@@ -531,8 +531,8 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 	@Override
-	public void setActualLayoutID(String id) {
-		this.layoutsContainer.setActualLayoutID(id);
+	public boolean setActualLayoutID(String id) {
+		return this.layoutsContainer.setActualLayoutID(id);
 	}
 
 	public void setDefaultCSSStyle(String cssStyleID) {

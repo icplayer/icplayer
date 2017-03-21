@@ -483,10 +483,15 @@ public class PlayerApp {
 		return this.contentModel.getSemiResponsiveLayoutsAsJS();
 	}
 
-	public void changeLayout(String layoutID) {
-		this.contentModel.setActualLayoutID(layoutID);
-		this.loadActualLayoutCSSStyles();
-		int pageIndex = this.playerController.getCurrentPageIndex();
-		this.playerController.switchToPage(pageIndex);
+	public boolean changeLayout(String layoutID) {
+		boolean isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
+		
+		if (isLayoutChanged) {
+			this.loadActualLayoutCSSStyles();
+			int pageIndex = this.playerController.getCurrentPageIndex();
+			this.playerController.switchToPage(pageIndex);	
+		}
+		
+		return isLayoutChanged;
 	}
 }

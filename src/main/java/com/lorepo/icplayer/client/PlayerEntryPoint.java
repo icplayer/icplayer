@@ -46,7 +46,7 @@ public class PlayerEntryPoint implements EntryPoint {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
 			};
 			
-			player.getSemiResponsiveLayouts = function (listener) {
+			player.getSemiResponsiveLayouts = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getSemiResponsiveLayouts()();
 			}
 
@@ -177,8 +177,8 @@ public class PlayerEntryPoint implements EntryPoint {
 		return this.theApplication.getPlayerServices().getAsJSObject();
 	}
 	
-	private void changeLayout(String layoutID) {
-		this.theApplication.changeLayout(layoutID);
+	private boolean changeLayout(String layoutID) {
+		return this.theApplication.changeLayout(layoutID);
 	}
 
 	private static native void fireCallback(JavaScriptObject callback) /*-{

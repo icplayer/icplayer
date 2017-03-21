@@ -25,5 +25,5 @@ public interface IContentBuilder {
 	public void addLayout(PageLayout pageLayout);
 	public PageList getPagesList();
 	public PageList getCommonPagesList();
-	public void setActualLayoutID(String id);
+	public boolean setActualLayoutID(String id);
 }
