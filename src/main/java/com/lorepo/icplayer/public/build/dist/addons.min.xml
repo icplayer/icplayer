@@ -70523,6 +70523,7 @@ div.viewer-3d-wrapper {&#13;
 		<property name="ID" nameLabel="YouTube_Addon_property_id" type="string"/>
 		<property name="URL" nameLabel="YouTube_Addon_property_url" type="string"/>
         <property name="Offline message" nameLabel="YouTube_Addon_property_offline_message" type="string"/>
+        <property name="Disable Fullscreen" nameLabel="YouTube_Addon_property_disable_fullscreen" type="boolean"/>
 	</model>
 <css/><view/><preview/><presenter> function AddonYouTube_Addon_create(){&#13;
     var presenter = function() {&#13;
@@ -70572,6 +70573,7 @@ div.viewer-3d-wrapper {&#13;
         var height = model.Height;&#13;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);&#13;
         presenter.isVisibleByDefault = presenter.isVisible;&#13;
+        presenter.disableFullscreen = ModelValidationUtils.validateBoolean(model['Disable Fullscreen']);&#13;
 &#13;
         var viewContainer = $(view);&#13;
         var decodedVideoID = presenter.decodeVideoID(model.URL, model.ID);&#13;
@@ -70607,6 +70609,10 @@ div.viewer-3d-wrapper {&#13;
                 $(iframe).attr('src', src + "?enablejsapi=1");&#13;
                 $(iframe).attr('width', parseInt(width, 10) + 'px');&#13;
                 $(iframe).attr('height', parseInt(height, 10) + 'px');&#13;
+&#13;
+                if(!presenter.disableFullscreen){&#13;
+                    $(iframe).attr("allowfullscreen","allowfullscreen");&#13;
+                }&#13;
 &#13;
                 if(doesConnectionExist()){&#13;
                     viewContainer.html(iframe);&#13;

@@ -7,16 +7,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.IPageListListener;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
-import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -525,7 +526,7 @@ public class Content implements IContentBuilder, IContent {
 		this.layoutsContainer.setDefaultSemiResponsiveLayout(newDefaultLayoutID);
 	}
 
-	public CssStyle getStyleBy(String cssStyleID) {
+	public CssStyle getStyleByID(String cssStyleID) {
 		return this.styles.get(cssStyleID);
 	}
 
@@ -542,5 +543,13 @@ public class Content implements IContentBuilder, IContent {
 				style.setIsDefault(false);
 			}
 		}
+	}
+	
+	public String getActualSemiResponsiveLayoutID() {
+		return this.layoutsContainer.getActualSemiResponsiveLayoutID();
+	}
+
+	public JavaScriptObject getSemiResponsiveLayoutsAsJS() {
+		return this.layoutsContainer.toJS();
 	}
 }

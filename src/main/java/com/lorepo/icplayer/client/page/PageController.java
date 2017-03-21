@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.page;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
@@ -12,6 +13,8 @@ import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Group;
 import com.lorepo.icplayer.client.model.page.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -59,6 +62,7 @@ public class PageController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
+	private Content contentModel;
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -74,6 +78,10 @@ public class PageController {
 		presenters = new ArrayList<IPresenter>();
 		this.playerService = playerServices;
 		moduleFactory = new ModuleFactory(playerService);
+	}
+	
+	public void setContent(Content model) {
+		this.contentModel = model;
 	}
 
 	public void setView(IPageDisplay view) {
@@ -102,8 +110,11 @@ public class PageController {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
+		
 		currentPage = page;
+		this.setCurrentPageSemiResponsiveLayouts();
 
+		
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
@@ -112,12 +123,24 @@ public class PageController {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
+		
 		pageView.refreshMathJax();
-
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 	
+	private void setCurrentPageSemiResponsiveLayouts() {
+		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
+		Set<PageLayout> actualSemiResponsiveLayouts = this.contentModel.getActualSemiResponsiveLayouts();
+		
+		currentPage.syncPageSizes(actualSemiResponsiveLayouts);
+		for (IModuleModel module : currentPage.getModules()) {
+			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
+		}
+
+		currentPage.setSemiResponsiveLayoutID(layoutID);
+	}
+
 	private void restoreOutstretchHeights() {
 		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
 			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true);

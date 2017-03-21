@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.model.layout;
 
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.CssStyle;
 
 public class LayoutsContainer {
@@ -20,6 +22,11 @@ public class LayoutsContainer {
 	public String getActualLayoutStyleID() {
 		PageLayout actualLayout = this.layoutsMap.get(this.actualLayoutID);
 		return actualLayout.getStyleID();
+	}
+	
+
+	public String getActualSemiResponsiveLayoutID() {
+		return this.actualLayoutID;
 	}
 
 	public void removeFromLayoutsStyle(CssStyle styleToDelete) {
@@ -59,6 +66,35 @@ public class LayoutsContainer {
 	}
 
 	public void setActualLayoutID(String id) {
-		this.actualLayoutID = id;
+		if (this.layoutsMap.containsKey(id)) {
+			this.actualLayoutID = id;	
+		}
 	}
+
+	public JavaScriptObject toJS() {
+		JavaScriptObject hashmap = JavaScriptUtils.createJSObject();
+		for(PageLayout pageLayout : this.layoutsMap.values()) {
+			addDataToJSHashMap(hashmap, 
+					pageLayout.getID(), 
+					pageLayout.getName(), 
+					pageLayout.getStyleID(), 
+					pageLayout.getTreshold(), 
+					pageLayout.getType().toString(), 
+					pageLayout.isDefault());
+		}
+
+		return hashmap;
+	}
+
+	private native static void addDataToJSHashMap(JavaScriptObject hashmap, String id,
+			String name, String styleID, int treshold, String type, boolean isDefault) /*-{
+				hashmap[id] = {
+					"id": id,
+					"name": name,
+					"styleID": styleID,
+					"treshold": treshold,
+					"type": type,
+					"isDefault": isDefault
+				};	
+	}-*/;
 }

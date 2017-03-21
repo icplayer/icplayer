@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PageHeightModifications {
 	private HashMap<Integer, Integer> modifications = new HashMap<Integer, Integer>();
@@ -48,7 +49,7 @@ public class PageHeightModifications {
 			this.pushToArray(jsArray, modifications.get(i).y, modifications.get(i).height);
 		}
 		
-		return stringify(jsArray);
+		return JavaScriptUtils.stringify(jsArray);
 	}
 	
 	private native JavaScriptObject createEmptyJsArray() /*-{
@@ -61,10 +62,6 @@ public class PageHeightModifications {
 			"height": height
 		});
 	}-*/;
-	
-	private native String stringify(JavaScriptObject obj) /*-{
-		return JSON.stringify(obj);
-	}-*/; 
 	
 	public void setState(String jsonText) {
 		this.modifications.clear();

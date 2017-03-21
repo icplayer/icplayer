@@ -341,10 +341,7 @@ public class PlayerApp {
 		contentModel.setPlayerController(getPlayerServices());
 
 		RootPanel.get(divId).add(playerView);
-		CssStyle defaultStyle = contentModel.getStyles().get("default");
-		String cssValue = defaultStyle.style;
-		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
-		DOMInjector.appendStyle(css);
+		this.loadActualLayoutCSSStyles();
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 
@@ -367,6 +364,14 @@ public class PlayerApp {
 				JavaScriptUtils.log("Loading ContentData have failed, error: " + error);
 			}
 		});
+	}
+
+	private void loadActualLayoutCSSStyles() {
+		String actualCSSID = this.contentModel.getActualStyleID();
+		CssStyle actualStyle = contentModel.getStyleByID(actualCSSID);
+		String cssValue = actualStyle.style;
+		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
+		DOMInjector.appendStyle(css);
 	}
 
 	private void makeHeaderStatic() {
@@ -472,5 +477,16 @@ public class PlayerApp {
 
 	public void showCover(boolean show) {
 		showCover = show;
+	}
+
+	public JavaScriptObject getSemiResponsiveLayouts() {
+		return this.contentModel.getSemiResponsiveLayoutsAsJS();
+	}
+
+	public void changeLayout(String layoutID) {
+		this.contentModel.setActualLayoutID(layoutID);
+		this.loadActualLayoutCSSStyles();
+		int pageIndex = this.playerController.getCurrentPageIndex();
+		this.playerController.switchToPage(pageIndex);
 	}
 }

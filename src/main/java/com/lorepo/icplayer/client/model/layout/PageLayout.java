@@ -76,7 +76,15 @@ public class PageLayout implements PageLayoutBuilder{
 	public boolean isDefault() {
 		return this.isDefault;
 	}
-
+	
+	public PageLayoutTypes getType() {
+		return this.type;
+	}
+	
+	public int getTreshold() {
+		return this.treshold;
+	}
+	
 	public String getName() {
 		return this.name;
 	}

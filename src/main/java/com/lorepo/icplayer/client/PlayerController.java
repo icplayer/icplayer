@@ -79,11 +79,13 @@ public class PlayerController implements IPlayerController{
 		this.pageController1 = new PageController(this);
 		this.keyboardController.setPlayerService(this.pageController1.getPlayerServices(), false);
 		this.pageController1.setView(this.playerView.getPageView(0));
+		this.pageController1.setContent(this.contentModel);
 		if(bookMode){
 			this.playerView.showTwoPages();
 			this.pageController2 = new PageController(this);
 			this.keyboardController.setPlayerService(this.pageController2.getPlayerServices(), true);
 			this.pageController2.setView(this.playerView.getPageView(1));
+			this.pageController2.setContent(this.contentModel);
 		}
 	}
 
