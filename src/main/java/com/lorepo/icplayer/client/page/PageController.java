@@ -136,6 +136,7 @@ public class PageController {
 		currentPage.syncPageSizes(actualSemiResponsiveLayouts);
 		for (IModuleModel module : currentPage.getModules()) {
 			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
+			module.setSemiResponsiveLayoutID(layoutID);
 		}
 
 		currentPage.setSemiResponsiveLayoutID(layoutID);
