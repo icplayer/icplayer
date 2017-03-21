@@ -6,5 +6,6 @@
 		<property name='ID' nameLabel="YouTube_Addon_property_id" type='string'/>
 		<property name='URL' nameLabel="YouTube_Addon_property_url" type='string'/>
         <property name='Offline message' nameLabel="YouTube_Addon_property_offline_message" type='string'/>
+        <property name='Disable Fullscreen' nameLabel="YouTube_Addon_property_disable_fullscreen" type='boolean'/>
 	</model>
 </addon>
