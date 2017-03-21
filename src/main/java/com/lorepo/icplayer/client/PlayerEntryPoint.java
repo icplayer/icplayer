@@ -55,7 +55,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			};
 			
 			player.changeLayout = function (layoutID) {
-				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::changeLayout(Ljava/lang/String;)(layoutID);
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::changeLayout(Ljava/lang/String;)(layoutID);
 			}
 
 			player.setState = function(state) {

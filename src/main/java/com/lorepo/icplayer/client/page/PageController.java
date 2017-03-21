@@ -114,7 +114,6 @@ public class PageController {
 		currentPage = page;
 		this.setCurrentPageSemiResponsiveLayouts();
 
-		
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();

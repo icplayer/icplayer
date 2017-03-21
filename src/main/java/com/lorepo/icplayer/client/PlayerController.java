@@ -94,11 +94,13 @@ public class PlayerController implements IPlayerController{
 			this.playerView.showHeader();
 			this.headerController = new PageController(this.pageController1.getPlayerServices());
 			this.headerController.setView(this.playerView.getHeaderView());
+			this.headerController.setContent(this.contentModel);
 		}
 		if(this.contentModel.getFooter() != null){
 			this.playerView.showFooter();
 			this.footerController = new PageController(this.pageController1.getPlayerServices());
 			this.footerController.setView(this.playerView.getFooterView());
+			this.footerController.setContent(this.contentModel);
 		}
 	}
 
