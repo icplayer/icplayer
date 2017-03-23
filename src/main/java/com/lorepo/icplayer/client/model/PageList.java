@@ -88,6 +88,20 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return pages;
 	}
 
+	public List<IContentNode> getPagesForChapter(IContentNode node) {
+		List<IContentNode> nodes = new Vector<IContentNode>();
+		
+		if(node instanceof Page){
+			nodes.add(node);
+		}
+		else if(node instanceof PageList){
+			PageList chapter = (PageList) node;
+			nodes.addAll(chapter.getNodes());
+		}
+		
+		return nodes;
+	}
+	
 	public void insertBefore(int index, IContentNode node){
 
 		nodes.add(index, node);
@@ -110,8 +124,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
-	public boolean remove(IContentNode node){
-
+	public boolean remove(IContentNode node){		
 		boolean result = nodes.remove(node);
 
 		if(listener != null && result){
@@ -122,9 +135,14 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
-	public boolean removeFromTree(IContentNode node){
-
+	public boolean removeFromTree(IContentNode node, boolean removeAllNodes){		
 		boolean result = nodes.remove(node);
+		List<IContentNode> nodesList = null;
+		IChapter parentChapter = getParentChapter(node);
+		if(!removeAllNodes){
+			nodesList = getPagesForChapter(node);
+		}
+		
 
 		if(result){
 			if(listener != null){
@@ -135,10 +153,20 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			for(IContentNode item : nodes){
 				if(item instanceof PageList){
 					PageList chapter = (PageList) item;
-					if(chapter.removeFromTree(node)){
+					if(chapter.removeFromTree(node, true)){
 						break;
 					}
 				}
+			}
+		}
+		
+		if(!removeAllNodes){
+			if(parentChapter != null){
+				for (IContentNode item : nodesList) {
+					parentChapter.add(item);
+				}
+			} else {
+				nodes.addAll(nodesList);
 			}
 		}
 
@@ -327,6 +355,10 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	public boolean contains(IContentNode node){
 		return nodes.contains(node);
+	}
+	
+	public List<IContentNode> getNodes(){
+		return nodes;
 	}
 
 	public int indexOf(IContentNode node){

@@ -181,6 +181,7 @@
 	"delete_page_confirmation" : "Zamierzasz usunąć stronę:\n ",
 	"delete_item_confirmation" : "Zamierzasz usunąć element:\n",
 	"delete_chapter_confirmation" : "Zamierzasz usunąć rozdział:\n ",
+	"delete_chapter_pages_confirmation" : "Do you want to delete all elements in chapter?",
 	"split_page_confirmation" : "Czy chcesz podzielić tę stronę?",
 	"delete_module_confirmation" : "Czy chcesz usunąć zaznaczone moduły?",
 	"cant_remove_last_page" : "Nie można usunąć strony.\nPrezentacja musi zawierać co najmniej jedną stronę.",

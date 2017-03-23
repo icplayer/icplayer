@@ -252,7 +252,7 @@ public class PageListTestCase {
 		pages.add(chapter);
 		assertEquals(3, chapter.size());
 
-		pages.removeFromTree(chapter2);
+		pages.removeFromTree(chapter2, true);
 		assertEquals(2, chapter.size());
 	}
 }
