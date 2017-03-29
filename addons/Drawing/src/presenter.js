@@ -71,6 +71,8 @@ function AddonDrawing_create() {
     };
 
     presenter.onMobilePaint = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
         var tmp_canvas;
         if (presenter.configuration.isPencil) {
             tmp_canvas = presenter.configuration.tmp_canvas;
@@ -92,6 +94,8 @@ function AddonDrawing_create() {
     };
 
     presenter.onPaint = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
         var tmp_canvas, tmp_ctx;
 
         if (presenter.configuration.isPencil) {
