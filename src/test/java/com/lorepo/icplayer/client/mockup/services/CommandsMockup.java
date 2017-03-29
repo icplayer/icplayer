@@ -144,5 +144,11 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void updateCurrentPageScoreWithMistakes(int mistakes) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -749,6 +749,7 @@
 	"Limited_Check_property_check_text" : "Tekst na przycisku",
 	"Limited_Check_property_uncheck_text" : "Tekst na zaznaczonym przycisku",
 	"Limited_Check_property_works_with" : "Współpracuje z",
+	"Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
 	"Limited_Reset_name": "Usuń wybrane wyniki",
 	"Limited_Reset_info": "Umożliwia dodanie przycisku, którego kliknięcie pozwala usunąć wyniki w wybranych modułach.",
 	"Limited_Reset_property_title" : "Tytuł",

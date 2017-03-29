@@ -750,6 +750,7 @@ var ice_dictionary_fr = {
 "Limited_Check_property_check_text": "Vérifier le texte",
 "Limited_Check_property_uncheck_text": "Désactiver la vérification du texte",
 "Limited_Check_property_works_with": "Fonctionne avec",
+"Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
 "Limited_Reset_name": "Réinitialisations limitées ",
 "Limited_Reset_info": "Permet d’ajouter un bouton sur lequel cliquer afin de réinitialiser les réponses données dans un module spécifique.",
 "Limited_Reset_property_title": "Titre",
