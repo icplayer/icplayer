@@ -602,7 +602,11 @@ function AddonParagraph_create() {
     presenter.getState = function AddonParagraph_getState() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
-            tinymceState = presenter.editor.getContent({format : 'raw'});
+            try{
+                tinymceState = presenter.editor.getContent({format : 'raw'});
+            }catch(err) {
+                return  presenter.state;
+            }
         } else {
             tinymceState = '';
         }
@@ -632,8 +636,10 @@ function AddonParagraph_create() {
         if (tinymceState!=undefined && tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
             if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
+                presenter.state = state;
             } else {
                 presenter.configuration.state = tinymceState;
+                presenter.state = state;
             }
         }
     };
