@@ -12,6 +12,9 @@ function AddoneKeyboard_create(){
     var lastClickedElement = null;
     var movedInput = false;
     var escClicked = false;
+    var isLoadedPromise = $.Deferred();
+    var isLoaded = false;
+    var functionsQueue = [];
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -459,6 +462,8 @@ function AddoneKeyboard_create(){
                     $(presenter.configuration.workWithViews).find('input').on('focusout', focusoutCallBack);
                 }
             }
+            isLoadedPromise.notify(true);
+            isLoaded = true;
         });
 
     }
@@ -677,6 +682,24 @@ function AddoneKeyboard_create(){
         return ($(presenter.configuration.workWithViews).find(element).length != 0);
     };
 
+    function asyncFunctionDecorator(func) {
+        if (isLoaded) {
+            func();
+        } else {
+            addFunctionToQueue(func)
+        }
+    }
+
+    function addFunctionToQueue(func) {
+        functionsQueue.push(func);
+    }
+
+    isLoadedPromise.then(function () {
+        for (var i = 0; i < functionsQueue.length; i++) {
+            functionsQueue[i]();
+        }
+    });
+
     function hideOpenButton() {
         openButtonElement.style.display = 'none';
     }
@@ -823,7 +846,11 @@ function AddoneKeyboard_create(){
         });
     };
 
-    presenter.disable = function () {
+    presenter.disable = function (){
+        asyncFunctionDecorator(presenter.disableFunc.bind(this));
+    };
+
+    presenter.disableFunc = function () {
         presenter.sendEvent("disable");
         if (presenter.configuration.openOnFocus) {
             keyboardIsVisible = false;
@@ -840,12 +867,20 @@ function AddoneKeyboard_create(){
     };
 
     presenter.enable = function () {
+        asyncFunctionDecorator(presenter.enableFunc.bind(this));
+    };
+
+    presenter.enableFunc = function () {
         presenter.sendEvent("enable");
         keyboardIsVisible = true;
         $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
     };
 
-    presenter.open = function(moduleId, index) {
+    presenter.open = function () {
+        asyncFunctionDecorator(presenter.openFunc.bind(this));
+    };
+
+    presenter.openFunc = function(moduleId, index) {
         var module = presenter.playerController.getModule(moduleId);
         try {
             var input = $(module.getView()).find('input:enabled').get(parseInt(index, 10) - 1);
