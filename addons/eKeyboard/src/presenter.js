@@ -5,6 +5,8 @@ function AddoneKeyboard_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.display = null;
+    presenter.isLoaded = false;
+    presenter.functionsQueue = [];
 
     var keyboardIsVisible = true;
     var closeButtonElement = null;
@@ -12,9 +14,7 @@ function AddoneKeyboard_create(){
     var lastClickedElement = null;
     var movedInput = false;
     var escClicked = false;
-    var isLoadedPromise = $.Deferred();
-    var isLoaded = false;
-    var functionsQueue = [];
+
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -462,8 +462,10 @@ function AddoneKeyboard_create(){
                     $(presenter.configuration.workWithViews).find('input').on('focusout', focusoutCallBack);
                 }
             }
-            isLoadedPromise.notify(true);
-            isLoaded = true;
+            for (var i = 0; i < presenter.functionsQueue.length; i++) {
+                presenter.functionsQueue[i]();
+            }
+            presenter.isLoaded = true;
         });
 
     }
@@ -686,19 +688,9 @@ function AddoneKeyboard_create(){
         if (isLoaded) {
             func();
         } else {
-            addFunctionToQueue(func)
+            presenter.functionsQueue.push(func);
         }
     }
-
-    function addFunctionToQueue(func) {
-        functionsQueue.push(func);
-    }
-
-    isLoadedPromise.then(function () {
-        for (var i = 0; i < functionsQueue.length; i++) {
-            functionsQueue[i]();
-        }
-    });
 
     function hideOpenButton() {
         openButtonElement.style.display = 'none';
@@ -822,7 +814,9 @@ function AddoneKeyboard_create(){
     };
 
     presenter.executeCommand = function(name, params) {
-        if (presenter.configuration.isError) return;
+        if (presenter.configuration.isError) {
+            return;
+        }
 
         var commands = {
             'open' : presenter.openCommand,
@@ -836,14 +830,6 @@ function AddoneKeyboard_create(){
 
     presenter.showCloseButton = function () {
         presenter.isShowCloseButton = true;
-    };
-
-    presenter.sendEvent = function (status) {
-        presenter.eventBus.sendEvent('ValueChanged', {
-            'source': presenter.configuration.ID,
-            'item': '',
-            'value': status
-        });
     };
 
     presenter.disable = function (){
@@ -898,6 +884,17 @@ function AddoneKeyboard_create(){
             presenter.open(moduleId, index);
         }
     };
+
+    presenter.sendEvent = function (status) {
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': status
+        });
+    };
+
+
+
 
     presenter.destroy = function destroy_addon_eKeyboard_function () {
         if (presenter.isPreview) {
