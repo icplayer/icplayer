@@ -74,13 +74,17 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 			
 			isShowAnswersMode = false;
 		}
-
-		playerServices.getCommands().updateCurrentPageScore(true);
-
-		presenters = getModulesPresenters();
-		changeModulesMode();
-		TotalScore totalScore = TotalScore.getFromPresenters(presenters);
 		
+		presenters = getModulesPresenters();
+		TotalScore totalScore = TotalScore.getFromPresenters(presenters);
+
+		if (module.getMistakesFromProvidedModules()){
+			playerServices.getCommands().updateCurrentPageScoreWithMistakes(totalScore.errors);
+		} else {
+			playerServices.getCommands().updateCurrentPageScore(true);
+		}
+
+		changeModulesMode();
 		playerServices.getEventBus().fireEventFromSource(new CustomEvent("LimitedCheck", totalScore.getEventData(module)), this);
 	}
 	

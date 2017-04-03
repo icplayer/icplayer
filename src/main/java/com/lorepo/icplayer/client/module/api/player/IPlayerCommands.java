@@ -33,4 +33,5 @@ public interface IPlayerCommands {
 	public void gotoCommonPage(String commonsPageName);
 	void showPopup(String pageName, String top, String left,
 			String additionalClasses);
+	void updateCurrentPageScoreWithMistakes(int mistakes);
 }

@@ -287,7 +287,16 @@ public class PageController {
 			playerService.getScoreService().setPageScore(currentPage, score.increaseMistakeCounter());
 		}
 	}
-
+	
+	public void updateScoreWithMistakes(int mistakes) {
+		if (currentPage != null && currentPage.isReportable()) {
+			Score.Result result = getCurrentScore();
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
+			playerService.getScoreService().setPageScore(currentPage, score.incrementProvidedMistakes(mistakes));
+		}
+	}
+	
 	public void updateScore(boolean updateCounters) {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();

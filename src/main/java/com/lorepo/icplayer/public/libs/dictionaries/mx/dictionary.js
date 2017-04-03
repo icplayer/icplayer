@@ -750,6 +750,7 @@ var ice_dictionary_mx = {
 	"Limited_Check_property_check_text": "Texto para estado 1",
 	"Limited_Check_property_uncheck_text": "Texto para estado 2",
 	"Limited_Check_property_works_with": "Funciona con",
+    "Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
 	"Limited_Reset_name": "Reinicio limitado",
 	"Limited_Reset_info": "Permite añadir un botón que reestablecerá las respuestas recibidas en módulos específicos.",
 	"Limited_Reset_property_title": "Texto",
