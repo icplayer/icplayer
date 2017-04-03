@@ -685,7 +685,7 @@ function AddoneKeyboard_create(){
     };
 
     function asyncFunctionDecorator(func) {
-        if (isLoaded) {
+        if (presenter.isLoaded) {
             func();
         } else {
             presenter.functionsQueue.push(func);
