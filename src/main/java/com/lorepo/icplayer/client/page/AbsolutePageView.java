@@ -129,13 +129,15 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		}
 	}-*/;
 	
-	public void outstretchHeight(int y, int difference, boolean isRestore) {		
-		List<WidgetPositionStruct> widgetsList = this.widgetsPositions.getAllWidgetsFromPoint(y);
-		for (WidgetPositionStruct widgetData: widgetsList) {
-			widgetData.addTopDimensionDifference(difference);
-			this.widgetsPositions.setWidgetNewData(widgetData);
-			this.setWidgetPosition(widgetData.widget, widgetData.getLeft(), widgetData.getTop());
-		}
+	public void outstretchHeight(int y, int difference, boolean isRestore, boolean dontChangeModules) {		
+		if (!dontChangeModules) {
+			List<WidgetPositionStruct> widgetsList = this.widgetsPositions.getAllWidgetsFromPoint(y);
+			for (WidgetPositionStruct widgetData: widgetsList) {
+				widgetData.addTopDimensionDifference(difference);
+				this.widgetsPositions.setWidgetNewData(widgetData);
+				this.setWidgetPosition(widgetData.widget, widgetData.getLeft(), widgetData.getTop());
+			}
+		}	
 		
 		if (difference > 0 && !isRestore) {
 			int height = this.height + difference + calculateStaticHeaderFooterHeight();

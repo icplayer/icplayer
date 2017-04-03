@@ -43,7 +43,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		void outstretchHeight(int y, int difference, boolean isRestore);
+		void outstretchHeight(int y, int difference, boolean isRestore, boolean dontChangeModules);
 		HashMap<String, Widget> getWidgets();
 	}
 	
@@ -120,7 +120,7 @@ public class PageController {
 	
 	private void restoreOutstretchHeights() {
 		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
-			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true);
+			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true, data.dontChange);
 		}
 	}
 
@@ -451,14 +451,14 @@ public class PageController {
 		return null;
 	}
 
-	public void outstretchHeight(int y, int height) {
-		this.outstretchHeightWithoutAddingToModifications(y, height, false);
-		this.currentPage.heightModifications.addOutstretchHeight(y, height);
+	public void outstretchHeight(int y, int height, boolean dontChangeModules) {
+		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontChangeModules);
+		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontChangeModules);
 		this.playerController.fireOutstretchHeightEvent();
 		
 	}
 
-	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore) {
-		this.pageView.outstretchHeight(y, height, isRestore);
+	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontChangeModules) {
+		this.pageView.outstretchHeight(y, height, isRestore, dontChangeModules);
 	}
 }
