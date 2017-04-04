@@ -57,6 +57,18 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 
 	@Override
+	public void addOnIndex(int index, IContentNode node){
+		nodes.add(index, node);
+		if(listener != null){
+			listener.onNodeAdded(node);
+			if(node instanceof PageList){
+				PageList pages = (PageList) node;
+				pages.addListener(listener);
+			}
+		}
+	}
+	
+	@Override
 	public boolean add(IContentNode node){
 
 		boolean result = nodes.add(node);
@@ -246,6 +258,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return pageName;
 	}
 
+	public int getPageCount(){
+		int counter = 0;
+		for(IContentNode node : nodes){
+			counter += 1;
+		}
+		return counter;
+	}
 
 	public int getTotalPageCount(){
 		int counter = 0;
@@ -361,6 +380,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return nodes;
 	}
 
+	@Override
 	public int indexOf(IContentNode node){
 		return nodes.indexOf(node);
 	}

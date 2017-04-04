@@ -423,6 +423,11 @@ public class Content implements IXMLSerializable, IContent {
 	public int getPageCount() {
 		return pages.getTotalPageCount();
 	}
+	
+	@Override
+	public List<Page> getAllPages() {
+		return pages.getAllPages();
+	}
 
 
 	@Override

@@ -11,4 +11,6 @@ public interface IChapter extends IContentNode {
 	public IContentNode get(int index);
 	public int size();
 	public List<Page> getAllPages();
+	void addOnIndex(int index, IContentNode node);
+	int indexOf(IContentNode node);
 }
