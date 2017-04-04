@@ -81,8 +81,7 @@ public class LayoutsContainer {
 					pageLayout.getID(), 
 					pageLayout.getName(), 
 					pageLayout.getStyleID(), 
-					pageLayout.getTreshold(), 
-					pageLayout.getType().toString(), 
+					pageLayout.getThreshold(), 
 					pageLayout.isDefault());
 		}
 
@@ -90,13 +89,12 @@ public class LayoutsContainer {
 	}
 
 	private native static void addDataToJSHashMap(JavaScriptObject hashmap, String id,
-			String name, String styleID, int treshold, String type, boolean isDefault) /*-{
+			String name, String styleID, int treshold, boolean isDefault) /*-{
 				hashmap[id] = {
 					"id": id,
 					"name": name,
 					"styleID": styleID,
 					"treshold": treshold,
-					"type": type,
 					"isDefault": isDefault
 				};	
 	}-*/;

@@ -5,19 +5,12 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.UUID;
 
-public class PageLayout implements PageLayoutBuilder{
-
-	public enum PageLayoutTypes {
-		small,
-		medium,
-		large
-	};
+public class PageLayout implements PageLayoutBuilder {
 	
 	public static int MAX_TRESHOLD = 1000000; //TODO ??
 	private String name;
 	private String id;
-	private int treshold;
-	private PageLayoutTypes type;
+	private int threshold;
 	private String styleID;
 	private boolean isDefault;
 	
@@ -28,18 +21,17 @@ public class PageLayout implements PageLayoutBuilder{
 	}
 	
 	public static PageLayout createDefaultPageLayout() {
-		PageLayout defaultPageLayout = PageLayout.createPageLayout("default", PageLayout.MAX_TRESHOLD, PageLayoutTypes.small);
+		PageLayout defaultPageLayout = PageLayout.createPageLayout("default", PageLayout.MAX_TRESHOLD);
 		defaultPageLayout.id = "default";
 		defaultPageLayout.setIsDefault(true);
 		
 		return defaultPageLayout;
 	}
 	
-	public static PageLayout createPageLayout(String name, int treshold, PageLayoutTypes type) {
+	public static PageLayout createPageLayout(String name, int treshold) {
 		PageLayout newPageLayout = new PageLayout(UUID.uuid(), name);
-		newPageLayout.setType(type);
 		newPageLayout.setCssID("default");
-		newPageLayout.setTreshold(treshold);
+		newPageLayout.setThreshold(treshold);
 		
 		return newPageLayout;
 	}
@@ -54,15 +46,10 @@ public class PageLayout implements PageLayoutBuilder{
 	}
 
 	@Override
-	public void setTreshold(int value) {
-		this.treshold = value;
+	public void setThreshold(int value) {
+		this.threshold = value;
 	}	
 
-	@Override
-	public void setType(PageLayoutTypes type) {
-		this.type = type;
-	}
-	
 	@Override
 	public void setCssID(String styleID) {
 		this.styleID = styleID;
@@ -77,12 +64,8 @@ public class PageLayout implements PageLayoutBuilder{
 		return this.isDefault;
 	}
 	
-	public PageLayoutTypes getType() {
-		return this.type;
-	}
-	
-	public int getTreshold() {
-		return this.treshold;
+	public int getThreshold() {
+		return this.threshold;
 	}
 	
 	public String getName() {
@@ -111,13 +94,9 @@ public class PageLayout implements PageLayoutBuilder{
 		styleNode.setAttribute("id", this.styleID);
 		layout.appendChild(styleNode);
 		
-		Element tresholdNode = doc.createElement("treshold");
-		tresholdNode.setAttribute("width", Integer.toString(this.treshold));
+		Element tresholdNode = doc.createElement("threshold");
+		tresholdNode.setAttribute("width", Integer.toString(this.threshold));
 		layout.appendChild(tresholdNode);
-		
-		Element typeNode = doc.createElement("type");
-		typeNode.setAttribute("value", this.type.toString());
-		layout.appendChild(typeNode);
 		
 		return layout;
 	}

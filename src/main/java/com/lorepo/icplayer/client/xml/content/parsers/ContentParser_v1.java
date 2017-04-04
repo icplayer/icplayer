@@ -8,7 +8,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
-import com.lorepo.icplayer.client.model.layout.PageLayout.PageLayoutTypes;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 import com.google.gwt.xml.client.NodeList;
 
@@ -79,9 +78,7 @@ public class ContentParser_v1 extends ContentParserBase {
 			if (layoutNodeChildren.item(ii) instanceof Element) {
 				Element child = (Element) layoutNodeChildren.item(ii);
 				String nodeName = child.getNodeName();
-				if(nodeName.compareTo("type") == 0) {
-					pageLayout = this.parseTypeNode(pageLayout, child);
-				} else if (nodeName.compareTo("treshold") == 0) {
+				if (nodeName.compareTo("threshold") == 0) {
 					pageLayout = this.parseTreshold(pageLayout, child);
 				} else if (nodeName.compareTo("style") == 0) {
 					pageLayout = this.parseLayoutStyle(pageLayout, child);
@@ -103,14 +100,8 @@ public class ContentParser_v1 extends ContentParserBase {
 	private PageLayout parseTreshold(PageLayout pageLayout, Element tresholdNode) {
 		int width = XMLUtils.getAttributeAsInt(tresholdNode, "width");
 		
-		pageLayout.setTreshold(width);
+		pageLayout.setThreshold(width);
 		
-		return pageLayout;
-	}
-
-	private PageLayout parseTypeNode(PageLayout pageLayout, Element typeNode) {
-		String type = XMLUtils.getAttributeAsString(typeNode, "value");
-		pageLayout.setType(PageLayoutTypes.valueOf(type));
 		return pageLayout;
 	}
 }

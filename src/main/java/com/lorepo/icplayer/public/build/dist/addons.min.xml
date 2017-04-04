@@ -16230,7 +16230,7 @@ function AddonBlocklyCodeEditor_create () {&#13;
 }&#13;
 </presenter></addon><addon xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Drawing" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Color" nameLabel="Drawing_property_color" type="string"/>
+		<property name="Color" nameLabel="Drawing_property_color" type="color_picker"/>
 		<property name="Thickness" nameLabel="Drawing_property_thickness" type="string"/>
 		<property name="Border" nameLabel="Drawing_property_border" type="string"/>
 		<property name="Opacity" nameLabel="Drawing_property_opacity" type="string"/>
