@@ -1469,6 +1469,7 @@
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start",
+    "Variable_Storage_property_do_not_reset": "Do not reset",
     "Hierarchical_Table_Of_Contents_info": "Umożliwia wyświetlenie hierarchicznego spisu treści razem z linkami odwołującymi się do odpowiednich stron.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchiczny spis treści",
     "Hierarchical_Table_Of_Contents_property_title_label": "Etykieta tytułu",

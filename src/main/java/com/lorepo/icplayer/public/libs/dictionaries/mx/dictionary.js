@@ -1470,6 +1470,7 @@ var ice_dictionary_mx = {
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Nombre",
 	"Variable_Storage_property_variables_start": "Valor de inicio",
+    "Variable_Storage_property_do_not_reset": "Do not reset",
 	"Hierarchical_Table_Of_Contents_info": "Muestra tabla de contenidos de la presentación, que está estructurada jerárquicamente, con los enlaces a las páginas corespondientes.",
 	"Hierarchical_Table_Of_Contents_name": "Índice Jerárquico",
 	"Hierarchical_Table_Of_Contents_property_title_label": "Título",
