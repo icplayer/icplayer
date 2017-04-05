@@ -1476,13 +1476,14 @@ var ice_dictionary_mx = {
 	"Hierarchical_Table_Of_Contents_property_title_label": "Título",
 	"Hierarchical_Table_Of_Contents_property_display_only_chapters": "Mostrar solamente capítulos",
 	"Hierarchical_Table_Of_Contents_property_show_pages": "Mostrar páginas",
-		"Iframe_info": "Este addon permite insertar los recursos HTML a la lección.",
+	"Iframe_info": "Este addon permite insertar los recursos HTML a la lección.",
 	"Iframe_name": "IFrame",
 	"IFrame_property_iframe_url": "URL deIframe",
 	"IFrame_property_file_list" : "Lista de archivos",
 	"IFrame_property_file": "Archivo",
 	"IFrame_property_id": "ID",
 	"IFrame_property_index_file": "Archivo de índice",
-	"IFrame_property_communication_id": "ID de comunicación"
+	"IFrame_property_communication_id": "ID de comunicación",
+	"IFrame_property_allow_fullscreen": "Allow Fullscreen"
 	
 };

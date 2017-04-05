@@ -1483,5 +1483,6 @@ var ice_dictionary_fr = {
 "IFrame_property_file": "File",
 "IFrame_property_id": "ID",
 "IFrame_property_index_file": "Index file",
-"IFrame_property_communication_id": "Communication id"
+"IFrame_property_communication_id": "Communication id",
+"IFrame_property_allow_fullscreen": "Allow Fullscreen"
 };
