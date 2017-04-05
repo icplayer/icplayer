@@ -5,6 +5,8 @@ function AddoneKeyboard_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.display = null;
+    presenter.isLoaded = false;
+    presenter.functionsQueue = [];
 
     var keyboardIsVisible = true;
     var closeButtonElement = null;
@@ -12,6 +14,7 @@ function AddoneKeyboard_create(){
     var lastClickedElement = null;
     var movedInput = false;
     var escClicked = false;
+
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -459,6 +462,10 @@ function AddoneKeyboard_create(){
                     $(presenter.configuration.workWithViews).find('input').on('focusout', focusoutCallBack);
                 }
             }
+            for (var i = 0; i < presenter.functionsQueue.length; i++) {
+                presenter.functionsQueue[i]();
+            }
+            presenter.isLoaded = true;
         });
 
     }
@@ -677,6 +684,14 @@ function AddoneKeyboard_create(){
         return ($(presenter.configuration.workWithViews).find(element).length != 0);
     };
 
+    function asyncFunctionDecorator(func) {
+        if (presenter.isLoaded) {
+            func();
+        } else {
+            presenter.functionsQueue.push(func);
+        }
+    }
+
     function hideOpenButton() {
         openButtonElement.style.display = 'none';
     }
@@ -799,7 +814,9 @@ function AddoneKeyboard_create(){
     };
 
     presenter.executeCommand = function(name, params) {
-        if (presenter.configuration.isError) return;
+        if (presenter.configuration.isError) {
+            return;
+        }
 
         var commands = {
             'open' : presenter.openCommand,
@@ -815,15 +832,11 @@ function AddoneKeyboard_create(){
         presenter.isShowCloseButton = true;
     };
 
-    presenter.sendEvent = function (status) {
-        presenter.eventBus.sendEvent('ValueChanged', {
-            'source': presenter.configuration.ID,
-            'item': '',
-            'value': status
-        });
+    presenter.disable = function (){
+        asyncFunctionDecorator(presenter.disableFunc.bind(this));
     };
 
-    presenter.disable = function () {
+    presenter.disableFunc = function () {
         presenter.sendEvent("disable");
         if (presenter.configuration.openOnFocus) {
             keyboardIsVisible = false;
@@ -840,12 +853,20 @@ function AddoneKeyboard_create(){
     };
 
     presenter.enable = function () {
+        asyncFunctionDecorator(presenter.enableFunc.bind(this));
+    };
+
+    presenter.enableFunc = function () {
         presenter.sendEvent("enable");
         keyboardIsVisible = true;
         $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
     };
 
-    presenter.open = function(moduleId, index) {
+    presenter.open = function () {
+        asyncFunctionDecorator(presenter.openFunc.bind(this));
+    };
+
+    presenter.openFunc = function(moduleId, index) {
         var module = presenter.playerController.getModule(moduleId);
         try {
             var input = $(module.getView()).find('input:enabled').get(parseInt(index, 10) - 1);
@@ -863,6 +884,17 @@ function AddoneKeyboard_create(){
             presenter.open(moduleId, index);
         }
     };
+
+    presenter.sendEvent = function (status) {
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': status
+        });
+    };
+
+
+
 
     presenter.destroy = function destroy_addon_eKeyboard_function () {
         if (presenter.isPreview) {
