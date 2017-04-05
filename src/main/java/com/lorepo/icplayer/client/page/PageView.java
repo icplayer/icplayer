@@ -80,7 +80,7 @@ public class PageView extends SimplePanel implements IPageDisplay {
 	}
 	
 	@Override
-	public void outstretchHeight (int y, int difference, boolean isRestore, boolean dontChangeModules) {
-		this.display.outstretchHeight(y, difference, isRestore, dontChangeModules);
+	public void outstretchHeight (int y, int difference, boolean isRestore, boolean dontMoveModules) {
+		this.display.outstretchHeight(y, difference, isRestore, dontMoveModules);
 	}
 }

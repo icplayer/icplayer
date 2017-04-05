@@ -7,13 +7,14 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 
 public class PageHeightModifications {
-	private class MapEntry {
-		Integer diff, y;
-		boolean dontChange;
+	private class ListEntry {
+		public int diff;
+		public int y;
+		public boolean dontMoveModules;
 		
-		MapEntry(Integer diff, int y, boolean dontChange) {
+		ListEntry(Integer diff, int y, boolean dontMoveModules) {
 			this.diff = diff;
-			this.dontChange = dontChange;
+			this.dontMoveModules = dontMoveModules;
 			this.y = y;
 		}
 		
@@ -21,8 +22,8 @@ public class PageHeightModifications {
 			return this.diff;
 		}
 		
-		public boolean getDontChange() {
-			return this.dontChange;
+		public boolean getDontMoveModules() {
+			return this.dontMoveModules;
 		}
 		
 		public Integer getY() {
@@ -30,15 +31,15 @@ public class PageHeightModifications {
 		}
 	}
 	
-	private List<MapEntry> modifications = new ArrayList<MapEntry>();
+	private List<ListEntry> modifications = new ArrayList<ListEntry>();
 	private boolean wasModified = false;
 	
 	private String Y_KEY = "y";
 	private String HEIGHT_KEY = "height";
-	private String DONT_CHANGE_KEY = "dontChange";
+	private String DONT_CHANGE_KEY = "dontMove";
 	
-	public void addOutstretchHeight (int y, int height, boolean dontChangeModules) {
-		this.modifications.add(new MapEntry(height, y, dontChangeModules));
+	public void addOutstretchHeight (int y, int height, boolean dontMoveModules) {
+		this.modifications.add(new ListEntry(height, y, dontMoveModules));
 		this.wasModified = true;
 	}
 
@@ -47,9 +48,9 @@ public class PageHeightModifications {
 		for (int i  = 0; i < this.modifications.size(); i++) {
 			int diff = this.modifications.get(i).getDiff();
 			int y = this.modifications.get(i).getY();
-			boolean dontChange = this.modifications.get(i).getDontChange();
+			boolean dontMoveModules = this.modifications.get(i).getDontMoveModules();
 			
-			result.add(new OutstretchHeightData(y, diff, dontChange));			
+			result.add(new OutstretchHeightData(y, diff, dontMoveModules));			
 		}
 
 		
@@ -65,7 +66,7 @@ public class PageHeightModifications {
 		List<OutstretchHeightData> modifications = this.getOutStretchHeights();
 		
 		for(int i = 0; i < modifications.size(); i++) {
-			this.pushToArray(jsArray, modifications.get(i).y, modifications.get(i).height, modifications.get(i).dontChange);
+			this.pushToArray(jsArray, modifications.get(i).y, modifications.get(i).height, modifications.get(i).dontMoveModules);
 		}
 		
 		return stringify(jsArray);
@@ -75,11 +76,11 @@ public class PageHeightModifications {
 		return [];
 	}-*/;
 	
-	private native void pushToArray(JavaScriptObject array, int y, int height, boolean dontChange) /*-{
+	private native void pushToArray(JavaScriptObject array, int y, int height, boolean dontMoveModules) /*-{
 		array.push({
 			"y": y,
 			"height": height,
-			"dontChange": dontChange
+			"dontMoveModules": dontMoveModules
 		});
 	}-*/;
 	
@@ -92,8 +93,8 @@ public class PageHeightModifications {
 		this.parse(this, jsonText);
 	}
 	
-	private void addToModificationsMap(int y, int height, Boolean dontChange) {
-		this.modifications.add(new MapEntry(height, y, dontChange.booleanValue()));
+	private void addToModificationsMap(int y, int height, Boolean dontMoveModules) {
+		this.modifications.add(new ListEntry(height, y, dontMoveModules.booleanValue()));
 	}
 	
 	private native JavaScriptObject parse(PageHeightModifications x, String jsonText) /*-{
@@ -102,16 +103,18 @@ public class PageHeightModifications {
 		var dataLen = data.length;
 		var y;
 		var height;
-		var dontChange;
+		var dontMoveModules;
 		var Y_KEY = "y";
 		var HEIGHT_KEY = "height";
-		var DONT_CHANGE_KEY = "dontChange";
-		console.log(data);
+		var DONT_CHANGE_KEY = "dontMoveModules";
 		for(var i = 0; i < dataLen; i++) {
 			y = data[i][Y_KEY];
 			height = data[i][HEIGHT_KEY];
-			dontChange = data[i][DONT_CHANGE_KEY];
-			x.@com.lorepo.icplayer.client.model.page.properties.PageHeightModifications::addToModificationsMap(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontChange));
+			dontMoveModules = data[i][DONT_CHANGE_KEY];
+			if (dontMoveModules === undefined) {
+				dontMoveModules = false;
+			}
+			x.@com.lorepo.icplayer.client.model.page.properties.PageHeightModifications::addToModificationsMap(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules));
 		}
 	}-*/;
 }

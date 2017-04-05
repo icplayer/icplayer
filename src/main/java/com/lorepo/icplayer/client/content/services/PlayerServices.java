@@ -144,7 +144,7 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void outstretchHeight(int y, int height, boolean dontChangeModules) {
-		this.pageController.outstretchHeight(y, height, dontChangeModules);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules) {
+		this.pageController.outstretchHeight(y, height, dontMoveModules);
 	}
 }

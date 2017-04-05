@@ -32,5 +32,5 @@ public interface IPlayerServices {
 	public IPresenter getFooterModule(String name);
 	public int getPageWeight();
 	
-	public void outstretchHeight(int y, int height, boolean dontChangeModules);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules);
 }
