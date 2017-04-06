@@ -89,12 +89,12 @@ public class LayoutsContainer {
 	}
 
 	private native static void addDataToJSHashMap(JavaScriptObject hashmap, String id,
-			String name, String styleID, int treshold, boolean isDefault) /*-{
+			String name, String styleID, int threshold, boolean isDefault) /*-{
 				hashmap[id] = {
 					"id": id,
 					"name": name,
 					"styleID": styleID,
-					"treshold": treshold,
+					"threshold": threshold,
 					"isDefault": isDefault
 				};	
 	}-*/;
