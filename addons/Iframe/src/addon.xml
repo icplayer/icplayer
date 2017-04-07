@@ -9,5 +9,6 @@
         </property>
         <property name="index" displayName="Index File" nameLabel="IFrame_property_index_file" type="file"/>
         <property name="communicationID" displayName="Communication ID" nameLabel="IFrame_property_communication_id" type="string"/>
+        <property name="allowFullscreen"  nameLabel="IFrame_property_allow_fullscreen" type="boolean"/>
     </model>
 </addon>
