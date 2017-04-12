@@ -1470,6 +1470,7 @@ var ice_dictionary_fr = {
 "Variable_Storage_property_variables": "Variables",
 "Variable_Storage_property_variables_name": "Nom",
 "Variable_Storage_property_variables_start": "Lancer",
+"Variable_Storage_property_do_not_reset": "Do not reset",
 "Hierarchical_Table_Of_Contents_info": "Présente la table des matières de manière hiérarchique avec les liens vers les pages correspondantes.",
 "Hierarchical_Table_Of_Contents_name": "Table des matières hiérarchique",
 "Hierarchical_Table_Of_Contents_property_title_label": "Texte du titre",
@@ -1482,5 +1483,6 @@ var ice_dictionary_fr = {
 "IFrame_property_file": "File",
 "IFrame_property_id": "ID",
 "IFrame_property_index_file": "Index file",
-"IFrame_property_communication_id": "Communication id"
+"IFrame_property_communication_id": "Communication id",
+"IFrame_property_allow_fullscreen": "Allow Fullscreen"
 };

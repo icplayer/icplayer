@@ -1,3 +1,8 @@
+2017-04-07 Added allow fullscreen property to iFrame addon.
+2017-04-04 Added changes in Variable Storage module
+2017-04-04 Fixed adding hovering class in Reset module
+2017-04-04 Added changes in page list.
+2017-04-04 Fixed problem with reseting module after closing Popup in Paragraph module
 2017-04-03 Fixed problem with not initialized eKeyboard while calling eKeyboard command.
 2017-03-29 Fixed getting state in Paragraph module
 2017-03-29 Fixed scrolling screen on iOS in Drawing module

@@ -1478,6 +1478,7 @@
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start",
+    "Variable_Storage_property_do_not_reset": "Do not reset",
     "Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
     "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
@@ -1490,5 +1491,6 @@
 	"IFrame_property_file": "File",
 	"IFrame_property_id": "ID",
 	"IFrame_property_index_file": "Index file",
-	"IFrame_property_communication_id": "Communication id"
+	"IFrame_property_communication_id": "Communication id",
+	"IFrame_property_allow_fullscreen": "Allow Fullscreen"
 };

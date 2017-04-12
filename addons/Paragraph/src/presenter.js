@@ -324,7 +324,6 @@ function AddonParagraph_create() {
         presenter.placeholder = null;
         presenter.editor.destroy();
         presenter.jQueryTinyMCEHTML.off();
-        tinymce.remove();
 
         presenter.$view.off();
         presenter.$tinyMCEToolbar.off();

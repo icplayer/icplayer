@@ -6,5 +6,6 @@
             <property name="Name" displayName="Name" nameLabel="Variable_Storage_property_variables_name" type="string" />
             <property name="Start" displayName="Start value" nameLabel="Variable_Storage_property_variables_start" type="string" />
         </property>
+        <property name='NotReset' displayName='Do not reset' nameLabel="Variable_Storage_property_do_not_reset" type='boolean' />
     </model>
 </addon>
