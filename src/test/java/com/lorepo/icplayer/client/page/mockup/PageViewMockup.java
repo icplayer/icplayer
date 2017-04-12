@@ -82,7 +82,7 @@ public class PageViewMockup implements IPageDisplay {
 
 
 	@Override
-	public void outstretchHeight(int y, int difference, boolean isRestore) {
+	public void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules) {
 		// TODO Auto-generated method stub
 		
 	}

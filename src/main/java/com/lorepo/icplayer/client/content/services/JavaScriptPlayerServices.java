@@ -298,8 +298,11 @@ public class JavaScriptPlayerServices {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::closePopup()();
 			};
 			
-			commands.outstretchHeight = function (y, height) {
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(II)(y, height);
+			commands.outstretchHeight = function (y, height, dontMoveModules) {
+				if (dontMoveModules === undefined) {
+					dontMoveModules = false;
+				}
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules));
 			}
 
 			return commands;
@@ -447,8 +450,8 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().closePopup();
 	}
 	
-	private void outstretchHeight(int y, int height) {
-		this.playerServices.outstretchHeight(y, height);
+	private void outstretchHeight(int y, int height, Boolean dontMoveModules) {
+		this.playerServices.outstretchHeight(y, height, dontMoveModules.booleanValue());
 	}
 	
 	private String getContentType(String href){

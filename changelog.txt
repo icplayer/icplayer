@@ -1,3 +1,4 @@
+2017-04-12 Added dontMoveModules parameter to outstretchHeight command.
 2017-04-07 Added allow fullscreen property to iFrame addon.
 2017-04-04 Added changes in Variable Storage module
 2017-04-04 Fixed adding hovering class in Reset module
