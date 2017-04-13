@@ -368,7 +368,7 @@ public class PlayerApp {
 
 	private void loadActualLayoutCSSStyles() {
 		String actualCSSID = this.contentModel.getActualStyleID();
-		CssStyle actualStyle = contentModel.getStyleByID(actualCSSID);
+		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
 		String cssValue = actualStyle.style;
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
 		DOMInjector.appendStyle(css);

@@ -20,8 +20,7 @@ public class ModuleDimensions {
 	}
 	
 	public static ModuleDimensions copy(ModuleDimensions dimensions) {
-		return new ModuleDimensions(dimensions.left, dimensions.right, dimensions.top, dimensions.bottom, 
-				dimensions.height, dimensions.width);
+		return new ModuleDimensions(dimensions.left, dimensions.right, dimensions.top, dimensions.bottom, dimensions.height, dimensions.width);
 	}
 
 	public int getValueByAttributeName(String attribute) {

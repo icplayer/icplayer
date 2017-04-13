@@ -3,9 +3,7 @@ package com.lorepo.icplayer.client.module;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -111,7 +109,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	public void setSemiResponsiveLayoutID(String semiResponsiveLayout) {
 		this.semiResponsivePositions.setSemiResponsiveLayoutID(semiResponsiveLayout);
 	}
-
+	
 	@Override
 	public void syncSemiResponsiveLayouts(Set<PageLayout> actualSemiResponsiveLayouts) {
 		this.semiResponsivePositions.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
@@ -176,6 +174,11 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		if(!disableChangeEvent){
 			sendPropertyChangedEvent(heightProperty);
 		}
+	}
+	
+	@Override
+	public void copyConfiguration(String lastSeenLayout) {
+		this.semiResponsivePositions.copyConfiguration(lastSeenLayout);
 	}
 
 

@@ -124,12 +124,12 @@ public class SemiResponsivePositions {
 
 	private void ensureLayoutExistsOrFallbackToDefault(String semiResponsiveLayoutID) {
 		if (!this.positions.containsKey(semiResponsiveLayoutID)) {
-			ModuleDimensions copyOfDefaultDimensions = this.getDefaultDimensionsCopy();
+			ModuleDimensions copyOfDefaultDimensions = this.getDimensionsCopy(this.defaultLayoutID);
 			this.positions.put(semiResponsiveLayoutID, copyOfDefaultDimensions);
 		}
 		
 		if (!this.layoutsDefinitions.containsKey(semiResponsiveLayoutID)) {
-			LayoutDefinition copyOfDefaultLayoutDefinition = this.getDefaultLayoutDefinitionCopy();
+			LayoutDefinition copyOfDefaultLayoutDefinition = this.getLayoutDefinitionCopy(this.defaultLayoutID);
 			this.layoutsDefinitions.put(semiResponsiveLayoutID, copyOfDefaultLayoutDefinition);
 		}
 		
@@ -144,15 +144,15 @@ public class SemiResponsivePositions {
 		}
 	}
 
-	private LayoutDefinition getDefaultLayoutDefinitionCopy() {
-		LayoutDefinition layoutDefinition = this.layoutsDefinitions.get(this.defaultLayoutID);
+	private LayoutDefinition getLayoutDefinitionCopy(String layoutID) {
+		LayoutDefinition layoutDefinition = this.layoutsDefinitions.get(layoutID);
 		LayoutDefinition copyOfDefaultLayout = LayoutDefinition.copy(layoutDefinition);
 		return copyOfDefaultLayout;
 	}
 
-	private ModuleDimensions getDefaultDimensionsCopy() {
-		ModuleDimensions defaultDimensions = this.positions.get(this.defaultLayoutID);
-		ModuleDimensions copyOfDefaultDimensions = ModuleDimensions.copy(defaultDimensions);
+	private ModuleDimensions getDimensionsCopy(String layoutID) {
+		ModuleDimensions layoutDimensions = this.positions.get(layoutID);
+		ModuleDimensions copyOfDefaultDimensions = ModuleDimensions.copy(layoutDimensions);
 		return copyOfDefaultDimensions;
 	}
 
@@ -231,5 +231,27 @@ public class SemiResponsivePositions {
 
 	public void addRelativeLayout(String id, LayoutDefinition relativeLayout) {
 		this.layoutsDefinitions.put(id, relativeLayout);
+	}
+
+	public void copyConfiguration(String lastSeenLayout) {
+		if (this.positions.containsKey(lastSeenLayout)) {
+			ModuleDimensions copy = this.getDimensionsCopy(lastSeenLayout);
+			this.positions.put(this.semiResponsiveID, copy);
+		}
+		
+		if (this.layoutsDefinitions.containsKey(lastSeenLayout)) {
+			LayoutDefinition copy = this.getLayoutDefinitionCopy(lastSeenLayout);
+			this.layoutsDefinitions.put(this.semiResponsiveID, copy);
+		}
+		
+		this.copyValueInBoolenHashMap(lastSeenLayout, this.isLocked);
+		this.copyValueInBoolenHashMap(lastSeenLayout, this.isVisible);
+		this.copyValueInBoolenHashMap(lastSeenLayout, this.isModuleVisibleInEditor);
+	}
+	
+	private void copyValueInBoolenHashMap(String lastSeenLayout, HashMap<String, Boolean> map) {
+		if (map.containsKey(lastSeenLayout)) {
+			map.put(this.semiResponsiveID, map.get(lastSeenLayout));
+		}
 	}
 }

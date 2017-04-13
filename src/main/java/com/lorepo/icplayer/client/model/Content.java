@@ -222,8 +222,8 @@ public class Content implements IContentBuilder, IContent {
 		return styles;
 	}
 	
-	public CssStyle getStyle(String styleID) {
-		return styles.get(styleID);
+	public CssStyle getStyle(String cssStyleID) {
+		return this.styles.get(cssStyleID);
 	}
 
     public void setMetadataValue(String key, String value){
@@ -526,10 +526,6 @@ public class Content implements IContentBuilder, IContent {
 		this.layoutsContainer.setDefaultSemiResponsiveLayout(newDefaultLayoutID);
 	}
 
-	public CssStyle getStyleByID(String cssStyleID) {
-		return this.styles.get(cssStyleID);
-	}
-
 	@Override
 	public boolean setActualLayoutID(String id) {
 		return this.layoutsContainer.setActualLayoutID(id);
@@ -551,5 +547,9 @@ public class Content implements IContentBuilder, IContent {
 
 	public JavaScriptObject getSemiResponsiveLayoutsAsJS() {
 		return this.layoutsContainer.toJS();
+	}
+	
+	public boolean isSemiResponsiveContent() {
+		return this.styles.size() > 1 || this.layoutsContainer.getLayouts().size() > 1;
 	}
 }

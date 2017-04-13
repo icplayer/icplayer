@@ -8,7 +8,7 @@ import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v0;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v1;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v2;
 
-public class PageFactory extends XMLVersionAwareFactory{
+public class PageFactory extends XMLVersionAwareFactory {
 	
 	Page producedPage = null;
 

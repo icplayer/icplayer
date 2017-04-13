@@ -30,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.xml.page.IPageBuilder;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 public class Page extends BasicPropertyProvider implements IStyledModule, IPage, IPageBuilder {
 
@@ -304,10 +305,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public void reload(Element rootElement) {
-		load(rootElement, baseURL);
-		String rawName = XMLUtils.getAttributeAsString(rootElement, "name");
-        name = StringUtils.unescapeXML(rawName);
-		reportable = XMLUtils.getAttributeAsBoolean(rootElement, "isReportable");
+		PageFactory factory = new PageFactory(this);
+		factory.produce(rootElement.toString(), this.baseURL);
 	}
 
 	@Override
@@ -1002,7 +1001,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 	}
 
-
 	private void ensureDefaultLayout(String defaultLayoutID, Size defaultSizeBeforeSync) {
 		if (!this.pageSizes.containsKey(defaultLayoutID)) {
 			Size copyOfDefault = Size.getCopy(defaultLayoutID, defaultSizeBeforeSync);
@@ -1027,5 +1025,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			}
 		}
 		return defaultSizeBeforeSync;
+	}
+
+	public void copyConfiguration(String lastSeenLayout) {
+		if (this.pageSizes.containsKey(lastSeenLayout)) {
+			Size lastSeenSize = this.pageSizes.get(lastSeenLayout);
+			this.pageSizes.put(this.semiResponsiveLayoutID, new Size(this.semiResponsiveLayoutID, lastSeenSize.getWidth(), lastSeenSize.getHeight()));
+		}
 	}
 }
