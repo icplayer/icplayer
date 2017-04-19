@@ -29,3 +29,79 @@
     width: 80px;
     height: 80px;
 }
+
+.video-container .CustomControlsBar-wrapper {
+    bottom : 0px;
+    left : 0px;
+    background-color: #EBEFF0;
+    height: 40px;
+    width: 100%;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-controlsWrapper {
+    height: 37px;
+    width: 100%;
+}
+
+.video-container-video {
+    display: block;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-play {
+    height: 100%;
+    width: 38px;
+    background: url(http://localhost:8080/media/icplayer/addons/resources/audio-play-btn.png) no-repeat center;
+    border: 1px solid #444;
+    box-sizing: border-box;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-pause {
+    height: 100%;
+    width: 38px;
+    background: url(http://localhost:8080/media/icplayer/addons/resources/audio-pause-btn.png) no-repeat center;
+    border: 1px solid #444;
+    box-sizing: border-box;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-stop {
+    height: 100%;
+    width: 40px;
+    background: url(http://localhost:8080/media/icplayer/addons/resources/audio-stop-btn.png) no-repeat center center;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper {
+    width: 100%;
+    height: 3px;
+    background-color: red;
+    float: left;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-volume {
+    height: 100%;
+    width: 40px;
+    background: url(http://localhost:8080/media/icplayer/addons/resources/audio-volume-btn.png) no-repeat center center;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-timer {
+    height: 100%;
+    color: gray;
+    font-size: 14px;
+    padding-right: 10px;
+    line-height: 16px;
+    vertical-align: middle;
+
+    float: left;
+
+}

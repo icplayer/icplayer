@@ -387,6 +387,19 @@ function Addonvideo_create() {
         } else {
             presenter.showSubtitles();
         }
+        var controls = new window.CustomControlsBar();
+        controls.addPlayCallback(function () {
+            console.log("play");
+        });
+
+        controls.addPauseCallback(function () {
+           console.log("pause");
+        });
+
+        controls.addStopCallback(function () {
+           console.log("stop");
+        });
+        $(view).find('.video-container').append(controls.getMainElement());
     };
 
     presenter.sendOnPLayingEvent = function () {
