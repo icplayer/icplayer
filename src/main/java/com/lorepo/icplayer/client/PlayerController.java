@@ -558,14 +558,10 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public int getIframeScroll() {
-		JavaScriptUtils.log("get scroll");
-		JavaScriptUtils.log(this.iframeScroll);
 		return this.iframeScroll;
 	}
 	
 	public void setIframeScroll (int scroll) {
-		JavaScriptUtils.log("set scroll");
-		JavaScriptUtils.log(scroll);
 		this.iframeScroll = scroll;
 	}
 	
