@@ -1,3 +1,4 @@
+2017-04-20 Added commands to get and set scroll value from iframe.
 2017-04-19 Added playing, stop, end, pause events for slide show addon.
 2017-04-12 Added dontMoveModules parameter to outstretchHeight command.
 2017-04-07 Added allow fullscreen property to iFrame addon.

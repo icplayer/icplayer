@@ -202,4 +202,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+
+	@Override
+	public int getIframeScroll() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
