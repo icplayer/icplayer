@@ -86,4 +86,11 @@ public class PageViewMockup implements IPageDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public void recalculatePageDimensions() {
+		// TODO Auto-generated method stub
+		
+	}
 }

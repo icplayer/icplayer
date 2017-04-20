@@ -73,6 +73,17 @@ public class LayoutsContainer {
 		
 		return false;
 	}
+	
+
+	public String getDefaultSemiResponsiveLayoutID() {
+		for(PageLayout pageLayout : this.layoutsMap.values()) {
+			if (pageLayout.isDefault()) {
+				return pageLayout.getID();
+			}
+		}
+		
+		return null;
+	}
 
 	public JavaScriptObject toJS() {
 		JavaScriptObject hashmap = JavaScriptUtils.createJSObject();

@@ -47,6 +47,7 @@ public class PageController {
 		void setHeight(int height);
 		void removeAllModules();
 		void outstretchHeight(int y, int difference, boolean isRestore);
+		void recalculatePageDimensions();
 		HashMap<String, Widget> getWidgets();
 	}
 	
@@ -115,7 +116,8 @@ public class PageController {
 		this.setCurrentPageSemiResponsiveLayouts();
 
 		pageView.setPage(page);
-		setViewSize(page);
+		this.setViewSize(page);
+		pageView.recalculatePageDimensions();
 		initModules();
 
 		if (playerService.getStateService() != null) {
@@ -126,6 +128,16 @@ public class PageController {
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
+	}
+	
+	private void setViewSize(Page page) {
+		if (page.getWidth() > 0) {
+			pageView.setWidth(page.getWidth());
+		}
+		
+		if (page.getHeight() > 0) {
+			pageView.setHeight(page.getHeight());
+		}
 	}
 	
 	private void setCurrentPageSemiResponsiveLayouts() {
@@ -151,15 +163,6 @@ public class PageController {
 		Score.Result result = getCurrentScore();
 		if (result.errorCount == 0 && result.maxScore > 0 && result.score == result.maxScore) {
 			playerService.getEventBus().fireEvent(new CustomEvent("PageAllOk", new HashMap<String, String>()));
-		}
-	}
-
-	private void setViewSize(Page page) {
-		if (page.getWidth() > 0) {
-			pageView.setWidth(page.getWidth());
-		}
-		if (page.getHeight() > 0) {
-			pageView.setHeight(page.getHeight());
 		}
 	}
 

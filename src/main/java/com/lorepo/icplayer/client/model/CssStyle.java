@@ -17,6 +17,10 @@ public class CssStyle {
 	public static CssStyle createNewStyle (String name) {
 		return new CssStyle(UUID.uuid(),name, "");
 	}
+	
+	public static CssStyle copy(CssStyle toCopy) {
+		return new CssStyle(toCopy.getID(), toCopy.getName(), toCopy.style);
+	}
 
 	public CssStyle(String id, String name, String style) {
 		this.id = id;

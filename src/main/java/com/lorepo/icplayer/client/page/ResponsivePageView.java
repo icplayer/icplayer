@@ -44,7 +44,6 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 		removeAllModules();
 	}
 
-
 	@Override
 	public void refreshMathJax() {
 		MathJax.refreshMathJax(getElement());
@@ -89,6 +88,13 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 	@Override
 	public void outstretchHeight(int y, int difference, boolean isRestore) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void recalculatePageDimensions() {
 		// TODO Auto-generated method stub
 		
 	}

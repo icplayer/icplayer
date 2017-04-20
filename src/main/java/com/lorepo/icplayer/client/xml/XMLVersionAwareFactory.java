@@ -59,5 +59,4 @@ public abstract class XMLVersionAwareFactory implements IXMLFactory {
 		
 		return producedContent;
 	}
-	
 }

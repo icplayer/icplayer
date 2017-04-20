@@ -275,4 +275,10 @@ public class ModuleModelMockup implements IModuleModel {
 	public void syncSemiResponsiveLayouts(
 			Set<PageLayout> actualSemiResponsiveLayouts) {
 	}
+
+	@Override
+	public void copyConfiguration(String lastSeenLayout) {
+		// TODO Auto-generated method stub
+		
+	}
 }

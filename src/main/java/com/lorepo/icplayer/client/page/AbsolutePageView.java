@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
@@ -39,21 +40,24 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		String styles = "position:relative;overflow:hidden;";
 		if(this.currentPage.getInlineStyle() != null){
 			styles += this.currentPage.getInlineStyle(); 
-			
 		}
+		
 		DOMUtils.applyInlineStyle(this.getElement(), styles);
+		
 		if(!this.currentPage.getStyleClass().isEmpty()){
 			this.addStyleName(this.currentPage.getStyleClass());
 		}
 		this.getElement().setId(this.currentPage.getId());
 		this.removeAllModules();
-		this.createPageDimensions();
 	}
 	
 	private void createPageDimensions() {
 		this.pageDimensions = PageDimensionsForCalculations.getAbsolutePageViewDimensions(this);
 	}
-
+	
+	public void recalculatePageDimensions() {
+		this.createPageDimensions();
+	}
 
 	@Override
 	public void refreshMathJax() {
@@ -65,7 +69,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
 
-			
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);

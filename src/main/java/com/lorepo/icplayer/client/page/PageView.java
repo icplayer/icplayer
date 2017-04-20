@@ -83,4 +83,9 @@ public class PageView extends SimplePanel implements IPageDisplay {
 	public void outstretchHeight (int y, int difference, boolean isRestore) {
 		this.display.outstretchHeight(y, difference, isRestore);
 	}
+
+	@Override
+	public void recalculatePageDimensions() {
+		this.display.recalculatePageDimensions();
+	}
 }

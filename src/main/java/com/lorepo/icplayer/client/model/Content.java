@@ -521,6 +521,10 @@ public class Content implements IContentBuilder, IContent {
 		Set<PageLayout> setsLayouts = new HashSet<PageLayout>(layouts);
 		return setsLayouts;
 	}
+	
+	public String getDefaultSemiResponsiveLayoutID() {
+		return this.layoutsContainer.getDefaultSemiResponsiveLayoutID();
+	}
 
 	public void setDefaultSemiResponsiveLayout(String newDefaultLayoutID) {
 		this.layoutsContainer.setDefaultSemiResponsiveLayout(newDefaultLayoutID);
