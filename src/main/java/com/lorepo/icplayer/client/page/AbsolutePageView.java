@@ -39,11 +39,11 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		this.currentPage = newPage;
 		String styles = "position:relative;overflow:hidden;";
 		if(this.currentPage.getInlineStyle() != null){
-			styles += this.currentPage.getInlineStyle(); 
+			styles += this.currentPage.getInlineStyle();
 		}
-		
+
 		DOMUtils.applyInlineStyle(this.getElement(), styles);
-		
+
 		if(!this.currentPage.getStyleClass().isEmpty()){
 			this.addStyleName(this.currentPage.getStyleClass());
 		}
@@ -54,7 +54,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	private void createPageDimensions() {
 		this.pageDimensions = PageDimensionsForCalculations.getAbsolutePageViewDimensions(this);
 	}
-	
+
 	public void recalculatePageDimensions() {
 		this.createPageDimensions();
 	}
@@ -134,13 +134,15 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		}catch (e){
 		}
 	}-*/;
-
-	public void outstretchHeight(int y, int difference, boolean isRestore) {
-		List<WidgetPositionStruct> widgetsList = this.widgetsPositions.getAllWidgetsFromPoint(y);
-		for (WidgetPositionStruct widgetData: widgetsList) {
-			widgetData.addTopDimensionDifference(difference);
-			this.widgetsPositions.setWidgetNewData(widgetData);
-			this.setWidgetPosition(widgetData.widget, widgetData.getLeft(), widgetData.getTop());
+	
+	public void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules) {
+		if (!dontMoveModules) {
+			List<WidgetPositionStruct> widgetsList = this.widgetsPositions.getAllWidgetsFromPoint(y);
+			for (WidgetPositionStruct widgetData: widgetsList) {
+				widgetData.addTopDimensionDifference(difference);
+				this.widgetsPositions.setWidgetNewData(widgetData);
+				this.setWidgetPosition(widgetData.widget, widgetData.getLeft(), widgetData.getTop());
+			}
 		}
 		
 		if (difference > 0 && !isRestore) {

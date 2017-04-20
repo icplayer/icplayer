@@ -223,6 +223,7 @@ var ice_dictionary_fr = {
 "delete_page_confirmation" : "Vous allez supprimer la page :\n ",
 "delete_item_confirmation" : "Vous allez supprimer l'élément :\n",
 "delete_chapter_confirmation" : "Vous allez supprimer le chapitre :\n ",
+"delete_chapter_pages_confirmation" : "Do you want to delete all elements in chapter?",
 "split_page_confirmation" : "Voulez-vous diviser cette page ?",
 "delete_module_confirmation" : "Voulez-vous supprimer les modules sélectionnés ?",
 "cant_remove_last_page" : "Impossible de supprimer la page.\n Vous devez au moins mettre une page dans la présentation",
@@ -791,6 +792,7 @@ var ice_dictionary_fr = {
 "Limited_Check_property_check_text": "Vérifier le texte",
 "Limited_Check_property_uncheck_text": "Désactiver la vérification du texte",
 "Limited_Check_property_works_with": "Fonctionne avec",
+"Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
 "Limited_Reset_name": "Réinitialisations limitées ",
 "Limited_Reset_info": "Permet d’ajouter un bouton sur lequel cliquer afin de réinitialiser les réponses données dans un module spécifique.",
 "Limited_Reset_property_title": "Titre",
@@ -1510,6 +1512,7 @@ var ice_dictionary_fr = {
 "Variable_Storage_property_variables": "Variables",
 "Variable_Storage_property_variables_name": "Nom",
 "Variable_Storage_property_variables_start": "Lancer",
+"Variable_Storage_property_do_not_reset": "Do not reset",
 "Hierarchical_Table_Of_Contents_info": "Présente la table des matières de manière hiérarchique avec les liens vers les pages correspondantes.",
 "Hierarchical_Table_Of_Contents_name": "Table des matières hiérarchique",
 "Hierarchical_Table_Of_Contents_property_title_label": "Texte du titre",
@@ -1522,5 +1525,6 @@ var ice_dictionary_fr = {
 "IFrame_property_file": "File",
 "IFrame_property_id": "ID",
 "IFrame_property_index_file": "Index file",
-"IFrame_property_communication_id": "Communication id"
+"IFrame_property_communication_id": "Communication id",
+"IFrame_property_allow_fullscreen": "Allow Fullscreen"
 };

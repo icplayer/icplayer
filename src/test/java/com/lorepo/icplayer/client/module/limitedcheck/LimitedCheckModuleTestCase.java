@@ -58,6 +58,6 @@ public class LimitedCheckModuleTestCase {
 		
 		Element xml = module.modelToXML();
 		
-		assertEquals("<limitedCheck checkText='Some text' unCheckText='Some uncheck text'><![CDATA[Table1;Table1]]></limitedCheck>", xml.toString());
+		assertEquals("<limitedCheck checkText='Some text' unCheckText='Some uncheck text' mistakesFromProvidedModules='false'><![CDATA[Table1;Table1]]></limitedCheck>", xml.toString());
 	}
 }

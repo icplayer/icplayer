@@ -35,6 +35,8 @@ function AddonVariable_Storage_create(){
         presenter.model = model;
         presenter.addonID = model.ID;
         validateVariables(presenter.model['Variables']);
+        presenter.notReset = false;
+        presenter.notReset = ModelValidationUtils.validateBoolean(presenter.model['NotReset']);
     }
     presenter.run = function(view, model){
         presenter.initiate(view, model);
@@ -67,8 +69,10 @@ function AddonVariable_Storage_create(){
         }
     }
     presenter.reset = function() {
-        for (var i = 0; i < presenter.Variables.length; i++) {
-            presenter.Variables[i]['currentValue'] = presenter.Variables[i]['startValue'];
+        if (!presenter.notReset) {
+            for (var i = 0; i < presenter.Variables.length; i++) {
+                presenter.Variables[i]['currentValue'] = presenter.Variables[i]['startValue'];
+            }
         }
     }
     presenter.getState = function() {

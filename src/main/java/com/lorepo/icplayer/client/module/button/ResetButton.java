@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.button;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -20,9 +22,32 @@ class ResetButton extends PushButton{
 	private String confInfoYes = "";
 	private String confInfoNo = "";
 
+	public static native void removeHoveringFromButtons() /*-{
+	  var reset = $wnd.$('[id^="Reset"]');
+	  
+	  $wnd.$(reset).each(function () {
+	  	var element = $wnd.$(this),
+			classNames = element.attr("class");
+		classNames = classNames.replace(/-hovering/g, "");
+		element.attr("class", classNames);
+	  });
+	}-*/;
+	
 	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo){
 		
 		setStyleName("ic_button_reset");
+		
+		addMouseOverHandler(new MouseOverHandler() {
+			
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				String classNames = getElement().getClassName();
+				if(!classNames.contains("hovering")) {
+					classNames = classNames.replaceAll("-up", "-up-hovering");
+					getElement().setClassName(classNames);
+				}
+			}
+		});
 		
 		addClickHandler(new ClickHandler() {
 			
@@ -71,6 +96,7 @@ class ResetButton extends PushButton{
 			            @Override
 			            public void onClick(ClickEvent event) {
 			                dialogBox.hide();
+			                removeHoveringFromButtons();
 			              }
 			        });
 	
@@ -79,6 +105,7 @@ class ResetButton extends PushButton{
 			            public void onClick(ClickEvent event) {
 			            	pageService.reset();
 			                dialogBox.hide();
+			                removeHoveringFromButtons();
 			              }
 			        });
 	

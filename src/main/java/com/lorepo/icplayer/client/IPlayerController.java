@@ -61,4 +61,6 @@ public interface IPlayerController {
 	void showPopup(String pageName, String top, String left, String additionalClasses);
 
 	void fireOutstretchHeightEvent();
+
+	int getIframeScroll();
 }

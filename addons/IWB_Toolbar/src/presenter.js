@@ -2263,7 +2263,9 @@ function AddonIWB_Toolbar_create() {
         this.$closeButton.on('click', {"note": this}, function(event) {
             event.stopPropagation();
             var confirmation = presenter.$removeConfirmationBox;
-            confirmation.css('top', $(window).scrollTop() + 10 + 'px');
+            var window_scroll = presenter.playerController.iframeScroll() > 0 ? presenter.playerController.iframeScroll() : $(window).scrollTop();
+
+            confirmation.css('top', window_scroll + 10 + 'px');
             confirmation.show();
             confirmation.find('.no-button').on(getTouchStartOrMouseDownEventName(),function(e) {
                 e.stopPropagation();
@@ -2287,7 +2289,7 @@ function AddonIWB_Toolbar_create() {
     presenter.Note.prototype.connectDraggable = function (savedNote) {
         var ic_page_height = presenter.$view.parent().height(),
             panel_top = parseInt(presenter.$panel.css('top'), 10),
-            window_scroll = $(window).scrollTop(),
+            window_scroll = presenter.playerController.iframeScroll() > 0 ? presenter.playerController.iframeScroll() : $(window).scrollTop(),
             panel_outerHeight = presenter.$panel.outerHeight(true),
             panel_differance = ic_page_height-panel_top-window_scroll,
             top=0;
@@ -2296,7 +2298,7 @@ function AddonIWB_Toolbar_create() {
             scrollTop;
         if (presenter.config.panelPosition == 'fixed') {
             offsetTopelement = presenter.$pagePanel.offset().top;
-            scrollTop = $(window).scrollTop();
+            scrollTop = window_scroll;
         } else {
             offsetTopelement = '';
             scrollTop = '';

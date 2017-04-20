@@ -599,10 +599,14 @@ function AddonPieChart_create(){
             presenter.hideAnswers();
         }
         if (!presenter.error) {
-            for(var i = 0; i < presenter.numberOfItems; i++) {
-                if (!(presenter.currentPercents[i] == presenter.items[i]['Answer'])) return 0;
+            if (presenter.activity) {
+                for(var i = 0; i < presenter.numberOfItems; i++) {
+                    if (!(presenter.currentPercents[i] == presenter.items[i]['Answer'])) return 0;
+                }
+                return 1;
+            } else {
+                return 0; //if not activity always score 0
             }
-            return 1;
         }
     };
     presenter.getState = function(){
@@ -662,7 +666,6 @@ function AddonPieChart_create(){
             presenter.$view.find('.chart').css("visibility", "hidden");
             presenter.drawGraph('showAnswers');
         }
-        //	console.log('ShowAnswers: '+presenter.addonID);
     };
     presenter.hideAnswers = function () {
         if (presenter.activity) {
@@ -670,7 +673,6 @@ function AddonPieChart_create(){
             presenter.$view.find('.chart-show-answers').remove();
             presenter.$view.find('.chart').css("visibility", "visible");
         }
-        //	console.log('HideAnswers: '+presenter.addonID);
     };
     return presenter;
 }

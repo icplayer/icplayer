@@ -1,3 +1,20 @@
+2017-04-20 Added commands to get and set scroll value from iframe.
+2017-04-19 Added playing, stop, end, pause events for slide show addon.
+2017-04-12 Added dontMoveModules parameter to outstretchHeight command.
+2017-04-07 Added allow fullscreen property to iFrame addon.
+2017-04-04 Added changes in Variable Storage module
+2017-04-04 Fixed adding hovering class in Reset module
+2017-04-04 Added changes in page list.
+2017-04-04 Fixed problem with reseting module after closing Popup in Paragraph module
+2017-04-03 Fixed problem with not initialized eKeyboard while calling eKeyboard command.
+2017-03-29 Fixed getting state in Paragraph module
+2017-03-29 Fixed scrolling screen on iOS in Drawing module
+2017-03-29 Added counting score from provided modules in Limited Check module
+2017-03-27 Removed unused logo library
+2017-03-27 Fixed problem with Z-Index in Programming Command Prompt
+2017-03-23 Fixed removing chapters
+2017-03-21 Added changes to PieChart module
+2017-03-21 Changed getting parent chapter
 2017-03-16 Added missing labels
 2017-03-16 Added full screen mode and disable full screen property in YouTube module
 2017-03-15 Fixed resetting bookmarks and added moveToPreviousPage and moveToNextPage commands in Assessment Navigation Bar module

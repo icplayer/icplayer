@@ -224,6 +224,7 @@ var ice_dictionary_en = {
 	"delete_page_confirmation" : "You are going to delete page:\n ",
 	"delete_item_confirmation" : "You are going to remove item:\n",
 	"delete_chapter_confirmation" : "You are going to delete chapter:\n ",
+	"delete_chapter_pages_confirmation" : "Do you want to delete all elements in chapter?",
 	"split_page_confirmation" : "Do you want to split this page?",
 	"delete_module_confirmation" : "Do you want to remove selected modules?",
 	"cant_remove_last_page" : "Can't remove page.\nYou need at least one page in presentation",
@@ -697,6 +698,7 @@ var ice_dictionary_en = {
 	"Limited_Check_property_check_text" : "Check text",
 	"Limited_Check_property_uncheck_text" : "Uncheck text",
 	"Limited_Check_property_works_with" : "Works with",
+	"Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
 	"Limited_Reset_name": "Limited Reset",
 	"Limited_Reset_info": "Allows to add a button clicking on which will reset answers given in specified modules.",
 	"Limited_Reset_property_title" : "Title",
@@ -1518,6 +1520,7 @@ var ice_dictionary_en = {
 	"Variable_Storage_property_variables": "Variables",
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start",
+    "Variable_Storage_property_do_not_reset": "Do not reset",
     "Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
     "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
@@ -1530,5 +1533,6 @@ var ice_dictionary_en = {
 	"IFrame_property_file": "File",
 	"IFrame_property_id": "ID",
 	"IFrame_property_index_file": "Index file",
-	"IFrame_property_communication_id": "Communication id"
+	"IFrame_property_communication_id": "Communication id",
+	"IFrame_property_allow_fullscreen": "Allow Fullscreen"
 };

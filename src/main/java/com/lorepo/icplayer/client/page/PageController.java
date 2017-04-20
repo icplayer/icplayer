@@ -46,7 +46,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		void outstretchHeight(int y, int difference, boolean isRestore);
+		void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules);
 		void recalculatePageDimensions();
 		HashMap<String, Widget> getWidgets();
 	}
@@ -64,7 +64,7 @@ public class PageController {
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
 	private Content contentModel;
-	
+
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -80,7 +80,7 @@ public class PageController {
 		this.playerService = playerServices;
 		moduleFactory = new ModuleFactory(playerService);
 	}
-	
+
 	public void setContent(Content model) {
 		this.contentModel = model;
 	}
@@ -111,7 +111,7 @@ public class PageController {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
-		
+
 		currentPage = page;
 		this.setCurrentPageSemiResponsiveLayouts();
 
@@ -124,7 +124,7 @@ public class PageController {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
-		
+
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
@@ -134,16 +134,16 @@ public class PageController {
 		if (page.getWidth() > 0) {
 			pageView.setWidth(page.getWidth());
 		}
-		
+
 		if (page.getHeight() > 0) {
 			pageView.setHeight(page.getHeight());
 		}
 	}
-	
+
 	private void setCurrentPageSemiResponsiveLayouts() {
 		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
 		Set<PageLayout> actualSemiResponsiveLayouts = this.contentModel.getActualSemiResponsiveLayouts();
-		
+
 		currentPage.syncPageSizes(actualSemiResponsiveLayouts);
 		for (IModuleModel module : currentPage.getModules()) {
 			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
@@ -155,7 +155,7 @@ public class PageController {
 
 	private void restoreOutstretchHeights() {
 		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
-			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true);
+			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true, data.dontMoveModules);
 		}
 	}
 
@@ -311,6 +311,15 @@ public class PageController {
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
 			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
 			playerService.getScoreService().setPageScore(currentPage, score.increaseMistakeCounter());
+		}
+	}
+
+	public void updateScoreWithMistakes(int mistakes) {
+		if (currentPage != null && currentPage.isReportable()) {
+			Score.Result result = getCurrentScore();
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
+			playerService.getScoreService().setPageScore(currentPage, score.incrementProvidedMistakes(mistakes));
 		}
 	}
 
@@ -477,14 +486,14 @@ public class PageController {
 		return null;
 	}
 
-	public void outstretchHeight(int y, int height) {
-		this.outstretchHeightWithoutAddingToModifications(y, height, false);
-		this.currentPage.heightModifications.addOutstretchHeight(y, height);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules) {
+		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
+		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 		this.playerController.fireOutstretchHeightEvent();
 		
 	}
 
-	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore) {
-		this.pageView.outstretchHeight(y, height, isRestore);
+	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
+		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
 }

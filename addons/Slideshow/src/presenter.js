@@ -3,6 +3,7 @@ function AddonSlideshow_create() {
     var presenter = function() {};
 
     presenter.isPlaying = false;
+    presenter.eventBus = null;
 
     var DOMElements = {};
     presenter.configuration = {};
@@ -272,6 +273,9 @@ function AddonSlideshow_create() {
             updateProgressBar(0);
             presenter.configuration.currentTime = 0;
             presenter.pauseAudioResource();
+            if (presenter.configuration.audioState == presenter.AUDIO_STATE.STOP) {
+                presenter.sendValueChangedEvent("end");
+            }
             presenter.configuration.audioState = presenter.AUDIO_STATE.STOP;
             hideAllTexts();
             // This action will trigger time update callback, but it's the only way to assure that pressing play after end/stop will trigger playing audio
@@ -405,6 +409,7 @@ function AddonSlideshow_create() {
         $(DOMElements.controls.currentTime).text('00:00');
         updateProgressBar(0);
         presenter.configuration.audioState = presenter.AUDIO_STATE.STOP;
+        presenter.sendValueChangedEvent("stop");
         presenter.pauseAudioResource();
         stopAllAnimations();
         hideAllTexts();
@@ -489,22 +494,26 @@ function AddonSlideshow_create() {
         }
         presenter.playAudioResource();
         presenter.configuration.audioState = presenter.AUDIO_STATE.PLAY;
+        presenter.sendValueChangedEvent("playing");
         changeButtonToPause();
     };
 
      presenter.switchSlideShowPlayToPause = function () {
         presenter.pauseAudioResource();
         presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
+        presenter.sendValueChangedEvent("pause");
         changeButtonToPlay();
     };
 
     presenter.switchSlideShowPauseToPlay = function () {
         presenter.configuration.audioState = presenter.AUDIO_STATE.PLAY;
+        presenter.sendValueChangedEvent("playing");
         presenter.playAudioResource();
         changeButtonToPause();
     };
 
     presenter.switchSlideShowToPlay = function () {
+        presenter.sendValueChangedEvent("playing");
         if (presenter.isPlaying) {
             presenter.pauseAudioResource();
             presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
@@ -1063,6 +1072,7 @@ function AddonSlideshow_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
     };
 
     function presenterLogic(view, model, preview) {
@@ -1270,11 +1280,13 @@ function AddonSlideshow_create() {
     presenter.onSlideChangeAudioStateSetting = function (previousAudioState, wasPlayed) {
         if (previousAudioState != presenter.AUDIO_STATE.PLAY) {
             presenter.configuration.audioState = presenter.AUDIO_STATE.PAUSE;
+            presenter.sendValueChangedEvent("pause");
             presenter.configuration.audio.wasPlayed = wasPlayed;
             return;
         }
 
         presenter.configuration.audioState = presenter.AUDIO_STATE.PLAY;
+        presenter.sendValueChangedEvent("playing");
         presenter.configuration.audio.wasPlayed = wasPlayed;
     };
 
@@ -1306,6 +1318,7 @@ function AddonSlideshow_create() {
                 presenter.switchSlideShowPauseToPlay();
                 break;
             case presenter.AUDIO_STATE.STOP_FROM_NAVIGATION:
+                presenter.sendValueChangedEvent("playing");
                 if(!presenter.isPlaying) {
                     presenter.playAudioAction();
                 }
@@ -1679,8 +1692,24 @@ function AddonSlideshow_create() {
             groupNextAndPrevious: ModelValidationUtils.validateBoolean(model["Group next and previous buttons"]),
             showSlide: showSlide,
             isVisibleByDefault: isVisibleByDefault,
-            isVisible: isVisibleByDefault
+            isVisible: isVisibleByDefault,
+            addonID: model['ID']
         };
+    };
+
+    presenter.sendValueChangedEvent = function slideShowAddon_sendValueChangedEvent (eventValue) {
+        presenter.sendEvent({
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': eventValue,
+            'score': ''
+        }, 'ValueChanged');
+    };
+
+    presenter.sendEvent = function slideShowAddon_sendEvent(eventData, eventType) {
+        if (presenter.eventBus != null) {
+            presenter.eventBus.sendEvent(eventType, eventData);
+        }
     };
 
     return presenter;

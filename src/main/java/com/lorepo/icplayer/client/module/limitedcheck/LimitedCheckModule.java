@@ -7,6 +7,7 @@ import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -21,6 +22,7 @@ public class LimitedCheckModule extends BasicModuleModel {
 	private String unCheckText = "";
 	private String rawWorksWith = "";
 	private List<String> modules = new LinkedList<String>();
+	private boolean mistakesFromProvidedModules = false;
 
 	public LimitedCheckModule() {
 		super("Limited Check", DictionaryWrapper.get("Limited_Check_name"));
@@ -28,6 +30,7 @@ public class LimitedCheckModule extends BasicModuleModel {
 		addPropertyCheckText();
 		addPropertyUnCheckText();
 		addPropertyWorksWith();
+		addPropertyCountMistakesFromProvidedModules();
 	}
 
 	protected void setCheckText(String checkText) {
@@ -163,6 +166,48 @@ public class LimitedCheckModule extends BasicModuleModel {
 		addProperty(property);
 	}
 	
+	private void addPropertyCountMistakesFromProvidedModules() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != mistakesFromProvidedModules) {
+					mistakesFromProvidedModules = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return mistakesFromProvidedModules ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Limited_Check_property_mistakes_from_provided_modules");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Limited_Check_property_mistakes_from_provided_modules");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean getMistakesFromProvidedModules() {
+		return mistakesFromProvidedModules;
+	}
+
 	@Override
 	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
@@ -176,33 +221,35 @@ public class LimitedCheckModule extends BasicModuleModel {
 					checkText = XMLUtils.getAttributeAsString(childElement, "checkText");
 					unCheckText = XMLUtils.getAttributeAsString(childElement, "unCheckText");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
-					
+					mistakesFromProvidedModules = XMLUtils.getAttributeAsBoolean(childElement, "mistakesFromProvidedModules");
+
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}
 		}
 	}
-	
+
 	@Override
 	public String toXML() {
 		Element limitedCheckModule = XMLUtils.createElement("limitedCheckModule");
 		this.setBaseXMLAttributes(limitedCheckModule);
 		limitedCheckModule.appendChild(this.getLayoutsXML());
 		limitedCheckModule.appendChild(this.modelToXML());
-		
+
 		return limitedCheckModule.toString();
 	}
-	
+
 	protected Element modelToXML() {
 		String encodedCheck = StringUtils.escapeHTML(checkText);
 		String encodedUnCheck = StringUtils.escapeHTML(unCheckText);
-		
+
 		Element limitedCheckElement = XMLUtils.createElement("limitedCheck");
 		limitedCheckElement.setAttribute("checkText", encodedCheck);
 		limitedCheckElement.setAttribute("unCheckText", encodedUnCheck);
-		
+		limitedCheckElement.setAttribute("mistakesFromProvidedModules", mistakesFromProvidedModules);
+
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
-		
+
 		limitedCheckElement.appendChild(cdata);
 		return limitedCheckElement;
 	}

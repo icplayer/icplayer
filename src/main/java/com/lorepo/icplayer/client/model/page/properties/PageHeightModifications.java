@@ -8,31 +8,52 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PageHeightModifications {
-	private HashMap<Integer, Integer> modifications = new HashMap<Integer, Integer>();
+	private class ListEntry {
+		public int diff;
+		public int y;
+		public boolean dontMoveModules;
+		
+		ListEntry(Integer diff, int y, boolean dontMoveModules) {
+			this.diff = diff;
+			this.dontMoveModules = dontMoveModules;
+			this.y = y;
+		}
+		
+		public Integer getDiff() {
+			return this.diff;
+		}
+		
+		public boolean getDontMoveModules() {
+			return this.dontMoveModules;
+		}
+		
+		public Integer getY() {
+			return this.y;
+		}
+	}
+	
+	private List<ListEntry> modifications = new ArrayList<ListEntry>();
 	private boolean wasModified = false;
 	
 	private String Y_KEY = "y";
 	private String HEIGHT_KEY = "height";
+	private String DONT_CHANGE_KEY = "dontMove";
 	
-	public void addOutstretchHeight (int y, int height) {
-		if (this.modifications.containsKey(y)) {
-			int diff = this.modifications.get(y);
-			diff = diff + height;
-			this.modifications.put(y, diff);
-		} else {
-			this.modifications.put(y,  height);
-		}
-		
+	public void addOutstretchHeight (int y, int height, boolean dontMoveModules) {
+		this.modifications.add(new ListEntry(height, y, dontMoveModules));
 		this.wasModified = true;
 	}
 
 	public List<OutstretchHeightData> getOutStretchHeights() {
 		List<OutstretchHeightData> result = new ArrayList<OutstretchHeightData>();
-		
-		for(int key : this.modifications.keySet()) {
-			int diff = this.modifications.get(key);
-			result.add(new OutstretchHeightData(key, diff));
+		for (int i  = 0; i < this.modifications.size(); i++) {
+			int diff = this.modifications.get(i).getDiff();
+			int y = this.modifications.get(i).getY();
+			boolean dontMoveModules = this.modifications.get(i).getDontMoveModules();
+			
+			result.add(new OutstretchHeightData(y, diff, dontMoveModules));			
 		}
+
 		
 		return result;
 	}
@@ -46,7 +67,7 @@ public class PageHeightModifications {
 		List<OutstretchHeightData> modifications = this.getOutStretchHeights();
 		
 		for(int i = 0; i < modifications.size(); i++) {
-			this.pushToArray(jsArray, modifications.get(i).y, modifications.get(i).height);
+			this.pushToArray(jsArray, modifications.get(i).y, modifications.get(i).height, modifications.get(i).dontMoveModules);
 		}
 		
 		return JavaScriptUtils.stringify(jsArray);
@@ -56,10 +77,11 @@ public class PageHeightModifications {
 		return [];
 	}-*/;
 	
-	private native void pushToArray(JavaScriptObject array, int y, int height) /*-{
+	private native void pushToArray(JavaScriptObject array, int y, int height, boolean dontMoveModules) /*-{
 		array.push({
 			"y": y,
-			"height": height
+			"height": height,
+			"dontMoveModules": dontMoveModules
 		});
 	}-*/;
 	
@@ -68,8 +90,8 @@ public class PageHeightModifications {
 		this.parse(this, jsonText);
 	}
 	
-	private void addToModificationsMap(int y, int height) {
-		this.modifications.put(y, height);
+	private void addToModificationsMap(int y, int height, Boolean dontMoveModules) {
+		this.modifications.add(new ListEntry(height, y, dontMoveModules.booleanValue()));
 	}
 	
 	private native JavaScriptObject parse(PageHeightModifications x, String jsonText) /*-{
@@ -78,12 +100,18 @@ public class PageHeightModifications {
 		var dataLen = data.length;
 		var y;
 		var height;
+		var dontMoveModules;
 		var Y_KEY = "y";
 		var HEIGHT_KEY = "height";
+		var DONT_CHANGE_KEY = "dontMoveModules";
 		for(var i = 0; i < dataLen; i++) {
 			y = data[i][Y_KEY];
 			height = data[i][HEIGHT_KEY];
-			x.@com.lorepo.icplayer.client.model.page.properties.PageHeightModifications::addToModificationsMap(II)(y, height);
+			dontMoveModules = data[i][DONT_CHANGE_KEY];
+			if (dontMoveModules === undefined) {
+				dontMoveModules = false;
+			}
+			x.@com.lorepo.icplayer.client.model.page.properties.PageHeightModifications::addToModificationsMap(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules));
 		}
 	}-*/;
 }
