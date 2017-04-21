@@ -14,8 +14,8 @@
 
         this.addPlayCallback(this.onPlayClick.bind(this));
         this.addPauseCallback(this.onPauseClick.bind(this));
-        this.addProgressBarEnterCallback(this.onProgressBarEnter.bind(this));
-        this.addProgressBarLeaveCallback(this.onProgressBarLeave.bind(this));
+        //this.addProgressBarEnterCallback(this.onProgressBarEnter.bind(this));
+        //this.addProgressBarLeaveCallback(this.onProgressBarLeave.bind(this));
     }
 
     CustomControlsBar.prototype.onPlayClick = function () {
@@ -96,13 +96,13 @@
         var mainDiv = document.createElement('div');
         mainDiv.className = 'CustomControlsBar-wrapper';
 
-        var progressBarWrapper = document.createElement('div');
-        progressBarWrapper.className = 'CustomControlsBar-wrapper-controls-progressBarWrapper';
-        mainDiv.appendChild(progressBarWrapper);
-
         var controlsWrapper = document.createElement('div');
         controlsWrapper.className = 'CustomControlsBar-wrapper-controls-controlsWrapper';
         mainDiv.appendChild(controlsWrapper);
+
+        var progressBarWrapper = document.createElement('div');
+        progressBarWrapper.className = 'CustomControlsBar-wrapper-controls-progressBarWrapper';
+        mainDiv.appendChild(progressBarWrapper);
 
         var playButton = document.createElement('div');
         playButton.className = 'CustomControlsBar-wrapper-controls-play';

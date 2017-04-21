@@ -39,6 +39,8 @@
 }
 
 .video-container .CustomControlsBar-wrapper-controls-controlsWrapper {
+    margin-top: 3px;
+    position: absolute;
     height: 37px;
     width: 100%;
 }
@@ -79,10 +81,15 @@
 }
 
 .video-container .CustomControlsBar-wrapper-controls-progressBarWrapper {
+    position:absolute;
     width: 100%;
     height: 3px;
     background-color: red;
     float: left;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper:hover {
+    height: 6px;
 }
 
 .video-container .CustomControlsBar-wrapper-controls-volume {
