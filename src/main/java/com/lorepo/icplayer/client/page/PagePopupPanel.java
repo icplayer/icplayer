@@ -14,6 +14,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 
 public class PagePopupPanel extends DialogBox {
 
@@ -23,6 +24,8 @@ public class PagePopupPanel extends DialogBox {
 	private String additionalClasses;
 	private String top;
 	private String left;
+	private PageController openingPageController;
+	private String popupName = "";
 
 	public PagePopupPanel(Widget parent, PageController pageController, String top, String left, String additionalClasses) {
 		this.pageController = pageController;
@@ -40,6 +43,8 @@ public class PagePopupPanel extends DialogBox {
 		else{
 			loadPage(page, baseUrl);
 		}
+		
+		popupName = page.getName();
 	}
 
 
@@ -234,10 +239,17 @@ public class PagePopupPanel extends DialogBox {
 	  });
 	}-*/;
 	
+	public void setPagePlayerController(PageController openingPageController) {
+		this.openingPageController = openingPageController;
+	}
+	
 	public void close() {
 		removeHoveringFromButtons();
 		hide();
 		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
+		
+		ValueChangedEvent valueEvent = new ValueChangedEvent("Popup", popupName, "closed", "");
+		this.openingPageController.getPlayerServices().getEventBus().fireEvent(valueEvent);
 	}
 }
