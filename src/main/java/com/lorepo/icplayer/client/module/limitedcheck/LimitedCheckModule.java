@@ -246,7 +246,7 @@ public class LimitedCheckModule extends BasicModuleModel {
 		Element limitedCheckElement = XMLUtils.createElement("limitedCheck");
 		limitedCheckElement.setAttribute("checkText", encodedCheck);
 		limitedCheckElement.setAttribute("unCheckText", encodedUnCheck);
-		limitedCheckElement.setAttribute("mistakesFromProvidedModules", mistakesFromProvidedModules);
+		XMLUtils.setBooleanAttribute(limitedCheckElement, "mistakesFromProvidedModules", mistakesFromProvidedModules);
 
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
 

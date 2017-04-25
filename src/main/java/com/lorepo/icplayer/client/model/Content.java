@@ -502,14 +502,24 @@ public class Content implements IContentBuilder, IContent {
 		CssStyle style = styles.get(this.getActualStyleID());
 		
 		if (style == null) {
-			return styles.get("default").style;
+			return this.getDefaultCssStyle().style;
 		}
 		
 		return style.style;
 	}
+	
+	private CssStyle getDefaultCssStyle() {
+		for(CssStyle contentStyle : this.styles.values()) {
+			if (contentStyle.isDefault()) {
+				return contentStyle;
+			}
+		}
+		
+		return null;
+	}
 
 	public void removeFromLayoutsStyle(CssStyle styleToDelete) {
-		this.layoutsContainer.removeFromLayoutsStyle(styleToDelete);
+		this.layoutsContainer.removeFromLayoutsStyle(styleToDelete, this.styles);
 	}
 
 	public  HashMap<String, PageLayout> getLayouts() {

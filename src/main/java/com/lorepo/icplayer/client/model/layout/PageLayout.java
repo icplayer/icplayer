@@ -21,16 +21,16 @@ public class PageLayout implements PageLayoutBuilder {
 	}
 	
 	public static PageLayout createDefaultPageLayout() {
-		PageLayout defaultPageLayout = PageLayout.createPageLayout("default", PageLayout.MAX_TRESHOLD);
+		PageLayout defaultPageLayout = PageLayout.createPageLayout("default", PageLayout.MAX_TRESHOLD, "default");
 		defaultPageLayout.id = "default";
 		defaultPageLayout.setIsDefault(true);
 		
 		return defaultPageLayout;
 	}
 	
-	public static PageLayout createPageLayout(String name, int treshold) {
+	public static PageLayout createPageLayout(String name, int treshold, String cssID) {
 		PageLayout newPageLayout = new PageLayout(UUID.uuid(), name);
-		newPageLayout.setCssID("default");
+		newPageLayout.setCssID(cssID);
 		newPageLayout.setThreshold(treshold);
 		
 		return newPageLayout;

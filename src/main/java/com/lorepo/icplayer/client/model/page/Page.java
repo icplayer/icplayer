@@ -254,6 +254,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			Size size = this.pageSizes.get(key);
 			XMLUtils.setIntegerAttribute(layout, "width", size.getWidth());
 			XMLUtils.setIntegerAttribute(layout, "height", size.getHeight());
+			if (size.isDefault()) {
+				XMLUtils.setBooleanAttribute(layout, "isDefault", true);	
+			}
 			layouts.appendChild(layout);
 		}
 
@@ -981,8 +984,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 	}
 
-	private String findDefaultInActualLayouts(
-			Set<PageLayout> actualSemiResponsiveLayouts) {
+	private String findDefaultInActualLayouts(Set<PageLayout> actualSemiResponsiveLayouts) {
 		String defaultLayoutID = null;
 		for (PageLayout pageLayout : actualSemiResponsiveLayouts) {
 			if (pageLayout.isDefault()) {

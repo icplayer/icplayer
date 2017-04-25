@@ -29,10 +29,7 @@ public class ContentParser_v1 extends ContentParserBase {
 				String id = XMLUtils.getAttributeAsString(childNode, "id");
 				boolean isDefault = XMLUtils.getAttributeAsBoolean(childNode, "isDefault", false);
 				String style = XMLUtils.getText(childNode);
-				
-				if(style.length() > 0) {
-					style = StringUtils.unescapeXML(style);
-				}
+				style = StringUtils.unescapeXML(style);
 				CssStyle cssStyle = new CssStyle(id, name, style);
 				cssStyle.setIsDefault(isDefault);
 				styles.put(id, cssStyle);
@@ -40,7 +37,9 @@ public class ContentParser_v1 extends ContentParserBase {
 		}
 		
 		if(styles.keySet().contains("default") == false && styles.size() == 0) {
-			styles.put("default", new CssStyle("default", "default", ""));
+			CssStyle style = new CssStyle("default", "default", "");
+			style.setIsDefault(true);
+			styles.put("default", style);
 		}
 		
 		return styles;

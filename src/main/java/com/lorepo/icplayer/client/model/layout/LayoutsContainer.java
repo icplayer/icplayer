@@ -29,15 +29,20 @@ public class LayoutsContainer {
 		return this.actualLayoutID;
 	}
 
-	public void removeFromLayoutsStyle(CssStyle styleToDelete) {
-		if (this.actualLayoutID.compareTo(styleToDelete.id) == 0) {
-			this.actualLayoutID = "default";
+	public void removeFromLayoutsStyle(CssStyle styleToDelete, HashMap<String, CssStyle> styles) {
+		String defaultCssStyle = "";
+		
+		for (CssStyle style : styles.values()) {
+			if (style.isDefault) {
+				defaultCssStyle = style.getID();
+				break;
+			}
 		}
 		
 		for (String key : this.layoutsMap.keySet()) {
 			PageLayout pageLayout = this.layoutsMap.get(key);
 			if (pageLayout.isThisCssStyle(styleToDelete.id)) {
-				pageLayout.setCssID("default");
+				pageLayout.setCssID(defaultCssStyle);
 				this.layoutsMap.put(key, pageLayout);
 			}
 		}
