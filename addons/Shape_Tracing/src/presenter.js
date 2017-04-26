@@ -504,6 +504,9 @@ function AddonShape_Tracing_create() {
     }
 
     function checkGCS(url) {
+        if (url === undefined) {
+            return url;
+        }
         if(url.indexOf("/file/serve/") == 0){
             return url + "?no_gcs=true";
         }
