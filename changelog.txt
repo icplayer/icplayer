@@ -1,3 +1,4 @@
+2017-04-27 Changed url for image in eKeyboard module
 2017-04-26 Fixed tests in Iframe, shape_tracing addons.
 2017-04-24 Fixed loading images in Shape Tracing and Coloring
 2017-04-24 Added sending event after closing popup page
