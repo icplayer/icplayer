@@ -1,3 +1,7 @@
+2017-04-27 Changed url for image in eKeyboard module
+2017-04-26 Fixed tests in Iframe, shape_tracing addons.
+2017-04-24 Fixed loading images in Shape Tracing and Coloring
+2017-04-24 Added sending event after closing popup page
 2017-04-20 Added commands to get and set scroll value from iframe.
 2017-04-19 Added playing, stop, end, pause events for slide show addon.
 2017-04-12 Added dontMoveModules parameter to outstretchHeight command.

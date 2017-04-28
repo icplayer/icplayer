@@ -308,6 +308,11 @@ function AddonColoring_create(){
         presenter.setVisibility(presenter.configuration.isVisible);
 
         var imageElement = $('<img>');
+
+        if(presenter.configuration.imageFile.indexOf("/file/serve") == 0){
+            presenter.configuration.imageFile = presenter.configuration.imageFile + "?no_gcs=true";
+        }
+
         imageElement.attr('src', presenter.configuration.imageFile);
 
         var canvasElement = $('<canvas></canvas>');

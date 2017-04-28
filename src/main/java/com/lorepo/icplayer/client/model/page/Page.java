@@ -88,7 +88,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public Page(String name, String url) {
 		super("Page");
-		this.id = UUID.uuid(6);
+		this.id = UUID.uuid(16);
 		this.name = name;
 		this.href = url;
 		this.pageSizes = new HashMap<String, Size>();

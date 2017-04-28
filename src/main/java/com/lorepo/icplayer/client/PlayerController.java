@@ -440,6 +440,7 @@ public class PlayerController implements IPlayerController{
 		PageController popupPageControler = new PageController(this);
 		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses);
 		this.popupPanel.showPage(page, this.contentModel.getBaseUrl());
+		this.popupPanel.setPagePlayerController(this.pageController1);
 	}
 
 
