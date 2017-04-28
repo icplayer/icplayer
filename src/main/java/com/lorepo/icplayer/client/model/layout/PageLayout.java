@@ -7,7 +7,7 @@ import com.lorepo.icf.utils.UUID;
 
 public class PageLayout implements PageLayoutBuilder {
 	
-	public static int MAX_TRESHOLD = 1000000; //TODO ??
+	public static int MAX_TRESHOLD = 800;
 	private String name;
 	private String id;
 	private int threshold;

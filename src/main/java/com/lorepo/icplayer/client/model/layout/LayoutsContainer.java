@@ -71,7 +71,7 @@ public class LayoutsContainer {
 	}
 
 	public boolean setActualLayoutID(String id) {
-		if (this.layoutsMap.containsKey(id)) {
+		if (this.layoutsMap.containsKey(id) && this.actualLayoutID.compareTo(id) != 0) {
 			this.actualLayoutID = id;
 			return true;
 		}
