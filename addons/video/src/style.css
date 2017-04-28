@@ -36,6 +36,7 @@
     background-color: #EBEFF0;
     height: 40px;
     width: 100%;
+    position: absolute;
 }
 
 .video-container .CustomControlsBar-wrapper-controls-controlsWrapper {
@@ -84,12 +85,24 @@
     position:absolute;
     width: 100%;
     height: 3px;
-    background-color: red;
     float: left;
 }
 
 .video-container .CustomControlsBar-wrapper-controls-progressBarWrapper:hover {
     height: 6px;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper-redProgressBar {
+    background-color: red;
+    height: 100%;
+    position:absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper-grayProgressBar {
+    background-color: dimgrey;
+    width: 100%;
+    height: 100%;
+    position:absolute;
 }
 
 .video-container .CustomControlsBar-wrapper-controls-volume {
@@ -101,14 +114,42 @@
 
 }
 
-.video-container .CustomControlsBar-wrapper-controls-timer {
+.video-container .CustomControlsBar-wrapper-controls-volumeBarWrapper {
     height: 100%;
+    float: left;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackground {
+    width: 100px;
+    height: 50%;
+    border-bottom: solid 1px #808080;
+    float: left;
+    cursor: pointer;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-fullscreen {
+    float: right;
+    width: 40px;
+    height: 100%;
+    background: url(http://localhost:8080/media/icplayer/addons/resources/fullscreen-btn.png) no-repeat center center;
+    cursor: pointer;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-closeFullscreen {
+    float: right;
+    width: 40px;
+    height: 100%;
+    background: url(http://localhost:8080/media/icplayer/addons/resources/close-fullscreen-btn.png) no-repeat center center;
+    cursor: pointer;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-timer {
+    height: 40px;
     color: gray;
     font-size: 14px;
     padding-right: 10px;
-    line-height: 16px;
-    vertical-align: middle;
-
-    float: left;
+    display: flex;
+    align-items: center;
+    float: right;
 
 }

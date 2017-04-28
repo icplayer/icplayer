@@ -77,6 +77,7 @@ function Addonvideo_create() {
     };
 
     function fullScreenChange () {
+        console.log("FULL SCREEN CHANGE");
         presenter.configuration.isFullScreen = document.webkitIsFullScreen == true || document.mozFullScreen == true;
         var top, left, newTop, newLeft, i,
             screenWidth = screen.width,
@@ -175,7 +176,7 @@ function Addonvideo_create() {
 
     presenter.registerFullScreenEventCallbacks = function () {
         document.addEventListener("mozfullscreenchange", fullScreenChange, false);
-        this.video.addEventListener("webkitfullscreenchange", fullScreenChange, false);
+        presenter.videoContainer.get(0).addEventListener("webkitfullscreenchange", fullScreenChange, false);
     };
 
     presenter.registerHook = function() {
@@ -227,6 +228,8 @@ function Addonvideo_create() {
 
     presenter.setMetaDataOnMetaDataLoadedEvent = function() {
         presenter.metadadaLoaded = true;
+        console.log(presenter.controlBar);
+        presenter.controlBar.setMaxDurationTime(presenter.video.duration);
     };
 
     function setVideoStateOnPlayEvent() {
@@ -387,19 +390,39 @@ function Addonvideo_create() {
         } else {
             presenter.showSubtitles();
         }
-        var controls = new window.CustomControlsBar();
+
+        var config = {
+
+        };
+        var controls = new window.CustomControlsBar(presenter.videoContainer[0], config);
         controls.addPlayCallback(function () {
-            console.log("play");
+           presenter.videoObject.play();
         });
 
         controls.addPauseCallback(function () {
-           console.log("pause");
+           presenter.videoObject.pause();
         });
 
         controls.addStopCallback(function () {
-           console.log("stop");
+            presenter.videoObject.currentTime = 0;
+            presenter.videoObject.pause();
         });
+
+        controls.addFullscreenCallback(function () {
+            console.log("Fullscreen");
+            requestFullscreen(presenter.videoContainer);
+            fullScreenChange();
+        });
+
+        controls.addCloseFullscreenCallback(function () {
+            exitFullscreen();
+            fullScreenChange();
+
+        });
+
         $(view).find('.video-container').append(controls.getMainElement());
+
+        presenter.controlBar = controls;
     };
 
     presenter.sendOnPLayingEvent = function () {
@@ -528,6 +551,7 @@ function Addonvideo_create() {
     };
 
     function onTimeUpdate(video) {
+        presenter.controlBar.setCurrentTime(presenter.video.currentTime);
         presenter.showCaptions(presenter.video.currentTime);
 
         var currentTime = Math.round(video.currentTime * 10) / 10,
@@ -1092,6 +1116,27 @@ function Addonvideo_create() {
             value: parsedValue
         };
     };
+
+    function requestFullscreen ($element) {
+        var DomElement = $element.get(0);
+
+        var requestMethod = DomElement.requestFullscreen || DomElement.mozRequestFullScreen ||
+            DomElement.msRequestFullscreen || DomElement.webkitRequestFullScreen || null;
+
+        if (requestMethod) {
+            console.log("request");
+            requestMethod.call(DomElement);
+        }
+    }
+
+    function exitFullscreen () {
+        var exitMethod = document.exitFullscreen || document.mozCancelFullScreen ||
+            document.msExitFullscreen || document.webkitExitFullscreen || null;
+
+        if (exitMethod) {
+            exitMethod.call(document);
+        }
+    }
 
     return presenter;
 }
