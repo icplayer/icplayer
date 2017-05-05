@@ -34,6 +34,7 @@
         if (parentElement) {
             this.parentElement = parentElement;
             this.buildShowAndHideControlsEvents();
+            this.addPlayCallbackForParent(this.play.bind(this));
         }
     }
 
@@ -82,7 +83,6 @@
         this.mouseDontMoveIntervalCounter = setInterval(this.mouseDontMoveIntervalFunction, this.configuration.mouseDontMoveRefreshTime);
     };
 
-    //TODO: Convert to private
     CustomControlsBar.prototype.mouseDontMoveIntervalFunction = function () {
         if (!this.mainDivIsHidden) {
             if (this.actualTime > this.configuration.mouseDontMoveClocks) {
@@ -92,20 +92,17 @@
         }
     };
 
-    //TODO: Convert to private
     CustomControlsBar.prototype.onWrapperMouseMove = function () {
         this.actualTime = 0;
         this.showControls();
     };
 
-    //TODO: Convert to private
     CustomControlsBar.prototype.hideControls = function () {
         this.elements.mainDiv.element.style.display = 'none';
         this.mainDivIsHidden = true;
 
     };
 
-    //TODO: Convert to private
     CustomControlsBar.prototype.onWrapperMouseEnter = function () {
         this.showControls();
         this.actualTime = 0;
@@ -158,6 +155,18 @@
         setOnClick(this.elements.playButton.element, callback);
     };
 
+    CustomControlsBar.prototype.addPlayCallbackForParent = function (callback) {
+        var ELEMENT_PREFIX = "PARENT_CHILD_";
+        var childNodes = this.parentElement.childNodes;
+        for (var i = 0 ; i < childNodes.length; i++) {
+            if (childNodes[i] !== this.elements.mainDiv.element) {
+                this.elements[ELEMENT_PREFIX + i] = buildTreeNode(childNodes[i]);
+                setOnClick(childNodes[i], callback);
+                addNewCallback.call(this, this.elements[ELEMENT_PREFIX + i], callback, 'click');
+            }
+        }
+    };
+
     CustomControlsBar.prototype.addPauseCallback = function (callback) {
         addNewCallback.call(this, this.elements.pauseButton, callback, 'click');
         setOnClick(this.elements.pauseButton.element, callback);
@@ -190,8 +199,7 @@
         }
 
         treeElement.events[callbackType].push({
-            callback: callback,
-            type: callback
+            callback: callback
         })
     }
 
@@ -218,7 +226,7 @@
         for (var eventName in treeElement.events) {
             if (treeElement.events.hasOwnProperty(eventName)) {
                 for (var i = 0; i < treeElement.events[eventName].length; i++) {
-                    removeEventListener(treeElement.events[eventName][i].type, treeElement.element, treeElement.events[eventName][i].callback);
+                    removeEventListener(eventName, treeElement.element, treeElement.events[eventName][i].callback);
                 }
             }
         }
