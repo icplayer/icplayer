@@ -14,6 +14,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -141,6 +142,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	public boolean isLoaded() {
 		return loaded;
+	}
+	
+	public void setBaseURL(String baseURL) {
+		this.baseURL = baseURL;
 	}
 
 	public void release() {
@@ -278,6 +283,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	@Override
 	public void load(Element rootElement, String url) {
 		modules.clear();
+		JavaScriptUtils.log(url);
 		baseURL = url.substring(0, url.lastIndexOf("/") + 1);
 
 		loadPageAttributes(rootElement);
@@ -696,7 +702,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	@Override
 	public String getPreview() {
-		return previewURL;
+		JavaScriptUtils.log("GetPreview");
+		JavaScriptUtils.log(previewURL);
+		JavaScriptUtils.log(baseURL);
+		return URLUtils.resolveURL(baseURL, previewURL);
 	}
 
 
