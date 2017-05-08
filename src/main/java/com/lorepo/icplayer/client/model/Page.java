@@ -14,7 +14,6 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
