@@ -283,7 +283,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	@Override
 	public void load(Element rootElement, String url) {
 		modules.clear();
-		JavaScriptUtils.log(url);
 		baseURL = url.substring(0, url.lastIndexOf("/") + 1);
 
 		loadPageAttributes(rootElement);
@@ -702,9 +701,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	@Override
 	public String getPreview() {
-		JavaScriptUtils.log("GetPreview");
-		JavaScriptUtils.log(previewURL);
-		JavaScriptUtils.log(baseURL);
 		return URLUtils.resolveURL(baseURL, previewURL);
 	}
 
