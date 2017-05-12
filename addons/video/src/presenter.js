@@ -16,7 +16,9 @@ function Addonvideo_create() {
     presenter.lastVideoSize = null;
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
-        style: null
+        style: null,
+        moduleWidth: 0,
+        moduleHeight: 0
     };
 
     var height;
@@ -82,167 +84,98 @@ function Addonvideo_create() {
         PAUSED: 2
     };
 
-    presenter.buildCaptions = function () {
-        var moduleWidth = presenter.$view.width();
-        var moduleHeight = presenter.$view.height();
-
-        var videoRatio = presenter.videoObject.videoWidth / presenter.videoObject.videoHeight;
-
-        presenter.lastVideoSize = {
-            width: presenter.videoObject.videoWidth,
-            height: presenter.videoObject.videoHeight
-        };
-
-        var videoSize = {
-            offsetWidth: presenter.videoObject.offsetWidth,
-            offsetHieght: presenter.videoObject.offsetHeight
-        };
-
-        var realVideoDimensions = videoDimensions(videoRatio, videoSize);
-
-
-
-        var leftDifference = (moduleWidth - realVideoDimensions.width) / 2;
-        var topDifference = (moduleHeight - realVideoDimensions.height) / 2;
-
-        console.log(leftDifference,'x',topDifference, moduleHeight, realVideoDimensions);
-
-        for (var i = 0; i < presenter.captionDivs.length; i++) {
-            var caption = presenter.captionDivs[i];
-            var captionLeft = parseInt(caption.style.left,10);
-            var captionTop = parseInt(caption.style.top,10);
-            caption.style.left = (captionLeft + leftDifference) + "px";
-            caption.style.top = (captionTop + topDifference) + "px";
-        }
-
-
-    };
-
     function fullScreenChange () {
-        presenter.configuration.isFullScreen = document.webkitIsFullScreen == true || document.mozFullScreen == true || presenter.calledFullScreen == true;
-        //We cant recalculate dimensions
-        if (presenter.lastVideoSize === null) {
-            return;
+        console.log("full1");
+        var moduleHeight, moduleWidth;
+        var top, left, newTop, newLeft, i,
+            screenWidth = screen.width,
+            screenHeight = screen.height;
+        if (presenter.configuration.isFullScreen) {
+            moduleHeight = presenter.stylesBeforeFullscreen.moduleHeight;
+            moduleWidth = presenter.stylesBeforeFullscreen.moduleWidth;
+        } else {
+            moduleWidth = presenter.$view.width();
+            moduleHeight = presenter.$view.height();
+        }
+        var videoFSWidth = screenWidth,
+            videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth),
+            scale = videoFSWidth / moduleWidth,
+            xProportion = screenWidth / moduleWidth,
+            yProportion = screenHeight / moduleHeight,
+            offsetX, offsetY, $element, transformation;
+
+        if (yProportion < xProportion) {
+            videoFSHeight = screenHeight;
+            videoFSWidth = parseInt(moduleWidth * yProportion);
+            scale = videoFSWidth / moduleWidth;
+        } else {
+            videoFSWidth = screenWidth;
+            videoFSHeight = parseInt(moduleHeight * xProportion);
+            scale = videoFSHeight / moduleHeight;
         }
 
-        var videoSize = {
-            offsetWidth: presenter.videoObject.offsetWidth,
-            offsetHeight: presenter.videoObject.offsetHeight
-        };
+        offsetX = screenWidth - videoFSWidth;
+        offsetY = screenHeight - videoFSHeight;
+        //Round to two decimal
+        scale = Math.round(scale * 100) / 100;
+        offsetX = Math.round(offsetX * 100) / 100;
+        offsetY = Math.round(offsetY * 100) / 100;
 
-        var videoRatio = presenter.lastVideoSize.width / presenter.lastVideoSize.height;
-        var realVideoDimensions = videoDimensions(videoRatio, videoSize);
-
-        var moduleWidth = presenter.$view.width();
-        var moduleHeight = presenter.$view.height();
-
-        var leftDifference = (moduleWidth - realVideoDimensions.width) / 2;
-        var topDifference = (moduleHeight - realVideoDimensions.height) / 2;
-
-        for (var i = 0; i < presenter.captions.length; i++) {
-            var $element = $(presenter.captions[i].element);
+        for (i = 0; i < presenter.captions.length; i++) {
+            $element = $(presenter.captions[i].element);
 
             if (presenter.configuration.isFullScreen) {
-                $element.get(0).style.top = (topDifference + parseInt(presenter.captions[i].top, 10)) + "px";
-                $element.get(0).style.left = (leftDifference + parseInt(presenter.captions[i].left, 10)) + "px";
+                if ($element.attr('oldLeft')) continue;
 
+                top = parseInt($element.css('top'), 10);
+                left = parseInt($element.css('left'), 10);
+
+                newTop = parseInt(top * scale, 10);
+                newLeft = parseInt(left * scale, 10);
+
+                $element.attr({
+                    oldTop: top,
+                    oldLeft: left,
+                    oldWidth: $element.width(),
+                    oldHeight: $element.height()
+                });
+                transformation = 'scale(' + scale + ')';
+                $element.css({
+                    '-webkit-transform-origin': 'top left',
+                    '-moz-transform-origin': 'top left',
+                    '-ms-transform-origin': 'top left',
+                    'transform-origin': 'top left',
+                    position: 'fixed',
+                    zIndex: 9999999999,
+                    top: (newTop) + 'px',
+                    left: (newLeft) + 'px',
+                    '-moz-transform': transformation,
+                    '-webkit-transform': transformation,
+                    '-ms-transform': transformation,
+                    'transform': transformation
+                });
+            } else {
+                newLeft = $element.attr('oldLeft');
+                newTop = $element.attr('oldTop');
+                transformation = 'scale(1.0)';
+                $element.css({
+                    //width: $element.attr('oldWidth') + 'px',
+                    //height: $element.attr('oldHeight') + 'px',
+                    top: newTop + 'px',
+                    left: newLeft + 'px',
+                    position: 'absolute',
+                    zIndex: '',
+                    '-moz-transform': '',
+                    '-webkit-transform': '',
+                    '-o-transform': '',
+                    '-ms-transform': '',
+                    'transform': ''
+                });
+
+                $element.removeAttr('oldWidth oldHeight oldTop oldLeft');
             }
-
         }
-                 /*var caption = {
-                    start:parts[0],
-                    end:parts[1],
-                    top:(StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
-                    left:(StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
-                    cssClass:parts[4],
-                    text:parts[5]
-                }; */
 
-
-
-        // var top, left, newTop, newLeft, i,
-        //     screenWidth = screen.width,
-        //     screenHeight = screen.height,
-        //     moduleWidth = presenter.$view.width(),
-        //     moduleHeight = presenter.$view.height(),
-        //     videoFSWidth = screenWidth,
-        //     videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth),
-        //     scale = videoFSWidth / moduleWidth,
-        //     xProportion = screenWidth / moduleWidth,
-        //     yProportion = screenHeight / moduleHeight,
-        //     offsetX, offsetY, $element, transformation;
-        //
-        // if (yProportion < xProportion) {
-        //     videoFSHeight = screenHeight;
-        //     videoFSWidth = parseInt(moduleWidth * yProportion);
-        //     scale = videoFSWidth / moduleWidth;
-        // } else {
-        //     videoFSWidth = screenWidth;
-        //     videoFSHeight = parseInt(moduleHeight * xProportion);
-        //     scale = videoFSHeight / moduleHeight;
-        // }
-        //
-        // offsetX = screenWidth - videoFSWidth;
-        // offsetY = screenHeight - videoFSHeight;
-        // scale = Math.round(scale * 100) / 100;
-        // offsetX = Math.round(offsetX * 100) / 100;
-        // offsetY = Math.round(offsetY * 100) / 100;
-
-        // for (i = 0; i < presenter.captions.length; i++) {
-        //     $element = $(presenter.captions[i].element);
-        //
-        //     if (presenter.configuration.isFullScreen) {
-        //         if ($element.attr('oldLeft')) continue;
-        //
-        //         top = parseInt($element.css('top'), 10);
-        //         left = parseInt($element.css('left'), 10);
-        //
-        //         newTop = parseInt(top * scale, 10);
-        //         newLeft = parseInt(left * scale, 10);
-        //
-        //         $element.attr({
-        //             oldTop: top,
-        //             oldLeft: left,
-        //             oldWidth: $element.width(),
-        //             oldHeight: $element.height()
-        //         });
-        //         transformation = 'scale(' + scale + ')';
-        //         $element.css({
-        //             '-webkit-transform-origin': 'top left',
-        //             '-moz-transform-origin': 'top left',
-        //             '-ms-transform-origin': 'top left',
-        //             'transform-origin': 'top left',
-        //             position: 'fixed',
-        //             zIndex: 9999999999,
-        //             top: (newTop + offsetY / 2) + 'px',
-        //             left: (newLeft + offsetX / 2) + 'px',
-        //             '-moz-transform': transformation,
-        //             '-webkit-transform': transformation,
-        //             '-ms-transform': transformation,
-        //             'transform': transformation
-        //         });
-        //     } else {
-        //         newLeft = $element.attr('oldLeft');
-        //         newTop = $element.attr('oldTop');
-        //         transformation = 'scale(1.0)';
-        //         $element.css({
-        //             //width: $element.attr('oldWidth') + 'px',
-        //             //height: $element.attr('oldHeight') + 'px',
-        //             top: newTop + 'px',
-        //             left: newLeft + 'px',
-        //             position: 'absolute',
-        //             zIndex: '',
-        //             '-moz-transform': '',
-        //             '-webkit-transform': '',
-        //             '-o-transform': '',
-        //             '-ms-transform': '',
-        //             'transform': ''
-        //         });
-        //
-        //         $element.removeAttr('oldWidth oldHeight oldTop oldLeft');
-        //     }
-        // }
-        //
         if (!presenter.configuration.isFullScreen) {
             $(presenter.videoContainer).css({
                 width: presenter.configuration.dimensions.container.width + 'px',
@@ -320,7 +253,6 @@ function Addonvideo_create() {
         presenter.metadadaLoaded = true;
         console.log(presenter.controlBar);
         presenter.controlBar.setMaxDurationTime(presenter.video.duration);
-        presenter.buildCaptions();
     };
 
     function setVideoStateOnPlayEvent() {
@@ -503,12 +435,20 @@ function Addonvideo_create() {
 
         controls.addFullscreenCallback(function () {
             var requestMethod = requestFullscreen(presenter.videoContainer);
+            presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
+            presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
             if (requestMethod === null ) {
                 var body = document.getElementsByTagName('body')[0];
                 var video = presenter.videoContainer.get(0);
-                presenter.stylesBeforeFullscreen.style = video.style;
+                presenter.stylesBeforeFullscreen.style = {
+                    position: video.style.position,
+                    top: video.style.top,
+                    left: video.style.left,
+                    zIndex: video.style.zIndex
+                };
+
                 presenter.stylesBeforeFullscreen.changedStyles = true;
-                video.style.position = "absolute";
+                video.style.position = "fixed";
                 video.style.top = "0";
                 video.style.left = "0";
                 video.style.zIndex = 20000;
@@ -516,7 +456,8 @@ function Addonvideo_create() {
                 presenter.videoObject.load();
 
             }
-            presenter.calledFullScreen = true;
+
+            presenter.configuration.isFullScreen = true;
             fullScreenChange();
         });
 
@@ -525,11 +466,15 @@ function Addonvideo_create() {
                 presenter.stylesBeforeFullscreen.changedStyles = false;
                 var video = presenter.videoContainer.get(0);
                 presenter.videoView.appendChild(video);
-                video.style = presenter.stylesBeforeFullscreen.style;
+                console.log(presenter.stylesBeforeFullscreen);
+                video.style.position = presenter.stylesBeforeFullscreen.style.position;
+                video.style.top = presenter.stylesBeforeFullscreen.style.top;
+                video.style.left = presenter.stylesBeforeFullscreen.style.left;
+                video.style.zIndex = presenter.stylesBeforeFullscreen.style.zIndex;
             } else {
                 exitFullscreen();
             }
-            presenter.calledFullScreen = false;
+            presenter.configuration.isFullScreen = false;
             fullScreenChange();
 
         });
@@ -601,26 +546,18 @@ function Addonvideo_create() {
                 $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
 
                 if (presenter.configuration.isFullScreen && !$(caption.element).attr('oldTop')) {
-                    var moduleWidth = presenter.$view.width();
-                    var moduleHeight = presenter.$view.height();
-
-                    var realVideoDimensions = videoDimensions(presenter.videoObject);
-
-                    var leftDifference = (moduleWidth - realVideoDimensions.width) / 2;
-                    var topDifference = (moduleHeight - realVideoDimensions.height) / 2;
-
-                    console.log(leftDifference,'x',topDifference);
-                    /*var top = parseInt($(caption.element).css('top'), 10),
-                        left = parseInt($(caption.element).css('left'), 10),
-                        newTop, newLeft,
-                        screenWidth = screen.width,
-                        screenHeight = screen.height,
-                        moduleWidth = presenter.$view.width(),
-                        moduleHeight = presenter.$view.height(),
-                        videoFSWidth = screenWidth,
-                        videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth),
-                        scale = videoFSWidth / moduleWidth,
-                        offsetX, offsetY, translateX, translateY, transformation;
+                    console.log("full2");
+                    var top = parseInt($(caption.element).css('top'), 10);
+                    var left = parseInt($(caption.element).css('left'), 10);
+                    var newTop, newLeft;
+                    var screenWidth = screen.width;
+                    var screenHeight = screen.height;
+                    var moduleWidth = presenter.stylesBeforeFullscreen.moduleWidth;
+                    var moduleHeight = presenter.stylesBeforeFullscreen.moduleHeight;
+                    var videoFSWidth = screenWidth;
+                    var videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth);
+                    var scale = videoFSWidth / moduleWidth;
+                    var offsetX, offsetY, translateX, translateY, transformation;
 
                     if (videoFSHeight > screenHeight) {
                         videoFSHeight = screenHeight;
@@ -659,7 +596,7 @@ function Addonvideo_create() {
                         '-webkit-transform': transformation,
                         '-o-transform': transformation,
                         '-moz-transform': transformation
-                    });*/
+                    });
                 }
 
             } else {
@@ -668,22 +605,6 @@ function Addonvideo_create() {
             }
         }
     };
-
-    function videoDimensions(videoRatio, videoSize) {
-
-        // The width and height of the video element
-        var width = videoSize.offsetWidth, height = videoSize.offsetHeight;
-        // The ratio of the element's width to its height
-        var elementRatio = width/height;
-        // If the video element is short and wide
-        if(elementRatio > videoRatio) width = height * videoRatio;
-        // It must be tall and thin, or exactly equal to the original ratio
-        else height = width / videoRatio;
-        return {
-            width: width,
-            height: height
-        };
-    }
 
     presenter.reload = function() {
         presenter.isVideoLoaded = false;
@@ -703,7 +624,7 @@ function Addonvideo_create() {
 
         var currentTime = Math.round(video.currentTime * 10) / 10,
             videoDuration = Math.round(video.duration * 10) / 10,
-            isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
+            isFullScreen = presenter.configuration.isFullScreen;
 
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
@@ -783,39 +704,25 @@ function Addonvideo_create() {
                 return;
             }
 
-            var video_width = presenter.configuration.dimensions.video.width,
-                video_height = presenter.configuration.dimensions.video.height;
 
             var $poster_wrapper = $('<div>');
-            $poster_wrapper.width(video_width);
-            $poster_wrapper.height(video_height);
             $poster_wrapper.addClass('poster-wrapper');
             $poster_wrapper.on('click', function onPosterWrapperClick(e) {
                 e.stopPropagation();
                 $(this).remove();
-                //video.attr('controls', true);
                 presenter.video.play();
             });
 
             var $poster = $('<img>');
             $poster.attr('src', posterSource);
-            $poster.width(video_width);
-            $poster.height(video_height);
             $poster_wrapper.append($poster);
 
             var $playBTN = $('<div>');
             $playBTN.addClass('video-poster-play');
-            $playBTN.css({top:(video_height-80)/2, left:(video_width-80)/2});
             $poster_wrapper.append($playBTN);
 
             video.parent().append($poster_wrapper);
 
-            if (presenter.getIOSVersion(navigator.userAgent) === '8_3') {
-                //video.attr('controls', true);
-            } else {
-                // Default video controls should be disabled to enable events on poster
-                //video.attr('controls', false);
-            }
         } else {
             video.attr('poster', '');
             presenter.$view.find('.poster-wrapper').remove();
@@ -836,9 +743,6 @@ function Addonvideo_create() {
         var $video = $(this.video);
         var files = this.files;
         this.addAttributePoster($video, files[this.currentMovie].Poster);
-        //if (!presenter.defaultControls) {
-        //    $video.removeAttr('controls');
-        //}
         if (presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {
@@ -1265,17 +1169,15 @@ function Addonvideo_create() {
     };
 
     function requestFullscreen ($element) {
-        //var DomElement = $element.get(0);
+        var DomElement = $element.get(0);
 
-        //var requestMethod = DomElement.requestFullscreen || DomElement.mozRequestFullScreen ||
-        //     DomElement.msRequestFullscreen || DomElement.webkitRequestFullScreen || DomElement.webkitEnterFullscreen || null;
-        //
-        // if (requestMethod) {
-        //     console.log("request");
-        //     requestMethod.call(DomElement);
-        // }
-        // return requestMethod;
-        return null;
+        var requestMethod = DomElement.requestFullscreen || DomElement.mozRequestFullScreen ||
+            DomElement.msRequestFullscreen || DomElement.webkitRequestFullScreen ||
+            DomElement.webkitEnterFullscreen || null;
+        if (requestMethod) {
+            requestMethod.call(DomElement);
+        }
+        return requestMethod;
     }
 
     function exitFullscreen () {
