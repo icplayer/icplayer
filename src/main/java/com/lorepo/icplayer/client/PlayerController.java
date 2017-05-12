@@ -57,6 +57,7 @@ public class PlayerController implements IPlayerController{
 	private boolean isPopupEnabled = false;
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
+	private int iframeScroll = 0;
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		this.entryPoint = entryPoint;
@@ -72,6 +73,7 @@ public class PlayerController implements IPlayerController{
 		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
+		this.getIFrameScroll(this);
 	}
 
 	private void createPageControllers(boolean bookMode) {
@@ -433,6 +435,7 @@ public class PlayerController implements IPlayerController{
 		PageController popupPageControler = new PageController(this);
 		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses);
 		this.popupPanel.showPage(page, this.contentModel.getBaseUrl());
+		this.popupPanel.setPagePlayerController(this.pageController1);
 	}
 
 
@@ -553,4 +556,25 @@ public class PlayerController implements IPlayerController{
 	public void fireOutstretchHeightEvent() {
 		this.entryPoint.fireOutstretchHeightEvent();
 	}
+
+	@Override
+	public int getIframeScroll() {
+		return this.iframeScroll;
+	}
+	
+	public void setIframeScroll (int scroll) {
+		this.iframeScroll = scroll;
+	}
+	
+	public native int getIFrameScroll (PlayerController x) /*-{
+		var iframeScroll = 0;
+		$wnd.addEventListener('message', function (event) {
+			var data = event.data;
+	
+			if (data.indexOf('I_FRAME_SCROLL:') === 0) {
+				iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
+				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
+			}
+		}, false);
+	}-*/;
 }

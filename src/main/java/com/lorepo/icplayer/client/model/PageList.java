@@ -10,12 +10,12 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-
 
 
 public class PageList extends BasicPropertyProvider implements IChapter{
@@ -24,22 +24,33 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	private final List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
 	public String name;
+	private String id;
 
 	public PageList(){
 		this("Chapter");
 	}
 
 
-
 	public PageList(String name){
 		super("Chapter");
 		this.name = name;
 		addPropertyName();
+		generateId();
 	}
 
 	@Override
 	public String getName(){
 		return name;
+	}
+	
+	@Override
+	public String getId() {
+		return id;
+	}	
+	
+	private void generateId()
+	{
+		this.id = UUID.uuid(16);
 	}
 
 	public void setPlayerServices(IPlayerServices ps) {
@@ -288,11 +299,16 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 
 	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex) {
-		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
-
+		name = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "name"));
+		id = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "id"));
+		
+		if (id == "") {
+			generateId();
+		}
+		
 		boolean isLoadedWithSubset = subsetOfPages != null && subsetOfPages.size() > 0;
-		name = StringUtils.unescapeXML(nodeName);
 		NodeList children = rootElement.getChildNodes();
+		
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
@@ -347,7 +363,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			} else if (node instanceof PageList){
 				PageList chapter = (PageList) node;
 				String name = StringUtils.escapeXML(chapter.getName());
-				xml += "<chapter name='" + name + "'>";
+				xml += "<chapter name='" + name + "' id='" + chapter.getId() + "'>";
 				xml += chapter.toXML();
 				xml += "</chapter>";
 			}

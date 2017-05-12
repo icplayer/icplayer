@@ -88,7 +88,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }
     background-color: transparent;
     border: 0px;
     background-position: center;
-    background-image: url("/media/iceditor/addons/eKeyboard.png");
+    background-image: url("resources/eKeyboard.png");
     background-repeat: no-repeat;
     background-size: 32px 32px;
 }

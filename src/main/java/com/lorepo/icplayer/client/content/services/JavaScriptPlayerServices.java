@@ -438,6 +438,10 @@ public class JavaScriptPlayerServices {
 		playerServices.hasCover = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hasCover()();
 		};
+		
+		playerServices.iframeScroll = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getIframeScroll()();
+		};
 
 		return playerServices;
 	}-*/;
@@ -733,6 +737,10 @@ public class JavaScriptPlayerServices {
 
 	private void hideNavigationPanels() {
 		playerServices.getCommands().hideNavigationPanels();
+	}
+	
+	private int getIframeScroll() {
+		return playerServices.getCommands().getIframeScroll();
 	}
 
 	private void sendEvent(String eventName, JavaScriptObject eventData){

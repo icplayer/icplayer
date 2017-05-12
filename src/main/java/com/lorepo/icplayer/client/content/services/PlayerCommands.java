@@ -136,4 +136,9 @@ public class PlayerCommands implements IPlayerCommands {
 		controller.getView().hideNavigationPanels();
 
 	}
+	
+	@Override
+	public int getIframeScroll() {
+		return controller.getIframeScroll();
+	}
 }

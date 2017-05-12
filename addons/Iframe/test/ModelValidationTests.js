@@ -348,7 +348,8 @@ TestCase("[Iframe] validateModelOriginal", {
             fileDictionary : {
                 "someID": "/file/12345"
             },
-            isVisibleByDefault: false
+            isVisibleByDefault: false,
+            allowFullScreen:false
         };
     },
 
@@ -387,7 +388,8 @@ TestCase("[Iframe] validateModel", {
             haveURL : true,
             communicationID : "someID",
             fileDictionary :  {"someID" : "/file/12345"},
-            isVisibleByDefault: false
+            isVisibleByDefault: false,
+            allowFullScreen:false
         };
 
         var result = this.presenter.validateModel({});
