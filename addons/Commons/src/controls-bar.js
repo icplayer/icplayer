@@ -13,7 +13,8 @@
         this.buildConfiguration(userConfiguration);
 
         this.elements = buildHTMLTree();
-        this.volumeBarIsVisible = false;
+        this.progressBarChangedCallbacks = [];
+        this.volumeChangedCallbacks = [];
 
         this.addPlayCallback(this.play.bind(this));
         this.addPauseCallback(this.pause.bind(this));
@@ -21,7 +22,8 @@
         this.addVolumeClickCallback(this.openVolume.bind(this));
         this.addFullscreenCallback(this.fullscreen.bind(this));
         this.addCloseFullscreenCallback(this.closeFullscreen.bind(this));
-        this.addVolumeClickCallback(this.openVolume.bind(this));
+        this.addProgressBarClickCallback(this.progressBarClicked.bind(this));
+        this.addVolumeBarClick(this.volumeBarClicked.bind(this));
 
         this.hideControls = this.hideControls.bind(this);
         this.showControls = this.showControls.bind(this);
@@ -34,9 +36,59 @@
         if (parentElement) {
             this.parentElement = parentElement;
             this.buildShowAndHideControlsEvents();
-            this.addPlayCallbackForParent(this.play.bind(this));
+            this.addPlayCallbackForParent(this.triggerPlayClick.bind(this));
         }
     }
+
+    CustomControlsBar.prototype.addProgressChangedCallback = function (callback) {
+        this.progressBarChangedCallbacks.push(callback);
+    };
+
+    CustomControlsBar.prototype.addVolumeChangedCallback = function (callback) {
+        this.volumeChangedCallbacks.push(callback);
+    };
+
+    CustomControlsBar.prototype.progressBarClicked = function (e) {
+        var actualPosition = (e.clientX - cumulativeOffset(this.elements.grayProgressBar.element).left);
+        var percent = (actualPosition * 100) / this.elements.grayProgressBar.element.offsetWidth;
+        for (var i = 0; i < this.progressBarChangedCallbacks.length; i++) {
+            this.progressBarChangedCallbacks[i](percent);
+        }
+    };
+
+    CustomControlsBar.prototype.volumeBarClicked = function (e) {
+        var actualPosition = (e.clientX - cumulativeOffset(this.elements.volumeBarWrapper.element).left);
+        var percent = (actualPosition * 100) / this.elements.volumeBarWrapper.element.offsetWidth;
+        for (var i = 0; i < this.volumeChangedCallbacks.length; i++) {
+            this.volumeChangedCallbacks[i](percent);
+        }
+        console.log(percent, cumulativeOffset(this.elements.volumeBarWrapper.element).left, e.clientX );
+        this.elements.volumeBackgroundSelected.element.style.width = parseInt((percent / 100) * this.elements.volumeBackground.element.offsetWidth, 10) + "px";
+    };
+
+
+    //http://stackoverflow.com/questions/1480133/how-can-i-get-an-objects-absolute-position-on-the-page-in-javascript
+    var cumulativeOffset = function(element) {
+        var top = 0, left = 0;
+        do {
+            top += element.offsetTop  || 0;
+            left += element.offsetLeft || 0;
+            element = element.offsetParent;
+        } while(element);
+
+        return {
+            top: top,
+            left: left
+        };
+    };
+
+    CustomControlsBar.prototype.triggerPlayClick = function () {
+        if (this.elements.playButton.element.style.display === 'block') {
+            this.elements.playButton.element.click();
+        } else {
+            this.elements.pauseButton.element.click();
+        }
+    };
 
     CustomControlsBar.prototype.buildConfiguration = function (userConfiguration) {
         this.configuration = getBasicConfiguration();
@@ -54,8 +106,8 @@
     CustomControlsBar.prototype.actualizeTimer = function () {
         this.elements.timer.element.innerHTML = buildTime(this.configuration.actualMediaTime) + "/" + buildTime(this.configuration.maxMediaTime);
         if (this.configuration.maxMediaTime !== 0 && this.configuration.maxMediaTime !== undefined && this.configuration.maxMediaTime !== null) {
-            var actualProcent = parseInt((this.configuration.actualMediaTime / this.configuration.maxMediaTime) * 100, 10);
-            this.elements.redProgressBar.element.style.width = actualProcent + "%";
+            var actualPercent = parseInt((this.configuration.actualMediaTime / this.configuration.maxMediaTime) * 100, 10);
+            this.elements.redProgressBar.element.style.width = actualPercent + "%";
         }
     };
 
@@ -90,6 +142,14 @@
             }
             this.actualTime++;
         }
+        var videoObject = this.configuration.videoObject;
+        if (videoObject !== null) {
+            if (videoObject.paused === false) {
+                this.play();
+            } else {
+                this.pause();
+            }
+        }
     };
 
     CustomControlsBar.prototype.onWrapperMouseMove = function () {
@@ -100,7 +160,6 @@
     CustomControlsBar.prototype.hideControls = function () {
         this.elements.mainDiv.element.style.display = 'none';
         this.mainDivIsHidden = true;
-
     };
 
     CustomControlsBar.prototype.onWrapperMouseEnter = function () {
@@ -131,14 +190,18 @@
     };
 
     CustomControlsBar.prototype.openVolume = function () {
-        console.log("Volume click");
-        if (!this.volumeBarIsVisible) {
-            this.volumeBarIsVisible = true;
+        if (this.elements.volumeBackground.element.style.display === 'none') {
             this.elements.volumeBackground.element.style.display = 'block';
+            this.elements.volumeBackgroundSelected.element.style.display = 'block';
         } else {
-            this.volumeBarIsVisible = false;
             this.elements.volumeBackground.element.style.display = 'none';
+            this.elements.volumeBackgroundSelected.element.style.display = 'none';
         }
+    };
+
+    CustomControlsBar.prototype.addVolumeBarClick = function (callback) {
+        addNewCallback.call(this, this.elements.volumeBarWrapper, callback, 'click');
+        setOnClick(this.elements.volumeBarWrapper.element, callback);
     };
 
     CustomControlsBar.prototype.pause = function () {
@@ -155,11 +218,17 @@
         setOnClick(this.elements.playButton.element, callback);
     };
 
+    CustomControlsBar.prototype.addProgressBarClickCallback = function (callback) {
+        addNewCallback.call(this, this.elements.progressBarWrapper, callback, 'click');
+        setOnClick(this.elements.progressBarWrapper.element, callback);
+    };
+
     CustomControlsBar.prototype.addPlayCallbackForParent = function (callback) {
         var ELEMENT_PREFIX = "PARENT_CHILD_";
         var childNodes = this.parentElement.childNodes;
         for (var i = 0 ; i < childNodes.length; i++) {
             if (childNodes[i] !== this.elements.mainDiv.element) {
+                console.log(childNodes[i]);
                 this.elements[ELEMENT_PREFIX + i] = buildTreeNode(childNodes[i]);
                 setOnClick(childNodes[i], callback);
                 addNewCallback.call(this, this.elements[ELEMENT_PREFIX + i], callback, 'click');
@@ -288,6 +357,11 @@
         volumeBackground.style.display = 'none';
         volumeBarWrapper.appendChild(volumeBackground);
 
+        var volumeBackgroundSelected = document.createElement('div');
+        volumeBackgroundSelected.className = 'CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackgroundSelected';
+        volumeBackgroundSelected.style.display = 'none';
+        volumeBarWrapper.appendChild(volumeBackgroundSelected);
+
         var fullscreen = document.createElement('div');
         fullscreen.className = 'CustomControlsBar-wrapper-controls-fullscreen';
         controlsWrapper.appendChild(fullscreen);
@@ -315,7 +389,8 @@
             fullscreen: buildTreeNode(fullscreen),
             redProgressBar: buildTreeNode(redProgressBar),
             grayProgressBar: buildTreeNode(grayProgressBar),
-            closeFullscreen: buildTreeNode(closeFullscreen)
+            closeFullscreen: buildTreeNode(closeFullscreen),
+            volumeBackgroundSelected: buildTreeNode(volumeBackgroundSelected)
 
         }
     }
@@ -351,10 +426,11 @@
 
     function getBasicConfiguration () {
         return {
-            mouseDontMoveClocks: 3,
-            mouseDontMoveRefreshTime: 1000,
+            mouseDontMoveClocks: 30,
+            mouseDontMoveRefreshTime: 100,
             maxMediaTime: 0,
-            actualMediaTime: 0
+            actualMediaTime: 0,
+            videoObject: null
         }
     }
 
