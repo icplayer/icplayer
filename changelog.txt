@@ -1,3 +1,4 @@
+2017-05-12 Added new display type icons+list in Table of Contents module
 2017-05-11 Fixed propagating click in Image identification module
 2017-05-09 Fixed resizing iframe in Paragraph eKeyboard module
 2017-04-27 Changed url for image in eKeyboard module
