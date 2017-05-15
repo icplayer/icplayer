@@ -18,7 +18,8 @@ function Addonvideo_create() {
         changedStyles: false,
         style: null,
         moduleWidth: 0,
-        moduleHeight: 0
+        moduleHeight: 0,
+        actualTime: -1
     };
 
     var height;
@@ -85,7 +86,6 @@ function Addonvideo_create() {
     };
 
     function fullScreenChange () {
-        console.log("full1");
         var moduleHeight, moduleWidth;
         var top, left, newTop, newLeft, i,
             screenWidth = screen.width,
@@ -102,24 +102,18 @@ function Addonvideo_create() {
             scale = videoFSWidth / moduleWidth,
             xProportion = screenWidth / moduleWidth,
             yProportion = screenHeight / moduleHeight,
-            offsetX, offsetY, $element, transformation;
+            $element, transformation;
 
         if (yProportion < xProportion) {
-            videoFSHeight = screenHeight;
             videoFSWidth = parseInt(moduleWidth * yProportion);
             scale = videoFSWidth / moduleWidth;
         } else {
-            videoFSWidth = screenWidth;
             videoFSHeight = parseInt(moduleHeight * xProportion);
             scale = videoFSHeight / moduleHeight;
         }
 
-        offsetX = screenWidth - videoFSWidth;
-        offsetY = screenHeight - videoFSHeight;
         //Round to two decimal
         scale = Math.round(scale * 100) / 100;
-        offsetX = Math.round(offsetX * 100) / 100;
-        offsetY = Math.round(offsetY * 100) / 100;
 
         for (i = 0; i < presenter.captions.length; i++) {
             $element = $(presenter.captions[i].element);
@@ -159,8 +153,6 @@ function Addonvideo_create() {
                 newTop = $element.attr('oldTop');
                 transformation = 'scale(1.0)';
                 $element.css({
-                    //width: $element.attr('oldWidth') + 'px',
-                    //height: $element.attr('oldHeight') + 'px',
                     top: newTop + 'px',
                     left: newLeft + 'px',
                     position: 'absolute',
@@ -251,8 +243,14 @@ function Addonvideo_create() {
 
     presenter.setMetaDataOnMetaDataLoadedEvent = function() {
         presenter.metadadaLoaded = true;
-        console.log(presenter.controlBar);
-        presenter.controlBar.setMaxDurationTime(presenter.video.duration);
+        if (presenter.controlBar !== null) {
+            presenter.controlBar.setMaxDurationTime(presenter.video.duration);
+            if (presenter.stylesBeforeFullscreen.actualTime !== -1) {
+                presenter.videoObject.currentTime = presenter.stylesBeforeFullscreen.actualTime;
+                presenter.videoObject.play();
+                presenter.stylesBeforeFullscreen.actualTime = -1;
+            }
+        }
     };
 
     function setVideoStateOnPlayEvent() {
@@ -274,6 +272,7 @@ function Addonvideo_create() {
     };
 
     presenter.destroy = function() {
+        presenter.controlBar.destroy();
         presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.videoObject.removeEventListener('click', presenter.stopPropagationOnClickEvent);
         presenter.videoObject.removeEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
@@ -385,6 +384,13 @@ function Addonvideo_create() {
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         height = upgradedModel.Height;
         this.setDimensions();
+        presenter.videoObject = presenter.videoContainer.find('video')[0];
+        presenter.$videoObject = $(presenter.videoObject);
+        presenter.videoView = view;
+        if (presenter.defaultControls) {
+            this.buildControlsBars();
+        }
+
         presenter.reload();
 
         if (!presenter.isVisibleByDefault) presenter.hide();
@@ -398,9 +404,7 @@ function Addonvideo_create() {
 
         presenter.eventBus.addEventListener('ValueChanged', this);
 
-        presenter.videoObject = this.video;
-        presenter.$videoObject = $(this.video);
-        presenter.videoView = view;
+
 
         presenter.videoView.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -414,6 +418,9 @@ function Addonvideo_create() {
             presenter.showSubtitles();
         }
 
+    };
+
+    presenter.buildControlsBars = function () {
         var config = {
             videoObject: presenter.videoObject
         };
@@ -440,6 +447,7 @@ function Addonvideo_create() {
             if (requestMethod === null ) {
                 var body = document.getElementsByTagName('body')[0];
                 var video = presenter.videoContainer.get(0);
+                presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
                 presenter.stylesBeforeFullscreen.style = {
                     position: video.style.position,
                     top: video.style.top,
@@ -463,10 +471,11 @@ function Addonvideo_create() {
 
         controls.addCloseFullscreenCallback(function () {
             if (presenter.stylesBeforeFullscreen.changedStyles === true) {
+                presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
                 presenter.stylesBeforeFullscreen.changedStyles = false;
                 var video = presenter.videoContainer.get(0);
                 presenter.videoView.appendChild(video);
-                console.log(presenter.stylesBeforeFullscreen);
+                presenter.videoObject.load();
                 video.style.position = presenter.stylesBeforeFullscreen.style.position;
                 video.style.top = presenter.stylesBeforeFullscreen.style.top;
                 video.style.left = presenter.stylesBeforeFullscreen.style.left;
@@ -487,7 +496,7 @@ function Addonvideo_create() {
             presenter.video.volume = percent/100;
         });
 
-        $(view).find('.video-container').append(controls.getMainElement());
+        presenter.$view.find('.video-container').append(controls.getMainElement());
 
         presenter.controlBar = controls;
     };
@@ -517,7 +526,7 @@ function Addonvideo_create() {
     presenter.handleErrorCode = function(error) {
         if (!error) return;
 
-        //presenter.$view.html(presenter.getVideoErrorMessage(error.code));
+        presenter.$view.html(presenter.getVideoErrorMessage(error.code));
     };
 
     presenter.createPreview = function(view, model) {
@@ -546,7 +555,6 @@ function Addonvideo_create() {
                 $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
 
                 if (presenter.configuration.isFullScreen && !$(caption.element).attr('oldTop')) {
-                    console.log("full2");
                     var top = parseInt($(caption.element).css('top'), 10);
                     var left = parseInt($(caption.element).css('left'), 10);
                     var newTop, newLeft;
@@ -557,7 +565,7 @@ function Addonvideo_create() {
                     var videoFSWidth = screenWidth;
                     var videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth);
                     var scale = videoFSWidth / moduleWidth;
-                    var offsetX, offsetY, translateX, translateY, transformation;
+                    var translateX, translateY, transformation;
 
                     if (videoFSHeight > screenHeight) {
                         videoFSHeight = screenHeight;
@@ -565,11 +573,7 @@ function Addonvideo_create() {
                         scale = videoFSWidth / moduleWidth;
                     }
 
-                    offsetX = screenWidth - videoFSWidth;
-                    offsetY = screenHeight - videoFSHeight;
                     scale = Math.round(scale * 100) / 100;
-                    offsetX = Math.round(offsetX * 100) / 100;
-                    offsetY = Math.round(offsetY * 100) / 100;
 
                     translateX = ($(caption.element).width() / 4) * scale;
                     translateX = Math.round(translateX * 100) / 100;
@@ -589,8 +593,8 @@ function Addonvideo_create() {
                     $(caption.element).css({
                         position: 'fixed',
                         zIndex: 9999999999,
-                        top: (newTop + offsetY + translateY) + 'px',
-                        left: (newLeft + offsetX + translateX) + 'px',
+                        top: (newTop + translateY) + 'px',
+                        left: (newLeft + translateX) + 'px',
                         'transform': transformation,
                         '-ms-transform': transformation,
                         '-webkit-transform': transformation,
@@ -619,12 +623,11 @@ function Addonvideo_create() {
     };
 
     function onTimeUpdate(video) {
-        presenter.controlBar.setCurrentTime(presenter.video.currentTime);
         presenter.showCaptions(presenter.video.currentTime);
 
         var currentTime = Math.round(video.currentTime * 10) / 10,
             videoDuration = Math.round(video.duration * 10) / 10,
-            isFullScreen = presenter.configuration.isFullScreen;
+            isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
 
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();

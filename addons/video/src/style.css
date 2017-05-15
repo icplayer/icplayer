@@ -68,7 +68,7 @@
 .video-container .CustomControlsBar-wrapper-controls-play {
     height: 100%;
     width: 38px;
-    background: url("resources/audio-play-btn.png") no-repeat center;
+    background: url("resources/video-play-btn.png") no-repeat center;
     border: 1px solid #444;
     box-sizing: border-box;
     cursor: pointer;
@@ -79,7 +79,7 @@
 .video-container .CustomControlsBar-wrapper-controls-pause {
     height: 100%;
     width: 38px;
-    background: url("resources/audio-pause-btn.png") no-repeat center;
+    background: url("resources/video-pause-btn.png") no-repeat center;
     border: 1px solid #444;
     box-sizing: border-box;
     cursor: pointer;
@@ -90,7 +90,7 @@
 .video-container .CustomControlsBar-wrapper-controls-stop {
     height: 100%;
     width: 40px;
-    background: url("resources/audio-stop-btn.png") no-repeat center center;
+    background: url("resources/video-stop-btn.png") no-repeat center center;
     cursor: pointer;
     float: left;
 
@@ -123,7 +123,7 @@
 .video-container .CustomControlsBar-wrapper-controls-volume {
     height: 100%;
     width: 40px;
-    background: url("resources/audio-volume-btn.png") no-repeat center center;
+    background: url("resources/video-volume-btn.png") no-repeat center center;
     cursor: pointer;
     float: left;
 
@@ -156,7 +156,7 @@
     float: right;
     width: 40px;
     height: 100%;
-    background: url("resources/fullscreen-btn.png") no-repeat center center;
+    background: url("resources/video-fullscreen-btn.png") no-repeat center center;
     cursor: pointer;
 }
 
@@ -164,7 +164,7 @@
     float: right;
     width: 40px;
     height: 100%;
-    background: url("resources/close-fullscreen-btn.png") no-repeat center center;
+    background: url("resources/video-close-fullscreen-btn.png") no-repeat center center;
     cursor: pointer;
 }
 
