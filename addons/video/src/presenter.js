@@ -244,6 +244,7 @@ function Addonvideo_create() {
     presenter.setMetaDataOnMetaDataLoadedEvent = function() {
         presenter.metadadaLoaded = true;
         if (presenter.controlBar !== null) {
+            presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
             presenter.controlBar.setMaxDurationTime(presenter.video.duration);
             if (presenter.stylesBeforeFullscreen.actualTime !== -1) {
                 presenter.videoObject.currentTime = presenter.stylesBeforeFullscreen.actualTime;
