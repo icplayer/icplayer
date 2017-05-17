@@ -10,6 +10,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.$tinyMCEToolbar = null;
     presenter.$TinyMCEBody = null;
     presenter.eKeyboardButtons = [];
+    var checkHeightCounter = 0;
 
     presenter.DEFAULTS = {
         TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
@@ -601,12 +602,17 @@ function AddonParagraph_Keyboard_create() {
         	presenter.editor.setContent(presenter.configuration.state, {format : 'raw'});
         }
 
-        presenter.setIframeHeight();
+        setTimeout(function () {
+            presenter.setIframeHeight();
+        }, 0);
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
+        presenter.lastHeight = presenter.$tinyMCEToolbar.css('height');
         presenter.$tinyMCEToolbar.on('resize', function () {
             presenter.setIframeHeight();
         });
+
+        checkForChanges();
 
         presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
 
@@ -622,8 +628,20 @@ function AddonParagraph_Keyboard_create() {
         } else {
             presenter.ownerDocument = false;
         }
-
     };
+
+    function checkForChanges(){
+        if (presenter.$tinyMCEToolbar.css('height') != presenter.lastHeight){
+            presenter.lastHeight = presenter.$tinyMCEToolbar.css('height');
+            presenter.setIframeHeight();
+            return;
+        }
+
+        checkHeightCounter += 1;
+        if(checkHeightCounter == 3) return;
+
+        setTimeout(checkForChanges, 500);
+    }
 
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
