@@ -481,6 +481,10 @@ public class JavaScriptPlayerServices {
 	private void gotoPage(String pageName){
 		playerServices.getCommands().gotoPage(pageName);
 	}
+	
+	private void changePageReportable(boolean value) {
+		JavaScriptUtils.log("HERWE");
+	}
 
 	private void gotoPageIndex(int index){
 		playerServices.getCommands().gotoPageIndex(index);

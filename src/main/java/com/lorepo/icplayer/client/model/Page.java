@@ -14,6 +14,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -708,6 +709,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	public String getId() {
 		return id;
 	}
+	
+	public void setAsReportable() {
+		this.reportable = true;
+	}
+	
+	public void setAsNonReportable() {
+		this.reportable = false;
+	}
 
 	public void setId(String pageId) {
 		this.id = pageId;
@@ -925,7 +934,15 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		page.isReportable = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
 		}
-
+		
+		page.setAsReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsReportable()();
+		}
+		
+		page.setAsNonReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsNonReportable()();
+		}
+		
 		page.isVisited = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
 		}
