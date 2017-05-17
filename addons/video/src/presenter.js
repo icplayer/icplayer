@@ -140,7 +140,6 @@ function Addonvideo_create() {
                     '-ms-transform-origin': 'top left',
                     'transform-origin': 'top left',
                     position: 'fixed',
-                    zIndex: 9999999999,
                     top: (newTop) + 'px',
                     left: (newLeft) + 'px',
                     '-moz-transform': transformation,
@@ -593,7 +592,6 @@ function Addonvideo_create() {
                     transformation = 'scale(' + scale + ')';
                     $(caption.element).css({
                         position: 'fixed',
-                        zIndex: 9999999999,
                         top: (newTop + translateY) + 'px',
                         left: (newLeft + translateX) + 'px',
                         'transform': transformation,
