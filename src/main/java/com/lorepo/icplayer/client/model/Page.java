@@ -14,7 +14,6 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -28,6 +27,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
@@ -709,12 +709,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	public String getId() {
 		return id;
 	}
-	
+
+	@Override
 	public void setAsReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), true);
 		this.reportable = true;
 	}
-	
+
+	@Override
 	public void setAsNonReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), false);
 		this.reportable = false;
 	}
 

@@ -73,7 +73,7 @@ public class ScoreService implements IScoreService {
 	@Override
 	public PageScore getPageScore(String pageId) {
 		PageScore score = pageScores.get(pageId);
-
+			
 		if(score == null){
 			score = new PageScore();
 		}

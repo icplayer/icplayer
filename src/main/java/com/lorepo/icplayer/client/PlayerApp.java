@@ -12,8 +12,10 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerApp {
@@ -385,13 +387,37 @@ public class PlayerApp {
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 			playerController.getPlayerServices().getTimeService().loadFromString(loadedState.get("time"));
+			if (this.loadedState.get("isReportable") != null) {
+				this.playerController.getPlayerServices().getReportableService().loadFromString(this.loadedState.get("isReportable"));
+			}
 		}
-
+		
+		//All reportable values for pages should be loaded before start.
+		Content playerModel = this.playerController.getModel();
+		HashMap<String, String> states = this.playerController.getPlayerServices().getReportableService().getStates();
+		for (int i = 0; i < playerModel.getPageCount(); i++) {
+			this.setPageReportableFromMap(playerModel.getPage(i), states);
+		}
+		
 		if (isCommonPage) {
 			playerController.switchToCommonPage(startPageIndex);
 		} else {
 			playerController.initHeaders();
 			playerController.switchToPage(startPageIndex);
+		}
+	}
+
+	private void setPageReportableFromMap(IPage page, HashMap <String, String> isReportableMap) {
+		String key = page.getId();
+		String isReportableStr = isReportableMap.get(key);
+		if (isReportableStr == null) {
+			return;
+		}
+
+		if (isReportableStr.toLowerCase() == "true") {
+			page.setAsReportable();
+		} else {
+			page.setAsNonReportable();
 		}
 	}
 
@@ -448,10 +474,14 @@ public class PlayerApp {
 		String state = playerController.getPlayerServices().getStateService().getAsString();
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
+		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
+		
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);
 		data.put("time", time);
+		data.put("isReportable", isReportable);
+		
 		return JSONUtils.toJSONString(data);
 	}
 
