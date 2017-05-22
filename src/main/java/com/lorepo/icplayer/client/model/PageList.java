@@ -60,6 +60,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			page.setPlayerServices(ps);
 		}
 	}
+	
+	public void setBaseURL(String baseURL) {
+		List<Page> pages = getAllPages();
+		for (Page page : pages) {
+			page.setBaseURL(baseURL);
+		}
+	}
 
 
 	public void addListener(IPageListListener l){
