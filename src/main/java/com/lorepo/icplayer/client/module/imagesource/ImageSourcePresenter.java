@@ -53,6 +53,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	private boolean canDrag = true;
 	private boolean returned = false;
 	
+	private boolean positionsWereFetched = false;
+	
 	public ImageSourcePresenter(ImageSourceModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
@@ -106,6 +108,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		eventBus.addHandler(PageLoadedEvent.TYPE, new PageLoadedEvent.Handler() {
 			public void onPageLoaded(PageLoadedEvent event) {
 				view.getInitialPosition();
+				positionsWereFetched = true;
 			}
 		});
 		
@@ -376,6 +379,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 
 		if (view != null) {
 			if (isImageVisible) {
+				if (!this.positionsWereFetched) {
+					view.getInitialPosition();
+					this.positionsWereFetched = true;
+				}
 				view.show(true);
 			}
 		}
