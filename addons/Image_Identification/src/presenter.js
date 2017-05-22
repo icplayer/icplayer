@@ -158,6 +158,11 @@ function AddonImage_Identification_create(){
 
             presenter.$view.trigger("onLoadImageCallbackEnd", []);
             presenter.configuration.isImageLoaded = true;
+
+            $(element).on("click", function(e){
+                e.preventDefault();
+                e.stopPropagation();
+            });
         });
     }
 
