@@ -157,8 +157,8 @@ function AddonSlider_create () {
         presenter.mouseData.isMouseDown = true;
         presenter.mouseData.oldPosition.x = eventData.pageX;
         presenter.mouseData.oldPosition.y = eventData.pageY;
-        if(eventData.stopPropagation) eventData.stopPropagation();
-        if(eventData.preventDefault) eventData.preventDefault();
+        if (eventData.stopPropagation) eventData.stopPropagation();
+        if (eventData.preventDefault) eventData.preventDefault();
     }
 
     function touchStartCallback (event) {
@@ -316,6 +316,7 @@ function AddonSlider_create () {
 
             //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
+        eventData.preventDefault();
     }
 
     function touchMoveCallback (event) {
