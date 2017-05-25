@@ -1,3 +1,4 @@
+2017-05-25 Fixed problem with checking answers in Hangman module
 2017-05-22 Fixed Image Source module issue with show command and relocating module to 0,0 position
 2017-05-22 Fixed problem with relative url returned by getPreview on localhost
 2017-05-12 Added new display type icons+list in Table of Contents module
