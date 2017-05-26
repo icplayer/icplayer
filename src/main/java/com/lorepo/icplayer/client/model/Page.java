@@ -27,6 +27,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
@@ -713,6 +714,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		return id;
 	}
 
+	@Override
+	public void setAsReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), true);
+		this.reportable = true;
+	}
+
+	@Override
+	public void setAsNonReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), false);
+		this.reportable = false;
+	}
+
 	public void setId(String pageId) {
 		this.id = pageId;
 	}
@@ -929,7 +942,15 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		page.isReportable = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
 		}
-
+		
+		page.setAsReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsReportable()();
+		}
+		
+		page.setAsNonReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsNonReportable()();
+		}
+		
 		page.isVisited = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
 		}

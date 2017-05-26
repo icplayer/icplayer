@@ -19,4 +19,6 @@ public interface IPage extends IContentNode{
 	void setPageCustomWeight(int w);
 	int getPageCustomWeight();
 	void setPageWeight(int w);
+	public void setAsReportable();
+	public void setAsNonReportable();
 }
