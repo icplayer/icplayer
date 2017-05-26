@@ -346,6 +346,7 @@ public class PlayerApp {
 		});
 
 		contentModel.setPlayerController(getPlayerServices());
+		contentModel.setBaseURL();
 
 		RootPanel.get(divId).add(playerView);
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());

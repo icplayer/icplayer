@@ -143,6 +143,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	public boolean isLoaded() {
 		return loaded;
 	}
+	
+	public void setBaseURL(String baseURL) {
+		this.baseURL = baseURL;
+	}
 
 	public void release() {
 		for (IModuleModel module : modules) {
@@ -697,7 +701,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	@Override
 	public String getPreview() {
-		return previewURL;
+		return URLUtils.resolveURL(baseURL, previewURL);
 	}
 
 
