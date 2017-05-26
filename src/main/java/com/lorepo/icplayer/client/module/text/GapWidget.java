@@ -22,7 +22,9 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	private final GapInfo gapInfo;
 	private boolean isDisabled = false;
-
+	private String gapId = "";
+	private String text = "";
+	private boolean firstSend = true;
 
 	public GapWidget(GapInfo gi, final ITextViewListener listener){
 
@@ -52,8 +54,10 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 			addKeyUpHandler(new KeyUpHandler() {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
-					listener.onValueEdited(gapInfo.getId(), getText());
-					listener.onUserAction(gapInfo.getId(), getText());
+					if(shouldSendEvent()) {
+						listener.onValueEdited(gapInfo.getId(), getText());
+						listener.onUserAction(gapInfo.getId(), getText());
+					}
 				}
 			});
 			
@@ -61,8 +65,10 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 				@Override
 				public void onValueChange(ValueChangeEvent<String> event) {
-					listener.onValueEdited(gapInfo.getId(), getText());
-					listener.onUserAction(gapInfo.getId(), getText());
+					if(shouldSendEvent()) {
+						listener.onValueEdited(gapInfo.getId(), getText());
+						listener.onUserAction(gapInfo.getId(), getText());
+					}
 				}
 				
 			});
@@ -106,6 +112,19 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	}
 
+	private boolean shouldSendEvent() {
+		String value = getText();
+		String gapID = gapInfo.getId();
+		if (value != this.text || gapID != this.gapId || this.firstSend) {
+			this.text = value;
+			this.gapId = gapID;
+			this.firstSend = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public GapInfo getGapInfo() {
 		return gapInfo;
 	}
