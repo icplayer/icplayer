@@ -109,16 +109,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentScore = 0;
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
+	private HashMap<String, Integer> selectsIndex = new HashMap<String, Integer>();
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
 		try{
-		connectHandlers();
+			connectHandlers();
 		}catch(Exception e){
 			
 		}
+	}
+	
+	public void setSelectedIndex(String gapID, int selectedIndex) {
+		this.selectsIndex.put(gapID, selectedIndex);
 	}
 
 	private void connectHandlers() {
@@ -366,6 +371,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		String oldGapId = state.get("gapUniqueId") + "-";
 		values.clear();
+		selectsIndex.clear();
 		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
 		for (String key : oldValues.keySet()) {
 			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
@@ -447,15 +453,22 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
-		}
-
+		}		
+		
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
+			
+			boolean indexAreMatch = false;
+			Integer indexFromHashMap = selectsIndex.get(choice.getId());
+			if (indexFromHashMap != null) {
+				indexAreMatch = choice.getIndex() == indexFromHashMap.intValue();
+			}
 
-			if (!enteredValue.isEmpty() &&
-				choice.getAnswer().compareToIgnoreCase(enteredValue) != 0 &&
-				!enteredValue.equals("---"))
-			{
+			boolean wasValueSelected = !enteredValue.isEmpty() && !enteredValue.equals("---");
+			boolean isValidAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
+ 
+			boolean isGood = isValidAnswer && indexAreMatch;
+			if (!isGood && wasValueSelected) {
 				errorCount++;
 			}
 		}
@@ -493,6 +506,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		draggableItem = null;
 		consumedItems.clear();
 		values.clear();
+		selectsIndex.clear();
 		updateScore();
 
 		this.currentState = "";
@@ -542,18 +556,26 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
-			if (choice.getAnswer().compareToIgnoreCase(enteredValue) == 0) {
+			boolean indexAreMatch = false;
+			Integer indexFromHashMap = selectsIndex.get(choice.getId());
+			if (indexFromHashMap != null) {
+				indexAreMatch = choice.getIndex() == indexFromHashMap.intValue();
+			}
+			
+			boolean isCorrectAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
+			boolean isCorrectAndKeepOriginalOrderAndIndexAreMatch = isCorrectAnswer && indexAreMatch;
+			
+			if (isCorrectAndKeepOriginalOrderAndIndexAreMatch) {
 				score += choice.getValue();
 			}
 		}
-
 		return score;
 	}
 
 	private String getElementText(String id) {
 		return values.get(id) == null ? "" : values.get(id).trim();
 	}
-
+	
 	@Override
 	public void addView(IModuleView display) {
 
@@ -594,8 +616,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 			
 			@Override
-			public void onValueChanged(String id, String newValue) {
-				valueChanged(id, newValue);
+			public void onValueChanged(String id, String newValue, int selectedIndex) {
+				valueChanged(id, newValue, selectedIndex);
 			}
 
 			@Override
@@ -682,11 +704,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		playerServices.getEventBus().fireEvent(valueEvent);
 	}
 
-	protected void valueChangeLogic(String id, String newValue) {
+	protected void valueChangeLogic(String id, String newValue, int selectedIndex) {
 		GapInfo gap = getGapInfoById(id);
 		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			newValue = "";
 		}
+		
+		selectsIndex .put(id, selectedIndex);
 		values.put(id, newValue);
 		updateScore();
 
@@ -708,13 +732,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {
 		if(module.isUserActionEvents()){
-			valueChangeLogic(id, newValue);
+			valueChangeLogic(id, newValue, 0);
 		}
 	}
 	
-	protected void valueChanged(String id, String newValue) {
+	protected void valueChanged(String id, String newValue, int selectedIndex) {
 		if(!module.isUserActionEvents()){
-			valueChangeLogic(id, newValue);
+			valueChangeLogic(id, newValue, selectedIndex);
 		}
 	}
 
@@ -747,10 +771,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 		String value = StringUtils.removeAllFormatting(draggableItem.getValue());
+		
 		view.setValue(gapId, draggableItem.getValue());
 		view.refreshMath();
+		
 		consumedItems.put(gapId, draggableItem);
 		values.put(gapId, value);
+		
 		fireItemConsumedEvent();
 		String score = Integer.toString(getItemScore(gapId));
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
