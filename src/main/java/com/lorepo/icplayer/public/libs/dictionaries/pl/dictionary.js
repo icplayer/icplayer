@@ -1483,5 +1483,6 @@
 	"IFrame_property_id": "ID",
 	"IFrame_property_index_file": "Plik indeksowy",
 	"IFrame_property_communication_id": "ID komunikacyjne",
-	"IFrame_property_allow_fullscreen": "Allow Fullscreen"
+	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
+	"use_escape_character_in_gap": "Use using escape character in gap"
 };
