@@ -356,7 +356,7 @@ public class TextParser {
 					String id = baseId + "-" + idCounter;
 					idCounter++;
 					String answer = StringUtils.unescapeXML(answers[0].trim());
-					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value));
+					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value), 1);
 					parserResult.choiceInfos.add(info);
 					if (editorMode) {
 						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
@@ -404,7 +404,7 @@ public class TextParser {
 						correctAnswer = splitted[1];
 						answers[i] = correctAnswer;
 						value = splitted[0];
-						info = new InlineChoiceInfo(id, correctAnswer, Integer.parseInt(value));
+						info = new InlineChoiceInfo(id, correctAnswer, Integer.parseInt(value), i + 1);
 						parserResult.choiceInfos.add(info);
 					}
 				}
