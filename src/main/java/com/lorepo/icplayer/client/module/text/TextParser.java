@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -398,7 +399,7 @@ public class TextParser {
 						answerPrefixValue += ":" + answerAndValue[0];
 					}
 					String answer = answerPrefixValue + StringUtils.unescapeXML(answerAndValue[1].trim());
-
+					JavaScriptUtils.log(answer);
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value), 1);
 					parserResult.choiceInfos.add(info);
 					if (editorMode) {
@@ -451,6 +452,7 @@ public class TextParser {
 					if (answerAndValue[0] != null && answerAndValue[0].length() > 0) {
 						value = answerAndValue[0];
 						info = new InlineChoiceInfo(id, answerAndValue[1], Integer.parseInt(value), i + 1);
+						JavaScriptUtils.log(answerAndValue[1]);
 						parserResult.choiceInfos.add(info);
 					}
 				}
