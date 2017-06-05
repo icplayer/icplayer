@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -356,18 +355,17 @@ public class TextParser {
 				} else if (c == ':') {
 					returnValue[0] = buffValue;
 					buffValue = "";
-				}
-				else {
-					if (!escape) {
-						buffValue += c;
-					}
-					actualCharState = 1;
+				} else if (c == '\\' && escape) {
+                    actualCharState = 1;
+				} else {
+				    buffValue += c;
 				}
 			} else {
 				buffValue += c;
 				actualCharState = 0;
 			}
 		}
+
 		returnValue[1] = buffValue;
 
 		return returnValue;
@@ -399,7 +397,6 @@ public class TextParser {
 						answerPrefixValue += ":" + answerAndValue[0];
 					}
 					String answer = answerPrefixValue + StringUtils.unescapeXML(answerAndValue[1].trim());
-					JavaScriptUtils.log(answer);
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value), 1);
 					parserResult.choiceInfos.add(info);
 					if (editorMode) {
@@ -416,11 +413,15 @@ public class TextParser {
 							info.addDistractor(answerValue + answerAndValue[1]);
 						}
 						Iterator<String> distractors = info.getDistractors();
+						int actualItemIndex = 1;
 						while (distractors.hasNext()) {
 							String dist = distractors.next();
 							String itemValue = StringUtils.escapeXML(dist);
-							replaceText += "<option value='" + itemValue + "'>" + dist
-									+ "</option>";
+							if (itemValue == answer) {
+								info.setIndex(actualItemIndex);
+							}
+							replaceText += "<option value='" + itemValue + "'>" + dist + "</option>";
+							actualItemIndex++;
 						}
 						replaceText += "</select>";
 					}
@@ -452,7 +453,6 @@ public class TextParser {
 					if (answerAndValue[0] != null && answerAndValue[0].length() > 0) {
 						value = answerAndValue[0];
 						info = new InlineChoiceInfo(id, answerAndValue[1], Integer.parseInt(value), i + 1);
-						JavaScriptUtils.log(answerAndValue[1]);
 						parserResult.choiceInfos.add(info);
 					}
 				}
