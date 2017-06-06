@@ -1,3 +1,4 @@
+2017-06-05 Fixed problem with using eKeyboard in Text module. Added build files to gitignore.
 2017-05-29 Fixed scoring and error counting in Text Presenter for dropdown gaps.
 2017-05-26 Added new commands: setAsReportable nad setAsNonReportable for page.
 2017-05-25 Fixed problem with checking answers in Hangman module
