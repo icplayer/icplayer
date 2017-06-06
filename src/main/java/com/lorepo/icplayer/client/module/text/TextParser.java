@@ -33,6 +33,7 @@ public class TextParser {
 	private int gapWidth = 0;
 	private int gapMaxLength = 0;
 	private boolean editorMode = false;
+	private boolean useEscapeCharacterInGap = false;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -335,6 +336,41 @@ public class TextParser {
 		return replaceText;
 	}
 
+	private String[] getAnswerAndValue(String value, boolean escape) {
+		String [] returnValue = new String[2];
+		returnValue[0] = null;
+		returnValue[1] = "";
+
+		String buffValue = "";
+
+		//0 - Copy
+		//1 - start escaping
+		int actualCharState = 0;
+
+
+		for (char c: value.toCharArray()) {
+			if (actualCharState == 0) {
+				if (c != '\\' && c != ':') {
+					buffValue += c;
+				} else if (c == ':') {
+					returnValue[0] = buffValue;
+					buffValue = "";
+				} else if (c == '\\' && escape) {
+                    actualCharState = 1;
+				} else {
+				    buffValue += c;
+				}
+			} else {
+				buffValue += c;
+				actualCharState = 0;
+			}
+		}
+
+		returnValue[1] = buffValue;
+
+		return returnValue;
+	}
+
 	/**
 	 * Replace expression with inline choice
 	 * 
@@ -355,7 +391,12 @@ public class TextParser {
 
 					String id = baseId + "-" + idCounter;
 					idCounter++;
-					String answer = StringUtils.unescapeXML(answers[0].trim());
+					String [] answerAndValue = this.getAnswerAndValue(answers[0].trim(), this.useEscapeCharacterInGap);
+					String answerPrefixValue = "";
+					if (answerAndValue[0] != null) {
+						answerPrefixValue += ":" + answerAndValue[0];
+					}
+					String answer = answerPrefixValue + StringUtils.unescapeXML(answerAndValue[1].trim());
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value), 1);
 					parserResult.choiceInfos.add(info);
 					if (editorMode) {
@@ -364,14 +405,23 @@ public class TextParser {
 						replaceText = "<select id='" + id + "' class='ic_inlineChoice'>";
 						replaceText += "<option value='-'>---</option>";
 						for (int i = 0; i < answers.length; i++) {
-							info.addDistractor(answers[i].trim());
+							answerAndValue = this.getAnswerAndValue(answers[i].trim(), this.useEscapeCharacterInGap);
+							String answerValue = "";
+							if (answerAndValue[0] != null) {
+								answerValue += answerAndValue[0] + ":";
+							}
+							info.addDistractor(answerValue + answerAndValue[1]);
 						}
 						Iterator<String> distractors = info.getDistractors();
+						int actualItemIndex = 1;
 						while (distractors.hasNext()) {
 							String dist = distractors.next();
 							String itemValue = StringUtils.escapeXML(dist);
-							replaceText += "<option value='" + itemValue + "'>" + dist
-									+ "</option>";
+							if (itemValue == answer) {
+								info.setIndex(actualItemIndex);
+							}
+							replaceText += "<option value='" + itemValue + "'>" + dist + "</option>";
+							actualItemIndex++;
 						}
 						replaceText += "</select>";
 					}
@@ -393,18 +443,16 @@ public class TextParser {
 			if (answers.length > 1) {
 				String id = baseId + "-" + idCounter;
 				idCounter++;
-				String correctAnswer = "";
 				String value = "";
 				InlineChoiceInfo info = null;
-				
+
 				for (int i = 0; i < answers.length; i++) {
 					String answer = StringUtils.unescapeXML(answers[i].trim());
-					String[] splitted = answer.split(":");
-					if (splitted.length > 1) {
-						correctAnswer = splitted[1];
-						answers[i] = correctAnswer;
-						value = splitted[0];
-						info = new InlineChoiceInfo(id, correctAnswer, Integer.parseInt(value), i + 1);
+					String [] answerAndValue = this.getAnswerAndValue(answer, this.useEscapeCharacterInGap);
+					answers[i] = answerAndValue[1];
+					if (answerAndValue[0] != null && answerAndValue[0].length() > 0) {
+						value = answerAndValue[0];
+						info = new InlineChoiceInfo(id, answerAndValue[1], Integer.parseInt(value), i + 1);
 						parserResult.choiceInfos.add(info);
 					}
 				}
@@ -727,6 +775,10 @@ public class TextParser {
 	
 	public void setGapMaxLength(int gapMaxLength) {
 		this.gapMaxLength = gapMaxLength;
+	}
+
+	public void setUseEscapeCharacterInGap(boolean isUsing) {
+		this.useEscapeCharacterInGap = isUsing;
 	}
 
 }

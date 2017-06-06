@@ -84,4 +84,8 @@ public class InlineChoiceInfo {
 	public int getValue() {
 		return value;
 	}
+	
+	public void setIndex(int index){ 
+		this.index = index;
+	}
 }
