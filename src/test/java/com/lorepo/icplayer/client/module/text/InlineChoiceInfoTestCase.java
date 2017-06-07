@@ -11,7 +11,7 @@ public class InlineChoiceInfoTestCase {
 	@Test
 	public void testAddDistractor() {
 		
-		InlineChoiceInfo info = new InlineChoiceInfo("1", "aaaa", 1, 1);
+		InlineChoiceInfo info = new InlineChoiceInfo("1", "aaaa", 1);
 		
 		info.addDistractor("---");
 		info.addDistractor("ddd");
