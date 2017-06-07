@@ -78,9 +78,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 			if (isFilledGap) {
 				boolean correctAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
-				boolean correctAnswerAndIndexMatch = correctAnswer;
-				
-				if (correctAnswerAndIndexMatch) {
+
+				if (correctAnswer) {
 					addStyleDependentName("correct");
 				} else {
 					addStyleDependentName("wrong");

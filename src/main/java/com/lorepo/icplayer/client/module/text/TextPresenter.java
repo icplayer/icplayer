@@ -455,8 +455,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			boolean wasValueSelected = !enteredValue.isEmpty() && !enteredValue.equals("---");
 			boolean isValidAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
  
-			boolean isGood = isValidAnswer;
-			if (!isGood && wasValueSelected) {
+			if (!isValidAnswer && wasValueSelected) {
 				errorCount++;
 			}
 		}
@@ -545,9 +544,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			enteredValue = getElementText(choice.getId());
 			
 			boolean isCorrectAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
-			boolean isCorrectAndKeepOriginalOrderAndIndexAreMatch = isCorrectAnswer;
-			
-			if (isCorrectAndKeepOriginalOrderAndIndexAreMatch) {
+
+			if (isCorrectAnswer) {
 				score += choice.getValue();
 			}
 		}
