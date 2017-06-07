@@ -733,12 +733,12 @@ public class TextModel extends BasicModuleModel {
 
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("use_escape_character_in_gap");
+				return DictionaryWrapper.get("Text_use_escape_character_in_gap_property");
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("use_escape_character_in_gap");
+				return DictionaryWrapper.get("Text_use_escape_character_in_gap_property");
 			}
 
 			@Override

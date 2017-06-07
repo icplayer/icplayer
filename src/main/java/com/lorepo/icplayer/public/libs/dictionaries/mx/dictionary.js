@@ -1485,5 +1485,5 @@ var ice_dictionary_mx = {
 	"IFrame_property_index_file": "Archivo de índice",
 	"IFrame_property_communication_id": "ID de comunicación",
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
-	"use_escape_character_in_gap": "Use escape character in gap"
+	"Text_use_escape_character_in_gap_property": "Use escape character in gap"
 };
