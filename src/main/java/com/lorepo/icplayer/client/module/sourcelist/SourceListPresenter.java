@@ -12,6 +12,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -124,6 +125,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 					return;
 				} else if (event.eventName == "HideAnswers") {
 					canDrag = true;
+					return;
+				}
+				
+				if (event.eventName != "itemDragged" && event.eventName != "itemStopped") {
 					return;
 				}
 				
