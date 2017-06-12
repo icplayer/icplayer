@@ -82,24 +82,24 @@ public class TextPresenterTestCase {
 	@Test
 	public void score() throws SAXException, IOException {
 
-		display.getListener().onValueChanged(id1, "likes");
-		display.getListener().onValueChanged(id3, "Volvo");
+		display.getListener().onValueChanged(id1, "likes", 1);
+		display.getListener().onValueChanged(id3, "Volvo", 1);
 		assertEquals(3, presenter.getScore());
 	}
 
 	@Test
 	public void errorCount() throws SAXException, IOException {
 
-		display.getListener().onValueChanged(id1, "error1");
-		display.getListener().onValueChanged(id3, "error2");
+		display.getListener().onValueChanged(id1, "error1", 3);
+		display.getListener().onValueChanged(id3, "error2", 3);
 		assertEquals(2, presenter.getErrorCount());
 	}
 
 	@Test
 	public void moduleScore() throws SAXException, IOException {
 
-		display.getListener().onValueChanged(id1, "likes");
-		display.getListener().onValueChanged(id3, "Volvo");
+		display.getListener().onValueChanged(id1, "likes", 1);
+		display.getListener().onValueChanged(id3, "Volvo", 1);
 
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(3, moduleScore);
@@ -107,17 +107,17 @@ public class TextPresenterTestCase {
 
     @Test
     public void isAllOKShouldReturnTrue() throws SAXException, IOException {
-        display.getListener().onValueChanged(id1, "likes");
-        display.getListener().onValueChanged(id2, "I don't like it");
-        display.getListener().onValueChanged(id3, "Volvo");
+        display.getListener().onValueChanged(id1, "likes", 1);
+        display.getListener().onValueChanged(id2, "I don't like it", 1);
+        display.getListener().onValueChanged(id3, "Volvo", 1);
 
         assertTrue(presenter.isAllOK());
     }
 
     @Test
     public void isAllOKShouldReturnFalse() throws SAXException, IOException {
-        display.getListener().onValueChanged(id1, "likes");
-        display.getListener().onValueChanged(id3, "Volvo");
+        display.getListener().onValueChanged(id1, "likes", 1);
+        display.getListener().onValueChanged(id3, "Volvo", 1);
 
         assertFalse(presenter.isAllOK());
     }
@@ -125,9 +125,9 @@ public class TextPresenterTestCase {
 	@Test
 	public void caseSensitive() throws SAXException, IOException {
 		
-		display.getListener().onValueChanged(id1, "likes");
+		display.getListener().onValueChanged(id1, "likes", 1);
 		// This is wrong. Should start from upper case
-		display.getListener().onValueChanged(id3, "volvo");
+		display.getListener().onValueChanged(id3, "volvo", 1);
 		
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(2, moduleScore);
@@ -206,8 +206,9 @@ public class TextPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		eventBus.fireEvent(event);
 		// consume
+		
 		display.getListener().onGapClicked(id2);
-
+		presenter.setSelectedIndex(id2, 1);
 		assertEquals(2, presenter.getScore());
 	}
 	
@@ -221,6 +222,7 @@ public class TextPresenterTestCase {
 		eventBus.fireEvent(event);
 		// consume
 		display.getListener().onGapClicked(id2);
+		presenter.setSelectedIndex(id2, 1);
 
 		assertEquals(2, presenter.getScore());
 	}
@@ -254,7 +256,7 @@ public class TextPresenterTestCase {
 			}
 		});
 
-		display.getListener().onValueChanged(module.getId()+"-1", "likes");
+		display.getListener().onValueChanged(module.getId()+"-1", "likes", 1);
 		
 		assertTrue(eventReceived);
 	}
@@ -270,7 +272,7 @@ public class TextPresenterTestCase {
 			}
 		});
 
-		display.getListener().onValueChanged(module.getId()+"-3", "volvo");
+		display.getListener().onValueChanged(module.getId()+"-3", "volvo", 1);
 		
 		assertTrue(eventReceived);
 	}
@@ -317,7 +319,7 @@ public class TextPresenterTestCase {
 		presenter.addView(display);
 
 		id1 = module.gapInfos.get(0).getId();
-		display.getListener().onValueChanged(id1, "like's");
+		display.getListener().onValueChanged(id1, "like's", 1);
 		
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(2, moduleScore);

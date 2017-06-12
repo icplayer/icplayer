@@ -1,3 +1,13 @@
+2017-06-06 Fixed issue with scoring in Text module, added escaping pattern in gaps.
+2017-06-05 Fixed problem with using eKeyboard in Text module. Added build files to gitignore.
+2017-05-29 Fixed scoring and error counting in Text Presenter for dropdown gaps.
+2017-05-26 Added new commands: setAsReportable nad setAsNonReportable for page.
+2017-05-25 Fixed problem with checking answers in Hangman module
+2017-05-22 Fixed Image Source module issue with show command and relocating module to 0,0 position
+2017-05-22 Fixed problem with relative url returned by getPreview on localhost
+2017-05-12 Added new display type icons+list in Table of Contents module
+2017-05-11 Fixed propagating click in Image identification module
+2017-05-09 Fixed resizing iframe in Paragraph eKeyboard module
 2017-04-27 Changed url for image in eKeyboard module
 2017-04-26 Fixed tests in Iframe, shape_tracing addons.
 2017-04-24 Fixed loading images in Shape Tracing and Coloring

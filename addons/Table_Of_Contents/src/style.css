@@ -62,3 +62,11 @@
     width: 100%;
     overflow: auto;
 }
+
+.listElement {
+    text-align: center;
+    font-size: 15px;
+    word-wrap: break-word;
+    line-height: 17px;
+    word-break: break-all;
+}

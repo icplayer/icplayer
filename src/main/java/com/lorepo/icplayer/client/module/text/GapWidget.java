@@ -12,6 +12,8 @@ import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -20,7 +22,9 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	private final GapInfo gapInfo;
 	private boolean isDisabled = false;
-
+	private String gapId = "";
+	private String text = "";
+	private boolean firstSend = true;
 
 	public GapWidget(GapInfo gi, final ITextViewListener listener){
 
@@ -50,9 +54,23 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 			addKeyUpHandler(new KeyUpHandler() {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
-					listener.onValueEdited(gapInfo.getId(), getText());
-					listener.onUserAction(gapInfo.getId(), getText());
+					if(shouldSendEvent()) {
+						listener.onValueEdited(gapInfo.getId(), getText());
+						listener.onUserAction(gapInfo.getId(), getText());
+					}
 				}
+			});
+			
+			addValueChangeHandler(new ValueChangeHandler<String>() {
+
+				@Override
+				public void onValueChange(ValueChangeEvent<String> event) {
+					if(shouldSendEvent()) {
+						listener.onValueEdited(gapInfo.getId(), getText());
+						listener.onUserAction(gapInfo.getId(), getText());
+					}
+				}
+				
 			});
 			
 			addBlurHandler(new BlurHandler() {
@@ -64,7 +82,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 			addBlurHandler(new BlurHandler() {
 				@Override
 				public void onBlur(BlurEvent event) {
-					listener.onValueChanged(gapInfo.getId(), getText());
+					listener.onValueChanged(gapInfo.getId(), getText(), 0);
 				}
 			});
 
@@ -77,7 +95,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 							@Override
 							public void execute() {
-								listener.onValueChanged(gapInfo.getId(), getText());
+								listener.onValueChanged(gapInfo.getId(), getText(), 0);
 							}
 						});
 					}
@@ -94,6 +112,19 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	}
 
+	private boolean shouldSendEvent() {
+		String value = getText();
+		String gapID = gapInfo.getId();
+		if (value != this.text || gapID != this.gapId || this.firstSend) {
+			this.text = value;
+			this.gapId = gapID;
+			this.firstSend = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public GapInfo getGapInfo() {
 		return gapInfo;
 	}

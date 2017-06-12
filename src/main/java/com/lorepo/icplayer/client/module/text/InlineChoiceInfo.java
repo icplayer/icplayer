@@ -13,6 +13,7 @@ public class InlineChoiceInfo {
 	private String 	id;
 	private String 	answer;
 	private int	value;
+	private int index;
 	private ArrayList<String>	distractors;
 	
 	
@@ -22,10 +23,11 @@ public class InlineChoiceInfo {
 	 * @param answer
 	 * @param value
 	 */
-	public InlineChoiceInfo(String id, String answer, int value){
+	public InlineChoiceInfo(String id, String answer, int value, int index){
 		this.id = id;
 		this.answer = answer;
 		this.value = value;
+		this.index = index;
 		distractors = new ArrayList<String>();
 	}
 
@@ -48,6 +50,10 @@ public class InlineChoiceInfo {
 	
 	public void addDistractorInOrder(String text){
 		distractors.add(text);
+	}
+	
+	public int getIndex() {
+		return index;
 	}
 	
 	
@@ -77,5 +83,9 @@ public class InlineChoiceInfo {
 
 	public int getValue() {
 		return value;
+	}
+	
+	public void setIndex(int index){ 
+		this.index = index;
 	}
 }

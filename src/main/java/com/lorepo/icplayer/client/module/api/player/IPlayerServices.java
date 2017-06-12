@@ -23,6 +23,7 @@ public interface IPlayerServices {
 	public IAssetsService	getAssetsService();
 	public IStateService 	getStateService();
 	public IJsonServices	getJsonServices();
+	public IReportableService getReportableService();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
 	public boolean isBookMode();
