@@ -397,7 +397,7 @@ public class TextParser {
 						answerPrefixValue += ":" + answerAndValue[0];
 					}
 					String answer = answerPrefixValue + StringUtils.unescapeXML(answerAndValue[1].trim());
-					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value), 1);
+					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value));
 					parserResult.choiceInfos.add(info);
 					if (editorMode) {
 						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
@@ -413,15 +413,10 @@ public class TextParser {
 							info.addDistractor(answerValue + answerAndValue[1]);
 						}
 						Iterator<String> distractors = info.getDistractors();
-						int actualItemIndex = 1;
 						while (distractors.hasNext()) {
 							String dist = distractors.next();
 							String itemValue = StringUtils.escapeXML(dist);
-							if (itemValue == answer) {
-								info.setIndex(actualItemIndex);
-							}
 							replaceText += "<option value='" + itemValue + "'>" + dist + "</option>";
-							actualItemIndex++;
 						}
 						replaceText += "</select>";
 					}
@@ -452,7 +447,7 @@ public class TextParser {
 					answers[i] = answerAndValue[1];
 					if (answerAndValue[0] != null && answerAndValue[0].length() > 0) {
 						value = answerAndValue[0];
-						info = new InlineChoiceInfo(id, answerAndValue[1], Integer.parseInt(value), i + 1);
+						info = new InlineChoiceInfo(id, answerAndValue[1], Integer.parseInt(value));
 						parserResult.choiceInfos.add(info);
 					}
 				}
