@@ -314,7 +314,6 @@ function AddonFractions_create(){
     };
 
     presenter.buildSquare = function (model, view) {
-        var i = 0;
         var parts = parseInt(parseFloat(model.RectHorizontal));
         if (parts <= 0 || isNaN(parts)) {
             $counter.text('Enter valid rectangular horizontal parts value.');
@@ -334,7 +333,7 @@ function AddonFractions_create(){
 
         presenter.currentSelected.item[0] = model.ID;
 
-        var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+model.Width+'" height="'+model.Height+'">';
+        var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+Math.min(model.Width, model.Height)+'" height="'+Math.min(model.Width, model.Height)+'">';
         var elements = [new SquareShapeElement(model.Width, model.Height, 0,0, 1, model.ID)];
 
         for (i = 1; i <= Math.log2(parts); i++) {
@@ -481,7 +480,40 @@ function AddonFractions_create(){
         return '<path id="'+ this.id + id +'" class="'+this.id+'" d="M'+ this.x1 + ',' + this.y1 + ',' + this.x2 + ',' + this.y2 + ',' + this.x3 + ',' + this.y3 +'Z" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill: '+presenter.emptyColor+';" />';
     };
 
-    TriangleShapeElement.prototype.calculateValues = function(maxWidth, maxHeight) {};
+    TriangleShapeElement.prototype.calculateValues = function(maxWidth, maxHeight) {
+        var stroke = parseFloat(presenter.strokeWidth);
+        if (this.x1 == 0) {
+            this.x1 += stroke / 2;
+        }
+
+        if (this.x1 == maxWidth) {
+            this.x1 -= stroke / 2;
+        }
+
+        if (this.x2 == 0) {
+            this.x2 += stroke / 2;
+        }
+
+        if (this.x2 == maxWidth) {
+            this.x2 -= stroke / 2;
+        }
+
+        if (this.y1 == 0) {
+            this.y1 += stroke / 2;
+        }
+
+        if (this.y2 == 0) {
+            this.y2 += stroke / 2;
+        }
+
+        if (this.y1 == maxWidth) {
+            this.y1 -= stroke / 2;
+        }
+
+        if (this.y2 == maxWidth) {
+            this.y2 -= stroke / 2;
+        }
+    };
 
     TriangleShapeElement.prototype.cutToHalf = function (maxWidth, maxHeight) {
         var elements = [];
