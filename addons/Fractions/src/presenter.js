@@ -314,6 +314,7 @@ function AddonFractions_create(){
     };
 
     presenter.buildSquare = function (model, view) {
+        var i = 0;
         var parts = parseInt(parseFloat(model.RectHorizontal));
         if (parts <= 0 || isNaN(parts)) {
             $counter.text('Enter valid rectangular horizontal parts value.');
@@ -327,7 +328,7 @@ function AddonFractions_create(){
 
         $counter.text('');
 
-        for(var i = 0; i< parseInt(model.RectHorizontal,10) +1; i++){
+        for(i = 0; i< parseInt(model.RectHorizontal,10) +1; i++){
             presenter.currentSelected.item[i] = false;
         }
 
@@ -336,7 +337,7 @@ function AddonFractions_create(){
         var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+model.Width+'" height="'+model.Height+'">';
         var elements = [new SquareShapeElement(model.Width, model.Height, 0,0, 1, model.ID)];
 
-        for (var i = 1; i <= Math.log2(parts); i++) {
+        for (i = 1; i <= Math.log2(parts); i++) {
             var elementsBuff = [];
             for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
                 elementsBuff = elementsBuff.concat(elements[elementIndex].cutToHalf(model.Width, model.Height));
@@ -344,8 +345,8 @@ function AddonFractions_create(){
             elements = elementsBuff;
         }
         d += '<rect id="myBorder" height="'+(Math.min(model.Width, model.Height) - 2 * parseFloat(presenter.strokeWidth))+'" width="'+ (Math.min(model.Width, model.Height) - 2 * parseFloat(presenter.strokeWidth)) +'" y="'+presenter.strokeWidth+'" x="'+presenter.strokeWidth+'" stroke-width="'+presenter.strokeWidth+'" stroke="'+presenter.strokeColor+'" style="fill: '+ presenter.strokeColor + '"/>';
-//debugger;
-        for (var i = 0; i < elements.length; i++) {
+
+        for (i = 0; i < elements.length; i++) {
             elements[i].calculateValues(model.Width, model.Height);
             d += elements[i].getSVGString(i + 1);
         }
