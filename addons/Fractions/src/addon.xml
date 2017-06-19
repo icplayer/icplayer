@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <addon id="Fractions" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name="Figure" nameLabel="Fractions_property_figure" type="{---,Rectangular,Circle}"/>
+		<property name="Figure" nameLabel="Fractions_property_figure" type="{---,Rectangular,Circle,Square}"/>
 		<property name="RectHorizontal" displayName="Rectangular horizontal parts" nameLabel="Fractions_property_rect_horizontal" type="string" />
 		<property name="RectVertical" displayName="Rectangular vertical parts" nameLabel="Fractions_property_rect_vertical" type="string" />
 		<property name="CircleParts" displayName="Circle parts" type="string" />

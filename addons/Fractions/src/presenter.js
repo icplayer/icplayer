@@ -276,6 +276,10 @@ function AddonFractions_create(){
                 }
             }
 
+            if (model.Figure == 'Square') {
+                presenter.buildSquare(model, view);
+            }
+
             if(model.isNotActivity == 'True') {
                 isNotActivity = true;
             }
@@ -307,6 +311,188 @@ function AddonFractions_create(){
 
         displayText();
 
+    };
+
+    presenter.buildSquare = function (model, view) {
+        var parts = parseInt(parseFloat(model.RectHorizontal));
+        if (parts <= 0 || isNaN(parts)) {
+            $counter.text('Enter valid rectangular horizontal parts value.');
+            return;
+        }
+
+        if (Math.log2(parts) % 1 != 0) {
+            $counter.text('Rectangular horizontal parts value must be a power of 2.');
+            return;
+        }
+
+        $counter.text('');
+
+        for(var i = 0; i< parseInt(model.RectHorizontal,10) +1; i++){
+            presenter.currentSelected.item[i] = false;
+        }
+
+        presenter.currentSelected.item[0] = model.ID;
+
+        var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+model.Width+'" height="'+model.Height+'">';
+        var elements = [new SquareShapeElement(model.Width, model.Height, 0,0, 1, model.ID)];
+
+        for (var i = 1; i <= Math.log2(parts); i++) {
+            var elementsBuff = [];
+            for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+                elementsBuff = elementsBuff.concat(elements[elementIndex].cutToHalf(model.Width, model.Height));
+            }
+            elements = elementsBuff;
+        }
+        d += '<rect id="myBorder" height="'+(Math.min(model.Width, model.Height) - 2 * parseFloat(presenter.strokeWidth))+'" width="'+ (Math.min(model.Width, model.Height) - 2 * parseFloat(presenter.strokeWidth)) +'" y="'+presenter.strokeWidth+'" x="'+presenter.strokeWidth+'" stroke-width="'+presenter.strokeWidth+'" stroke="'+presenter.strokeColor+'" style="fill: '+ presenter.strokeColor + '"/>';
+//debugger;
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].calculateValues(model.Width, model.Height);
+            d += elements[i].getSVGString(i + 1);
+        }
+
+        d += '</svg>';
+
+        var myDiv =  $(view).find('.FractionsWrapper')[0];
+        $(myDiv).append(d);
+        $(myDiv).addClass('rect');
+        presenter.isDrawn = true;
+        isNotActivity = false;
+        presenter.validate = true;
+    };
+
+    var SquareShapeElement = function (width, height, x, y, currentCutIndex, id) {
+        this.width = Math.min(width, height);
+        this.height = Math.min(width, height);
+        this.x = x;
+        this.y = y;
+        this.currentCutIndex = currentCutIndex;
+        this.id = id;
+    };
+
+    SquareShapeElement.prototype = {
+        calculateValues: function (maxWidth, maxHeight) {
+            var stroke = parseFloat(presenter.strokeWidth);
+            var originY = this.y + this.height;
+            if (this.x == 0) {
+                this.x += stroke;
+                this.width -= stroke;
+            } else {
+                this.width -= stroke;
+            }
+
+            if (this.y == 0) {
+                this.y += stroke;
+                this.height -= stroke;
+            }
+            if (originY == maxHeight) {
+                this.height -= stroke;
+            }
+        },
+
+        cutToHalf: function (maxWidth, maxHeight) {
+            if (this.currentCutIndex == 1) {
+                return this.cutToVerticallyHalf();
+            } else if (this.currentCutIndex == 2) {
+                return this.cutToHorizontallyHalf();
+            } else {
+                return this.cutToTriangleHalf(maxWidth, maxHeight);
+            }
+        },
+
+        cutToVerticallyHalf: function () {
+            var elements = [];
+            var newWidth = this.width / 2;
+            var newHeight = this.height;
+            elements.push(new RectangleShapeElement(newWidth, newHeight, this.x, this.y, this.currentCutIndex + 1, this.id));
+            elements.push(new RectangleShapeElement(newWidth, newHeight, this.x + newWidth, this.y, this.currentCutIndex + 1, this.id));
+
+            return elements;
+        },
+
+        cutToHorizontallyHalf: function () {
+            var elements = [];
+            var newWidth = this.width;
+            var newHeight = this.height / 2;
+            elements.push(new RectangleShapeElement(newWidth, newHeight, this.x, this.y, this.currentCutIndex + 1, this.id));
+            elements.push(new RectangleShapeElement(newWidth, newHeight, this.x, this.y + newHeight, this.currentCutIndex + 1, this.id));
+
+            return elements;
+        },
+
+        cutToTriangleHalf: function (maxWidth, maxHeight) {
+            var size = Math.min(maxWidth, maxHeight);
+            var xCenter = size / 2;
+            var yCenter = size / 2;
+
+            var x1 = this.x;
+            var y1 = this.y;
+
+            if (x1 != 0) {
+                x1 = size;
+            }
+
+            if (y1 != 0) {
+                y1 = size;
+            }
+
+
+            var elements = [];
+            elements.push(new TriangleShapeElement(this.width, this.height, x1,y1, xCenter, y1, xCenter, yCenter, this.currentCutIndex + 1, this.id));
+            elements.push(new TriangleShapeElement(this.width, this.height, x1,y1, x1, yCenter, xCenter, yCenter, this.currentCutIndex + 1, this.id));
+            return elements;
+        },
+
+        getSVGString: function (id) {
+            var width = this.width;
+            var height = this.height;
+            return '<path id="'+ this.id + id +'" class="'+this.id+'" d="M'+ (this.x)+',' +(this.y) +'h' + (width) +' v' + (height) +' h' +(-width) +' v' +(-height) +'" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill: '+presenter.emptyColor+';" />';
+        }
+
+    };
+
+    var RectangleShapeElement = function (width, height, x, y, currentCutIndex, id) {
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.currentCutIndex = currentCutIndex;
+        this.id = id;
+    };
+    RectangleShapeElement.prototype = Object.create(SquareShapeElement.prototype);
+
+    var TriangleShapeElement = function (width, height, x1, y1, x2, y2, x3, y3, currentCutIndex, id) {
+        this.width = width;
+        this.height = height;
+        this.x1 = x1;
+        this.y1 = y1;
+
+        this.x2 = x2;
+        this.y2 = y2;
+
+        this.x3 = x3;
+        this.y3 = y3;
+        this.currentCutIndex = currentCutIndex;
+        this.id = id;
+    };
+    TriangleShapeElement.prototype = Object.create(SquareShapeElement.prototype);
+
+    TriangleShapeElement.prototype.getSVGString = function (id) {
+        return '<path id="'+ this.id + id +'" class="'+this.id+'" d="M'+ this.x1 + ',' + this.y1 + ',' + this.x2 + ',' + this.y2 + ',' + this.x3 + ',' + this.y3 +'Z" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill: '+presenter.emptyColor+';" />';
+    };
+
+    TriangleShapeElement.prototype.calculateValues = function(maxWidth, maxHeight) {};
+
+    TriangleShapeElement.prototype.cutToHalf = function (maxWidth, maxHeight) {
+        var elements = [];
+        var maxSize = Math.min(maxWidth, maxHeight);
+        if ((this.x1 == 0 && this.x2 == 0) || (this.x1 == maxSize && this.x2 == maxSize)) {
+            elements.push(new TriangleShapeElement(this.width, this.height / 2, this.x1, this.y1, this.x2, (this.y1 + this.y2) / 2, this.x3, this.y3, this.currentCutIndex + 1, this.id));
+            elements.push(new TriangleShapeElement(this.width, this.height / 2, this.x1, (this.y1 + this.y2) / 2, this.x2, this.y2, this.x3, this.y3, this.currentCutIndex + 1, this.id));
+        } else {
+            elements.push(new TriangleShapeElement(this.width / 2, this.height, this.x1, this.y1, (this.x2 + this.x1) / 2, this.y2, this.x3, this.y3, this.currentCutIndex + 1, this.id));
+            elements.push(new TriangleShapeElement(this.width / 2, this.height, (this.x2 + this.x1) / 2, this.y2, this.x2, this.y2, this.x3, this.y3, this.currentCutIndex + 1, this.id));
+        }
+        return elements;
     };
 
     presenter.checkColor = function(color) {
