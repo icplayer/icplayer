@@ -11,48 +11,48 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
+public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
 	private String value = "";
 	private boolean clicked = false;
-	
-	public InlineChoiceWidget(InlineChoiceInfo gi, final ITextViewListener listener){
-		
+
+	public InlineChoiceWidget(InlineChoiceInfo gi,
+			final ITextViewListener listener) {
+
 		super(DOM.getElementById(gi.getId()));
-		
+
 		choiceInfo = gi;
 		setStylePrimaryName("ic_inlineChoice");
 		addStyleName("ic_inlineChoice-default");
-		
+
 		onAttach();
-		
-		if(listener != null){
-			
+
+		if (listener != null) {
+
 			addChangeHandler(new ChangeHandler() {
-				
+
 				@Override
 				public void onChange(ChangeEvent event) {
 					int index = getSelectedIndex();
-					if(index > 0){
+					if (index > 0) {
 						value = StringUtils.unescapeXML(getValue(index));
 						removeStyleName("ic_inlineChoice-default");
-					}
-					else{
+					} else {
 						value = "---";
 						addStyleName("ic_inlineChoice-default");
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 				}
 			});
-			
+
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
 				}
 			});
-			
+
 			addTouchEndHandler(new TouchEndHandler() {
 				public void onTouchEnd(TouchEndEvent event) {
 					event.stopPropagation();
@@ -65,18 +65,21 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 		}
 	}
 
-	public boolean hasId(String id){
+	public boolean hasId(String id) {
 		return (choiceInfo.getId().compareTo(id) == 0);
 	}
 
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
 
-		if(isActivity) {
-			int index = getSelectedIndex();
+		if (isActivity) {
+			int selectedIndex = getSelectedIndex();
+			boolean isFilledGap = selectedIndex > 0;
 
-			if(index > 0) {
-				if(getItemText(index).compareTo(choiceInfo.getAnswer()) == 0){
+			if (isFilledGap) {
+				boolean correctAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
+
+				if (correctAnswer) {
 					addStyleDependentName("correct");
 				} else {
 					addStyleDependentName("wrong");
@@ -85,11 +88,10 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 				addStyleDependentName("empty");
 			}
 		}
-		
+
 		setEnabled(false);
-			
 	}
-	
+
 	@Override
 	public void setStyleShowAnswers() {
 		addStyleDependentName("correct-answer");
@@ -119,12 +121,12 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 		addStyleName("ic_inlineChoice-default");
 		setEnabled(!isDisabled);
 	}
-	
+
 	public void setText(String value) {
-		
-		for(int i = 0; i < getItemCount(); i++){
+
+		for (int i = 0; i < getItemCount(); i++) {
 			String item = getItemText(i);
-			if(item.compareTo(value) == 0){
+			if (item.compareTo(value) == 0) {
 				setItemSelected(i, true);
 				break;
 			}
@@ -133,7 +135,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 
 	@Override
 	public String getTextValue() {
-	
+
 		int index = getSelectedIndex();
 		return getItemText(index);
 	}
@@ -147,7 +149,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 
 	@Override
 	public void markGapAsWrong() {
-		if(!getTextValue().equals("---")){
+		if (!getTextValue().equals("---")) {
 			removeStyleDependentName("correct");
 			removeStyleDependentName("empty");
 			addStyleDependentName("wrong");
@@ -179,18 +181,18 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay{
 
 	@Override
 	public void setEnableGap(boolean enable) {
-		setEnabled(enable);		
+		setEnabled(enable);
 	}
 
 	@Override
 	public void removeDefaultStyle() {
-		removeStyleName("ic_inlineChoice-default");		
+		removeStyleName("ic_inlineChoice-default");
 	}
 
 	@Override
 	public void setDroppedElement(String element) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

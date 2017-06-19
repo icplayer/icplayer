@@ -1,3 +1,11 @@
+2017-06-19 Fixed problem with custom events in Source list
+2017-06-08 Fixed problem with dropdown gaps in Text module
+2017-06-06 Fixed issue with scoring in Text module, added escaping pattern in gaps.
+2017-06-05 Fixed problem with using eKeyboard in Text module. Added build files to gitignore.
+2017-05-29 Fixed scoring and error counting in Text Presenter for dropdown gaps.
+2017-05-26 Added new commands: setAsReportable nad setAsNonReportable for page.
+2017-05-25 Fixed problem with checking answers in Hangman module
+2017-05-22 Fixed Image Source module issue with show command and relocating module to 0,0 position
 2017-05-22 Fixed problem with relative url returned by getPreview on localhost
 2017-05-12 Added new display type icons+list in Table of Contents module
 2017-05-11 Fixed propagating click in Image identification module

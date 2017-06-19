@@ -206,8 +206,8 @@ public class TextPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		eventBus.fireEvent(event);
 		// consume
+		
 		display.getListener().onGapClicked(id2);
-
 		assertEquals(2, presenter.getScore());
 	}
 	

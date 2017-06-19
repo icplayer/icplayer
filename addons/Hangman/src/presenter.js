@@ -423,6 +423,10 @@ function AddonHangman_create() {
     };
 
     presenter.letterClickHandler = function (e) {
+        if(presenter.isErrorCheckingMode){
+            return;
+        }
+
         e.stopPropagation();
         var sendEventAndCountError = !$(this).hasClass('selected');
         $(this).addClass('selected');
@@ -666,6 +670,7 @@ function AddonHangman_create() {
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.setVisibility(presenter.isVisible);
         presenter.addMarkedLetter(false);
+        presenter.isErrorCheckingMode = false;
     };
 
     presenter.setVisibility = function (isVisible) {

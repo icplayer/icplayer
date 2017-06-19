@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
@@ -21,6 +22,8 @@ public interface IPlayerController {
 	IAssetsService getAssetsService();
 
 	ITimeService getTimeService();
+	
+	IReportableService getReportableService();
 
 	int getCurrentPageIndex();
 
