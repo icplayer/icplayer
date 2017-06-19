@@ -28,8 +28,8 @@
         this.addPauseCallback(this.showPauseButton.bind(this));
         this.addStopCallback(this.showPauseButton.bind(this));
         this.addVolumeClickCallback(this.showHideVolumeBar.bind(this));
-        this.addFullscreenCallback(this.showFullscreenButton.bind(this));
-        this.addCloseFullscreenCallback(this.showCloseFullscreenButton.bind(this));
+        this.addFullscreenCallback(this.showCloseFullscreenButton.bind(this));
+        this.addCloseFullscreenCallback(this.showFullscreenButton.bind(this));
         this.addProgressBarClickCallback(this.progressBarClicked.bind(this));
         this.addVolumeBarClickCallback(this.volumeBarClicked.bind(this));
 
@@ -38,6 +38,7 @@
         this.onWrapperMouseEnter = this.onWrapperMouseEnter.bind(this);
         this.onWrapperMouseMove = this.onWrapperMouseMove.bind(this);
         this.refreshDataIntervalFunction = this.refreshDataIntervalFunction.bind(this);
+        this.escapeButtonClickedCallback = this.escapeButtonClickedCallback.bind(this);
 
         this.actualizeTimer();
 
@@ -47,7 +48,6 @@
             this.addPlayCallbackForParent(this.playPauseClick.bind(this));
         }
     }
-
 
     /**
     Add new callback when progress was changed.
@@ -91,6 +91,19 @@
     };
 
     /**
+    Callback for listening on esc clicked. If is called then full screen button should be changed
+    @method escapeButtonClickedCallback
+
+    @param {eventData} e event data
+    @return {null}
+    */
+    CustomControlsBar.prototype.escapeButtonClickedCallback = function (e) {
+        if (e.key=='Escape'||e.key=='Esc'||e.keyCode==27) {
+            this.showFullscreenButton(null);
+        }
+    };
+
+    /**
     Default callback for click on volume bar. This function will call all functions added in addVolumeChangedCallback
     @method volumeBarClicked
 
@@ -122,7 +135,6 @@
         } else {
             this.elements.pauseButton.element.click();
         }
-
     };
 
     /**
@@ -196,6 +208,12 @@
     @return {null}
     */
     CustomControlsBar.prototype.refreshDataIntervalFunction = function () {
+        if (this.elements.controlsWrapper.element.offsetWidth != 0) {
+            if (document.body.clientWidth != this.elements.controlsWrapper.element.offsetWidth) {
+                this.showFullscreenButton(null);
+            }
+        }
+
         if (!this.mainDivIsHidden) {
             if (this.actualTime > this.configuration.mouseDontMoveClocks) {
                 this.hideControls();
@@ -277,30 +295,32 @@
 
     /**
     Function to show fullscreen button
-    @method showFullscreenButton
-
-    @return {null}
-    */
-    CustomControlsBar.prototype.showFullscreenButton = function (e) {
-        this.elements.fullscreen.element.style.display = 'none';
-        this.elements.closeFullscreen.element.style.display = 'block';
-
-        e.preventDefault();
-        e.stopPropagation();
-    };
-
-    /**
-    Function to show fullscreen play button
     @method showCloseFullscreenButton
 
     @return {null}
     */
     CustomControlsBar.prototype.showCloseFullscreenButton = function (e) {
+        this.elements.fullscreen.element.style.display = 'none';
+        this.elements.closeFullscreen.element.style.display = 'block';
+        if (e !== undefined && e !== null) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    };
+
+    /**
+    Function to show fullscreen play button
+    @method showFullscreenButton
+
+    @return {null}
+    */
+    CustomControlsBar.prototype.showFullscreenButton = function (e) {
         this.elements.closeFullscreen.element.style.display = 'none';
         this.elements.fullscreen.element.style.display = 'block';
-
-        e.preventDefault();
-        e.stopPropagation();
+        if (e !== undefined && e !== null) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
     };
 
     /**
@@ -455,10 +475,10 @@
     };
 
     /**
-    Function which should destroy custom controls bar elements and remove all listeners
-    @method setMaxDurationTime
+    Function which return main div element which should be added to addon
+    @method getMainElement
 
-    @return {null}
+    @return {DOM} Main div element
     */
     CustomControlsBar.prototype.getMainElement = function () {
         return this.elements.mainDiv.element;
@@ -466,7 +486,7 @@
 
     /**
     Function which should destroy custom controls bar elements and remove all listeners
-    @method setMaxDurationTime
+    @method destroy
 
     @return {null}
     */
@@ -476,7 +496,7 @@
         removeEventListener("mouseleave", this.parentElement, this.hideControls);
         removeEventListener("mouseenter", this.parentElement, this.onWrapperMouseEnter);
         removeEventListener("mousemove", this.parentElement, this.onWrapperMouseMove);
-
+        removeEventListener("keydown", document, this.escapeButtonClickedCallback);
 
         for (var treeElementName in this.elements) {
             if (this.elements.hasOwnProperty(treeElementName)) {
