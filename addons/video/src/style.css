@@ -68,7 +68,6 @@
     height: 100%;
     width: 38px;
     background: url("resources/video-play-btn.png") no-repeat center;
-    border: 1px solid #444;
     box-sizing: border-box;
     cursor: pointer;
     float: left;
@@ -79,7 +78,6 @@
     height: 100%;
     width: 38px;
     background: url("resources/video-pause-btn.png") no-repeat center;
-    border: 1px solid #444;
     box-sizing: border-box;
     cursor: pointer;
     float: left;

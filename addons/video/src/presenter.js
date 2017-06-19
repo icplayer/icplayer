@@ -485,6 +485,7 @@ function Addonvideo_create() {
             }
             presenter.configuration.isFullScreen = false;
             fullScreenChange();
+            console.log("CLOSE");
 
         });
 
