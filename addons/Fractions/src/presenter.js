@@ -384,8 +384,9 @@ function AddonFractions_create(){
                 this.y += stroke;
                 this.height -= stroke;
             }
-            if (originY == maxHeight) {
+            if (originY == maxWidth) {
                 this.height -= stroke;
+                console.log("MINUS")
             }
         },
 
