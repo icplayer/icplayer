@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+
 
 public class TextParser {
 
@@ -78,7 +81,7 @@ public class TextParser {
 		parserResult = new ParserResult();
 		srcText = srcText.replaceAll("\\s+", " ");
 
-		try {
+		//try {
 			if (this.editorMode) {
 				parserResult = this.parseInEditorMode(srcText);
 				return parserResult;
@@ -96,9 +99,9 @@ public class TextParser {
 				}
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);	
 			}
-		} catch (Exception e) {
-			parserResult.parsedText = "#ERROR#";
-		}
+		//} catch (Exception e) {
+		//	parserResult.parsedText = "#ERROR#";
+		//}
 
 		return parserResult;
 	}
@@ -399,7 +402,10 @@ public class TextParser {
 					String answer = answerPrefixValue + StringUtils.unescapeXML(answerAndValue[1].trim());
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value));
 					parserResult.choiceInfos.add(info);
+					JavaScriptObject container = this.createHTMLElement("div");
 					if (editorMode) {
+						JavaScriptObject inputElement = this.createHTMLElement("input");
+						JavaScriptUtils.log(inputElement);
 						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
 					} else {
 						replaceText = "<select id='" + id + "' class='ic_inlineChoice'>";
@@ -451,29 +457,73 @@ public class TextParser {
 						parserResult.choiceInfos.add(info);
 					}
 				}
-
+				
+				JavaScriptObject container = this.createHTMLElement("div");
 				if (info != null) {
-					if (editorMode) {					
-						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
+					if (editorMode) {
+						JavaScriptObject inputElement = this.createHTMLElement("input");
+						container = this.appendElementToHTMLElement(container, inputElement);
+						inputElement= this.setHTMLELementAttribute(inputElement, "value", "\u25BC");
+						inputElement = this.setHTMLELementAttribute(inputElement, "style", "text-align: right; width: 80px");
+						inputElement = this.setHTMLELementAttribute(inputElement, "data-gap", "dropdown");
+						inputElement = this.setHTMLELementAttribute(inputElement, "data-gap-value", "{{" + expression + "}}");
+						inputElement = this.setHTMLELementAttribute(inputElement, "id", id);
+						
+						replaceText = this.getElementHTMLCode(container);
 					} else {
-						replaceText = "<select id='" + id + "' class='ic_inlineChoice'>";
-						replaceText += "<option value='-'>---</option>";
+						JavaScriptObject selectElement = this.createHTMLElement("select");
+						this.setHTMLELementAttribute(selectElement, "class", "ic_inlineChoice");
+						this.setHTMLELementAttribute(selectElement, "id", id);
+						this.appendElementToHTMLElement(container, selectElement);
+						JavaScriptObject emptyOptionElement = this.createHTMLElement("option");
+						this.setHTMLELementAttribute(emptyOptionElement, "value", "-");
+						this.setInnerTextValueToHTMLElement(emptyOptionElement, "---");
+						
+						this.appendElementToHTMLElement(selectElement, emptyOptionElement);
 						
 						for (int i = 0; i < answers.length; i++) {
 							String dist = answers[i].trim();
 							info.addDistractorInOrder(dist);
 							String itemValue = StringUtils.escapeXML(dist);
-							replaceText += "<option value='" + itemValue + "'>" + dist
-									+ "</option>";
+							JavaScriptObject optionElement = this.createHTMLElement("option");
+							this.setHTMLELementAttribute(optionElement, "value", itemValue);
+							this.setInnerTextValueToHTMLElement(optionElement, dist);
+							this.appendElementToHTMLElement(selectElement, optionElement);
+
 						}
-						replaceText += "</select>";
+						replaceText = this.getElementHTMLCode(container);
 					}
 				}
 			}
 		}
-			
+		
+		JavaScriptUtils.log(replaceText);
 		return replaceText;
 	}
+
+	private native String getElementHTMLCode(JavaScriptObject element) /*-{
+		return element.html();
+	}-*/;
+	
+	private native JavaScriptObject setHTMLELementAttribute(JavaScriptObject element, String attributeName, String attributeValue) /*-{
+		attribuiteObject = {};
+		JavaScriptUtils.log(attributeObject);
+		attribuiteObject[attributeName] = attributeValue;
+		return element.attr(attribuiteObject);
+	}-*/;	
+	
+	private native JavaScriptObject createHTMLElement(String elementName) /*-{
+		return $wnd.$("<"+ elementName + "/>");
+	}-*/;
+	
+	private native JavaScriptObject appendElementToHTMLElement(JavaScriptObject parent, JavaScriptObject child) /*-{
+		return parent.append(child);
+	}-*/;
+	
+	
+	private native JavaScriptObject setInnerTextValueToHTMLElement(JavaScriptObject element, String value) /*-{
+		return element.text(value);
+	}-*/;
 
 	/**
 	 * Try to match variable
