@@ -315,6 +315,7 @@ function AddonFractions_create(){
 
     presenter.buildSquare = function (model, view) {
         var parts = parseInt(parseFloat(model.RectHorizontal));
+        var i = 0;
         if (parts <= 0 || isNaN(parts)) {
             $counter.text('Enter valid rectangular horizontal parts value.');
             return;
@@ -386,7 +387,6 @@ function AddonFractions_create(){
             }
             if (originY == maxWidth) {
                 this.height -= stroke;
-                console.log("MINUS")
             }
         },
 
