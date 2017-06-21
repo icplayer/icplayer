@@ -192,17 +192,29 @@ public class TextParser {
 	 * @return
 	 */
 	private String matchGap(String expression) {
-
-		String replaceText = null;
+		
 		int index = expression.indexOf(":");
+		JavaScriptObject container = null;
+		String replaceText = null;
+		
 		if (index > 0) {
 			String value = expression.substring(0, index).trim();
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			replaceText = "<input id='" + id + "' type='edit' data-gap='editable' data-gap-value='\\gap{" + answer + "}' size='"
-					+ answer.length() + "' class='ic_gap'" + (editorMode ? "readonly" : "") + "/>";
-
+			JavaScriptObject inputElement = this.createHTMLElement("input type='edit'");
+			container = this.createHTMLElement("div");
+			container = this.appendElementToHTMLElement(container, inputElement);
+			inputElement = this.setHTMLELementAttribute(inputElement, "id", id);
+			inputElement = this.setHTMLELementAttribute(inputElement, "data-gap", "editable");
+			inputElement = this.setHTMLELementAttribute(inputElement, "data-gap-value", "\\gap{" + answer + "}");
+			inputElement = this.setHTMLELementAttribute(inputElement, "size", "" + answer.length());
+			inputElement = this.setHTMLELementAttribute(inputElement, "class", "ic_gap");
+			if (this.editorMode) {
+				inputElement = this.setHTMLELementAttribute(inputElement, "readonly", true);
+			}
+			
+			replaceText = this.getElementHTMLCode(container);
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
 					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			String[] answers = answer.split("\\|");
@@ -219,9 +231,11 @@ public class TextParser {
 	private String matchFilledGap(String expression) {
 
 		String replaceText = null;
-
+		JavaScriptObject container = null;
+		
 		int index = expression.indexOf("|");
 		if (index > 0) {
+			container = this.createHTMLElement("div");
 			String placeholder = expression.substring(0, index).trim();
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
@@ -237,8 +251,18 @@ public class TextParser {
 				}
 				gi.addAnswer(answers[i]);
 			}
-			replaceText = "<input data-gap='filled' data-gap-value='\\filledGap{" + placeholder + "|" + answer +"}' id='" + id + "' type='edit' size='"
-					+ Math.max(maxValue, placeholder.length()) + "' class='ic_filled_gap' placeholder='" + placeholder +"'" + (editorMode ? "readonly" : "") + "/>";
+			JavaScriptObject inputElement = this.createHTMLElement("input type=edit");
+			container = this.appendElementToHTMLElement(container, inputElement);
+			inputElement = this.setHTMLELementAttribute(inputElement, "data-gap", "filled");
+			inputElement = this.setHTMLELementAttribute(inputElement, "data-gap-value", "\\filledGap{" + placeholder + "|" + answer +"}");
+			inputElement = this.setHTMLELementAttribute(inputElement, "id", id);
+			inputElement = this.setHTMLELementAttribute(inputElement, "size", "" + Math.max(maxValue, placeholder.length()));
+			inputElement = this.setHTMLELementAttribute(inputElement, "placeholder", placeholder);
+			if (this.editorMode) {
+				inputElement = this.setHTMLELementAttribute(inputElement, "readonly", true);
+			}
+			
+			replaceText = this.getElementHTMLCode(container);
 
 			parserResult.gapInfos.add(gi);
 		}
@@ -283,7 +307,7 @@ public class TextParser {
 
 	private String matchDraggableFilledGap(String expression) {
 
-		String replaceText = null;
+		JavaScriptObject container = null;
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
@@ -292,7 +316,11 @@ public class TextParser {
 			String[] answers = answer.split("\\|");
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			replaceText = "<span id='" + id + "' class='ic_draggableGapEmpty ic_filled_gap'>" + placeholder + "</span>";
+			container = this.createHTMLElement("div");
+			JavaScriptObject spanElement = this.createHTMLElement("span");
+			this.appendElementToHTMLElement(container, spanElement);
+			spanElement = this.setHTMLELementAttribute(spanElement, "class", "ic_draggableGapEmpty ic_filled_gap");
+			spanElement = this.setHTMLELementAttribute(spanElement, "id", id);
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			gi.setPlaceHolder(placeholder);
 			for (int i = 0; i < answers.length; i++) {
@@ -300,20 +328,25 @@ public class TextParser {
 			}
 			parserResult.gapInfos.add(gi);
 		}
-		return replaceText;
+		return this.getElementHTMLCode(container);
 	}
 	
 	private String matchDraggableGap(String expression) {
-		String replaceText = null;
+		JavaScriptObject container = null;
 
 		int index = expression.indexOf(":");
 		if (index > 0) {
+			container = this.createHTMLElement("div");
 			String value = expression.substring(0, index).trim();
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			replaceText = "<span id='" + id
-					+ "' class='ic_draggableGapEmpty'>&nbsp;</span>";
+			JavaScriptObject spanElement = this.createHTMLElement("span");
+			this.appendElementToHTMLElement(container, spanElement);
+			spanElement = this.setHTMLELementAttribute(spanElement, "id", id);
+			spanElement = this.setHTMLELementAttribute(spanElement, "class", "ic_draggableGapEmpty");
+			spanElement = this.setInnerTextValueWithSpecialCharsToHTMLElement(spanElement, "&nbsp;");
+			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
 					isCaseSensitive, isIgnorePunctuation, 0);
 			String[] answers = answer.split("\\|");
@@ -336,7 +369,7 @@ public class TextParser {
 			parserResult.gapInfos.add(gi);
 		}
 
-		return replaceText;
+		return this.getElementHTMLCode(container);
 	}
 
 	private String[] getAnswerAndValue(String value, boolean escape) {
@@ -405,11 +438,23 @@ public class TextParser {
 					JavaScriptObject container = this.createHTMLElement("div");
 					if (editorMode) {
 						JavaScriptObject inputElement = this.createHTMLElement("input");
-						JavaScriptUtils.log(inputElement);
-						replaceText = "<input value='&#9660;' style='text-align: right; width: 80px' data-gap='dropdown' data-gap-value='{{" + expression +"}}' id='" + id + "'/>";
+						container = this.appendElementToHTMLElement(container, inputElement);
+						inputElement= this.setHTMLELementAttribute(inputElement, "value", "\u25BC");
+						inputElement = this.setHTMLELementAttribute(inputElement, "style", "text-align: right; width: 80px");
+						inputElement = this.setHTMLELementAttribute(inputElement, "data-gap", "dropdown");
+						inputElement = this.setHTMLELementAttribute(inputElement, "data-gap-value", "{{" + expression + "}}");
+						inputElement = this.setHTMLELementAttribute(inputElement, "id", id);
+						
+						replaceText = this.getElementHTMLCode(container);
 					} else {
-						replaceText = "<select id='" + id + "' class='ic_inlineChoice'>";
-						replaceText += "<option value='-'>---</option>";
+						JavaScriptObject selectElement = this.createHTMLElement("select");
+						this.setHTMLELementAttribute(selectElement, "class", "ic_inlineChoice");
+						this.setHTMLELementAttribute(selectElement, "id", id);
+						this.appendElementToHTMLElement(container, selectElement);
+						JavaScriptObject emptyOptionElement = this.createHTMLElement("option");
+						this.setHTMLELementAttribute(emptyOptionElement, "value", "-");
+						this.setInnerTextValueToHTMLElement(emptyOptionElement, "---");
+						
 						for (int i = 0; i < answers.length; i++) {
 							answerAndValue = this.getAnswerAndValue(answers[i].trim(), this.useEscapeCharacterInGap);
 							String answerValue = "";
@@ -422,9 +467,12 @@ public class TextParser {
 						while (distractors.hasNext()) {
 							String dist = distractors.next();
 							String itemValue = StringUtils.escapeXML(dist);
-							replaceText += "<option value='" + itemValue + "'>" + dist + "</option>";
+							JavaScriptObject optionElement = this.createHTMLElement("option");
+							this.setHTMLELementAttribute(optionElement, "value", itemValue);
+							this.setInnerTextValueToHTMLElement(optionElement, dist);
+							this.appendElementToHTMLElement(selectElement, optionElement);
 						}
-						replaceText += "</select>";
+						replaceText = this.getElementHTMLCode(container);
 					}
 				}
 			}
@@ -497,17 +545,25 @@ public class TextParser {
 			}
 		}
 		
-		JavaScriptUtils.log(replaceText);
+
 		return replaceText;
 	}
 
 	private native String getElementHTMLCode(JavaScriptObject element) /*-{
+		if (element == null) {
+			return null;
+		}
 		return element.html();
 	}-*/;
 	
+	private native JavaScriptObject setHTMLELementAttribute(JavaScriptObject element, String attributeName, boolean attributeValue) /*-{
+		attribuiteObject = {};
+		attribuiteObject[attributeName] = attributeValue;
+		return element.attr(attribuiteObject);
+	}-*/;	
+	
 	private native JavaScriptObject setHTMLELementAttribute(JavaScriptObject element, String attributeName, String attributeValue) /*-{
 		attribuiteObject = {};
-		JavaScriptUtils.log(attributeObject);
 		attribuiteObject[attributeName] = attributeValue;
 		return element.attr(attribuiteObject);
 	}-*/;	
@@ -525,6 +581,10 @@ public class TextParser {
 		return element.text(value);
 	}-*/;
 
+	
+	private native JavaScriptObject setInnerTextValueWithSpecialCharsToHTMLElement(JavaScriptObject element, String value) /*-{
+		return element.html(value);
+	}-*/;
 	/**
 	 * Try to match variable
 	 * 
