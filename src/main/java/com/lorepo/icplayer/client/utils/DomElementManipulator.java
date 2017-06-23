@@ -1,0 +1,52 @@
+package com.lorepo.icplayer.client.utils;
+
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+
+public class DomElementManipulator {
+	private Element gwtElement = null;
+	
+	public DomElementManipulator(String name) {
+		this.gwtElement = DOM.createElement(name);
+	}
+	
+	public void appendElement(DomElementManipulator element) {
+		this.gwtElement.appendChild(element.getGWTElement());
+	}
+	
+	public void setHTMLAttribute(String attributeName, String attributeValue) {
+		this.gwtElement.setAttribute(attributeName, attributeValue);
+	}
+	
+	public void setHTMLAttribute(String attributeName, boolean attributeValue) {
+		this.gwtElement.setAttribute(attributeName, String.valueOf(attributeValue));
+	}
+
+	public void setHTMLAttribute(String attributeName, int attributeValue) {
+		this.gwtElement.setAttribute(attributeName, String.valueOf(attributeValue));
+	}
+	
+	public void setInnerHTMLText(String text) {
+		this.gwtElement.setInnerText(text);
+	}
+	
+	public void setInnerHTMLTextWithSpecialCharacters(String text) {
+		SafeHtmlBuilder builder = new SafeHtmlBuilder();
+		builder.appendEscaped(text);
+		this.gwtElement.setInnerSafeHtml(builder.toSafeHtml());
+	}
+	
+	public String getHTMLCode() {
+		return this.gwtElement.getInnerHTML();
+	}
+	
+	public Element getGWTElement() {
+		return this.gwtElement;
+	}
+	
+	public static String getFromHTMLCodeUnicode(String code) {
+		String strNumber = code.substring(2);
+		return Character.toString((char)Integer.parseInt(strNumber));
+	}
+}
