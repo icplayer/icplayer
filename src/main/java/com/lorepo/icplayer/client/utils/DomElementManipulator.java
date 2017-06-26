@@ -8,6 +8,10 @@ public class DomElementManipulator {
 	private Element gwtElement = null;
 	
 	public DomElementManipulator(String name) {
+		this.createGwtElement(name);
+	}
+	
+	protected void createGwtElement(String name) {
 		this.gwtElement = DOM.createElement(name);
 	}
 	
