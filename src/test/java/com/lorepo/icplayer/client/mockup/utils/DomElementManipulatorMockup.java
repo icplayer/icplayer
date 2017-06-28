@@ -59,10 +59,6 @@ public class DomElementManipulatorMockup extends DomElementManipulator {
 		this.element.setNodeValue(text);
 	}
 	
-	@Override
-	public void setInnerHTMLTextWithSpecialCharacters(String text) {
-		this.element.setNodeValue(text);
-	}
 	
 	@Override
 	public String getHTMLCode() {

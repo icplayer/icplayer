@@ -345,7 +345,7 @@ public class TextParser {
 			DomElementManipulator spanElement = new DomElementManipulator("span");
 			spanElement.setHTMLAttribute("id", id);
 			spanElement.addClass("ic_draggableGapEmpty");
-			spanElement.setInnerHTMLTextWithSpecialCharacters("&nbsp;");
+			spanElement.setInnerHTMLText(DomElementManipulator.getFromHTMLCodeUnicode("&#160"));
 			replaceText = spanElement.getHTMLCode();
 			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),

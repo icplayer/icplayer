@@ -34,7 +34,6 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
-import com.lorepo.icplayer.client.mockup.utils.DomElementManipulatorMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;

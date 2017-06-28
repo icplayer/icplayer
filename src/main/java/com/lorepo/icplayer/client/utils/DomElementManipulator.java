@@ -35,12 +35,6 @@ public class DomElementManipulator {
 		this.gwtElement.setInnerText(text);
 	}
 	
-	public void setInnerHTMLTextWithSpecialCharacters(String text) {
-		SafeHtmlBuilder builder = new SafeHtmlBuilder();
-		builder.appendEscaped(text);
-		this.gwtElement.setInnerSafeHtml(builder.toSafeHtml());
-	}
-	
 	public String getHTMLCode() {
 		DomElementManipulator wrapper = new DomElementManipulator("div");
 		wrapper.appendElement(this);
