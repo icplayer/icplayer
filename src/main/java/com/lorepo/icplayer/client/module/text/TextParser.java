@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -194,7 +193,6 @@ public class TextParser {
 	private String matchGap(String expression) {
 		
 		int index = expression.indexOf(":");
-		DomElementManipulator container = null;
 		String replaceText = null;
 		
 		if (index > 0) {
@@ -202,22 +200,19 @@ public class TextParser {
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			container = new DomElementManipulator("div");
 			DomElementManipulator inputElement = new DomElementManipulator("input");
-			container.appendElement(inputElement);
-			inputElement.setHTMLAttribute("type", "edit");
 			inputElement.setHTMLAttribute("id", id);
+			inputElement.setHTMLAttribute("type", "edit");
 			inputElement.setHTMLAttribute("data-gap", "editable");
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}");
 			inputElement.setHTMLAttribute("size", "" + answer.length());
-			inputElement.setHTMLAttribute("class", "ic_gap");
+			inputElement.addClass("ic_gap");
 			if (this.editorMode) {
 				inputElement.setHTMLAttribute("readonly", true);
 			}
 			
-			replaceText = container.getHTMLCode();
-			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
+			replaceText = inputElement.getHTMLCode();
+			GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 
@@ -232,11 +227,10 @@ public class TextParser {
 	private String matchFilledGap(String expression) {
 
 		String replaceText = null;
-		DomElementManipulator container = null;
 		
 		int index = expression.indexOf("|");
 		if (index > 0) {
-			container = new DomElementManipulator("div");
+			
 			String placeholder = expression.substring(0, index).trim();
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
@@ -252,19 +246,20 @@ public class TextParser {
 				}
 				gi.addAnswer(answers[i]);
 			}
+			
 			DomElementManipulator inputElement = new DomElementManipulator("input");
-			container.appendElement(inputElement);
-			inputElement.setHTMLAttribute("type", "edit");
 			inputElement.setHTMLAttribute("data-gap", "filled");
 			inputElement.setHTMLAttribute("data-gap-value", "\\filledGap{" + placeholder + "|" + answer +"}");
 			inputElement.setHTMLAttribute("id", id);
+			inputElement.setHTMLAttribute("type", "edit");
 			inputElement.setHTMLAttribute("size", "" + Math.max(maxValue, placeholder.length()));
 			inputElement.setHTMLAttribute("placeholder", placeholder);
+			inputElement.addClass("ic_filled_gap");
 			if (this.editorMode) {
 				inputElement.setHTMLAttribute("readonly", true);
 			}
 			
-			replaceText = container.getHTMLCode();
+			replaceText = inputElement.getHTMLCode();
 
 			parserResult.gapInfos.add(gi);
 		}
@@ -309,7 +304,7 @@ public class TextParser {
 
 	private String matchDraggableFilledGap(String expression) {
 
-		DomElementManipulator container = null;
+		String replaceText = null;
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
@@ -318,11 +313,15 @@ public class TextParser {
 			String[] answers = answer.split("\\|");
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			container = new DomElementManipulator("div");
+			
 			DomElementManipulator spanElement = new DomElementManipulator("span");
-			container.appendElement(spanElement);
-			spanElement.setHTMLAttribute("class", "ic_draggableGapEmpty ic_filled_gap");
+			spanElement.addClass("ic_draggableGapEmpty");
+			spanElement.addClass("ic_filled_gap");
+			spanElement.setInnerHTMLText(placeholder);
 			spanElement.setHTMLAttribute("id", id);
+			
+			replaceText = spanElement.getHTMLCode();
+			
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			gi.setPlaceHolder(placeholder);
 			for (int i = 0; i < answers.length; i++) {
@@ -330,24 +329,24 @@ public class TextParser {
 			}
 			parserResult.gapInfos.add(gi);
 		}
-		return container.getHTMLCode();
+		return replaceText;
 	}
 	
 	private String matchDraggableGap(String expression) {
-		DomElementManipulator container = null;
+		String replaceText = null;
 
 		int index = expression.indexOf(":");
 		if (index > 0) {
-			container = new DomElementManipulator("div");
 			String value = expression.substring(0, index).trim();
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
+			
 			DomElementManipulator spanElement = new DomElementManipulator("span");
-			container.appendElement(spanElement);
 			spanElement.setHTMLAttribute("id", id);
-			spanElement.setHTMLAttribute("class", "ic_draggableGapEmpty");
+			spanElement.addClass("ic_draggableGapEmpty");
 			spanElement.setInnerHTMLTextWithSpecialCharacters("&nbsp;");
+			replaceText = spanElement.getHTMLCode();
 			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
 					isCaseSensitive, isIgnorePunctuation, 0);
@@ -371,7 +370,7 @@ public class TextParser {
 			parserResult.gapInfos.add(gi);
 		}
 
-		return container.getHTMLCode();
+		return replaceText;
 	}
 
 	private String[] getAnswerAndValue(String value, boolean escape) {
@@ -437,7 +436,6 @@ public class TextParser {
 					String answer = answerPrefixValue + StringUtils.unescapeXML(answerAndValue[1].trim());
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value));
 					parserResult.choiceInfos.add(info);
-					DomElementManipulator container = new DomElementManipulator("div");
 					if (editorMode) {
 						DomElementManipulator inputElement = new DomElementManipulator("input");
 						inputElement.setHTMLAttribute("value", "\u25BC");
@@ -445,14 +443,12 @@ public class TextParser {
 						inputElement.setHTMLAttribute("data-gap", "dropdown");
 						inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
 						inputElement.setHTMLAttribute("id", id);
-						container.appendElement(inputElement);
 						
-						replaceText = container.getHTMLCode();
+						replaceText = inputElement.getHTMLCode();
 					} else {
 						DomElementManipulator selectElement = new DomElementManipulator("select");
-						selectElement.setHTMLAttribute("class", "ic_inlineChoice");
+						selectElement.addClass("ic_inlineChoice");
 						selectElement.setHTMLAttribute("id", id);
-						container.appendElement(selectElement);
 						
 						DomElementManipulator emptyOptionElement = new DomElementManipulator("option");
 						emptyOptionElement.setHTMLAttribute("value", "-");
@@ -465,23 +461,26 @@ public class TextParser {
 							if (answerAndValue[0] != null) {
 								answerValue += answerAndValue[0] + ":";
 							}
-							info.addDistractor(answerValue + answerAndValue[1]);
+							info.addDistractor(StringUtils.unescapeXML(answerValue + answerAndValue[1]));
 						}
+						
 						Iterator<String> distractors = info.getDistractors();
 						while (distractors.hasNext()) {
 							String dist = distractors.next();
+							dist = dist.trim();
 							String itemValue = StringUtils.escapeXML(dist);
 							DomElementManipulator optionElement = new DomElementManipulator("option");
 							optionElement.setHTMLAttribute("value", itemValue);
 							optionElement.setInnerHTMLText(dist);
 							selectElement.appendElement(optionElement);
 						}
-						replaceText = container.getHTMLCode();
 
+						replaceText = selectElement.getHTMLCode();
 					}
 				}
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 
 		
 		return replaceText;
@@ -511,32 +510,30 @@ public class TextParser {
 					}
 				}
 				
-				DomElementManipulator container = new DomElementManipulator("div");
 				if (info != null) {
 					if (editorMode) {
 						DomElementManipulator inputElement = new DomElementManipulator("input");
-						container.appendElement(inputElement);
 						inputElement.setHTMLAttribute("value", "\u25BC");
 						inputElement.setHTMLAttribute("style", "text-align: right; width: 80px");
 						inputElement.setHTMLAttribute("data-gap", "dropdown");
 						inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
 						inputElement.setHTMLAttribute("id", id);
 						
-						replaceText = container.getHTMLCode();
+						replaceText = inputElement.getHTMLCode();
 					} else {
 						DomElementManipulator selectElement = new DomElementManipulator("select");
-						selectElement.setHTMLAttribute("class", "ic_inlineChoice");
+						selectElement.addClass("ic_inlineChoice");
 						selectElement.setHTMLAttribute("id", id);
-						container.appendElement(selectElement);
+						
 						DomElementManipulator emptyOptionElement = new DomElementManipulator("option");
 						emptyOptionElement.setHTMLAttribute("value", "-");
 						emptyOptionElement.setInnerHTMLText("---");
-						
 						selectElement.appendElement(emptyOptionElement);
 						
 						for (int i = 0; i < answers.length; i++) {
 							String dist = answers[i].trim();
 							info.addDistractorInOrder(dist);
+							
 							String itemValue = StringUtils.escapeXML(dist);
 							DomElementManipulator optionElement = new DomElementManipulator("option");
 							optionElement.setHTMLAttribute("value", itemValue);
@@ -544,7 +541,7 @@ public class TextParser {
 							selectElement.appendElement(optionElement);
 
 						}
-						replaceText = container.getHTMLCode();
+						replaceText = selectElement.getHTMLCode();
 					}
 				}
 			}

@@ -42,7 +42,9 @@ public class DomElementManipulator {
 	}
 	
 	public String getHTMLCode() {
-		return this.gwtElement.getInnerHTML();
+		DomElementManipulator wrapper = new DomElementManipulator("div");
+		wrapper.appendElement(this);
+		return wrapper.getGWTElement().getInnerHTML();
 	}
 	
 	public Element getGWTElement() {
@@ -52,5 +54,9 @@ public class DomElementManipulator {
 	public static String getFromHTMLCodeUnicode(String code) {
 		String strNumber = code.substring(2);
 		return Character.toString((char)Integer.parseInt(strNumber));
+	}
+
+	public void addClass(String className) {
+		this.gwtElement.addClassName(className);
 	}
 }

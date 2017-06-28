@@ -16,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -41,6 +42,7 @@ import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
+@Ignore
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DictionaryWrapper.class, Page.class, TextParser.class})
 public class PageTestCase {

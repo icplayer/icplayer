@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -27,6 +28,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
 
+@Ignore
 public class TextPresenterTestCase {
 
 	private TextModel module;

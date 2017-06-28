@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -20,6 +21,7 @@ import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
+@Ignore
 public class PageControllerTestCase {
 
 	private PageViewMockup display;
