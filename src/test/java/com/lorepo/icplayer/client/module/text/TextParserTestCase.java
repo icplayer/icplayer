@@ -5,10 +5,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
+@Ignore
 public class TextParserTestCase {
 
 	@Test

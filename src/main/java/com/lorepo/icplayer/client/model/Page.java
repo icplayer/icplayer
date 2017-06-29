@@ -27,7 +27,6 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
-import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 

@@ -18,8 +18,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	private String value = "";
 	private boolean clicked = false;
 
-	public InlineChoiceWidget(InlineChoiceInfo gi,
-			final ITextViewListener listener) {
+	public InlineChoiceWidget(InlineChoiceInfo gi, final ITextViewListener listener) {
 
 		super(DOM.getElementById(gi.getId()));
 
