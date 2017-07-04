@@ -4,11 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -31,6 +36,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		void setDisabled(boolean isDisabled);
 		public Element getElement();
 		void executeOnKeyCode(KeyDownEvent event);
+		void execute();
 	}
 	
 	private ButtonModule model;
@@ -194,6 +200,13 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 
 		return jsObject;
 	}
+	
+	public void execute(){
+		
+		if(this.view instanceof ButtonView){
+			this.view.execute();		
+		}
+	}
 
 	private native JavaScriptObject initJSObject(ButtonPresenter x) /*-{
 		var presenter = function() {}
@@ -208,6 +221,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::getView()();
+		}
+		
+		presenter.execute = function() {
+			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::execute()();
 		}
 		
 		return presenter;

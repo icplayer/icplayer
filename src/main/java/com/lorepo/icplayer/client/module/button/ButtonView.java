@@ -17,12 +17,13 @@ public class ButtonView extends Composite implements IDisplay {
 	private ButtonModule module;
 	private boolean isErrorCheckingMode;
 	private IPlayerServices playerServices;
+	
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
 		this.isErrorCheckingMode = false;
 
-		initWidget(createInnerButton(services));
+		initWidget(this.createInnerButton(services));
 		getElement().setId(module.getId());
 		this.playerServices = services;
 	}
@@ -124,6 +125,7 @@ public class ButtonView extends Composite implements IDisplay {
 		}
 	}
 	
+	
 	private void enter() {
 		if (module.getType() == ButtonType.nextPage) {
 			playerServices.getCommands().nextPage();
@@ -138,5 +140,13 @@ public class ButtonView extends Composite implements IDisplay {
 		} else if (module.getType() == ButtonType.reset) {
 			playerServices.getCommands().reset();
 		}
+	}
+
+	@Override
+	public void execute() {
+		if (module.getType() == ButtonType.reset){
+			playerServices.getCommands().reset();
+		}
+		
 	}
 }
