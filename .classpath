@@ -12,5 +12,8 @@
 	<classpathentry kind="lib" path="libs/javassist-3.16.1-GA.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/icfoundation"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/App Engine (1)"/>
+	<classpathentry kind="lib" path="libs/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="libs/gwt-test-utils-0.46.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

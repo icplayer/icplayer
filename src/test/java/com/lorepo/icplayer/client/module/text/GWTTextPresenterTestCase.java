@@ -15,6 +15,8 @@ import org.xml.sax.SAXException;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.xml.client.Element;
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.mockup.services.CommandsMockup;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
@@ -26,10 +28,12 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+import com.lorepo.icplayer.client.module.text.TextModel;
+import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
 
-@Ignore
-public class TextPresenterTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class GWTTextPresenterTestCase extends GwtTest{
 
 	private TextModel module;
 	private PlayerServicesMockup services;

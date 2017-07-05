@@ -1,4 +1,4 @@
-﻿var ice_dictionary_en = {
+var ice_dictionary_en = {
 	"confirm_yes": "yes",
 	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
