@@ -1,7 +1,10 @@
 package com.lorepo.icplayer.client.module.button;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
@@ -144,8 +147,9 @@ public class ButtonView extends Composite implements IDisplay {
 
 	@Override
 	public void execute() {
-		if (module.getType() == ButtonType.reset){
-			playerServices.getCommands().reset();
+		Widget widget = this.getWidget();
+		if (widget instanceof ResetButton){
+			((ResetButton) widget).execute();
 		}
 	}
 }
