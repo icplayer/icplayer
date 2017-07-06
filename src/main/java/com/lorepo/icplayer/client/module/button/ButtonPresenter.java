@@ -4,16 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -146,6 +141,8 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 			show();
 		} else if(commandName.compareTo("hide") == 0) {
 			hide();
+		} else if(commandName.compareTo("execute") == 0){
+			execute();
 		}
 		
 		return value;
@@ -202,9 +199,8 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	}
 	
 	public void execute(){
-		
-		if(this.view instanceof ButtonView){
-			this.view.execute();		
+		if(this.view != null){
+			this.view.execute();	
 		}
 	}
 

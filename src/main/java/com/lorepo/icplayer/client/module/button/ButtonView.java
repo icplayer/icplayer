@@ -147,6 +147,5 @@ public class ButtonView extends Composite implements IDisplay {
 		if (module.getType() == ButtonType.reset){
 			playerServices.getCommands().reset();
 		}
-		
 	}
 }

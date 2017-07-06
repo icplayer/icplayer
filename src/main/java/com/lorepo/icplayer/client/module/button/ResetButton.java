@@ -62,7 +62,7 @@ class ResetButton extends PushButton{
 					confInfoNo = confirmNoInfo;
 					
 					if(confInfo == "") {
-						confInfo = "Are you sure that you want to reaset the modules?";
+						confInfo = "Are you sure that you want to reset the modules?";
 					}
 					
 					if(confInfoYes == "") {
