@@ -14,6 +14,7 @@ function Addonvideo_create() {
     presenter.areSubtitlesHidden = false;
 
     var height;
+    var sentCurrentTime;
 
     presenter.upgradeModel = function (model) {
         return presenter.upgradePoster(model);
@@ -215,6 +216,25 @@ function Addonvideo_create() {
             value: 'ended'
         };
     };
+
+    function addonVideo_formatTime (seconds) {
+        var minutes = Math.floor(seconds / 60);
+        minutes = (minutes >= 10) ? minutes : "0" + minutes;
+        seconds = Math.floor(seconds % 60);
+        seconds = (seconds >= 10) ? seconds : "0" + seconds;
+        return minutes + ":" + seconds;
+    }
+
+    presenter.sendTimeUpdate = function Video_sendTimeUpdate(currentTime) {
+        var eventData = {
+            source: presenter.addonID,
+            item: '' + (presenter.currentMovie + 1),
+            value : currentTime
+        };
+        console.log(eventData);
+        sentCurrentTime = currentTime;
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    }
 
     presenter.sendVideoEndedEvent = function () {
         var eventData = presenter.createEndedEventData(presenter.currentMovie);
@@ -531,6 +551,12 @@ function Addonvideo_create() {
 
             if (presenter.configuration.isFullScreen) {
                 fullScreenChange();
+            }
+        }
+        else {
+            var currentMinutesSeconds = addonVideo_formatTime(video.currentTime);
+            if(currentMinutesSeconds !== sentCurrentTime) {
+                presenter.sendTimeUpdate(currentMinutesSeconds);
             }
         }
     }
