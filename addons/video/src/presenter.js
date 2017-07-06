@@ -231,7 +231,6 @@ function Addonvideo_create() {
             item: '' + (presenter.currentMovie + 1),
             value : currentTime
         };
-        console.log(eventData);
         sentCurrentTime = currentTime;
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
