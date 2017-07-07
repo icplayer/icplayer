@@ -14,7 +14,7 @@ function Addonvideo_create() {
     presenter.areSubtitlesHidden = false;
 
     var height;
-    var sentCurrentTime;
+    var lastSentCurrentTime;
 
     presenter.upgradeModel = function (model) {
         return presenter.upgradePoster(model);
@@ -231,9 +231,8 @@ function Addonvideo_create() {
             item: '' + (presenter.currentMovie + 1),
             value : currentTime
         };
-        sentCurrentTime = currentTime;
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-    }
+    };
 
     presenter.sendVideoEndedEvent = function () {
         var eventData = presenter.createEndedEventData(presenter.currentMovie);
@@ -553,9 +552,11 @@ function Addonvideo_create() {
             }
         }
         else {
-            var currentMinutesSeconds = addonVideo_formatTime(video.currentTime);
-            if(currentMinutesSeconds !== sentCurrentTime) {
-                presenter.sendTimeUpdate(currentMinutesSeconds);
+            var actualVideoTime = Math.round(currentTime);
+            if(actualVideoTime !== lastSentCurrentTime) {
+                var formattedTime = addonVideo_formatTime(video.currentTime);
+                presenter.sendTimeUpdate(formattedTime);
+                lastSentCurrentTime = actualVideoTime;
             }
         }
     }
