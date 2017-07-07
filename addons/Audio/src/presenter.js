@@ -428,6 +428,20 @@ function AddonAudio_create(){
         e.stopPropagation();
     }
 
+    function forceLoadAudio(src) {
+        var req = new XMLHttpRequest();
+        req.open('GET', src+"?" +"preventCache="+ new Date(), true);
+        req.responseType = 'blob';
+        req.onload = function () {
+            if (this.status == 200) {
+                var audioData = this.response;
+                presenter.audio.src = URL.createObjectURL(audioData);
+            }
+        };
+
+        req.send();
+    }
+
     function AddonAudio_loadFiles(){
         var canPlayMp3 = false;
         var canPlayOgg = false;
@@ -436,11 +450,19 @@ function AddonAudio_create(){
         if(audio.canPlayType) {
             canPlayMp3 = audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
             canPlayOgg = audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
+            var audioSrc = "";
 
             if(canPlayMp3){
-                $(audio).attr("src", mp3File);
+                audioSrc = mp3File;
             } else if (canPlayOgg) {
-                $(audio).attr("src", oggFile);
+                audioSrc = oggFile;
+            }
+
+            if (presenter.configuration.forceLoadAudio) {
+                console.log("Force load");
+                forceLoadAudio(audioSrc);
+            } else {
+                $(audio).attr("src", audioSrc);
             }
 
         } else {
@@ -564,7 +586,8 @@ function AddonAudio_create(){
             defaultControls: defaultControls,
             useBrowserControls: useBrowserControls,
             isHtmlPlayer: defaultControls && !useBrowserControls,
-            addonID: model.ID
+            addonID: model.ID,
+            forceLoadAudio: ModelValidationUtils.validateBoolean(model.forceLoadAudio)
         };
     };
 
