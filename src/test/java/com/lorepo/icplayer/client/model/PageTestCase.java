@@ -41,7 +41,7 @@ import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
-@Ignore
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DictionaryWrapper.class, Page.class, TextParser.class})
 public class PageTestCase {
