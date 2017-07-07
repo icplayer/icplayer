@@ -264,8 +264,11 @@ function AddonSlider_create () {
                 relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
                 presenter.mouseData.oldPosition.x = eventData.pageX;
 
-                mousePositions.x = mousePositions.x > 0 ? mousePositions.x : 0;
-                mousePositions.x = mousePositions.x < imageElementData.maxLeft ? mousePositions.x : imageElementData.maxLeft;
+                var minimumXPosition = ($(imageElement).width() / 2);
+                var maximumXPosition = imageElementData.maxLeft + ($(imageElement).width() / 2);
+
+                mousePositions.x = mousePositions.x > minimumXPosition ? mousePositions.x : minimumXPosition;
+                mousePositions.x = mousePositions.x < maximumXPosition? mousePositions.x : maximumXPosition;
 
                 if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
                     $(imageElement).css({
@@ -288,9 +291,10 @@ function AddonSlider_create () {
 
             } else {
                 relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
-
-                mousePositions.y = mousePositions.y > 0 ? mousePositions.y : 0;
-                mousePositions.y = mousePositions.y < imageElementData.maxTop ? mousePositions.y : imageElementData.maxTop;
+                var minimumYPosition = ($(imageElement).height() / 2);
+                var maximumYPosition = imageElementData.maxTop + ($(imageElement).height() / 2);
+                mousePositions.y = mousePositions.y > minimumYPosition ? mousePositions.y : minimumYPosition;
+                mousePositions.y = mousePositions.y < maximumYPosition ? mousePositions.y : maximumYPosition;
 
                 presenter.mouseData.oldPosition.y = eventData.pageY;
 
