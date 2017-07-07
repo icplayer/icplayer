@@ -72,16 +72,16 @@ class ResetButton extends PushButton{
 	public void execute(){
 		if(this.confReset){
 			
-			if(confInfo == "") {
-				confInfo = "Are you sure that you want to reset the modules?";
+			if(this.confInfo == "") {
+				this.confInfo = "Are you sure that you want to reset the modules?";
 			}
 			
-			if(confInfoYes == "") {
-				confInfoYes = "Yes";
+			if(this.confInfoYes == "") {
+				this.confInfoYes = "Yes";
 			}
 			
-			if(confInfoNo == "") {
-				confInfoNo = "No";
+			if(this.confInfoNo == "") {
+				this.confInfoNo = "No";
 			}
 			
 			final DialogBox dialogBox = new DialogBox();
@@ -98,8 +98,8 @@ class ResetButton extends PushButton{
 	        dialogHPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	        dialogHPanel.add(yesButton);
 	        dialogHPanel.add(noButton);
-	        element = getElement();
-	        parent = element.getParentElement();
+	        this.element = getElement();
+	        parent = this.element.getParentElement();
 	        int top = 200 + Window.getScrollTop();
 	        int left = (parent.getClientWidth() / 2) - 150;
 
@@ -124,7 +124,7 @@ class ResetButton extends PushButton{
 	        dialogBox.setPopupPosition(left, top);
 	        dialogBox.show();
 		} else {
-			pageService.reset();
+			this.pageService.reset();
 		}				
 	}
 }
