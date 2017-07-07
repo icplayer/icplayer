@@ -20,7 +20,6 @@ public class ButtonView extends Composite implements IDisplay {
 	private ButtonModule module;
 	private boolean isErrorCheckingMode;
 	private IPlayerServices playerServices;
-	
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -127,8 +126,7 @@ public class ButtonView extends Composite implements IDisplay {
 			enter();
 		}
 	}
-	
-	
+
 	private void enter() {
 		if (module.getType() == ButtonType.nextPage) {
 			playerServices.getCommands().nextPage();
