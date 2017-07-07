@@ -109,7 +109,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentScore = 0;
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
-	private HashMap<String, Integer> selectsIndex = new HashMap<String, Integer>();
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -120,10 +119,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}catch(Exception e){
 			
 		}
-	}
-	
-	public void setSelectedIndex(String gapID, int selectedIndex) {
-		this.selectsIndex.put(gapID, selectedIndex);
 	}
 
 	private void connectHandlers() {
@@ -371,7 +366,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		String oldGapId = state.get("gapUniqueId") + "-";
 		values.clear();
-		selectsIndex.clear();
 		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
 		for (String key : oldValues.keySet()) {
 			String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
@@ -457,18 +451,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
-			
-			boolean indexAreMatch = false;
-			Integer indexFromHashMap = selectsIndex.get(choice.getId());
-			if (indexFromHashMap != null) {
-				indexAreMatch = choice.getIndex() == indexFromHashMap.intValue();
-			}
 
 			boolean wasValueSelected = !enteredValue.isEmpty() && !enteredValue.equals("---");
 			boolean isValidAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
  
-			boolean isGood = isValidAnswer && indexAreMatch;
-			if (!isGood && wasValueSelected) {
+			if (!isValidAnswer && wasValueSelected) {
 				errorCount++;
 			}
 		}
@@ -506,7 +493,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		draggableItem = null;
 		consumedItems.clear();
 		values.clear();
-		selectsIndex.clear();
 		updateScore();
 
 		this.currentState = "";
@@ -556,16 +542,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
-			boolean indexAreMatch = false;
-			Integer indexFromHashMap = selectsIndex.get(choice.getId());
-			if (indexFromHashMap != null) {
-				indexAreMatch = choice.getIndex() == indexFromHashMap.intValue();
-			}
 			
 			boolean isCorrectAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
-			boolean isCorrectAndKeepOriginalOrderAndIndexAreMatch = isCorrectAnswer && indexAreMatch;
-			
-			if (isCorrectAndKeepOriginalOrderAndIndexAreMatch) {
+
+			if (isCorrectAnswer) {
 				score += choice.getValue();
 			}
 		}
@@ -616,8 +596,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 			
 			@Override
-			public void onValueChanged(String id, String newValue, int selectedIndex) {
-				valueChanged(id, newValue, selectedIndex);
+			public void onValueChanged(String id, String newValue) {
+				valueChanged(id, newValue);
 			}
 
 			@Override
@@ -704,13 +684,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		playerServices.getEventBus().fireEvent(valueEvent);
 	}
 
-	protected void valueChangeLogic(String id, String newValue, int selectedIndex) {
+	protected void valueChangeLogic(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
 		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			newValue = "";
 		}
 		
-		selectsIndex .put(id, selectedIndex);
 		values.put(id, newValue);
 		updateScore();
 
@@ -732,13 +711,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {
 		if(module.isUserActionEvents()){
-			valueChangeLogic(id, newValue, 0);
+			valueChangeLogic(id, newValue);
 		}
 	}
 	
-	protected void valueChanged(String id, String newValue, int selectedIndex) {
+	protected void valueChanged(String id, String newValue) {
 		if(!module.isUserActionEvents()){
-			valueChangeLogic(id, newValue, selectedIndex);
+			valueChangeLogic(id, newValue);
 		}
 	}
 

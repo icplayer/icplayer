@@ -1,3 +1,7 @@
+2017-07-05 Fixed problem with tests which are using gwt classes
+2017-06-29 Fixed problem with using apostrophe in gaps
+2017-06-19 Fixed problem with custom events in Source list
+2017-06-08 Fixed problem with dropdown gaps in Text module
 2017-06-06 Fixed issue with scoring in Text module, added escaping pattern in gaps.
 2017-06-05 Fixed problem with using eKeyboard in Text module. Added build files to gitignore.
 2017-05-29 Fixed scoring and error counting in Text Presenter for dropdown gaps.

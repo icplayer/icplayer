@@ -44,8 +44,8 @@ function AddonTable_create() {
 
     presenter.replaceGapID = function (gap, parsedText) {
         var gapID = presenter.configuration.addonID + gap.id;
-        var patt = new RegExp("id='" + gap.id + "'");
-        var rep = "id='" + gapID + "'";
+        var patt = new RegExp("id=\"" + gap.id + "\"");
+        var rep = "id=\"" + gapID + "\"";
         return  parsedText.replace(patt, rep);
     };
 

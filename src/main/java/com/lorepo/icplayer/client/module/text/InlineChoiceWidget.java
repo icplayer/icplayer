@@ -18,8 +18,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	private String value = "";
 	private boolean clicked = false;
 
-	public InlineChoiceWidget(InlineChoiceInfo gi,
-			final ITextViewListener listener) {
+	public InlineChoiceWidget(InlineChoiceInfo gi, final ITextViewListener listener) {
 
 		super(DOM.getElementById(gi.getId()));
 
@@ -43,7 +42,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 						value = "---";
 						addStyleName("ic_inlineChoice-default");
 					}
-					listener.onValueChanged(choiceInfo.getId(), value, index);
+					listener.onValueChanged(choiceInfo.getId(), value);
 				}
 			});
 
@@ -74,14 +73,12 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 		if (isActivity) {
 			int selectedIndex = getSelectedIndex();
-			boolean indexDoesMatch = selectedIndex == choiceInfo.getIndex();
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
 				boolean correctAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
-				boolean correctAnswerAndIndexMatch = correctAnswer && indexDoesMatch;
-				
-				if (correctAnswerAndIndexMatch) {
+
+				if (correctAnswer) {
 					addStyleDependentName("correct");
 				} else {
 					addStyleDependentName("wrong");
