@@ -811,6 +811,7 @@ var ice_dictionary_pl = {
 	"multiplegap_property_source_type": "Typ elementu źródłowego",
 	"multiplegap_property_items": "Elementy",
 	"multiplegap_property_answer_id": "ID odpowiedzi",
+    "multiplegap_property_wrap_items": "Wrap Items",
 	"multiplegap_property_item_width": "Szerokość elementu",
 	"multiplegap_property_item_height": "Wysokość elementu",
 	"multiplegap_property_item_spacing": "Rozstawienie elementów",
