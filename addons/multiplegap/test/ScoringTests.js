@@ -1,4 +1,4 @@
-TestCase("Scoring", {
+TestCase("[Multiple Gap] Scoring", {
     setUp: function () {
         this.presenter = Addonmultiplegap_create();
         this.presenter.configuration = {};
@@ -22,7 +22,7 @@ TestCase("Scoring", {
     }
 });
 
-TestCase("AllOK", {
+TestCase("[Multiple Gap] AllOK", {
     setUp: function () {
         this.presenter = Addonmultiplegap_create();
         this.presenter.configuration = {

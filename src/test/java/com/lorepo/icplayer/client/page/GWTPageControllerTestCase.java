@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -18,12 +19,13 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Group;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
-public class PageControllerTestCase extends GwtTest{
+public class GWTPageControllerTestCase extends GwtTest{
 
 	private PageViewMockup display;
 	private PageController pageController;
