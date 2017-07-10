@@ -16,6 +16,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.content.services.AssetsService;
+import com.lorepo.icplayer.client.content.services.ReportableService;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.content.services.TimeService;
@@ -26,6 +27,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
@@ -50,6 +52,7 @@ public class PlayerController implements IPlayerController{
 	private final ScoreService		scoreService;
 	private final AssetsService		assetsService;
 	private final StateService		stateService;
+	private final ReportableService reportableService;
 	private ILoadListener		pageLoadListener;
 	private PagePopupPanel		popupPanel;
 	private final String sessionId;
@@ -69,6 +72,7 @@ public class PlayerController implements IPlayerController{
 		this.scoreService = new ScoreService(this.contentModel.getScoreType());
 		this.stateService = new StateService();
 		this.assetsService = new AssetsService(this.contentModel);
+		this.reportableService = new ReportableService();
 
 		this.createPageControllers(bookMode);
 		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
@@ -296,6 +300,14 @@ public class PlayerController implements IPlayerController{
 			@Override
 			public void onFinishedLoading(Object producedItem) {
 				Page page = (Page) producedItem;
+                String isReportable = getReportableService().getStates().get(page.getId());
+				if (isReportable != null) {
+					if (isReportable.toLowerCase() == "true") {
+						page.setAsReportable();
+					} else {
+						page.setAsNonReportable();
+					}
+				}
 				pageLoaded(page, pageController);
 				if(pageLoadListener != null){
 					pageLoadListener.onFinishedLoading(producedItem);
@@ -582,4 +594,9 @@ public class PlayerController implements IPlayerController{
 			}
 		}, false);
 	}-*/;
+
+	@Override
+	public IReportableService getReportableService() {
+		return this.reportableService;
+	}
 }

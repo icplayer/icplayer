@@ -9,12 +9,24 @@ TestCase("[Multiple Gap] Model validation", {
         this.presenter.validateItems.restore();
     },
 
-    'test proper model configuration': function () {
+    'test proper model configuration with some items answer ids': function () {
         this.presenter.validateItems.returns({isError: false, value: {}});
         var model = {
             ID: 'MultipleGap1',
-            "Is Visible": "True"
+            "Is Visible": "True",
+            "Items": [
+                {"Answer ID": "answer1"},
+                {"Answer ID": "answer2"},
+                {"Answer ID": "answer3"}
+            ],
+            "wrapItems": "True"
         };
+        
+        var expectedItemAnswersIDs = [
+          "answer1",
+          "answer2",
+          "answer3"
+        ];
 
         var validationResult = this.presenter.validateModel(model);
 
@@ -28,6 +40,62 @@ TestCase("[Multiple Gap] Model validation", {
         assertFalse(validationResult.stretchImages);
         assertTrue(validationResult.isVisible);
         assertTrue(validationResult.isVisibleByDefault);
+        assertEquals(expectedItemAnswersIDs, validationResult.itemsAnswersID);
+        assertTrue(validationResult.wrapItems);
+    },
+    
+    'test proper model configuration with empty items answer ids': function () {
+        this.presenter.validateItems.returns({isError: false, value: {}});
+        var model = {
+            ID: 'MultipleGap1',
+            "Is Visible": "True",
+            "Items": [],
+            "wrapItems": "False"
+        };
+        
+        var expectedItemAnswersIDs = [];
+        var validationResult = this.presenter.validateModel(model);
+
+        assertFalse(validationResult.isError);
+        assertUndefined(validationResult.errorCode);
+
+        assertEquals('MultipleGap1', validationResult.ID);
+        assertTrue(validationResult.isActivity);
+        assertEquals(this.presenter.ORIENTATIONS.HORIZONTAL, validationResult.orientation);
+        assertEquals(this.presenter.SOURCE_TYPES.IMAGES, validationResult.sourceType);
+        assertFalse(validationResult.stretchImages);
+        assertTrue(validationResult.isVisible);
+        assertTrue(validationResult.isVisibleByDefault);
+        assertEquals(expectedItemAnswersIDs, validationResult.itemsAnswersID);
+        assertFalse(validationResult.wrapItems);
+    },
+    
+    'test proper model configuration with single item answer id': function () {
+        this.presenter.validateItems.returns({isError: false, value: {}});
+        var model = {
+            ID: 'MultipleGap1',
+            "Is Visible": "True",
+            "Items": [
+                {"Answer ID": "answer1"}
+            ]
+        };
+        
+        var expectedItemAnswersIDs = [
+          "answer1"
+        ];
+        var validationResult = this.presenter.validateModel(model);
+
+        assertFalse(validationResult.isError);
+        assertUndefined(validationResult.errorCode);
+
+        assertEquals('MultipleGap1', validationResult.ID);
+        assertTrue(validationResult.isActivity);
+        assertEquals(this.presenter.ORIENTATIONS.HORIZONTAL, validationResult.orientation);
+        assertEquals(this.presenter.SOURCE_TYPES.IMAGES, validationResult.sourceType);
+        assertFalse(validationResult.stretchImages);
+        assertTrue(validationResult.isVisible);
+        assertTrue(validationResult.isVisibleByDefault);
+        assertEquals(expectedItemAnswersIDs, validationResult.itemsAnswersID);
     },
 
     'test invalid some item property': function () {

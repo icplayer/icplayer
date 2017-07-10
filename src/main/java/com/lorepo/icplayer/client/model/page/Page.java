@@ -137,6 +137,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			return x.@com.lorepo.icplayer.client.model.page.Page::getModulesListAsJS()();
 		}
 
+
+		page.setAsReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsReportable()();
+		}
+
+		page.setAsNonReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsNonReportable()();
+		}
+
+
 		page.getModules = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getModulesList()();
 		}
@@ -194,6 +204,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public boolean isLoaded() {
 		return this.loaded;
+	}
+
+	public void setBaseURL(String baseURL) {
+		this.baseURL = baseURL;
 	}
 
 	public void release() {
@@ -255,7 +269,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			XMLUtils.setIntegerAttribute(layout, "width", size.getWidth());
 			XMLUtils.setIntegerAttribute(layout, "height", size.getHeight());
 			if (size.isDefault()) {
-				XMLUtils.setBooleanAttribute(layout, "isDefault", true);	
+				XMLUtils.setBooleanAttribute(layout, "isDefault", true);
 			}
 			layouts.appendChild(layout);
 		}
@@ -659,7 +673,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public String getPreview() {
-		return previewURL;
+		return URLUtils.resolveURL(baseURL, previewURL);
 	}
 
 	public void setPreview(String preview) {
@@ -669,6 +683,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	@Override
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public void setAsReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), true);
+		this.reportable = true;
+	}
+
+	@Override
+	public void setAsNonReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), false);
+		this.reportable = false;
 	}
 
 	public void setId(String pageId) {

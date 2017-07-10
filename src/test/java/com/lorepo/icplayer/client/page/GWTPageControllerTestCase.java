@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -15,34 +16,20 @@ import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.model.page.Group;
-import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.Group;
+import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
-import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v1;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
-public class PageControllerTestCase extends GwtTest{
+public class GWTPageControllerTestCase extends GwtTest{
 
 	private PageViewMockup display;
 	private PageController pageController;
 	
-	private void loadPage(String xmlFile, Page page) {
-		InputStream inputStream = getClass().getResourceAsStream(xmlFile);
-		try {
-			XMLParserMockup xmlParser = new XMLParserMockup();
-			Element element = xmlParser.parser(inputStream);
-			PageParser_v1 parser = new PageParser_v1();
-			parser.setPage(page);
-			page = (Page) parser.parse(element);
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public void init(String pageURL) throws SAXException, IOException {
 		
@@ -52,8 +39,12 @@ public class PageControllerTestCase extends GwtTest{
 		pageController.setView(display);
 		pageController.setModuleFactory(new ModuleFactoryMockup(pageController.getPlayerServices()));
 		
+		InputStream inputStream = getClass().getResourceAsStream(pageURL);
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
 		Page page = new Page("Sizes", "");
-		loadPage(pageURL, page);
+		page.load(element, "");
 		
 		pageController.setPage(page);
 	}

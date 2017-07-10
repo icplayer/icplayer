@@ -40,6 +40,7 @@ public class TextModel extends BasicModuleModel {
 	private String valueType = "All";
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
+	private boolean useEscapeCharacterInGap = false;
 
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -59,6 +60,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyValueType();
 		addPropertyBlockWrongAnswers();
 		addPropertyUserActionEvents();
+		addPropertyUseEscapeCharacterInGap();
 	}
 
 	@Override
@@ -107,7 +109,8 @@ public class TextModel extends BasicModuleModel {
 				valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
 				blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
-				
+				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
+
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
@@ -128,6 +131,7 @@ public class TextModel extends BasicModuleModel {
 		parser.setGapWidth(gapWidth);
 		parser.setGapMaxLength(gapMaxLength);
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
+		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 
@@ -152,9 +156,9 @@ public class TextModel extends BasicModuleModel {
 		Element textModule = XMLUtils.createElement("textModule");
 		this.setBaseXMLAttributes(textModule);
 		textModule.appendChild(this.getLayoutsXML());
-		
+
 		Element text = XMLUtils.createElement("text");
-		
+
 		XMLUtils.setBooleanAttribute(text, "draggable", this.useDraggableGaps);
 		XMLUtils.setBooleanAttribute(text, "math", this.useMathGaps);
 		XMLUtils.setIntegerAttribute(text, "gapMaxLength", this.gapMaxLength);
@@ -168,11 +172,12 @@ public class TextModel extends BasicModuleModel {
 		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
 		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
 		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
+		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
 		text.setAttribute("valueType", this.valueType);
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
-		
+
 		textModule.appendChild(text);
-		
+
 		return StringUtils.removeIllegalCharacters(textModule.toString());
 	}
 
@@ -709,6 +714,44 @@ public class TextModel extends BasicModuleModel {
 		addProperty(property);
 	}
 	
+	private void addPropertyUseEscapeCharacterInGap() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != useEscapeCharacterInGap) {
+					useEscapeCharacterInGap = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return useEscapeCharacterInGap ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Text_use_escape_character_in_gap_property");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Text_use_escape_character_in_gap_property");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
 	private void addPropertyUserActionEvents() {
 		IProperty property = new IBooleanProperty() {
 
@@ -790,4 +833,9 @@ public class TextModel extends BasicModuleModel {
 	public String getValueType() {
 		return valueType;
 	}
+
+	public boolean isUsingEscapeCharacterInGap() {
+		return this.useEscapeCharacterInGap;
+	}
+
 }

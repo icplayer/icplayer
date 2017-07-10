@@ -760,6 +760,7 @@ var ice_dictionary_en = {
 	"multiplegap_property_source_type": "Source type",
 	"multiplegap_property_items": "Items",
 	"multiplegap_property_answer_id": "Answer ID",
+    "multiplegap_property_wrap_items": "Wrap Items",
 	"multiplegap_property_item_width": "Item width",
 	"multiplegap_property_item_height": "Item height",
 	"multiplegap_property_item_spacing": "Item spacing",
@@ -1534,5 +1535,6 @@ var ice_dictionary_en = {
 	"IFrame_property_id": "ID",
 	"IFrame_property_index_file": "Index file",
 	"IFrame_property_communication_id": "Communication id",
-	"IFrame_property_allow_fullscreen": "Allow Fullscreen"
+	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
+	"Text_use_escape_character_in_gap_property": "Use escape character in gap"
 };

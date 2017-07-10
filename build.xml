@@ -107,7 +107,7 @@
 
     <target name="test.dev" depends="javac.tests" description="Run development mode tests">
         <mkdir dir="reports/htmlunit.dev" />
-        <junit fork="yes" printsummary="yes" haltonfailure="yes">
+        <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
             <jvmarg line="-Xmx256m" />
             <sysproperty key="gwt.args" value="-standardsMode -logLevel WARN" />
             <sysproperty key="java.awt.headless" value="true" />
@@ -133,7 +133,7 @@
 
     <target name="test.prod" depends="javac.tests" description="Run production mode tests">
         <mkdir dir="reports/htmlunit.prod" />
-        <junit fork="yes" printsummary="yes" haltonfailure="yes">
+        <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
             <jvmarg line="-Xmx256m" />
             <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test" />
             <sysproperty key="java.awt.headless" value="true" />

@@ -42,10 +42,10 @@ public class Content implements IContentBuilder, IContent {
 	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
-	
+
 	private HashMap<String, CssStyle> styles;
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
-	
+
 	private int maxPagesCount = 100;
 	private String version = "2";
 
@@ -58,8 +58,8 @@ public class Content implements IContentBuilder, IContent {
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
-	
-	public void connectHandlers() {
+
+	private void connectHandlers() {
 		pages.addListener(new IPageListListener() {
 			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {
@@ -117,7 +117,7 @@ public class Content implements IContentBuilder, IContent {
 	public PageList getPagesList() {
 		return this.pages;
 	}
-	
+
 	@Override
 	public PageList getCommonPagesList() {
 		return this.commonPages;
@@ -221,7 +221,7 @@ public class Content implements IContentBuilder, IContent {
 	public HashMap<String,CssStyle> getStyles() {
 		return styles;
 	}
-	
+
 	public CssStyle getStyle(String cssStyleID) {
 		return this.styles.get(cssStyleID);
 	}
@@ -275,7 +275,7 @@ public class Content implements IContentBuilder, IContent {
 			xml += cssStyle.toString();
 		}
 		xml += "</styles>";
-		
+
 		Document xmlDocument = XMLParser.createDocument();
 		Element layouts = xmlDocument.createElement("layouts");
 		for(PageLayout pageLayout : layoutsContainer.getLayouts().values()) {
@@ -283,7 +283,7 @@ public class Content implements IContentBuilder, IContent {
 			layouts.appendChild(pl);
 		}
 		xml += layouts.toString();
-		
+
 		// Pages
 		xml += toXMLPages();
 
@@ -420,7 +420,7 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setBaseUrl(String url) {
 		this.baseUrl = url.substring(0, url.lastIndexOf("/")+1);
-
+        this.pages.setBaseURL(this.baseUrl);
 	}
 
 	@Override
@@ -437,7 +437,7 @@ public class Content implements IContentBuilder, IContent {
 	public void setStyles(HashMap<String, CssStyle> styles) {
 		this.styles = styles;
 	}
-	
+
 	public void setStyle(CssStyle style) {
 		this.styles.put(style.id, style);
 	}
@@ -500,21 +500,21 @@ public class Content implements IContentBuilder, IContent {
 
 	public String getActualStyle() {
 		CssStyle style = styles.get(this.getActualStyleID());
-		
+
 		if (style == null) {
 			return this.getDefaultCssStyle().style;
 		}
-		
+
 		return style.style;
 	}
-	
+
 	private CssStyle getDefaultCssStyle() {
 		for(CssStyle contentStyle : this.styles.values()) {
 			if (contentStyle.isDefault()) {
 				return contentStyle;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -525,7 +525,7 @@ public class Content implements IContentBuilder, IContent {
 	public  HashMap<String, PageLayout> getLayouts() {
 		return this.layoutsContainer.getLayouts();
 	}
-	
+
 	public void setSemiResponsiveLayouts(HashMap<String, PageLayout> layouts) {
 		this.layoutsContainer.setPageLayouts(layouts);
 	}
@@ -536,7 +536,7 @@ public class Content implements IContentBuilder, IContent {
 		Set<PageLayout> setsLayouts = new HashSet<PageLayout>(layouts);
 		return setsLayouts;
 	}
-	
+
 	public String getDefaultSemiResponsiveLayoutID() {
 		return this.layoutsContainer.getDefaultSemiResponsiveLayoutID();
 	}
@@ -553,13 +553,13 @@ public class Content implements IContentBuilder, IContent {
 	public void setDefaultCSSStyle(String cssStyleID) {
 		for (CssStyle style : this.styles.values()) {
 			if (style.getID().compareTo(cssStyleID) == 0) {
-				style.setIsDefault(true);	
+				style.setIsDefault(true);
 			} else {
 				style.setIsDefault(false);
 			}
 		}
 	}
-	
+
 	public String getActualSemiResponsiveLayoutID() {
 		return this.layoutsContainer.getActualSemiResponsiveLayoutID();
 	}
@@ -567,7 +567,7 @@ public class Content implements IContentBuilder, IContent {
 	public JavaScriptObject getSemiResponsiveLayoutsAsJS() {
 		return this.layoutsContainer.toJS();
 	}
-	
+
 	public boolean isSemiResponsiveContent() {
 		return this.styles.size() > 1 || this.layoutsContainer.getLayouts().size() > 1;
 	}
