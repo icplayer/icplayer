@@ -90,9 +90,16 @@ public class PagePopupPanel extends DialogBox {
 				
 		if (this.pageWidget.getOffsetHeight() > heightOfParent){
 			this.pageWidget.setHeight(heightOfParent);
-			JavaScriptUtils.log(this.pageWidget.getElement());
-			JavaScriptUtils.log(page.getInlineStyle());
 
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
+		}
+		
+		int widthOfParent = this.parentWidget.getOffsetWidth();
+		
+		if (this.pageWidget.getOffsetWidth() > widthOfParent){
+			this.pageWidget.setWidth(widthOfParent);
+			
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 		}
 		
 		int height = getElement().getClientHeight();
