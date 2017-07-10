@@ -410,7 +410,7 @@ function Addonvideo_create() {
     presenter.sendOnPLayingEvent = function () {
         var eventData = {
             'source': presenter.addonID,
-            'item': '',
+            'item': (presenter.currentMovie + 1),
             'value': 'playing',
             'score': ''
         };
@@ -550,6 +550,8 @@ function Addonvideo_create() {
             if (presenter.configuration.isFullScreen) {
                 fullScreenChange();
             }
+
+            lastSentCurrentTime = 0;
         }
         else {
             var actualVideoTime = Math.round(currentTime);
