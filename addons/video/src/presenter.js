@@ -12,9 +12,9 @@ function Addonvideo_create() {
     presenter.configuration = {};
     presenter.captionDivs = [];
     presenter.areSubtitlesHidden = false;
+    presenter.lastSentCurrentTime = 0;
 
     var height;
-    var lastSentCurrentTime;
 
     presenter.upgradeModel = function (model) {
         return presenter.upgradePoster(model);
@@ -217,7 +217,7 @@ function Addonvideo_create() {
         };
     };
 
-    function addonVideo_formatTime (seconds) {
+    presenter.formatTime = function addonVideo_formatTime (seconds) {
         var minutes = Math.floor(seconds / 60);
         minutes = (minutes >= 10) ? minutes : "0" + minutes;
         seconds = Math.floor(seconds % 60);
@@ -225,11 +225,11 @@ function Addonvideo_create() {
         return minutes + ":" + seconds;
     }
 
-    presenter.sendTimeUpdate = function Video_sendTimeUpdate(currentTime) {
+    presenter.sendTimeUpdateEvent = function Video_sendTimeUpdate(formattedTime) {
         var eventData = {
             source: presenter.addonID,
             item: '' + (presenter.currentMovie + 1),
-            value : currentTime
+            value : formattedTime
         };
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
@@ -386,7 +386,7 @@ function Addonvideo_create() {
         presenter.video.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
         presenter.video.addEventListener('play', setVideoStateOnPlayEvent);
         presenter.video.addEventListener('pause', setVideoStateOnPauseEvent);
-        presenter.video.addEventListener('playing', AddonVideo_onVideoPlaying, false);
+        presenter.video.addEventListener('playing', presenter.onVideoPlaying, false);
 
         presenter.eventBus.addEventListener('ValueChanged', this);
 
@@ -418,8 +418,12 @@ function Addonvideo_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    function AddonVideo_onVideoPlaying () {
+    presenter.onVideoPlaying = function AddonVideo_onVideoPlaying () {
         presenter.sendOnPLayingEvent();
+
+        if (presenter.video.currentTime === 0){
+            presenter.sendTimeUpdateEvent(presenter.formatTime(this.currentTime))
+        }
     }
 
     presenter.convertTimeStringToNumber = function(timeString) {
@@ -532,8 +536,19 @@ function Addonvideo_create() {
         presenter.removeClassFromView('playing');
     };
 
+    presenter.sendTimeUpdate = function Video_sendTimeUpdate(video) {
+        var actualVideoTime = parseInt(video.currentTime, 10);
+        if (actualVideoTime !== presenter.lastSentCurrentTime) {
+            var formattedTime = presenter.formatTime(actualVideoTime,10);
+            presenter.sendTimeUpdateEvent(formattedTime);
+            presenter.lastSentCurrentTime = actualVideoTime;
+        }
+    };
+
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
+
+        presenter.sendTimeUpdate(video);
 
         var currentTime = Math.round(video.currentTime * 10) / 10,
             videoDuration = Math.round(video.duration * 10) / 10,
@@ -551,15 +566,7 @@ function Addonvideo_create() {
                 fullScreenChange();
             }
 
-            lastSentCurrentTime = 0;
-        }
-        else {
-            var actualVideoTime = Math.round(currentTime);
-            if(actualVideoTime !== lastSentCurrentTime) {
-                var formattedTime = addonVideo_formatTime(video.currentTime);
-                presenter.sendTimeUpdate(formattedTime);
-                lastSentCurrentTime = actualVideoTime;
-            }
+            presenter.lastSentCurrentTime = 0;
         }
     }
 
