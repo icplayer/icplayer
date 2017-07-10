@@ -1,6 +1,9 @@
 package com.lorepo.icplayer.client.page;
 
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
@@ -70,6 +73,7 @@ public class PagePopupPanel extends DialogBox {
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setWidget(pageWidget);
+				
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
@@ -82,12 +86,21 @@ public class PagePopupPanel extends DialogBox {
 			top = Window.getScrollTop();
 		}
 		
+		int heightOfParent = this.parentWidget.getOffsetHeight();
+				
+		if (this.pageWidget.getOffsetHeight() > heightOfParent){
+			this.pageWidget.setHeight(heightOfParent);
+			JavaScriptUtils.log(this.pageWidget.getElement());
+			JavaScriptUtils.log(page.getInlineStyle());
+
+		}
+		
 		int height = getElement().getClientHeight();
 
 		if (height < Window.getClientHeight()) {
 			height = Window.getClientHeight();
 		}
-		
+			
 		height += top;
 		
 		glassStyle.setProperty("top", 0 + "px");
