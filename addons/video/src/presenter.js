@@ -408,7 +408,7 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.sendOnPLayingEvent = function () {
+    presenter.sendOnPlayingEvent = function () {
         var eventData = {
             'source': presenter.addonID,
             'item': (presenter.currentMovie + 1),
@@ -420,7 +420,7 @@ function Addonvideo_create() {
     };
 
     presenter.onVideoPlaying = function AddonVideo_onVideoPlaying () {
-        presenter.sendOnPLayingEvent();
+        presenter.sendOnPlayingEvent();
 
         if (presenter.video.currentTime === 0){
             presenter.sendTimeUpdateEvent(presenter.formatTime(presenter.video.currentTime))
@@ -537,8 +537,8 @@ function Addonvideo_create() {
         presenter.removeClassFromView('playing');
     };
 
-    presenter.sendTimeUpdate = function Video_sendTime(video) {
-        var actualVideoTime = parseInt(video.currentTime, 10);
+    presenter.sendTimeUpdate = function Video_sendTime() {
+        var actualVideoTime = parseInt(this.video.currentTime, 10);
         if (actualVideoTime !== presenter.lastSentCurrentTime) {
             var formattedTime = presenter.formatTime(actualVideoTime,10);
             presenter.sendTimeUpdateEvent(formattedTime);
@@ -549,7 +549,7 @@ function Addonvideo_create() {
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
 
-        presenter.sendTimeUpdate(video);
+        presenter.sendTimeUpdate();
 
         var currentTime = Math.round(video.currentTime * 10) / 10,
             videoDuration = Math.round(video.duration * 10) / 10,

@@ -76,6 +76,9 @@ TestCase("[Video] sendTimeUpdateEvent", {
             sendEvent: this.stubs.sendEventStub
         };
 
+        this.presenter.addonID = 'video1';
+        this.presenter.currentMovie = 0;
+
         this.stubs.getEventBus.returns(this.eventBusStub);
         this.presenter.setPlayerController(this.playerController)
     },
@@ -88,8 +91,6 @@ TestCase("[Video] sendTimeUpdateEvent", {
     },
 
     'test should send proper source, item, and value in the event data': function () {
-        this.presenter.addonID = 1;
-        this.presenter.currentMovie = 0;
         this.presenter.sendTimeUpdateEvent("Value");
 
         var call = this.stubs.sendEventStub.getCall(0);
@@ -97,5 +98,112 @@ TestCase("[Video] sendTimeUpdateEvent", {
         assertEquals(this.presenter.addonID, call.args[1].source);
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
         assertEquals("Value", call.args[1].value);
+    }
+});
+
+TestCase("[Video] onVideoPlaying", {
+
+    setUp: function () {
+        this.presenter = new Addonvideo_create();
+
+        this.stubs = {
+            registerHooks: sinon.stub(this.presenter, 'registerHook'),
+            getEventBus: sinon.stub(),
+            addEventListenerStub: sinon.stub(),
+            sendEventStub: sinon.stub()
+        };
+
+        this.playerController = {
+            getEventBus: this.stubs.getEventBus
+        };
+
+        this.eventBusStub = {
+            addEventListener: this.stubs.addEventListenerStub,
+            sendEvent: this.stubs.sendEventStub
+        };
+
+        this.presenter.addonID = 'video1';
+        this.presenter.currentMovie = 0;
+        this.presenter.video = document.createElement("video");
+
+        this.stubs.getEventBus.returns(this.eventBusStub);
+        this.presenter.setPlayerController(this.playerController)
+    },
+
+    'test should send ValueChanged event on playing': function () {
+        this.presenter.sendOnPlayingEvent();
+
+        var call = this.stubs.sendEventStub.getCall(0);
+
+        assertEquals("ValueChanged", call.args[0]);
+    },
+
+    'test should send proper event data on playing': function () {
+        this.presenter.onVideoPlaying();
+
+        var call = this.stubs.sendEventStub.getCall(0);
+
+        assertEquals(this.presenter.addonID, call.args[1].source);
+        assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
+        assertEquals("playing", call.args[1].value);
+    },
+
+    'test should two events when started playing from 0 seconds': function () {
+        this.presenter.onVideoPlaying();
+        this.presenter.video.currentTime = 0;
+
+        assertTrue(this.stubs.sendEventStub.calledTwice);
+    },
+
+    'test should send time update event data when started playing from 0 seconds': function () {
+        this.presenter.onVideoPlaying();
+        this.presenter.video.currentTime = 0;
+
+        var call = this.stubs.sendEventStub.getCall(1);
+
+        assertEquals("00:00", call.args[1].value);
+        assertEquals(this.presenter.addonID, call.args[1].source);
+        assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
+    }
+});
+
+TestCase("[Video] sendTimeUpdate", {
+    setUp: function () {
+        this.presenter = new Addonvideo_create();
+
+        this.presenter.video = document.createElement("video");
+
+        this.stubs = {
+            sendTimeUpdateEvent: sinon.stub()
+        }
+
+        this.presenter.sendTimeUpdateEvent = this.stubs.sendTimeUpdateEvent;
+    },
+
+    'test should not call sendTimeUpdateEvent when current time equals last sent time': function () {
+        this.presenter.lastSentCurrentTime = 0;
+        this.presenter.video.currentTime = 0;
+
+        this.presenter.sendTimeUpdate();
+
+        assertFalse(this.stubs.sendTimeUpdateEvent.called);
+    },
+
+    'test should call sendTimeUpdateEvent when current time not equals last sent time': function () {
+        this.presenter.lastSentCurrentTime = 0;
+        this.presenter.video.currentTime = 1;
+
+        this.presenter.sendTimeUpdate();
+
+        assertTrue(this.stubs.sendTimeUpdateEvent.called);
+    },
+
+    'test should change last sent time to actual video time': function () {
+        this.presenter.lastSentCurrentTime = 0;
+        this.presenter.video.currentTime = 1;
+
+        this.presenter.sendTimeUpdate();
+
+        assertEquals(this.presenter.lastSentCurrentTime, this.presenter.video.currentTime);
     }
 });
