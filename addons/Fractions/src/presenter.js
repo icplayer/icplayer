@@ -4,9 +4,7 @@ function AddonFractions_create(){
 
     presenter.currentSelected = function(){};
     var Counter = 0;
-    var correctAnswer = 0;
     presenter.isErrorCheckingMode = false;
-    var isNotActivity = false;
     presenter.selectionColor = '';
     presenter.strokeColor = '';
     presenter.currentSelected.item = [];
@@ -22,7 +20,27 @@ function AddonFractions_create(){
     presenter.imageBackgroundTable = ["0"];
 
     presenter.ERROR_CODES = {
-        "Z01": "None"
+        "Z01": "None",
+        "C01": "Incorrect selectionColor.",
+        "C02": "Incorrect strokeColor.",
+        "C03": "Incorrect emptyColor.",
+        "C04": "Incorrect strokeWidth.",
+        "P01": 'Incorrect horizontal rectangular parts.',
+        "P02": 'Incorrect vertical rectangular parts.',
+        "P03": 'Choose rectangular parts less than 30.',
+        "P04": 'Incorrect circle parts.',
+        "P05": 'Choose circle parts less than 100.',
+        "P06": 'Enter valid rectangular horizontal parts value.',
+        "P07": 'Rectangular horizontal parts value must be a power of 2.',
+        "A01": 'Incorrect value for "Number of correct parts" property.',
+        "A02": 'Fill the "Number of correct parts", or check isNotActivity.',
+        "F01": 'Wrong figure name'
+    };
+
+    presenter.FIGURES = {
+        CIRCLE: 1,
+        RECTANGULAR: 2,
+        SQUARE: 3
     };
 
     presenter.configuration = {
@@ -76,7 +94,7 @@ function AddonFractions_create(){
 
     presenter.isAttempted = function(){
         presenter.hideAnswers();
-        if(isNotActivity === true) {
+        if(presenter.configuration.isAnswer) {
             return true;
         }
         return Counter === (presenter.initialMarks)/2 ? false : true;
@@ -88,238 +106,318 @@ function AddonFractions_create(){
         return urlPrefix + "addons/resources/fractions-default-image.png"
     }
 
-    presenter.validateModel = function (model) {
+    function generateValidationError(code) {
+        return {
+            isValid: false,
+            errorCode: code
+        };
+    }
 
+    presenter.validateColors = function (model) {
+        var selectionColor = '#7FFFD4';
+        var strokeColor= '#838B8B';
+        var emptyColor = '#eeeeee';
+        var strokeWidth = undefined;
+
+        if(model.selectionColor.length > 0) {
+            selectionColor = model.selectionColor;
+        }
+
+        if(model.strokeColor.length > 0) {
+            strokeColor = model.strokeColor;
+        }
+
+        if(model.emptyColor.length > 0) {
+            emptyColor = model.emptyColor;
+        }
+
+        if(model.strokeWidth.length > 0 ) {
+            strokeWidth = model.strokeWidth;
+        }
+
+        if(!(presenter.checkColor(selectionColor))) {
+            return generateValidationError("C01");
+        }
+        else if(!(presenter.checkColor(strokeColor))) {
+            return generateValidationError("C02");
+        }
+        else if(!(presenter.checkColor(emptyColor))) {
+            return generateValidationError("C03");
+        }
+        else if (isNaN(parseInt(strokeWidth)) || parseFloat(strokeWidth) != parseInt(strokeWidth,10) || parseFloat(strokeWidth) == 0){
+            return generateValidationError("C04");
+        }
+
+        return  {
+            isValid: true,
+            selectionColor: selectionColor,
+            strokeColor: strokeColor,
+            emptyColor: emptyColor,
+            strokeWidth: strokeWidth
+        };
+    };
+
+    presenter.validateRectangleParts = function (model) {
+        if(parseFloat(model.RectHorizontal) == 0 || parseFloat(model.RectHorizontal) != parseInt(model.RectHorizontal)) {
+            return generateValidationError("P01");
+        }
+
+        if (parseFloat(model.RectVertical) == 0 || parseFloat(model.RectVertical) != parseInt(model.RectVertical)) {
+            return generateValidationError("P02");
+        }
+
+        if(parseFloat(model.RectHorizontal) > 30 || parseFloat(model.RectVertical) > 30){
+            return generateValidationError("P03");
+        }
+
+        return {
+            isValid: true,
+            rectHorizontal: parseInt(model.RectHorizontal),
+            rectVertical: parseInt(model.RectVertical)
+        };
+    };
+
+    presenter.validateCircleParts = function (model) {
+        if(parseInt(model.CircleParts) != parseFloat(model.CircleParts) || parseFloat(model.CircleParts) <= 0 || isNaN(model.CircleParts)) {
+            return generateValidationError("P04");
+        }
+        if(parseFloat(model.CircleParts) > 100){
+            return generateValidationError("P05");
+        }
+
+        return {
+            isValid: true,
+            circleParts: parseInt(model.CircleParts)
+        };
+    };
+
+    presenter.validateSquareParts = function (model, parts) {
+        if (parts <= 0 || isNaN(parts)) {
+            return generateValidationError("P06");
+        }
+
+        if (Math.log2(parts) % 1 != 0) {
+            return generateValidationError("P07");
+        }
+
+        return {
+            isValid: true
+        };
+    };
+
+    presenter.validateParts = function (model, figure) {
+        var validatedRectangleParts = presenter.validateRectangleParts(model);
+        if (!validatedRectangleParts.isValid) {
+            return validatedRectangleParts;
+        }
+
+        var validatedCircleParts = presenter.validateCircleParts(model);
+        if (!validatedCircleParts.isValid) {
+            return validatedCircleParts;
+        }
+
+        if (figure == presenter.FIGURES.SQUARE) {
+            var validatedSquareParts = presenter.validateSquareParts(model, validatedRectangleParts.rectHorizontal);
+            if (!validatedSquareParts.isValid) {
+                return validatedSquareParts;
+            }
+        }
+
+        return {
+            isValid: true,
+            rectHorizontal: validatedRectangleParts.rectHorizontal,
+            rectVertical: validatedRectangleParts.rectVertical,
+            circleParts: validatedCircleParts.circleParts
+        };
+    };
+
+    presenter.validateCorrectAnswer = function (model) {
+        var isNotActivity = ModelValidationUtils.validateBoolean(model.isNotActivity);
+
+        if (isNotActivity) {
+            return {
+                isValid: true,
+                isAnswer: false
+            };
+        }
+
+        var correctAnswer = model.Correct;
+        if (correctAnswer.length > 0) {
+            if((isNaN(correctAnswer))
+                || parseFloat(correctAnswer) != Math.round(correctAnswer)
+                || parseFloat(correctAnswer) <= 0
+                || parseFloat(correctAnswer) >= parseInt(model.RectHorizontal,10) * parseInt(model.RectVertical,10)){
+
+                return generateValidationError("A01");
+            }
+
+            return {
+                isValid: true,
+                isAnswer: true,
+                correctAnswer: parseInt(correctAnswer)
+            };
+        } else {
+            if (!isNotActivity) {
+                return generateValidationError("A02")
+            }
+        }
+    };
+
+    presenter.validateFigure = function (model) {
+        var figure = model.Figure;
+        var figureCode = presenter.FIGURES[figure.toUpperCase()];
+        if (figureCode === undefined) {
+            return generateValidationError("F01");
+        }
+
+        return {
+            isValid: true,
+            figure: figureCode
+        }
+    };
+
+    presenter.validateModel = function (model, isPreview) {
+
+        var imageSelectChecker = false;
+        var imageDeselectChecker = false;
+        var imageSelect = undefined;
+        var imageDeselect = undefined;
+
+        var selected = {
+            selectedString: undefined,
+            haveSelectedElements: false
+        };
+
+        if(model.selectedParts.length > 0) {
+            selected.selectedString = model.selectedParts;
+            selected.haveSelectedElements = true;
+        }
+        else {
+            selected.selectedString = '';
+        }
+
+        if (model['imageSelect'] == undefined || model['imageSelect'].length == 0) {
+            imageSelect = getDefaultImageURL(isPreview);
+        } else {
+            imageSelectChecker = true;
+            imageSelect = model.imageSelect;
+        }
+
+        if (model['imageDeselect'] == undefined || model['imageDeselect'].length == 0) {
+            imageDeselect = getDefaultImageURL(isPreview);
+        } else{
+            imageDeselectChecker = true;
+            imageDeselect = model.imageDeselect;
+        }
+
+        var validatedColors = presenter.validateColors(model);
+        if (!validatedColors.isValid) {
+            return validatedColors;
+        }
+
+        var validatedFigure = presenter.validateFigure(model);
+        if (!validatedFigure.isValid) {
+            return validatedFigure;
+        }
+
+        var validatedParts = presenter.validateParts(model, validatedFigure.figure);
+        if (!validatedParts.isValid) {
+            return validatedParts;
+        }
+
+        var validatedAnswer = presenter.validateCorrectAnswer(model);
+        if (!validatedAnswer.isValid) {
+            return validatedAnswer;
+        }
+
+        return {
+            isValid: true,
+            imageSelect: imageSelect,
+            imageDeselect: imageDeselect,
+            imageSelectChecker: imageSelectChecker,
+            imageDeselectChecker: imageDeselectChecker,
+            selected: selected,
+            selectionColor: validatedColors.selectionColor,
+            strokeColor: validatedColors.strokeColor,
+            emptyColor: validatedColors.emptyColor,
+            strokeWidth: parseFloat(validatedColors.strokeWidth),
+            rectHorizontal: validatedParts.rectHorizontal,
+            rectVertical: validatedParts.rectVertical,
+            circleParts: validatedParts.circleParts,
+            isAnswer: validatedAnswer.isAnswer,
+            correctAnswer: validatedAnswer.correctAnswer,
+            figure: validatedFigure.figure,
+            addonWidth: parseInt(model.Width, 10),
+            addonHeight: parseInt(model.Height, 10),
+            addonId: model.ID
+        };
     };
 
     presenter.init = function(view, model, isPreview){
         presenter.$view = $(view);
         presenter.model = model;
-        correctAnswer = model.Correct;
-
-        presenter.imageSelectChecker = false;
-        presenter.imageDeselectChecker = false;
-
-        if (model['imageSelect'] == undefined || model['imageSelect'].length == 0) {
-            //if(presenter.imageSelect != 'undefined'){
-            presenter.imageSelect = getDefaultImageURL(isPreview);
-        } else{
-            presenter.imageSelectChecker = true;
-            presenter.imageSelect = model.imageSelect;
-        }
-
-        if (model['imageDeselect'] == undefined || model['imageDeselect'].length == 0) {
-            //if(presenter.imageDeselect != 'undefined'){
-            //if(presenter.imageDeselect.length > 0){
-            presenter.imageDeselect = getDefaultImageURL(isPreview);
-        } else{
-            presenter.imageDeselectChecker = true;
-            presenter.imageDeselect = model.imageDeselect;
-        }
-
-        if(model.selectedParts.length > 0) {
-            presenter.selected.selectedString = model.selectedParts;
-        }
-        else {
-            presenter.selected.selectedString = '';
-        }
-        if(model.selectionColor.length > 0) {
-            presenter.selectionColor = model.selectionColor;
-        }
-        else {
-            presenter.selectionColor = '#7FFFD4';
-        }
-        if(model.strokeColor.length > 0) {
-            presenter.strokeColor = model.strokeColor;
-        }
-        else {
-            presenter.strokeColor= '#838B8B';
-        }
-        if(model.emptyColor.length > 0) {
-            presenter.emptyColor = model.emptyColor;
-        }
-        else {
-            presenter.emptyColor = '#eeeeee';
-        }
-
-
-        if(model.strokeWidth.length > 0 ) {
-            presenter.strokeWidth = model.strokeWidth;
-        }
 
         var radius = 0;
         var circOX = 0;
         var circOY = 0;
 
-        $counter = $(view).find('.FractionsCommandsViewer');
+        var config = presenter.configuration;
         var myDiv =  $(view).find('.FractionsWrapper')[0];
 
-        if(presenter.checkColor(presenter.selectionColor) && presenter.checkColor(presenter.strokeColor) && presenter.checkColor(presenter.emptyColor) && ( !(isNaN(presenter.strokeWidth)) && parseFloat(presenter.strokeWidth) == parseInt(presenter.strokeWidth,10) && parseFloat(presenter.strokeWidth) > 0 ))
-        {
-            presenter.strokeWidth = parseInt(presenter.strokeWidth,10);
+        var i = 0;
 
-            if(model.Figure == 'Rectangular') {
-                if(parseFloat(model.RectHorizontal) > 0 && parseFloat(model.RectHorizontal) == Math.round(model.RectHorizontal) && parseFloat(model.RectVertical) > 0 && parseFloat(model.RectVertical) == Math.round(model.RectVertical))
-                {
-                    if(parseFloat(model.RectHorizontal) > 30 || parseFloat(model.RectVertical) > 30){
-                        $counter.text('Choose rectangular parts less than 30.');
-                        isNotActivity = true;
-                        presenter.validate = false;
-                    } else {
-                        for(var i = 0; i<parseInt(model.RectHorizontal,10) * parseInt(model.RectVertical,10) + 1 ; i++){
-                            presenter.currentSelected.item[i] = false;
-                        }
-                        presenter.currentSelected.item[0] = model.ID;
+        if(presenter.configuration.figure == presenter.FIGURES.RECTANGULAR) {
+            for(i = 0; i < config.rectHorizontal * config.rectVertical + 1; i++){
+                presenter.currentSelected.item[i] = false;
+            }
+            presenter.currentSelected.item[0] = model.ID;
 
-                        if(correctAnswer.length > 0){
-                            if(!(isNaN(correctAnswer)) && parseFloat(correctAnswer) == Math.round(correctAnswer) && parseFloat(correctAnswer) > 0 && parseFloat(correctAnswer) <= parseInt(model.RectHorizontal,10) * parseInt(model.RectVertical,10)){
-                                $counter.text('');
-                                var figureRect = presenter.drawRect(model.RectHorizontal, model.RectVertical, model.ID, model.Height, model.Width);
-                                $(myDiv).append(figureRect);
-                                $(myDiv).addClass('rect');
-                                presenter.isDrawn = true;
-                                presenter.validate = true;
-                            } else {
-                                if(model.isNotActivity == 'True'){
-                                    $counter.text('');
-                                    var figureRect = presenter.drawRect(model.RectHorizontal, model.RectVertical, model.ID, model.Height, model.Width);
-                                    $(myDiv).append(figureRect);
-                                    $(myDiv).addClass('rect');
-                                    presenter.isDrawn = true;
-                                    presenter.validate = true;
-                                } else{
-                                    $counter.text('Incorrect value for "Number of correct parts" property.');
-                                    isNotActivity = true;
-                                    presenter.validate = false;
-                                }
-                            }
-                        } else{
-                            if(model.isNotActivity == 'True'){
-                                $counter.text('');
-                                var figureRect = presenter.drawRect(model.RectHorizontal, model.RectVertical, model.ID, model.Height, model.Width);
-                                $(myDiv).append(figureRect);
-                                $(myDiv).addClass('rect');
-                                presenter.isDrawn = true;
-                                presenter.validate = true;
-                            } else{
-                                $counter.text('Fill the "Number of correct parts", or check isNotActivity.');
-                                isNotActivity = true;
-                                presenter.validate = false;
-                            }
-                        }
-                    }
-                }
-                else {
-                    $counter.text('Incorrect rectangular parts.');
-                    isNotActivity = true;
-                    presenter.validate = false;
-                }
+            var figureRect = presenter.drawRect();
+            $(myDiv).append(figureRect);
+            $(myDiv).addClass('rect');
+            presenter.isDrawn = true;
+            presenter.validate = true;
+        }
+
+        if(presenter.configuration.figure == presenter.FIGURES.CIRCLE) {
+            for(i = 0; i < config.circleParts + 1; i++){
+                presenter.currentSelected.item[i] = false;
+            }
+            presenter.currentSelected.item[0] = model.ID;
+
+            if(config.addonHeight >= config.addonWidth){
+                radius = Math.round((config.addonWidth - 2 * config.strokeWidth) * 50) / 100;
+                circOX = radius + config.strokeWidth;
+                circOY = radius + config.strokeWidth;
+            }
+            else {
+                radius = Math.round((config.addonHeight - 2 * config.strokeWidth) * 50) / 100;
+                circOX = radius + config.strokeWidth;
+                circOY = radius + config.strokeWidth;
             }
 
-            if(model.Figure == 'Circle') {
-                if(model.CircleParts == Math.round(model.CircleParts) && parseFloat(model.CircleParts) > 0) {
-                    if(parseFloat(model.CircleParts) <100){
-                        for(var i = 0; i< parseInt(model.CircleParts,10) +1; i++){
-                            presenter.currentSelected.item[i] = false;
-                        }
-                        presenter.currentSelected.item[0] = model.ID;
+            var figureCirc = presenter.drawArcs(circOX,circOY, radius);
+            $(myDiv).append(figureCirc);
+            $(myDiv).addClass('circ');
+            presenter.isDrawn = true;
+            presenter.validate = true;
 
-                        if(parseInt(model.Height) >= parseInt(model.Width)){
-                            radius = Math.round((model.Width - 2*presenter.strokeWidth)*50)/100;
-                            circOX = radius + presenter.strokeWidth;
-                            circOY = radius + presenter.strokeWidth;
-                        }
-                        else {
-                            radius = Math.round((model.Height - 2*presenter.strokeWidth)*50)/100;
-                            circOX = radius + presenter.strokeWidth;
-                            circOY = radius + presenter.strokeWidth;
-                        }
+        }
 
-                        if(correctAnswer.length > 0){
-                            if(!(isNaN(correctAnswer)) && parseFloat(correctAnswer) == Math.round(correctAnswer) && parseFloat(correctAnswer) > 0 && parseFloat(correctAnswer) <= parseInt(model.CircleParts,10)){
-                                $counter.text('');
-                                var figureCirc = presenter.drawArcs(model.CircleParts,circOX,circOY, radius, model.ID, model.Height, model.Width);
-                                $(myDiv).append(figureCirc);
-                                $(myDiv).addClass('circ');
-                                presenter.isDrawn = true;
-                                isNotActivity = false;
-                                presenter.validate = true;
+        if (presenter.configuration.figure == presenter.FIGURES.SQUARE) {
+            presenter.buildSquare(model, view);
+        }
 
+        if(model.isDisable == 'True') {
+            presenter.isDisable = true;
+            presenter.wasDisable = true;
+            $(myDiv).addClass('disable');
+        }
 
-                            } else {
-                                if(model.isNotActivity == 'True'){
-                                    $counter.text('');
-                                    var figureCirc = presenter.drawArcs(model.CircleParts,circOX,circOY, radius, model.ID, model.Height, model.Width);
-                                    $(myDiv).append(figureCirc);
-                                    $(myDiv).addClass('circ');
-                                    presenter.isDrawn = true;
-                                    isNotActivity = false;
-                                    presenter.validate = true;
-                                } else{
-                                    $counter.text('Incorrect value for "Number of correct parts" property.');
-                                    isNotActivity = true;
-                                    presenter.validate = false;
-                                }
-                            }
-                        } else {
-                            if(model.isNotActivity == 'True'){
-                                $counter.text('');
-                                var figureCirc = presenter.drawArcs(model.CircleParts,circOX,circOY, radius, model.ID, model.Height, model.Width);
-                                $(myDiv).append(figureCirc);
-                                $(myDiv).addClass('circ');
-                                presenter.isDrawn = true;
-                                isNotActivity = false;
-                                presenter.validate = true;
-                            }else {
-                                $counter.text('Fill the "Number of correct parts", or check isNotActivity.');
-                                isNotActivity = true;
-                                presenter.validate = false;
+        presenter.clear();
 
-                            }
-                        }
-
-                    } else {
-                        $counter.text('Choose circle parts less than 100.');
-                        isNotActivity = true;
-                        presenter.validate = false;
-                    }
-                } else {
-                    $counter.text('Incorrect circle parts.');
-                    isNotActivity = true;
-                }
-            }
-
-            if (model.Figure == 'Square') {
-                presenter.buildSquare(model, view);
-            }
-
-            if(model.isNotActivity == 'True') {
-                isNotActivity = true;
-            }
-            if(model.isDisable == 'True') {
-                presenter.isDisable = true;
-                presenter.wasDisable = true;
-                $(myDiv).addClass('disable');
-            }
-
-            presenter.clear();
-
-            if(model.selectedParts.length > 0) {
-                presenter.selected(model.selectedParts);
-            }
-
-        } else {
-            if(!(presenter.checkColor(presenter.selectionColor))) {
-                $counter.text('Incorrect selectionColor.');
-            }
-            else if(!(presenter.checkColor(presenter.strokeColor))) {
-                $counter.text('Incorrect strokeColor.');
-            }
-            else if(!(presenter.checkColor(presenter.emptyColor))) {
-                $counter.text('Incorrect emptyColor.');
-            } else {
-                $counter.text('Incorrect strokeWidth.');
-            }
+        if (presenter.configuration.selected.haveSelectedElements) {
+            presenter.selected(presenter.configuration.selected.selectedString);
         }
 
         displayText();
@@ -327,40 +425,46 @@ function AddonFractions_create(){
     };
 
     presenter.buildSquare = function (model, view) {
-        var parts = parseInt(parseFloat(model.RectHorizontal));
-        var i = 0;
-        if (parts <= 0 || isNaN(parts)) {
-            $counter.text('Enter valid rectangular horizontal parts value.');
-            return;
-        }
+        var config = presenter.configuration;
+        var parts = config.rectHorizontal;
+        var addonWidth = config.addonWidth;
+        var addonHeight = config.addonHeight;
+        var squareSize = Math.min(addonWidth, addonHeight);
+        var i;
 
-        if (Math.log2(parts) % 1 != 0) {
-            $counter.text('Rectangular horizontal parts value must be a power of 2.');
-            return;
-        }
-
-        $counter.text('');
-
-        for(i = 0; i< parseInt(model.RectHorizontal,10) +1; i++){
+        for(i = 0; i < parts + 1; i++){
             presenter.currentSelected.item[i] = false;
         }
 
         presenter.currentSelected.item[0] = model.ID;
 
-        var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+Math.min(model.Width, model.Height)+'" height="'+Math.min(model.Width, model.Height)+'">';
-        var elements = [new SquareShapeElement(model.Width, model.Height, 0,0, 1, model.ID)];
+        var d = '<svg xmlns="http://www.w3.org/2000/svg" ' +
+            'version="1.1"  ' +
+            'width="' + squareSize + '" ' +
+            'height="' + squareSize + '">';
 
+        var elements = [new SquareShapeElement(addonWidth, addonHeight, 0,0, 1, config.addonId)];
+
+        //Cut elements to half Log2(n) times
         for (i = 1; i <= Math.log2(parts); i++) {
             var elementsBuff = [];
             for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-                elementsBuff = elementsBuff.concat(elements[elementIndex].cutToHalf(model.Width, model.Height));
+                elementsBuff = elementsBuff.concat(elements[elementIndex].cutToHalf(addonWidth, addonHeight));
             }
             elements = elementsBuff;
         }
-        d += '<rect id="myBorder" height="'+(Math.min(model.Width, model.Height) - 2 * parseFloat(presenter.strokeWidth))+'" width="'+ (Math.min(model.Width, model.Height) - 2 * parseFloat(presenter.strokeWidth)) +'" y="'+presenter.strokeWidth+'" x="'+presenter.strokeWidth+'" stroke-width="'+presenter.strokeWidth+'" stroke="'+presenter.strokeColor+'" style="fill: '+ presenter.strokeColor + '"/>';
+        d += '<rect ' +
+            'id="myBorder" ' +
+            'height="'+(squareSize - (2 * config.strokeWidth)) + '" ' +
+            'width="'+ (squareSize - (2 * config.strokeWidth)) + '" ' +
+            'y="' + config.strokeWidth + '" ' +
+            'x="' + config.strokeWidth + '" ' +
+            'stroke-width="' + config.strokeWidth + '" ' +
+            'stroke="' + config.strokeColor+'" ' +
+            'style="fill: ' + config.strokeColor + '"/>';
 
         for (i = 0; i < elements.length; i++) {
-            elements[i].calculateValues(model.Width, model.Height);
+            elements[i].calculateValues(addonWidth, addonHeight);
             d += elements[i].getSVGString(i + 1);
         }
 
@@ -370,7 +474,6 @@ function AddonFractions_create(){
         $(myDiv).append(d);
         $(myDiv).addClass('rect');
         presenter.isDrawn = true;
-        isNotActivity = false;
         presenter.validate = true;
     };
 
@@ -379,10 +482,13 @@ function AddonFractions_create(){
         var regExp = new RegExp("^#[0-9a-fA-F]{6}$");
         var colorMatch;
         colorMatch = color.match(regExp);
-        //if(color == 'transparent') return true;
 
-        if(colorMatch === null) return false;
-        else return true;
+        if(colorMatch === null) {
+            return false;
+        }
+        else {
+            return true;
+        }
     };
 
     presenter.executeCommand = function(name, params) {
@@ -490,12 +596,12 @@ function AddonFractions_create(){
 
     presenter.setSelectionColor = function(color){
         presenter.hideAnswers();
-        presenter.selectionColor = color;
+        presenter.configuration.selectionColor = color;
     };
 
     presenter.setSelectionColorButton = function(color){
         presenter.hideAnswers();
-        presenter.selectionColor = color[0];
+        presenter.configuration.selectionColor = color[0];
     };
 
     presenter.getCurrentNumber = function(){
@@ -506,30 +612,29 @@ function AddonFractions_create(){
     presenter.isAllOK = function(){
         presenter.hideAnswers();
 
-        if(isNotActivity === true) {
+        if(!presenter.configuration.isAnswer) {
             return true;
         }
-        return Counter == correctAnswer ? true : false;
+        return Counter == presenter.configuration.correctAnswer ? true : false;
     };
 
-
-
-
     presenter.getCurrentNumberSA = function(){
-        //presenter.hideAnswers();
         return Counter;
     };
 
     presenter.run = function(view, model) {
         presenter.$view = $(view);
         presenter.model = model;
+        var $counter = undefined;
 
-        $.extend(presenter.configuration, presenter.validateModel(model));
-        if (presenter.configuration.modelIsValid === false) {
-            var $counter = $(view).find('.FractionsCommandsViewer');
+        $.extend(presenter.configuration, presenter.validateModel(model, false));
+        if (!presenter.configuration.isValid) {
+            $counter = $(view).find('.FractionsCommandsViewer');
             $counter.text(presenter.ERROR_CODES[presenter.configuration.errorCode]);
-        }
-        else {
+        } else {
+            $counter = $(view).find('.FractionsCommandsViewer');
+            $counter.text('');
+
             presenter.init(view, model, false);
             if (model.Figure == 'Rectangular') {
                 presenter.allElementsCount = model.RectHorizontal * model.RectVertical;
@@ -550,8 +655,6 @@ function AddonFractions_create(){
                 presenter.markElementAsClicked(this);
                 e.stopPropagation();
             });
-
-            var bufforClass = '';
 
             jQuery(function ($) {
                 $(view).find('path').on("mouseenter", function () {
@@ -579,11 +682,13 @@ function AddonFractions_create(){
         var $myDiv =  presenter.$view.find('path');
         if(presenter.isDrawn) $($myDiv).remove();
 
-        $.extend(presenter.configuration, presenter.validateModel(model));
-        if (presenter.configuration.modelIsValid === false) {
+        $.extend(presenter.configuration, presenter.validateModel(model, true));
+        if (presenter.configuration.isValid === false) {
             var $counter = $(view).find('.FractionsCommandsViewer');
             $counter.text(presenter.ERROR_CODES[presenter.configuration.errorCode]);
         } else {
+            var $counter = $(view).find('.FractionsCommandsViewer');
+            $counter.text('');
             presenter.init(view, model, true);
         }
 
@@ -593,29 +698,25 @@ function AddonFractions_create(){
     };
 
     presenter.clear = function(){
-
+        var $myDiv, i;
         if(presenter.imageBackgroundTable[0] == 0){
 
-            for(var i = 0; i<presenter.currentSelected.item.length - 1 ;i++){
+            for(i = 0; i < presenter.currentSelected.item.length - 1; i++){
                 presenter.imageBackgroundTable[i] = presenter.$view.find('"#'+presenter.currentSelected.item[0]+'imageBackground' +  (i+1) + '"');
             }
         }
-        if(presenter.imageSelectChecker || presenter.imageDeselectChecker){
-            for(var i = 0; i<presenter.currentSelected.item.length - 1 ;i++){
-                var $myDiv =  presenter.$view.find('"#' +  presenter.currentSelected.item[0] + (i+1) + '"');
-                jQuery($myDiv).css('fill', presenter.emptyColor);
+        if(presenter.configuration.imageSelectChecker || presenter.configuration.imageDeselectChecker){
+            for(i = 0; i < presenter.currentSelected.item.length - 1; i++){
+                $myDiv =  presenter.$view.find('"#' + presenter.currentSelected.item[0] + (i+1) + '"');
+                jQuery($myDiv).css('fill', presenter.configuration.emptyColor);
                 jQuery($myDiv).removeClass("selected");
-
-                if(presenter.imageDeselectChecker || presenter.imageSelectChecker){
-                    //presenter.$view.find('"#'+presenter.currentSelected.item[0]+'imageBackground' +  (i+1) + '"').attr("xlink:href", presenter.imageDeselect);
-                    presenter.imageBackgroundTable[i].attr("xlink:href", presenter.imageDeselect);
-                }
+                presenter.imageBackgroundTable[i].attr("xlink:href", presenter.configuration.imageDeselect);
             }
         }else {
-            for(var i = 0; i<presenter.currentSelected.item.length;i++){
-                var $myDiv =  presenter.$view.find('path')[i];
+            for(i = 0; i < presenter.currentSelected.item.length;i++){
+                $myDiv = presenter.$view.find('path')[i];
                 $($myDiv).removeClass("selected");
-                $($myDiv).css('fill', presenter.emptyColor);
+                $($myDiv).css('fill', presenter.configuration.emptyColor);
             }
 
         }
@@ -710,30 +811,29 @@ function AddonFractions_create(){
 
 
     presenter.markElementAsClicked = function(element){
-        var clickedElementID=element.id;
+        var correctAnswer = presenter.configuration.correctAnswer;
+        var clickedElementID = element.id;
         if(presenter.isErrorCheckingMode === false && presenter.isDisable === false)
         {
             if(presenter.currentSelected.item[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)] === false)
             {
-                element.style.fill = presenter.selectionColor;
+                element.style.fill = presenter.configuration.selectionColor;
                 $(element).addClass("selected");
                 Counter++;
-                if(presenter.imageDeselectChecker || presenter.imageSelectChecker){
-                    //presenter.$view.find('"#'+presenter.currentSelected.item[0]+'imageBackground' +  clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)+ '"').attr("xlink:href", presenter.imageSelect);
-                    presenter.imageBackgroundTable[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length) - 1].attr("xlink:href", presenter.imageSelect);
+                if(presenter.configuration.imageDeselectChecker || presenter.configuration.imageSelectChecker){
+                    presenter.imageBackgroundTable[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length) - 1].attr("xlink:href", presenter.configuration.imageSelect);
                 }
                 presenter.currentSelected.item[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)] = true;
                 presenter.triggerFrameChangeEvent(clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length),1,Counter == correctAnswer ? 1 : 0);
             } else   {
-                element.style.fill = presenter.emptyColor;
+                element.style.fill = presenter.configuration.emptyColor;
                 $(element).removeClass("selected");
                 presenter.currentSelected.item[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)] = false;
                 Counter--;
                 presenter.triggerFrameChangeEvent(clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length),0,Counter == correctAnswer ? 1 : 0);
 
-                if(presenter.imageDeselectChecker || presenter.imageSelectChecker){
-                    //presenter.$view.find('"#'+presenter.currentSelected.item[0]+'imageBackground' +  clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)+ '"').attr("xlink:href", presenter.imageDeselect);
-                    presenter.imageBackgroundTable[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length) - 1].attr("xlink:href", presenter.imageDeselect);
+                if(presenter.configuration.imageDeselectChecker || presenter.configuration.imageSelectChecker){
+                    presenter.imageBackgroundTable[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length) - 1].attr("xlink:href", presenter.configuration.imageDeselect);
                 }
 
             }
@@ -741,47 +841,83 @@ function AddonFractions_create(){
     };
 
     presenter.markElementAsSelected = function(element){
-
         var $myDiv =  presenter.$view.find('"#' +  presenter.currentSelected.item[0] + element + '"');
-        jQuery($myDiv).css('fill', presenter.selectionColor);
+        jQuery($myDiv).css('fill', presenter.configuration.selectionColor);
         presenter.initialMarks++;
         jQuery($myDiv).addClass("selected");
-        if(presenter.imageSelectChecker || presenter.imageDeselectChecker){
-            //presenter.$view.find('"#'+presenter.currentSelected.item[0]+'imageBackground' +  element + '"').attr("xlink:href", presenter.imageSelect);
-            presenter.imageBackgroundTable[element - 1].attr("xlink:href", presenter.imageSelect);
+        if(presenter.configuration.imageSelectChecker || presenter.configuration.imageDeselectChecker){
+            presenter.imageBackgroundTable[element - 1].attr("xlink:href", presenter.configuration.imageSelect);
         }
     };
 
 
-    presenter.drawRect = function(partsHorizontally, partsVertically,id,addonHeight, addonWidth) {
-        var elementHeight = parseFloat(addonHeight) - 2*parseFloat(presenter.strokeWidth);
-        var elementWidth = parseFloat(addonWidth) - 2*parseFloat(presenter.strokeWidth);
+    presenter.drawRect = function() {
+        var config = presenter.configuration;
 
+        var id = config.addonId;
+        var addonWidth = config.addonWidth;
+        var addonHeight = config.addonHeight;
+        var partsHorizontally = config.rectHorizontal;
+        var partsVertically = config.rectVertical;
 
+        var elementHeight = parseFloat(addonHeight) - (2 * config.strokeWidth);
+        var elementWidth = parseFloat(addonWidth) - (2 * config.strokeWidth);
 
+        var stepX = (addonWidth - (2 * config.strokeWidth)) /partsHorizontally;
+        var stepY = (addonHeight - (2 * config.strokeWidth)) /partsVertically;
 
-        var fig = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+ addonWidth+'" height="'+addonHeight+'">';
-        fig += '<rect id="myBorder" height="'+elementHeight+'" width="'+ elementWidth +'" y="'+presenter.strokeWidth+'" x="'+presenter.strokeWidth+'" stroke-width="'+presenter.strokeWidth+'" stroke="'+presenter.strokeColor+'" style="fill: none"/>';
+        var fig = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="' + addonWidth+'" height="' + addonHeight+'">';
+        fig += '<rect ' +
+            'id="myBorder" ' +
+            'height="'+ elementHeight + '" ' +
+            'width="' + elementWidth + '" ' +
+            'y="' + config.strokeWidth + '" ' +
+            'x="' + config.strokeWidth + '" ' +
+            'stroke-width="' + config.strokeWidth + '" ' +
+            'stroke="' + config.strokeColor+'" ' +
+            'style="fill: none"/>';
 
-        var stepx = (addonWidth-(2*presenter.strokeWidth))/partsHorizontally;
-        var stepy = (addonHeight-(2*presenter.strokeWidth))/partsVertically;
         var k =1;
+
         for(var j=0;j<partsVertically ;j++) {
             for(var i=0;i<partsHorizontally ;i++) {
-                if(presenter.imageDeselectChecker || presenter.imageSelectChecker){
+                fig += '<path ' +
+                        'id="'+ id + k +'" ' +
+                        'class="' + id + '" ' +
+                        'd="M' + (config.strokeWidth + i * stepX) + ',' + (config.strokeWidth + j * stepY) + 'h' + stepX + ' v' +stepY + ' h' + (-stepX) +' v' + (-stepY) +'" ' +
+                        'stroke-width="' + config.strokeWidth + '" ' +
+                        'style="stroke: '+ config.strokeColor + '; fill: ' + config.emptyColor + ';" />';
 
-                    fig += '<path id="'+ id + k +'" class="'+id+'" d="M'+ (parseFloat(presenter.strokeWidth) + i*stepx)+',' +(parseFloat(presenter.strokeWidth) +j*stepy) +'h' +stepx +' v' +stepy +' h' +(-stepx) +' v' +(-stepy) +'" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill:'+presenter.emptyColor+';" />';
+                if(config.imageDeselectChecker || config.imageSelectChecker){
                     fig += '<defs>';
-                    fig += '<mask id="' + id + 'mask' + k + '" x="0" y="0" patternUnits="userSpaceOnUse" height="100" width="100">';
-                    fig += '<path id="' + id + 'maskPath'+k+'" class="image-path" d="M'+ (parseFloat(presenter.strokeWidth) + i*stepx)+',' +(parseFloat(presenter.strokeWidth) +j*stepy) +'h' +stepx +' v' +stepy +' h' +(-stepx) +' v' +(-stepy) +'" stroke-width="'+presenter.strokeWidth+'" style="pointer-events:none;fill:#ffffff;" />';
+
+                    fig += '<mask ' +
+                        'id="' + id + 'mask' + k + '" ' +
+                        'x="0" ' +
+                        'y="0" ' +
+                        'patternUnits="userSpaceOnUse" ' +
+                        'height="100" ' +
+                        'width="100">';
+
+                    fig += '<path ' +
+                        'id="' + id + 'maskPath' + k + '" ' +
+                        'class="image-path" ' +
+                        'd="M' + (config.strokeWidth + i * stepX)+',' + (config.strokeWidth + j * stepY) + 'h' + stepX +'  v' + stepY + ' h' + (-stepX) +' v' + (-stepY) + '" ' +
+                        'stroke-width="' + config.strokeWidth + '" ' +
+                        'style="pointer-events:none;fill:#ffffff;" />';
                     fig += '</mask>';
                     fig += '</defs>';
-                    fig += '<image y="' + j*stepy + '" x="' + i*stepx + '" id="' + id + 'imageBackground' + k + '" class="image-background" xlink:href="' + presenter.imageDeselect + '" height="'+stepy+'" width="'+stepx+'" style="pointer-events:none;"  mask="url(#' + id + 'mask'+k+')"/>';
-                    k++;
-                }else{
-                    fig += '<path id="'+ id + k +'" class="'+id+'" d="M'+ (parseFloat(presenter.strokeWidth) + i*stepx)+',' +(parseFloat(presenter.strokeWidth) +j*stepy) +'h' +stepx +' v' +stepy +' h' +(-stepx) +' v' +(-stepy) +'" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill: '+presenter.emptyColor+';" />';
-                    k++;
+                    fig += '<image ' +
+                        'y="' + j * stepY + '" ' +
+                        'x="' + i * stepX + '" ' +
+                        'id="' + id + 'imageBackground' + k + '" ' +
+                        'class="image-background" ' +
+                        'xlink:href="' + config.imageDeselect + '" ' +
+                        'height="'+stepY+'" width="'+stepX+'" ' +
+                        'style="pointer-events:none;"  mask="url(#' + id + 'mask' + k + ')"/>';
+
                 }
+                k++;
             }
         }
         fig += '</svg>';
@@ -790,37 +926,62 @@ function AddonFractions_create(){
     };
 
 
-    presenter.drawArcs = function(parts,centerX,centerY,radius, id, addonHeight, addonWidth){
-        var step = parseInt(parts,10) + 1;
-        var sectorAngle = Math.round(360/parts*100)/100;
+    presenter.drawArcs = function(centerX,centerY,radius){
+        var parts = presenter.configuration.circleParts;
+        var id = presenter.configuration.addonId;
+        var addonWidth = presenter.configuration.addonWidth;
+        var addonHeight = presenter.configuration.addonHeight;
+
+        var step = parseInt(parts, 10) + 1;
+        var sectorAngle = Math.round(360 / parts * 100) / 100;
         var angle = 360 - sectorAngle;
 
         if(parts == 1) {
-
-            var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+addonWidth+'" height="'+addonHeight+'">';
-            d += '<path id="'+id +'1" d=" M ' + centerX+', ' +centerY + 'm '+(-radius)+', 0 a ' + radius +',' + radius + ' 0 1,0 ' + (2*radius)+ ',0 a '+ radius+ ',' +radius+ ' 0 1,0 '+ (-2*radius)+',0" fill="'+presenter.emptyColor+'" stroke="'+presenter.strokeColor+'" stroke-width="'+presenter.strokeWidth+'" stroke-linejoin="round" />';
+            var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="' + addonWidth + '" height="' + addonHeight + '">';
+            d += '<path ' +
+                'id="' + id + '1" ' +
+                'd=" M ' + centerX + ', ' +centerY + 'm '+ (-radius) + ', 0 a ' + radius + ',' + radius + ' 0 1,0 ' + (2*radius)+ ',0 a ' + radius+ ',' + radius + ' 0 1,0 '+ (-2 * radius) + ',0" ' +
+                'fill="' + presenter.configuration.emptyColor + '" ' +
+                'stroke="' + presenter.configuration.strokeColor + '" ' +
+                'stroke-width="' + presenter.configuration.strokeWidth + '" ' +
+                'stroke-linejoin="round" />';
             d += '</svg>';
 
             return d;
         } else{
-            var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="'+ addonWidth+'" height="'+addonHeight+'">';
-            var x1 = Math.round((centerX + radius*Math.cos(Math.PI*angle/180))*100)/100;
-            var y1 = Math.round((centerY + radius*Math.sin(Math.PI*angle/180))*100)/100;
-            var x2 = Math.round((centerX + radius*Math.cos(Math.PI*angle/180))*100)/100;
-            var y2 = Math.round((centerY + radius*Math.sin(Math.PI*angle/180))*100)/100;
+            var d = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  width="' + addonWidth + '" height="' + addonHeight+'">';
+            var x1 = Math.round((centerX + radius * Math.cos(Math.PI * angle / 180)) * 100) / 100;
+            var y1 = Math.round((centerY + radius * Math.sin(Math.PI * angle / 180)) * 100) / 100;
+            var x2 = Math.round((centerX + radius * Math.cos(Math.PI * angle / 180)) * 100) / 100;
+            var y2 = Math.round((centerY + radius * Math.sin(Math.PI * angle / 180)) * 100) / 100;
             angle -= sectorAngle;
-            d += '<path id="'+id +'1" class="'+id+'" d="M'+ centerX + ',' + centerY + 'l ' + radius + ', 0 A' + radius + ',' + radius +' 0 0, 0 ' + (x1) + ',' + (y1) +' z" fill="'+presenter.emptyColor+'" stroke="'+presenter.strokeColor+'" stroke-width="'+presenter.strokeWidth+'" stroke-linejoin="round" />';
+            d += '<path ' +
+                'id="' + id + '1" ' +
+                'class="' + id + '" ' +
+                'd="M' + centerX + ',' + centerY + 'l ' + radius + ', 0 A' + radius + ',' + radius + ' 0 0, 0 ' + (x1) + ',' + (y1) + ' z" ' +
+                'fill="' + presenter.configuration.emptyColor + '" ' +
+                'stroke="' + presenter.configuration.strokeColor + '" ' +
+                'stroke-width="' + presenter.configuration.strokeWidth + '" ' +
+                'stroke-linejoin="round" />';
 
             for(var j=2; j < step ; j++){
                 x1 = x2;
                 y1 = y2;
-                x2 = Math.round((centerX + radius*Math.cos(Math.PI*angle/180))*100)/100;
-                y2 = Math.round((centerY + radius*Math.sin(Math.PI*angle/180))*100)/100;
+                x2 = Math.round((centerX + radius*Math.cos(Math.PI * angle / 180)) * 100) / 100;
+                y2 = Math.round((centerY + radius*Math.sin(Math.PI * angle / 180)) * 100) / 100;
 
                 var stepX = x1 - centerX;
                 var stepY = y1 - centerY;
 
-                d += '<path id="' + id + j +'" class="'+id+'" d="M'+ centerX + ',' + centerY + 'l ' + stepX + ',' + stepY +' A' + radius + ',' + radius +' 0 0, 0 ' + (x2) + ',' + (y2) +' z" fill="#'+presenter.emptyColor+'" stroke="'+presenter.strokeColor+'" stroke-width="'+presenter.strokeWidth+'" stroke-linejoin="round" />';
+                d += '<path ' +
+                    'id="' + id + j +'" ' +
+                    'class="' + id + '" ' +
+                    'd="M' + centerX + ',' + centerY + 'l ' + stepX + ',' + stepY +' A' + radius + ',' + radius + ' 0 0, 0 ' + (x2) + ',' + (y2) + ' z" ' +
+                    'fill="' + presenter.configuration.emptyColor + '" ' +
+                    'stroke="' + presenter.configuration.strokeColor + '" ' +
+                    'stroke-width="' + presenter.configuration.strokeWidth + '" ' +
+                    'stroke-linejoin="round" />';
+
                 angle -= sectorAngle;
             }
             d += '</svg>';
@@ -857,7 +1018,7 @@ function AddonFractions_create(){
         presenter.currentSelected.item = JSON.parse(state).currentItems;
         presenter.clear();
 
-        for(var j=1;j<presenter.currentSelected.item.length;j++){
+        for(var j = 1; j < presenter.currentSelected.item.length; j++) {
             if(presenter.currentSelected.item[j] === true) {
                 presenter.markElementAsSelected(j);
             }
@@ -867,10 +1028,11 @@ function AddonFractions_create(){
     };
 
     presenter.getMaxScore = function () {
-        if(parseInt(presenter.initialMarks,10)/2 === parseInt(correctAnswer,10)) {
+        if(parseInt(presenter.initialMarks, 10) / 2 === presenter.configuration.correctAnswer) {
             return 0;
         }
-        if(isNotActivity === false) {
+
+        if(presenter.configuration.isAnswer) {
             return 1;
         } else {
             return 0;
@@ -878,24 +1040,24 @@ function AddonFractions_create(){
     };
 
     presenter.neutralOption = function(){
-        return Counter === (presenter.initialMarks)/2 ? 1 : 0;
+        return (Counter === (presenter.initialMarks) / 2) ? 1 : 0;
     };
 
     presenter.getScore = function () {
-        if(parseInt(presenter.initialMarks,10)/2 === parseInt(correctAnswer,10)) {
+        if(parseInt(presenter.initialMarks, 10) / 2 === presenter.configuration.correctAnswer) {
             return 0;
         }
-        if(isNotActivity === false) {
-            return Counter == correctAnswer ? 1 : 0;
+
+        if(presenter.configuration.isAnswer) {
+            return (Counter == presenter.configuration.correctAnswer) ? 1 : 0;
         } else {
             return 0;
         }
     };
 
     presenter.getErrorCount = function () {
-        if(isNotActivity === false) {
-
-            if(parseInt(presenter.initialMarks,10)/2 === parseInt(correctAnswer,10) && parseInt(correctAnswer,10) != Counter) {
+        if(presenter.configuration.isAnswer) {
+            if(parseInt(presenter.initialMarks,10)/2 === presenter.configuration.correctAnswer && presenter.configuration.correctAnswer != Counter) {
                 return 1;
             }
 
@@ -912,9 +1074,10 @@ function AddonFractions_create(){
 
     presenter.setShowErrorsMode = function () {
         presenter.hideAnswers();
+        presenter.hideAnswers();
         presenter.isErrorCheckingMode = true;
 
-        if(isNotActivity === false) {
+        if(presenter.configuration.isAnswer) {
             var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
 
             if(presenter.neutralOption() === 0) {
@@ -940,19 +1103,16 @@ function AddonFractions_create(){
     presenter.reset = function () {
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         presenter.setWorkMode();
-        for(var i = 1; i<presenter.currentSelected.item.length; i++) presenter.currentSelected.item[i] = false;
+        for(var i = 1; i< presenter.currentSelected.item.length; i++) {
+            presenter.currentSelected.item[i] = false;
+        }
         presenter.isErrorCheckingMode = false;
         Counter = 0;
         presenter.initialMarks = 0;
-        presenter.selected(presenter.selected.selectedString);
+        presenter.selected(presenter.configuration.selected.selectedString);
         presenter.setVisibility(presenter.wasVisible);
         presenter.isDisable = presenter.wasDisable;
         presenter.isDisable === true ?  $($myDiv).addClass('disable') : $($myDiv).removeClass('disable');
-    };
-
-    presenter.isNotActivity = function(){
-        return isNotActivity === 1 ? 1 : 0;
-
     };
 
     presenter.setPlayerController = function(controller) {
@@ -972,12 +1132,10 @@ function AddonFractions_create(){
     presenter.triggerFrameChangeEvent = function(partNumber,clickValue,checkScore,element) {
         var eventData = presenter.createEventData(partNumber,clickValue,checkScore);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-
     };
 
 
     presenter.onEventReceived = function (eventName) {
-
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
@@ -988,15 +1146,13 @@ function AddonFractions_create(){
     };
 
     presenter.markCorrectAnswerAsSelected = function(element){
-
         var $myDiv =  presenter.$view.find('"#' +  presenter.currentSelected.item[0] + element + '"');
-        jQuery($myDiv).css('fill', presenter.selectionColor);
+        jQuery($myDiv).css('fill', presenter.configuration.selectionColor);
         jQuery($myDiv).addClass("selected");
-        if(presenter.imageSelectChecker || presenter.imageDeselectChecker){
-            //presenter.$view.find('"#'+presenter.currentSelected.item[0]+'imageBackground' +  element + '"').attr("xlink:href", presenter.imageSelect);
-            presenter.imageBackgroundTable[element - 1].attr("xlink:href", presenter.imageSelect);
-        }
 
+        if(presenter.configuration.imageSelectChecker || presenter.configuration.imageDeselectChecker){
+            presenter.imageBackgroundTable[element - 1].attr("xlink:href", presenter.configuration.imageSelect);
+        }
     };
 
     presenter.showAnswers = function () {
@@ -1006,25 +1162,25 @@ function AddonFractions_create(){
 
         presenter.isErrorCheckingMode = true; //blokowanie na check
 
-        if(isNotActivity === false) {
-            if(correctAnswer != Counter){
+        if(presenter.configuration.isAnswer) {
+            if(presenter.configuration.correctAnswer != Counter){
                 if(presenter.clear()){
-                    if(Counter < correctAnswer){
+                    if(Counter < presenter.configuration.correctAnswer){
                         var k = 0;
-                        for(var j=1;j<presenter.currentSelected.item.length;j++){
+                        for(var j = 1; j < presenter.currentSelected.item.length; j++){
                             if(presenter.currentSelected.item[j] === true) {
                                 presenter.markCorrectAnswerAsSelected(j);
                             }
-                            if(presenter.currentSelected.item[j] === false && k != correctAnswer - Counter){
+                            if(presenter.currentSelected.item[j] === false && k != presenter.configuration.correctAnswer - Counter){
                                 presenter.markCorrectAnswerAsSelected(j);
                                 k++;
                             }
                         }
                     } else{
                         var k = 0;
-                        for(var j=1;j<presenter.currentSelected.item.length;j++){
+                        for(var j = 1;j < presenter.currentSelected.item.length; j++){
                             if(presenter.currentSelected.item[j] === true) {
-                                if(k != correctAnswer){
+                                if(k != presenter.configuration.correctAnswer){
                                     presenter.markCorrectAnswerAsSelected(j);
                                     k++;
                                 }
@@ -1040,13 +1196,12 @@ function AddonFractions_create(){
 
     presenter.hideAnswers = function () {
 
-        var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
+        var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
         presenter.isErrorCheckingMode = false;
-        var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         $($myDiv).removeClass('showAnswers');
         presenter.clear();
 
-        for(var j=1;j<presenter.currentSelected.item.length;j++){
+        for(var j = 1; j < presenter.currentSelected.item.length; j++){
             if(presenter.currentSelected.item[j] === true) {
                 presenter.markCorrectAnswerAsSelected(j);
             }
@@ -1062,7 +1217,7 @@ function AddonFractions_create(){
             if(presenter.clear()){
                 if(Counter < correctAnswerSA){
                     var k = 0;
-                    for(var j=1;j<presenter.currentSelected.item.length;j++){
+                    for(var j = 1; j < presenter.currentSelected.item.length; j++){
                         if(presenter.currentSelected.item[j] === true) {
                             presenter.markCorrectAnswerAsSelected(j);
                         }
@@ -1073,7 +1228,7 @@ function AddonFractions_create(){
                     }
                 } else{
                     var k = 0;
-                    for(var j=1;j<presenter.currentSelected.item.length;j++){
+                    for(var j = 1; j < presenter.currentSelected.item.length; j++){
                         if(presenter.currentSelected.item[j] === true) {
                             if(k != correctAnswerSA){
                                 presenter.markCorrectAnswerAsSelected(j);
@@ -1085,12 +1240,11 @@ function AddonFractions_create(){
             }
         }
 
-        var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
+        var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
         $($myDiv).addClass('showAnswers');
     };
 
     presenter.hideElementsSA = function(item){
-        //presenter.isErrorCheckingMode = false;
         presenter.hideAnswers();
     };
 
@@ -1105,7 +1259,7 @@ function AddonFractions_create(){
 
     SquareShapeElement.prototype = {
         calculateValues: function (maxWidth, maxHeight) {
-            var stroke = parseFloat(presenter.strokeWidth);
+            var stroke = presenter.configuration.strokeWidth;
             var originY = this.y + this.height;
             if (this.x == 0) {
                 this.x += stroke;
@@ -1179,7 +1333,13 @@ function AddonFractions_create(){
         getSVGString: function (id) {
             var width = this.width;
             var height = this.height;
-            return '<path id="'+ this.id + id +'" class="'+this.id+'" d="M'+ (this.x)+',' +(this.y) +'h' + (width) +' v' + (height) +' h' +(-width) +' v' +(-height) +'" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill: '+presenter.emptyColor+';" />';
+            return '<path ' +
+                'id="' + this.id + id + '" ' +
+                'class="' + this.id + '" ' +
+                'd="M' + (this.x) + ',' + (this.y) + 'h' + (width) + ' v' + (height) + ' h' + (-width) + ' v' + (-height) + '" ' +
+                'stroke-width="' + presenter.configuration.strokeWidth + '" ' +
+                'style="stroke: ' + presenter.configuration.strokeColor + '; ' +
+                'fill: ' + presenter.configuration.emptyColor + ';" />';
         }
 
     };
@@ -1211,11 +1371,17 @@ function AddonFractions_create(){
     TriangleShapeElement.prototype = Object.create(SquareShapeElement.prototype);
 
     TriangleShapeElement.prototype.getSVGString = function (id) {
-        return '<path id="'+ this.id + id +'" class="'+this.id+'" d="M'+ this.x1 + ',' + this.y1 + ',' + this.x2 + ',' + this.y2 + ',' + this.x3 + ',' + this.y3 +'Z" stroke-width="'+presenter.strokeWidth+'" style="stroke: '+presenter.strokeColor+'; fill: '+presenter.emptyColor+';" />';
+        return '<path ' +
+            'id="' + this.id + id + '" ' +
+            'class="' + this.id + '" ' +
+            'd="M' + this.x1 + ',' + this.y1 + ',' + this.x2 + ',' + this.y2 + ',' + this.x3 + ',' + this.y3 + 'Z" ' +
+            'stroke-width="' + presenter.configuration.strokeWidth + '" ' +
+            'style="stroke: ' + presenter.configuration.strokeColor + '; ' +
+            'fill: ' + presenter.configuration.emptyColor + ';" />';
     };
 
     TriangleShapeElement.prototype.calculateValues = function(maxWidth, maxHeight) {
-        var stroke = parseFloat(presenter.strokeWidth);
+        var stroke = presenter.configuration.strokeWidth;
         if (this.x1 == 0) {
             this.x1 += stroke / 2;
         }
