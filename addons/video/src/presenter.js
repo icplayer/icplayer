@@ -1,6 +1,5 @@
 function Addonvideo_create() {
     var presenter = function() {};
-
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
     presenter.$view = null;
@@ -218,6 +217,9 @@ function Addonvideo_create() {
     };
 
     presenter.formatTime = function addonVideo_formatTime (seconds) {
+        if (seconds < 0 || isNaN(seconds)) {
+            return "00:00";
+        }
         var minutes = Math.floor(seconds / 60);
         minutes = (minutes >= 10) ? minutes : "0" + minutes;
         seconds = Math.floor(seconds % 60);
@@ -228,7 +230,7 @@ function Addonvideo_create() {
     presenter.sendTimeUpdateEvent = function Video_sendTimeUpdate(formattedTime) {
         presenter.eventBus.sendEvent('ValueChanged', {
             source: presenter.addonID,
-            item: '' + (presenter.currentMovie + 1),
+            item: (presenter.currentMovie + 1),
             value : formattedTime
         });
     };
@@ -421,7 +423,7 @@ function Addonvideo_create() {
         presenter.sendOnPLayingEvent();
 
         if (presenter.video.currentTime === 0){
-            presenter.sendTimeUpdateEvent(presenter.formatTime(this.currentTime))
+            presenter.sendTimeUpdateEvent(presenter.formatTime(presenter.video.currentTime))
         }
     };
 
