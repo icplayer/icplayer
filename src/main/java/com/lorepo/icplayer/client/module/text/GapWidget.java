@@ -70,7 +70,6 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 						listener.onUserAction(gapInfo.getId(), getText());
 					}
 				}
-				
 			});
 			
 			addBlurHandler(new BlurHandler() {
@@ -167,6 +166,9 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		setEnabled(!isDisabled);
+		this.text = "";
+		this.gapId = "";
+		this.firstSend = true;
 	}
 
 	@Override

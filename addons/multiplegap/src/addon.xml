@@ -7,6 +7,7 @@
 		<property name="Items" nameLabel="multiplegap_property_items" type="list">
 			<property name="Answer ID" nameLabel="multiplegap_property_answer_id" type="string" />
 		</property>
+        <property name="wrapItems" nameLabel="multiplegap_property_wrap_items" type="boolean" />
 		<property name="Item width" nameLabel="multiplegap_property_item_width" type="string" />
 		<property name="Item height" nameLabel="multiplegap_property_item_height" type="string" />
 		<property name="Item spacing" nameLabel="multiplegap_property_item_spacing" type="string" />

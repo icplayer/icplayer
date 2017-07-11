@@ -1,4 +1,4 @@
-﻿var ice_dictionary_en = {
+var ice_dictionary_en = {
 	"confirm_yes": "yes",
 	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
@@ -718,6 +718,7 @@
 	"multiplegap_property_source_type": "Source type",
 	"multiplegap_property_items": "Items",
 	"multiplegap_property_answer_id": "Answer ID",
+    "multiplegap_property_wrap_items": "Wrap Items",
 	"multiplegap_property_item_width": "Item width",
 	"multiplegap_property_item_height": "Item height",
 	"multiplegap_property_item_spacing": "Item spacing",
