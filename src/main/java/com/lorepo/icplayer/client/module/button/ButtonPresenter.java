@@ -31,6 +31,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		void setDisabled(boolean isDisabled);
 		public Element getElement();
 		void executeOnKeyCode(KeyDownEvent event);
+		void execute();
 	}
 	
 	private ButtonModule model;
@@ -140,6 +141,8 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 			show();
 		} else if(commandName.compareTo("hide") == 0) {
 			hide();
+		} else if(commandName.compareTo("execute") == 0){
+			execute();
 		}
 		
 		return value;
@@ -194,6 +197,12 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 
 		return jsObject;
 	}
+	
+	public void execute(){
+		if(this.view != null){
+			this.view.execute();	
+		}
+	}
 
 	private native JavaScriptObject initJSObject(ButtonPresenter x) /*-{
 		var presenter = function() {}
@@ -208,6 +217,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::getView()();
+		}
+		
+		presenter.execute = function() {
+			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::execute()();
 		}
 		
 		return presenter;
