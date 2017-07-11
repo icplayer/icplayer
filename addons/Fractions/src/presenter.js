@@ -5,10 +5,7 @@ function AddonFractions_create(){
     presenter.currentSelected = function(){};
     var Counter = 0;
     presenter.isErrorCheckingMode = false;
-    presenter.selectionColor = '';
-    presenter.strokeColor = '';
     presenter.currentSelected.item = [];
-    presenter.strokeWidth = 1;
     presenter.isVisible = '';
     presenter.wasVisible = '';
     presenter.playerController = null;
@@ -1090,7 +1087,6 @@ function AddonFractions_create(){
         }
 
     };
-
 
     presenter.setWorkMode = function () {
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
