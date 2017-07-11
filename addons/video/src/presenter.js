@@ -223,15 +223,14 @@ function Addonvideo_create() {
         seconds = Math.floor(seconds % 60);
         seconds = (seconds >= 10) ? seconds : "0" + seconds;
         return minutes + ":" + seconds;
-    }
+    };
 
     presenter.sendTimeUpdateEvent = function Video_sendTimeUpdate(formattedTime) {
-        var eventData = {
+        presenter.eventBus.sendEvent('ValueChanged', {
             source: presenter.addonID,
             item: '' + (presenter.currentMovie + 1),
             value : formattedTime
-        };
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
+        });
     };
 
     presenter.sendVideoEndedEvent = function () {
@@ -424,7 +423,7 @@ function Addonvideo_create() {
         if (presenter.video.currentTime === 0){
             presenter.sendTimeUpdateEvent(presenter.formatTime(this.currentTime))
         }
-    }
+    };
 
     presenter.convertTimeStringToNumber = function(timeString) {
         timeString = timeString.split(':');
