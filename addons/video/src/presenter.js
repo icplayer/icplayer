@@ -536,7 +536,7 @@ function Addonvideo_create() {
         presenter.removeClassFromView('playing');
     };
 
-    presenter.sendTimeUpdate = function Video_sendTimeUpdate(video) {
+    presenter.sendTimeUpdate = function Video_sendTime(video) {
         var actualVideoTime = parseInt(video.currentTime, 10);
         if (actualVideoTime !== presenter.lastSentCurrentTime) {
             var formattedTime = presenter.formatTime(actualVideoTime,10);
