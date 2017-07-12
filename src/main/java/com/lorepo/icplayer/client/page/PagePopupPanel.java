@@ -87,17 +87,19 @@ public class PagePopupPanel extends DialogBox {
 		}
 		
 		int heightOfParent = this.parentWidget.getOffsetHeight();
-				
-		if (this.pageWidget.getOffsetHeight() > heightOfParent){
-			this.pageWidget.setHeight(heightOfParent);
+		
+		int marginSize = 20;		
+		
+		if (this.pageWidget.getOffsetHeight() + marginSize >= heightOfParent){
+			this.pageWidget.setHeight(heightOfParent - marginSize);
 
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
 		}
 		
 		int widthOfParent = this.parentWidget.getOffsetWidth();
 		
-		if (this.pageWidget.getOffsetWidth() > widthOfParent){
-			this.pageWidget.setWidth(widthOfParent);
+		if (this.pageWidget.getOffsetWidth() + marginSize >= widthOfParent){
+			this.pageWidget.setWidth(widthOfParent - marginSize);
 			
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 		}
