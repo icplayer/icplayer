@@ -1071,7 +1071,6 @@ function AddonFractions_create(){
 
     presenter.setShowErrorsMode = function () {
         presenter.hideAnswers();
-        presenter.hideAnswers();
         presenter.isErrorCheckingMode = true;
 
         if(presenter.configuration.isAnswer) {
