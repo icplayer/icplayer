@@ -86,16 +86,6 @@ public class PagePopupPanel extends DialogBox {
 			top = Window.getScrollTop();
 		}
 		
-		int heightOfParent = this.parentWidget.getOffsetHeight();
-		
-		int marginSize = 20;		
-		
-		if (this.pageWidget.getOffsetHeight() + marginSize >= heightOfParent){
-			this.pageWidget.setHeight(heightOfParent - marginSize);
-
-			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
-		}
-		
 		int width = getElement().getClientWidth();
 		
 		if (width >=  Window.getClientWidth()){
