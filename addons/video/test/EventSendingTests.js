@@ -155,7 +155,7 @@ TestCase("[Video] onVideoPlaying", {
         assertTrue(this.stubs.sendEventStub.calledTwice);
     },
 
-    'test should send time update event data when started playing from 0 seconds': function () {
+    'test should send proper time update event as second event when started from 0 seconds': function () {
         this.presenter.onVideoPlaying();
         this.presenter.video.currentTime = 0;
 
@@ -174,10 +174,12 @@ TestCase("[Video] sendTimeUpdate", {
         this.presenter.video = document.createElement("video");
 
         this.stubs = {
-            sendTimeUpdateEvent: sinon.stub()
+            sendTimeUpdateEvent: sinon.stub(this.presenter, "sendTimeUpdateEvent")
         }
+    },
 
-        this.presenter.sendTimeUpdateEvent = this.stubs.sendTimeUpdateEvent;
+    tearDown: function () {
+        this.stubs.sendTimeUpdateEvent.restore();
     },
 
     'test should not call sendTimeUpdateEvent when current time equals last sent time': function () {
