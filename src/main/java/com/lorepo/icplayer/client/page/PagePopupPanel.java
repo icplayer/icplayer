@@ -1,12 +1,8 @@
 package com.lorepo.icplayer.client.page;
 
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
-
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
@@ -20,7 +16,6 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 
 public class PagePopupPanel extends DialogBox {
 
