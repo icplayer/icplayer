@@ -2,9 +2,11 @@ package com.lorepo.icplayer.client.page;
 
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
@@ -18,6 +20,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 
 public class PagePopupPanel extends DialogBox {
 
@@ -88,8 +91,9 @@ public class PagePopupPanel extends DialogBox {
 		
 		int width = getElement().getClientWidth();
 		
-		if (width >=  Window.getClientWidth()){
-			this.pageWidget.setWidth(this.pageWidget.getOffsetWidth() - (width - Window.getClientWidth()));
+		if (width >=  Window.getClientWidth()){			
+			int marginWidth  = this.getMarginWidth();
+			this.pageWidget.setWidth(this.pageWidget.getOffsetWidth() - (width - Window.getClientWidth()) - marginWidth);
 			
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 		}
@@ -98,7 +102,8 @@ public class PagePopupPanel extends DialogBox {
 		int height = getElement().getClientHeight();
 		
 		if (height >=  Window.getClientHeight()){
-			this.pageWidget.setHeight(this.pageWidget.getOffsetHeight() - (height - Window.getClientHeight()));
+			int marginHeight  = this.getMarginHeight();
+			this.pageWidget.setHeight(this.pageWidget.getOffsetHeight() - (height - Window.getClientHeight()) - marginHeight);
 			
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
 		}
@@ -113,6 +118,19 @@ public class PagePopupPanel extends DialogBox {
 		glassStyle.setProperty("height", height + "px");
 		center();
 	}
+	
+	private native int getMarginWidth() /*-{
+		var widthWithMargin = $wnd.jQuery(".ic_popup_page").outerWidth(true);
+		var widthWithoutMargin = $wnd.jQuery(".ic_popup_page").innerWidth();
+		return widthWithMargin - widthWithoutMargin;
+	}-*/;
+	
+	private native int getMarginHeight() /*-{
+	var heightWithMargin = $wnd.jQuery(".ic_popup_page").outerHeight(true);
+	var heightWithoutMargin = $wnd.jQuery(".ic_popup_page").innerHeight();
+	return heightWithMargin - heightWithoutMargin;
+}-*/;
+
 	
 	public static native int getParentWindowOffset() /*-{
 		var current_window = $wnd;
