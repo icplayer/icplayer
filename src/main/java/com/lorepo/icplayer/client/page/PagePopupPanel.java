@@ -96,16 +96,23 @@ public class PagePopupPanel extends DialogBox {
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
 		}
 		
-		int widthOfParent = this.parentWidget.getOffsetWidth();
+		int width = getElement().getClientWidth();
 		
-		if (this.pageWidget.getOffsetWidth() + marginSize >= widthOfParent){
-			this.pageWidget.setWidth(widthOfParent - marginSize);
+		if (width >=  Window.getClientWidth()){
+			this.pageWidget.setWidth(this.pageWidget.getOffsetWidth() - (width - Window.getClientWidth()));
 			
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 		}
 		
+		
 		int height = getElement().getClientHeight();
-
+		
+		if (height >=  Window.getClientHeight()){
+			this.pageWidget.setHeight(this.pageWidget.getOffsetHeight() - (height - Window.getClientHeight()));
+			
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
+		}
+	
 		if (height < Window.getClientHeight()) {
 			height = Window.getClientHeight();
 		}
