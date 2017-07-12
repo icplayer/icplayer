@@ -93,7 +93,8 @@ public class PagePopupPanel extends DialogBox {
 		
 		if (width >=  Window.getClientWidth()){			
 			int marginWidth  = this.getMarginWidth();
-			this.pageWidget.setWidth(this.pageWidget.getOffsetWidth() - (width - Window.getClientWidth()) - marginWidth);
+			int paddingWidth = this.getPaddingWidth();
+			this.pageWidget.setWidth(this.pageWidget.getOffsetWidth() - (width - Window.getClientWidth()) - marginWidth - paddingWidth);
 			
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 		}
@@ -103,7 +104,8 @@ public class PagePopupPanel extends DialogBox {
 		
 		if (height >=  Window.getClientHeight()){
 			int marginHeight  = this.getMarginHeight();
-			this.pageWidget.setHeight(this.pageWidget.getOffsetHeight() - (height - Window.getClientHeight()) - marginHeight);
+			int paddingHeight = this.getPaddingHeight();
+			this.pageWidget.setHeight(this.pageWidget.getOffsetHeight() - (height - Window.getClientHeight()) - marginHeight - paddingHeight);
 			
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
 		}
@@ -129,6 +131,18 @@ public class PagePopupPanel extends DialogBox {
 	var heightWithMargin = $wnd.jQuery(".ic_popup_page").outerHeight(true);
 	var heightWithoutMargin = $wnd.jQuery(".ic_popup_page").innerHeight();
 	return heightWithMargin - heightWithoutMargin;
+}-*/;
+	
+	private native int getPaddingWidth() /*-{
+	var widthWithPadding = $wnd.jQuery(".ic_popup_page").innerWidth();
+	var widthWithoutPadding = $wnd.jQuery(".ic_popup_page").width();
+	return widthWithPadding - widthWithoutPadding;
+}-*/;
+
+	private native int getPaddingHeight() /*-{
+var heightWithPadding = $wnd.jQuery(".ic_popup_page").innerHeight();
+var heightWithoutPadding = $wnd.jQuery(".ic_popup_page").height();
+return heightWithPadding - heightWithoutPadding;
 }-*/;
 
 	
