@@ -84,26 +84,10 @@ public class PagePopupPanel extends DialogBox {
 			top = Window.getScrollTop();
 		}
 		
-		int width = getElement().getClientWidth();
-		
-		if (width >=  Window.getClientWidth()){			
-			int marginWidth  = this.getMarginWidth();
-			int paddingWidth = this.getPaddingWidth();
-			this.pageWidget.setWidth(this.pageWidget.getOffsetWidth() - (width - Window.getClientWidth()) - marginWidth - paddingWidth);
-			
-			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
-		}
-		
+		this.reduceWidth();
+		this.reduceHeight();
 		
 		int height = getElement().getClientHeight();
-		
-		if (height >=  Window.getClientHeight()){
-			int marginHeight  = this.getMarginHeight();
-			int paddingHeight = this.getPaddingHeight();
-			this.pageWidget.setHeight(this.pageWidget.getOffsetHeight() - (height - Window.getClientHeight()) - marginHeight - paddingHeight);
-			
-			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
-		}
 	
 		if (height < Window.getClientHeight()) {
 			height = Window.getClientHeight();
@@ -114,6 +98,38 @@ public class PagePopupPanel extends DialogBox {
 		glassStyle.setProperty("top", 0 + "px");
 		glassStyle.setProperty("height", height + "px");
 		center();
+	}
+	
+	private void reduceWidth(){
+		int panelWidth = getElement().getClientWidth();
+		int windowWidth = Window.getClientWidth();
+		
+		if (panelWidth >=  windowWidth){			
+			int marginWidth  = this.getMarginWidth();
+			int paddingWidth = this.getPaddingWidth();
+			int differencePanelWindow = panelWidth - windowWidth;
+			int pageWidth = this.pageWidget.getOffsetWidth();
+			
+			this.pageWidget.setWidth(pageWidth - differencePanelWindow - marginWidth - paddingWidth);
+			
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
+		}
+	}
+	
+	private void reduceHeight(){
+		int panelHeight = getElement().getClientHeight();
+		int windowHeight = Window.getClientHeight();
+		
+		if (panelHeight >=  windowHeight){			
+			int marginHeight  = this.getMarginHeight();
+			int paddingHeight = this.getPaddingHeight();
+			int differencePanelWindow = panelHeight - windowHeight;
+			int pageHeight = this.pageWidget.getOffsetHeight();
+			
+			this.pageWidget.setHeight(pageHeight - differencePanelWindow - marginHeight - paddingHeight);
+			
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
+		}
 	}
 	
 	private native int getMarginWidth() /*-{
