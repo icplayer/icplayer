@@ -98,6 +98,12 @@ TestCase("[Video] sendTimeUpdateEvent", {
         assertEquals(this.presenter.addonID, call.args[1].source);
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
         assertEquals("Value", call.args[1].value);
+    },
+
+    'test should send event once only': function () {
+        this.presenter.sendTimeUpdateEvent({});
+
+        assertTrue(this.stubs.sendEventStub.calledOnce);
     }
 });
 
@@ -131,7 +137,7 @@ TestCase("[Video] onVideoPlaying", {
     },
 
     'test should send ValueChanged event on playing': function () {
-        this.presenter.sendOnPlayingEvent();
+        this.presenter.onVideoPlaying();
 
         var call = this.stubs.sendEventStub.getCall(0);
 
@@ -143,6 +149,9 @@ TestCase("[Video] onVideoPlaying", {
 
         var call = this.stubs.sendEventStub.getCall(0);
 
+        // assertEquals(poprawnyObiekt, {
+        //     obiekt testowany
+        // })
         assertEquals(this.presenter.addonID, call.args[1].source);
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
         assertEquals("playing", call.args[1].value);
@@ -209,3 +218,7 @@ TestCase("[Video] sendTimeUpdate", {
         assertEquals(this.presenter.lastSentCurrentTime, this.presenter.video.currentTime);
     }
 });
+
+(function () {
+
+})();
