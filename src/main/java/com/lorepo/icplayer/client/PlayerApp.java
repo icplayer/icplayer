@@ -15,7 +15,6 @@ import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;

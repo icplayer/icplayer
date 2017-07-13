@@ -59,7 +59,7 @@ public class Content implements IContentBuilder, IContent {
 		pages.setPlayerServices(ps);
 	}
 
-	private void connectHandlers() {
+	public void connectHandlers() {
 		pages.addListener(new IPageListListener() {
 			@Override
 			public void onNodeRemoved(IContentNode node, IChapter parent) {

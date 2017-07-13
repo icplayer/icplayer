@@ -28,6 +28,9 @@ import com.lorepo.icplayer.client.module.text.TextModel;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTTextModelTestCase extends GwtTest{
+	
+	private static final String PAGE_VERSION = "2";
+	 
 	@Test
 	public void propertyDraggableGaps() {
 		Dictionary dictMock = Mockito.mock(Dictionary.class);
@@ -71,7 +74,7 @@ public class GWTTextModelTestCase extends GwtTest{
 		Element element = xmlParser.parser(inputStream);
 		
 		TextModel module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		for(int i = 0; i < module.getPropertyCount(); i++){
 			
@@ -94,7 +97,7 @@ public class GWTTextModelTestCase extends GwtTest{
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		TextModel module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		InlineChoiceInfo choice = module.getChoiceInfos().get(0);
 		
@@ -108,7 +111,7 @@ public class GWTTextModelTestCase extends GwtTest{
 		Element element = xmlParser.parser(inputStream);
 		
 		TextModel module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo'}\" size=\"6\" class=\"ic_gap\"";
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
@@ -128,7 +131,7 @@ public class GWTTextModelTestCase extends GwtTest{
 		Element element = xmlParser.parser(inputStream);
 		
 		TextModel module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		String EXPECTED_STRING = "<option value=\"-\">---</option><option value=\"&quot;Volvo&quot;\">\"Volvo\"</option><option value=\"option 2\">option 2</option><option value=\"option 3\">option 3</option></select>";
 		

@@ -139,11 +139,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 
 		page.setAsReportable = function () {
-			x.@com.lorepo.icplayer.client.model.Page::setAsReportable()();
+			x.@com.lorepo.icplayer.client.model.page.Page::setAsReportable()();
 		}
 
 		page.setAsNonReportable = function () {
-			x.@com.lorepo.icplayer.client.model.Page::setAsNonReportable()();
+			x.@com.lorepo.icplayer.client.model.page.Page::setAsNonReportable()();
 		}
 
 
@@ -204,10 +204,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public boolean isLoaded() {
 		return this.loaded;
-	}
-
-	public void setBaseURL(String baseURL) {
-		this.baseURL = baseURL;
 	}
 
 	public void release() {
