@@ -82,7 +82,7 @@ TestCase("[Video] sendTimeUpdateEvent", {
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
     },
 
-    'test should send Value in the event data': function () {
+    'test should send "Value" in the event data': function () {
         this.presenter.sendTimeUpdateEvent("Value");
 
         var call = this.stubs.sendEventStub.getCall(0);
