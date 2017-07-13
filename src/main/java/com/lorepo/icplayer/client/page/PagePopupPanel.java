@@ -123,22 +123,22 @@ public class PagePopupPanel extends DialogBox {
 	}-*/;
 	
 	private native int getMarginHeight() /*-{
-	var heightWithMargin = $wnd.jQuery(".ic_popup_page").outerHeight(true);
-	var heightWithoutMargin = $wnd.jQuery(".ic_popup_page").innerHeight();
-	return heightWithMargin - heightWithoutMargin;
-}-*/;
+	    var heightWithMargin = $wnd.jQuery(".ic_popup_page").outerHeight(true);
+	    var heightWithoutMargin = $wnd.jQuery(".ic_popup_page").innerHeight();
+	    return heightWithMargin - heightWithoutMargin;
+    }-*/;
 	
 	private native int getPaddingWidth() /*-{
-	var widthWithPadding = $wnd.jQuery(".ic_popup_page").innerWidth();
-	var widthWithoutPadding = $wnd.jQuery(".ic_popup_page").width();
-	return widthWithPadding - widthWithoutPadding;
-}-*/;
+	    var widthWithPadding = $wnd.jQuery(".ic_popup_page").innerWidth();
+	    var widthWithoutPadding = $wnd.jQuery(".ic_popup_page").width();
+	    return widthWithPadding - widthWithoutPadding;
+    }-*/;
 
 	private native int getPaddingHeight() /*-{
-var heightWithPadding = $wnd.jQuery(".ic_popup_page").innerHeight();
-var heightWithoutPadding = $wnd.jQuery(".ic_popup_page").height();
-return heightWithPadding - heightWithoutPadding;
-}-*/;
+	    var heightWithPadding = $wnd.jQuery(".ic_popup_page").innerHeight();
+        var heightWithoutPadding = $wnd.jQuery(".ic_popup_page").height();
+        return heightWithPadding - heightWithoutPadding;
+    }-*/;
 
 	
 	public static native int getParentWindowOffset() /*-{
