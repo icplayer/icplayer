@@ -57,31 +57,7 @@ TestCase("[Video] Event sending", {
 
 TestCase("[Video] sendTimeUpdateEvent", {
 
-    setUp: function () {
-        this.presenter = new Addonvideo_create();
-
-        this.stubs = {
-            registerHooks: sinon.stub(this.presenter, 'registerHook'),
-            getEventBus: sinon.stub(),
-            addEventListenerStub: sinon.stub(),
-            sendEventStub: sinon.stub()
-        };
-
-        this.playerController = {
-            getEventBus: this.stubs.getEventBus
-        };
-
-        this.eventBusStub = {
-            addEventListener: this.stubs.addEventListenerStub,
-            sendEvent: this.stubs.sendEventStub
-        };
-
-        this.presenter.addonID = 'video1';
-        this.presenter.currentMovie = 0;
-
-        this.stubs.getEventBus.returns(this.eventBusStub);
-        this.presenter.setPlayerController(this.playerController)
-    },
+    setUp: setUpPresenter(),
 
     'test should send ValueChanged type event at updating time': function () {
         this.presenter.sendTimeUpdateEvent({});
@@ -90,17 +66,31 @@ TestCase("[Video] sendTimeUpdateEvent", {
         assertEquals("ValueChanged", call.args[0]);
     },
 
-    'test should send proper source, item, and value in the event data': function () {
-        this.presenter.sendTimeUpdateEvent("Value");
+    'test should send addonId in the event data': function () {
+        this.presenter.sendTimeUpdateEvent({});
 
         var call = this.stubs.sendEventStub.getCall(0);
 
         assertEquals(this.presenter.addonID, call.args[1].source);
+    },
+
+    'test should send currentMovie + 1 in the event data': function () {
+        this.presenter.sendTimeUpdateEvent({});
+
+        var call = this.stubs.sendEventStub.getCall(0);
+
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
+    },
+
+    'test should send Value in the event data': function () {
+        this.presenter.sendTimeUpdateEvent("Value");
+
+        var call = this.stubs.sendEventStub.getCall(0);
+
         assertEquals("Value", call.args[1].value);
     },
 
-    'test should send event once only': function () {
+    'test should send event only once': function () {
         this.presenter.sendTimeUpdateEvent({});
 
         assertTrue(this.stubs.sendEventStub.calledOnce);
@@ -109,32 +99,7 @@ TestCase("[Video] sendTimeUpdateEvent", {
 
 TestCase("[Video] onVideoPlaying", {
 
-    setUp: function () {
-        this.presenter = new Addonvideo_create();
-
-        this.stubs = {
-            registerHooks: sinon.stub(this.presenter, 'registerHook'),
-            getEventBus: sinon.stub(),
-            addEventListenerStub: sinon.stub(),
-            sendEventStub: sinon.stub()
-        };
-
-        this.playerController = {
-            getEventBus: this.stubs.getEventBus
-        };
-
-        this.eventBusStub = {
-            addEventListener: this.stubs.addEventListenerStub,
-            sendEvent: this.stubs.sendEventStub
-        };
-
-        this.presenter.addonID = 'video1';
-        this.presenter.currentMovie = 0;
-        this.presenter.video = document.createElement("video");
-
-        this.stubs.getEventBus.returns(this.eventBusStub);
-        this.presenter.setPlayerController(this.playerController)
-    },
+    setUp: setUpPresenter(),
 
     'test should send ValueChanged event on playing': function () {
         this.presenter.onVideoPlaying();
@@ -144,34 +109,65 @@ TestCase("[Video] onVideoPlaying", {
         assertEquals("ValueChanged", call.args[0]);
     },
 
-    'test should send proper event data on playing': function () {
+    'test should send addonID as source in event data on playing': function () {
         this.presenter.onVideoPlaying();
 
         var call = this.stubs.sendEventStub.getCall(0);
 
-        // assertEquals(poprawnyObiekt, {
-        //     obiekt testowany
-        // })
         assertEquals(this.presenter.addonID, call.args[1].source);
+    },
+
+    'test should send currentMovie + 1 as item in event data on playing': function () {
+        this.presenter.onVideoPlaying();
+
+        var call = this.stubs.sendEventStub.getCall(0);
+
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
+    },
+
+    'test should send playing as value in event data on playing': function () {
+        this.presenter.onVideoPlaying();
+
+        var call = this.stubs.sendEventStub.getCall(0);
+
         assertEquals("playing", call.args[1].value);
     },
 
     'test should two events when started playing from 0 seconds': function () {
-        this.presenter.onVideoPlaying();
         this.presenter.video.currentTime = 0;
+        this.presenter.onVideoPlaying();
 
         assertTrue(this.stubs.sendEventStub.calledTwice);
     },
 
-    'test should send proper time update event as second event when started from 0 seconds': function () {
+    'test should one event when started playing from other than 0 seconds': function () {
+        this.presenter.video.currentTime = 1;
         this.presenter.onVideoPlaying();
-        this.presenter.video.currentTime = 0;
+
+        assertTrue(this.stubs.sendEventStub.calledOnce);
+    },
+
+    'test should send 00:00 as value of second event when started from 0 seconds': function () {
+        this.presenter.onVideoPlaying();
 
         var call = this.stubs.sendEventStub.getCall(1);
 
         assertEquals("00:00", call.args[1].value);
+    },
+
+    'test should send addonId as source of second event when started from 0 seconds': function () {
+        this.presenter.onVideoPlaying();
+
+        var call = this.stubs.sendEventStub.getCall(1);
+
         assertEquals(this.presenter.addonID, call.args[1].source);
+    },
+
+    'test should send currentMovie + 1 as item of second event when started from 0 seconds': function () {
+        this.presenter.onVideoPlaying();
+
+        var call = this.stubs.sendEventStub.getCall(1);
+
         assertEquals(this.presenter.currentMovie + 1, call.args[1].item);
     }
 });
@@ -219,6 +215,32 @@ TestCase("[Video] sendTimeUpdate", {
     }
 });
 
-(function () {
+function setUpPresenter() {
+    return function () {
+        this.presenter = new Addonvideo_create();
 
-})();
+        this.stubs = {
+            registerHooks: sinon.stub(this.presenter, 'registerHook'),
+            getEventBus: sinon.stub(),
+            addEventListenerStub: sinon.stub(),
+            sendEventStub: sinon.stub()
+        };
+
+        this.playerController = {
+            getEventBus: this.stubs.getEventBus
+        };
+
+        this.eventBusStub = {
+            addEventListener: this.stubs.addEventListenerStub,
+            sendEvent: this.stubs.sendEventStub
+        };
+
+        this.presenter.addonID = 'video1';
+        this.presenter.currentMovie = 0;
+        this.presenter.video = document.createElement("video");
+        this.presenter.video.currentTime = 0;
+
+        this.stubs.getEventBus.returns(this.eventBusStub);
+        this.presenter.setPlayerController(this.playerController)
+    }
+}
