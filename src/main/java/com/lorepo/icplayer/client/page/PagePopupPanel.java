@@ -72,20 +72,34 @@ public class PagePopupPanel extends DialogBox {
 		setGlassEnabled(true);
 		setWidget(pageWidget);
 				
+		int windowWidth = Window.getClientWidth();
+		int windowHeight = Window.getClientHeight();	
+		
+		int borderHeight = this.getCellElement(0, 0).getOffsetHeight() + this.getCellElement(2,0).getOffsetHeight();
+		int borderWidth = this.getCellElement(0, 0).getOffsetWidth() + this.getCellElement(0, 2).getOffsetWidth();
+		
+		if(page.getWidth() > windowWidth){
+			page.setWidth(windowWidth - borderWidth);
+		}
+		
+		if(page.getHeight() > windowHeight){
+			page.setHeight(windowHeight - borderHeight);
+		}
+		
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
-		Style glassStyle = getGlassElement().getStyle();
 		
+		Style glassStyle = getGlassElement().getStyle();
+				
+		this.pageWidget.getWidget().getElement().getStyle().setOverflow(Overflow.AUTO);
+				
 		int top;
 		if (parentWidget.getAbsoluteTop() > Window.getScrollTop()) {
 			top = parentWidget.getAbsoluteTop();
 		} else {
 			top = Window.getScrollTop();
 		}
-		
-		this.reduceWidth();
-		this.reduceHeight();
 		
 		int height = getElement().getClientHeight();
 	
@@ -100,62 +114,17 @@ public class PagePopupPanel extends DialogBox {
 		center();
 	}
 	
-	private void reduceWidth(){
-		int panelWidth = getElement().getClientWidth();
-		int windowWidth = Window.getClientWidth();
-		
-		if (panelWidth >=  windowWidth){			
-			int marginWidth  = this.getMarginWidth();
-			int paddingWidth = this.getPaddingWidth();
-			int differencePanelWindow = panelWidth - windowWidth;
-			int pageWidth = this.pageWidget.getOffsetWidth();
-			
-			this.pageWidget.setWidth(pageWidth - differencePanelWindow - marginWidth - paddingWidth);
-			
-			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
-		}
-	}
-	
-	private void reduceHeight(){
-		int panelHeight = getElement().getClientHeight();
-		int windowHeight = Window.getClientHeight();
-		
-		if (panelHeight >=  windowHeight){			
-			int marginHeight  = this.getMarginHeight();
-			int paddingHeight = this.getPaddingHeight();
-			int differencePanelWindow = panelHeight - windowHeight;
-			int pageHeight = this.pageWidget.getOffsetHeight();
-			
-			this.pageWidget.setHeight(pageHeight - differencePanelWindow - marginHeight - paddingHeight);
-			
-			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
-		}
-	}
-	
-	private native int getMarginWidth() /*-{
-		var widthWithMargin = $wnd.jQuery(".ic_popup_page").outerWidth(true);
-		var widthWithoutMargin = $wnd.jQuery(".ic_popup_page").innerWidth();
-		return widthWithMargin - widthWithoutMargin;
+	private native int getBorderWidth() /*-{
+		var widthWithBorder = $wnd.jQuery(".ic_popup").outerWidth(true);
+		var widthWithoutBorder = $wnd.jQuery(".ic_popup_page").outerWidth();
+		return (widthWithBorder - widthWithoutBorder);
 	}-*/;
 	
-	private native int getMarginHeight() /*-{
-	    var heightWithMargin = $wnd.jQuery(".ic_popup_page").outerHeight(true);
-	    var heightWithoutMargin = $wnd.jQuery(".ic_popup_page").innerHeight();
-	    return heightWithMargin - heightWithoutMargin;
-    }-*/;
-	
-	private native int getPaddingWidth() /*-{
-	    var widthWithPadding = $wnd.jQuery(".ic_popup_page").innerWidth();
-	    var widthWithoutPadding = $wnd.jQuery(".ic_popup_page").width();
-	    return widthWithPadding - widthWithoutPadding;
-    }-*/;
-
-	private native int getPaddingHeight() /*-{
-	    var heightWithPadding = $wnd.jQuery(".ic_popup_page").innerHeight();
-        var heightWithoutPadding = $wnd.jQuery(".ic_popup_page").height();
-        return heightWithPadding - heightWithoutPadding;
-    }-*/;
-
+	private native int getBorderHeight() /*-{
+		var widthWithBorder = $wnd.jQuery(".ic_popup").outerHeight(true);
+		var widthWithoutBorder = $wnd.jQuery(".ic_popup_page").outerHeight();
+		return (widthWithBorder - widthWithoutBorder);
+	}-*/;
 	
 	public static native int getParentWindowOffset() /*-{
 		var current_window = $wnd;
