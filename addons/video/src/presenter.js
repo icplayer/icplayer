@@ -492,7 +492,6 @@ function Addonvideo_create() {
             }
             presenter.configuration.isFullScreen = false;
             fullScreenChange();
-            console.log("CLOSE");
             
         });
         
@@ -1179,7 +1178,6 @@ function Addonvideo_create() {
     };
     
     function requestFullscreen ($element) {
-        console.log("wywoalelm requestFullScreen");
         var DomElement = $element.get(0);
         
         var requestMethod = DomElement.requestFullscreen || DomElement.mozRequestFullScreen ||
