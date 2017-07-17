@@ -6,7 +6,18 @@ function Addonvideo_create() {
     presenter.$view = null;
     presenter.files = [];
     presenter.video = null;
+    presenter.originalVideoSize = {
+        width: 0,
+        height: 0
+    };
+
+    presenter.captionsOffset = {
+        left: 0,
+        top: 0
+    };
+
     presenter.metadadaLoaded = false;
+    presenter.metadataQueue = [];
     presenter.isPreview = false;
     presenter.captions = [];
     presenter.configuration = {};
@@ -23,7 +34,31 @@ function Addonvideo_create() {
     };
     
     var height;
-    
+
+
+    presenter.metadataLoadedDecorator = function (fn) {
+        return function () {
+            if (presenter.metadadaLoaded) {
+                return fn.apply(this, arguments);
+            } else {
+                presenter.metadataQueue.push({
+                    function: fn,
+                    arguments: arguments,
+                    self: this
+                })
+            }
+        }
+    };
+
+    presenter.callMetadataLoadedQueue = function () {
+        for (var i = 0; i < presenter.metadataQueue.length; i++) {
+            var queueElement = presenter.metadataQueue[i];
+            queueElement.function.call(queueElement.self, queueElement.arguments);
+        }
+
+        presenter.metadataQueue = [];
+    };
+
     presenter.upgradeModel = function (model) {
         return presenter.upgradePoster(model);
     };
@@ -86,87 +121,87 @@ function Addonvideo_create() {
     };
     
     function fullScreenChange () {
-        var moduleHeight, moduleWidth;
-        var top, left, newTop, newLeft, i,
-          screenWidth = screen.width,
-          screenHeight = screen.height;
-        if (presenter.configuration.isFullScreen) {
-            moduleHeight = presenter.stylesBeforeFullscreen.moduleHeight;
-            moduleWidth = presenter.stylesBeforeFullscreen.moduleWidth;
-        } else {
-            moduleWidth = presenter.$view.width();
-            moduleHeight = presenter.$view.height();
-        }
-        var videoFSWidth = screenWidth,
-          videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth),
-          scale = videoFSWidth / moduleWidth,
-          xProportion = screenWidth / moduleWidth,
-          yProportion = screenHeight / moduleHeight,
-          $element, transformation;
-        
-        if (yProportion < xProportion) {
-            videoFSWidth = parseInt(moduleWidth * yProportion);
-            scale = videoFSWidth / moduleWidth;
-        } else {
-            videoFSHeight = parseInt(moduleHeight * xProportion);
-            scale = videoFSHeight / moduleHeight;
-        }
-        
-        //Round to two decimal
-        scale = Math.round(scale * 100) / 100;
-        
-        for (i = 0; i < presenter.captions.length; i++) {
-            $element = $(presenter.captions[i].element);
-            
-            if (presenter.configuration.isFullScreen) {
-                if ($element.attr('oldLeft')) continue;
-                
-                top = parseInt($element.css('top'), 10);
-                left = parseInt($element.css('left'), 10);
-                
-                newTop = parseInt(top * scale, 10);
-                newLeft = parseInt(left * scale, 10);
-                
-                $element.attr({
-                    oldTop: top,
-                    oldLeft: left,
-                    oldWidth: $element.width(),
-                    oldHeight: $element.height()
-                });
-                transformation = 'scale(' + scale + ')';
-                $element.css({
-                    '-webkit-transform-origin': 'top left',
-                    '-moz-transform-origin': 'top left',
-                    '-ms-transform-origin': 'top left',
-                    'transform-origin': 'top left',
-                    position: 'fixed',
-                    top: (newTop) + 'px',
-                    left: (newLeft) + 'px',
-                    '-moz-transform': transformation,
-                    '-webkit-transform': transformation,
-                    '-ms-transform': transformation,
-                    'transform': transformation
-                });
-            } else {
-                newLeft = $element.attr('oldLeft');
-                newTop = $element.attr('oldTop');
-                transformation = 'scale(1.0)';
-                $element.css({
-                    top: newTop + 'px',
-                    left: newLeft + 'px',
-                    position: 'absolute',
-                    zIndex: '',
-                    '-moz-transform': '',
-                    '-webkit-transform': '',
-                    '-o-transform': '',
-                    '-ms-transform': '',
-                    'transform': ''
-                });
-                
-                $element.removeAttr('oldWidth oldHeight oldTop oldLeft');
-            }
-        }
-        
+        // var moduleHeight, moduleWidth;
+        // var top, left, newTop, newLeft, i,
+        //   screenWidth = screen.width,
+        //   screenHeight = screen.height;
+        // if (presenter.configuration.isFullScreen) {
+        //     moduleHeight = presenter.stylesBeforeFullscreen.moduleHeight;
+        //     moduleWidth = presenter.stylesBeforeFullscreen.moduleWidth;
+        // } else {
+        //     moduleWidth = presenter.$view.width();
+        //     moduleHeight = presenter.$view.height();
+        // }
+        // var videoFSWidth = screenWidth,
+        //   videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth),
+        //   scale = videoFSWidth / moduleWidth,
+        //   xProportion = screenWidth / moduleWidth,
+        //   yProportion = screenHeight / moduleHeight,
+        //   $element, transformation;
+        //
+        // if (yProportion < xProportion) {
+        //     videoFSWidth = parseInt(moduleWidth * yProportion);
+        //     scale = videoFSWidth / moduleWidth;
+        // } else {
+        //     videoFSHeight = parseInt(moduleHeight * xProportion);
+        //     scale = videoFSHeight / moduleHeight;
+        // }
+        //
+        // //Round to two decimal
+        // scale = Math.round(scale * 100) / 100;
+        //
+        // for (i = 0; i < presenter.captions.length; i++) {
+        //     $element = $(presenter.captions[i].element);
+        //
+        //     if (presenter.configuration.isFullScreen) {
+        //         if ($element.attr('oldLeft')) continue;
+        //
+        //         top = parseInt($element.css('top'), 10);
+        //         left = parseInt($element.css('left'), 10);
+        //
+        //         newTop = parseInt(top * scale, 10);
+        //         newLeft = parseInt(left * scale, 10);
+        //
+        //         $element.attr({
+        //             oldTop: top,
+        //             oldLeft: left,
+        //             oldWidth: $element.width(),
+        //             oldHeight: $element.height()
+        //         });
+        //         transformation = 'scale(' + scale + ')';
+        //         $element.css({
+        //             '-webkit-transform-origin': 'top left',
+        //             '-moz-transform-origin': 'top left',
+        //             '-ms-transform-origin': 'top left',
+        //             'transform-origin': 'top left',
+        //             position: 'fixed',
+        //             top: (newTop) + 'px',
+        //             left: (newLeft) + 'px',
+        //             '-moz-transform': transformation,
+        //             '-webkit-transform': transformation,
+        //             '-ms-transform': transformation,
+        //             'transform': transformation
+        //         });
+        //     } else {
+        //         newLeft = $element.attr('oldLeft');
+        //         newTop = $element.attr('oldTop');
+        //         transformation = 'scale(1.0)';
+        //         $element.css({
+        //             top: newTop + 'px',
+        //             left: newLeft + 'px',
+        //             position: 'absolute',
+        //             zIndex: '',
+        //             '-moz-transform': '',
+        //             '-webkit-transform': '',
+        //             '-o-transform': '',
+        //             '-ms-transform': '',
+        //             'transform': ''
+        //         });
+        //
+        //         $element.removeAttr('oldWidth oldHeight oldTop oldLeft');
+        //     }
+        // }
+        //
         if (!presenter.configuration.isFullScreen) {
             $(presenter.videoContainer).css({
                 width: presenter.configuration.dimensions.container.width + 'px',
@@ -219,6 +254,7 @@ function Addonvideo_create() {
     presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
         if(eventData.value == 'dropdownClicked') {
+            presenter.metadadaLoaded = false;
             this.video.load();
         }
     };
@@ -242,6 +278,8 @@ function Addonvideo_create() {
     
     presenter.setMetaDataOnMetaDataLoadedEvent = function() {
         presenter.metadadaLoaded = true;
+        presenter.originalVideoSize = presenter.getVideoSize(presenter.addonSize);
+        presenter.calculateCaptionsOffset(presenter.addonSize, true);
         if (presenter.controlBar !== null) {
             presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
             presenter.controlBar.setMaxDurationTime(presenter.video.duration);
@@ -251,8 +289,47 @@ function Addonvideo_create() {
                 presenter.stylesBeforeFullscreen.actualTime = -1;
             }
         }
+
+        presenter.callMetadataLoadedQueue();
     };
-    
+
+    presenter.calculateCaptionsOffset = function (size, changeWidth) {
+        var videoSize = presenter.getVideoSize(size);
+
+        presenter.captionsOffset.left = Math.abs(size.width - videoSize.width) / 2;
+        presenter.captionsOffset.top = Math.abs(size.height - videoSize.height) / 2;
+
+
+
+        presenter.$captionsContainer.css({
+            top: presenter.captionsOffset.top,
+            left: presenter.captionsOffset.left,
+            position: "relative"
+        });
+
+        if (changeWidth) {
+            presenter.$captionsContainer.css({
+                width: videoSize.width,
+                height: videoSize.height
+            });
+        }
+    };
+
+    presenter.getVideoSize = function (size) {
+        var video = presenter.videoObject;
+
+        //https://stackoverflow.com/questions/17056654/getting-the-real-html5-video-width-and-height
+        var videoRatio = video.videoWidth / video.videoHeight;
+        var width = size.width, height = size.height;
+        var elementRatio = width/height;
+        if(elementRatio > videoRatio) width = height * videoRatio;
+        else height = width / videoRatio;
+        return {
+            width: width,
+            height: height
+        };
+    };
+
     function setVideoStateOnPlayEvent() {
         presenter.videoState = presenter.VIDEO_STATE.PLAYING;
         presenter.addClassToView('playing');
@@ -363,7 +440,7 @@ function Addonvideo_create() {
                 presenter.pause();
                 break;
             case 70:
-                fullScreen();
+                fullScreen();   // TODO: ------------------------------------------------------------------------------------------------------------------------->HERE<----------------
                 break;
         }
     };
@@ -373,6 +450,10 @@ function Addonvideo_create() {
         presenter.isVideoLoaded = false;
         
         presenter.addonID = model.ID;
+        presenter.addonSize = {
+            width: model.Width,
+            height: model.Height
+        };
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isCurrentlyVisible = true;
         presenter.shouldHideSubtitles = ModelValidationUtils.validateBoolean(model["Hide subtitles"]);
@@ -381,6 +462,7 @@ function Addonvideo_create() {
         presenter.defaultControls = !ModelValidationUtils.validateBoolean(upgradedModel['Hide default controls']);
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$view = $(view);
+        presenter.$captionsContainer = presenter.$view.find(".captions-container:first");
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         height = upgradedModel.Height;
         this.setDimensions();
@@ -437,7 +519,7 @@ function Addonvideo_create() {
         controls.addStopCallback(function () {
             presenter.videoObject.currentTime = 0;
             presenter.videoObject.pause();
-            presenter.videoObject.load();
+            //presenter.videoObject.load();
         });
         
         controls.addFullscreenCallback(function () {
@@ -445,35 +527,33 @@ function Addonvideo_create() {
             presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
             presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
             
-            function isVideoInFullscreen() {
-                if (document.fullscreenElement) {
-                    return true;
-                }
-                
-                return false;
-            }
-            if (requestMethod === null || !isVideoInFullscreen()) {
-                var body = document.getElementsByTagName('body')[0];
-                var video = presenter.videoContainer.get(0);
-                presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
-                presenter.stylesBeforeFullscreen.style = {
-                    position: video.style.position,
-                    top: video.style.top,
-                    left: video.style.left,
-                    zIndex: video.style.zIndex
-                };
-                
-                presenter.stylesBeforeFullscreen.changedStyles = true;
-                video.style.position = "fixed";
-                video.style.top = "0";
-                video.style.left = "0";
-                video.style.zIndex = 20000;
-                body.appendChild(video);
-                presenter.videoObject.load();
-            }
-            
-            presenter.configuration.isFullScreen = true;
-            fullScreenChange();
+                 if (requestMethod === null || !isVideoInFullscreen()) {
+                    presenter.scaleCaptionsContainerToVideoNewVideoSize();
+                    var body = document.getElementsByTagName('body')[0];
+                    var video = presenter.videoContainer.get(0);
+                    presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
+                    presenter.stylesBeforeFullscreen.style = {
+                        position: video.style.position,
+                        top: video.style.top,
+                        left: video.style.left,
+                        zIndex: video.style.zIndex
+                    };
+
+                    presenter.stylesBeforeFullscreen.changedStyles = true;
+                    video.style.position = "fixed";
+                    video.style.top = "0";
+                    video.style.left = "0";
+                    video.style.zIndex = 20000;
+                    body.appendChild(video);
+                    presenter.metadadaLoaded = false;
+                    presenter.videoObject.load();
+                } else {
+                    presenter.scaleCaptionsContainerToScreenSize();
+                 }
+
+                presenter.configuration.isFullScreen = true;
+                fullScreenChange();
+
         });
         
         controls.addCloseFullscreenCallback(function () {
@@ -482,6 +562,7 @@ function Addonvideo_create() {
                 presenter.stylesBeforeFullscreen.changedStyles = false;
                 var video = presenter.videoContainer.get(0);
                 presenter.videoView.appendChild(video);
+                presenter.metadadaLoaded = false;
                 presenter.videoObject.load();
                 video.style.position = presenter.stylesBeforeFullscreen.style.position;
                 video.style.top = presenter.stylesBeforeFullscreen.style.top;
@@ -491,6 +572,7 @@ function Addonvideo_create() {
                 exitFullscreen();
             }
             presenter.configuration.isFullScreen = false;
+            presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
             
         });
@@ -507,7 +589,46 @@ function Addonvideo_create() {
         
         presenter.controlBar = controls;
     };
-    
+
+    presenter.scaleCaptionsContainerToVideoNewVideoSize = presenter.metadataLoadedDecorator(function () {
+        var size = {
+            width: $(presenter.videoObject).width(),
+            height: $(presenter.videoObject).height()
+        };
+
+        var newVideoSize = presenter.getVideoSize(size);
+
+        var xScale = newVideoSize.width / presenter.originalVideoSize.width;
+        var yScale = newVideoSize.height / presenter.originalVideoSize.height;
+
+        presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+
+        presenter.calculateCaptionsOffset(size, false);
+    });
+
+    presenter.scaleCaptionsContainerToScreenSize = presenter.metadataLoadedDecorator(function () {
+        var size = {
+            width: screen.width,
+            height: screen.height
+        };
+
+        var newVideoSize = presenter.getVideoSize(size);
+
+        var xScale = newVideoSize.width / presenter.originalVideoSize.width;
+        var yScale = newVideoSize.height / presenter.originalVideoSize.height;
+
+
+        presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+
+        presenter.calculateCaptionsOffset(size, false);
+    });
+
+    presenter.removeScaleFromCaptionsContainer = presenter.metadataLoadedDecorator(function () {
+        presenter.$captionsContainer.css(generateTransformDict(1, 1));
+
+        presenter.calculateCaptionsOffset(presenter.addonSize, false);
+    });
+
     presenter.sendOnPLayingEvent = function () {
         var eventData = {
             'source': presenter.addonID,
@@ -554,66 +675,75 @@ function Addonvideo_create() {
     
     presenter.showCaptions = function(time) {
         if (!presenter.configuration.dimensions) return; // No captions to show when video wasn't loaded properly
-        
         for (var i = 0; i < this.captions.length; i++) {
             var caption = this.captions[i];
             if (caption.start <= time && caption.end >= time) {
                 $(caption.element).attr('visibility', 'visible');
                 $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
-                
-                if (presenter.configuration.isFullScreen && !$(caption.element).attr('oldTop')) {
-                    var top = parseInt($(caption.element).css('top'), 10);
-                    var left = parseInt($(caption.element).css('left'), 10);
-                    var newTop, newLeft;
-                    var screenWidth = screen.width;
-                    var screenHeight = screen.height;
-                    var moduleWidth = presenter.stylesBeforeFullscreen.moduleWidth;
-                    var moduleHeight = presenter.stylesBeforeFullscreen.moduleHeight;
-                    var videoFSWidth = screenWidth;
-                    var videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth);
-                    var scale = videoFSWidth / moduleWidth;
-                    var translateX, translateY, transformation;
-                    
-                    if (videoFSHeight > screenHeight) {
-                        videoFSHeight = screenHeight;
-                        videoFSWidth = parseInt(moduleWidth * screenHeight / moduleHeight);
-                        scale = videoFSWidth / moduleWidth;
-                    }
-                    
-                    scale = Math.round(scale * 100) / 100;
-                    
-                    translateX = ($(caption.element).width() / 4) * scale;
-                    translateX = Math.round(translateX * 100) / 100;
-                    translateY = ($(caption.element).height() / 4) * scale;
-                    translateY = Math.round(translateY * 100) / 100;
-                    
-                    newTop = parseInt(videoFSHeight * (top / moduleHeight), 10);
-                    newLeft = parseInt(videoFSWidth * (left / moduleWidth), 10);
-                    
-                    $(caption.element).attr({
-                        oldTop: top,
-                        oldLeft: left,
-                        oldWidth: $(caption.element).width(),
-                        oldHeight: $(caption.element).height()
-                    });
-                    transformation = 'scale(' + scale + ')';
-                    $(caption.element).css({
-                        position: 'fixed',
-                        top: (newTop + translateY) + 'px',
-                        left: (newLeft + translateX) + 'px',
-                        'transform': transformation,
-                        '-ms-transform': transformation,
-                        '-webkit-transform': transformation,
-                        '-o-transform': transformation,
-                        '-moz-transform': transformation
-                    });
-                }
-                
             } else {
                 $(caption.element).css('visibility', 'hidden');
                 $(caption.element).attr('visibility', 'hidden');
             }
         }
+        // for (var i = 0; i < this.captions.length; i++) {
+        //     var caption = this.captions[i];
+        //     if (caption.start <= time && caption.end >= time) {
+        //         $(caption.element).attr('visibility', 'visible');
+        //         $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
+        //
+        //         if (presenter.configuration.isFullScreen && !$(caption.element).attr('oldTop')) {
+        //             var top = parseInt($(caption.element).css('top'), 10);
+        //             var left = parseInt($(caption.element).css('left'), 10);
+        //             var newTop, newLeft;
+        //             var screenWidth = screen.width;
+        //             var screenHeight = screen.height;
+        //             var moduleWidth = presenter.stylesBeforeFullscreen.moduleWidth;
+        //             var moduleHeight = presenter.stylesBeforeFullscreen.moduleHeight;
+        //             var videoFSWidth = screenWidth;
+        //             var videoFSHeight = parseInt(moduleHeight * screenWidth / moduleWidth);
+        //             var scale = videoFSWidth / moduleWidth;
+        //             var translateX, translateY, transformation;
+        //
+        //             if (videoFSHeight > screenHeight) {
+        //                 videoFSHeight = screenHeight;
+        //                 videoFSWidth = parseInt(moduleWidth * screenHeight / moduleHeight);
+        //                 scale = videoFSWidth / moduleWidth;
+        //             }
+        //
+        //             scale = Math.round(scale * 100) / 100;
+        //
+        //             translateX = ($(caption.element).width() / 4) * scale;
+        //             translateX = Math.round(translateX * 100) / 100;
+        //             translateY = ($(caption.element).height() / 4) * scale;
+        //             translateY = Math.round(translateY * 100) / 100;
+        //
+        //             newTop = parseInt(videoFSHeight * (top / moduleHeight), 10);
+        //             newLeft = parseInt(videoFSWidth * (left / moduleWidth), 10);
+        //
+        //             $(caption.element).attr({
+        //                 oldTop: top,
+        //                 oldLeft: left,
+        //                 oldWidth: $(caption.element).width(),
+        //                 oldHeight: $(caption.element).height()
+        //             });
+        //             transformation = 'scale(' + scale + ')';
+        //             $(caption.element).css({
+        //                 position: 'fixed',
+        //                 top: (newTop + translateY) + 'px',
+        //                 left: (newLeft + translateX) + 'px',
+        //                 'transform': transformation,
+        //                 '-ms-transform': transformation,
+        //                 '-webkit-transform': transformation,
+        //                 '-o-transform': transformation,
+        //                 '-moz-transform': transformation
+        //             });
+        //         }
+        //
+        //     } else {
+        //         $(caption.element).css('visibility', 'hidden');
+        //         $(caption.element).attr('visibility', 'hidden');
+        //     }
+        // }
     };
     
     presenter.reload = function() {
@@ -798,6 +928,7 @@ function Addonvideo_create() {
             // Android devices have problem with loading content.
             this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
             this.video.load();
+            presenter.metadadaLoaded = false;
             
             if(ModelValidationUtils.validateBoolean(files[this.currentMovie]['Loop video'])) {
                 if (typeof this.video.loop == 'boolean') {
@@ -843,8 +974,8 @@ function Addonvideo_create() {
         
         $(captionElement).css('visibility', 'hidden');
         $(captionElement).attr('visibility', 'hidden');
-        presenter.videoContainer.append(captionElement);
-        
+        presenter.$captionsContainer.append(captionElement);
+
         return captionElement;
     }
     
@@ -1052,6 +1183,7 @@ function Addonvideo_create() {
         if (MobileUtils.isSafariMobile(navigator.userAgent)) {
             if(!presenter.isVideoLoaded) {
                 this.video.load();
+                presenter.metadadaLoaded = false;
             }
         }
     };
@@ -1176,7 +1308,21 @@ function Addonvideo_create() {
             value: parsedValue
         };
     };
-    
+
+    function generateTransformDict(scaleX, scaleY) {
+        var scale = "scale(" + scaleX + "," + scaleY + ")";
+        return {
+            'transform': scale,
+            '-ms-transform': scale,
+            '-webkit-transform': scale,
+            '-o-transform': scale,
+            '-moz-transform': scale,
+            "-webkit-transform-origin": "top left",
+            "-ms-transform-origin": "top left",
+            "transform-origin": "top left"
+        }
+    }
+
     function requestFullscreen ($element) {
         var DomElement = $element.get(0);
         
@@ -1196,6 +1342,18 @@ function Addonvideo_create() {
         if (exitMethod) {
             exitMethod.call(document);
         }
+    }
+
+    function isVideoInFullscreen() {
+        if (document.fullscreenElement
+            || document.mozFullScreenElement
+            || document.webkitFullscreenElement
+            || document.msFullscreenElement
+            || document.webkitCurrentFullScreenElement) {
+            return true;
+        }
+
+        return false;
     }
     
     return presenter;
