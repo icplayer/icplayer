@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.page;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
@@ -73,27 +74,30 @@ public class PagePopupPanel extends DialogBox {
 		setWidget(pageWidget);
 				
 		int windowWidth = Window.getClientWidth();
-		int windowHeight = Window.getClientHeight();	
+		int windowHeight = Window.getClientHeight();
+		int popupWidth = page.getWidth(); 
+		int popupHeight = page.getHeight();
 		
-		int borderHeight = this.getCellElement(0, 0).getOffsetHeight() + this.getCellElement(2,0).getOffsetHeight();
-		int borderWidth = this.getCellElement(0, 0).getOffsetWidth() + this.getCellElement(0, 2).getOffsetWidth();
-		
-		if(page.getWidth() > windowWidth){
-			page.setWidth(windowWidth - borderWidth);
+		if (popupWidth > windowWidth){
+			page.setWidth(windowWidth);
 		}
 		
-		if(page.getHeight() > windowHeight){
-			page.setHeight(windowHeight - borderHeight);
+		if (popupHeight > windowHeight){
+			page.setHeight(windowHeight);
 		}
 		
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
-		
+				
 		Style glassStyle = getGlassElement().getStyle();
 				
 		this.pageWidget.getWidget().getElement().getStyle().setOverflow(Overflow.AUTO);
 				
+		if (popupWidth > windowWidth || popupHeight > windowHeight){
+			this.compensateBorder();
+		}
+		
 		int top;
 		if (parentWidget.getAbsoluteTop() > Window.getScrollTop()) {
 			top = parentWidget.getAbsoluteTop();
@@ -113,18 +117,6 @@ public class PagePopupPanel extends DialogBox {
 		glassStyle.setProperty("height", height + "px");
 		center();
 	}
-	
-	private native int getBorderWidth() /*-{
-		var widthWithBorder = $wnd.jQuery(".ic_popup").outerWidth(true);
-		var widthWithoutBorder = $wnd.jQuery(".ic_popup_page").outerWidth();
-		return (widthWithBorder - widthWithoutBorder);
-	}-*/;
-	
-	private native int getBorderHeight() /*-{
-		var widthWithBorder = $wnd.jQuery(".ic_popup").outerHeight(true);
-		var widthWithoutBorder = $wnd.jQuery(".ic_popup_page").outerHeight();
-		return (widthWithBorder - widthWithoutBorder);
-	}-*/;
 	
 	public static native int getParentWindowOffset() /*-{
 		var current_window = $wnd;
@@ -237,6 +229,28 @@ public class PagePopupPanel extends DialogBox {
 			}
 		}
 	}
+	
+	private void compensateBorder(){
+		int popupWidth = this.pageWidget.getOffsetWidth();
+		int popupHeight = this.pageWidget.getOffsetHeight();
+		int borderWidth = this.getBorderWidth();
+		int borderHeight = this.getBorderHeight();
+		
+		this.pageWidget.setWidth(popupWidth - 2 * borderWidth);
+		this.pageWidget.setHeight(popupHeight - 2 * borderHeight);
+	}
+	
+	private native int getBorderWidth() /*-{
+		var widthWithBorder = $wnd.$(".ic_popup").outerWidth(true);
+		var widthWithoutBorder = $wnd.$(".ic_popup_page").outerWidth();
+		return (widthWithBorder - widthWithoutBorder);
+	}-*/;
+
+	private native int getBorderHeight() /*-{
+		var heightWithBorder = $wnd.$(".ic_popup").outerHeight(true);
+		var heightWithoutBorder = $wnd.$(".ic_popup_page").outerHeight();
+		return (heightWithBorder - heightWithoutBorder);
+	}-*/;
 	
 	
 	/**
