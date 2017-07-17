@@ -87,32 +87,6 @@ public class TextModelTestCase {
 		assertTrue(foundProperty);
 	}
 
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-		String oldText = module.getParsedText();
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-		String newText = module.getParsedText();
-
-		assertTrue(module.hasDraggableGaps());
-		assertEquals(100, module.getGapWidth());
-		assertFalse(module.isActivity());
-		assertTrue(module.isCaseSensitive());
-		oldText = oldText.replaceAll("id='[^-]+", "id='");
-		newText = newText.replaceAll("id='[^-]+", "id='");
-		assertEquals(oldText, newText);
-	}
-	
 	@Ignore("toXML need fix")
 	@Test
 	public void saveLoadModule1() throws SAXException, IOException {

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
@@ -144,5 +146,30 @@ public class GWTTextModelTestCase extends GwtTest{
 		
 		int count = StringUtils.countMatches(module.getParsedText(), EXPECTED_STRING);
 		assertTrue (count == 4);
+	}
+	
+	@Test
+	public void saveLoad() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		TextModel module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+		String oldText = module.getParsedText();
+		
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+		String newText = module.getParsedText();
+
+		assertTrue(module.hasDraggableGaps());
+		assertEquals(100, module.getGapWidth());
+		assertFalse(module.isActivity());
+		assertTrue(module.isCaseSensitive());
+		oldText = oldText.replaceAll("id='[^-]+", "id='");
+		newText = newText.replaceAll("id='[^-]+", "id='");
+		assertEquals(oldText, newText);
 	}
 }
