@@ -39,7 +39,8 @@ function AddonShow_Answers_create(){
             'isVisible' : ModelValidationUtils.validateBoolean(model["Is Visible"]),
             'addonID' : model.ID,
             'isSelected': false,
-            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"])
+            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
+            'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"])
         }
     };
 
@@ -55,8 +56,11 @@ function AddonShow_Answers_create(){
                 text = presenter.configuration.textSelected;
                 eventName = presenter.EVENTS.SHOW_ANSWERS;
                 presenter.$wrapper.addClass('selected');
-                if(presenter.configuration.enableCheckCounter){
+                if (presenter.configuration.enableCheckCounter){
                     presenter.playerController.getCommands().incrementCheckCounter();
+                }
+                if (presenter.configuration.enableMistakeCounter){
+                    presenter.playerController.getCommands().increaseMistakeCounter();
                 }
             } else {
                 text = presenter.configuration.text;
