@@ -56,9 +56,11 @@ function AddonShow_Answers_create(){
                 text = presenter.configuration.textSelected;
                 eventName = presenter.EVENTS.SHOW_ANSWERS;
                 presenter.$wrapper.addClass('selected');
+
                 if (presenter.configuration.enableCheckCounter){
                     presenter.playerController.getCommands().incrementCheckCounter();
                 }
+
                 if (presenter.configuration.enableMistakeCounter){
                     presenter.playerController.getCommands().increaseMistakeCounter();
                 }
