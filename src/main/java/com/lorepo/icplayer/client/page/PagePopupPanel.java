@@ -92,10 +92,16 @@ public class PagePopupPanel extends DialogBox {
 				
 		Style glassStyle = getGlassElement().getStyle();
 				
-		this.pageWidget.getWidget().getElement().getStyle().setOverflow(Overflow.AUTO);
+		
 				
-		if (popupWidth > windowWidth || popupHeight > windowHeight){
-			this.compensateBorder();
+		if (popupWidth > windowWidth){
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
+			this.compensateWidthBorder();
+		}
+		
+		if (popupHeight > windowHeight){
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
+			this.compensateHeightBorder();
 		}
 		
 		int top;
@@ -230,16 +236,20 @@ public class PagePopupPanel extends DialogBox {
 		}
 	}
 	
-	private void compensateBorder(){
-		int popupWidth = this.pageWidget.getOffsetWidth();
+	private void compensateHeightBorder(){
 		int popupHeight = this.pageWidget.getOffsetHeight();
-		int borderWidth = this.getBorderWidth();
 		int borderHeight = this.getBorderHeight();
-		int twoSidesBorderWidth = 2 * borderWidth;
 		int twoSidesBorderHeight = 2 * borderHeight;
+
+		this.pageWidget.setHeight(popupHeight - twoSidesBorderHeight);
+	}
+	
+	private void compensateWidthBorder(){
+		int popupWidth = this.pageWidget.getOffsetWidth();
+		int borderWidth = this.getBorderWidth();
+		int twoSidesBorderWidth = 2 * borderWidth;
 		
 		this.pageWidget.setWidth(popupWidth - twoSidesBorderWidth);
-		this.pageWidget.setHeight(popupHeight - twoSidesBorderHeight);
 	}
 	
 	private native int getBorderWidth() /*-{
