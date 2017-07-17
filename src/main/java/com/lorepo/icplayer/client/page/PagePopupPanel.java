@@ -248,7 +248,7 @@ public class PagePopupPanel extends DialogBox {
 		hide();
 		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
-				
+
 		ValueChangedEvent valueEvent = new ValueChangedEvent("Popup", popupName, "closed", "");
 		this.openingPageController.getPlayerServices().getEventBus().fireEvent(valueEvent);
 	}
