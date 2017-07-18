@@ -16,7 +16,10 @@ import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.xml.client.CDATASection;
+import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.properties.IProperty;
@@ -126,6 +129,12 @@ public class GWTTextModelTestCase extends GwtTest{
 		InputStream inputStream = getClass().getResourceAsStream("testdata/moduleWithAmp.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
+		Document doc = XMLParser.parse("<text></text>");
+		Element rootElement = doc.getDocumentElement(); 
+		CDATASection CDataElement = doc.createCDATASection("Some data");
+		rootElement.appendChild(CDataElement);
+		System.out.println(rootElement.toString());
+		
 		
 		TextModel module = new TextModel();
 		module.load(element, "");
