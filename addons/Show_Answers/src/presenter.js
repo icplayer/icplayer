@@ -13,7 +13,7 @@ function AddonShow_Answers_create(){
         if (keycode === 13) {
             presenter.$button.click();
         }
-    }
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -32,7 +32,7 @@ function AddonShow_Answers_create(){
         presenterLogic(view, model, true);
     };
 
-    presenter.sanitizeModel = function(model) {
+    presenter.validateModel = function(model) {
         return {
             'text' : model.Text,
             'textSelected' : model['Text selected'],
@@ -42,6 +42,25 @@ function AddonShow_Answers_create(){
             'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
             'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"])
         }
+    };
+
+    presenter.upgradeModel = function (model) {
+        if (model["Increment mistake counter"] === undefined) {
+            model = presenter.upgradeIncrementMistakeCounter(model);
+        }
+
+        return model;
+    };
+
+     presenter.upgradeIncrementMistakeCounter = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["Increment mistake counter"]) {
+            upgradedModel["Increment mistake counter"] = "false";
+        }
+
+        return upgradedModel;
     };
 
     presenter.handleClickAction = function () {
@@ -76,7 +95,9 @@ function AddonShow_Answers_create(){
     };
 
     function presenterLogic(view, model, isPreview) {
-        presenter.configuration = presenter.sanitizeModel(model);
+        var upgradedModel = presenter.upgradedModel(model);
+
+        presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.$view = $(view);
 
         presenter.setVisibility(presenter.configuration.isVisible);

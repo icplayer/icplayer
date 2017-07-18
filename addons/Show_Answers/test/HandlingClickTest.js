@@ -17,7 +17,7 @@
 
         this.presenter.playerController = {
             getCommands: this.stubs.getCommandsStubs
-        }
+        };
 
         this.presenter.$wrapper = {
             addClass: this.stubs.addClassStub,
@@ -34,7 +34,7 @@
         this.button.className = 'show-answers-button';
 
         this.presenter.$button = jQuery(this.button);
-    };
+    }
 
     TestCase('[Show_Answers] Basic code flow', {
         setUp: setUpPresenter,
@@ -53,6 +53,28 @@
             this.presenter.$button.trigger('click');
 
             assertTrue(this.stubs.addClassStub.calledOnce);
+        },
+
+        'test should send ShowAnswers event when is not Selected, isSelected is false': function () {
+            this.presenter.configuration.isSelected = false;
+
+            this.presenter.handleClickAction();
+            this.presenter.$button.trigger('click');
+
+            var result = this.stubs.sendEventStub.getCall(0).args;
+
+            assertEquals('ShowAnswers', result[0]);
+        },
+
+        'test should have eventName equal to HideAnswers when isSelected is true': function () {
+            this.presenter.configuration.isSelected = true;
+
+            this.presenter.handleClickAction();
+            this.presenter.$button.trigger('click');
+
+            var result = this.stubs.sendEventStub.getCall(0).args;
+
+            assertEquals('HideAnswers', result[0]);
         },
 
         'test should call removeClass when isSelected is true': function () {

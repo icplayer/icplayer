@@ -1254,6 +1254,7 @@ var ice_dictionary_fr = {
 "Show_Answers_property_text": "Texte",
 "Show_Answers_property_text_selected": "Texte sélectionné",
 "Show_Answers_property_enable_check_counter": "Incrémenter le compteur de vérifications",
+"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
 "Animated_Page_Progress_info": "Permet d'insérer des pages de progression animées qui affichent des images en fonction du résultat en pourcentage obtenu dans la page.",
 "Animated_Page_Progress_name": "Progression de la page animée",
 "Animated_Page_Progress_property_ranges": "Paliers",
