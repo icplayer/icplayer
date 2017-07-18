@@ -13,16 +13,16 @@
     /**
     Custom controls bar for video/audio data.
 
-    @param {Object} parentElement element which should be custom bar parent element and
     @param {Object} userConfiguration object with user configuration
     @return {null}
     */
-    function CustomControlsBar(parentElement, userConfiguration) {
+    function CustomControlsBar(userConfiguration) {
         this.buildConfiguration(userConfiguration);
 
         this.elements = buildHTMLTree();
         this.progressBarChangedCallbacks = [];
         this.volumeChangedCallbacks = [];
+        this.ownTimerCallbacks = [];
 
         this.addPlayCallback(this.showPlayButton.bind(this));
         this.addPauseCallback(this.showPauseButton.bind(this));
@@ -42,8 +42,7 @@
 
         this.actualizeTimer();
 
-        if (parentElement) {
-            this.parentElement = parentElement;
+        if (this.configuration.parentElement) {
             this.buildShowAndHideControlsEvents();
             this.addPlayCallbackForParent(this.playPauseClick.bind(this));
         }
@@ -70,7 +69,6 @@
     CustomControlsBar.prototype.addVolumeChangedCallback = function (callback) {
         this.volumeChangedCallbacks.push(callback);
     };
-
 
     /**
     Default callback for click on progress bar. This function will call all functions added in addProgressChangedCallback
@@ -194,9 +192,9 @@
     */
     CustomControlsBar.prototype.buildShowAndHideControlsEvents = function () {
         this.actualTime = 0;
-        addEventListener("mouseleave", this.parentElement, this.hideControls);
-        addEventListener("mouseenter", this.parentElement, this.onWrapperMouseEnter);
-        addEventListener("mousemove", this.parentElement, this.onWrapperMouseMove);
+        addEventListener("mouseleave", this.configuration.parentElement, this.hideControls);
+        addEventListener("mouseenter", this.configuration.parentElement, this.onWrapperMouseEnter);
+        addEventListener("mousemove", this.configuration.parentElement, this.onWrapperMouseMove);
 
         this.refreshDataIntervalFunction = setInterval(this.refreshDataIntervalFunction, this.configuration.mouseDontMoveRefreshTime);
     };
@@ -208,12 +206,6 @@
     @return {null}
     */
     CustomControlsBar.prototype.refreshDataIntervalFunction = function () {
-        if (this.elements.controlsWrapper.element.offsetWidth != 0) {
-            if (document.body.clientWidth != this.elements.controlsWrapper.element.offsetWidth) {
-                this.showFullscreenButton(null);
-            }
-        }
-
         if (!this.mainDivIsHidden) {
             if (this.actualTime > this.configuration.mouseDontMoveClocks) {
                 this.hideControls();
@@ -229,6 +221,20 @@
                 this.showPauseButton();
             }
         }
+
+        for (var i = 0; i < this.ownTimerCallbacks.length; i++) {
+            this.ownTimerCallbacks[i].call(this);
+        }
+    };
+
+    /**
+    Register function to calling while executing own interval
+    @method addCallbackToBuildInTimer
+
+    @return {null}
+    */
+    CustomControlsBar.prototype.addCallbackToBuildInTimer = function (callback) {
+        this.ownTimerCallbacks.push(callback);
     };
 
     /**
@@ -404,7 +410,7 @@
     */
     CustomControlsBar.prototype.addPlayCallbackForParent = function (callback) {
         var ELEMENT_PREFIX = "PARENT_CHILD_";
-        var childNodes = this.parentElement.childNodes;
+        var childNodes = this.configuration.parentElement.childNodes;
         for (var i = 0 ; i < childNodes.length; i++) {
             if (childNodes[i] !== this.elements.mainDiv.element) {
                 this.elements[ELEMENT_PREFIX + i] = buildTreeNode(childNodes[i]);
@@ -493,9 +499,9 @@
     CustomControlsBar.prototype.destroy = function () {
         //Show hide controls bar events
         clearInterval(this.refreshDataIntervalFunction);
-        removeEventListener("mouseleave", this.parentElement, this.hideControls);
-        removeEventListener("mouseenter", this.parentElement, this.onWrapperMouseEnter);
-        removeEventListener("mousemove", this.parentElement, this.onWrapperMouseMove);
+        removeEventListener("mouseleave", this.configuration.parentElement, this.hideControls);
+        removeEventListener("mouseenter", this.configuration.parentElement, this.onWrapperMouseEnter);
+        removeEventListener("mousemove", this.configuration.parentElement, this.onWrapperMouseMove);
         removeEventListener("keydown", document, this.escapeButtonClickedCallback);
 
         for (var treeElementName in this.elements) {
@@ -688,7 +694,8 @@
             mouseDontMoveRefreshTime: 100,
             maxMediaTime: 0,
             actualMediaTime: 0,
-            videoObject: null
+            videoObject: null,
+            parentElement: null
         }
     }
 
