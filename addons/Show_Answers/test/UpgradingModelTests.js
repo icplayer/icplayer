@@ -1,4 +1,4 @@
-TestCase("[Show_Answers] Upgrading increment mistake counter model test", {
+TestCase("[Show_Answers] Upgrade increment mistake counter test", {
     setUp: function () {
         this.presenter = new AddonShow_Answers_create();
 
@@ -17,14 +17,18 @@ TestCase("[Show_Answers] Upgrading increment mistake counter model test", {
         assertEquals('false', result['Increment mistake counter']);
     },
 
-    'test should not change model counter value': function() {
+    'test should not change model counter value from True': function() {
         this.model["Increment mistake counter"] = 'True';
 
         var result = this.presenter.upgradeIncrementMistakeCounter(this.model);
 
         assertEquals('True', result['Increment mistake counter']);
 
-        result = this.presenter.upgradeIncrementMistakeCounter({
+
+    },
+
+    'test should not change model counter value from 0': function () {
+        var result = this.presenter.upgradeIncrementMistakeCounter({
             "Increment mistake counter": 0
         });
 
@@ -63,6 +67,38 @@ TestCase("[Show_Answers] Upgrading model test", {
 
         assertFalse(this.stubs.incrementMistakeCounterStub.called);
     }
+});
 
+TestCase("[Show_Answers] Presenter logic test", {
+    setUp: function () {
+        this.presenter = new AddonShow_Answers_create();
 
+        this.configuration = {
+            isVisible: true
+        };
+
+        this.html = {
+            view: document.createElement("div")
+        };
+
+        this.stubs = {
+            upgradeModelStub: sinon.stub(),
+            validateModelStub: sinon.stub().returns(this.configuration)
+        };
+
+        this.presenter.upgradeModel = this.stubs.upgradeModelStub;
+        this.presenter.validateModel = this.stubs.validateModelStub;
+
+        this.presenter.eventBus = {
+            addEventListener : function () {}
+        };
+
+        this.presenter.setVisibility = function () {};
+    },
+
+    'test should call upgrade model before validation': function() {
+        this.presenter.presenterLogic(this.html.view, {}, true);
+
+        assertTrue(this.stubs.upgradeModelStub.calledBefore(this.stubs.validateModelStub));
+    }
 });

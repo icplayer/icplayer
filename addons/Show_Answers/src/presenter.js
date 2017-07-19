@@ -93,7 +93,7 @@ function AddonShow_Answers_create(){
         });
     };
 
-    function presenterLogic(view, model, isPreview) {
+    presenter.presenterLogic = function(view, model, isPreview) {
         var upgradedModel = presenter.upgradeModel(model);
 
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -114,7 +114,7 @@ function AddonShow_Answers_create(){
 
     presenter.run = function(view, model) {
         presenter.view = view;
-        presenterLogic(view, model, false);
+        presenter.presenterLogic(view, model, false);
 
         presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
     };
