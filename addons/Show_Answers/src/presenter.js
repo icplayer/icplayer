@@ -29,7 +29,7 @@ function AddonShow_Answers_create(){
     };
 
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model, true);
+        presenter.presenterLogic(view, model, true);
     };
 
     presenter.validateModel = function(model) {
