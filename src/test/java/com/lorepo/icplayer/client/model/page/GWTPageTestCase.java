@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,16 +29,18 @@ import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
-import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 import com.lorepo.icplayer.client.utils.XML;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPageTestCase extends GwtTest {
+	
+	private XML xmlUtils = new XML();
 	
 	@Before
 	public void setUp() {
@@ -55,20 +58,11 @@ public class GWTPageTestCase extends GwtTest {
 	
 	@Test
 	public void saveScoringType() throws SAXException, IOException {
+		Page page = xmlUtils.loadPageFromFile(new Page("Page 2", ""), "testdata/page4.xml");
 		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
+		Page reloadedPage = xmlUtils.loadPageFromString(new Page("Page 2", ""), page.toXML());
 		
-		Page page = new Page("Page 1", "");
-		page.load(element, "");
-		String xml = page.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		
-		page = new Page("Page 2", "");
-		page.load(element, "");
-		
-		assertTrue(page.getScoringType() == Page.ScoringType.zeroOne);
+		assertTrue(reloadedPage.getScoringType() == Page.ScoringType.zeroOne);
 	}
 	
 	/**
@@ -104,7 +98,6 @@ public class GWTPageTestCase extends GwtTest {
 	
 	@Test
 	public void toXMLSingleModule() {
-		
 		Page page = new Page("ala", "kot");
 		IModuleModel module = new ShapeModule();
 		
@@ -154,7 +147,7 @@ public class GWTPageTestCase extends GwtTest {
 		
 		String pageXML = page.toXML();
 
-		Page reloadedPage = XML.loadPageFromString(new Page("id", "path"), pageXML);
+		Page reloadedPage = xmlUtils.loadPageFromString(new Page("id", "path"), pageXML);
 		
 		assertEquals(300, reloadedPage.getWidth());
 		assertEquals(400, reloadedPage.getHeight());
@@ -165,17 +158,13 @@ public class GWTPageTestCase extends GwtTest {
 		
 		Page page = new Page("Class test page", "");
 		page.setStyleClass("DemoClass");
-		String xml = page.toXML();
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(new StringInputStream(xml));
 		
 		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
 		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
 
-		page = new Page("id", "path");
-		page.load(element, "");
+		Page reloadedPage = xmlUtils.loadPageFromString(new Page("id", "path"), page.toXML());
 		
-		assertEquals("DemoClass", page.getStyleClass());
+		assertEquals("DemoClass", reloadedPage.getStyleClass());
 	}
 
 	@Test

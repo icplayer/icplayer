@@ -257,7 +257,6 @@ public class GWTContentTestCase extends GwtTest {
 		assertEquals(1, content.getAssetCount());
 	}
 
-
 	private Content initContentFromFile(String path) throws SAXException, IOException {
 		InputStream inputStream = getClass().getResourceAsStream(path);
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -279,7 +278,6 @@ public class GWTContentTestCase extends GwtTest {
 		
 		return (Content) parser.parse(element);
 	}
-
 
 	@Test
 	public void pageListener() {

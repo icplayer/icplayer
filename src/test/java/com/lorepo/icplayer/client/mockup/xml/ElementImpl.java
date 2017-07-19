@@ -167,5 +167,9 @@ public class ElementImpl implements Element{
 	public void setAttribute(String name, String value) {
 		throw new UnsupportedOperationException();
 	}
-
+	
+	@Override
+	public String toString() {
+		return elementImpl.toString();
+	}
 }
