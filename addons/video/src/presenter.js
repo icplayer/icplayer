@@ -181,7 +181,7 @@ function Addonvideo_create() {
         presenter.pageLoadedDeferred.resolve();
         if(eventData.value == 'dropdownClicked') {
             presenter.metadadaLoaded = false;
-            this.video.load();
+            presenter.videoObject.load();
         }
     };
 
@@ -227,7 +227,7 @@ function Addonvideo_create() {
         presenter.calculateCaptionsOffset(presenter.addonSize, true);
         if (presenter.controlBar !== null) {
             presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
-            presenter.controlBar.setMaxDurationTime(presenter.video.duration);
+            presenter.controlBar.setMaxDurationTime(presenter.videoObject.duration);
             if (presenter.stylesBeforeFullscreen.actualTime !== -1) {
                 presenter.videoObject.currentTime = presenter.stylesBeforeFullscreen.actualTime;
                 presenter.videoObject.play();
@@ -318,9 +318,46 @@ function Addonvideo_create() {
         presenter.eventBus = null;
         presenter.view = null;
         presenter.viewObject = null;
-        presenter.video = null;
+        presenter.videoObject = null;
     };
-    
+
+    presenter.fullScreen = function () {
+            var requestMethod = requestFullscreen(presenter.videoContainer);
+            presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
+            presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
+                 if (requestMethod === null) {
+                    var body = document.getElementsByTagName('body')[0];
+
+                    var video = presenter.videoContainer.get(0);
+                    presenter.stylesBeforeFullscreen.actualTime = presenter.videoObject.currentTime;
+                    presenter.stylesBeforeFullscreen.style = {
+                        position: video.style.position,
+                        top: video.style.top,
+                        left: video.style.left,
+                        zIndex: video.style.zIndex,
+                        className: video.className
+                    };
+
+                    presenter.stylesBeforeFullscreen.changedStyles = true;
+                    video.style.position = "fixed";
+                    video.style.top = "0";
+                    video.style.left = "0";
+                    video.style.zIndex = 20000;
+                    video.className = video.className + " " + presenter.$view[0].className;
+                    body.appendChild(video);
+                    presenter.metadadaLoaded = false;
+                    presenter.videoObject.load();
+                    presenter.scaleCaptionsContainerToVideoNewVideoSize();
+
+                } else {
+                    presenter.scaleCaptionsContainerToScreenSize();
+                 }
+
+                presenter.configuration.isFullScreen = true;
+                fullScreenChange();
+
+    };
+
     presenter.keyboardController = function(keycode) {
 
         $(document).on('keydown', function(e) {
@@ -349,20 +386,10 @@ function Addonvideo_create() {
         }
 
         function playPause() {
-            if (presenter.video.paused) {
+            if (presenter.videoObject.paused) {
                 presenter.play();
             } else {
                 presenter.pause();
-            }
-        }
-
-        function fullScreen() {
-            if (presenter.videoObject.requestFullscreen) {
-                presenter.videoObject.requestFullscreen();
-            } else if (presenter.videoObject.mozRequestFullScreen) {
-                presenter.videoObject.mozRequestFullScreen();
-            } else if (presenter.videoObject.webkitRequestFullscreen) {
-                presenter.videoObject.webkitRequestFullscreen();
             }
         }
 
@@ -386,7 +413,7 @@ function Addonvideo_create() {
                 presenter.pause();
                 break;
             case 70:
-                fullScreen();   // TODO: ------------------------------------------------------------------------------------------------------------------------->HERE<----------------
+                presenter.fullScreen();
                 break;
         }
     };
@@ -423,12 +450,12 @@ function Addonvideo_create() {
 
         if (!presenter.isVisibleByDefault) presenter.hide();
 
-        presenter.video.addEventListener('click', presenter.stopPropagationOnClickEvent);
-        presenter.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
-        presenter.video.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
-        presenter.video.addEventListener('play', setVideoStateOnPlayEvent);
-        presenter.video.addEventListener('pause', setVideoStateOnPauseEvent);
-        presenter.video.addEventListener('playing', presenter.onVideoPlaying, false);
+        presenter.videoObject.addEventListener('click', presenter.stopPropagationOnClickEvent);
+        presenter.videoObject.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
+        presenter.videoObject.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
+        presenter.videoObject.addEventListener('play', setVideoStateOnPlayEvent);
+        presenter.videoObject.addEventListener('pause', setVideoStateOnPauseEvent);
+        presenter.videoObject.addEventListener('playing', presenter.onVideoPlaying, false);
 
         presenter.eventBus.addEventListener('ValueChanged', this);
 
@@ -481,45 +508,12 @@ function Addonvideo_create() {
         });
 
         controls.addFullscreenCallback(function () {
-            var requestMethod = requestFullscreen(presenter.videoContainer);
-            presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
-            presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
-                 if (requestMethod === null) {
-                    var body = document.getElementsByTagName('body')[0];
-
-                    var video = presenter.videoContainer.get(0);
-                    presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
-                    presenter.stylesBeforeFullscreen.style = {
-                        position: video.style.position,
-                        top: video.style.top,
-                        left: video.style.left,
-                        zIndex: video.style.zIndex,
-                        className: video.className
-                    };
-
-                    presenter.stylesBeforeFullscreen.changedStyles = true;
-                    video.style.position = "fixed";
-                    video.style.top = "0";
-                    video.style.left = "0";
-                    video.style.zIndex = 20000;
-                    video.className = video.className + " " + presenter.$view[0].className;
-                    body.appendChild(video);
-                    presenter.metadadaLoaded = false;
-                    presenter.videoObject.load();
-                    presenter.scaleCaptionsContainerToVideoNewVideoSize();
-
-                } else {
-                    presenter.scaleCaptionsContainerToScreenSize();
-                 }
-
-                presenter.configuration.isFullScreen = true;
-                fullScreenChange();
-
+            presenter.fullScreen();
         });
 
         controls.addCloseFullscreenCallback(function () {
             if (presenter.stylesBeforeFullscreen.changedStyles === true) {
-                presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
+                presenter.stylesBeforeFullscreen.actualTime = presenter.videoObject.currentTime;
                 presenter.stylesBeforeFullscreen.changedStyles = false;
                 var video = presenter.videoContainer.get(0);
                 presenter.videoView.appendChild(video);
@@ -540,11 +534,11 @@ function Addonvideo_create() {
         });
 
         controls.addProgressChangedCallback(function (percent) {
-            presenter.video.currentTime = presenter.video.duration * (percent / 100);
+            presenter.videoObject.currentTime = presenter.videoObject.duration * (percent / 100);
         });
 
         controls.addVolumeChangedCallback(function (percent) {
-            presenter.video.volume = percent/100;
+            presenter.videoObject.volume = percent/100;
         });
 
         controls.addCallbackToBuildInTimer(function () {
@@ -617,8 +611,8 @@ function Addonvideo_create() {
     presenter.onVideoPlaying = function AddonVideo_onVideoPlaying () {
         presenter.sendOnPlayingEvent();
 
-        if (presenter.video.currentTime === 0){
-            presenter.sendTimeUpdateEvent(presenter.formatTime(presenter.video.currentTime))
+        if (presenter.videoObject.currentTime === 0){
+            presenter.sendTimeUpdateEvent(presenter.formatTime(presenter.videoObject.currentTime))
         }
     };
 
@@ -670,15 +664,15 @@ function Addonvideo_create() {
         $(this.videoContainer).find('.captions').remove();
         this.setVideo();
         this.loadSubtitles();
-        $(this.video).unbind('timeupdate');
-        $(this.video).bind("timeupdate", function () {
+        $(presenter.videoObject).unbind('timeupdate');
+        $(presenter.videoObject).bind("timeupdate", function () {
             onTimeUpdate(this);
         });
         presenter.removeClassFromView('playing');
     };
 
     presenter.sendTimeUpdate = function Video_sendTime() {
-        var actualVideoTime = parseInt(this.video.currentTime, 10);
+        var actualVideoTime = parseInt(presenter.videoObject.currentTime, 10);
         if (actualVideoTime !== presenter.lastSentCurrentTime) {
             var formattedTime = presenter.formatTime(actualVideoTime,10);
             presenter.sendTimeUpdateEvent(formattedTime);
@@ -687,7 +681,7 @@ function Addonvideo_create() {
     };
 
     function onTimeUpdate(video) {
-        presenter.showCaptions(presenter.video.currentTime);
+        presenter.showCaptions(presenter.videoObject.currentTime);
 
         presenter.sendTimeUpdate();
 
@@ -712,13 +706,13 @@ function Addonvideo_create() {
     }
 
     presenter.getState = function() {
-        var isPaused = this.video.paused;
-        this.video.pause();
+        var isPaused = presenter.videoObject.paused;
+        presenter.videoObject.pause();
         return JSON.stringify({
-            currentTime : this.video.currentTime,
+            currentTime : presenter.videoObject.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
             isPaused: isPaused,
-            currentMovie: this.currentMovie,
+            currentMovie: presenter.currentMovie,
             areSubtitlesHidden: presenter.areSubtitlesHidden
         });
     };
@@ -733,10 +727,10 @@ function Addonvideo_create() {
             presenter.setVisibility(this.isCurrentlyVisible);
         }
 
-        this.currentMovie = state.currentMovie;
+        presenter.currentMovie = state.currentMovie;
         this.reload();
 
-        $(this.video).on('canplay', function onVideoCanPlay() {
+        $(presenter.videoObject).on('canplay', function onVideoCanPlay() {
             if (this.currentTime < currentTime) {
                 this.currentTime = currentTime;
                 this.startTime = currentTime;
@@ -781,7 +775,7 @@ function Addonvideo_create() {
             $poster_wrapper.on('click', function onPosterWrapperClick(e) {
                 e.stopPropagation();
                 $(this).remove();
-                presenter.video.play();
+                presenter.videoObject.play();
             });
 
             var $poster = $('<img>');
@@ -801,39 +795,39 @@ function Addonvideo_create() {
     };
 
     presenter.setVideo = function() {
-        if (this.video) {
-            $(this.video).unbind("ended");
-            $(this.video).unbind("error");
-            $(this.video).unbind("canplay");
+        if (presenter.videoObject) {
+            $(presenter.videoObject).unbind("ended");
+            $(presenter.videoObject).unbind("error");
+            $(presenter.videoObject).unbind("canplay");
 
-            this.video.pause();
+            presenter.videoObject.pause();
         }
         this.videoContainer.find('source').remove();
-        this.video = this.videoContainer.find('video')[0];
+        presenter.videoObject = this.videoContainer.find('video')[0];
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
-        var $video = $(this.video);
+        var $video = $(presenter.videoObject);
         var files = this.files;
-        this.addAttributePoster($video, files[this.currentMovie].Poster);
+        this.addAttributePoster($video, files[presenter.currentMovie].Poster);
         if (presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {
             $video.attr('preload', 'auto');
             for (var vtype in this.videoTypes) {
-                if (files[this.currentMovie][this.videoTypes[vtype].name] && this.video.canPlayType(this.videoTypes[vtype].type)) {
+                if (files[presenter.currentMovie][this.videoTypes[vtype].name] && presenter.videoObject.canPlayType(this.videoTypes[vtype].type)) {
                     var source = $('<source>');
                     source.attr('type', this.videoTypes[vtype].type);
-                    source.attr('src', files[this.currentMovie][this.videoTypes[vtype].name]);
+                    source.attr('src', files[presenter.currentMovie][this.videoTypes[vtype].name]);
                     $video.append(source);
                 }
             }
 
             // "ended" event doesn't work on Safari
-            $(this.video).unbind('timeupdate');
-            $(this.video).bind("timeupdate", function onTimeUpdate() {
+            $(presenter.videoObject).unbind('timeupdate');
+            $(presenter.videoObject).bind("timeupdate", function onTimeUpdate() {
                 onTimeUpdate(this);
             });
 
-            $(this.video).bind("error", function onError() {
+            $(presenter.videoObject).bind("error", function onError() {
                 $(this).unbind("error");
                 presenter.reload();
                 if (presenter.configuration.isFullScreen) {
@@ -841,7 +835,7 @@ function Addonvideo_create() {
                 }
             });
 
-            $(this.video).bind("canplay", function onCanPlay() {
+            $(presenter.videoObject).bind("canplay", function onCanPlay() {
                 presenter.isVideoLoaded = true;
 
                 if (!presenter.commandsQueue.isQueueEmpty()) {
@@ -856,17 +850,16 @@ function Addonvideo_create() {
                     presenter.showSubtitles();
                 }
             });
-
             // Android devices have problem with loading content.
-            this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
-            this.video.load();
+            presenter.videoObject.addEventListener("stalled", presenter.onStalledEventHandler, false);
+            presenter.videoObject.load();
             presenter.metadadaLoaded = false;
 
-            if(ModelValidationUtils.validateBoolean(files[this.currentMovie]['Loop video'])) {
-                if (typeof this.video.loop == 'boolean') {
-                    this.video.loop = true;
+            if(ModelValidationUtils.validateBoolean(files[presenter.currentMovie]['Loop video'])) {
+                if (typeof presenter.videoObject.loop == 'boolean') {
+                    presenter.videoObject.loop = true;
                 } else {
-                    $(this.video).on('ended', function () {
+                    $(presenter.videoObject).on('ended', function () {
                         this.currentTime = 0;
                         this.play();
                     }, false);
@@ -874,11 +867,11 @@ function Addonvideo_create() {
 
                 presenter.isAborted = false;
 
-                $(this.video).on('abort', function() {
+                $(presenter.videoObject).on('abort', function() {
                     presenter.isAborted = true;
                 });
 
-                $(this.video).on('canplay', function() {
+                $(presenter.videoObject).on('canplay', function() {
                     if(presenter.isAborted) {
                         this.play();
                     }
@@ -938,7 +931,7 @@ function Addonvideo_create() {
 
     presenter.loadSubtitles = function() {
         var subtitlesLoadedDeferred = new $.Deferred(),
-          subtitles = this.files[this.currentMovie].Subtitles;
+          subtitles = this.files[presenter.currentMovie].Subtitles;
 
         if (subtitles) {
             if (StringUtils.startsWith(subtitles, "/file")) {
@@ -1045,7 +1038,7 @@ function Addonvideo_create() {
             return;
         }
 
-        this.video.currentTime = seconds;
+        presenter.videoObject.currentTime = seconds;
     };
 
     presenter.seekCommand = function(params) {
@@ -1055,7 +1048,7 @@ function Addonvideo_create() {
     presenter.show = function() {
         if (presenter.isCurrentlyVisible) return;
         if(presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
-            this.video.play();
+            presenter.videoObject.play();
         }
         this.isCurrentlyVisible = true;
         presenter.setVisibility(true);
@@ -1065,7 +1058,7 @@ function Addonvideo_create() {
         if (!presenter.isCurrentlyVisible) return;
 
         if (presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
-            this.video.pause();
+            presenter.videoObject.pause();
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
             presenter.isHideExecuted = true;
         }
@@ -1076,7 +1069,7 @@ function Addonvideo_create() {
     presenter.jumpTo = function(movieNumber) {
         var newMovie = parseInt(movieNumber, 10) - 1;
         if (0 <= newMovie && newMovie < this.files.length) {
-            this.currentMovie = newMovie;
+            presenter.currentMovie = newMovie;
             this.reload();
         }
     };
@@ -1114,7 +1107,7 @@ function Addonvideo_create() {
     presenter.loadVideoAtPlayOnMobiles = function () {
         if (MobileUtils.isSafariMobile(navigator.userAgent)) {
             if(!presenter.isVideoLoaded) {
-                this.video.load();
+                presenter.videoObject.load();
                 presenter.metadadaLoaded = false;
             }
         }
@@ -1130,16 +1123,14 @@ function Addonvideo_create() {
 
     presenter.play = function () {
         presenter.removeWaterMark();
-
         presenter.loadVideoAtPlayOnMobiles();
-
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('play', []);
             return;
         }
 
-        if (this.video.paused) {
-            this.video.play();
+        if (presenter.videoObject.paused) {
+            presenter.videoObject.play();
             presenter.addClassToView('playing');
         }
     };
@@ -1150,9 +1141,9 @@ function Addonvideo_create() {
             return;
         }
 
-        if (!this.video.paused) {
+        if (!presenter.videoObject.paused) {
             presenter.seek(0); // sets the current time to 0
-            this.video.pause();
+            presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
         }
     };
@@ -1163,22 +1154,22 @@ function Addonvideo_create() {
             return;
         }
 
-        if (!this.video.paused) {
-            this.video.pause();
+        if (!presenter.videoObject.paused) {
+            presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
         }
     };
 
     presenter.previous = function() {
-        if (this.currentMovie > 0) {
-            this.currentMovie--;
+        if (presenter.currentMovie > 0) {
+            presenter.currentMovie--;
             this.reload();
         }
     };
 
     presenter.next = function() {
-        if (this.currentMovie < this.files.length - 1) {
-            this.currentMovie++;
+        if (presenter.currentMovie < this.files.length - 1) {
+            presenter.currentMovie++;
             this.reload();
         }
     };
@@ -1186,10 +1177,9 @@ function Addonvideo_create() {
     presenter.reset = function() {
         presenter.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
-
-        this.currentMovie = 0;
+        presenter.currentMovie = 0;
         if (this.metadadaLoaded) {
-            this.video.pause();
+            presenter.videoObject.pause();
         }
 
         presenter.reload();
