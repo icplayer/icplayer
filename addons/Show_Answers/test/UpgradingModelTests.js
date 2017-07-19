@@ -23,6 +23,12 @@ TestCase("[Show_Answers] Upgrading increment mistake counter model test", {
         var result = this.presenter.upgradeIncrementMistakeCounter(this.model);
 
         assertEquals('true', result['Increment mistake counter']);
+
+        result = this.presenter.upgradeIncrementMistakeCounter({
+            "Increment mistake counter": 0
+        });
+
+        assertEquals(0, result["Increment mistake counter"]);
     }
 });
 

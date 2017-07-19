@@ -94,7 +94,7 @@ function AddonShow_Answers_create(){
     };
 
     function presenterLogic(view, model, isPreview) {
-        var upgradedModel = presenter.upgradedModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
 
         presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.$view = $(view);
