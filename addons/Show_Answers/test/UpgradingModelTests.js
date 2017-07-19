@@ -17,12 +17,12 @@ TestCase("[Show_Answers] Upgrading increment mistake counter model test", {
         assertEquals('false', result['Increment mistake counter']);
     },
 
-    'test should not change model counter to false': function() {
-        this.model["Increment mistake counter"] = "true";
+    'test should not change model counter value': function() {
+        this.model["Increment mistake counter"] = 'True';
 
         var result = this.presenter.upgradeIncrementMistakeCounter(this.model);
 
-        assertEquals('true', result['Increment mistake counter']);
+        assertEquals('True', result['Increment mistake counter']);
 
         result = this.presenter.upgradeIncrementMistakeCounter({
             "Increment mistake counter": 0

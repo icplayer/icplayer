@@ -41,7 +41,7 @@ function AddonShow_Answers_create(){
             'isSelected': false,
             'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
             'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"])
-        }
+        };
     };
 
     presenter.upgradeModel = function (model) {
@@ -55,7 +55,7 @@ function AddonShow_Answers_create(){
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if (!upgradedModel["Increment mistake counter"]) {
+        if (upgradedModel["Increment mistake counter"] === undefined) {
             upgradedModel["Increment mistake counter"] = "false";
         }
 
@@ -75,11 +75,11 @@ function AddonShow_Answers_create(){
                 eventName = presenter.EVENTS.SHOW_ANSWERS;
                 presenter.$wrapper.addClass('selected');
 
-                if (presenter.configuration.enableCheckCounter){
+                if (presenter.configuration.enableCheckCounter) {
                     presenter.playerController.getCommands().incrementCheckCounter();
                 }
 
-                if (presenter.configuration.enableMistakeCounter){
+                if (presenter.configuration.enableMistakeCounter) {
                     presenter.playerController.getCommands().increaseMistakeCounter();
                 }
             } else {
