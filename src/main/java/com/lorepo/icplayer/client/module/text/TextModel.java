@@ -107,7 +107,6 @@ public class TextModel extends BasicModuleModel {
 				openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 				rawText = XMLUtils.getCharacterDataFromElement(textElement);
 				
-				System.out.println(XMLUtils.getCharacterDataFromElement(textElement));
 				valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
 				blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
@@ -122,7 +121,6 @@ public class TextModel extends BasicModuleModel {
 	}
 
 	private void setText(String text) {
-		System.out.println(text);
 		moduleText = text;
 		TextParser parser = new TextParser();
 		parser.setId(gapUniqueId);
@@ -178,9 +176,6 @@ public class TextModel extends BasicModuleModel {
 		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
 		text.setAttribute("valueType", this.valueType);
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
-//		System.out.println(this.moduleText);
-//		text.appendChild(XMLUtils.createTextNode(this.moduleText));
-//		text.appendChild(XMLUtils.createElement(name))this.moduleText);
 
 		textModule.appendChild(text);
 

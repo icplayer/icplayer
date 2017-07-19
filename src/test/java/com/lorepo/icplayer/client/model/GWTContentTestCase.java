@@ -16,12 +16,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.tools.ant.filters.StringInputStream;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
@@ -34,8 +35,8 @@ import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
-@Ignore("TODO create XML mockup")
-public class ContentTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class GWTContentTestCase extends GwtTest {
 
 	private boolean receivedEvent = false;
 	private String DEFAULT = "default";

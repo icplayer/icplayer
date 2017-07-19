@@ -10,17 +10,12 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
-import org.apache.xerces.dom.DocumentImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.i18n.client.Dictionary;
@@ -28,9 +23,7 @@ import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.mockup.xml.ElementImpl;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
 import com.lorepo.icplayer.client.module.text.TextModel;
@@ -169,20 +162,17 @@ public class GWTTextModelTestCase extends GwtTest {
 		String xml = module.toXML();
 		Element newElement = xmlParser.parser(new StringInputStream(xml));
 
-		System.out.println(oldText);
-		System.out.println(xml);
-
 		TextModel newModule = new TextModel();
 		newModule.load(newElement, "", PAGE_VERSION);
 		String newText = newModule.getParsedText();
 
-		System.out.println(newText);
 		assertTrue(module.hasDraggableGaps());
 		assertEquals(100, module.getGapWidth());
 		assertFalse(module.isActivity());
 		assertTrue(module.isCaseSensitive());
-		oldText = oldText.replaceAll("id='[^-]+", "id='");
-		newText = newText.replaceAll("id='[^-]+", "id='");
+		oldText = oldText.replaceAll("id=\"[^-]+", "id=\"");
+		newText = newText.replaceAll("id=\"[^-]+", "id=\"");
+		
 		assertEquals(oldText, newText);
 	}
 }

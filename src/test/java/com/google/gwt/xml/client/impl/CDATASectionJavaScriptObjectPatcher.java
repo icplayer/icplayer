@@ -1,56 +1,63 @@
-package com.lorepo.icplayer.client;
-
-import com.google.gwt.core.client.JavaScriptObject;
-import com.googlecode.gwt.test.patchers.PatchClass;
-import com.googlecode.gwt.test.patchers.PatchMethod;
-
-import com.google.gwt.dom.client.*;
-import com.googlecode.gwt.test.internal.utils.GwtStyleUtils;
-import com.googlecode.gwt.test.internal.utils.JsoUtils;
-import com.googlecode.gwt.test.internal.utils.PropertyContainer;
+package com.google.gwt.xml.client.impl;
 
 import java.util.Map;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Text;
+import com.googlecode.gwt.test.internal.utils.GwtStyleUtils;
+import com.googlecode.gwt.test.internal.utils.JsoUtils;
+import com.googlecode.gwt.test.internal.utils.PropertyContainer;
+import com.googlecode.gwt.test.patchers.PatchClass;
+import com.googlecode.gwt.test.patchers.PatchMethod;
+
 @PatchClass(JavaScriptObject.class)
-public class CDATAPatcher {
-	
-	  @PatchMethod(override=true)
-	  static String toString(JavaScriptObject jso) {
-	        short nodeType = jso.<Node>cast().getNodeType();
+public class CDATASectionJavaScriptObjectPatcher {
+	@PatchMethod(override = true)
+    static String toString(JavaScriptObject jso) {
+        short nodeType = jso.<Node>cast().getNodeType();
 
-	        switch (nodeType) {
-	            case Node.DOCUMENT_NODE:
-	                return documentToString(jso.<Document>cast());
-	            case Node.TEXT_NODE:
-	                Text text = jso.cast();
-	                return "'" + text.getData() + "'";
-	            case Node.ELEMENT_NODE:
-	                return elementToString(jso.<Element>cast());
-	            default:
-	                if (JsoUtils.isNodeList(jso)) {
-	                    NodeList<?> nodeList = jso.cast();
-	                    return JsoUtils.getChildNodeInnerList(nodeList).toString();
-	                } else if (GwtStyleUtils.isStyle(jso)) {
-	                    Style style = jso.cast();
-	                    return GwtStyleUtils.toString(style);
-	                } else {
-	                	System.out.println("from patcher: " + jso.getClass());
-	                    return jso.getClass().getSimpleName();
-	                }
-	        }
-	  }
-	  
+        switch (nodeType) {
+            case Node.DOCUMENT_NODE:
+                return documentToString(jso.<Document>cast());
+            case Node.TEXT_NODE:
+                Text text = jso.cast();
+                return "'" + text.getData() + "'";
+            case Node.ELEMENT_NODE:
+                return elementToString(jso.<Element>cast());
+            case com.google.gwt.xml.client.Node.CDATA_SECTION_NODE:
+            	CDATASectionImpl cdata = new CDATASectionImpl(jso);
+            	return cdata.toString();
+            default:
+                if (JsoUtils.isNodeList(jso)) {
+                    NodeList<?> nodeList = jso.cast();
+                    return JsoUtils.getChildNodeInnerList(nodeList).toString();
+                } else if (GwtStyleUtils.isStyle(jso)) {
+                    Style style = jso.cast();
+                    return GwtStyleUtils.toString(style);
+                } else {
+                    return jso.getClass().getSimpleName();
+                }
+
+        }
+
+    }
+    
     private static String documentToString(Document document) {
-	        StringBuilder html = new StringBuilder();
-	        NodeList<Node> childs = document.getChildNodes();
+        StringBuilder html = new StringBuilder();
+        NodeList<Node> childs = document.getChildNodes();
 
-	        for (int i = 0; i < childs.getLength(); i++) {
-	            Node child = childs.getItem(i);
-	            html.append(child.toString());
-	        }
+        for (int i = 0; i < childs.getLength(); i++) {
+            Node child = childs.getItem(i);
+            html.append(child.toString());
+        }
 
-	        return html.toString();
-	    }
+        return html.toString();
+    }
     
     private static String elementToString(Element elem) {
         String tagName = JsoUtils.isXmlElement(elem) ? elem.getTagName()
@@ -101,3 +108,4 @@ public class CDATAPatcher {
         return sb.toString();
     }
 }
+

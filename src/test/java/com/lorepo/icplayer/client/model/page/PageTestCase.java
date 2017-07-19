@@ -15,8 +15,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.tools.ant.filters.StringInputStream;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -64,15 +62,6 @@ public class PageTestCase {
 		}
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void toXMLNotNull() {
-		
-		Page page = new Page("page1", "");
-		String xml = page.toXML();
-		
-		assertNotNull(xml);
-	}
 
 	@Test
 	public void loadFromXMLAddon() throws Exception {
@@ -154,93 +143,7 @@ public class PageTestCase {
 		assertTrue(eventReceived);
 	}
 
-	@Ignore("xml parsing need fix")
-	@Test
-	public void saveLoadCssClass() throws Exception {
-		
-		Page page = new Page("Class test page", "");
-		page.setStyleClass("DemoClass");
-		String xml = page.toXML();
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(new StringInputStream(xml));
-		
-		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
-		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
 
-		page = new Page("id", "path");
-		page.load(element, "");
-		
-		assertEquals("DemoClass", page.getStyleClass());
-	}
-
-	@Ignore("xml parsing need fix")
-	@Test
-	public void toXMLSingleModule() {
-		
-		Page page = new Page("ala", "kot");
-		IModuleModel module = new ShapeModule();
-		
-		module.setLeft(1);
-		module.setTop(2);
-		module.setWidth(3);
-		module.setHeight(4);
-		page.getModules().add(module);
-		String xml = page.toXML();
-		
-		int index = xml.indexOf("<shapeModule ");
-		
-		assertTrue(index > -1);
-	}
-
-	/**
-	 * Sprawdzenie, ze podczas zapisu jest poprawny XML
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws SAXException 
-	 */
-	@Ignore("xml parsing need fix")
-	@Test
-	public void toXML() throws ParserConfigurationException, SAXException, IOException {
-		
-		Page page = new Page("ala", "kot");
-		IModuleModel module = new ShapeModule();
-		
-		module.setLeft(1);
-		module.setTop(2);
-		module.setWidth(3);
-		module.setHeight(4);
-		page.getModules().add(module);
-		String xml = page.toXML();
-		
-		parseXML(xml);
-	}
-
-	
-	/**
-	 * Sprawdzenie, ze podczas zapisu jest poprawny XML
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws SAXException 
-	 */
-	@Ignore("xml parsing need fix")
-	@Test
-	public void toXMLWithStyle() throws ParserConfigurationException, SAXException, IOException {
-		
-		Page page = new Page("ala", "kot");
-		IModuleModel module = new ShapeModule();
-		
-		module.setLeft(1);
-		module.setTop(2);
-		module.setWidth(3);
-		module.setHeight(4);
-		module.setInlineStyle("background-image: url('/file/123');");
-		page.getModules().add(module);
-		String xml = page.toXML();
-		
-		parseXML(xml);
-	}
-
-	
 	/**
 	 * Try to parse XML
 	 * @param xml
@@ -248,8 +151,7 @@ public class PageTestCase {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private static void parseXML(String xml) throws ParserConfigurationException,
-			SAXException, IOException {
+	private static void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
 		docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -259,7 +161,6 @@ public class PageTestCase {
 	
 	@Test
 	public void isLoaded() throws Exception {
-
 		InputStream inputStream = getClass().getResourceAsStream("testdata/addon.page.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -322,61 +223,6 @@ public class PageTestCase {
 		
 		assertEquals(100, width);
 		assertEquals(200, height);
-	}
-
-	@Ignore("parsing xml need fix")
-	@Test
-	public void saveLoadsize() throws Exception {
-		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get("width")).thenReturn("width");
-		when(DictionaryWrapper.get("height")).thenReturn("height");
-
-		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
-		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
-
-		Page page = new Page("Sizes", "");
-		for(int i = 0; i < page.getPropertyCount(); i++){
-
-			IProperty property = page.getProperty(i);
-			if(property.getName().compareToIgnoreCase("width") == 0){
-				property.setValue("300");
-			}
-			else if(property.getName().compareToIgnoreCase("height") == 0){
-				property.setValue("400");
-			}
-		}
-
-		String xml = page.toXML();
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(new StringInputStream(xml));
-
-		page = new Page("id", "path");
-		page.load(element, "");
-
-		assertEquals(300, page.getWidth());
-		assertEquals(400, page.getHeight());
-	}
-
-	@Ignore("parsing xml need fix")
-	@Test
-	public void isReportableTrue() throws Exception {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
-		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
-
-		Page page = new Page("Page 1", "");
-		page.load(element, "");
-		String xml = page.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		
-		page = new Page("Page 2", "");
-		page.load(element, "");
-		
-		assertTrue(page.isReportable());
 	}
 
 	@Test
@@ -532,27 +378,6 @@ public class PageTestCase {
 		assertTrue(page.getScoringType() == Page.ScoringType.percentage);
 	}
 	
-
-	@Ignore("to xml need fix")
-	@Test
-	public void saveScoringType() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page4.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		Page page = new Page("Page 1", "");
-		page.load(element, "");
-		String xml = page.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		
-		page = new Page("Page 2", "");
-		page.load(element, "");
-		
-		assertTrue(page.getScoringType() == Page.ScoringType.zeroOne);
-	}
-
-
 
 	@Test
 	public void scoreTypeProperty(){

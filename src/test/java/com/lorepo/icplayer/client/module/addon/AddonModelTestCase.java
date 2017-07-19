@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.tools.ant.filters.StringInputStream;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -51,7 +50,6 @@ public class AddonModelTestCase {
 		assertEquals("addon1", module.getId());
 	}
 
-	@Ignore("toXML needs fix")
 	@Test
 	public void loadSaveParams() throws SAXException, IOException {
 		
@@ -67,7 +65,6 @@ public class AddonModelTestCase {
 		assertTrue(index > 0);
 	}
 
-	@Ignore("toXML need fix")
 	@Test
 	public void escapeId() throws SAXException, IOException {
 		
@@ -87,7 +84,6 @@ public class AddonModelTestCase {
 		assertEquals("Te\'s", module.getId());
 	}
 
-	@Ignore("toXML need fix")
 	@Test
 	public void loadSaveHtml() throws SAXException, IOException {
 		
@@ -108,7 +104,6 @@ public class AddonModelTestCase {
 		assertEquals(oldText, newText);
 	}
 
-	@Ignore("toXML need fix")
 	@Test
 	public void validateXML() throws SAXException, IOException {
 		
@@ -122,7 +117,6 @@ public class AddonModelTestCase {
 		xmlParser.parser(new StringInputStream(xml));
 	}
 
-	@Ignore("unfinished test")
 	@Test
 	public void escapeXML() throws SAXException, IOException {
 		
@@ -173,7 +167,6 @@ public class AddonModelTestCase {
 		assertEquals("Addon title", displayName);
 	}
 	
-	@Ignore("toXML need fix")
 	@Test
 	public void toXML() throws SAXException, IOException {
 		
@@ -510,7 +503,6 @@ public class AddonModelTestCase {
 	}
 	
 	
-	@Ignore("toXML need fix")
 	@Test
 	public void replaceLinks() throws SAXException, IOException {
 		
@@ -534,7 +526,6 @@ public class AddonModelTestCase {
 		}
 		
 		assertNotNull(foundProperty);
-		System.out.println(foundProperty.getValue());
 		int index = foundProperty.getValue().indexOf("/ala/ma/kota");
 		assertTrue(index > 0);
 	}

@@ -63,7 +63,6 @@ public class DomElementManipulatorMockup extends DomElementManipulator {
 		LSSerializer serializer = lsImpl.createLSSerializer();
 		serializer.getDomConfig().setParameter("xml-declaration", false); //by default its true, so set it to false to get String without xml-declaration
 		String str = serializer.writeToString(this.element);
-		System.out.println(str);
 		return str;
 	}
 		

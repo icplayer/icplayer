@@ -43,7 +43,7 @@ public class Content implements IContentBuilder, IContent {
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
 
-	private HashMap<String, CssStyle> styles;
+	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 
 	private int maxPagesCount = 100;

@@ -70,7 +70,7 @@ public class ElementImpl implements Element{
 
 	@Override
 	public short getNodeType() {
-		throw new UnsupportedOperationException();
+		return elementImpl.getNodeType();
 	}
 
 	@Override

@@ -7,27 +7,27 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.xml.client.Element;
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v1;
 
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(DictionaryWrapper.class)
-public class GroupedModulesTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class GWTGroupedModulesTestCase extends GwtTest {
 
 	private Page page = new Page("page2", "");
 	private final XMLParserMockup xmlParser = new XMLParserMockup();
@@ -45,31 +45,23 @@ public class GroupedModulesTestCase {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Before
 	public void setUp() {
-		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get("defaultScore")).thenReturn("Default");
-		when(DictionaryWrapper.get("zeroMaxScore")).thenReturn("Zero or Max");
-		when(DictionaryWrapper.get("graduallyToMaxScore")).thenReturn("Gradually to Max");
-	}
-	
-	@Ignore("toXML need fix")
-	@Test
-	public void OldXMLTakesGroupsElement() throws SAXException, IOException {
-		loadPage("testdata/xmlWithoutGroupedModules.xml");
-
-		assertEquals("<?xml version='1.0' encoding='UTF-8' ?>"
-				+ "<page layout='pixels' name='page2' isReportable='true' scoring='percentage' width='100' height='200' version='2'>"
-				+ "<modules></modules>"
-				+ "<groups></groups>"
-				+ "<editorRulers></editorRulers>"
-				+ "<page-weight value='1' mode='defaultWeight'></page-weight>"
-				+ "</page>",
-				page.toXML());
+		Dictionary dictMock = Mockito.mock(Dictionary.class);
+		when(dictMock.get("defaultScore")).thenReturn("Default");
+		when(dictMock.get("zeroMaxScore")).thenReturn("Zero or Max");
+		when(dictMock.get("graduallyToMaxScore")).thenReturn("Gradually to Max");
+		
+		Set<String> dictValues = new HashSet<String>();
+		dictValues.add("defaultScore");
+		dictValues.add("zeroMaxScore");
+		dictValues.add("graduallyToMaxScore");
+		when(dictMock.keySet()).thenReturn(dictValues);
+		
+		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
 	}
 
-	@Ignore("toXML need fix")
 	@Test
 	public void savingGroupToXML() throws SAXException, IOException {
 		loadPage("testdata/modulesOnThePage.xml");
@@ -135,7 +127,7 @@ public class GroupedModulesTestCase {
 	@Test
 	public void setScoreFromStringIfScoreTypeExists() throws SAXException, IOException {
 		loadPage("testdata/modulesAndGroups.xml");
-
+		
 		assertEquals("zeroMaxScore", page.getGroupedModules().get(0).getScoringType().toString());
 	}
 
@@ -165,7 +157,6 @@ public class GroupedModulesTestCase {
 
 	@Test
 	public void checkIsNewValueMaxScoreValidWhenItIs() {
-
 		IProperty mockedProperty = Mockito.mock(IProperty.class);
 		Group group = new Group();
 
