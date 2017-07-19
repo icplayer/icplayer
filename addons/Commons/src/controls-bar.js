@@ -110,7 +110,9 @@
     */
     CustomControlsBar.prototype.volumeBarClicked = function (e) {
         var actualPosition = (e.clientX - cumulativeOffset(this.elements.volumeBarWrapper.element).left);
-        var percent = (actualPosition * 100) / this.elements.volumeBarWrapper.element.offsetWidth;
+        console.log(actualPosition);
+        var percent = (actualPosition * 100) / this.elements.volumeBackground.element.offsetWidth;
+        console.log(percent, this.elements.volumeBarWrapper.element.offsetWidth);
         for (var i = 0; i < this.volumeChangedCallbacks.length; i++) {
             this.volumeChangedCallbacks[i](percent);
         }
@@ -374,7 +376,6 @@
     */
     CustomControlsBar.prototype.addVolumeBarClickCallback = function (callback) {
         addNewCallback.call(this, this.elements.volumeBarWrapper, callback, 'click');
-        setOnClick(this.elements.volumeBarWrapper.element, callback);
     };
 
     /**
@@ -386,7 +387,6 @@
     */
     CustomControlsBar.prototype.addPlayCallback = function (callback) {
         addNewCallback.call(this, this.elements.playButton, callback, 'click');
-        setOnClick(this.elements.playButton.element, callback);
     };
 
     /**
@@ -398,7 +398,6 @@
     */
     CustomControlsBar.prototype.addProgressBarClickCallback = function (callback) {
         addNewCallback.call(this, this.elements.progressBarWrapper, callback, 'click');
-        setOnClick(this.elements.progressBarWrapper.element, callback);
     };
 
     /**
@@ -414,7 +413,6 @@
         for (var i = 0 ; i < childNodes.length; i++) {
             if (childNodes[i] !== this.elements.mainDiv.element) {
                 this.elements[ELEMENT_PREFIX + i] = buildTreeNode(childNodes[i]);
-                setOnClick(childNodes[i], callback);
                 addNewCallback.call(this, this.elements[ELEMENT_PREFIX + i], callback, 'click');
             }
         }
@@ -429,7 +427,6 @@
     */
     CustomControlsBar.prototype.addPauseCallback = function (callback) {
         addNewCallback.call(this, this.elements.pauseButton, callback, 'click');
-        setOnClick(this.elements.pauseButton.element, callback);
     };
 
     /**
@@ -441,7 +438,6 @@
     */
     CustomControlsBar.prototype.addStopCallback = function (callback) {
         addNewCallback.call(this, this.elements.stopButton, callback, 'click');
-        setOnClick(this.elements.stopButton.element, callback);
     };
 
     /**
@@ -453,7 +449,6 @@
     */
     CustomControlsBar.prototype.addFullscreenCallback = function (callback) {
         addNewCallback.call(this, this.elements.fullscreen, callback, 'click');
-        setOnClick(this.elements.fullscreen.element, callback);
     };
 
     /**
@@ -465,7 +460,6 @@
     */
     CustomControlsBar.prototype.addCloseFullscreenCallback = function (callback) {
         addNewCallback.call(this, this.elements.closeFullscreen, callback, 'click');
-        setOnClick(this.elements.closeFullscreen.element, callback);
     };
 
     /**
@@ -477,7 +471,6 @@
     */
     CustomControlsBar.prototype.addVolumeClickCallback = function (callback) {
         addNewCallback.call(this, this.elements.volume, callback, 'click');
-        setOnClick(this.elements.volume.element, callback);
     };
 
     /**
@@ -625,7 +618,7 @@
     }
 
     //http://stackoverflow.com/questions/1480133/how-can-i-get-an-objects-absolute-position-on-the-page-in-javascript
-    var cumulativeOffset = function(element) {
+    function cumulativeOffset(element) {
         var top = 0, left = 0;
         do {
             top += element.offsetTop  || 0;
@@ -637,7 +630,7 @@
             top: top,
             left: left
         };
-    };
+    }
 
     function buildTreeNode (element) {
         return {
@@ -653,11 +646,9 @@
 
         treeElement.events[callbackType].push({
             callback: callback
-        })
-    }
+        });
 
-    function setOnClick (element, callback) {
-        addEventListener("click", element, callback)
+        addEventListener(callbackType, treeElement.element, callback);
     }
 
     function addEventListener(eventName, element, callback) {

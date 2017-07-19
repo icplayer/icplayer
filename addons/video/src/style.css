@@ -140,6 +140,7 @@
     border-bottom: solid 9px white;
     float: left;
     cursor: pointer;
+    position: absolute;
 }
 
 .video-container .CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackgroundSelected {
