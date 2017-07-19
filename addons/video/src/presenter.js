@@ -1,6 +1,6 @@
 function Addonvideo_create() {
     var presenter = function() {};
-    
+
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
     presenter.$view = null;
@@ -37,7 +37,9 @@ function Addonvideo_create() {
         actualTime: -1,
         className: ''
     };
-    
+
+    presenter.lastSentCurrentTime = 0;
+
     var height;
 
 
@@ -67,20 +69,20 @@ function Addonvideo_create() {
     presenter.upgradeModel = function (model) {
         return presenter.upgradePoster(model);
     };
-    
+
     presenter.upgradePoster = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
-        
+
         for (var i = 0; i < model.Files.length; i++) {
             if (!upgradedModel.Files[i].Poster) {
                 upgradedModel.Files[i].Poster = "";
             }
         }
-        
+
         return upgradedModel;
     };
-    
+
     presenter.ERROR_CODES = {
         'MEDIA_ERR_ABORTED' : 1,
         'MEDIA_ERR_DECODE' : 2,
@@ -88,10 +90,10 @@ function Addonvideo_create() {
         'MEDIA_ERR_SRC_NOT_SUPPORTED' : [4, 'Ups ! Looks like your browser doesn\'t support this codecs. ' +
         'Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin']
     };
-    
+
     presenter.getVideoErrorMessage = function (errorCode) {
         var errorMessage = 'We are terribly sorry, but an error has occurred: ';
-        
+
         switch (errorCode) {
             case presenter.ERROR_CODES.MEDIA_ERR_ABORTED:
                 errorMessage += 'you aborted the video playback.';
@@ -109,22 +111,22 @@ function Addonvideo_create() {
                 errorMessage += 'unknown.';
                 break;
         }
-        
+
         return errorMessage + ' Please refresh page.';
     };
-    
+
     presenter.videoTypes = [
         { name : 'MP4 video', type : 'video/mp4'},
         { name : 'Ogg video', type : 'video/ogg'},
         { name : 'WebM video', type : 'video/webm'}
     ];
-    
+
     presenter.VIDEO_STATE = {
         STOPPED: 0,
         PLAYING: 1,
         PAUSED: 2
     };
-    
+
     function fullScreenChange () {
         if (!presenter.configuration.isFullScreen) {
             $(presenter.videoContainer).css({
@@ -146,12 +148,12 @@ function Addonvideo_create() {
             })
         }
     }
-    
+
     presenter.registerFullScreenEventCallbacks = function () {
         document.addEventListener("mozfullscreenchange", fullScreenChange, false);
         presenter.videoContainer.get(0).addEventListener("webkitfullscreenchange", fullScreenChange, false);
     };
-    
+
     presenter.registerHook = function() {
         presenter.mathJaxHook = MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
             if ($(message[1]).hasClass('ic_page')) {
@@ -159,22 +161,22 @@ function Addonvideo_create() {
             }
         });
     };
-    
+
     presenter.setPlayerController = function (controller) {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
-        
+
         presenter.registerHook();
-        
+
         presenter.eventBus = controller.getEventBus();
         presenter.eventBus.addEventListener('PageLoaded', this);
-        
+
         var pageLoadedDeferred = new jQuery.Deferred();
         presenter.pageLoadedDeferred = pageLoadedDeferred;
         presenter.pageLoaded = pageLoadedDeferred.promise();
     };
-    
+
     presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
         if(eventData.value == 'dropdownClicked') {
@@ -182,7 +184,7 @@ function Addonvideo_create() {
             this.video.load();
         }
     };
-    
+
     presenter.createEndedEventData = function (currentVideo) {
         return {
             source: presenter.addonID,
@@ -190,16 +192,35 @@ function Addonvideo_create() {
             value: 'ended'
         };
     };
-    
+
+    presenter.formatTime = function addonVideo_formatTime (seconds) {
+        if (seconds < 0 || isNaN(seconds)) {
+            return "00:00";
+        }
+        var minutes = Math.floor(seconds / 60);
+        minutes = (minutes >= 10) ? minutes : "0" + minutes;
+        seconds = Math.floor(seconds % 60);
+        seconds = (seconds >= 10) ? seconds : "0" + seconds;
+        return minutes + ":" + seconds;
+    };
+
+    presenter.sendTimeUpdateEvent = function Video_sendTimeUpdate(formattedTime) {
+        presenter.eventBus.sendEvent('ValueChanged', {
+            source: presenter.addonID,
+            item: (presenter.currentMovie + 1),
+            value : formattedTime
+        });
+    };
+
     presenter.sendVideoEndedEvent = function () {
         var eventData = presenter.createEndedEventData(presenter.currentMovie);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
-    
+
     presenter.stopPropagationOnClickEvent = function(e) {
         e.stopPropagation();
     };
-    
+
     presenter.setMetaDataOnMetaDataLoadedEvent = function() {
         presenter.metadadaLoaded = true;
         presenter.originalVideoSize = presenter.getVideoSize(presenter.addonSize);
@@ -258,20 +279,20 @@ function Addonvideo_create() {
         presenter.videoState = presenter.VIDEO_STATE.PLAYING;
         presenter.addClassToView('playing');
     }
-    
+
     function setVideoStateOnPauseEvent() {
         if (!presenter.isHideExecuted) {
             presenter.videoState = presenter.VIDEO_STATE.PAUSED;
             presenter.removeClassFromView('playing');
         }
-        
+
         delete presenter.isHideExecuted;
     }
-    
+
     presenter.removeMathJaxHook = function() {
         MathJax.Hub.signal.hooks["End Process"].Remove(presenter.mathJaxHook);
     };
-    
+
     presenter.destroy = function() {
         presenter.controlBar.destroy();
         presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
@@ -283,15 +304,15 @@ function Addonvideo_create() {
         presenter.videoObject.removeEventListener('webkitfullscreenchange', fullScreenChange);
         $(document).off('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange');
         document.removeEventListener("mozfullscreenchange", fullScreenChange);
-        
+
         presenter.$videoObject.unbind("ended");
         presenter.$videoObject.unbind("error");
         presenter.$videoObject.unbind("canplay");
         presenter.$videoObject.unbind('timeupdate');
-        
+
         presenter.removeMathJaxHook();
         presenter.$view.off();
-        
+
         presenter.videoObject.src = '';
         presenter.mathJaxHook = null;
         presenter.eventBus = null;
@@ -301,21 +322,21 @@ function Addonvideo_create() {
     };
     
     presenter.keyboardController = function(keycode) {
-        
+
         $(document).on('keydown', function(e) {
             e.preventDefault();
             $(this).off('keydown');
         });
-        
+
         function increasedVolume() {
             var val = Math.round((presenter.videoObject.volume + 0.1)*10)/10;
-            
+
             return val > 1 ? 1 : val;
         }
         
         function decreasedVolume() {
             var val = Math.round((presenter.videoObject.volume - 0.1)*10)/10;
-            
+
             return val < 0 ? 0 : val;
         }
         
@@ -326,7 +347,7 @@ function Addonvideo_create() {
         function backward() {
             presenter.videoObject.currentTime -= 15;
         }
-        
+
         function playPause() {
             if (presenter.video.paused) {
                 presenter.play();
@@ -334,7 +355,7 @@ function Addonvideo_create() {
                 presenter.pause();
             }
         }
-        
+
         function fullScreen() {
             if (presenter.videoObject.requestFullscreen) {
                 presenter.videoObject.requestFullscreen();
@@ -344,7 +365,7 @@ function Addonvideo_create() {
                 presenter.videoObject.webkitRequestFullscreen();
             }
         }
-        
+
         switch(keycode) {
             case 32:
                 playPause();
@@ -369,11 +390,11 @@ function Addonvideo_create() {
                 break;
         }
     };
-    
+
     presenter.run = function(view, model) {
         presenter.commandsQueue = CommandsQueueFactory.create(presenter);
         presenter.isVideoLoaded = false;
-        
+
         presenter.addonID = model.ID;
         presenter.addonSize = {
             width: model.Width,
@@ -397,28 +418,28 @@ function Addonvideo_create() {
         if (presenter.defaultControls) {
             this.buildControlsBars();
         }
-        
+
         presenter.reload();
-        
+
         if (!presenter.isVisibleByDefault) presenter.hide();
-        
+
         presenter.video.addEventListener('click', presenter.stopPropagationOnClickEvent);
         presenter.video.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
         presenter.video.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
         presenter.video.addEventListener('play', setVideoStateOnPlayEvent);
         presenter.video.addEventListener('pause', setVideoStateOnPauseEvent);
-        presenter.video.addEventListener('playing', AddonVideo_onVideoPlaying, false);
-        
+        presenter.video.addEventListener('playing', presenter.onVideoPlaying, false);
+
         presenter.eventBus.addEventListener('ValueChanged', this);
-        
-        
-        
+
+
+
         presenter.videoView.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
                 presenter.destroy();
             }
         });
-        
+
         if (presenter.shouldHideSubtitles) {
             presenter.hideSubtitles();
         } else {
@@ -433,9 +454,9 @@ function Addonvideo_create() {
                 presenter.controlBar.showFullscreenButton();
             }
         });
-        
+
     };
-    
+
     presenter.buildControlsBars = function () {
         var config = {
             videoObject: presenter.videoObject,
@@ -448,11 +469,11 @@ function Addonvideo_create() {
             presenter.$view.find(".poster-wrapper").trigger('click');
             presenter.videoObject.play();
         });
-        
+
         controls.addPauseCallback(function () {
             presenter.videoObject.pause();
         });
-        
+
         controls.addStopCallback(function () {
             presenter.videoObject.currentTime = 0;
             presenter.videoObject.pause();
@@ -495,7 +516,7 @@ function Addonvideo_create() {
                 fullScreenChange();
 
         });
-        
+
         controls.addCloseFullscreenCallback(function () {
             if (presenter.stylesBeforeFullscreen.changedStyles === true) {
                 presenter.stylesBeforeFullscreen.actualTime = presenter.video.currentTime;
@@ -515,13 +536,13 @@ function Addonvideo_create() {
             presenter.configuration.isFullScreen = false;
             presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
-            
+
         });
-        
+
         controls.addProgressChangedCallback(function (percent) {
             presenter.video.currentTime = presenter.video.duration * (percent / 100);
         });
-        
+
         controls.addVolumeChangedCallback(function (percent) {
             presenter.video.volume = percent/100;
         });
@@ -582,50 +603,54 @@ function Addonvideo_create() {
         presenter.calculateCaptionsOffset(presenter.addonSize, false);
     });
 
-    presenter.sendOnPLayingEvent = function () {
+    presenter.sendOnPlayingEvent = function () {
         var eventData = {
             'source': presenter.addonID,
-            'item': '',
+            'item': (presenter.currentMovie + 1),
             'value': 'playing',
             'score': ''
         };
-        
+
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
-    
-    function AddonVideo_onVideoPlaying () {
-        presenter.sendOnPLayingEvent();
-    }
-    
+
+    presenter.onVideoPlaying = function AddonVideo_onVideoPlaying () {
+        presenter.sendOnPlayingEvent();
+
+        if (presenter.video.currentTime === 0){
+            presenter.sendTimeUpdateEvent(presenter.formatTime(presenter.video.currentTime))
+        }
+    };
+
     presenter.convertTimeStringToNumber = function(timeString) {
         timeString = timeString.split(':');
         var minutes = parseInt(timeString[0] * 60, 10);
         var seconds = parseInt(timeString[1], 10);
         return { isCorrect: true, value: (minutes + seconds) };
     };
-    
+
     presenter.handleErrorCode = function(error) {
         if (!error) return;
-        
+
         presenter.$view.html(presenter.getVideoErrorMessage(error.code));
     };
-    
+
     presenter.createPreview = function(view, model) {
         this.files = model.Files;
         this.$view = $(view);
         this.videoContainer = $(view).find('.video-container:first');
         height = model.Height;
-        
+
         this.isPreview = true;
         this.setVideo();
-        
+
         this.setDimensions();
-        
+
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isCurrentlyVisible = true;
         if (!presenter.isVisibleByDefault) presenter.hide();
     };
-    
+
     presenter.showCaptions = function(time) {
         if (!presenter.configuration.dimensions) return; // No captions to show when video wasn't loaded properly
         for (var i = 0; i < this.captions.length; i++) {
@@ -639,7 +664,7 @@ function Addonvideo_create() {
             }
         }
     };
-    
+
     presenter.reload = function() {
         presenter.isVideoLoaded = false;
         $(this.videoContainer).find('.captions').remove();
@@ -651,28 +676,41 @@ function Addonvideo_create() {
         });
         presenter.removeClassFromView('playing');
     };
-    
+
+    presenter.sendTimeUpdate = function Video_sendTime() {
+        var actualVideoTime = parseInt(this.video.currentTime, 10);
+        if (actualVideoTime !== presenter.lastSentCurrentTime) {
+            var formattedTime = presenter.formatTime(actualVideoTime,10);
+            presenter.sendTimeUpdateEvent(formattedTime);
+            presenter.lastSentCurrentTime = actualVideoTime;
+        }
+    };
+
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
-        
+
+        presenter.sendTimeUpdate();
+
         var currentTime = Math.round(video.currentTime * 10) / 10,
           videoDuration = Math.round(video.duration * 10) / 10,
           isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
-        
+
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
             presenter.reload();
-            
+
             if (isFullScreen && document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
             }
-            
+
             if (presenter.configuration.isFullScreen) {
                 fullScreenChange();
             }
+
+            presenter.lastSentCurrentTime = 0;
         }
     }
-    
+
     presenter.getState = function() {
         var isPaused = this.video.paused;
         this.video.pause();
@@ -684,20 +722,20 @@ function Addonvideo_create() {
             areSubtitlesHidden: presenter.areSubtitlesHidden
         });
     };
-    
+
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
         this.isCurrentlyVisible = state.isCurrentlyVisible;
-        
+
         if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
             presenter.setVisibility(this.isCurrentlyVisible);
         }
-        
+
         this.currentMovie = state.currentMovie;
         this.reload();
-        
+
         $(this.video).on('canplay', function onVideoCanPlay() {
             if (this.currentTime < currentTime) {
                 this.currentTime = currentTime;
@@ -705,7 +743,7 @@ function Addonvideo_create() {
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
                 $(this).off('canplay');
             }
-            
+
             if(state.areSubtitlesHidden != undefined) {
                 if (state.areSubtitlesHidden) {
                     presenter.hideSubtitles();
@@ -715,12 +753,12 @@ function Addonvideo_create() {
             }
         });
     };
-    
+
     presenter.getIOSVersion = function(userAgent) {
         var match = /CPU OS ([\d_]+) like Mac OS X/.exec(userAgent);
         return match === null ? '' : match[1];
     };
-    
+
     presenter.addAttributePoster = function(video, posterSource) {
         if (posterSource) {
             if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
@@ -736,8 +774,8 @@ function Addonvideo_create() {
                 }
                 return;
             }
-            
-            
+
+
             var $poster_wrapper = $('<div>');
             $poster_wrapper.addClass('poster-wrapper');
             $poster_wrapper.on('click', function onPosterWrapperClick(e) {
@@ -745,29 +783,29 @@ function Addonvideo_create() {
                 $(this).remove();
                 presenter.video.play();
             });
-            
+
             var $poster = $('<img>');
             $poster.attr('src', posterSource);
             $poster_wrapper.append($poster);
-            
+
             var $playBTN = $('<div>');
             $playBTN.addClass('video-poster-play');
             $poster_wrapper.append($playBTN);
-            
+
             video.parent().append($poster_wrapper);
-            
+
         } else {
             video.attr('poster', '');
             presenter.$view.find('.poster-wrapper').remove();
         }
     };
-    
+
     presenter.setVideo = function() {
         if (this.video) {
             $(this.video).unbind("ended");
             $(this.video).unbind("error");
             $(this.video).unbind("canplay");
-            
+
             this.video.pause();
         }
         this.videoContainer.find('source').remove();
@@ -788,13 +826,13 @@ function Addonvideo_create() {
                     $video.append(source);
                 }
             }
-            
+
             // "ended" event doesn't work on Safari
             $(this.video).unbind('timeupdate');
             $(this.video).bind("timeupdate", function onTimeUpdate() {
                 onTimeUpdate(this);
             });
-            
+
             $(this.video).bind("error", function onError() {
                 $(this).unbind("error");
                 presenter.reload();
@@ -802,28 +840,28 @@ function Addonvideo_create() {
                     fullScreenChange();
                 }
             });
-            
+
             $(this.video).bind("canplay", function onCanPlay() {
                 presenter.isVideoLoaded = true;
-                
+
                 if (!presenter.commandsQueue.isQueueEmpty()) {
                     presenter.commandsQueue.executeAllTasks();
                 }
-                
+
                 $(this).unbind("canplay");
-                
+
                 if (presenter.areSubtitlesHidden) {
                     presenter.hideSubtitles();
                 } else {
                     presenter.showSubtitles();
                 }
             });
-            
+
             // Android devices have problem with loading content.
             this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
             this.video.load();
             presenter.metadadaLoaded = false;
-            
+
             if(ModelValidationUtils.validateBoolean(files[this.currentMovie]['Loop video'])) {
                 if (typeof this.video.loop == 'boolean') {
                     this.video.loop = true;
@@ -833,13 +871,13 @@ function Addonvideo_create() {
                         this.play();
                     }, false);
                 }
-                
+
                 presenter.isAborted = false;
-                
+
                 $(this.video).on('abort', function() {
                     presenter.isAborted = true;
                 });
-                
+
                 $(this.video).on('canplay', function() {
                     if(presenter.isAborted) {
                         this.play();
@@ -848,7 +886,7 @@ function Addonvideo_create() {
             }
         }
     };
-    
+
     /**
      * Creates DIV element containing caption text.
      *
@@ -857,7 +895,7 @@ function Addonvideo_create() {
      */
     function createCaptionElement(caption) {
         var captionElement = document.createElement('div');
-        
+
         $(captionElement).addClass('captions');
         $(captionElement).addClass(caption.cssClass);
         $(captionElement).html(caption.text);
@@ -865,17 +903,17 @@ function Addonvideo_create() {
             top: caption.top,
             left: caption.left
         });
-        
+
         $(captionElement).css('visibility', 'hidden');
         $(captionElement).attr('visibility', 'hidden');
         presenter.$captionsContainer.append(captionElement);
 
         return captionElement;
     }
-    
+
     presenter.convertLinesToCaptions = function(lines) {
         this.captions = [];
-        
+
         for (var i = 0; i < lines.length; i++) {
             var parts = lines[i].split('|');
             if (parts.length == 6) {
@@ -887,21 +925,21 @@ function Addonvideo_create() {
                     cssClass:parts[4],
                     text:parts[5]
                 };
-                
+
                 caption.element = createCaptionElement(caption);
                 this.captions.push(caption);
-                
+
                 presenter.captionDivs.push(caption.element);
             }
         }
-        
+
         presenter.registerFullScreenEventCallbacks();
     };
-    
+
     presenter.loadSubtitles = function() {
         var subtitlesLoadedDeferred = new $.Deferred(),
           subtitles = this.files[this.currentMovie].Subtitles;
-        
+
         if (subtitles) {
             if (StringUtils.startsWith(subtitles, "/file")) {
                 $.get(subtitles, function(data) {
@@ -910,7 +948,7 @@ function Addonvideo_create() {
             } else {
                 subtitlesLoadedDeferred.resolve(subtitles);
             }
-            
+
             presenter.convertLinesToCaptions(Helpers.splitLines(subtitles));
             $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onSubtitlesLoaded(data) {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
@@ -918,32 +956,32 @@ function Addonvideo_create() {
             });
         }
     };
-    
+
     presenter.calculateVideoContainerHeight = function ($container, moduleHeight) {
         var borderBottom = $container.css('border-bottom-width'),
           borderTop = $container.css('border-top-width'),
           marginTop = $container.css('margin-top'),
           marginBottom = $container.css('margin-bottom');
-        
+
         if (ModelValidationUtils.isStringEmpty(borderTop)) borderTop = "0px";
         if (ModelValidationUtils.isStringEmpty(borderBottom)) borderBottom = "0px";
         if (ModelValidationUtils.isStringEmpty(marginTop)) marginTop = "0px";
         if (ModelValidationUtils.isStringEmpty(marginBottom)) marginBottom = "0px";
-        
+
         return moduleHeight - parseInt(borderBottom, 10) -
           parseInt(borderTop, 10) -
           parseInt(marginTop, 10) -
           parseInt(marginBottom, 10);
     };
-    
+
     presenter.setDimensions = function() {
         var video = this.getVideo();
-        
+
         this.videoContainer.css('height',  presenter.calculateVideoContainerHeight(this.videoContainer, height) + 'px');
-        
+
         video.css("width", "100%")
           .attr('height', this.videoContainer.height());
-        
+
         presenter.configuration.dimensions = {
             video:{
                 width:$(video).width(),
@@ -955,17 +993,17 @@ function Addonvideo_create() {
             }
         };
     };
-    
+
     presenter.showSubtitles = function () {
         presenter.$view.find('.captions').show();
         presenter.areSubtitlesHidden = false;
     };
-    
+
     presenter.hideSubtitles = function () {
         presenter.$view.find('.captions').hide();
         presenter.areSubtitlesHidden = true;
     };
-    
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
@@ -980,13 +1018,13 @@ function Addonvideo_create() {
             'showSubtitles' : presenter.showSubtitles,
             'hideSubtitles' : presenter.hideSubtitles
         };
-        
+
         Commands.dispatch(commands, name, params, presenter);
     };
-    
+
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
-        
+
         var $captions = presenter.$view.find('.captions');
         if (!isVisible) {
             $captions.each(function hideVisibility() {
@@ -1000,20 +1038,20 @@ function Addonvideo_create() {
             });
         }
     };
-    
+
     presenter.seek = function (seconds) {
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('seek', [seconds]);
             return;
         }
-        
+
         this.video.currentTime = seconds;
     };
-    
+
     presenter.seekCommand = function(params) {
         presenter.seek(params[0]);
     };
-    
+
     presenter.show = function() {
         if (presenter.isCurrentlyVisible) return;
         if(presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
@@ -1022,10 +1060,10 @@ function Addonvideo_create() {
         this.isCurrentlyVisible = true;
         presenter.setVisibility(true);
     };
-    
+
     presenter.hide = function() {
         if (!presenter.isCurrentlyVisible) return;
-        
+
         if (presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
             this.video.pause();
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
@@ -1034,7 +1072,7 @@ function Addonvideo_create() {
         this.isCurrentlyVisible = false;
         presenter.setVisibility(false);
     };
-    
+
     presenter.jumpTo = function(movieNumber) {
         var newMovie = parseInt(movieNumber, 10) - 1;
         if (0 <= newMovie && newMovie < this.files.length) {
@@ -1042,11 +1080,11 @@ function Addonvideo_create() {
             this.reload();
         }
     };
-    
+
     presenter.jumpToCommand = function (params) {
         presenter.jumpTo(params[0]);
     };
-    
+
     presenter.jumpToID = function(id) {
         for (var i = 0; i < this.files.length; i++) {
             if (id === this.files[i].ID) {
@@ -1055,24 +1093,24 @@ function Addonvideo_create() {
             }
         }
     };
-    
+
     presenter.jumpToIDCommand = function (params) {
         presenter.jumpToID(params[0]);
     };
-    
+
     presenter.onStalledEventHandler = function () {
         var video = this;
-        
+
         if (!presenter.commandsQueue.isQueueEmpty() && video.readyState >= 2) {
             presenter.isVideoLoaded = true;
             presenter.commandsQueue.executeAllTasks();
         }
     };
-    
+
     presenter.removeWaterMark = function () {
         presenter.$view.find('.poster-wrapper').remove();
     };
-    
+
     presenter.loadVideoAtPlayOnMobiles = function () {
         if (MobileUtils.isSafariMobile(navigator.userAgent)) {
             if(!presenter.isVideoLoaded) {
@@ -1081,92 +1119,92 @@ function Addonvideo_create() {
             }
         }
     };
-    
+
     presenter.addClassToView = function (className) {
         presenter.$view.addClass(className);
     };
-    
+
     presenter.removeClassFromView = function (className) {
         presenter.$view.removeClass(className);
     };
-    
+
     presenter.play = function () {
         presenter.removeWaterMark();
-        
+
         presenter.loadVideoAtPlayOnMobiles();
-        
+
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('play', []);
             return;
         }
-        
+
         if (this.video.paused) {
             this.video.play();
             presenter.addClassToView('playing');
         }
     };
-    
+
     presenter.stop = function () {
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('stop', []);
             return;
         }
-        
+
         if (!this.video.paused) {
             presenter.seek(0); // sets the current time to 0
             this.video.pause();
             presenter.removeClassFromView('playing');
         }
     };
-    
+
     presenter.pause = function () {
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('pause', []);
             return;
         }
-        
+
         if (!this.video.paused) {
             this.video.pause();
             presenter.removeClassFromView('playing');
         }
     };
-    
+
     presenter.previous = function() {
         if (this.currentMovie > 0) {
             this.currentMovie--;
             this.reload();
         }
     };
-    
+
     presenter.next = function() {
         if (this.currentMovie < this.files.length - 1) {
             this.currentMovie++;
             this.reload();
         }
     };
-    
+
     presenter.reset = function() {
         presenter.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
-        
+
         this.currentMovie = 0;
         if (this.metadadaLoaded) {
             this.video.pause();
         }
-        
+
         presenter.reload();
-        
+
         if (presenter.shouldHideSubtitles) {
             presenter.hideSubtitles();
         } else {
             presenter.showSubtitles();
         }
     };
-    
+
     presenter.getVideo = function() {
         return this.videoContainer.find('video:first');
     };
-    
+
     /**
      * Validates string representation of integer. Only positive integer values are allowed. If both (value and default) are
      * undefined then isError property is set to true.
@@ -1174,21 +1212,21 @@ function Addonvideo_create() {
     presenter.validatePositiveInteger = function (value, defaultValue) {
         var isValueDefined = value !== undefined && value !== "";
         var isDefaultDefined = defaultValue !== undefined && !isNaN(defaultValue);
-        
+
         if (!isValueDefined && !isDefaultDefined) {
             return {
                 isError: true,
                 value: 1
             };
         }
-        
+
         if (!isValueDefined && isDefaultDefined) {
             return {
                 isError: false,
                 value: defaultValue
             };
         }
-        
+
         var parsedValue = parseInt(value, 10);
         if (isNaN(parsedValue) || parsedValue < 1) {
             return {
@@ -1196,7 +1234,7 @@ function Addonvideo_create() {
                 value: defaultValue
             };
         }
-        
+
         return {
             isError: false,
             value: parsedValue
@@ -1219,7 +1257,7 @@ function Addonvideo_create() {
 
     function requestFullscreen ($element) {
         var DomElement = $element.get(0);
-        
+
         var requestMethod = DomElement.requestFullscreen || DomElement.mozRequestFullScreen ||
           DomElement.msRequestFullscreen || DomElement.webkitRequestFullScreen ||
           DomElement.webkitEnterFullscreen || null;
@@ -1228,11 +1266,11 @@ function Addonvideo_create() {
         }
         return requestMethod;
     }
-    
+
     function exitFullscreen () {
         var exitMethod = document.exitFullscreen || document.mozCancelFullScreen ||
           document.msExitFullscreen || document.webkitExitFullscreen || null;
-        
+
         if (exitMethod) {
             exitMethod.call(document);
         }
@@ -1252,6 +1290,6 @@ function Addonvideo_create() {
 
         return false;
     }
-    
+
     return presenter;
 }
