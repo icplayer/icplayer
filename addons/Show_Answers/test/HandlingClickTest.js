@@ -30,6 +30,7 @@
             enableCheckCounter: false,
             enableMistakeCounter: false
         };
+
         this.button = document.createElement("div");
         this.button.className = 'show-answers-button';
 
@@ -46,16 +47,7 @@
             assertTrue(this.stubs.sendEventStub.calledOnce);
         },
 
-        'test should call addClass when isSelected is false': function () {
-            this.presenter.configuration.isSelected = false;
-
-            this.presenter.handleClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertTrue(this.stubs.addClassStub.calledOnce);
-        },
-
-        'test should send ShowAnswers event when is not Selected, isSelected is false': function () {
+        'test should send ShowAnswers event when is not selected': function () {
             this.presenter.configuration.isSelected = false;
 
             this.presenter.handleClickAction();
@@ -66,7 +58,7 @@
             assertEquals('ShowAnswers', result[0]);
         },
 
-        'test should have eventName equal to HideAnswers when isSelected is true': function () {
+        'test should send HideAnswers event when is selected': function () {
             this.presenter.configuration.isSelected = true;
 
             this.presenter.handleClickAction();
@@ -75,6 +67,15 @@
             var result = this.stubs.sendEventStub.getCall(0).args;
 
             assertEquals('HideAnswers', result[0]);
+        },
+
+        'test should call addClass when isSelected is false': function () {
+            this.presenter.configuration.isSelected = false;
+
+            this.presenter.handleClickAction();
+            this.presenter.$button.trigger('click');
+
+            assertTrue(this.stubs.addClassStub.calledOnce);
         },
 
         'test should call removeClass when isSelected is true': function () {
@@ -90,7 +91,7 @@
     TestCase('[Show_Answers] Check counter', {
         setUp: setUpPresenter,
 
-        'test should call incrementCheckCounter when isSelected is false and enableCheckCounter is true': function () {
+        'test should call incrementCheckCounter when not selected and enableCheckCounter is checked': function () {
             this.presenter.configuration.isSelected = false;
             this.presenter.configuration.enableCheckCounter = true;
 
@@ -100,7 +101,7 @@
             assertTrue(this.commands.incrementCheckCounter.calledOnce);
         },
 
-        'test should not call incrementCheckCounter when isSelected is true and enableCheckCounter is false': function () {
+        'test should not call incrementCheckCounter when selected and enableCheckCounter is unchecked': function () {
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableCheckCounter = true;
 
@@ -110,7 +111,7 @@
             assertFalse(this.commands.incrementCheckCounter.calledOnce);
         },
 
-        'test should not call incrementCheckCounter when isSelected is true and enableCheckCounter is true': function () {
+        'test should not call incrementCheckCounter when selected and enableCheckCounter is checked': function () {
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableCheckCounter = true;
 
@@ -124,7 +125,7 @@
     TestCase('[Show_Answers] Mistake counter', {
         setUp: setUpPresenter,
 
-        'test should call incrementMistakeCounter when isSelected is false and enableMistakeCounter is true': function () {
+        'test should call incrementMistakeCounter when not selected and enableMistakeCounter is checked': function () {
             this.presenter.configuration.isSelected = false;
             this.presenter.configuration.enableMistakeCounter = true;
 
@@ -134,7 +135,7 @@
             assertTrue(this.commands.increaseMistakeCounter.calledOnce);
         },
 
-        'test should not call incrementMistakeCounter when isSelected is true and enableMistakeCounter is false': function () {
+        'test should not call incrementMistakeCounter when selected and enableMistakeCounter is unchecked': function () {
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableMistakeCounter = true;
 
@@ -144,7 +145,7 @@
             assertFalse(this.commands.increaseMistakeCounter.calledOnce);
         },
 
-        'test should not call incrementMistakeCounter when isSelected is true and enableMistakeCounter is true': function () {
+        'test should not call incrementMistakeCounter when selected and enableMistakeCounter is checked': function () {
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableMistakeCounter = true;
 

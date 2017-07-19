@@ -48,7 +48,6 @@ function AddonShow_Answers_create(){
         if (model["Increment mistake counter"] === undefined) {
             model = presenter.upgradeIncrementMistakeCounter(model);
         }
-
         return model;
     };
 
