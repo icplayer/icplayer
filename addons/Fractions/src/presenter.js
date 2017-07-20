@@ -27,8 +27,8 @@ function AddonFractions_create(){
         "P03": 'Choose rectangular parts less than 30.',
         "P04": 'Incorrect circle parts.',
         "P05": 'Choose circle parts less than 100.',
-        "P06": 'Enter valid rectangular horizontal parts value.',
-        "P07": 'Rectangular horizontal parts value must be a power of 2.',
+        "P06": 'Enter valid square parts value.',
+        "P07": 'Square parts value must be a power of 2.',
         "A01": 'Incorrect value for "Number of correct parts" property.',
         "A02": 'Fill the "Number of correct parts", or check isNotActivity.',
         "F01": 'Wrong figure name'
@@ -188,33 +188,38 @@ function AddonFractions_create(){
         };
     };
 
-    presenter.validateSquareParts = function (model, parts) {
-        if (parts <= 0 || isNaN(parts)) {
+    presenter.validateSquareParts = function (model) {
+        if (parseInt(model.SquareParts) <= 0 || isNaN(model.SquareParts)) {
             return generateValidationError("P06");
         }
 
-        if (Math.log2(parts) % 1 != 0) {
+        if (Math.log2(parseInt(model.SquareParts)) % 1 != 0) {
             return generateValidationError("P07");
         }
 
         return {
-            isValid: true
+            isValid: true,
+            squareParts: parseInt(model.SquareParts)
         };
     };
 
     presenter.validateParts = function (model, figure) {
         var validatedRectangleParts = presenter.validateRectangleParts(model);
-        if (!validatedRectangleParts.isValid) {
-            return validatedRectangleParts;
+        if (figure == presenter.FIGURES.RECTANGULAR) {
+            if (!validatedRectangleParts.isValid) {
+                return validatedRectangleParts;
+            }
         }
 
         var validatedCircleParts = presenter.validateCircleParts(model);
-        if (!validatedCircleParts.isValid) {
-            return validatedCircleParts;
+        if (figure == presenter.FIGURES.CIRCLE) {
+            if (!validatedCircleParts.isValid) {
+                return validatedCircleParts;
+            }
         }
 
+        var validatedSquareParts = presenter.validateSquareParts(model);
         if (figure == presenter.FIGURES.SQUARE) {
-            var validatedSquareParts = presenter.validateSquareParts(model, validatedRectangleParts.rectHorizontal);
             if (!validatedSquareParts.isValid) {
                 return validatedSquareParts;
             }
@@ -222,9 +227,10 @@ function AddonFractions_create(){
 
         return {
             isValid: true,
-            rectHorizontal: validatedRectangleParts.rectHorizontal,
-            rectVertical: validatedRectangleParts.rectVertical,
-            circleParts: validatedCircleParts.circleParts
+            rectHorizontal: validatedRectangleParts.rectHorizontal || 0,
+            rectVertical: validatedRectangleParts.rectVertical || 0,
+            circleParts: validatedCircleParts.circleParts || 0,
+            squareParts: validatedSquareParts.squareParts || 0
         };
     };
 
@@ -240,10 +246,13 @@ function AddonFractions_create(){
 
         var correctAnswer = model.Correct;
         if (correctAnswer.length > 0) {
-            if((isNaN(correctAnswer))
+            if (
+                isNaN(correctAnswer)
                 || parseFloat(correctAnswer) != Math.round(correctAnswer)
                 || parseFloat(correctAnswer) <= 0
-                || parseFloat(correctAnswer) >= parseInt(model.RectHorizontal,10) * parseInt(model.RectVertical,10)){
+                || parseFloat(correctAnswer) > parseInt(model.RectHorizontal, 10) * parseInt(model.RectVertical, 10)
+                || parseFloat(correctAnswer) > parseInt(model.SquareParts, 10)
+                || parseFloat(correctAnswer) > parseInt(model.CircleParts, 10)) {
 
                 return generateValidationError("A01");
             }
@@ -341,6 +350,7 @@ function AddonFractions_create(){
             rectHorizontal: validatedParts.rectHorizontal,
             rectVertical: validatedParts.rectVertical,
             circleParts: validatedParts.circleParts,
+            squareParts: validatedParts.squareParts,
             isAnswer: validatedAnswer.isAnswer,
             correctAnswer: validatedAnswer.correctAnswer,
             figure: validatedFigure.figure,
@@ -423,7 +433,7 @@ function AddonFractions_create(){
 
     presenter.buildSquare = function (model, view) {
         var config = presenter.configuration;
-        var parts = config.rectHorizontal;
+        var parts = config.squareParts;
         var addonWidth = config.addonWidth;
         var addonHeight = config.addonHeight;
         var squareSize = Math.min(addonWidth, addonHeight);
