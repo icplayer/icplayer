@@ -24,9 +24,9 @@
         this.volumeChangedCallbacks = [];
         this.ownTimerCallbacks = [];
 
-        this.addPlayCallback(this.showPlayButton.bind(this));
-        this.addPauseCallback(this.showPauseButton.bind(this));
-        this.addStopCallback(this.showPauseButton.bind(this));
+        this.addPlayCallback(this.showPauseButton.bind(this));
+        this.addPauseCallback(this.showPlayButton.bind(this));
+        this.addStopCallback(this.showPlayButton.bind(this));
         this.addVolumeClickCallback(this.showHideVolumeBar.bind(this));
         this.addFullscreenCallback(this.showCloseFullscreenButton.bind(this));
         this.addCloseFullscreenCallback(this.showFullscreenButton.bind(this));
@@ -38,14 +38,15 @@
         this.onWrapperMouseEnter = this.onWrapperMouseEnter.bind(this);
         this.onWrapperMouseMove = this.onWrapperMouseMove.bind(this);
         this.refreshDataIntervalFunction = this.refreshDataIntervalFunction.bind(this);
-        this.escapeButtonClickedCallback = this.escapeButtonClickedCallback.bind(this);
 
         this.actualizeTimer();
 
         if (this.configuration.parentElement) {
             this.buildShowAndHideControlsEvents();
-            this.addPlayCallbackForParent(this.playPauseClick.bind(this));
+            this.addCallbackForParentChildren(this.playPauseClick.bind(this));
         }
+        this.refreshDataIntervalFunction = setInterval(this.refreshDataIntervalFunction, this.configuration.mouseDontMoveRefreshTime);
+
     }
 
     /**
@@ -89,19 +90,6 @@
     };
 
     /**
-    Callback for listening on esc clicked. If is called then full screen button should be changed
-    @method escapeButtonClickedCallback
-
-    @param {eventData} e event data
-    @return {null}
-    */
-    CustomControlsBar.prototype.escapeButtonClickedCallback = function (e) {
-        if (e.key=='Escape'||e.key=='Esc'||e.keyCode==27) {
-            this.showFullscreenButton(null);
-        }
-    };
-
-    /**
     Default callback for click on volume bar. This function will call all functions added in addVolumeChangedCallback
     @method volumeBarClicked
 
@@ -110,9 +98,7 @@
     */
     CustomControlsBar.prototype.volumeBarClicked = function (e) {
         var actualPosition = (e.clientX - cumulativeOffset(this.elements.volumeBarWrapper.element).left);
-        console.log(actualPosition);
         var percent = (actualPosition * 100) / this.elements.volumeBackground.element.offsetWidth;
-        console.log(percent, this.elements.volumeBarWrapper.element.offsetWidth);
         for (var i = 0; i < this.volumeChangedCallbacks.length; i++) {
             this.volumeChangedCallbacks[i](percent);
         }
@@ -146,7 +132,7 @@
     */
     CustomControlsBar.prototype.buildConfiguration = function (userConfiguration) {
         this.configuration = getBasicConfiguration();
-        if (userConfiguration !== undefined && userConfiguration !== null) {
+        if (userConfiguration) {
             for (var key in this.configuration) {
                 if (this.configuration.hasOwnProperty(key)) {
                     if (userConfiguration[key] !== undefined) {
@@ -164,25 +150,33 @@
     @return {null}
     */
     CustomControlsBar.prototype.actualizeTimer = function () {
+        var actualPercent;
         this.elements.timer.element.innerHTML = buildTime(this.configuration.actualMediaTime) + "/" + buildTime(this.configuration.maxMediaTime);
-        if (this.configuration.maxMediaTime !== 0 && this.configuration.maxMediaTime !== undefined && this.configuration.maxMediaTime !== null) {
-            var actualPercent = parseInt((this.configuration.actualMediaTime / this.configuration.maxMediaTime) * 100, 10);
+        if (this.configuration.maxMediaTime) {
+            actualPercent = parseInt((this.configuration.actualMediaTime / this.configuration.maxMediaTime) * 100, 10);
             this.elements.redProgressBar.element.style.width = actualPercent + "%";
         }
     };
 
     function buildTime(timeInSeconds) {
+        var minutes, seconds;
+
         if (timeInSeconds === null || timeInSeconds === undefined) {
             return "--:--";
         }
-        var minutes = parseInt(timeInSeconds / 60, 10);
+
+        minutes = parseInt(timeInSeconds / 60, 10);
+
         if (minutes < 10) {
             minutes = "0" + minutes;
         }
-        var seconds = parseInt(timeInSeconds % 60, 10);
+
+        seconds = parseInt(timeInSeconds % 60, 10);
+
         if (seconds < 10) {
             seconds = "0" + seconds;
         }
+
         return minutes + ":" + seconds;
     }
 
@@ -194,11 +188,9 @@
     */
     CustomControlsBar.prototype.buildShowAndHideControlsEvents = function () {
         this.actualTime = 0;
-        addEventListener("mouseleave", this.configuration.parentElement, this.hideControls);
-        addEventListener("mouseenter", this.configuration.parentElement, this.onWrapperMouseEnter);
-        addEventListener("mousemove", this.configuration.parentElement, this.onWrapperMouseMove);
-
-        this.refreshDataIntervalFunction = setInterval(this.refreshDataIntervalFunction, this.configuration.mouseDontMoveRefreshTime);
+        this.configuration.parentElement.addEventListener("mouseleave", this.hideControls, false);
+        this.configuration.parentElement.addEventListener("mouseenter", this.onWrapperMouseEnter, false);
+        this.configuration.parentElement.addEventListener("mousemove", this.onWrapperMouseMove, false);
     };
 
     /**
@@ -208,21 +200,25 @@
     @return {null}
     */
     CustomControlsBar.prototype.refreshDataIntervalFunction = function () {
-        if (!this.mainDivIsHidden) {
-            if (this.actualTime > this.configuration.mouseDontMoveClocks) {
-                this.hideControls();
+        if (this.configuration.parentElement) {
+            if (!this.mainDivIsHidden) {
+                if (this.actualTime > this.configuration.mouseDontMoveClocks) {
+                    this.hideControls();
+                }
+                this.actualTime++;
             }
-            this.actualTime++;
         }
+
         var videoObject = this.configuration.videoObject;
         if (videoObject !== null) {
             this.setCurrentTime(videoObject.currentTime);
             if (videoObject.paused === false) {
-                this.showPlayButton();
-            } else {
                 this.showPauseButton();
+            } else {
+                this.showPlayButton();
             }
         }
+
 
         for (var i = 0; i < this.ownTimerCallbacks.length; i++) {
             this.ownTimerCallbacks[i].call(this);
@@ -292,7 +288,7 @@
 
     @return {null}
     */
-    CustomControlsBar.prototype.showPlayButton = function (e) {
+    CustomControlsBar.prototype.showPauseButton = function (e) {
         this.elements.playButton.element.style.display = 'none';
         this.elements.pauseButton.element.style.display = 'block';
         if (e !== undefined) {
@@ -356,7 +352,7 @@
 
     @return {null}
     */
-    CustomControlsBar.prototype.showPauseButton = function (e) {
+    CustomControlsBar.prototype.showPlayButton = function (e) {
         this.elements.playButton.element.style.display = 'block';
         this.elements.pauseButton.element.style.display = 'none';
 
@@ -402,12 +398,12 @@
 
     /**
     This function will add click events for all elements in parent element without custom controls bar
-    @method addPlayCallbackForParent
+    @method addCallbackForParentChildren
 
     @param {function} callback to call
     @return {null}
     */
-    CustomControlsBar.prototype.addPlayCallbackForParent = function (callback) {
+    CustomControlsBar.prototype.addCallbackForParentChildren = function (callback) {
         var ELEMENT_PREFIX = "PARENT_CHILD_";
         var childNodes = this.configuration.parentElement.childNodes;
         for (var i = 0 ; i < childNodes.length; i++) {
@@ -492,10 +488,9 @@
     CustomControlsBar.prototype.destroy = function () {
         //Show hide controls bar events
         clearInterval(this.refreshDataIntervalFunction);
-        removeEventListener("mouseleave", this.configuration.parentElement, this.hideControls);
-        removeEventListener("mouseenter", this.configuration.parentElement, this.onWrapperMouseEnter);
-        removeEventListener("mousemove", this.configuration.parentElement, this.onWrapperMouseMove);
-        removeEventListener("keydown", document, this.escapeButtonClickedCallback);
+        this.configuration.parentElement.removeEventListener("mouseleave", this.hideControls);
+        this.configuration.parentElement.removeEventListener("mouseenter", this.onWrapperMouseEnter);
+        this.configuration.parentElement.removeEventListener("mousemove", this.onWrapperMouseMove);
 
         for (var treeElementName in this.elements) {
             if (this.elements.hasOwnProperty(treeElementName)) {
@@ -534,66 +529,82 @@
     };
 
     function buildHTMLTree () {
-        var mainDiv = document.createElement('div');
+        var mainDiv,
+            controlsWrapper,
+            progressBarWrapper,
+            grayProgressBar,
+            redProgressBar,
+            playButton,
+            pauseButton,
+            stopButton,
+            volume,
+            volumeBarWrapper,
+            volumeBackground,
+            volumeBackgroundSelected,
+            fullscreen,
+            closeFullscreen,
+            timer;
+
+        mainDiv = document.createElement('div');
         mainDiv.className = 'CustomControlsBar-wrapper';
 
-        var controlsWrapper = document.createElement('div');
+        controlsWrapper = document.createElement('div');
         controlsWrapper.className = 'CustomControlsBar-wrapper-controls-controlsWrapper';
         mainDiv.appendChild(controlsWrapper);
 
-        var progressBarWrapper = document.createElement('div');
+        progressBarWrapper = document.createElement('div');
         progressBarWrapper.className = 'CustomControlsBar-wrapper-controls-progressBarWrapper';
         mainDiv.appendChild(progressBarWrapper);
 
-        var grayProgressBar = document.createElement('div');
+        grayProgressBar = document.createElement('div');
         grayProgressBar.className = 'CustomControlsBar-wrapper-controls-progressBarWrapper-grayProgressBar';
         progressBarWrapper.appendChild(grayProgressBar);
 
-        var redProgressBar = document.createElement('div');
+        redProgressBar = document.createElement('div');
         redProgressBar.className = 'CustomControlsBar-wrapper-controls-progressBarWrapper-redProgressBar';
         progressBarWrapper.appendChild(redProgressBar);
 
-        var playButton = document.createElement('div');
+        playButton = document.createElement('div');
         playButton.className = 'CustomControlsBar-wrapper-controls-play';
         controlsWrapper.appendChild(playButton);
 
-        var pauseButton = document.createElement('div');
+        pauseButton = document.createElement('div');
         pauseButton.className = 'CustomControlsBar-wrapper-controls-pause';
         pauseButton.style.display = 'none';
         controlsWrapper.appendChild(pauseButton);
 
-        var stopButton = document.createElement('div');
+        stopButton = document.createElement('div');
         stopButton.className = 'CustomControlsBar-wrapper-controls-stop';
         controlsWrapper.appendChild(stopButton);
 
-        var volume = document.createElement('div');
+        volume = document.createElement('div');
         volume.className = 'CustomControlsBar-wrapper-controls-volume';
         controlsWrapper.appendChild(volume);
 
-        var volumeBarWrapper = document.createElement('div');
+        volumeBarWrapper = document.createElement('div');
         volumeBarWrapper.className = 'CustomControlsBar-wrapper-controls-volumeBarWrapper';
         controlsWrapper.appendChild(volumeBarWrapper);
 
-        var volumeBackground = document.createElement('div');
+        volumeBackground = document.createElement('div');
         volumeBackground.className = 'CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackground';
         volumeBackground.style.display = 'none';
         volumeBarWrapper.appendChild(volumeBackground);
 
-        var volumeBackgroundSelected = document.createElement('div');
+        volumeBackgroundSelected = document.createElement('div');
         volumeBackgroundSelected.className = 'CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackgroundSelected';
         volumeBackgroundSelected.style.display = 'none';
         volumeBarWrapper.appendChild(volumeBackgroundSelected);
 
-        var fullscreen = document.createElement('div');
+        fullscreen = document.createElement('div');
         fullscreen.className = 'CustomControlsBar-wrapper-controls-fullscreen';
         controlsWrapper.appendChild(fullscreen);
 
-        var closeFullscreen = document.createElement('div');
+        closeFullscreen = document.createElement('div');
         closeFullscreen.className = 'CustomControlsBar-wrapper-controls-closeFullscreen';
         closeFullscreen.style.display = 'none';
         controlsWrapper.appendChild(closeFullscreen);
 
-        var timer = document.createElement('div');
+        timer = document.createElement('div');
         timer.className = 'CustomControlsBar-wrapper-controls-timer';
         controlsWrapper.appendChild(timer);
 
@@ -640,7 +651,7 @@
     }
 
     function addNewCallback (treeElement, callback, callbackType) {
-        if (treeElement.events[callbackType] === undefined) {
+        if (!treeElement.events[callbackType]) {
             treeElement.events[callbackType] = [];
         }
 
@@ -648,32 +659,14 @@
             callback: callback
         });
 
-        addEventListener(callbackType, treeElement.element, callback);
-    }
-
-    function addEventListener(eventName, element, callback) {
-        if (element.addEventListener) {  // all browsers except IE before version 9
-            element.addEventListener(eventName, callback, false);
-        } else {
-            if (element.attachEvent) {   // IE before version 9
-                element.attachEvent("on" + eventName, callback);
-            }
-        }
-    }
-
-    function removeEventListener (eventName, element, callback) {
-        if (element.removeEventListener) {
-            element.removeEventListener(eventName, callback);
-        } else if (element.detachEvent) {
-            element.detachEvent(eventName, callback);
-        }
+        treeElement.element.addEventListener(callbackType, callback, false);
     }
 
     function destroyTreeElement (treeElement) {
         for (var eventName in treeElement.events) {
             if (treeElement.events.hasOwnProperty(eventName)) {
                 for (var i = 0; i < treeElement.events[eventName].length; i++) {
-                    removeEventListener(eventName, treeElement.element, treeElement.events[eventName][i].callback);
+                    treeElement.element.removeEventListener(eventName, treeElement.events[eventName][i].callback);
                 }
             }
         }

@@ -142,7 +142,7 @@ function Addonvideo_create() {
                 width: "100%",
                 height: "100%"
             });
-            $(presenter.video).css({
+            $(presenter.videoObject).css({
                 width: "100%",
                 height: "100%"
             })
@@ -222,6 +222,9 @@ function Addonvideo_create() {
     };
 
     presenter.setMetaDataOnMetaDataLoadedEvent = function() {
+        if (DevicesUtils.isFirefox()) {
+            presenter.$view.find(".video-container").prepend(presenter.videoObject);
+        }
         presenter.metadadaLoaded = true;
         presenter.originalVideoSize = presenter.getVideoSize(presenter.addonSize);
         presenter.calculateCaptionsOffset(presenter.addonSize, true);
@@ -322,39 +325,39 @@ function Addonvideo_create() {
     };
 
     presenter.fullScreen = function () {
-            var requestMethod = requestFullscreen(presenter.videoContainer);
-            presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
-            presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
-                 if (requestMethod === null) {
-                    var body = document.getElementsByTagName('body')[0];
+        var requestMethod = requestFullscreen(presenter.videoContainer);
+        presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
+        presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
+             if (requestMethod === null) {
+                var body = document.getElementsByTagName('body')[0];
 
-                    var video = presenter.videoContainer.get(0);
-                    presenter.stylesBeforeFullscreen.actualTime = presenter.videoObject.currentTime;
-                    presenter.stylesBeforeFullscreen.style = {
-                        position: video.style.position,
-                        top: video.style.top,
-                        left: video.style.left,
-                        zIndex: video.style.zIndex,
-                        className: video.className
-                    };
+                var video = presenter.videoContainer.get(0);
+                presenter.stylesBeforeFullscreen.actualTime = presenter.videoObject.currentTime;
+                presenter.stylesBeforeFullscreen.style = {
+                    position: video.style.position,
+                    top: video.style.top,
+                    left: video.style.left,
+                    zIndex: video.style.zIndex,
+                    className: video.className
+                };
 
-                    presenter.stylesBeforeFullscreen.changedStyles = true;
-                    video.style.position = "fixed";
-                    video.style.top = "0";
-                    video.style.left = "0";
-                    video.style.zIndex = 20000;
-                    video.className = video.className + " " + presenter.$view[0].className;
-                    body.appendChild(video);
-                    presenter.metadadaLoaded = false;
-                    presenter.videoObject.load();
-                    presenter.scaleCaptionsContainerToVideoNewVideoSize();
+                presenter.stylesBeforeFullscreen.changedStyles = true;
+                video.style.position = "fixed";
+                video.style.top = "0";
+                video.style.left = "0";
+                video.style.zIndex = 20000;
+                video.className = video.className + " " + presenter.$view[0].className;
+                body.appendChild(video);
+                presenter.metadadaLoaded = false;
+                presenter.videoObject.load();
+                presenter.scaleCaptionsContainerToVideoNewVideoSize();
 
-                } else {
-                    presenter.scaleCaptionsContainerToScreenSize();
-                 }
+            } else {
+                presenter.scaleCaptionsContainerToScreenSize();
+             }
 
-                presenter.configuration.isFullScreen = true;
-                fullScreenChange();
+            presenter.configuration.isFullScreen = true;
+            fullScreenChange();
 
     };
 
