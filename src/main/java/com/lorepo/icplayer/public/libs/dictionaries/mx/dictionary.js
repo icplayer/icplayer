@@ -1136,6 +1136,7 @@ var ice_dictionary_mx = {
 	"Fractions_property_is_disable": "Inhabilitar",
 	"Fractions_property_is_select": "Imagen para las piezas seleccionadas",
 	"Fractions_property_is_deselect": "Imagen para las piezas no seleccionadas",
+	"Fractions_property_square_parts": "Square parts",
 	"FigureDrawing_info": "Permite dibujar figuras en la cuadrícula.",
 	"FigureDrawing_name": "Dibujar Figuras",
 	"FigureDrawing_property_3d_grid": "Cuadrícula 3D",

@@ -1135,6 +1135,7 @@ var ice_dictionary_pl = {
 	"Fractions_property_is_disable": "Jest wyłączony",
     "Fractions_property_is_select": "Obraz dla zaznaczonych części",
     "Fractions_property_is_deselect": "Obraz dla odznaczonych części",
+	"Fractions_property_square_parts": "Square parts",
     "FigureDrawing_info": "Addon ten umożliwia rysowanie figur na siatce.",
     "FigureDrawing_name": "Rysowanie figur",
     "FigureDrawing_property_3d_grid": "Siatka 3D",
