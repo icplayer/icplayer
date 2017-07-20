@@ -239,17 +239,17 @@ public class PagePopupPanel extends DialogBox {
 	private void compensateHeightBorder(){
 		int popupHeight = this.pageWidget.getOffsetHeight();
 		int borderHeight = this.getBorderHeight();
-		int twoSidesBorderHeight = 2 * borderHeight;
+		int popupWithoutBorder = popupHeight - borderHeight;
 
-		this.pageWidget.setHeight(popupHeight - twoSidesBorderHeight);
+		this.pageWidget.setHeight(popupWithoutBorder);
 	}
 	
 	private void compensateWidthBorder(){
 		int popupWidth = this.pageWidget.getOffsetWidth();
 		int borderWidth = this.getBorderWidth();
-		int twoSidesBorderWidth = 2 * borderWidth;
+		int popupWithoutBorder = popupWidth - borderWidth;
 		
-		this.pageWidget.setWidth(popupWidth - twoSidesBorderWidth);
+		this.pageWidget.setWidth(popupWithoutBorder);
 	}
 	
 	private native int getBorderWidth() /*-{
