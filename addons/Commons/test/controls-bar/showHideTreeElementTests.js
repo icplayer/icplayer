@@ -51,5 +51,4 @@ TestCase("[Commons - Controls-bar] Show hide elements", {
         var afterShow = this.controlsBar.elements.mainDiv.element.style.display;
         assertEquals(expectedStyle, afterShow);
     }
-
 });

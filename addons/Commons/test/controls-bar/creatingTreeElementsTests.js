@@ -1,6 +1,5 @@
 TestCase("[Commons - Controls-bar] Creating controls bar", {
     setUp: function () {
-        this.presenter = { };
         this.controlsBar = new CustomControlsBar();
     },
 
@@ -62,7 +61,7 @@ TestCase("[Commons - Controls-bar] Creating controls bar", {
     },
 
     'test created tree node': function () {
-        var controlBar = this.controlsBar
+        var controlBar = this.controlsBar;
 
         assertEquals("DIV", controlBar.elements.closeFullscreen.element.tagName);
         assertTrue(controlBar.elements.closeFullscreen.events.hasOwnProperty("click"));

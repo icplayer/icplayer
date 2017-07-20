@@ -2,7 +2,7 @@ function checkIsInList(list, callback) {
     for (var i = 0; i < list.length; i++) {
         var have = list[i].callback == callback || list[i] == callback;
         if (have) {
-            return have;
+            return true;
         }
     }
     return false;
@@ -21,10 +21,6 @@ function checkElementCallback(element, callback) {
 }
 
 TestCase("[Commons - Controls-bar] Adding and calling callbacks for elements", {
-    tearDown: function () {
-        this.clock.restore();
-    },
-
     setUp: function () {
         this.callback = sinon.spy();
         this.clock = sinon.useFakeTimers();
@@ -39,8 +35,11 @@ TestCase("[Commons - Controls-bar] Adding and calling callbacks for elements", {
         });
     },
 
-    'test add callback for play button' : function () {
+    tearDown: function () {
+        this.clock.restore();
+    },
 
+    'test add callback for play button' : function () {
         this.controlBar.addPlayCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.playButton, this.callback));
         this.controlBar.elements.playButton.element.click();

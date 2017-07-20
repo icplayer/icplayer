@@ -12,12 +12,15 @@ TestCase("[Commons - Controls-bar] Timers", {
         var expected2 = "00:20/02:00";
         this.controlsBar.setMaxDurationTime(100);
         this.controlsBar.setCurrentTime(10);
+
         var result = this.controlsBar.elements.timer.element.innerHTML;
         assertEquals(expected, result);
 
         this.controlsBar.setMaxDurationTime(120);
         this.controlsBar.setCurrentTime(20);
+
         result = this.controlsBar.elements.timer.element.innerHTML;
+
         assertEquals(expected2, result)
     },
 
@@ -26,6 +29,4 @@ TestCase("[Commons - Controls-bar] Timers", {
         var result = this.controlsBar.elements.timer.element.innerHTML;
         assertEquals(expected, result)
     }
-
-
 });
