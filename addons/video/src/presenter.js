@@ -57,9 +57,6 @@ function Addonvideo_create() {
 
     presenter.lastSentCurrentTime = 0;
 
-    var height;
-
-
     presenter.metadataLoadedDecorator = function (fn) {
         return function () {
             if (presenter.metadadaLoaded) {
@@ -68,6 +65,14 @@ function Addonvideo_create() {
                 presenter.pushToMetadataQueue(fn, arguments);
             }
         }
+    };
+
+    presenter.pushToMetadataQueue = function (fn, providedArguments) {
+        presenter.metadataQueue.push({
+            function: fn,
+                arguments: providedArguments,
+                self: this
+        });
     };
 
     presenter.upgradeModel = function (model) {
@@ -87,13 +92,7 @@ function Addonvideo_create() {
         return upgradedModel;
     };
 
-    presenter.pushToMetadataQueue = function (fn, providedArguments) {
-        presenter.metadataQueue.push({
-            function: fn,
-                arguments: providedArguments,
-                self: this
-        });
-    };
+
 
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
@@ -285,7 +284,7 @@ function Addonvideo_create() {
         //https://stackoverflow.com/questions/17056654/getting-the-real-html5-video-width-and-height
         var videoRatio = video.videoWidth / video.videoHeight;
         var width = size.width, height = size.height;
-        var elementRatio = width/height;
+        var elementRatio = width / height;
 
         if( elementRatio > videoRatio ) {
             width = height * videoRatio;
@@ -537,13 +536,15 @@ function Addonvideo_create() {
         presenter.setDimensions();
 
         if (presenter.configuration.defaultControls) {
-            this.buildControlsBars();
+            presenter.buildControlsBars();
         }
 
         presenter.connectHandlers();
         presenter.reload();
 
-        if (!presenter.configuration.isVisibleByDefault) presenter.hide();
+        if (!presenter.configuration.isVisibleByDefault) {
+            presenter.hide();
+        }
 
         presenter.eventBus.addEventListener('ValueChanged', this);
 
@@ -563,20 +564,22 @@ function Addonvideo_create() {
         presenter.videoObject.addEventListener('pause', setVideoStateOnPauseEvent);
         presenter.videoObject.addEventListener('playing', presenter.onVideoPlaying, false);
 
-        $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function () {
-            if (!isVideoInFullscreen() && presenter.configuration.isFullScreen){
-                presenter.configuration.isFullScreen = false;
-                presenter.removeScaleFromCaptionsContainer();
-                fullScreenChange();
-                presenter.controlBar.showFullscreenButton();
-            }
-        });
+        $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', presenter.fullscreenChangedEventReceived);
 
         presenter.videoView.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
                 presenter.destroy();
             }
         });
+    };
+
+    presenter.fullscreenChangedEventReceived = function () {
+        if (!isVideoInFullscreen() && presenter.configuration.isFullScreen){
+            presenter.configuration.isFullScreen = false;
+            presenter.removeScaleFromCaptionsContainer();
+            fullScreenChange();
+            presenter.controlBar.showFullscreenButton();
+        }
     };
 
     presenter.checkAddonSize = function () {
@@ -692,20 +695,22 @@ function Addonvideo_create() {
         var validatedModel = presenter.validateModel(upgradedModel);
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
 
-        this.$view = $(view);
-        this.videoContainer = $(view).find('.video-container:first');
+        presenter.$view = $(view);
+        presenter.videoContainer = $(view).find('.video-container:first');
 
-        this.setVideo();
-        this.setDimensions();
+        presenter.setVideo();
+        presenter.setDimensions();
 
         presenter.isCurrentlyVisible = true;
-        if (!presenter.configuration.isVisibleByDefault) presenter.hide();
+        if (!presenter.configuration.isVisibleByDefault) {
+            presenter.hide();
+        }
     };
 
     presenter.showCaptions = function(time) {
         if (!presenter.configuration.dimensions) return; // No captions to show when video wasn't loaded properly
-        for (var i = 0; i < this.captions.length; i++) {
-            var caption = this.captions[i];
+        for (var i = 0; i < presenter.captions.length; i++) {
+            var caption = presenter.captions[i];
             if (caption.start <= time && caption.end >= time) {
                 $(caption.element).attr('visibility', 'visible');
                 $(caption.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
@@ -718,9 +723,9 @@ function Addonvideo_create() {
 
     presenter.reload = function() {
         presenter.isVideoLoaded = false;
-        $(this.videoContainer).find('.captions').remove();
-        this.setVideo();
-        this.loadSubtitles();
+        $(presenter.videoContainer).find('.captions').remove();
+        presenter.setVideo();
+        presenter.loadSubtitles();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
             onTimeUpdate(this);
@@ -767,7 +772,7 @@ function Addonvideo_create() {
         presenter.videoObject.pause();
         return JSON.stringify({
             currentTime : presenter.videoObject.currentTime,
-            isCurrentlyVisible : this.isCurrentlyVisible,
+            isCurrentlyVisible : presenter.isCurrentlyVisible,
             isPaused: isPaused,
             currentMovie: presenter.currentMovie,
             areSubtitlesHidden: presenter.areSubtitlesHidden
@@ -778,19 +783,19 @@ function Addonvideo_create() {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
-        this.isCurrentlyVisible = state.isCurrentlyVisible;
+        presenter.isCurrentlyVisible = state.isCurrentlyVisible;
 
         if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
-            presenter.setVisibility(this.isCurrentlyVisible);
+            presenter.setVisibility(presenter.isCurrentlyVisible);
         }
 
         presenter.currentMovie = state.currentMovie;
-        this.reload();
+        presenter.reload();
 
         $(presenter.videoObject).on('canplay', function onVideoCanPlay() {
-            if (this.currentTime < currentTime) {
-                this.currentTime = currentTime;
-                this.startTime = currentTime;
+            if (presenter.currentTime < currentTime) {
+                presenter.currentTime = currentTime;
+                presenter.startTime = currentTime;
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
                 $(this).off('canplay');
             }
@@ -860,7 +865,7 @@ function Addonvideo_create() {
             presenter.videoObject.pause();
         }
         this.videoContainer.find('source').remove();
-        presenter.videoObject = this.videoContainer.find('video')[0];
+        presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         var $video = $(presenter.videoObject);
         var files = presenter.configuration.files;
@@ -869,11 +874,11 @@ function Addonvideo_create() {
             $video.attr('preload', 'none');
         } else {
             $video.attr('preload', 'auto');
-            for (var vtype in this.videoTypes) {
-                if (files[presenter.currentMovie][this.videoTypes[vtype].name] && presenter.videoObject.canPlayType(this.videoTypes[vtype].type)) {
+            for (var vtype in presenter.videoTypes) {
+                if (files[presenter.currentMovie][this.videoTypes[vtype].name] && presenter.videoObject.canPlayType(presenter.videoTypes[vtype].type)) {
                     var source = $('<source>');
                     source.attr('type', this.videoTypes[vtype].type);
-                    source.attr('src', files[presenter.currentMovie][this.videoTypes[vtype].name]);
+                    source.attr('src', files[presenter.currentMovie][presenter.videoTypes[vtype].name]);
                     $video.append(source);
                 }
             }
@@ -917,8 +922,8 @@ function Addonvideo_create() {
                     presenter.videoObject.loop = true;
                 } else {
                     $(presenter.videoObject).on('ended', function () {
-                        this.currentTime = 0;
-                        this.play();
+                        presenter.currentTime = 0;
+                        presenter.play();
                     }, false);
                 }
 
@@ -930,7 +935,7 @@ function Addonvideo_create() {
 
                 $(presenter.videoObject).on('canplay', function() {
                     if(presenter.isAborted) {
-                        this.play();
+                        presenter.play();
                     }
                 });
             }
@@ -962,7 +967,7 @@ function Addonvideo_create() {
     }
 
     presenter.convertLinesToCaptions = function(lines) {
-        this.captions = [];
+        presenter.captions = [];
 
         for (var i = 0; i < lines.length; i++) {
             var parts = lines[i].split('|');
@@ -977,7 +982,7 @@ function Addonvideo_create() {
                 };
 
                 caption.element = createCaptionElement(caption);
-                this.captions.push(caption);
+                presenter.captions.push(caption);
 
                 presenter.captionDivs.push(caption.element);
             }
@@ -1023,12 +1028,12 @@ function Addonvideo_create() {
     };
 
     presenter.setDimensions = function() {
-        var video = this.getVideo();
+        var video = presenter.getVideo();
 
-        this.videoContainer.css('height',  presenter.calculateVideoContainerHeight(this.videoContainer, presenter.configuration.height) + 'px');
+        presenter.videoContainer.css('height',  presenter.calculateVideoContainerHeight(presenter.videoContainer, presenter.configuration.height) + 'px');
 
         video.css("width", "100%")
-          .attr('height', this.videoContainer.height());
+          .attr('height', presenter.videoContainer.height());
 
         presenter.configuration.dimensions = {
             video:{
@@ -1109,7 +1114,7 @@ function Addonvideo_create() {
         if(presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
             presenter.videoObject.play();
         }
-        this.isCurrentlyVisible = true;
+        presenter.isCurrentlyVisible = true;
         presenter.setVisibility(true);
     };
 
@@ -1121,7 +1126,7 @@ function Addonvideo_create() {
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
             presenter.isHideExecuted = true;
         }
-        this.isCurrentlyVisible = false;
+        presenter.isCurrentlyVisible = false;
         presenter.setVisibility(false);
     };
 
@@ -1129,7 +1134,7 @@ function Addonvideo_create() {
         var newMovie = parseInt(movieNumber, 10) - 1;
         if (0 <= newMovie && newMovie < presenter.configuration.files.length) {
             presenter.currentMovie = newMovie;
-            this.reload();
+            presenter.reload();
         }
     };
 
@@ -1140,7 +1145,7 @@ function Addonvideo_create() {
     presenter.jumpToID = function(id) {
         for (var i = 0; i < presenter.configuration.files.length; i++) {
             if (id === presenter.configuration.files[i].ID) {
-                this.jumpTo(i + 1);  // Video numbers are counted from 1 to n
+                presenter.jumpTo(i + 1);  // Video numbers are counted from 1 to n
                 break;
             }
         }
@@ -1222,14 +1227,14 @@ function Addonvideo_create() {
     presenter.previous = function() {
         if (presenter.currentMovie > 0) {
             presenter.currentMovie--;
-            this.reload();
+            presenter.reload();
         }
     };
 
     presenter.next = function() {
         if (presenter.currentMovie < presenter.configuration.files.length - 1) {
             presenter.currentMovie++;
-            this.reload();
+            presenter.reload();
         }
     };
 
@@ -1241,7 +1246,7 @@ function Addonvideo_create() {
         presenter.configuration.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         presenter.currentMovie = 0;
-        if (this.metadadaLoaded) {
+        if (presenter.metadadaLoaded) {
             presenter.videoObject.pause();
         }
 
@@ -1255,7 +1260,7 @@ function Addonvideo_create() {
     };
 
     presenter.getVideo = function() {
-        return this.videoContainer.find('video:first');
+        return presenter.videoContainer.find('video:first');
     };
 
     function generateTransformDict(scaleX, scaleY) {

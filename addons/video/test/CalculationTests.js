@@ -76,15 +76,15 @@ AddAttributeTests = TestCase("[Video] Calculations",{
             videoHeight: 123
         };
 
-        var returned = this.presenter.getVideoSize({
+        var result = this.presenter.getVideoSize({
             width: 100,
             height: 120
         }, videoElement);
 
-        assertEquals(expected, returned);
+        assertEquals(expected, result);
     },
 
-    'test video size should be properly returned test nr. 2' : function () {
+    'test getVideoSize should return real value nr. 2' : function () {
         var expected = {
             "width":7.480938330752826,
             "height":120
@@ -95,12 +95,11 @@ AddAttributeTests = TestCase("[Video] Calculations",{
             videoHeight: 34231
         };
 
-        var returned = this.presenter.getVideoSize({
+        var result = this.presenter.getVideoSize({
             width: 2345,
             height: 120
         }, videoElement);
 
-        assertEquals(expected, returned);
+        assertEquals(expected, result);
     }
-
 });

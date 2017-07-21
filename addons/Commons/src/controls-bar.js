@@ -682,6 +682,4 @@
             parentElement: null
         }
     }
-
-
 })(window);

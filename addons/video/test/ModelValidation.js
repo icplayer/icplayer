@@ -28,6 +28,7 @@ TestCase("[Video] Model validation", {
             }]
         }
     },
+
     'test model return value should be the same as input value': function () {
         var expected = {
             isValid: true,
@@ -58,7 +59,9 @@ TestCase("[Video] Model validation", {
             }],
             height: 22
         };
-        var returned = this.presenter.validateModel(this.model);
-        assertEquals(expected, returned);
+
+        var result = this.presenter.validateModel(this.model);
+
+        assertEquals(expected, result);
     }
 });
