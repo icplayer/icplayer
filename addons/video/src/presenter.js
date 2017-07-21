@@ -70,6 +70,23 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradePoster(model);
+    };
+
+    presenter.upgradePoster = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        for (var i = 0; i < model.Files.length; i++) {
+            if (!upgradedModel.Files[i].Poster) {
+                upgradedModel.Files[i].Poster = "";
+            }
+        }
+
+        return upgradedModel;
+    };
+
     presenter.pushToMetadataQueue = function (fn, providedArguments) {
         presenter.metadataQueue.push({
             function: fn,
@@ -226,8 +243,8 @@ function Addonvideo_create() {
         }
 
         presenter.metadadaLoaded = true;
-        presenter.originalVideoSize = presenter.getVideoSize(presenter.configuration.addonSize, presenter.videoObject);
-        presenter.calculateCaptionsOffset(presenter.configuration.addonSize, true);
+        presenter.originalVideoSize = presenter.getVideoSize(presenter.addonSize, presenter.videoObject);
+        presenter.calculateCaptionsOffset(presenter.addonSize, true);
 
         if (presenter.controlBar !== null) {
             presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
@@ -451,12 +468,30 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.validateFile = function (file) {
+        var fileToReturn = {
+            "Ogg video": file['Ogg video'],
+            "MP4 video": file['MP4 video'],
+            "WebM video": file['WebM video'],
+            "Subtitles": file['Subtitles'],
+            "Poster": file['Poster'],
+            "ID": file['ID'],
+            "Loop video": ModelValidationUtils.validateBoolean(file['Loop video'])
+        };
+
+        return  {
+            isValid: true,
+            file: fileToReturn
+        };
+
+    };
+
     presenter.validateFiles = function (model) {
-        var files = model.Files;
-        for (var i = 0; i < files.length; i++) {
-            if (!files[i].Poster) {
-                files[i].Poster = "";
-            }
+        var modelFiles = model.Files;
+        var files = [];
+
+        for (var i = 0; i < modelFiles.length; i++) {
+            files.push(presenter.validateFile(modelFiles[i]).file);
         }
 
         return {
@@ -466,26 +501,25 @@ function Addonvideo_create() {
     };
 
     presenter.validateModel = function (model) {
-        var validatedFiles = presenter.validateFiles(model);
-
         return {
             isValid: true,
             addonSize: {
-                width: model.Width,
-                height: model.Height
+                width: parseInt(model.Width, 10),
+                height: parseInt(model.Height, 10)
             },
             addonID: model.ID,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
-            files: validatedFiles.files,
+            files: presenter.validateFiles(model).files,
             height: parseInt(model.Height, 10)
 
         }
     };
 
     presenter.run = function(view, model) {
-        var validatedModel = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        var validatedModel = presenter.validateModel(upgradedModel);
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
 
@@ -603,7 +637,7 @@ function Addonvideo_create() {
         };
 
         var newVideoSize = presenter.getVideoSize(size, presenter.videoObject);
-        console.log(newVideoSize);
+
         var xScale = newVideoSize.width / presenter.originalVideoSize.width;
         var yScale = newVideoSize.height / presenter.originalVideoSize.height;
 
@@ -654,7 +688,8 @@ function Addonvideo_create() {
     presenter.createPreview = function(view, model) {
         presenter.isPreview = true;
 
-        var validatedModel = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        var validatedModel = presenter.validateModel(upgradedModel);
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
 
         this.$view = $(view);
@@ -877,7 +912,7 @@ function Addonvideo_create() {
             presenter.videoObject.load();
             presenter.metadadaLoaded = false;
 
-            if(ModelValidationUtils.validateBoolean(files[presenter.currentMovie]['Loop video'])) {
+            if(files[presenter.currentMovie]['Loop video']) {
                 if (typeof presenter.videoObject.loop == 'boolean') {
                     presenter.videoObject.loop = true;
                 } else {
