@@ -243,8 +243,8 @@ function Addonvideo_create() {
         }
 
         presenter.metadadaLoaded = true;
-        presenter.originalVideoSize = presenter.getVideoSize(presenter.addonSize, presenter.videoObject);
-        presenter.calculateCaptionsOffset(presenter.addonSize, true);
+        presenter.originalVideoSize = presenter.getVideoSize(presenter.configuration.addonSize, presenter.videoObject);
+        presenter.calculateCaptionsOffset(presenter.configuration.addonSize, true);
 
         if (presenter.controlBar !== null) {
             presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
