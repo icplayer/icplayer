@@ -13,6 +13,8 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IFileProperty;
@@ -24,21 +26,35 @@ import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.ITextProperty;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 
-public class AddonModelTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class GWTAddonModelTestCase extends GwtTest {
 	
 	private static final String PAGE_VERSION = "2";
 
 	@Test
 	public void moduleTypeName() {
-		
 		AddonModel module = new AddonModel();
 		assertEquals("Addon", module.getModuleTypeName());
 	}
-
 	
 	@Test
-	public void loadFromPageXML() throws SAXException, IOException {
+	public void loadIsSettingBaseURLValue() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/addon.page.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
 		
+		String expectedBaseURL = "Expected BaseURL Value";
+		AddonModel module = new AddonModel();
+		module.load(element, expectedBaseURL, PAGE_VERSION);
+		
+		String result = module.getBaseURL();
+
+		assertNotNull(result);
+		assertEquals(expectedBaseURL, result);
+	}
+
+	@Test
+	public void loadFromPageXML() throws SAXException, IOException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/addon.page.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -86,7 +102,6 @@ public class AddonModelTestCase {
 
 	@Test
 	public void loadSaveHtml() throws SAXException, IOException {
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/addon2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -100,7 +115,6 @@ public class AddonModelTestCase {
 		module = new AddonModel();
 		module.load(element, "", PAGE_VERSION);
 		String newText = module.getPropertyByName("Rich text").getValue();
-		
 		assertEquals(oldText, newText);
 	}
 
@@ -178,10 +192,10 @@ public class AddonModelTestCase {
 		module.load(element, "", PAGE_VERSION);
 		String xml = module.toXML();
 		
+		int indexStringProperty = xml.indexOf("<property name=\"Title\" displayName=\"Addon title\" type=\"string\" value=\"This is title\"/>");
+		int indexImageProperty = xml.indexOf("<property name=\"Image\" displayName=\"Image file\" type=\"image\" value=\"myfile.jpg\"/>");
+		int indexFileProperty = xml.indexOf("<property name=\"File\" displayName=\"Test file\" type=\"file\" value=\"testfile.abc\"/>");
 		
-		int indexStringProperty = xml.indexOf("<property name='Title' displayName='Addon title' type='string' value='This is title'/>");
-		int indexImageProperty = xml.indexOf("<property name='Image' displayName='Image file' type='image' value='myfile.jpg'/>");
-		int indexFileProperty = xml.indexOf("<property name='File' displayName='Test file' type='file' value='testfile.abc'/>");
 		assertTrue(indexStringProperty > 0);
 		assertTrue(indexImageProperty > 0);
 		assertTrue(indexFileProperty > 0);
@@ -505,7 +519,6 @@ public class AddonModelTestCase {
 	
 	@Test
 	public void replaceLinks() throws SAXException, IOException {
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/addon4.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -513,19 +526,10 @@ public class AddonModelTestCase {
 		AddonModel module = new AddonModel();
 		module.load(element, "http://ala/ma/kota/", PAGE_VERSION);
 		
-		IHtmlProperty foundProperty = null;
-		for(int i = 0; i < module.getPropertyCount(); i++){
-			
-			IProperty property = module.getProperty(i); 
-			if(property.getName().compareTo("Rich text") == 0){
-				if(property instanceof IHtmlProperty){
-					foundProperty = (IHtmlProperty) property;
-					break;
-				}
-			}
-		}
+		IHtmlProperty foundProperty = (IHtmlProperty) module.getPropertyByName("Rich text");
 		
-		assertNotNull(foundProperty);
+		assertTrue(foundProperty != null);
+		
 		int index = foundProperty.getValue().indexOf("/ala/ma/kota");
 		assertTrue(index > 0);
 	}

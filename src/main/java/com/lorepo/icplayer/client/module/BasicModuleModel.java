@@ -12,7 +12,8 @@ import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
 import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
 
-public abstract class BasicModuleModel extends StyledModule implements IModuleModel, IModuleModelBuilder {
+public abstract class BasicModuleModel extends StyledModule implements
+		IModuleModel, IModuleModelBuilder {
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;
@@ -20,8 +21,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private INameValidator nameValidator;
 	private String buttonType;
 
-	
-	protected BasicModuleModel(String typeName, String name){
+	protected BasicModuleModel(String typeName, String name) {
 		super(name);
 		this.moduleTypeName = typeName;
 		this.moduleName = name;
@@ -30,22 +30,22 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		registerPositionProperties();
 		addPropertyIsVisible();
 	}
-	
+
 	@Override
 	public String getModuleName() {
 		return moduleName;
 	}
-	
+
 	@Override
 	public String getModuleTypeName() {
 		return moduleTypeName;
-	} 
-	
+	}
+
 	@Override
 	public String getClassNamePrefix() {
 		return getModuleTypeName();
 	};
-	
+
 	@Override
 	public String getId() {
 		return id;
@@ -55,32 +55,28 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public void setId(String newId) {
 		id = newId;
 	}
-	
+
 	@Override
 	public void release() {
 	}
-	
+
 	@Override
 	public void setInlineStyle(String style) {
 		String css = URLUtils.resolveCSSURL(this.baseURL, style);
 		super.setInlineStyle(css);
 	}
-	
+
 	/**
-	 * Load attributes common to all modules:
-	 * - position
-	 * - style
+	 * Load attributes common to all modules: - position - style
 	 */
 	@Override
 	public void load(Element element, String baseUrl, String version) {
 		this.baseURL = baseUrl;
-		
 		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
 		factory.produce(element, version);
-		
+
 		this.parseModuleNode(element);
 	}
-	
 
 	protected abstract void parseModuleNode(Element element);
 
@@ -91,16 +87,16 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public String getButtonType() {
 		return buttonType;
 	}
-	
-	protected Element setBaseXMLAttributes(Element moduleXML){
+
+	protected Element setBaseXMLAttributes(Element moduleXML) {
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
-		
+
 		if (!this.getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
 			moduleXML.setAttribute("style", encodedStyle);
 		}
-		
+
 		if (!getStyleClass().isEmpty()) {
 			String encodedStyleClass = StringUtils.escapeXML(getStyleClass());
 			moduleXML.setAttribute("class", encodedStyleClass);
@@ -112,25 +108,26 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private void addPropertyId() {
 
 		IProperty property = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				if (nameValidator != null && nameValidator.canChangeName(newValue)) {
+				if (nameValidator != null
+						&& nameValidator.canChangeName(newValue)) {
 					id = newValue;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return id;
 			}
-			
+
 			@Override
 			public String getName() {
 				return "ID";
 			}
-			
+
 			public String getDisplayName() {
 				return "ID";
 			}
@@ -140,28 +137,28 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 				return false;
 			}
 		};
-		
+
 		addProperty(property);
 	}
 
 	private void addPropertyIsVisible() {
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
 				if (value != isVisible()) {
 					setIsVisible(value);
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isVisible() ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return "Is Visible";
@@ -178,23 +175,23 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			}
 
 		};
-		
+
 		addProperty(property);
 	}
-	
+
 	public String getBaseURL() {
 		return baseURL;
 	}
-	
+
 	public void setBaseUrl(String baseUrl) {
 		this.baseURL = baseUrl;
 	}
-	
+
 	@Override
 	public void addNameValidator(INameValidator validator) {
 		this.nameValidator = validator;
 	}
-	
+
 	@Override
 	public void setID(String id) {
 		this.id = id;

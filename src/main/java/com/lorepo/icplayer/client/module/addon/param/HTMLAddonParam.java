@@ -8,7 +8,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
-public class HTMLAddonParam extends StringAddonParam{
+public class HTMLAddonParam extends StringAddonParam {
 
 
 	public HTMLAddonParam(AddonModel parent, String type) {
@@ -43,6 +43,7 @@ public class HTMLAddonParam extends StringAddonParam{
 			rawText = XMLUtils.getText(element);
 			rawText = StringUtils.unescapeXML(rawText);
 		}
+		
 		if(baseUrl != null){
 			rawText = StringUtils.updateLinks(rawText, baseUrl);
 		}

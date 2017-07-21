@@ -9,7 +9,7 @@ import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v0;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v1;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v2;
 
-public class ModuleXMLParsersFactory{
+public class ModuleXMLParsersFactory {
 
 	private IModuleModelBuilder module;
 	private HashMap<String, IModuleModelParser> parsersMap = new HashMap<String, IModuleModelParser>();

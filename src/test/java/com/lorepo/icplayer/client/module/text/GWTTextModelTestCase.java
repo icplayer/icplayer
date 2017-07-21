@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
@@ -33,18 +32,23 @@ import com.lorepo.icplayer.client.module.text.TextModel;
 public class GWTTextModelTestCase extends GwtTest {
 	
 	private static final String PAGE_VERSION = "2";
+	
+	@Before public void setUp () {
+		Dictionary dictMock = Mockito.mock(Dictionary.class);
+		when(dictMock.get("text_module_text")).thenReturn("Text");
+		when(dictMock.get("text_module_gap_type")).thenReturn("Gap type");
+		
+		Set<String> keySet = new HashSet<String>();
+		keySet.add("text_module_text");
+		keySet.add("text_module_gap_type");
+		
+		when(dictMock.keySet()).thenReturn(keySet);
+		
+		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
+	}
 	 
 	@Test
 	public void propertyDraggableGaps() {
-		Dictionary dictMock = Mockito.mock(Dictionary.class);
-		
-		when(dictMock.get("text_module_gap_type")).thenReturn("Gap type");
-		Set<String> dictValues = new HashSet<String>();
-		dictValues.add("text_module_gap_type");
-		when(dictMock.keySet()).thenReturn(dictValues);
-		
-		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
-		
 		TextModel module = new TextModel();
 
 		boolean foundProperty = false;
@@ -58,19 +62,69 @@ public class GWTTextModelTestCase extends GwtTest {
 
 		assertTrue(foundProperty);
 	}
+	
+	@Test
+	public void saveLoadModule1() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		TextModel module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+		
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
 
+		assertTrue(module.isDisabled());
+		assertFalse(module.isIgnorePunctuation());
+	}
+	
+	@Test
+	public void saveLoadModule2() throws SAXException, IOException {
+		
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		TextModel module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+		
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		assertTrue(module.isIgnorePunctuation());
+	}
+	
+	@Test
+	public void nonUnicodeText() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		
+		TextModel module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+		for(int i = 0; i < module.getPropertyCount(); i++){
+			IProperty property = module.getProperty(i);
+			if(property.getName().compareTo("Text") == 0){
+				property.setValue("In chapter 6");
+			}
+		}
+		
+		String xml = module.toXML();
+		element = xmlParser.parser(new StringInputStream(xml));
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		assertEquals("In chapter 6", module.getParsedText());
+	}
 
 	@Test
 	public void changeDraggableProperty() throws SAXException, IOException {
-		Dictionary dictMock = Mockito.mock(Dictionary.class);
-		
-		when(dictMock.get("text_module_gap_type")).thenReturn("Gap type");
-		Set<String> dictValues = new HashSet<String>();
-		dictValues.add("text_module_gap_type");
-		when(dictMock.keySet()).thenReturn(dictValues);
-		
-		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
-
 		final String EXPECTED = "<input id=\"-3\" type=\"edit\"";
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -95,7 +149,6 @@ public class GWTTextModelTestCase extends GwtTest {
 	
 	@Test
 	public void math() throws SAXException, IOException {
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module3.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);

@@ -64,7 +64,7 @@ public class ListAddonParam extends StringAddonParam{
 		
 		String xml = "<items>";
 		for(AddonParamProvider provider : propertyProviders){
-			
+
 			xml += provider.toXML();
 		}
 		xml += "</items>";

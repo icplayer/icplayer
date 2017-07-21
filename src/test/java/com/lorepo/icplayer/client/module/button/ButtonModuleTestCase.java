@@ -1,13 +1,11 @@
 package com.lorepo.icplayer.client.module.button;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -35,23 +33,6 @@ public class ButtonModuleTestCase {
 		assertEquals("Button", module.getModuleTypeName());
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void toXML() {
-		
-		ButtonModule module = new ButtonModule();
-		module.setLeft(1);
-		module.setTop(2);
-		module.setWidth(3);
-		module.setHeight(4);
-		module.setType("nextPage");
-		String xml = module.toXML();
-		
-		
-		String expected = 
-				"<buttonModule id='" + module.getId() + "'";
-		assertTrue(xml.startsWith(expected));
-	}
 
 	
 	@Test

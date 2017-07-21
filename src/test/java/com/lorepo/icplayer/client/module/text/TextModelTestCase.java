@@ -1,16 +1,13 @@
 package com.lorepo.icplayer.client.module.text;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -87,72 +84,8 @@ public class TextModelTestCase {
 		assertTrue(foundProperty);
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoadModule1() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-
-		assertTrue(module.isDisabled());
-		assertFalse(module.isIgnorePunctuation());
-	}
 	
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoadModule2() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-
-		assertTrue(module.isIgnorePunctuation());
-	}
 	
-	@Ignore("toXML need fix")
-	@Test
-	public void nonUnicodeText() throws SAXException, IOException {
-		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get("text_module_text")).thenReturn("Text");
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-		for(int i = 0; i < module.getPropertyCount(); i++){
-			IProperty property = module.getProperty(i);
-			if(property.getName().compareTo("Text") == 0){
-				property.setValue("In chapter 6");
-			}
-		}
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-
-		assertEquals("In chapter 6", module.getParsedText());
-	}
-
 	@Test
 	public void changeGapWidthProperty() throws SAXException, IOException, Exception {
 		PowerMockito.whenNew(DomElementManipulator.class).withArguments("span").thenReturn(new DomElementManipulatorMockup("span"));
@@ -263,7 +196,6 @@ public class TextModelTestCase {
 	
 	@Test
 	public void propertyKeepOriginalOrder() {
-		
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("Keep_original_order")).thenReturn("Keep Original Order");
 
@@ -279,20 +211,5 @@ public class TextModelTestCase {
 		}
 
 		assertTrue(foundProperty);
-	}
-	
-	
-	@Test
-	public void math() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module3.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		TextModel module = new TextModel();
-		module.load(element, "", PAGE_VERSION);
-
-		InlineChoiceInfo choice = module.getChoiceInfos().get(0);
-		
-		assertEquals("<", choice.getAnswer());
 	}
 }

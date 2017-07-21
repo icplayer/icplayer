@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +34,6 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 import com.lorepo.icplayer.client.utils.XML;
-import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPageTestCase extends GwtTest {

@@ -7,7 +7,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
-public class StringAddonParam implements IAddonParam{
+public class StringAddonParam implements IAddonParam {
 
 	protected String name;
 	protected String displayName;
@@ -31,16 +31,14 @@ public class StringAddonParam implements IAddonParam{
 	@Override
 	public Element toXML(){
 		
-		String xml;
+		Element property = XMLUtils.createElement("property");
 		
-		xml = "<property";
-		xml += " name='" + StringUtils.escapeXML(name) + "'";
-		xml += " displayName='" + StringUtils.escapeXML(displayName) + "'";
-		xml += " type='" + StringUtils.escapeXML(type) + "'";
-		xml += " value='" + StringUtils.escapeXML(value) + "'";
-		xml += "/>";
+		property.setAttribute("name", StringUtils.escapeXML(name));
+		property.setAttribute("displayName", StringUtils.escapeXML(displayName));
+		property.setAttribute("type", StringUtils.escapeXML(type));
+		property.setAttribute("value", StringUtils.escapeXML(value));
 		
-		return XMLParser.parse(xml).getDocumentElement();
+		return property;
 	}
 
 

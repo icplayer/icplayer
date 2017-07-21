@@ -15,7 +15,6 @@ public class AddonModel extends BasicModuleModel {
 
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
-	private String baseURL;
 	
 	
 	public AddonModel() {
@@ -53,7 +52,6 @@ public class AddonModel extends BasicModuleModel {
 
 	
 	private void loadProperties(Element rootElement) {
-
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		NodeList propertiesNodes = rootElement.getElementsByTagName("properties");
 
@@ -68,7 +66,7 @@ public class AddonModel extends BasicModuleModel {
 					String type = XMLUtils.getAttributeAsString(element, "type");
 					IAddonParam addonParam = paramFactory.createAddonParam(this, type);
 
-					addonParam.load(element, baseURL);
+					addonParam.load(element, this.getBaseURL());
 					addAddonParam(addonParam);
 				}
 			}
@@ -84,7 +82,7 @@ public class AddonModel extends BasicModuleModel {
 		addonModule.appendChild(this.getLayoutsXML());
 		
 		Element properties = XMLUtils.createElement("properties");
-		
+
 		for (IAddonParam property : addonParams) {
 			properties.appendChild(property.toXML());
 		}
@@ -120,11 +118,6 @@ public class AddonModel extends BasicModuleModel {
 		addProperty(param.getAsProperty());
 	}
 
-
-	public String getBaseURL() {
-		return baseURL;
-	}
-	
 	public List<IAddonParam> getParams(){
 		return addonParams;
 	}

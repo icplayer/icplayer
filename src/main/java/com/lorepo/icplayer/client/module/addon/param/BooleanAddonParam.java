@@ -4,7 +4,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
-public class BooleanAddonParam extends StringAddonParam{
+public class BooleanAddonParam extends StringAddonParam {
 
 	
 	public BooleanAddonParam(AddonModel parent, String type) {
