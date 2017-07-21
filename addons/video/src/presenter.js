@@ -226,8 +226,8 @@ function Addonvideo_create() {
         }
 
         presenter.metadadaLoaded = true;
-        presenter.originalVideoSize = presenter.getVideoSize(presenter.addonSize, presenter.videoObject);
-        presenter.calculateCaptionsOffset(presenter.addonSize, true);
+        presenter.originalVideoSize = presenter.getVideoSize(presenter.configuration.addonSize, presenter.videoObject);
+        presenter.calculateCaptionsOffset(presenter.configuration.addonSize, true);
 
         if (presenter.controlBar !== null) {
             presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
@@ -477,7 +477,7 @@ function Addonvideo_create() {
             addonID: model.ID,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
-            defaultControls: !ModelValidationUtils.validateBoolean(upgradedModel['Hide default controls']),
+            defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: validatedFiles.files,
             height: parseInt(model.Height, 10)
 
@@ -491,14 +491,14 @@ function Addonvideo_create() {
 
         presenter.commandsQueue = CommandsQueueFactory.create(presenter);
 
+        presenter.videoView = view;
+        presenter.$view = $(view);
+
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$captionsContainer = presenter.$view.find(".captions-container:first");
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.$videoObject = $(presenter.videoObject);
-
-        presenter.videoView = view;
-        presenter.$view = $(view);
 
         presenter.setDimensions();
 
@@ -506,6 +506,7 @@ function Addonvideo_create() {
             this.buildControlsBars();
         }
 
+        presenter.connectHandlers();
         presenter.reload();
 
         if (!presenter.configuration.isVisibleByDefault) presenter.hide();
@@ -595,13 +596,14 @@ function Addonvideo_create() {
     });
 
     presenter.scaleCaptionsContainerToScreenSize = presenter.metadataLoadedDecorator(function () {
+        console.log("Scale");
         var size = {
             width: screen.width,
             height: screen.height
         };
 
         var newVideoSize = presenter.getVideoSize(size, presenter.videoObject);
-
+        console.log(newVideoSize);
         var xScale = newVideoSize.width / presenter.originalVideoSize.width;
         var yScale = newVideoSize.height / presenter.originalVideoSize.height;
 
@@ -1200,8 +1202,6 @@ function Addonvideo_create() {
         presenter.videoObject.volume = percent/100;
     };
 
-    presenter.set
-
     presenter.reset = function() {
         presenter.configuration.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
@@ -1221,42 +1221,6 @@ function Addonvideo_create() {
 
     presenter.getVideo = function() {
         return this.videoContainer.find('video:first');
-    };
-
-    /**
-     * Validates string representation of integer. Only positive integer values are allowed. If both (value and default) are
-     * undefined then isError property is set to true.
-     */
-    presenter.validatePositiveInteger = function (value, defaultValue) {
-        var isValueDefined = value !== undefined && value !== "";
-        var isDefaultDefined = defaultValue !== undefined && !isNaN(defaultValue);
-
-        if (!isValueDefined && !isDefaultDefined) {
-            return {
-                isError: true,
-                value: 1
-            };
-        }
-
-        if (!isValueDefined && isDefaultDefined) {
-            return {
-                isError: false,
-                value: defaultValue
-            };
-        }
-
-        var parsedValue = parseInt(value, 10);
-        if (isNaN(parsedValue) || parsedValue < 1) {
-            return {
-                isError: true,
-                value: defaultValue
-            };
-        }
-
-        return {
-            isError: false,
-            value: parsedValue
-        };
     };
 
     function generateTransformDict(scaleX, scaleY) {

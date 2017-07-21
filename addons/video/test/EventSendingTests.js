@@ -1,7 +1,7 @@
 TestCase("[Video] Event data creation", {
     setUp: function () {
         this.presenter = Addonvideo_create();
-        this.presenter.addonID = 'video1';
+        this.presenter.configuration.addonID = 'video1';
     },
 
     'test create event for first video ended': function () {
@@ -16,7 +16,7 @@ TestCase("[Video] Event data creation", {
 TestCase("[Video] Event sending", {
     setUp: function () {
         this.presenter = Addonvideo_create();
-        this.presenter.addonID = 'video1';
+        this.presenter.configuration.addonID = 'video1';
         this.presenter.currentMovie = 0;
 
         this.presenter.eventBus = {
@@ -72,7 +72,7 @@ TestCase("[Video] Event sending", {
 
             var call = this.stubs.sendEventStub.getCall(0);
 
-            assertEquals(this.presenter.addonID, call.args[1].source);
+            assertEquals(this.presenter.configuration.addonID, call.args[1].source);
         },
 
         'test should send currentMovie + 1 in the event data': function () {
@@ -115,7 +115,7 @@ TestCase("[Video] Event sending", {
 
             var call = this.stubs.sendEventStub.getCall(0);
 
-            assertEquals(this.presenter.addonID, call.args[1].source);
+            assertEquals(this.presenter.configuration.addonID, call.args[1].source);
         },
 
         'test should send currentMovie + 1 as item in event data on playing': function () {
@@ -161,7 +161,7 @@ TestCase("[Video] Event sending", {
 
             var call = this.stubs.sendEventStub.getCall(1);
 
-            assertEquals(this.presenter.addonID, call.args[1].source);
+            assertEquals(this.presenter.configuration.addonID, call.args[1].source);
         },
 
         'test should send currentMovie + 1 as item of second event when started from 0 seconds': function () {
@@ -192,7 +192,7 @@ TestCase("[Video] Event sending", {
             sendEvent: this.stubs.sendEventStub
         };
 
-        this.presenter.addonID = 'video1';
+        this.presenter.configuration.addonID = 'video1';
         this.presenter.currentMovie = 0;
         this.presenter.videoObject = document.createElement("video");
         this.presenter.videoObject.currentTime = 0;
