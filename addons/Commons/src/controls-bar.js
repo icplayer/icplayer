@@ -212,10 +212,12 @@
         var videoObject = this.configuration.videoObject;
         if (videoObject !== null) {
             this.setCurrentTime(videoObject.currentTime);
-            if (videoObject.paused === false) {
-                this.showPauseButton();
-            } else {
-                this.showPlayButton();
+            if (videoObject.readyState >= 3) {
+                if (videoObject.paused === false) {
+                    this.showPauseButton();
+                } else {
+                    this.showPlayButton();
+                }
             }
         }
 
