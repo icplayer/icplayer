@@ -1,4 +1,5 @@
-.addon_PieChart_dev{
+.addon_PieChart{
+    -ms-touch-action: none;
 }
 .piechart {
     border: 3px solid #ccc;

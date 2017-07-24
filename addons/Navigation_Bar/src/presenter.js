@@ -245,11 +245,15 @@ function AddonNavigation_Bar_create() {
             }
             presenter.currentIndex = dotsLeftIndex;
 
-            generateElements(elementWidth, elementHeight, true, preview, horizontalGap);
+            generateElements(elementWidth, elementHeight, true, preview, horizontalGap, false);
 
             presenter.addClassPageOK();
 
             presenter.isPageOK();
+
+            if(presenter.configuration.styles) {
+                presenter.setPageStyles();
+            }
 
             return false;
         });
@@ -265,11 +269,15 @@ function AddonNavigation_Bar_create() {
             }
             presenter.currentIndex = dotsRightIndex;
 
-            generateElements(elementWidth, elementHeight, true, preview, horizontalGap);
+            generateElements(elementWidth, elementHeight, true, preview, horizontalGap, false);
 
             presenter.addClassPageOK();
 
             presenter.isPageOK();
+
+            if(presenter.configuration.styles) {
+                presenter.setPageStyles();
+            }
 
             return false;
         });
@@ -460,7 +468,7 @@ function AddonNavigation_Bar_create() {
             '</a>';
     }
 
-    function generateIndexedElements(navigationBarMoved) {
+    function generateIndexedElements(navigationBarMoved, triggerOnRun) {
         var firstElementSelector = presenter.configuration.showNextPrevArrows ? '[class*="navigationbar-element-previous"]' : '[class*="navigationbar-element-first"]';
         //var firstElement = presenter.$view.find(firstElementSelector).parent();
 
@@ -495,7 +503,12 @@ function AddonNavigation_Bar_create() {
             }
             presenter.allPagesDisplayed = true;
         } else {
-            if (presenter.currentIndex < (maxElementCount - 1)) { // -1 for dotted element
+            var dottedElementCount = -1;
+            if(presenter.configuration.firstPageAsCover && triggerOnRun) {
+                dottedElementCount = 0;
+            }
+
+            if (presenter.currentIndex < (maxElementCount + dottedElementCount)) { // -1 for dotted element
                 for (n = 0; n < maxElementCount - 1; n++) {
                     element = generateIndexElementStub(n + 1, navigationBarMoved);
                     presenter.$wrapper.append(element);
@@ -534,6 +547,10 @@ function AddonNavigation_Bar_create() {
                 dottedElement = generateDottedElement(DOTTED_SIDE.LEFT);
                 presenter.$wrapper.append(dottedElement);
 
+                if(startIndex == presenter.currentIndex && presenter.configuration.firstPageAsCover) {
+                    startIndex = startIndex - 1;
+                }
+
                 for (n = 0; n < numberOfElement; n++) {
                     var indexedElement = generateIndexElementStub(startIndex + 1 + n, navigationBarMoved);
                     presenter.$wrapper.append(indexedElement);
@@ -550,12 +567,12 @@ function AddonNavigation_Bar_create() {
         };
     }
 
-    function generateElements(elementWidth, elementHeight, navigationBarMoved, preview, horizontalGap) {
+    function generateElements(elementWidth, elementHeight, navigationBarMoved, preview, horizontalGap, triggerOnRun) {
         removeAllElements();
 
         generateHomeAndPreviousArrowsElements();
 
-        var dotsIndexes = generateIndexedElements(navigationBarMoved);
+        var dotsIndexes = generateIndexedElements(navigationBarMoved, triggerOnRun);
 
         generateReportAndNextArrowsElements();
 
@@ -744,7 +761,7 @@ function AddonNavigation_Bar_create() {
 
         removeAllElements();
 
-        generateElements(elementWidth, elementHeight, false, isPreview, horizontalGap);
+        generateElements(elementWidth, elementHeight, false, isPreview, horizontalGap, true);
         if(model['Styles']) {
             presenter.setPageStyles();
         }

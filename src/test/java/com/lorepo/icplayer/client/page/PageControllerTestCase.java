@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Group;
@@ -20,7 +22,8 @@ import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
-public class PageControllerTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class PageControllerTestCase extends GwtTest{
 
 	private PageViewMockup display;
 	private PageController pageController;

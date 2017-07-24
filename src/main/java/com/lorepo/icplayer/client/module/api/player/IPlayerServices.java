@@ -23,6 +23,7 @@ public interface IPlayerServices {
 	public IAssetsService	getAssetsService();
 	public IStateService 	getStateService();
 	public IJsonServices	getJsonServices();
+	public IReportableService getReportableService();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
 	public boolean isBookMode();
@@ -32,5 +33,5 @@ public interface IPlayerServices {
 	public IPresenter getFooterModule(String name);
 	public int getPageWeight();
 	
-	public void outstretchHeight(int y, int height);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules);
 }

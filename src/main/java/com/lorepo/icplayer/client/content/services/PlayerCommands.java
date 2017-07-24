@@ -101,6 +101,11 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
+	public void updateCurrentPageScoreWithMistakes(int mistakes) {
+		pageController.updateScoreWithMistakes(mistakes);
+	}
+	
+	@Override
 	public void updateCurrentPageScore(boolean incrementCheckCounter) {
 		pageController.updateScore(incrementCheckCounter);
 	}
@@ -130,5 +135,10 @@ public class PlayerCommands implements IPlayerCommands {
 	public void hideNavigationPanels() {
 		controller.getView().hideNavigationPanels();
 
+	}
+	
+	@Override
+	public int getIframeScroll() {
+		return controller.getIframeScroll();
 	}
 }

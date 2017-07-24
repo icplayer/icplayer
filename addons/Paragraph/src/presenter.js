@@ -121,6 +121,18 @@ function AddonParagraph_create() {
         });
 
         presenter.setVisibility(presenter.configuration.isVisible);
+
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+
+        if(iOSSafari) {
+            var input = document.createElement("input");
+            input.type = "text";
+            $(input).css('display', 'none');
+            presenter.$view.append(input);
+        }
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -159,6 +171,12 @@ function AddonParagraph_create() {
             '-webkit-hyphens': 'auto',
             'hyphens': 'auto'
         });
+
+        body.css('min-height', 'initial');
+
+         if(presenter.configuration.isToolbarHidden) {
+             iframe.css('height', presenter.configuration.height);
+         }
 
         presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
     };
@@ -306,7 +324,6 @@ function AddonParagraph_create() {
         presenter.placeholder = null;
         presenter.editor.destroy();
         presenter.jQueryTinyMCEHTML.off();
-        tinymce.remove();
 
         presenter.$view.off();
         presenter.$tinyMCEToolbar.off();
@@ -584,9 +601,22 @@ function AddonParagraph_create() {
     presenter.getState = function AddonParagraph_getState() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
-            tinymceState = presenter.editor.getContent({format : 'raw'});
+            try{
+                tinymceState = presenter.editor.getContent({format : 'raw'});
+            }catch(err) {
+                return  presenter.state;
+            }
         } else {
             tinymceState = '';
+        }
+
+        // iOS fix to hide keyboard after page change
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+        if(iOSSafari){
+            $('input').focus();
         }
 
         return JSON.stringify({
@@ -605,8 +635,10 @@ function AddonParagraph_create() {
         if (tinymceState!=undefined && tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
             if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
+                presenter.state = state;
             } else {
                 presenter.configuration.state = tinymceState;
+                presenter.state = state;
             }
         }
     };

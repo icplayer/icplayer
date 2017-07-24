@@ -61,10 +61,13 @@ function AddonWritingCalculations_create() {
         presenter.signs = presenter.readSigns( presenter.model['Signs'][0] );
         presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['Is not activity']);
         presenter.multisigns = ModelValidationUtils.validateBoolean(model['Multisigns']);
+        presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.createView(presenter.array);
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
         presenter.addAdditionalStyles();
+        presenter.setVisibility(presenter.isVisible);
     }
 
     presenter.readSigns = function( signs ) {
@@ -418,10 +421,26 @@ function AddonWritingCalculations_create() {
 
     presenter.executeCommand = function (name, params) {
         var commands = {
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+        presenter.isVisible = true;
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+        presenter.isVisible = false;
     };
 
     presenter.isAllOK = function () {
@@ -641,6 +660,9 @@ function AddonWritingCalculations_create() {
                 presenter.userAnswers[index] = '';
             });
         }
+
+        presenter.setVisibility(presenter.isVisibleByDefault);
+        presenter.isVisible = presenter.isVisibleByDefault;
     };
 
     presenter.clean = function(removeMarks, removeValues) {
@@ -705,7 +727,8 @@ function AddonWritingCalculations_create() {
             presenter.hideAnswers();
         }
         return JSON.stringify({
-            "inputsData" : this.getInputsData()
+            "inputsData" : this.getInputsData(),
+            "isVisible" : presenter.isVisible
         });
     };
 
@@ -719,6 +742,11 @@ function AddonWritingCalculations_create() {
             $.each(inputs, function(index){
                 $(this).val(inputsData.values[index]);
             });
+        }
+
+        if(state.isVisible != undefined) {
+            presenter.isVisible = state.isVisible;
+            presenter.setVisibility(presenter.isVisible);
         }
     };
 

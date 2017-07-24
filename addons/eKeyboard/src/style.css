@@ -73,3 +73,24 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }
     .ui-bar .ui-keyboard-button { height: 2.5em; }
     .ui-bar .ui-btn-inner { height: 2.5em; padding: 0.5em 0; }
 }
+
+.eKeyboard-close-button {
+	border: 1px solid #cccccc;
+  	background: #f6f6f6;
+  	color: red;
+    top: 0;
+    left: 101%;
+}
+
+.eKeyboard-open-button {
+  	width: 33px;
+  	height: 33px;
+    background-color: transparent;
+    border: 0px;
+    background-position: center;
+    background-image: url("resources/eKeyboard.png");
+    background-repeat: no-repeat;
+    background-size: 32px 32px;
+}
+
+

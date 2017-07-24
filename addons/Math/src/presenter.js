@@ -192,8 +192,13 @@ function AddonMath_create() {
         var i, expressionRunner = {
             run: function (expression, variables) {
                 presenter.assignVariablesToObject(this, variables);
-                eval(expression);
-                return this.result;
+                var parser = math.parser();
+
+                parser.set('variables', this.variables);
+                expression = expression.replace(/&&/g," and ").replace(/\|\|/g, " or ").replace(/'/g, '"');
+                parser.eval(expression);
+
+                return parser.get('result');
             }
         };
 
@@ -321,7 +326,7 @@ function AddonMath_create() {
     };
 
     presenter.convertExpression = function (expression, variables) {
-        var convertedExpression = 'this.result = ' + expression,
+        var convertedExpression = 'result = ' + expression,
             expressionVariables = presenter.selectVariablesFromExpression(expression, variables), i;
 
         for (i = 0; i < expressionVariables.length; i++) {
@@ -351,16 +356,16 @@ function AddonMath_create() {
     };
 
     presenter.replaceVariableNameWithReference = function (expression, variable) {
-        var prefix = "this.variables['";
+        var prefix = 'variables["';
         var indexes = presenter.findTextOccurrences(expression, variable);
         var fixedExpression = expression.substring(0, indexes[0]);
 
         for (var i = 0; i < indexes.length - 1; i++) {
-            fixedExpression += prefix + variable + "']";
+            fixedExpression += prefix + variable + '"]';
             fixedExpression += expression.substring(indexes[i] + variable.length, indexes[i + 1]);
         }
 
-        fixedExpression += prefix + variable + "']";
+        fixedExpression += prefix + variable + '"]';
         fixedExpression += expression.substring(indexes[indexes.length - 1] + variable.length);
 
         return fixedExpression;

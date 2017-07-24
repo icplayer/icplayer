@@ -115,7 +115,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.playerServices = services;
 		isVisible = module.isVisible();
 		try{
-		connectHandlers();
+			connectHandlers();
 		}catch(Exception e){
 			
 		}
@@ -447,15 +447,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
-		}
-
+		}		
+		
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
 
-			if (!enteredValue.isEmpty() &&
-				choice.getAnswer().compareToIgnoreCase(enteredValue) != 0 &&
-				!enteredValue.equals("---"))
-			{
+			boolean wasValueSelected = !enteredValue.isEmpty() && !enteredValue.equals("---");
+			boolean isValidAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
+ 
+			if (!isValidAnswer && wasValueSelected) {
 				errorCount++;
 			}
 		}
@@ -542,18 +542,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
-			if (choice.getAnswer().compareToIgnoreCase(enteredValue) == 0) {
+			
+			boolean isCorrectAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
+
+			if (isCorrectAnswer) {
 				score += choice.getValue();
 			}
 		}
-
 		return score;
 	}
 
 	private String getElementText(String id) {
 		return values.get(id) == null ? "" : values.get(id).trim();
 	}
-
+	
 	@Override
 	public void addView(IModuleView display) {
 
@@ -684,9 +686,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void valueChangeLogic(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
-		if (newValue == gap.getPlaceHolder()) {
+		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			newValue = "";
 		}
+		
 		values.put(id, newValue);
 		updateScore();
 
@@ -747,10 +750,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 		String value = StringUtils.removeAllFormatting(draggableItem.getValue());
+		
 		view.setValue(gapId, draggableItem.getValue());
 		view.refreshMath();
+		
 		consumedItems.put(gapId, draggableItem);
 		values.put(gapId, value);
+		
 		fireItemConsumedEvent();
 		String score = Integer.toString(getItemScore(gapId));
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
@@ -846,7 +852,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			input.setAttribute("placeholder", gap.getPlaceHolder());
 		}
 
-		if (enteredValue.equals(gap.getPlaceHolder())) {
+		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
 	}
@@ -953,7 +959,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		GapInfo gap = getGapInfoById(itemID);
 		String enteredValue = getElementText(gap.getId());
-		if (enteredValue == gap.getPlaceHolder()) {
+		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
 		if (gap.isCorrect(enteredValue)) {

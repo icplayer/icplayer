@@ -107,15 +107,16 @@
 
             return function(eventName) {
                   var TAGNAMES = {
-                  'select': 'input',
-                  'change': 'input',
-                  'submit': 'form',
-                  'reset' : 'form',
-                  'error' : 'img',
-                  'load'  : 'img',
-                  'abort' : 'img',
-                  'unload': 'win',
-                  'resize': 'win'
+                  'select'     : 'input',
+                  'change'     : 'input',
+                  'submit'     : 'form',
+                  'reset'      : 'form',
+                  'error'      : 'img',
+                  'load'       : 'img',
+                  'abort'      : 'img',
+                  'unload'     : 'win',
+                  'resize'     : 'win',
+                  'touchstart' : 'button'
                 },
                 shortEventName = eventName.replace(/^on/, '');
                 if(cache[shortEventName]) { return cache[shortEventName]; }

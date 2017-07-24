@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
@@ -165,8 +166,15 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 
 	@Override
-	public void outstretchHeight(int y, int height) {
+	public void outstretchHeight(int y, int height, boolean dontChangeModules) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public IReportableService getReportableService() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

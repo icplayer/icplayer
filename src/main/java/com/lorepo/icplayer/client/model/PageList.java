@@ -10,12 +10,12 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-
 
 
 public class PageList extends BasicPropertyProvider implements IChapter{
@@ -24,22 +24,33 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	private final List<IContentNode>	nodes = new ArrayList<IContentNode>();
 	private IPageListListener listener;
 	public String name;
+	private String id;
 
 	public PageList(){
 		this("Chapter");
 	}
 
 
-
 	public PageList(String name){
 		super("Chapter");
 		this.name = name;
 		addPropertyName();
+		generateId();
 	}
 
 	@Override
 	public String getName(){
 		return name;
+	}
+	
+	@Override
+	public String getId() {
+		return id;
+	}	
+	
+	private void generateId()
+	{
+		this.id = UUID.uuid(16);
 	}
 
 	public void setPlayerServices(IPlayerServices ps) {
@@ -49,6 +60,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			page.setPlayerServices(ps);
 		}
 	}
+	
+	public void setBaseURL(String baseURL) {
+		List<Page> pages = getAllPages();
+		for (Page page : pages) {
+			page.setBaseURL(baseURL);
+		}
+	}
 
 
 	public void addListener(IPageListListener l){
@@ -56,6 +74,18 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
+	@Override
+	public void addOnIndex(int index, IContentNode node){
+		nodes.add(index, node);
+		if(listener != null){
+			listener.onNodeAdded(node);
+			if(node instanceof PageList){
+				PageList pages = (PageList) node;
+				pages.addListener(listener);
+			}
+		}
+	}
+	
 	@Override
 	public boolean add(IContentNode node){
 
@@ -88,6 +118,20 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return pages;
 	}
 
+	public List<IContentNode> getPagesForChapter(IContentNode node) {
+		List<IContentNode> nodes = new Vector<IContentNode>();
+		
+		if(node instanceof Page){
+			nodes.add(node);
+		}
+		else if(node instanceof PageList){
+			PageList chapter = (PageList) node;
+			nodes.addAll(chapter.getNodes());
+		}
+		
+		return nodes;
+	}
+	
 	public void insertBefore(int index, IContentNode node){
 
 		nodes.add(index, node);
@@ -110,8 +154,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
-	public boolean remove(IContentNode node){
-
+	public boolean remove(IContentNode node){		
 		boolean result = nodes.remove(node);
 
 		if(listener != null && result){
@@ -122,9 +165,14 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
-	public boolean removeFromTree(IContentNode node){
-
+	public boolean removeFromTree(IContentNode node, boolean removeAllNodes){		
 		boolean result = nodes.remove(node);
+		List<IContentNode> nodesList = null;
+		IChapter parentChapter = getParentChapter(node);
+		if(!removeAllNodes){
+			nodesList = getPagesForChapter(node);
+		}
+		
 
 		if(result){
 			if(listener != null){
@@ -135,10 +183,20 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			for(IContentNode item : nodes){
 				if(item instanceof PageList){
 					PageList chapter = (PageList) item;
-					if(chapter.removeFromTree(node)){
+					if(chapter.removeFromTree(node, true)){
 						break;
 					}
 				}
+			}
+		}
+		
+		if(!removeAllNodes){
+			if(parentChapter != null){
+				for (IContentNode item : nodesList) {
+					parentChapter.add(item);
+				}
+			} else {
+				nodes.addAll(nodesList);
 			}
 		}
 
@@ -218,6 +276,13 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		return pageName;
 	}
 
+	public int getPageCount(){
+		int counter = 0;
+		for(IContentNode node : nodes){
+			counter += 1;
+		}
+		return counter;
+	}
 
 	public int getTotalPageCount(){
 		int counter = 0;
@@ -241,11 +306,16 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 
 	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex) {
-		String nodeName = XMLUtils.getAttributeAsString(rootElement, "name");
-
+		name = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "name"));
+		id = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "id"));
+		
+		if (id == "") {
+			generateId();
+		}
+		
 		boolean isLoadedWithSubset = subsetOfPages != null && subsetOfPages.size() > 0;
-		name = StringUtils.unescapeXML(nodeName);
 		NodeList children = rootElement.getChildNodes();
+		
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
@@ -300,7 +370,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			} else if (node instanceof PageList){
 				PageList chapter = (PageList) node;
 				String name = StringUtils.escapeXML(chapter.getName());
-				xml += "<chapter name='" + name + "'>";
+				xml += "<chapter name='" + name + "' id='" + chapter.getId() + "'>";
 				xml += chapter.toXML();
 				xml += "</chapter>";
 			}
@@ -328,7 +398,12 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	public boolean contains(IContentNode node){
 		return nodes.contains(node);
 	}
+	
+	public List<IContentNode> getNodes(){
+		return nodes;
+	}
 
+	@Override
 	public int indexOf(IContentNode node){
 		return nodes.indexOf(node);
 	}
@@ -426,6 +501,11 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	public IChapter getParentChapter(IContentNode node) {
 		IChapter parent = null;
+		
+		if (node == null) {
+			return this;
+		}
+		
 		for(IContentNode item : nodes){
 			if(item == node){
 				parent = this;

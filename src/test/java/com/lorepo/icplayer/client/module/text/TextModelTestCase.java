@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.tools.ant.filters.StringInputStream;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -19,11 +21,20 @@ import org.xml.sax.SAXException;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.mockup.utils.DomElementManipulatorMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(DictionaryWrapper.class)
+@PrepareForTest({DictionaryWrapper.class, TextModel.class, TextParser.class})
 public class TextModelTestCase {
+
+	@Before
+	public void setUp () throws Exception {
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments("span").thenReturn(new DomElementManipulatorMockup("span"));
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments("div").thenReturn(new DomElementManipulatorMockup("div"));
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments("input").thenReturn(new DomElementManipulatorMockup("input"));
+	}
 
 	@Test
 	public void moduleTypeName() {
@@ -64,7 +75,7 @@ public class TextModelTestCase {
 
 		boolean foundProperty = false;
 		for(int i = 0; i < module.getPropertyCount(); i++){
-			
+
 			IProperty property = module.getProperty(i);
 			if(property.getName().compareTo("Gap type") == 0){
 				foundProperty = true;
@@ -74,23 +85,6 @@ public class TextModelTestCase {
 		assertTrue(foundProperty);
 	}
 
-	
-	@Test
-	public void draggableGaps() throws SAXException, IOException {
-		
-		final String EXPECTED = "<span id='-3' class='ic_draggableGapEmpty'>";
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "");
-
-		String text = module.getParsedText().replaceAll("id='[^-]+", "id='");
-		int foundIndex = text.indexOf(EXPECTED);
-		assertTrue(foundIndex > 0);
-	}
-	
 	@Test
 	public void saveLoad() throws SAXException, IOException {
 		
@@ -183,34 +177,10 @@ public class TextModelTestCase {
 	
 	
 	@Test
-	public void changeDraggableProperty() throws SAXException, IOException {
-		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get("text_module_gap_type")).thenReturn("Gap type");
-
-		final String EXPECTED = "<input id='-3' type='edit'";
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "");
-
-		for(int i = 0; i < module.getPropertyCount(); i++){
-			
-			IProperty property = module.getProperty(i);
-			if(property.getName().compareTo("Gap type") == 0){
-				property.setValue("Editable");
-			}
-		}
-
-		String text = module.getParsedText().replaceAll("id='[^-]+", "id='");
-		int foundIndex = text.indexOf(EXPECTED);
-		assertTrue(foundIndex > 0);
-	}
-
-	
-	@Test
-	public void changeGapWidthProperty() throws SAXException, IOException {
+	public void changeGapWidthProperty() throws SAXException, IOException, Exception {
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments("span").thenReturn(new DomElementManipulatorMockup("span"));
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments("div").thenReturn(new DomElementManipulatorMockup("div"));
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments("input").thenReturn(new DomElementManipulatorMockup("input"));
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("text_module_gap_width")).thenReturn("Gap width");
 		
@@ -334,18 +304,4 @@ public class TextModelTestCase {
 		assertTrue(foundProperty);
 	}
 	
-	
-	@Test
-	public void math() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module3.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		TextModel module = new TextModel();
-		module.load(element, "");
-
-		InlineChoiceInfo choice = module.getChoiceInfos().get(0);
-		
-		assertEquals("<", choice.getAnswer());
-	}
 }

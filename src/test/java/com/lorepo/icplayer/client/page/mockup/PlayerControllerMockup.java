@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
@@ -200,6 +201,20 @@ public class PlayerControllerMockup implements IPlayerController {
 	public void fireOutstretchHeightEvent() {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public int getIframeScroll() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public IReportableService getReportableService() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

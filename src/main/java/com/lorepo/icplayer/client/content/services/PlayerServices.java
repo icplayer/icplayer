@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
@@ -144,7 +145,12 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void outstretchHeight(int y, int height) {
-		this.pageController.outstretchHeight(y, height);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules) {
+		this.pageController.outstretchHeight(y, height, dontMoveModules);
+	}
+
+	@Override
+	public IReportableService getReportableService() {
+		return this.playerController.getReportableService();
 	}
 }

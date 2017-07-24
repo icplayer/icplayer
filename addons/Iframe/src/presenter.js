@@ -76,6 +76,12 @@ function AddonIframe_create() {
             iframe.attr("src", presenter.configuration.index);
         }
 
+        if (presenter.configuration.allowFullScreen) {
+            iframe.attr("allowfullscreen", "allowfullscreen");
+            iframe.attr("webkitallowfullscreen", "webkitallowfullscreen");
+            iframe.attr("mozallowfullscreen", "mozallowfullscreen");
+        }
+
         presenter.$view = $(view);
         presenter.view = view;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -162,6 +168,12 @@ function AddonIframe_create() {
         if (!validateFileListResult.isValid) {
             return validateFileListResult;
         }
+
+        var allowFullScreen = model['allowFullscreen'];
+        if (allowFullScreen === undefined) {
+            allowFullScreen = "False";
+        }
+
         return {
             isValid: true,
             haveURL: validateIFrameSourceResult.haveURL,
@@ -170,12 +182,14 @@ function AddonIframe_create() {
             communicationID: validateCommunicationIDResult.value,
             addonID : model.ID,
             fileDictionary: validateFileListResult.fileDictionary,
-            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible'])
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            allowFullScreen: ModelValidationUtils.validateBoolean(allowFullScreen)
         };
     };
 
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+        presenter.$view.css('display', isVisible ? 'block' : 'none');
     };
 
     presenter.show = function AddonIFrame_Communication_show () {

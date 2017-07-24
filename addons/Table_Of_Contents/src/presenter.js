@@ -107,13 +107,93 @@ function AddonTable_Of_Contents_create(){
         }
     }
 
+    function generateIconListElement (page, isPreview) {
+        var anchorElement = $('<a class="imageContainer"></a>'),
+            imgElement = document.createElement('img'),
+            listElement = $('<div class="listElement"></div>');
+
+        $(imgElement).addClass("imageElement");
+        imgElement.src = page.preview;
+        $(listElement).text(page.name);
+        $(anchorElement).append(imgElement).append(listElement);
+
+        if(!isPreview) {
+            var presentation = presentationController.getPresentation(),
+                commander = presentationController.getCommands(),
+                currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
+
+            if (currentPageIndex == page.index) {
+                $(anchorElement).addClass('current-page');
+            }
+
+            $(anchorElement).click(function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                if (currentPageIndex !== page.index) {
+                    commander.gotoPageIndex(page.numberOfIndex);
+                }
+            });
+        }
+
+        return anchorElement;
+    }
+
+    function generateIconElement (page, isPreview) {
+        var anchorElement = $('<a class="imageContainer"></a>'),
+            imgElement = document.createElement('img');
+
+        $(imgElement).addClass("imageElement");
+        imgElement.src = page.preview;
+        $(anchorElement).append(imgElement);
+
+        if(!isPreview) {
+            var presentation = presentationController.getPresentation(),
+                commander = presentationController.getCommands(),
+                currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
+
+            if (currentPageIndex == page.index) {
+                $(anchorElement).addClass('current-page');
+            }
+
+            $(anchorElement).click(function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                if (currentPageIndex !== page.index) {
+                    commander.gotoPageIndex(page.numberOfIndex);
+                }
+            });
+        }
+
+        return anchorElement;
+    }
+
+    function generateIcons (isPreview) {
+        var iconsList = $('<div class="iconsList"></div>');
+        presenter.$view.find('.table-of-contents').append(iconsList);
+
+        for (var i = 0; i < presenter.pages.length; i++) {
+            iconsList.append(generateIconElement(presenter.pages[i], isPreview));
+        }
+    }
+
+    function generateIconsAndList (isPreview) {
+        var iconsList = $('<div class="iconsList"></div>');
+        presenter.$view.find('.table-of-contents').append(iconsList);
+
+        for (var i = 0; i < presenter.pages.length; i++) {
+            iconsList.append(generateIconListElement(presenter.pages[i], isPreview));
+        }
+    }
+
     presenter.pageStartIndex = function(page) {
         var index = 0;
         for (var i = 0; i < page; i++) {
             index += presenter.pagination.pages[i].length;
         }
         return index+1;
-    }
+    };
 
     function displayPage(page) {
         var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol'),
@@ -250,6 +330,10 @@ function AddonTable_Of_Contents_create(){
 
         if(presenter.configuration.displayType == "comboList"){
             generateComboList(isPreview);
+        }else if(presenter.configuration.displayType == "icons"){
+            generateIcons(isPreview);
+        }else if(presenter.configuration.displayType == "icons+list"){
+            generateIconsAndList(isPreview);
         }else{
             var listHeight = generateListElements(),
                 spareHeight = elementsHeights.wrapper - elementsHeights.title;
@@ -332,6 +416,7 @@ function AddonTable_Of_Contents_create(){
                 page.name = presentation.getPage(i).getName();
                 page.index = presentation.getPage(i).getId();
                 page.numberOfIndex = i;
+                page.preview = presentation.getPage(i).getPreview();
 
                 pages.push(page);
             }

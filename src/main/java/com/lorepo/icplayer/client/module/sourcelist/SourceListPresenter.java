@@ -127,6 +127,20 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 					return;
 				}
 				
+				if (event.eventName.toLowerCase() == "limitedcheck") {
+					if (event.getData().get("value") == "unchecked") {
+						canDrag = true;
+						return;
+					} else {
+						canDrag = false;
+						return;
+					}
+				}
+				
+				if (event.eventName != "itemDragged" && event.eventName != "itemStopped") {
+					return;
+				}
+				
 				String gotItem = event.getData().get("item");
 				
 				if (!gotItem.startsWith(getItemPrefix())) {

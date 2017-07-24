@@ -10,7 +10,6 @@ public interface IPage extends IContentNode{
 	public String getBaseURL();
 	public String getPreview();
 	public String getURL();
-	public String getId();
 	public String getHref();
 	public List<String> getModulesList();
 	public void setPlayerServices(IPlayerServices ps);
@@ -20,4 +19,6 @@ public interface IPage extends IContentNode{
 	void setPageCustomWeight(int w);
 	int getPageCustomWeight();
 	void setPageWeight(int w);
+	public void setAsReportable();
+	public void setAsNonReportable();
 }

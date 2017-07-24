@@ -319,6 +319,9 @@ function AddonPuzzle_create() {
     }
 
     function clickHandler(event) {
+        if(presenter.isShowAnswersActive) {
+            return;
+        }
         event.stopPropagation();
 
         if (presenter.configuration.isErrorMode) return;
@@ -396,6 +399,9 @@ function AddonPuzzle_create() {
     }
 
     presenter.reset = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         presenter.configuration.shouldCalcScore = true;
         setNormalMode();
         Shuffle();
@@ -462,6 +468,10 @@ function AddonPuzzle_create() {
     };
 
     presenter.getState = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         if (!presenter.isFullyLoaded()) {
             return "";
         }
@@ -548,6 +558,10 @@ function AddonPuzzle_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             row, col;
@@ -584,6 +598,8 @@ function AddonPuzzle_create() {
         var height = model.Height;
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
         presenter.configuration = presenter.validateModel(model);
 
         jImg = Container.find("img:first");
@@ -678,6 +694,52 @@ function AddonPuzzle_create() {
 
         eventBus.sendEvent('ValueChanged', eventData);
     }
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    function showCorrect() {
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns;
+
+        for (var row = 0; row < rows; row++) {
+            for (var column = 0; column < columns; column++) {
+                var element = board[row][column],
+                    position = element.attr("position"),
+                    splittedPosition = position.split("-");
+
+                element.css({
+                    left: ((puzzleOuterWidth * splittedPosition[1] + leftOffset) + "px"),
+                    top: ((puzzleOuterHeight * splittedPosition[0] + topOffset) + "px")
+                });
+
+                element.addClass("show-answers");
+            }
+        }
+    }
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.saveBoard();
+        presenter.setWorkMode();
+        showCorrect();
+    };
+
+    presenter.hideAnswers = function () {
+        Container.find(".show-answers").removeClass("show-answers");
+        $.when(presenter['imageLoaded']).then(function () {
+            presenter.prepareBoardFromSavedState(savedBoard);
+        });
+
+        presenter.isShowAnswersActive = false;
+    };
 
     return presenter;
 }

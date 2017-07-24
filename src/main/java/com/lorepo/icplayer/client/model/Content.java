@@ -48,7 +48,11 @@ public class Content implements IXMLSerializable, IContent {
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
-
+	
+	public void setBaseURL() {
+		pages.setBaseURL(this.baseUrl);
+	}
+	
 	private void connectHandlers() {
 		pages.addListener(new IPageListListener() {
 			@Override
@@ -422,6 +426,11 @@ public class Content implements IXMLSerializable, IContent {
 	@Override
 	public int getPageCount() {
 		return pages.getTotalPageCount();
+	}
+	
+	@Override
+	public List<Page> getAllPages() {
+		return pages.getAllPages();
 	}
 
 

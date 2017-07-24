@@ -31,9 +31,12 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 		setProgress(50);
 		getElement().setId(module.getId());
 	}
-
+	
 	@Override
-	public void setData(int value) {
+	public void setData(int value, int maxScore) {
+		if(maxScore > 0) {
+			setMaxProgress(maxScore);
+		}
 		
 		setProgress(value);
 	}

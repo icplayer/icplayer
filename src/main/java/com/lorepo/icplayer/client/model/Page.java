@@ -86,7 +86,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	public Page(String name, String url) {
 		super("Page");
-		this.id = UUID.uuid(6);
+		this.id = UUID.uuid(16);
 		this.name = name;
 		this.href = url;
 		addPropertyName();
@@ -141,6 +141,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	public boolean isLoaded() {
 		return loaded;
+	}
+	
+	public void setBaseURL(String baseURL) {
+		this.baseURL = baseURL;
 	}
 
 	public void release() {
@@ -696,7 +700,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	@Override
 	public String getPreview() {
-		return previewURL;
+		return URLUtils.resolveURL(baseURL, previewURL);
 	}
 
 
@@ -707,6 +711,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	@Override
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public void setAsReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), true);
+		this.reportable = true;
+	}
+
+	@Override
+	public void setAsNonReportable() {
+		this.playerServices.getReportableService().addValue(this.getId(), false);
+		this.reportable = false;
 	}
 
 	public void setId(String pageId) {
@@ -905,19 +921,35 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		var page = function(){}
 		page.type = "page";
+		
 		page.getId = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::getId()();
 		}
+		
 		page.getName = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::getName()();
 		}
+		
 		page.getBaseURL = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::getBaseURL()();
 		}
+		
+		page.getPreview = function(){
+			return x.@com.lorepo.icplayer.client.model.Page::getPreview()();
+		}
+		
 		page.isReportable = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isReportable()();
 		}
-
+		
+		page.setAsReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsReportable()();
+		}
+		
+		page.setAsNonReportable = function () {
+			x.@com.lorepo.icplayer.client.model.Page::setAsNonReportable()();
+		}
+		
 		page.isVisited = function(){
 			return x.@com.lorepo.icplayer.client.model.Page::isVisited()();
 		}

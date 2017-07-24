@@ -180,7 +180,7 @@ function AddonGrid_Scene_create(){
             for (var columns_index = 0; columns_index < columns; columns_index++) {
                 if (array[rows_index][columns_index] != "Empty") {
                     presenter.setColor(array[rows_index][columns_index]);
-                    presenter.mark(columns_index+1, rows_index+1);
+                    presenter.markPoint(columns_index+1, rows_index+1);
                 } else {
                     presenter.resetMark(columns_index+1, rows_index+1);
                 }
@@ -312,6 +312,7 @@ function AddonGrid_Scene_create(){
         }
         element.css('background-color', '');
         element.attr('colored', 'false');
+        presenter.sendMarkEvent("clearMark", x, y);
     };
     
     
@@ -362,6 +363,8 @@ function AddonGrid_Scene_create(){
         }
 
         presenter.saveAnswer(isPreview);
+
+        presenter.startCursorPosition = presenter.actualCursorPosition;
     };
 
     presenter.saveAnswer = function Grid_Scene_save_answer(isPreview) {
@@ -852,10 +855,15 @@ function AddonGrid_Scene_create(){
 
         presenter.setVisibility(presenter.configuration.visibleByDefault);
         presenter.configuration.color = presenter.configuration.defaultColor;
-        presenter.actualCursorPosition = [1,1];
+
+        if(presenter.configuration.answer.length > 0){
+            presenter.actualCursorPosition = presenter.startCursorPosition;
+        }else {
+            presenter.actualCursorPosition = [1,1];
+        }
+
         presenter.configuration.isErrorMode = false;
         presenter.configuration.isShowingAnswers = false;
-
     };
 
     presenter.setCursor = function (x, y) {
@@ -867,11 +875,11 @@ function AddonGrid_Scene_create(){
     presenter.drawHorizontalLine = function (from, to, y) {
         if (from <= to) {
             for (var i = from; i <= to; i++) {
-                presenter.mark(i, y);
+                presenter.markPoint(i, y);
             }
         } else {
             for (var i = from; i >= to; i--) {
-                presenter.mark(i, y);
+                presenter.markPoint(i, y);
             }
         }
     };
@@ -879,11 +887,11 @@ function AddonGrid_Scene_create(){
     presenter.drawVerticalLine = function (from, to, x) {
         if (from <= to) {
             for (var i = from; i <= to; i++) {
-                presenter.mark(x, i);
+                presenter.markPoint(x, i);
             }
         } else {
             for (var i = from; i >= to; i--) {
-                presenter.mark(x, i);
+                presenter.markPoint(x, i);
             }
         }
 
@@ -893,7 +901,7 @@ function AddonGrid_Scene_create(){
 
     presenter.clearMark = presenter.resetMark;
 
-    presenter.mark = function mark (x, y) {
+    presenter.markPoint = function(x, y) {
         x = parseInt(x, 10);
         y = parseInt(y, 10);
         presenter.actualCursorPosition = [x,y];
@@ -905,6 +913,41 @@ function AddonGrid_Scene_create(){
         presenter.colorSquare(x, y);
     };
 
+    presenter.mark = function mark (x, y) {
+        presenter.markPoint(x, y);
+        presenter.sendMarkEvent("mark", x, y);
+    };
+
+    presenter.sendMarkEvent = function (name, x, y) {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': name,
+            'value': x +"-"+ y,
+            'score': ''
+        };
+        sendValueChangedEvent(eventData);
+    };
+
+    presenter.sendDrawFromEvent = function (name, x, y, numberOfSteps) {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': name,
+            'value': x +"-"+ y +"-"+ numberOfSteps,
+            'score': ''
+        };
+        sendValueChangedEvent(eventData);
+    };
+
+    presenter.sendDrawEvent = function (name, x) {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': name,
+            'value': x,
+            'score': ''
+        };
+        sendValueChangedEvent(eventData);
+    };
+
     presenter.drawLeft = function (x, y, numberOfSteps) {
         x = parseInt(x, 10);
         y = parseInt(y, 10);
@@ -912,9 +955,11 @@ function AddonGrid_Scene_create(){
         if (arguments.length == 1) {
             if (x <= 0) return;
             presenter.drawHorizontalLine( presenter.actualCursorPosition[0] - 1, presenter.actualCursorPosition[0] - x, presenter.actualCursorPosition[1]);
+            presenter.sendDrawEvent("drawLeft", x);
         } else {
             if (numberOfSteps <= 0) return;
             presenter.drawHorizontalLine(x, x - numberOfSteps + 1 , y);
+            presenter.sendDrawFromEvent("drawLeftFrom", x, y, numberOfSteps);
         }
     };
 
@@ -927,10 +972,11 @@ function AddonGrid_Scene_create(){
         if (arguments.length == 1) {
             if (x <= 0) return;
             presenter.drawHorizontalLine(presenter.actualCursorPosition[0] + 1, presenter.actualCursorPosition[0] + x, presenter.actualCursorPosition[1]);
+            presenter.sendDrawEvent("drawRight", x);
         } else {
-
             if (numberOfSteps <= 0) return;
             presenter.drawHorizontalLine(x, x + numberOfSteps - 1, y);
+            presenter.sendDrawFromEvent("drawRightFrom", x, y, numberOfSteps);
         }
     };
 
@@ -943,9 +989,11 @@ function AddonGrid_Scene_create(){
         if (arguments.length == 1) {
             if (x <= 0) return;
             presenter.drawVerticalLine(presenter.actualCursorPosition[1] + 1, presenter.actualCursorPosition[1] + x, presenter.actualCursorPosition[0]);
+            presenter.sendDrawEvent("drawUp", x);
         } else {
             if (numberOfSteps <= 0) return;
             presenter.drawVerticalLine(y, y + numberOfSteps - 1, x);
+            presenter.sendDrawFromEvent("drawUpFrom", x, y, numberOfSteps);
         }
     };
 
@@ -958,9 +1006,11 @@ function AddonGrid_Scene_create(){
         if (arguments.length == 1) {
             if (x <= 0) return;
             presenter.drawVerticalLine(presenter.actualCursorPosition[1] - 1, presenter.actualCursorPosition[1]  - x, presenter.actualCursorPosition[0]);
+            presenter.sendDrawEvent("drawDown", x);
         } else {
             if (numberOfSteps <= 0) return;
             presenter.drawVerticalLine(y, y - numberOfSteps + 1, x);
+            presenter.sendDrawFromEvent("drawDownFrom", x, y, numberOfSteps);
         }
     };
 
@@ -1046,6 +1096,10 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.getState = function Grid_Scene_get_state () {
+        if(presenter.configuration.isShowingAnswers) {
+            presenter.hideAnswers();
+        }
+
         return JSON.stringify( {
             grid: presenter.coloredGrid,
             visibility: presenter.configuration.isVisible,
@@ -1127,6 +1181,7 @@ function AddonGrid_Scene_create(){
         }
         presenter.configuration.isErrorMode = false;
         presenter.setColoredGridArray(presenter.coloredGrid);
+        presenter.actualCursorPosition = presenter.currentCursorPosition;
     };
 
     presenter.setShowErrorsMode = function () {
@@ -1155,6 +1210,9 @@ function AddonGrid_Scene_create(){
                 }
             }
         }
+
+        presenter.currentCursorPosition = presenter.actualCursorPosition;
+
         presenter.configuration.isErrorMode = true;
     };
 
@@ -1162,6 +1220,9 @@ function AddonGrid_Scene_create(){
         if (!presenter.configuration.isAnswer) {
             return 0;
         }
+
+        presenter.beforeSACursorPosition = presenter.actualCursorPosition;
+
         if(presenter.configuration.isErrorMode) {
             presenter.setWorkMode();
         }
@@ -1180,6 +1241,7 @@ function AddonGrid_Scene_create(){
         presenter.coloredGrid = presenter.lastState;
         presenter.lastState = null;
         presenter.setColoredGridArray(presenter.coloredGrid);
+        presenter.actualCursorPosition = presenter.beforeSACursorPosition;
     };
 
     presenter.onEventReceived = function (eventName) {

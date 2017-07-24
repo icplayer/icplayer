@@ -516,7 +516,7 @@ function AddonTextAudio_create() {
             slide_data.selection_id = -1;
         }
         var difference = slide_data.selection_id - presenter.previousSelectionId;
-        if (difference > 1 && !presenter.playedByClick) {
+        if (difference > 1 && !presenter.playedByClick && presenter.previousSelectionId != -1) {
             slide_data.selection_id -= difference - 1;
         }
         presenter.previousSelectionId = slide_data.selection_id;

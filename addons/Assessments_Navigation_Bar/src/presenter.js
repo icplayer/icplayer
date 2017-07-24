@@ -83,10 +83,20 @@ function AddonAssessments_Navigation_Bar_create(){
         var commands = {
             'bookmarkCurrentPage': presenter.bookmarkCurrentPage,
             'removeBookmark' : presenter.removeBookmark,
-            'moveToPage': presenter.moveToPageCommand
+            'moveToPage': presenter.moveToPageCommand,
+            'moveToPreviousPage': presenter.moveToPreviousPage,
+            'moveToNextPage': presenter.moveToNextPage
         };
 
         return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.moveToPreviousPage = function() {
+        presenter.navigationManager.goLeft();
+    };
+
+    presenter.moveToNextPage = function() {
+        presenter.navigationManager.goRight();
     };
 
     presenter.moveToPageCommand = function (params) {
@@ -500,6 +510,16 @@ function AddonAssessments_Navigation_Bar_create(){
         this.buttons.filter(function (element) {
             return element.isActualButton;
         })[0].addBookmark();
+    };
+
+    presenter.NavigationManager.prototype.removeBookmarksFromButtons = function () {
+        this.buttons.forEach(function(button) {
+            button.removeBookmark();
+        });
+
+        presenter.sections.allPages.map(function (page) {
+            page.isBookmarkOn = false;
+        });
     };
 
     presenter.NavigationManager.prototype.removeBookmarkFromCurrentButton = function () {
@@ -1356,13 +1376,17 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.sections.removeClassAllAttemptedToPage(presenter.currentPageIndex);
     };
 
-    presenter.onEventReceived = function(eventName) {
+    presenter.onEventReceived = function(eventName, eventData) {
         if (eventName == 'PageLoaded' && presenter.configuration.addClassAreAllAttempted) {
             presenter.areAllModulesAttempted();
         }
 
         if (eventName == "ValueChanged" && presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
             presenter.areAllModulesAttempted();
+        }
+
+        if (eventName == "ValueChanged" && eventData.item == "Lesson Reset") {
+            presenter.navigationManager.removeBookmarksFromButtons();
         }
 
         if (eventName == "ShowAnswers") {

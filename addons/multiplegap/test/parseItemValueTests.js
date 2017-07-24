@@ -1,4 +1,4 @@
-TestCase("Parse Item Value", {
+TestCase("[Multiple Gap] Parse Item Value", {
     setUp: function () {
         this.presenter = Addonmultiplegap_create();
     },

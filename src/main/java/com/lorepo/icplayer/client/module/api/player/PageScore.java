@@ -120,6 +120,11 @@ public class PageScore {
 	}
 
 
+	public PageScore incrementProvidedMistakes(int mistakes) {
+		return new PageScore(score, maxScore, checkCount+1,
+				errorCount, mistakeCount+mistakes);
+	}
+	
 	public PageScore incrementCounters() {
 		return new PageScore(score, maxScore, checkCount+1,
 				errorCount, mistakeCount+errorCount);

@@ -43,7 +43,7 @@ public class PageController {
 		void setWidth(int width);
 		void setHeight(int height);
 		void removeAllModules();
-		void outstretchHeight(int y, int difference);
+		void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules);
 		HashMap<String, Widget> getWidgets();
 	}
 	
@@ -120,7 +120,7 @@ public class PageController {
 	
 	private void restoreOutstretchHeights() {
 		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
-			this.outstretchHeightWithoutAddingToModifications(data.y, data.height);
+			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true, data.dontMoveModules);
 		}
 	}
 
@@ -287,7 +287,16 @@ public class PageController {
 			playerService.getScoreService().setPageScore(currentPage, score.increaseMistakeCounter());
 		}
 	}
-
+	
+	public void updateScoreWithMistakes(int mistakes) {
+		if (currentPage != null && currentPage.isReportable()) {
+			Score.Result result = getCurrentScore();
+			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
+			PageScore score = pageScore.updateScore(result.score, result.maxScore, result.errorCount);
+			playerService.getScoreService().setPageScore(currentPage, score.incrementProvidedMistakes(mistakes));
+		}
+	}
+	
 	public void updateScore(boolean updateCounters) {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();
@@ -451,14 +460,14 @@ public class PageController {
 		return null;
 	}
 
-	public void outstretchHeight(int y, int height) {
-		this.outstretchHeightWithoutAddingToModifications(y, height);
-		this.currentPage.heightModifications.addOutstretchHeight(y, height);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules) {
+		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
+		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 		this.playerController.fireOutstretchHeightEvent();
 		
 	}
 
-	public void outstretchHeightWithoutAddingToModifications(int y, int height) {
-		this.pageView.outstretchHeight(y, height);
+	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
+		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
 }
