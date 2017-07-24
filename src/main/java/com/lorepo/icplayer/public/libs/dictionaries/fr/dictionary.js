@@ -1136,6 +1136,7 @@ var ice_dictionary_fr = {
 "Fractions_property_is_disable": "Est désactivé",
 "Fractions_property_is_select": "Image pour les parties sélectionnées",
 "Fractions_property_is_deselect": "Image pour les parties non sélectionnées",
+"Fractions_property_square_parts": "Square parts",
 "FigureDrawing_info": "L'addon Dessiner des chiffres permet de dessiner des chiffres sur la grille.",
 "FigureDrawing_name": "Dessiner des chiffres",
 "FigureDrawing_property_3d_grid": "Grille en 3D",
