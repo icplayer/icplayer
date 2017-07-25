@@ -1255,6 +1255,7 @@ var ice_dictionary_mx = {
 	"Show_Answers_property_text": "Texto",
 	"Show_Answers_property_text_selected": "Texto seleccionado",
 	"Show_Answers_property_enable_check_counter": "Incrementar contador de comprobaciones",
+	"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
 	"Animated_Page_Progress_info": "Permite insertar una gráfica que enseña el progreso de página de forma animada mostrando diferentes imágenes dependiendo de resultado obtenido en una página",
 	"Animated_Page_Progress_name": "Progreso de página animado",
 	"Animated_Page_Progress_property_ranges": "Rangos",

@@ -1267,6 +1267,7 @@ var ice_dictionary_en = {
 	"Show_Answers_property_text": "Text",
 	"Show_Answers_property_text_selected": "Text selected",
     "Show_Answers_property_enable_check_counter": "Increment check counter",
+	"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
     "Animated_Page_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result on page.",
 	"Animated_Page_Progress_name": "Animated Page Progress",
 	"Animated_Page_Progress_property_ranges": "Ranges",
