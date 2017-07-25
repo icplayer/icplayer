@@ -5,11 +5,11 @@ SetGetStateTests.prototype.setUp = function() {
     this.presenter.isVisibleByDefault = true;
     this.presenter.isCurrentlyVisible = false;
     this.presenter.$view = $("<div></div>");
-    this.presenter.video = document.createElement("video");
+    this.presenter.videoObject = document.createElement("video");
     this.presenter.currentMovie = 1;
     this.presenter.videoContainer = $('<div></div>');
-    this.presenter.videoContainer.append(this.presenter.video);
-    this.presenter.files = ['video1.ogg', 'video2.ogg'];
+    this.presenter.videoContainer.append(this.presenter.videoObject);
+    this.presenter.configuration.files = ['video1.ogg', 'video2.ogg'];
     sinon.stub(this.presenter, 'setVisibility');
 };
 
