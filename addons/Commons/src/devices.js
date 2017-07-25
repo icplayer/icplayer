@@ -15,6 +15,9 @@
                 return true;
             }
             return false;
+        },
+        isFirefox: function () {
+            return ('netscape' in window) && / rv:/.test(navigator.userAgent);
         }
 
     }
