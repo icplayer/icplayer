@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.button;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
@@ -69,6 +70,7 @@ class ResetButton extends PushButton{
 				event.stopPropagation();
 				event.preventDefault();
 				execute();
+				onClickIOSClass(getElement());
 			}
 		});
 
@@ -137,4 +139,37 @@ class ResetButton extends PushButton{
             }
 		}
 	}
+	
+	private int timerID = 0;
+	private int classStage = 0;
+	
+	private native void onClickIOSClass (JavaScriptObject domElement) /*-{
+		var CLASS_LIST = ["ic_button_reset-up", "ic_button_reset-up-hovering", "ic_button_reset-down-hovering", "ic_button_reset-down"];
+		var element = $wnd.$(domElement);
+		
+		var timer = this.@com.lorepo.icplayer.client.module.button.ResetButton::timerID;
+		if (timer !== 0) {
+			clearTimeout(timer);
+		}
+		
+		this.@com.lorepo.icplayer.client.module.button.ResetButton::classStage = 0;
+		
+		function changeElementStyleToStage(stage) {
+			element.removeClass(CLASS_LIST.join(" "));
+			element.addClass(CLASS_LIST[stage]);
+		}
+		
+		function timerCallback () {
+			var stage = this.@com.lorepo.icplayer.client.module.button.ResetButton::classStage;
+			console.log("Stage: " + stage + 1);
+			changeElementStyleToStage(stage + 1);
+			this.@com.lorepo.icplayer.client.module.button.ResetButton::classStage = stage + 1;
+			if (stage < 4) {
+				this.@com.lorepo.icplayer.client.module.button.ResetButton::timerID = setTimeout(timerCallback, 1000);
+			}
+		}
+		
+		changeElementStyleToStage(0);
+		this.@com.lorepo.icplayer.client.module.button.ResetButton::timerID = setTimeout(timerCallback, 1000);
+	}-*/;
 }

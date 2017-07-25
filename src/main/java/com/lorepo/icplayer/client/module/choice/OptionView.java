@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.choice;
 
 import java.util.Iterator;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.TouchCancelEvent;
@@ -36,6 +37,10 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		super();
 		this.choiceOption = option;
 		initUI(isMulti);
+		
+		if (isiOS()) {
+			this.addDomNodeClassNameChangedEvent(this.getElement());
+		}
 	}
 
 	
@@ -51,6 +56,8 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		else{
 			setStylePrimaryName("ic_soption");
 		}
+		
+	
 	}
 
 	public static native boolean isiOS() /*-{
@@ -62,41 +69,9 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	    if( DOM.eventGetType(event) == Event.ONCLICK){
 	    	event.stopPropagation();
 	    	event.preventDefault();
-//	    	if(isiOS()) {
-//		    	String classNames = getElement().getClassName();
-//		    	if(classNames.contains("ic_soption-down")){
-//		    		removeStyleName("ic_soption-down-hovering");
-//		    		removeStyleName("ic_soption-down");
-//		    		addStyleName("ic_down-removed");
-//		    	}else{
-//		    		if(classNames.contains("ic_soption-down")){
-//		    			removeStyleName("ic_soption-down");
-//		    		}else{
-//		    			if(!classNames.contains("ic_soption-up-hovering")){
-//		    				addStyleName("ic_soption-down");
-//		    			}
-//		    			
-//		    			if(classNames.contains("ic_down-removed")){
-////		    				removeStyleName("ic_soption-down");
-////		    				removeStyleName("ic_down-removed");
-//		    			}
-//		    		}
-//		    		removeStyleName("ic_soption-up-hovering");
-//		    	}
-//	    	}
-	    	if(isiOS()) {
-	    		removeStyleName("ic_soption-up-hovering");
-	    	}
 	    }
-
-	    super.onBrowserEvent(event);
 	    
-	    if( DOM.eventGetType(event) == Event.ONMOUSEDOWN){
-	    	if(isiOS()) {
-		    	removeStyleName("ic_soption-down-hovering");
-		    	removeStyleName("ic_soption-up-hovering");
-	    	}
-	    }
+	    super.onBrowserEvent(event);
 	}
 	
 	protected void onAttach() {
@@ -104,6 +79,22 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		connectLinks(parserResult.linkInfos.iterator());
 	}
 
+	
+	private native void addDomNodeClassNameChangedEvent (JavaScriptObject domElement) /*-{
+		var element = $wnd.$(domElement);
+		
+		var mutationObserver = new MutationObserver(function (mutations) {
+			if (element.hasClass("ic_soption-up-hovering")) {
+				element.removeClass("ic_soption-up-hovering");
+			}
+			
+		});
+		
+		mutationObserver.observe(domElement, {
+			attributes: true
+		});
+		
+	}-*/;
 	
 	/**
 	 * Pobranie opcji powiązanej z tym check boxem
@@ -287,5 +278,11 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	@Override
 	public void addBorder() {
 		addStyleName("ic_option_border");
+	}
+	
+	@Override
+	protected void onUnload() {
+		super.onUnload();
+		
 	}
 }
