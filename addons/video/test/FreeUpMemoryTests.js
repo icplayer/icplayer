@@ -23,7 +23,7 @@ TestCase("[Video] Free Up Memory Tests", {
         MathJax.Hub.signal.hooks["End Process"].Remove.restore();
         MathJax.Hub.Register.MessageHook.restore();
         this.presenter.$view.off.restore();
-        this.presenter.videoObject.removeEventListener.restore();
+        this.stubs.removeEventListener.restore();
     },
 
     'test event listeners are off': function () {
@@ -54,7 +54,7 @@ TestCase("[Video] Free Up Memory Tests", {
         assertEquals(null, this.presenter.viewObject);
         assertEquals(null, this.presenter.mathJaxHook);
         assertEquals(null, this.presenter.eventBus);
-        assertEquals(null, this.presenter.video);
+        assertEquals(null, this.presenter.videoObject);
     },
 
     'test added and removed mathJaxHook': function() {

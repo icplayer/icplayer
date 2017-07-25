@@ -1,3 +1,80 @@
+2017-07-25 Changed default video control bar to custom control bar. Fixed problems with subtitles in fullscreen in video.
+2017-07-24 Added new mode do fractions addon to dividing square. Refactored fractions addon.
+2017-07-18 Fixed popup close event.
+2017-07-17 Added video current time event.
+2017-07-11 Added command execute for reset button module.
+2017-07-10 Fixed selecting text while dragging slider. Fixed dragged slider position.
+2017-07-07 Added Wrap Items property to multiplegap module
+2017-07-05 Fixed problem with tests which are using gwt classes
+2017-06-29 Fixed problem with using apostrophe in gaps
+2017-06-19 Fixed problem with custom events in Source list
+2017-06-08 Fixed problem with dropdown gaps in Text module
+2017-06-06 Fixed issue with scoring in Text module, added escaping pattern in gaps.
+2017-06-05 Fixed problem with using eKeyboard in Text module. Added build files to gitignore.
+2017-05-29 Fixed scoring and error counting in Text Presenter for dropdown gaps.
+2017-05-26 Added new commands: setAsReportable nad setAsNonReportable for page.
+2017-05-25 Fixed problem with checking answers in Hangman module
+2017-05-22 Fixed Image Source module issue with show command and relocating module to 0,0 position
+2017-05-22 Fixed problem with relative url returned by getPreview on localhost
+2017-05-12 Added new display type icons+list in Table of Contents module
+2017-05-11 Fixed propagating click in Image identification module
+2017-05-09 Fixed resizing iframe in Paragraph eKeyboard module
+2017-04-27 Changed url for image in eKeyboard module
+2017-04-26 Fixed tests in Iframe, shape_tracing addons.
+2017-04-24 Fixed loading images in Shape Tracing and Coloring
+2017-04-24 Added sending event after closing popup page
+2017-04-20 Added commands to get and set scroll value from iframe.
+2017-04-19 Added playing, stop, end, pause events for slide show addon.
+2017-04-12 Added dontMoveModules parameter to outstretchHeight command.
+2017-04-07 Added allow fullscreen property to iFrame addon.
+2017-04-04 Added changes in Variable Storage module
+2017-04-04 Fixed adding hovering class in Reset module
+2017-04-04 Added changes in page list.
+2017-04-04 Fixed problem with reseting module after closing Popup in Paragraph module
+2017-04-03 Fixed problem with not initialized eKeyboard while calling eKeyboard command.
+2017-03-29 Fixed getting state in Paragraph module
+2017-03-29 Fixed scrolling screen on iOS in Drawing module
+2017-03-29 Added counting score from provided modules in Limited Check module
+2017-03-27 Removed unused logo library
+2017-03-27 Fixed problem with Z-Index in Programming Command Prompt
+2017-03-23 Fixed removing chapters
+2017-03-21 Added changes to PieChart module
+2017-03-21 Changed getting parent chapter
+2017-03-16 Added missing labels
+2017-03-16 Added full screen mode and disable full screen property in YouTube module
+2017-03-15 Fixed resetting bookmarks and added moveToPreviousPage and moveToNextPage commands in Assessment Navigation Bar module
+2017-03-13 Added filled gap in Table module
+2017-03-10 Fixed problem with zoom on iPhone in Paragraph module
+2017-03-08 Fixed test in Table module
+2017-03-08 Fixed tests in Math and Table modules
+2017-03-08 Fixed rendering LaTeX in draggable gaps in Table module
+2017-03-03 Fixed executing code after checking, showing and resetting answers in Grid Scene module
+2017-03-02 Added current-page class in Table of Contents module
+2017-03-02 Fixed working in popup in eKeyboard module
+2017-02-27 Fixed expressions with white spaces in Math module
+2017-02-27 Added showCloseButton command in eKeyboard module
+2017-02-24 Fixed parsing expressions in Math module
+2017-02-24 Fixed scoring when placeholder text is the same as correct answer in Text module
+2017-02-24 Fixed removing hover styles in Popup Button module
+2017-02-23 Fixed highlighting text in Text Audio module
+2017-02-21 Added show answers mode in Puzzle module
+2017-02-21 Added math.js library and fixed problem with calculating expressions
+2017-02-16 Fixed displaying current page in Navigation Bar module
+2017-02-15 Added icon display type in Table of Contents module
+2017-02-15 Fixed static header and footer
+2017-02-06 Updated ekeyboard labels in dictionaries.
+2017-02-02 Fixed static header and footer with outstretch height and in fit to window and full screen modes
+2017-02-02 Added Works with property in Page Progress module
+2017-02-02 Added show/hide commands in Writing Calculations module
+2017-02-02 Added enable/disable button/command in eKeyboard. Fixed changing focus by eKeyboard. Fixed open command in eKeyboard. Changed Esc button action in eKeyboard. Updated jquery.keyboard.min.js.
+2017-01-31 Added setting text parser in Table module
+2017-01-24 Added events for drawing commands in Grid Scene module
+2017-01-24 Fixed problems on iPad in Paragraph module
+2017-01-24 Fixed saving changes in Choice module
+2017-01-16 Fixed display bug in animation module on android 5.1.1 and 5.0.2
+2017-01-16 Fixed isVisible property on Safari in Iframe module
+2017-01-11 Added Enable pages property in Hierarchical Lesson Report module
+2017-01-11 Fixed problem with updating additional styles and displaying pages in Navigation Bar module
 2017-01-04 Fixed rendering LaTeX afetr showing answers in Math module
 2016-12-29 Fixed issue with doubled events in Table module
 2016-12-29 Fixed saving state of drawings in IWB Toolbar
