@@ -5,7 +5,6 @@
 
 .captions {
     position: absolute;
-    z-index: 999;
     color: #fff;
 }
 
@@ -14,12 +13,16 @@
     position: absolute;
     top:0;
     left:0;
+    width: 100%;
+    height: 100%;
 }
 
 .poster-wrapper img {
     position : absolute;
     top:0;
     left:0;
+    width: 100%;
+    height: 100%;
 }
 
 .video-poster-play {
@@ -28,4 +31,150 @@
     text-align: center;
     width: 80px;
     height: 80px;
+    top: calc(50% - 40px);
+    left: calc(50% - 40px);
+
+}
+
+.video-container-mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+}
+
+.video-container .CustomControlsBar-wrapper {
+    bottom : 0px;
+    left : 0px;
+    background-color: #EBEFF0;
+    height: 40px;
+    width: 100%;
+    position: absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-controlsWrapper {
+    margin-top: 3px;
+    position: absolute;
+    height: 37px;
+    width: 100%;
+}
+
+.video-container-video {
+    display: block;
+    pointer-events: none;
+    position: absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-play {
+    height: 100%;
+    width: 38px;
+    background: url("resources/video-play-btn.png") no-repeat center;
+    box-sizing: border-box;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-pause {
+    height: 100%;
+    width: 38px;
+    background: url("resources/video-pause-btn.png") no-repeat center;
+    box-sizing: border-box;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-stop {
+    height: 100%;
+    width: 40px;
+    background: url("resources/video-stop-btn.png") no-repeat center center;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper {
+    position:absolute;
+    width: 100%;
+    height: 3px;
+    float: left;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper:hover {
+    height: 6px;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper-redProgressBar {
+    background-color: red;
+    height: 100%;
+    position:absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-progressBarWrapper-grayProgressBar {
+    background-color: dimgrey;
+    width: 100%;
+    height: 100%;
+    position:absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-volume {
+    height: 100%;
+    width: 40px;
+    background: url("resources/video-volume-btn.png") no-repeat center center;
+    cursor: pointer;
+    float: left;
+
+}
+
+.video-container .CustomControlsBar-wrapper-controls-volumeBarWrapper {
+    height: 100%;
+    float: left;
+    cursor: pointer;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackground {
+    width: 100px;
+    height: 14px;
+    border-bottom: solid 9px white;
+    float: left;
+    cursor: pointer;
+    position: absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-volumeBarWrapper-volumeBackgroundSelected {
+    width: 100px;
+    height: 14px;
+    border-bottom: solid 9px lightgrey;
+    float: left;
+    cursor: pointer;
+    position: absolute;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-fullscreen {
+    float: right;
+    width: 40px;
+    height: 100%;
+    background: url("resources/video-fullscreen-btn.png") no-repeat center center;
+    cursor: pointer;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-closeFullscreen {
+    float: right;
+    width: 40px;
+    height: 100%;
+    background: url("resources/video-close-fullscreen-btn.png") no-repeat center center;
+    cursor: pointer;
+}
+
+.video-container .CustomControlsBar-wrapper-controls-timer {
+    height: 40px;
+    color: gray;
+    font-size: 14px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    float: right;
+
 }
