@@ -1254,6 +1254,7 @@ var ice_dictionary_pl = {
 	"Show_Answers_property_text": "Tekst",
 	"Show_Answers_property_text_selected": "Zaznaczony tekst",
     "Show_Answers_property_enable_check_counter": "Zwiększenie licznika sprawdzeń",
+	"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
 	"Animated_Page_Progress_info" : "Addon umożliwia dodanie obrazków do paska postępu, które mogą być różne w zależności od uzyskanego wyniku procentowego.",
 	"Animated_Page_Progress_name" : "Wskaźnik postępu strony",
 	"Animated_Page_Progress_property_ranges": "Zakresy",
