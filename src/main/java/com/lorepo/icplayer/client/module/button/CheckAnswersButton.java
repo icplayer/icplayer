@@ -3,12 +3,13 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
-class CheckAnswersButton extends PushButton{
+class CheckAnswersButton extends PushButtonIOSStatesButton{
 
 	private IPlayerServices playerServices;
 	private boolean checkAnswersModeOn = false;
@@ -23,7 +24,7 @@ class CheckAnswersButton extends PushButton{
 			
 			@Override
 			public void onClick(ClickEvent event) {
-
+				JavaScriptUtils.log("HEEEEEEEERE");
 				event.stopPropagation();
 				event.preventDefault();
 				checkAnswersModeOn = !checkAnswersModeOn;

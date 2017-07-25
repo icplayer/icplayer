@@ -3,6 +3,10 @@ function AddonShow_Answers_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
+    presenter.HOVER_CLASSES = ["ShowAnswers-up", "ShowAnswers-up-hover", "ShowAnswers-down-hover", "ShowAnswers-down"];
+    presenter.timerID = 0;
+    presenter.classStage = 0;
+    presenter.lastIsHover = false;
 
     presenter.EVENTS = {
         SHOW_ANSWERS: 'ShowAnswers',
@@ -13,7 +17,7 @@ function AddonShow_Answers_create(){
         if (keycode === 13) {
             presenter.$button.click();
         }
-    }
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -50,6 +54,11 @@ function AddonShow_Answers_create(){
             var text, eventName;
 
             presenter.configuration.isSelected = !presenter.configuration.isSelected;
+            presenter.setHovering(presenter.lastIsHover);
+            if (MobileUtils.isSafariMobile(window.navigator.userAgent)) {
+                presenter.simulateHoverClasses();
+            }
+
 
             if (presenter.configuration.isSelected) {
                 text = presenter.configuration.textSelected;
@@ -69,6 +78,63 @@ function AddonShow_Answers_create(){
         });
     };
 
+    presenter.simulateHoverTimeoutFunction = function () {
+        presenter.$wrapper.removeClass(presenter.HOVER_CLASSES.join(" "));
+        presenter.$wrapper.addClass(presenter.HOVER_CLASSES[presenter.classStage]);
+        if (presenter.configuration.isSelected) {
+            presenter.classStage += 1;
+        } else {
+            presenter.classStage -= 1;
+        }
+
+        if (presenter.classStage > 0 && presenter.classStage < 3) {
+            presenter.timeoutID = setTimeout(presenter.simulateHoverTimeoutFunction, 200);
+        }
+    };
+
+    presenter.simulateHoverClasses = function () {
+        clearTimeout(presenter.timeoutID);
+
+        presenter.timeoutID = setTimeout(presenter.simulateHoverTimeoutFunction, 200);
+
+        if (presenter.configuration.isSelected) {
+            presenter.classStage = 0;
+        } else {
+            presenter.classStage = 3;
+        }
+
+        presenter.simulateHoverTimeoutFunction();
+
+
+    };
+
+    presenter.setHovering = function (isHover) {
+        if (window.MobileUtils.isSafariMobile(window.Navigator.userAgent)) {
+            return;
+        }
+
+        presenter.lastIsHover = isHover;
+        presenter.$wrapper.removeClass(presenter.HOVER_CLASSES.join(" "));
+        if (isHover) {
+            if (presenter.configuration.isSelected) {
+                presenter.$wrapper.addClass(presenter.HOVER_CLASSES[2]);
+            } else {
+                presenter.$wrapper.addClass(presenter.HOVER_CLASSES[1]);
+            }
+        } else {
+            if (presenter.configuration.isSelected) {
+                presenter.$wrapper.addClass(presenter.HOVER_CLASSES[3]);
+            } else {
+                presenter.$wrapper.addClass(presenter.HOVER_CLASSES[0]);
+            }
+        }
+    };
+
+    presenter.handleHoverClasses = function () {
+        presenter.$button.mouseout(presenter.setHovering.bind(null, false));
+        presenter.$button.mouseover(presenter.setHovering.bind(null, true));
+    };
+
     function presenterLogic(view, model, isPreview) {
         presenter.configuration = presenter.sanitizeModel(model);
         presenter.$view = $(view);
@@ -79,8 +145,11 @@ function AddonShow_Answers_create(){
         presenter.$button.text(presenter.configuration.text);
         presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
 
+        presenter.$wrapper.addClass(presenter.HOVER_CLASSES[0]);
+
         if (!isPreview) {
             presenter.handleClickAction();
+            presenter.handleHoverClasses();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
         }
@@ -154,6 +223,9 @@ function AddonShow_Answers_create(){
         presenter.$button.text(presenter.configuration.text);
         presenter.$wrapper.removeClass('selected');
         presenter.configuration.isSelected = false;
+        clearTimeout(presenter.timeoutID);
+        presenter.$wrapper.removeClass(presenter.HOVER_CLASSES.join(" "));
+        presenter.$wrapper.addClass(presenter.HOVER_CLASSES[presenter.classStage]);
     };
 
     presenter.setShowErrorsMode = function () {
