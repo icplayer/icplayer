@@ -141,12 +141,13 @@ function AddonFractions_create(){
         else if(!(presenter.checkColor(emptyColor))) {
             return generateValidationError("C03");
         }
-        else if (isNaN(parseInt(strokeWidth))){
+        else if (isNaN(parseInt(strokeWidth))) {
             if (strokeWidth === undefined) {
                 strokeWidth = 1;
             } else {
                 return generateValidationError("C04");
             }
+        }
 
         return  {
             isValid: true,
