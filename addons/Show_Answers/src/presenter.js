@@ -111,7 +111,7 @@ function AddonShow_Answers_create(){
             presenter.classStage -= 1;
         }
 
-        if (presenter.classStage > 0 && presenter.classStage < 3) {
+        if (presenter.classStage >= 0 && presenter.classStage < 3) {
             presenter.timeoutID = setTimeout(presenter.simulateHoverTimeoutFunction, 200);
         }
     };
@@ -179,7 +179,7 @@ function AddonShow_Answers_create(){
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
         }
-    }
+    };
 
     presenter.run = function(view, model) {
         presenter.view = view;

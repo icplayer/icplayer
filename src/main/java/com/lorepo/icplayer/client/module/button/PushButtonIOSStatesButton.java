@@ -16,9 +16,9 @@ public class PushButtonIOSStatesButton extends PushButton{
 		addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				//if (isiOS()) {
+				if (isiOS()) {
 					onClickIOSClass(button, getElement());
-				//}
+				}
 			}
 		});
 	}
@@ -28,7 +28,21 @@ public class PushButtonIOSStatesButton extends PushButton{
 	}-*/;
 	
 	private native void onClickIOSClass (PushButtonIOSStatesButton x, JavaScriptObject domElement) /*-{
-		var CLASS_LIST = ["ic_button_reset-up", "ic_button_reset-up-hovering", "ic_button_reset-down-hovering", "ic_button_reset-down"];
+		var POSTFIX_CLASS_LIST = ["-up", "-up-hovering", "-down-hovering", "-up"];
+		var classes = [];
+		
+		function actualizeClassNames () {
+			var className = x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::getStyleName()().split(" ")[0];
+			classes = [];
+			
+			for (var i = 0; i < POSTFIX_CLASS_LIST.length; i++) {
+				classes.push(className + POSTFIX_CLASS_LIST[i]);
+			}
+			
+		}
+		
+		actualizeClassNames();
+		
 		var element = $wnd.$(domElement);
 		
 		var timer = x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::timerID;
@@ -39,14 +53,16 @@ public class PushButtonIOSStatesButton extends PushButton{
 		x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::classStage = 0;
 		
 		function changeElementStyleToStage(stage) {
-			element.removeClass(CLASS_LIST.join(" "));
-			element.addClass(CLASS_LIST[stage]);
+			element.removeClass(classes.join(" "));
+			actualizeClassNames();
+			element.removeClass(classes.join(" "));
+			
+			element.addClass(classes[stage]);			
 		}
 		
 		function timerCallback () {
 			var stage = parseInt(x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::classStage, 10);
 			changeElementStyleToStage(stage + 1);
-			console.log("Stage", stage + 1);
 			x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::classStage = stage + 1;
 			if (stage < 2) {
 				x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::timerID = setTimeout(timerCallback, 200);
