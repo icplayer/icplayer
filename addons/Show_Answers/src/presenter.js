@@ -33,18 +33,37 @@ function AddonShow_Answers_create(){
     };
 
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model, true);
+        presenter.presenterLogic(view, model, true);
     };
 
-    presenter.sanitizeModel = function(model) {
+    presenter.validateModel = function(model) {
         return {
             'text' : model.Text,
             'textSelected' : model['Text selected'],
             'isVisible' : ModelValidationUtils.validateBoolean(model["Is Visible"]),
             'addonID' : model.ID,
             'isSelected': false,
-            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"])
+            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
+            'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"])
+        };
+    };
+
+    presenter.upgradeModel = function (model) {
+        if (model["Increment mistake counter"] === undefined) {
+            model = presenter.upgradeIncrementMistakeCounter(model);
         }
+        return model;
+    };
+
+     presenter.upgradeIncrementMistakeCounter = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel["Increment mistake counter"] === undefined) {
+            upgradedModel["Increment mistake counter"] = "false";
+        }
+
+        return upgradedModel;
     };
 
     presenter.handleClickAction = function () {
@@ -64,8 +83,13 @@ function AddonShow_Answers_create(){
                 text = presenter.configuration.textSelected;
                 eventName = presenter.EVENTS.SHOW_ANSWERS;
                 presenter.$wrapper.addClass('selected');
-                if(presenter.configuration.enableCheckCounter){
+
+                if (presenter.configuration.enableCheckCounter) {
                     presenter.playerController.getCommands().incrementCheckCounter();
+                }
+
+                if (presenter.configuration.enableMistakeCounter) {
+                    presenter.playerController.getCommands().increaseMistakeCounter();
                 }
             } else {
                 text = presenter.configuration.text;
@@ -135,8 +159,10 @@ function AddonShow_Answers_create(){
         presenter.$button.mouseover(presenter.setHovering.bind(null, true));
     };
 
-    function presenterLogic(view, model, isPreview) {
-        presenter.configuration = presenter.sanitizeModel(model);
+    presenter.presenterLogic = function(view, model, isPreview) {
+        var upgradedModel = presenter.upgradeModel(model);
+
+        presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.$view = $(view);
 
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -157,7 +183,7 @@ function AddonShow_Answers_create(){
 
     presenter.run = function(view, model) {
         presenter.view = view;
-        presenterLogic(view, model, false);
+        presenter.presenterLogic(view, model, false);
 
         presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
     };
