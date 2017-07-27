@@ -157,6 +157,8 @@ function AddonSlider_create () {
         presenter.mouseData.isMouseDown = true;
         presenter.mouseData.oldPosition.x = eventData.pageX;
         presenter.mouseData.oldPosition.y = eventData.pageY;
+        if (eventData.stopPropagation) eventData.stopPropagation();
+        if (eventData.preventDefault) eventData.preventDefault();
     }
 
     function touchStartCallback (event) {
@@ -239,7 +241,6 @@ function AddonSlider_create () {
         }
 
         presenter.moveToStep(imageElement, presenter.configuration.currentStep, presenter.configuration);
-
     }
 
     function mouseMoveCallback (eventData) {
@@ -263,12 +264,15 @@ function AddonSlider_create () {
                 relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
                 presenter.mouseData.oldPosition.x = eventData.pageX;
 
-                mousePositions.x = mousePositions.x > 0 ? mousePositions.x : 0;
-                mousePositions.x = mousePositions.x < imageElementData.maxLeft ? mousePositions.x : imageElementData.maxLeft;
+                var minimumXPosition = ($(imageElement).width() / 2);
+                var maximumXPosition = imageElementData.maxLeft + ($(imageElement).width() / 2);
+
+                mousePositions.x = mousePositions.x > minimumXPosition ? mousePositions.x : minimumXPosition;
+                mousePositions.x = mousePositions.x < maximumXPosition? mousePositions.x : maximumXPosition;
 
                 if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
                     $(imageElement).css({
-                        left: (mousePositions.x + relativeDistance.horizontal) + 'px'
+                        left: (mousePositions.x + relativeDistance.horizontal - ($(imageElement).width() / 2)) + 'px'
                     });
                 }
 
@@ -287,15 +291,16 @@ function AddonSlider_create () {
 
             } else {
                 relativeDistance = presenter.calculateRelativeDistanceY(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
-
-                mousePositions.y = mousePositions.y > 0 ? mousePositions.y : 0;
-                mousePositions.y = mousePositions.y < imageElementData.maxTop ? mousePositions.y : imageElementData.maxTop;
+                var minimumYPosition = ($(imageElement).height() / 2);
+                var maximumYPosition = imageElementData.maxTop + ($(imageElement).height() / 2);
+                mousePositions.y = mousePositions.y > minimumYPosition ? mousePositions.y : minimumYPosition;
+                mousePositions.y = mousePositions.y < maximumYPosition ? mousePositions.y : maximumYPosition;
 
                 presenter.mouseData.oldPosition.y = eventData.pageY;
 
                 if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
                     $(imageElement).css({
-                        top: (mousePositions.y + relativeDistance.vertical) + 'px'
+                        top: (mousePositions.y + relativeDistance.vertical - ($(imageElement).height() / 2)) + 'px'
                     });
                 }
 
@@ -357,6 +362,7 @@ function AddonSlider_create () {
         $(imageElement).mousedown(mouseDownCallback);
         icplayer.mousemove(mouseMoveCallback);
         icplayer.mouseup(presenter.mouseUpEventDispatcher);
+        $(document).mouseup(presenter.mouseUpEventDispatcher);
         imageElement.ontouchend = touchEndCallback;
 
         $(addonContainer).click(mouseClickCallback);
@@ -399,6 +405,7 @@ function AddonSlider_create () {
 
         presenter.addonID = model.ID;
         presenter.$view = $(view);
+        presenter.view = view;
         onStepChangeEvent = model.onStepChange;
         presenter.continuousEvents = ModelValidationUtils.validateBoolean(model["Continuous events"]);
         presenter.continuousEventsSteps = model["Continuous events steps"];
@@ -422,6 +429,7 @@ function AddonSlider_create () {
         loadImageElement(preview);
 
         presenter.$view.disableSelection();
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     }
 
     function drawBurret() {
@@ -871,6 +879,11 @@ function AddonSlider_create () {
     presenter.setWorkMode = function() {
         presenter.configuration.isErrorMode = false;
         presenter.removeDisabledClass();
+    };
+
+    presenter.destroy = function () {
+        $(document).off('mouseup', presenter.mouseUpEventDispatcher);
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     return presenter;

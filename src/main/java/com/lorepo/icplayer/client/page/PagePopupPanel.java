@@ -1,7 +1,9 @@
 package com.lorepo.icplayer.client.page;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
@@ -70,10 +72,39 @@ public class PagePopupPanel extends DialogBox {
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setWidget(pageWidget);
+				
+		int windowWidth = Window.getClientWidth();
+		int windowHeight = Window.getClientHeight();
+		int popupWidth = page.getWidth(); 
+		int popupHeight = page.getHeight();
+		
+		if (popupWidth > windowWidth){
+			page.setWidth(windowWidth);
+		}
+		
+		if (popupHeight > windowHeight){
+			page.setHeight(windowHeight);
+		}
+		
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
+				
 		Style glassStyle = getGlassElement().getStyle();
+				
+		int popupWidthWithBorder = page.getWidth() + this.getBorderWidth();
+				
+		if (popupWidthWithBorder >= windowWidth){
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
+			this.compensateWidthBorder();
+		}
+
+		int popupHeightWithBorder = page.getHeight() + this.getBorderHeight();
+		
+		if (popupHeightWithBorder >= windowHeight){
+			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
+			this.compensateHeightBorder();
+		}
 		
 		int top;
 		if (parentWidget.getAbsoluteTop() > Window.getScrollTop()) {
@@ -83,11 +114,11 @@ public class PagePopupPanel extends DialogBox {
 		}
 		
 		int height = getElement().getClientHeight();
-
+	
 		if (height < Window.getClientHeight()) {
 			height = Window.getClientHeight();
 		}
-		
+			
 		height += top;
 		
 		glassStyle.setProperty("top", 0 + "px");
@@ -207,6 +238,34 @@ public class PagePopupPanel extends DialogBox {
 		}
 	}
 	
+	private void compensateHeightBorder(){
+		int popupHeight = this.pageWidget.getOffsetHeight();
+		int borderHeight = this.getBorderHeight();
+		int popupWithoutBorder = popupHeight - borderHeight;
+
+		this.pageWidget.setHeight(popupWithoutBorder);
+	}
+	
+	private void compensateWidthBorder(){
+		int popupWidth = this.pageWidget.getOffsetWidth();
+		int borderWidth = this.getBorderWidth();
+		int popupWithoutBorder = popupWidth - borderWidth;
+		
+		this.pageWidget.setWidth(popupWithoutBorder);
+	}
+	
+	private native int getBorderWidth() /*-{
+		var widthWithBorder = $wnd.$(".ic_popup").outerWidth(true);
+		var widthWithoutBorder = $wnd.$(".ic_popup_page").outerWidth();
+		return (widthWithBorder - widthWithoutBorder);
+	}-*/;
+
+	private native int getBorderHeight() /*-{
+		var heightWithBorder = $wnd.$(".ic_popup").outerHeight(true);
+		var heightWithoutBorder = $wnd.$(".ic_popup_page").outerHeight();
+		return (heightWithBorder - heightWithoutBorder);
+	}-*/;
+	
 	
 	/**
 	 * Obsługa zamykania klawiszem Esc
@@ -248,7 +307,7 @@ public class PagePopupPanel extends DialogBox {
 		hide();
 		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
-		
+
 		ValueChangedEvent valueEvent = new ValueChangedEvent("Popup", popupName, "closed", "");
 		this.openingPageController.getPlayerServices().getEventBus().fireEvent(valueEvent);
 	}
