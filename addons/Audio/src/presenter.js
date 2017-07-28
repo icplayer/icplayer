@@ -5,6 +5,18 @@ function AddonAudio_create(){
     var oggFile;
     var eventBus;
     var currentTimeAlreadySent;
+    var waitingDecorator = new window.WaitingDecorator();
+    var audioIsLoaded = false;
+
+    function waitingDecoratorChecker() {
+        if (!presenter.configuration.forceLoadAudio) {
+            return true;
+        }
+
+        return audioIsLoaded;
+    }
+
+    waitingDecorator.setCheckFunction(this, waitingDecoratorChecker);
 
     presenter.audio = {
         readyState : 0
@@ -428,7 +440,7 @@ function AddonAudio_create(){
         e.stopPropagation();
     }
 
-    function forceLoadAudio(src) {
+    presenter.fetchAudioFromServer = function (src) {
         var req = new XMLHttpRequest();
         req.open('GET', src+"?" +"preventCache="+ new Date(), true);
         req.responseType = 'blob';
@@ -436,11 +448,12 @@ function AddonAudio_create(){
             if (this.status == 200) {
                 var audioData = this.response;
                 presenter.audio.src = URL.createObjectURL(audioData);
+                audioIsLoaded = true;
             }
         };
 
         req.send();
-    }
+    };
 
     function AddonAudio_loadFiles(){
         var canPlayMp3 = false;
@@ -459,8 +472,7 @@ function AddonAudio_create(){
             }
 
             if (presenter.configuration.forceLoadAudio) {
-                console.log("Force load");
-                forceLoadAudio(audioSrc);
+                presenter.fetchAudioFromServer(audioSrc);
             } else {
                 $(audio).attr("src", audioSrc);
             }
@@ -607,7 +619,7 @@ function AddonAudio_create(){
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.play = function() {
+    presenter.play = waitingDecorator.decorate(function() {
         if (!presenter.audio) return;
         if(presenter.audio.src && presenter.audio.paused) {
             presenter.audio.play();
@@ -617,9 +629,9 @@ function AddonAudio_create(){
                     addClass('audio-pause-btn');
             }
         }
-    };
+    });
 
-    presenter.pause = function AddonAudio_pause () {
+    presenter.pause = waitingDecorator.decorate(function AddonAudio_pause () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             if (!presenter.audio.paused) {
@@ -631,15 +643,15 @@ function AddonAudio_create(){
                     addClass('audio-play-btn');
             }
         }
-    };
+    });
 
-    presenter.stop = function AddonAudio_stop () {
+    presenter.stop = waitingDecorator.decorate(function AddonAudio_stop () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             presenter.pause();
             presenter.audio.currentTime = 0;
         }
-    };
+    });
 
     presenter.show = function AddonAudio_show () {
         this.setVisibility(true);
