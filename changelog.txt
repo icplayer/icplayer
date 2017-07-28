@@ -1,3 +1,4 @@
+2017-07-28 Added option for sorting assets in select file window.
 2017-07-26 Fixed problem with empty stroke width property in fractions addon.
 2017-07-25 Added Increment mistake counter property for Show Answers.
 2017-07-25 Fixed popup size when page bigger than window size.
