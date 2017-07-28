@@ -14,6 +14,9 @@ TestCase('State restoring', {
     },
 
     'test set state to visible' : function() {
+        this.presenter.configuration = {
+            forceLoadAudio: false
+        };
         this.presenter.setState(JSON.stringify({ isVisible: true }));
 
         assertTrue(this.presenter.show.calledOnce);
@@ -21,6 +24,9 @@ TestCase('State restoring', {
     },
 
     'test set state to invisible' : function() {
+        this.presenter.configuration = {
+            forceLoadAudio: false
+        };
         this.presenter.setState(JSON.stringify({ isVisible: false }));
 
         assertFalse(this.presenter.show.calledOnce);

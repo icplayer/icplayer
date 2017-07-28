@@ -16,7 +16,7 @@ function AddonAudio_create(){
         return audioIsLoaded;
     }
 
-    waitingDecorator.setCheckFunction(this, waitingDecoratorChecker);
+    waitingDecorator.setIsAvailableCheckFunction(this, waitingDecoratorChecker);
 
     presenter.audio = {
         readyState : 0
@@ -444,15 +444,18 @@ function AddonAudio_create(){
         var req = new XMLHttpRequest();
         req.open('GET', src+"?" +"preventCache="+ new Date(), true);
         req.responseType = 'blob';
-        req.onload = function () {
-            if (this.status == 200) {
-                var audioData = this.response;
-                presenter.audio.src = URL.createObjectURL(audioData);
-                audioIsLoaded = true;
-            }
-        };
+        req.addEventListener("load", presenter.loadAudioDataFromRequest);
 
         req.send();
+    };
+
+    presenter.loadAudioDataFromRequest = function (event) {
+        if (event.currentTarget.status == 200) {
+            var audioData = event.currentTarget.response;
+            presenter.audio.src = URL.createObjectURL(audioData);
+            audioIsLoaded = true;
+            waitingDecorator.callQueue();
+        }
     };
 
     function AddonAudio_loadFiles(){
