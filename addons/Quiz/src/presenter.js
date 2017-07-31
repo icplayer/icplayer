@@ -59,9 +59,11 @@ function AddonQuiz_create() {
         ];
         shuffle(answers);
 
+        var labels = ['A: ', 'B: ', 'C: ', 'D: '];
+
         for (var i=0; i<answers.length; i++) {
             var $tip = $('<div class="question-tip"></div>');
-            $tip.text(answers[i]);
+            $tip.text(labels[i] + answers[i]);
             $tips.append($tip)
         }
 
@@ -69,7 +71,16 @@ function AddonQuiz_create() {
         $q.append($tips);
         if (presenter.config.helpButtons){
             var $hint = $('<div class="question-hint"></div>');
+            var $buttons = $('<div class="question-hint-buttons"></div>');
+            var $fiftyFifty = $('<div class="fifty-fifty"></div>');
+            var $hintButton = $('<div class="hint-button"></div>');
+            $buttons.append($fiftyFifty);
+            $buttons.append($hintButton);
+            $q.append($buttons);
             $q.append($hint);
+            $q.addClass('with-hint');
+        } else {
+            $q.addClass('without-hint');
         }
         presenter.$view.append($q);
     };

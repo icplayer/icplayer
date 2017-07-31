@@ -1,0 +1,50 @@
+.question-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.question-wrapper .question-title {
+    text-align: center;
+    height: 33%;
+}
+
+.question-wrapper .hint-button {
+    background: url("resources/hint.png");
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    float: right;
+
+}
+
+.question-wrapper .fifty-fifty {
+    background: url("resources/50-50.png");
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    float: right;
+}
+
+.question-wrapper.with-hint .question-tips {
+    display: inline-block;
+    width: 80%;
+}
+
+.question-wrapper.with-hint .question-hint-buttons {
+    display: inline-block;
+    width: 20%;
+}
+
+.question-wrapper.without-hint .question-tips {
+    height: 34%;
+}
+
+.question-wrapper .question-tips .question-tip {
+    display: inline-block;
+    width: 50%;
+    height: 50%;
+}
+
+.question-wrapper .question-hint {
+    height: 33%;
+}
