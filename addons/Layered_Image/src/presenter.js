@@ -4,6 +4,7 @@ function AddonLayered_Image_create() {
     presenter.flags = [];
     presenter.savedState = "";
     var elementsDimensions = {};
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
 
     presenter.ERROR_CODES = {
         BI_01: "Base image wasn't set or was set incorrectly!",
@@ -15,6 +16,10 @@ function AddonLayered_Image_create() {
         SCALED: 1,
         STRETCHED: 2
     };
+
+    function deferredQueueDecoratorChecker () {
+        return presenter.imagesAreLoaded || presenter.diplayingLayers;
+    }
 
     function setDOMElementsHrefAndSelectors(view) {
         DOMElements.$view = $(view);
@@ -186,9 +191,7 @@ function AddonLayered_Image_create() {
     function executeTasks () {
         presenter.imagesAreLoaded = true;
 
-        if (!presenter.commandsQueue.isQueueEmpty()) {
-            presenter.commandsQueue.executeAllTasks();
-        }
+        deferredSyncQueue.resolve();
     }
 
     function setFlag(index, value) {
@@ -253,7 +256,6 @@ function AddonLayered_Image_create() {
     };
 
     presenter.run = function(view, model) {
-        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
         presenter.imagesAreLoaded = false;
         presenterLogic(view, model, false);
     };
@@ -339,12 +341,8 @@ function AddonLayered_Image_create() {
         presenter.displayingLayers = false;
     }
 
-    presenter.showLayer = function(index) {
+    presenter.showLayer = deferredSyncQueue.decorate(function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
-            return;
-        }
-        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
-            presenter.commandsQueue.addTask('showLayer', [index]);
             return;
         }
 
@@ -367,18 +365,14 @@ function AddonLayered_Image_create() {
             $layer.css('background-image', '');
             $layer.css('background-image', 'url('+ backgroundImage +')');
         }
-    };
+    });
 
     presenter.showLayerCommand = function (params) {
         presenter.showLayer(parseInt(params[0], 10));
     };
 
-    presenter.hideLayer = function(index) {
+    presenter.hideLayer = deferredSyncQueue.decorate(function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
-            return;
-        }
-        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
-            presenter.commandsQueue.addTask('hideLayer', [index]);
             return;
         }
 
@@ -386,18 +380,14 @@ function AddonLayered_Image_create() {
 
         var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]');
         $(layer).hide();
-    };
+    });
 
     presenter.hideLayerCommand = function (params) {
         presenter.hideLayer(parseInt(params[0], 10));
     };
 
-    presenter.toggleLayer = function(index) {
+    presenter.toggleLayer = deferredSyncQueue.decorate(function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
-            return;
-        }
-        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
-            presenter.commandsQueue.addTask('toggleLayer', [index]);
             return;
         }
 
@@ -406,7 +396,7 @@ function AddonLayered_Image_create() {
         } else {
             this.showLayer(index);
         }
-    };
+    });
 
     presenter.toggleLayerCommand = function (params) {
         presenter.toggleLayer(parseInt(params[0], 10));

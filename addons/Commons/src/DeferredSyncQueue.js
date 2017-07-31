@@ -3,31 +3,43 @@
  */
 (function (window) {
     /**
-    Waiting decorator util for functions which must wait for data before can be called.
-    @class WaitingDecorator
+    DefferedSyncQueueFactory factory for DeferredSyncQueue
+    @class DeferredSyncQueue
     */
-    window.WaitingDecorator = WaitingDecorator;
+    window.DecoratorUtils = $.extend(window.DecoratorUtils, {
+        DeferredSyncQueue: DeferredSyncQueueFactory
+    });
 
+
+    function DeferredSyncQueueFactory (isAvailableCheckFunction) {
+        var syncQueue = new DeferredSyncQueue();
+        syncQueue.setIsAvailableCheckFunction(isAvailableCheckFunction);
+        return syncQueue;
+    }
+
+
+    /**
+    DeferredSyncQueue util for functions which must wait for data before can be called.
+    @class DeferredSyncQueue
+    */
     /**
     Constructor.
      E.g of usage:
 
-     var waitingDecorator = new window.WaitingDecorator();
-     waitingDecorator.setIsAvailableCheckFunction(function () {
+     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(function () {
         return True;
      });
 
-     presenter.someFunction = waitingDecorator.decorate(function (){});
+     presenter.someFunction = deferredSyncQueue.decorate(function (){});
 
      ...Some function
-     waitingDecorator.callQueue();
+     deferredSyncQueue.resolve();
 
     @return {null}
     */
-    function WaitingDecorator() {
+    function DeferredSyncQueue() {
         this.queue = [];
         this.checkFunction = {
-            self: null,
             functionToCall: null
         }
     }
@@ -40,7 +52,7 @@
      @param {[]} providedArgs - args which will be passed to called function
      @return {null}
     */
-    WaitingDecorator.prototype.pushToQueue = function (self, func, providedArgs) {
+    DeferredSyncQueue.prototype.pushToQueue = function (self, func, providedArgs) {
         this.queue.push({
             functionToCall: func,
             argumentsToCall: providedArgs,
@@ -53,22 +65,25 @@
 
      @return {Boolean} If true, then function should be called, else - push function to queue
     */
-    WaitingDecorator.prototype.callIsAvailableCheckFunction = function () {
-        return this.checkFunction.functionToCall.call(this.checkFunction.self);
+    DeferredSyncQueue.prototype.callIsAvailableCheckFunction = function () {
+        return this.checkFunction.functionToCall.call(this);
     };
 
     /**
-     Decorator for function
+     Decorator for function. If checkFunction is provided then this function will be called to check that function
 
      E.g:
-     presenter.someFunction = waitingDecorator.decorate(function (){});
+     presenter.someFunction = deferredSyncQueue.decorate(function (){});
+      @param {Function} fn - function which will be deocrated
+      @param {Function} checkFunction - function which will be called to check if decorated function should be called, if is undefined then default function will be called
 
-     @return {Function} Decorated function
+      @return {Function} Decorated function
     */
-    WaitingDecorator.prototype.decorate = function (fn) {
+    DeferredSyncQueue.prototype.decorate = function (fn, checkFunction) {
         var self = this;
+        var functionToCall = checkFunction || this.callIsAvailableCheckFunction;
         return function () {    // There should be another scope!
-            if (self.callIsAvailableCheckFunction()) {
+            if (functionToCall.call(self)) {
                 return fn.apply(this, arguments);
             } else {
                 var thisValue = this;
@@ -81,12 +96,10 @@
      Set function for checking if the decorator should call function or push to queue. If function will return true,
         then decorated function while calling will be called, if else then will called function be pushed to queue
 
-     @param {Object} self - scope for calling function.
      @param {Function} functionToCall - function for checking if called function will be pushed to queue
      @return {null}
     */
-    WaitingDecorator.prototype.setIsAvailableCheckFunction = function (self, functionToCall) {
-        this.checkFunction.self = self;
+    DeferredSyncQueue.prototype.setIsAvailableCheckFunction = function (functionToCall) {
         this.checkFunction.functionToCall = functionToCall;
     };
 
@@ -96,7 +109,7 @@
 
      @return {null}
     */
-    WaitingDecorator.prototype.callQueue = function () {
+    DeferredSyncQueue.prototype.resolve = function () {
         for (var i = 0; i < this.queue.length; i++) {
             var queueElement = this.queue[i];
             queueElement.functionToCall.apply(queueElement.self, queueElement.argumentsToCall);
@@ -104,5 +117,4 @@
 
         this.queue = [];
     };
-
 })(window);

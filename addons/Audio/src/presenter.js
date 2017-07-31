@@ -5,18 +5,16 @@ function AddonAudio_create(){
     var oggFile;
     var eventBus;
     var currentTimeAlreadySent;
-    var waitingDecorator = new window.WaitingDecorator();
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var audioIsLoaded = false;
 
-    function waitingDecoratorChecker() {
+    function deferredQueueDecoratorChecker() {
         if (!presenter.configuration.forceLoadAudio) {
             return true;
         }
 
         return audioIsLoaded;
     }
-
-    waitingDecorator.setIsAvailableCheckFunction(this, waitingDecoratorChecker);
 
     presenter.audio = {
         readyState : 0
@@ -92,8 +90,8 @@ function AddonAudio_create(){
         }
 
 
-        waitingDecorator.callQueue();
-    }
+        deferredSyncQueue.resolve();
+    };
 
     presenter.sendEventAndSetCurrentTimeAlreadySent = function AddonAudio_sendEventAndSetCurrentTimeAlreadySent (eventData, currentTime) {
         eventBus.sendEvent('ValueChanged', eventData);
@@ -624,7 +622,7 @@ function AddonAudio_create(){
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.play = waitingDecorator.decorate(function() {
+    presenter.play = deferredSyncQueue.decorate(function() {
         if (!presenter.audio) return;
         if(presenter.audio.src && presenter.audio.paused) {
             presenter.audio.play();
@@ -636,7 +634,7 @@ function AddonAudio_create(){
         }
     });
 
-    presenter.pause = waitingDecorator.decorate(function AddonAudio_pause () {
+    presenter.pause = deferredSyncQueue.decorate(function AddonAudio_pause () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             if (!presenter.audio.paused) {
@@ -650,7 +648,7 @@ function AddonAudio_create(){
         }
     });
 
-    presenter.stop = waitingDecorator.decorate(function AddonAudio_stop () {
+    presenter.stop = deferredSyncQueue.decorate(function AddonAudio_stop () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             presenter.pause();

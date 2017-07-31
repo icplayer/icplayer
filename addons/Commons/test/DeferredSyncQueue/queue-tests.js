@@ -1,6 +1,6 @@
 TestCase("[Commons - WaitingDecorator] Queue tests", {
     setUp: function () {
-        this.waitingDecorator = new window.WaitingDecorator();
+        this.waitingDecorator = window.DecoratorUtils.DeferredSyncQueue();
     },
 
     'test added function to queue should be in this queue': function () {
@@ -36,7 +36,7 @@ TestCase("[Commons - WaitingDecorator] Queue tests", {
         var args2 = [1, 3, "s"];
         this.waitingDecorator.pushToQueue(self2, stub2, args2);
 
-        this.waitingDecorator.callQueue();
+        this.waitingDecorator.resolve();
 
         assertTrue(stub1.calledOn(self1));
         assertTrue(stub1.calledWith("a", "b", "c"));
