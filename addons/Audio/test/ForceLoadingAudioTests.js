@@ -1,4 +1,4 @@
-var AsyncSendEventsTests = TestCase('[Audio] ForceLoadingAudio', {
+TestCase('[Audio] ForceLoadingAudio', {
     setUp: function () {
         this.xhr = sinon.useFakeXMLHttpRequest();
         this.presenter = AddonAudio_create();
