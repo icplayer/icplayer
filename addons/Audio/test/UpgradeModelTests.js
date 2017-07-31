@@ -1,4 +1,4 @@
-UpgradeModelTests = TestCase("Upgrade Model Audio");
+UpgradeModelTests = TestCase("[Audio] Upgrade Model Audio");
 
 UpgradeModelTests.prototype.setUp = function() {
     this.presenter = AddonAudio_create();

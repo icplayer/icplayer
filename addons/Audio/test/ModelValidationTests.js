@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Audio] Model validation", {
     setUp: function () {
         this.presenter = AddonAudio_create();
     },

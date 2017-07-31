@@ -1,4 +1,4 @@
-var AsyncSendEventsTests = TestCase('[Audio addon] CallingCommands', {
+var AsyncSendEventsTests = TestCase('[Audio] CallingCommands', {
     setUp: function () {
         this.presenter = AddonAudio_create();
 
@@ -14,7 +14,8 @@ var AsyncSendEventsTests = TestCase('[Audio addon] CallingCommands', {
             play: this.playSpy,
             pause: this.pauseSpy,
             paused: true,
-            readyState: 4
+            readyState: 4,
+            duration: 20
         };
 
         this.eventData = {
@@ -31,6 +32,7 @@ var AsyncSendEventsTests = TestCase('[Audio addon] CallingCommands', {
         assertTrue(this.presenter.audio.play.notCalled);
 
         this.presenter.loadAudioDataFromRequest(this.eventData);
+        this.presenter.AddonAudio_onLoadedMetadataCallback();
         assertTrue(this.presenter.audio.play.calledOnce);
     },
 
@@ -47,6 +49,7 @@ var AsyncSendEventsTests = TestCase('[Audio addon] CallingCommands', {
         assertTrue(this.presenter.audio.pause.notCalled);
 
         this.presenter.loadAudioDataFromRequest(this.eventData);
+        this.presenter.AddonAudio_onLoadedMetadataCallback();
         assertTrue(this.presenter.audio.pause.calledOnce);
     },
 
@@ -64,6 +67,8 @@ var AsyncSendEventsTests = TestCase('[Audio addon] CallingCommands', {
         assertTrue(this.presenter.audio.pause.notCalled);
 
         this.presenter.loadAudioDataFromRequest(this.eventData);
+        this.presenter.AddonAudio_onLoadedMetadataCallback();
+
         assertTrue(this.presenter.audio.pause.calledOnce);
     },
 

@@ -1,4 +1,4 @@
-TestCase('State restoring', {
+TestCase('[Audio] State restoring', {
     setUp : function() {
         this.presenter = AddonAudio_create();
         this.presenter.$view = $('<div></div>');

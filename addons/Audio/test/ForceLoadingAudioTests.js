@@ -1,4 +1,4 @@
-var AsyncSendEventsTests = TestCase('[Audio addon] ForceLoadingAudio', {
+var AsyncSendEventsTests = TestCase('[Audio] ForceLoadingAudio', {
     setUp: function () {
         this.xhr = sinon.useFakeXMLHttpRequest();
         this.presenter = AddonAudio_create();
@@ -55,6 +55,7 @@ var AsyncSendEventsTests = TestCase('[Audio addon] ForceLoadingAudio', {
         assertTrue(callback.notCalled);
 
         this.presenter.loadAudioDataFromRequest(event);
+        this.presenter.AddonAudio_onLoadedMetadataCallback();
 
         assertEquals("some_url", this.presenter.audio.src);
         assertTrue(this.URLMock.calledOnce);

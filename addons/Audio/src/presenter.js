@@ -81,7 +81,7 @@ function AddonAudio_create(){
         return minutes + ":" + seconds;
     }
 
-    function AddonAudio_onLoadedMetadataCallback () {
+    presenter.AddonAudio_onLoadedMetadataCallback = function () {
         var duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
         if (presenter.configuration.displayTime) {
@@ -419,7 +419,7 @@ function AddonAudio_create(){
     }
 
     function AddonAudio_attachEventListeners(audio) {
-        audio.addEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
+        audio.addEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
         audio.addEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
         audio.addEventListener('volumechange', AddonAudio_onVolumeChanged, false);
         audio.addEventListener('ended', AddonAudio_onAudioEnded , false);
@@ -533,7 +533,7 @@ function AddonAudio_create(){
         presenter.playerController = null;
 
         presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
-        presenter.audio.removeEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
+        presenter.audio.removeEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
         presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
         presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
         presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
