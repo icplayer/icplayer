@@ -1,3 +1,12 @@
+2017-07-28 Added option for sorting assets in select file window.
+2017-07-26 Fixed problem with empty stroke width property in fractions addon.
+2017-07-25 Added Increment mistake counter property for Show Answers.
+2017-07-25 Fixed popup size when page bigger than window size.
+2017-07-25 Changed default video control bar to custom control bar. Fixed problems with subtitles in fullscreen in video.
+2017-07-24 Added new mode do fractions addon to dividing square. Refactored fractions addon.
+2017-07-18 Fixed popup close event.
+2017-07-17 Added video current time event.
+2017-07-11 Added command execute for reset button module.
 2017-07-10 Fixed selecting text while dragging slider. Fixed dragged slider position.
 2017-07-07 Added Wrap Items property to multiplegap module
 2017-07-05 Fixed problem with tests which are using gwt classes

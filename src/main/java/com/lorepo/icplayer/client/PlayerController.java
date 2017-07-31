@@ -461,6 +461,7 @@ public class PlayerController implements IPlayerController{
 		if(this.popupPanel != null){
 			this.popupPanel.close();
 			this.setPopupEnabled(false);
+			this.popupPanel = null;
 		}
 	}
 

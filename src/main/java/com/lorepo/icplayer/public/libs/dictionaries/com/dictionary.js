@@ -1181,7 +1181,6 @@ var ice_dictionary_en = {
 	"Fractions_property_figure": "Figure",
 	"Fractions_property_rect_horizontal": "Rectangular horizontal parts",
 	"Fractions_property_rect_vertical": "Rectangular vertical parts",
-	"Fractions_property_circle_parts": "Circle parts",
 	"Fractions_property_correct": "Number of correct parts",
 	"Fractions_property_selected_parts": "Selected parts",
 	"Fractions_property_selection_color": "Selection color",
@@ -1192,6 +1191,8 @@ var ice_dictionary_en = {
 	"Fractions_property_is_disable": "Is disabled",
     "Fractions_property_is_select": "Image for selected parts",
     "Fractions_property_is_deselect": "Image for deselected parts",
+	"Fractions_property_circle_parts": "Circle parts",
+	"Fractions_property_square_parts": "Square parts",
     "FractionsBinder_name": "Fractions Binder",
     "FractionsBinder_info": "Allows to control groups of Fractions addons",
     "FractionsBinder_property_addons": "Fractions",
@@ -1314,6 +1315,7 @@ var ice_dictionary_en = {
 	"Show_Answers_property_text": "Text",
 	"Show_Answers_property_text_selected": "Text selected",
     "Show_Answers_property_enable_check_counter": "Increment check counter",
+	"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
     "Animated_Page_Progress_info": "Enables to insert animated page progress which shows images depending on the percentage result on page.",
 	"Animated_Page_Progress_name": "Animated Page Progress",
 	"Animated_Page_Progress_property_ranges": "Ranges",
@@ -1542,5 +1544,7 @@ var ice_dictionary_en = {
 	"IFrame_property_index_file": "Index file",
 	"IFrame_property_communication_id": "Communication id",
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
-	"Text_use_escape_character_in_gap_property": "Use escape character in gap"
+	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
+	"date": "Date",
+	"sort_by": "Sort by:"
 };

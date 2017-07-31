@@ -3,9 +3,12 @@ package com.lorepo.icplayer.client.model.asset;
 import com.lorepo.icplayer.client.model.IAsset;
 
 public class AssetFactory {
+	
+	private int orderNumber = 0;
 
-	public IAsset createAsset(String type, String url){
+	public IAsset createAsset(String type, String url) {
 		
+
 		IAsset asset = null;
 		
 		type = type.toLowerCase();
@@ -21,6 +24,9 @@ public class AssetFactory {
 		else{
 			asset = new FileAsset(url);
 		}
+		
+		asset.setOrderNumber(this.orderNumber);
+		this.orderNumber++;
 		
 		return asset;
 	}
