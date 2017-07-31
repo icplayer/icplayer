@@ -244,7 +244,7 @@ public abstract class ContentParserBase implements IContentParser {
 		String style = XMLUtils.getText(rootElement);
 		CssStyle defaultStyle = new CssStyle("default", "default", "");
 		if(style.length() > 0){
-			defaultStyle.style = StringUtils.unescapeXML(style);
+			defaultStyle.setValue(StringUtils.unescapeXML(style));
 		}
 		
 		defaultStyle.setIsDefault(true);

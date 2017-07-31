@@ -31,7 +31,7 @@ public class SemiResponsivePositions {
 	}
 	
 	public void addSemiResponsiveDimensions(String name, ModuleDimensions dimensions) {
-		this.positions.put(name,  dimensions);
+		this.positions.put(name, dimensions);
 	}
 	
 	public int getPositionValue(String attribute) {
@@ -151,6 +151,7 @@ public class SemiResponsivePositions {
 	}
 
 	private ModuleDimensions getDimensionsCopy(String layoutID) {
+		System.out.println("dimensions copy: " + this.positions.size());
 		ModuleDimensions layoutDimensions = this.positions.get(layoutID);
 		ModuleDimensions copyOfDefaultDimensions = ModuleDimensions.copy(layoutDimensions);
 		return copyOfDefaultDimensions;

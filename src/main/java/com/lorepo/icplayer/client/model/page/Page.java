@@ -1018,7 +1018,9 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	private void removeUnsyncLayouts(Set<String> actualIDs) {
-		for (String key : this.pageSizes.keySet()) {
+		Set<String> keySet = new HashSet<String>(this.pageSizes.keySet());
+		
+		for (String key : keySet) {
 			if (!actualIDs.contains(key)) {
 				this.pageSizes.remove(key);
 			}

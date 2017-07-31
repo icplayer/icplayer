@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.xml.content.parsers;
 import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.screen.DeviceOrientation;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
@@ -81,9 +82,20 @@ public class ContentParser_v1 extends ContentParserBase {
 					pageLayout = this.parseTreshold(pageLayout, child);
 				} else if (nodeName.compareTo("style") == 0) {
 					pageLayout = this.parseLayoutStyle(pageLayout, child);
+				} else if (nodeName.compareTo("deviceOrientation") == 0) {
+					pageLayout = this.parseDeviceOrientation(pageLayout, child);
 				}
 			}
 		}
+		
+		return pageLayout;
+	}
+
+	private PageLayout parseDeviceOrientation(PageLayout pageLayout, Element child) {
+		pageLayout.useDeviceOrientation(true);
+		
+		DeviceOrientation deviceOrientation = DeviceOrientation.valueOf(XMLUtils.getAttributeAsString(child, "value"));
+		pageLayout.setDeviceOrientation(deviceOrientation);
 		
 		return pageLayout;
 	}

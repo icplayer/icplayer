@@ -19,7 +19,7 @@ public class CssStyle {
 	}
 	
 	public static CssStyle copy(CssStyle toCopy) {
-		return new CssStyle(toCopy.getID(), toCopy.getName(), toCopy.style);
+		return new CssStyle(toCopy.getID(), toCopy.getName(), toCopy.getValue());
 	}
 
 	public CssStyle(String id, String name, String style) {
@@ -47,6 +47,10 @@ public class CssStyle {
 	public boolean isDefault() {
 		return this.isDefault;
 	}
+	
+	public String getValue() {
+		return this.style;
+	}
 
 	public Element toXML() {
 		Document doc = XMLParser.createDocument();
@@ -59,7 +63,7 @@ public class CssStyle {
 			style.setAttribute("isDefault", "true");
 		}
 		
-		Text node = doc.createTextNode(StringUtils.escapeHTML(this.style));
+		Text node = doc.createTextNode(StringUtils.escapeHTML(this.getValue()));
 		style.appendChild(node);
 		
 		return style;

@@ -10,7 +10,7 @@
     <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs" />
 
     <!-- Arguments to gwtc and devmode targets -->
-  	<property name="gwt.args" value="-localWorkers 4 -style PRETTY" />
+  	<property name="gwt.args" value="-draftCompile -localWorkers 4 -XdisableClassMetadata -XdisableCastChecking -localWorkers 4 -style PRETTY" />
     <import file="build-js-addons-compress.xml"/>
     <import file="build-single-test-case.xml"/>
 
@@ -48,7 +48,6 @@
             <fileset dir="${src}" excludes="**/*.java"/>
             <fileset dir="${src-test}" excludes="**/*.java"/>
         </copy>
-
     </target>
 
     <target name="gwtc" depends="javac, bundle-libs" description="GWT compile to JavaScript (production mode)">
@@ -191,8 +190,8 @@
         <antcall target="test.addons" />
     </target>
 
-    <!--<target name="build" depends="clean, gwtc" description="Build this project" />-->
-    <target name="build" depends="clean, test, gwtc" description="Build this project" />
+    <target name="build" depends="clean, gwtc" description="Build this project" />
+    <!--<target name="build" depends="clean, test, gwtc" description="Build this project" />-->
 
     <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests" />
 

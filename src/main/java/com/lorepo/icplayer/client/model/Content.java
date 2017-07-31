@@ -219,7 +219,7 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public HashMap<String,CssStyle> getStyles() {
-		return styles;
+		return new HashMap<String, CssStyle>(this.styles);
 	}
 
 	public CssStyle getStyle(String cssStyleID) {
@@ -502,13 +502,13 @@ public class Content implements IContentBuilder, IContent {
 		CssStyle style = styles.get(this.getActualStyleID());
 
 		if (style == null) {
-			return this.getDefaultCssStyle().style;
+			return this.getDefaultCssStyle().getValue();
 		}
 
 		return style.style;
 	}
 
-	private CssStyle getDefaultCssStyle() {
+	public CssStyle getDefaultCssStyle() {
 		for(CssStyle contentStyle : this.styles.values()) {
 			if (contentStyle.isDefault()) {
 				return contentStyle;

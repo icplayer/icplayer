@@ -56,7 +56,7 @@ public class GWTPageTestCase extends GwtTest {
 	
 	@Test
 	public void saveScoringType() throws SAXException, IOException {
-		Page page = xmlUtils.loadPageFromFile(new Page("Page 2", ""), "testdata/page4.xml");
+		Page page = xmlUtils.loadPageFromFile_v2(new Page("Page 2", ""), "testdata/page4.xml");
 		
 		Page reloadedPage = xmlUtils.loadPageFromString(new Page("Page 2", ""), page.toXML());
 		

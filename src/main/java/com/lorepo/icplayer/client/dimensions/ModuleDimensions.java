@@ -20,6 +20,7 @@ public class ModuleDimensions {
 	}
 	
 	public static ModuleDimensions copy(ModuleDimensions dimensions) {
+		System.out.println("Dimensions: " + dimensions);
 		return new ModuleDimensions(dimensions.left, dimensions.right, dimensions.top, dimensions.bottom, dimensions.height, dimensions.width);
 	}
 

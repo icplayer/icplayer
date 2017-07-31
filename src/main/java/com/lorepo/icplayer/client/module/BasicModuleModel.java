@@ -12,8 +12,7 @@ import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
 import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
 
-public abstract class BasicModuleModel extends StyledModule implements
-		IModuleModel, IModuleModelBuilder {
+public abstract class BasicModuleModel extends StyledModule implements IModuleModel, IModuleModelBuilder {
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;

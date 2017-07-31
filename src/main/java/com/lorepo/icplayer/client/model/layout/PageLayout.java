@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.model.layout;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
+import com.lorepo.icf.screen.DeviceOrientation;
 import com.lorepo.icf.utils.UUID;
 
 public class PageLayout implements PageLayoutBuilder {
@@ -13,6 +14,8 @@ public class PageLayout implements PageLayoutBuilder {
 	private int threshold;
 	private String styleID;
 	private boolean isDefault;
+	private boolean useDeviceOrientation = false;
+	private DeviceOrientation deviceOrientation = DeviceOrientation.vertical;
 	
 	public PageLayout(String id, String name) {
 		this.id = id;
@@ -32,6 +35,16 @@ public class PageLayout implements PageLayoutBuilder {
 		PageLayout newPageLayout = new PageLayout(UUID.uuid(), name);
 		newPageLayout.setCssID(cssID);
 		newPageLayout.setThreshold(treshold);
+		
+		return newPageLayout;
+	}
+	
+	public static PageLayout createPageLayout(String name, int treshold, String cssID, boolean useDeviceOrientation, DeviceOrientation deviceOrientation) {
+		PageLayout newPageLayout = new PageLayout(UUID.uuid(), name);
+		newPageLayout.setCssID(cssID);
+		newPageLayout.setThreshold(treshold);
+		newPageLayout.useDeviceOrientation(useDeviceOrientation);
+		newPageLayout.setDeviceOrientation(deviceOrientation);
 		
 		return newPageLayout;
 	}
@@ -98,6 +111,28 @@ public class PageLayout implements PageLayoutBuilder {
 		tresholdNode.setAttribute("width", Integer.toString(this.threshold));
 		layout.appendChild(tresholdNode);
 		
+		if (this.useDeviceOrientation) {
+			Element deviceOrientation = doc.createElement("deviceOrientation");
+			deviceOrientation.setAttribute("value", this.deviceOrientation.toString());
+			layout.appendChild(deviceOrientation);
+		}
+		
 		return layout;
+	}
+
+	public void useDeviceOrientation(boolean value) {
+		this.useDeviceOrientation = value;
+	}
+
+	public void setDeviceOrientation(DeviceOrientation orientation) {
+		this.deviceOrientation = orientation;
+	}
+
+	public boolean useDeviceOrientation() {
+		return this.useDeviceOrientation;
+	}
+	
+	public DeviceOrientation getDeviceOrientation() {
+		return this.deviceOrientation;
 	}
 }

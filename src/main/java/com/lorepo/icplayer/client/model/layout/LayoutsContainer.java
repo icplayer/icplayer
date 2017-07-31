@@ -98,20 +98,27 @@ public class LayoutsContainer {
 					pageLayout.getName(), 
 					pageLayout.getStyleID(), 
 					pageLayout.getThreshold(), 
-					pageLayout.isDefault());
+					pageLayout.isDefault(),
+					pageLayout.useDeviceOrientation(),
+					pageLayout.getDeviceOrientation().toString());
 		}
 
 		return hashmap;
 	}
 
 	private native static void addDataToJSHashMap(JavaScriptObject hashmap, String id,
-			String name, String styleID, int threshold, boolean isDefault) /*-{
+			String name, String styleID, int threshold, boolean isDefault, boolean useDeviceOrientation, String deviceOrientation) /*-{
 				hashmap[id] = {
 					"id": id,
 					"name": name,
 					"styleID": styleID,
 					"threshold": threshold,
-					"isDefault": isDefault
-				};	
+					"isDefault": isDefault,
+					"useDeviceOrientation": useDeviceOrientation 
+				};
+				
+				if ("useDeviceOrientation") {
+					hashmap[id]["deviceOrientation"] = deviceOrientation;
+				}
 	}-*/;
 }

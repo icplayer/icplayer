@@ -1,0 +1,4 @@
+<layout id="small_id" name="small">
+	<style id="small_css_id"></style>
+	<threshold width="800"></threshold>
+</layout>

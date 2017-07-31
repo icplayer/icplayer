@@ -204,7 +204,7 @@ public class GWTContentTestCase extends GwtTest {
 
 		HashMap<String, CssStyle> styles = model.getStyles();
 		CssStyle defaultStyle = styles.get(this.DEFAULT);
-		int index = defaultStyle.style.indexOf("ic_page");
+		int index = defaultStyle.getValue().indexOf("ic_page");
 		assertTrue(index > 0);
 	}
 

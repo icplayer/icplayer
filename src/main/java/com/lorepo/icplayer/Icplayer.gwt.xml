@@ -8,6 +8,7 @@
     <inherits name='com.lorepo.icf.Properties'/>
     <inherits name='com.lorepo.icf.Utils'/>
     <inherits name='com.lorepo.icf.Scripting'/>
+    <inherits name='com.lorepo.icf.Screen'/>
 
 
     <stylesheet src="theme/player.css"/>
