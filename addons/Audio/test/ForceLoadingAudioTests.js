@@ -1,7 +1,7 @@
 TestCase('[Audio] ForceLoadingAudio', {
     setUp: function () {
         this.xhr = sinon.useFakeXMLHttpRequest();
-        this.presenter = AddonAudio_create();
+        this.presenter = new AddonAudio_create();
         var requests = this.requests = [];
 
         this.xhr.onCreate = function (xhr) {
