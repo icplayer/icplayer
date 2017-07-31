@@ -30,7 +30,7 @@ TestCase('[Audio] ForceLoadingAudio', {
         assertTrue(this.presenter.loadAudioDataFromRequest.calledOnce);
     },
 
-    'test loadAudioDataFromRequest should check event status, set new src, set audio is loaded and should call waiting queue': function () {
+    'test loadAudioDataFromRequest should check event status, set new src, set audio is loaded': function () {
         this.URLMock.returns("some_url");
 
         this.presenter.configuration = {
@@ -57,11 +57,9 @@ TestCase('[Audio] ForceLoadingAudio', {
         assertTrue(callback.notCalled);
 
         this.presenter.loadAudioDataFromRequest(event);
-        this.presenter.AddonAudio_onLoadedMetadataCallback();
 
         assertEquals("some_url", this.presenter.audio.src);
         assertTrue(this.URLMock.calledOnce);
-        assertTrue(callback.calledOnce);
 
     }
 });
