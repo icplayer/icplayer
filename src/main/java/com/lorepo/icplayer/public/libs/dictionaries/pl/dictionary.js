@@ -1500,5 +1500,7 @@ var ice_dictionary_pl = {
 	"Quiz_property_GameLostMessage": "Game lost message",
 	"Quiz_property_GameWonMessage": "Game won message",
 	"Quiz_property_isActivity": "Is activity",
-	"Text_use_escape_character_in_gap_property": "Use using escape character in gap"
+	"Text_use_escape_character_in_gap_property": "Use using escape character in gap",
+	"date": "Date",
+	"sort_by": "Sort by:"
 };
