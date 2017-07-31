@@ -1,6 +1,6 @@
 var AsyncSendEventsTests = TestCase('[Audio] CallingCommands', {
     setUp: function () {
-        this.presenter = new AddonAudio_create();
+        this.presenter = AddonAudio_create();
 
         this.playSpy = sinon.spy();
         this.pauseSpy = sinon.spy();
