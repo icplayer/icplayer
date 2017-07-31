@@ -40,8 +40,17 @@
 
 .question-wrapper .question-tips .question-tip {
     display: inline-block;
+    cursor: pointer;
     width: 50%;
     height: 50%;
+}
+
+.question-wrapper .question-tips .question-tip.correct {
+    background-color: greenyellow;
+}
+
+.question-wrapper .question-tips .question-tip.wrong {
+    background-color: #A52A2A;
 }
 
 .question-wrapper .question-hint {

@@ -42,15 +42,19 @@ function AddonQuiz_create() {
         }
     };
 
-    var selectItemAction = function(isCorrect){
+    var getSelectItemAction = function(isCorrect, $this){
         return function (e) {
             if (e) {
                 e.stopPropagation();
                 e.preventDefault();
             }
-            console.log(isCorrect)
+            if(isCorrect) {
+                $this.addClass('correct');
+            } else {
+                $this.addClass('wrong');
+            }
         }
-    }
+    };
 
     var bindEvents = function() {
         for (var i=0; i<presenter.activeElements.length; i++) {
@@ -97,7 +101,7 @@ function AddonQuiz_create() {
             var answer = answers[i]
             $tip.text(labels[i] + answer);
             $tips.append($tip);
-            $tip.clickAction = selectItemAction(answer==q.CorrectAnswer);
+            $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
             presenter.activeElements.push($tip);
         }
 
