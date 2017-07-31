@@ -19,8 +19,69 @@ function AddonQuiz_create() {
         };
     };
 
+    var getConfig = function (model) {
+        return {
+            visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            questions: model['Questions'],
+            helpButtons: ModelValidationUtils.validateBoolean(model['ShowHelpButtons']),
+            gameLostMessage: model['GameLostMessage'],
+            gameWonMessage: model['GameWonMessage'],
+            isActivity: model['isActivity']
+        }
+    };
+
+    function shuffle(a) {
+        var j, x, i;
+        for (i = a.length; i; i--) {
+            j = Math.floor(Math.random() * i);
+            x = a[i - 1];
+            a[i - 1] = a[j];
+            a[j] = x;
+        }
+    };
+
+    var bindEvents = function() {
+
+    };
+
+    var showQuestion = function(q){
+        var $q = $('<div class="question-wrapper"></div>');
+        var $title = $('<div class="question-title"></div>');
+        var $tips = $('<div class="question-tips"></div>');
+
+        $title.html(q.Question);
+
+        var answers = [
+            q.CorrectAnswer,
+            q.WrongAnswer1,
+            q.WrongAnswer2,
+            q.WrongAnswer3,
+        ];
+        shuffle(answers);
+
+        for (var i=0; i<answers.length; i++) {
+            var $tip = $('<div class="question-tip"></div>');
+            $tip.text(answers[i]);
+            $tips.append($tip)
+        }
+
+        $q.append($title);
+        $q.append($tips);
+        if (presenter.config.helpButtons){
+            var $hint = $('<div class="question-hint"></div>');
+            $q.append($hint);
+        }
+        presenter.$view.append($q);
+    };
+
     var makeView = function (view, model, preview) {
-        // todo: implement
+        presenter.$view = $(view);
+        presenter.config = getConfig(model);
+        showQuestion(presenter.config.questions[0]);
+
+        if (!preview){
+            bindEvents();
+        }
     };
 
     presenter.setPlayerController = function (controller) {
@@ -41,7 +102,6 @@ function AddonQuiz_create() {
     };
 
     presenter.run = function (view, model) {
-        presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         presenter.addonID = model.ID;
         makeView(view, model, false);
@@ -51,7 +111,6 @@ function AddonQuiz_create() {
     };
 
     presenter.createPreview = function (view, model) {
-        presenter.$view = $(view);
         makeView(view, model, true);
     };
 
