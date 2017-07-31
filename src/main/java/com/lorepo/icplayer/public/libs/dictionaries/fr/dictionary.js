@@ -1488,5 +1488,18 @@ var ice_dictionary_fr = {
 "IFrame_property_index_file": "Index file",
 "IFrame_property_communication_id": "Communication id",
 "IFrame_property_allow_fullscreen": "Allow Fullscreen",
+"Quiz_name": "Quiz",
+"Quiz_info": "Sequence of questions with tips",
+"Quiz_property_Questions": "Questions",
+"Quiz_property_Question": "Question",
+"Quiz_property_CorrectAnswer": "Correct answer",
+"Quiz_property_WrongAnswer1": "First wrong answer",
+"Quiz_property_WrongAnswer2": "Second wrong answer",
+"Quiz_property_WrongAnswer3": "Third wrong answer",
+"Quiz_property_hint": "Hint",
+"Quiz_property_ShowHelpButtons": "Show help buttons",
+"Quiz_property_GameLostMessage": "Game lost message",
+"Quiz_property_GameWonMessage": "Game won message",
+"Quiz_property_isActivity": "Is activity",
 "Text_use_escape_character_in_gap_property": "Use escape character in gap"
 };
