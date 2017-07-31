@@ -422,6 +422,7 @@ var ice_dictionary_en = {
 	"Audio_property_enable_loop": "Enable loop",
 	"Audio_property_narration": "Narration",
 	"Audio_property_on_end": "On end",
+	"Audio_property_force_load_audio": "Force load audio",
     "TextAudio_info": "With the TextAudio addon, it is possible to play various soundtracks in a presentation with highlighted transcripts. To make the addon work  properly on all common browsers, it is necessary to upload an audio file in two formats: mp3 and ogg.",
 	"TextAudio_name": "TextAudio",
 	"TextAudio_property_default_controls": "Default controls",
