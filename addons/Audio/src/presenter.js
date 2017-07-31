@@ -90,6 +90,9 @@ function AddonAudio_create(){
         if (presenter.configuration.isHtmlPlayer){
             presenter.$playerTime.html('0:00 / ' + addonAudio_formatTime(duration))
         }
+
+
+        waitingDecorator.callQueue();
     }
 
     presenter.sendEventAndSetCurrentTimeAlreadySent = function AddonAudio_sendEventAndSetCurrentTimeAlreadySent (eventData, currentTime) {
@@ -454,7 +457,6 @@ function AddonAudio_create(){
             var audioData = event.currentTarget.response;
             presenter.audio.src = URL.createObjectURL(audioData);
             audioIsLoaded = true;
-            waitingDecorator.callQueue();
         }
     };
 
