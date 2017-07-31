@@ -9,6 +9,8 @@ function AddonQuiz_create() {
         'QUESTION_AND_CHOICES_REQUIRED': "At least 1 question and 2 choices are required."
     };
 
+    presenter.activeElements = [];
+
 
     presenter.createAllOKEventData = function () {
         return {
@@ -40,8 +42,37 @@ function AddonQuiz_create() {
         }
     };
 
-    var bindEvents = function() {
+    var selectItemAction = function(isCorrect){
+        return function (e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            console.log(isCorrect)
+        }
+    }
 
+    var bindEvents = function() {
+        for (var i=0; i<presenter.activeElements.length; i++) {
+            var $el = presenter.activeElements[i];
+            $el.click($el.clickAction);
+        }
+    };
+
+    var fiftyFiftyAction = function (e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        console.log("FiftyFifty");
+    };
+
+    var hintAction = function (e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        console.log("Hint");
     };
 
     var showQuestion = function(q){
@@ -63,8 +94,11 @@ function AddonQuiz_create() {
 
         for (var i=0; i<answers.length; i++) {
             var $tip = $('<div class="question-tip"></div>');
-            $tip.text(labels[i] + answers[i]);
-            $tips.append($tip)
+            var answer = answers[i]
+            $tip.text(labels[i] + answer);
+            $tips.append($tip);
+            $tip.clickAction = selectItemAction(answer==q.CorrectAnswer);
+            presenter.activeElements.push($tip);
         }
 
         $q.append($title);
@@ -74,8 +108,12 @@ function AddonQuiz_create() {
             var $buttons = $('<div class="question-hint-buttons"></div>');
             var $fiftyFifty = $('<div class="fifty-fifty"></div>');
             var $hintButton = $('<div class="hint-button"></div>');
+            $fiftyFifty.clickAction = fiftyFiftyAction;
+            $hintButton.clickAction = hintAction;
             $buttons.append($fiftyFifty);
             $buttons.append($hintButton);
+            presenter.activeElements.push($fiftyFifty);
+            presenter.activeElements.push($hintButton);
             $q.append($buttons);
             $q.append($hint);
             $q.addClass('with-hint');
