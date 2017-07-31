@@ -98,8 +98,9 @@ function AddonQuiz_create() {
 
         for (var i=0; i<answers.length; i++) {
             var $tip = $('<div class="question-tip"></div>');
-            var answer = answers[i]
-            $tip.text(labels[i] + answer);
+            var answer = answers[i];
+            var label = labels[i];
+            $tip.text(label + answer);
             $tips.append($tip);
             $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
             presenter.activeElements.push($tip);
