@@ -11,7 +11,11 @@ function AddonQuiz_create() {
 
     presenter.activeElements = [];
     presenter.currentQuestion = 0;
+    presenter.answersOrder = false;
+    presenter.wasWrong = false;
 
+    presenter.isShowAnswersActive = false;
+    presenter.isVisible = true;
 
     presenter.createAllOKEventData = function () {
         return {
@@ -29,7 +33,7 @@ function AddonQuiz_create() {
             helpButtons: ModelValidationUtils.validateBoolean(model['ShowHelpButtons']),
             gameLostMessage: model['GameLostMessage'],
             gameWonMessage: model['GameWonMessage'],
-            isActivity: model['isActivity']
+            isActivity: ModelValidationUtils.validateBoolean(model['isActivity'])
         }
     };
 
@@ -45,6 +49,7 @@ function AddonQuiz_create() {
 
     var cleanWorkspace = function () {
         unbindEvents();
+        presenter.activeElements = [];
         var wrapper = presenter.$view.find('.question-wrapper');
         wrapper.children().remove();
     };
@@ -86,6 +91,7 @@ function AddonQuiz_create() {
                     gameWonMessage();
                     eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
                 } else {
+                    presenter.answersOrder = false;
                     showQuestion(presenter.config.questions[presenter.currentQuestion]);
                     bindEvents();
                     presenter.currentQuestion++;
@@ -95,6 +101,7 @@ function AddonQuiz_create() {
                 eventData['score'] = '0';
                 eventBus.sendEvent('ValueChanged', eventData);
                 gameLostMessage();
+                presenter.wasWrong = true;
             }
         }
     };
@@ -138,13 +145,23 @@ function AddonQuiz_create() {
 
         $title.html(q.Question);
 
-        var answers = [
+        var tempAnswers = [
             q.CorrectAnswer,
             q.WrongAnswer1,
             q.WrongAnswer2,
             q.WrongAnswer3,
         ];
-        shuffle(answers);
+
+        if (!presenter.answersOrder){
+            presenter.answersOrder = [0, 1, 2, 3];
+            shuffle(presenter.answersOrder);
+        }
+
+        var answers = [0, 1, 2, 3];
+        for (var i=0; i<4; i++){
+            var index = presenter.answersOrder[i];
+            answers[i] = tempAnswers[index];
+        }
 
         var labels = ['A: ', 'B: ', 'C: ', 'D: '];
 
@@ -226,16 +243,29 @@ function AddonQuiz_create() {
         }
 
         return JSON.stringify({
-            // todo: implement
-            isVisible: presenter.isVisible
+            currentQuestion: presenter.currentQuestion,
+            answersOrder: presenter.answersOrder,
+            isVisible: presenter.isVisible,
+            wasWrong: presenter.wasWrong,
         });
     };
 
-    presenter.setState = function (state) {
-        if (!state) {
+    presenter.setState = function (gotState) {
+        if (!gotState) {
             return;
         }
-        // todo: implement
+        var state = JSON.parse(gotState);
+        presenter.currentQuestion = state.currentQuestion;
+        presenter.answersOrder = state.answersOrder;
+        presenter.wasWrong = state.wasWrong;
+        cleanWorkspace();
+        if (presenter.wasWrong){
+            gameLostMessage();
+        } else {
+            showQuestion(presenter.config.questions[presenter.currentQuestion - 1]);
+            bindEvents();
+        }
+        presenter.setVisibility(state.isVisible);
     };
 
     presenter.setShowErrorsMode = function () {
@@ -287,7 +317,7 @@ function AddonQuiz_create() {
     };
 
     presenter.getErrorCount = function () {
-        if (!isActivity) return 0;
+        if (!presenter.config.isActivity) return 0;
 
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -297,7 +327,7 @@ function AddonQuiz_create() {
     };
 
     presenter.getMaxScore = function () {
-        if (!isActivity) return 0;
+        if (!presenter.config.isActivity) return 0;
 
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -307,7 +337,7 @@ function AddonQuiz_create() {
     };
 
     presenter.getScore = function () {
-        if (!isActivity) return 0;
+        if (!presenter.config.isActivity) return 0;
 
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -317,15 +347,15 @@ function AddonQuiz_create() {
     };
 
     function getErrorCount() {
-        //todo - implement getErrorCount()
+        return presenter.wasWrong ? 1:0;
     }
 
     function getMaxScore() {
-        // todo - implement getMaxScore()
+        return presenter.config.questions.length;
     }
 
     function getScore() {
-        //todo - implement getscore()
+        return presenter.currentQuestion;
     }
 
     presenter.executeCommand = function (name, params) {
@@ -352,12 +382,7 @@ function AddonQuiz_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-
-        var isAttempted = false;
-
-        // todo: implement isAttempted
-
-        return isAttempted;
+        return (presenter.currentQuestion > 1) || presenter.wasWrong;
     };
 
     presenter.isAttemptedCommand = function () {
