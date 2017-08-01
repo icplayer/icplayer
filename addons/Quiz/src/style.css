@@ -56,3 +56,26 @@
 .question-wrapper .question-hint {
     height: 33%;
 }
+
+.question-wrapper .game-won-message-wrapper {
+    background-color: #00aa00;
+    color: #ffffff;
+    width: 100%;
+    height: 100%;
+}
+.question-wrapper .game-won-message {
+    text-align: center;
+    padding-top: 20%;
+}
+
+.question-wrapper .game-lost-message-wrapper {
+    background-color: #aa0000;
+    color: #ffffff;
+    width: 100%;
+    height: 100%;
+
+}
+.question-wrapper .game-lost-message {
+    text-align: center;
+    padding-top: 20%;
+}

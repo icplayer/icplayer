@@ -43,6 +43,30 @@ function AddonQuiz_create() {
         }
     };
 
+    var cleanWorkspace = function () {
+        unbindEvents();
+        var wrapper = presenter.$view.find('.question-wrapper');
+        wrapper.children().remove();
+    };
+
+    var gameWonMessage = function () {
+        cleanWorkspace();
+        var wrapper = $('<div class="game-won-message-wrapper"></div>');
+        var message = $('<div class="game-won-message"></div>');
+        message.html(presenter.config.gameWonMessage);
+        wrapper.append(message);
+        presenter.$view.find('.question-wrapper').append(wrapper);
+    };
+
+    var gameLostMessage = function () {
+        cleanWorkspace();
+        var wrapper = $('<div class="game-lost-message-wrapper"></div>');
+        var message = $('<div class="game-lost-message"></div>');
+        message.html(presenter.config.gameLostMessage);
+        wrapper.append(message);
+        presenter.$view.find('.question-wrapper').append(wrapper);
+    };
+
     var getSelectItemAction = function(isCorrect, $this){
         return function (e) {
             if (e) {
@@ -58,11 +82,19 @@ function AddonQuiz_create() {
             if(isCorrect) {
                 $this.addClass('correct');
                 eventBus.sendEvent('ValueChanged', eventData);
+                if (presenter.currentQuestion == presenter.config.questions.length){
+                    gameWonMessage();
+                    eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
+                } else {
+                    showQuestion(presenter.config.questions[presenter.currentQuestion]);
+                    bindEvents();
+                    presenter.currentQuestion++;
+                }
             } else {
                 $this.addClass('wrong');
                 eventData['score'] = '0';
                 eventBus.sendEvent('ValueChanged', eventData);
-                unbindEvents();
+                gameLostMessage();
             }
         }
     };
@@ -98,9 +130,11 @@ function AddonQuiz_create() {
     };
 
     var showQuestion = function(q){
-        var $q = $('<div class="question-wrapper"></div>');
+        var $q = presenter.$view.find('.question-wrapper');
         var $title = $('<div class="question-title"></div>');
         var $tips = $('<div class="question-tips"></div>');
+
+        cleanWorkspace();
 
         $title.html(q.Question);
 
@@ -143,7 +177,6 @@ function AddonQuiz_create() {
         } else {
             $q.addClass('without-hint');
         }
-        presenter.$view.append($q);
     };
 
     var makeView = function (view, model, preview) {
