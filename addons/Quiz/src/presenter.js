@@ -10,6 +10,7 @@ function AddonQuiz_create() {
     };
 
     presenter.activeElements = [];
+    presenter.currentQuestion = 0;
 
 
     presenter.createAllOKEventData = function () {
@@ -48,10 +49,20 @@ function AddonQuiz_create() {
                 e.stopPropagation();
                 e.preventDefault();
             }
+            var eventData = {
+                'source': presenter.addonID,
+                'item': presenter.currentQuestion,
+                'value': '1',
+                'score': '1'
+            };
             if(isCorrect) {
                 $this.addClass('correct');
+                eventBus.sendEvent('ValueChanged', eventData);
             } else {
                 $this.addClass('wrong');
+                eventData['score'] = '0';
+                eventBus.sendEvent('ValueChanged', eventData);
+                unbindEvents();
             }
         }
     };
@@ -60,6 +71,13 @@ function AddonQuiz_create() {
         for (var i=0; i<presenter.activeElements.length; i++) {
             var $el = presenter.activeElements[i];
             $el.click($el.clickAction);
+        }
+    };
+
+    var unbindEvents = function () {
+        for (var i=0; i<presenter.activeElements.length; i++) {
+            var $el = presenter.activeElements[i];
+            $el.click(function () {console.log("Locked")});
         }
     };
 
@@ -132,6 +150,7 @@ function AddonQuiz_create() {
         presenter.$view = $(view);
         presenter.config = getConfig(model);
         showQuestion(presenter.config.questions[0]);
+        presenter.currentQuestion = 1;
 
         if (!preview){
             bindEvents();
