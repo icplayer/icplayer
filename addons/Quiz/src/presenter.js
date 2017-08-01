@@ -13,6 +13,7 @@ function AddonQuiz_create() {
     presenter.currentQuestion = 0;
     presenter.answersOrder = false;
     presenter.wasWrong = false;
+    presenter.fiftyFiftyUsed = false;
 
     presenter.isShowAnswersActive = false;
     presenter.isVisible = true;
@@ -125,7 +126,30 @@ function AddonQuiz_create() {
             e.stopPropagation();
             e.preventDefault();
         }
-        console.log("FiftyFifty");
+        if (!presenter.fiftyFiftyUsed) {
+            // clue:
+            presenter.fiftyFiftyUsed = true;
+            unbindEvents();
+            var removedItems = 0,
+                i = -1;
+            while (removedItems < 2) {
+                i++;
+                if (i == presenter.answersOrder.length){
+                    i = 0;
+                }
+                var item = presenter.answersOrder[i];
+                if (item===0 || item == null){
+                    continue;
+                }
+                var x = Math.round(Math.random());
+                if (x) {
+                    removedItems++;
+                    presenter.answersOrder[i] = null;
+                }
+            }
+            showQuestion(presenter.config.questions[presenter.currentQuestion-1]);
+            bindEvents();
+        }
     };
 
     var hintAction = function (e) {
@@ -167,7 +191,7 @@ function AddonQuiz_create() {
 
         for (var i=0; i<answers.length; i++) {
             var $tip = $('<div class="question-tip"></div>');
-            var answer = answers[i];
+            var answer = answers[i] || '';
             var label = labels[i];
             $tip.text(label + answer);
             $tips.append($tip);
@@ -191,6 +215,9 @@ function AddonQuiz_create() {
             $q.append($buttons);
             $q.append($hint);
             $q.addClass('with-hint');
+            if (presenter.fiftyFiftyUsed) {
+                $fiftyFifty.addClass('used');
+            }
         } else {
             $q.addClass('without-hint');
         }
@@ -247,6 +274,7 @@ function AddonQuiz_create() {
             answersOrder: presenter.answersOrder,
             isVisible: presenter.isVisible,
             wasWrong: presenter.wasWrong,
+            fiftyFiftyUsed: presenter.fiftyFiftyUsed,
         });
     };
 
@@ -258,6 +286,7 @@ function AddonQuiz_create() {
         presenter.currentQuestion = state.currentQuestion;
         presenter.answersOrder = state.answersOrder;
         presenter.wasWrong = state.wasWrong;
+        presenter.fiftyFiftyUsed = state.fiftyFiftyUsed;
         cleanWorkspace();
         if (presenter.wasWrong){
             gameLostMessage();

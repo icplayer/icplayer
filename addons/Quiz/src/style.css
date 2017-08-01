@@ -34,6 +34,11 @@
     width: 20%;
 }
 
+.question-wrapper.with-hint .question-hint-buttons .used {
+    opacity: 0.5;
+    cursor: default;
+}
+
 .question-wrapper.without-hint .question-tips {
     height: 34%;
 }
