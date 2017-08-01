@@ -39,6 +39,10 @@
     cursor: default;
 }
 
+.question-wrapper .removed {
+    opacity: 0.5;
+}
+
 .question-wrapper.without-hint .question-tips {
     height: 34%;
 }

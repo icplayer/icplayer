@@ -184,16 +184,23 @@ function AddonQuiz_create() {
         var answers = [0, 1, 2, 3];
         for (var i=0; i<4; i++){
             var index = presenter.answersOrder[i];
-            answers[i] = tempAnswers[index];
+            if (index === null){
+                answers[i] = null;
+            } else {
+                answers[i] = tempAnswers[index];
+            }
         }
 
         var labels = ['A: ', 'B: ', 'C: ', 'D: '];
 
         for (var i=0; i<answers.length; i++) {
             var $tip = $('<div class="question-tip"></div>');
-            var answer = answers[i] || '';
+            var answer = answers[i];
             var label = labels[i];
-            $tip.text(label + answer);
+            $tip.text(label + (answer || ''));
+            if (answer === null){
+                $tip.addClass('removed');
+            }
             $tips.append($tip);
             $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
             presenter.activeElements.push($tip);
