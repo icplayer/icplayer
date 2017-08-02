@@ -13,6 +13,7 @@ function AddonQuiz_create() {
     presenter.currentQuestion = 0;
     presenter.answersOrder = false;
     presenter.wasWrong = false;
+    presenter.haveWon = false;
     presenter.fiftyFiftyUsed = false;
     presenter.hintUsed = null;
 
@@ -90,6 +91,7 @@ function AddonQuiz_create() {
                 $this.addClass('correct');
                 eventBus.sendEvent('ValueChanged', eventData);
                 if (presenter.currentQuestion == presenter.config.questions.length){
+                    presenter.haveWon = true;
                     gameWonMessage();
                     eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
                 } else {
@@ -300,6 +302,7 @@ function AddonQuiz_create() {
             answersOrder: presenter.answersOrder,
             isVisible: presenter.isVisible,
             wasWrong: presenter.wasWrong,
+            haveWon: presenter.haveWon,
             fiftyFiftyUsed: presenter.fiftyFiftyUsed,
             hintUsed: presenter.hintUsed,
         });
@@ -313,11 +316,14 @@ function AddonQuiz_create() {
         presenter.currentQuestion = state.currentQuestion;
         presenter.answersOrder = state.answersOrder;
         presenter.wasWrong = state.wasWrong;
+        presenter.haveWon = state.haveWon;
         presenter.fiftyFiftyUsed = state.fiftyFiftyUsed;
         presenter.hintUsed = state.hintUsed;
         cleanWorkspace();
         if (presenter.wasWrong){
             gameLostMessage();
+        } else if (presenter.haveWon){
+            gameWonMessage();
         } else {
             showQuestion(getCurrentQuestion());
             bindEvents();
@@ -412,7 +418,11 @@ function AddonQuiz_create() {
     }
 
     function getScore() {
-        return presenter.currentQuestion;
+        if (presenter.haveWon) {
+            return presenter.currentQuestion;
+        } else {
+            return presenter.currentQuestion -1;
+        }
     }
 
     presenter.executeCommand = function (name, params) {
