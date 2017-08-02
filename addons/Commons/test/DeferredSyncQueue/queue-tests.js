@@ -7,7 +7,7 @@ TestCase("[Commons - WaitingDecorator] Queue tests", {
         var stub1 = sinon.spy();
         var self1 = sinon.spy();
         var args1= ["a", "b", "c"];
-        this.waitingDecorator.pushToQueue(self1, stub1, args1);
+        this.waitingDecorator.push(self1, stub1, args1);
 
         assertEquals(1, this.waitingDecorator.queue.length);
         assertEquals(self1, this.waitingDecorator.queue[0].self);
@@ -17,7 +17,7 @@ TestCase("[Commons - WaitingDecorator] Queue tests", {
         var stub2 = sinon.spy();
         var self2 = sinon.spy();
         var args2 = [1, 3, "s"];
-        this.waitingDecorator.pushToQueue(self2, stub2, args2);
+        this.waitingDecorator.push(self2, stub2, args2);
 
         assertEquals(2, this.waitingDecorator.queue.length);
         assertEquals(self2, this.waitingDecorator.queue[1].self);
@@ -29,12 +29,12 @@ TestCase("[Commons - WaitingDecorator] Queue tests", {
         var stub1 = sinon.spy();
         var self1 = sinon.spy();
         var args1= ["a", "b", "c"];
-        this.waitingDecorator.pushToQueue(self1, stub1, args1);
+        this.waitingDecorator.push(self1, stub1, args1);
 
         var stub2 = sinon.spy();
         var self2 = sinon.spy();
         var args2 = [1, 3, "s"];
-        this.waitingDecorator.pushToQueue(self2, stub2, args2);
+        this.waitingDecorator.push(self2, stub2, args2);
 
         this.waitingDecorator.resolve();
 
