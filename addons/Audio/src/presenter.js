@@ -35,7 +35,21 @@ function AddonAudio_create(){
     };
 
     presenter.upgradeModel = function AddonAudio_upgradeModel (model) {
-        return presenter.upgradeEnableLoop(model);
+        var upgradedModel = presenter.upgradeEnableLoop(model);
+        upgradedModel = presenter.upgradeForceLoadAudio(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeForceLoadAudio = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["forceLoadAudio"]) {
+            upgradedModel["forceLoadAudio"] = "False";
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeEnableLoop = function AddonAudio_upgradeEnableLoop (model) {

@@ -25,3 +25,31 @@ UpgradeModelTests.prototype.testUpgradeEnableLoop = function() {
     assertEquals(this.modelWithLoop, upgradedModel);
     assertNotEquals(this.model, upgradedModel); // Ensure that changes were made on copy
 };
+
+UpgradeModelTests.prototype.testUpgradeForceLoadAudioShouldSetForceLoadAudioToFalse = function () {
+    var upgradedModel = this.presenter.upgradeForceLoadAudio(this.model);
+    assertEquals("False", upgradedModel["forceLoadAudio"]);
+};
+
+UpgradeModelTests.prototype.testUpgradeModelShouldCallAllUpgradeModelFunctions = function () {
+    var upgradeEnableLoopFunction = sinon.mock();
+    var upgradeForceLoadAudioFunction = sinon.mock();
+
+    upgradeEnableLoopFunction.returns("A");
+    upgradeForceLoadAudioFunction.returns("B");
+
+
+    this.presenter.upgradeForceLoadAudio = upgradeForceLoadAudioFunction;
+    this.presenter.upgradeEnableLoop = upgradeEnableLoopFunction;
+
+    var result = this.presenter.upgradeModel(this.model);
+
+    assertEquals("B", result);
+
+    assertTrue(upgradeEnableLoopFunction.calledOnce);
+    assertTrue(upgradeForceLoadAudioFunction.calledOnce);
+
+    assertTrue(upgradeEnableLoopFunction.calledWith(this.model));
+    assertTrue(upgradeForceLoadAudioFunction.calledWith("A"));
+
+};
