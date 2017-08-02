@@ -10,4 +10,7 @@ public interface IAsset {
 	public void setTitle(String title);
 	public void setFileName(String name);
 	public void setContentType(String type);
+	
+	public void setOrderNumber(int number);
+	public int getOrderNumber();
 }

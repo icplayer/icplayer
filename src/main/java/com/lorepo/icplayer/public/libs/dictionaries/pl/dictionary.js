@@ -1488,5 +1488,7 @@ var ice_dictionary_pl = {
 	"IFrame_property_index_file": "Plik indeksowy",
 	"IFrame_property_communication_id": "ID komunikacyjne",
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
-	"Text_use_escape_character_in_gap_property": "Use using escape character in gap"
+	"Text_use_escape_character_in_gap_property": "Use using escape character in gap",
+	"date": "Date",
+	"sort_by": "Sort by:"
 };

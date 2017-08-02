@@ -18,6 +18,7 @@ public class BasicAsset implements IAsset{
 	private String title = "";
 	private String fileName = "";
 	private String contentType = "";
+	private int OrderNumber;
 	
 	
 	public BasicAsset(String type, String url){
@@ -78,6 +79,18 @@ public class BasicAsset implements IAsset{
 	@Override
 	public void setContentType(String type) {
 		this.contentType = type;
+	}
+
+
+	@Override
+	public void setOrderNumber(int number) {
+		this.OrderNumber = number;
+	}
+
+
+	@Override
+	public int getOrderNumber() {
+		return this.OrderNumber;
 	}
 
 }
