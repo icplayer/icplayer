@@ -34,7 +34,7 @@ TestCase("Show and hide methods", {
 
         this.presenter.show();
 
-        assertEquals(1, this.presenter.getDeferredSyncQueue().queue.length);
+        assertEquals(1, this.presenter._internal.deferredSyncQueue.queue.length);
         assertFalse(this.stubs.setVisibility.called);
 
         assertFalse(this.presenter.configuration.isVisible);
@@ -57,7 +57,7 @@ TestCase("Show and hide methods", {
 
         this.presenter.hide();
 
-        assertEquals(1, this.presenter.getDeferredSyncQueue().queue.length);
+        assertEquals(1, this.presenter._internal.deferredSyncQueue.queue.length);
         assertFalse(this.stubs.setVisibility.called);
 
         assertTrue(this.presenter.configuration.isVisible);

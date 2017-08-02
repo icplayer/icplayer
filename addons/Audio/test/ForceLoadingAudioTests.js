@@ -30,7 +30,7 @@ TestCase('[Audio] ForceLoadingAudio', {
         assertTrue(this.presenter.loadAudioDataFromRequest.calledOnce);
     },
 
-    'test loadAudioDataFromRequest should check event status, set new src, set audio is loaded': function () {
+    'test loadAudioDataFromRequest should set addon state': function () {
         this.URLMock.returns("some_url");
 
         this.presenter.configuration = {

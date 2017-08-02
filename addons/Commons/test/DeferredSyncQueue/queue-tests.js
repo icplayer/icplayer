@@ -47,8 +47,5 @@ TestCase("[Commons - WaitingDecorator] Queue tests", {
         assertTrue(stub2.calledOnce);
 
         assertEquals(0, this.waitingDecorator.queue.length)
-
-
     }
-
 });

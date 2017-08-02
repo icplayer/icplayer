@@ -599,6 +599,8 @@ function AddonAudio_create(){
         presenter.$view.unbind();
         presenter.$view = null;
         presenter.view = null;
+
+        deferredSyncQueue = null;
     };
 
     presenter.validateModel = function AddonAudio_validateModel (model) {

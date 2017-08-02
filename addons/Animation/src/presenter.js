@@ -782,8 +782,8 @@ function AddonAnimation_create (){
         return indexes;
     };
 
-    presenter.getDeferredSyncQueue = function () {
-        return deferredSyncQueue;
+    presenter._internal = {
+        deferredSyncQueue: deferredSyncQueue
     };
 
     function showLabelsForFrame(frame) {
