@@ -1,4 +1,4 @@
-var AsyncSendEventsTests = TestCase('[Audio] CallingCommands', {
+TestCase('[Audio] CallingCommands', {
     setUp: function () {
         this.presenter = AddonAudio_create();
 
