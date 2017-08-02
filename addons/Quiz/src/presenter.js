@@ -14,6 +14,7 @@ function AddonQuiz_create() {
     presenter.answersOrder = false;
     presenter.wasWrong = false;
     presenter.fiftyFiftyUsed = false;
+    presenter.hintUsed = null;
 
     presenter.isShowAnswersActive = false;
     presenter.isVisible = true;
@@ -93,9 +94,9 @@ function AddonQuiz_create() {
                     eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
                 } else {
                     presenter.answersOrder = false;
-                    showQuestion(presenter.config.questions[presenter.currentQuestion]);
-                    bindEvents();
                     presenter.currentQuestion++;
+                    showQuestion(getCurrentQuestion());
+                    bindEvents();
                 }
             } else {
                 $this.addClass('wrong');
@@ -120,6 +121,10 @@ function AddonQuiz_create() {
             $el.click(function () {console.log("Locked")});
         }
     };
+
+    function getCurrentQuestion(){
+        return presenter.config.questions[presenter.currentQuestion-1];
+    }
 
     var fiftyFiftyAction = function (e) {
         if (e) {
@@ -147,17 +152,25 @@ function AddonQuiz_create() {
                     presenter.answersOrder[i] = null;
                 }
             }
-            showQuestion(presenter.config.questions[presenter.currentQuestion-1]);
+            showQuestion(getCurrentQuestion());
             bindEvents();
         }
     };
+
+    function showHint(){
+        presenter.$view.find('.question-hint').html(getCurrentQuestion().Hint);
+        presenter.$view.find('.hint-button').addClass('used');
+    }
 
     var hintAction = function (e) {
         if (e) {
             e.stopPropagation();
             e.preventDefault();
         }
-        console.log("Hint");
+        if (presenter.hintUsed === null) {
+            presenter.hintUsed = presenter.currentQuestion;
+            showHint();
+        }
     };
 
     var showQuestion = function(q){
@@ -225,6 +238,12 @@ function AddonQuiz_create() {
             if (presenter.fiftyFiftyUsed) {
                 $fiftyFifty.addClass('used');
             }
+            if (presenter.hintUsed) {
+                $hintButton.addClass('used');
+                if (presenter.hintUsed == presenter.currentQuestion){
+                    showHint();
+                }
+            }
         } else {
             $q.addClass('without-hint');
         }
@@ -282,6 +301,7 @@ function AddonQuiz_create() {
             isVisible: presenter.isVisible,
             wasWrong: presenter.wasWrong,
             fiftyFiftyUsed: presenter.fiftyFiftyUsed,
+            hintUsed: presenter.hintUsed,
         });
     };
 
@@ -294,11 +314,12 @@ function AddonQuiz_create() {
         presenter.answersOrder = state.answersOrder;
         presenter.wasWrong = state.wasWrong;
         presenter.fiftyFiftyUsed = state.fiftyFiftyUsed;
+        presenter.hintUsed = state.hintUsed;
         cleanWorkspace();
         if (presenter.wasWrong){
             gameLostMessage();
         } else {
-            showQuestion(presenter.config.questions[presenter.currentQuestion - 1]);
+            showQuestion(getCurrentQuestion());
             bindEvents();
         }
         presenter.setVisibility(state.isVisible);
