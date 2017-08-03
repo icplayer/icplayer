@@ -381,36 +381,21 @@ function AddonQuiz_create() {
 
     presenter.getErrorCount = function () {
         if (!presenter.config.isActivity) return 0;
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
         return getErrorCount();
     };
 
     presenter.getMaxScore = function () {
         if (!presenter.config.isActivity) return 0;
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
         return getMaxScore();
     };
 
     presenter.getScore = function () {
         if (!presenter.config.isActivity) return 0;
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
         return getScore();
     };
 
     function getErrorCount() {
-        return presenter.wasWrong ? 1:0;
+        return presenter.wasWrong ? 1 : 0;
     }
 
     function getMaxScore() {
@@ -421,7 +406,7 @@ function AddonQuiz_create() {
         if (presenter.haveWon) {
             return presenter.currentQuestion;
         } else {
-            return presenter.currentQuestion -1;
+            return presenter.currentQuestion - 1;
         }
     }
 
