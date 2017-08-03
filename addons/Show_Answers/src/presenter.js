@@ -4,8 +4,6 @@ function AddonShow_Answers_create(){
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.HOVER_CLASSES = ["ShowAnswers-up", "ShowAnswers-up-hover", "ShowAnswers-down-hover", "ShowAnswers-down"];
-    presenter.timerID = 0;
-    presenter.classStage = 0;
     presenter.lastIsHover = false;
 
     presenter.EVENTS = {
@@ -102,34 +100,13 @@ function AddonShow_Answers_create(){
         });
     };
 
-    presenter.simulateHoverTimeoutFunction = function () {
-        presenter.$wrapper.removeClass(presenter.HOVER_CLASSES.join(" "));
-        presenter.$wrapper.addClass(presenter.HOVER_CLASSES[presenter.classStage]);
-        if (presenter.configuration.isSelected) {
-            presenter.classStage += 1;
-        } else {
-            presenter.classStage -= 1;
-        }
-
-        if (presenter.classStage >= 0 && presenter.classStage < 3) {
-            presenter.timeoutID = setTimeout(presenter.simulateHoverTimeoutFunction, 200);
-        }
-    };
-
     presenter.simulateHoverClasses = function () {
-        clearTimeout(presenter.timeoutID);
-
-        presenter.timeoutID = setTimeout(presenter.simulateHoverTimeoutFunction, 200);
-
+        presenter.$wrapper.removeClass(presenter.HOVER_CLASSES.join(" "));
+        var classId = 0;
         if (presenter.configuration.isSelected) {
-            presenter.classStage = 0;
-        } else {
-            presenter.classStage = 3;
+            classId = 3;
         }
-
-        presenter.simulateHoverTimeoutFunction();
-
-
+        presenter.$wrapper.addClass(presenter.HOVER_CLASSES[classId]);
     };
 
     presenter.setHovering = function (isHover) {

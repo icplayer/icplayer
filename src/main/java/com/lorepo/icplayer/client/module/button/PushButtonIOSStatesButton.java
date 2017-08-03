@@ -11,66 +11,36 @@ public class PushButtonIOSStatesButton extends PushButton{
 	private int classStage = 0;
 	
 	public PushButtonIOSStatesButton () {
-		final PushButtonIOSStatesButton button = this;
-		
-		addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				if (isiOS()) {
-					onClickIOSClass(button, getElement());
-				}
-			}
-		});
+		if (isiOS()) {
+			this.setListenerForChangingStyles(this, this.getElement());
+		}
 	}
 	
 	public static native boolean isiOS() /*-{
 	  return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
 	}-*/;
 	
-	private native void onClickIOSClass (PushButtonIOSStatesButton x, JavaScriptObject domElement) /*-{
-		var POSTFIX_CLASS_LIST = ["-up", "-up-hovering", "-down-hovering", "-up"];
-		var classes = [];
-		
-		function actualizeClassNames () {
-			var className = x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::getStyleName()().split(" ")[0];
-			classes = [];
-			
-			for (var i = 0; i < POSTFIX_CLASS_LIST.length; i++) {
-				classes.push(className + POSTFIX_CLASS_LIST[i]);
+	private native void setListenerForChangingStyles (PushButtonIOSStatesButton x, JavaScriptObject buttonElement) /*-{
+		var $element = $wnd.$(buttonElement);
+		var buttonClassName = x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::getStyleName()().split(" ")[0];
+		var POST_FIX_CLASS_LIST = ["-up-hovering", "-down-hovering"];
+		var mutationObserver = new MutationObserver(function (mutations) {
+			for (var i = 0; i < POST_FIX_CLASS_LIST.length; i++) {
+				var elementClassList = buttonElement.classList;
+				var className = buttonClassName + POST_FIX_CLASS_LIST[i];
+				
+				for (var j = 0; j < elementClassList.length; j++) {
+					if (elementClassList[j].indexOf(POST_FIX_CLASS_LIST[i]) >= 0) {
+						console.log("Removing class: ", elementClassList[j]);
+						$element.removeClass(elementClassList[j]);
+					}
+				}
 			}
-			
-		}
+		});
 		
-		actualizeClassNames();
-		
-		var element = $wnd.$(domElement);
-		
-		var timer = x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::timerID;
-		if (timer !== 0) {
-			clearTimeout(timer);
-		}
-		
-		x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::classStage = 0;
-		
-		function changeElementStyleToStage(stage) {
-			element.removeClass(classes.join(" "));
-			actualizeClassNames();
-			element.removeClass(classes.join(" "));
-			
-			element.addClass(classes[stage]);			
-		}
-		
-		function timerCallback () {
-			var stage = parseInt(x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::classStage, 10);
-			changeElementStyleToStage(stage + 1);
-			x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::classStage = stage + 1;
-			if (stage < 2) {
-				x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::timerID = setTimeout(timerCallback, 200);
-			}
-		}
-		
-		changeElementStyleToStage(0);
-		x.@com.lorepo.icplayer.client.module.button.PushButtonIOSStatesButton::timerID = setTimeout(timerCallback, 200);
+		mutationObserver.observe(buttonElement, {
+			attributes: true
+		});
 	}-*/;
 
 }
