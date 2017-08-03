@@ -10,12 +10,15 @@ function AddonQuiz_create() {
     };
 
     presenter.activeElements = [];
-    presenter.currentQuestion = 0;
-    presenter.answersOrder = false;
-    presenter.wasWrong = false;
-    presenter.haveWon = false;
-    presenter.fiftyFiftyUsed = false;
-    presenter.hintUsed = null;
+
+    function setupDefaults() {
+        presenter.currentQuestion = 1;
+        presenter.answersOrder = false;
+        presenter.wasWrong = false;
+        presenter.haveWon = false;
+        presenter.fiftyFiftyUsed = false;
+        presenter.hintUsed = null;
+    }
 
     presenter.isShowAnswersActive = false;
     presenter.isVisible = true;
@@ -36,7 +39,8 @@ function AddonQuiz_create() {
             helpButtons: ModelValidationUtils.validateBoolean(model['ShowHelpButtons']),
             gameLostMessage: model['GameLostMessage'],
             gameWonMessage: model['GameWonMessage'],
-            isActivity: ModelValidationUtils.validateBoolean(model['isActivity'])
+            isActivity: ModelValidationUtils.validateBoolean(model['isActivity']),
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible'])
         }
     };
 
@@ -97,7 +101,7 @@ function AddonQuiz_create() {
                 } else {
                     presenter.answersOrder = false;
                     presenter.currentQuestion++;
-                    showQuestion(getCurrentQuestion());
+                    showCurrentQuestion();
                     bindEvents();
                 }
             } else {
@@ -154,7 +158,7 @@ function AddonQuiz_create() {
                     presenter.answersOrder[i] = null;
                 }
             }
-            showQuestion(getCurrentQuestion());
+            showCurrentQuestion();
             bindEvents();
         }
     };
@@ -251,16 +255,20 @@ function AddonQuiz_create() {
         }
     };
 
-    var makeView = function (view, model, preview) {
+    function makeView(view, model, preview) {
+        setupDefaults();
         presenter.$view = $(view);
         presenter.config = getConfig(model);
-        showQuestion(presenter.config.questions[0]);
-        presenter.currentQuestion = 1;
+        showCurrentQuestion();
 
         if (!preview){
             bindEvents();
         }
     };
+
+    function showCurrentQuestion() {
+        showQuestion(getCurrentQuestion());
+    }
 
     presenter.setPlayerController = function (controller) {
         playerController = controller;
@@ -325,7 +333,7 @@ function AddonQuiz_create() {
         } else if (presenter.haveWon){
             gameWonMessage();
         } else {
-            showQuestion(getCurrentQuestion());
+            showCurrentQuestion();
             bindEvents();
         }
         presenter.setVisibility(state.isVisible);
@@ -371,12 +379,11 @@ function AddonQuiz_create() {
         presenter.isErrorMode = false;
         presenter.isShowAnswersActive = false;
 
-        if (presenter.currentState) {
-            delete presenter.currentState;
-        }
+        setupDefaults();
 
-        workMode();
-        presenter.setVisibility(presenter.isVisibleByDefault);
+        showCurrentQuestion();
+        bindEvents();
+        presenter.setVisibility(presenter.config.isVisible);
     };
 
     presenter.getErrorCount = function () {
