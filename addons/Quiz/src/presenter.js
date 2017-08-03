@@ -6,8 +6,19 @@ function AddonQuiz_create() {
     var eventBus; // Modules communication
 
     var ERRORS = {
-        'QUESTION_AND_CHOICES_REQUIRED': "At least 1 question and 2 choices are required."
+        'QUESTION_REQUIRED': "At least 1 question is required.",
+        'EMPTY_QUESTION': "At least one question is not specified",
+        'MISSING_CORRECT_ANSWER': "At least one question doesn't have specified correct answer",
+        'MISSING_WRONG_ANSWER': "At least one question doesn't have specified wrong answer",
+        'MISSING_HINT': "At least one question doesn't have specified hint",
     };
+
+    function ConfigurationError(label) {
+        return {
+            name: 'ConfigurationError',
+            message: ERRORS[label] || label
+        }
+    }
 
     presenter.activeElements = [];
 
@@ -34,11 +45,37 @@ function AddonQuiz_create() {
         };
     };
 
-    var getConfig = function (model) {
+    function validateQuestions(questions, helpButtons){
+        if (questions.length<1){
+            throw ConfigurationError('QUESTION_REQUIRED');
+        }
+        for (var i=0; i<questions.length; i++){
+            var q = questions[i];
+            if (ModelValidationUtils.isHtmlEmpty(q.Question)){
+                throw ConfigurationError('EMPTY_QUESTION');
+            }
+            if (ModelValidationUtils.isStringEmpty(q.CorrectAnswer)){
+                throw ConfigurationError('MISSING_CORRECT_ANSWER');
+            }
+            if (ModelValidationUtils.isStringEmpty(q.WrongAnswer1) ||
+                ModelValidationUtils.isStringEmpty(q.WrongAnswer2) ||
+                ModelValidationUtils.isStringEmpty(q.WrongAnswer3)
+            ){
+                throw ConfigurationError('MISSING_WRONG_ANSWER');
+            }
+            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint)) {
+                throw ConfigurationError('MISSING_HINT');
+            }
+        }
+        return questions;
+    }
+
+    function getConfig(model) {
+        var helpButtons = ModelValidationUtils.validateBoolean(model['ShowHelpButtons']);
         return {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            questions: model['Questions'],
-            helpButtons: ModelValidationUtils.validateBoolean(model['ShowHelpButtons']),
+            questions: validateQuestions(model['Questions'], helpButtons),
+            helpButtons: helpButtons,
             gameLostMessage: model['GameLostMessage'],
             gameWonMessage: model['GameWonMessage'],
             isActivity: ModelValidationUtils.validateBoolean(model['isActivity']),
@@ -263,8 +300,15 @@ function AddonQuiz_create() {
     function makeView(view, model, preview) {
         setupDefaults();
         presenter.$view = $(view);
-        presenter.config = getConfig(model);
-        showCurrentQuestion();
+        try {
+            presenter.config = getConfig(model);
+            showCurrentQuestion();
+        } catch (error){
+            var $error = $('<div class="quiz-error-layer"></div>');
+            var text = "<strong>" + error.name + "</strong>: " + error.message;
+            $error.html(text);
+            presenter.$view.find('.question-wrapper').append($error);
+        }
 
         if (!preview){
             bindEvents();
