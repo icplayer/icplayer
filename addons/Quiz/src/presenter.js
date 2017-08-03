@@ -18,9 +18,11 @@ function AddonQuiz_create() {
         presenter.haveWon = false;
         presenter.fiftyFiftyUsed = false;
         presenter.hintUsed = null;
+        // addon's states
+        presenter.isErrorMode = false;
+        presenter.isShowAnswersActive = false;
     }
 
-    presenter.isShowAnswersActive = false;
     presenter.isVisible = true;
 
     presenter.createAllOKEventData = function () {
@@ -340,7 +342,7 @@ function AddonQuiz_create() {
     };
 
     presenter.setShowErrorsMode = function () {
-        if (isNotActivity) {
+        if (!presenter.config.isActivity || presenter.isErrorMode) {
             return;
         }
 
@@ -354,7 +356,7 @@ function AddonQuiz_create() {
     };
 
     presenter.setWorkMode = function () {
-        if (isNotActivity) {
+        if (!presenter.config.isActivity || !presenter.isErrorMode) {
             return;
         }
 
@@ -364,23 +366,20 @@ function AddonQuiz_create() {
             presenter.hideAnswers();
         }
 
-        workMode(false);
+        workMode();
     };
 
     function showErrorsMode(){
-        // todo: implement
+        presenter.disable();
     };
 
     function workMode(){
-        // todo: implement
+        presenter.enable();
     };
 
     presenter.reset = function () {
-        presenter.isErrorMode = false;
-        presenter.isShowAnswersActive = false;
-
+        presenter.setWorkMode();
         setupDefaults();
-
         showCurrentQuestion();
         bindEvents();
         presenter.setVisibility(presenter.config.isVisible);
