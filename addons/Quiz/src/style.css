@@ -95,3 +95,8 @@
 .question-wrapper.disabled .question-tips .question-tip {
     cursor: not-allowed;
 }
+
+.question-wrapper .question-tips .question-tip.correct-answer {
+    background-color: #99FF55;
+}
+

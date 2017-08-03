@@ -181,7 +181,7 @@ function AddonQuiz_create() {
         }
     };
 
-    var showQuestion = function(q){
+    function showQuestion(q, showAnswer){
         var $q = presenter.$view.find('.question-wrapper');
         var $title = $('<div class="question-title"></div>');
         var $tips = $('<div class="question-tips"></div>');
@@ -221,6 +221,9 @@ function AddonQuiz_create() {
             $tip.text(label + (answer || ''));
             if (answer === null){
                 $tip.addClass('removed');
+            }
+            if (showAnswer && answer==q.CorrectAnswer) {
+                $tip.addClass('correct-answer');
             }
             $tips.append($tip);
             $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
@@ -269,7 +272,7 @@ function AddonQuiz_create() {
     };
 
     function showCurrentQuestion() {
-        showQuestion(getCurrentQuestion());
+        showQuestion(getCurrentQuestion(), false);
     }
 
     presenter.setPlayerController = function (controller) {
@@ -463,29 +466,29 @@ function AddonQuiz_create() {
     };
 
     presenter.showAnswers = function () {
-        if (isNotActivity) {
+        if (!presenter.config.isActivity) {
             return;
         }
         presenter.isShowAnswersActive = true;
-        presenter.currentState = getSelectedElements();
-        // todo: show answers
+        showAnswers();
     };
 
     presenter.hideAnswers = function () {
-        if (isNotActivity) {
+        if (!presenter.config.isActivity) {
             return;
         }
-
-        var state = JSON.stringify({
-            "selectedElements": presenter.currentState,
-            "isVisible": presenter.isVisible
-        });
-
-        presenter.setState(state);
-
-        delete presenter.currentState;
         presenter.isShowAnswersActive = false;
+        hideAnswers();
     };
+
+    function showAnswers() {
+        showQuestion(getCurrentQuestion(), true);
+    }
+
+    function hideAnswers() {
+        showCurrentQuestion();
+        bindEvents();
+    }
 
     return presenter;
 }
