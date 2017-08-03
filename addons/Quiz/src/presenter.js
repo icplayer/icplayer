@@ -114,17 +114,17 @@ function AddonQuiz_create() {
         }
     };
 
-    var bindEvents = function() {
+    function bindEvents() {
         for (var i=0; i<presenter.activeElements.length; i++) {
             var $el = presenter.activeElements[i];
-            $el.click($el.clickAction);
+            $el.bind('click', $el.clickAction);
         }
     };
 
-    var unbindEvents = function () {
+    function unbindEvents() {
         for (var i=0; i<presenter.activeElements.length; i++) {
             var $el = presenter.activeElements[i];
-            $el.click(function () {console.log("Locked")});
+            $el.unbind('click', $el.clickAction);
         }
     };
 
@@ -424,9 +424,11 @@ function AddonQuiz_create() {
 
         var commands = {
             'isAllOK': presenter.isAllOK,
-            'isAttempted' : presenter.isAttemptedCommand,
+            'isAttempted' : presenter.isAttempted,
             'show': presenter.show,
             'hide': presenter.hide,
+            'disable': presenter.disable,
+            'enable': presenter.enable,
             'reset' : presenter.reset
         };
 
@@ -438,14 +440,17 @@ function AddonQuiz_create() {
     };
 
     presenter.isAttempted = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        return (presenter.currentQuestion > 1) || presenter.wasWrong;
+        return (presenter.currentQuestion > 1) || presenter.wasWrong || presenter.haveWon;
     };
 
-    presenter.isAttemptedCommand = function () {
-         return presenter.isAttempted();
+    presenter.disable = function () {
+        presenter.$view.find('.question-wrapper').addClass('disabled');
+        unbindEvents();
+    };
+
+    presenter.enable = function () {
+        presenter.$view.find('.question-wrapper').removeClass('disabled');
+        bindEvents();
     };
 
     presenter.onEventReceived = function (eventName) {

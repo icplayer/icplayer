@@ -88,3 +88,10 @@
     text-align: center;
     padding-top: 20%;
 }
+
+.question-wrapper.disabled,
+.question-wrapper.disabled .hint-button,
+.question-wrapper.disabled .fifty-fifty,
+.question-wrapper.disabled .question-tips .question-tip {
+    cursor: not-allowed;
+}
