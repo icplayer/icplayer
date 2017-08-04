@@ -7,6 +7,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEventProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.ITextProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -38,6 +39,7 @@ public class ButtonModule extends BasicModuleModel {
 	private String confirmInfo = "";
 	private String confirmYesInfo = "";
 	private String confirmNoInfo = "";
+	private boolean goToLastPage = false;
 	
 	public ButtonModule() {
 		super("Button", DictionaryWrapper.get("button_module"));
@@ -71,6 +73,7 @@ public class ButtonModule extends BasicModuleModel {
 					confirmInfo = childElement.getAttribute("confirmInfo");
 					confirmYesInfo = childElement.getAttribute("confirmYesInfo");
 					confirmNoInfo = childElement.getAttribute("confirmNoInfo");
+					goToLastPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastPage", false);
 				}
 			}
 		}
@@ -108,6 +111,9 @@ public class ButtonModule extends BasicModuleModel {
 			xml += " confirmInfo='" + StringUtils.escapeXML(confirmInfo) + "'";
 			xml += " confirmYesInfo='" + StringUtils.escapeXML(confirmYesInfo) + "'";
 			xml += " confirmNoInfo='" + StringUtils.escapeXML(confirmNoInfo) + "'";
+		}
+		if (type == ButtonType.prevPage){
+			xml += " goToLastPage='" + goToLastPage + "'";
 		}
 		
 		xml += "/></buttonModule>";
@@ -165,8 +171,48 @@ public class ButtonModule extends BasicModuleModel {
 			addPropertyConfirmYesInfo();
 			addPropertyConfirmNoInfo();
 		}
+		else if(type == ButtonType.prevPage){
+			this.addGoToLastPageProperty();
+		}
 	}
 
+	private void addGoToLastPageProperty(){
+		JavaScriptUtils.log("new last page");
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= goToLastPage) {
+					goToLastPage = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return goToLastPage ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("prev_property_go_to_last_visited_page");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("prev_property_go_to_last_visited_page");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}	
+		};
+		
+		this.addProperty(property);
+	}
 
 	private void addPropertyTitle() {
 
@@ -539,6 +585,10 @@ public class ButtonModule extends BasicModuleModel {
 	
 	public boolean getConfirmReset() {
 		return confirmReset;
+	}
+	
+	public boolean getGoToLastPage(){
+		return this.goToLastPage;
 	}
 	
 	private void addPropertyOnClick() {
