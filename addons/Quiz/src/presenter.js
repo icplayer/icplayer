@@ -534,8 +534,15 @@ function AddonQuiz_create() {
     }
 
     function hideAnswers() {
-        showCurrentQuestion();
-        bindEvents();
+        cleanWorkspace();
+        if (presenter.wasWrong){
+            gameLostMessage();
+        } else if (presenter.haveWon){
+            gameWonMessage();
+        } else {
+            showCurrentQuestion();
+            bindEvents();
+        }
     }
 
     return presenter;
