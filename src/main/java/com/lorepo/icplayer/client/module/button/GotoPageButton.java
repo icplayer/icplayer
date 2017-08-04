@@ -9,13 +9,15 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 class GotoPageButton extends PushButton{
 	
 	private IPlayerServices playerServices;
+	private String pageName = "";
+	private String pageIndex = "";
 	
 	private static boolean isNatural(String str) {
 	  return str.matches("(\\d+)?");
 	}
 
 	
-	public GotoPageButton(final String pageName, final String pageIndex, IPlayerServices services) {
+	public GotoPageButton(String pageName, String pageIndex, IPlayerServices services) {
 		this.playerServices = services;
 
 		
@@ -31,50 +33,59 @@ class GotoPageButton extends PushButton{
 			return;
 		}
 		
+		this.pageName = pageName;
+		this.pageIndex = pageIndex;
+		
 		if (services != null) {
-			if (pageName != null && pageName != "" && pageName.startsWith("CM_")) {
+			addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					event.stopPropagation();
+					event.preventDefault();
+					
+					execute();
+				}
+			});
+		}
 				
-				final String commonsPageName = pageName.replaceFirst("CM_", "");
-				final IPlayerCommands playerCommands = services.getCommands();
-				addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-		
-						event.stopPropagation();
-						event.preventDefault();
-						
-						if(commonsPageName != "" && commonsPageName != null) {
-							if(isCommonPageNameCorrect(commonsPageName)) {
-								playerCommands.gotoCommonPage(commonsPageName);
-							}
-						}
-					}
-				});
-			} else {
-				final int pageCount = services.getModel().getPageCount();
-				final int currentPageIndex = services.getCurrentPageIndex()+1;
-				final IPlayerCommands playerCommands = services.getCommands();
 				
-				addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
+
+	}
+	
+	public void execute() {
+		if (this.pageName != null && this.pageName != "" && this.pageName.startsWith("CM_")) {
+			this.gotoCommonPage();
+		} else {
+			this.gotoPage();
+		}
+	}
+	
+	private void gotoCommonPage() {
+		String commonsPageName = this.pageName.replaceFirst("CM_", "");
+		IPlayerCommands playerCommands = this.playerServices.getCommands();
 		
-						event.stopPropagation();
-						event.preventDefault();
-						
-						if(pageName != "" && pageName != null) {
-							if(isPageNameCorrect(pageName)) {
-								playerCommands.gotoPage(pageName);
-							}
-						}
-						
-						if(pageIndex != "" && pageIndex != null) {
-							int index = Integer.parseInt(pageIndex);
-							if(index <= pageCount && index != currentPageIndex){
-								playerCommands.gotoPageIndex(index-1);
-							}
-						}
-					}
-				});
-			}	
+		if(commonsPageName != "" && commonsPageName != null) {
+			if(isCommonPageNameCorrect(commonsPageName)) {
+				playerCommands.gotoCommonPage(commonsPageName);
+			}
+		}
+	}
+	
+	private void gotoPage() {
+		int pageCount = this.playerServices.getModel().getPageCount();
+		int currentPageIndex = this.playerServices.getCurrentPageIndex()+1;
+		IPlayerCommands playerCommands = this.playerServices.getCommands();
+		
+		if(this.pageName != "" && this.pageName != null) {
+			if(isPageNameCorrect(this.pageName)) {
+				playerCommands.gotoPage(this.pageName);
+			}
+		}
+		
+		if(this.pageIndex != "" && this.pageIndex != null) {
+			int index = Integer.parseInt(this.pageIndex);
+			if(index <= pageCount && index != currentPageIndex){
+				playerCommands.gotoPageIndex(index-1);
+			}
 		}
 	}
 	

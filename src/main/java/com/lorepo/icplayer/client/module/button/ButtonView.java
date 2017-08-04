@@ -137,6 +137,8 @@ public class ButtonView extends Composite implements IDisplay {
 			}
 		} else if (module.getType() == ButtonType.reset) {
 			playerServices.getCommands().reset();
+		} else if (module.getType() == ButtonType.gotoPage) {
+			this.execute();
 		}
 	}
 
@@ -145,6 +147,8 @@ public class ButtonView extends Composite implements IDisplay {
 		Widget widget = this.getWidget();
 		if (widget instanceof ResetButton){
 			((ResetButton) widget).execute();
+		} else if (widget instanceof GotoPageButton) {
+			((GotoPageButton) widget).execute();
 		}
 	}
 }
