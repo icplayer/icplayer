@@ -215,6 +215,8 @@ public class PlayerController implements IPlayerController{
 	
 	@Override
 	public void switchToLastVisitedPage(){
+		JavaScriptUtils.log(this.lastVisitedPageType);
+		JavaScriptUtils.log(this.lastVisitedPageIndex);
 		if (this.lastVisitedPageType == LastVisitedPageType.MAIN_PAGE){
 			this.switchToPage(this.lastVisitedPageIndex);
 		} else if (this.lastVisitedPageType == LastVisitedPageType.COMMONS_PAGE){
