@@ -1,3 +1,4 @@
+2017-08-04 Fixed problem with different display of math gaps in editor and player.
 2017-07-31 Fixed problem with eKeyboard open command.
 2017-07-28 Added option for sorting assets in select file window.
 2017-07-26 Fixed problem with empty stroke width property in fractions addon.
