@@ -122,10 +122,37 @@ TestCase("[Hangman] Events triggering is Activity", {
         assertEquals({source: 'Hangman1', item: '2', value: 'B', score: '0'}, this.presenter.sendEventData.getCall(0).args[0]);
         assertEquals({source: 'Hangman1', item: '2', value: 'EOT', score: ''}, this.presenter.sendEventData.getCall(1).args[0]);
     },
+
+    'test user selected incorrect letter when don\'t have trials' : function () {
+        this.presenter.configuration.phrases[1].errorCount = 3;
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);
+
+        assertEquals({source: 'Hangman1', item: '2', value: 'B', score: '0'}, this.presenter.sendEventData.getCall(0).args[0]);
+        assertEquals({source: 'Hangman1', item: '2', value: 'EOG', score: ''}, this.presenter.sendEventData.getCall(1).args[0]);
+    },
     
     'test automatically selected letter' : function() {
         this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], false);
         assertFalse(this.presenter.sendEventData.called);
+    },
+
+    'test event EndOfGame(EOG) should be send': function () {
+        this.presenter.sendEndOfGameEvent();
+
+        assertTrue(this.presenter.sendEventData.calledOnce);
+        assertEquals({source: 'Hangman1', item: '2', value: 'EOG', score: ''}, this.presenter.sendEventData.getCall(0).args[0])
+
+    },
+    'test event EOT should be sent only once on word' : function () {
+        this.presenter.configuration.phrases[1].errorCount = 2;
+        this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);
+
+        assertEquals({source: 'Hangman1', item: '2', value: 'B', score: '0'}, this.presenter.sendEventData.getCall(0).args[0]);
+        assertEquals({source: 'Hangman1', item: '2', value: 'EOT', score: ''}, this.presenter.sendEventData.getCall(1).args[0]);
+
+        this.presenter.onLetterSelectedAction('A', this.presenter.configuration.phrases[1], true);
+        assertEquals({source: 'Hangman1', item: '2', value: 'B', score: '0'}, this.presenter.sendEventData.getCall(0).args[0]);
+        assertEquals(3, this.presenter.sendEventData.callCount);
     }
 });
 
