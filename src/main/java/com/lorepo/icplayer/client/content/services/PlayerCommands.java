@@ -141,4 +141,9 @@ public class PlayerCommands implements IPlayerCommands {
 	public int getIframeScroll() {
 		return controller.getIframeScroll();
 	}
+
+	@Override
+	public void goToLastVisitedPage() {
+		controller.switchToLastVisitedPage();	
+	}
 }

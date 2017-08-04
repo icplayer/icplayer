@@ -66,4 +66,6 @@ public interface IPlayerController {
 	void fireOutstretchHeightEvent();
 
 	int getIframeScroll();
+	
+	void switchToLastVisitedPage();
 }

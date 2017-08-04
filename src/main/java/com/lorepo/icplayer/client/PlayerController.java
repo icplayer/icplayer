@@ -39,6 +39,11 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
 
+	enum LastVisitedPageType {
+		MAIN_PAGE,
+		COMMONS_PAGE
+	}
+	
 	private final	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
@@ -61,6 +66,9 @@ public class PlayerController implements IPlayerController{
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
+	private int lastVisitedPageIndex = 0;
+	private LastVisitedPageType lastVisitedPageType = LastVisitedPageType.MAIN_PAGE;
+	
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		this.entryPoint = entryPoint;
@@ -193,13 +201,30 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
-
+	
+	@Override
+	public void switchToLastVisitedPage(){
+		if (this.lastVisitedPageType == LastVisitedPageType.MAIN_PAGE){
+			this.switchToPage(this.lastVisitedPageIndex);
+		} else if (this.lastVisitedPageType == LastVisitedPageType.COMMONS_PAGE){
+			this.switchToCommonPage(this.lastVisitedPageIndex);
+		}
+	}
+	
+	private LastVisitedPageType getCurrentPageType(){
+		PageList pages = this.contentModel.getPages();
+		for(int i = 0; i < pages.getTotalPageCount(); i++){
+			if (pages.getAllPages().get(i) == this.pageController1.getPage()){
+				return LastVisitedPageType.MAIN_PAGE;
+			}
+		}
+		return LastVisitedPageType.COMMONS_PAGE;
+	}
 
 	@Override
 	public void switchToNextPage() {
-
 		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
+		for (int i = 0; i < pages.getTotalPageCount(); i++){
 			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
 				int index = i + 1;
 				if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
@@ -213,13 +238,15 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
-
 	/**
 	 * Switch to page at given index
 	 * @param index
 	 */
 	@Override
 	public void switchToPage(int index){
+		this.lastVisitedPageIndex = this.getCurrentPageIndex();
+		this.lastVisitedPageType = this.getCurrentPageType();
+		
 		this.closeCurrentPages();
 		IPage page;
 		if(this.pageController2 != null){
@@ -251,7 +278,9 @@ public class PlayerController implements IPlayerController{
 	}
 
 	public void switchToCommonPage(int index) {
-
+		this.lastVisitedPageIndex = this.getCurrentPageIndex();
+		this.lastVisitedPageType = this.getCurrentPageType();
+		
 		this.closeCurrentPages();
 		IPage page;
 		if (this.pageController2 != null) {

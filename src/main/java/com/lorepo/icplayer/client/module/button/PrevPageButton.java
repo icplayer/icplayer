@@ -23,7 +23,8 @@ class PrevPageButton extends PushButton{
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
 					event.preventDefault();
-					playerCommands.prevPage();
+					//playerCommands.prevPage();
+					playerCommands.goToLastVisitedPage();
 				}
 			});
 		}

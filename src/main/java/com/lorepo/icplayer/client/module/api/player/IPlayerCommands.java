@@ -35,4 +35,6 @@ public interface IPlayerCommands {
 			String additionalClasses);
 	void updateCurrentPageScoreWithMistakes(int mistakes);
 	int getIframeScroll();
+	
+	void goToLastVisitedPage();
 }
