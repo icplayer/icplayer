@@ -258,12 +258,15 @@ function AddonQuiz_create() {
             $tip.text(label + (answer || ''));
             if (answer === null){
                 $tip.addClass('removed');
+                $tip.clickAction = function () {};
+            } else {
+                $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
             }
+
             if (showAnswer && answer==q.CorrectAnswer) {
                 $tip.addClass('correct-answer');
             }
             $tips.append($tip);
-            $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
             presenter.activeElements.push($tip);
         }
 
