@@ -351,8 +351,8 @@ function AddonQuiz_create() {
     };
 
     presenter.getState = function AddonQuiz_getState() {
-        if (presenter.isShowAnswersActive) {
-            return presenter.currentState;
+        if ("{}" === JSON.stringify(presenter.config)){
+            return "";
         }
 
         return JSON.stringify({

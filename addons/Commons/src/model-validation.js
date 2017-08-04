@@ -283,7 +283,13 @@
         var tmp = document.createElement("div");
         tmp.innerHTML = value;
         value = tmp.textContent || tmp.innerText;
-        return value === undefined || value === ""
+        if (value === undefined){
+            return true
+        }
+        if (value.trim() === ""){
+            return true;
+        }
+        return false
     };
 
     /**
