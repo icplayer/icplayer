@@ -59,7 +59,7 @@ class GotoPageButton extends PushButton{
 		}
 	}
 	
-	private void gotoCommonPage() {
+	void gotoCommonPage() {
 		String commonsPageName = this.pageName.replaceFirst("CM_", "");
 		IPlayerCommands playerCommands = this.playerServices.getCommands();
 		
@@ -70,7 +70,7 @@ class GotoPageButton extends PushButton{
 		}
 	}
 	
-	private void gotoPage() {
+	void gotoPage() {
 		int pageCount = this.playerServices.getModel().getPageCount();
 		int currentPageIndex = this.playerServices.getCurrentPageIndex()+1;
 		IPlayerCommands playerCommands = this.playerServices.getCommands();
@@ -89,7 +89,7 @@ class GotoPageButton extends PushButton{
 		}
 	}
 	
-	private boolean isCommonPageNameCorrect(String commonPageName) {
+	boolean isCommonPageNameCorrect(String commonPageName) {
 		int pageCount = playerServices.getModel().getCommonPages().getAllPages().size();
 
 		for (int i = 0; i < pageCount; i++) {
