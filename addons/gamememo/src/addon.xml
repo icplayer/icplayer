@@ -18,5 +18,7 @@
         <property name="Is Not Activity" nameLabel="gamememo_property_is_not_activity" type="boolean" />
         <property name="Image Mode" nameLabel="gamememo_property_image_mode" type="{Original, Stretch, KeepAspect}"/>
         <property name="Keep wrong marking" nameLabel="gamememo_property_keep_wrong_marking" type="boolean" />
+        <property name="Time to solve" nameLabel="gamememo_property_time_to_solve" type="string" />
+        <property name="Session ended message" nameLabel="gamememo_property_session_ended_message" type="html" />
 	</model>
 </addon>

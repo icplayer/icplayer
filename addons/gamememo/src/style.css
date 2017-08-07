@@ -74,6 +74,26 @@
     line-height: normal;
 }
 
+.gamememo_container .memo-lock-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #cc0000;
+    opacity: 0.5;
+}
+
+.gamememo_container .memo-lock-screen-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin-top: 10%;
+    text-align: center;
+    color: #ffffff;
+}
+
 .gamememo_container div.tick_mark {
     color: #11cc11;
     font-weight: bold;
@@ -87,4 +107,9 @@
     margin-top: -0.15ex;
     cursor: default;
     line-height: normal;
+}
+
+.gamememo_container .keyboard_navigation_active_element {
+    box-shadow: inset 0px 0px 0px 2px #00ff44 !important;
+  	outline: none;
 }
