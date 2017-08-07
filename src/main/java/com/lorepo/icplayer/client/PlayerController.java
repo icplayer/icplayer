@@ -38,11 +38,6 @@ import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
-
-	enum LastVisitedPageType {
-		MAIN_PAGE,
-		COMMONS_PAGE
-	}
 	
 	private final	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
@@ -66,9 +61,9 @@ public class PlayerController implements IPlayerController{
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
-	private int lastVisitedPageIndex = 0;
-	private LastVisitedPageType lastVisitedPageType = LastVisitedPageType.MAIN_PAGE;
 	
+	private int lastVisitedPageIndex = 0;
+	private int currentMainPageIndex = 0;
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		this.entryPoint = entryPoint;
@@ -124,28 +119,16 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public int getCurrentPageIndex(){
-
-		int index = 0;
+		return this.currentMainPageIndex;
+		/*int index = 0;
 		for(int i = 0; i < this.contentModel.getPageCount(); i++){
 			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
 				index = i;
 				break;
 			}
 		}
-		return index;
+		return index;*/
 	}
-	
-	private int getCommonsPageIndex(){
-		int index = 0;
-		for (int i = 0; i < this.contentModel.getCommonPages().getPageCount(); i++){
-			if(this.contentModel.getCommonPage(i) == this.pageController1.getPage()){
-				index = i;
-				break;
-			}
-		}
-		return index;
-	}
-
 
 	@Override
 	public Content	getModel(){
@@ -198,56 +181,30 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void switchToPrevPage() {
-		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
-				int index = i-1;
-				if(this.pageController2 != null && index > 0){
-					index -= 1;
-				}
-				if(index >= 0){
-					this.switchToPage(index);
-				}
-				break;
-			}
+		int index = this.currentMainPageIndex-1;
+		if(this.pageController2 != null && index > 0){
+			index -= 1;
+		}
+		if(index >= 0){
+			this.switchToPage(index);
 		}
 	}
 	
 	@Override
 	public void switchToLastVisitedPage(){
-		JavaScriptUtils.log(this.lastVisitedPageType);
-		JavaScriptUtils.log(this.lastVisitedPageIndex);
-		if (this.lastVisitedPageType == LastVisitedPageType.MAIN_PAGE){
 			this.switchToPage(this.lastVisitedPageIndex);
-		} else if (this.lastVisitedPageType == LastVisitedPageType.COMMONS_PAGE){
-			this.switchToCommonPage(this.lastVisitedPageIndex);
-		}
-	}
-	
-	private LastVisitedPageType getCurrentPageType(){
-		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if (pages.getAllPages().get(i) == this.pageController1.getPage()){
-				return LastVisitedPageType.MAIN_PAGE;
-			}
-		}
-		return LastVisitedPageType.COMMONS_PAGE;
 	}
 
 	@Override
 	public void switchToNextPage() {
 		PageList pages = this.contentModel.getPages();
-		for (int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
-				int index = i + 1;
-				if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
-					index += 1;
-				}
-				if(index < pages.getTotalPageCount()){
-					this.switchToPage(index);
-				}
-				break;
-			}
+	
+		int index = this.currentMainPageIndex + 1;
+		if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
+			index += 1;
+		}
+		if(index < pages.getTotalPageCount()){
+			this.switchToPage(index);
 		}
 	}
 
@@ -257,7 +214,8 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public void switchToPage(int index){
-		this.setLastVisitedPageParameters();
+		this.lastVisitedPageIndex = this.currentMainPageIndex;
+		this.currentMainPageIndex = index;
 		
 		this.closeCurrentPages();
 		IPage page;
@@ -289,19 +247,9 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 	
-	private void setLastVisitedPageParameters(){
-		this.lastVisitedPageType = this.getCurrentPageType();
-		
-		if (this.lastVisitedPageType == LastVisitedPageType.MAIN_PAGE) {
-			this.lastVisitedPageIndex = this.getCurrentPageIndex();
-		}
-		else {
-			this.lastVisitedPageIndex = this.getCommonsPageIndex();
-		}		
-	}
 
-	public void switchToCommonPage(int index) {
-		this.setLastVisitedPageParameters();
+	public void switchToCommonPage(int index) {	
+		this.lastVisitedPageIndex = this.currentMainPageIndex;
 		
 		this.closeCurrentPages();
 		IPage page;
@@ -490,6 +438,7 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void showPopup(String pageName, String top, String left, String additionalClasses) {
+		this.lastVisitedPageIndex = this.currentMainPageIndex;
 		if (this.isPopupEnabled()) {
 			return;
 		}
@@ -645,5 +594,15 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public IReportableService getReportableService() {
 		return this.reportableService;
+	}
+
+	@Override
+	public PageType getCurrentPageType() {
+		for(int i = 0; i < this.contentModel.getPageCount(); i++){
+			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
+				return PageType.MAIN_PAGE;
+			}
+		}
+		return PageType.COMMONS_PAGE;
 	}
 }

@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icplayer.client.IPlayerController.PageType;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
@@ -13,11 +14,12 @@ class PrevPageButton extends PushButton{
 		this.goToLastVisitedPage = goToLastPage;
 		
 		setStyleName("ic_button_prevpage");
-		
-		if(services != null){
 
+		if(services != null) {
 			final IPlayerCommands playerCommands = services.getCommands();
-			if(!goToLastPage && services.getCurrentPageIndex() == 0){
+			
+			boolean isMainPage = (playerCommands.getCurrentPageType() == PageType.MAIN_PAGE);
+			if(!goToLastPage && (services.getCurrentPageIndex() == 0) && isMainPage) {
 				setEnabled(false);
 			}
 	
@@ -26,9 +28,9 @@ class PrevPageButton extends PushButton{
 					event.stopPropagation();
 					event.preventDefault();
 					if(!goToLastVisitedPage) {
-						playerCommands.prevPage();
+    					playerCommands.prevPage();
 					}
-					else{
+					else {
 						playerCommands.goToLastVisitedPage();
 					}
 				}

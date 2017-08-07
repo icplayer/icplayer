@@ -224,4 +224,10 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+
+	@Override
+	public PageType getCurrentPageType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

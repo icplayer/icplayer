@@ -12,7 +12,12 @@ import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public interface IPlayerController {
-
+	
+	enum PageType {
+		MAIN_PAGE,
+		COMMONS_PAGE
+	}
+	
 	IContent getModel();
 
 	PlayerConfig getPlayerConfig();
@@ -67,5 +72,7 @@ public interface IPlayerController {
 
 	int getIframeScroll();
 	
-	void switchToLastVisitedPage();
+	void switchToLastVisitedPage();	
+	
+	PageType getCurrentPageType();
 }
