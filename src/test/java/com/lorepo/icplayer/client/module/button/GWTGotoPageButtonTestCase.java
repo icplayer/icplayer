@@ -59,8 +59,6 @@ public class GWTGotoPageButtonTestCase extends GwtTest {
 		this.gotoPageButtonMock.execute();
 		
 		Mockito.verify(this.gotoPageButtonMock, Mockito.times(1)).gotoCommonPage();
-		// Check which page is called
-		
 	}
 
 	
@@ -90,12 +88,12 @@ public class GWTGotoPageButtonTestCase extends GwtTest {
 	public void gotoPageShouldSetPageByIndex() {
 		Whitebox.setInternalState(this.gotoPageButtonMock, "pageName", "");
 		Whitebox.setInternalState(this.gotoPageButtonMock, "pageIndex", "5");
-		
 		Mockito.doCallRealMethod()
 				.when(this.gotoPageButtonMock)
 				.gotoPage();		
 		
 		this.gotoPageButtonMock.gotoPage();
+		
 		Mockito.verify(this.iPlayerCommandsMock, Mockito.times(1)).gotoPageIndex(4);
 	}
 	
