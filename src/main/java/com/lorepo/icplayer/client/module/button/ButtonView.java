@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
@@ -125,20 +126,9 @@ public class ButtonView extends Composite implements IDisplay {
 	}
 
 	private void enter() {
-		if (module.getType() == ButtonType.nextPage) {
-			playerServices.getCommands().nextPage();
-		} else if(module.getType() == ButtonType.prevPage) {
-			playerServices.getCommands().prevPage();
-		} else if (module.getType() == ButtonType.checkAnswers) {
-			if (isErrorCheckingMode) {
-				playerServices.getCommands().uncheckAnswers();
-			} else {
-				playerServices.getCommands().checkAnswers();
-			}
-		} else if (module.getType() == ButtonType.reset) {
-			playerServices.getCommands().reset();
-		} else if (module.getType() == ButtonType.gotoPage) {
-			this.execute();
+		Widget buttonWidget = this.getWidget();
+		if (buttonWidget instanceof IWCAG) {
+			((IWCAG) buttonWidget).enter();
 		}
 	}
 
@@ -147,8 +137,6 @@ public class ButtonView extends Composite implements IDisplay {
 		Widget widget = this.getWidget();
 		if (widget instanceof ResetButton){
 			((ResetButton) widget).execute();
-		} else if (widget instanceof GotoPageButton) {
-			((GotoPageButton) widget).execute();
 		}
 	}
 }
