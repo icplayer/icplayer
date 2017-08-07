@@ -128,7 +128,6 @@ public class GWTPageLayoutToXML extends GwtTest {
 		Element xml = this.defaultHorizontalPageLayout.toXML();
 		
         DetailedDiff myDiff = new DetailedDiff(new Diff(this.getFromFile("testdata/defaultWithDeviceOrientationHorizontal.xml"), xml.toString()));
-        
         assertTrue(myDiff.toString(), myDiff.similar());
 	}
 	

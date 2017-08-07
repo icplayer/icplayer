@@ -52,7 +52,8 @@ public abstract class ContentParserBase implements IContentParser {
 					content.setMetadata(this.parseMetadata(child));
 				}
 				else if(name.compareTo("addons") == 0){
-					content.setAddonDescriptors(this.parseAddonDescriptors(child));
+					HashMap<String, AddonDescriptor> addonsDescriptors = this.parseAddonDescriptors(child);
+					content.setAddonDescriptors(addonsDescriptors);
 				}
 				else if(name.compareTo("style") == 0){
 					content.setStyles(this.parseStyles(child));

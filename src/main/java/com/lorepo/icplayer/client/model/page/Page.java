@@ -985,6 +985,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	@Override
+	@Deprecated
 	public void load(Element rootElement, String url) {}
 
 	public void syncPageSizes(Set<PageLayout> actualSemiResponsiveLayouts) {
