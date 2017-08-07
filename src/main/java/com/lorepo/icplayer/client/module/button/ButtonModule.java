@@ -38,7 +38,7 @@ public class ButtonModule extends BasicModuleModel {
 	private String confirmInfo = "";
 	private String confirmYesInfo = "";
 	private String confirmNoInfo = "";
-	private boolean goToLastPage = false;
+	private boolean goToLastVisitedPage = false;
 	
 	public ButtonModule() {
 		super("Button", DictionaryWrapper.get("button_module"));
@@ -72,7 +72,7 @@ public class ButtonModule extends BasicModuleModel {
 					confirmInfo = childElement.getAttribute("confirmInfo");
 					confirmYesInfo = childElement.getAttribute("confirmYesInfo");
 					confirmNoInfo = childElement.getAttribute("confirmNoInfo");
-					goToLastPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastPage", false);
+					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
 				}
 			}
 		}
@@ -112,7 +112,7 @@ public class ButtonModule extends BasicModuleModel {
 			xml += " confirmNoInfo='" + StringUtils.escapeXML(confirmNoInfo) + "'";
 		}
 		if (type == ButtonType.prevPage){
-			xml += " goToLastPage='" + goToLastPage + "'";
+			xml += " goToLastVisitedPage='" + this.goToLastVisitedPage + "'";
 		}
 		
 		xml += "/></buttonModule>";
@@ -182,15 +182,15 @@ public class ButtonModule extends BasicModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0);
 
-				if (value!= goToLastPage) {
-					goToLastPage = value;
+				if (value!= goToLastVisitedPage) {
+					goToLastVisitedPage = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
 			
 			@Override
 			public String getValue() {
-				return goToLastPage ? "True" : "False";
+				return goToLastVisitedPage ? "True" : "False";
 			}
 			
 			@Override
@@ -586,7 +586,7 @@ public class ButtonModule extends BasicModuleModel {
 	}
 	
 	public boolean getGoToLastPage(){
-		return this.goToLastPage;
+		return this.goToLastVisitedPage;
 	}
 	
 	private void addPropertyOnClick() {
