@@ -38,7 +38,7 @@ import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
 public class PlayerController implements IPlayerController{
-	
+
 	private final	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
 	private PageController		pageController1;
@@ -175,17 +175,17 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public void switchToPrevPage() {
 		int index = this.currentMainPageIndex-1;
-		if(this.pageController2 != null && index > 0){
+		if(this.pageController2 != null && index > 0) {
 			index -= 1;
 		}
-		if(index >= 0){
+		if(index >= 0) {
 			this.switchToPage(index);
 		}
 	}
 	
 	@Override
-	public void switchToLastVisitedPage(){
-			this.switchToPage(this.lastVisitedPageIndex);
+	public void switchToLastVisitedPage() {
+		this.switchToPage(this.lastVisitedPageIndex);
 	}
 
 
@@ -195,10 +195,10 @@ public class PlayerController implements IPlayerController{
 		PageList pages = this.contentModel.getPages();
 	
 		int index = this.currentMainPageIndex + 1;
-		if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
+		if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()) {
 			index += 1;
 		}
-		if(index < pages.getTotalPageCount()){
+		if(index < pages.getTotalPageCount()) {
 			this.switchToPage(index);
 		}
 	}
@@ -209,9 +209,11 @@ public class PlayerController implements IPlayerController{
 	 * @param index
 	 */
 	@Override
-	public void switchToPage(int index){
-		this.lastVisitedPageIndex = this.currentMainPageIndex;
-		this.currentMainPageIndex = index;
+	public void switchToPage(int index) {
+		if (this.currentMainPageIndex != index) {
+			this.lastVisitedPageIndex = this.currentMainPageIndex;
+			this.currentMainPageIndex = index;
+		}
 		
 		this.closeCurrentPages();
 		IPage page;
