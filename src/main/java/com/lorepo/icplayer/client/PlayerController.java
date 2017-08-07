@@ -120,15 +120,8 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public int getCurrentPageIndex(){
 		return this.currentMainPageIndex;
-		/*int index = 0;
-		for(int i = 0; i < this.contentModel.getPageCount(); i++){
-			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
-				index = i;
-				break;
-			}
-		}
-		return index;*/
 	}
+
 
 	@Override
 	public Content	getModel(){
