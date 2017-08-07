@@ -19,8 +19,7 @@ class PrevPageButton extends PushButton{
 
 			final IPlayerCommands playerCommands = services.getCommands();
 			
-			boolean isMainPage = (playerCommands.getCurrentPageType() == PageType.MAIN_PAGE);
-			if(!goToLastPage && (services.getCurrentPageIndex() == 0) && isMainPage) {
+			if(!goToLastPage && services.getCurrentPageIndex() == 0) {
 				setEnabled(false);
 			}
 	
