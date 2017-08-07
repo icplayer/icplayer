@@ -188,8 +188,10 @@ public class PlayerController implements IPlayerController{
 			this.switchToPage(this.lastVisitedPageIndex);
 	}
 
+
 	@Override
 	public void switchToNextPage() {
+
 		PageList pages = this.contentModel.getPages();
 	
 		int index = this.currentMainPageIndex + 1;
@@ -200,6 +202,7 @@ public class PlayerController implements IPlayerController{
 			this.switchToPage(index);
 		}
 	}
+
 
 	/**
 	 * Switch to page at given index
@@ -239,7 +242,6 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
-	
 
 	public void switchToCommonPage(int index) {	
 		this.lastVisitedPageIndex = this.currentMainPageIndex;
@@ -591,8 +593,8 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public PageType getCurrentPageType() {
-		for(int i = 0; i < this.contentModel.getPageCount(); i++){
-			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
+		for(int i = 0; i < this.contentModel.getPageCount(); i++) {
+			if(this.contentModel.getPage(i) == this.pageController1.getPage()) {
 				return PageType.MAIN_PAGE;
 			}
 		}

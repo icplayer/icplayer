@@ -15,7 +15,8 @@ class PrevPageButton extends PushButton{
 		
 		setStyleName("ic_button_prevpage");
 
-		if(services != null) {
+		if(services != null){
+
 			final IPlayerCommands playerCommands = services.getCommands();
 			
 			boolean isMainPage = (playerCommands.getCurrentPageType() == PageType.MAIN_PAGE);
