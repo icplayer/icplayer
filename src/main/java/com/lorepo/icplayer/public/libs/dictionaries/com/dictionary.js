@@ -1508,6 +1508,7 @@ var ice_dictionary_en = {
 	"Quiz_property_WrongAnswer3": "Third wrong answer",
 	"Quiz_property_hint": "Hint",
 	"Quiz_property_ShowHelpButtons": "Show help buttons",
+	"Quiz_property_NextLabel": "Next label",
 	"Quiz_property_GameLostMessage": "Game lost message",
 	"Quiz_property_GameWonMessage": "Game won message",
 	"Quiz_property_isActivity": "Is activity",

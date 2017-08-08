@@ -11,6 +11,7 @@
 			<property name="Hint" nameLabel="Quiz_property_hint" type="html" isLocalized="true" />
 		</property>
 		<property name="ShowHelpButtons" nameLabel="Quiz_property_ShowHelpButtons" type="boolean" />
+		<property name="NextLabel" nameLabel="Quiz_property_NextLabel" type="string" isLocalized="true" />
 		<property name="GameLostMessage" nameLabel="Quiz_property_GameLostMessage" type="html" isLocalized="true" />
 		<property name="GameWonMessage" nameLabel="Quiz_property_GameWonMessage" type="html" isLocalized="true" />
         <property name="isActivity" nameLabel="Quiz_property_isActivity" type="boolean" />

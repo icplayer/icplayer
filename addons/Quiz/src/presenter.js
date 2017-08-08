@@ -141,10 +141,7 @@ function AddonQuiz_create() {
                     gameWonMessage();
                     eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
                 } else {
-                    state.answersOrder = false;
-                    state.currentQuestion++;
-                    showCurrentQuestion();
-                    bindEvents();
+                   presenter.nextButton.addClass('active');
                 }
             } else {
                 $this.addClass('wrong');
@@ -208,6 +205,19 @@ function AddonQuiz_create() {
     function showHint(){
         presenter.$view.find('.question-hint').html(getCurrentQuestion().Hint);
         presenter.$view.find('.hint-button').addClass('used');
+    }
+
+    function nextButtonAction(e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        if (state.haveWon && state.currentQuestion < presenter.config.questions.length) {
+            state.answersOrder = false;
+            state.currentQuestion++;
+            showCurrentQuestion();
+            bindEvents();
+        }
     }
 
     function hintAction(e) {
@@ -301,6 +311,12 @@ function AddonQuiz_create() {
         } else {
             $q.addClass('without-hint');
         }
+        var $nextButton = $('<div class="next-question-button"></div>');
+        $nextButton.text(presenter.config.nextLabel);
+        $nextButton.clickAction = nextButtonAction;
+        presenter.activeElements.push($nextButton);
+        presenter.nextButton = $nextButton;
+        $q.append($nextButton);
     };
 
     function initializeLogic(view, model, preview) {
