@@ -129,13 +129,11 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public void showNavigationPanels() {
 		controller.getView().showNavigationPanels();
-
 	}
 
 	@Override
 	public void hideNavigationPanels() {
 		controller.getView().hideNavigationPanels();
-
 	}
 	
 	@Override
