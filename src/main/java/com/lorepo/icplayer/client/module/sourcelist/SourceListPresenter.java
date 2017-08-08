@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
@@ -19,6 +20,7 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -51,6 +53,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void hideItem(String id);
 		public void showItem(String id);
 		void connectDOMNodeRemovedEvent(String id);
+		public void executeOnKeyCode(KeyDownEvent keyDownEvent);
 	}
 	
 	private IDisplay view;
@@ -168,8 +171,23 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			}
 		});
 		
+		
+		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
+			public void onActivated(ModuleActivatedEvent event) {
+				activate(event);
+			}
+		});
+		
 	}
 
+	private void activate(ModuleActivatedEvent event) {
+		String moduleName = event.moduleName;
+		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
+		
+		if (moduleName.equals(model.getId())) {
+			view.executeOnKeyCode(keyDownEvent);
+		}
+	}
 	
 	private void itemConsumed(ItemConsumedEvent event) {
 		returned = false;
