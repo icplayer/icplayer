@@ -103,12 +103,17 @@ function AddonQuiz_create() {
         wrapper.children().remove();
     };
 
+    function showInHintArea($element) {
+        presenter.hintWrapper.children().remove();
+        presenter.hintWrapper.append($element);
+    };
+
     function gameWonMessage() {
         var wrapper = $('<div class="game-won-message-wrapper"></div>');
         var message = $('<div class="game-won-message"></div>');
         message.html(presenter.config.gameWonMessage);
         wrapper.append(message);
-        presenter.$view.find('.question-hint').append(wrapper);
+        showInHintArea(wrapper);
     };
 
     function gameLostMessage() {
@@ -116,7 +121,7 @@ function AddonQuiz_create() {
         var message = $('<div class="game-lost-message"></div>');
         message.html(presenter.config.gameLostMessage);
         wrapper.append(message);
-        presenter.$view.find('.question-hint').append(wrapper);
+        showInHintArea(wrapper);
     };
 
     function getSelectItemAction(isCorrect, $this) {
@@ -201,7 +206,8 @@ function AddonQuiz_create() {
     };
 
     function showHint(){
-        presenter.$view.find('.question-hint').html(getCurrentQuestion().Hint);
+        var $hint = $('<div class="question-hint"></div>').html(getCurrentQuestion().Hint);
+        showInHintArea($hint);
         presenter.$view.find('.hint-button').addClass('used');
     }
 
@@ -286,8 +292,9 @@ function AddonQuiz_create() {
         $q.append($tips);
         var $buttons = $('<div class="question-hint-buttons"></div>');
         $q.append($buttons);
+        presenter.hintWrapper = $('<div class="question-hint-wrapper"></div>');
+        $q.append(presenter.hintWrapper);
         if (presenter.config.helpButtons){
-            var $hint = $('<div class="question-hint"></div>');
             var $fiftyFifty = $('<div class="fifty-fifty"></div>');
             var $hintButton = $('<div class="hint-button"></div>');
             $fiftyFifty.clickAction = fiftyFiftyAction;
@@ -296,7 +303,6 @@ function AddonQuiz_create() {
             $buttons.append($hintButton);
             presenter.activeElements.push($fiftyFifty);
             presenter.activeElements.push($hintButton);
-            $q.append($hint);
             $q.addClass('with-hint');
             if (state.fiftyFiftyUsed) {
                 $fiftyFifty.addClass('used');
