@@ -185,7 +185,11 @@ public class PlayerController implements IPlayerController{
 	
 	@Override
 	public void switchToLastVisitedPage() {
-		this.switchToPage(this.lastVisitedPageIndex);
+		if(this.getCurrentPageType() == PageType.MAIN_PAGE) {
+			this.switchToPage(this.lastVisitedPageIndex);
+		} else {
+			this.switchToPage(this.currentMainPageIndex);
+		}
 	}
 
 
@@ -245,9 +249,7 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
-	public void switchToCommonPage(int index) {	
-		this.lastVisitedPageIndex = this.currentMainPageIndex;
-		
+	public void switchToCommonPage(int index) {			
 		this.closeCurrentPages();
 		IPage page;
 		if (this.pageController2 != null) {
@@ -435,7 +437,6 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void showPopup(String pageName, String top, String left, String additionalClasses) {
-		this.lastVisitedPageIndex = this.currentMainPageIndex;
 		if (this.isPopupEnabled()) {
 			return;
 		}
