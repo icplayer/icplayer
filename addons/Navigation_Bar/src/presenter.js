@@ -4,7 +4,9 @@ function AddonNavigation_Bar_create() {
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
 
-    presenter.goToPage = this.goToPage;
+    presenter.__internalElements = {
+        goToPage: goToPage
+    };
 
     var NAVIGATION_PAGE = {
         FIRST: 0,

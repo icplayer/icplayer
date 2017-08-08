@@ -62,8 +62,8 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
 	
-	private int lastVisitedPageIndex = 0;
-	private int currentMainPageIndex = 0;
+	private int lastVisitedPageIndex = -1;
+	private int currentMainPageIndex = -1;
 	
 	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		this.entryPoint = entryPoint;
@@ -185,10 +185,10 @@ public class PlayerController implements IPlayerController{
 	
 	@Override
 	public void switchToLastVisitedPage() {
-		if(this.getCurrentPageType() == PageType.MAIN_PAGE) {
-			this.switchToPage(this.lastVisitedPageIndex);
-		} else {
+		if(this.isCurrentPageInCommons()) {
 			this.switchToPage(this.currentMainPageIndex);
+		} else {
+			this.switchToPage(this.lastVisitedPageIndex);
 		}
 	}
 
@@ -214,7 +214,11 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public void switchToPage(int index) {
-		if (this.currentMainPageIndex != index) {
+		if (this.lastVisitedPageIndex == -1) { //if player was started for the first time
+			this.lastVisitedPageIndex = index;
+			this.currentMainPageIndex = index;
+		}
+		else if (this.currentMainPageIndex != index) {
 			this.lastVisitedPageIndex = this.currentMainPageIndex;
 			this.currentMainPageIndex = index;
 		}
@@ -594,13 +598,13 @@ public class PlayerController implements IPlayerController{
 		return this.reportableService;
 	}
 
-	@Override
-	public PageType getCurrentPageType() {
-		for(int i = 0; i < this.contentModel.getPageCount(); i++) {
-			if(this.contentModel.getPage(i) == this.pageController1.getPage()) {
-				return PageType.MAIN_PAGE;
+	private boolean isCurrentPageInCommons() {
+		int commonsPageSize = this.contentModel.getCommonPages().getPageCount();
+		for(int i = 0; i < commonsPageSize; i++) {
+			if(this.contentModel.getCommonPage(i) == this.pageController1.getPage()) {
+				return true;
 			}
 		}
-		return PageType.COMMONS_PAGE;
+		return false;
 	}
 }

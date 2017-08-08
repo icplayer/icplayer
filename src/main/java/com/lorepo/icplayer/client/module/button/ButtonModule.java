@@ -111,7 +111,7 @@ public class ButtonModule extends BasicModuleModel {
 			xml += " confirmYesInfo='" + StringUtils.escapeXML(confirmYesInfo) + "'";
 			xml += " confirmNoInfo='" + StringUtils.escapeXML(confirmNoInfo) + "'";
 		}
-		if (type == ButtonType.prevPage){
+		if (type == ButtonType.prevPage) {
 			xml += " goToLastVisitedPage='" + this.goToLastVisitedPage + "'";
 		}
 		

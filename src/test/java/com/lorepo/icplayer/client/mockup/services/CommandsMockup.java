@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.mockup.services;
 
-import com.lorepo.icplayer.client.IPlayerController.PageType;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.PageController;
@@ -163,10 +162,4 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public PageType getCurrentPageType() {
-		// TODO Auto-generated method stub
-		return null;
-	}	
 }

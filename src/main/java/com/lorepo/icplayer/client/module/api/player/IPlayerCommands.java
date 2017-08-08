@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.api.player;
 
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.IPlayerController.PageType;
 
 public interface IPlayerCommands {
 
@@ -37,5 +36,4 @@ public interface IPlayerCommands {
 	int getIframeScroll();
 	
 	void goToLastVisitedPage();
-	PageType getCurrentPageType();
 }

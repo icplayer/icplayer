@@ -1,4 +1,4 @@
-TestCase("Adding additional classes and styles", {
+TestCase("[Navigation_bar] goToPage test case", {
     'setUp': function () {
         this.presenter = AddonNavigation_Bar_create();
 
@@ -16,7 +16,7 @@ TestCase("Adding additional classes and styles", {
         };
 
         this.presenter.commander = {
-            goToPageIndex: this.stubs.goToPageIndexStub
+            gotoPageIndex: this.stubs.goToPageIndexStub
         };
 
         this.NAVIGATION_PAGE = {
@@ -28,21 +28,21 @@ TestCase("Adding additional classes and styles", {
         };
     },
 
-    'test should go to page index 4': function () {
+    'test should go to page index 3': function () {
         var whereTo = this.NAVIGATION_PAGE.LAST;
 
-        this.presenter.goToPage(whereTo, {});
+        this.presenter.__internalElements.goToPage(whereTo, {});
 
-        var result = this.stubs.goToPageIndexStub.calledWith();
-        assertEquals(4, result[0]);
+        var result = this.stubs.goToPageIndexStub.args;
+        assertEquals(3, result[0]);
     },
 
     'test should go to page index 0': function () {
         var whereTo = this.NAVIGATION_PAGE.FIRST;
 
-        this.presenter.goToPage(whereTo, {});
+        this.presenter.__internalElements.goToPage(whereTo, {});
 
-        var result = this.stubs.goToPageIndexStub.calledWith();
+        var result = this.stubs.goToPageIndexStub.args;
         assertEquals(0, result[0]);
     },
 
@@ -50,9 +50,9 @@ TestCase("Adding additional classes and styles", {
         var whereTo = this.NAVIGATION_PAGE.OTHER;
         this.presenter.currentIndex = 1;
 
-        this.presenter.goToPage(whereTo, 1);
+        this.presenter.__internalElements.goToPage(whereTo, 1);
 
-        var result = this.stubs.goToPageIndexStub.calledWith();
+        var result = this.stubs.goToPageIndexStub.args;
         assertEquals(1, result[0]);
-    },
+    }
 });

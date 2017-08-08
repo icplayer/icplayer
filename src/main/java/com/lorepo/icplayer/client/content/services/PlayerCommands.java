@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icplayer.client.IPlayerController;
-import com.lorepo.icplayer.client.IPlayerController.PageType;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.PageController;
@@ -144,10 +143,5 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public void goToLastVisitedPage() {
 		controller.switchToLastVisitedPage();	
-	}
-
-	@Override
-	public PageType getCurrentPageType() {
-		return controller.getCurrentPageType();
 	}
 }
