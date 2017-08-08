@@ -24,6 +24,7 @@ public class GWTPrevPageButtonTestCase extends GwtTest {
 		Whitebox.setInternalState(this.prevPageButtonMock, "services", this.playerServicesMock);
 		
 		Mockito.when(this.playerServicesMock.getCommands()).thenReturn(this.iPlayerCommandsMock);
+		Mockito.when(this.playerServicesMock.getCurrentPageIndex()).thenReturn(0);
 	}
 	
 	@Test
