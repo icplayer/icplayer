@@ -170,8 +170,6 @@ public class PlayerController implements IPlayerController{
 	public void switchToCommonPageById(String id) {
 		int index = this.getModel().getCommonPages().findPageIndexById(id);
 
-		System.out.println(index);
-
 		if (index > -1) {
 			this.switchToCommonPage(index);
 		} else {
