@@ -4,6 +4,7 @@ import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.PageView;
 
 public class PlayerCommands implements IPlayerCommands {
 
@@ -81,8 +82,14 @@ public class PlayerCommands implements IPlayerCommands {
 		controller.switchToPage(pageName);
 	}
 	
+	@Override
 	public void gotoCommonPage(String commonPageName) {
 		controller.switchToCommonPage(commonPageName);
+	}
+	
+	@Override
+	public void gotoCommonPageId(String id) {
+		controller.switchToCommonPageById(id);
 	}
 
 	@Override
@@ -140,5 +147,23 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public int getIframeScroll() {
 		return controller.getIframeScroll();
+	}
+
+	@Override
+	public void changeHeaderVisibility(boolean isVisible) {
+		PageView headerView = this.controller.getView().getHeaderView();
+		if (headerView != null) {
+			headerView.setVisible(isVisible);
+		}
+		
+	}
+
+	@Override
+	public void changeFooterVisibility(boolean isVisible) {
+		PageView footerView = this.controller.getView().getFooterView();
+		if (footerView != null) {
+			this.controller.getView().getFooterView().setVisible(isVisible);
+		}
+		
 	}
 }

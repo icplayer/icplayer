@@ -237,18 +237,18 @@ public class JavaScriptPlayerServices {
 
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
-			};               		
-			
-			commands.gotoCommonPage = function (pageName) {
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoCommonPage(Ljava/lang/String;)(pageName);
-			};	
-			
+			};
+
 			commands.gotoPageIndex = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageIndex(I)(index);
 			};
 			
 			commands.gotoPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
+			};
+			
+			commands.gotoCommonPageId = function(pageId) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoCommonPageId(Ljava/lang/String;)(pageId);
 			};
 			
 			commands.executeEventCode = function(code) {
@@ -308,11 +308,11 @@ public class JavaScriptPlayerServices {
 				}
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules));
 			};
-			
-			commnads.changeHeaderVisibility = function (isVisible) {
+
+			commands.changeHeaderVisibility = function (isVisible) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeHeaderVisibility(Z)(isVisible);
 			};
-			
+
 			commands.changeFooterVisibility = function (isVisible) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeFooterVisibility(Z)(isVisible);
 			};
@@ -459,11 +459,11 @@ public class JavaScriptPlayerServices {
 	}-*/;
 	
 	private void changeFooterVisibility(boolean isVisible) {
-		
+		this.playerServices.getCommands().changeFooterVisibility(isVisible);
 	}
-	
+
 	private void changeHeaderVisibility(boolean isVisible) {
-		
+		this.playerServices.getCommands().changeHeaderVisibility(isVisible);
 	}
 	
 
@@ -510,9 +510,9 @@ public class JavaScriptPlayerServices {
 	private void gotoPageId(String pageId){
 		playerServices.getCommands().gotoPageId(pageId);
 	}
-	
-	private void gotoCommonPage(String pageName) {
-		playerServices.getCommands().gotoCommonPage(pageName);
+
+	private void gotoCommonPageId(String id) {
+		playerServices.getCommands().gotoCommonPageId(id);
 	}
 
 	private void executeEventCode(String code){

@@ -217,4 +217,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+
+	@Override
+	public void switchToCommonPageById(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
