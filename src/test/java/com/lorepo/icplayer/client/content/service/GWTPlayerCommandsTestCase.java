@@ -54,7 +54,7 @@ public class GWTPlayerCommandsTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void ifLessonDontHaveFooterThenChangeHeaderVisibilityIsNotCalled () {
+	public void ifLessonDontHaveFooterThenChangeFooterVisibilityIsNotCalled () {
 		Mockito.when(this.playerViewMock.getFooterView())
 			.thenReturn(null);	
 	
@@ -64,7 +64,7 @@ public class GWTPlayerCommandsTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void ifLessonHaveFooterThenChangeHeaderVisibilityIsCalled () {
+	public void ifLessonHaveFooterThenChangeFooterVisibilityIsCalled () {
 		Mockito.when(this.playerViewMock.getFooterView())
 			.thenReturn(this.pageViewMock);
 		

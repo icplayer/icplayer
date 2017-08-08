@@ -162,7 +162,7 @@ public class PlayerCommands implements IPlayerCommands {
 	public void changeFooterVisibility(boolean isVisible) {
 		PageView footerView = this.controller.getView().getFooterView();
 		if (footerView != null) {
-			this.controller.getView().getFooterView().setVisible(isVisible);
+			footerView.setVisible(isVisible);
 		}
 		
 	}

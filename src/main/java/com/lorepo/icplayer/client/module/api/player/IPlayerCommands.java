@@ -32,8 +32,7 @@ public interface IPlayerCommands {
 	void increaseMistakeCounter();
 	public void gotoCommonPage(String commonsPageName);
 	public void gotoCommonPageId(String id);
-	void showPopup(String pageName, String top, String left,
-			String additionalClasses);
+	void showPopup(String pageName, String top, String left, String additionalClasses);
 	void updateCurrentPageScoreWithMistakes(int mistakes);
 	int getIframeScroll();
 	void changeHeaderVisibility(boolean isVisible);
