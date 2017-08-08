@@ -142,9 +142,11 @@ function AddonQuiz_create() {
                 eventBus.sendEvent('ValueChanged', eventData);
                 if (state.currentQuestion == presenter.config.questions.length){
                     gameWonMessage();
-                    eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
+                    eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData());
+                    unbindEvents();
                 } else {
                    presenter.nextButton.addClass('active');
+                   unbindEvents(presenter.nextButton);
                 }
             } else {
                 $this.addClass('wrong');
@@ -152,11 +154,13 @@ function AddonQuiz_create() {
                 eventBus.sendEvent('ValueChanged', eventData);
                 gameLostMessage();
                 state.wasWrong = true;
+                unbindEvents();
             }
         }
     };
 
     function bindEvents() {
+        unbindEvents();
         for (var i=0; i<presenter.activeElements.length; i++) {
             var $el = presenter.activeElements[i];
             $el.bind('click', $el.clickAction);
@@ -164,8 +168,12 @@ function AddonQuiz_create() {
     };
 
     function unbindEvents() {
+        var args = Array.prototype.slice.call(arguments);
         for (var i=0; i<presenter.activeElements.length; i++) {
             var $el = presenter.activeElements[i];
+            if (args.indexOf($el) > -1) {
+                continue;
+            }
             $el.unbind('click', $el.clickAction);
         }
     };
