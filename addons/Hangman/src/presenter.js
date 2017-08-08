@@ -416,10 +416,23 @@ function AddonHangman_create() {
                 presenter.sendAllOKEvent();
             }
         }
-        if (currentPhrase.errorCount === presenter.configuration.trialsCount && presenter.isActivity) {
+        if (currentPhrase.errorCount === presenter.configuration.trialsCount && presenter.isActivity && !currentPhrase.EndOfTrialsWasSent) {
             presenter.sendEventData(presenter.createEndOfTrialsEventData());
+            currentPhrase.EndOfTrialsWasSent = true;
+        } else if (currentPhrase.errorCount > presenter.configuration.trialsCount && presenter.isActivity) {
+            presenter.sendEndOfGameEvent();
         }
+
         presenter.unbindAttachedHandlers($(this));
+    };
+
+    presenter.sendEndOfGameEvent = function () {
+        var eventData = presenter.createBaseEventData();
+
+        eventData.value = 'EOG';
+        eventData.score = '';
+
+        presenter.sendEventData(eventData);
     };
 
     presenter.letterClickHandler = function (e) {

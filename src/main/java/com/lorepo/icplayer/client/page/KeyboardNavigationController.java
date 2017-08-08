@@ -38,7 +38,7 @@ public final class KeyboardNavigationController {
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo;
 		
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
