@@ -104,21 +104,19 @@ function AddonQuiz_create() {
     };
 
     function gameWonMessage() {
-        cleanWorkspace();
         var wrapper = $('<div class="game-won-message-wrapper"></div>');
         var message = $('<div class="game-won-message"></div>');
         message.html(presenter.config.gameWonMessage);
         wrapper.append(message);
-        presenter.$view.find('.question-wrapper').append(wrapper);
+        presenter.$view.find('.question-hint').append(wrapper);
     };
 
     function gameLostMessage() {
-        cleanWorkspace();
         var wrapper = $('<div class="game-lost-message-wrapper"></div>');
         var message = $('<div class="game-lost-message"></div>');
         message.html(presenter.config.gameLostMessage);
         wrapper.append(message);
-        presenter.$view.find('.question-wrapper').append(wrapper);
+        presenter.$view.find('.question-hint').append(wrapper);
     };
 
     function getSelectItemAction(isCorrect, $this) {
@@ -135,9 +133,9 @@ function AddonQuiz_create() {
             };
             if(isCorrect) {
                 $this.addClass('correct');
+                state.haveWon = true;
                 eventBus.sendEvent('ValueChanged', eventData);
                 if (state.currentQuestion == presenter.config.questions.length){
-                    state.haveWon = true;
                     gameWonMessage();
                     eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData())
                 } else {
@@ -213,6 +211,7 @@ function AddonQuiz_create() {
             e.preventDefault();
         }
         if (state.haveWon && state.currentQuestion < presenter.config.questions.length) {
+            state.haveWon = false;
             state.answersOrder = false;
             state.currentQuestion++;
             showCurrentQuestion();
@@ -285,9 +284,10 @@ function AddonQuiz_create() {
 
         $q.append($title);
         $q.append($tips);
+        var $buttons = $('<div class="question-hint-buttons"></div>');
+        $q.append($buttons);
         if (presenter.config.helpButtons){
             var $hint = $('<div class="question-hint"></div>');
-            var $buttons = $('<div class="question-hint-buttons"></div>');
             var $fiftyFifty = $('<div class="fifty-fifty"></div>');
             var $hintButton = $('<div class="hint-button"></div>');
             $fiftyFifty.clickAction = fiftyFiftyAction;
@@ -296,7 +296,6 @@ function AddonQuiz_create() {
             $buttons.append($hintButton);
             presenter.activeElements.push($fiftyFifty);
             presenter.activeElements.push($hintButton);
-            $q.append($buttons);
             $q.append($hint);
             $q.addClass('with-hint');
             if (state.fiftyFiftyUsed) {
@@ -316,7 +315,7 @@ function AddonQuiz_create() {
         $nextButton.clickAction = nextButtonAction;
         presenter.activeElements.push($nextButton);
         presenter.nextButton = $nextButton;
-        $q.append($nextButton);
+        $buttons.append($nextButton);
     };
 
     function initializeLogic(view, model, preview) {
