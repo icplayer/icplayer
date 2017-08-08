@@ -344,6 +344,7 @@ function AddonQuiz_create() {
         eventBus = playerController.getEventBus();
         presenter.addonID = model.ID;
         initializeLogic(view, model, false);
+        presenter.setVisibility(presenter.config.isVisible);
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
