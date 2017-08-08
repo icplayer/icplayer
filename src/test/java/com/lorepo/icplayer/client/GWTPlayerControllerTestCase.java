@@ -32,7 +32,7 @@ public class GWTPlayerControllerTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void changePageToCommonsPage() {
+	public void changePageToCommonsPageWillBeCalledIfPageWithThatIdExist() {
 		Mockito.doCallRealMethod()
 			.when(this.playerControllerMock)
 			.switchToCommonPageById("someID");
@@ -46,7 +46,7 @@ public class GWTPlayerControllerTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void commonPageDontExists() {
+	public void changePageToCommonsPageWontBeCalledIfPageWithThatIdDontExist() {
 		Mockito.doCallRealMethod()
 			.when(this.playerControllerMock)
 			.switchToCommonPageById("someID");
