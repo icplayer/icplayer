@@ -162,9 +162,15 @@ function AddonQuiz_create() {
     };
 
     function bindEvents() {
+        var elements;
+        if (arguments.length > 0) {
+            elements = Array.prototype.slice.call(arguments);
+        } else {
+            elements = presenter.activeElements;
+        }
         unbindEvents();
-        for (var i=0; i<presenter.activeElements.length; i++) {
-            var $el = presenter.activeElements[i];
+        for (var i=0; i<elements.length; i++) {
+            var $el = elements[i];
             $el.bind('click', $el.clickAction);
         }
     };
@@ -303,7 +309,7 @@ function AddonQuiz_create() {
             var answer = answers[i];
             var label = labels[i];
             $tip.text(label + (answer || ''));
-            if (answer === null){
+            if (answer === null) {
                 $tip.addClass('removed');
                 $tip.clickAction = function () {};
             } else {
@@ -358,8 +364,10 @@ function AddonQuiz_create() {
         $buttons.append($nextButton);
         if (state.wasWrong){
             gameLostMessage();
-        } else if (haveWon()){
+        } else if (haveWon()) {
             gameWonMessage();
+        } else if (state.selectedAnswer) {
+            bindEvents(presenter.nextButton);
         } else if (!showAnswer) {
             bindEvents();
         }
