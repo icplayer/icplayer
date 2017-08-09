@@ -127,3 +127,8 @@
     background-color: #99FF55;
 }
 
+.question-wrapper .quiz-progress {
+    width: 60px;
+    float: right;
+    text-align: center;
+}
