@@ -165,7 +165,18 @@ public class PlayerController implements IPlayerController{
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
+	
+	@Override
+	public void switchToCommonPageById(String id) {
+		int index = this.getModel().getCommonPages().findPageIndexById(id);
 
+		if (index > -1) {
+			this.switchToCommonPage(index);
+		} else {
+			Window.alert("Missing common page:\n<" + id + ">");
+		}
+	}
+	
 	@Override
 	public void switchToPageById(String pageId) {
 		int index = this.getModel().getPages().findPageIndexById(pageId);
