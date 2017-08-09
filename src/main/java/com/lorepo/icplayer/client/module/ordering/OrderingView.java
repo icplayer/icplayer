@@ -37,11 +37,14 @@ public class OrderingView extends Composite implements IDisplay {
 	private boolean isMouseUp = false;
 	private boolean isDragging = false;
 	private boolean wasChanged = false;
+	private boolean mathJaxIsLoaded = false;
+	private boolean shouldRefreshMath = false;
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
 		this.module = module;
 		this.playerServices = services;
 		createUI(module, isPreview);
+		this.setCallbackForMathJaxLoaded(this);
 	}
 
 	@Override
@@ -545,8 +548,8 @@ public class OrderingView extends Composite implements IDisplay {
 		this.listener = listener;
 	}
 
-	private void refreshMath() {
-		MathJax.refreshMathJax(getElement());
+	void refreshMath() {
+		MathJax.rerenderMathJax(getElement());
 	}
 
 	@Override
@@ -554,9 +557,28 @@ public class OrderingView extends Composite implements IDisplay {
 		setVisible(false);
 	}
 
+	private native void setCallbackForMathJaxLoaded(OrderingView x) /*-{
+	$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
+        if ($wnd.$(message[1]).hasClass('ic_page')) {
+            x.@com.lorepo.icplayer.client.module.ordering.OrderingView::mathJaxIsLoadedCallback()();
+        }
+    });
+	}-*/;
+	
+	void mathJaxIsLoadedCallback() {
+		this.mathJaxIsLoaded = true;
+		if (this.shouldRefreshMath) {
+			this.refreshMath();
+		}
+	}
+	
 	@Override
 	public void show() {
 		setVisible(true);
-		refreshMath();
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		} else {
+			this.shouldRefreshMath = true;
+		}
 	}
 }
