@@ -31,6 +31,7 @@ function AddonQuiz_create() {
             haveWon: false,
             fiftyFiftyUsed: false,
             hintUsed: null,
+            selectedAnswer: null,
             isVisible: true
         };
         // addon's modes
@@ -124,7 +125,8 @@ function AddonQuiz_create() {
         showInHintArea(wrapper);
     };
 
-    function getSelectItemAction(isCorrect, $this) {
+    function getSelectItemAction(answer, $this) {
+        var isCorrect = answer == getCurrentQuestion().CorrectAnswer;
         return function selectItemAction(e) {
             if (e) {
                 e.stopPropagation();
@@ -136,9 +138,9 @@ function AddonQuiz_create() {
                 'value': '1',
                 'score': '1'
             };
+            state.selectedAnswer = answer;
             if(isCorrect) {
                 $this.addClass('correct');
-                state.haveWon = true;
                 eventBus.sendEvent('ValueChanged', eventData);
                 if (state.currentQuestion == presenter.config.questions.length){
                     gameWonMessage();
@@ -224,8 +226,8 @@ function AddonQuiz_create() {
             e.stopPropagation();
             e.preventDefault();
         }
-        if (state.haveWon && state.currentQuestion < presenter.config.questions.length) {
-            state.haveWon = false;
+        if ((!state.wasWrong) && (state.selectedAnswer !== null) && state.currentQuestion < presenter.config.questions.length) {
+            state.selectedAnswer = null;
             state.answersOrder = false;
             state.currentQuestion++;
             showCurrentQuestion();
@@ -264,6 +266,10 @@ function AddonQuiz_create() {
         var $title = $('<div class="question-title"></div>');
         var $tips = $('<div class="question-tips"></div>');
 
+        var $nextButton = $('<div class="next-question-button"></div>');
+        $nextButton.text(presenter.config.nextLabel);
+        $nextButton.clickAction = nextButtonAction;
+
         cleanWorkspace();
 
         $title.html(q.Question);
@@ -301,11 +307,18 @@ function AddonQuiz_create() {
                 $tip.addClass('removed');
                 $tip.clickAction = function () {};
             } else {
-                $tip.clickAction = getSelectItemAction(answer==q.CorrectAnswer, $tip);
+                $tip.clickAction = getSelectItemAction(answer, $tip);
             }
 
-            if (showAnswer && answer==q.CorrectAnswer) {
-                $tip.addClass('correct-answer');
+            if (answer==q.CorrectAnswer) {
+                if (showAnswer || state.selectedAnswer == answer) {
+                    $tip.addClass('correct-answer');
+                    if (state.currentQuestion < presenter.config.questions.length) {
+                        $nextButton.addClass('active');
+                    }
+                }
+            } else if (state.selectedAnswer == answer){
+                $tip.addClass('wrong');
             }
             $tips.append($tip);
             presenter.activeElements.push($tip);
@@ -340,20 +353,22 @@ function AddonQuiz_create() {
         } else {
             $q.addClass('without-hint');
         }
-        var $nextButton = $('<div class="next-question-button"></div>');
-        $nextButton.text(presenter.config.nextLabel);
-        $nextButton.clickAction = nextButtonAction;
         presenter.activeElements.push($nextButton);
         presenter.nextButton = $nextButton;
         $buttons.append($nextButton);
         if (state.wasWrong){
             gameLostMessage();
-        } else if (state.haveWon){
+        } else if (haveWon()){
             gameWonMessage();
         } else if (!showAnswer) {
             bindEvents();
         }
     };
+
+    function haveWon() {
+        var q = getCurrentQuestion();
+        return state.selectedAnswer == q.CorrectAnswer && state.currentQuestion == presenter.config.questions.length;
+    }
 
     function initializeLogic(view, model, preview) {
         setupDefaults();
@@ -493,7 +508,7 @@ function AddonQuiz_create() {
     }
 
     function getScore() {
-        if (state.haveWon) {
+        if (state.selectedAnswer === getCurrentQuestion().CorrectAnswer) {
             return state.currentQuestion;
         } else {
             return state.currentQuestion - 1;
@@ -523,7 +538,7 @@ function AddonQuiz_create() {
     };
 
     presenter.isAttempted = function AddonQuiz_isAttempted() {
-        return (state.currentQuestion > 1) || state.wasWrong || state.haveWon;
+        return (state.currentQuestion > 1) || state.wasWrong || (state.selectedAnswer !== null);
     };
 
     presenter.disable = function AddonQuiz_disable() {
@@ -567,15 +582,7 @@ function AddonQuiz_create() {
     }
 
     function hideAnswers() {
-        cleanWorkspace();
-        if (state.wasWrong){
-            gameLostMessage();
-        } else if (state.haveWon){
-            gameWonMessage();
-        } else {
-            showCurrentQuestion();
-            bindEvents();
-        }
+        showCurrentQuestion();
     }
 
     return presenter;
