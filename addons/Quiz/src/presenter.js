@@ -323,7 +323,7 @@ function AddonQuiz_create() {
                         $nextButton.addClass('active');
                     }
                 }
-            } else if (state.selectedAnswer == answer){
+            } else if (state.wasWrong && state.selectedAnswer == answer){
                 $tip.addClass('wrong');
             }
             $tips.append($tip);
