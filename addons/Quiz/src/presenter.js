@@ -244,6 +244,21 @@ function AddonQuiz_create() {
         }
     };
 
+    function createDiv(cls){
+        return $('<div class="'+ cls + '"></div>');
+    }
+
+    function addProgressBar(wrapper) {
+        var progress = createDiv('quiz-progress'),
+            current = state.currentQuestion,
+            len = presenter.config.questions.length,
+            info = '<span class="current-question-number">' + current + '</span>' +
+                    '<span class="divider">/</span>' +
+                    '<span class="questions-number">' + len + '</span>';
+        progress.html(info);
+        wrapper.append(progress);
+    };
+
     function showQuestion(q, showAnswer) {
         var $q = presenter.$view.find('.question-wrapper');
         var $title = $('<div class="question-title"></div>');
@@ -299,6 +314,7 @@ function AddonQuiz_create() {
         $q.append($title);
         $q.append($tips);
         var $buttons = $('<div class="question-hint-buttons"></div>');
+        addProgressBar($buttons);
         $q.append($buttons);
         presenter.hintWrapper = $('<div class="question-hint-wrapper"></div>');
         $q.append(presenter.hintWrapper);
@@ -330,6 +346,13 @@ function AddonQuiz_create() {
         presenter.activeElements.push($nextButton);
         presenter.nextButton = $nextButton;
         $buttons.append($nextButton);
+        if (state.wasWrong){
+            gameLostMessage();
+        } else if (state.haveWon){
+            gameWonMessage();
+        } else if (!showAnswer) {
+            bindEvents();
+        }
     };
 
     function initializeLogic(view, model, preview) {
@@ -398,15 +421,7 @@ function AddonQuiz_create() {
             return;
         }
         state = JSON.parse(gotState);
-        cleanWorkspace();
-        if (state.wasWrong){
-            gameLostMessage();
-        } else if (state.haveWon){
-            gameWonMessage();
-        } else {
-            showCurrentQuestion();
-            bindEvents();
-        }
+        showCurrentQuestion();
         presenter.setVisibility(state.isVisible);
     };
 
