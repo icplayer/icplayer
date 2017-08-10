@@ -156,5 +156,23 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public void changeHeaderVisibility(boolean isVisible) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeFooterVisibility(boolean isVisible) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void gotoCommonPageId(String id) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

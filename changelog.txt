@@ -1,3 +1,8 @@
+2017-08-10 Added keyboard navigation (WCAG) for connection addon.
+2017-08-09 Added gotoCommonPageId, setHeaderVisibility, setFooterVisibility commands for player.
+2017-08-09 Fixed problem with double mathjax rendering in ordering module.
+2017-08-08 Added keyboard navigation (WCAG) to Source List module and draggable gaps in Text module
+2017-08-08 Added WCAG for GotoPageButton.
 2017-08-04 Added EOG event for Hangman addon
 2017-08-04 Added keyboard navigation and timer feature to Memo Game module
 2017-08-04 Fixed problem with different display of math gaps in editor and player.

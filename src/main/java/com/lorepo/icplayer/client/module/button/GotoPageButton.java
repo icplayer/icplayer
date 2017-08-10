@@ -3,19 +3,22 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-class GotoPageButton extends PushButton{
+class GotoPageButton extends PushButton implements IWCAG {
 	
 	private IPlayerServices playerServices;
+	private String pageName = "";
+	private String pageIndex = "";
 	
 	private static boolean isNatural(String str) {
 	  return str.matches("(\\d+)?");
 	}
 
 	
-	public GotoPageButton(final String pageName, final String pageIndex, IPlayerServices services) {
+	public GotoPageButton(String pageName, String pageIndex, IPlayerServices services) {
 		this.playerServices = services;
 
 		
@@ -30,55 +33,64 @@ class GotoPageButton extends PushButton{
 			getElement().setInnerText("Page Index must be a positive number");
 			return;
 		}
-
-		if (services != null) {
-			if (pageName != null && pageName != "" && pageName.startsWith("CM_")) {
-
-				final String commonsPageName = pageName.replaceFirst("CM_", "");
-				final IPlayerCommands playerCommands = services.getCommands();
-				addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-
-						event.stopPropagation();
-						event.preventDefault();
-
-						if(commonsPageName != "" && commonsPageName != null) {
-							if(isCommonPageNameCorrect(commonsPageName)) {
-								playerCommands.gotoCommonPage(commonsPageName);
-							}
-						}
-					}
-				});
-			} else {
-				final int pageCount = services.getModel().getPageCount();
-				final int currentPageIndex = services.getCurrentPageIndex()+1;
-				final IPlayerCommands playerCommands = services.getCommands();
-
-				addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
 		
-						event.stopPropagation();
-						event.preventDefault();
+		this.pageName = pageName;
+		this.pageIndex = pageIndex;
+		
+		if (services != null) {
+			addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					event.stopPropagation();
+					event.preventDefault();
+					
+					execute();
+				}
+			});
+		}
+				
+				
 
-						if(pageName != "" && pageName != null) {
-							if(isPageNameCorrect(pageName)) {
-								playerCommands.gotoPage(pageName);
-							}
-						}
-
-						if(pageIndex != "" && pageIndex != null) {
-							int index = Integer.parseInt(pageIndex);
-							if(index <= pageCount && index != currentPageIndex){
-								playerCommands.gotoPageIndex(index-1);
-							}
-						}
-					}
-				});
+	}
+	
+	public void execute() {
+		if (this.pageName != null && this.pageName != "" && this.pageName.startsWith("CM_")) {
+			this.gotoCommonPage();
+		} else {
+			this.gotoPage();
+		}
+	}
+	
+	void gotoCommonPage() {
+		String commonsPageName = this.pageName.replaceFirst("CM_", "");
+		IPlayerCommands playerCommands = this.playerServices.getCommands();
+		
+		if(commonsPageName != "" && commonsPageName != null) {
+			if(isCommonPageNameCorrect(commonsPageName)) {
+				playerCommands.gotoCommonPage(commonsPageName);
 			}
 		}
 	}
 	
-	private boolean isCommonPageNameCorrect(String commonPageName) {
+	void gotoPage() {
+		int pageCount = this.playerServices.getModel().getPageCount();
+		int currentPageIndex = this.playerServices.getCurrentPageIndex()+1;
+		IPlayerCommands playerCommands = this.playerServices.getCommands();
+		
+		if(this.pageName != "" && this.pageName != null) {
+			if(isPageNameCorrect(this.pageName)) {
+				playerCommands.gotoPage(this.pageName);
+			}
+		}
+		
+		if(this.pageIndex != "" && this.pageIndex != null) {
+			int index = Integer.parseInt(this.pageIndex);
+			if(index <= pageCount && index != currentPageIndex){
+				playerCommands.gotoPageIndex(index-1);
+			}
+		}
+	}
+	
+	boolean isCommonPageNameCorrect(String commonPageName) {
 		int pageCount = playerServices.getModel().getCommonPages().getAllPages().size();
 
 		for (int i = 0; i < pageCount; i++) {
@@ -107,6 +119,12 @@ class GotoPageButton extends PushButton{
 			}
 		}
 		
-		return false;
+		return false;		
+	}
+
+
+	@Override
+	public void enter() {
+		this.execute();
 	} 
 }
