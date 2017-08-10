@@ -252,12 +252,8 @@ function AddonQuiz_create() {
         }
     };
 
-    function createDiv(cls){
-        return $('<div class="'+ cls + '"></div>');
-    }
-
     function addProgressBar(wrapper) {
-        var progress = createDiv('quiz-progress'),
+        var progress = $('<div class="quiz-progress"></div>'),
             current = state.currentQuestion,
             len = presenter.config.questions.length,
             info = '<span class="current-question-number">' + current + '</span>' +
@@ -316,8 +312,10 @@ function AddonQuiz_create() {
                 $tip.clickAction = getSelectItemAction(answer, $tip);
             }
 
-            if (answer==q.CorrectAnswer) {
-                if (showAnswer || state.selectedAnswer == answer) {
+            if (answer == q.CorrectAnswer) {
+                if (showAnswer) {
+                    $tip.addClass('correct-answer');
+                } else if (state.selectedAnswer == answer) {
                     $tip.addClass('correct-answer');
                     if (state.currentQuestion < presenter.config.questions.length) {
                         $nextButton.addClass('active');
