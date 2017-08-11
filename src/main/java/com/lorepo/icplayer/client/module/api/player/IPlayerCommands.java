@@ -30,10 +30,14 @@ public interface IPlayerCommands {
 	void incrementCheckCounter();
 	void increaseMistakeCounter();
 	public void gotoCommonPage(String commonsPageName);
-	void showPopup(String pageName, String top, String left,
-			String additionalClasses);
+	public void gotoCommonPageId(String id);
+	void showPopup(String pageName, String top, String left, String additionalClasses);
 	void updateCurrentPageScoreWithMistakes(int mistakes);
 	int getIframeScroll();
+
 	
 	void goToLastVisitedPage();
+
+	void changeHeaderVisibility(boolean isVisible);
+	void changeFooterVisibility(boolean isVisible);
 }

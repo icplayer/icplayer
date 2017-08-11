@@ -223,4 +223,10 @@ public class PlayerControllerMockup implements IPlayerController {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void switchToCommonPageById(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
