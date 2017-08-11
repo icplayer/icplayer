@@ -10,12 +10,18 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.tools.ant.filters.StringInputStream;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -34,14 +40,63 @@ import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v1;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTContentTestCase extends GwtTest {
 
 	private boolean receivedEvent = false;
 	private String DEFAULT = "default";
+	
 
+	private Content initContentFromFile(String path) throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream(path);
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+	
+		ContentParser_v0 parser = new ContentParser_v0();
+		parser.setPagesSubset(new ArrayList<Integer> ());
+		return (Content) parser.parse(element);
+	}
+	
+	private Content initContentFromFileV2(String path) throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream(path);
+		
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+	
+		ContentParser_v1 parser2 = new ContentParser_v1();
+		parser2.setPagesSubset(new ArrayList<Integer> ());
+		return (Content) parser2.parse(element);
+	}
 
+	private static Content initContentFromString(String xml) throws SAXException, IOException {
+
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(new StringInputStream(xml));
+		
+		ContentParser_v0 parser = new ContentParser_v0();
+		parser.setPagesSubset(new ArrayList<Integer> ());
+		
+		return (Content) parser.parse(element);
+	}
+	
+	private String getFromFile(String path) throws IOException {
+		InputStream xmlStream = getClass().getResourceAsStream(path);
+		Scanner s = new Scanner(xmlStream).useDelimiter("\\A");
+		String result = s.hasNext() ? s.next() : "";
+		return result;
+	}
+
+	@Before
+	public void setUp() {
+		XMLUnit.setIgnoreWhitespace(true);
+		XMLUnit.setIgnoreComments(true);
+		XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
+		XMLUnit.setNormalizeWhitespace(true);
+		XMLUnit.setIgnoreAttributeOrder(true);
+	}
+	
 	@Test
 	public void toXMLNotNull() {
 
@@ -111,7 +166,6 @@ public class GWTContentTestCase extends GwtTest {
 
 	@Test
 	public void toXMLCheckValid() throws SAXException, IOException {
-
 		Content model = initContentFromFile("testdata/content.xml");
 		String xml = model.toXML();
 		initContentFromString(xml);
@@ -255,28 +309,6 @@ public class GWTContentTestCase extends GwtTest {
 		content.addAsset(new ImageAsset("/file/2"));
 
 		assertEquals(1, content.getAssetCount());
-	}
-
-	private Content initContentFromFile(String path) throws SAXException, IOException {
-		InputStream inputStream = getClass().getResourceAsStream(path);
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		ContentParser_v0 parser = new ContentParser_v0();
-		parser.setPagesSubset(new ArrayList<Integer> ());
-		
-		return (Content) parser.parse(element);
-	}
-
-	private static Content initContentFromString(String xml) throws SAXException, IOException {
-
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(new StringInputStream(xml));
-		
-		ContentParser_v0 parser = new ContentParser_v0();
-		parser.setPagesSubset(new ArrayList<Integer> ());
-		
-		return (Content) parser.parse(element);
 	}
 
 	@Test
@@ -522,7 +554,6 @@ public class GWTContentTestCase extends GwtTest {
 
 	@Test
 	public void currentChapterCommons() throws SAXException, IOException {
-
 		Content content = initContentFromFile("testdata/content4.xml");
 		String xml = content.toXML();
 		content = initContentFromString(xml);
@@ -542,5 +573,31 @@ public class GWTContentTestCase extends GwtTest {
 		IChapter parent = (IChapter) content.getPages().get(3);
 		IContentNode node = parent.get(0);
 		assertEquals(parent, content.getParentChapter(node));
+	}
+	
+	@Test
+	public void loadToXMLHaveToPreserverModulesMaxScoresNonSemiResponsive() throws SAXException, IOException {
+		Content content = initContentFromFile("testdata/contentWithModulesMaxScores.xml");
+		
+		String result = content.toXML();
+		
+		String testXML = this.getFromFile("testdata/contentWithModulesMaxScoresExpectedResult.xml");
+		Diff diff = new Diff(testXML, result);
+		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+		
+        XMLAssert.assertXMLEqual(diff, true);
+	}
+	
+	@Test
+	public void loadToXMLHaveToPreserverModulesMaxScoresSemiResponsiveVersion2() throws SAXException, IOException {
+		Content content = initContentFromFileV2("testdata/contentWithModulesSemiResponsiveMaxScoresV2.xml");
+		
+		String result = content.toXML();
+		
+		String testXML = this.getFromFile("testdata/contentWithModulesSemiResponsiveMaxScoresV2ExpectedResult.xml");
+		Diff diff = new Diff(testXML, result);
+		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+		
+        XMLAssert.assertXMLEqual(diff, true);
 	}
 }

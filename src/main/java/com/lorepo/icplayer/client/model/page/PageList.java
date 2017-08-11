@@ -346,6 +346,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		final String pageId = node.getAttribute("id");
 		final String preview = XMLUtils.getAttributeAsString(node, "preview");
 		final String pageWeightAttribute = node.getAttribute("pageWeight");
+		final int moduleMaxScore = XMLUtils.getAttributeAsInt(node, "modulesMaxScore", 0);
 		final boolean isEmpty = pageWeightAttribute == null || pageWeightAttribute.isEmpty();
 		final int weight = isEmpty ? 1 : (int) Float.parseFloat(pageWeightAttribute);
 
@@ -358,6 +359,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		page.setPageWeight(weight);
 		page.setReportable(reportable);
 		page.setPreview(preview);
+		page.setModulesMaxScore(moduleMaxScore);
 		return page;
 	}
 

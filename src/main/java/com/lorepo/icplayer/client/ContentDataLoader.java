@@ -35,6 +35,10 @@ public class ContentDataLoader {
 		this.baseUrl = baseUrl;
 		this.addonsLoaderFactory = new AddonLoaderFactory(baseUrl);
 	}
+	
+	public ContentDataLoader() {
+		this.addonsLoaderFactory = new AddonLoaderFactory(baseUrl);
+	}
 
 	public void addPage(Page page) {
 		pages.add(page);
@@ -42,6 +46,10 @@ public class ContentDataLoader {
 	
 	public void addAddons(Collection<AddonDescriptor> descriptors) {
 		this.descriptors = descriptors;
+	}
+	
+	public void setBaseUrl(String baseURL) {
+		this.baseUrl = baseURL;
 	}
 
 	public void load(ILoadListener listener) {
