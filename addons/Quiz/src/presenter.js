@@ -216,7 +216,7 @@ function AddonQuiz_create() {
                     state.answersOrder[i] = null;
                 }
             }
-            showCurrentQuestion();
+            presenter.showCurrentQuestion();
             bindEvents();
         }
     };
@@ -236,7 +236,7 @@ function AddonQuiz_create() {
             state.selectedAnswer = null;
             state.answersOrder = false;
             state.currentQuestion++;
-            showCurrentQuestion();
+            presenter.showCurrentQuestion();
             bindEvents();
         }
     }
@@ -381,7 +381,7 @@ function AddonQuiz_create() {
         presenter.$view = $(view);
         try {
             presenter.config = getConfig(model);
-            showCurrentQuestion();
+            presenter.showCurrentQuestion();
         } catch (error){
             var $error = $('<div class="quiz-error-layer"></div>');
             var text = "<strong>" + error.name + "</strong>: " + error.message;
@@ -395,7 +395,7 @@ function AddonQuiz_create() {
         }
     };
 
-    function showCurrentQuestion() {
+    presenter.showCurrentQuestion = function AddonQuiz_showCurrentQuestion() {
         showQuestion(getCurrentQuestion(), false);
     }
 
@@ -442,7 +442,7 @@ function AddonQuiz_create() {
             return;
         }
         state = JSON.parse(gotState);
-        showCurrentQuestion();
+        presenter.showCurrentQuestion();
         presenter.setVisibility(state.isVisible);
     };
 
@@ -485,7 +485,7 @@ function AddonQuiz_create() {
     presenter.reset = function AddonQuiz_reset() {
         presenter.setWorkMode();
         setupDefaults();
-        showCurrentQuestion();
+        presenter.showCurrentQuestion();
         bindEvents();
         presenter.setVisibility(presenter.config.isVisible);
     };
@@ -588,7 +588,7 @@ function AddonQuiz_create() {
     }
 
     function hideAnswers() {
-        showCurrentQuestion();
+        presenter.showCurrentQuestion();
     }
 
     return presenter;
