@@ -291,9 +291,17 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void removeDefaultStyle() {
 	}
+	
+	private void setFocus(boolean focus) {
+		if (focus) {
+			addStyleName("keyboard_navigation_active_element");
+		} else {
+			removeStyleName("keyboard_navigation_active_element");
+		}
+	}
 
 	@Override
 	public void setFocusGap(boolean focus) {
-		
+		setFocus(focus);
 	}
 }
