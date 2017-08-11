@@ -3,6 +3,23 @@ function Addongamememo_create(){
 
     var playerController;
     var eventBus;
+    var keyboardController = null;
+
+    function MemoKeyboardController(elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+    MemoKeyboardController.prototype = Object.create(KeyboardController.prototype);
+    MemoKeyboardController.prototype.constructor = MemoKeyboardController;
+
+    MemoKeyboardController.prototype.getTarget = function (element) {
+        return element.find('.placeholder');
+    };
+
+    MemoKeyboardController.prototype.selectAction = function () {
+        if (!this.keyboardNavigationCurrentElement.hasClass('was-clicked')) {
+            this.keyboardNavigationCurrentElement.find('.front.placeholder').click();
+        }
+    };
 
     presenter.setPlayerController = function (controller) {
         playerController = controller;
@@ -72,6 +89,10 @@ function Addongamememo_create(){
     presenter.errorCount = 0;
     presenter.score = 0;
     presenter.maxScore = null;
+    presenter.timeToSolve = 0;
+    presenter.timer = null;
+    presenter.sessionStarted = null;
+    presenter.spendTime = 0;
 
     presenter.preview = false;
     presenter.previewCards = false;
@@ -115,6 +136,13 @@ function Addongamememo_create(){
 
         presenter.viewContainer.html(errorContainer);
     };
+
+    function getTimeToSolve(model) {
+        var tts = model['Time to solve'];
+        // parse time to solve and return it in seconds
+        tts = parseInt(tts, 10);
+        return tts
+    }
 
     presenter.readConfiguration = function(model) {
         if(model['Pairs'].length == 0) {
@@ -194,6 +222,8 @@ function Addongamememo_create(){
         presenter.isActivity = !(ModelValidationUtils.validateBoolean(model['Is Not Activity']));
         presenter.imageMode = model['Image Mode'];
         presenter.keppWrongMarking = ModelValidationUtils.validateBoolean(model['Keep wrong marking']);
+        presenter.timeToSolve = getTimeToSolve(model);
+        presenter.sessionEndedMessage = model['Session ended message'];
 
         var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
@@ -395,8 +425,14 @@ function Addongamememo_create(){
 
         presenter.score++;
 
-        if (presenter.isAllOK() && presenter.isActivity) {
-            presenter.sendAllOKEvent();
+        if (presenter.isAllOK()) {
+            removeTimers();
+            var now = new Date();
+            presenter.spendTime += now - presenter.sessionStarted;
+            presenter.sessionStarted = null;
+            if (presenter.isActivity) {
+                presenter.sendAllOKEvent();
+            }
         }
     };
 
@@ -433,6 +469,10 @@ function Addongamememo_create(){
 
     presenter.onCardClicked = function(e) {
         e.stopPropagation();
+
+        if (presenter.sessionStarted === null) {
+            presenter.startSession();
+        }
 
         var eventData;
         var cardId = $(e.target).parent().find('.card').attr('card_id');
@@ -513,6 +553,7 @@ function Addongamememo_create(){
 
     presenter.createGrid = function() {
         var cards = presenter.cards;
+        var keyboardNavigationElements = [];
 
         var $container = $('<div class="gamememo_container"></div>');
 
@@ -568,7 +609,13 @@ function Addongamememo_create(){
                 }
 
                 $container.append(cell);
+                keyboardNavigationElements.push(cell);
             }
+        }
+        if (keyboardController !== null) {
+            keyboardController.reload(keyboardNavigationElements, presenter.columnCount);
+        } else {
+            keyboardController = new MemoKeyboardController(keyboardNavigationElements, presenter.columnCount);
         }
 
         var img;
@@ -699,6 +746,10 @@ function Addongamememo_create(){
 
     };
 
+    presenter.destroy = function () {
+        removeTimers();
+    };
+
     presenter.run = function(view, model) {
         presenter.preview = false;
         eventBus = playerController.getEventBus();
@@ -706,6 +757,11 @@ function Addongamememo_create(){
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
         presenter.setVisibility(presenter.configuration.isVisible);
+        view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
     };
 
     presenter.createPreview = function(view, model) {
@@ -713,18 +769,102 @@ function Addongamememo_create(){
         presenter.initializeLogic(view, model);
     };
 
+    var sendSessionEvent = function (eventType) {
+        var eventData = {
+            'source': presenter.ID,
+            'item': eventType,
+            'value': '',
+            'score': ''
+        };
+        eventBus.sendEvent('ItemSelected', eventData);
+    };
+
+    presenter.startSession = function () {
+        if (presenter.timeToSolve > 0) {
+            presenter.sessionStarted = new Date();
+            var timeout = presenter.timeToSolve*1000 - presenter.spendTime;
+            if (timeout <= 0 ){
+                presenter.setLockScreen();
+            } else {
+                presenter.timer = setTimeout(presenter.setLockScreen, timeout);
+                presenter.timeInterval = setInterval(presenter.sendTimerEvent, 1000);
+                sendSessionEvent('startSession');
+            }
+        }
+    };
+
+     function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        minutes = (minutes >= 10) ? minutes : "0" + minutes;
+        seconds = Math.floor(seconds % 60);
+        seconds = (seconds >= 10) ? seconds : "0" + seconds;
+        return minutes + ":" + seconds;
+    }
+
+    presenter.sendTimerEvent = function AddonMemo_sendTimerEvent() {
+        var now = new Date(),
+        spendTime = Math.round(((now - presenter.sessionStarted) + presenter.spendTime) / 1000),
+        remainingTime = presenter.timeToSolve - spendTime,
+        progress = Math.round(100 * spendTime / presenter.timeToSolve),
+        eventData = {
+            'source': presenter.ID,
+            'item': progress,
+            'value': formatTime(spendTime),
+        };
+        eventBus.sendEvent('ItemConsumed', eventData);
+    };
+
+    function removeTimers() {
+        if (presenter.timeInterval){
+            clearInterval(presenter.timeInterval);
+        }
+        if (presenter.timer){
+            clearTimeout(presenter.timer);
+        }
+    };
+
+    presenter.setLockScreen = function AddonMemo_setLockScreen() {
+        presenter.turnOffUserInteraction();
+        var gamememo_container = presenter.viewContainer.find('.gamememo_container');
+        var lockScreen = $('<div class="memo-lock-screen"></div>'),
+            lockScreenInfo = $('<div class="memo-lock-screen-info"></div>');
+        lockScreenInfo.html(presenter.sessionEndedMessage);
+        gamememo_container.append(lockScreen);
+        gamememo_container.append(lockScreenInfo);
+        sendSessionEvent('endSession');
+        removeTimers();
+    };
+
+    presenter.removeLockScreen = function AddonMemo_removeLockScreen() {
+        var gamememo_container = presenter.viewContainer.find('.gamememo_container');
+        gamememo_container.find('.memo-lock-screen').remove();
+        gamememo_container.find('.memo-lock-screen-info').remove();
+    };
+
     presenter.getState = function() {
-        return JSON.stringify({
+        var state ={
             score: presenter.score,
             errorCount: presenter.errorCount,
             cards: presenter.serializedCards,
             isVisible: presenter.configuration.isVisible
-        });
+        };
+        if (presenter.timeToSolve > 0) {
+            var spendTime = presenter.spendTime;
+            if (presenter.sessionStarted !== null) {
+                var now = new Date();
+                spendTime += now - presenter.sessionStarted
+            }
+            state['spendTime'] = spendTime;
+        }
+        return JSON.stringify(state);
     };
 
     presenter.setState = function(state) {
         var stateObj = JSON.parse(state);
 
+        if (stateObj.spendTime) {
+            presenter.spendTime = stateObj.spendTime;
+        }
         presenter.viewContainer.html('<div></div>');
         presenter.score = stateObj.score;
         presenter.errorCount = stateObj.errorCount;
@@ -748,6 +888,11 @@ function Addongamememo_create(){
         if (stateObj.isVisible != undefined) {
             presenter.configuration.isVisible = stateObj.isVisible;
             presenter.setVisibility(presenter.configuration.isVisible);
+        }
+
+        if (presenter.timeToSolve && presenter.spendTime &&
+            (presenter.timeToSolve*1000 <= presenter.spendTime)){
+                presenter.setLockScreen();
         }
     };
 
@@ -777,6 +922,12 @@ function Addongamememo_create(){
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        if (presenter.timeToSolve) {
+            presenter.spendTime = 0;
+            presenter.sessionStarted = null;
+            presenter.removeLockScreen();
+            removeTimers()
+        }
     };
 
     presenter.getErrorCount = function() {
@@ -918,10 +1069,12 @@ function Addongamememo_create(){
     }
 
     presenter.turnOffUserInteraction = function () {
+        keyboardController.selectEnabled(false);
         unbindOnCardsCollection(getClickablePartOfCards());
     };
 
     presenter.turnOnUserInteraction = function () {
+        keyboardController.selectEnabled(true);
         bindClickInteractionOnCardsCollection(getClickablePartOfCards());
     };
 
@@ -955,6 +1108,7 @@ function Addongamememo_create(){
 
         presenter.showCard(presenter.viewContainer.find('.cell'));
         presenter.viewContainer.find('.cell').addClass('.cell-show-answers');
+        keyboardController.selectEnabled(false);
     };
 
     presenter.hideAnswers = function () {
@@ -970,6 +1124,7 @@ function Addongamememo_create(){
         presenter.viewContainer.find('.was-clicked').find('.back').css('visibility', 'visible');
 
         presenter.isShowAnswersActive = false;
+        keyboardController.selectEnabled(true);
     };
 
     presenter.show = function() {
@@ -986,6 +1141,11 @@ function Addongamememo_create(){
         presenter.viewContainer.css("visibility", isVisible ? "visible" : "hidden");
         presenter.viewContainer.css("display", isVisible ? "block" : "none");
     };
+
+    presenter.keyboardController = function(keycode) {
+        keyboardController.handle(keycode)
+    };
+
 
     return presenter;
 }

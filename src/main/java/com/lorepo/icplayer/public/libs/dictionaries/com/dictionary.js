@@ -748,6 +748,8 @@ var ice_dictionary_en = {
 	"gamememo_property_show_cards_for_preview": "Show cards for preview",
     "gamememo_property_image_mode": "Image Mode",
     "gamememo_property_keep_wrong_marking": "Keep wrong marking",
+    "gamememo_property_time_to_solve": "Time to solve the task",
+    "gamememo_property_session_ended_message": "Session ended message",
 	"MultiAudio_info": "It is an upgraded version of the Audio addon. It has been additionally enriched with new features, such as uploading multiple audio files, enabling loop for each file individually, jumping between files and the improved interface selection.",
 	"MultiAudio_name": "MultiAudio",
 	"MultiAudio_property_files": "Files",

@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir="." default="Addon.test">
     <property file="build.properties" />
-    <property name="commons.version" value="4.1.0" />
+    <property name="commons.version" value="4.2.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
     <import file="../tools/targets.xml" />
@@ -20,6 +20,7 @@
             <arg line="--js src/watermark.js" />
             <arg line="--js src/helpers.js" />
             <arg line="--js src/mobile-devices.js" />
+            <arg line="--js src/keyboard-controller.js" />
             <arg line="--js src/devices.js" />
             <arg line="--js src/commands.js" />
             <arg line="--js src/image-viewer.js" />
@@ -55,6 +56,7 @@
  * - Events Utils
  * - Model Error Utils
  * - Blockly Custom Scene Blocks
+ * - Keyboard Navigation Controller
  */</concat>
 
     </target>
