@@ -277,6 +277,7 @@
         if (value === undefined){
             return true;
         }
+        value = String(value);
         if (value.indexOf('<img') > -1){
             return false;
         }
