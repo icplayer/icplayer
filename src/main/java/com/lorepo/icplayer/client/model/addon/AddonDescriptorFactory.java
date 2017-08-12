@@ -89,7 +89,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Table_Of_Contents", "navigation_menu");
 		addDescriptor("Hierarchical_Table_Of_Contents", "navigation_menu");
 
-		// SCRIPTING
+		// MEDIA
 		addDescriptor("Viewer_3D", "media_menu");
 		addDescriptor("Animation", "media_menu");
 		addDescriptor("Audio", "media_menu");
@@ -135,12 +135,12 @@ public class AddonDescriptorFactory {
 		addDescriptor("ProgrammingCommandPrompt", "scripting_menu");
 		addDescriptor("Grid_Scene", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");
+		addDescriptor("Text_To_Speech", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");
 		addDescriptor("LearnPen_Data", "learn_pen_menu");
 		addDescriptor("LearnPen_Report", "learn_pen_menu");
-
 	}
 
 	private void addDescriptor(String id, String category) {

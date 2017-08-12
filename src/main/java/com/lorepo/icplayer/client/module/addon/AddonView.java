@@ -41,4 +41,10 @@ public class AddonView extends HTML implements IDisplay {
 	public void setViewHTML(String html) {
 		setHTML(html);
 	}
+
+
+	@Override
+	public String getName() {
+		return "AddonView";
+	}
 }

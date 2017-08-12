@@ -13,9 +13,11 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.choice.ChoiceView;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public final class KeyboardNavigationController {
@@ -35,6 +37,7 @@ public final class KeyboardNavigationController {
 	private List<String> bookPageWidgets = new ArrayList<String>();
 	private boolean modeOn = false;
 	private PlayerEntryPoint entryPoint;
+	private PageController mainPageController;
 
 	private enum ExpectedModules {
 		// Navigation modules
@@ -43,27 +46,28 @@ public final class KeyboardNavigationController {
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
 
-			for(ExpectedModules choice:values()) {
+			for (ExpectedModules choice:values()) {
 				if (choice.name().equals(s)) {
-				   return true; 
+					return true; 
 				}
 			}
 			return false;
 		}
 	}
 	
-	private void initialSelect() {	
+	private void initialSelect() {
 		if (modulesNames.size() == 0) return; // None of navigation modules on page
 		
 		String moduleName = modulesNames.get(0);
 		Widget w = navigationWidgets.get(moduleName);
-
+		
 		if (w == null) return; // there is no modules to select
+		
 		selectModule(moduleName);
 		currentModuleName = moduleName;
 		isInitiated = true;
 		
-		setModuleStatus(moduleName, true, false);	
+		setModuleStatus(moduleName, true, false);
 	}
 	
 	// we must update this position because each of page has different number of modules
@@ -75,7 +79,7 @@ public final class KeyboardNavigationController {
 		}
 	}
 	
-	public void fillModulesNamesList() {	
+	public void fillModulesNamesList() {
 		modulesNames.clear();
 		if(!headerWidgets.isEmpty()) {
 			modulesNames.addAll(headerWidgets);
@@ -101,7 +105,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private boolean isModuleInBookView(String moduleName) {
-		return (moduleName.length() >= 5 && moduleName.charAt(2) == 'b');
+		return moduleName.length() >= 5 && moduleName.charAt(2) == 'b';
 	}
 	
 	// Sometimes modules can remove classes just activated or selected modules. We must restore them.
@@ -207,6 +211,7 @@ public final class KeyboardNavigationController {
 
 		Widget widget = navigationWidgets.get(currentModuleName);
 		widget.getElement().addClassName("ic_active_module");
+		playTextToSpeechContent(widget);
 
 		this.moduleIsActivated = true;
 		
@@ -215,7 +220,7 @@ public final class KeyboardNavigationController {
 	
 	private void deselectModule(String currentModuleName) {
 		if (currentModuleName.isEmpty()) return;
-		
+
 		Widget currentWidget = navigationWidgets.get(currentModuleName);
 		currentWidget.getElement().removeClassName("ic_selected_module");
 		currentWidget.getElement().removeClassName("ic_active_module");
@@ -307,6 +312,8 @@ public final class KeyboardNavigationController {
 		widget.getElement().addClassName("ic_selected_module");
 
 		entryPoint.onScrollTo(widget.getAbsoluteTop());
+		
+		TextToSpeech.playTitle(moduleName.substring(5), mainPageController);
 	}
 	
 	private boolean isCommonModule() { 
@@ -356,11 +363,24 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void setPlayerService(IPlayerServices ps, boolean isBookMode) {
-		if (isBookMode) {
-			playerServices.put("BookMode", ps);
-		} else {
-			playerServices.put("SingleMode", ps);
+		playerServices.put(isBookMode ? "BookMode" : "SingleMode", ps);
+	}
+	
+	protected List<String> sortModulesFromTextToSpeech (List<String> modulesNamesFromPage, List<String> modulesNamesFromTTS) {
+		final String mainPagePrefix = "__m__";
+		
+		for (int i=0; i<modulesNamesFromTTS.size(); i++) {
+			String mn = mainPagePrefix + modulesNamesFromTTS.get(i);
+			modulesNamesFromTTS.set(i, mn);
+			
+			if (modulesNamesFromPage.contains(mn)) {
+				modulesNamesFromPage.remove(mn);
+			}
 		}
+		
+		modulesNamesFromTTS.addAll(modulesNamesFromPage);
+		
+		return modulesNamesFromTTS;
 	}
 	
 	private List<String> getProperModulesToList(List<IPresenter> presenters, HashMap<String, Widget> widgets, String prefix) {
@@ -373,8 +393,12 @@ public final class KeyboardNavigationController {
 			
 			if (isModuleExpected) {
 				// for text modules
-				if (moduleTypeName.equals("text")){
-					if (!((TextPresenter) presenter).isSelectable()) continue;
+				if (moduleTypeName.equals("text")) {
+					TextPresenter textPresenter = (TextPresenter) presenter;
+					
+					if (!textPresenter.isSelectable() && TextToSpeech.getModulesOrder(mainPageController).isEmpty()) {
+						continue;
+					}
 				}
 				
 				tempModulesNames.add(prefix + presenter.getModel().getId());
@@ -382,7 +406,19 @@ public final class KeyboardNavigationController {
 			}
 		}
 		
-		return tempModulesNames;
+		return sortModulesFromTextToSpeech(tempModulesNames, TextToSpeech.getModulesOrder(mainPageController));
+	}
+	
+	private void playTextToSpeechContent (Widget widget) {
+		IModuleView imv = (IModuleView) widget;
+		
+		if (imv.getName() == "Choice") {
+			ChoiceView choice = (ChoiceView) widget;
+			choice.setPageController(mainPageController);
+			choice.setTextToSpeechVoices(TextToSpeech.getMultiPartDescription(currentModuleName.substring(5), mainPageController));
+		} else {
+			TextToSpeech.playDescription(currentModuleName.substring(5), mainPageController);
+		}
 	}
 	
 	private void addToNavigation(PageController controller, List<String> widgets, String prefix) {
@@ -403,6 +439,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void addMainToNavigation(PageController controller) {
+		mainPageController = controller;
 		addToNavigation(controller, mainPageWidgets, "__m__");
 	}
 	

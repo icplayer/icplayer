@@ -147,4 +147,10 @@ public class ButtonView extends Composite implements IDisplay {
 			((ResetButton) widget).execute();
 		}
 	}
+
+
+	@Override
+	public String getName() {
+		return "Button";
+	}
 }

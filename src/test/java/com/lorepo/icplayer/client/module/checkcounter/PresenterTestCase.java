@@ -21,6 +21,12 @@ public class PresenterTestCase {
 		public void setData(int value) {
 			this.value = value;
 		}
+
+		@Override
+		public String getName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	

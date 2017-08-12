@@ -14,6 +14,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.TextToSpeech;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
@@ -25,11 +27,12 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private ArrayList<IOptionDisplay> orderedWidgets = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
 	private int[] order;
+	private PageController pageController;
+	private List<String> optionsVoices;
 	
 	private int position = -1;
 	
-	public ChoiceView(ChoiceModel module, boolean isPreview){
-	
+	public ChoiceView(ChoiceModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
 	}
@@ -187,6 +190,38 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 	
+	private void previous () {
+		position--;
+		
+		if (position < 0) {
+			position = optionWidgets.size()-1;
+		}
+		
+		IOptionDisplay option = optionWidgets.get(position);
+
+		for (IOptionDisplay widget : optionWidgets) {
+			widget.removeBorder();
+		}
+		
+		if (option != null) {
+			option.addBorder();
+		}
+	}
+	
+	public void setPageController (PageController pageController) {
+		this.pageController = pageController;
+	}
+	
+	public void setTextToSpeechVoices (List<String> optionsVoices) {
+		this.optionsVoices = optionsVoices;
+	}
+	
+	private void textToSpeechCurrentOption () {
+		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
+		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
+		TextToSpeech.speak(text, this.pageController);
+	}
+	
 	private void select() {
 		if (position < 0) return;
 		
@@ -199,11 +234,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 
 		if (option != null) {
-			if (option.isDown()) {
-				option.setDown(false);
-			} else {
-				option.setDown(true);
-			}
+			option.setDown(!option.isDown());
 		}
 	}
 
@@ -233,11 +264,25 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 		if (code == KeyCodes.KEY_ENTER) {
 			addBorder();
+			textToSpeechCurrentOption();
 		}
 		
 		if (code == KeyCodes.KEY_TAB) {
 			event.preventDefault();
 			skip();
+			textToSpeechCurrentOption();
+		}
+		
+		if (code == KeyCodes.KEY_UP) {
+			event.preventDefault();
+			previous();
+			textToSpeechCurrentOption();
+		}
+		
+		if (code == KeyCodes.KEY_DOWN) {
+			event.preventDefault();
+			skip();
+			textToSpeechCurrentOption();
 		}
 		
 		//space key
@@ -250,5 +295,10 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			event.preventDefault();
 			removeBorder();
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "Choice";
 	}
 }

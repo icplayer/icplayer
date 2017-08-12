@@ -163,4 +163,9 @@ public class ImageGapView extends Image implements IDisplay {
 	public void removeClass(String className) {
 		StyleUtils.removeClassFromElement(this, className);
 	}
+
+	@Override
+	public String getName() {
+		return "ImageGap";
+	}
 }

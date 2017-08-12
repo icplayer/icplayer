@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Element;
 import com.lorepo.icf.properties.IAudioProperty;
@@ -26,6 +27,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
 import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
@@ -33,20 +35,18 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver{
+public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, ITextToSpeechPresenter {
 
 	public interface IDisplay extends IModuleView{
 		public Element getElement();
 		public void setViewHTML(String viewHTML);
 	}
-	
-	
+
 	private AddonModel model;
-	private JavaScriptObject	jsObject;
+	private JavaScriptObject jsObject;
 	private IPlayerServices services;
 	private IDisplay view;
-	private IAddonDescriptor	addonDescriptor;
-	
+	private IAddonDescriptor addonDescriptor;
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 
@@ -152,12 +152,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in reset(): \n" + err);
 	  	}		
 	}-*/;
-	
-	
-	
+
 	public void startAddon() {
-		
-		if(addonDescriptor != null){
+		if (addonDescriptor != null) {
 			view.setViewHTML(addonDescriptor.getViewHTML());
 			run();
 		}
@@ -391,7 +388,80 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in setState(): \n" + err);
 	  	}
 	}-*/;
+	
+	@Override
+	public void playTitle (String id) {
+		playTitle(jsObject, id, addonDescriptor.getAddonId());
+	}
+	
+	private native void playTitle (JavaScriptObject obj, String id, String addonId) /*-{
+		try {
+			if (obj.playTitle != undefined) {
+				obj.playTitle(id);
+			}
+		} catch(err) {
+	  		alert("[" + addonId + "] Exception in playTitle(): \n" + err);
+	  	}
+	}-*/;
+	
+	@Override
+	public void playDescription (String id) {
+		playDescription(jsObject, id, addonDescriptor.getAddonId());
+	}
+	
+	private native void playDescription (JavaScriptObject obj, String id, String addonId) /*-{
+		try {
+			if (obj.playDescription != undefined) {
+				obj.playDescription(id);
+			}
+		} catch(err) {
+	  		alert("[" + addonId + "] Exception in playDescription(): \n" + err);
+	  	}
+	}-*/;
+	
+	public void speak (String text) {
+		speak(jsObject, text, addonDescriptor.getAddonId());
+	}
+	
+	private native void speak (JavaScriptObject obj, String text, String addonId) /*-{
+		try {
+			if (obj.speak != undefined) {
+				obj.speak(text);
+			}
+		} catch(err) {
+			alert("[" + addonId + "] Exception in speak(): \n" + err);
+		}
+	}-*/;
 
+	@Override
+	public JsArrayString getAddOnsOrder () {
+		return getAddOnsOrder(jsObject, addonDescriptor.getAddonId());
+	}
+	
+	private native JsArrayString getAddOnsOrder (JavaScriptObject obj, String addonId) /*-{
+		try {
+			if (obj.getAddOnsOrder != undefined) {
+				return obj.getAddOnsOrder();
+			}
+		} catch(err) {
+	  		alert("[" + addonId + "] Exception in playDescription(): \n" + err);
+	  	}
+	}-*/;
+	
+	@Override
+	public JsArrayString getMultiPartDescription(String id) {
+		return getMultiPartDescription(jsObject, id, addonDescriptor.getAddonId());
+	}
+	
+	private native JsArrayString getMultiPartDescription (JavaScriptObject obj, String id, String addonId) /*-{
+		try {
+			if (obj.getMultiPartDescription != undefined) {
+				return obj.getMultiPartDescription(id);
+			}
+		} catch(err) {
+	  		alert("[" + addonId + "] Exception in getMultiPartDescription(): \n" + err);
+	  	}
+	}-*/;
 
 	private native String executeCommand(JavaScriptObject obj, String name, List<String> params) /*-{
 	
@@ -405,12 +475,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}-*/;
 
-
 	@Override
 	public String getName() {
 		return model.getId();
 	}
-
 
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
@@ -422,14 +490,13 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return executeCommand(jsObject, commandName, values);
 	}
 
-
 	@Override
 	public IModuleModel getModel() {
 		return model;
 	}
-
 	
 	public JavaScriptObject getJavaScriptObject(){
 		return jsObject;
 	}
+
 }

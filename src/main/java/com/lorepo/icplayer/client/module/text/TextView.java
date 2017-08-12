@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.text;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -12,6 +13,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
@@ -22,7 +24,7 @@ public class TextView extends HTML implements IDisplay{
 
 	private final TextModel module;
 	private ITextViewListener listener;
-	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
+	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
@@ -167,6 +169,32 @@ public class TextView extends HTML implements IDisplay{
 			}
 		}
 	}
+	
+	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
+		for (int i=startingIndex; i<textElements.size(); i++) {
+			if (textElements.get(i).getGapType() == gapType) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	public void sortGapsOrder () {
+		final List<String> gapsOrder = module.getGapsOrder();
+		
+		for (int i=0; i<textElements.size(); i++) {
+			final String gapType = gapsOrder.get(i);
+			final String currentGapType = textElements.get(i).getGapType();
+			
+			if (gapType != currentGapType) {
+				int correctElementId = getIndexOfNextGapType(i, gapType, textElements);
+				
+				textElements.add(i, textElements.get(correctElementId));
+				textElements.remove(correctElementId+1);
+			}
+		}
+	}
 
 	@Override
 	public void addListener(ITextViewListener l) {
@@ -273,6 +301,7 @@ public class TextView extends HTML implements IDisplay{
 		}
 		
 		TextElementDisplay gap = textElements.get(clicks);
+		
 		gap.setFocusGap(true);
 	}
 	
@@ -352,4 +381,9 @@ public class TextView extends HTML implements IDisplay{
             addon = null;
         }
 	}-*/;
+
+	@Override
+	public String getName() {
+		return "Text";
+	}
 }

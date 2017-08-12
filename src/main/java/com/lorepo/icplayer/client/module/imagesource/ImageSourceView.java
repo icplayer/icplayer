@@ -172,4 +172,9 @@ public class ImageSourceView extends Image implements IDisplay {
 		getElement().getStyle().setLeft(initialLeft, Unit.PX);
 		getElement().getStyle().setTop(initialTop, Unit.PX);
 	}
+
+	@Override
+	public String getName() {
+		return "ImageSource";
+	}
 }

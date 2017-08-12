@@ -24,4 +24,9 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 			setText("");
 		}
 	}
+
+	@Override
+	public String getName() {
+		return "CheckCounter";
+	}
 }

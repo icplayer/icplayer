@@ -118,4 +118,9 @@ public class CheckButtonView extends PushButton implements IDisplay {
 	private void enter() {
 		toggleAnswers();
 	}
+
+	@Override
+	public String getName() {
+		return "CheckButton";
+	}
 }

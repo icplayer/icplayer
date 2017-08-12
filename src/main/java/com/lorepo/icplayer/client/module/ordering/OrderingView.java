@@ -559,4 +559,9 @@ public class OrderingView extends Composite implements IDisplay {
 		setVisible(true);
 		refreshMath();
 	}
+
+	@Override
+	public String getName() {
+		return "Ordering";
+	}
 }

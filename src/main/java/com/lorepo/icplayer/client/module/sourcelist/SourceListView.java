@@ -274,4 +274,9 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	        addon = null;
 	    }
 	}-*/;
+
+	@Override
+	public String getName() {
+		return "SourceList";
+	}
 }

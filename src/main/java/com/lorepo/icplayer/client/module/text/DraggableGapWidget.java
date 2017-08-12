@@ -296,4 +296,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public void setFocusGap(boolean focus) {
 		
 	}
+
+	@Override
+	public String getGapType() {
+		return "draggable";
+	}
+
 }

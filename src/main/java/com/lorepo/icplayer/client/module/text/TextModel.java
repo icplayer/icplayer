@@ -17,6 +17,7 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
+
 public class TextModel extends BasicModuleModel {
 	public String parsedText;
 	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
@@ -41,7 +42,10 @@ public class TextModel extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
-
+	private String textToSpeechTitle = "";
+	private String textToSpeechDescription = "";
+	private List<String> gapsOrder;
+	
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
@@ -61,6 +65,8 @@ public class TextModel extends BasicModuleModel {
 		addPropertyBlockWrongAnswers();
 		addPropertyUserActionEvents();
 		addPropertyUseEscapeCharacterInGap();
+		addPropertyTextToSpeechTitle();
+		addPropertyTextToSpeechDescription();
 	}
 
 	@Override
@@ -71,20 +77,24 @@ public class TextModel extends BasicModuleModel {
 		}
 	}
 
-	public String getGapUniqueId(){
+	public String getGapUniqueId() {
 		return gapUniqueId;
 	}
 
-	public String getParsedText(){
+	public String getParsedText() {
 		return parsedText;
 	}
 
-	public boolean hasDraggableGaps(){
+	public boolean hasDraggableGaps() {
 		return useDraggableGaps;
 	}
 
-	public int getGapWidth(){
+	public int getGapWidth() {
 		return gapWidth;
+	}
+	
+	public List<String> getGapsOrder () {
+		return this.gapsOrder;
 	}
 
 	@Override
@@ -92,7 +102,7 @@ public class TextModel extends BasicModuleModel {
 		super.load(node, baseUrl);
 
 		NodeList nodes = node.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
+		for (int i = 0; i < nodes.getLength(); i++) {
 
 			Node childNode = nodes.item(i);
 			if (childNode instanceof Element) {
@@ -114,12 +124,13 @@ public class TextModel extends BasicModuleModel {
 					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 					userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 					this.useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
+					textToSpeechTitle = XMLUtils.getAttributeAsString(textElement, "textToSpeechTitle");
+					textToSpeechDescription = XMLUtils.getAttributeAsString(textElement, "textToSpeechDescription");
 					
 					if (rawText == null) {
 						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 					}
 					setText(rawText);
-
 				}
 			}
 		}
@@ -140,6 +151,7 @@ public class TextModel extends BasicModuleModel {
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
+		gapsOrder = parser.getGapsOrder();
 
 		if (parsedText.equals("#ERROR#")) {
 			parsedText = DictionaryWrapper.get("text_parse_error");
@@ -174,6 +186,8 @@ public class TextModel extends BasicModuleModel {
 				"' blockWrongAnswers='" + blockWrongAnswers +
 				"' userActionEvents='" + userActionEvents +
 				"' useEscapeCharacterInGap='" + this.useEscapeCharacterInGap +
+				"' textToSpeechTitle='" + this.textToSpeechTitle +
+				"' textToSpeechDescription='" + this.textToSpeechDescription +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 
@@ -788,6 +802,72 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyTextToSpeechTitle() {
+
+		IHtmlProperty property = new IHtmlProperty() {
+			@Override
+			public void setValue(String newValue) {
+				textToSpeechTitle = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return textToSpeechTitle;
+			}
+
+			@Override
+			public String getName() {
+				return "Text to speech title"; //DictionaryWrapper.get("text_module_text");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return "Text to speech title"; //DictionaryWrapper.get("text_module_text");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyTextToSpeechDescription() {
+
+		IHtmlProperty property = new IHtmlProperty() {
+			@Override
+			public void setValue(String newValue) {
+				textToSpeechDescription = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return textToSpeechDescription;
+			}
+
+			@Override
+			public String getName() {
+				return "Text to speech description"; //DictionaryWrapper.get("text_module_text");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return "Text to speech description"; //DictionaryWrapper.get("text_module_text");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
@@ -837,4 +917,24 @@ public class TextModel extends BasicModuleModel {
 		return this.useEscapeCharacterInGap;
 	}
 
+	public String getTextToSpeechTitle () {
+		return this.textToSpeechTitle;
+	}
+	
+	public void setTextToSpeechTitle (String newValue) {
+		if (newValue != null) {
+			this.textToSpeechTitle = newValue;
+		}
+	}
+	
+	public String getTextToSpeechDescription () {
+		return this.textToSpeechDescription;
+	}
+	
+	public void setTextToSpeechDescription (String newValue) {
+		if (newValue != null) {
+			this.textToSpeechDescription = newValue;
+		}
+	}
+	
 }

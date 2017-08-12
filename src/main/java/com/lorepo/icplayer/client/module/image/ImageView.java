@@ -118,4 +118,10 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 	public void hide() {
 		setVisible(false);
 	}
+
+
+	@Override
+	public String getName() {
+		return "Image";
+	}
 }

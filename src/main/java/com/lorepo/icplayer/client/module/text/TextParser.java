@@ -36,6 +36,7 @@ public class TextParser {
 	private int gapMaxLength = 0;
 	private boolean editorMode = false;
 	private boolean useEscapeCharacterInGap = false;
+	private List<String> gapsOrder;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -75,7 +76,47 @@ public class TextParser {
 		return parse(srcText);
 	}
 	
-	public ParserResult parse(String srcText) {
+	private List<String> calculateGapsOrder (String text) {
+		String rawText = getRawTextSource(text);
+		ArrayList<String> result = new ArrayList<String>();
+		
+		for (int i=0; i<rawText.length(); i++) {
+			String currentChar = Character.toString((char) rawText.charAt(i));
+			String nextChar = i+1 < rawText.length() ? Character.toString((char) rawText.charAt(i+1)) : "_";
+			String lastChar = i+2 < rawText.length() ? Character.toString((char) rawText.charAt(i+2)) : "_";
+			
+			if (currentChar == "#" && lastChar == "#") {
+				if (nextChar == "1") {
+					result.add("gap");
+				}
+				
+				if (nextChar == "2") {
+					result.add("dropdown");
+				}
+				
+				if (nextChar == "3") {
+					result.add("math");
+				}
+				
+				if (nextChar == "4") {
+					result.add("gap");
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	private String getRawTextSource (String text) {
+		return text.replaceAll("\\<.*?>","")
+			.replaceAll("\\gap{[a-zA-Z0-9_ |]+}", "#1#")
+			.replaceAll("{{.+}}", "#2#")
+			.replaceAll("\\(.+\\)", "#3#")
+			.replaceAll("filledGap{.+}", "#4#");
+	}
+	
+	public ParserResult parse (String srcText) {
+		this.gapsOrder = calculateGapsOrder(srcText);
 
 		parserResult = new ParserResult();
 		srcText = srcText.replaceAll("\\s+", " ");
@@ -215,7 +256,6 @@ public class TextParser {
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
-
 				gi.addAnswer(answers[i]);
 			}
 			parserResult.gapInfos.add(gi);
@@ -849,6 +889,10 @@ public class TextParser {
 
 	public void setUseEscapeCharacterInGap(boolean isUsing) {
 		this.useEscapeCharacterInGap = isUsing;
+	}
+	
+	public List<String> getGapsOrder () {
+		return this.gapsOrder;
 	}
 
 }

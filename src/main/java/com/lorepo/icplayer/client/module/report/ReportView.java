@@ -162,4 +162,9 @@ public class ReportView extends Composite implements IDisplay{
 	public void addListener(IViewListener l) {
 		this.listener = l;
 	}
+
+	@Override
+	public String getName() {
+		return "Report";
+	}
 }

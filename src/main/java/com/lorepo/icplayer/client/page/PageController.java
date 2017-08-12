@@ -23,6 +23,8 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
+import com.lorepo.icplayer.client.module.api.TextToSpeechPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
@@ -59,6 +61,7 @@ public class PageController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
+	private final static String PAGE_TTS_MODULE_ID = "TextToSpeechPageAPI";
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -417,6 +420,16 @@ public class PageController {
 
 		return null;
 	}
+	
+	public ITextToSpeechPresenter getPageTextToSpeechModule () {
+		for (IPresenter presenter : presenters) {
+			if (presenter.getModel().getId().compareTo(PAGE_TTS_MODULE_ID) == 0) {
+				return new TextToSpeechPresenter(presenter);
+			}
+		}
+
+		return null;
+	}
 
 	public IPage getPage() {
 		return currentPage;
@@ -470,4 +483,7 @@ public class PageController {
 	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
+	
+	
+	
 }

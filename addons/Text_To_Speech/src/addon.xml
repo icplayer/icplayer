@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Text_To_Speech' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="configuration" displayName="Configuration" nameLabel="Text_To_Speech_configuration" type="list" isDefault="true">
+            <property name="ID" nameLabel="Text_To_Speech_property_id" type="string" />
+            <property name="Title" nameLabel="Text_To_Speech_property_title" type="string" isLocalized="true" />
+            <property name="Description" nameLabel="Text_To_Speech_property_description" type="text" isLocalized="true" />
+        </property>
+        <property name="language" displayName="Language" nameLabel="Text_To_Speech_language" type="{English, Polski, Deutsch}" />
+    </model>
+</addon>

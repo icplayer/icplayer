@@ -209,4 +209,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	public void setFocusGap(boolean focus) {
 		setFocus(focus);
 	}
+
+	@Override
+	public String getGapType() {
+		return "dropdown";
+	}
 }

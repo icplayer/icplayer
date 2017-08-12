@@ -64,6 +64,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String getDroppedElement();
 		String getId();
 		void setFocusGap(boolean focus);
+		String getGapType();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -87,6 +88,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElements(String id, String element);
 		void executeOnKeyCode(KeyDownEvent event);
 		void connectDOMNodeRemovedEvent(String id);
+		void sortGapsOrder();
 	}
 
 	private final TextModel module;
@@ -330,7 +332,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
 
-
 		if (enteredText != null) {
 			state.put("enteredText", enteredText);
 		}
@@ -418,6 +419,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	                }
 	            }
 	        }
+		}
+		
+		if (state.containsKey("textToSpeechTitle")) {
+			module.setTextToSpeechTitle(state.get("textToSpeechTitle"));
+		}
+		
+		if (state.containsKey("textToSpeechDescription")) {
+			module.setTextToSpeechDescription(state.get("textToSpeechDescription"));
 		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
@@ -586,6 +595,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		view.connectInlineChoices(module.getChoiceInfos().iterator());
 		view.connectLinks(module.getLinkInfos().iterator());
+		
+		view.sortGapsOrder();
 	}
 
 	private void connectViewListener() {
