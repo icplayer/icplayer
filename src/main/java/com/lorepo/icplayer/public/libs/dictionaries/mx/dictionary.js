@@ -794,6 +794,8 @@ var ice_dictionary_mx = {
 	"gamememo_property_show_cards_for_preview": "Ver cartas ahora",
 	"gamememo_property_image_mode": "Modo de imagen",
     "gamememo_property_keep_wrong_marking": "Marcar respuestas incorrectas",
+	"gamememo_property_time_to_solve": "Time to solve the task",
+	"gamememo_property_session_ended_message": "Session ended message",
 	"MultiAudio_info": "Es una versión mejorada del addon Audio que ha sido enriquecido con nuevas características, tales como subir varios archivos de audio, lo que permite bucle de cada archivo de forma individual, saltar entre los archivos y mejorada selección de la interfaz.",
 	"MultiAudio_name": "MultiAudio",
 	"MultiAudio_property_files": "Archivo",
@@ -1136,6 +1138,7 @@ var ice_dictionary_mx = {
 	"Fractions_property_is_disable": "Inhabilitar",
 	"Fractions_property_is_select": "Imagen para las piezas seleccionadas",
 	"Fractions_property_is_deselect": "Imagen para las piezas no seleccionadas",
+	"Fractions_property_square_parts": "Square parts",
 	"FigureDrawing_info": "Permite dibujar figuras en la cuadrícula.",
 	"FigureDrawing_name": "Dibujar Figuras",
 	"FigureDrawing_property_3d_grid": "Cuadrícula 3D",
@@ -1254,6 +1257,7 @@ var ice_dictionary_mx = {
 	"Show_Answers_property_text": "Texto",
 	"Show_Answers_property_text_selected": "Texto seleccionado",
 	"Show_Answers_property_enable_check_counter": "Incrementar contador de comprobaciones",
+	"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
 	"Animated_Page_Progress_info": "Permite insertar una gráfica que enseña el progreso de página de forma animada mostrando diferentes imágenes dependiendo de resultado obtenido en una página",
 	"Animated_Page_Progress_name": "Progreso de página animado",
 	"Animated_Page_Progress_property_ranges": "Rangos",
@@ -1486,5 +1490,7 @@ var ice_dictionary_mx = {
 	"IFrame_property_index_file": "Archivo de índice",
 	"IFrame_property_communication_id": "ID de comunicación",
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
-	"Text_use_escape_character_in_gap_property": "Use escape character in gap"
+	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
+	"date": "Date",
+	"sort_by": "Sort by:"
 };

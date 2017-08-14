@@ -794,6 +794,8 @@ var ice_dictionary_fr = {
 "gamememo_property_show_cards_for_preview": "Afficher les cartes en prévisualisation",
 "gamememo_property_image_mode": "Mode image",
 "gamememo_property_keep_wrong_marking": "Keep wrong marking",
+"gamememo_property_time_to_solve": "Time to solve the task",
+"gamememo_property_session_ended_message": "Session ended message",
 "MultiAudio_info": "C'est une version améliorée du module externe Audio. Il a été enrichi de nouvelles fonctionnalités, telles que le téléchargement de plusieurs fichiers audio, la lecture de chaque fichier individuellement, le passage d'un fichier à un autre, une interface de sélection améliorée.",
 "MultiAudio_name": "Audio multiple",
 "MultiAudio_property_files": "Fichiers",
@@ -1136,6 +1138,7 @@ var ice_dictionary_fr = {
 "Fractions_property_is_disable": "Est désactivé",
 "Fractions_property_is_select": "Image pour les parties sélectionnées",
 "Fractions_property_is_deselect": "Image pour les parties non sélectionnées",
+"Fractions_property_square_parts": "Square parts",
 "FigureDrawing_info": "L'addon Dessiner des chiffres permet de dessiner des chiffres sur la grille.",
 "FigureDrawing_name": "Dessiner des chiffres",
 "FigureDrawing_property_3d_grid": "Grille en 3D",
@@ -1254,6 +1257,7 @@ var ice_dictionary_fr = {
 "Show_Answers_property_text": "Texte",
 "Show_Answers_property_text_selected": "Texte sélectionné",
 "Show_Answers_property_enable_check_counter": "Incrémenter le compteur de vérifications",
+"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
 "Animated_Page_Progress_info": "Permet d'insérer des pages de progression animées qui affichent des images en fonction du résultat en pourcentage obtenu dans la page.",
 "Animated_Page_Progress_name": "Progression de la page animée",
 "Animated_Page_Progress_property_ranges": "Paliers",
@@ -1486,5 +1490,7 @@ var ice_dictionary_fr = {
 "IFrame_property_index_file": "Index file",
 "IFrame_property_communication_id": "Communication id",
 "IFrame_property_allow_fullscreen": "Allow Fullscreen",
-"Text_use_escape_character_in_gap_property": "Use escape character in gap"
+"Text_use_escape_character_in_gap_property": "Use escape character in gap",
+"date": "Date",
+"sort_by": "Sort by:"
 };

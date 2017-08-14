@@ -862,8 +862,8 @@ function AddoneKeyboard_create(){
         $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
     };
 
-    presenter.open = function () {
-        asyncFunctionDecorator(presenter.openFunc.bind(this));
+    presenter.open = function (moduleId, index) {
+        asyncFunctionDecorator(presenter.openFunc.bind(this, moduleId, index));
     };
 
     presenter.openFunc = function(moduleId, index) {

@@ -793,6 +793,8 @@ var ice_dictionary_pl = {
 	"gamememo_property_show_cards_for_preview" : "Pokaż karty w podglądzie",
     "gamememo_property_image_mode": "Tryb obrazka",
     "gamememo_property_keep_wrong_marking": "Zachowaj błędne zaznaczenie",
+	"gamememo_property_time_to_solve": "Time to solve the task",
+	"gamememo_property_session_ended_message": "Session ended message",
 	"MultiAudio_info" : "Jest to rozszerzona wersja Addonu dźwiękowego, wzbogacona o nowe funkcje, takie jak możliwość wgrania wielu plików audio, włączenie zapętlenia dla każdego pliku osobno oraz przeskakiwanie między plikami.",
 	"MultiAudio_name" : "Wielokrotne pliki dźwiękowe",
 	"MultiAudio_property_files": "Pliki",
@@ -1135,6 +1137,7 @@ var ice_dictionary_pl = {
 	"Fractions_property_is_disable": "Jest wyłączony",
     "Fractions_property_is_select": "Obraz dla zaznaczonych części",
     "Fractions_property_is_deselect": "Obraz dla odznaczonych części",
+	"Fractions_property_square_parts": "Square parts",
     "FigureDrawing_info": "Addon ten umożliwia rysowanie figur na siatce.",
     "FigureDrawing_name": "Rysowanie figur",
     "FigureDrawing_property_3d_grid": "Siatka 3D",
@@ -1253,6 +1256,7 @@ var ice_dictionary_pl = {
 	"Show_Answers_property_text": "Tekst",
 	"Show_Answers_property_text_selected": "Zaznaczony tekst",
     "Show_Answers_property_enable_check_counter": "Zwiększenie licznika sprawdzeń",
+	"Show_Answers_property_enable_mistake_counter": "Increment mistake counter",
 	"Animated_Page_Progress_info" : "Addon umożliwia dodanie obrazków do paska postępu, które mogą być różne w zależności od uzyskanego wyniku procentowego.",
 	"Animated_Page_Progress_name" : "Wskaźnik postępu strony",
 	"Animated_Page_Progress_property_ranges": "Zakresy",
@@ -1485,5 +1489,7 @@ var ice_dictionary_pl = {
 	"IFrame_property_index_file": "Plik indeksowy",
 	"IFrame_property_communication_id": "ID komunikacyjne",
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
-	"Text_use_escape_character_in_gap_property": "Use using escape character in gap"
+	"Text_use_escape_character_in_gap_property": "Use using escape character in gap",
+	"date": "Date",
+	"sort_by": "Sort by:"
 };

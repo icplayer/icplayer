@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -8,6 +9,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
@@ -33,6 +36,8 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private boolean isPreview = false;
 	private SourceListPresenter presenter = null;
 	private Label labelToRemove = null;
+	private int currentLabel = 0;
+	private ArrayList <String> labelsIds = new ArrayList <String>();
 
 	public SourceListView(SourceListModule module, boolean isPreview){
 
@@ -112,6 +117,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block;white-space: nowrap;");
 		}
 		labels.put(id, label);
+		labelsIds.add(id);
 		add(label);
 		if (callMathJax) {
 			refreshMath(label.getElement());
@@ -182,7 +188,22 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			if (isDragged) {
 				labelToRemove = label;
 			} else {
+				if (label.getStyleName().contains("keyboard_navigation_active_element")){
+					unMarkCurrentItem();
+					labelsIds.remove(id);
+					remove(label);
+					if (labelsIds.size() > 0) {
+						if (currentLabel >= labelsIds.size()) {
+							currentLabel = 0;
+						}
+					markCurrentItem();
+					}
+					
+				} else {
+				labelsIds.remove(id);
+				currentLabel = 0;
 				remove(label);
+				}
 			}
 		}
 	}
@@ -278,5 +299,68 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	@Override
 	public String getName() {
 		return "SourceList";
+	}
+
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER) {
+			enter();
+		}
+		
+		if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
+			next();
+		}
+		
+		//space key
+		if (code == 32) {
+			event.preventDefault();
+			select();
+		}
+		
+		if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			escape();
+		}
+		
+	}
+
+	private void unMarkCurrentItem(){
+		Label current = labels.get(labelsIds.get(currentLabel));
+		current.removeStyleName("keyboard_navigation_active_element");		
+	}
+	
+	private void markCurrentItem(){
+		Label current = labels.get(labelsIds.get(currentLabel));
+		current.addStyleName("keyboard_navigation_active_element");
+	}
+
+	private void enter() {
+		try {
+			unMarkCurrentItem();
+		} catch (Error e) {}
+		currentLabel = 0;
+		markCurrentItem();
+	}
+
+	private void next() {
+		unMarkCurrentItem();
+		currentLabel++;
+		currentLabel = currentLabel % labelsIds.size();
+		markCurrentItem();
+	}
+
+	private void select() {
+		fireClickEvent(labelsIds.get(currentLabel));
+	}
+
+	private void escape() {
+		unMarkCurrentItem();
 	}
 }
