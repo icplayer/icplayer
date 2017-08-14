@@ -158,6 +158,11 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
+	public void goToLastVisitedPage() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public void changeHeaderVisibility(boolean isVisible) {
 		// TODO Auto-generated method stub
 		
@@ -174,5 +179,5 @@ public class CommandsMockup implements IPlayerCommands {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
 }

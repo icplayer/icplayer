@@ -8,18 +8,21 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 class PrevPageButton extends PushButton implements IWCAG {
+	boolean goToLastVisitedPage = false;
 	private IPlayerServices services = null;
 	
-	public PrevPageButton(IPlayerServices services){
+	public PrevPageButton(IPlayerServices services, final boolean goToLastPage){
 		
 		setStyleName("ic_button_prevpage");
 
-		if(services != null){
+		if(services != null) {
 			this.services = services;
-			if(services.getCurrentPageIndex() == 0){
+			this.goToLastVisitedPage = goToLastPage;
+			
+			if(services.getCurrentPageIndex() == 0 && !goToLastPage) {
 				setEnabled(false);
 			}
-	
+			
 			addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
@@ -32,7 +35,12 @@ class PrevPageButton extends PushButton implements IWCAG {
 
 	public void execute() {
 		IPlayerCommands playerCommands = services.getCommands();
-		playerCommands.prevPage();
+		if(!this.goToLastVisitedPage) {
+			playerCommands.prevPage();
+		}
+		else {
+			playerCommands.goToLastVisitedPage();
+		}
 	}
 	
 	@Override

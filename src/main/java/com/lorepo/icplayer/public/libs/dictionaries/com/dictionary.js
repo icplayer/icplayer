@@ -1500,5 +1500,6 @@ var ice_dictionary_en = {
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
-	"sort_by": "Sort by:"
+	"sort_by": "Sort by:",
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
 };
