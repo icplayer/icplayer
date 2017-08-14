@@ -38,7 +38,7 @@ public final class KeyboardNavigationController {
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, connection;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, ordering, connection;
 		
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
@@ -141,6 +141,7 @@ public final class KeyboardNavigationController {
 					event.preventDefault();
 					
 					if (!modeOn) { // off
+						sendEvent(event);
 						deactivateModule();
 						deselectModule(currentModuleName);
 					} else { // on
@@ -181,14 +182,7 @@ public final class KeyboardNavigationController {
 	            
 	            // Send event
 	            if (modeOn && moduleIsActivated) {
-	            	boolean isModuleInBookView = isModuleInBookView(currentModuleName);
-	            	String moduleName = currentModuleName.substring(5, currentModuleName.length());
-	            	
-	            	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
-	            		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
-	            	} else {
-	            		playerServices.get("SingleMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
-	            	}
+	            	sendEvent(event);
 	            }
 	            
 	            // Deactive module
@@ -202,6 +196,17 @@ public final class KeyboardNavigationController {
 	    }, KeyDownEvent.getType());
 	}
 	
+	private void sendEvent (KeyDownEvent event) {
+		boolean isModuleInBookView = isModuleInBookView(currentModuleName);
+    	String moduleName = currentModuleName.substring(5, currentModuleName.length());
+
+    	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
+    		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+    	} else {
+    		playerServices.get("SingleMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+    	}
+	}
+
 	private void activateModule() {
 		if (currentModuleName.isEmpty()) return;
 

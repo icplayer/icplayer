@@ -128,7 +128,7 @@ public class ButtonView extends Composite implements IDisplay {
 	private void enter() {
 		Widget buttonWidget = this.getWidget();
 		if (buttonWidget instanceof IWCAG) {
-			((IWCAG) buttonWidget).enter();
+			((IWCAG) buttonWidget).enter(false);
 		}
 	}
 
