@@ -113,9 +113,9 @@ public class GWTGotoPageButtonTestCase extends GwtTest {
 	public void enterCommandShouldCallExecute() {
 		Mockito.doCallRealMethod()
 				.when(this.gotoPageButtonMock)
-				.enter();
+				.enter(false);
 		
-		this.gotoPageButtonMock.enter();
+		this.gotoPageButtonMock.enter(false);
 		
 		Mockito.verify(this.gotoPageButtonMock, Mockito.times(1)).execute();
 	}

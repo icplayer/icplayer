@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
@@ -18,12 +22,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class OrderingView extends Composite implements IDisplay {
+public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	private final OrderingModule module;
 	private final IPlayerServices playerServices;
@@ -39,6 +44,9 @@ public class OrderingView extends Composite implements IDisplay {
 	private boolean wasChanged = false;
 	private boolean mathJaxIsLoaded = false;
 	private boolean shouldRefreshMath = false;
+	private int currentWCAGSelectedItemIndex = 0;
+	private boolean wcagIsAvtive = false;
+	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
 		this.module = module;
@@ -299,6 +307,8 @@ public class OrderingView extends Composite implements IDisplay {
 	private void onValueChanged(int sourceIndex, int destIndex) {
 		if (listener != null) {
 			listener.onItemMoved(sourceIndex, destIndex);
+			this.refreshSelection();
+			
 		}
 	}
 
@@ -579,6 +589,126 @@ public class OrderingView extends Composite implements IDisplay {
 			refreshMath();
 		} else {
 			this.shouldRefreshMath = true;
+		}
+	}
+	
+	@Override
+	public void executeOnKeyCode(KeyDownEvent event) {
+		int code = event.getNativeKeyCode();
+
+		if (code == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) {
+			event.preventDefault();
+			this.enter(false);
+		} else if (code == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
+			event.preventDefault();
+			this.enter(true);			
+		} else if (code == 32) {
+			event.preventDefault();
+			this.space();
+		} else if (code == KeyCodes.KEY_TAB) {
+			event.preventDefault();
+			this.tab();
+		} else if (code == KeyCodes.KEY_LEFT) {
+			event.preventDefault();
+			this.left();
+		} else if (code == KeyCodes.KEY_RIGHT) {
+			event.preventDefault();
+			this.right();
+		} else if (code == KeyCodes.KEY_DOWN) {
+			event.preventDefault();
+			this.down();
+		} else if (code == KeyCodes.KEY_UP) {
+			event.preventDefault();
+			this.up();
+		} else if (code == KeyCodes.KEY_ESCAPE) {
+			event.preventDefault();
+			this.escape();
+		}
+	}
+	
+	@Override
+	public void escape () {
+		this.deselectCurrentItem();
+		this.wcagIsAvtive = false;
+	}
+	
+	@Override
+	public void enter (boolean isExiting) {
+		this.wcagIsAvtive = !isExiting;
+		if (isExiting) {
+			this.deselectCurrentItem();
+		} else {
+			this.selectCurrentItem();		
+		}
+	}
+	
+	@Override
+	public void space () {
+		this.deselectCurrentItem();
+		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0,false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
+		this.selectCurrentItem();
+	}
+	
+	private native void clickElement (Element elementToClick) /*-{
+		elementToClick.click();
+	}-*/;
+	
+	@Override
+	public void tab() {
+		this.move(1);
+	}
+	
+	@Override
+	public void left() {
+		this.move(-1);
+	}
+	
+	@Override
+	public void right() {
+		this.move(1);
+	}
+	
+	@Override
+	public void up() {
+		this.move(-1);
+	}
+	
+	@Override
+	public void down() {
+		this.move(1);
+	}
+	
+	private void move(int delta) {
+		this.deselectCurrentItem();
+		this.currentWCAGSelectedItemIndex += delta;
+		if (this.currentWCAGSelectedItemIndex < 0) {
+			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
+		}
+		
+		if (this.currentWCAGSelectedItemIndex >= this.getWidgetCount()) {
+			this.currentWCAGSelectedItemIndex = 0;
+		}
+		this.selectCurrentItem();
+	}
+	
+	private void selectCurrentItem () {
+		this.getWidget(this.currentWCAGSelectedItemIndex).addStyleName(OrderingView.WCAG_SELECTED_CLASS_NAME);
+	}
+	
+	private void deselectCurrentItem () {
+		this.getWidget(this.currentWCAGSelectedItemIndex).removeStyleName(OrderingView.WCAG_SELECTED_CLASS_NAME);
+	}
+	
+	private void refreshSelection () {
+		if (this.wcagIsAvtive) { 
+			int savedWidget = this.currentWCAGSelectedItemIndex;
+			for (int i = 0; i < this.getWidgetCount(); i++) {
+				this.currentWCAGSelectedItemIndex = i;
+				this.deselectCurrentItem();
+			}
+			
+			this.currentWCAGSelectedItemIndex = savedWidget;
+			this.selectCurrentItem();
 		}
 	}
 }
