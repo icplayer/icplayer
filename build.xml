@@ -49,7 +49,6 @@
             <fileset dir="${src}" excludes="**/*.java"/>
             <fileset dir="${src-test}" excludes="**/*.java"/>
         </copy>
-    	<copy todir="war/WEB-INF/lib" file="${jsoup-lib}"/>
 
     </target>
 
