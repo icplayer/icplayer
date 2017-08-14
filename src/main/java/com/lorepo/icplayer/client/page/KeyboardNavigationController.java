@@ -35,6 +35,7 @@ public final class KeyboardNavigationController {
 	private List<String> bookPageWidgets = new ArrayList<String>();
 	private boolean modeOn = false;
 	private PlayerEntryPoint entryPoint;
+	private JavaScriptObject invisibleInputForFocus = null;
 
 	private enum ExpectedModules {
 		// Navigation modules
@@ -139,12 +140,13 @@ public final class KeyboardNavigationController {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					modeOn = !modeOn;
 					event.preventDefault();
-					
+
 					if (!modeOn) { // off
 						sendEvent(event);
 						deactivateModule();
 						deselectModule(currentModuleName);
 					} else { // on
+						setFocusOnDefaultElement();
 						if (!isInitiated) {
 							initialSelect();
 						} else {
@@ -195,6 +197,32 @@ public final class KeyboardNavigationController {
 	        }
 	    }, KeyDownEvent.getType());
 	}
+	
+	private void setFocusOnDefaultElement () {
+		this.focusElement(this.getInputElement());
+	} 
+		
+	private native JavaScriptObject	getInputElement() /*-{
+		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
+		if (!input) {
+			input = $wnd.$("<input/>");
+			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
+			input.css({
+						"opacity": 0.0001,
+						'pointer-events':    "none",
+						"position": "absolute",
+						"top": "0px"
+						});
+			var body = $wnd.$("body");
+			body.append(input);
+		}
+		
+		return input;		
+	}-*/;
+	
+	private native void focusElement(JavaScriptObject element) /*-{
+		element.focus();
+	}-*/;
 	
 	private void sendEvent (KeyDownEvent event) {
 		boolean isModuleInBookView = isModuleInBookView(currentModuleName);
