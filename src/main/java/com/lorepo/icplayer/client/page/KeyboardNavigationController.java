@@ -19,6 +19,7 @@ import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.choice.ChoiceView;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
+import com.lorepo.icplayer.client.module.text.TextView;
 
 public final class KeyboardNavigationController {
 	private int focusedModule = 0;
@@ -416,6 +417,9 @@ public final class KeyboardNavigationController {
 			ChoiceView choice = (ChoiceView) widget;
 			choice.setPageController(mainPageController);
 			choice.setTextToSpeechVoices(TextToSpeech.getMultiPartDescription(currentModuleName.substring(5), mainPageController));
+		} else if (imv.getName() == "Text") {
+			TextView text = (TextView) widget;
+			text.setPageController(mainPageController);
 		} else {
 			TextToSpeech.playDescription(currentModuleName.substring(5), mainPageController);
 		}

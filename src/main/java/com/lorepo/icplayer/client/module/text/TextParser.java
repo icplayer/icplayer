@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -37,6 +38,7 @@ public class TextParser {
 	private boolean editorMode = false;
 	private boolean useEscapeCharacterInGap = false;
 	private List<String> gapsOrder;
+	private String rawText;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -112,11 +114,13 @@ public class TextParser {
 			.replaceAll("\\gap{[a-zA-Z0-9_ |]+}", "#1#")
 			.replaceAll("{{.+}}", "#2#")
 			.replaceAll("\\(.+\\)", "#3#")
-			.replaceAll("filledGap{.+}", "#4#");
+			.replaceAll("filledGap{.+}", "#4#")
+			.replaceAll("\\\\#", "#");
 	}
 	
 	public ParserResult parse (String srcText) {
 		this.gapsOrder = calculateGapsOrder(srcText);
+		this.rawText = getRawTextSource(srcText);
 
 		parserResult = new ParserResult();
 		srcText = srcText.replaceAll("\\s+", " ");
@@ -626,8 +630,6 @@ public class TextParser {
 		return parsedText;
 	}
 	
-	
-
 	private String parseExternalLinks(String srcText) {
 
 		final String pattern = "<a href=['\"](.+?)['\"]";
@@ -893,6 +895,10 @@ public class TextParser {
 	
 	public List<String> getGapsOrder () {
 		return this.gapsOrder;
+	}
+	
+	public String getRawText () {
+		return this.rawText;
 	}
 
 }

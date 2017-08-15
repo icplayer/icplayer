@@ -19,6 +19,27 @@ function AddonText_To_Speech_create() {
         Deutsch: 'de-DE'
     };
 
+    presenter.INPUTS_TRANSLATIONS = {
+        'en-US': {
+            '1': 'Gap number ',
+            '2': 'Option gap number ',
+            '3': 'Math gap number ',
+            '4': 'Filled gap number '
+        },
+        'pl-PL': {
+            '1': 'Luka numer ',
+            '2': 'Opcja wielokrotnego wyboru numer ',
+            '3': 'Luka matematyczna numer ',
+            '4': 'Wypełniona luka numer '
+        },
+        'de-DE': {
+            '1': 'Gap number ',
+            '2': 'Option gap number ',
+            '3': 'Math gap number ',
+            '4': 'Filled gap number '
+        },
+    };
+
     function parseConfiguration (configuration) {
         if (!configuration) {
             return returnErrorObject('C01');
@@ -113,6 +134,34 @@ function AddonText_To_Speech_create() {
         return {title: '', description: ''};
     }
 
+    function parseGaps (text) {
+        var gap = 0;
+        var option = 0;
+        var math = 0;
+        var filledGap = 0;
+
+        while (text.indexOf('#1#') !== -1 || text.indexOf('#2#') !== -1 || text.indexOf('#3#') !== -1 || text.indexOf('#4#') !== -1) {
+            if (text.indexOf('#1#') !== -1) {
+                text = text.replace('#1#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['1'] + ++gap + ' ');
+            }
+
+            if (text.indexOf('#2#') !== -1) {
+                text = text.replace('#2#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['2'] + ++option + ' ');
+            }
+
+            if (text.indexOf('#3#') !== -1) {
+                text = text.replace('#3#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['3'] + ++math + ' ');
+            }
+
+            if (text.indexOf('#4#') !== -1) {
+                text = text.replace('#4#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['4'] + ++filledGap + ' ');
+            }
+        }
+
+        console.log(text);
+        return text;
+    }
+
     function getLanguageObject (lang) {
         loadVoices();
         for (var i=0; i<presenter.configuration.voices.length; i++) {
@@ -125,6 +174,8 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.speak = function (text) {
+        text = parseGaps(text);
+
         if (window.speechSynthesis.speaking) {
             // window.speechSynthesis.pause();
             // window.speechSynthesis.resume();

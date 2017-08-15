@@ -18,6 +18,8 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.TextToSpeech;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 public class TextView extends HTML implements IDisplay{
@@ -29,6 +31,8 @@ public class TextView extends HTML implements IDisplay{
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
 	private TextElementDisplay activeGap = null;
+	private PageController pageController;
+	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -306,14 +310,11 @@ public class TextView extends HTML implements IDisplay{
 			clicks = 0;
 		}
 		
-<<<<<<< HEAD
 		TextElementDisplay gap = textElements.get(clicks);
-		
 		gap.setFocusGap(true);
-=======
+
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
->>>>>>> master
 	}
 	
 	private void enter() {
@@ -326,6 +327,8 @@ public class TextView extends HTML implements IDisplay{
 			activeGap.setFocusGap(true);
 			moduleHasFocus = true;
 		}
+		
+		TextToSpeech.speak(module.rawTextNoGaps, this.pageController);
 	}
 	
 	private void escape() {
@@ -401,4 +404,9 @@ public class TextView extends HTML implements IDisplay{
 	public String getName() {
 		return "Text";
 	}
+	
+	public void setPageController (PageController pc) {
+		this.pageController = pc;
+	}
+	
 }

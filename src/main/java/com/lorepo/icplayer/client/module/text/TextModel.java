@@ -45,6 +45,7 @@ public class TextModel extends BasicModuleModel {
 	private String textToSpeechTitle = "";
 	private String textToSpeechDescription = "";
 	private List<String> gapsOrder;
+	public String rawTextNoGaps;
 	
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -152,6 +153,7 @@ public class TextModel extends BasicModuleModel {
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 		gapsOrder = parser.getGapsOrder();
+		rawTextNoGaps = parser.getRawText();
 
 		if (parsedText.equals("#ERROR#")) {
 			parsedText = DictionaryWrapper.get("text_parse_error");
