@@ -96,6 +96,7 @@ TestCase("Quiz Configuration tests", {
             this.presenter.setupConfig(model);
         } catch (e) {
             errorOccurred = true;
+            errorName = e.name;
         }
         assertTrue(errorOccurred);
         assertEquals('ConfigurationError', errorName);
