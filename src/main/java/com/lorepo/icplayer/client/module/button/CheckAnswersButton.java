@@ -89,8 +89,36 @@ class CheckAnswersButton extends PushButton implements IWCAG {
 	}
 	
 	@Override
-	public void enter() {
+	public void enter(boolean isExiting) {
 		this.execute();
+	}
+
+	@Override
+	public void space() {
+	}
+
+	@Override
+	public void tab() {
+	}
+
+	@Override
+	public void left() {
+	}
+
+	@Override
+	public void right() {
+	}
+
+	@Override
+	public void down() {
+	}
+
+	@Override
+	public void up() {
+	}
+
+	@Override
+	public void escape() {
 	}
 
 }
