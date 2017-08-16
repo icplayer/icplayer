@@ -73,9 +73,9 @@ function AddonQuiz_create() {
         return questions;
     }
 
-    function getConfig(model) {
+    presenter.setupConfig = function AddonQuiz_setupConfig(model) {
         var helpButtons = ModelValidationUtils.validateBoolean(model['ShowHelpButtons']);
-        return {
+        presenter.config = {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
             questions: validateQuestions(model['Questions'], helpButtons),
             helpButtons: helpButtons,
@@ -380,7 +380,7 @@ function AddonQuiz_create() {
         setupDefaults();
         presenter.$view = $(view);
         try {
-            presenter.config = getConfig(model);
+            presenter.setupConfig(model);
             presenter.showCurrentQuestion();
         } catch (error){
             var $error = $('<div class="quiz-error-layer"></div>');
