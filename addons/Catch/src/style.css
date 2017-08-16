@@ -1,0 +1,26 @@
+.addon_Catch {
+    max-width: 100%;
+    width: 100%;
+    text-align: center;
+    height: 400px;
+    margin: 0 auto;
+    border: 1px solid black;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.addon_Catch .plate {
+    width: 30px;
+    position: absolute;
+    cursor: pointer;
+    box-sizing: border-box;
+    bottom: 0;
+}
+
+.addon_Catch .fruit {
+    width: 30px;
+    position: absolute;
+    cursor: pointer;
+    box-sizing: border-box;
+}
