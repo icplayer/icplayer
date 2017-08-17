@@ -31,6 +31,13 @@ public final class TextToSpeech {
 		}
 	}
 	
+	public static void readGap (String text, int gapNumber, PageController pageController) {
+		ITextToSpeechPresenter TTS = pageController.getPageTextToSpeechModule();
+		if (TTS != null) {
+			TTS.readGap(text, gapNumber);
+		}
+	}
+	
 	public static List<String> getModulesOrder (PageController pageController) {
 		ITextToSpeechPresenter TTS = pageController.getPageTextToSpeechModule();
 		

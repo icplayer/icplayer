@@ -29,6 +29,12 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	}
 	
 	@Override
+	public void readGap (String text, int gapNumber) {
+		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
+		activity.readGap(text, gapNumber);
+	}
+	
+	@Override
 	public JsArrayString getAddOnsOrder () {
 		if (presenter == null) {
 			return (JsArrayString) JsArrayString.createArray();

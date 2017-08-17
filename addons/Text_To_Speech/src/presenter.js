@@ -37,7 +37,7 @@ function AddonText_To_Speech_create() {
             '2': 'Option gap number ',
             '3': 'Math gap number ',
             '4': 'Filled gap number '
-        },
+        }
     };
 
     function parseConfiguration (configuration) {
@@ -158,7 +158,6 @@ function AddonText_To_Speech_create() {
             }
         }
 
-        console.log(text);
         return text;
     }
 
@@ -195,6 +194,28 @@ function AddonText_To_Speech_create() {
             window.speechSynthesis.speak(msg);
         // }, 200);
 
+    };
+
+    presenter.getGapAppearanceAtIndexOfType = function (gaps, gapNumber) {
+        var index = 0;
+
+        for (var i=0; i<gapNumber; i++) {
+            if (gaps[i] === gaps[gapNumber-1]) {
+                index++;
+            }
+        }
+
+        return index;
+    };
+
+    presenter.readGap = function (text, gapNumber) {
+        var gaps = text.match(/#[1-4]#/g);
+        var gapTypeNumber = gaps[gapNumber][1];
+
+        var gapTypeRead = presenter.INPUTS_TRANSLATIONS[presenter.configuration.language][gapTypeNumber];
+        var gapNumberRead = presenter.getGapAppearanceAtIndexOfType(gaps, gapNumber) + 1;
+
+        presenter.speak(gapTypeRead + ' ' + gapNumberRead);
     };
 
     presenter.playTitle = function (id) {
@@ -254,6 +275,7 @@ function AddonText_To_Speech_create() {
             "playTitle": presenter.playTitle,
             "playDescription": presenter.playDescription,
             "speak": presenter.speak,
+            "readGap": presenter.readGap,
             "getAddOnsOrder": presenter.getAddOnsOrder,
             "getMultiPartDescription": presenter.getMultiPartDescription
         };

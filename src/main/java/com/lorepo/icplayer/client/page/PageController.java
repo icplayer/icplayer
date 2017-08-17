@@ -484,6 +484,4 @@ public class PageController {
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
 	
-	
-	
 }

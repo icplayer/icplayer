@@ -432,6 +432,20 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			alert("[" + addonId + "] Exception in speak(): \n" + err);
 		}
 	}-*/;
+	
+	public void readGap (String text, int gapNumber) {
+		readGap(jsObject, text, gapNumber, addonDescriptor.getAddonId());
+	}
+	
+	private native void readGap (JavaScriptObject obj, String text, int gapNumber, String addonId) /*-{
+		try {
+			if (obj.readGap != undefined) {
+				obj.readGap(text, gapNumber);
+			}
+		} catch(err) {
+			alert("[" + addonId + "] Exception in readGap(): \n" + err);
+		}
+	}-*/;
 
 	@Override
 	public JsArrayString getAddOnsOrder () {

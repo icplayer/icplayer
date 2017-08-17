@@ -315,10 +315,11 @@ public class TextView extends HTML implements IDisplay{
 
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
+		
+		TextToSpeech.readGap(module.rawTextNoGaps, clicks, pageController);
 	}
 	
 	private void enter() {
-
 		if(textElements.size() > 0) {
 			activeGap = textElements.get(0);
 		}
