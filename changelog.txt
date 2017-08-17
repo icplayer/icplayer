@@ -1,3 +1,4 @@
+2017-08-17 Fixed problem with scaling popup
 2017-08-14 Added go to last visited page for previous page button.
 2017-08-14 Fixed problem with default keyboard navigation in browser while using player keyboard navigation
 2017-08-14 Added keyboard navigation for Single State Button and Double State Button. Fixed keyboard navigation for addon buttons.
