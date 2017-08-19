@@ -10,17 +10,25 @@
     box-sizing: border-box;
 }
 
-.addon_Catch .plate {
-    width: 30px;
+.addon_Catch .plate,
+.addon_Catch .fallingObject,
+.addon_Catch .description {
     position: absolute;
-    cursor: pointer;
     box-sizing: border-box;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+.addon_Catch .plate {
+    width: 50px;
     bottom: 0;
 }
 
-.addon_Catch .fruit {
+.addon_Catch .fallingObject {
     width: 30px;
-    position: absolute;
-    cursor: pointer;
-    box-sizing: border-box;
+    height: 30px;
 }

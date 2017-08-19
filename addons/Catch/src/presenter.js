@@ -1,6 +1,7 @@
 function AddonCatch_create() {
     var presenter = function () {};
     var points = 0;
+    var $plateElement = null;
 
     function returnErrorObject (ec) { return { isValid: false, errorCode: ec }; }
 
@@ -38,44 +39,105 @@ function AddonCatch_create() {
     };
 
     function makePlate () {
-        var plateElement = $('<img class="plate" />');
-        plateElement.attr('src', 'http://www.clipartsfree.net/vector/medium/9748-plate-green-with-red-trim-art-design.png');
+        $plateElement = $('<img class="plate" />');
+        $plateElement.attr('src', 'http://www.clipartsfree.net/vector/medium/9748-plate-green-with-red-trim-art-design.png');
 
-        presenter.$view.append(plateElement);
+        presenter.$view.append($plateElement);
     }
 
-    function makeFruit () {
-        var fruitElement = $("<img class='fruit' />");
-        fruitElement.attr("src", "https://www.emojibase.com/resources/img/emojis/apple/x1f34d.png.pagespeed.ic.8rtDbOLo72.png");
+    function makeDescription (description) {
+        var $description = $('<span class="description">' + description + '</span>');
+        $description.css('top', '-15px');
+        $description.css('left', '-5px');
+        return $description;
+    }
 
-        presenter.$view.append(fruitElement);
-        fruitElement.css('left', getRandomInt(0, presenter.$view.width()) + "px");
+    function makeFallingObject () {
+        var isCorrectObject = Math.random() < 0.5;
+        var isRemoved = false;
+        var addOnHeight = presenter.$view.height();
+        var $objectElement = $('<div class="fallingObject"></div>');
 
-        fruitElement.css("top", "-100px");
+        if (isCorrectObject) {
+            $objectElement.css('background', 'url(http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200)');
+            $objectElement.append(makeDescription('apple'));
+        } else {
+            $objectElement.css('background', 'url(https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg)');
+            $objectElement.append(makeDescription('pie'));
+        }
+        $objectElement.css('background-size', 'cover');
+        presenter.$view.append($objectElement);
+
+        var xPosition = getRandomInt(0, presenter.$view.width() - $objectElement.width());
+        $objectElement.css('left', xPosition + 'px');
+        $objectElement.css('top', '-100px');
+
         var speed = getRandomInt(5000, 10000);
+        var landingPosition = (addOnHeight + 100) + 'px';
 
-        // Start animation
-        fruitElement.animate({"top": "430px"}, speed, "swing", makeFruit);
+        $objectElement.animate({'top': landingPosition}, {
+            duration: speed,
+            complete: makeFallingObject,
+            step: function (now, tween) {
+                if (isRemoved) return;
 
-        // Add click listener for fruits
-        // fruitElement.click(fruitClick);
+                now = Math.round(now);
+                var elementBotYPosition = now + $objectElement.height();
+                var isInCatchLevel = elementBotYPosition < addOnHeight && elementBotYPosition > addOnHeight - $plateElement.height();
 
-        // function fruitClick () {
-        //     var fruitPoints = Number($(this).attr("data-points"));
-        //     points = points + fruitPoints;
-        //     $(".points-text").text(points);
-        //     $(this).remove();
-        // }
+                if (isInCatchLevel) {
+                    var plateOffset = $plateElement.position().left - presenter.$view.position().left;
+                    if (plateOffset <= xPosition && plateOffset + $plateElement.width() + $objectElement.width() >= xPosition) {
+                        if (isCorrectObject) {
+                            points++;
+                        } else {
+                            points--;
+                        }
+                        $(this).remove();
+                        isRemoved = true;
+                    }
+                }
+            }
+        });
 
     }
 
     function startGame () {
         makePlate();
 
-        for (var i=0; i<8; i++) {
+        var numberOfElements = 12;
+        for (var i=0; i<numberOfElements; i++) {
             setTimeout(function () {
-                makeFruit();
-            }, 500 * i);
+                makeFallingObject();
+            }, 1000 * i);
+        }
+    }
+
+    function movePlate (isDirectionToRight) {
+        var platePositionLeft = $plateElement.position().left;
+        var plateWidth = $plateElement.width();
+        var addOnPositionLeft = presenter.$view.position().left;
+        var addOnWidth = presenter.$view.width();
+
+        var isPositionZeroLeft = platePositionLeft <= addOnPositionLeft;
+        var isPositionZeroRight = platePositionLeft + plateWidth >= addOnPositionLeft + addOnWidth;
+
+        if (!isDirectionToRight && isPositionZeroLeft || isDirectionToRight && isPositionZeroRight) {
+            return;
+        }
+
+        var hasSpaceLeft = !isDirectionToRight && (platePositionLeft - addOnPositionLeft < plateWidth);
+        var hasSpaceRight = isDirectionToRight && (platePositionLeft + plateWidth + plateWidth >= addOnPositionLeft + addOnWidth);
+
+        if (hasSpaceLeft) {
+            $plateElement.animate({'left': '0px'}, 'fast', 'linear');
+        } else if (hasSpaceRight) {
+            $plateElement.animate({'left': (addOnWidth - plateWidth) + 'px'}, 'fast', 'linear');
+        } else {
+            var directionSign = isDirectionToRight ? '+' : '-';
+            $plateElement.animate({
+                'left': directionSign + '=[plateWidth]px'.replace('[plateWidth]', plateWidth)
+            }, 'fast', 'linear');
         }
     }
 
@@ -89,7 +151,18 @@ function AddonCatch_create() {
         }
 
         presenter.$view.keydown(function (e) {
-            console.log('event', e);
+            if (e.key === 'ArrowLeft') {
+                movePlate(false);
+            }
+
+            if (e.key === 'ArrowRight') {
+                movePlate(true);
+            }
+        });
+
+        presenter.$view.on('click', function (e) {
+            var isLeftSide = (e.clientX - presenter.$view.position().left) > Math.round(presenter.$view.width() / 2);
+            movePlate(isLeftSide);
         });
     };
 
