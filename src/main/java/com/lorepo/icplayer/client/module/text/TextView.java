@@ -19,7 +19,6 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.TextToSpeech;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 public class TextView extends HTML implements IDisplay{
@@ -32,17 +31,18 @@ public class TextView extends HTML implements IDisplay{
 	private int clicks = 0;
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
+	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList;
 	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
 	}
 
-	private void createUI(boolean isPreview) {
+	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
-		if(!isPreview && !module.isVisible()) {
+		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
 	}
@@ -61,6 +61,7 @@ public class TextView extends HTML implements IDisplay{
 		int gapWidth = module.getGapWidth();
 		while (giIterator.hasNext()) {
 			InlineChoiceInfo gi = giIterator.next();
+			inlineChoiceInfoArrayList.add(gi);
 			InlineChoiceWidget gap = new InlineChoiceWidget(gi, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
@@ -68,6 +69,14 @@ public class TextView extends HTML implements IDisplay{
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
+	}
+	
+	private void setPageControllerToInLineChoices () {
+		JavaScriptUtils.log("setPageControllerToInLineChoices");
+//		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
+//			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener);
+//			gap.setPageController(this.pageController);
+//		}
 	}
 
 	@Override
@@ -157,7 +166,7 @@ public class TextView extends HTML implements IDisplay{
 	public void connectLinks(Iterator<LinkInfo> it) {
 		while (it.hasNext()) {
 			final LinkInfo info = it.next();
-			if(DOM.getElementById(info.getId()) != null){
+			if (DOM.getElementById(info.getId()) != null) {
 				LinkWidget widget = new LinkWidget(info);
 				widget.addClickHandler(new ClickHandler() {
 
@@ -165,7 +174,7 @@ public class TextView extends HTML implements IDisplay{
 					public void onClick(ClickEvent event) {
 						event.stopPropagation();
 						event.preventDefault();
-						if(listener != null){
+						if (listener != null) {
 							listener.onLinkClicked(info.getType(), info.getHref(), info.getTarget());
 						}
 						event.preventDefault();
@@ -231,13 +240,12 @@ public class TextView extends HTML implements IDisplay{
 		return droppedElements;
 	}
 
-
 	@Override
-	public void setValue(String id, String value) {
-		for(TextElementDisplay gap : textElements){
-			if(gap.hasId(id)){
+	public void setValue (String id, String value) {
+		for (TextElementDisplay gap : textElements) {
+			if (gap.hasId(id)) {
 				gap.setText(value);
-				if(!value.equals("---")){
+				if (!value.equals("---")) {
 					gap.removeDefaultStyle();
 				}
 				return;
@@ -251,21 +259,21 @@ public class TextView extends HTML implements IDisplay{
 	}
 
 	@Override
-	public TextElementDisplay getChild(int index) {
+	public TextElementDisplay getChild (int index) {
 		return textElements.get(index);
 	}
 
 	@Override
-	public void setHTML(String html){
+	public void setHTML (String html) {
 		super.setHTML(html);
 	}
 
 	@Override
-	public void refreshMath() {
+	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
 	}
 	
-	public void rerenderMathJax (){
+	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
 	}
 
@@ -284,7 +292,7 @@ public class TextView extends HTML implements IDisplay{
 
 			if (callRefreshMath) {
 				refreshMath();
-				if(!(module.hasMathGaps() || module.hasDraggableGaps())){
+				if (!(module.hasMathGaps() || module.hasDraggableGaps())){
 					rerenderMathJax();
 				}
 			}
@@ -310,13 +318,13 @@ public class TextView extends HTML implements IDisplay{
 			clicks = 0;
 		}
 		
-		TextElementDisplay gap = textElements.get(clicks);
-		gap.setFocusGap(true);
+//		TextElementDisplay gap = textElements.get(clicks);
+//		gap.setFocusGap(true);
 
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		TextToSpeech.readGap(module.rawTextNoGaps, clicks, pageController);
+		this.pageController.readGap(module.rawTextNoGaps, clicks);
 	}
 	
 	private void enter() {
@@ -329,7 +337,7 @@ public class TextView extends HTML implements IDisplay{
 			moduleHasFocus = true;
 		}
 		
-		TextToSpeech.speak(module.rawTextNoGaps, this.pageController);
+		this.pageController.speak(module.rawTextNoGaps);
 	}
 	
 	private void escape() {
@@ -408,6 +416,8 @@ public class TextView extends HTML implements IDisplay{
 	
 	public void setPageController (PageController pc) {
 		this.pageController = pc;
+		
+		this.setPageControllerToInLineChoices();
 	}
 	
 }

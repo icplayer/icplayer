@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -314,7 +315,7 @@ public final class KeyboardNavigationController {
 
 		entryPoint.onScrollTo(widget.getAbsoluteTop());
 		
-		TextToSpeech.playTitle(moduleName.substring(5), mainPageController);
+		mainPageController.playTitle(moduleName.substring(5));
 	}
 	
 	private boolean isCommonModule() { 
@@ -381,6 +382,8 @@ public final class KeyboardNavigationController {
 		
 		modulesNamesFromTTS.addAll(modulesNamesFromPage);
 		
+		JavaScriptUtils.log("modulesNamesFromTTS: " + modulesNamesFromTTS.toString());
+		
 		return modulesNamesFromTTS;
 	}
 	
@@ -397,7 +400,7 @@ public final class KeyboardNavigationController {
 				if (moduleTypeName.equals("text")) {
 					TextPresenter textPresenter = (TextPresenter) presenter;
 					
-					if (!textPresenter.isSelectable() && TextToSpeech.getModulesOrder(mainPageController).isEmpty()) {
+					if (!textPresenter.isSelectable() && mainPageController.getModulesOrder().isEmpty()) {
 						continue;
 					}
 				}
@@ -407,7 +410,7 @@ public final class KeyboardNavigationController {
 			}
 		}
 		
-		return sortModulesFromTextToSpeech(tempModulesNames, TextToSpeech.getModulesOrder(mainPageController));
+		return sortModulesFromTextToSpeech(tempModulesNames, mainPageController.getModulesOrder());
 	}
 	
 	private void playTextToSpeechContent (Widget widget) {
@@ -416,12 +419,12 @@ public final class KeyboardNavigationController {
 		if (imv.getName() == "Choice") {
 			ChoiceView choice = (ChoiceView) widget;
 			choice.setPageController(mainPageController);
-			choice.setTextToSpeechVoices(TextToSpeech.getMultiPartDescription(currentModuleName.substring(5), mainPageController));
+			choice.setTextToSpeechVoices(mainPageController.getMultiPartDescription(currentModuleName.substring(5)));
 		} else if (imv.getName() == "Text") {
 			TextView text = (TextView) widget;
 			text.setPageController(mainPageController);
 		} else {
-			TextToSpeech.playDescription(currentModuleName.substring(5), mainPageController);
+			mainPageController.playDescription(currentModuleName.substring(5));
 		}
 	}
 	

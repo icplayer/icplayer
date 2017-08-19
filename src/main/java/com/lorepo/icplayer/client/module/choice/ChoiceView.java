@@ -15,7 +15,6 @@ import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.TextToSpeech;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
@@ -219,7 +218,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private void textToSpeechCurrentOption () {
 		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
 		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
-		TextToSpeech.speak(text, this.pageController);
+		this.pageController.speak(text);
 	}
 	
 	private void select() {

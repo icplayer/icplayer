@@ -36,7 +36,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.Score.Result;
 
-public class PageController {
+public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
 		void addModuleView(IModuleView view, IModuleModel module);
@@ -62,6 +62,7 @@ public class PageController {
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
 	private final static String PAGE_TTS_MODULE_ID = "TextToSpeechPageAPI";
+	private TextToSpeechController textToSpeechController;
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -118,6 +119,7 @@ public class PageController {
 		pageView.refreshMathJax();
 
 		this.restoreOutstretchHeights();
+		this.textToSpeechController = new TextToSpeechController(this);
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 	
@@ -148,21 +150,20 @@ public class PageController {
 		pageView.removeAllModules();
 		scriptingEngine.reset();
 
-		for(IModuleModel module : currentPage.getModules()){
+		for (IModuleModel module : currentPage.getModules()) {
 			String newInlineStyle = deletePositionImportantStyles(module.getInlineStyle());
 			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
 			
-			if(presenter != null){
+			if (presenter != null) {
 				presenter.addView(moduleView);
 				presenters.add(presenter);
-				if(presenter instanceof ICommandReceiver){
+				if (presenter instanceof ICommandReceiver) {
 					scriptingEngine.addReceiver((ICommandReceiver) presenter);
 				}
-			}
-			else if(moduleView instanceof IPresenter){
+			} else if (moduleView instanceof IPresenter) {
 				presenters.add((IPresenter) moduleView);
 			}
 		}
@@ -482,6 +483,36 @@ public class PageController {
 
 	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
+	}
+
+	@Override
+	public void playTitle (String id) {
+		this.textToSpeechController.playTitle(id);
+	}
+
+	@Override
+	public void playDescription (String id) {
+		this.textToSpeechController.playDescription(id);
+	}
+
+	@Override
+	public void speak (String text) {
+		this.textToSpeechController.speak(text);
+	}
+
+	@Override
+	public void readGap (String text, int gapNumber) {
+		this.textToSpeechController.readGap(text, gapNumber);
+	}
+
+	@Override
+	public List<String> getModulesOrder () {
+		return this.textToSpeechController.getModulesOrder();
+	}
+
+	@Override
+	public List<String> getMultiPartDescription (String id) {
+		return this.textToSpeechController.getMultiPartDescription(id);
 	}
 	
 }
