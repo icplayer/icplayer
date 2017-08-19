@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Catch' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
-	<model>
-		<property name='Test' nameLabel="Catch_property_test" type='text' isDefault="true" />
-	</model>
+<addon id="Catch" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Items" nameLabel="Catch_property_list_of_items" type="list">
+            <property name="Image" nameLabel="Catch_property_text" type="image" isLocalized="true" />
+            <property name="Description" nameLabel="Catch_property_description" type="string" isLocalized="true" />
+            <property name="Is Correct" nameLabel="Catch_property_is_correct" type="boolean" isLocalized="true" />
+            <property name="Level" nameLabel="Catch_property_level" type="string" isLocalized="true" />
+        </property>
+    </model>
 </addon>

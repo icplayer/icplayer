@@ -12,25 +12,76 @@ function AddonCatch_create() {
     }
 
     presenter.ERROR_CODES = {
-
+        I01: 'Property Image cannot be empty',
+        D01: 'Description too long. Max is 20 characters',
+        L01: 'Property level cannot be empty',
+        L02: 'Property level fill with numbers in range 1 - 3'
     };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
     };
 
-    function parseTest (text) {
-        return returnCorrectObject(text);
+    function parseItems (rawItems) {
+        var result = [];
+
+        for (var i=0; i<rawItems.length; i++) {
+            var rawItem = rawItems[i];
+
+            var image = rawItem['Image'];
+            var description = rawItem['Description'];
+            var isCorrect = ModelValidationUtils.validateBoolean(rawItem['Is Correct']);
+            var level = rawItem['Level'];
+
+            if (ModelValidationUtils.isStringWithPrefixEmpty(image, "/file/")) {
+                return returnErrorObject('I01');
+            }
+
+            if (description.length > 20) {
+                return returnErrorObject('D01');
+            }
+
+            if (!level) {
+                return returnErrorObject('L01');
+            }
+
+            level = level.split(',').filter(function (l) {
+                return l !== '';
+            }).map(function (l) {
+                return parseInt(l.trim(), 10);
+            });
+
+            // remove duplicates
+            level = level.filter(function(item, pos) {
+                return level.indexOf(item) === pos;
+            });
+
+            var isCorrectNumbersInLevels = level.every(function (l) {
+                return l === 1 || l === 2 || l === 3;
+            });
+            if (!isCorrectNumbersInLevels) {
+                return returnErrorObject('L02');
+            }
+
+            result.push({
+                image: image,
+                description: description,
+                isCorrect: isCorrect,
+                levels: level
+            });
+        }
+
+        return returnCorrectObject(result);
     }
 
     presenter.validateModel = function (model) {
-        var validatedTest = parseTest(model['Test']);
-        if (!validatedTest.isValid) {
-            return returnErrorObject(validatedTest.errorCode);
+        var validatedItems = parseItems(model['Items']);
+        if (!validatedItems.isValid) {
+            return returnErrorObject(validatedItems.errorCode);
         }
 
         return {
-            test: validatedTest.value,
+            items: validatedItems.value,
 
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
