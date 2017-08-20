@@ -32,3 +32,10 @@
     width: 30px;
     height: 30px;
 }
+
+.addon_Catch .welcome {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background-size: auto;
+}
