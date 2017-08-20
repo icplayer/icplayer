@@ -38,9 +38,20 @@ function AddonCatch_create() {
     }];
     var currentLevel = 0;
 
-    var defaultLevelsItems = {
-
-    };
+    var defaultLevelsItems = [
+        [
+            getItemObject('http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
+            getItemObject('https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
+        ],
+        [
+            getItemObject('http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
+            getItemObject('https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
+        ],
+        [
+            getItemObject('http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
+            getItemObject('https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
+        ]
+    ];
 
     presenter.ERROR_CODES = {
         I01: 'Property Image cannot be empty',
@@ -55,6 +66,10 @@ function AddonCatch_create() {
 
     function parseItems (rawItems) {
         var result = [];
+
+        if (ModelValidationUtils.isArrayEmpty(rawItems)) {
+            return getCorrectObject([]);
+        }
 
         for (var i=0; i<rawItems.length; i++) {
             var rawItem = rawItems[i];
@@ -101,10 +116,14 @@ function AddonCatch_create() {
     }
 
     presenter.calculateLevelsItems = function (items) {
-        var result = [];
+        var result = [[], [], []];
 
         for (var i=0; i<items.length; i++) {
+            var item = items[i];
 
+            for (var j=0; j<item.levels.length; j++) {
+                result[item.levels[j]-1].push(item);
+            }
         }
 
         return result;
@@ -116,9 +135,16 @@ function AddonCatch_create() {
             return getErrorObject(validatedItems.errorCode);
         }
 
+        var levelsItems;
+        if (validatedItems.value.length === 0) {
+            levelsItems = defaultLevelsItems;
+        } else {
+            levelsItems = presenter.calculateLevelsItems(validatedItems.value);
+        }
+
         return {
             items: validatedItems.value,
-            levelsItems: presenter.calculateLevelsItems(validatedItems.value),
+            levelsItems: levelsItems,
 
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
@@ -140,19 +166,19 @@ function AddonCatch_create() {
         return $description;
     }
 
+    function getRandomItemFromLevel (level) {
+        var itemsForLevel = presenter.configuration.levelsItems[level];
+        return itemsForLevel[Math.floor(Math.random() * itemsForLevel.length)];
+    }
+
     function makeFallingObject () {
-        var isCorrectObject = Math.random() < 0.5;
         var isRemoved = false;
         var addOnHeight = presenter.$view.height();
-        var $objectElement = $('<div class="fallingObject"></div>');
+        var itemObject = getRandomItemFromLevel(currentLevel);
 
-        if (isCorrectObject) {
-            $objectElement.css('background', 'url(http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200)');
-            $objectElement.append(makeDescription('apple'));
-        } else {
-            $objectElement.css('background', 'url(https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg)');
-            $objectElement.append(makeDescription('pie'));
-        }
+        var $objectElement = $('<div class="fallingObject"></div>');
+        $objectElement.css('background', 'url(' + itemObject.image + ')');
+        $objectElement.append(makeDescription(itemObject.description));
         $objectElement.css('background-size', 'cover');
         presenter.$view.append($objectElement);
 
@@ -176,7 +202,7 @@ function AddonCatch_create() {
                 if (isInCatchLevel) {
                     var plateOffset = $plateElement.position().left - presenter.$view.position().left;
                     if (plateOffset <= xPosition && plateOffset + $plateElement.width() + $objectElement.width() >= xPosition) {
-                        if (isCorrectObject) {
+                        if (itemObject.isCorrect) {
                             points++;
                         } else {
                             errors++;
@@ -266,6 +292,11 @@ function AddonCatch_create() {
 
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return false;
+        }
+
         presenter.$view = $(view);
         presenter.$view.attr('tabindex', 1);
 
