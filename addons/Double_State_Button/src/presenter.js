@@ -49,7 +49,9 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.clickHandler = function(event) {
-        event.stopPropagation();
+        if (event !== undefined) {
+            event.stopPropagation();
+        }
 
         if (presenter.configuration.isErrorMode) {
             return;
@@ -491,6 +493,12 @@ function AddonDouble_State_Button_create(){
 
         if (eventName == "HideAnswers") {
             presenter.configuration.isErrorMode = false;
+        }
+    };
+
+    presenter.keyboardController = function(keyCode) {
+        if (keyCode == 13) {
+            presenter.clickHandler();
         }
     };
 

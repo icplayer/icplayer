@@ -94,14 +94,14 @@ public class PagePopupPanel extends DialogBox {
 				
 		int popupWidthWithBorder = page.getWidth() + this.getBorderWidth();
 				
-		if (popupWidthWithBorder >= windowWidth){
+		if (popupWidthWithBorder > windowWidth){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 			this.compensateWidthBorder();
 		}
 
 		int popupHeightWithBorder = page.getHeight() + this.getBorderHeight();
 		
-		if (popupHeightWithBorder >= windowHeight){
+		if (popupHeightWithBorder > windowHeight){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
 			this.compensateHeightBorder();
 		}

@@ -135,13 +135,11 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public void showNavigationPanels() {
 		controller.getView().showNavigationPanels();
-
 	}
 
 	@Override
 	public void hideNavigationPanels() {
 		controller.getView().hideNavigationPanels();
-
 	}
 	
 	@Override
@@ -150,6 +148,10 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
+	public void goToLastVisitedPage() {
+		controller.switchToLastVisitedPage();
+	}
+
 	public void changeHeaderVisibility(boolean isVisible) {
 		PageView headerView = this.controller.getView().getHeaderView();
 		if (headerView != null) {
@@ -164,6 +166,6 @@ public class PlayerCommands implements IPlayerCommands {
 		if (footerView != null) {
 			footerView.setVisible(isVisible);
 		}
-		
+
 	}
 }
