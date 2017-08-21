@@ -40,16 +40,28 @@
         }
     };
 
-    KeyboardController.prototype.getTarget = function (element) {
+    KeyboardController.prototype.setElements = function (elements) {
+        for (var i = 0; i < this.keyboardNavigationElementsLen; i++) {
+            this.unmark(this.keyboardNavigationElements[i]);
+        }
+
+        this.keyboardNavigationElements = elements;
+        this.keyboardNavigationElementsLen = elements.length;
+        this.keyboardNavigationCurrentElementIndex = 0;
+        this.keyboardNavigationCurrentElement = this.keyboardNavigationElements[0];
+        this.mark(this.keyboardNavigationCurrentElement)
+    };
+
+    KeyboardController.prototype.getTarget = function (element, willBeClicked) {
         return element;
     };
 
     KeyboardController.prototype.mark = function (element) {
-        this.getTarget(element).addClass('keyboard_navigation_active_element');
+        this.getTarget(element, false).addClass('keyboard_navigation_active_element');
     };
 
     KeyboardController.prototype.unmark = function (element) {
-        this.getTarget(element).removeClass('keyboard_navigation_active_element');
+        this.getTarget(element, false).removeClass('keyboard_navigation_active_element');
     };
 
     KeyboardController.prototype.markCurrentElement = function (new_position_index) {
@@ -112,7 +124,7 @@
     };
 
     KeyboardController.prototype.selectAction = function () {
-        this.keyboardNavigationCurrentElement.click();
+        this.getTarget(this.keyboardNavigationCurrentElement, true).click();
     };
 
     KeyboardController.prototype.reload = function (elements, columnsCount) {

@@ -40,6 +40,9 @@ function Addonmultiplegap_create(){
     presenter.isShowAnswersActive = false;
     presenter.itemCounterMode = false;
     presenter.placeholders2drag = [];
+
+    presenter.keyboardControllerObject = null;
+    presenter.container = null;
     
     presenter.createPreview = function(view, model) {
         presenter.createLogic(view, model, true);
@@ -220,6 +223,8 @@ function Addonmultiplegap_create(){
                 container.click();
             }
         });
+
+        presenter.container = container;
         presenter.$view.append(container);
     };
     
@@ -257,6 +262,8 @@ function Addonmultiplegap_create(){
         if (!presenter.configuration.isVisibleByDefault) {
             presenter.hide();
         }
+
+        presenter.buildKeyboardController();
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
@@ -345,6 +352,8 @@ function Addonmultiplegap_create(){
         presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
         presenter.$view.find('.handler').show();
         presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
+
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
     presenter.maximumItemCountReached = function() {
@@ -738,8 +747,9 @@ function Addonmultiplegap_create(){
         if(presenter.showErrorsMode || presenter.isShowAnswersActive) {
             return;
         }
-        
         presenter.performRemoveDraggable($(e.target));
+
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
     presenter.performRemoveDraggable = function(handler) {
@@ -1183,6 +1193,41 @@ function Addonmultiplegap_create(){
         presenter.$view.find('.placeholder-show-answers').removeClass('placeholder-show-answers');
         presenter.isShowAnswersActive = false;
     };
-    
+
+    presenter.buildKeyboardController = function () {
+
+        if (presenter.configuration.orientation == presenter.ORIENTATIONS.VERTICAL) {
+            presenter.keyboardControllerObject = new MultipleGapKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+        } else {
+            presenter.keyboardControllerObject = new MultipleGapKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+        }
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return $.merge(presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging'), $(presenter.container));
+    };
+
+    presenter.keyboardController = function(keycode) {
+        presenter.keyboardControllerObject.handle(keycode)
+    };
+
+    function MultipleGapKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    MultipleGapKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    MultipleGapKeyboardController.prototype.constructor = MultipleGapKeyboardController;
+
+
+    MultipleGapKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        if (willBeClicked) {
+            var handler = $(element).children(".handler");
+            if (handler.length > 0) {
+                return handler;
+            }
+        }
+
+        return $(element);
+    };
     return presenter;
 }
