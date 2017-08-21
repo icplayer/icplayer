@@ -217,4 +217,16 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+
+	@Override
+	public void switchToLastVisitedPage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void switchToCommonPageById(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

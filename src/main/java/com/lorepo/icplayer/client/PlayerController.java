@@ -62,6 +62,9 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
 	
+	private int lastVisitedPageIndex = -1;
+	private int currentMainPageIndex = -1;
+	
 	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		this.entryPoint = entryPoint;
 		this.contentModel = content;
@@ -116,15 +119,7 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public int getCurrentPageIndex(){
-
-		int index = 0;
-		for(int i = 0; i < this.contentModel.getPageCount(); i++){
-			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
-				index = i;
-				break;
-			}
-		}
-		return index;
+		return this.currentMainPageIndex;
 	}
 
 
@@ -165,7 +160,18 @@ public class PlayerController implements IPlayerController{
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
+	
+	@Override
+	public void switchToCommonPageById(String id) {
+		int index = this.getModel().getCommonPages().findPageIndexById(id);
 
+		if (index > -1) {
+			this.switchToCommonPage(index);
+		} else {
+			Window.alert("Missing common page:\n<" + id + ">");
+		}
+	}
+	
 	@Override
 	public void switchToPageById(String pageId) {
 		int index = this.getModel().getPages().findPageIndexById(pageId);
@@ -179,18 +185,21 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void switchToPrevPage() {
-		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
-				int index = i-1;
-				if(this.pageController2 != null && index > 0){
-					index -= 1;
-				}
-				if(index >= 0){
-					this.switchToPage(index);
-				}
-				break;
-			}
+		int index = this.currentMainPageIndex-1;
+		if(this.pageController2 != null && index > 0) {
+			index -= 1;
+		}
+		if(index >= 0) {
+			this.switchToPage(index);
+		}
+	}
+	
+	@Override
+	public void switchToLastVisitedPage() {
+		if(this.isCurrentPageInCommons()) {
+			this.switchToPage(this.currentMainPageIndex);
+		} else {
+			this.switchToPage(this.lastVisitedPageIndex);
 		}
 	}
 
@@ -199,17 +208,13 @@ public class PlayerController implements IPlayerController{
 	public void switchToNextPage() {
 
 		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
-				int index = i + 1;
-				if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
-					index += 1;
-				}
-				if(index < pages.getTotalPageCount()){
-					this.switchToPage(index);
-				}
-				break;
-			}
+	
+		int index = this.currentMainPageIndex + 1;
+		if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()) {
+			index += 1;
+		}
+		if(index < pages.getTotalPageCount()) {
+			this.switchToPage(index);
 		}
 	}
 
@@ -219,7 +224,16 @@ public class PlayerController implements IPlayerController{
 	 * @param index
 	 */
 	@Override
-	public void switchToPage(int index){
+	public void switchToPage(int index) {
+		if (this.lastVisitedPageIndex == -1) { //if player was started for the first time
+			this.lastVisitedPageIndex = index;
+			this.currentMainPageIndex = index;
+		}
+		else if (this.currentMainPageIndex != index) {
+			this.lastVisitedPageIndex = this.currentMainPageIndex;
+			this.currentMainPageIndex = index;
+		}
+		
 		this.closeCurrentPages();
 		IPage page;
 		if(this.pageController2 != null){
@@ -250,8 +264,7 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
-	public void switchToCommonPage(int index) {
-
+	public void switchToCommonPage(int index) {			
 		this.closeCurrentPages();
 		IPage page;
 		if (this.pageController2 != null) {
@@ -594,5 +607,15 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public IReportableService getReportableService() {
 		return this.reportableService;
+	}
+
+	private boolean isCurrentPageInCommons() {
+		int commonsPageSize = this.contentModel.getCommonPages().getPageCount();
+		for(int i = 0; i < commonsPageSize; i++) {
+			if(this.contentModel.getCommonPage(i) == this.pageController1.getPage()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

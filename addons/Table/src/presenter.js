@@ -91,9 +91,9 @@ function AddonTable_create() {
         parsedText = changeSimpleGapsIDs(textParserResult.gaps, parsedText, objectType);
         parsedText = changeInlineGapsIDs(textParserResult.inLineGaps, parsedText, objectType);
 
-        if(!isPreview){
-            presenter.$view.html(parsedText);
+        presenter.$view.html(parsedText);
 
+        if(!isPreview){
             presenter.getInputsSize();
         }
     };
@@ -184,12 +184,13 @@ function AddonTable_create() {
             return;
         }
 
+        presenter.mainLogic(isPreview);
+
         if(presenter.configuration.gapType == "math"){
-            presenter.mainLogic(isPreview);
             presenter.mathJaxProcessEnded.then(function() {
                 MathJax.CallBack.Queue().Push(function () {
-                    MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
                     if(!isPreview){
+                        MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
                         var checkSelector = setInterval(function () {
                             if ($(presenter.$view).find('input').length > 0) {
                                 presenter.gapsContainer.gaps = [];
@@ -208,8 +209,6 @@ function AddonTable_create() {
                     }
                 });
             });
-        }else{
-            presenter.mainLogic(isPreview);
         }
 
         if(isPreview) {
@@ -246,10 +245,6 @@ function AddonTable_create() {
         if (!isPreview) {
             presenter.parseDefinitionLinks();
         } else {
-            var currentView = presenter.$view.html(),
-                properView = presenter.textParser.parseGaps(currentView);
-            presenter.$view.html(properView.parsedText);
-
             replaceInputsInPreview();
             presenter.setGapsClassAndWidth();
             presenter.$view.find('input').attr("size", "auto");

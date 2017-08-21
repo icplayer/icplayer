@@ -237,14 +237,18 @@ public class JavaScriptPlayerServices {
 
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
-			};               			
-			
+			};
+
 			commands.gotoPageIndex = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageIndex(I)(index);
 			};
 			
 			commands.gotoPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
+			};
+			
+			commands.gotoCommonPageId = function(pageId) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoCommonPageId(Ljava/lang/String;)(pageId);
 			};
 			
 			commands.executeEventCode = function(code) {
@@ -303,7 +307,15 @@ public class JavaScriptPlayerServices {
 					dontMoveModules = false;
 				}
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules));
-			}
+			};
+
+			commands.changeHeaderVisibility = function (isVisible) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeHeaderVisibility(Z)(isVisible);
+			};
+
+			commands.changeFooterVisibility = function (isVisible) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeFooterVisibility(Z)(isVisible);
+			};
 
 			return commands;
 		};
@@ -445,6 +457,15 @@ public class JavaScriptPlayerServices {
 
 		return playerServices;
 	}-*/;
+	
+	private void changeFooterVisibility(boolean isVisible) {
+		this.playerServices.getCommands().changeFooterVisibility(isVisible);
+	}
+
+	private void changeHeaderVisibility(boolean isVisible) {
+		this.playerServices.getCommands().changeHeaderVisibility(isVisible);
+	}
+	
 
 	private void showPopup(String pageName, String top, String left, String additinalClasses){
 		playerServices.getCommands().showPopup(pageName, top, left, additinalClasses);
@@ -488,6 +509,10 @@ public class JavaScriptPlayerServices {
 
 	private void gotoPageId(String pageId){
 		playerServices.getCommands().gotoPageId(pageId);
+	}
+
+	private void gotoCommonPageId(String id) {
+		playerServices.getCommands().gotoCommonPageId(id);
 	}
 
 	private void executeEventCode(String code){

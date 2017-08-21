@@ -26,6 +26,7 @@ public class TextView extends HTML implements IDisplay{
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
+	private TextElementDisplay activeGap = null;
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -266,34 +267,38 @@ public class TextView extends HTML implements IDisplay{
 		int size = getTextElementsSize();
 
 		if (size == 0) return;
+		
+		if (activeGap != null) {
+			activeGap.setFocusGap(false);
+		}
+		
 		clicks++;
 		
 		if (clicks >= size && size > 0) {
 			clicks = 0;
 		}
 		
-		TextElementDisplay gap = textElements.get(clicks);
-		gap.setFocusGap(true);
+		activeGap = textElements.get(clicks);
+		activeGap.setFocusGap(true);
 	}
 	
 	private void enter() {
-    	TextElementDisplay gap = null;
 
 		if(textElements.size() > 0) {
-    		gap = textElements.get(0);
+			activeGap = textElements.get(0);
 		}
 
-		if (gap != null && !moduleHasFocus) {
-			gap.setFocusGap(true);
+		if (activeGap != null && !moduleHasFocus) {
+			activeGap.setFocusGap(true);
 			moduleHasFocus = true;
 		}
 	}
 	
 	private void escape() {
-		for (TextElementDisplay gap : textElements) {
-			gap.setFocusGap(false);
-			moduleHasFocus = false;
+		if (activeGap != null) {
+			activeGap.setFocusGap(false);
 		}
+		moduleHasFocus = false;
 	}
 	
 	@Override
@@ -313,6 +318,11 @@ public class TextView extends HTML implements IDisplay{
 		if (code == KeyCodes.KEY_TAB) {
 			event.preventDefault();
 			skip();
+		}
+		
+		if ((code == 32) && (activeGap instanceof DraggableGapWidget)) { // space key on draggable gap
+			event.preventDefault();
+			listener.onGapClicked(activeGap.getId());
 		}
 	}
 

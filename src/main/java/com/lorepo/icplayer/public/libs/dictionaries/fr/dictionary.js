@@ -795,6 +795,8 @@ var ice_dictionary_fr = {
 "gamememo_property_show_cards_for_preview": "Afficher les cartes en prévisualisation",
 "gamememo_property_image_mode": "Mode image",
 "gamememo_property_keep_wrong_marking": "Keep wrong marking",
+"gamememo_property_time_to_solve": "Time to solve the task",
+"gamememo_property_session_ended_message": "Session ended message",
 "MultiAudio_info": "C'est une version améliorée du module externe Audio. Il a été enrichi de nouvelles fonctionnalités, telles que le téléchargement de plusieurs fichiers audio, la lecture de chaque fichier individuellement, le passage d'un fichier à un autre, une interface de sélection améliorée.",
 "MultiAudio_name": "Audio multiple",
 "MultiAudio_property_files": "Fichiers",
@@ -1491,5 +1493,6 @@ var ice_dictionary_fr = {
 "IFrame_property_allow_fullscreen": "Allow Fullscreen",
 "Text_use_escape_character_in_gap_property": "Use escape character in gap",
 "date": "Date",
-"sort_by": "Sort by:"
+"sort_by": "Sort by:",
+"prev_property_go_to_last_visited_page": "Redirect to last visited page"
 };

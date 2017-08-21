@@ -795,6 +795,8 @@ var ice_dictionary_mx = {
 	"gamememo_property_show_cards_for_preview": "Ver cartas ahora",
 	"gamememo_property_image_mode": "Modo de imagen",
     "gamememo_property_keep_wrong_marking": "Marcar respuestas incorrectas",
+	"gamememo_property_time_to_solve": "Time to solve the task",
+	"gamememo_property_session_ended_message": "Session ended message",
 	"MultiAudio_info": "Es una versión mejorada del addon Audio que ha sido enriquecido con nuevas características, tales como subir varios archivos de audio, lo que permite bucle de cada archivo de forma individual, saltar entre los archivos y mejorada selección de la interfaz.",
 	"MultiAudio_name": "MultiAudio",
 	"MultiAudio_property_files": "Archivo",
@@ -1491,5 +1493,6 @@ var ice_dictionary_mx = {
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
-	"sort_by": "Sort by:"
+	"sort_by": "Sort by:",
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
 };
