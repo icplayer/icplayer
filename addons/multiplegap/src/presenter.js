@@ -1195,12 +1195,7 @@ function Addonmultiplegap_create(){
     };
 
     presenter.buildKeyboardController = function () {
-
-        if (presenter.configuration.orientation == presenter.ORIENTATIONS.VERTICAL) {
-            presenter.keyboardControllerObject = new MultipleGapKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
-        } else {
-            presenter.keyboardControllerObject = new MultipleGapKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
-        }
+        presenter.keyboardControllerObject = new MultipleGapKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
