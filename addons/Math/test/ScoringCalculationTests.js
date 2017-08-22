@@ -126,8 +126,8 @@ TestCase("[Math] Scoring calculation - score and errors count", {
     'test all expressions evaluates to true': function () {
         this.presenter.configuration.expressions = [ "1 + 3 == 4", "gap1 + 2 == 3", "5 > gap1 + gap2" ];
 
-        assertEquals(0, this.presenter.getScore());
-        assertEquals(3, this.presenter.getErrorCount());
+        assertEquals(3, this.presenter.getScore());
+        assertEquals(0, this.presenter.getErrorCount());
     },
 
     'test not all gaps are filled': function () {

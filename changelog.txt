@@ -1,3 +1,4 @@
+2017-08-22 Fixed problem with using chars and numbers in math addon.
 2017-08-22 Added to audio force loading audio. Upgraded sinon to 2.4.1.
 2017-08-17 Fixed problem with scaling popup
 2017-08-14 Added go to last visited page for previous page button.

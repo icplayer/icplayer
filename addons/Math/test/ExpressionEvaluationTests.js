@@ -35,12 +35,24 @@ TestCase("[Math] Expression evaluation", {
             getGapValue: function () {
                 return '0';
             }
+        }, text4 = {
+            getGapValue: function (index) {
+                switch (index) {
+                    case '1':
+                        return '2';
+                    case '2':
+                        return 'x';
+                    case '3':
+                        return '50';
+                }
+            }
         };
 
         sinon.stub(this.presenter, 'getModule');
         this.presenter.getModule.withArgs('Text1').returns(text1);
         this.presenter.getModule.withArgs('Text2').returns(text2);
         this.presenter.getModule.withArgs('Text3').returns(text3);
+        this.presenter.getModule.withArgs('Text4').returns(text4);
         this.variables = [
             { name: 'gap1', value: 'Text1.1' },
             { name: 'gap2', value: 'Text1.2' },
@@ -170,5 +182,36 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-    }
+    },
+
+    'test if in expression is number and string returned value should works': function () {
+        this.variables = [
+            { name: 'gap1', value: 'Text4.1' },
+            { name: 'gap2', value: 'Text4.2' },
+            { name: 'gap3', value: 'Text4.3' }
+        ];
+        var expression = "gap1 == 'x' || gap1 == '2'";
+
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+
+        expression = "gap2 == 'x' || gap2 == '2'";
+
+        evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+
+        expression = "gap1 != gap2";
+
+        evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+
+        expression = "gap3 == '50'";
+
+        evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+    },
 });
