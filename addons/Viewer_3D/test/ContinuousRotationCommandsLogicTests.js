@@ -72,9 +72,8 @@ TestCase("[3D Viewer] Continuous rotation commands", {
 
         this.presenter.startRotation('X', 50, 30);
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledOnce);
-        assertEquals('startRotationX', this.presenter.commandsQueue.addTask.getCall(0).args[0]);
-        assertEquals(['50', '30'], this.presenter.commandsQueue.addTask.getCall(0).args[1]);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
+        assertEquals(['X', 50, 30], this.presenter.getDeferredQueueVariable().queue[0].argumentsToCall);
 
         assertFalse(this.presenter.startRotationXQueue.called);
         assertFalse(this.presenter.stopRotationX.called);
@@ -177,9 +176,8 @@ TestCase("[3D Viewer] Continuous rotation commands", {
 
         this.presenter.stopRotation('X');
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledOnce);
-        assertEquals('stopRotationX', this.presenter.commandsQueue.addTask.getCall(0).args[0]);
-        assertEquals([], this.presenter.commandsQueue.addTask.getCall(0).args[1]);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
+        assertEquals(['X'], this.presenter.getDeferredQueueVariable().queue[0].argumentsToCall);
 
         assertFalse(this.presenter.stopRotationXQueue.called);
         assertTrue(this.presenter.configuration.queues.X.isActive);

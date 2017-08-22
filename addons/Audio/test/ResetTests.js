@@ -1,4 +1,4 @@
-TestCase('Reset', {
+TestCase('[Audio] Reset', {
     setUp : function() {
         this.presenter = AddonAudio_create();
         this.presenter.configuration = {

@@ -1,4 +1,6 @@
 function AddonViewer_3D_create(){
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
+
     var presenter = function () {};
 
     presenter.RENDER_MODES = {
@@ -14,6 +16,14 @@ function AddonViewer_3D_create(){
         'ERR_02': 'Invalid rotation values!',
         'ERR_03': 'Invalid model color!',
         'ERR_04': 'Invalid background color values!'
+    };
+
+    function deferredQueueDecoratorChecker () {
+        return presenter.isLoaded;
+    }
+
+    presenter.getDeferredQueueVariable = function () {
+        return deferredSyncQueue;
     };
 
     presenter.run = function (view, model) {
@@ -215,16 +225,13 @@ function AddonViewer_3D_create(){
         $.when(viewer.loadPromise).then(function () {
             presenter.isLoaded = true;
 
-            if (!presenter.commandsQueue.isQueueEmpty()) {
-                presenter.commandsQueue.executeAllTasks();
-            }
+            deferredSyncQueue.resolve()
         });
     };
 
     presenter.presenterLogic = function (view, model) {
         presenter.$view = $(view);
         presenter.model = model;
-        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
         presenter.isLoaded = false;
 
         presenter.setCanvasDimensions(model.Width, model.Height);
@@ -279,60 +286,40 @@ function AddonViewer_3D_create(){
         return { isValid: true, value: validatedAngle.value };
     };
 
-    presenter.rotateX = function (angle) {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('rotateX', [angle]);
-            return;
-        }
-
+    presenter.rotateX = deferredSyncQueue.decorate(function (angle) {
         var validatedAngle = presenter.validateAngle(angle);
         if (!validatedAngle.isValid) return;
 
         presenter.rotateObject(validatedAngle.value, 0, 0);
-    };
+    });
 
     presenter.rotateXCommand = function (params) {
         presenter.rotateX(params[0]);
     };
 
-    presenter.rotateY = function (angle) {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('rotateY', [angle]);
-            return;
-        }
-
+    presenter.rotateY = deferredSyncQueue.decorate(function (angle) {
         var validatedAngle = presenter.validateAngle(angle);
         if (!validatedAngle.isValid) return;
 
         presenter.rotateObject(0, validatedAngle.value, 0);
-    };
+    });
 
     presenter.rotateYCommand = function (params) {
         presenter.rotateY(params[0]);
     };
 
-    presenter.rotateZ = function (angle) {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('rotateZ', [angle]);
-            return;
-        }
-
+    presenter.rotateZ = deferredSyncQueue.decorate(function (angle) {
         var validatedAngle = presenter.validateAngle(angle);
         if (!validatedAngle.isValid) return;
 
         presenter.rotateObject(0, 0, validatedAngle.value);
-    };
+    });
 
     presenter.rotateZCommand = function (params) {
         presenter.rotateZ(params[0]);
     };
 
-    presenter.setQuality = function (quality) {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('setQuality', [quality]);
-            return;
-        }
-
+    presenter.setQuality = deferredSyncQueue.decorate(function (quality) {
         if (ModelValidationUtils.isStringEmpty(quality)) return;
         if (quality !== 'low' && quality !== 'standard' && quality !== 'high') return;
         if (presenter.configuration.quality === quality) return;
@@ -340,18 +327,13 @@ function AddonViewer_3D_create(){
         presenter.configuration.quality = quality;
         presenter.viewer.setDefinition(quality);
         presenter.viewer.update();
-    };
+    });
 
     presenter.setQualityCommand = function (params) {
         presenter.setQuality(params[0]);
     };
 
-    presenter.reset = function () {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('reset', []);
-            return;
-        }
-
+    presenter.reset = deferredSyncQueue.decorate(function () {
         presenter.stopAllRotations();
         presenter.setQuality('standard');
 
@@ -360,35 +342,25 @@ function AddonViewer_3D_create(){
 
         presenter.viewer.replaceSceneFromUrl(presenter.configuration.files.OBJ + '.obj');
         presenter.viewer.update();
-    };
+    });
 
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.show = function () {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('show', []);
-            return;
-        }
-
+    presenter.show = deferredSyncQueue.decorate(function () {
         if (presenter.configuration.isCurrentlyVisible) return;
 
         presenter.configuration.isCurrentlyVisible = true;
         presenter.setVisibility(true);
-    };
+    });
 
-    presenter.hide = function () {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('hide', []);
-            return;
-        }
-
+    presenter.hide = deferredSyncQueue.decorate(function () {
         if (!presenter.configuration.isCurrentlyVisible) return;
 
         presenter.configuration.isCurrentlyVisible = false;
         presenter.setVisibility(false);
-    };
+    });
 
     presenter.getState = function () {
         if (!presenter.isLoaded) return;
@@ -402,13 +374,8 @@ function AddonViewer_3D_create(){
         presenter.setState(params[0]);
     };
 
-    presenter.setState = function (state) {
+    presenter.setState = deferredSyncQueue.decorate(function (state) {
         if (!state) return;
-
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('setState', [state]);
-            return;
-        }
 
         var parsedState = JSON.parse(state);
 
@@ -417,7 +384,7 @@ function AddonViewer_3D_create(){
         } else {
             presenter.hide();
         }
-    };
+    });
 
     presenter.validateDelay = function (delay) {
         var validatedDelay = ModelValidationUtils.validateInteger(delay);
@@ -430,12 +397,7 @@ function AddonViewer_3D_create(){
 
     // Generic commands
 
-    presenter.startRotation = function (axis, angle, delay) {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('startRotation' + axis, [angle, delay]);
-            return;
-        }
-
+    presenter.startRotation = deferredSyncQueue.decorate(function (axis, angle, delay) {
         var validatedAngle = presenter.validateAngle(angle);
         if (!validatedAngle.isValid) return;
 
@@ -457,7 +419,7 @@ function AddonViewer_3D_create(){
 
             presenter['startRotation' + axis + 'Queue']();
         }
-    };
+    });
 
     presenter.startRotationQueue = function (axis) {
         var queue = presenter.configuration.queues[axis].name,
@@ -485,12 +447,7 @@ function AddonViewer_3D_create(){
         });
     };
 
-    presenter.stopRotation = function (axis) {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('stopRotation' + axis, []);
-            return;
-        }
-
+    presenter.stopRotation = deferredSyncQueue.decorate(function (axis) {
         if (!presenter.configuration.queues[axis].isActive) return;
 
         presenter.configuration.queues[axis].isActive = false;
@@ -498,7 +455,7 @@ function AddonViewer_3D_create(){
         presenter.configuration.queues[axis].delay = 0;
 
         presenter['stopRotation' + axis + 'Queue']();
-    };
+    });
 
     presenter.stopRotationQueue = function (axis) {
         var queue = presenter.configuration.queues[axis].name;
