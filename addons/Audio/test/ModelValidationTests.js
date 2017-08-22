@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Audio] Model validation", {
     setUp: function () {
         this.presenter = AddonAudio_create();
     },
@@ -7,7 +7,9 @@ TestCase("Model validation", {
         var model = {
             "Is Visible": "True",
             onEnd: "DoubleStateButton1.deselect();",
-            defaultControls: "True"
+            defaultControls: "True",
+            ID: "Some id",
+            forceLoadAudio: "True"
         };
 
 
@@ -19,5 +21,7 @@ TestCase("Model validation", {
         assertFalse(validatedModel.enableLoop);
         assertFalse(validatedModel.displayTime);
         assertTrue(validatedModel.defaultControls);
+        assertTrue(validatedModel.forceLoadAudio);
+        assertEquals("Some id", validatedModel.addonID);
     }
 });

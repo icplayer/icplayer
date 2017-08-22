@@ -9,14 +9,11 @@ TestCase("Show and hide methods", {
             currentFrame: 0
         };
         this.presenter.isLoaded = true;
-
+        this.stubs = {};
         this.presenter.commandsQueue = {
             addTask: function () {}
         };
 
-        this.stubs = {
-            addTask:  sinon.stub(this.presenter.commandsQueue, 'addTask')
-        };
 
         this.presenter.DOMElements.viewContainer = $("<div>" +
                                                         "<div class='animation-label' style='visibility: visible'>1</div>" +
@@ -37,7 +34,7 @@ TestCase("Show and hide methods", {
 
         this.presenter.show();
 
-        assertTrue(this.stubs.addTask.calledWith('show', []));
+        assertEquals(1, this.presenter._internal.deferredSyncQueue.queue.length);
         assertFalse(this.stubs.setVisibility.called);
 
         assertFalse(this.presenter.configuration.isVisible);
@@ -60,7 +57,7 @@ TestCase("Show and hide methods", {
 
         this.presenter.hide();
 
-        assertTrue(this.stubs.addTask.calledWith('hide', []));
+        assertEquals(1, this.presenter._internal.deferredSyncQueue.queue.length);
         assertFalse(this.stubs.setVisibility.called);
 
         assertTrue(this.presenter.configuration.isVisible);
