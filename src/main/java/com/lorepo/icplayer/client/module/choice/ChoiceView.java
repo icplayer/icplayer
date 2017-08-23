@@ -128,7 +128,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void onValueChange(ValueChangeEvent<Boolean> event) {
 
-		if(listener != null){
+		if (listener != null) {
 			listener.onValueChange((IOptionDisplay) event.getSource(), event.getValue());
 		}
 		
@@ -137,7 +137,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void setEnabled(boolean b) {
 
-		for(IOptionDisplay optionView : optionWidgets){
+		for (IOptionDisplay optionView : optionWidgets) {
 			OptionView widget = (OptionView) optionView;
 			widget.setEnabled(b);
 		}

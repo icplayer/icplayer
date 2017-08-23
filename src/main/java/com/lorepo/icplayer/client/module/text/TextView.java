@@ -31,7 +31,7 @@ public class TextView extends HTML implements IDisplay{
 	private int clicks = 0;
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
-	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList;
+	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
@@ -56,13 +56,12 @@ public class TextView extends HTML implements IDisplay{
 	}
 
 	@Override
-	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
-
-		int gapWidth = module.getGapWidth();
-		while (giIterator.hasNext()) {
-			InlineChoiceInfo gi = giIterator.next();
-			inlineChoiceInfoArrayList.add(gi);
-			InlineChoiceWidget gap = new InlineChoiceWidget(gi, listener);
+	public void connectInlineChoices (List<InlineChoiceInfo> InlineChoiceList) {
+		final int gapWidth = module.getGapWidth();
+		
+		for (InlineChoiceInfo ic: InlineChoiceList) {
+			inlineChoiceInfoArrayList.add(ic);
+			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
@@ -72,11 +71,10 @@ public class TextView extends HTML implements IDisplay{
 	}
 	
 	private void setPageControllerToInLineChoices () {
-		JavaScriptUtils.log("setPageControllerToInLineChoices");
-//		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
-//			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener);
-//			gap.setPageController(this.pageController);
-//		}
+		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
+			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener);
+			gap.setPageController(this.pageController);
+		}
 	}
 
 	@Override

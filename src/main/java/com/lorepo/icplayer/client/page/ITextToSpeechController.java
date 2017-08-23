@@ -10,4 +10,5 @@ public interface ITextToSpeechController {
 	public void readGap (String text, int gapNumber);
 	public List<String> getModulesOrder ();
 	public List<String> getMultiPartDescription (String id);
+	public boolean isTextToSpeechModuleEnable ();
 }

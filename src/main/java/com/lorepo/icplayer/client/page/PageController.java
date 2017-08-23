@@ -189,7 +189,7 @@ public class PageController implements ITextToSpeechController {
 
 	public Group findGroup(IModuleModel module) {
 		List<Group> groups = currentPage.getGroupedModules();
-		if(groups != null){
+		if (groups != null) {
 			for (Group group : groups) {
 				if (group.contains(module)) {
 					return group;
@@ -217,8 +217,8 @@ public class PageController implements ITextToSpeechController {
 	protected Result calculateScoreForEachGroup(Group group, ArrayList<IPresenter> groupPresenters, int groupMaxScore) {
 		Result groupResult = new Result();
 
-		for(IPresenter presenter : groupPresenters){
-			if(presenter instanceof IActivity){
+		for (IPresenter presenter : groupPresenters) {
+			if (presenter instanceof IActivity) {
 				IActivity activity = (IActivity) presenter;
 				if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
 					groupResult = Score.calculateZeroMaxScore(groupResult, activity);
@@ -329,7 +329,7 @@ public class PageController implements ITextToSpeechController {
 			result.errorCount = 0;
 
 			groupsResult = calculateScoreModulesOutGroup(result);
-		}else{
+		} else {
 			groupsResult = calculateScoreModulesOutGroup(groupsResult);
 		}
 
@@ -478,7 +478,6 @@ public class PageController implements ITextToSpeechController {
 		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
 		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 		this.playerController.fireOutstretchHeightEvent();
-		
 	}
 
 	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
@@ -513,6 +512,11 @@ public class PageController implements ITextToSpeechController {
 	@Override
 	public List<String> getMultiPartDescription (String id) {
 		return this.textToSpeechController.getMultiPartDescription(id);
+	}
+	
+	@Override
+	public boolean isTextToSpeechModuleEnable () {
+		return this.textToSpeechController.isTextToSpeechModuleEnable();
 	}
 	
 }

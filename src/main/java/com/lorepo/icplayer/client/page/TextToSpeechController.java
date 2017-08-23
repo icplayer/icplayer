@@ -15,31 +15,31 @@ public class TextToSpeechController {
 	}
 	
 	public void playTitle (String id) {
-		if (this.textToSpeechModule != null) {
+		if (this.isTextToSpeechModuleEnable()) {
 			this.textToSpeechModule.playTitle(id);
 		}
 	}
 	
 	public void playDescription (String id) {
-		if (this.textToSpeechModule != null) {
+		if (this.isTextToSpeechModuleEnable()) {
 			this.textToSpeechModule.playDescription(id);
 		}
 	}
 	
 	public void speak (String text) {
-		if (this.textToSpeechModule != null) {
+		if (this.isTextToSpeechModuleEnable()) {
 			this.textToSpeechModule.speak(text);
 		}
 	}
 	
 	public void readGap (String text, int gapNumber) {
-		if (this.textToSpeechModule != null) {
+		if (this.isTextToSpeechModuleEnable()) {
 			this.textToSpeechModule.readGap(text, gapNumber);
 		}
 	}
 	
 	public List<String> getModulesOrder () {
-		if (this.textToSpeechModule != null) {
+		if (this.isTextToSpeechModuleEnable()) {
 			return JavaScriptUtils.convertJsArrayToArrayList(this.textToSpeechModule.getAddOnsOrder());
 		} else {
 			List<String> result = new ArrayList<String>();
@@ -48,12 +48,16 @@ public class TextToSpeechController {
 	}
 
 	public List<String> getMultiPartDescription (String id) {
-		if (this.textToSpeechModule != null) {
+		if (this.isTextToSpeechModuleEnable()) {
 			return JavaScriptUtils.convertJsArrayToArrayList(this.textToSpeechModule.getMultiPartDescription(id));
 		} else {
 			List<String> result = new ArrayList<String>();
 			return result;
 		}
+	}
+	
+	public boolean isTextToSpeechModuleEnable () {
+		return this.textToSpeechModule != null;
 	}
 	
 }

@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
@@ -46,7 +45,6 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 					
-					JavaScriptUtils.log("speak: " + value);
 					getPageController().speak(value);
 				}
 			});
@@ -81,13 +79,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
-				boolean correctAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
-
-				if (correctAnswer) {
-					addStyleDependentName("correct");
-				} else {
-					addStyleDependentName("wrong");
-				}
+				boolean isCorrectAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
+				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
 			} else {
 				addStyleDependentName("empty");
 			}
@@ -157,7 +150,6 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	public void setDisabled(boolean disabled) {
-
 		isDisabled = disabled;
 		setEnabled(!disabled);
 	}
@@ -217,12 +209,10 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 	
 	private PageController getPageController () {
-		JavaScriptUtils.log("getPageController " + this.pageController != null);
 		return this.pageController;
 	}
 	
 	public void setPageController (PageController pc) {
-		JavaScriptUtils.log("setPageController " + pc != null);
 		this.pageController = pc;
 	}
 	

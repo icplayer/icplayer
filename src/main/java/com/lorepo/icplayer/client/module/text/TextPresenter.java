@@ -74,7 +74,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectGaps(Iterator<GapInfo> giIterator);
 		void connectFilledGaps(Iterator<GapInfo> giIterator);
 		void connectDraggableGaps(Iterator<GapInfo> giIterator);
-		void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator);
+		void connectInlineChoices(List<InlineChoiceInfo> list);
 		void connectLinks(Iterator<LinkInfo> giIterator);
 		int getChildrenCount();
 		TextElementDisplay getChild(int index);
@@ -593,7 +593,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.connectFilledGaps(module.getGapInfos().iterator());
 		}
 
-		view.connectInlineChoices(module.getChoiceInfos().iterator());
+		view.connectInlineChoices(module.getChoiceInfos());
 		view.connectLinks(module.getLinkInfos().iterator());
 		
 		view.sortGapsOrder();
