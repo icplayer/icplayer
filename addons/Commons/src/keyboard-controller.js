@@ -26,28 +26,43 @@
         mapping[keys.ARROW_UP] = this.previousRow;
         mapping[keys.ARROW_RIGHT] = this.nextElement;
         mapping[keys.ARROW_DOWN] = this.nextRow;
+
+        var shiftKeysMapping = {};
+        shiftKeysMapping[keys.ENTER] = this.exitWCAGMode;
+
         this.mapping = mapping;
+        this.shiftKeysMapping = shiftKeysMapping;
     }
 
-    KeyboardController.prototype.handle = function (keycode) {
+    KeyboardController.prototype.handle = function (keycode, isShiftKeyDown) {
         $(document).on('keydown', function (e) {
             e.preventDefault();
             $(this).off('keydown');
         });
         try {
-            this.mapping[keycode].call(this);
+            if (isShiftKeyDown) {
+                this.shiftKeysMapping[keycode].call(this);
+            } else {
+                this.mapping[keycode].call(this);
+            }
         } catch (er) {
+            console.log(er);
         }
     };
 
     KeyboardController.prototype.setElements = function (elements) {
+        this.keyboardNavigationElements = elements;
+        this.keyboardNavigationElementsLen = elements.length;
+        this.keyboardNavigationCurrentElementIndex = 0;
+
+        if (!this.keyboardNavigationActive) {
+            return;
+        }
+
         for (var i = 0; i < this.keyboardNavigationElementsLen; i++) {
             this.unmark(this.keyboardNavigationElements[i]);
         }
 
-        this.keyboardNavigationElements = elements;
-        this.keyboardNavigationElementsLen = elements.length;
-        this.keyboardNavigationCurrentElementIndex = 0;
         this.keyboardNavigationCurrentElement = this.keyboardNavigationElements[0];
         this.mark(this.keyboardNavigationCurrentElement)
     };
@@ -111,9 +126,7 @@
         if (!this.keyboardNavigationActive) {
             return;
         }
-        this.keyboardNavigationActive = false;
-        this.unmark(this.keyboardNavigationCurrentElement);
-        this.keyboardNavigationCurrentElement = null;
+        this.exitWCAGMode();
     };
 
     KeyboardController.prototype.select = function () {
@@ -139,6 +152,19 @@
 
     KeyboardController.prototype.selectEnabled = function (isSelectEnabled) {
         this.isSelectEnabled = isSelectEnabled;
+    };
+
+    /*
+
+    */
+    KeyboardController.prototype.exitWCAGMode = function () {
+        if (!this.keyboardNavigationActive) {
+            return;
+        }
+
+        this.keyboardNavigationActive = false;
+        this.unmark(this.keyboardNavigationCurrentElement);
+        this.keyboardNavigationCurrentElement = null;
     };
 
     window.KeyboardController = KeyboardController;

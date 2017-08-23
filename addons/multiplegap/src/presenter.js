@@ -352,7 +352,6 @@ function Addonmultiplegap_create(){
         presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
         presenter.$view.find('.handler').show();
         presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
-
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
@@ -748,7 +747,6 @@ function Addonmultiplegap_create(){
             return;
         }
         presenter.performRemoveDraggable($(e.target));
-
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
@@ -1202,8 +1200,8 @@ function Addonmultiplegap_create(){
         return $.merge($(presenter.container), presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging'));
     };
 
-    presenter.keyboardController = function(keycode) {
-        presenter.keyboardControllerObject.handle(keycode)
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown)
     };
 
     function MultipleGapKeyboardController (elements, columnsCount) {
