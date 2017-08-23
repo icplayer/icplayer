@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.ordering.mockup;
 
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.module.ordering.IReorderListener;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
 
@@ -94,5 +95,9 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void executeOnKeyCode(KeyDownEvent event) {
+		// TODO Auto-generated method stub
 	}
 }

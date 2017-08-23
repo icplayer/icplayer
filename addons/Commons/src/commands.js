@@ -1,4 +1,5 @@
 /**
+ * DEPRECATED! Please use DeferredSyncQueue
  * @module commons
  */
 (function (window) {
@@ -46,6 +47,7 @@
          * @returns {window.CommandsQueue} newly created, empty queue
          */
         create: function (module) {
+            console.log("CommandsQueueFactory is deprecated and won't be maintained from now. Please use: DeferredSyncQueue");
             return new window.CommandsQueue(module);
         }
     };

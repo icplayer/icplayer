@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
@@ -13,6 +14,7 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -37,6 +39,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		String getInitialOrder();
 		void show();
 		void hide();
+		void executeOnKeyCode(KeyDownEvent event);
 	}
 
 	private final OrderingModule module;
@@ -98,9 +101,24 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					}
 				}
 			});
+			
+			eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
+				public void onActivated(ModuleActivatedEvent event) {
+					activate(event);
+				}
+			});
 		}
 	}
 
+	private void activate(ModuleActivatedEvent event) {
+		String moduleName = event.moduleName;
+		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
+		
+		if (moduleName.equals(this.getModel().getId())) {
+			view.executeOnKeyCode(keyDownEvent);
+		}
+	}
+	
 	private boolean isShowAnswers() {
 		if (!module.isActivity()) {
 			return false;

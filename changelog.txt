@@ -1,3 +1,12 @@
+2017-08-23 Fixed problem with disabling source list by Limited check. Removed commons.js from repository. Added to addons tests building commons.js.
+2017-08-22 Fixed problem with using chars and numbers in math addon.
+2017-08-22 Added to audio force loading audio. Upgraded sinon to 2.4.1.
+2017-08-17 Fixed problem with scaling popup
+2017-08-14 Added go to last visited page for previous page button.
+2017-08-14 Fixed problem with default keyboard navigation in browser while using player keyboard navigation
+2017-08-14 Added keyboard navigation for Single State Button and Double State Button. Fixed keyboard navigation for addon buttons.
+2017-08-14 Added keyboard navigation for ordering module.
+2017-08-14 Removed unnecessary text from SVG2 addon.
 2017-08-10 Added keyboard navigation (WCAG) for connection addon.
 2017-08-09 Added gotoCommonPageId, setHeaderVisibility, setFooterVisibility commands for player.
 2017-08-09 Fixed problem with double mathjax rendering in ordering module.

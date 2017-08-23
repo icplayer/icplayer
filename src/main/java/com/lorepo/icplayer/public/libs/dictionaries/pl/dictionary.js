@@ -418,6 +418,7 @@ var ice_dictionary_pl = {
 	"Audio_property_enable_loop": "Włącz pętlę",
 	"Audio_property_narration": "Narracja",
 	"Audio_property_on_end": "Na koniec",
+	"Audio_property_force_load_audio": "Force load audio",
 	"TextAudio_info" : "Umożliwia odtwarzanie w prezentacji różnego rodzaju nagrań przy jednoczesnym podświetleniu bieżącej transkrypcji. Aby Addon działał poprawnie na wszystkich popularnych przeglądarkach, należy wgrać plik w dwóch formatach: mp3 i ogg.",
 	"TextAudio_name" : "Tekst i narracja",
 	"TextAudio_property_default_controls": "Kontrolki domyślne",
@@ -1491,5 +1492,6 @@ var ice_dictionary_pl = {
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
 	"Text_use_escape_character_in_gap_property": "Use using escape character in gap",
 	"date": "Date",
-	"sort_by": "Sort by:"
+	"sort_by": "Sort by:",
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
 };
