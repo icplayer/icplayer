@@ -1199,7 +1199,7 @@ function Addonmultiplegap_create(){
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        return $.merge(presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging'), $(presenter.container));
+        return $.merge($(presenter.container), presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging'));
     };
 
     presenter.keyboardController = function(keycode) {
