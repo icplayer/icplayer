@@ -1,3 +1,4 @@
+2017-08-23 Fixed problem with disabling source list by Limited check. Removed commons.js from repository. Added to addons tests building commons.js.
 2017-08-22 Fixed problem with using chars and numbers in math addon.
 2017-08-22 Added to audio force loading audio. Upgraded sinon to 2.4.1.
 2017-08-17 Fixed problem with scaling popup
