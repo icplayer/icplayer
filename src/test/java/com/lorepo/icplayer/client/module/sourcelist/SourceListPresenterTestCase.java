@@ -7,14 +7,18 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -247,6 +251,31 @@ public class SourceListPresenterTestCase {
 		services.getEventBus().fireEvent(new ResetPageEvent());
 		
 		assertNotNull(display.getItems().get(id));
+	}
+	
+	@Test
+	public void dontChangeDisableWhenLimitedCheckEventOccurred() throws Exception {
+		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("value", "checked");
+		CustomEvent event = new CustomEvent("limitedcheck", data);
+		Whitebox.invokeMethod(this.presenter, "onCustomEventCallback", event);
+		
+		Field field = this.presenter.getClass().getDeclaredField("canDrag");
+		
+		field.setAccessible(true);
+		
+		boolean canDrag = field.getBoolean(this.presenter);
+		
+		assertTrue(canDrag);
+		
+		this.presenter.setShowErrorsMode();
+		data = new HashMap<String, String>();
+		data.put("value", "unchecked");
+		
+		canDrag = field.getBoolean(this.presenter);
+		
+		assertTrue(!canDrag);
+		
 	}
 	
 }
