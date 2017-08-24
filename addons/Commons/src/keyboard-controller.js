@@ -2,6 +2,16 @@
  * @module commons
  */
 (function (window) {
+    var keys = {
+        ENTER: 13,
+        ESCAPE: 27,
+        SPACE: 32,
+        ARROW_LEFT: 37,
+        ARROW_UP: 38,
+        ARROW_RIGHT: 39,
+        ARROW_DOWN: 40
+    };
+
     /**
     KeyboardController util for managing WCAG in addons.
     @class KeyboardController
@@ -15,15 +25,7 @@
         this.keyboardNavigationElements = elements;
         this.columnsCount = columnsCount;
         this.keyboardNavigationElementsLen = elements.length;
-        var keys = {
-            ENTER: 13,
-            ESCAPE: 27,
-            SPACE: 32,
-            ARROW_LEFT: 37,
-            ARROW_UP: 38,
-            ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
-        };
+
         var mapping = {};
         mapping[keys.ENTER] = this.enter;
         mapping[keys.ESCAPE] = this.escape;
@@ -218,5 +220,6 @@
     };
 
     window.KeyboardController = KeyboardController;
+    window.KeyboardControllerKeys = keys;
 
 })(window);
