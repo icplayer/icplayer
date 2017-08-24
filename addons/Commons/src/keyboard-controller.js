@@ -2,7 +2,13 @@
  * @module commons
  */
 (function (window) {
-
+    /**
+    KeyboardController util for managing WCAG in addons.
+    @class KeyboardController
+    @constructor
+     For examples see: multigap addon.
+    @return {null}
+    */
     function KeyboardController(elements, columnsCount) {
         this.isSelectEnabled = true;
         this.keyboardNavigationActive = false;
@@ -26,30 +32,75 @@
         mapping[keys.ARROW_UP] = this.previousRow;
         mapping[keys.ARROW_RIGHT] = this.nextElement;
         mapping[keys.ARROW_DOWN] = this.nextRow;
+
+        var shiftKeysMapping = {};
+        shiftKeysMapping[keys.ENTER] = this.exitWCAGMode;
+
         this.mapping = mapping;
+        this.shiftKeysMapping = shiftKeysMapping;
     }
 
-    KeyboardController.prototype.handle = function (keycode) {
+    /**
+     Handling key down event by keyboard controller. In addon code you should add that handling when you receive keycode from player.
+     @method handle
+     @param {Number} keycode - key code of pressed key
+     @param {boolean} isShiftKeyDown - if shift is pressed
+    */
+    KeyboardController.prototype.handle = function (keycode, isShiftKeyDown) {
         $(document).on('keydown', function (e) {
             e.preventDefault();
             $(this).off('keydown');
         });
         try {
-            this.mapping[keycode].call(this);
+            if (isShiftKeyDown) {
+                this.shiftKeysMapping[keycode].call(this);
+            } else {
+                this.mapping[keycode].call(this);
+            }
         } catch (er) {
         }
     };
 
-    KeyboardController.prototype.getTarget = function (element) {
+    /**
+     Set elements for dynamic addon. If elements count will be changed while using addon, then call setElements. Always first element will be selected after calling this method.
+     @method exitWCAGMode
+     @param {Array} elements - elements to select
+    */
+    KeyboardController.prototype.setElements = function (elements) {
+        this.keyboardNavigationElements = elements;
+        this.keyboardNavigationElementsLen = elements.length;
+        this.keyboardNavigationCurrentElementIndex = 0;
+
+        if (!this.keyboardNavigationActive) {
+            return;
+        }
+
+        for (var i = 0; i < this.keyboardNavigationElementsLen; i++) {
+            this.unmark(this.keyboardNavigationElements[i]);
+        }
+
+        this.keyboardNavigationCurrentElement = this.keyboardNavigationElements[0];
+        this.mark(this.keyboardNavigationCurrentElement)
+    };
+
+    /**
+     Method to override. If element will be clicked/selected then at first this method will be called and element returned by this method will be clicked/selected (somethig like middleware. If different element will be selected/clicked than passed in contructor or setElements then you should override that method.
+
+     @method getTarget
+     @param {element} element - element from constructor/setElements
+     @param {boolean} willBeClicked - element will be clicked
+     @return {element} - element which will be clicked/selected
+    */
+    KeyboardController.prototype.getTarget = function (element, willBeClicked) {
         return element;
     };
 
     KeyboardController.prototype.mark = function (element) {
-        this.getTarget(element).addClass('keyboard_navigation_active_element');
+        this.getTarget(element, false).addClass('keyboard_navigation_active_element');
     };
 
     KeyboardController.prototype.unmark = function (element) {
-        this.getTarget(element).removeClass('keyboard_navigation_active_element');
+        this.getTarget(element, false).removeClass('keyboard_navigation_active_element');
     };
 
     KeyboardController.prototype.markCurrentElement = function (new_position_index) {
@@ -71,22 +122,42 @@
         this.markCurrentElement(new_position_index);
     };
 
+    /**
+     Action when was called right arrow
+     @method nextElement
+    */
     KeyboardController.prototype.nextElement = function () {
         this.switchElement(1);
     };
 
+    /**
+     Action when was called left arrow
+     @method previousElement
+    */
     KeyboardController.prototype.previousElement = function () {
         this.switchElement(-1);
     };
 
+    /**
+     Action when was called up arrow
+     @method nextRow
+    */
     KeyboardController.prototype.nextRow = function () {
         this.switchElement(this.columnsCount);
     };
 
+    /**
+     Action when was called down arrow
+     @method previousRow
+    */
     KeyboardController.prototype.previousRow = function () {
         this.switchElement(-this.columnsCount);
     };
 
+    /**
+     Action which will be called when enter was pressed
+     @method enter
+    */
     KeyboardController.prototype.enter = function () {
         if (this.keyboardNavigationActive) {
             return;
@@ -95,13 +166,15 @@
         this.markCurrentElement(0);
     };
 
+    /**
+     If escape was pressed then this action will be called. This callback will call exitWCAGMode
+     @method exitWCAGMode
+    */
     KeyboardController.prototype.escape = function () {
         if (!this.keyboardNavigationActive) {
             return;
         }
-        this.keyboardNavigationActive = false;
-        this.unmark(this.keyboardNavigationCurrentElement);
-        this.keyboardNavigationCurrentElement = null;
+        this.exitWCAGMode();
     };
 
     KeyboardController.prototype.select = function () {
@@ -112,7 +185,7 @@
     };
 
     KeyboardController.prototype.selectAction = function () {
-        this.keyboardNavigationCurrentElement.click();
+        this.getTarget(this.keyboardNavigationCurrentElement, true).click();
     };
 
     KeyboardController.prototype.reload = function (elements, columnsCount) {
@@ -127,6 +200,21 @@
 
     KeyboardController.prototype.selectEnabled = function (isSelectEnabled) {
         this.isSelectEnabled = isSelectEnabled;
+    };
+
+    /**
+     If addon will exit from WCAG mode, then exitWCAGMode callback will be called.
+     If you want to override that method, be sure to call this method too.
+     @method exitWCAGMode
+    */
+    KeyboardController.prototype.exitWCAGMode = function () {
+        if (!this.keyboardNavigationActive) {
+            return;
+        }
+
+        this.keyboardNavigationActive = false;
+        this.unmark(this.keyboardNavigationCurrentElement);
+        this.keyboardNavigationCurrentElement = null;
     };
 
     window.KeyboardController = KeyboardController;

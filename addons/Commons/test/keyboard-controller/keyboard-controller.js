@@ -183,3 +183,28 @@ TestCase("[Commons - Keyboard controller] Marking tests", {
     }
 
 });
+
+TestCase("[Commons - Keyboard controller] set elements", {
+    setUp: function () {
+        this.startedElements = [{
+            removeClass: sinon.spy(),
+            addClass: sinon.spy()
+        }];
+        this.keyboardController = new KeyboardController(this.startedElements, 1);
+    },
+
+    'test set element will set all elements and will mark first': function () {
+        var elements = [{
+            removeClass: sinon.spy(),
+            addClass: sinon.spy()
+        }, {
+            removeClass: sinon.spy(),
+            addClass: sinon.spy()
+        }];
+
+        this.keyboardController.setElements(elements);
+
+        assertTrue(this.startedElements[0].removeClass.calledOnce);
+        assertTrue(elements[0].addClass.calledOnce);
+    }
+});
