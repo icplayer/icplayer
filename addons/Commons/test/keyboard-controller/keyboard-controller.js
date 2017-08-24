@@ -202,6 +202,8 @@ TestCase("[Commons - Keyboard controller] set elements", {
             addClass: sinon.spy()
         }];
 
+        this.keyboardController.keyboardNavigationActive = true;
+
         this.keyboardController.setElements(elements);
 
         assertTrue(this.startedElements[0].removeClass.calledOnce);

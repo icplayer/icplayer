@@ -67,16 +67,16 @@
      @param {Array} elements - elements to select
     */
     KeyboardController.prototype.setElements = function (elements) {
+        for (var i = 0; i < this.keyboardNavigationElementsLen; i++) {
+            this.unmark(this.keyboardNavigationElements[i]);
+        }
+
         this.keyboardNavigationElements = elements;
         this.keyboardNavigationElementsLen = elements.length;
         this.keyboardNavigationCurrentElementIndex = 0;
 
         if (!this.keyboardNavigationActive) {
             return;
-        }
-
-        for (var i = 0; i < this.keyboardNavigationElementsLen; i++) {
-            this.unmark(this.keyboardNavigationElements[i]);
         }
 
         this.keyboardNavigationCurrentElement = this.keyboardNavigationElements[0];
