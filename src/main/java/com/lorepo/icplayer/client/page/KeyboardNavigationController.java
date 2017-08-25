@@ -11,7 +11,9 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
@@ -227,7 +229,7 @@ public final class KeyboardNavigationController {
 	private void sendEvent (KeyDownEvent event) {
 		boolean isModuleInBookView = isModuleInBookView(currentModuleName);
     	String moduleName = currentModuleName.substring(5, currentModuleName.length());
-
+    	
     	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
     		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
     	} else {
@@ -309,6 +311,9 @@ public final class KeyboardNavigationController {
 		int position = ++focusedModule % navigationWidgets.size();
 		String moduleName = modulesNames.get(position);
 		Widget w = navigationWidgets.get(moduleName);
+		if (w instanceof IWCAG) {
+			JavaScriptUtils.log("WCAG!");
+		}
 		int i = 0;
 
 		if (w == null) return; // there is no modules to select
@@ -320,6 +325,7 @@ public final class KeyboardNavigationController {
 			position = focusedModule % navigationWidgets.size();
 			moduleName = modulesNames.get(position);
 			w = navigationWidgets.get(moduleName);
+			
 		}
 
 		selectModule(moduleName);

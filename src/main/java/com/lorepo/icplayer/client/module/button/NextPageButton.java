@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.button;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -44,7 +45,9 @@ class NextPageButton extends PushButton implements IWCAG {
 
 	@Override
 	public void enter(boolean isExiting) {
-		this.execute();
+		if (!isExiting) {
+			this.execute();
+		}
 	}
 
 	@Override
@@ -73,6 +76,10 @@ class NextPageButton extends PushButton implements IWCAG {
 
 	@Override
 	public void escape() {
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 	
 }
