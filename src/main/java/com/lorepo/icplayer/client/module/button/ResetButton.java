@@ -166,6 +166,10 @@ class ResetButton extends PushButton implements IWCAG {
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {	
+	public void customKeyCode(KeyDownEvent event) {
+	}
+
+	@Override
+	public void shiftTab() {
 	}
 }

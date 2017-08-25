@@ -80,6 +80,10 @@ class PrevPageButton extends PushButton implements IWCAG {
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {	
+	public void shiftTab() {
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 }

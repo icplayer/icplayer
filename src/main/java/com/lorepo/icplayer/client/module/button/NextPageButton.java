@@ -79,7 +79,11 @@ class NextPageButton extends PushButton implements IWCAG {
 	}
 
 	@Override
+	public void shiftTab() {
+	}
+
+	@Override
 	public void customKeyCode(KeyDownEvent event) {
 	}
-	
+
 }

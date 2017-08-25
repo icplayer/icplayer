@@ -159,8 +159,11 @@ class GotoPageButton extends PushButton implements IWCAG {
 	public void escape() {
 	}
 
-
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
+	}
+
+	@Override
+	public void shiftTab() {
 	}
 }

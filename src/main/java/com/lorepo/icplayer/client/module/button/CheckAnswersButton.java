@@ -124,6 +124,9 @@ class CheckAnswersButton extends PushButton implements IWCAG {
 	public void escape() {
 	}
 
+	@Override
+	public void shiftTab() {
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {

@@ -12,4 +12,5 @@ public interface IWCAG {
 	public void up();
 	public void escape();
 	public void customKeyCode(KeyDownEvent event);
+	public void shiftTab();
 }

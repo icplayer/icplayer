@@ -41,7 +41,7 @@ public final class KeyboardNavigationController {
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, double_state_button, single_state_button, ordering, connection, multiplegap, image_identification;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, double_state_button, single_state_button, ordering, connection, multiplegap, text_identification, image_identification;
 		
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
@@ -229,7 +229,7 @@ public final class KeyboardNavigationController {
 	private void sendEvent (KeyDownEvent event) {
 		boolean isModuleInBookView = isModuleInBookView(currentModuleName);
     	String moduleName = currentModuleName.substring(5, currentModuleName.length());
-    	
+
     	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
     		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
     	} else {
@@ -325,7 +325,7 @@ public final class KeyboardNavigationController {
 			position = focusedModule % navigationWidgets.size();
 			moduleName = modulesNames.get(position);
 			w = navigationWidgets.get(moduleName);
-			
+
 		}
 
 		selectModule(moduleName);
