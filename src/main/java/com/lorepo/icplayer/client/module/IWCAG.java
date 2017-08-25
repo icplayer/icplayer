@@ -9,4 +9,5 @@ public interface IWCAG {
 	public void down();
 	public void up();
 	public void escape();
+	public void shiftTab();
 }
