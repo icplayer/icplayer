@@ -1,3 +1,4 @@
+2017-08-25 Added WCAG support for Image ID
 2017-08-25 Added full support for WCAG in Text module
 2017-08-24 Added WCAG support for Multiplegap
 2017-08-23 Fixed problem with disabling source list by Limited check. Removed commons.js from repository. Added to addons tests building commons.js.
