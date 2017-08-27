@@ -714,7 +714,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	@Override
 	public void shiftTab() {
-		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 }

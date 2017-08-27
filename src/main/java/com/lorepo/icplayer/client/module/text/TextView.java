@@ -419,4 +419,8 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	@Override
 	public void space() {
 	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
 }

@@ -85,12 +85,10 @@ public class PlayerController implements IPlayerController{
 
 	private void createPageControllers(boolean bookMode) {
 		this.pageController1 = new PageController(this);
-		this.keyboardController.setPlayerService(this.pageController1.getPlayerServices(), false);
 		this.pageController1.setView(this.playerView.getPageView(0));
 		if(bookMode){
 			this.playerView.showTwoPages();
 			this.pageController2 = new PageController(this);
-			this.keyboardController.setPlayerService(this.pageController2.getPlayerServices(), true);
 			this.pageController2.setView(this.playerView.getPageView(1));
 		}
 	}
@@ -339,24 +337,27 @@ public class PlayerController implements IPlayerController{
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
+		this.keyboardController.save();
 		this.keyboardController.reset();
 
 		pageController.setPage(page);
-
-		this.keyboardController.addMainToNavigation(this.pageController1);
-		this.keyboardController.addSecondToNavigation(this.pageController2);
-
+		
 		if(this.headerController != null){
 			this.headerController.setPage(this.contentModel.getHeader());
 			this.keyboardController.addHeaderToNavigation(this.headerController);
 		}
+		
+		this.keyboardController.addMainToNavigation(this.pageController1);
+		this.keyboardController.addSecondToNavigation(this.pageController2);
+
+
 
 		if(this.footerController != null){
 			this.footerController.setPage(this.contentModel.getFooter());
 			this.keyboardController.addFooterToNavigation(this.footerController);
 		}
-
-		this.keyboardController.fillModulesNamesList();
+		
+		this.keyboardController.restore();
 	}
 
 	private static void scrollViewToBeggining() {
