@@ -114,7 +114,7 @@ public class ButtonModule extends BasicModuleModel {
 			button.setAttribute("confirmNoInfo", StringUtils.escapeXML(confirmNoInfo));
 		}
 		if (type == ButtonType.prevPage) {
-			xml += " goToLastVisitedPage='" + this.goToLastVisitedPage + "'";
+			XMLUtils.setBooleanAttribute(button, "goToLastVisitedPage", this.goToLastVisitedPage);
 		}
 		
 		buttonModule.appendChild(button);
