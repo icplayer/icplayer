@@ -10,11 +10,19 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
+import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 
+/*
+	Usage:
+		Module:
+			- Presenter must implement IWCAGPresenter interface and must return IWCAG element
+		Addon:
+			- Addon must have keyboardController(keyCode, isShiftDown) function in presenter
+*/
 public final class KeyboardNavigationController {
 	private boolean moduleIsActivated = false;
 	private boolean isInitiated = false;
@@ -27,7 +35,7 @@ public final class KeyboardNavigationController {
 	//state
 	private PresenterEntry savedEntry = null;
 	
-	private class PresenterEntry {
+	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
 		public boolean common = false;
 		
@@ -54,19 +62,10 @@ public final class KeyboardNavigationController {
 				return;
 			}
 		}
-		
 		selectCurrentModule();
 		isInitiated = true;
 	}
 	
-	// we must update this position because each of page has different number of modules
-	private void updateFocusedModulePosition() {
-//		for (int i = 0; i < modulesNames.size(); i++) {
-//			if (modulesNames.get(i).equals(currentModuleName)) {
-//				focusedModule = i;
-//			}
-//		}
-	}
 		
 	// Sometimes modules can remove classes just activated or selected modules. We must restore them.
 	private void restoreClasses() {
@@ -77,8 +76,14 @@ public final class KeyboardNavigationController {
 	}
 	
 	private boolean isModuleButton() {
-		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof ButtonPresenter) {
+		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
 			return true;
+		}
+
+		
+		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
+			AddonPresenter presenter = (AddonPresenter) this.presenters.get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isButton();
 		}
 		
 		return false;
@@ -149,11 +154,15 @@ public final class KeyboardNavigationController {
 					return;
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) {	//Disable tab if eKeyboard is working
+				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) {	//Disable tab default action if eKeyboard is working
 					event.preventDefault();
 				}
 				
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton())) {
+					if (moduleIsActivated) {	//If we was in button, and he was clicked then we want to disactivate that button
+						deactivateModule();
+						moduleIsActivated = false;
+					}
 					changeCurrentModule(event);
 					return;
 				}
@@ -207,7 +216,6 @@ public final class KeyboardNavigationController {
 	
 	private void manageKey (KeyDownEvent event) {
 		IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
-		
 		if (wcagWidget == null) {
 			return;
 		}
@@ -241,6 +249,7 @@ public final class KeyboardNavigationController {
 				} else {
 					wcagWidget.tab();
 				}
+				break;
 			case 32:
 				wcagWidget.space();
 				break;
@@ -262,11 +271,6 @@ public final class KeyboardNavigationController {
 	private void deactivateModule () {
 		this.presenters.get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_active_module");
 		this.moduleIsActivated = false;
-	}
-	
-	
-	private boolean isModuleHidden(Element elem) {
-		return elem.getStyle().getVisibility().equals("hidden") || elem.getStyle().getDisplay().equals("none");
 	}
 	
 	private void selectCurrentModule() {

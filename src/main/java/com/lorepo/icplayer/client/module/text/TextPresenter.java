@@ -9,7 +9,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
@@ -88,7 +87,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void executeOnKeyCode(KeyDownEvent event);
 		void connectDOMNodeRemovedEvent(String id);
 	}
 

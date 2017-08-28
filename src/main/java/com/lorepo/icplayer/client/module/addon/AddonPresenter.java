@@ -1,7 +1,10 @@
 package com.lorepo.icplayer.client.module.addon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -30,7 +33,6 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -50,7 +52,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor	addonDescriptor;
-	
+	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 
@@ -468,7 +470,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public void space() {
-		this.onKeyDown(this.jsObject, 23, false);
+		this.onKeyDown(this.jsObject, 32, false);
 	}
 
 
@@ -525,5 +527,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void shiftTab() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
 		
+	}
+	
+	public boolean isButton() {
+		if (buttonAddons.contains(this.model.getAddonId().toLowerCase())) {
+			return true;
+		}		
+		return false;
 	}
 }

@@ -1,13 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<module rename-to="icplayer">
-    <inherits name="com.google.gwt.user.User"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='icplayer'>
+    <inherits name='com.google.gwt.user.User'/>
 
     <inherits name="com.google.gwt.http.HTTP"/>
     <inherits name="com.google.gwt.xml.XML"/>
     <inherits name="com.google.gwt.json.JSON"/>
-    <inherits name="com.lorepo.icf.Properties"/>
-    <inherits name="com.lorepo.icf.Utils"/>
-    <inherits name="com.lorepo.icf.Scripting"/>
+    <inherits name='com.lorepo.icf.Properties'/>
+    <inherits name='com.lorepo.icf.Utils'/>
+    <inherits name='com.lorepo.icf.Scripting'/>
 
 
     <stylesheet src="theme/player.css"/>
@@ -17,9 +17,9 @@
     <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>
 
-    <entry-point class="com.lorepo.icplayer.client.PlayerEntryPoint"/>
+    <entry-point class='com.lorepo.icplayer.client.PlayerEntryPoint'/>
 
-    <source path="client"/>
+    <source path='client'/>
 
     <set-property name="user.agent" value="safari,ie9,gecko1_8, opera"/>
-<set-property name="compiler.useSourceMaps" value="true"/></module>
+</module>

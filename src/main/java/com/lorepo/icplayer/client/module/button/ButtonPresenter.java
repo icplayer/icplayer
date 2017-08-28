@@ -5,17 +5,16 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -23,7 +22,7 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 
-public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter {
+public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
