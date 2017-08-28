@@ -50,8 +50,9 @@ function Addontext_identification_create(){
         if(presenter.isDisabled){
             return;
         }
-
-        e.stopPropagation();
+        if (e) {
+            e.stopPropagation();
+        }
         if (presenter.configuration.isErrorCheckMode) return;
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
         presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
@@ -420,6 +421,12 @@ function Addontext_identification_create(){
         $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
 
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        if (keycode == 13) {
+            presenter.clickHandler()
+        }
     };
 
     return presenter;

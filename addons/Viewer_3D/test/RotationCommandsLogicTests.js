@@ -82,9 +82,8 @@ TestCase("[3D Viewer] Rotation commands logic - simple rotation", {
 
         this.presenter.rotateX(10);
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledOnce);
-        assertEquals('rotateX', this.presenter.commandsQueue.addTask.getCall(0).args[0]);
-        assertEquals(['10'], this.presenter.commandsQueue.addTask.getCall(0).args[1]);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
+        assertEquals([10], this.presenter.getDeferredQueueVariable().queue[0].argumentsToCall);
 
         assertFalse(this.presenter.rotateObject.called);
     },
@@ -130,9 +129,8 @@ TestCase("[3D Viewer] Rotation commands logic - simple rotation", {
 
         this.presenter.rotateY(10);
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledOnce);
-        assertEquals('rotateY', this.presenter.commandsQueue.addTask.getCall(0).args[0]);
-        assertEquals(['10'], this.presenter.commandsQueue.addTask.getCall(0).args[1]);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
+        assertEquals([10], this.presenter.getDeferredQueueVariable().queue[0].argumentsToCall);
 
         assertFalse(this.presenter.rotateObject.called);
     },
@@ -178,9 +176,8 @@ TestCase("[3D Viewer] Rotation commands logic - simple rotation", {
 
         this.presenter.rotateZ(10);
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledOnce);
-        assertEquals('rotateZ', this.presenter.commandsQueue.addTask.getCall(0).args[0]);
-        assertEquals(['10'], this.presenter.commandsQueue.addTask.getCall(0).args[1]);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
+        assertEquals([10], this.presenter.getDeferredQueueVariable().queue[0].argumentsToCall);
 
         assertFalse(this.presenter.rotateObject.called);
     }

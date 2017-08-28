@@ -4,12 +4,8 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.videoObject = document.createElement('video');
 
         this.presenter.isVideoLoaded = true;
-        this.presenter.commandsQueue = {
-            addTask: function () {}
-        };
 
         sinon.stub(this.presenter, 'seek');
-        sinon.stub(this.presenter.commandsQueue, 'addTask');
         sinon.stub(this.presenter, 'removeWaterMark');
 
         sinon.stub(this.presenter, 'removeClassFromView');
@@ -84,32 +80,57 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.isVideoLoaded = false;
 
         this.presenter.play();
+        this.presenter.callTasksFromDeferredQueue();
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledWith('play', []));
+        assertTrue(this.presenter.removeWaterMark.calledOnce);
     },
 
     'test pause called before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
 
+        this.presenter.videoObject = {
+            pause: sinon.mock(),
+            paused: false
+        };
+
         this.presenter.pause();
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledWith('pause', []));
+        assertTrue(this.presenter.removeClassFromView.notCalled);
+
+        this.presenter.callTasksFromDeferredQueue();
+
+        assertTrue(this.presenter.removeClassFromView.calledOnce);
     },
 
     'test stop called before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
+        this.presenter.videoObject = {
+            pause: sinon.mock(),
+            paused: false
+        };
 
         this.presenter.stop();
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledWith('stop', []));
+        assertTrue(this.presenter.removeClassFromView.notCalled);
+
+        this.presenter.callTasksFromDeferredQueue();
+
+        assertTrue(this.presenter.removeClassFromView.calledOnce);
     },
 
     'test seek called before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
         this.presenter.seek.restore();
 
-        this.presenter.seek(10);
+        this.presenter.videoObject = {
+            pause: sinon.mock(),
+            paused: false,
+            currentTime: 0
+        };
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledWith('seek', [10]));
+        this.presenter.seek(10);
+        this.presenter.callTasksFromDeferredQueue();
+
+        assertEquals(10, this.presenter.videoObject.currentTime);
     }
 });

@@ -5,6 +5,16 @@ function AddonAudio_create(){
     var oggFile;
     var eventBus;
     var currentTimeAlreadySent;
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
+    var audioIsLoaded = false;
+
+    function deferredQueueDecoratorChecker() {
+        if (!presenter.configuration.forceLoadAudio) {
+            return true;
+        }
+
+        return audioIsLoaded;
+    }
 
     presenter.audio = {
         readyState : 0
@@ -25,7 +35,21 @@ function AddonAudio_create(){
     };
 
     presenter.upgradeModel = function AddonAudio_upgradeModel (model) {
-        return presenter.upgradeEnableLoop(model);
+        var upgradedModel = presenter.upgradeEnableLoop(model);
+        upgradedModel = presenter.upgradeForceLoadAudio(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeForceLoadAudio = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["forceLoadAudio"]) {
+            upgradedModel["forceLoadAudio"] = "False";
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeEnableLoop = function AddonAudio_upgradeEnableLoop (model) {
@@ -69,7 +93,7 @@ function AddonAudio_create(){
         return minutes + ":" + seconds;
     }
 
-    function AddonAudio_onLoadedMetadataCallback () {
+    presenter.AddonAudio_onLoadedMetadataCallback = function () {
         var duration = parseInt(presenter.audio.duration, 10);
         duration = isNaN(duration) ? 0 : duration;
         if (presenter.configuration.displayTime) {
@@ -78,7 +102,10 @@ function AddonAudio_create(){
         if (presenter.configuration.isHtmlPlayer){
             presenter.$playerTime.html('0:00 / ' + addonAudio_formatTime(duration))
         }
-    }
+
+
+        deferredSyncQueue.resolve();
+    };
 
     presenter.sendEventAndSetCurrentTimeAlreadySent = function AddonAudio_sendEventAndSetCurrentTimeAlreadySent (eventData, currentTime) {
         eventBus.sendEvent('ValueChanged', eventData);
@@ -404,7 +431,7 @@ function AddonAudio_create(){
     }
 
     function AddonAudio_attachEventListeners(audio) {
-        audio.addEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
+        audio.addEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
         audio.addEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
         audio.addEventListener('volumechange', AddonAudio_onVolumeChanged, false);
         audio.addEventListener('ended', AddonAudio_onAudioEnded , false);
@@ -428,6 +455,23 @@ function AddonAudio_create(){
         e.stopPropagation();
     }
 
+    presenter.fetchAudioFromServer = function (src) {
+        var req = new XMLHttpRequest();
+        req.open('GET', src, true);
+        req.responseType = 'blob';
+        req.addEventListener("load", presenter.loadAudioDataFromRequest);
+
+        req.send();
+    };
+
+    presenter.loadAudioDataFromRequest = function (event) {
+        if (event.currentTarget.status == 200) {
+            var audioData = event.currentTarget.response;
+            presenter.audio.src = URL.createObjectURL(audioData);
+            audioIsLoaded = true;
+        }
+    };
+
     function AddonAudio_loadFiles(){
         var canPlayMp3 = false;
         var canPlayOgg = false;
@@ -436,11 +480,18 @@ function AddonAudio_create(){
         if(audio.canPlayType) {
             canPlayMp3 = audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
             canPlayOgg = audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
+            var audioSrc = "";
 
             if(canPlayMp3){
-                $(audio).attr("src", mp3File);
+                audioSrc = mp3File;
             } else if (canPlayOgg) {
-                $(audio).attr("src", oggFile);
+                audioSrc = oggFile;
+            }
+
+            if (presenter.configuration.forceLoadAudio) {
+                presenter.fetchAudioFromServer(audioSrc);
+            } else {
+                $(audio).attr("src", audioSrc);
             }
 
         } else {
@@ -494,7 +545,7 @@ function AddonAudio_create(){
         presenter.playerController = null;
 
         presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
-        presenter.audio.removeEventListener('loadeddata', AddonAudio_onLoadedMetadataCallback, false);
+        presenter.audio.removeEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
         presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
         presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
         presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
@@ -548,6 +599,8 @@ function AddonAudio_create(){
         presenter.$view.unbind();
         presenter.$view = null;
         presenter.view = null;
+
+        deferredSyncQueue = null;
     };
 
     presenter.validateModel = function AddonAudio_validateModel (model) {
@@ -564,7 +617,8 @@ function AddonAudio_create(){
             defaultControls: defaultControls,
             useBrowserControls: useBrowserControls,
             isHtmlPlayer: defaultControls && !useBrowserControls,
-            addonID: model.ID
+            addonID: model.ID,
+            forceLoadAudio: ModelValidationUtils.validateBoolean(model.forceLoadAudio)
         };
     };
 
@@ -584,7 +638,7 @@ function AddonAudio_create(){
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.play = function() {
+    presenter.play = deferredSyncQueue.decorate(function() {
         if (!presenter.audio) return;
         if(presenter.audio.src && presenter.audio.paused) {
             presenter.audio.play();
@@ -594,9 +648,9 @@ function AddonAudio_create(){
                     addClass('audio-pause-btn');
             }
         }
-    };
+    });
 
-    presenter.pause = function AddonAudio_pause () {
+    presenter.pause = deferredSyncQueue.decorate(function AddonAudio_pause () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             if (!presenter.audio.paused) {
@@ -608,15 +662,15 @@ function AddonAudio_create(){
                     addClass('audio-play-btn');
             }
         }
-    };
+    });
 
-    presenter.stop = function AddonAudio_stop () {
+    presenter.stop = deferredSyncQueue.decorate(function AddonAudio_stop () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
             presenter.pause();
             presenter.audio.currentTime = 0;
         }
-    };
+    });
 
     presenter.show = function AddonAudio_show () {
         this.setVisibility(true);

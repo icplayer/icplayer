@@ -25,6 +25,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	private String gapId = "";
 	private String text = "";
 	private boolean firstSend = true;
+	private boolean isSelected = false;
 
 	public GapWidget(GapInfo gi, final ITextViewListener listener){
 
@@ -253,6 +254,30 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	@Override
 	public void setFocusGap(boolean focus) {
+		if (focus) {
+			this.select();
+		} else {
+			this.deselect();
+		}
 		setFocus(focus);
+	}
+
+	@Override
+	public void select() {
+		this.addStyleName("keyboard_navigation_active_element");
+		this.addStyleName("keyboard_navigation_active_element_text");
+		this.isSelected = true;
+		
+	}
+
+	@Override
+	public void deselect() {
+		this.removeStyleName("keyboard_navigation_active_element");
+		this.removeStyleName("keyboard_navigation_active_element_text");
+		this.isSelected = false;
+	}
+	
+	public boolean isSelected() {
+		return this.isSelected;
 	}
 }

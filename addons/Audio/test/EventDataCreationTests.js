@@ -1,4 +1,4 @@
-TestCase('Time update event data creation', {
+TestCase('[Audio] Time update event data creation', {
     setUp : function() {
         this.presenter = AddonAudio_create();
         this.presenter.addonID = 'Audio1';
@@ -13,7 +13,7 @@ TestCase('Time update event data creation', {
     }
 });
 
-TestCase("On end event data creation", {
+TestCase("[Audio] On end event data creation", {
     setUp: function () {
         this.presenter = AddonAudio_create();
         this.presenter.addonID = 'Audio1';

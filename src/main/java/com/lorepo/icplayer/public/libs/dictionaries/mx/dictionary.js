@@ -466,6 +466,7 @@ var ice_dictionary_mx = {
 	"Audio_property_enable_loop": "Habilitar el bucle",
 	"Audio_property_narration": "Narración",
 	"Audio_property_on_end": "Evento en el final",
+	"Audio_property_force_load_audio": "Force load audio",
 	"TextAudio_info": "Con el addon TextAudio, es posible reproducir una pista de audio con subtitulos correspondientes resaltados. Para que el addon funcione correctamente en todos los navegadores comunes, es necesario subir un archivo de audio en dos formatos: mp3 y ogg.",
 	"TextAudio_name": "Audio y texto",
 	"TextAudio_property_default_controls": "Controles definidos",
