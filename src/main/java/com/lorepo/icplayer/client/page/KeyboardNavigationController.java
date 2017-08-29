@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -52,6 +54,34 @@ public final class KeyboardNavigationController {
 			return false;
 		}
 	}
+	
+	public KeyboardNavigationController() {
+		this.waitOnMessages(this);
+	}
+	
+	private void callEnterPressEvent () {
+		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, true, false, KeyCodes.KEY_ENTER), RootPanel.get());
+	}
+	
+	private native void waitOnMessages (KeyboardNavigationController x) /*-{
+		$wnd.addEventListener("message", receiveMessage);
+		function receiveMessage(event) {
+			try {
+				var eventData = JSON.parse(event.data);
+				
+				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
+					return; 
+				}
+				
+				var keyCode = eventData.keyCode;
+				var isShift = eventData.isShift;
+				if (keyCode == 13 && isShift) {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::callEnterPressEvent()();
+				}
+			} catch (e) {
+			}			
+		}
+	}-*/;
 	
 	private void initialSelect() {	
 		if (modulesNames.size() == 0) return; // None of navigation modules on page
@@ -129,10 +159,10 @@ public final class KeyboardNavigationController {
 		
 		return false;
 	}
-	
+
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-				
+
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
@@ -153,7 +183,7 @@ public final class KeyboardNavigationController {
 							selectModule(currentModuleName);
 						}
 					}
-					
+
 					return;
 				}
 				
