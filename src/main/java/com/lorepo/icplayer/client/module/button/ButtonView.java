@@ -126,8 +126,8 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 	@Override
 	public void enter(boolean isExiting) {
 		Widget buttonWidget = this.getWidget();
-		if (buttonWidget instanceof IWCAG) {
-			((IWCAG) buttonWidget).enter(false);
+		if (buttonWidget instanceof ExecutableButton) {
+			((ExecutableButton) buttonWidget).execute();
 		}
 	}
 

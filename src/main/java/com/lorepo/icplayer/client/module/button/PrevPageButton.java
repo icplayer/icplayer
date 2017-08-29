@@ -2,13 +2,10 @@ package com.lorepo.icplayer.client.module.button;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.user.client.ui.PushButton;
-import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-class PrevPageButton extends PushButton implements IWCAG {
+class PrevPageButton extends ExecutableButton {
 	boolean goToLastVisitedPage = false;
 	private IPlayerServices services = null;
 	
@@ -42,48 +39,5 @@ class PrevPageButton extends PushButton implements IWCAG {
 		else {
 			playerCommands.goToLastVisitedPage();
 		}
-	}
-	
-	@Override
-	public void enter(boolean isExiting) {
-		if (!isExiting) {
-			this.execute();
-		}
-	}
-
-	@Override
-	public void space() {
-	}
-
-	@Override
-	public void tab() {
-	}
-
-	@Override
-	public void left() {
-	}
-
-	@Override
-	public void right() {
-	}
-
-	@Override
-	public void down() {
-	}
-
-	@Override
-	public void up() {
-	}
-
-	@Override
-	public void escape() {
-	}
-
-	@Override
-	public void shiftTab() {
-	}
-
-	@Override
-	public void customKeyCode(KeyDownEvent event) {
 	}
 }
