@@ -89,7 +89,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown) /*-{
 		try{
-			if(obj.keyboardController != undefined) {
+			if(obj.keyboardController !== undefined && obj.keyboardController !== null) {
 				obj.keyboardController(parseInt(keyCode, 10), isShiftDown);
 			}
 		}
@@ -99,7 +99,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 	
 	private native boolean haveWCAGSupport(JavaScriptObject obj) /*-{
-		return (obj.keyboardController != undefined);
+		return (obj.keyboardController !== undefined && obj.keyboardController !== null);
 	}-*/;
 	
 	@Override

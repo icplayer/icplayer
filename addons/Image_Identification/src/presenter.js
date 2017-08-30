@@ -524,7 +524,7 @@ function AddonImage_Identification_create(){
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        if (keycode == window.KeyboardControllerKeys.SPACE) {
+        if (keycode === window.KeyboardControllerKeys.SPACE) {
             clickLogic();
         }
     };
