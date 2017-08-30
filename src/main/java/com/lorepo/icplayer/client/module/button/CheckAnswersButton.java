@@ -1,40 +1,24 @@
 package com.lorepo.icplayer.client.module.button;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
 class CheckAnswersButton extends ExecutableButton {
-
-	private IPlayerServices playerServices;
 	private boolean checkAnswersModeOn = false;
 	
 	
 	public CheckAnswersButton(IPlayerServices services){
-	
-		this.playerServices = services;
-		setStyleName("ic_button_check");
+		super(services);
 
-		addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-
-				event.stopPropagation();
-				event.preventDefault();
-				execute();
-			}
-		});
+		setStyleName("ic_button_check");	
 		
-		connectHandlers();
-		
+		this.connectHandlers();
 	}
 
 
-	private void connectHandlers() {
+	protected void connectHandlers() {
 		
 		if(playerServices != null){
 		

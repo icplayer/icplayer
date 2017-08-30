@@ -35,6 +35,7 @@ class ResetButton extends ExecutableButton {
 	}-*/;
 	
 	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo){
+		super(null);
 		
 		setStyleName("ic_button_reset");
 		
@@ -54,18 +55,7 @@ class ResetButton extends ExecutableButton {
 					getElement().setClassName(classNames);
 				}
 			}
-		});
-		
-		addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				event.stopPropagation();
-				event.preventDefault();
-				execute();
-			}
-		});
-		
+		});		
 	}
 	
 	public void execute(){
