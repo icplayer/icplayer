@@ -229,4 +229,29 @@
         <echo message="All ok" />
     </target>
 
+    <target name="test.single.case" depends="javac.tests" description="Run single production mode test">
+        <mkdir dir="reports/htmlunit.prod" />
+        <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
+            <jvmarg line="-Xmx256m" />
+            <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test" />
+            <sysproperty key="java.awt.headless" value="true" />
+            <classpath>
+                <pathelement location="${icfoundation-src}"/>
+                <pathelement location="${src}" />
+                <pathelement location="${src-test}" />
+                <path refid="project.class.path" />
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
+                <pathelement location="${libs.junit}" />
+                <fileset dir="libs" includes="*.jar"/>
+            </classpath>
+            <batchtest todir="reports/htmlunit.prod" >
+                <fileset dir="${src-test}" >
+                    <include name="**/${name}*.java" />
+                </fileset>
+            </batchtest>
+            <formatter type="plain" />
+        </junit>
+    </target>
+
 </project>

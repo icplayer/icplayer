@@ -218,4 +218,25 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertEquals(1, parsed.linkInfos.size());
 		assertTrue(parsed.parsedText.indexOf("{{2:ala}}") > 0);
 	}
+	
+	@Test
+	public void gettingRawText () {
+		TextParser parser = new TextParser();
+		
+		String inText = "<div>The sun is &nbsp;{{1:yellow 1|green 2|blue 3}}.</div><div>The grass is &nbsp;{{1:green 1|pink 2|black 3}}.</div>";
+		String expectedResult = "The sun is #2#.The grass is #2#.";
+		
+		assertEquals(expectedResult, parser.getRawTextSource(inText));
+		
+		inText = "Hello \\gap{answer} hello2 \\gap{answer}";
+		expectedResult = "Hello #1# hello2 #1#";
+		
+		assertEquals(expectedResult, parser.getRawTextSource(inText));
+		
+		inText = "Text Module can be used for gap filling activities.<br><ol><li>A dropdown gap: {{1:option 1|option 2|option 3}}.</li><li>An editable or a draggable gap: \\gap{answer}.</li><li>A gap with 2 correct options: \\gap{blue|navy}.</li><li>This is a filled gap: \\filledGap{initialtext|answer} awdnawd.</li></ol>";
+		expectedResult = "Text Module can be used for gap filling activities.A dropdown gap: #2#.An editable or a draggable gap: #1#.A gap with 2 correct options: #1#.This is a filled gap: #4# awdnawd.";
+		
+		assertEquals(expectedResult, parser.getRawTextSource(inText));
+	}
+	
 }

@@ -109,13 +109,15 @@ public class TextParser {
 		return result;
 	}
 	
-	private String getRawTextSource (String text) {
-		return text.replaceAll("\\<.*?>","")
-			.replaceAll("\\gap{[a-zA-Z0-9_ |]+}", "#1#")
-			.replaceAll("{{.+}}", "#2#")
-			.replaceAll("\\(.+\\)", "#3#")
-			.replaceAll("filledGap{.+}", "#4#")
-			.replaceAll("\\\\#", "#");
+	public String getRawTextSource (String text) {
+		final String availableCharsInGapContent = "[a-zA-Z0-9_ |:]+";
+		
+		return text
+			.replaceAll("\\<.*?>", "").replaceAll("&nbsp;", "")
+			.replaceAll("\\\\gap\\{" + availableCharsInGapContent + "\\}", "#1#")
+			.replaceAll("\\{\\{" + availableCharsInGapContent + "\\}\\}", "#2#")
+			.replaceAll("\\\\(" + availableCharsInGapContent + "\\\\)", "#3#")
+			.replaceAll("\\\\filledGap\\{" + availableCharsInGapContent + "\\}", "#4#");
 	}
 	
 	public ParserResult parse (String srcText) {

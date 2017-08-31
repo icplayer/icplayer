@@ -188,7 +188,7 @@ public class TextView extends HTML implements IDisplay{
 				return i;
 			}
 		}
-		
+
 		return -1;
 	}
 	
@@ -196,7 +196,7 @@ public class TextView extends HTML implements IDisplay{
 		final List<String> gapsOrder = module.getGapsOrder();
 		
 		for (int i=0; i<textElements.size(); i++) {
-			final String gapType = gapsOrder.get(i);
+	    	final String gapType = gapsOrder.get(i);
 			final String currentGapType = textElements.get(i).getGapType();
 			
 			if (gapType != currentGapType) {
@@ -227,9 +227,9 @@ public class TextView extends HTML implements IDisplay{
 	public HashMap<String, String> getDroppedElements() {
 		HashMap<String, String> droppedElements = new HashMap<String, String>();
 
-		for(TextElementDisplay gap : textElements){
+		for (TextElementDisplay gap : textElements) {
 			String helper = gap.getDroppedElement();
-			if(helper != null){
+			if (helper != null) {
 				String escaped = StringUtils.escapeXML(helper);
 				droppedElements.put(gap.getId(), escaped);
 			}

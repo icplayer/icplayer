@@ -175,26 +175,44 @@ function AddonText_To_Speech_create() {
     presenter.speak = function (text) {
         text = parseGaps(text);
 
-        if (window.speechSynthesis.speaking) {
-            // window.speechSynthesis.pause();
-            // window.speechSynthesis.resume();
+        // if (window.speechSynthesis.speaking) {
+        //     window.speechSynthesis.cancel();
+        // }
 
-            // window.speechSynthesis.cancel();
-        }
+        var msg = new SpeechSynthesisUtterance(text);
+        msg.volume = parseFloat(1); // 0 - 1
+        msg.rate = parseFloat(1); // 0 - 10
+        msg.pitch = parseFloat(1); // 0 - 2
+        msg.voice = getLanguageObject(presenter.configuration.language);
 
-        // setTimeout(function () {
-            var msg = new SpeechSynthesisUtterance(text);
-            msg.volume = parseFloat(1); // 0 - 1
-            msg.rate = parseFloat(1); // 0 - 10
-            msg.pitch = parseFloat(1); // 0 - 2
-            msg.voice = getLanguageObject(presenter.configuration.language);
-
-            // presenter.messagesQueue.push(msg);
-
-            window.speechSynthesis.speak(msg);
-        // }, 200);
-
+        window.speechSynthesis.speak(msg);
     };
+
+    // var speakTimeout = null;
+    // presenter.speak = function (text) {
+    //     console.log('speak');
+    //     text = parseGaps(text);
+    //
+    //     if (window.speechSynthesis.speaking) {
+    //         speechSynthesis.cancel();
+    //
+    //         if (speakTimeout) {
+    //             clearTimeout(speakTimeout);
+    //         }
+    //
+    //         speakTimeout = setTimeout(function () { presenter.speak(text); }, 250);
+    //     } else {
+    //         var msg = new SpeechSynthesisUtterance(text);
+    //         msg.volume = parseFloat(1); // 0 - 1
+    //         msg.rate = parseFloat(1); // 0 - 10
+    //         msg.pitch = parseFloat(1); // 0 - 2
+    //         msg.voice = getLanguageObject(presenter.configuration.language);
+    //
+    //
+    //         window.speechSynthesis.speak(msg);
+    //         msg.onend = function () {console.log('speak ends');};
+    //     }
+    // };
 
     presenter.getGapAppearanceAtIndexOfType = function (gaps, gapNumber) {
         var index = 0;
