@@ -21,7 +21,7 @@ public class GWTPrevPageButtonTestCase extends GwtTest {
 		this.prevPageButtonMock = Mockito.mock(PrevPageButton.class);
 		this.playerServicesMock = Mockito.mock(IPlayerServices.class);
 		this.iPlayerCommandsMock = Mockito.mock(IPlayerCommands.class);
-		Whitebox.setInternalState(this.prevPageButtonMock, "services", this.playerServicesMock);
+		Whitebox.setInternalState(this.prevPageButtonMock, "playerServices", this.playerServicesMock);
 		
 		Mockito.when(this.playerServicesMock.getCommands()).thenReturn(this.iPlayerCommandsMock);
 		Mockito.when(this.playerServicesMock.getCurrentPageIndex()).thenReturn(0);
