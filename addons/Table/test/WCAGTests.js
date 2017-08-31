@@ -27,14 +27,13 @@ TestCase("[Table] handle keyboard input", {
 
         this.stubs = {
             getElementsStub: sinon.stub(),
-            spaceKeyActionStub: sinon.stub(),
+            spaceKeyActionStub: sinon.spy(),
             getColumnsCountStub: sinon.stub().returns(1)
         };
-
         this.presenter.getColumnsCount = this.stubs.getColumnsCountStub;
-        this.presenter.getElementsForKeyboardNavigation = this.stubs.getElementsStub;
         var elements = [sinon.spy()];
-        this.presenter.getElementsForKeyboardNavigation.returns(elements);
+
+        this.presenter.getElementsForKeyboardNavigation = this.stubs.getElementsStub.returns(elements);
 
         this.presenter.buildKeyboardController();
 
@@ -45,9 +44,13 @@ TestCase("[Table] handle keyboard input", {
         var keycodeSpace = 32;
         var isShiftDown = false;
 
-        this.presenter.keyboardControllerObject.handle(keycodeSpace, isShiftDown)
+        $(document).on('keydown', this.presenter.keyboardController(keycodeSpace, isShiftDown));
 
-        assertTrue(this.stubs.spaceKeyActionStub.calledOnce);
+        var event = jQuery.Event('keydown');
+        event.which = keycodeSpace;
+        $(document).trigger(event);
+
+        assertTrue(this.stubs.spaceKeyActionStub.called);
     },
 
     'test action shouldnt be called when mapping for keycode doesnt exist' : function () {
@@ -56,7 +59,11 @@ TestCase("[Table] handle keyboard input", {
         this.presenter.keyboardControllerObject.mapping = {};
         this.presenter.keyboardControllerObject.shiftKeysMapping = {};
 
-        this.presenter.keyboardControllerObject.handle(keycodeSpace, isShiftDown)
+        $(document).on('keydown', this.presenter.keyboardController(keycodeSpace, isShiftDown));
+
+        var event = jQuery.Event('keydown');
+        event.which = keycodeSpace;
+        $(document).trigger(event);
 
         assertTrue(this.stubs.spaceKeyActionStub.notCalled);
     }
