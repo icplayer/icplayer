@@ -18,4 +18,9 @@ public class KeyboardNavigationControllerPatcher {
 	private static void focusElement(KeyboardNavigationController x, JavaScriptObject element) {
 		element.createObject();
 	}
+	
+	@PatchMethod
+	private static void waitOnMessages (KeyboardNavigationController self, KeyboardNavigationController x) {
+		
+	}
 }
