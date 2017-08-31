@@ -27,6 +27,7 @@
         this.keyboardNavigationElementsLen = elements.length;
 
         var mapping = {};
+        mapping[keys.TAB] = this.nextElement;
         mapping[keys.ENTER] = this.enter;
         mapping[keys.ESCAPE] = this.escape;
         mapping[keys.SPACE] = this.select;
@@ -36,6 +37,7 @@
         mapping[keys.ARROW_DOWN] = this.nextRow;
 
         var shiftKeysMapping = {};
+        shiftKeysMapping[keys.TAB] = this.previousElement;
         shiftKeysMapping[keys.ENTER] = this.exitWCAGMode;
 
         this.mapping = mapping;
@@ -49,19 +51,19 @@
      @param {boolean} isShiftKeyDown - if shift is pressed
     */
     KeyboardController.prototype.handle = function (keycode, isShiftKeyDown) {
+        var self = this;
         $(document).on('keydown', function (e) {
-            e.preventDefault();
+            try {
+                if (isShiftKeyDown) {
+                    self.shiftKeysMapping[keycode].call(self, e);
+                } else {
+                    self.mapping[keycode].call(self, e);
+                }
+            } catch (er) {}
             $(this).off('keydown');
         });
-        try {
-            if (isShiftKeyDown) {
-                this.shiftKeysMapping[keycode].call(this);
-            } else {
-                this.mapping[keycode].call(this);
-            }
-        } catch (er) {
-        }
     };
+
 
     /**
      Set elements for dynamic addon. If elements count will be changed while using addon, then call setElements. Always first element will be selected after calling this method.
@@ -128,7 +130,8 @@
      Action when was called right arrow
      @method nextElement
     */
-    KeyboardController.prototype.nextElement = function () {
+    KeyboardController.prototype.nextElement = function (event) {
+        event.preventDefault();
         this.switchElement(1);
     };
 
@@ -136,7 +139,8 @@
      Action when was called left arrow
      @method previousElement
     */
-    KeyboardController.prototype.previousElement = function () {
+    KeyboardController.prototype.previousElement = function (event) {
+        event.preventDefault();
         this.switchElement(-1);
     };
 
@@ -144,7 +148,8 @@
      Action when was called up arrow
      @method nextRow
     */
-    KeyboardController.prototype.nextRow = function () {
+    KeyboardController.prototype.nextRow = function (event) {
+        event.preventDefault();
         this.switchElement(this.columnsCount);
     };
 
@@ -152,7 +157,8 @@
      Action when was called down arrow
      @method previousRow
     */
-    KeyboardController.prototype.previousRow = function () {
+    KeyboardController.prototype.previousRow = function (event) {
+        event.preventDefault();
         this.switchElement(-this.columnsCount);
     };
 
@@ -160,7 +166,8 @@
      Action which will be called when enter was pressed
      @method enter
     */
-    KeyboardController.prototype.enter = function () {
+    KeyboardController.prototype.enter = function (event) {
+        event.preventDefault();
         if (this.keyboardNavigationActive) {
             return;
         }
@@ -172,14 +179,16 @@
      If escape was pressed then this action will be called. This callback will call exitWCAGMode
      @method exitWCAGMode
     */
-    KeyboardController.prototype.escape = function () {
+    KeyboardController.prototype.escape = function (event) {
+        event.preventDefault();
         if (!this.keyboardNavigationActive) {
             return;
         }
         this.exitWCAGMode();
     };
 
-    KeyboardController.prototype.select = function () {
+    KeyboardController.prototype.select = function (event) {
+        event.preventDefault();
         if (!this.isSelectEnabled) {
             return;
         }

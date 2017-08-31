@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -31,25 +33,53 @@ public final class KeyboardNavigationController {
 	private PlayerEntryPoint entryPoint;
 	private JavaScriptObject invisibleInputForFocus = null;
 	private int actualSelectedModuleIndex = 0;
-	
+
 	//state
 	private PresenterEntry savedEntry = null;
-	
+
 	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
 		public boolean common = false;
-		
+
 		PresenterEntry(IWCAGPresenter presenter, boolean isCommon) {
 			this.presenter = presenter;
 			this.common = isCommon;
 		}
-		
+
 		public boolean isCommon() {
 			return this.common;
 		}
 	}
 	
-	private void initialSelect() {	
+	public KeyboardNavigationController() {
+		this.waitOnMessages(this);
+	}
+
+	private void callEnterPressEvent () {
+		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, true, false, KeyCodes.KEY_ENTER), RootPanel.get());
+	}
+
+	private native void waitOnMessages (KeyboardNavigationController x) /*-{
+		$wnd.addEventListener("message", receiveMessage);
+		function receiveMessage(event) {
+			try {
+				var eventData = JSON.parse(event.data);
+
+				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
+					return;
+				}
+
+				var keyCode = eventData.keyCode;
+				var isShift = eventData.isShift;
+				if (keyCode == 13 && isShift) {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::callEnterPressEvent()();
+				}
+			} catch (e) {
+			}
+		}
+	}-*/;
+
+	private void initialSelect() {
 		if (this.presenters.size() == 0) {
 			this.modeOn = false;
 			return;
@@ -66,7 +96,7 @@ public final class KeyboardNavigationController {
 		isInitiated = true;
 	}
 	
-		
+
 	// Sometimes modules can remove classes just activated or selected modules. We must restore them.
 	private void restoreClasses() {
 		if (!modeOn) {
@@ -88,11 +118,11 @@ public final class KeyboardNavigationController {
 		
 		return false;
 	}
-	
+
 	private void changeKeyboardMode (KeyDownEvent event) {
 		this.modeOn = !this.modeOn;
 		if (this.modeOn) {
-			this.setFocusOnInvisibleElement();		
+			this.setFocusOnInvisibleElement();
 			if (!this.isInitiated) {
 				this.initialSelect();
 			} else {
@@ -103,45 +133,45 @@ public final class KeyboardNavigationController {
 			this.deselectCurrentModule();
 		}
 	}
-	
+
 	private void changeCurrentModule(KeyDownEvent event) {
 		if (!this.modeOn) {
 			return;
 		}
-		
+
 		this.deselectCurrentModule();
 		if (event.isShiftKeyDown()) {
 			this.setIndexToPreviousModule();
 		} else {
-			this.setIndexToNextModule();		
+			this.setIndexToNextModule();
 		}
 		this.selectCurrentModule();
 	}
-	
+
 	private int getNextElementIndex(int step) {
 		int index = this.actualSelectedModuleIndex;
 		do {
 			index += step;
-			
+
 			index = index % this.presenters.size();
 			if (index < 0) {
 				index = this.presenters.size() - 1;
 			}
-			
+
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
 		} while (!this.presenters.get(index).presenter.isSelectable());
-		
+
 		return index;
 	}
-	
+
 	private void setIndexToNextModule() {
 		this.actualSelectedModuleIndex = this.getNextElementIndex(1);
 	}
-	
+
 	private void setIndexToPreviousModule () {
 		this.actualSelectedModuleIndex = this.getNextElementIndex(-1);
 	}
-	
+
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
 				
@@ -157,7 +187,7 @@ public final class KeyboardNavigationController {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) {	//Disable tab default action if eKeyboard is working
 					event.preventDefault();
 				}
-				
+
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton())) {
 					if (moduleIsActivated) {	//If we was in button, and he was clicked then we want to disactivate that button
 						deactivateModule();
@@ -166,16 +196,16 @@ public final class KeyboardNavigationController {
 					changeCurrentModule(event);
 					return;
 				}
-				
+
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					event.preventDefault();
-					activateModule();	
+					activateModule();
 				}
 
 	            if (modeOn && moduleIsActivated) {
 	            	manageKey(event);
 	            }
-          
+
 
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
@@ -213,24 +243,24 @@ public final class KeyboardNavigationController {
 		element.focus();
 	}-*/;
 	
-	
+
 	private void manageKey (KeyDownEvent event) {
 		IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
 		if (wcagWidget == null) {
 			return;
 		}
-		
+
 		switch(event.getNativeEvent().getKeyCode()) {
-			case KeyCodes.KEY_UP: 
+			case KeyCodes.KEY_UP:
 				wcagWidget.up();
 				break;
-			case KeyCodes.KEY_DOWN: 
+			case KeyCodes.KEY_DOWN:
 				wcagWidget.down();
 				break;
-			case KeyCodes.KEY_LEFT: 
+			case KeyCodes.KEY_LEFT:
 				wcagWidget.left();
 				break;
-			case KeyCodes.KEY_RIGHT: 
+			case KeyCodes.KEY_RIGHT:
 				wcagWidget.right();
 				break;
 			case KeyCodes.KEY_ESCAPE:
@@ -240,7 +270,7 @@ public final class KeyboardNavigationController {
 				if (event.isShiftKeyDown()) {
 					wcagWidget.enter(true);
 				} else {
-					wcagWidget.enter(false);	
+					wcagWidget.enter(false);
 				}
 				break;
 			case KeyCodes.KEY_TAB:
@@ -258,12 +288,12 @@ public final class KeyboardNavigationController {
 				break;
 		};
 	}
-	
+
 	private void activateModule () {
 		if (!this.modeOn) {
 			return;
 		}
-		
+
 		this.presenters.get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_active_module");
 		this.moduleIsActivated = true;
 	}
@@ -280,12 +310,12 @@ public final class KeyboardNavigationController {
 		
 		this.presenters.get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
 	}
-	
+
 	private void deselectCurrentModule () {
 		if (this.presenters.size() == 0) {
 			return;
-		}		
-		
+		}
+
 		this.presenters.get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
 	}
 	
@@ -297,14 +327,14 @@ public final class KeyboardNavigationController {
 		if (this.presenters.size() == 0) {
 			return;
 		}
-		
+
 		if (!(this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated())) {
 			this.moduleIsActivated = false;
 			this.isInitiated = false;
 			this.actualSelectedModuleIndex = 0;
 		}
 		
-		
+
 		this.presenters.clear();
 	}
 	
@@ -312,41 +342,41 @@ public final class KeyboardNavigationController {
 		if (this.presenters.size() == 0) {
 			return;
 		}
-		
+
 		if(!this.modeOn) {
 			return;
 		}
-		
+
 		this.savedEntry = this.presenters.get(this.actualSelectedModuleIndex);
 	}
-	
+
 	public void restore() {
 		if (this.savedEntry == null) {
 			return;
 		}
-		
+
 		for (int i = 0; i < this.presenters.size(); i++) {
 			IPresenter presenter = (IPresenter) this.presenters.get(i).presenter;
 			IPresenter savedPresenter = (IPresenter)this.savedEntry.presenter;
-			
+
 			if(presenter.getModel() == savedPresenter.getModel()) {
 				this.actualSelectedModuleIndex = i;
 				this.initialSelect();
 			}
 		}
 	}
-		
+
 	private void addToNavigation(PageController controller, boolean isCommon) {
 		if (controller == null || controller.getWidgets() == null) {
 			return;
 		}
-		
-		for (IPresenter presenter : controller.getPresenters()) {			
-			if (presenter instanceof IWCAGPresenter) {	
+
+		for (IPresenter presenter : controller.getPresenters()) {
+			if (presenter instanceof IWCAGPresenter) {
 				this.presenters.add(new PresenterEntry((IWCAGPresenter) presenter, isCommon));
 			}
 		}
-		
+
 	}
 	
 	public void addHeaderToNavigation(PageController controller) {
