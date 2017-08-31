@@ -19,6 +19,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	private String value = "";
 	private boolean clicked = false;
 	private PageController pageController;
+	private boolean isSelected = false;
 
 	public InlineChoiceWidget (InlineChoiceInfo gi, final ITextViewListener listener) {
 
@@ -200,6 +201,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void setFocusGap(boolean focus) {
+		if (focus) {
+			this.select();
+		} else {
+			this.deselect();
+		}
 		setFocus(focus);
 	}
 
@@ -216,4 +222,20 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		this.pageController = pc;
 	}
 	
+	public void select() {
+		this.addStyleName("keyboard_navigation_active_element");
+		this.addStyleName("keyboard_navigation_active_element_text");
+		this.isSelected = true;
+	}
+
+	@Override
+	public void deselect() {
+		this.removeStyleName("keyboard_navigation_active_element");
+		this.removeStyleName("keyboard_navigation_active_element_text");
+		this.isSelected = false;
+	}
+
+    public boolean isSelected() {
+		return this.isSelected;
+	}
 }

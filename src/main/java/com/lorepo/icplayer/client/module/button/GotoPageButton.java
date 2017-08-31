@@ -155,4 +155,11 @@ class GotoPageButton extends PushButton implements IWCAG {
 	@Override
 	public void escape() {
 	}
+
+
+	@Override
+	public void shiftTab() {
+		// TODO Auto-generated method stub
+		
+	}
 }

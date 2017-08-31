@@ -19,7 +19,7 @@ import com.lorepo.icplayer.client.module.addon.AddonPresenter.IDisplay;
 public class AddonView extends HTML implements IDisplay {
 
 	private AddonModel	module;
-	Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers"));
+	Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification"));
 	
 	public AddonView(AddonModel	model) {
 		

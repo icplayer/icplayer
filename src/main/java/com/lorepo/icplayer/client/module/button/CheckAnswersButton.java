@@ -121,4 +121,11 @@ class CheckAnswersButton extends PushButton implements IWCAG {
 	public void escape() {
 	}
 
+
+	@Override
+	public void shiftTab() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

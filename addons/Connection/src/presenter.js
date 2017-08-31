@@ -1340,11 +1340,11 @@ function AddonConnection_create() {
         this.switchElement(-1);
     };
 
-    KeyboardController.prototype.nextElement = function () {
+    ConnectionKeyboardController.prototype.nextElement = function () {
         this.switchElement(parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
     };
 
-    KeyboardController.prototype.previousElement = function () {
+    ConnectionKeyboardController.prototype.previousElement = function () {
         this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
     };
 

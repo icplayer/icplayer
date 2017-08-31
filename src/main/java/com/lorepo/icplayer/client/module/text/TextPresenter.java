@@ -65,6 +65,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String getId();
 		void setFocusGap(boolean focus);
 		String getGapType();
+		void select();
+		void deselect();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -1321,6 +1323,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	public boolean isSelectable() {
 		return view.getChildrenCount() > 0;
+	}
+	
+	public String getGapType () {
+		return "Text";
 	}
 
 }

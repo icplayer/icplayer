@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -44,7 +45,7 @@ public final class KeyboardNavigationController {
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, double_state_button, single_state_button, ordering, connection;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, double_state_button, single_state_button, ordering, connection, multiplegap, table, text_identification;
 		
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
@@ -57,6 +58,34 @@ public final class KeyboardNavigationController {
 			return false;
 		}
 	}
+	
+	public KeyboardNavigationController() {
+		this.waitOnMessages(this);
+	}
+	
+	private void callEnterPressEvent () {
+		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, true, false, KeyCodes.KEY_ENTER), RootPanel.get());
+	}
+	
+	private native void waitOnMessages (KeyboardNavigationController x) /*-{
+		$wnd.addEventListener("message", receiveMessage);
+		function receiveMessage(event) {
+			try {
+				var eventData = JSON.parse(event.data);
+				
+				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
+					return; 
+				}
+				
+				var keyCode = eventData.keyCode;
+				var isShift = eventData.isShift;
+				if (keyCode == 13 && isShift) {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::callEnterPressEvent()();
+				}
+			} catch (e) {
+			}			
+		}
+	}-*/;
 	
 	private void initialSelect() {
 		if (modulesNames.size() == 0) return; // None of navigation modules on page
@@ -135,10 +164,10 @@ public final class KeyboardNavigationController {
 		
 		return false;
 	}
-	
+
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-				
+
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
@@ -159,7 +188,7 @@ public final class KeyboardNavigationController {
 							selectModule(currentModuleName);
 						}
 					}
-					
+
 					return;
 				}
 				

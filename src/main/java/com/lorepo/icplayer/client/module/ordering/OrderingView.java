@@ -716,4 +716,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			this.selectCurrentItem();
 		}
 	}
+
+	@Override
+	public void shiftTab() {
+		// TODO Auto-generated method stub
+		
+	}
 }
