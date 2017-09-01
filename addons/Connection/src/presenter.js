@@ -1322,7 +1322,7 @@ function AddonConnection_create() {
     };
 
     presenter.keyboardController = function(keycode) {
-        presenter.keyboardControllerObject.handle(keycode)
+        presenter.keyboardControllerObject.handle(keycode);
     };
 
     function ConnectionKeyboardController (elements, columnsCount) {
