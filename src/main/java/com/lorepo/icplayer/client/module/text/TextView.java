@@ -344,9 +344,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 
 	@Override
 	public void escape() {
-		if (activeGap != null) {
-			activeGap.setFocusGap(false);
-		}
+		this.removeAllSelections();
 		moduleHasFocus = false;
 	}
 
