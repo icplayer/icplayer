@@ -386,6 +386,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	
 	@Override
 	public void space() {
+		this.listener.onGapClicked(activeGap.getId());
 	}
 
 	@Override

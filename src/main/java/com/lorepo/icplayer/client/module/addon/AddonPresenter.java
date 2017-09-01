@@ -52,7 +52,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor	addonDescriptor;
-	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification"));
+	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 
