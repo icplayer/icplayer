@@ -13,6 +13,7 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -482,6 +483,7 @@ public final class KeyboardNavigationController {
 			choice.setPageController(mainPageController);
 			choice.setTextToSpeechVoices(mainPageController.getMultiPartDescription(currentModuleName.substring(5)));
 		} else if (imv.getName() == "Text") {
+			JavaScriptUtils.log("I am in TEXT lets go");
 			TextView text = (TextView) widget;
 			text.setPageController(mainPageController);
 		} else {

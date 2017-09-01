@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
@@ -46,6 +47,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 					
+					JavaScriptUtils.log("SPEAK in IN LINE CHOICE LUL: " + value);
 					getPageController().speak(value);
 				}
 			});

@@ -323,8 +323,9 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		this.pageController.readGap(module.rawTextNoGaps, clicks);
 	}
 	
-	private void enter() {
-		if(textElements.size() > 0) {
+	private void enter () {
+		JavaScriptUtils.log("[TextView] enter");
+		if (textElements.size() > 0) {
 			activeGap = textElements.get(0);
 		}
 
@@ -423,6 +424,8 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 	
 	public void enter(boolean isExiting) {
+		JavaScriptUtils.log("public void enter");
+		
 		if (isExiting) {
 			this.removeAllSelections();
 		} else {
@@ -435,10 +438,14 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				moduleHasFocus = true;
 			}
 		}
+		
+		this.pageController.speak(module.rawTextNoGaps);
 	}
 
 	@Override
 	public void tab() {
+		JavaScriptUtils.log("TAB !?");
+		
 		int size = getTextElementsSize();
 
 		if (size == 0) return;
@@ -453,6 +460,8 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
+		
+		this.pageController.readGap(module.rawTextNoGaps, clicks);
 	}
 
 	@Override

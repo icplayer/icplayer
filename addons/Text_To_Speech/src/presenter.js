@@ -173,6 +173,8 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.speak = function (text) {
+        console.log('speak', text);
+
         text = parseGaps(text);
 
         // if (window.speechSynthesis.speaking) {
