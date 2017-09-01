@@ -3,6 +3,7 @@
  */
 (function (window) {
     var keys = {
+        TAB: 9,
         ENTER: 13,
         ESCAPE: 27,
         SPACE: 32,
@@ -131,7 +132,9 @@
      @method nextElement
     */
     KeyboardController.prototype.nextElement = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(1);
     };
 
@@ -140,7 +143,9 @@
      @method previousElement
     */
     KeyboardController.prototype.previousElement = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(-1);
     };
 
@@ -149,7 +154,9 @@
      @method nextRow
     */
     KeyboardController.prototype.nextRow = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(this.columnsCount);
     };
 
@@ -158,7 +165,9 @@
      @method previousRow
     */
     KeyboardController.prototype.previousRow = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(-this.columnsCount);
     };
 
@@ -167,7 +176,9 @@
      @method enter
     */
     KeyboardController.prototype.enter = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (this.keyboardNavigationActive) {
             return;
         }
@@ -180,7 +191,9 @@
      @method exitWCAGMode
     */
     KeyboardController.prototype.escape = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (!this.keyboardNavigationActive) {
             return;
         }
@@ -188,7 +201,9 @@
     };
 
     KeyboardController.prototype.select = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (!this.isSelectEnabled) {
             return;
         }

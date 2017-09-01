@@ -249,7 +249,7 @@ public final class KeyboardNavigationController {
 		if (wcagWidget == null) {
 			return;
 		}
-
+		
 		switch(event.getNativeEvent().getKeyCode()) {
 			case KeyCodes.KEY_UP:
 				wcagWidget.up();
