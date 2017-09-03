@@ -437,14 +437,10 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	public void closePage() {
-		// kc in popup window is null
-		if (keyboardController != null) {
-			keyboardController.resetStatus();
-		}
-
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
+		
 		if (currentPage != null) {
 			currentPage.release();
 			currentPage = null;

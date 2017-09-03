@@ -21,11 +21,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class SourceListView extends FlowPanel implements IDisplay{
+public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
 	private final SourceListModule module;
@@ -301,36 +302,6 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		return "SourceList";
 	}
 
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		if (labelsIds.size() < 1) {
-			return;
-		}
-		
-		int code = event.getNativeKeyCode();
-
-		if (code == KeyCodes.KEY_ENTER) {
-			enter();
-		}
-		
-		if (code == KeyCodes.KEY_TAB) {
-			event.preventDefault();
-			next();
-		}
-		
-		//space key
-		if (code == 32) {
-			event.preventDefault();
-			select();
-		}
-		
-		if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
-			escape();
-		}
-		
-	}
-
 	private void unMarkCurrentItem(){
 		Label current = labels.get(labelsIds.get(currentLabel));
 		current.removeStyleName("keyboard_navigation_active_element");		
@@ -360,7 +331,78 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		fireClickEvent(labelsIds.get(currentLabel));
 	}
 
-	private void escape() {
-		unMarkCurrentItem();
+
+	@Override
+	public void enter(boolean isExiting) {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+
+		if (isExiting) {
+			this.unMarkCurrentItem();
+		} else {
+			this.enter();
+		}
+
+	}
+
+
+	@Override
+	public void space() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+
+		select();
+	}
+
+
+	@Override
+	public void tab() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+
+		next();
+	}
+
+
+	@Override
+	public void left() {
+	}
+
+
+	@Override
+	public void right() {
+	}
+
+
+	@Override
+	public void down() {
+	}
+
+
+	@Override
+	public void up() {
+	}
+
+
+	@Override
+	public void escape() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+
+		this.unMarkCurrentItem();
+	}
+
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
+
+
+	@Override
+	public void shiftTab() {
 	}
 }

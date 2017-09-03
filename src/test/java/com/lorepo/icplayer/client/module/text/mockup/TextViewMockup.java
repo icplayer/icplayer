@@ -61,7 +61,8 @@ public class TextViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	@Override
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
 		// TODO Auto-generated method stub
 		
@@ -141,11 +142,6 @@ public class TextViewMockup implements IDisplay {
 	public void connectDOMNodeRemovedEvent(String id) {
 		// TODO Auto-generated method stub
 	}
-	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		// TODO Auto-generated method stub
-	}
 
 	@Override
 	public String getName() {
@@ -156,12 +152,12 @@ public class TextViewMockup implements IDisplay {
 	@Override
 	public void connectInlineChoices(List<InlineChoiceInfo> list) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void sortGapsOrder() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

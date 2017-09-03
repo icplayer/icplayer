@@ -13,11 +13,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
+public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG {
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
@@ -28,7 +29,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private int[] order;
 	private PageController pageController;
 	private List<String> optionsVoices;
-	
+
 	private int position = -1;
 	
 	public ChoiceView(ChoiceModel module, boolean isPreview) {
@@ -191,36 +192,36 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	
 	private void previous () {
 		position--;
-		
+
 		if (position < 0) {
 			position = optionWidgets.size()-1;
 		}
-		
+
 		IOptionDisplay option = optionWidgets.get(position);
 
 		for (IOptionDisplay widget : optionWidgets) {
 			widget.removeBorder();
 		}
-		
+
 		if (option != null) {
 			option.addBorder();
 		}
 	}
-	
+
 	public void setPageController (PageController pageController) {
 		this.pageController = pageController;
 	}
-	
+
 	public void setTextToSpeechVoices (List<String> optionsVoices) {
 		this.optionsVoices = optionsVoices;
 	}
-	
+
 	private void textToSpeechCurrentOption () {
 		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
 		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
 		this.pageController.speak(text);
 	}
-	
+
 	private void select() {
 		if (position < 0) return;
 		
@@ -256,48 +257,74 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option.removeBorder();
 		}
 	}
-	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
 
-		if (code == KeyCodes.KEY_ENTER) {
+	@Override
+	public void enter(boolean isExiting) {
+		if (!isExiting) {
 			addBorder();
 			textToSpeechCurrentOption();
-		}
-		
-		if (code == KeyCodes.KEY_TAB) {
-			event.preventDefault();
-			skip();
-			textToSpeechCurrentOption();
-		}
-		
-		if (code == KeyCodes.KEY_UP) {
-			event.preventDefault();
-			previous();
-			textToSpeechCurrentOption();
-		}
-		
-		if (code == KeyCodes.KEY_DOWN) {
-			event.preventDefault();
-			skip();
-			textToSpeechCurrentOption();
-		}
-		
-		//space key
-		if (code == 32) {
-			event.preventDefault();
-			select();
-		}
-		
-		if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
+		} else {
 			removeBorder();
 		}
+		
+	}
+
+
+	@Override
+	public void space() {
+		select();
+	}
+
+
+	@Override
+	public void tab() {
+		skip();
+		textToSpeechCurrentOption();
+	}
+
+
+	@Override
+	public void left() {
+	}
+
+
+	@Override
+	public void right() {
+	}
+
+
+	@Override
+	public void down() {
+        skip();
+        textToSpeechCurrentOption();
+	}
+
+
+	@Override
+	public void up() {
+	    previous();
+		textToSpeechCurrentOption();
+	}
+
+
+	@Override
+	public void escape() {
+		removeBorder();
+	}
+
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 
 	@Override
 	public String getName() {
 		return "Choice";
 	}
+
+
+	@Override
+	public void shiftTab() {
+	}
+
 }

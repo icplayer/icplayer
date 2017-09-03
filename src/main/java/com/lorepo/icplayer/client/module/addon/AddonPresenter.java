@@ -1,10 +1,15 @@
 package com.lorepo.icplayer.client.module.addon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Element;
 import com.lorepo.icf.properties.IAudioProperty;
@@ -22,20 +27,21 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
-import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, ITextToSpeechPresenter {
+public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, ITextToSpeechPresenter, IWCAGPresenter, IWCAG {
 
 	public interface IDisplay extends IModuleView{
 		public Element getElement();
@@ -46,7 +52,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private JavaScriptObject jsObject;
 	private IPlayerServices services;
 	private IDisplay view;
-	private IAddonDescriptor addonDescriptor;
+	private IAddonDescriptor	addonDescriptor;
+	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 
@@ -77,24 +84,14 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				reset();
 			}
 		});
-		
-		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
-			public void onActivated(ModuleActivatedEvent event) {
-				activate(event.moduleName, event.moduleStatus);
-			}
-		});
+
 	}
+
 	
-	private void activate(String moduleName, String moduleStatus) {
-		if (moduleName.equals(model.getId())) {
-			activate(jsObject, moduleName, moduleStatus);
-		}
-	}
-	
-	private native void activate(JavaScriptObject obj, String moduleName, String keyCode) /*-{
+	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown) /*-{
 		try{
-			if(obj.keyboardController != undefined) {
-				obj.keyboardController(parseInt(keyCode, 10));
+			if(obj.keyboardController !== undefined && obj.keyboardController !== null) {
+				obj.keyboardController(parseInt(keyCode, 10), isShiftDown);
 			}
 		}
 		catch(err){
@@ -102,6 +99,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  	}	
 	}-*/;
 	
+	private native boolean haveWCAGSupport(JavaScriptObject obj) /*-{
+		return (obj.keyboardController !== undefined && obj.keyboardController !== null);
+	}-*/;
+
 	@Override
 	public void setShowErrorsMode() {
 		setShowErrorsMode(jsObject, addonDescriptor.getAddonId());
@@ -388,12 +389,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in setState(): \n" + err);
 	  	}
 	}-*/;
-	
+
 	@Override
 	public void playTitle (String id) {
 		playTitle(jsObject, id, addonDescriptor.getAddonId());
 	}
-	
+
 	private native void playTitle (JavaScriptObject obj, String id, String addonId) /*-{
 		try {
 			if (obj.playTitle != undefined) {
@@ -403,12 +404,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in playTitle(): \n" + err);
 	  	}
 	}-*/;
-	
+
 	@Override
 	public void playDescription (String id) {
 		playDescription(jsObject, id, addonDescriptor.getAddonId());
 	}
-	
+
 	private native void playDescription (JavaScriptObject obj, String id, String addonId) /*-{
 		try {
 			if (obj.playDescription != undefined) {
@@ -418,11 +419,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in playDescription(): \n" + err);
 	  	}
 	}-*/;
-	
+
 	public void speak (String text) {
 		speak(jsObject, text, addonDescriptor.getAddonId());
 	}
-	
+
 	private native void speak (JavaScriptObject obj, String text, String addonId) /*-{
 		try {
 			if (obj.speak != undefined) {
@@ -432,11 +433,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			alert("[" + addonId + "] Exception in speak(): \n" + err);
 		}
 	}-*/;
-	
+
 	public void readGap (String text, int gapNumber) {
 		readGap(jsObject, text, gapNumber, addonDescriptor.getAddonId());
 	}
-	
+
 	private native void readGap (JavaScriptObject obj, String text, int gapNumber, String addonId) /*-{
 		try {
 			if (obj.readGap != undefined) {
@@ -451,7 +452,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public JsArrayString getAddOnsOrder () {
 		return getAddOnsOrder(jsObject, addonDescriptor.getAddonId());
 	}
-	
+
 	private native JsArrayString getAddOnsOrder (JavaScriptObject obj, String addonId) /*-{
 		try {
 			if (obj.getAddOnsOrder != undefined) {
@@ -461,12 +462,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in playDescription(): \n" + err);
 	  	}
 	}-*/;
-	
+
 	@Override
 	public JsArrayString getMultiPartDescription(String id) {
 		return getMultiPartDescription(jsObject, id, addonDescriptor.getAddonId());
 	}
-	
+
 	private native JsArrayString getMultiPartDescription (JavaScriptObject obj, String id, String addonId) /*-{
 		try {
 			if (obj.getMultiPartDescription != undefined) {
@@ -489,10 +490,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}-*/;
 
+
 	@Override
 	public String getName() {
 		return model.getId();
 	}
+
 
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
@@ -504,13 +507,115 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return executeCommand(jsObject, commandName, values);
 	}
 
+
 	@Override
 	public IModuleModel getModel() {
 		return model;
 	}
+
 	
 	public JavaScriptObject getJavaScriptObject(){
 		return jsObject;
 	}
 
+
+	@Override
+	public IWCAG getWCAGController() {
+		return this;
+	}
+
+
+	@Override
+	public void selectAsActive(String className) {
+		this.view.getElement().addClassName(className);
+
+	}
+
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+
+	}
+
+
+	@Override
+	public boolean isSelectable() {
+		return this.haveWCAGSupport(this.jsObject);
+	}
+
+
+	@Override
+	public void enter(boolean isExiting) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting);
+	}
+
+
+	@Override
+	public void space() {
+		this.onKeyDown(this.jsObject, 32, false);
+	}
+
+
+	@Override
+	public void tab() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
+
+	}
+
+
+	@Override
+	public void left() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, false);
+
+	}
+
+
+	@Override
+	public void right() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, false);
+
+	}
+
+
+	@Override
+	public void down() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, false);
+
+	}
+
+
+	@Override
+	public void up() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, false);
+
+	}
+
+
+	@Override
+	public void escape() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, false);
+
+	}
+
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown());
+
+	}
+
+
+	@Override
+	public void shiftTab() {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
+
+	}
+
+	public boolean isButton() {
+		if (buttonAddons.contains(this.model.getAddonId().toLowerCase())) {
+			return true;
+		}
+		return false;
+	}
 }

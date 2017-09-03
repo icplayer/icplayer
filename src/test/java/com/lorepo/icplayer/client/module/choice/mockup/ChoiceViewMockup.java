@@ -120,13 +120,6 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 
 
 	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;

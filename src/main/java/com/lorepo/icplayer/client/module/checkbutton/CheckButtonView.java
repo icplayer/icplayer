@@ -2,14 +2,14 @@ package com.lorepo.icplayer.client.module.checkbutton;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter.IDisplay;
 
-public class CheckButtonView extends PushButton implements IDisplay {
+public class CheckButtonView extends PushButton implements IDisplay, IWCAG {
 	private static final String DISABLED_STYLE = "disabled";
 	
 	private CheckButtonModule module;
@@ -105,18 +105,52 @@ public class CheckButtonView extends PushButton implements IDisplay {
 		if (isShowErrorsMode) toggleAnswers();
 	}
 	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
-
-		if (code == KeyCodes.KEY_ENTER) {
-			event.preventDefault();
-			enter();
-		}
-	}
-	
 	private void enter() {
 		toggleAnswers();
+	}
+
+	@Override
+	public void enter(boolean isExiting) {
+		if (!isExiting) {
+			this.enter();
+		}
+		
+	}
+
+	@Override
+	public void space() {
+	}
+
+	@Override
+	public void tab() {
+	}
+
+	@Override
+	public void left() {
+	}
+
+	@Override
+	public void right() {
+	}
+
+	@Override
+	public void down() {
+	}
+
+	@Override
+	public void up() {
+	}
+
+	@Override
+	public void escape() {
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
+
+	@Override
+	public void shiftTab() {
 	}
 
 	@Override

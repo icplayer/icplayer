@@ -2,6 +2,17 @@
  * @module commons
  */
 (function (window) {
+    var keys = {
+        TAB: 9,
+        ENTER: 13,
+        ESCAPE: 27,
+        SPACE: 32,
+        ARROW_LEFT: 37,
+        ARROW_UP: 38,
+        ARROW_RIGHT: 39,
+        ARROW_DOWN: 40
+    };
+
     /**
     KeyboardController util for managing WCAG in addons.
     @class KeyboardController
@@ -15,16 +26,7 @@
         this.keyboardNavigationElements = elements;
         this.columnsCount = columnsCount;
         this.keyboardNavigationElementsLen = elements.length;
-        var keys = {
-            TAB: 9,
-            ENTER: 13,
-            ESCAPE: 27,
-            SPACE: 32,
-            ARROW_LEFT: 37,
-            ARROW_UP: 38,
-            ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
-        };
+
         var mapping = {};
         mapping[keys.TAB] = this.nextElement;
         mapping[keys.ENTER] = this.enter;
@@ -130,7 +132,9 @@
      @method nextElement
     */
     KeyboardController.prototype.nextElement = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(1);
     };
 
@@ -139,7 +143,9 @@
      @method previousElement
     */
     KeyboardController.prototype.previousElement = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(-1);
     };
 
@@ -148,7 +154,9 @@
      @method nextRow
     */
     KeyboardController.prototype.nextRow = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(this.columnsCount);
     };
 
@@ -157,7 +165,9 @@
      @method previousRow
     */
     KeyboardController.prototype.previousRow = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         this.switchElement(-this.columnsCount);
     };
 
@@ -166,7 +176,9 @@
      @method enter
     */
     KeyboardController.prototype.enter = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (this.keyboardNavigationActive) {
             return;
         }
@@ -179,7 +191,9 @@
      @method exitWCAGMode
     */
     KeyboardController.prototype.escape = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (!this.keyboardNavigationActive) {
             return;
         }
@@ -187,7 +201,9 @@
     };
 
     KeyboardController.prototype.select = function (event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
         if (!this.isSelectEnabled) {
             return;
         }
@@ -228,5 +244,6 @@
     };
 
     window.KeyboardController = KeyboardController;
+    window.KeyboardControllerKeys = keys;
 
 })(window);
