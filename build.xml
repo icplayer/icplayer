@@ -172,7 +172,7 @@
         </exec>
     </target>
 
-    <target name="test.addons">
+    <target name="test.addons" depends="bundle-libs">
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>

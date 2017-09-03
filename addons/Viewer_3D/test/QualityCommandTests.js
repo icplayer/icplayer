@@ -30,9 +30,8 @@ TestCase("[3D Viewer] Commands logic - setQuality", {
 
         this.presenter.setQuality('high');
 
-        assertTrue(this.presenter.commandsQueue.addTask.calledOnce);
-        assertEquals('setQuality', this.presenter.commandsQueue.addTask.getCall(0).args[0]);
-        assertEquals(['high'], this.presenter.commandsQueue.addTask.getCall(0).args[1]);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
+        assertEquals(['high'], this.presenter.getDeferredQueueVariable().queue[0].argumentsToCall);
 
         assertFalse(this.presenter.viewer.setDefinition.called);
         assertFalse(this.presenter.viewer.update.called);

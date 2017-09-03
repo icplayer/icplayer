@@ -53,7 +53,7 @@ public class ButtonView extends Composite implements IDisplay {
 			button = new PopupButton(module.getOnClick(), this, pageService, module.getPopupTopPosition(), module.getPopupLeftPosition(), module.getAdditionalClasses(), playerServices, module);
 		}
 		else if(ButtonType.prevPage == type){
-			button = new PrevPageButton(playerServices);
+			button = new PrevPageButton(playerServices, module.getGoToLastPage());
 		}
 		else if(ButtonType.gotoPage == type){
 			button = new GotoPageButton(module.getOnClick(), module.getPageIndex(), playerServices);
@@ -128,7 +128,7 @@ public class ButtonView extends Composite implements IDisplay {
 	private void enter() {
 		Widget buttonWidget = this.getWidget();
 		if (buttonWidget instanceof IWCAG) {
-			((IWCAG) buttonWidget).enter();
+			((IWCAG) buttonWidget).enter(false);
 		}
 	}
 

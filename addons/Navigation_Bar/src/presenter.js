@@ -4,6 +4,10 @@ function AddonNavigation_Bar_create() {
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
 
+    presenter.__internalElements = {
+        goToPage: goToPage
+    };
+
     var NAVIGATION_PAGE = {
         FIRST: 0,
         LAST: 1,
@@ -163,7 +167,7 @@ function AddonNavigation_Bar_create() {
                 }
                 break;
             case NAVIGATION_PAGE.OTHER:
-                if (currentIndex !== index && (index >= 0) && (index <= (presenter.pageCount - 1))) {
+                if ((index >= 0) && (index <= (presenter.pageCount - 1))) {
                     goToIndex = index;
                 }
                 break;
@@ -203,16 +207,13 @@ function AddonNavigation_Bar_create() {
 
     function handleIndexClickActions() {
         presenter.$view.find('[class*="navigationbar-indexed-element"]').each(function () {
-            var isCurrentPage = $(this).hasClass("navigationbar-element-current");
             var pageIndex = parseInt($(this).attr("data-page-number"), 10) - 1;
 
             $(this).parent().click(function (event) {
                 event.stopPropagation();
                 event.preventDefault();
 
-                if (!isCurrentPage) {
-                    goToPage(NAVIGATION_PAGE.OTHER, pageIndex);
-                }
+                goToPage(NAVIGATION_PAGE.OTHER, pageIndex);
             });
         });
 

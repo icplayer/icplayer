@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -35,10 +37,11 @@ public final class KeyboardNavigationController {
 	private List<String> bookPageWidgets = new ArrayList<String>();
 	private boolean modeOn = false;
 	private PlayerEntryPoint entryPoint;
+	private JavaScriptObject invisibleInputForFocus = null;
 
 	private enum ExpectedModules {
 		// Navigation modules
-		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, connection;
+		text, video, button, navigation_bar, choice, show_answers, checkbutton, truefalse, gamememo, sourcelist, double_state_button, single_state_button, ordering, connection, multiplegap, table, text_identification;
 		
 		private static boolean contains(String s) {
 			s = s.replaceAll("\\s","");
@@ -51,6 +54,34 @@ public final class KeyboardNavigationController {
 			return false;
 		}
 	}
+	
+	public KeyboardNavigationController() {
+		this.waitOnMessages(this);
+	}
+	
+	private void callEnterPressEvent () {
+		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, true, false, KeyCodes.KEY_ENTER), RootPanel.get());
+	}
+	
+	private native void waitOnMessages (KeyboardNavigationController x) /*-{
+		$wnd.addEventListener("message", receiveMessage);
+		function receiveMessage(event) {
+			try {
+				var eventData = JSON.parse(event.data);
+				
+				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
+					return; 
+				}
+				
+				var keyCode = eventData.keyCode;
+				var isShift = eventData.isShift;
+				if (keyCode == 13 && isShift) {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::callEnterPressEvent()();
+				}
+			} catch (e) {
+			}			
+		}
+	}-*/;
 	
 	private void initialSelect() {	
 		if (modulesNames.size() == 0) return; // None of navigation modules on page
@@ -128,10 +159,10 @@ public final class KeyboardNavigationController {
 		
 		return false;
 	}
-	
+
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-				
+
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
@@ -139,18 +170,20 @@ public final class KeyboardNavigationController {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					modeOn = !modeOn;
 					event.preventDefault();
-					
+
 					if (!modeOn) { // off
+						sendEvent(event);
 						deactivateModule();
 						deselectModule(currentModuleName);
 					} else { // on
+						setFocusOnDefaultElement();
 						if (!isInitiated) {
 							initialSelect();
 						} else {
 							selectModule(currentModuleName);
 						}
 					}
-					
+
 					return;
 				}
 				
@@ -181,14 +214,7 @@ public final class KeyboardNavigationController {
 	            
 	            // Send event
 	            if (modeOn && moduleIsActivated) {
-	            	boolean isModuleInBookView = isModuleInBookView(currentModuleName);
-	            	String moduleName = currentModuleName.substring(5, currentModuleName.length());
-	            	
-	            	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
-	            		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
-	            	} else {
-	            		playerServices.get("SingleMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
-	            	}
+	            	sendEvent(event);
 	            }
 	            
 	            // Deactive module
@@ -202,6 +228,43 @@ public final class KeyboardNavigationController {
 	    }, KeyDownEvent.getType());
 	}
 	
+	private void setFocusOnDefaultElement () {
+		this.focusElement(this.getInputElement());
+	} 
+		
+	private native JavaScriptObject	getInputElement() /*-{
+		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
+		if (!input) {
+			input = $wnd.$("<input/>");
+			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
+			input.css({
+						"opacity": 0.0001,
+						'pointer-events':    "none",
+						"position": "absolute",
+						"top": "0px"
+						});
+			var body = $wnd.$("body");
+			body.append(input);
+		}
+		
+		return input;		
+	}-*/;
+	
+	private native void focusElement(JavaScriptObject element) /*-{
+		element.focus();
+	}-*/;
+	
+	private void sendEvent (KeyDownEvent event) {
+		boolean isModuleInBookView = isModuleInBookView(currentModuleName);
+    	String moduleName = currentModuleName.substring(5, currentModuleName.length());
+
+    	if (isModuleInBookView && playerServices.containsKey("BookMode")) {
+    		playerServices.get("BookMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+    	} else {
+    		playerServices.get("SingleMode").getEventBus().fireEvent(new ModuleActivatedEvent(moduleName, event));
+    	}
+	}
+
 	private void activateModule() {
 		if (currentModuleName.isEmpty()) return;
 

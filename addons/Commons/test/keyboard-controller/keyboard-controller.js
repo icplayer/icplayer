@@ -1,7 +1,3 @@
-function getKeyboardController(elements, columns){
-    return new KeyboardController(elements, columns);
-}
-
 function cloneObj(obj) {
     if (null == obj || "object" != typeof obj) return obj;
     var copy = obj.constructor();
@@ -57,129 +53,154 @@ function countSelectedElements(elements){
     return selected_elements_count;
 }
 
-function getTestData(cols, rows) {
-    var elements = getElements(getObject(), rows*cols);
-    var controller = getKeyboardController(elements, cols);
-    return {
-        'elements': elements,
-        'controller': controller,
-    };
-}
-
 TestCase("[Commons - Keyboard controller] Marking tests", {
+    setUp: function () {
+        var columns = 4;
+        var rows = 3;
+
+        this.elements = getElements(getObject(), rows*columns);
+        this.controller = new KeyboardController(this.elements, columns);
+
+        this.handleFunction = this.controller.handle;
+
+        this.controller.handle = function (keycode, isShiftDown) {
+            var event = {
+                which: keycode,
+                preventDefault: sinon.stub()
+            };
+            this.mapping[keycode].call(this, event);
+        };
+    },
+
+    tearDown: function () {
+        this.controller.handle = this.handleFunction;
+    },
+
     'test mark on Enter': function() {
-        var data = getTestData(4,3);
-        var elements = data.elements;
-        var controller = data.controller;
-        controller.handle(13);
-        assertEquals('some_class keyboard_navigation_active_element', elements[0].class);
-        assertEquals(1, countActiveElements(elements));
+        this.controller.handle(13);
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[0].class);
+        assertEquals(1, countActiveElements(this.elements));
     },
 
     'test unmark on Escape': function() {
-        var data = getTestData(4,3);
-        var elements = data.elements;
-        var controller = data.controller;
-        assertEquals(0, countActiveElements(elements));
-        controller.handle(13);
-        assertEquals(1, countActiveElements(elements));
-        controller.handle(27);
-        assertEquals(0, countActiveElements(elements));
+        assertEquals(0, countActiveElements(this.elements));
+        this.controller.handle(13);
+        assertEquals(1, countActiveElements(this.elements));
+        this.controller.handle(27);
+        assertEquals(0, countActiveElements(this.elements));
     },
 
     'test move sequence': function() {
-        var data = getTestData(4,3);
-        var elements = data.elements;
-        var controller = data.controller;
-        assertEquals(0, countActiveElements(elements));
-        controller.handle(13);
-        assertEquals(1, countActiveElements(elements));
+        assertEquals(0, countActiveElements(this.elements));
+        this.controller.handle(13);
+        assertEquals(1, countActiveElements(this.elements));
 
         // move right
-        controller.handle(39);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[1].class);
+        this.controller.handle(39);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[1].class);
 
         // move down
-        controller.handle(40);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[5].class);
+        this.controller.handle(40);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[5].class);
 
         // move left
-        controller.handle(37);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[4].class);
+        this.controller.handle(37);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[4].class);
 
         // move up
-        controller.handle(38);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[0].class);
+        this.controller.handle(38);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[0].class);
     },
 
     'test corner moves': function() {
-        var data = getTestData(4,3);
-        var elements = data.elements;
-        var controller = data.controller;
-        assertEquals(0, countActiveElements(elements));
-        controller.handle(13);
-        assertEquals(1, countActiveElements(elements));
+        assertEquals(0, countActiveElements(this.elements));
+        this.controller.handle(13);
+        assertEquals(1, countActiveElements(this.elements));
 
         // move left
-        controller.handle(37);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[11].class);
+        this.controller.handle(37);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[11].class);
 
         // move down
-        controller.handle(40);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[3].class);
+        this.controller.handle(40);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[3].class);
 
         // move right
-        controller.handle(39);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[4].class);
+        this.controller.handle(39);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[4].class);
 
         // move up twice
-        controller.handle(38);
-        controller.handle(38);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals('some_class keyboard_navigation_active_element', elements[8].class);
+        this.controller.handle(38);
+        this.controller.handle(38);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals('some_class keyboard_navigation_active_element', this.elements[8].class);
     },
 
     'test select element': function() {
-        var data = getTestData(4, 3);
-        var elements = data.elements;
-        var controller = data.controller;
-        controller.handle(13);
+        this.controller.handle(13);
         // move down
-        controller.handle(40);
-        assertEquals(1, countActiveElements(elements));
-        assertEquals(0, countSelectedElements(elements));
+        this.controller.handle(40);
+        assertEquals(1, countActiveElements(this.elements));
+        assertEquals(0, countSelectedElements(this.elements));
 
-        var expectedElement = elements[4];
+        var expectedElement = this.elements[4];
         assertEquals('some_class keyboard_navigation_active_element', expectedElement.class);
         assertFalse(expectedElement.selected);
 
         // select element (space)
-        controller.handle(32);
+        this.controller.handle(32);
         assertTrue(expectedElement.selected);
-        assertEquals(1, countSelectedElements(elements));
+        assertEquals(1, countSelectedElements(this.elements));
 
         // block selection
-        controller.selectEnabled(false);
+        this.controller.selectEnabled(false);
 
         // space
-        controller.handle(32);
+        this.controller.handle(32);
         assertTrue(expectedElement.selected);
-        assertEquals(1, countSelectedElements(elements));
+        assertEquals(1, countSelectedElements(this.elements));
 
         // unblock selection
-        controller.selectEnabled(true);
+        this.controller.selectEnabled(true);
 
         // space
-        controller.handle(32);
+        this.controller.handle(32);
         assertFalse(expectedElement.selected);
-        assertEquals(0, countSelectedElements(elements));
+        assertEquals(0, countSelectedElements(this.elements));
     }
 
+});
+
+TestCase("[Commons - Keyboard controller] set elements", {
+    setUp: function () {
+        this.startedElements = [{
+            removeClass: sinon.spy(),
+            addClass: sinon.spy()
+        }];
+        this.keyboardController = new KeyboardController(this.startedElements, 1);
+    },
+
+    'test set element will set all elements and will mark first': function () {
+        var elements = [{
+            removeClass: sinon.spy(),
+            addClass: sinon.spy()
+        }, {
+            removeClass: sinon.spy(),
+            addClass: sinon.spy()
+        }];
+
+        this.keyboardController.keyboardNavigationActive = true;
+
+        this.keyboardController.setElements(elements);
+
+        assertTrue(this.startedElements[0].removeClass.calledOnce);
+        assertTrue(elements[0].addClass.calledOnce);
+    }
 });
