@@ -174,6 +174,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 
 	@Override
 	public void shiftTab() {
+
 	}
 
 

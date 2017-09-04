@@ -10,7 +10,6 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -94,11 +93,12 @@ public final class KeyboardNavigationController {
 				this.modeOn = false;
 				return;
 			}
+
 		}
 		selectCurrentModule();
 		isInitiated = true;
 	}
-
+	
 
 	// Sometimes modules can remove classes just activated or selected modules. We must restore them.
 	private void restoreClasses() {
@@ -112,6 +112,7 @@ public final class KeyboardNavigationController {
 		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
 			return true;
 		}
+
 		
 		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
 			AddonPresenter presenter = (AddonPresenter) this.presenters.get(this.actualSelectedModuleIndex).presenter;
@@ -137,7 +138,6 @@ public final class KeyboardNavigationController {
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
-		JavaScriptUtils.log("[KNC] changeCurrentModule");
 		if (!this.modeOn) {
 			return;
 		}
@@ -183,7 +183,7 @@ public final class KeyboardNavigationController {
 
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-
+				
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 	        public void onKeyDown(KeyDownEvent event) {
@@ -252,7 +252,6 @@ public final class KeyboardNavigationController {
 		element.focus();
 	}-*/;
 
-
 	private void manageKey (KeyDownEvent event) {
 		IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
 		if (wcagWidget == null) {
@@ -310,6 +309,7 @@ public final class KeyboardNavigationController {
 			IWCAGPresenter p = this.presenters.get(this.actualSelectedModuleIndex).presenter;
 			playTextToSpeechContent(p);
 		}
+
 	}
 	
 	private void deactivateModule () {

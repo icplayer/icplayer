@@ -392,8 +392,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		if (isExiting) {
 			this.removeAllSelections();
 		} else {
-			if(textElements.size() > 0) {
-				activeGap = textElements.get(0);
+			if (activeGap == null) {
+				if(textElements.size() > 0) {
+					activeGap = textElements.get(0);
+				}
 			}
 
 			if (activeGap != null && !moduleHasFocus) {

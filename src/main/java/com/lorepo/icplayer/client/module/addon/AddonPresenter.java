@@ -41,6 +41,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
+
 public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, ITextToSpeechPresenter, IWCAGPresenter, IWCAG {
 
 	public interface IDisplay extends IModuleView{
@@ -84,9 +85,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				reset();
 			}
 		});
-
 	}
-
 	
 	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown) /*-{
 		try{
@@ -490,12 +489,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}-*/;
 
-
 	@Override
 	public String getName() {
 		return model.getId();
 	}
-
 
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
@@ -506,36 +503,30 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return executeCommand(jsObject, commandName, values);
 	}
-
-
+	
 	@Override
 	public IModuleModel getModel() {
 		return model;
 	}
-
 	
 	public JavaScriptObject getJavaScriptObject(){
 		return jsObject;
 	}
-
 
 	@Override
 	public IWCAG getWCAGController() {
 		return this;
 	}
 
-
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
-
 	}
 
 
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
-
 	}
 
 
@@ -560,56 +551,48 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	@Override
 	public void tab() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
-
 	}
 
 
 	@Override
 	public void left() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, false);
-
 	}
 
 
 	@Override
 	public void right() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, false);
-
 	}
 
 
 	@Override
 	public void down() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, false);
-
 	}
 
 
 	@Override
 	public void up() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, false);
-
 	}
 
 
 	@Override
 	public void escape() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, false);
-
 	}
 
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown());
-
 	}
 
 
 	@Override
 	public void shiftTab() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
-
 	}
 
 	public boolean isButton() {

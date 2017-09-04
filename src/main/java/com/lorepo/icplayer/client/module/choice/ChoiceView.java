@@ -321,8 +321,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	public String getName() {
 		return "Choice";
 	}
-
-
+	
 	@Override
 	public void shiftTab() {
 	}

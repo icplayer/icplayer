@@ -151,6 +151,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG {
 
 	@Override
 	public void shiftTab() {
+
 	}
 
 	@Override

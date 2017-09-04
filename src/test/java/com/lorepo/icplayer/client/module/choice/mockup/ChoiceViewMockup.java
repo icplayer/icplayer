@@ -118,7 +118,6 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		
 	}
 
-
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
