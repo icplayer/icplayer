@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -28,6 +27,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
 	private TextElementDisplay activeGap = null;
+	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -313,8 +313,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		if (isExiting) {
 			this.removeAllSelections();
 		} else {
-			if(textElements.size() > 0) {
-				activeGap = textElements.get(0);
+			if (activeGap == null) {
+				if(textElements.size() > 0) {
+					activeGap = textElements.get(0);
+				}
 			}
 
 			if (activeGap != null && !moduleHasFocus) {
