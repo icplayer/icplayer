@@ -9,7 +9,6 @@ import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
@@ -138,6 +137,7 @@ public final class KeyboardNavigationController {
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
+		JavaScriptUtils.log("[KNC] changeCurrentModule");
 		if (!this.modeOn) {
 			return;
 		}
@@ -149,6 +149,12 @@ public final class KeyboardNavigationController {
 			this.setIndexToNextModule();
 		}
 		this.selectCurrentModule();
+		
+		if (!this.presenters.get(this.actualSelectedModuleIndex).isCommon()) {
+			IWCAGPresenter p = this.presenters.get(this.actualSelectedModuleIndex).presenter;
+			IPresenter ip = (IPresenter) p;
+			this.mainPageController.playTitle(ip.getModel().getId());
+		}
 	}
 
 	private int getNextElementIndex(int step) {
@@ -317,12 +323,6 @@ public final class KeyboardNavigationController {
 		}
 		
 		this.presenters.get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
-		
-		if (!this.presenters.get(this.actualSelectedModuleIndex).isCommon()) {
-			IWCAGPresenter p = this.presenters.get(this.actualSelectedModuleIndex).presenter;
-			IPresenter ip = (IPresenter) p;
-			this.mainPageController.playTitle(ip.getModel().getId());
-		}
 	}
 
 	private void deselectCurrentModule () {

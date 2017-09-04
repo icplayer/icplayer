@@ -3,7 +3,7 @@ function AddonText_To_Speech_create() {
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
     function returnCorrectObject(v) { return { isValid: true, value: v }; }
 
-    var presenter = function() {};
+    var presenter = function () {};
 
     presenter.messagesQueue = [];
 
@@ -173,8 +173,6 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.speak = function (text) {
-        console.log('speak', text);
-
         text = parseGaps(text);
 
         // if (window.speechSynthesis.speaking) {
@@ -192,7 +190,6 @@ function AddonText_To_Speech_create() {
 
     // var speakTimeout = null;
     // presenter.speak = function (text) {
-    //     console.log('speak');
     //     text = parseGaps(text);
     //
     //     if (window.speechSynthesis.speaking) {
@@ -212,7 +209,7 @@ function AddonText_To_Speech_create() {
     //
     //
     //         window.speechSynthesis.speak(msg);
-    //         msg.onend = function () {console.log('speak ends');};
+    //         msg.onend = function () {};
     //     }
     // };
 

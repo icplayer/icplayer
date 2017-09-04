@@ -7,13 +7,11 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -324,7 +322,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 	
 	private void enter () {
-		JavaScriptUtils.log("[TextView] enter");
 		if (textElements.size() > 0) {
 			activeGap = textElements.get(0);
 		}
@@ -391,9 +388,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		this.setPageControllerToInLineChoices();
 	}
 	
-	public void enter(boolean isExiting) {
-		JavaScriptUtils.log("public void enter");
-		
+	public void enter (boolean isExiting) {
 		if (isExiting) {
 			this.removeAllSelections();
 		} else {
@@ -411,9 +406,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void tab() {
-		JavaScriptUtils.log("TAB !?");
-		
+	public void tab () {
 		int size = getTextElementsSize();
 
 		if (size == 0) return;
@@ -439,7 +432,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab () {
 		int size = getTextElementsSize();
 
 		if (size == 0) return;

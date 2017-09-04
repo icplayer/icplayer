@@ -228,7 +228,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	@Override
 	public void setEnableGap(boolean enable) {
-		setEnabled(enable);		
+		setEnabled(enable);
 	}
 
 	@Override

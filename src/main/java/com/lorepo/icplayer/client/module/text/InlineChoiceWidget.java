@@ -47,7 +47,6 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 					
-					JavaScriptUtils.log("SPEAK in IN LINE CHOICE LUL: " + value);
 					getPageController().speak(value);
 				}
 			});
