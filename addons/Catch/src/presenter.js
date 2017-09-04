@@ -1,8 +1,11 @@
 function AddonCatch_create() {
     var presenter = function () {};
+    var eventBus;
+
     var points = 0;
     var errors = 0;
     var $plateElement = null;
+    var isGameOver = false;
 
     function getErrorObject (ec) { return { isValid: false, errorCode: ec }; }
 
@@ -12,8 +15,9 @@ function AddonCatch_create() {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function getItemObject (image, description, isCorrect, level) {
+    function getItemObject (index, image, description, isCorrect, level) {
         return {
+            index: index,             // item index
             image: image,             // image url
             description: description, // description (max 20 characters)
             isCorrect: isCorrect,     // boolean
@@ -40,16 +44,16 @@ function AddonCatch_create() {
 
     var defaultLevelsItems = [
         [
-            getItemObject('http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
-            getItemObject('https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
+            getItemObject(0, 'http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
+            getItemObject(1, 'https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
         ],
         [
-            getItemObject('http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
-            getItemObject('https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
+            getItemObject(0, 'http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
+            getItemObject(1, 'https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
         ],
         [
-            getItemObject('http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
-            getItemObject('https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
+            getItemObject(0, 'http://rs858.pbsrc.com/albums/ab148/SuperNyappyOfLove/Kawaii%20Stuff/Pixels/080.gif~c200', 'Apple', true, [1,2,3]),
+            getItemObject(1, 'https://ih1.redbubble.net/image.77255900.5643/flat,1000x1000,075,f.jpg', 'Pie', false, [1,2,3])
         ]
     ];
 
@@ -57,7 +61,8 @@ function AddonCatch_create() {
         I01: 'Property Image cannot be empty',
         D01: 'Description too long. Max is 20 characters',
         L01: 'Property level cannot be empty',
-        L02: 'Property level fill with numbers in range 1 - 3'
+        L02: 'Property level fill with numbers in range 1 - 3',
+        P01: 'Property Points to Finish expects number'
     };
 
     presenter.setPlayerController = function (controller) {
@@ -109,10 +114,20 @@ function AddonCatch_create() {
                 return getErrorObject('L02');
             }
 
-            result.push(getItemObject(image, description, isCorrect, level));
+            result.push(getItemObject(i, image, description, isCorrect, level));
         }
 
         return getCorrectObject(result);
+    }
+
+    function parsePointsToFinish (pointsRaw) {
+        var points = parseInt(pointsRaw || 0, 10);
+
+        if (isNaN(points)) {
+            return getErrorObject('P01');
+        }
+
+        return getCorrectObject(points);
     }
 
     presenter.calculateLevelsItems = function (items) {
@@ -135,6 +150,11 @@ function AddonCatch_create() {
             return getErrorObject(validatedItems.errorCode);
         }
 
+        var validatedPointsToFinish = parsePointsToFinish(model['Points to finish']);
+        if (!validatedPointsToFinish.isValid) {
+            return getErrorObject(validatedPointsToFinish.errorCode);
+        }
+
         var levelsItems;
         if (validatedItems.value.length === 0) {
             levelsItems = defaultLevelsItems;
@@ -145,6 +165,7 @@ function AddonCatch_create() {
         return {
             items: validatedItems.value,
             levelsItems: levelsItems,
+            pointsToFinish: validatedPointsToFinish.value,
 
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
@@ -171,7 +192,33 @@ function AddonCatch_create() {
         return itemsForLevel[Math.floor(Math.random() * itemsForLevel.length)];
     }
 
+    function onNewPoint (itemNumber) {
+        points++;
+        sendEvent(itemNumber, 1, true);
+
+        var isInfiniteGame = presenter.configuration.pointsToFinish === 0;
+        if (!isInfiniteGame && points >= presenter.configuration.pointsToFinish) {
+            sendEvent('all', 'EOG', true);
+            presenter.reset(true);
+        }
+    }
+
+    function onNewError (itemNumber) {
+        errors++;
+        sendEvent(itemNumber, 1, false);
+    }
+
+    function reCreateFallingObject (itemNumber) {
+        sendEvent(itemNumber, 0, false);
+
+        makeFallingObject();
+    }
+
     function makeFallingObject () {
+        if (isGameOver) {
+            return;
+        }
+
         var isRemoved = false;
         var addOnHeight = presenter.$view.height();
         var itemObject = getRandomItemFromLevel(currentLevel);
@@ -191,7 +238,7 @@ function AddonCatch_create() {
 
         $objectElement.animate({'top': landingPosition}, {
             duration: speed,
-            complete: makeFallingObject,
+            complete: function () { reCreateFallingObject(itemObject.index + 1) },
             step: function (now, tween) {
                 if (isRemoved) return;
 
@@ -200,12 +247,21 @@ function AddonCatch_create() {
                 var isInCatchLevel = elementBotYPosition < addOnHeight && elementBotYPosition > addOnHeight - $plateElement.height();
 
                 if (isInCatchLevel) {
-                    var plateOffset = $plateElement.position().left - presenter.$view.position().left;
-                    if (plateOffset <= xPosition && plateOffset + $plateElement.width() + $objectElement.width() >= xPosition) {
+                    var elementLeftEdge = xPosition;
+                    var elementRightEdge = elementLeftEdge + $objectElement.width();
+
+                    var plateLeftEdge = $plateElement.offset().left - presenter.$view.offset().left;
+                    var plateRightEdge = plateLeftEdge + $plateElement.width();
+
+                    var isOnLeftEdge = plateLeftEdge < elementRightEdge && plateRightEdge > elementRightEdge;
+                    var isOnCenter = plateLeftEdge <= elementLeftEdge && plateRightEdge >= elementRightEdge;
+                    var isOnRightEdge = plateLeftEdge < elementLeftEdge && plateRightEdge > elementLeftEdge;
+
+                    if (isOnLeftEdge || isOnCenter || isOnRightEdge) {
                         if (itemObject.isCorrect) {
-                            points++;
+                            onNewPoint(itemObject.index + 1);
                         } else {
-                            errors++;
+                            onNewError(itemObject.index + 1);
                         }
                         $objectElement.stop();
                         $objectElement.remove();
@@ -230,7 +286,7 @@ function AddonCatch_create() {
     }
 
     function movePlate (isDirectionToRight) {
-        var platePositionLeft = $plateElement.position().left;
+        var platePositionLeft = $plateElement.offset().left;
         var plateWidth = $plateElement.width();
         var addOnPositionLeft = presenter.$view.position().left;
         var addOnWidth = presenter.$view.width();
@@ -348,15 +404,23 @@ function AddonCatch_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    presenter.reset = function () {
-        points = 0;
-        errors = 0;
-        currentLevel = 0;
+    presenter.reset = function (isEndGame) {
+        isEndGame = isEndGame || false;
+        isGameOver = isEndGame;
+
+        if (!isEndGame) {
+            points = 0;
+            errors = 0;
+            currentLevel = 0;
+        }
 
         turnOffEventListeners();
         stopAndRemoveFallingObjects();
-        startGame(currentLevel);
-        turnOnEventListeners();
+
+        if (!isEndGame) {
+            startGame(currentLevel);
+            turnOnEventListeners();
+        }
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -425,6 +489,23 @@ function AddonCatch_create() {
 
     presenter.isAllOk = function () {
         return errors === 0;
+    };
+
+    function sendEvent (item, value, isCorrect) {
+        function createEventObject(_item, _value, _isCorrect) {
+            return {
+                'source': presenter.configuration.ID,
+                'item': '' + _item,
+                'value': '' + _value,
+                'score': _isCorrect ? '1' : '0'
+            };
+        }
+
+        eventBus.sendEvent('ValueChanged', createEventObject(item, value, isCorrect));
+    }
+
+    presenter.setPlayerController = function(controller) {
+        eventBus = controller.getEventBus();
     };
 
     return presenter;

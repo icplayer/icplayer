@@ -12,7 +12,8 @@ TestCase("[Catch] Model validation", {
                 'Description': 'cat',
                 'Is Correct': 'False',
                 'Level': '2,3'
-            }]
+            }],
+            'Points to finish': '3'
         };
     },
 
@@ -31,6 +32,8 @@ TestCase("[Catch] Model validation", {
         assertFalse(validated.items[1].isCorrect);
         assertEquals(2, validated.items[1].levels[0]);
         assertEquals(3, validated.items[1].levels[1]);
+
+        assertEquals(3, validated.pointsToFinish);
     },
 
     'test empty image property' : function () {
@@ -63,6 +66,14 @@ TestCase("[Catch] Model validation", {
 
         assertFalse(validated.isValid);
         assertEquals('L02', validated.errorCode);
+    },
+
+    'test none-number value in points to finish property' : function () {
+        this.model['Points to finish'] = 'random string';
+        var validated = this.presenter.validateModel(this.model);
+
+        assertFalse(validated.isValid);
+        assertEquals('P01', validated.errorCode);
     }
 
 });
