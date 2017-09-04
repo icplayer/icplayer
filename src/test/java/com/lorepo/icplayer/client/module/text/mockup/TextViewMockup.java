@@ -141,9 +141,4 @@ public class TextViewMockup implements IDisplay {
 	public void connectDOMNodeRemovedEvent(String id) {
 		// TODO Auto-generated method stub
 	}
-	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		// TODO Auto-generated method stub
-	}
 }

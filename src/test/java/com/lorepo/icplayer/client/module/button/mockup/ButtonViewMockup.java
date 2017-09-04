@@ -58,12 +58,6 @@ public class ButtonViewMockup implements IDisplay {
 	}
 
 	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void execute() {
 		// TODO Auto-generated method stub
 		

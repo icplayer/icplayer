@@ -271,38 +271,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		}
 	}
 	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
-
-		if (code == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.enter(false);
-		} else if (code == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
-			this.enter(true);
-		}
-
-		if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
-			this.escape();
-		}
-		
-		if (code == KeyCodes.KEY_TAB && event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.shiftTab();
-		}
-		
-		if (code == KeyCodes.KEY_TAB && !event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.tab();
-		}
-		
-		if ((code == 32) && (activeGap instanceof DraggableGapWidget)) { // space key on draggable gap
-			event.preventDefault();
-			listener.onGapClicked(activeGap.getId());
-		}
-	}
-
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
@@ -376,9 +344,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 
 	@Override
 	public void escape() {
-		if (activeGap != null) {
-			activeGap.setFocusGap(false);
-		}
+		this.removeAllSelections();
 		moduleHasFocus = false;
 	}
 
@@ -418,5 +384,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	
 	@Override
 	public void space() {
+		this.listener.onGapClicked(activeGap.getId());
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 }
