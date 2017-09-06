@@ -22,7 +22,6 @@ public class ImageModule extends BasicModuleModel {
 	}
 	
 	private String imagePath = "";
-	private String baseUrl = "";
 	private DisplayMode mode = DisplayMode.stretch;
 	private boolean animatedGifRefresh = false;
 	
@@ -46,7 +45,7 @@ public class ImageModule extends BasicModuleModel {
 			return imagePath;
 		}
 		else{
-			return baseUrl + imagePath;
+			return this.baseURL + imagePath;
 		}
 	}
 	

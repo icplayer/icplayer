@@ -15,7 +15,6 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 public class ImageSourceModule extends BasicModuleModel {
 
 	private String imagePath = "";
-	private String baseUrl = "";
 	private boolean removable = true;
 	private boolean isDisabled = false;
 	
@@ -36,7 +35,7 @@ public class ImageSourceModule extends BasicModuleModel {
 			return imagePath;
 		}
 		
-		return baseUrl + imagePath;
+		return this.baseURL + imagePath;
 	}
 
 	@Override

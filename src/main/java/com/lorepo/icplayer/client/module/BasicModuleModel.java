@@ -16,7 +16,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;
-	private String baseURL;
+	protected String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
 
