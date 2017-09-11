@@ -1,3 +1,4 @@
+2017-09-11 Added ended event for animation addon
 2017-09-11 Fixed problem with preview and Slideshow. Fixed problem with playing slideshow without loaded audio.
 2017-09-04 Added WCAG support for Image Gap and Image Source
 2017-09-04 Fixed problem with multiple calling WCAG on elements. Added WCAG for Image ID.
