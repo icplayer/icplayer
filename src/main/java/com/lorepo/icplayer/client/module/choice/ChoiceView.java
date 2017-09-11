@@ -13,10 +13,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>{
+public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG {
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
@@ -226,29 +227,65 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option.removeBorder();
 		}
 	}
-	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
 
-		if (code == KeyCodes.KEY_ENTER) {
+	@Override
+	public void enter(boolean isExiting) {
+		if (!isExiting) {
 			addBorder();
-		}
-		
-		if (code == KeyCodes.KEY_TAB) {
-			event.preventDefault();
-			skip();
-		}
-		
-		//space key
-		if (code == 32) {
-			event.preventDefault();
-			select();
-		}
-		
-		if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
+		} else {
 			removeBorder();
 		}
+		
 	}
+
+
+	@Override
+	public void space() {
+		select();
+		
+	}
+
+
+	@Override
+	public void tab() {
+		skip();
+		
+	}
+
+
+	@Override
+	public void left() {
+	}
+
+
+	@Override
+	public void right() {
+	}
+
+
+	@Override
+	public void down() {
+	}
+
+
+	@Override
+	public void up() {
+	}
+
+
+	@Override
+	public void escape() {
+		removeBorder();
+	}
+
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
+
+
+	@Override
+	public void shiftTab() {
+	}
+
 }

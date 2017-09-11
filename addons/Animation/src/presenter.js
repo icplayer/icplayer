@@ -41,6 +41,8 @@ function AddonAnimation_create (){
         ANIMATION: 1
     };
 
+    presenter.eventBus = null;
+
     presenter.upgradeModel = function (model) {
         return presenter.addFramesToLabels(model);
     };
@@ -324,10 +326,12 @@ function AddonAnimation_create (){
             } else {
                 if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
                     presenter.configuration.currentFrame = 0;
+                    presenter.sendEndAnimationEvent();
                     changeFrame();
                 } else {
                     presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
                     $.doTimeout(presenter.configuration.queueName, false);
+                    presenter.sendEndAnimationEvent();
                     return false;
                 }
             }
@@ -396,6 +400,8 @@ function AddonAnimation_create (){
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+
+        presenter.eventBus = controller.getEventBus();
     };
 
     function presenterLogic(view, model, isPreview) {
@@ -764,7 +770,8 @@ function AddonAnimation_create (){
             isClickDisabled: ModelValidationUtils.validateBoolean(model["Is click disabled"]),
             isVisibleByDefault: isVisibleByDefault,
             isVisible: isVisibleByDefault,
-            watermarkOptions: validatedOptions
+            watermarkOptions: validatedOptions,
+            addonID: model.ID
         };
     };
 
@@ -840,6 +847,17 @@ function AddonAnimation_create (){
         ctx.drawImage(img, sx * vertSquashRatio, sy * vertSquashRatio,
             sw * vertSquashRatio, sh * vertSquashRatio,
             dx, dy, dw, dh );
+    }
+
+    presenter.sendEndAnimationEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': 'ended',
+            'score': ''
+        };
+        
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
 
     return presenter;

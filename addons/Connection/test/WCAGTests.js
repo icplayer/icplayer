@@ -42,7 +42,7 @@ TestCase("[Connection - WCAG] navigation", {
            element: this.elements[3]
        }];
 
-      this.jQuery = window.$;
+       this.jQuery = window.$;
 
        window.$ = function (a) {
            if (document == a) {
@@ -53,10 +53,21 @@ TestCase("[Connection - WCAG] navigation", {
        };
 
        this.presenter.buildKeyboardController();
+
+       this.handleFunction = this.presenter.keyboardControllerObject.handle;
+
+       this.presenter.keyboardControllerObject.handle = function (keycode, isShiftDown) {
+            var event = {
+                which: keycode,
+                preventDefault: sinon.stub()
+            };
+            this.mapping[keycode].call(this, event);
+       };
    },
 
    tearDown: function () {
        window.$ = this.jQuery;
+       this.presenter.keyboardControllerObject.handle = this.handleFunction;
    },
 
    'test keyboardController call will call properly dom events' : function () {

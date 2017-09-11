@@ -4,12 +4,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.Image;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter.IDisplay;
 
-public class ImageGapView extends Image implements IDisplay {
+public class ImageGapView extends Image implements IDisplay, IWCAG {
 
 	private static final String HOLLOW_IMAGE = "media/hollow.png";
 	private static final String DEFAULT_STYLE = "ic_imageGap";
@@ -162,5 +164,67 @@ public class ImageGapView extends Image implements IDisplay {
 	@Override
 	public void removeClass(String className) {
 		StyleUtils.removeClassFromElement(this, className);
+	}
+
+	@Override
+	public void enter(boolean isExiting) {
+		if (!isExiting) {
+			this.listener.onClicked();
+		}
+		
+	}
+
+	@Override
+	public void space() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void tab() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void left() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void right() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void down() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void up() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void escape() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void shiftTab() {
+		// TODO Auto-generated method stub
+		
 	}
 }
