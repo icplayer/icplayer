@@ -12,6 +12,7 @@ function AddonConnection_create() {
     presenter.lastClickTime = 0;
     presenter.lastEvent = null;
     presenter.disabledConnections = [];
+    presenter.keyboardControllerObject = null;
 
     var connections;
     var singleMode = false;
@@ -338,6 +339,17 @@ function AddonConnection_create() {
         }
 
         this.gatherCorrectConnections();
+        presenter.buildKeyboardController();
+    };
+
+    presenter.buildKeyboardController = function () {
+        var elements = [];
+        for (var i = 0; i < presenter.elements.length; i++) {
+            elements.push($(presenter.elements[i].element));
+        }
+
+        presenter.keyboardControllerObject = new ConnectionKeyboardController(elements, 2);
+        presenter.keyboardControllerObject.selectEnabled(true);
     };
 
     function getElementById(id) {
@@ -994,6 +1006,7 @@ function AddonConnection_create() {
             presenter.hideAnswers();
         }
 
+        presenter.keyboardControllerObject.selectEnabled(true);
         presenter.lineStack.clear();
         isSelectionPossible = true;
         presenter.$connectionContainer.find('.selected').removeClass('selected');
@@ -1263,6 +1276,7 @@ function AddonConnection_create() {
             return;
         }
 
+        presenter.keyboardControllerObject.selectEnabled(false);
         presenter.isShowAnswersActive = true;
         presenter.tmpElements = [];
         for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
@@ -1301,10 +1315,39 @@ function AddonConnection_create() {
         if (isNotActivity) {
             return;
         }
+        presenter.keyboardControllerObject.selectEnabled(false);
         redraw();
         presenter.isShowAnswersActive = false;
         isSelectionPossible = true;
     };
+
+    presenter.keyboardController = function(keycode) {
+        presenter.keyboardControllerObject.handle(keycode);
+    };
+
+    function ConnectionKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
+
+    ConnectionKeyboardController.prototype.nextRow = function () {
+        this.switchElement(1);
+    };
+
+    ConnectionKeyboardController.prototype.previousRow = function () {
+        this.switchElement(-1);
+    };
+
+    ConnectionKeyboardController.prototype.nextElement = function () {
+        this.switchElement(parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+    };
+
+    ConnectionKeyboardController.prototype.previousElement = function () {
+        this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+    };
+
 
     return presenter;
 }

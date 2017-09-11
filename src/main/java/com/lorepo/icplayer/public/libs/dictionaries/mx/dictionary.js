@@ -418,6 +418,7 @@ var ice_dictionary_mx = {
 	"Audio_property_enable_loop": "Habilitar el bucle",
 	"Audio_property_narration": "Narración",
 	"Audio_property_on_end": "Evento en el final",
+	"Audio_property_force_load_audio": "Force load audio",
 	"TextAudio_info": "Con el addon TextAudio, es posible reproducir una pista de audio con subtitulos correspondientes resaltados. Para que el addon funcione correctamente en todos los navegadores comunes, es necesario subir un archivo de audio en dos formatos: mp3 y ogg.",
 	"TextAudio_name": "Audio y texto",
 	"TextAudio_property_default_controls": "Controles definidos",
@@ -1492,5 +1493,6 @@ var ice_dictionary_mx = {
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
-	"sort_by": "Sort by:"
+	"sort_by": "Sort by:",
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
 };

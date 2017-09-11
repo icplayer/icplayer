@@ -9,7 +9,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
@@ -19,6 +18,8 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -26,7 +27,6 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
-import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
@@ -41,7 +41,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 
-public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver {
+public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter {
 
 	public interface TextElementDisplay {
 		boolean hasId(String id);
@@ -64,6 +64,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String getDroppedElement();
 		String getId();
 		void setFocusGap(boolean focus);
+		void select();
+		void deselect();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -85,7 +87,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void executeOnKeyCode(KeyDownEvent event);
 		void connectDOMNodeRemovedEvent(String id);
 	}
 
@@ -175,21 +176,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}
 			}
 		});
-		
-		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
-			public void onActivated(ModuleActivatedEvent event) {
-				activate(event);
-			}
-		});
-	}
-
-	private void activate(ModuleActivatedEvent event) {
-		String moduleName = event.moduleName;
-		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
-		
-		if (moduleName.equals(module.getId())) {
-			view.executeOnKeyCode(keyDownEvent);
-		}
 	}
 	
 	private boolean isShowAnswers() {
@@ -1308,8 +1294,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isConnectedToMath = true;
 	}
 	
+	@Override
 	public boolean isSelectable() {
-		return view.getChildrenCount() > 0;
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return view.getChildrenCount() > 0 && isVisible;
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		this.getView().addClassName(className);
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.getView().removeClassName(className);
 	}
 
 }

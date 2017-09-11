@@ -1,15 +1,10 @@
 package com.lorepo.icplayer.client.module.button;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.PushButton;
-import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-class GotoPageButton extends PushButton implements IWCAG {
+class GotoPageButton extends ExecutableButton {
 	
-	private IPlayerServices playerServices;
 	private String pageName = "";
 	private String pageIndex = "";
 	
@@ -19,8 +14,7 @@ class GotoPageButton extends PushButton implements IWCAG {
 
 	
 	public GotoPageButton(String pageName, String pageIndex, IPlayerServices services) {
-		this.playerServices = services;
-
+		super(services);
 		
 		setStyleName("ic_button_gotopage");
 		
@@ -36,23 +30,13 @@ class GotoPageButton extends PushButton implements IWCAG {
 		
 		this.pageName = pageName;
 		this.pageIndex = pageIndex;
-		
-		if (services != null) {
-			addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					event.stopPropagation();
-					event.preventDefault();
-					
-					execute();
-				}
-			});
-		}
-				
-				
-
 	}
 	
 	public void execute() {
+		if (this.playerServices == null) {
+			return;
+		}
+		
 		if (this.pageName != null && this.pageName != "" && this.pageName.startsWith("CM_")) {
 			this.gotoCommonPage();
 		} else {
@@ -121,10 +105,4 @@ class GotoPageButton extends PushButton implements IWCAG {
 		
 		return false;		
 	}
-
-
-	@Override
-	public void enter() {
-		this.execute();
-	} 
 }

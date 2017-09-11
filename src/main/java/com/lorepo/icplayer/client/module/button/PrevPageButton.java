@@ -1,42 +1,33 @@
 package com.lorepo.icplayer.client.module.button;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.PushButton;
-import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-class PrevPageButton extends PushButton implements IWCAG {
-	private IPlayerServices services = null;
+class PrevPageButton extends ExecutableButton {
+	boolean goToLastVisitedPage = false;
 	
-	public PrevPageButton(IPlayerServices services){
+	public PrevPageButton(IPlayerServices services, final boolean goToLastPage){
+		super(services);
 		
 		setStyleName("ic_button_prevpage");
 
-		if(services != null){
-			this.services = services;
-			if(services.getCurrentPageIndex() == 0){
+		if(services != null) {
+			this.goToLastVisitedPage = goToLastPage;
+			
+			if(services.getCurrentPageIndex() == 0 && !goToLastPage) {
 				setEnabled(false);
 			}
-	
-			addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					event.stopPropagation();
-					event.preventDefault();
-					execute();
-				}
-			});
+			
 		}
 	}
 
 	public void execute() {
-		IPlayerCommands playerCommands = services.getCommands();
-		playerCommands.prevPage();
-	}
-	
-	@Override
-	public void enter() {
-		this.execute();
+		IPlayerCommands playerCommands = this.playerServices.getCommands();
+		if(!this.goToLastVisitedPage) {
+			playerCommands.prevPage();
+		}
+		else {
+			playerCommands.goToLastVisitedPage();
+		}
 	}
 }

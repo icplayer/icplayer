@@ -16,7 +16,9 @@ function AddonSingle_State_Button_create() {
     };
 
     presenter.clickHandler = function (event) {
-        event.stopPropagation();
+        if (event !== undefined) {
+            event.stopPropagation();
+        }
 
         if (presenter.configuration.isDisabled) return;
         if (presenter.configuration.isErrorMode) return;
@@ -287,5 +289,10 @@ function AddonSingle_State_Button_create() {
         }
     };
 
+    presenter.keyboardController = function(keyCode) {
+        if (keyCode == 13) {
+            presenter.clickHandler();
+        }
+    };
     return presenter;
 }

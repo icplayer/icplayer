@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -20,7 +23,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver {
+public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter {
 
 	public interface IDisplay extends IModuleView {
 		void addReorderListener(IReorderListener listener);
@@ -37,6 +40,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		String getInitialOrder();
 		void show();
 		void hide();
+		public Element getElement();
 	}
 
 	private final OrderingModule module;
@@ -98,6 +102,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					}
 				}
 			});
+			
 		}
 	}
 
@@ -428,5 +433,27 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	public void setSolved(boolean isSolved) {
 		this.isSolved = isSolved;
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		this.view.getElement().addClassName(className);
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+		
+	}
+
+	@Override
+	public boolean isSelectable() {
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		return isVisible;
 	}
 }

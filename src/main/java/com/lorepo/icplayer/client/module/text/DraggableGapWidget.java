@@ -25,6 +25,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean isDragMode = false;
 	private String droppedElementHelper = "";
 	private boolean isShowAnswersMode = false;
+	private boolean isSelected = false;
 
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		super(DOM.getElementById(gi.getId()));
@@ -294,14 +295,32 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	
 	private void setFocus(boolean focus) {
 		if (focus) {
-			addStyleName("keyboard_navigation_active_element");
+			this.select();
 		} else {
-			removeStyleName("keyboard_navigation_active_element");
+			this.deselect();
 		}
 	}
 
 	@Override
 	public void setFocusGap(boolean focus) {
 		setFocus(focus);
+	}
+
+	@Override
+	public void select() {
+		this.addStyleName("keyboard_navigation_active_element");
+		this.addStyleName("keyboard_navigation_active_element_text");
+		this.isSelected = true;
+	}
+
+	@Override
+	public void deselect() {
+		this.removeStyleName("keyboard_navigation_active_element");
+		this.removeStyleName("keyboard_navigation_active_element_text");
+		this.isSelected = false;
+	}
+
+    public boolean isSelected() {
+		return this.isSelected;
 	}
 }

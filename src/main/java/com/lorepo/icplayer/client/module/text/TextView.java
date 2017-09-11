@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -14,11 +13,12 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class TextView extends HTML implements IDisplay{
+public class TextView extends HTML implements IDisplay, IWCAG{
 
 	private final TextModel module;
 	private ITextViewListener listener;
@@ -27,6 +27,7 @@ public class TextView extends HTML implements IDisplay{
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
 	private TextElementDisplay activeGap = null;
+	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -263,69 +264,13 @@ public class TextView extends HTML implements IDisplay{
 		return textElements.size();
 	}
 	
-	private void skip() {
-		int size = getTextElementsSize();
-
-		if (size == 0) return;
-		
-		if (activeGap != null) {
-			activeGap.setFocusGap(false);
-		}
-		
-		clicks++;
-		
-		if (clicks >= size && size > 0) {
-			clicks = 0;
-		}
-		
-		activeGap = textElements.get(clicks);
-		activeGap.setFocusGap(true);
-	}
 	
-	private void enter() {
-
-		if(textElements.size() > 0) {
-			activeGap = textElements.get(0);
-		}
-
-		if (activeGap != null && !moduleHasFocus) {
-			activeGap.setFocusGap(true);
-			moduleHasFocus = true;
+	private void removeAllSelections () {
+		for (TextElementDisplay element: this.textElements) {
+			element.deselect();
 		}
 	}
 	
-	private void escape() {
-		if (activeGap != null) {
-			activeGap.setFocusGap(false);
-		}
-		moduleHasFocus = false;
-	}
-	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
-
-		if (code == KeyCodes.KEY_ENTER) {
-			event.preventDefault();
-			enter();
-		}
-
-		if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
-			escape();
-		}
-		
-		if (code == KeyCodes.KEY_TAB) {
-			event.preventDefault();
-			skip();
-		}
-		
-		if ((code == 32) && (activeGap instanceof DraggableGapWidget)) { // space key on draggable gap
-			event.preventDefault();
-			listener.onGapClicked(activeGap.getId());
-		}
-	}
-
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
@@ -362,4 +307,89 @@ public class TextView extends HTML implements IDisplay{
             addon = null;
         }
 	}-*/;
+
+	@Override
+	public void enter(boolean isExiting) {
+		if (isExiting) {
+			this.removeAllSelections();
+		} else {
+			if (activeGap == null) {
+				if(textElements.size() > 0) {
+					activeGap = textElements.get(0);
+				}
+			}
+
+			if (activeGap != null && !moduleHasFocus) {
+				activeGap.setFocusGap(true);
+				moduleHasFocus = true;
+			}
+		}
+	}
+
+	@Override
+	public void tab() {
+		int size = getTextElementsSize();
+
+		if (size == 0) return;
+
+		this.removeAllSelections();
+		
+		clicks++;
+		
+		if (clicks >= size && size > 0) {
+			clicks = 0;
+		}
+		
+		activeGap = textElements.get(clicks);
+		activeGap.setFocusGap(true);
+	}
+
+	@Override
+	public void escape() {
+		this.removeAllSelections();
+		moduleHasFocus = false;
+	}
+
+	@Override
+	public void shiftTab() {
+		int size = getTextElementsSize();
+
+		if (size == 0) return;
+
+		this.removeAllSelections();
+		
+		clicks--;
+		
+		if (clicks < 0) {
+			clicks = size - 1;
+		}
+		
+		activeGap = textElements.get(clicks);
+		activeGap.setFocusGap(true);
+	}
+	
+	@Override
+	public void left() {
+	}
+
+	@Override
+	public void right() {
+	}
+
+	@Override
+	public void down() {
+	}
+
+	@Override
+	public void up() {
+	}
+	
+	@Override
+	public void space() {
+		this.listener.onGapClicked(activeGap.getId());
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
 }

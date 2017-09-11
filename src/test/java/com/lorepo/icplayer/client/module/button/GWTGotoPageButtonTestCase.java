@@ -108,15 +108,4 @@ public class GWTGotoPageButtonTestCase extends GwtTest {
 		
 		Mockito.verify(this.iPlayerCommandsMock, Mockito.times(1)).gotoCommonPage("Some page");
 	}
-	
-	@Test
-	public void enterCommandShouldCallExecute() {
-		Mockito.doCallRealMethod()
-				.when(this.gotoPageButtonMock)
-				.enter();
-		
-		this.gotoPageButtonMock.enter();
-		
-		Mockito.verify(this.gotoPageButtonMock, Mockito.times(1)).execute();
-	}
 }

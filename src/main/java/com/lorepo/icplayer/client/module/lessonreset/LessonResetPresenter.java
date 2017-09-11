@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -21,7 +22,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetModule;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter;
 
-public class LessonResetPresenter implements IPresenter, IStateful, ICommandReceiver {
+public class LessonResetPresenter implements IPresenter, IStateful, ICommandReceiver, IButton {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
