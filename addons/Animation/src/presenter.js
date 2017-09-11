@@ -315,36 +315,38 @@ function AddonAnimation_create (){
             $(presenter.DOMElements.watermark).hide();
         }
         presenter.configuration.watermarkOptions.clicked = true;
-        $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, function() {
-            if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
-                return false;
-            }
+        $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, presenter.onTimeoutCallback);
+    };
 
-            if (presenter.configuration.currentFrame < presenter.configuration.framesCount - 1) {
-                presenter.configuration.currentFrame++;
+    presenter.onTimeoutCallback = function () {
+        if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
+                return false;
+        }
+
+        if (presenter.configuration.currentFrame < presenter.configuration.framesCount - 1) {
+            presenter.configuration.currentFrame++;
+            changeFrame();
+        } else {
+            if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
+                presenter.configuration.currentFrame = 0;
+                presenter.sendEndAnimationEvent();
                 changeFrame();
             } else {
-                if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
-                    presenter.configuration.currentFrame = 0;
-                    presenter.sendEndAnimationEvent();
-                    changeFrame();
-                } else {
-                    presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
-                    $.doTimeout(presenter.configuration.queueName, false);
-                    presenter.sendEndAnimationEvent();
-                    return false;
-                }
+                presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
+                $.doTimeout(presenter.configuration.queueName, false);
+                presenter.sendEndAnimationEvent();
+                return false;
             }
+        }
 
-            if (presenter.configuration.currentFrame === 0 && !presenter.configuration.loop) {
-                if (presenter.configuration.resetOnEnd) {
-                    presenter.stop();
-                    return false;
-                }
+        if (presenter.configuration.currentFrame === 0 && !presenter.configuration.loop) {
+            if (presenter.configuration.resetOnEnd) {
+                presenter.stop();
+                return false;
             }
+        }
 
-            return true;
-        });
+        return true;
     };
 
     presenter.pause = deferredSyncQueue.decorate(function() {
@@ -856,9 +858,9 @@ function AddonAnimation_create (){
             'value': 'ended',
             'score': ''
         };
-        
+
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-    }
+    };
 
     return presenter;
 }
