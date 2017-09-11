@@ -131,10 +131,4 @@ public class SourceListViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void executeOnKeyCode(KeyDownEvent keyDownEvent) {
-		// TODO Auto-generated method stub
-		
-	}
 }

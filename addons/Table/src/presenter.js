@@ -26,6 +26,7 @@ function AddonTable_create() {
     var isConnectedWithMath = false;
     presenter.gapsSize = [];
     presenter.isSetShowErrorsMode = false;
+    presenter.keyboardControllerObject = null;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -191,6 +192,7 @@ function AddonTable_create() {
                 MathJax.CallBack.Queue().Push(function () {
                     if(!isPreview){
                         MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+                        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
                         var checkSelector = setInterval(function () {
                             if ($(presenter.$view).find('input').length > 0) {
                                 presenter.gapsContainer.gaps = [];
@@ -259,6 +261,8 @@ function AddonTable_create() {
         if (presenter.configuration.isDisabledByDefault) {
             presenter.gapsContainer.lockAllGaps();
         }
+
+        presenter.buildKeyboardController();
     };
 
     presenter.setPlayerController = function (controller) {
@@ -1633,6 +1637,55 @@ function AddonTable_create() {
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
         });
+    };
+
+    function TableKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TableKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TableKeyboardController.prototype.constructor = TableKeyboardController;
+
+    TableKeyboardController.prototype.select = function (event) {
+        this.getTarget(this.keyboardNavigationCurrentElement, true).click();
+    };
+
+    TableKeyboardController.prototype.mark =  function (element) {
+        KeyboardController.prototype.mark.call(this, element);
+        this.getTarget(element, false).focus();
+    };
+
+    TableKeyboardController.prototype.unmark = function (element) {
+        KeyboardController.prototype.unmark.call(this, element);
+        this.getTarget(element, false).blur();
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject = new TableKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+
+        var keys = {
+            ARROW_LEFT: 37,
+            ARROW_UP: 38,
+            ARROW_RIGHT: 39,
+            ARROW_DOWN: 40
+        };
+
+        presenter.keyboardControllerObject.mapping[keys.ARROW_UP] = function () {};
+        presenter.keyboardControllerObject.mapping[keys.ARROW_LEFT] = function () {};
+        presenter.keyboardControllerObject.mapping[keys.ARROW_RIGHT] = function () {};
+        presenter.keyboardControllerObject.mapping[keys.ARROW_DOWN] = function () {};
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find('.ic_gap, .ic_filled_gap');
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    };
+
+    TableKeyboardController.prototype.getTarget = function (element, willBeClicked){
+        return $(element);
     };
 
     return presenter;

@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -28,6 +27,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	private boolean moduleHasFocus = false;
 	private int clicks = 0;
 	private TextElementDisplay activeGap = null;
+	
 	public TextView(TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -271,38 +271,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		}
 	}
 	
-	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
-
-		if (code == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.enter(false);
-		} else if (code == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
-			this.enter(true);
-		}
-
-		if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
-			this.escape();
-		}
-		
-		if (code == KeyCodes.KEY_TAB && event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.shiftTab();
-		}
-		
-		if (code == KeyCodes.KEY_TAB && !event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.tab();
-		}
-		
-		if ((code == 32) && (activeGap instanceof DraggableGapWidget)) { // space key on draggable gap
-			event.preventDefault();
-			listener.onGapClicked(activeGap.getId());
-		}
-	}
-
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
@@ -345,8 +313,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		if (isExiting) {
 			this.removeAllSelections();
 		} else {
-			if(textElements.size() > 0) {
-				activeGap = textElements.get(0);
+			if (activeGap == null) {
+				if(textElements.size() > 0) {
+					activeGap = textElements.get(0);
+				}
 			}
 
 			if (activeGap != null && !moduleHasFocus) {
@@ -376,9 +346,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 
 	@Override
 	public void escape() {
-		if (activeGap != null) {
-			activeGap.setFocusGap(false);
-		}
+		this.removeAllSelections();
 		moduleHasFocus = false;
 	}
 
@@ -418,5 +386,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	
 	@Override
 	public void space() {
+		this.listener.onGapClicked(activeGap.getId());
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 }

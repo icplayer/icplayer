@@ -6,6 +6,12 @@ function AddonSlideshow_create() {
     presenter.eventBus = null;
 
     var DOMElements = {};
+    var loadedImagesDeferred = $.Deferred(),
+        loadedAudioDeferred = $.Deferred(),
+        loadedTextDeferred = $.Deferred();
+
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
+
     presenter.configuration = {};
 
     presenter.ERROR_CODES = {
@@ -53,6 +59,10 @@ function AddonSlideshow_create() {
             }
         });
     };
+
+    function deferredQueueDecoratorChecker() {
+        return presenter.configuration.audioLoadComplete;
+    }
 
     function setElementsDimensions(width, height) {
         var container = DOMElements.viewContainer.find('.slideshow-container:first')[0];
@@ -116,6 +126,10 @@ function AddonSlideshow_create() {
     }
 
     function updateProgressBar(time) {
+        if (!presenter.configuration.buzzAudio) {
+            return;
+        }
+
         if (time === undefined) {
             time = presenter.configuration.buzzAudio.getTime();
         }
@@ -166,7 +180,11 @@ function AddonSlideshow_create() {
             var duration = buzz.toTimer(presenter.configuration.buzzAudio.getDuration(), false);
             presenter.configuration.audioDurationSet = presenter.configuration.buzzAudio.getDuration() !== '--';
             $(DOMElements.controls.duration).text(duration);
+        });
+
+        presenter.configuration.buzzAudio.bind("canplay", function () {
             presenter.configuration.audioLoadComplete = true;
+            loadedAudioDeferred.resolve();
         });
 
         presenter.configuration.currentTime = 0;
@@ -242,14 +260,20 @@ function AddonSlideshow_create() {
     presenter.pauseAudioResource = function () {
         presenter.isPlaying = false;
         if (presenter.configuration.audio.wasPlayed) {
-            presenter.configuration.buzzAudio.pause();
+            try {
+                presenter.configuration.buzzAudio.pause();
+            } catch (exception) {}  //There can ba DOMException, if audio was player but was still buffering
         }
     };
 
     presenter.playAudioResource = function () {
         presenter.isPlaying = true;
         presenter.configuration.audio.wasPlayed = true;
-        presenter.configuration.buzzAudio.play();
+        var nopromise = {
+           catch : new Function()
+        };
+
+        (presenter.configuration.buzzAudio.get().play() || nopromise).catch(function () {} ); //There can ba DOMException, if audio was player but was still buffering
     };
 
     function timeUpdateCallback() {
@@ -358,11 +382,12 @@ function AddonSlideshow_create() {
                 }
                 var slideNumber = isPreview ? presenter.configuration.showSlide - 1 : 0;
                 presenter.goToSlide(slideNumber, true);
-                hideLoadingScreen();
+                loadedTextDeferred.resolve();
 
                 if (presenter.configuration.savedState) {
                     $(DOMElements.viewContainer).trigger("onLoadSlidesEnd", [presenter.configuration.savedState]);
                 }
+                loadedImagesDeferred.resolve();
             }
         });
 
@@ -387,6 +412,8 @@ function AddonSlideshow_create() {
             presenter.configuration.texts.domReferences[i] = textElement;
             $(DOMElements.container).append(textElement);
         }
+
+        loadedTextDeferred.resolve();
     }
 
     function hideAllTexts() {
@@ -531,7 +558,7 @@ function AddonSlideshow_create() {
             changeButtonToPause();
     };
 
-    function playButtonClickHandler(event) {
+    var playButtonClickHandler = deferredSyncQueue.decorate(function playButtonClickHandler(event) {
         event.stopPropagation();
 
         switch (presenter.configuration.audioState) {
@@ -549,14 +576,14 @@ function AddonSlideshow_create() {
                 presenter.switchSlideShowToPlay();
                 break;
         }
-    }
+    });
 
-    function stopButtonClickHandler(e) {
+    var stopButtonClickHandler = deferredSyncQueue.decorate(function stopButtonClickHandler(e) {
         e.stopPropagation();
         presenter.stopPresentation();
-    }
+    });
 
-    function previousButtonClickHandler(e) {
+    var previousButtonClickHandler = deferredSyncQueue.decorate(function previousButtonClickHandler(e) {
 
         e.stopPropagation();
 
@@ -565,16 +592,16 @@ function AddonSlideshow_create() {
             goToPreviousSlide(false);
             presenter.configuration.audioState = presenter.AUDIO_STATE.STOP_FROM_NAVIGATION;
         }
-    }
+    });
 
-    function nextButtonClickHandler(e) {
+    var nextButtonClickHandler = deferredSyncQueue.decorate(function nextButtonClickHandler(e) {
         e.stopPropagation();
         var isActive = $(this).hasClass('slideshow-controls-next') || $(this).hasClass('slideshow-controls-next-mouse-hover');
         if (isActive) {
             goToNextSlide(false);
             presenter.configuration.audioState = presenter.AUDIO_STATE.STOP_FROM_NAVIGATION;
         }
-    }
+    });
 
     function getCurrentIndex(element) {
         return $(element).index() - presenter.configuration.texts.count;
@@ -1092,6 +1119,11 @@ function AddonSlideshow_create() {
         }
         
         if (!preview) {
+            $.when(loadedAudioDeferred, loadedImagesDeferred, loadedTextDeferred).done(function () {
+                hideLoadingScreen();
+                deferredSyncQueue.resolve();
+            });
+
         	if (presenter.configuration.groupNextAndPrevious) {
 	            var $container = $(DOMElements.controls.container);
 	            var $next = $(getControlButtonsDOMElements().next);
@@ -1263,7 +1295,7 @@ function AddonSlideshow_create() {
         return {isValid: true, number: number};
     };
 
-    presenter.moveToCommand = function (params) {
+    presenter.moveToCommand = deferredSyncQueue.decorate(function (params) {
         var validatedParams = presenter.validateMoveToParams(params);
 
         if (validatedParams.isValid) {
@@ -1275,7 +1307,7 @@ function AddonSlideshow_create() {
 
             presenter.onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
         }
-    };
+    });
 
     presenter.onSlideChangeAudioStateSetting = function (previousAudioState, wasPlayed) {
         if (previousAudioState != presenter.AUDIO_STATE.PLAY) {
@@ -1290,25 +1322,25 @@ function AddonSlideshow_create() {
         presenter.configuration.audio.wasPlayed = wasPlayed;
     };
 
-    presenter.next = function () {
+    presenter.next = deferredSyncQueue.decorate(function () {
         var previousAudioState = presenter.configuration.audioState;
         var wasPlayed = presenter.configuration.audio.wasPlayed;
 
         goToNextSlide(false);
 
         presenter.onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
-    };
+    });
 
-    presenter.previous = function () {
+    presenter.previous = deferredSyncQueue.decorate(function () {
         var previousAudioState = presenter.configuration.audioState;
         var wasPlayed = presenter.configuration.audio.wasPlayed;
 
         goToPreviousSlide(false);
 
         presenter.onSlideChangeAudioStateSetting(previousAudioState, wasPlayed);
-    };
+    });
 
-    presenter.play = function () {
+    presenter.play = deferredSyncQueue.decorate(function () {
 
         switch (presenter.configuration.audioState) {
             case presenter.AUDIO_STATE.STOP:
@@ -1324,19 +1356,19 @@ function AddonSlideshow_create() {
                 }
                 break;
         }
-    };
+    });
 
-    presenter.pause = function () {
+    presenter.pause = deferredSyncQueue.decorate(function () {
         if(presenter.configuration.audioState == presenter.AUDIO_STATE.PLAY || presenter.isPlaying) {
             presenter.switchSlideShowPlayToPause();
         }
-    };
+    });
 
-    presenter.stop = function () {
+    presenter.stop = deferredSyncQueue.decorate(function () {
         if(presenter.configuration.audioState != presenter.AUDIO_STATE.STOP) {
             presenter.stopPresentation();
         }
-    };
+    });
 
     presenter.setVisibility = function(isVisible) {
         $(DOMElements.viewContainer).css("visibility", isVisible ? "visible" : "hidden");
@@ -1710,6 +1742,10 @@ function AddonSlideshow_create() {
         if (presenter.eventBus != null) {
             presenter.eventBus.sendEvent(eventType, eventData);
         }
+    };
+
+    presenter._internal_state = {
+        deferredQueue: deferredSyncQueue
     };
 
     return presenter;

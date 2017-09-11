@@ -1,3 +1,9 @@
+2017-09-11 Added ended event for animation addon
+2017-09-11 Fixed problem with preview and Slideshow. Fixed problem with playing slideshow without loaded audio.
+2017-09-04 Added WCAG support for Image Gap and Image Source
+2017-09-04 Fixed problem with multiple calling WCAG on elements. Added WCAG for Image ID.
+2017-08-31 Added WCAG support for Table.
+2017-08-29 Added message watcher for listening on keydown event outside iframe for WCAG
 2017-08-25 Added WCAG support for Image ID
 2017-08-25 Added full support for WCAG in Text module
 2017-08-24 Added WCAG support for Multiplegap
