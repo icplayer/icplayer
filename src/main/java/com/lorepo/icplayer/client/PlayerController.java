@@ -184,6 +184,7 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public void switchToPrevPage() {
 		int index = this.currentMainPageIndex-1;
+		JavaScriptUtils.log(this.currentMainPageIndex);
 		if(this.pageController2 != null && index > 0) {
 			index -= 1;
 		}
@@ -245,6 +246,7 @@ public class PlayerController implements IPlayerController{
 			page = this.contentModel.getPage(index);
 		}
 		else{
+			this.currentMainPageIndex = 0;
 			page = this.contentModel.getPage(0);
 		}
 
