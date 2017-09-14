@@ -10,6 +10,7 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -937,6 +938,11 @@ public class TextModel extends BasicModuleModel {
 		if (newValue != null) {
 			this.textToSpeechDescription = newValue;
 		}
+	}
+	
+	public void getCurrentContent () {
+		JavaScriptUtils.log(this.parsedText);
+		JavaScriptUtils.log(this.rawText);
 	}
 	
 }

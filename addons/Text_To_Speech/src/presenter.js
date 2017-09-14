@@ -142,19 +142,19 @@ function AddonText_To_Speech_create() {
 
         while (text.indexOf('#1#') !== -1 || text.indexOf('#2#') !== -1 || text.indexOf('#3#') !== -1 || text.indexOf('#4#') !== -1) {
             if (text.indexOf('#1#') !== -1) {
-                text = text.replace('#1#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['1'] + ++gap + ' ');
+                text = text.replace('#1#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['1'] + ++gap + ' ');
             }
 
             if (text.indexOf('#2#') !== -1) {
-                text = text.replace('#2#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['2'] + ++option + ' ');
+                text = text.replace('#2#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['2'] + ++option + ' ');
             }
 
             if (text.indexOf('#3#') !== -1) {
-                text = text.replace('#3#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['3'] + ++math + ' ');
+                text = text.replace('#3#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['3'] + ++math + ' ');
             }
 
             if (text.indexOf('#4#') !== -1) {
-                text = text.replace('#4#', presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['4'] + ++filledGap + ' ');
+                text = text.replace('#4#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['4'] + ++filledGap + ' ');
             }
         }
 
@@ -225,14 +225,14 @@ function AddonText_To_Speech_create() {
         return index;
     };
 
-    presenter.readGap = function (text, gapNumber) {
+    presenter.readGap = function (text, currentGapContent, gapNumber) {
         var gaps = text.match(/#[1-4]#/g);
         var gapTypeNumber = gaps[gapNumber][1];
 
         var gapTypeRead = presenter.INPUTS_TRANSLATIONS[presenter.configuration.language][gapTypeNumber];
         var gapNumberRead = presenter.getGapAppearanceAtIndexOfType(gaps, gapNumber) + 1;
 
-        presenter.speak(gapTypeRead + ' ' + gapNumberRead);
+        presenter.speak(gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent);
     };
 
     presenter.playTitle = function (id) {

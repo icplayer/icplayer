@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -87,9 +88,9 @@ public final class KeyboardNavigationController {
 			return;
 		}
 		
-		if (!this.presenters.get(this.actualSelectedModuleIndex).presenter.isSelectable()) {	//If first is not selectable
+		if (!this.presenters.get(this.actualSelectedModuleIndex).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable())) { //If first is not selectable
 			this.setIndexToNextModule();
-			if (this.actualSelectedModuleIndex == 0) {	//And others modules too, then turn off navigation
+			if (this.actualSelectedModuleIndex == 0) { //And others modules too, then turn off navigation
 				this.modeOn = false;
 				return;
 			}
@@ -168,7 +169,7 @@ public final class KeyboardNavigationController {
 			}
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
-		} while (!this.presenters.get(index).presenter.isSelectable());
+		} while (!this.presenters.get(index).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable()));
 
 		return index;
 	}
@@ -245,7 +246,7 @@ public final class KeyboardNavigationController {
 			body.append(input);
 		}
 		
-		return input;		
+		return input;
 	}-*/;
 	
 	private native void focusElement(JavaScriptObject element) /*-{
@@ -348,7 +349,6 @@ public final class KeyboardNavigationController {
 			this.actualSelectedModuleIndex = 0;
 		}
 		
-
 		this.presenters.clear();
 	}
 	
@@ -379,15 +379,71 @@ public final class KeyboardNavigationController {
 			}
 		}
 	}
+	
+//	protected List<String> sortModulesFromTextToSpeech (List<String> modulesNamesFromPage, List<String> modulesNamesFromTTS) {
+//		final String mainPagePrefix = "__m__";
+//		
+//		for (int i=0; i<modulesNamesFromTTS.size(); i++) {
+//			String mn = mainPagePrefix + modulesNamesFromTTS.get(i);
+//			modulesNamesFromTTS.set(i, mn);
+//			
+//			if (modulesNamesFromPage.contains(mn)) {
+//				modulesNamesFromPage.remove(mn);
+//			}
+//		}
+//		
+//		modulesNamesFromTTS.addAll(modulesNamesFromPage);
+//		
+//		return modulesNamesFromTTS;
+//	}
+	
+	private PresenterEntry getPresenterById (List<PresenterEntry> mainPagePresenters, String id) {
+		for (PresenterEntry presenter: mainPagePresenters) {
+			IPresenter iPresenter = (IPresenter) presenter.presenter;
+			if (iPresenter.getModel().getId().equals(id)) {
+				return presenter;
+			}
+		}
+		
+		return null;
+	}
+	
+	private List<PresenterEntry> sortTextToSpeechModules (List<PresenterEntry> mainPagePresenters, List<String> TTSModules) {
+		int index = 0;
+		for (int i=0; i<TTSModules.size(); i++) {
+			String moduleId = TTSModules.get(i);
+			PresenterEntry localPresenter = getPresenterById(mainPagePresenters, moduleId);
+			
+			if (localPresenter != null) {
+				mainPagePresenters.remove(localPresenter);
+				mainPagePresenters.add(index++, localPresenter);
+			}
+			
+		}
+
+		return mainPagePresenters;
+	}
 
 	private void addToNavigation(PageController controller, boolean isCommon) {
 		if (controller == null || controller.getWidgets() == null) {
 			return;
 		}
+		
+		if (controller.equals(mainPageController)) {
+			List<PresenterEntry> mainPagePresenters = new ArrayList<PresenterEntry>();
+			
+			for (IPresenter presenter : controller.getPresenters()) {
+				if (presenter instanceof IWCAGPresenter) {
+					mainPagePresenters.add(new PresenterEntry((IWCAGPresenter) presenter, isCommon));
+				}
+			}
 
-		for (IPresenter presenter : controller.getPresenters()) {
-			if (presenter instanceof IWCAGPresenter) {
-				this.presenters.add(new PresenterEntry((IWCAGPresenter) presenter, isCommon));
+			this.presenters.addAll(sortTextToSpeechModules(mainPagePresenters, controller.getModulesOrder()));
+		} else {
+			for (IPresenter presenter : controller.getPresenters()) {
+				if (presenter instanceof IWCAGPresenter) {
+					this.presenters.add(new PresenterEntry((IWCAGPresenter) presenter, isCommon));
+				}
 			}
 		}
 

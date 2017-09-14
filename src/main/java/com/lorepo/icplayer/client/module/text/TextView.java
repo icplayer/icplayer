@@ -12,6 +12,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -20,7 +21,7 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class TextView extends HTML implements IDisplay, IWCAG{
+public class TextView extends HTML implements IDisplay, IWCAG {
 
 	private final TextModel module;
 	private ITextViewListener listener;
@@ -318,7 +319,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.pageController.readGap(module.rawTextNoGaps, clicks);
+		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
 	}
 	
 	private void enter () {
@@ -393,7 +394,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			this.removeAllSelections();
 		} else {
 			if (activeGap == null) {
-				if(textElements.size() > 0) {
+				if (textElements.size() > 0) {
 					activeGap = textElements.get(0);
 				}
 			}
@@ -403,8 +404,23 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				moduleHasFocus = true;
 			}
 		}
-		
-		this.pageController.speak(module.rawTextNoGaps);
+
+		String newString = "";
+		int textElementIndex = 0;
+		for (int i=0; i<module.rawTextNoGaps.length(); i++) {
+			String letter3 = Character.toString ((char) module.rawTextNoGaps.charAt(i));
+			newString += letter3;
+			
+			if (i >= 2) {
+				String letter1 = Character.toString ((char) module.rawTextNoGaps.charAt(i-2));
+				String letter2 = Character.toString ((char) module.rawTextNoGaps.charAt(i-1));
+				
+				if (letter1.equals("#") && letter3.equals("#") && (letter2.equals("1") || letter2.equals("2") || letter2.equals("3") || letter2.equals("4"))) {
+					newString += " " + this.textElements.get(textElementIndex++).getTextValue();
+				}
+			}
+		}
+		this.pageController.speak(newString);
 	}
 
 	@Override
@@ -424,7 +440,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.pageController.readGap(module.rawTextNoGaps, clicks);
+		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
 	}
 
 	@Override

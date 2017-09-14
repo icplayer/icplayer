@@ -553,7 +553,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 
 	@Override
-	public boolean isSelectable() {
+	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
 		return isVisible;
 	}

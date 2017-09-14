@@ -29,9 +29,9 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	}
 	
 	@Override
-	public void readGap (String text, int gapNumber) {
+	public void readGap (String text, String currentGapContent, int gapNumber) {
 		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
-		activity.readGap(text, gapNumber);
+		activity.readGap(text, currentGapContent, gapNumber);
 	}
 	
 	@Override

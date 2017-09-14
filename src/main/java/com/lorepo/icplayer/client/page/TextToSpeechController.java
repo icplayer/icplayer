@@ -32,9 +32,9 @@ public class TextToSpeechController {
 		}
 	}
 	
-	public void readGap (String text, int gapNumber) {
+	public void readGap (String text, String currentGapContent, int gapNumber) {
 		if (this.isTextToSpeechModuleEnable()) {
-			this.textToSpeechModule.readGap(text, gapNumber);
+			this.textToSpeechModule.readGap(text, currentGapContent, gapNumber);
 		}
 	}
 	

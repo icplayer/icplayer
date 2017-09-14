@@ -61,7 +61,7 @@ public class PageController implements ITextToSpeechController {
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private KeyboardNavigationController keyboardController;
-	private final static String PAGE_TTS_MODULE_ID = "TextToSpeechPageAPI";
+	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1"; //"TextToSpeechPageAPI";
 	private TextToSpeechController textToSpeechController;
 	
 	public PageController(IPlayerController playerController) {
@@ -496,8 +496,8 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	@Override
-	public void readGap (String text, int gapNumber) {
-		this.textToSpeechController.readGap(text, gapNumber);
+	public void readGap (String text, String currentGapContent, int gapNumber) {
+		this.textToSpeechController.readGap(text, currentGapContent, gapNumber);
 	}
 
 	@Override

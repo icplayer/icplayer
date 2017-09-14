@@ -350,8 +350,6 @@ public class PlayerController implements IPlayerController{
 		this.keyboardController.addMainToNavigation(this.pageController1);
 		this.keyboardController.addSecondToNavigation(this.pageController2);
 
-
-
 		if(this.footerController != null){
 			this.footerController.setPage(this.contentModel.getFooter());
 			this.keyboardController.addFooterToNavigation(this.footerController);

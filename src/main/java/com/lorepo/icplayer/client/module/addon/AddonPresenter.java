@@ -433,14 +433,14 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}-*/;
 
-	public void readGap (String text, int gapNumber) {
-		readGap(jsObject, text, gapNumber, addonDescriptor.getAddonId());
+	public void readGap (String text, String currentGapContent, int gapNumber) {
+		readGap(jsObject, text, currentGapContent, gapNumber, addonDescriptor.getAddonId());
 	}
 
-	private native void readGap (JavaScriptObject obj, String text, int gapNumber, String addonId) /*-{
+	private native void readGap (JavaScriptObject obj, String text, String currentGapContent, int gapNumber, String addonId) /*-{
 		try {
 			if (obj.readGap != undefined) {
-				obj.readGap(text, gapNumber);
+				obj.readGap(text, currentGapContent, gapNumber);
 			}
 		} catch(err) {
 			alert("[" + addonId + "] Exception in readGap(): \n" + err);
@@ -531,7 +531,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 
 	@Override
-	public boolean isSelectable() {
+	public boolean isSelectable(boolean isTextToSpeechOn) {
 		return this.haveWCAGSupport(this.jsObject);
 	}
 
