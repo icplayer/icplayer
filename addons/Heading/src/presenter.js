@@ -2,6 +2,8 @@ function AddonHeading_create () {
 
     function getErrorObject (ec) { return { isValid: false, errorCode: ec }; }
 
+    var isVisibleByDefault = true;
+
     var presenter = function () {};
 
     presenter.ERROR_CODES = {
@@ -35,8 +37,7 @@ function AddonHeading_create () {
             return;
         }
 
-        var headingTag = presenter.configuration.heading.toLowerCase();
-        var headingString = '<[tag]></[tag]]>'.replace('[tag]', headingTag);
+        var headingString = '<[tag]></[tag]]>'.replace('[tag]', presenter.configuration.heading);
         var $heading = $(headingString);
         $heading.html(presenter.configuration.content);
 
@@ -44,13 +45,12 @@ function AddonHeading_create () {
     };
 
     presenter.validateModel = function (model) {
-
         if (ModelValidationUtils.isStringEmpty(model.Content)) {
             return getErrorObject('C01');
         }
 
         return {
-            heading: ModelValidationUtils.validateOption(presenter.HEADINGS, model['Heading']),
+            heading: ModelValidationUtils.validateOption(presenter.HEADINGS, model['Heading']).toLowerCase(),
             content: model.Content,
 
             ID: model.ID,
@@ -63,6 +63,8 @@ function AddonHeading_create () {
         if (!presenter.configuration.isValid) {
             return;
         }
+
+        isVisibleByDefault = presenter.configuration.isVisible;
 
         var commands = {
             'show': presenter.show,
@@ -85,9 +87,23 @@ function AddonHeading_create () {
         presenter.setVisibility(false);
     };
 
-    presenter.reset = function () {};
-    presenter.getState = function () {};
-    presenter.setState = function (state) {};
+    presenter.reset = function () {
+        presenter.setVisibility(isVisibleByDefault);
+    };
+
+    presenter.getState = function () {
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible
+        });
+    };
+
+    presenter.setState = function (state) {
+        if (ModelValidationUtils.isStringEmpty(state)) return;
+
+        var parsed = JSON.parse(state);
+        var isVisible = parsed.isVisible;
+        presenter.setVisibility(isVisible);
+    };
 
     return presenter;
 }
