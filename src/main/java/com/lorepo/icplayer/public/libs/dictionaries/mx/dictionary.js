@@ -1494,5 +1494,7 @@ var ice_dictionary_mx = {
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
 	"sort_by": "Sort by:",
-	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page",
+	"image_property_alternative_text": "Alternative text",
+	"video_property_alternative_text": "Alternative text"
 };
