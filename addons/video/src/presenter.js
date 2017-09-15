@@ -638,7 +638,6 @@ function Addonvideo_create() {
     });
 
     presenter.scaleCaptionsContainerToScreenSize = presenter.metadataLoadedDecorator(function () {
-        console.log("Scale");
         var size = {
             width: screen.width,
             height: screen.height
