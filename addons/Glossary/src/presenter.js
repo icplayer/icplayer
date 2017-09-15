@@ -77,6 +77,7 @@ function AddonGlossary_create(){
     };
 
     presenter.openDialogEventHandler = function(event, ui) {
+        event.preventDefault();
         try{
             var $dialog  = $(event.target).closest('.ui-dialog');
             var isPreview = $(".gwt-DialogBox").is('.gwt-DialogBox');
