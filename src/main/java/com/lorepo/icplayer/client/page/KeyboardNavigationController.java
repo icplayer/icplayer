@@ -36,6 +36,7 @@ public final class KeyboardNavigationController {
 	private PageController mainPageController;
 	private JavaScriptObject invisibleInputForFocus = null;
 	private int actualSelectedModuleIndex = 0;
+	private boolean isWCAGSupportOn = false;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -123,7 +124,8 @@ public final class KeyboardNavigationController {
 		return false;
 	}
 
-	private void changeKeyboardMode (KeyDownEvent event) {
+	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
+		this.isWCAGSupportOn = isWCAGSupportOn;
 		this.modeOn = !this.modeOn;
 		if (this.modeOn) {
 			this.setFocusOnInvisibleElement();
@@ -133,8 +135,11 @@ public final class KeyboardNavigationController {
 				this.selectCurrentModule();
 			}
 		} else {
+			JavaScriptUtils.log("1");
 			this.manageKey(event);
+			JavaScriptUtils.log("2");
 			this.deselectCurrentModule();
+			JavaScriptUtils.log("3");
 		}
 	}
 
@@ -190,7 +195,14 @@ public final class KeyboardNavigationController {
 	        public void onKeyDown(KeyDownEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					event.preventDefault();
-					changeKeyboardMode(event);
+					changeKeyboardMode(event, false);
+					return;
+				}
+				
+				// TODO
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isControlKeyDown()) {
+					event.preventDefault();
+					changeKeyboardMode(event, true);
 					return;
 				}
 
@@ -276,6 +288,7 @@ public final class KeyboardNavigationController {
 				wcagWidget.escape();
 				break;
 			case KeyCodes.KEY_ENTER:
+				JavaScriptUtils.log("Wychodzimy? shift: " + event.isShiftKeyDown());
 				if (event.isShiftKeyDown()) {
 					wcagWidget.enter(true);
 				} else {
