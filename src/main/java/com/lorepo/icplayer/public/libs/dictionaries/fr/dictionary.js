@@ -1,4 +1,5 @@
 var ice_dictionary_fr = {
+"load": "Load",
 "confirm_yes": "oui",
 "confirm_no": "non",
 "edit_editable_gap": "Editer un champ éditable/en glisser-déposer",

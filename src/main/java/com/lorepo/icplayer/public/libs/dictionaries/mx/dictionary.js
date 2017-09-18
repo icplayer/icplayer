@@ -1,4 +1,5 @@
 var ice_dictionary_mx = {
+    "load": "Load",
 	"confirm_yes": "si",
 	"confirm_no": "no",
 	"edit_editable_gap": "Editar hueco editable/arrastrable",
