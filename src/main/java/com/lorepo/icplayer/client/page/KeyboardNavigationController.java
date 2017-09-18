@@ -362,8 +362,11 @@ public final class KeyboardNavigationController {
 			if(presenter.getModel() == savedPresenter.getModel()) {
 				this.actualSelectedModuleIndex = i;
 				this.initialSelect();
+				return;
 			}
 		}
+		this.actualSelectedModuleIndex = 0;
+		this.initialSelect();
 	}
 
 	private void addToNavigation(PageController controller, boolean isCommon) {

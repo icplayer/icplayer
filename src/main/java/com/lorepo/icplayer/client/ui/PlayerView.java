@@ -209,12 +209,12 @@ public class PlayerView extends VerticalPanel{
 		navigationPanelsAutomaticAppearance = shouldAppear;
 	}
 
-	public void showHeader(){
+	public void createHeader(){
 		headerView = new PageView("ic_header");
 		insert(headerView, 0);
 	}
 	
-	public void showFooter(){		
+	public void createFooter(){		
 		footerView = new PageView("ic_footer");
 		add(footerView);
 	}
@@ -225,6 +225,20 @@ public class PlayerView extends VerticalPanel{
 		}
 		else{
 			return pageView1;
+		}
+	}
+	
+	public void removeHeaderView() {
+		if (this.headerView != null) {
+			this.remove(this.headerView);
+			this.headerView = null;
+		}
+	}
+	
+	public void removeFooterView() {
+		if (this.footerView != null) {
+			this.remove(this.footerView);
+			this.footerView = null;
 		}
 	}
 

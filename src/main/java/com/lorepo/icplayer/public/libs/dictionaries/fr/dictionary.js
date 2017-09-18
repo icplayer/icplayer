@@ -1500,5 +1500,12 @@ var ice_dictionary_fr = {
 "sort_by": "Sort by:",
 "prev_property_go_to_last_visited_page": "Redirect to last visited page",
 "image_property_alternative_text": "Alternative text",
-"video_property_alternative_text": "Alternative text"
+"video_property_alternative_text": "Alternative text",
+"Header_none": "None",
+"Header_default": "Default",
+"Header": "Header",
+"Footer": "Footer",
+"Footer_none": "None",
+"Footer_default": "Default",
+"Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted."
 };
