@@ -1,4 +1,5 @@
 var ice_dictionary_fr = {
+"load": "Load",
 "confirm_yes": "oui",
 "confirm_no": "non",
 "edit_editable_gap": "Editer un champ éditable/en glisser-déposer",
@@ -1507,5 +1508,6 @@ var ice_dictionary_fr = {
 "Footer": "Footer",
 "Footer_none": "None",
 "Footer_default": "Default",
-"Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted."
+"Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
+    "header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties."
 };
