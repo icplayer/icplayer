@@ -37,6 +37,8 @@ function AddonAssessments_Navigation_Bar_create(){
         numberOfPages: 0,
     };
 
+    presenter.keyboardControllerObject = null;
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -320,7 +322,8 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.Page.prototype.getChangeToPageCommand = function () {
         return function () {
-            presenter.changeToPage(this);
+            var index = Number(this);
+            presenter.changeToPage(index);
         }.bind(this.page);
     };
 
@@ -907,6 +910,8 @@ function AddonAssessments_Navigation_Bar_create(){
         } else {
             presenter.navigationManager.moveToCurrentPage();
         }
+
+        presenter.buildKeyboardController();
     };
 
     function removeMockupDOM () {
@@ -1404,6 +1409,26 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
+    };
+    
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject = new KeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+    
+    presenter.getElementsForKeyboardNavigation = function () {
+        var buttonsViews = [];
+        var test = [];
+        for (var i = 0; i < presenter.navigationManager.buttons.length; i++) {
+            test.push(presenter.navigationManager.buttons[i].$view);
+            buttonsViews.push(presenter.navigationManager.buttons[i].$view[0]);
+        }
+        console.log("test: ", test);
+        console.log("buttonsView: ", buttonsViews);
+        return buttonsViews;
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown)
     };
 
     return presenter;
