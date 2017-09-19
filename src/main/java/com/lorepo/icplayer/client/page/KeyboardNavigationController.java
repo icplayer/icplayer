@@ -288,9 +288,11 @@ public final class KeyboardNavigationController {
 				wcagWidget.escape();
 				break;
 			case KeyCodes.KEY_ENTER:
-				JavaScriptUtils.log("Wychodzimy? shift: " + event.isShiftKeyDown());
 				if (event.isShiftKeyDown()) {
+					JavaScriptUtils.log("shift down: " + event.isShiftKeyDown() + " PRZED");
+					JavaScriptUtils.log(wcagWidget.toString());
 					wcagWidget.enter(true);
+					JavaScriptUtils.log("shift down: " + event.isShiftKeyDown() + " PO");
 				} else {
 					wcagWidget.enter(false);
 				}

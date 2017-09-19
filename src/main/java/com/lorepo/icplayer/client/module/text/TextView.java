@@ -391,6 +391,7 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 	
 	public void enter (boolean isExiting) {
 		if (isExiting) {
+			JavaScriptUtils.log("w exiting blad?");
 			this.removeAllSelections();
 		} else {
 			if (activeGap == null) {

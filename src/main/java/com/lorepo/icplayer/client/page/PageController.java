@@ -482,37 +482,57 @@ public class PageController implements ITextToSpeechController {
 
 	@Override
 	public void playTitle (String id) {
-		this.textToSpeechController.playTitle(id);
+		if (this.textToSpeechController != null) {
+			this.textToSpeechController.playTitle(id);
+		}
 	}
 
 	@Override
 	public void playDescription (String id) {
-		this.textToSpeechController.playDescription(id);
+		if (this.textToSpeechController != null) {
+			this.textToSpeechController.playDescription(id);
+		}
 	}
 
 	@Override
 	public void speak (String text) {
-		this.textToSpeechController.speak(text);
+		if (this.textToSpeechController != null) {
+			this.textToSpeechController.speak(text);
+		}
 	}
 
 	@Override
 	public void readGap (String text, String currentGapContent, int gapNumber) {
-		this.textToSpeechController.readGap(text, currentGapContent, gapNumber);
+		if (this.textToSpeechController != null) {
+			this.textToSpeechController.readGap(text, currentGapContent, gapNumber);
+		}
 	}
 
 	@Override
 	public List<String> getModulesOrder () {
-		return this.textToSpeechController.getModulesOrder();
+		if (this.textToSpeechController != null) {
+			return this.textToSpeechController.getModulesOrder();
+		}
+		
+		return null;
 	}
 
 	@Override
 	public List<String> getMultiPartDescription (String id) {
-		return this.textToSpeechController.getMultiPartDescription(id);
+		if (this.textToSpeechController != null) {
+			return this.textToSpeechController.getMultiPartDescription(id);
+		}
+		
+		return null;
 	}
 	
 	@Override
 	public boolean isTextToSpeechModuleEnable () {
-		return this.textToSpeechController.isTextToSpeechModuleEnable();
+		if (this.textToSpeechController != null) {
+			return this.textToSpeechController.isTextToSpeechModuleEnable();
+		}
+		
+		return false;
 	}
 	
 }
