@@ -165,6 +165,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.Button = function (view_description) {
         this.description = view_description;
         this.$view = this.createView();
+        console.log(this.$view);
         this.$view_text;
         this.actualCommand;
         this.navigateToPage;
@@ -1410,21 +1411,29 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
     };
-    
+
+    function AssesmentsNavigationKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    AssesmentsNavigationKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    AssesmentsNavigationKeyboardController.prototype.constructor = AssesmentsNavigationKeyboardController;
+
+    AssesmentsNavigationKeyboardController.prototype.selectAction = function () {
+        this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+    };
+
     presenter.buildKeyboardController = function () {
-        presenter.keyboardControllerObject = new KeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+        presenter.keyboardControllerObject = new AssesmentsNavigationKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
     
     presenter.getElementsForKeyboardNavigation = function () {
         var buttonsViews = [];
-        var test = [];
         for (var i = 0; i < presenter.navigationManager.buttons.length; i++) {
-            test.push(presenter.navigationManager.buttons[i].$view);
-            buttonsViews.push(presenter.navigationManager.buttons[i].$view[0]);
+            buttonsViews.push(presenter.navigationManager.buttons[i].$view);
         }
-        console.log("test: ", test);
-        console.log("buttonsView: ", buttonsViews);
-        return buttonsViews;
+
+        return $(buttonsViews);
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
