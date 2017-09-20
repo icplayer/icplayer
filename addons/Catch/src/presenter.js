@@ -49,7 +49,8 @@ function AddonCatch_create() {
         D01: 'Description too long. Max is 20 characters',
         L01: 'Property level cannot be empty',
         L02: 'Property level fill with numbers in range 1 - 3',
-        P01: 'Property Points to Finish expects number'
+        P01: 'Property Points to Finish expects number',
+        O01: 'Property Items cannot be empty'
     };
 
     presenter.setPlayerController = function (controller) {
@@ -60,7 +61,7 @@ function AddonCatch_create() {
         var result = [];
 
         if (ModelValidationUtils.isArrayEmpty(rawItems)) {
-            return getCorrectObject([]);
+            return getErrorObject('O01');
         }
 
         for (var i=0; i<rawItems.length; i++) {
@@ -142,11 +143,11 @@ function AddonCatch_create() {
             return getErrorObject(validatedPointsToFinish.errorCode);
         }
 
-        var isDefaultObjects = validatedItems.value.length === 0;
+        // var isDefaultObjects = validatedItems.value.length === 0;
 
         return {
             items: validatedItems.value,
-            levelsItems: isDefaultObjects ? presenter.configuration.levelsItems : presenter.calculateLevelsItems(validatedItems.value),
+            levelsItems: presenter.calculateLevelsItems(validatedItems.value),
             pointsToFinish: validatedPointsToFinish.value,
             countErrors: ModelValidationUtils.validateBoolean(model["Count errors"]),
 
@@ -286,15 +287,25 @@ function AddonCatch_create() {
         var hasSpaceLeft = !isDirectionToRight && (platePositionLeft - addOnPositionLeft < plateWidth);
         var hasSpaceRight = isDirectionToRight && (platePositionLeft + plateWidth + plateWidth >= addOnPositionLeft + addOnWidth);
 
+        var options = {
+            duration: 'fast',
+            easing: 'swing',
+            queue: false
+        };
+
         if (hasSpaceLeft) {
-            $plateElement.animate({'left': '0px'}, 'fast', 'linear');
+            $plateElement.animate({
+                left: '0px'
+            }, options);
         } else if (hasSpaceRight) {
-            $plateElement.animate({'left': (addOnWidth - plateWidth) + 'px'}, 'fast', 'linear');
+            $plateElement.animate({
+                left: (addOnWidth - plateWidth) + 'px'
+            }, options);
         } else {
             var directionSign = isDirectionToRight ? '+' : '-';
             $plateElement.animate({
-                'left': directionSign + '=[plateWidth]px'.replace('[plateWidth]', plateWidth)
-            }, 'fast', 'linear');
+                left: directionSign + '=[plateWidth]px'.replace('[plateWidth]', plateWidth)
+            }, options);
         }
     }
 
@@ -324,9 +335,9 @@ function AddonCatch_create() {
     function makeWelcomePage () {
         var $welcomePage = $('<div class="welcome"></div>');
         $welcomePage.css('background', 'url(' + getImageUrlFromResources('startGame.png') + ') no-repeat');
-        $welcomePage.css('background-size', 'contain');
+        $welcomePage.css('background-size', 'auto');
         $welcomePage.css('background-position-x', 'center');
-        $welcomePage.css('background-position-x', 'center');
+        $welcomePage.css('background-position-y', 'center');
 
         return $welcomePage;
     }
@@ -492,25 +503,25 @@ function AddonCatch_create() {
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         eventBus = controller.getEventBus();
-
-        var levelItemsArray = [
-            getItemObject(0, getImageUrlFromResources('defaultObject01.png'), 'Orange', true, [1,2,3]),
-            getItemObject(1, getImageUrlFromResources('defaultObject02.png'), 'Carrot', true, [1,2,3]),
-            getItemObject(2, getImageUrlFromResources('defaultObject03.png'), 'Apple', true, [1,2,3]),
-            getItemObject(3, getImageUrlFromResources('defaultObject04.png'), 'Pear', true, [1,2,3]),
-            getItemObject(4, getImageUrlFromResources('defaultObject05.png'), 'Strawberry', true, [1,2,3]),
-            getItemObject(5, getImageUrlFromResources('defaultObject06.png'), 'Pineapple', true, [1,2,3]),
-            getItemObject(6, getImageUrlFromResources('defaultObject11.png'), 'Sugar drink', false, [1,2,3]),
-            getItemObject(7, getImageUrlFromResources('defaultObject12.png'), 'Chips', false, [1,2,3]),
-            getItemObject(8, getImageUrlFromResources('defaultObject13.png'), 'Burger', false, [1,2,3]),
-            getItemObject(9, getImageUrlFromResources('defaultObject14.png'), 'Candy', false, [1,2,3])
-        ];
-
-        presenter.configuration.levelsItems = [
-            levelItemsArray.slice(),
-            levelItemsArray.slice(),
-            levelItemsArray.slice()
-        ];
+        //
+        // var levelItemsArray = [
+        //     getItemObject(0, getImageUrlFromResources('defaultObject01.png'), 'Orange', true, [1,2,3]),
+        //     getItemObject(1, getImageUrlFromResources('defaultObject02.png'), 'Carrot', true, [1,2,3]),
+        //     getItemObject(2, getImageUrlFromResources('defaultObject03.png'), 'Apple', true, [1,2,3]),
+        //     getItemObject(3, getImageUrlFromResources('defaultObject04.png'), 'Pear', true, [1,2,3]),
+        //     getItemObject(4, getImageUrlFromResources('defaultObject05.png'), 'Strawberry', true, [1,2,3]),
+        //     getItemObject(5, getImageUrlFromResources('defaultObject06.png'), 'Pineapple', true, [1,2,3]),
+        //     getItemObject(6, getImageUrlFromResources('defaultObject11.png'), 'Sugar drink', false, [1,2,3]),
+        //     getItemObject(7, getImageUrlFromResources('defaultObject12.png'), 'Chips', false, [1,2,3]),
+        //     getItemObject(8, getImageUrlFromResources('defaultObject13.png'), 'Burger', false, [1,2,3]),
+        //     getItemObject(9, getImageUrlFromResources('defaultObject14.png'), 'Candy', false, [1,2,3])
+        // ];
+        //
+        // presenter.configuration.levelsItems = [
+        //     levelItemsArray.slice(),
+        //     levelItemsArray.slice(),
+        //     levelItemsArray.slice()
+        // ];
     };
 
     function getImageUrlFromResources (fileName) {
