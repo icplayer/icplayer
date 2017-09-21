@@ -1,3 +1,13 @@
+2017-09-19 Added sending event on text identification addon deselect and select.
+2017-09-19 Added notification about setting header/footer.
+2017-09-18 Setting individual header and footer for pages.
+2017-09-15 Removed changing controls visibility in glossary addon
+2017-09-15 Added alternative text property for video and image
+2017-09-14 Fixed events problem in eKeyboard and devices with touchscreen and mouse
+2017-09-14 Added new addon Heading
+2017-09-12 Fixed problem with dragging in source list.
+2017-09-11 Added ended event for animation addon
+2017-09-11 Fixed problem with preview and Slideshow. Fixed problem with playing slideshow without loaded audio.
 2017-09-04 Added WCAG support for Image Gap and Image Source
 2017-09-04 Fixed problem with multiple calling WCAG on elements. Added WCAG for Image ID.
 2017-08-31 Added WCAG support for Table.

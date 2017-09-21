@@ -53,6 +53,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 	private String id;
 	private String name;
+	private String version = "4";
 	private final String href;
 	private LayoutType layout = LayoutType.pixels;
 	private ScoringType scoringType = ScoringType.percentage;
@@ -71,6 +72,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 	IProperty propertyName;
 	private int index;
 	private List<Group> groupedModules = new ArrayList<Group>();
+	
+	private boolean hasHeader = true;
+	private boolean hasFooter = true;
+	private String headerId = "";
+	private String footerId = "";
 	
 	@SuppressWarnings("serial")
 	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>(){{
@@ -187,6 +193,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		xml += " width='" + width + "'";
 		xml += " height='" + height + "'";
 		xml += " version='2'";
+		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
+		xml += " hasHeader='" + this.hasHeader + "'";
+		xml += " footer='" + StringUtils.escapeXML(this.footerId) + "'";
+		xml += " hasFooter='" + this.hasFooter + "'";
 
 		if (!cssClass.isEmpty()) {
 			String encodedClass = StringUtils.escapeXML(cssClass);
@@ -289,6 +299,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		loadGroupedModules(rootElement);
 		loadRulers(rootElement);
 		loadWeight(rootElement);
+		this.loadHeaderFooterId(rootElement);
 		loaded = true;
 	}
 
@@ -312,6 +323,17 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		String scoring = XMLUtils.getAttributeAsString(rootElement, "scoring");
 		setScoreFromString(scoring);
+	}
+	
+	private void loadHeaderFooterId(Element rootElement) {
+		this.hasHeader = XMLUtils.getAttributeAsBoolean(rootElement, "hasHeader", true);
+		this.hasFooter= XMLUtils.getAttributeAsBoolean(rootElement, "hasFooter", true);
+		
+		String header = XMLUtils.getAttributeAsString(rootElement, "header");
+		String footer = XMLUtils.getAttributeAsString(rootElement, "footer");
+
+		this.headerId = StringUtils.unescapeXML(header);
+		this.footerId = StringUtils.unescapeXML(footer);			
 	}
 
 	private void loadModules(Element rootElement) {
@@ -1019,5 +1041,39 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 		}
 
 		modules.remove(module);
+	}
+	
+	public void setFooterId(String name) {
+		this.footerId = name;
+		this.hasFooter = true;
+	}
+	
+	public void setHeaderId(String name) {
+		this.headerId = name;
+		this.hasHeader = true;
+	}
+	
+	public String getFooterId() {
+		return this.footerId;
+	}
+	
+	public String getHeaderId() {
+		return this.headerId;
+	}
+	
+	public boolean hasHeader() {
+		return this.hasHeader;
+	}
+	
+	public boolean hasFooter() {
+		return this.hasFooter;
+	}
+	
+	public void setHasHeader(boolean value) {
+		this.hasHeader = value;
+	}
+	
+	public void setHasFooter(boolean value) {
+		this.hasFooter = value;
 	}
 }

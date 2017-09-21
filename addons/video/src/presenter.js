@@ -481,6 +481,7 @@ function Addonvideo_create() {
             "Subtitles": file['Subtitles'],
             "Poster": file['Poster'],
             "ID": file['ID'],
+            "AlternativeText": file['AlternativeText'],
             "Loop video": ModelValidationUtils.validateBoolean(file['Loop video'])
         };
 
@@ -637,7 +638,6 @@ function Addonvideo_create() {
     });
 
     presenter.scaleCaptionsContainerToScreenSize = presenter.metadataLoadedDecorator(function () {
-        console.log("Scale");
         var size = {
             width: screen.width,
             height: screen.height
@@ -860,6 +860,12 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.setAltText = function () {
+        var files = presenter.configuration.files;
+        presenter.$view.find('.video-container-mask').text(files[presenter.currentMovie].AlternativeText);
+        presenter.$view.find('.video-container-video').text(files[presenter.currentMovie].AlternativeText);
+    };
+
     presenter.setVideo = function() {
         if (presenter.videoObject) {
             $(presenter.videoObject).unbind("ended");
@@ -874,6 +880,7 @@ function Addonvideo_create() {
         var $video = $(presenter.videoObject);
         var files = presenter.configuration.files;
         this.addAttributePoster($video, files[presenter.currentMovie].Poster);
+        presenter.setAltText();
         if (presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {

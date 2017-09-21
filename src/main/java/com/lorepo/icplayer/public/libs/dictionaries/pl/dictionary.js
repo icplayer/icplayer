@@ -1,4 +1,5 @@
 var ice_dictionary_pl = {
+    "load": "Load",
 	"confirm_yes": "tak",
 	"confirm_no": "nie",
 	"edit_editable_gap": "Edit an editable/draggable gap",
@@ -1476,6 +1477,10 @@ var ice_dictionary_pl = {
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start",
     "Variable_Storage_property_do_not_reset": "Do not reset",
+    "Heading_info": "Allows to insert headings from h1 to h6",
+    "Heading_name": "Heading",
+    "Heading_property_heading": "Heading",
+    "Heading_property_content": "Content",
     "Hierarchical_Table_Of_Contents_info": "Umożliwia wyświetlenie hierarchicznego spisu treści razem z linkami odwołującymi się do odpowiednich stron.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchiczny spis treści",
     "Hierarchical_Table_Of_Contents_property_title_label": "Etykieta tytułu",
@@ -1493,5 +1498,15 @@ var ice_dictionary_pl = {
 	"Text_use_escape_character_in_gap_property": "Use using escape character in gap",
 	"date": "Date",
 	"sort_by": "Sort by:",
-	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page",
+	"image_property_alternative_text": "Alternative text",
+	"video_property_alternative_text": "Alternative text",
+	"Header_none": "None",
+	"Header_default": "Default",
+	"Header": "Header",
+	"Footer": "Footer",
+	"Footer_none": "None",
+	"Footer_default": "Default",
+	"Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
+	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties."
 };

@@ -47,7 +47,8 @@ public class GroupedModulesTestCase {
 		page.load(element, "");
 
 		assertEquals("<?xml version='1.0' encoding='UTF-8' ?>"
-				+ "<page layout='pixels' name='page2' isReportable='true' scoring='percentage' width='100' height='200' version='2'>"
+				+ "<page layout='pixels' name='page2' isReportable='true' scoring='percentage' width='100' height='200' version='2' "
+				+ "header='' hasHeader='true' footer='' hasFooter='true'>"
 				+ "<modules></modules>"
 				+ "<groups></groups>"
 				+ "<editorRulers></editorRulers>"

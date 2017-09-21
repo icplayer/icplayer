@@ -1,4 +1,5 @@
 var ice_dictionary_en = {
+    "load": "Load",
 	"confirm_yes": "yes",
 	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
@@ -1485,6 +1486,10 @@ var ice_dictionary_en = {
 	"Variable_Storage_property_variables_name": "Name",
 	"Variable_Storage_property_variables_start": "Start",
     "Variable_Storage_property_do_not_reset": "Do not reset",
+    "Heading_info": "Allows to insert headings from h1 to h6",
+    "Heading_name": "Heading",
+    "Heading_property_heading": "Heading",
+    "Heading_property_content": "Content",
     "Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
     "Hierarchical_Table_Of_Contents_property_title_label": "Title label",
@@ -1502,5 +1507,15 @@ var ice_dictionary_en = {
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
 	"sort_by": "Sort by:",
-	"prev_property_go_to_last_visited_page": "Redirect to last visited page"
+	"prev_property_go_to_last_visited_page": "Redirect to last visited page",
+	"image_property_alternative_text": "Alternative text",
+	"video_property_alternative_text": "Alternative text",
+	"Header_none": "None",
+	"Header_default": "Default",
+	"Header": "Header",
+	"Footer": "Footer",
+	"Footer_none": "None",
+	"Footer_default": "Default",
+    "Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
+	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties."
 };
