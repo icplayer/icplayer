@@ -60,9 +60,9 @@ public class PageController implements ITextToSpeechController {
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
-	private KeyboardNavigationController keyboardController;
 	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1"; //"TextToSpeechPageAPI";
 	private TextToSpeechController textToSpeechController;
+	private boolean isReadingOn = false;
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -482,28 +482,28 @@ public class PageController implements ITextToSpeechController {
 
 	@Override
 	public void playTitle (String id) {
-		if (this.textToSpeechController != null) {
+		if (this.isReadingOn && this.textToSpeechController != null) {
 			this.textToSpeechController.playTitle(id);
 		}
 	}
 
 	@Override
 	public void playDescription (String id) {
-		if (this.textToSpeechController != null) {
+		if (this.isReadingOn && this.textToSpeechController != null) {
 			this.textToSpeechController.playDescription(id);
 		}
 	}
 
 	@Override
 	public void speak (String text) {
-		if (this.textToSpeechController != null) {
+		if (this.isReadingOn && this.textToSpeechController != null) {
 			this.textToSpeechController.speak(text);
 		}
 	}
 
 	@Override
 	public void readGap (String text, String currentGapContent, int gapNumber) {
-		if (this.textToSpeechController != null) {
+		if (this.isReadingOn && this.textToSpeechController != null) {
 			this.textToSpeechController.readGap(text, currentGapContent, gapNumber);
 		}
 	}
@@ -533,6 +533,10 @@ public class PageController implements ITextToSpeechController {
 		}
 		
 		return false;
+	}
+	
+	public void setTextReading (boolean isReadingOn) {
+		this.isReadingOn = isReadingOn;
 	}
 	
 }

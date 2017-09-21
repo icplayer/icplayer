@@ -389,39 +389,46 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 		this.setPageControllerToInLineChoices();
 	}
 	
-	public void enter (boolean isExiting) {
-		if (isExiting) {
-			JavaScriptUtils.log("w exiting blad?");
-			this.removeAllSelections();
-		} else {
-			if (activeGap == null) {
-				if (textElements.size() > 0) {
-					activeGap = textElements.get(0);
-				}
-			}
-
-			if (activeGap != null && !moduleHasFocus) {
-				activeGap.setFocusGap(true);
-				moduleHasFocus = true;
-			}
-		}
-
-		String newString = "";
+	private String getContentWithGapsValues () {
+		String result = "";
 		int textElementIndex = 0;
+		
 		for (int i=0; i<module.rawTextNoGaps.length(); i++) {
 			String letter3 = Character.toString ((char) module.rawTextNoGaps.charAt(i));
-			newString += letter3;
+			result += letter3;
 			
 			if (i >= 2) {
 				String letter1 = Character.toString ((char) module.rawTextNoGaps.charAt(i-2));
 				String letter2 = Character.toString ((char) module.rawTextNoGaps.charAt(i-1));
 				
 				if (letter1.equals("#") && letter3.equals("#") && (letter2.equals("1") || letter2.equals("2") || letter2.equals("3") || letter2.equals("4"))) {
-					newString += " " + this.textElements.get(textElementIndex++).getTextValue();
+					result += " " + this.textElements.get(textElementIndex++).getTextValue();
 				}
 			}
 		}
-		this.pageController.speak(newString);
+		
+		return result;
+	}
+	
+	public void enter (boolean isExiting) {
+		if (isExiting) {
+			this.removeAllSelections();
+		} else {
+			if (activeGap == null) {
+				if (textElements.size() > 0) {
+					activeGap = textElements.get(0);
+				}
+			} else {
+				if (!moduleHasFocus) {
+					activeGap.setFocusGap(true);
+					moduleHasFocus = true;
+				}
+			}
+			
+			if (this.pageController != null) {
+				this.pageController.speak(getContentWithGapsValues());
+			}
+		}
 	}
 
 	@Override
