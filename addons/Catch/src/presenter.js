@@ -10,7 +10,6 @@ function AddonCatch_create() {
     var isGameOver = false;
 
     function getErrorObject (ec) { return { isValid: false, errorCode: ec }; }
-
     function getCorrectObject (v) { return { isValid: true, value: v }; }
 
     function getRandomInt (min, max) {
@@ -142,8 +141,6 @@ function AddonCatch_create() {
         if (!validatedPointsToFinish.isValid) {
             return getErrorObject(validatedPointsToFinish.errorCode);
         }
-
-        // var isDefaultObjects = validatedItems.value.length === 0;
 
         return {
             items: validatedItems.value,
@@ -500,28 +497,9 @@ function AddonCatch_create() {
         eventBus.sendEvent('ValueChanged', createEventObject(item, value, isCorrect));
     }
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         eventBus = controller.getEventBus();
-        //
-        // var levelItemsArray = [
-        //     getItemObject(0, getImageUrlFromResources('defaultObject01.png'), 'Orange', true, [1,2,3]),
-        //     getItemObject(1, getImageUrlFromResources('defaultObject02.png'), 'Carrot', true, [1,2,3]),
-        //     getItemObject(2, getImageUrlFromResources('defaultObject03.png'), 'Apple', true, [1,2,3]),
-        //     getItemObject(3, getImageUrlFromResources('defaultObject04.png'), 'Pear', true, [1,2,3]),
-        //     getItemObject(4, getImageUrlFromResources('defaultObject05.png'), 'Strawberry', true, [1,2,3]),
-        //     getItemObject(5, getImageUrlFromResources('defaultObject06.png'), 'Pineapple', true, [1,2,3]),
-        //     getItemObject(6, getImageUrlFromResources('defaultObject11.png'), 'Sugar drink', false, [1,2,3]),
-        //     getItemObject(7, getImageUrlFromResources('defaultObject12.png'), 'Chips', false, [1,2,3]),
-        //     getItemObject(8, getImageUrlFromResources('defaultObject13.png'), 'Burger', false, [1,2,3]),
-        //     getItemObject(9, getImageUrlFromResources('defaultObject14.png'), 'Candy', false, [1,2,3])
-        // ];
-        //
-        // presenter.configuration.levelsItems = [
-        //     levelItemsArray.slice(),
-        //     levelItemsArray.slice(),
-        //     levelItemsArray.slice()
-        // ];
     };
 
     function getImageUrlFromResources (fileName) {

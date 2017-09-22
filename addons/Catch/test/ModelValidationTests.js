@@ -74,6 +74,14 @@ TestCase("[Catch] Model validation", {
 
         assertFalse(validated.isValid);
         assertEquals('P01', validated.errorCode);
+    },
+
+    'test empty items property' : function () {
+        this.model['Items'] = '';
+        var validated = this.presenter.validateModel(this.model);
+
+        assertFalse(validated.isValid);
+        assertEquals('O01', validated.errorCode);
     }
 
 });
