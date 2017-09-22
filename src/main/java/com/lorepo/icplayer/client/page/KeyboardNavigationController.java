@@ -362,6 +362,7 @@ public final class KeyboardNavigationController {
 			if(presenter.getModel() == savedPresenter.getModel()) {
 				this.actualSelectedModuleIndex = i;
 				this.initialSelect();
+				this.activateModule();
 				return;
 			}
 		}

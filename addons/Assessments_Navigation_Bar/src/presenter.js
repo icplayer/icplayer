@@ -37,6 +37,8 @@ function AddonAssessments_Navigation_Bar_create(){
         numberOfPages: 0,
     };
 
+    presenter.keyboardControllerObject = null;
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -320,7 +322,8 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.Page.prototype.getChangeToPageCommand = function () {
         return function () {
-            presenter.changeToPage(this);
+            var index = Number(this);
+            presenter.changeToPage(index);
         }.bind(this.page);
     };
 
@@ -907,6 +910,8 @@ function AddonAssessments_Navigation_Bar_create(){
         } else {
             presenter.navigationManager.moveToCurrentPage();
         }
+
+        presenter.buildKeyboardController();
     };
 
     function removeMockupDOM () {
@@ -1304,6 +1309,17 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
 
+        if (presenter.keyboardControllerObject != null) {
+            presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+
+            var keyboardElements = presenter.keyboardControllerObject.keyboardNavigationElements;
+            for (var i = 0; i < keyboardElements.length; i++) {
+                if ($(keyboardElements[i]).hasClass('current_page')) {
+                    presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = i;
+                }
+            }
+        }
+
         presenter.sections.attemptedPages = upgradedState.attemptedPages;
         presenter.navigationManager.markButtonsWithAttempted(presenter.sections.attemptedPages);
     };
@@ -1404,6 +1420,34 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
+    };
+
+    function AssesmentsNavigationKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    AssesmentsNavigationKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    AssesmentsNavigationKeyboardController.prototype.constructor = AssesmentsNavigationKeyboardController;
+
+    AssesmentsNavigationKeyboardController.prototype.selectAction = function () {
+        this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject = new AssesmentsNavigationKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+    
+    presenter.getElementsForKeyboardNavigation = function () {
+        var elements = this.$view.find(".element:visible");
+        return elements;
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown)
     };
 
     return presenter;

@@ -94,6 +94,10 @@ function AddonNavigation_Bar_create() {
             var pageNumber = $(element).attr('data-page-number');
         }
 
+        function selectFirst() {
+            select(elements[0]);
+        }
+
         function skipToPage() {
             $(elements[getCurrentPosition()]).trigger('click');
         }
@@ -112,6 +116,9 @@ function AddonNavigation_Bar_create() {
 
         switch(keycode) {
             case 13:
+                selectFirst();
+                break;
+            case 32:
                 skipToPage();
                 break;
             case 37:
