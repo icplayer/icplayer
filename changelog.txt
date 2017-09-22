@@ -1,3 +1,4 @@
+2017-09-19 Added sending event on text identification addon deselect and select.
 2017-09-19 Added notification about setting header/footer.
 2017-09-18 Setting individual header and footer for pages.
 2017-09-15 Removed changing controls visibility in glossary addon
