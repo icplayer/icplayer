@@ -132,8 +132,6 @@ public final class KeyboardNavigationController {
 			this.mainPageController.setTextReading(this.isWCAGSupportOn);
 		}
 		
-		JavaScriptUtils.log("Is on: " + this.modeOn + " isWCAGSupportOn: " + this.isWCAGSupportOn);
-		
 		if (this.modeOn) {
 			this.setFocusOnInvisibleElement();
 			if (!this.isInitiated) {
