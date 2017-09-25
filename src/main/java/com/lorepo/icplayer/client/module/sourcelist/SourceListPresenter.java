@@ -13,6 +13,8 @@ import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -31,7 +33,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.choice.IOptionListener;
 
-public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity {
+public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity, IWCAGPresenter {
 
 	public interface IDisplay extends IModuleView{
 		public void addItem(String id, String item, boolean callMathJax);
@@ -119,46 +121,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName == "ShowAnswers") {
-					canDrag = false;
-					return;
-				} else if (event.eventName == "HideAnswers") {
-					canDrag = true;
-					return;
-				}
-				
-				if (event.eventName.toLowerCase() == "limitedcheck") {
-					if (event.getData().get("value") == "unchecked") {
-						canDrag = true;
-						return;
-					} else {
-						canDrag = false;
-						return;
-					}
-				}
-				
-				if (event.eventName != "itemDragged" && event.eventName != "itemStopped") {
-					return;
-				}
-				
-				String gotItem = event.getData().get("item");
-				
-				if (!gotItem.startsWith(getItemPrefix())) {
-					return;
-				}
-				if (event.eventName == "itemDragged") {
-					selectItem(gotItem);
-					if (model.isRemovable()) {
-						view.hideItem(gotItem);
-					}
-				} else if (event.eventName == "itemStopped") {
-					if (model.isRemovable() && returned) {
-						view.showItem(gotItem);
-					}
-					deselectCurrentItem();
-					ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
-					playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
-				}
+				onCustomEventCallback(event);
 			}
 		});
 		
@@ -169,8 +132,44 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		});
 		
 	}
-
 	
+	private void onCustomEventCallback(CustomEvent event) {
+		if (event.eventName == "ShowAnswers") {
+			canDrag = false;
+			return;
+		} else if (event.eventName == "HideAnswers") {
+			canDrag = true;
+			return;
+		}
+		
+		if (event.eventName.toLowerCase() == "limitedcheck") {
+			return;
+		}
+		
+		if (event.eventName != "itemDragged" && event.eventName != "itemStopped") {
+			return;
+		}
+		
+		String gotItem = event.getData().get("item");
+		
+		if (!gotItem.startsWith(getItemPrefix())) {
+			return;
+		}
+		if (event.eventName == "itemDragged") {
+			selectItem(gotItem);
+			if (model.isRemovable()) {
+				view.hideItem(gotItem);
+			}
+		} else if (event.eventName == "itemStopped") {
+			if (model.isRemovable() && returned) {
+				view.showItem(gotItem);
+			}
+			deselectCurrentItem();
+			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
+			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
+		}		
+	}
+
 	private void itemConsumed(ItemConsumedEvent event) {
 		returned = false;
 		deselectCurrentItem();
@@ -535,5 +534,27 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	public void setWorkMode() {
 		// Module is not an activity
 		canDrag = true;
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		this.getView().addClassName(className);
+		
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.getView().removeClassName(className);
+	}
+
+	@Override
+	public boolean isSelectable() {
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		return isVisible;
 	}
 }

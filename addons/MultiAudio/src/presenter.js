@@ -3,6 +3,7 @@ function AddonMultiAudio_create(){
     var AUDIO_FILES_MISSING = "This addon needs at least 1 audio file.";
     var eventBus;
     var currentTimeAlreadySent;
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     presenter.currentAudio = 0;
     presenter.audio = {};
     presenter.files = [];
@@ -21,7 +22,7 @@ function AddonMultiAudio_create(){
     	if(eventData.value == 'dropdownClicked') {
      	   	this.audio.load();
     	}
-    }
+    };
 
     function getEventObject(_item, _value, _score) {
     	return {
@@ -30,6 +31,10 @@ function AddonMultiAudio_create(){
             value : _value + '',
             score : _score + ''
         };
+    }
+
+    function deferredQueueDecoratorChecker () {
+        return presenter.isLoaded;
     }
     
     presenter.createEventData = function (data) {
@@ -154,9 +159,7 @@ function AddonMultiAudio_create(){
             this.audio.addEventListener("loadeddata", function() {
                 presenter.isLoaded = true;
 
-                if (!presenter.commandsQueue.isQueueEmpty()) {
-                    presenter.commandsQueue.executeAllTasks();
-                }
+                deferredSyncQueue.resolve();
             });
         }
 
@@ -241,8 +244,6 @@ function AddonMultiAudio_create(){
     };
 
     presenter.run = function(view, model){
-        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
-
         this.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
@@ -284,37 +285,27 @@ function AddonMultiAudio_create(){
         $(presenter.globalView).css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.play = function() {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('play', []);
-            return;
-        }
-
+    presenter.play = deferredSyncQueue.decorate(function() {
         if (!this.audio.playing) {
             this.audio.play();
         }
-    };
+    });
 
-    presenter.stop = function() {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('stop', []);
-            return;
-        }
-
+    presenter.stop = deferredSyncQueue.decorate(function() {
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.playingEventSent = false;
         }
 
         presenter.audio.currentTime = 0;
-    };
+    });
 
     presenter.pause = function() {
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.playingEventSent = false;
         }
-    }
+    };
 
     presenter.show = function() {
         this.setVisibility(true);

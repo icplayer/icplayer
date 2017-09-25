@@ -60,10 +60,14 @@ public interface IPlayerController {
 	IPresenter findFooterModule(String name);
 
 	void switchToCommonPage(String commonPageName);
+		
+	void switchToCommonPageById (String id);
 
 	void showPopup(String pageName, String top, String left, String additionalClasses);
 
 	void fireOutstretchHeightEvent();
 
 	int getIframeScroll();
+	
+	void switchToLastVisitedPage();
 }

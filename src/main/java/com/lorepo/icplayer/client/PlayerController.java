@@ -62,6 +62,9 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
 	
+	private int lastVisitedPageIndex = -1;
+	private int currentMainPageIndex = -1;
+	
 	public PlayerController(Content content, PlayerView view, boolean bookMode, PlayerEntryPoint entryPoint){
 		this.entryPoint = entryPoint;
 		this.contentModel = content;
@@ -82,24 +85,22 @@ public class PlayerController implements IPlayerController{
 
 	private void createPageControllers(boolean bookMode) {
 		this.pageController1 = new PageController(this);
-		this.keyboardController.setPlayerService(this.pageController1.getPlayerServices(), false);
 		this.pageController1.setView(this.playerView.getPageView(0));
 		if(bookMode){
 			this.playerView.showTwoPages();
 			this.pageController2 = new PageController(this);
-			this.keyboardController.setPlayerService(this.pageController2.getPlayerServices(), true);
 			this.pageController2.setView(this.playerView.getPageView(1));
 		}
 	}
 
 	public void initHeaders() {
-		if(this.contentModel.getHeader() != null){
-			this.playerView.showHeader();
+		if (this.contentModel.getHeaders().size() > 0) {
+			this.playerView.createHeader();
 			this.headerController = new PageController(this.pageController1.getPlayerServices());
 			this.headerController.setView(this.playerView.getHeaderView());
 		}
-		if(this.contentModel.getFooter() != null){
-			this.playerView.showFooter();
+		if (this.contentModel.getFooters().size() > 0) {
+			this.playerView.createFooter();
 			this.footerController = new PageController(this.pageController1.getPlayerServices());
 			this.footerController.setView(this.playerView.getFooterView());
 		}
@@ -116,15 +117,7 @@ public class PlayerController implements IPlayerController{
 	 */
 	@Override
 	public int getCurrentPageIndex(){
-
-		int index = 0;
-		for(int i = 0; i < this.contentModel.getPageCount(); i++){
-			if(this.contentModel.getPage(i) == this.pageController1.getPage()){
-				index = i;
-				break;
-			}
-		}
-		return index;
+		return this.currentMainPageIndex;
 	}
 
 
@@ -165,7 +158,18 @@ public class PlayerController implements IPlayerController{
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
+	
+	@Override
+	public void switchToCommonPageById(String id) {
+		int index = this.getModel().getCommonPages().findPageIndexById(id);
 
+		if (index > -1) {
+			this.switchToCommonPage(index);
+		} else {
+			Window.alert("Missing common page:\n<" + id + ">");
+		}
+	}
+	
 	@Override
 	public void switchToPageById(String pageId) {
 		int index = this.getModel().getPages().findPageIndexById(pageId);
@@ -179,18 +183,21 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public void switchToPrevPage() {
-		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
-				int index = i-1;
-				if(this.pageController2 != null && index > 0){
-					index -= 1;
-				}
-				if(index >= 0){
-					this.switchToPage(index);
-				}
-				break;
-			}
+		int index = this.currentMainPageIndex-1;
+		if(this.pageController2 != null && index > 0) {
+			index -= 1;
+		}
+		if(index >= 0) {
+			this.switchToPage(index);
+		}
+	}
+	
+	@Override
+	public void switchToLastVisitedPage() {
+		if(this.isCurrentPageInCommons()) {
+			this.switchToPage(this.currentMainPageIndex);
+		} else {
+			this.switchToPage(this.lastVisitedPageIndex);
 		}
 	}
 
@@ -199,17 +206,13 @@ public class PlayerController implements IPlayerController{
 	public void switchToNextPage() {
 
 		PageList pages = this.contentModel.getPages();
-		for(int i = 0; i < pages.getTotalPageCount(); i++){
-			if(pages.getAllPages().get(i) == this.pageController1.getPage()){
-				int index = i + 1;
-				if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()){
-					index += 1;
-				}
-				if(index < pages.getTotalPageCount()){
-					this.switchToPage(index);
-				}
-				break;
-			}
+	
+		int index = this.currentMainPageIndex + 1;
+		if(this.pageController2 != null && index + 1 < pages.getTotalPageCount()) {
+			index += 1;
+		}
+		if(index < pages.getTotalPageCount()) {
+			this.switchToPage(index);
 		}
 	}
 
@@ -219,7 +222,16 @@ public class PlayerController implements IPlayerController{
 	 * @param index
 	 */
 	@Override
-	public void switchToPage(int index){
+	public void switchToPage(int index) {
+		if (this.lastVisitedPageIndex == -1) { //if player was started for the first time
+			this.lastVisitedPageIndex = index;
+			this.currentMainPageIndex = index;
+		}
+		else if (this.currentMainPageIndex != index) {
+			this.lastVisitedPageIndex = this.currentMainPageIndex;
+			this.currentMainPageIndex = index;
+		}
+		
 		this.closeCurrentPages();
 		IPage page;
 		if(this.pageController2 != null){
@@ -250,8 +262,7 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
-	public void switchToCommonPage(int index) {
-
+	public void switchToCommonPage(int index) {			
 		this.closeCurrentPages();
 		IPage page;
 		if (this.pageController2 != null) {
@@ -326,24 +337,26 @@ public class PlayerController implements IPlayerController{
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
+		this.keyboardController.save();
 		this.keyboardController.reset();
 
 		pageController.setPage(page);
-
+		
+		if (this.headerController != null && pageController != this.pageController2) {
+		    this.setHeader(page);
+		}
+		this.keyboardController.addHeaderToNavigation(this.headerController);
+		
 		this.keyboardController.addMainToNavigation(this.pageController1);
 		this.keyboardController.addSecondToNavigation(this.pageController2);
 
-		if(this.headerController != null){
-			this.headerController.setPage(this.contentModel.getHeader());
-			this.keyboardController.addHeaderToNavigation(this.headerController);
-		}
 
-		if(this.footerController != null){
-			this.footerController.setPage(this.contentModel.getFooter());
-			this.keyboardController.addFooterToNavigation(this.footerController);
-		}
 
-		this.keyboardController.fillModulesNamesList();
+		if (this.footerController != null && pageController != this.pageController2) {
+			this.setFooter(page);
+		}
+		this.keyboardController.addFooterToNavigation(this.footerController);
+		this.keyboardController.restore();
 	}
 
 	private static void scrollViewToBeggining() {
@@ -595,4 +608,55 @@ public class PlayerController implements IPlayerController{
 	public IReportableService getReportableService() {
 		return this.reportableService;
 	}
+
+	private boolean isCurrentPageInCommons() {
+		int commonsPageSize = this.contentModel.getCommonPages().getPageCount();
+		for(int i = 0; i < commonsPageSize; i++) {
+			if(this.contentModel.getCommonPage(i) == this.pageController1.getPage()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void setHeader(Page page) {
+		Page header = null;
+		
+		if (page.hasHeader()) {
+			header = this.getModel().getHeader(page);
+		}
+		
+	    if (header != null) {
+			//default or selected header exists
+	    	if (this.playerView.getHeaderView() == null) {
+	    		this.playerView.createHeader();
+	    		this.headerController.setView(this.playerView.getHeaderView());
+	    	}
+	    	
+			this.headerController.setPage(header);
+	    } else {
+			this.playerView.removeHeaderView();
+		}
+	}
+	
+	private void setFooter(Page page) {
+		Page footer = null;
+		
+		if (page.hasFooter()) {
+			footer = this.getModel().getFooter(page);
+		}
+
+		if (footer != null) {
+			//default or selected footer exists
+			if (this.playerView.getFooterView() == null) {
+	    		this.playerView.createFooter();
+	    		this.footerController.setView(this.playerView.getFooterView());
+	    	}
+			
+			this.footerController.setPage(footer);
+		} else {
+			this.playerView.removeFooterView();
+		}
+	}
+	
 }

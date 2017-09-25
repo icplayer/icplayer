@@ -5,15 +5,16 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.ModuleActivatedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -21,7 +22,7 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 
-public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver {
+public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
@@ -30,7 +31,6 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 		boolean isErrorCheckingMode();
 		void setDisabled(boolean isDisabled);
 		public Element getElement();
-		void executeOnKeyCode(KeyDownEvent event);
 		void execute();
 	}
 	
@@ -68,21 +68,6 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 				reset();
 			}
 		});
-		
-		eventBus.addHandler(ModuleActivatedEvent.TYPE, new ModuleActivatedEvent.Handler() {
-			public void onActivated(ModuleActivatedEvent event) {
-				activate(event);
-			}
-		});
-	}
-	
-	private void activate(ModuleActivatedEvent event) {
-		String moduleName = event.moduleName;
-		KeyDownEvent keyDownEvent = event.getKeyDownEvent();
-		
-		if (moduleName.equals(model.getId())) {
-			view.executeOnKeyCode(keyDownEvent);
-		}
 	}
 	
 	@Override
@@ -228,5 +213,29 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	
 	private Element getView(){
 		return view.getElement();
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		if (this.view instanceof IWCAG) {
+			return (IWCAG) this.view;
+		}
+		return null;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		this.view.getElement().addClassName(className);
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+	}
+
+	@Override
+	public boolean isSelectable() {
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return isVisible;
 	}
 }

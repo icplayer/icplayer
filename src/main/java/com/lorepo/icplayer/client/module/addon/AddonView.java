@@ -1,5 +1,9 @@
 package com.lorepo.icplayer.client.module.addon;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
@@ -16,7 +20,6 @@ public class AddonView extends HTML implements IDisplay {
 
 	private AddonModel	module;
 	
-	
 	public AddonView(AddonModel	model) {
 		
 		this.module = model;
@@ -29,7 +32,7 @@ public class AddonView extends HTML implements IDisplay {
 		setHTML("Addon Id: " + module.getAddonId());
 		setStyleName("addon_" + module.getAddonId());
 		StyleUtils.applyInlineStyle(this, module);
-		
+				
 		if( !module.isVisible() ){
 			DOM.setStyleAttribute(getElement(), "visibility", "hidden");
 		}

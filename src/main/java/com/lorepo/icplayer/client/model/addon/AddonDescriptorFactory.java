@@ -62,6 +62,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Text_Selection", "activities_menu");
 		addDescriptor("TrueFalse", "activities_menu");
 		addDescriptor("WritingCalculations", "activities_menu");
+		addDescriptor("Catch", "activities_menu");
 
 		// REPORTING
 		addDescriptor("Animated_Lesson_Progress", "reporting_menu");
@@ -89,7 +90,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Table_Of_Contents", "navigation_menu");
 		addDescriptor("Hierarchical_Table_Of_Contents", "navigation_menu");
 
-		// SCRIPTING
+		// MEDIA
 		addDescriptor("Viewer_3D", "media_menu");
 		addDescriptor("Animation", "media_menu");
 		addDescriptor("Audio", "media_menu");
@@ -114,6 +115,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("YouTube_Addon", "media_menu");
 		addDescriptor("Zoom_Image", "media_menu");
 		addDescriptor("Iframe", "media_menu");
+		addDescriptor("Heading", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");

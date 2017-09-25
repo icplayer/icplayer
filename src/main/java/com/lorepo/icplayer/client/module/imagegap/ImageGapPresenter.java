@@ -8,6 +8,9 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -27,7 +30,7 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
 
-public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver {
+public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
 	public interface IDisplay extends IModuleView {
 		public void addListener(IViewListener l);
@@ -643,6 +646,29 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}else{
 			return true;
 		}
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		this.view.getElement().addClassName(className);
+		
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+		
+	}
+
+	@Override
+	public boolean isSelectable() {
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return isVisible;
 	}
 
 }

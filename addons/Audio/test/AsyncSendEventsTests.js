@@ -1,4 +1,4 @@
-var AsyncSendEventsTests = AsyncTestCase('AsyncSendEventsTests');
+var AsyncSendEventsTests = AsyncTestCase('[Audio] AsyncSendEventsTests');
 
 AsyncSendEventsTests.prototype.setUp = function() {
     this.presenter = AddonAudio_create();

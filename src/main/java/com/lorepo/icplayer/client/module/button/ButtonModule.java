@@ -38,6 +38,7 @@ public class ButtonModule extends BasicModuleModel {
 	private String confirmInfo = "";
 	private String confirmYesInfo = "";
 	private String confirmNoInfo = "";
+	private boolean goToLastVisitedPage = false;
 	
 	public ButtonModule() {
 		super("Button", DictionaryWrapper.get("button_module"));
@@ -71,6 +72,7 @@ public class ButtonModule extends BasicModuleModel {
 					confirmInfo = childElement.getAttribute("confirmInfo");
 					confirmYesInfo = childElement.getAttribute("confirmYesInfo");
 					confirmNoInfo = childElement.getAttribute("confirmNoInfo");
+					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
 				}
 			}
 		}
@@ -108,6 +110,9 @@ public class ButtonModule extends BasicModuleModel {
 			xml += " confirmInfo='" + StringUtils.escapeXML(confirmInfo) + "'";
 			xml += " confirmYesInfo='" + StringUtils.escapeXML(confirmYesInfo) + "'";
 			xml += " confirmNoInfo='" + StringUtils.escapeXML(confirmNoInfo) + "'";
+		}
+		if (type == ButtonType.prevPage) {
+			xml += " goToLastVisitedPage='" + this.goToLastVisitedPage + "'";
 		}
 		
 		xml += "/></buttonModule>";
@@ -165,8 +170,47 @@ public class ButtonModule extends BasicModuleModel {
 			addPropertyConfirmYesInfo();
 			addPropertyConfirmNoInfo();
 		}
+		else if(type == ButtonType.prevPage){
+			this.addGoToLastPageProperty();
+		}
 	}
 
+	private void addGoToLastPageProperty(){
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= goToLastVisitedPage) {
+					goToLastVisitedPage = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return goToLastVisitedPage ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("prev_property_go_to_last_visited_page");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("prev_property_go_to_last_visited_page");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}	
+		};
+		
+		this.addProperty(property);
+	}
 
 	private void addPropertyTitle() {
 
@@ -539,6 +583,10 @@ public class ButtonModule extends BasicModuleModel {
 	
 	public boolean getConfirmReset() {
 		return confirmReset;
+	}
+	
+	public boolean getGoToLastPage(){
+		return this.goToLastVisitedPage;
 	}
 	
 	private void addPropertyOnClick() {

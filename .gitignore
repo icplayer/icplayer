@@ -12,3 +12,4 @@
 /addons/addons.list.temp
 .DS_Store
 **/test-reports
+**/.vscode/*

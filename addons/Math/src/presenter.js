@@ -188,6 +188,21 @@ function AddonMath_create() {
         };
     };
 
+    function isInExpressionString (expressions) {
+        for (var i = 0; i < expressions.length; i++) {
+            if (!isNumber(expressions[i].value)) {
+                return true;
+            }
+        }
+    }
+
+    function changeExpressionToString (expressions) {
+        for (var i = 0; i < expressions.length; i++) {
+            expressions[i].value = expressions[i].value + "";
+        }
+        return expressions;
+    }
+
     presenter.evaluateExpression = function (expression, variables, separators) {
         var i, expressionRunner = {
             run: function (expression, variables) {
@@ -211,6 +226,10 @@ function AddonMath_create() {
                     name: variables[i].name,
                     value: convertedVariable
                 });
+            }
+
+            if(isInExpressionString(convertedVariables)) {
+                convertedVariables = changeExpressionToString(convertedVariables);
             }
 
             var convertedExpression = presenter.convertExpression(expression, convertedVariables);

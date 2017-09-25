@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -8,6 +9,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
@@ -18,11 +21,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class SourceListView extends FlowPanel implements IDisplay{
+public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
 	private final SourceListModule module;
@@ -33,6 +37,9 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	private boolean isPreview = false;
 	private SourceListPresenter presenter = null;
 	private Label labelToRemove = null;
+	private String idOfLabelToRemove = null;
+	private int currentLabel = 0;
+	private ArrayList <String> labelsIds = new ArrayList <String>();
 
 	public SourceListView(SourceListModule module, boolean isPreview){
 
@@ -79,9 +86,12 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	@Override
 	public void unsetDragMode() {
 		isDragged = false;
-		if (labelToRemove != null) {
-			remove(labelToRemove);
-			labelToRemove = null;
+	
+		if (this.labelToRemove != null && this.idOfLabelToRemove != null) {
+			this.removeItem(this.idOfLabelToRemove);
+			this.remove(this.labelToRemove);
+			this.labelToRemove = null;
+			this.idOfLabelToRemove = null;
 		}
 	}
 
@@ -112,6 +122,7 @@ public class SourceListView extends FlowPanel implements IDisplay{
 			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block;white-space: nowrap;");
 		}
 		labels.put(id, label);
+		labelsIds.add(id);
 		add(label);
 		if (callMathJax) {
 			refreshMath(label.getElement());
@@ -181,8 +192,24 @@ public class SourceListView extends FlowPanel implements IDisplay{
 		if (label != null) {
 			if (isDragged) {
 				labelToRemove = label;
+				idOfLabelToRemove = id;
 			} else {
-				remove(label);
+				if (label.getStyleName().contains("keyboard_navigation_active_element")){
+					unMarkCurrentItem();
+					labelsIds.remove(id);
+					remove(label);
+					if (labelsIds.size() > 0) {
+						if (currentLabel >= labelsIds.size()) {
+							currentLabel = 0;
+						}
+					markCurrentItem();
+					}
+					
+				} else {
+					labelsIds.remove(id);
+					currentLabel = 0;
+					remove(label);
+				}
 			}
 		}
 	}
@@ -274,4 +301,108 @@ public class SourceListView extends FlowPanel implements IDisplay{
 	        addon = null;
 	    }
 	}-*/;
+
+	private void unMarkCurrentItem(){
+		Label current = labels.get(labelsIds.get(currentLabel));
+		current.removeStyleName("keyboard_navigation_active_element");		
+	}
+	
+	private void markCurrentItem(){
+		Label current = labels.get(labelsIds.get(currentLabel));
+		current.addStyleName("keyboard_navigation_active_element");
+	}
+
+	private void enter() {
+		try {
+			unMarkCurrentItem();
+		} catch (Error e) {}
+		currentLabel = 0;
+		markCurrentItem();
+	}
+
+	private void next() {
+		unMarkCurrentItem();
+		currentLabel++;
+		currentLabel = currentLabel % labelsIds.size();
+		markCurrentItem();
+	}
+
+	private void select() {
+		fireClickEvent(labelsIds.get(currentLabel));
+	}
+
+
+	@Override
+	public void enter(boolean isExiting) {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		if (isExiting) {
+			this.unMarkCurrentItem();
+		} else {
+			this.enter();
+		}
+		
+	}
+
+
+	@Override
+	public void space() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		select();
+	}
+
+
+	@Override
+	public void tab() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		next();
+	}
+
+
+	@Override
+	public void left() {
+	}
+
+
+	@Override
+	public void right() {
+	}
+
+
+	@Override
+	public void down() {
+	}
+
+
+	@Override
+	public void up() {
+	}
+
+
+	@Override
+	public void escape() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		this.unMarkCurrentItem();
+	}
+
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
+
+
+	@Override
+	public void shiftTab() {
+	}
 }

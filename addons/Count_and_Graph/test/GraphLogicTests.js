@@ -177,11 +177,11 @@ TestCase("[Count_and_Graph] [Graph Object] Positioning columns in graph", {
         this.stubs.getWidth.returns(40);
 
         this.graph._positionColumnsInGraph();
-        assertEquals("setPosition(30)", this.stubs.setPosition.getCall(0));
-        assertEquals("setPosition(130)", this.stubs.setPosition.getCall(1));
-        assertEquals("setPosition(230)", this.stubs.setPosition.getCall(2));
-        assertEquals("setPosition(330)", this.stubs.setPosition.getCall(3));
-        assertEquals("setPosition(430)", this.stubs.setPosition.getCall(4));
+        assertEquals(30, this.stubs.setPosition.getCall(0).args[0]);
+        assertEquals(130, this.stubs.setPosition.getCall(1).args[0]);
+        assertEquals(230, this.stubs.setPosition.getCall(2).args[0]);
+        assertEquals(330, this.stubs.setPosition.getCall(3).args[0]);
+        assertEquals(430, this.stubs.setPosition.getCall(4).args[0]);
     }
 });
 
