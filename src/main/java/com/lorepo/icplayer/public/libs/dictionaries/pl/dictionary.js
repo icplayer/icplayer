@@ -1507,7 +1507,7 @@ var ice_dictionary_pl = {
 	"IFrame_property_allow_fullscreen": "Włącz tryb pełnoekranowy",
 	"Text_use_escape_character_in_gap_property": "Użyj znaku escape w luce",
 	"date": "Data",
-	"sort_by": "Sortuj według:"
+	"sort_by": "Sortuj według:",
 	"prev_property_go_to_last_visited_page": "Redirect to last visited page",
 	"image_property_alternative_text": "Alternative text",
 	"video_property_alternative_text": "Alternative text",
