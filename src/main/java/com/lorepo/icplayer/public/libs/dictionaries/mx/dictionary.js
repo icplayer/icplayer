@@ -1240,6 +1240,7 @@ var ice_dictionary_mx = {
 	"Zoom_Image_name": "Imagen con efecto lupa",
 	"Zoom_Image_property_full_screen_image": "Imagen grande",
 	"Zoom_Image_property_page_image": "Imagen pequeña",
+	"Zoom_Image_property_alternative_text": "Alternative text",
 	"LearnPen_Data_info": "Muestra los datos de sensores de la Pluma LearnPen en tiempo real.",
 	"LearnPen_Data_name": "Datos de la Pluma LearnPen",
 	"Sudoku_info": "Permite a los usuarios a crear actividades con sudoku.",

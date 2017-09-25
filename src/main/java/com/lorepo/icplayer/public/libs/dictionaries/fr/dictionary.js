@@ -1240,6 +1240,7 @@ var ice_dictionary_fr = {
 "Zoom_Image_name" : "Zoom Image",
 "Zoom_Image_property_full_screen_image" : "Image plein écran",
 "Zoom_Image_property_page_image" : "Image page",
+"Zoom_Image_property_alternative_text": "Alternative text",
 "LearnPen_Data_info" : "Affiche les données LearnPen des capteurs en temps réel.",
 "LearnPen_Data_name" : "Données LearnPen",
 "Sudoku_info": "Ce module externe permet aux utilisateurs de créer des activités avec un sudoku.",

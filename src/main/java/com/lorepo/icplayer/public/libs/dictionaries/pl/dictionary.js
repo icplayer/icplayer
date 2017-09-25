@@ -1239,6 +1239,7 @@ var ice_dictionary_pl = {
 	"Zoom_Image_name" : "Powiększany obraz",
 	"Zoom_Image_property_full_screen_image" : "Obraz pełnoekranowy",
 	"Zoom_Image_property_page_image" : "Obraz na stronie",
+	"Zoom_Image_property_alternative_text": "Alternative text",
 	"LearnPen_Data_info" : "W czasie rzeczywistym wyświetla dane dotyczące LearnPen uzyskane z czujników.",
 	"LearnPen_Data_name" : "Dane LearnPen",
 	"Sudoku_info" : "Umożliwia tworzenie ćwiczeń opartych na zasadach gier Sudoku.",

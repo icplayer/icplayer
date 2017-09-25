@@ -1252,6 +1252,7 @@ var ice_dictionary_en = {
 	"Zoom_Image_name" : "Zoom Image",
 	"Zoom_Image_property_full_screen_image" : "Full Screen image",
 	"Zoom_Image_property_page_image" : "Page image",
+	"Zoom_Image_property_alternative_text": "Alternative text",
 	"LearnPen_Data_info" : "Displays LearnPen Data from sensors in real time.",
 	"LearnPen_Data_name" : "LearnPen Data",
 	"Sudoku_info": "This addon allows users to create activities with sudoku.",

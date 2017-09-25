@@ -40,11 +40,13 @@ public class PlayerView extends VerticalPanel{
 	private void initUI() {
 		
 		setStyleName("ic_player");
+		getElement().setAttribute("role", "presentation");
 		
 		waitDialog = new WaitDialog();
 		pageView1 = new PageView("ic_page");
 		contentPanel = new HorizontalPanel();
 		contentPanel.addStyleName("ic_content");
+		contentPanel.getElement().setAttribute("role", "presentation");
 		contentPanel.add(pageView1);
 		add(contentPanel);
 		prevPageButton.setAutoHideEnabled(false);
