@@ -389,14 +389,36 @@ public class Content implements IContentBuilder, IContent {
 		return commonPages.findPageIndexById(pageId);
 	}
 
-
-	public Page getHeader(){
+	
+	public Page getDefaultHeader(){
 		return findPageByName(this.headerPageName);
 	}
 
 
-	public Page getFooter(){
+	public Page getDefaultFooter(){
 		return findPageByName(this.footerPageName);
+	}
+	
+	public ArrayList<Page> getHeaders() {
+		ArrayList<String> headers = this.getCommonPagesIdsStartingWith("header");
+		ArrayList<Page> pages = new ArrayList<Page>();
+		
+		for (String id : headers) {
+			pages.add(this.getCommonPageById(id));
+		}
+		
+		return pages;
+	}
+	
+	public ArrayList<Page> getFooters() {
+		ArrayList<String> footers = this.getCommonPagesIdsStartingWith("footer");
+		ArrayList<Page> pages = new ArrayList<Page>();
+		
+		for (String id : footers) {
+			pages.add(this.getCommonPageById(id));
+		}
+		
+		return pages;
 	}
 
 
@@ -570,5 +592,44 @@ public class Content implements IContentBuilder, IContent {
 
 	public boolean isSemiResponsiveContent() {
 		return this.styles.size() > 1 || this.layoutsContainer.getLayouts().size() > 1;
+	}
+	
+	public ArrayList<String> getCommonPagesIdsStartingWith(String prefix){
+		ArrayList<String> pages = new ArrayList<String>();
+		prefix = prefix.toLowerCase();
+		
+		for (Page page : commonPages.getAllPages()) {
+			String name = page.getName().toLowerCase();
+			if (name.startsWith(prefix)) {
+				pages.add(page.getId());
+			}
+		}
+		
+		return pages;
+	}
+	
+	public Page getCommonPageById(String id) {
+        for (Page page : this.commonPages.getAllPages()) {
+            if (page.getId().equals(id)) {
+                return page;
+            }
+        }
+        return null;
+    }
+	
+	public Page getHeader(Page page) {
+		Page header = this.getCommonPageById(page.getHeaderId());
+		if (header == null) {
+			return this.getDefaultHeader();
+		}
+		return header;
+	}
+	
+	public Page getFooter(Page page) {
+		Page footer = this.getCommonPageById(page.getFooterId());
+		if (footer == null) {
+			return this.getDefaultFooter();
+		}
+		return footer;
 	}
 }

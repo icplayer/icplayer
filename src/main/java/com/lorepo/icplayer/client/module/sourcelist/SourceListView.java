@@ -37,6 +37,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	private boolean isPreview = false;
 	private SourceListPresenter presenter = null;
 	private Label labelToRemove = null;
+	private String idOfLabelToRemove = null;
 	private int currentLabel = 0;
 	private ArrayList <String> labelsIds = new ArrayList <String>();
 
@@ -85,9 +86,12 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	@Override
 	public void unsetDragMode() {
 		isDragged = false;
-		if (labelToRemove != null) {
-			remove(labelToRemove);
-			labelToRemove = null;
+	
+		if (this.labelToRemove != null && this.idOfLabelToRemove != null) {
+			this.removeItem(this.idOfLabelToRemove);
+			this.remove(this.labelToRemove);
+			this.labelToRemove = null;
+			this.idOfLabelToRemove = null;
 		}
 	}
 
@@ -188,6 +192,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		if (label != null) {
 			if (isDragged) {
 				labelToRemove = label;
+				idOfLabelToRemove = id;
 			} else {
 				if (label.getStyleName().contains("keyboard_navigation_active_element")){
 					unMarkCurrentItem();
@@ -201,9 +206,9 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 					}
 					
 				} else {
-				labelsIds.remove(id);
-				currentLabel = 0;
-				remove(label);
+					labelsIds.remove(id);
+					currentLabel = 0;
+					remove(label);
 				}
 			}
 		}

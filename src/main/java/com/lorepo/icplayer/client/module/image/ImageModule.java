@@ -24,6 +24,7 @@ public class ImageModule extends BasicModuleModel {
 	private String imagePath = "";
 	private DisplayMode mode = DisplayMode.stretch;
 	private boolean animatedGifRefresh = false;
+	private String alternativeText = "";
 	
 	
 	public ImageModule() {
@@ -32,6 +33,7 @@ public class ImageModule extends BasicModuleModel {
 		addPropertyImage(true);
 		addPropertyMode();
 		addPropertyAnimatedGifRefresh();
+		this.addPropertyAlternativeText();
 	}
 
 	
@@ -48,6 +50,10 @@ public class ImageModule extends BasicModuleModel {
 			return this.baseURL + imagePath;
 		}
 	}
+
+	public String getAltText() {
+		return this.alternativeText;
+	}
 	
 	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
@@ -62,11 +68,13 @@ public class ImageModule extends BasicModuleModel {
 					String modeName = childElement.getAttribute("mode");
 					setModeFromString(modeName);
 					animatedGifRefresh = XMLUtils.getAttributeAsBoolean(childElement, "animatedGifRefresh", false);
+					this.alternativeText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "alt"));
 				}
 			}
 		}
 	}
 	
+
 	private void setModeFromString(String typeName) {
 		
 		if(typeName != null){
@@ -88,9 +96,10 @@ public class ImageModule extends BasicModuleModel {
 		
 		Element imageElement = XMLUtils.createElement("image");
 		imageElement.setAttribute("src", StringUtils.escapeHTML(imagePath));
+		imageElement.setAttribute("alt", StringUtils.escapeXML(this.alternativeText));
 		imageElement.setAttribute("mode", mode.toString());
 		imageElement.setAttribute("animatedGifRefresh", Boolean.toString(animatedGifRefresh));
-		
+
 		imageModule.appendChild(imageElement);
 		
 		return imageModule.toString();
@@ -202,6 +211,39 @@ public class ImageModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("image_property_animated_gif_refresh");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyAlternativeText() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				alternativeText = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return alternativeText;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_property_alternative_text");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_property_alternative_text");
 			}
 
 			@Override

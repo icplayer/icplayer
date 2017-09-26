@@ -23,6 +23,7 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -377,9 +378,9 @@ public class GWTContentTestCase extends GwtTest {
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
-		Page header = model.getHeader();
-		Page footer = model.getFooter();
-
+		Page header = model.getDefaultHeader();
+		Page footer = model.getDefaultFooter();
+		
 		assertNotNull(header);
 		assertEquals("header", header.getName());
 		assertNotNull(footer);
@@ -599,5 +600,72 @@ public class GWTContentTestCase extends GwtTest {
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 		
         XMLAssert.assertXMLEqual(diff, true);
+	}
+	
+	public void gettingAllHeaders() {
+		Page header1 = new Page("header", null);
+		Page header2 = new Page("header2", null);
+		Page header3 = new Page("Header", null);
+		Page randomPage = new Page("1", null);
+		Content content = new Content();
+		
+		content.getCommonPages().add(header1);
+		content.getCommonPages().add(header2);
+		content.getCommonPages().add(randomPage);
+		content.getCommonPages().add(header3);
+		
+		ArrayList<Page> headers = content.getHeaders();
+		assertEquals(3, headers.size());
+		assertEquals(header1, headers.get(0));
+		assertEquals(header2, headers.get(1));
+		assertEquals(header3, headers.get(2));
+	}
+	
+	@Test
+	public void gettingAllFooters() {
+		Page footer1 = new Page("footer", null);
+		Page footer2 = new Page("footer2", null);
+		Page footer3 = new Page("Footer", null);
+		Page randomPage = new Page("1", null);
+		Content content = new Content();
+		
+		content.getCommonPages().add(footer1);
+		content.getCommonPages().add(footer2);
+		content.getCommonPages().add(randomPage);
+		content.getCommonPages().add(footer3);
+		
+		ArrayList<Page> footers = content.getFooters();
+		assertEquals(3, footers.size());
+		assertEquals(footer1, footers.get(0));
+		assertEquals(footer2, footers.get(1));
+		assertEquals(footer3, footers.get(2));
+	}
+	
+	@Test
+	public void whenPageHasHeaderAndHeaderIdIsSetItShouldReturnThatHeader() {
+		Page page = new Page("Page 1", "");
+		Page header = new Page("header1", "");
+		page.setHeaderId(header.getId());
+		Content content = new Content();
+		
+		content.getAllPages().add(page);
+		content.getCommonPages().add(header);
+		
+		Page result = content.getHeader(page);
+		assertEquals(header, result);
+	}
+	
+	@Test
+	public void whenPageHasHeaderAndItHasNoHeaderIdSetShouldReturnDefaultHeader() {
+		Page page = new Page("Page 1", "");
+		Page header = new Page("header", "");
+		
+		Content content = new Content();
+		
+		content.getAllPages().add(page);
+		content.getCommonPages().add(header);
+		
+		Page result = content.getHeader(page);
+		assertEquals(header, result);
 	}
 }

@@ -28,4 +28,8 @@ public interface IPageBuilder {
 	public void clearModules();
 	public void clearRulers();
 	public void addSize(String string, Size size);
+	public void setHasHeader(boolean value);
+	public void setHasFooter(boolean value);
+	public void setHeaderId(String name);
+	public void setFooterId(String name);
 }

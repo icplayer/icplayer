@@ -21,7 +21,7 @@ import com.lorepo.icplayer.client.GWTPowerMockitoTest;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.model.Content;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.button.ButtonModule;

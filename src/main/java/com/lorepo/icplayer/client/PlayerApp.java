@@ -12,6 +12,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -347,11 +348,12 @@ public class PlayerApp {
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());
-		if (contentModel.getHeader() != null) {
-			loader.addPage(contentModel.getHeader());
+		
+		for (Page header : this.contentModel.getHeaders()) {
+			loader.addPage(header);
 		}
-		if (contentModel.getFooter() != null) {
-			loader.addPage(contentModel.getFooter());
+		for (Page footer : this.contentModel.getFooters()) {
+    		loader.addPage(footer);
 		}
 
 		loader.load(new ILoadListener() {

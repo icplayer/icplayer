@@ -39,6 +39,7 @@ public abstract class PageParserBase implements IPageParser{
 		this.page.clearModules();
 		this.page = this.loadPageAttributes(this.page, xml);
 		this.page = this.loadPageStyle(this.page, xml);
+		this.page = this.loadHeaderAndFooter(this.page, xml);
 		
 		int pageVersion = XMLUtils.getAttributeAsInt(xml, "version", 2);
 		NodeList children = xml.getChildNodes();
@@ -190,6 +191,22 @@ public abstract class PageParserBase implements IPageParser{
 		}
 
 		page.setScoring(XMLUtils.getAttributeAsString(xml, "scoring"));
+		
+		return page;
+	}
+	
+	protected IPageBuilder loadHeaderAndFooter(IPageBuilder page, Element xml) {
+		boolean hasHeader = XMLUtils.getAttributeAsBoolean(xml, "hasHeader");
+		page.setHasHeader(hasHeader);
+		if (hasHeader) {
+			page.setHeaderId(StringUtils.unescapeXML(xml.getAttribute("header")));
+		}
+		
+		boolean hasFooter = XMLUtils.getAttributeAsBoolean(xml, "hasFooter");
+		page.setHasFooter(hasFooter);
+		if (hasFooter) {
+			page.setFooterId(StringUtils.unescapeXML(xml.getAttribute("footer")));
+		}
 		
 		return page;
 	}

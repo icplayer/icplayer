@@ -106,6 +106,24 @@ public class PageListTestCase {
 	}
 	
 	@Test
+	public void removePageByNameRemovesOnlyFirstAppearanceOfName() {
+		PageList pages = new PageList();
+		
+		Page page1 = new Page("Page 1", "");
+		Page page2 = new Page("Page 1", "");
+		Page page3 = new Page("Page 1", "");
+		pages.add(page1);
+		pages.add(page2);
+		pages.add(page3);
+		
+		pages.remove("Page 1");
+		
+		assertEquals(2, pages.getTotalPageCount());
+		assertTrue(pages.contains(page2));
+		assertTrue(pages.contains(page3));
+	}
+	
+	@Test
 	public void movePage() {
 		PageList pages = new PageList();
 		

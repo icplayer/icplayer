@@ -257,6 +257,10 @@ function AddonIframe_create() {
         return presenter.iframeScore.errors;
     };
 
+    presenter.sendMessageCommand = function (command) {
+        presenter.sendMessage(command[0], command[1]);
+    };
+
     presenter.executeCommand = function AddonIFrame_Communication_execute_Command (name, params) {
         if (presenter.isErrorCheckingMode) {
             return;
@@ -264,7 +268,8 @@ function AddonIframe_create() {
 
         var commands = {
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'sendMessage': presenter.sendMessage
         };
         Commands.dispatch(commands, name, params, presenter);
     };

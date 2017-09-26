@@ -13,3 +13,4 @@
 .DS_Store
 **/test-reports
 /src/main/java/com/lorepo/icplayer/public/build/dist/*
+**/.vscode/*

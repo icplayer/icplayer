@@ -2,6 +2,7 @@ function AddonZoom_Image_create() {
 
     var presenter = function() {};
     var eventBus;
+    presenter.isOpened = false;
 
     function setup_presenter() {
         presenter.$player = null;
@@ -12,7 +13,7 @@ function AddonZoom_Image_create() {
         presenter.bigImageCreated = null;
         presenter.bigImageLoaded = null;
         presenter.createPopUp = null;
-    };
+    }
 
     setup_presenter();
 
@@ -21,6 +22,7 @@ function AddonZoom_Image_create() {
         $image.attr("src", url);
         $image.attr("height", presenter.configuration.height);
         $image.attr("width", presenter.configuration.width);
+        $image.attr("alt", presenter.configuration.alt);
         presenter.$view.find("div.content").append($image);
     }
 
@@ -66,7 +68,8 @@ function AddonZoom_Image_create() {
             height: parseInt(model["Height"], 10),
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
-            isValid: true
+            isValid: true,
+            alt: model['Alternative text']
         }
     };
 
@@ -160,12 +163,15 @@ function AddonZoom_Image_create() {
     }
 
     presenter.removeOpenedDialog = function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+        if(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
         $(".zoom-image-wraper").remove();
         $(".big").remove();
         sendEvent(0);
+        presenter.isOpened = false;
     };
 
     presenter.bigImageCreated = function() {
@@ -220,10 +226,13 @@ function AddonZoom_Image_create() {
     };
 
     presenter.createPopUp = function createPopUp(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        presenter.$image = $("<img class='big' src='" + presenter.configuration.bigImage + "'>");
+        if(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        presenter.$image = $("<img class='big' src='" + presenter.configuration.bigImage + "' alt='"+presenter.configuration.alt+"'>");
         presenter.$image.on("load", presenter.bigImageLoaded);
+        presenter.isOpened = true;
     };
 
     presenter.executeCommand = function (name, params) {
@@ -274,6 +283,18 @@ function AddonZoom_Image_create() {
             upgradedState = presenter.upgradeState(parsedState);
 
         presenter.setVisibility(upgradedState.isVisible);
+    };
+
+    presenter.keyboardController = function(keyCode) {
+        if (keyCode === 13) {
+            if (!presenter.isOpened) {
+                presenter.createPopUp();
+            }
+        }
+
+        if (keyCode === 27) {
+            presenter.removeOpenedDialog();
+        }
     };
 
     return presenter;

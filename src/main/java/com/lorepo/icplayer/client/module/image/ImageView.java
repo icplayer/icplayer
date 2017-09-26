@@ -32,6 +32,7 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		StyleUtils.applyInlineStyle(this, module);
 		String imageUrl = module.getUrl();
 		add(image);
+		image.setAltText(module.getAltText());
 
 		if(imageUrl.length() > 0){
 			image.addLoadHandler(new LoadHandler() {
