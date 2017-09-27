@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.utils.events.Browser;
 import com.googlecode.gwt.test.utils.events.EventBuilder;
 import com.lorepo.icplayer.client.GWTPowerMockitoTest;
@@ -31,6 +32,7 @@ import com.lorepo.icplayer.client.module.choice.ChoiceOption;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController.PresenterEntry;
 import com.lorepo.icplayer.client.ui.PlayerView;
 
+@GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest {
 	KeyboardNavigationController controller = null;
 	PageController headerPageController = null;
@@ -42,7 +44,7 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 	PlayerController playerController = null;
 	
 	@Before
-	public void setUp () {
+	public void setUp () throws Exception {
 		GWTKeyboardNavigationControllerTestCase.idCounter = 0;
 		Content content = new Content();
 		PlayerView view = new PlayerView();
@@ -63,25 +65,35 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		PageView mainPageView = new PageView("main");
 		PageView footerPageView = new PageView("footer");
 
-		header.getModules().add(this.generateButton());
-		header.getModules().add(this.generateButton());
+		header.addModule(this.generateButton());
+		header.addModule(this.generateButton());
 		
-		main.getModules().add(this.generateButton());
-		main.getModules().add(this.generateButton());
-		main.getModules().add(this.generateChoice());
-		main.getModules().add(this.generateChoice());
+		main.addModule(this.generateButton());
+		main.addModule(this.generateButton());
+		main.addModule(this.generateChoice());
+		main.addModule(this.generateChoice());
 		
-		footer.getModules().add(this.generateButton());
-		footer.getModules().add(this.generateButton());
+		footer.addModule(this.generateButton());
+		footer.addModule(this.generateButton());
 		
 		headerPageController.setView(headerPageView);
-		headerPageController.setPage(header);
+		
+		// instead of pageController.setPage()
+		Whitebox.setInternalState(headerPageController, "currentPage", header);
+		headerPageView.setPage(header);
+		Whitebox.invokeMethod(headerPageController, "initModules");
+		
 		
 		mainPageController.setView(mainPageView);
-		mainPageController.setPage(main);		
+		Whitebox.setInternalState(mainPageController, "currentPage", main);
+		mainPageView.setPage(main);
+		Whitebox.invokeMethod(mainPageController, "initModules");
 		
 		footerPageController.setView(footerPageView);
-		footerPageController.setPage(footer);
+		Whitebox.setInternalState(footerPageController, "currentPage", footer);
+		footerPageView.setPage(main);
+		Whitebox.invokeMethod(footerPageController, "initModules");
+		
 		
 		this.controller.addHeaderToNavigation(this.headerPageController);
 		this.controller.addMainToNavigation(this.mainPageController);

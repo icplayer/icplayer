@@ -52,7 +52,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	private String id;
 	private String name;
-	private String version = "4";
+	private String version = "3";
 	private final String href;
 	private LayoutType layout = LayoutType.pixels;
 	private ScoringType scoringType = ScoringType.percentage;
