@@ -2,7 +2,6 @@
 2017-09-25 Added alternative text and keyboard navigation in Zoom Image module
 2017-09-22 Fixed Assessments Navigation Bar page selecting and added keyboard navigation. Changed keyboard navigation in Navigation Bar.
 2017-09-22 Added new addon Catch
-2017-09-19 Added sending event on text identification addon deselect and select.
 2017-09-19 Added notification about setting header/footer.
 2017-09-18 Setting individual header and footer for pages.
 2017-09-15 Removed changing controls visibility in glossary addon
