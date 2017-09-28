@@ -1,3 +1,4 @@
+2017-09-28 Fixed accessing window.top properties
 2017-09-28 Fixed random order in Choice module
 2017-09-26 Added sendMessage command in iFrame module
 2017-09-25 Added alternative text and keyboard navigation in Zoom Image module

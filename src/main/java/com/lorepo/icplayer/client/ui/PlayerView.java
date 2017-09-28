@@ -276,7 +276,9 @@ public class PlayerView extends VerticalPanel{
 		try {
 			height = $wnd.window.top[0].innerHeight;
 		} catch(e) {
-			height = $wnd.window.top.innerHeight;
+			try {
+				height = $wnd.window.top.innerHeight;
+			} catch (e) {}
 		}
 		return height;
 	}-*/;
