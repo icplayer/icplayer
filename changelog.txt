@@ -1,3 +1,4 @@
+2017-09-28 Fixed random order in Choice module
 2017-09-26 Added sendMessage command in iFrame module
 2017-09-25 Added alternative text and keyboard navigation in Zoom Image module
 2017-09-22 Fixed Assessments Navigation Bar page selecting and added keyboard navigation. Changed keyboard navigation in Navigation Bar.
