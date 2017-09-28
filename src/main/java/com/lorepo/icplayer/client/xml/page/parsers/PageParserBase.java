@@ -170,7 +170,7 @@ public abstract class PageParserBase implements IPageParser{
 	protected IPageBuilder loadPageAttributes(IPageBuilder page, Element xml) {
 		int width = XMLUtils.getAttributeAsInt(xml, "width");
 		int height = XMLUtils.getAttributeAsInt(xml, "height");
-		
+				
 		Size size = new Size("default", width, height);
 		size.setIsDefault(true);
 		page.addSize("default", size);
@@ -196,13 +196,13 @@ public abstract class PageParserBase implements IPageParser{
 	}
 	
 	protected IPageBuilder loadHeaderAndFooter(IPageBuilder page, Element xml) {
-		boolean hasHeader = XMLUtils.getAttributeAsBoolean(xml, "hasHeader");
+		boolean hasHeader = XMLUtils.getAttributeAsBoolean(xml, "hasHeader", true);
 		page.setHasHeader(hasHeader);
 		if (hasHeader) {
 			page.setHeaderId(StringUtils.unescapeXML(xml.getAttribute("header")));
 		}
 		
-		boolean hasFooter = XMLUtils.getAttributeAsBoolean(xml, "hasFooter");
+		boolean hasFooter = XMLUtils.getAttributeAsBoolean(xml, "hasFooter", true);
 		page.setHasFooter(hasFooter);
 		if (hasFooter) {
 			page.setFooterId(StringUtils.unescapeXML(xml.getAttribute("footer")));

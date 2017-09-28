@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<page 
+    layout="pixels" name="Page" 
+    isReportable="true" scoring="percentage" 
+    version="3" 
+    class="page_blue"
+    header="" hasHeader="false" footer="" hasFooter="false">
+	<layouts>
+		<layout id="default" width="0" height="0" isDefault="true"/>
+	</layouts>
+	<modules/>
+	<groups/>
+	<editorRulers>
+		<vertical>475</vertical>
+		<vertical>0</vertical>
+	</editorRulers>
+	<page-weight value="1" mode="defaultWeight"/>
+</page>
