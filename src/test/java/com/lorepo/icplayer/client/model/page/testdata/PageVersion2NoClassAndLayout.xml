@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<page layout="pixels" 
+<page 
     name="Page" 
     isReportable="true" scoring="percentage" 
     width="0" height="0" 
     version="2"
-    class="page_blue"
-    header="" hasHeader="false" footer="" hasFooter="false">
+    header="" hasHeader="true" footer="" hasFooter="true">
 	<modules>
 		<imageModule id="Image1" left="0" right="0" top="0" bottom="0" width="950" height="1225"
 	         isLocked="false" isModuleVisibleInEditor="true" isVisible="true">
