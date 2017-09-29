@@ -110,10 +110,10 @@ public class GWTTextModelTestCase extends GwtTest{
 		TextModel module = new TextModel();
 		module.load(element, "");
 		
-		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo'}\" size=\"6\" class=\"ic_gap\"";
+		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"6\" class=\"ic_gap\"";
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
-		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo}\" size=\"5\" class=\"ic_gap\">";
+		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\">";
 		index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
@@ -135,11 +135,12 @@ public class GWTTextModelTestCase extends GwtTest{
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
-		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo}\" size=\"5\" class=\"ic_gap\">";
+		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\">";
 		index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
 		int count = StringUtils.countMatches(module.getParsedText(), EXPECTED_STRING);
 		assertTrue (count == 4);
 	}
+
 }

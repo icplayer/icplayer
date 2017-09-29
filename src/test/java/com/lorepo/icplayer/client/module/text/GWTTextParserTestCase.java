@@ -46,7 +46,7 @@ public class GWTTextParserTestCase extends GwtTest{
 		Iterator<LinkInfo> it = parsedText.linkInfos.iterator();
 		expectedText = expectedText.replace("'xcf-1'", "'" + it.next().getId() + "'");
 		expectedText = expectedText.replace("'xcf-2'", "'" + it.next().getId() + "'");
-
+		
 		assertEquals(expectedText, parsedText.parsedText);
 	}
 
@@ -217,5 +217,31 @@ public class GWTTextParserTestCase extends GwtTest{
 		
 		assertEquals(1, parsed.linkInfos.size());
 		assertTrue(parsed.parsedText.indexOf("{{2:ala}}") > 0);
+	}
+	
+	@Test
+	public void parserIsInEditorModeAndAddAdditionalInformationsToElements() {
+		TextParser parser = new TextParser();
+		String srcText ="[[page1|Link do strony 1]] \\gap{answer1|answer2|answer3} \\gap{answer1|answer2|answer3} \\filledGap{initial text|answer} \\def{słowko1}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText, true);
+		
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\gap{answer1|answer2|answer3}\"") > -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\filledGap{initial text|answer}\"") > -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value='\\def{słowko1}'") > -1);
+	}
+	
+	@Test
+	public void parserIsNotInEditorModeWillNotAddAdditionalInformation () {
+		TextParser parser = new TextParser();
+		String srcText ="[[page1|Link do strony 1]] \\gap{answer1|answer2|answer3} \\gap{answer1|answer2|answer3} \\filledGap{initial text|answer} \\def{słowko1}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText, false);
+		
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\gap{answer1|answer2|answer3}\"") == -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\filledGap{initial text|answer}\"") == -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value='\\def{słowko1}'") == -1);		
 	}
 }
