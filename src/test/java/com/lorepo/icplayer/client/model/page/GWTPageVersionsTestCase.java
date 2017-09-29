@@ -152,6 +152,17 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
+	@Test
+	public void updatingPageVersion3WithManyLayouts() throws SAXException, IOException {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersManyLayouts.xml");
+		String pageXML = getFromFile("testdata/PageVersion3ManyLayouts.xml");
+		
+		String result = this.page.toXML();
+		Diff diff = new Diff(pageXML, result);
+		
+		XMLAssert.assertXMLEqual(diff, true);
+	}
+	
 	// Checking page attributes
 	
 	@Test
