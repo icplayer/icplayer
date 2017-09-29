@@ -248,7 +248,7 @@
         </junit>
     </target>
 
-        <target name="test.single.case" depends="javac.tests" description="Run production single testcase">
+        <target name="test.single.case" depends="javac.tests" description="Run production single testcase, -Dname=Test_Case_Name">
         <mkdir dir="reports/htmlunit.prod" />
         <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
             <jvmarg line="-Xmx256m" />
