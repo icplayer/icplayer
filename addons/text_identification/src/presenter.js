@@ -188,20 +188,12 @@ function Addontext_identification_create(){
         presenter.configuration.isSelected = true;
         presenter.executeUserEventCode();
         presenter.applySelectionStyle(true, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
-
-        this.triggerSelectionChangeEvent();
     };
 
     presenter.deselect = function () {
-        var wasSelected = presenter.configuration.isSelected;
-
         presenter.configuration.isSelected = false;
         presenter.executeUserEventCode();
         presenter.applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
-
-        if (wasSelected) {
-            this.triggerSelectionChangeEvent();
-        }
     };
 
     presenter.isSelected = function () {

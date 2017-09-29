@@ -4,5 +4,6 @@
     <model>
         <property name="Full Screen image" displayName="Full Screen image" nameLabel="Zoom_Image_property_full_screen_image" type="image" />
         <property name="Page image" displayName="Page image" nameLabel="Zoom_Image_property_page_image" type="image" />
+        <property name="Alternative text" nameLabel="Zoom_Image_property_alternative_text" type="string" />
     </model>
 </addon>
