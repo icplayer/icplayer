@@ -31,6 +31,7 @@ TestCase("[Text Identification] Event sending on commands", {
 
     'test should send event on deselect when isSelected is true and shouldSendEventOnCommand is True' : function() {
         this.presenter.configuration.shouldSendEventsOnCommands = true;
+        this.presenter.configuration.isSelected = true;
         this.presenter.deselect();
 
         assertTrue(this.stubs.sendEventStub.called);
@@ -60,15 +61,33 @@ TestCase("[Text Identification] Event sending on commands", {
         assertFalse(this.stubs.sendEventStub.called);
     },
 
-    'test should send event on select when shouldSendEveontOnCommand is true' : function() {
+    'test should send event on select when shouldSendEveontOnCommand is true and it wasnt selected' : function() {
         this.presenter.configuration.shouldSendEventsOnCommands = true;
+        this.presenter.configuration.isSelected = false;
         this.presenter.select();
 
         assertTrue(this.stubs.sendEventStub.called);
     },
 
-    'test should not send event on select when shouldSendEveontOnCommand is false' : function() {
+    'test should not send event on select when shouldSendEveontOnCommand is false and it wasnt selected' : function() {
         this.presenter.configuration.shouldSendEventsOnCommands = false;
+        this.presenter.configuration.isSelected = false;
+        this.presenter.select();
+
+        assertFalse(this.stubs.sendEventStub.called);
+    },
+
+     'test should not send event on select when shouldSendEveontOnCommand is false and it was selected' : function() {
+        this.presenter.configuration.shouldSendEventsOnCommands = false;
+        this.presenter.configuration.isSelected = true;
+        this.presenter.select();
+
+        assertFalse(this.stubs.sendEventStub.called);
+    },
+
+    'test should not send event on select when shouldSendEventOnCommand is true and it wasnt selected' : function() {
+        this.presenter.configuration.shouldSendEventsOnCommands = true;
+        this.presenter.configuration.isSelected = false;
         this.presenter.select();
 
         assertFalse(this.stubs.sendEventStub.called);

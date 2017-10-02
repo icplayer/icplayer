@@ -41,7 +41,7 @@ TestCase("[Text Identification] Model validation", {
         assertFalse(validationResult.shouldSendEventsOnCommands);
     },
 
-    'test upgrade model should set shoulSendEventsOnCommand to true if true': function () {
+    'test upgrade model should set shoulSendEventsOnCommand to true if property from model is true': function () {
         var model = {
             'ID': 'Text_Identification1',
             onSelected: "Text1.setText('Module selected!');",

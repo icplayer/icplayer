@@ -108,7 +108,7 @@ function Addontext_identification_create(){
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model.shouldSendEventsOnCommands == undefined) {
+        if (model.shouldSendEventsOnCommands === undefined) {
             upgradedModel["shouldSendEventsOnCommands"] = "false";
         }
 
@@ -201,11 +201,13 @@ function Addontext_identification_create(){
     };
 
     presenter.select = function () {
+        var wasSelected = presenter.configuration.isSelected;
+
         presenter.configuration.isSelected = true;
         presenter.executeUserEventCode();
         presenter.applySelectionStyle(true, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
 
-        if (presenter.configuration.shouldSendEventsOnCommands) {
+        if (!wasSelected && presenter.configuration.shouldSendEventsOnCommands) {
             this.triggerSelectionChangeEvent();
         }
 
