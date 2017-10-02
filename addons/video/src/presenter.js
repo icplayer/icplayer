@@ -1,3 +1,8 @@
+/**
+ * @module VideoAddon
+ * @class VideoAddon
+ * @constructor
+ */
 function Addonvideo_create() {
     var presenter = function() {};
 
@@ -104,7 +109,7 @@ function Addonvideo_create() {
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
             var queueElement = presenter.metadataQueue[i];
-            queueElement.function.call(queueElement.self, queueElement.arguments);
+            queueElement.function.apply(queueElement.self, queueElement.arguments);
         }
 
         presenter.metadataQueue = [];
@@ -257,7 +262,7 @@ function Addonvideo_create() {
             presenter.controlBar.setMaxDurationTime(presenter.videoObject.duration);
             if (presenter.stylesBeforeFullscreen.actualTime !== -1) {
                 presenter.videoObject.currentTime = presenter.stylesBeforeFullscreen.actualTime;
-                presenter.videoObject.play();
+                presenter.play();
                 presenter.stylesBeforeFullscreen.actualTime = -1;
             }
         }
@@ -287,6 +292,11 @@ function Addonvideo_create() {
         }
     };
 
+    /**
+     * @param  {{width: Number, height:Number}} size
+     * @param  {HTMLVideoElement} video
+     * @returns {{width: Number, height:Number}} calculated video size
+     */
     presenter.getVideoSize = function (size, video) {
         //https://stackoverflow.com/questions/17056654/getting-the-real-html5-video-width-and-height
         var videoRatio = video.videoWidth / video.videoHeight;
@@ -375,8 +385,19 @@ function Addonvideo_create() {
         body.appendChild(video);
         presenter.metadadaLoaded = false;
         presenter.videoObject.load();
+
+        presenter.scalePosterToWindowSize();
         presenter.scaleCaptionsContainerToVideoNewVideoSize();
     };
+
+    presenter.scalePosterToWindowSize = presenter.metadataLoadedDecorator(function () {
+        var size = {
+            width: $(presenter.videoObject).width(),
+            height: $(presenter.videoObject).height()
+        };
+        
+        presenter.calculatePosterSize(presenter.videoObject, size);
+    });
 
     presenter.fullScreen = function () {
         var requestMethod = requestFullscreen(presenter.videoContainer);
@@ -386,11 +407,16 @@ function Addonvideo_create() {
             presenter.resizeVideoToWindow();
         } else {
             presenter.scaleCaptionsContainerToScreenSize();
+
+            var size = {
+                width: screen.width,
+                height: screen.height
+            };
+            presenter.calculatePosterSize(presenter.videoObject, size);
         }
 
         presenter.configuration.isFullScreen = true;
         fullScreenChange();
-
     };
 
     presenter.closeFullscreen = function () {
@@ -412,6 +438,8 @@ function Addonvideo_create() {
         presenter.configuration.isFullScreen = false;
         presenter.removeScaleFromCaptionsContainer();
         fullScreenChange();
+
+        presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
     };
 
     presenter.keyboardController = function(keycode) {
@@ -535,6 +563,7 @@ function Addonvideo_create() {
 
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$captionsContainer = presenter.$view.find(".captions-container:first");
+        presenter.$posterWrapper = presenter.$view.find('.poster-wrapper');
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.$videoObject = $(presenter.videoObject);
@@ -585,6 +614,8 @@ function Addonvideo_create() {
             presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
             presenter.controlBar.showFullscreenButton();
+
+            presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
         }
     };
 
@@ -758,7 +789,7 @@ function Addonvideo_create() {
 
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
-            presenter.reload();
+            presenter.showWaterMark();
 
             if (isFullScreen && document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
@@ -819,47 +850,53 @@ function Addonvideo_create() {
         var match = /CPU OS ([\d_]+) like Mac OS X/.exec(userAgent);
         return match === null ? '' : match[1];
     };
+    
+    /**
+     * Setting poster for video.
+     * 
+     * Attribute poster is not used because safari wont reload poster while reloading video.
+     * @param  {HTMLVideoElement} video
+     * @param  {String} posterSource
+     */
+    presenter.addAttributePoster = presenter.metadataLoadedDecorator(function(video, posterSource) {
+        presenter.$posterWrapper.find("img").remove();
+        var $video = $(video);
 
-    presenter.addAttributePoster = function(video, posterSource) {
-        if (posterSource) {
-            if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
-                if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
-                    var tmpVideo = video;
-                    video.remove();
-                    $(tmpVideo).attr('poster', '');
-                    $(tmpVideo).attr('poster', posterSource);
-                    presenter.videoContainer.append(tmpVideo);
-                }else{
-                    video.attr('poster', '');
-                    video.attr('poster', posterSource);
-                }
-                return;
-            }
-
-
-            var $poster_wrapper = $('<div>');
-            $poster_wrapper.addClass('poster-wrapper');
-            $poster_wrapper.on('click', function onPosterWrapperClick(e) {
+        if (posterSource) {      
+            presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
                 e.stopPropagation();
-                $(this).remove();
+                $(this).hide();
                 presenter.videoObject.play();
             });
 
-            var $poster = $('<img>');
+            var $poster = $("<img></img>");
             $poster.attr('src', posterSource);
-            $poster_wrapper.append($poster);
+            presenter.$posterWrapper.prepend($poster);
 
-            var $playBTN = $('<div>');
-            $playBTN.addClass('video-poster-play');
-            $poster_wrapper.append($playBTN);
+            presenter.calculatePosterSize(video, presenter.configuration.addonSize);
 
-            video.parent().append($poster_wrapper);
-
+            presenter.$posterWrapper.show();
         } else {
-            video.attr('poster', '');
-            presenter.$view.find('.poster-wrapper').remove();
+            presenter.$posterWrapper.hide();
+            $video.attr('poster', '');
         }
-    };
+    }); 
+
+    presenter.calculatePosterSize = presenter.metadataLoadedDecorator(function (video, toSize) {
+        var $poster = presenter.$posterWrapper.find("img");
+
+        var calculatedVideoSize = presenter.getVideoSize(toSize, video);
+        
+        var left = (toSize.width - calculatedVideoSize.width) / 2;
+        var top = (toSize.height - calculatedVideoSize.height) / 2;
+
+        $poster.width(calculatedVideoSize.width);
+        $poster.height(calculatedVideoSize.height);
+        $poster.css({
+            left: left,
+            top: top
+        });
+    });
 
     presenter.setAltText = function () {
         var files = presenter.configuration.files;
@@ -875,12 +912,14 @@ function Addonvideo_create() {
 
             presenter.videoObject.pause();
         }
-        this.videoContainer.find('source').remove();
+
         presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         var $video = $(presenter.videoObject);
         var files = presenter.configuration.files;
-        this.addAttributePoster($video, files[presenter.currentMovie].Poster);
+
+        this.videoContainer.find('source').remove();
+
         presenter.setAltText();
         if (presenter.isPreview) {
             $video.attr('preload', 'none');
@@ -950,6 +989,8 @@ function Addonvideo_create() {
                 });
             }
         }
+
+        this.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
     };
 
     /**
@@ -1174,7 +1215,11 @@ function Addonvideo_create() {
     };
 
     presenter.removeWaterMark = function () {
-        presenter.$view.find('.poster-wrapper').remove();
+        presenter.$view.find('.poster-wrapper').hide();
+    };
+
+    presenter.showWaterMark = function () {
+        presenter.$view.find(".poster-wrapper").show();
     };
 
     presenter.loadVideoAtPlayOnMobiles = function () {
