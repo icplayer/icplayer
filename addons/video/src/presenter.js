@@ -18,6 +18,7 @@ function Addonvideo_create() {
     presenter.metadataQueue = [];
     presenter.areSubtitlesHidden = false;
     presenter.calledFullScreen = false;
+    presenter.playTriggered = false;
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -943,7 +944,7 @@ function Addonvideo_create() {
                 });
 
                 $(presenter.videoObject).on('canplay', function() {
-                    if(presenter.isAborted) {
+                    if(presenter.isAborted && presenter.playTriggered) {
                         presenter.play();
                     }
                 });
@@ -1201,6 +1202,8 @@ function Addonvideo_create() {
             presenter.videoObject.play();
             presenter.addClassToView('playing');
         }
+
+        presenter.playTriggered = true;
     });
 
     presenter.stop = deferredSyncQueue.decorate(function () {
