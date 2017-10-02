@@ -270,7 +270,10 @@ function AddonGlossary_create(){
             resizable: false,
             focus: presenter.catchScroll,
             open: presenter.openDialogEventHandler,
-            close: presenter.closeDialogEventHandler
+            close: presenter.closeDialogEventHandler,
+            position: {
+                of: window.top
+            }
         });
 
         var $popup = $('#icplayer').parent().find('.ic_popup');

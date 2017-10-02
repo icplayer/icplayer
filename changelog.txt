@@ -1,3 +1,4 @@
+2017-10-02 Fixed problem with showing glossary popup in present view.
 2017-10-02 Fixed problem with auto play in Video module
 2017-09-29 Removed gap definition from html attributes in text module
 2017-09-28 Fixed accessing window.top properties
