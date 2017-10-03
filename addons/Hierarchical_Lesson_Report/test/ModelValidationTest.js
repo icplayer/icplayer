@@ -20,7 +20,8 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
             classes: "",
             showpagescore: "True",
             showmaxscorefield: "True",
-            scoredisabled: "1;2"
+            scoredisabled: "1;2",
+            alternativePageTitles: []
         };
     },
 
@@ -148,6 +149,40 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
 
         assertFalse(validationResult.isValid);
         assertEquals("D03", validationResult.errorCode);
+    },
+
+    'test alternativePageTitles with empty strings': function () {
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+    },
+
+    'test alternativePageTitles with proper value of strings': function () {
+        this.model['alternativePageTitles'] = [{
+                alternativePageNumber: "1",
+                alternativePageName: "Test",
+                alternativePageIsChapter: "True"
+        }];
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+        var list = validationResult['alternativePageTitles'];
+        assertEquals(1, list[0].alternativePageNumber);
+        assertEquals("Test", list[0].alternativePageName);
+        assertEquals(true, list[0].alternativePageIsChapter);
+    },
+
+    'test alternativePageTitles with pageNumber as string not parsable to number': function () {
+        this.model['alternativePageTitles'] = [{
+                alternativePageNumber: "Invalid string",
+                alternativePageName: "Test",
+                alternativePageIsChapter: "True"
+        }];
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
     }
 
 });

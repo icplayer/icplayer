@@ -17,7 +17,10 @@ function AddonHierarchical_Lesson_Report_create() {
 
         P01: "Values in Disable pages property should be numeric and non empty",
         P02: "Values in Disable pages property should be greater than 0",
-        P03: "Values in Disable pages property should be unique"
+        P03: "Values in Disable pages property should be unique",
+
+        A01: "Should have at least one item in list",
+        A02: "Values in Alternative Page Number should be numbers"
     };
 
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -257,7 +260,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
-            $link = $("<a></a>").text(text).attr('href', '#').attr('data-page-id', pageId);
+            $link = $("<a></a>").html(text).attr('href', '#').attr('data-page-id', pageId);
 
         $element.append($('<div class="text-wrapper">').html(isChapter ? text : $link));
 
@@ -293,15 +296,36 @@ function AddonHierarchical_Lesson_Report_create() {
     function addRow(name, index, parrentIndex, isChapter, pageId, isPreview) {
         if(!isPreview){
             if(isChapter){
-                buildRow(name, index, parrentIndex, isChapter, pageId);
                 chapters++;
+                var alternateName = presenter.findAlternateName(chapters, isChapter);
+                name = (alternateName === undefined) ? name : alternateName;
+                buildRow(name, index, parrentIndex, isChapter, pageId);
+
             } else if (checkIfPageEnabled(index)) {
+                // page number isn't decreased by one when added from model
+                var realIndex = parseInt(index-chapters, 10) + 1;
+                var alternateName = presenter.findAlternateName(realIndex, isChapter);
+
+                name = (alternateName === undefined) ? name : alternateName;
                 buildRow(name, index, parrentIndex, isChapter, pageId);
             }
         } else {
             buildRow(name, index, parrentIndex, isChapter, pageId);
         }
     }
+
+    presenter.findAlternateName = function (index, isChapter){
+        function findPage(element) {
+            if (element.alternativePageNumber === index && element.alternativePageIsChapter === isChapter){
+                return element;
+            }
+        }
+        var result = presenter.configuration.alternativePageTitles.find(findPage);
+        if (result === undefined) {
+            return undefined;
+        }
+        return result.alternativePageName;
+    };
 
     function updateRow(pageIndex, pageScore) {
         var row = $(".treegrid-" + pageIndex);
@@ -395,7 +419,7 @@ function AddonHierarchical_Lesson_Report_create() {
         return chapterScore;
     };
 
-    presenter.createTree = function(root, parrentIndex, pageCount) {
+    presenter.createTree = function(root, parentIndex, pageCount) {
         var chapterIndex = 0,
             chapterScore = resetScore(),
             pageScore = resetScore(),
@@ -414,7 +438,6 @@ function AddonHierarchical_Lesson_Report_create() {
                     if(presenter.configuration.enablePages != '' && presenter.configuration.enablePages != undefined) {
                         pageIndex++;
                     }
-
                     absolutePageIndex++;
                     continue;
                 }
@@ -422,7 +445,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
             var pageId = isChapter ? "chapter" : root.get(i).getId();
 
-            addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter, pageId, false);
+            addRow(root.get(i).getName(), pageIndex, parentIndex, isChapter, pageId, false);
             absolutePageIndex++;
 
             pageScore = presentationController.getScore().getPageScoreById(pageId);
@@ -566,6 +589,53 @@ function AddonHierarchical_Lesson_Report_create() {
         return returnCorrectObject(pages.sort());
     }
 
+    presenter.parseAlternativePageTitles = function (listOfPages) {
+        var validatedList = [];
+        // TODO: when loading or adding addon alternative page titles should have item with page number 0 or no items
+        if (listOfPages.length === undefined) {
+            return returnErrorObject('A01');
+        }
+
+        for (var i = 0; i < listOfPages.length; i++) {
+             var alternativePageName = listOfPages[i].alternativePageName;
+             var isChapter = ModelValidationUtils.validateBoolean(listOfPages[i].alternativePageIsChapter);
+             var alternativePageNumber = ModelValidationUtils.validateInteger(listOfPages[i].alternativePageNumber);
+
+             if (!alternativePageNumber.isValid) {
+                 return returnErrorObject('A02');
+             }
+
+             validatedList[i] = {
+                 alternativePageName: alternativePageName,
+                 alternativePageNumber: alternativePageNumber.value,
+                 alternativePageIsChapter: isChapter
+             };
+        }
+
+        return returnCorrectObject(validatedList);
+    };
+
+    presenter.upgradeModel = function (model) {
+        var modelWithPageNames = presenter.addAlternativePageNamesProperty(model);
+        return modelWithPageNames;
+    };
+
+    presenter.addAlternativePageNamesProperty = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (model["alternativePageTitles"] === undefined) {
+            upgradedModel["alternativePageTitles"] = [
+                {   alternativePageNumber: "0",
+                    alternativePageName: "",
+                    alternativePageIsChapter: "false"
+                }
+            ];
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateModel = function (model) {
         var expandDepth = returnCorrectObject(0);
 
@@ -589,6 +659,11 @@ function AddonHierarchical_Lesson_Report_create() {
         var validatedEnablePages = parseScoreDisable(model["enablePages"], 'pages');
         if (!validatedEnablePages.isValid) {
             return returnErrorObject(validatedEnablePages.errorCode);
+        }
+
+        var validatedAlternativePageTitles = presenter.parseAlternativePageTitles(model["alternativePageTitles"]);
+        if (!validatedAlternativePageTitles.isValid) {
+            return returnErrorObject(validatedAlternativePageTitles.errorCode);
         }
 
         return {
@@ -618,7 +693,8 @@ function AddonHierarchical_Lesson_Report_create() {
             showPageScore: ModelValidationUtils.validateBoolean(model["showpagescore"]),
             showMaxScoreField: ModelValidationUtils.validateBoolean(model["showmaxscorefield"]),
             disabledScorePages: validatedDisabledScorePages.value,
-            enablePages: validatedEnablePages.value
+            enablePages: validatedEnablePages.value,
+            alternativePageTitles: validatedAlternativePageTitles.value
         };
     };
 
@@ -639,6 +715,7 @@ function AddonHierarchical_Lesson_Report_create() {
             scaledScore: 0
         };
 
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[presenter.configuration.errorCode]);
