@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
@@ -159,7 +160,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		
 		String result = this.page.toXML();
 		Diff diff = new Diff(pageXML, result);
-		
+		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	

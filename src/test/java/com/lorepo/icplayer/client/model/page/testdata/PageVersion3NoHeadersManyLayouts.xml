@@ -4,8 +4,7 @@
     layout="pixels" name="Page" 
     isReportable="true" scoring="percentage" 
     version="3" 
-    class="page_blue"
-    header="" hasHeader="true" footer="" hasFooter="true">
+    class="page_blue">
 	<layouts>
 		<layout id="default" width="0" height="0" isDefault="true"/>
 		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC74" width="950" height="1204"/>
