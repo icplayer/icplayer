@@ -311,6 +311,10 @@ public class PlayerApp {
 		this.getIframe();
 	}
 
+    public static native void setLangAttribute (String lang) /*-{
+		$wnd.$("html").attr("lang", lang);
+	}-*/;
+
 	/**
 	 * Init player after content is loaded
 	 */
@@ -331,6 +335,8 @@ public class PlayerApp {
 				if (contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()) {
 					makeFooterStatic();
 				}
+
+				setLangAttribute(contentModel.getMetadataValue("lang"));
 
 				entryPoint.onPageLoaded();
 			}

@@ -30,23 +30,23 @@ import com.lorepo.icplayer.client.module.text.TextModel;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTTextModelTestCase extends GwtTest {
-	
+
 	private static final String PAGE_VERSION = "2";
-	
+
 	@Before public void setUp () {
 		Dictionary dictMock = Mockito.mock(Dictionary.class);
 		when(dictMock.get("text_module_text")).thenReturn("Text");
 		when(dictMock.get("text_module_gap_type")).thenReturn("Gap type");
-		
+
 		Set<String> keySet = new HashSet<String>();
 		keySet.add("text_module_text");
 		keySet.add("text_module_gap_type");
-		
+
 		when(dictMock.keySet()).thenReturn(keySet);
 		
 		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
 	}
-	 
+
 	@Test
 	public void propertyDraggableGaps() {
 		TextModel module = new TextModel();
@@ -62,17 +62,17 @@ public class GWTTextModelTestCase extends GwtTest {
 
 		assertTrue(foundProperty);
 	}
-	
+
 	@Test
 	public void saveLoadModule1() throws SAXException, IOException {
-		
+
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
-		
+
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
-		
+
 		String xml = module.toXML();
 		element = xmlParser.parser(new StringInputStream(xml));
 		module = new TextModel();
@@ -81,17 +81,17 @@ public class GWTTextModelTestCase extends GwtTest {
 		assertTrue(module.isDisabled());
 		assertFalse(module.isIgnorePunctuation());
 	}
-	
+
 	@Test
 	public void saveLoadModule2() throws SAXException, IOException {
-		
+
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
-		
+
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
-		
+
 		String xml = module.toXML();
 		element = xmlParser.parser(new StringInputStream(xml));
 		module = new TextModel();
@@ -99,13 +99,13 @@ public class GWTTextModelTestCase extends GwtTest {
 
 		assertTrue(module.isIgnorePunctuation());
 	}
-	
+
 	@Test
 	public void nonUnicodeText() throws SAXException, IOException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
-		
+
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
 		for(int i = 0; i < module.getPropertyCount(); i++){
@@ -114,7 +114,7 @@ public class GWTTextModelTestCase extends GwtTest {
 				property.setValue("In chapter 6");
 			}
 		}
-		
+
 		String xml = module.toXML();
 		element = xmlParser.parser(new StringInputStream(xml));
 		module = new TextModel();
@@ -169,10 +169,10 @@ public class GWTTextModelTestCase extends GwtTest {
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
 		
-		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo'}\" size=\"6\" class=\"ic_gap\"";
+		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"6\" class=\"ic_gap\"";
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
-		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo}\" size=\"5\" class=\"ic_gap\">";
+		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\">";
 		index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
@@ -194,7 +194,7 @@ public class GWTTextModelTestCase extends GwtTest {
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
-		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" data-gap-value=\"\\gap{Volvo}\" size=\"5\" class=\"ic_gap\">";
+		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\">";
 		index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
@@ -225,7 +225,7 @@ public class GWTTextModelTestCase extends GwtTest {
 		assertTrue(module.isCaseSensitive());
 		oldText = oldText.replaceAll("id=\"[^-]+", "id=\"");
 		newText = newText.replaceAll("id=\"[^-]+", "id=\"");
-		
+
 		assertEquals(oldText, newText);
 	}
 }

@@ -16,7 +16,8 @@ TestCase("[Video] Model validation", {
                 "Loop video": "True",
                 "WebM video": "some path",
                 "MP4 video": "else path",
-                "Ogg video": "and another path"
+                "Ogg video": "and another path",
+                "AlternativeText": "A"
             }, {
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -24,7 +25,8 @@ TestCase("[Video] Model validation", {
                 "Loop video": "False",
                 "WebM video": "some path",
                 "MP4 video": "else path",
-                "Ogg video": "that should be something different"
+                "Ogg video": "that should be something different",
+                "AlternativeText": "B"
             }]
         }
     },
@@ -47,7 +49,8 @@ TestCase("[Video] Model validation", {
                 "Loop video": true,
                 "WebM video": "some path",
                 "MP4 video": "else path",
-                "Ogg video": "and another path"
+                "Ogg video": "and another path",
+                "AlternativeText": "A"
             }, {
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -55,7 +58,8 @@ TestCase("[Video] Model validation", {
                 "Loop video": false,
                 "WebM video": "some path",
                 "MP4 video": "else path",
-                "Ogg video": "that should be something different"
+                "Ogg video": "that should be something different",
+                "AlternativeText": "B"
             }],
             height: 22
         };

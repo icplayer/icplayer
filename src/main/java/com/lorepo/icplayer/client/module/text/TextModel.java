@@ -41,6 +41,7 @@ public class TextModel extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
+	private String langAttribute = "";
 
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -61,6 +62,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyBlockWrongAnswers();
 		addPropertyUserActionEvents();
 		addPropertyUseEscapeCharacterInGap();
+		addPropertyLangAttribute();
 	}
 
 	@Override
@@ -106,11 +108,12 @@ public class TextModel extends BasicModuleModel {
 				isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
 				openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
 				rawText = XMLUtils.getCharacterDataFromElement(textElement);
-				
+
 				valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
 				blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
+				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
@@ -174,6 +177,7 @@ public class TextModel extends BasicModuleModel {
 		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
 		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
 		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
+        text.setAttribute("langAttribute", this.langAttribute);
 		text.setAttribute("valueType", this.valueType);
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
 
@@ -791,6 +795,39 @@ public class TextModel extends BasicModuleModel {
 		addProperty(property);
 	}
 
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
 	public boolean isDisabled() {
 		return isDisabled;
 	}
@@ -837,6 +874,10 @@ public class TextModel extends BasicModuleModel {
 
 	public boolean isUsingEscapeCharacterInGap() {
 		return this.useEscapeCharacterInGap;
+	}
+
+	public String getLangAttribute() {
+		return langAttribute;
 	}
 
 }

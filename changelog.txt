@@ -1,3 +1,10 @@
+2017-10-05 Added language attribute in Text module and lesson
+2017-10-05 Fixed problem with too large page index
+2017-10-02 Fixed imageSource that got position zeroed when called reset() on it after PageLoaded event
+2017-10-02 Fixed problem with jumping video. Fixed problem with poster visibility.
+2017-10-02 Fixed problem with showing glossary popup in present view.
+2017-10-02 Fixed problem with auto play in Video module
+2017-09-29 Removed gap definition from html attributes in text module
 2017-09-28 Fixed accessing window.top properties
 2017-09-28 Fixed random order in Choice module
 2017-09-26 Added sendMessage command in iFrame module
