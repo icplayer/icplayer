@@ -171,6 +171,11 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		isImageVisible = true;
 		isModuleVisible = model.isVisible();
 		canDrag = true;
+
+		if (!this.positionsWereFetched) {
+			view.getInitialPosition();
+			this.positionsWereFetched = true;
+		}
 		
 		if (isModuleVisible && isImageVisible) {
 			view.show(true);

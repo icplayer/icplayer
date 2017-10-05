@@ -245,6 +245,7 @@ public class PlayerController implements IPlayerController{
 			page = this.contentModel.getPage(index);
 		}
 		else{
+			this.currentMainPageIndex = 0;
 			page = this.contentModel.getPage(0);
 		}
 
