@@ -19,8 +19,8 @@ function AddonHierarchical_Lesson_Report_create() {
         P02: "Values in Disable pages property should be greater than 0",
         P03: "Values in Disable pages property should be unique",
 
-        A01: "Should have at least one item in list",
-        A02: "Values in Alternative Page Number should be numbers"
+        A01: "There should be at least one item in Alternative Page Names property",
+        A02: "Values in Alternative Page Number property should be greater than 0"
     };
 
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -293,33 +293,36 @@ function AddonHierarchical_Lesson_Report_create() {
         }
     }
 
-    function addRow(name, index, parrentIndex, isChapter, pageId, isPreview) {
+    function addRow(name, index, parentIndex, isChapter, pageId, isPreview) {
         if(!isPreview){
             if(isChapter){
+                var alternativeName = presenter.findAlternativeName(chapters, isChapter);
+                if (alternativeName !== undefined) {
+                    name = alternativeName;
+                }
+                buildRow(name, index, parentIndex, isChapter, pageId);
                 chapters++;
-                var alternateName = presenter.findAlternateName(chapters, isChapter);
-                name = (alternateName === undefined) ? name : alternateName;
-                buildRow(name, index, parrentIndex, isChapter, pageId);
 
             } else if (checkIfPageEnabled(index)) {
-                // page number isn't decreased by one when added from model
-                var realIndex = parseInt(index-chapters, 10) + 1;
-                var alternateName = presenter.findAlternateName(realIndex, isChapter);
+                var realIndex = parseInt(absolutePageIndex-chapters, 10);
 
-                name = (alternateName === undefined) ? name : alternateName;
-                buildRow(name, index, parrentIndex, isChapter, pageId);
+                var alternativeName = presenter.findAlternativeName(realIndex, isChapter);
+                if (alternativeName !== undefined) {
+                    name = alternativeName;
+                }
+                buildRow(name, index, parentIndex, isChapter, pageId);
             }
         } else {
-            buildRow(name, index, parrentIndex, isChapter, pageId);
+            buildRow(name, index, parentIndex, isChapter, pageId);
         }
     }
 
-    presenter.findAlternateName = function (index, isChapter){
-        function findPage(element) {
+    presenter.findAlternativeName = function (index, isChapter){
+        var findPage = function (element) {
             if (element.alternativePageNumber === index && element.alternativePageIsChapter === isChapter){
                 return element;
             }
-        }
+        };
         var result = presenter.configuration.alternativePageTitles.find(findPage);
         if (result === undefined) {
             return undefined;
@@ -438,6 +441,7 @@ function AddonHierarchical_Lesson_Report_create() {
                     if(presenter.configuration.enablePages != '' && presenter.configuration.enablePages != undefined) {
                         pageIndex++;
                     }
+
                     absolutePageIndex++;
                     continue;
                 }
@@ -596,19 +600,19 @@ function AddonHierarchical_Lesson_Report_create() {
             return returnErrorObject('A01');
         }
 
-        if (listOfPages.length === 1 && ModelValidationUtils.isArrayElementEmpty(listOfPages[0])) {
-            validatedList[0] = {
-                alternativePageName: "",
-                alternativePageNumber: "0",
-                alternativePageIsChapter: false
-            };
-            return returnCorrectObject(validatedList);
+        if (listOfPages.length === 1 && ModelValidationUtils.isStringEmpty(listOfPages[0].alternativePageNumber)) {
+                validatedList[0] = {
+                    alternativePageName: "",
+                    alternativePageNumber: "",
+                    alternativePageIsChapter: false
+                };
+                return returnCorrectObject(validatedList);
         }
 
         for (var i = 0; i < listOfPages.length; i++) {
              var alternativePageName = listOfPages[i].alternativePageName;
              var isChapter = ModelValidationUtils.validateBoolean(listOfPages[i].alternativePageIsChapter);
-             var alternativePageNumber = ModelValidationUtils.validateInteger(listOfPages[i].alternativePageNumber);
+             var alternativePageNumber = ModelValidationUtils.validatePositiveInteger(listOfPages[i].alternativePageNumber);
 
              if (!alternativePageNumber.isValid) {
                  return returnErrorObject('A02');
@@ -616,7 +620,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
              validatedList[i] = {
                  alternativePageName: alternativePageName,
-                 alternativePageNumber: alternativePageNumber.value,
+                 alternativePageNumber: alternativePageNumber.value - 1,
                  alternativePageIsChapter: isChapter
              };
         }
@@ -624,25 +628,23 @@ function AddonHierarchical_Lesson_Report_create() {
         return returnCorrectObject(validatedList);
     };
 
-    presenter.upgradeModel = function (model) {
-        var modelWithPageNames = presenter.addAlternativePageNamesProperty(model);
-        return modelWithPageNames;
-    };
-
     presenter.addAlternativePageNamesProperty = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
         if (model["alternativePageTitles"] === undefined) {
-            upgradedModel["alternativePageTitles"] = [
-                {   alternativePageNumber: "0",
-                    alternativePageName: "",
-                    alternativePageIsChapter: "false"
-                }
-            ];
+            upgradedModel["alternativePageTitles"] = [{
+                alternativePageNumber: "",
+                alternativePageName: "",
+                alternativePageIsChapter: "false"
+            }];
         }
-
         return upgradedModel;
+    };
+
+    presenter.upgradeModel = function (model) {
+        var modelWithPageNames = presenter.addAlternativePageNamesProperty(model);
+        return modelWithPageNames;
     };
 
     presenter.validateModel = function (model) {

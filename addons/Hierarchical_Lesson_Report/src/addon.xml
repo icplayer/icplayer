@@ -25,7 +25,7 @@
 
         <property name="alternativePageTitles" displayName="Alternative page titles" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_titles" type="list" isLocalized="true">
 			<property name="alternativePageNumber" displayName="Page number" nameLabel="Hierarchical_Lesson_Report_alternative_page_number" type="string" isLocalized="true" />
-            <property name='alternativePageIsChapter' displayName="Chapter" nameLabel="Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter" type="boolean" />
+            <property name='alternativePageIsChapter' displayName="Is chapter" nameLabel="Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter" type="boolean" />
 			<property name="alternativePageName" displayName="Page name" nameLabel="Hierarchical_Lesson_Report_alternative_page_name" type="html" isLocalized="true" />
 		</property>
 

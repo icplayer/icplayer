@@ -21,10 +21,10 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
             showpagescore: "True",
             showmaxscorefield: "True",
             scoredisabled: "1;2",
-            alternativePageTitles: [
-                {   alternativePageNumber: "0",
-                    alternativePageName: "",
-                    alternativePageIsChapter: "false"}]
+            alternativePageTitles: [{
+                alternativePageNumber: "",
+                alternativePageName: "",
+                alternativePageIsChapter: ""}]
         };
     },
 
@@ -171,7 +171,7 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
 
         assertTrue(validationResult.isValid);
         var list = validationResult['alternativePageTitles'];
-        assertEquals(1, list[0].alternativePageNumber);
+        assertEquals(0, list[0].alternativePageNumber);
         assertEquals("Test", list[0].alternativePageName);
         assertEquals(true, list[0].alternativePageIsChapter);
     },

@@ -30,12 +30,12 @@ TestCase("[Hierarchical Lesson Report] Model upgrading", {
         var result = this.model['alternativePageTitles'];
 
         assertEquals(1, result.length);
-        assertEquals("0", result[0].alternativePageNumber);
+        assertEquals("", result[0].alternativePageNumber);
         assertEquals("", result[0].alternativePageName);
         assertEquals("false", result[0].alternativePageIsChapter);
     },
 
-    'test if model wont be upgraded with alternative pages if its already exists': function () {
+    'test model should not be upgraded if alternative pages property already exists': function () {
         var expectedValue = [{
             alternativePageNumber: "1",
             alternativePageName: "Name",
