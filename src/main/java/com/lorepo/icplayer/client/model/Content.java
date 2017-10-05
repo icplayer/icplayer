@@ -527,7 +527,7 @@ public class Content implements IContentBuilder, IContent {
 			return this.getDefaultCssStyle().getValue();
 		}
 
-		return style.style;
+		return style.getValue();
 	}
 
 	public CssStyle getDefaultCssStyle() {

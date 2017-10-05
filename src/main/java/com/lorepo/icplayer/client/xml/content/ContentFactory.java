@@ -69,18 +69,9 @@ public class ContentFactory extends XMLVersionAwareFactory {
 
 	@Override
 	public Content produce(String xmlString, String fetchUrl) {
-		System.out.println("=================================");
-		System.out.println("Content factory produce");
-		System.out.println("*****************************");
-		System.out.println(xmlString);
 		Element xml = XMLParser.parse(xmlString).getDocumentElement();
-		System.out.println("*****************************");
-//		System.out.println(xml.toString());
-//		System.out.println("*****************************");
-		System.out.println("=================================");
 		String version = XMLUtils.getAttributeAsString(xml, "version", "1");
 		
-//		System.out.println(version);
 		Content producedContent = (Content) this.parsersMap.get(version).parse(xml);
 		producedContent.setBaseUrl(fetchUrl);
 		
