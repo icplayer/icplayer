@@ -21,7 +21,10 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
             showpagescore: "True",
             showmaxscorefield: "True",
             scoredisabled: "1;2",
-            alternativePageTitles: []
+            alternativePageTitles: [
+                {   alternativePageNumber: "0",
+                    alternativePageName: "",
+                    alternativePageIsChapter: "false"}]
         };
     },
 

@@ -591,9 +591,18 @@ function AddonHierarchical_Lesson_Report_create() {
 
     presenter.parseAlternativePageTitles = function (listOfPages) {
         var validatedList = [];
-        // TODO: when loading or adding addon alternative page titles should have item with page number 0 or no items
-        if (listOfPages.length === undefined) {
+        
+        if (listOfPages.length === undefined || listOfPages.length === 0) {
             return returnErrorObject('A01');
+        }
+
+        if (listOfPages.length === 1 && ModelValidationUtils.isArrayElementEmpty(listOfPages[0])) {
+            validatedList[0] = {
+                alternativePageName: "",
+                alternativePageNumber: "0",
+                alternativePageIsChapter: false
+            };
+            return returnCorrectObject(validatedList);
         }
 
         for (var i = 0; i < listOfPages.length; i++) {
