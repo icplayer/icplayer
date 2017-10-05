@@ -1,4 +1,4 @@
-var ice_dictionary_pl = {
+﻿var ice_dictionary_pl = {
     "load": "Load",
 	"confirm_yes": "tak",
 	"confirm_no": "nie",
@@ -1520,5 +1520,13 @@ var ice_dictionary_pl = {
 	"Footer_none": "None",
 	"Footer_default": "Default",
 	"Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
-	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties."
+	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
+    "Shooting_Range_info": "This addon allows users to click falling down values in defined time.",
+	"Shooting_Range_name": "Shooting Range",
+	"Shooting_Range_property_definitions": "Definitions",
+	"Shooting_Range_property_definition": "Definition",
+	"Shooting_Range_property_answer": "Answer",
+	"Shooting_Range_property_correct_answer": "",
+	"Shooting_Range_property_initial_time_for_answer": "Initial time for answer",
+	"Shooting_Range_property_time_for_last_answer": "Time for last answer"
 };
