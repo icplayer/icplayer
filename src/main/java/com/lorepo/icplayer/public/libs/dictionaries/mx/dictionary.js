@@ -1343,6 +1343,7 @@ var ice_dictionary_mx = {
 	"IWB_Toolbar_property_for_pen": "Opción para el lápiz",
 	"IWB_Toolbar_property_for_marker": "Opción para el marcador",
 	"IWB_Toolbar_property_keep_state_and_position": "Mantener el estado y posición",
+	"IWB_Toolbar_property_closed_panel_drawing": "Closed panel drawing",
 	"SVG2_info": "El módulo SVG permite insertar una imagen SVG en una presentación.",
 	"SVG2_name": "Imagen SVG",
 	"SVG2_property_svg_file": "Archivo SVG",

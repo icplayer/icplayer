@@ -1343,6 +1343,7 @@ var ice_dictionary_fr = {
 "IWB_Toolbar_property_for_pen": "Afficher pour le stylo",
 "IWB_Toolbar_property_for_marker": "Afficher pour le marqueur",
 "IWB_Toolbar_property_keep_state_and_position": "Conserver le statut et la position",
+"IWB_Toolbar_property_closed_panel_drawing": "Closed panel drawing",
 "SVG2_info": "Le module SVG permet d'insérer une image SVG dans une présentation.",
 "SVG2_name": "SVG",
 "SVG2_property_svg_file": "Fichier SVG",

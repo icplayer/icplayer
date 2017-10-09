@@ -1342,6 +1342,7 @@
 	"IWB_Toolbar_property_for_pen": "Pokaż dla pisaka",
 	"IWB_Toolbar_property_for_marker": "Pokaż dla markera",
 	"IWB_Toolbar_property_keep_state_and_position": "Zachowaj stan i pozycję",
+	"IWB_Toolbar_property_closed_panel_drawing": "Closed panel drawing",
 	"SVG2_info" : "Pozwala wstawić do prezentacji obraz w formacie SVG.",
 	"SVG2_name" : "Obraz SVG",
 	"SVG2_property_svg_file": "Plik SVG",

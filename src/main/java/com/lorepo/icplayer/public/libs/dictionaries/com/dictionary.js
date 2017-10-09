@@ -1355,6 +1355,7 @@ var ice_dictionary_en = {
 	"IWB_Toolbar_property_for_pen": "Show for pen",
 	"IWB_Toolbar_property_for_marker": "Show for marker",
 	"IWB_Toolbar_property_keep_state_and_position": "Keep state and position",
+	"IWB_Toolbar_property_closed_panel_drawing": "Closed panel drawing",
 	"SVG2_info": "The SVG module allows inserting an SVG image into a presentation.",
 	"SVG2_name": "SVG",
 	"SVG2_property_svg_file": "SVG file",
