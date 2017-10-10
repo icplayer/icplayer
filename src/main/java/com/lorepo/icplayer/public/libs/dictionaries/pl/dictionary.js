@@ -1,4 +1,4 @@
-var ice_dictionary_pl = {
+﻿var ice_dictionary_pl = {
   "load": "Load",
 	"confirm_yes": "tak",
 	"confirm_no": "nie",
@@ -1182,6 +1182,10 @@ var ice_dictionary_pl = {
 	"Hierarchical_Lesson_Report_property_max_score_award_label": "Etykieta dla animacji za uzyskanie maksymalnej punktacji na stronie",
 	"Hierarchical_Lesson_Report_property_page_scores_label": "Etykieta punktacji na stronie",
     "Hierarchical_Lesson_Report_property_enable_pages": "Pokaż strony",
+	"Hierarchical_Lesson_Report_property_alternative_page_titles": "Alternative page titles",
+	"Hierarchical_Lesson_Report_property_alternative_page_number": "Index",
+	"Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter": "Is chapter",
+	"Hierarchical_Lesson_Report_property_alternative_page_name": "Alternative name",
 	"ConnectingDots_info" : "Pozwala na utworzenie ćwiczenia, w którym użytkownik ma za zadanie połączenie kropek (punktów) i uformowanie z nich linii. Addon daje możliwość dodania obrazu jako tła.",
 	"ConnectingDots_name" : "Łączenie punktów",
 	"ConnectingDots_property_dots": "Współrzędne punktów",
