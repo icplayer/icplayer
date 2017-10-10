@@ -30,7 +30,9 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeDisable(model);
+        var upgradedModel = presenter.upgradeDisable(model);
+        upgradedModel = presenter.upgradeTabindex(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeDisable = function (model) {
@@ -39,6 +41,17 @@ function AddonDouble_State_Button_create(){
 
         if (!upgradedModel["Disable"]) {
             upgradedModel["Disable"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeTabindex = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["enableTabindex"] === undefined) {
+            upgradedModel["enableTabindex"] = "False";
         }
 
         return upgradedModel;
@@ -172,7 +185,8 @@ function AddonDouble_State_Button_create(){
 
     function presenterLogic(view, model, preview) {
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
 
         var wrapper = $(presenter.$view.find('.doublestate-button-wrapper:first')[0]);
         var element = createElements(wrapper);
@@ -438,6 +452,8 @@ function AddonDouble_State_Button_create(){
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var isSelected = ModelValidationUtils.validateBoolean(model.isSelected);
 
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model.enableTabindex);
+
         return {
             addonID: model.ID,
             selected: {
@@ -458,7 +474,8 @@ function AddonDouble_State_Button_create(){
             isDisabledByDefault: isDisabled,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
-            isErrorMode: false
+            isErrorMode: false,
+            isTabindexEnabled: isTabindexEnabled
         };
     };
 

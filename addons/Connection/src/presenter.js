@@ -40,7 +40,10 @@ function AddonConnection_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        upgradedModel = presenter.upgradeEnableTabindex(upgradedModel);
+
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -55,6 +58,17 @@ function AddonConnection_create() {
                     right: ""
                 }
             ];
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeEnableTabindex = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["enableTabindex"] === undefined) {
+            upgradedModel["enableTabindex"] = "False";
         }
 
         return upgradedModel;
@@ -266,6 +280,10 @@ function AddonConnection_create() {
         presenter.isVisible = true;
     };
 
+    presenter.validateTabindexEnabled = function (model) {
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["enableTabindex"]);
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
@@ -285,6 +303,8 @@ function AddonConnection_create() {
 
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
+
+        presenter.validateTabindexEnabled(model);
 
         if (isPreview) {
             this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
@@ -734,6 +754,11 @@ function AddonConnection_create() {
         innerWrapper = presenter.addClassToElement(innerWrapper, model[columnModel][i]['additional class']);
         $(innerWrapper).css('direction', isRTL ? 'rtl' : 'ltr');
         innerWrapper.html(model[columnModel][i]['content']);
+
+        if(presenter.isTabindexEnabled) {
+            innerWrapper.attr("tabindex", "0");
+        }
+
         innerElement.append(innerWrapper);
         var iconElement = $('<td class="icon"></td>');
         var iconWrapper = $('<div class="iconWrapper"></div>');
