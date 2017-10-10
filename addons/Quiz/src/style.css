@@ -16,7 +16,7 @@
 }
 
 .question-wrapper .hint-button {
-    background: url("resources/hint.svg");
+    background: url("resources/hint.svg") #c0c0c0 no-repeat center;
     width: 60px;
     height: 60px;
     cursor: pointer;
@@ -24,7 +24,7 @@
 }
 
 .question-wrapper .fifty-fifty {
-    background: url("resources/50-50.svg");
+    background: url("resources/50-50.svg") #c0c0c0 no-repeat center;
     width: 60px;
     height: 60px;
     cursor: pointer;
