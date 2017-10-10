@@ -1533,7 +1533,7 @@
 	"Shooting_Range_property_answer": "Answer",
 	"Shooting_Range_property_correct_answer": "",
 	"Shooting_Range_property_initial_time_for_answer": "Initial time for answer",
-	"Shooting_Range_property_time_for_last_answer": "Time for last answer"
+	"Shooting_Range_property_time_for_last_answer": "Time for last answer",
 	"IFrame_property_allow_fullscreen": "Allow Fullscreen",
 	"Quiz_name": "Quiz",
 	"Quiz_info": "Sequence of questions with tips",
