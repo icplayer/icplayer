@@ -200,16 +200,7 @@ public class TextParser {
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			DomElementManipulator inputElement = new DomElementManipulator("input");
-			inputElement.setHTMLAttribute("id", id);
-			inputElement.setHTMLAttribute("type", "edit");
-			inputElement.setHTMLAttribute("data-gap", "editable");
-			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}");
-			inputElement.setHTMLAttribute("size", "" + answer.length());
-			inputElement.addClass("ic_gap");
-			if (this.editorMode) {
-				inputElement.setHTMLAttribute("readonly", true);
-			}
+			DomElementManipulator inputElement = this.createGapInputElement(id, answer);
 			
 			replaceText = inputElement.getHTMLCode();
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength);
@@ -222,6 +213,23 @@ public class TextParser {
 		}
 
 		return replaceText;
+	}
+	
+	private DomElementManipulator createGapInputElement(String id, String answer) {
+		DomElementManipulator inputElement = new DomElementManipulator("input");
+		inputElement.setHTMLAttribute("id", id);
+		inputElement.setHTMLAttribute("type", "edit");
+		inputElement.setHTMLAttribute("data-gap", "editable");
+		if (this.editorMode) {
+			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}");
+		}
+		inputElement.setHTMLAttribute("size", "" + answer.length());
+		inputElement.addClass("ic_gap");
+		if (this.editorMode) {
+			inputElement.setHTMLAttribute("readonly", true);
+		}
+		
+		return inputElement;
 	}
 	
 	private String matchFilledGap(String expression) {
@@ -247,24 +255,31 @@ public class TextParser {
 				gi.addAnswer(answers[i]);
 			}
 			
-			DomElementManipulator inputElement = new DomElementManipulator("input");
-			inputElement.setHTMLAttribute("data-gap", "filled");
-			inputElement.setHTMLAttribute("data-gap-value", "\\filledGap{" + placeholder + "|" + answer +"}");
-			inputElement.setHTMLAttribute("id", id);
-			inputElement.setHTMLAttribute("type", "edit");
-			inputElement.setHTMLAttribute("size", "" + Math.max(maxValue, placeholder.length()));
-			inputElement.setHTMLAttribute("placeholder", placeholder);
-			inputElement.addClass("ic_filled_gap");
-			if (this.editorMode) {
-				inputElement.setHTMLAttribute("readonly", true);
-			}
-			
+			DomElementManipulator inputElement = this.createFilledGapInputElement(placeholder, answer, id, maxValue);	
 			replaceText = inputElement.getHTMLCode();
 
 			parserResult.gapInfos.add(gi);
 		}
 
 		return replaceText;
+	}
+	
+	private DomElementManipulator createFilledGapInputElement(String placeholder, String answer, String id, int maxAnswerLength) {
+		DomElementManipulator inputElement = new DomElementManipulator("input");
+		inputElement.setHTMLAttribute("data-gap", "filled");
+		if (this.editorMode) {
+			inputElement.setHTMLAttribute("data-gap-value", "\\filledGap{" + placeholder + "|" + answer +"}");
+		}
+		inputElement.setHTMLAttribute("id", id);
+		inputElement.setHTMLAttribute("type", "edit");
+		inputElement.setHTMLAttribute("size", "" + Math.max(maxAnswerLength, placeholder.length()));
+		inputElement.setHTMLAttribute("placeholder", placeholder);
+		inputElement.addClass("ic_filled_gap");
+		if (this.editorMode) {
+			inputElement.setHTMLAttribute("readonly", true);
+		}
+		
+		return inputElement;
 	}
 	
 	private String matchMathGap(String expression) {
@@ -437,12 +452,7 @@ public class TextParser {
 					InlineChoiceInfo info = new InlineChoiceInfo(id, answer, Integer.parseInt(value));
 					parserResult.choiceInfos.add(info);
 					if (editorMode) {
-						DomElementManipulator inputElement = new DomElementManipulator("input");
-						inputElement.setHTMLAttribute("value", "\u25BC");
-						inputElement.setHTMLAttribute("style", "text-align: right; width: 80px");
-						inputElement.setHTMLAttribute("data-gap", "dropdown");
-						inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
-						inputElement.setHTMLAttribute("id", id);
+						DomElementManipulator inputElement = this.createEditorInputElement(expression, id);
 						
 						replaceText = inputElement.getHTMLCode();
 					} else {
@@ -486,6 +496,17 @@ public class TextParser {
 		return replaceText;
 	}
 	
+	private DomElementManipulator createEditorInputElement(String expression, String id) {
+		DomElementManipulator inputElement = new DomElementManipulator("input");
+		inputElement.setHTMLAttribute("value", "\u25BC");
+		inputElement.setHTMLAttribute("style", "text-align: right; width: 80px");
+		inputElement.setHTMLAttribute("data-gap", "dropdown");
+		inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
+		inputElement.setHTMLAttribute("id", id);
+		
+		return inputElement;
+	}
+	
 	private String mathInLineChoiceKeepOrder(String expression) {
 		String replaceText = null;
 		
@@ -512,12 +533,7 @@ public class TextParser {
 				
 				if (info != null) {
 					if (editorMode) {
-						DomElementManipulator inputElement = new DomElementManipulator("input");
-						inputElement.setHTMLAttribute("value", "\u25BC");
-						inputElement.setHTMLAttribute("style", "text-align: right; width: 80px");
-						inputElement.setHTMLAttribute("data-gap", "dropdown");
-						inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
-						inputElement.setHTMLAttribute("id", id);
+						DomElementManipulator inputElement = this.createEditorInputElement(expression, id);
 						
 						replaceText = inputElement.getHTMLCode();
 					} else {
@@ -769,9 +785,13 @@ public class TextParser {
 		
 		replaceText = "<a id='" + id 
 				+ "' class='ic_definitionLink' "
-				+ "data-gap='glossary' "
-				+ "data-gap-value='\\def{" + dataGapValue + "}' "
-				+ "href='javascript:void(0);'>" + linkText
+				+ "data-gap='glossary' ";
+		
+		if (this.editorMode) {
+			replaceText += "data-gap-value='\\def{" + dataGapValue + "}' ";
+		}
+		
+		replaceText += "href='javascript:void(0);'>" + linkText
 				+ "</a>";
 		
 		return replaceText;

@@ -1,5 +1,5 @@
 var ice_dictionary_pl = {
-    "load": "Wgraj",
+  "load": "Load",
 	"confirm_yes": "tak",
 	"confirm_no": "nie",
 	"edit_editable_gap": "Edytuj lukę edytowalną/dragowalną",
@@ -117,6 +117,7 @@ var ice_dictionary_pl = {
 	"use_rulers": "Użyj prowadnic: ",
 	"use_rulers_snapping": "Użyj przyciągania do prowadnic: ",
 	"rulers_visibility": "Widoczność prowadnic",
+	"lang": "Atrybut języka:",
 	"rulers_snapping": "Przyciąganie modułu do prowadnic",
 	"static_header" : "Nagłówek statyczny: ",
 	"static_footer" : "Stopka statyczna: ",
@@ -345,6 +346,7 @@ var ice_dictionary_pl = {
 	"text_module_gap_width" : "Szerokość luki w tekście",
 	"text_module_gap_max_length" : "Max. dł. luki",
 	"text_module_value_type" : "Typ wartości",
+	"text_module_lang_attribute": "Atrybut języka",
 	"is_activity" : "Jest&nbsp;ćwiczeniem",
 	"is_disabled" : "Jest&nbsp;wyłączony",
     "reset_property_confirm_reset" : "Potwierdź reset",
@@ -1340,6 +1342,7 @@ var ice_dictionary_pl = {
 	"IWB_Toolbar_property_for_pen": "Pokaż dla pisaka",
 	"IWB_Toolbar_property_for_marker": "Pokaż dla markera",
 	"IWB_Toolbar_property_keep_state_and_position": "Zachowaj stan i pozycję",
+	"IWB_Toolbar_property_closed_panel_drawing": "Opcja rysowania przy zamkniętym panelu",
 	"SVG2_info" : "Pozwala wstawić do prezentacji obraz w formacie SVG.",
 	"SVG2_name" : "Obraz SVG",
 	"SVG2_property_svg_file": "Plik SVG",
@@ -1518,5 +1521,13 @@ var ice_dictionary_pl = {
 	"Footer_none": "Brak",
 	"Footer_default": "Domyślny",
 	"Cant_add_page_from_template": "Jedna ze stron w szablonie nie mogła zostać wgrana. Import szablonu został przerwany.",
-	"header_footer_notification": "Nowa funkcja! Teraz można zdefiniować i wybrać inny nagłówek i stopkę <br/>dla każdej strony w lekcji. Po ustawieniu dodatkowych stron nagłówka/stopki w sekcji <br/>Wspólne, wystarczy zaznaczyć odpowiednią opcję we właściwościach strony."
+	"header_footer_notification": "Nowa funkcja! Teraz można zdefiniować i wybrać inny nagłówek i stopkę <br/>dla każdej strony w lekcji. Po ustawieniu dodatkowych stron nagłówka/stopki w sekcji <br/>Wspólne, wystarczy zaznaczyć odpowiednią opcję we właściwościach strony.",
+  "Shooting_Range_info": "This addon allows users to click falling down values in defined time.",
+	"Shooting_Range_name": "Shooting Range",
+	"Shooting_Range_property_definitions": "Definitions",
+	"Shooting_Range_property_definition": "Definition",
+	"Shooting_Range_property_answer": "Answer",
+	"Shooting_Range_property_correct_answer": "",
+	"Shooting_Range_property_initial_time_for_answer": "Initial time for answer",
+	"Shooting_Range_property_time_for_last_answer": "Time for last answer"
 };
