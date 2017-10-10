@@ -12,6 +12,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -319,6 +320,10 @@ public class PlayerApp {
 		}
 	}
 
+	public static native void setLangAttribute (String lang) /*-{
+		$wnd.$("html").attr("lang", lang);
+	}-*/;
+	
 	private void setHandlers(final boolean isCommonPage) {
 		PlayerView playerView = new PlayerView();
 		playerController = new PlayerController(contentModel, playerView, bookMode, entryPoint);
@@ -336,6 +341,8 @@ public class PlayerApp {
 				if (contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()) {
 					makeFooterStatic();
 				}
+				
+				setLangAttribute(contentModel.getMetadataValue("lang"));
 
 				entryPoint.onPageLoaded();
 			}
@@ -355,11 +362,12 @@ public class PlayerApp {
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());
-		if (contentModel.getHeader() != null) {
-			loader.addPage(contentModel.getHeader());
+		
+		for (Page header : this.contentModel.getHeaders()) {
+			loader.addPage(header);
 		}
-		if (contentModel.getFooter() != null) {
-			loader.addPage(contentModel.getFooter());
+		for (Page footer : this.contentModel.getFooters()) {
+    		loader.addPage(footer);
 		}
 
 		loader.load(new ILoadListener() {

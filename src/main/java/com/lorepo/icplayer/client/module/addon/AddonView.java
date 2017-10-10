@@ -19,7 +19,6 @@ import com.lorepo.icplayer.client.module.addon.AddonPresenter.IDisplay;
 public class AddonView extends HTML implements IDisplay {
 
 	private AddonModel	module;
-	Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers"));
 	
 	public AddonView(AddonModel	model) {
 		
@@ -33,11 +32,7 @@ public class AddonView extends HTML implements IDisplay {
 		setHTML("Addon Id: " + module.getAddonId());
 		setStyleName("addon_" + module.getAddonId());
 		StyleUtils.applyInlineStyle(this, module);
-		
-		if (buttonAddons.contains(module.getAddonId().toLowerCase())) {
-			this.getElement().setAttribute("role", "button");
-		}
-		
+				
 		if( !module.isVisible() ){
 			DOM.setStyleAttribute(getElement(), "visibility", "hidden");
 		}

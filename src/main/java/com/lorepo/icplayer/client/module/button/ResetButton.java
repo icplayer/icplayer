@@ -8,14 +8,12 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.PushButton;
-import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 
 
-class ResetButton extends PushButton implements IWCAG {
+class ResetButton extends ExecutableButton {
 
 	private Element element;
 	private com.google.gwt.dom.client.Element parent;
@@ -37,6 +35,7 @@ class ResetButton extends PushButton implements IWCAG {
 	}-*/;
 	
 	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo){
+		super(null);
 		
 		setStyleName("ic_button_reset");
 		
@@ -56,18 +55,7 @@ class ResetButton extends PushButton implements IWCAG {
 					getElement().setClassName(classNames);
 				}
 			}
-		});
-		
-		addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				event.stopPropagation();
-				event.preventDefault();
-				execute();
-			}
-		});
-		
+		});		
 	}
 	
 	public void execute(){
@@ -127,38 +115,5 @@ class ResetButton extends PushButton implements IWCAG {
 		} else {
 			this.pageService.reset();
 		}				
-	}
-
-	@Override
-	public void enter(boolean isExiting) {
-		this.execute();
-	}
-
-	@Override
-	public void space() {
-	}
-
-	@Override
-	public void tab() {
-	}
-
-	@Override
-	public void left() {
-	}
-
-	@Override
-	public void right() {
-	}
-
-	@Override
-	public void down() {
-	}
-
-	@Override
-	public void up() {
-	}
-
-	@Override
-	public void escape() {
 	}
 }

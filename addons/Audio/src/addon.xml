@@ -10,5 +10,6 @@
 		<property name="enableLoop" nameLabel="Audio_property_enable_loop" type="boolean" />
 		<property name="Narration" nameLabel="Audio_property_narration" type="narration" isLocalized="true" />
 		<property name="onEnd" nameLabel="Audio_property_on_end" type="event"/>
+		<property name="forceLoadAudio" nameLabel="Audio_property_force_load_audio" type="boolean"/>
 	</model>
 </addon>

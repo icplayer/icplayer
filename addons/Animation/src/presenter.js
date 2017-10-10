@@ -1,4 +1,6 @@
 function AddonAnimation_create (){
+    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
+
     var presenter = function () {};
     presenter.DOMElements = {};
     presenter.configuration = {};
@@ -38,6 +40,8 @@ function AddonAnimation_create (){
         PREVIEW: 0,
         ANIMATION: 1
     };
+
+    presenter.eventBus = null;
 
     presenter.upgradeModel = function (model) {
         return presenter.addFramesToLabels(model);
@@ -95,6 +99,10 @@ function AddonAnimation_create (){
             preview: { width: previewReducedSize.width, height: previewReducedSize.height },
             animation: { width: animationReducedSize.width, height: animationReducedSize.height }
         };
+    }
+
+    function deferredQueueDecoratorChecker() {
+        return presenter.isLoaded;
     }
 
     // This function returns string containing CSS declaration of elements
@@ -307,42 +315,41 @@ function AddonAnimation_create (){
             $(presenter.DOMElements.watermark).hide();
         }
         presenter.configuration.watermarkOptions.clicked = true;
-        $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, function() {
-            if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
-                return false;
-            }
-
-            if (presenter.configuration.currentFrame < presenter.configuration.framesCount - 1) {
-                presenter.configuration.currentFrame++;
-                changeFrame();
-            } else {
-                if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
-                    presenter.configuration.currentFrame = 0;
-                    changeFrame();
-                } else {
-                    presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
-                    $.doTimeout(presenter.configuration.queueName, false);
-                    return false;
-                }
-            }
-
-            if (presenter.configuration.currentFrame === 0 && !presenter.configuration.loop) {
-                if (presenter.configuration.resetOnEnd) {
-                    presenter.stop();
-                    return false;
-                }
-            }
-
-            return true;
-        });
+        $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, presenter.onTimeoutCallback);
     };
 
-    presenter.pause = function() {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('pause', []);
-            return;
+    presenter.onTimeoutCallback = function () {
+        if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
+                return false;
         }
 
+        if (presenter.configuration.currentFrame < presenter.configuration.framesCount - 1) {
+            presenter.configuration.currentFrame++;
+            changeFrame();
+        } else {
+            if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
+                presenter.configuration.currentFrame = 0;
+                presenter.sendEndAnimationEvent();
+                changeFrame();
+            } else {
+                presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
+                $.doTimeout(presenter.configuration.queueName, false);
+                presenter.sendEndAnimationEvent();
+                return false;
+            }
+        }
+
+        if (presenter.configuration.currentFrame === 0 && !presenter.configuration.loop) {
+            if (presenter.configuration.resetOnEnd) {
+                presenter.stop();
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    presenter.pause = deferredSyncQueue.decorate(function() {
         if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) return;
 
         presenter.configuration.animationState = presenter.ANIMATION_STATE.PAUSED;
@@ -351,14 +358,9 @@ function AddonAnimation_create (){
         }
         presenter.configuration.watermarkOptions.clicked = false;
         $.doTimeout(presenter.configuration.queueName, true);
-    };
+    });
 
-    presenter.stop = function() {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('stop', []);
-            return;
-        }
-
+    presenter.stop = deferredSyncQueue.decorate(function() {
         $(presenter.DOMElements.preview).show();
         $(presenter.DOMElements.animation).hide();
         presenter.configuration.animationState = presenter.ANIMATION_STATE.STOPPED;
@@ -369,7 +371,7 @@ function AddonAnimation_create (){
         }
         presenter.configuration.watermarkOptions.clicked = false;
         $.doTimeout(presenter.configuration.queueName, false);
-    };
+    });
 
     function elementClickHandler(e) {
         e.stopPropagation();
@@ -400,6 +402,8 @@ function AddonAnimation_create (){
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+
+        presenter.eventBus = controller.getEventBus();
     };
 
     function presenterLogic(view, model, isPreview) {
@@ -415,8 +419,6 @@ function AddonAnimation_create (){
         }
 
         presenter.isLoaded = false;
-        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
-
         setElementsDimensions(view);
         prepareLoadingScreen(model.Width, model.Height);
 
@@ -426,9 +428,7 @@ function AddonAnimation_create (){
         $.when(presenter.imagesLoaded).then(function () {
             presenter.isLoaded = true;
 
-            if (!presenter.commandsQueue.isQueueEmpty()) {
-                presenter.commandsQueue.executeAllTasks();
-            }
+            deferredSyncQueue.resolve()
         });
 
         loadImages();
@@ -444,12 +444,7 @@ function AddonAnimation_create (){
         presenterLogic(view, model, false);
     };
 
-    presenter.reset = function(){
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('reset', []);
-            return;
-        }
-
+    presenter.reset = deferredSyncQueue.decorate(function(){
         this.stop();
         presenter.configuration.watermarkOptions.clicked = false;
         if(presenter.configuration.watermarkOptions.show) {
@@ -463,7 +458,7 @@ function AddonAnimation_create (){
         if (!presenter.configuration.isVisibleByDefault) {
             presenter.hideLabels();
         }
-    };
+    });
 
     presenter.getState = function() {
         if (!presenter.isLoaded) return '';
@@ -480,13 +475,8 @@ function AddonAnimation_create (){
         });
     };
 
-    presenter.setState = function(stateString) {
+    presenter.setState = deferredSyncQueue.decorate(function(stateString) {
         if (!stateString) return;
-
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('setState', [stateString]);
-            return;
-        }
 
         var state = JSON.parse(stateString);
 
@@ -522,7 +512,7 @@ function AddonAnimation_create (){
         } else {
             $(presenter.DOMElements.watermark).hide();
         }
-    };
+    });
 
     function loadImagesEndCallback () {
         presenter.configuration.animationState = presenter.ANIMATION_STATE.PAUSED;
@@ -545,18 +535,13 @@ function AddonAnimation_create (){
         presenter.imagesLoadedDfd.resolve();
     }
 
-    presenter.play = function () {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('play', []);
-            return;
-        }
-
+    presenter.play = deferredSyncQueue.decorate(function () {
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.ENDED) {
             presenter.stop();
         } else {
             presenter.playAnimation();
         }
-    };
+    });
 
     presenter.executeCommand = function(name, params) {
         var commands = {
@@ -580,33 +565,23 @@ function AddonAnimation_create (){
         });
     };
 
-    presenter.hide = function() {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('hide', []);
-            return;
-        }
-
+    presenter.hide = deferredSyncQueue.decorate(function() {
         this.configuration.isVisible = false;
         if(presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
             this.pause();
         }
         this.setVisibility(false);
         this.hideLabels();
-    };
+    });
 
-    presenter.show = function() {
-        if (!presenter.isLoaded) {
-            presenter.commandsQueue.addTask('show', []);
-            return;
-        }
-
+    presenter.show = deferredSyncQueue.decorate(function() {
         this.configuration.isVisible = true;
         if(presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
             this.playAnimation();
         }
         this.setVisibility(true);
         showLabelsForFrame(presenter.configuration.currentFrame + 1);
-    };
+    });
 
     // This function validates and converts number from string representation to positive integer value
     presenter.sanitizePositiveNumber = function(number) {
@@ -797,7 +772,8 @@ function AddonAnimation_create (){
             isClickDisabled: ModelValidationUtils.validateBoolean(model["Is click disabled"]),
             isVisibleByDefault: isVisibleByDefault,
             isVisible: isVisibleByDefault,
-            watermarkOptions: validatedOptions
+            watermarkOptions: validatedOptions,
+            addonID: model.ID
         };
     };
 
@@ -813,6 +789,10 @@ function AddonAnimation_create (){
         }
 
         return indexes;
+    };
+
+    presenter._internal = {
+        deferredSyncQueue: deferredSyncQueue
     };
 
     function showLabelsForFrame(frame) {
@@ -870,6 +850,17 @@ function AddonAnimation_create (){
             sw * vertSquashRatio, sh * vertSquashRatio,
             dx, dy, dw, dh );
     }
+
+    presenter.sendEndAnimationEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': 'ended',
+            'score': ''
+        };
+        
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
 
     return presenter;
 }

@@ -190,22 +190,12 @@ function AddonGlossary_create(){
                     $dialog.before($overlay);
                 }
             }
-
-            // due to the inability to close the dialog, when any video is under close button
-            var videos = presenter.$ICPage.find('video');
-            $.each(videos, function(){
-                $(this).removeAttr('controls');
-            });
         }catch(e){}
     };
 
     presenter.closeDialogEventHandler = function() {
         // due to the inability to close the dialog, when any video is under close button
         try{
-            var videos = presenter.$ICPage.find('video');
-            $.each(videos, function(){
-                $(this).attr('controls', 'controls');
-            });
             presenter.dialog.css("maxHeight", "none");
 
             if (presenter.ancestorsData !== undefined) {
@@ -280,7 +270,10 @@ function AddonGlossary_create(){
             resizable: false,
             focus: presenter.catchScroll,
             open: presenter.openDialogEventHandler,
-            close: presenter.closeDialogEventHandler
+            close: presenter.closeDialogEventHandler,
+            position: {
+                of: window.top
+            }
         });
 
         var $popup = $('#icplayer').parent().find('.ic_popup');

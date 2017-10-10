@@ -40,11 +40,13 @@ public class PlayerView extends VerticalPanel{
 	private void initUI() {
 		
 		setStyleName("ic_player");
+		getElement().setAttribute("role", "presentation");
 		
 		waitDialog = new WaitDialog();
 		pageView1 = new PageView("ic_page");
 		contentPanel = new HorizontalPanel();
 		contentPanel.addStyleName("ic_content");
+		contentPanel.getElement().setAttribute("role", "presentation");
 		contentPanel.add(pageView1);
 		add(contentPanel);
 		prevPageButton.setAutoHideEnabled(false);
@@ -209,12 +211,12 @@ public class PlayerView extends VerticalPanel{
 		navigationPanelsAutomaticAppearance = shouldAppear;
 	}
 
-	public void showHeader(){
+	public void createHeader(){
 		headerView = new PageView("ic_header");
 		insert(headerView, 0);
 	}
 	
-	public void showFooter(){		
+	public void createFooter(){		
 		footerView = new PageView("ic_footer");
 		add(footerView);
 	}
@@ -225,6 +227,20 @@ public class PlayerView extends VerticalPanel{
 		}
 		else{
 			return pageView1;
+		}
+	}
+	
+	public void removeHeaderView() {
+		if (this.headerView != null) {
+			this.remove(this.headerView);
+			this.headerView = null;
+		}
+	}
+	
+	public void removeFooterView() {
+		if (this.footerView != null) {
+			this.remove(this.footerView);
+			this.footerView = null;
 		}
 	}
 
@@ -260,7 +276,9 @@ public class PlayerView extends VerticalPanel{
 		try {
 			height = $wnd.window.top[0].innerHeight;
 		} catch(e) {
-			height = $wnd.window.top.innerHeight;
+			try {
+				height = $wnd.window.top.innerHeight;
+			} catch (e) {}
 		}
 		return height;
 	}-*/;

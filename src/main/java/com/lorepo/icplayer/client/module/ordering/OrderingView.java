@@ -593,40 +593,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 	
 	@Override
-	public void executeOnKeyCode(KeyDownEvent event) {
-		int code = event.getNativeKeyCode();
-
-		if (code == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.enter(false);
-		} else if (code == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
-			event.preventDefault();
-			this.enter(true);			
-		} else if (code == 32) {
-			event.preventDefault();
-			this.space();
-		} else if (code == KeyCodes.KEY_TAB) {
-			event.preventDefault();
-			this.tab();
-		} else if (code == KeyCodes.KEY_LEFT) {
-			event.preventDefault();
-			this.left();
-		} else if (code == KeyCodes.KEY_RIGHT) {
-			event.preventDefault();
-			this.right();
-		} else if (code == KeyCodes.KEY_DOWN) {
-			event.preventDefault();
-			this.down();
-		} else if (code == KeyCodes.KEY_UP) {
-			event.preventDefault();
-			this.up();
-		} else if (code == KeyCodes.KEY_ESCAPE) {
-			event.preventDefault();
-			this.escape();
-		}
-	}
-	
-	@Override
 	public void escape () {
 		this.deselectCurrentItem();
 		this.wcagIsAvtive = false;
@@ -710,5 +676,13 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			this.currentWCAGSelectedItemIndex = savedWidget;
 			this.selectCurrentItem();
 		}
+	}
+
+	@Override
+	public void shiftTab() {
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
 	}
 }

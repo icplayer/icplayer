@@ -1,4 +1,4 @@
-TestCase('Show and hide commands', {
+TestCase('[Audio] Show and hide commands', {
     setUp : function() {
         this.presenter = AddonAudio_create();
         this.presenter.configuration = {};

@@ -25,6 +25,7 @@ public class ImageModule extends BasicModuleModel {
 	private String baseUrl = "";
 	private DisplayMode mode = DisplayMode.stretch;
 	private boolean animatedGifRefresh = false;
+	private String alternativeText = "";
 	
 	
 	public ImageModule() {
@@ -33,6 +34,7 @@ public class ImageModule extends BasicModuleModel {
 		addPropertyImage(true);
 		addPropertyMode();
 		addPropertyAnimatedGifRefresh();
+		this.addPropertyAlternativeText();
 	}
 
 	
@@ -48,6 +50,10 @@ public class ImageModule extends BasicModuleModel {
 		else{
 			return baseUrl + imagePath;
 		}
+	}
+	
+	public String getAltText() {
+		return this.alternativeText;
 	}
 
 
@@ -69,6 +75,7 @@ public class ImageModule extends BasicModuleModel {
 					String modeName = childElement.getAttribute("mode");
 					setModeFromString(modeName);
 					animatedGifRefresh = XMLUtils.getAttributeAsBoolean(childElement, "animatedGifRefresh", false);
+					this.alternativeText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "alt"));
 				}
 			}
 		}
@@ -93,6 +100,7 @@ public class ImageModule extends BasicModuleModel {
 		String xml = 
 				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
 				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
+				"alt='" + StringUtils.escapeXML(this.alternativeText) + "' " + 
 				"mode='"+ mode.toString() + "' " + "animatedGifRefresh='" + animatedGifRefresh +"'/>" +
 				"</imageModule>";
 		
@@ -205,6 +213,39 @@ public class ImageModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("image_property_animated_gif_refresh");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyAlternativeText() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				alternativeText = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return alternativeText;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_property_alternative_text");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_property_alternative_text");
 			}
 
 			@Override

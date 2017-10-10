@@ -573,7 +573,7 @@ function AddoneKeyboard_create(){
                     openOn: presenter.configuration.openOnFocus ? 'showKeyboard' : '',
 
                     // When the character is added to the input
-                    keyBinding: MobileUtils.isEventSupported("touchend") ? 'touchend' : 'mousedown',
+                    keyBinding: 'touchend mousedown',
 
                     // combos (emulate dead keys : http://en.wikipedia.org/wiki/Keyboard_layout#US-International)
                     // if user inputs `a the script converts it to à, ^o becomes ô, etc.

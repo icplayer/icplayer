@@ -1,0 +1,86 @@
+.addon-Shooting_Range-wrapper{
+    width: 100%;
+    height: 100%;
+    border: none;
+    position: absolute;
+}
+
+.addon-Shooting_Range-wrapper-question {
+    background-color: lightgray;
+    width: 100%;
+}
+
+.addon-Shooting_Range-wrapper-answers-wrapper {
+    top: 0px;
+    bottom: 0px;
+    background-color: darkgray;
+    width: 100%;
+    position:absolute;
+    height: 100%;
+    overflow: hidden;
+}
+
+.addon-Shooting_Range-answer-wrapper.clicked {
+    background-color: darkslategray;
+}
+
+.addon-Shooting_Range-answer-wrapper.isHidden {
+    display: none!important;
+}
+
+.addon-Shooting_Range-answer-wrapper.correct {
+    background-color: green;
+}
+
+.addon-Shooting_Range-answer-wrapper.wrong {
+    background-color: red;
+}
+
+.addon-Shooting_Range-answer-0 {
+    position: relative;
+    float: left;
+    left: 20px;
+}
+
+.addon-Shooting_Range-answer-1 {
+    position: relative;
+    float: left;
+    left: 50%;
+}
+
+.addon-Shooting_Range-answer-2 {
+    position: relative;
+    float: right;
+    right: 20px;
+}
+
+.addon-Shooting_Range-answer-layer {
+    top: 0px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.addon-Shooting_Range-answer-wrapper {
+    border: 1px solid black;
+    background-color: lightslategray;
+}
+
+.addon-Shooting_Range-play-button-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 99%;
+    height: 40px;
+    background-color: whitesmoke;
+    border-radius: 2px;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.addon-Shooting_Range-button-play {
+    -moz-transform: translateX(50%) translateY(50%);
+    -webkit-transform: translateX(50%) translateY(50%);
+    transform: translateX(50%) translateY(50%);
+}

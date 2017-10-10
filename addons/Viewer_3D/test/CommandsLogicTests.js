@@ -23,7 +23,6 @@ TestCase("[3D Viewer] Commands logic - reset", {
             replace: sinon.stub(this.presenter.viewer, 'replaceSceneFromUrl'),
             quality: sinon.stub(this.presenter, 'setQuality'),
             setVisibility: sinon.stub(this.presenter, 'setVisibility'),
-            addTask: sinon.stub(this.presenter.commandsQueue, 'addTask'),
             stopRotations: sinon.stub(this.presenter, 'stopAllRotations')
         };
     },
@@ -40,7 +39,7 @@ TestCase("[3D Viewer] Commands logic - reset", {
         assertTrue(this.stubs.replace.calledWith('/files/server/221122.obj'));
         assertTrue(this.stubs.update.calledOnce);
 
-        assertFalse(this.stubs.addTask.called);
+        assertEquals(0, this.presenter.getDeferredQueueVariable().queue.length);
 
         assertTrue(this.stubs.setVisibility.calledWith(true));
         assertTrue(this.presenter.configuration.isCurrentlyVisible);
@@ -51,7 +50,7 @@ TestCase("[3D Viewer] Commands logic - reset", {
 
         this.presenter.reset();
 
-        assertTrue(this.stubs.addTask.calledWith('reset', []));
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
         assertFalse(this.stubs.quality.called);
         assertFalse(this.stubs.stopRotations.called);
         assertFalse(this.stubs.replace.called);
@@ -92,7 +91,7 @@ TestCase("[3D Viewer] Commands logic - show / hide", {
 
         this.presenter.show();
 
-        assertTrue(this.stubs.addTask.called);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
         assertFalse(this.stubs.setVisibility.called);
         assertFalse(this.presenter.configuration.isCurrentlyVisible);
     },
@@ -113,7 +112,7 @@ TestCase("[3D Viewer] Commands logic - show / hide", {
 
         this.presenter.hide();
 
-        assertTrue(this.stubs.addTask.called);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
         assertFalse(this.stubs.setVisibility.called);
         assertTrue(this.presenter.configuration.isCurrentlyVisible);
     }
@@ -149,7 +148,7 @@ TestCase("[3D Viewer] Commands logic - setState", {
 
         this.presenter.setState(JSON.stringify({ isVisible: true }));
 
-        assertTrue(this.stubs.addTask.calledOnce);
+        assertEquals(1, this.presenter.getDeferredQueueVariable().queue.length);
         assertFalse(this.stubs.show.called);
         assertFalse(this.stubs.hide.called);
     },

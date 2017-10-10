@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
@@ -13,9 +14,10 @@ import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter.IDisplay;
 
-public class ImageSourceView extends Image implements IDisplay {
+public class ImageSourceView extends Image implements IDisplay, IWCAG {
 
 	private static final String DEFAULT_STYLE = "ic_sourceImage";
 	private static final String SELECTED_STYLE = "selected";
@@ -86,7 +88,7 @@ public class ImageSourceView extends Image implements IDisplay {
 		}
 	}
 	
-	private void connectHandlers() {
+	protected void connectHandlers() {
 		addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -171,5 +173,46 @@ public class ImageSourceView extends Image implements IDisplay {
 	private void setInitialPosition() {
 		getElement().getStyle().setLeft(initialLeft, Unit.PX);
 		getElement().getStyle().setTop(initialTop, Unit.PX);
+	}
+
+	@Override
+	public void enter(boolean isExiting) {
+		this.listener.onClicked();
+	}
+
+	@Override
+	public void space() {
+	}
+
+	@Override
+	public void tab() {
+	}
+
+	@Override
+	public void left() {
+	}
+
+	@Override
+	public void right() {
+	}
+
+	@Override
+	public void down() {
+	}
+
+	@Override
+	public void up() {
+	}
+
+	@Override
+	public void escape() {
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+	}
+
+	@Override
+	public void shiftTab() {
 	}
 }

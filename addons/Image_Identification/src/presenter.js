@@ -523,5 +523,11 @@ function AddonImage_Identification_create(){
         presenter.isShowAnswersActive = false;
     };
 
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        if (keycode === window.KeyboardControllerKeys.ENTER) {
+            clickLogic();
+        }
+    };
+
     return presenter;
 }
