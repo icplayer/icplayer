@@ -266,6 +266,34 @@
     };
 
     /**
+     Checks HTML code string value in terms of emptiness.
+     @method isHtmlEmpty
+
+     @param value string value
+
+     @return {Boolean} true if passed html code is invisible for user, otherwise false
+     */
+    ModelValidationUtils.isHtmlEmpty = function (value) {
+        if (value === undefined){
+            return true;
+        }
+        value = String(value);
+        if (value.indexOf('<img') > -1){
+            return false;
+        }
+        var tmp = document.createElement("div");
+        tmp.innerHTML = value;
+        value = tmp.textContent || tmp.innerText;
+        if (value === undefined){
+            return true
+        }
+        if (value.trim() === ""){
+            return true;
+        }
+        return false
+    };
+
+    /**
      Checks string value in terms of emptiness. Additionally checks if passed value contains only prefix string.
      @method isStringWithPrefixEmpty
 
