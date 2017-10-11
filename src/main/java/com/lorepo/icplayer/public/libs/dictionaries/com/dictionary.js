@@ -361,7 +361,7 @@ var ice_dictionary_en = {
 	"randomOrder" : "Random&nbsp;Order",
 	"All_elements_has_same_width" : "Even width for all elements",
 	"case_sensitive" : "Case&nbsp;sensitive",
-	"optional_order" : "order",
+	"optional_order" : "Alternative correct order",
 	"add_header_footer": "Replace headers",
 	"move_module_up_menu": "Move module up",
 	"move_module_down_menu": "Move module down",
@@ -1542,5 +1542,7 @@ var ice_dictionary_en = {
 	"Footer_none": "None",
 	"Footer_default": "Default",
     "Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
-	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties."
+	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
+     "dont_generate_correct_order": "Don't generate correct order"
+
 };
