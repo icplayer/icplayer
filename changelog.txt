@@ -1,3 +1,4 @@
+2017-10-12 Fixed bug with TextAudio still playing sound after closing popup with it
 2017-10-11 Fixed Programming Code Prompt module - enter now creates a new line.
 2017-10-11 Added property to Ordering module, which disallows generating a correct ordering by random.
 2017-10-11 Fixed problem with errors in console in iFrame module
