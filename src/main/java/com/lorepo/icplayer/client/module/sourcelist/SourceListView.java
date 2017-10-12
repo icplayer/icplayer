@@ -116,6 +116,9 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 		final HTML label = new HTML(StringUtils.markup2html(item));
 		label.setStyleName("ic_sourceListItem");
+		if (module.isTabindexEnabled()) {
+			label.getElement().setAttribute("tabindex", "0");
+		}
 		if(module.isVertical()){
 			DOMUtils.applyInlineStyle(label.getElement(), "display: block;");
 		} else {

@@ -18,6 +18,7 @@ public class SourceListModule extends BasicModuleModel{
 	private boolean removable = true;
 	private boolean vertical = false;
 	private boolean randomOrder = false;
+	private boolean isTabindexEnabled = false;
 	
 	
 	public SourceListModule() {
@@ -28,6 +29,7 @@ public class SourceListModule extends BasicModuleModel{
 		addPropertyRemovable();
 		addPropertyVertical();
 		addPropertyRandomOrder();
+		this.addPropertyTabindex();
 	}
 
 
@@ -59,6 +61,7 @@ public class SourceListModule extends BasicModuleModel{
 			removable = XMLUtils.getAttributeAsBoolean(itemsElement, "removable", true);
 			vertical = XMLUtils.getAttributeAsBoolean(itemsElement, "vertical", false);
 			randomOrder = XMLUtils.getAttributeAsBoolean(itemsElement, "randomOrder", false);
+			this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(itemsElement, "isTabindexEnabled", false);
 		}
 
 		items.clear();
@@ -80,7 +83,8 @@ public class SourceListModule extends BasicModuleModel{
 	public String toXML() {
 		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>";
+		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder 
+				+ "' isTabindexEnabled='" + this.isTabindexEnabled + "'>";
 		
 		for(String item : items){
 			xml += "<item><![CDATA[" + item + "]]></item>";
@@ -163,6 +167,40 @@ public class SourceListModule extends BasicModuleModel{
 			@Override
 			public boolean isDefault() {
 				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
+	private void addPropertyTabindex() {
+		IProperty property = new IBooleanProperty() {
+			
+			@Override
+			public void setValue(String newValue) {
+				boolean value = newValue.compareToIgnoreCase("true") == 0; 
+				
+				isTabindexEnabled = value;
+			}
+			
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+			
+			@Override
+			public String getValue() {
+				return isTabindexEnabled ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("source_list_property_is_tabindex_enabled");
+			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("source_list_property_is_tabindex_enabled");
 			}
 		};
 		
@@ -290,5 +328,9 @@ public class SourceListModule extends BasicModuleModel{
 
 	public boolean isVertical() {
 		return vertical;
+	}
+	
+	public boolean isTabindexEnabled() {
+		return this.isTabindexEnabled;
 	}
 }
