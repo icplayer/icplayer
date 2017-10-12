@@ -172,8 +172,7 @@ function AddonDouble_State_Button_create(){
 
     function presenterLogic(view, model, preview) {
         presenter.$view = $(view);
-        var upgradedModel = upgradeModel(model);
-        presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.configuration = presenter.validateModel(model);
 
         var wrapper = $(presenter.$view.find('.doublestate-button-wrapper:first')[0]);
         var element = createElements(wrapper);
@@ -439,8 +438,6 @@ function AddonDouble_State_Button_create(){
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var isSelected = ModelValidationUtils.validateBoolean(model.isSelected);
 
-        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model.enableTabindex);
-
         return {
             addonID: model.ID,
             selected: {
@@ -461,8 +458,7 @@ function AddonDouble_State_Button_create(){
             isDisabledByDefault: isDisabled,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
-            isErrorMode: false,
-            isTabindexEnabled: isTabindexEnabled
+            isErrorMode: false
         };
     };
 
