@@ -44,7 +44,7 @@ UpgradeModelTests.prototype.setUp = function() {
         "Correct connection color": "",
         "Incorrect connection color": "",
         "Connection thickness, string": "",
-        "enableTabindex": false
+        "enableTabindex": "False"
     };
 };
 
@@ -73,7 +73,7 @@ UpgradeModelTests.prototype.testUpgradeEnableTabindex = function() {
 
     assertEquals(this.currentModel, upgradedModel);
     assertNotEquals(this.model, upgradedModel);
-    assertFalse(upgradedModel["enableTabindex"]);
+    assertEquals("False", upgradedModel["enableTabindex"]);
 };
 
 UpgradeModelTests.prototype.testUpgradeEnableTabindexShouldLeaveProperValue = function() {

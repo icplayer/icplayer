@@ -741,6 +741,10 @@ function AddonConnection_create() {
         }
     };
 
+    presenter.addTabindexToElement = function(element, tabindexValue){
+        element.attr("tabindex", tabindexValue);
+    };
+
     presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
@@ -756,7 +760,7 @@ function AddonConnection_create() {
         innerWrapper.html(model[columnModel][i]['content']);
 
         if(presenter.isTabindexEnabled) {
-            innerWrapper.attr("tabindex", "0");
+            presenter.addTabindexToElement(innerWrapper, 0);
         }
 
         innerElement.append(innerWrapper);
