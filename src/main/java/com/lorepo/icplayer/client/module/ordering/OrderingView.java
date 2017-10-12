@@ -91,6 +91,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		for (int index = 0; index < module.getItemCount(); index++ ) {
 			ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
 			itemWidget.setWidthWithoutMargin(itemWidth);
+			
+			if (this.module.isTabindexEnabled()){
+				itemWidget.getElement().setAttribute("tabindex", "0");
+			}
+			
 			addWidget(itemWidget);
 		}
 

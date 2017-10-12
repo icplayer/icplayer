@@ -55,13 +55,14 @@ public class SourceListModule extends BasicModuleModel{
 	
 		super.load(rootElement, baseUrl);
 		
+		this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(rootElement, "isTabindexEnabled", false);
+		
 		NodeList nodeList = rootElement.getElementsByTagName("items");
 		if(nodeList.getLength() > 0){
 			Element itemsElement = (Element)nodeList.item(0);
 			removable = XMLUtils.getAttributeAsBoolean(itemsElement, "removable", true);
 			vertical = XMLUtils.getAttributeAsBoolean(itemsElement, "vertical", false);
 			randomOrder = XMLUtils.getAttributeAsBoolean(itemsElement, "randomOrder", false);
-			this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(itemsElement, "isTabindexEnabled", false);
 		}
 
 		items.clear();
@@ -81,10 +82,9 @@ public class SourceListModule extends BasicModuleModel{
 	
 	@Override
 	public String toXML() {
-		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
+		String xml = "<sourceListModule " + getBaseXML() + " isTabindexEnabled='" + this.isTabindexEnabled + "'>" + getLayoutXML();
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder 
-				+ "' isTabindexEnabled='" + this.isTabindexEnabled + "'>";
+		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>" ;
 		
 		for(String item : items){
 			xml += "<item><![CDATA[" + item + "]]></item>";
@@ -180,7 +180,10 @@ public class SourceListModule extends BasicModuleModel{
 			public void setValue(String newValue) {
 				boolean value = newValue.compareToIgnoreCase("true") == 0; 
 				
-				isTabindexEnabled = value;
+				if (isTabindexEnabled != value){
+					isTabindexEnabled = value;
+					sendPropertyChangedEvent(this);
+				}
 			}
 			
 			@Override
