@@ -10,7 +10,5 @@
 		<property name="onDeselected" nameLabel="Double_State_Button_property_on_deselected" type="event" />
 		<property name="isSelected" nameLabel="Double_State_Button_property_is_selected" type="boolean" />
 		<property name="Disable" nameLabel="Double_State_Button_property_disable" type="boolean" />
-		<property name="Disable" nameLabel="Double_State_Button_property_disable" type="boolean" />
-		<property name="enableTabindex" displayName="Enable tabindex" nameLabel="Double_State_Button_property_enable_tabindex" type="boolean" />
 	</model>
 </addon>

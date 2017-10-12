@@ -30,9 +30,7 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.upgradeModel = function(model) {
-        var upgradedModel = presenter.upgradeDisable(model);
-        upgradedModel = presenter.upgradeTabindex(upgradedModel);
-        return upgradedModel;
+        return presenter.upgradeDisable(model);
     };
 
     presenter.upgradeDisable = function (model) {
@@ -41,17 +39,6 @@ function AddonDouble_State_Button_create(){
 
         if (!upgradedModel["Disable"]) {
             upgradedModel["Disable"] = "False";
-        }
-
-        return upgradedModel;
-    };
-
-    presenter.upgradeTabindex = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-
-        if (upgradedModel["enableTabindex"] === undefined) {
-            upgradedModel["enableTabindex"] = "False";
         }
 
         return upgradedModel;
