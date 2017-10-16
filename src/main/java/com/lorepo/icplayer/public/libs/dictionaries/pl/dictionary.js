@@ -1020,6 +1020,7 @@
 	"text_identification_property_on_selected" : "Na zaznaczenie",
 	"text_identification_property_on_deselected" : "Na odznaczenie",
     "text_identification_property_block_wrong_answers": "Zablokuj błędne odpowiedzi",
+	"text_identification_property_send_event_on_command": "Send event on select/deselect",
 	"TrueFalse_info" : "Umożliwia utworzenie ćwiczenia wielokrotnego lub pojedynczego wyboru, które składa się z co najmniej jednego pytania i dwóch opcji wyboru.",
 	"TrueFalse_name" : "Prawda/Fałsz",
 	"TrueFalse_property_is_not_activity" : "Nie jest ćwiczeniem",
