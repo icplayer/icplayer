@@ -224,6 +224,7 @@ function Addongamememo_create(){
         presenter.keppWrongMarking = ModelValidationUtils.validateBoolean(model['Keep wrong marking']);
         presenter.timeToSolve = getTimeToSolve(model);
         presenter.sessionEndedMessage = model['Session ended message'];
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Enable tabindex"]);
 
         var viewWidth = parseInt(presenter.viewContainer.css('width'));
         var viewHeight = parseInt(presenter.viewContainer.css('height'));
@@ -352,6 +353,10 @@ function Addongamememo_create(){
                 } else {
                     card = $('<img/>').attr({ src: pairs[j][presenter.numberToCardType(n) + ' (image)']});
                     serializedCard = { revealed: false, type: "image", content: pairs[j][presenter.numberToCardType(n) + ' (image)'] }
+                }
+
+                if (presenter.isTabindexEnabled) {
+                        card.attr("tabindex", "0");
                 }
 
                 card.addClass('card').attr({'card_id' : j, 'card_style' : n});
@@ -731,8 +736,24 @@ function Addongamememo_create(){
         });
     }
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeEnableTabindex(model);
+    };
+
+    presenter.upgradeEnableTabindex = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["Enable tabindex"] === undefined) {
+            upgradedModel["Enable tabindex"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.initializeLogic = function(view, model) {
         presenter.viewContainer = $(view);
+        model = presenter.upgradeModel(model);
         presenter.model = model;
 
         presenter.configuration = presenter.readConfiguration(model);

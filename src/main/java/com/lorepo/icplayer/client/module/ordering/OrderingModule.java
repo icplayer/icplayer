@@ -171,7 +171,7 @@ public class OrderingModule extends BasicModuleModel {
 				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + 
 				Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) +
 				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) +
-				+ "' isTabindexEnabled='" + this.isTabindexEnabled + "'/>";
+				"' isTabindexEnabled='" + this.isTabindexEnabled + "'/>";
 
 		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
