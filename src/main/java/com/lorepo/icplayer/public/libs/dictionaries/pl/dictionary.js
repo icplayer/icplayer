@@ -1504,7 +1504,7 @@
     "Catch_property_points_to_finish": "Punkty do końca",
     "Catch_property_count_errors": "Policz błędy",
 	"Iframe_info": "Addon ten umożliwia wprowadzenie do lekcji dowolnych zasobów HTML, zarówno w trybie online, jak i offline.",
-	"Iframe_name": "IFrame",
+	"Iframe_name": "Iframe",
 	"IFrame_property_iframe_url": "Adres Iframe",
 	"IFrame_property_file_list" : "Lista plików",
 	"IFrame_property_file": "Plik",

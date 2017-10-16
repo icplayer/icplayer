@@ -1505,7 +1505,7 @@ var ice_dictionary_fr = {
 "Catch_property_points_to_finish": "Points to finish",
 "Catch_property_count_errors": "Count errors",
 "Iframe_info": "This addon allows users to connection between iframe and addon",
-"Iframe_name": "IFrame",
+"Iframe_name": "Iframe",
 "IFrame_property_iframe_url": "Iframe URL",
 "IFrame_property_file_list" : "File list",
 "IFrame_property_file": "File",
