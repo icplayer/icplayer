@@ -45,7 +45,7 @@ public class PlayerApp {
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 
-			if (data.indexOf('I_FRAME_SIZES:') === 0) {
+			if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SIZES:') === 0) {
 				$wnd.iframeSize = JSON.parse(data.replace('I_FRAME_SIZES:', ''));
 			}
 		}, false);
@@ -192,7 +192,7 @@ public class PlayerApp {
 		$wnd.$(".ic_static_header").css("width", page.css("width"));
 		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
 			$wnd.addEventListener('message', function(event) {
-				if (event.data.indexOf('I_FRAME_SIZES:') === 0) {
+				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
 					var playerOffset = $wnd.iframeSize.frameOffset || 64;
 					if($wnd.iframeSize.isEditorPreview){
@@ -244,7 +244,7 @@ public class PlayerApp {
 			$wnd.$(".ic_static_footer").css("top", sum + "px");
 
 			$wnd.addEventListener('message', function (event) {
-				if (event.data.indexOf('I_FRAME_SIZES:') === 0) {
+				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
 					offsetIframe = $wnd.iframeSize.notScaledOffset;
 					sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight + scroll;

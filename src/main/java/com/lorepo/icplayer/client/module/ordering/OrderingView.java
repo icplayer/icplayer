@@ -46,6 +46,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	private boolean shouldRefreshMath = false;
 	private int currentWCAGSelectedItemIndex = 0;
 	private boolean wcagIsAvtive = false;
+	private boolean isValid = false;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
@@ -85,13 +86,20 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	private void createUI(OrderingModule module, boolean isPreview) {
 		createWidgetPanel();
+		
+		String errorMessage = validate();
+		
+		if (isValid) {
+			Integer itemWidth = module.getWidth() / module.getItemCount();
 
-		Integer itemWidth = module.getWidth() / module.getItemCount();
-
-		for (int index = 0; index < module.getItemCount(); index++ ) {
-			ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
-			itemWidget.setWidthWithoutMargin(itemWidth);
-			addWidget(itemWidget);
+			for (int index = 0; index < module.getItemCount(); index++ ) {
+				ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
+				itemWidget.setWidthWithoutMargin(itemWidth);
+				addWidget(itemWidget);
+			}			
+		} else {
+			ItemWidget error = new ItemWidget( new OrderingItem(0, errorMessage, ""), module );
+			addWidget(error);			
 		}
 
 		initWidget(innerCellPanel);
@@ -109,6 +117,33 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		if(!isPreview){
 			makeSortable(getElement(), jsObject, workMode);
 		}
+	}
+	
+	private String validate() {
+		if (module.getItemCount() <= 1) {
+			isValid = false;
+			return "Error - only one item";
+		}
+		
+		String optionalOrder = trimSpacesInside(module.getOptionalOrder());
+		
+		// if we have two items, there are only two combinations. If both are set as correct order,
+		// we can't generate a random incorrect order to show.
+		if (module.getItemCount() == 2 && module.isDontGenerateCorrectOrder() && optionalOrder.length() > 0) {
+			if (optionalOrder != trimSpacesInside(module.getItemsOrder())) {
+				isValid = false;
+				return "Error - all correct combinations have been used";
+			}
+		}
+		
+		isValid = true;
+		return "OK";
+	}
+	
+	private String trimSpacesInside(String str) {
+		// regex that removes all whitespaces (including tabs etc). 
+		// + is to take care of multiple spaces one after another 
+		return str.replaceAll("\\s+",""); 
 	}
 
 	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
@@ -226,7 +261,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 
 	/**
-	 * Zamiana miejscami widgetów
+	 * Zamiana miejscami widgetow
 	 */
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
 
@@ -313,6 +348,25 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 
 	public void randomizeViewItems() {
+		if (!isValid) {
+			return;
+		}
+
+		String originalOrder = new String(initialOrder);
+		String correctOrder = trimSpacesInside(module.getItemsOrder());
+		String altCorrectOrder = trimSpacesInside(module.getOptionalOrder());
+		
+		if (module.isDontGenerateCorrectOrder()) {
+			do {
+				generateRandomItemOrder();
+			} while (initialOrder == correctOrder || initialOrder == altCorrectOrder || initialOrder == originalOrder);
+		}
+		else {
+			generateRandomItemOrder();
+		}
+	}
+	
+	private void generateRandomItemOrder() {
 
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
 		List<Integer> order = RandomUtils.singlePermutation(innerCellPanel.getWidgetCount());

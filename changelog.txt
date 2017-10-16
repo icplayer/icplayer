@@ -1,3 +1,12 @@
+2017-10-16 Load button for list property in editor showed only for iframe module.
+2017-10-12 Fixed test configuration in Quiz module
+2017-10-12 Fixed bug with TextAudio still playing sound after closing popup with it
+2017-10-11 Fixed Programming Code Prompt module - enter now creates a new line.
+2017-10-11 Added property to Ordering module, which disallows generating a correct ordering by random.
+2017-10-11 Fixed problem with errors in console in iFrame module
+2017-10-11 Added new addon Quiz
+2017-10-10 Added alternative name styling property in Hierarchical Lesson Report.
+2017-10-09 Added closed panel drawing property in IWB Toolbar module
 2017-10-05 Added shooting range addon.
 2017-10-05 Added language attribute in Text module and lesson
 2017-10-05 Fixed problem with too large page index

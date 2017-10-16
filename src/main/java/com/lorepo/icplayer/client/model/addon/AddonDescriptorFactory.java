@@ -55,6 +55,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Points_To_Plot", "activities_menu");
 		addDescriptor("PointsLines", "activities_menu");
 		addDescriptor("Puzzle", "activities_menu");
+		addDescriptor("Quiz", "activities_menu");
         addDescriptor("Shooting_Range", "activities_menu");
 		addDescriptor("Sudoku", "activities_menu");
 		addDescriptor("Table", "activities_menu");

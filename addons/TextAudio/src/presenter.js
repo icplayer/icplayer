@@ -272,8 +272,7 @@ function AddonTextAudio_create() {
 
         if (presenter.isVocabularyPlaying) {
             if (presenter.vocabulary.getTime() >= presenter.vocabulary_end) {
-                presenter.vocabulary.setTime(0);
-                presenter.vocabulary.pause();
+                presenter.stopVocabularyAudioPlaying();
             }
             return;
         }
@@ -1039,6 +1038,7 @@ function AddonTextAudio_create() {
 
         if (presenter.vocabulary) {
             presenter.vocabulary.unbind('ended play pause canplaythrough');
+            presenter.stopVocabularyAudioPlaying();
             presenter.vocabulary = null;
         }
 
@@ -1078,6 +1078,11 @@ function AddonTextAudio_create() {
         presenter.view = null;
         presenter.$view = null;
     };
+
+    presenter.stopVocabularyAudioPlaying = function AddonTextAudio_stopVocabularyAudioPlaying() {
+        presenter.vocabulary.setTime(0);
+        presenter.vocabulary.pause();
+    }
 
     presenter.createPreview = function AddonTextAudio_createPreview (view, model) {
         presenter.initialize(view, model, true);
