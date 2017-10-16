@@ -2,5 +2,9 @@
 
 <addon id='Pseudo_Console' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
+        <property name="functionsList" displayName="Functions List" nameLabel="Pseudo_Console_property_functions_list" type="list">
+            <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            <property name="body" displayName="Function Body" nameLabel="Pseudo_Console_property_functions_body" type="text" />
+        </property>
     </model>
 </addon>

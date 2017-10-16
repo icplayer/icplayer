@@ -137,7 +137,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "instruction_name" : [
-                ["STATIC_VALUE", "$$=$1;"],
+                ["STATIC_VALUE", "yy.presenterContext.checkInstructionName($1); $$=$1;"],
             ],
 
             "arguments" : [
@@ -204,7 +204,7 @@ function AddonPseudo_Console_create() {
             parsedArgs.push(args[i]);
         }
 
-        return "presenter.state.functions." + functionName + ".call(null, next, pause," + parsedArgs.join(",") + ");";
+        return "presenter.configuration.functions." + functionName + ".call(presenter.objectForInstructions, next, pause," + parsedArgs.join(",") + ");";
     }
 
     presenter.generateExecuteObject = function (code, label) {
@@ -223,6 +223,16 @@ function AddonPseudo_Console_create() {
         };
     }
 
+    presenter.checkInstructionName = function (instructionName) {
+        function InstructionNameException(instrName) {
+            this.message = "Undefined instruction \"" + instrName + "\"";
+            this.name = "InstructionNameException";
+        }
+
+        if (!presenter.configuration.functions[instructionName]) {
+            throw new InstructionNameException(instructionName);
+        }
+    }
 
     presenter.generateForHeader = function (yy, variableName, from, to) {
         yy.labelsStack.push('for_' + yy.actualExecutionIndex); 
@@ -248,31 +258,13 @@ function AddonPseudo_Console_create() {
         return execElements;
     }
 
+    presenter.objectForInstructions = {
+
+    }
+
     presenter.state = {
         jqconsole: null,
         functions: {
-            "pisz" : function (next, pause) {
-                var values = [];
-                for (var i = 0; i < arguments.length; i++) {
-                    if (i > 1) {
-                        values.push(arguments[i].value);
-                    }
-                }
-                presenter.state.jqconsole.Write(values.join("\t"));
-                presenter.state.jqconsole.Write("\n");
-            },
-
-            "czytaj" : function (next, pause, value) {
-                pause();
-                presenter.state.jqconsole.Prompt(true, function (input) {
-                    if (/^\d+(.\d+)?$/.test(input)) {
-                        value.value = Number(input);
-                    } else {
-                        value.value = input;
-                    }
-                    next();
-                })
-            }
         },
         codeGenerator: null
     };
@@ -309,7 +301,10 @@ function AddonPseudo_Console_create() {
         presenter.state.view = view;
 
         if (!isPreview) {
-            presenter.state.jqconsole = $(presenter.state.$view).jqconsole('Hi\n', '>>>');
+            presenter.state.jqconsole = $(presenter.state.$view).jqconsole('', '>>>');
+            presenter.objectForInstructions.console = presenter.state.jqconsole;
+
+            Jison.print = function () {};
             var parser = new Jison.Parser(JISON_GRAMMAR);
             parser.yy.presenterContext = presenter;
             presenter.state.codeGenerator = parser;
@@ -349,11 +344,45 @@ function AddonPseudo_Console_create() {
         }
     };
 
+    presenter.validateFunction = function (functionToValidate) {
+        return {
+            isValid: true,
+            value: {
+                name: functionToValidate.name,
+                body: new Function("var pause = arguments[1], next=arguments[0]; arguments = Array.prototype.slice.call(arguments, 2);" + functionToValidate.body)
+            }
+        }
+    };
+
+    presenter.validateFunctions = function (functions) {
+        var validatedFunctions = {};
+
+        for (var i = 0; i < functions.length; i++) {
+            var validatedFunction = presenter.validateFunction(functions[i]);
+            if (!validatedFunction.isValid) {
+                return validatedFunction;
+            }
+
+            validatedFunctions[validatedFunction.value.name] = validatedFunction.value.body;
+        }
+
+        return {
+            isValid: true,
+            value: validatedFunctions
+        };
+    };
+
     presenter.validateModel = function (model) {
+        var validatedFunctions = presenter.validateFunctions(model.functionsList);
+        if (!validatedFunctions.isValid) {
+            return validatedFunctions;
+        }
+
         return {
             isValid: true,
             addonID: model['ID'],
-            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible'])
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            functions: validatedFunctions.value
         };
     };
 
@@ -425,9 +454,16 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.executeCode = function  (code) {
-        var executableCode = presenter.state.codeGenerator.parse(code);
-
-        presenter.codeExecutor(executableCode);
+        try {
+            var executableCode = presenter.state.codeGenerator.parse(code);
+            presenter.codeExecutor(executableCode);
+        } catch(e) {
+            if (e.name) {
+                presenter.state.jqconsole.Write(e.message + "\n", 'program-error-output');
+            } else {
+                presenter.state.jqconsole.Write("Unexpected identifier\n", 'program-error-output');
+            }
+        }
     }
 
     function generateValidationError(errorCode) {
@@ -449,18 +485,22 @@ function AddonPseudo_Console_create() {
             next();
             var actualEntry = code[actualIndex];
             if (actualEntry) {
-                console.log(actualIndex);
-                if (actualEntry.type == presenter.TYPES.EXECUTE) {
-                    eval(actualEntry.code);
-                    actualIndex++;
-                } else if (actualEntry.type == presenter.TYPES.JUMP) {
-                    if (eval(actualEntry.code)) {
-                        actualIndex = getIndexByLabel(actualEntry.toLabel)
-                    } else {
+                try {
+                    if (actualEntry.type == presenter.TYPES.EXECUTE) {
+                        eval(actualEntry.code);
                         actualIndex++;
+                    } else if (actualEntry.type == presenter.TYPES.JUMP) {
+                        if (eval(actualEntry.code)) {
+                            actualIndex = getIndexByLabel(actualEntry.toLabel)
+                        } else {
+                            actualIndex++;
+                        }
                     }
+                } catch (e) {
+                    presenter.state.jqconsole.Write(e + "\n", 'program-error-output');
+                    pause();
                 }
-            }
+            } 
         }
 
         function pause() {
