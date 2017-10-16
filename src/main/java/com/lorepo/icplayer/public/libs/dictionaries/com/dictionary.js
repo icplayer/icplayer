@@ -362,7 +362,7 @@ var ice_dictionary_en = {
 	"randomOrder" : "Random&nbsp;Order",
 	"All_elements_has_same_width" : "Even width for all elements",
 	"case_sensitive" : "Case&nbsp;sensitive",
-	"optional_order" : "order",
+	"optional_order" : "Alternative correct order",
 	"add_header_footer": "Replace headers",
 	"move_module_up_menu": "Move module up",
 	"move_module_down_menu": "Move module down",
@@ -1531,6 +1531,20 @@ var ice_dictionary_en = {
 	"Shooting_Range_property_correct_answer": "",
 	"Shooting_Range_property_initial_time_for_answer": "Initial time for answer",
 	"Shooting_Range_property_time_for_last_answer": "Time for last answer",
+	"Quiz_name": "Quiz",
+	"Quiz_info": "Sequence of questions with tips",
+	"Quiz_property_Questions": "Questions",
+	"Quiz_property_Question": "Question",
+	"Quiz_property_CorrectAnswer": "Correct answer",
+	"Quiz_property_WrongAnswer1": "First wrong answer",
+	"Quiz_property_WrongAnswer2": "Second wrong answer",
+	"Quiz_property_WrongAnswer3": "Third wrong answer",
+	"Quiz_property_hint": "Hint",
+	"Quiz_property_ShowHelpButtons": "Show help buttons",
+	"Quiz_property_NextLabel": "Next label",
+	"Quiz_property_GameLostMessage": "Game lost message",
+	"Quiz_property_GameWonMessage": "Game won message",
+	"Quiz_property_isActivity": "Is activity",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
 	"sort_by": "Sort by:",
@@ -1544,5 +1558,7 @@ var ice_dictionary_en = {
 	"Footer_none": "None",
 	"Footer_default": "Default",
     "Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
-	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties."
+	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
+     "dont_generate_correct_order": "Don't generate correct order"
+
 };

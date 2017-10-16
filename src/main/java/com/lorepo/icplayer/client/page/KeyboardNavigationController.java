@@ -197,7 +197,7 @@ public final class KeyboardNavigationController {
 					return;
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					event.preventDefault();
 					activateModule();
 				}
