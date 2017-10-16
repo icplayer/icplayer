@@ -258,15 +258,16 @@ function AddonPseudo_Console_create() {
         return execElements;
     }
 
+    //This object will be passed to instruction as scope
     presenter.objectForInstructions = {
 
     }
 
     presenter.state = {
         jqconsole: null,
-        functions: {
-        },
-        codeGenerator: null
+        functions: {},
+        codeGenerator: null,
+        consoleIframe: null
     };
 
     presenter.configuration = {
@@ -290,6 +291,22 @@ function AddonPseudo_Console_create() {
         presenter.initialize(view, model, true);
     };
 
+    presenter.configureIframe = function () {
+        presenter.state.consoleIframe = $(view).find(".addon-Pseudo_Console-console")[0];
+        var contentWindow = presenter.state.consoleIframe.contentWindow;
+        contentWindow.window.$ = jQuery_3_2_1;
+        contentWindow.window.jQuery = jQuery_3_2_1;
+        contentWindow.window.$.fn.jqconsole = $.fn.jqconsole;
+        contentWindow.window.onLoadjqconsole = function (jqconsole) {
+            presenter.state.jqconsole = jqconsole;
+            presenter.objectForInstructions.console = jqconsole;
+        }
+        var doc = contentWindow.document;
+        doc.open();
+        doc.write("<script>$(document).ready(function () {var jq = $(document.body).jqconsole('', '>>>'); console.log(window); window.onLoadjqconsole.call(this, jq);} );</script>");
+        doc.close();
+    }
+;
     presenter.initialize = function  (view, model, isPreview)  {
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
@@ -301,10 +318,7 @@ function AddonPseudo_Console_create() {
         presenter.state.view = view;
 
         if (!isPreview) {
-            presenter.state.jqconsole = $(presenter.state.$view).jqconsole('', '>>>');
-            presenter.objectForInstructions.console = presenter.state.jqconsole;
-
-            Jison.print = function () {};
+            presenter.configureIframe();
             var parser = new Jison.Parser(JISON_GRAMMAR);
             parser.yy.presenterContext = presenter;
             presenter.state.codeGenerator = parser;
