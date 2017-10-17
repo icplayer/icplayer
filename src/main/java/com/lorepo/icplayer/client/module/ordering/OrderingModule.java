@@ -461,12 +461,12 @@ public class OrderingModule extends BasicModuleModel {
 
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get("Ordering_property_is_tabindex_enabled");
+				return DictionaryWrapper.get("ordering_property_is_tabindex_enabled");
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get("Ordering_property_is_tabindex_enabled");
+				return DictionaryWrapper.get("ordering_property_is_tabindex_enabled");
 			}
 
 			@Override

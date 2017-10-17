@@ -11,6 +11,6 @@
 		<property name="Choices" nameLabel="TrueFalse_property_choices" type="list">
 			<property name="Choice" nameLabel="TrueFalse_property_choice" type="html" isLocalized="true" />
 		</property>
-		<property name="enableTabindex" nameLabel="TrueFalse_property_enalbe_tabindex" type="boolean" isLocalized="true" />
+		<property name="enableTabindex" nameLabel="TrueFalse_property_enable_tabindex" type="boolean" isLocalized="true" />
 	</model>
 </addon>
