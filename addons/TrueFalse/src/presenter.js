@@ -289,6 +289,10 @@ function AddonTrueFalse_create() {
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
 
+        if (presenter.isTabindexEnabled) {
+            presenter.addTabindex($(view), "0");
+        }
+
         if (notAllRequiredParameters(questions, possibleChoices)) {
             return $(view).html(QUESTION_AND_CHOICES_REQUIRED);
         }

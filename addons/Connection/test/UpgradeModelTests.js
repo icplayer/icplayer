@@ -77,8 +77,8 @@ UpgradeModelTests.prototype.testUpgradeEnableTabindex = function() {
 };
 
 UpgradeModelTests.prototype.testUpgradeEnableTabindexShouldLeaveProperValue = function() {
-    this.model["enableTabindex"] = true;
+    this.model["enableTabindex"] = "True";
     var upgradedModel = this.presenter.upgradeModel(this.model);
 
-    assertTrue(upgradedModel["enableTabindex"])
+    assertEquals("True", upgradedModel["enableTabindex"]);
 };

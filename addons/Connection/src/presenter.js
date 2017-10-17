@@ -306,6 +306,10 @@ function AddonConnection_create() {
 
         presenter.validateTabindexEnabled(model);
 
+        if (presenter.isTabindexEnabled) {
+            $(presenter.view).attr("tabindex", "0");
+        }
+
         if (isPreview) {
             this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
             this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);

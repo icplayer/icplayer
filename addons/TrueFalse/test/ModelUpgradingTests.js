@@ -12,7 +12,7 @@ TestCase("[TrueFalse] Model upgrading tests", {
          'Choices': [{
              'Choice': "True"
          }]
-     }
+     };
 
      this.expectedModel = {
          'isNotActivity': "True",
@@ -25,7 +25,7 @@ TestCase("[TrueFalse] Model upgrading tests", {
              'Choice': "True"
          }],
          'enableTabindex': "False"
-     }
+     };
    },
 
     'test should upgrade model': function () {

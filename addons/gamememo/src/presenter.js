@@ -341,6 +341,10 @@ function Addongamememo_create(){
         var card;
         var serializedCard;
 
+        if (presenter.isTabindexEnabled) {
+            presenter.viewContainer.attr("tabindex", "0");
+        }
+
         var pairs = presenter.configuration.pairs;
 
         for(var n = 0; n <= 1; n++) {

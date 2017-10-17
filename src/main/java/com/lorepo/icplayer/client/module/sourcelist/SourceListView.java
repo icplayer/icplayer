@@ -63,6 +63,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		
+		if (this.module.isTabindexEnabled()){
+			this.getElement().setTabIndex(0);
+		}
 	}
 
 

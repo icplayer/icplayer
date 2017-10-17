@@ -23,15 +23,3 @@ AdditionalClassValidation.prototype.testClassNameUndefined = function() {
 
     assertClassName("After calling addClassToElement() elementAfter should stay unchanged.", expectedClassName, elementAfter);
 };
-
-AdditionalClassValidation.prototype.testClassNameUndefined = function() {
-    var presenter = AddonConnection_create();
-    var className = "";
-    var expectedClassName = "innerWrapper";
-
-    /*:DOC elementBefore = <div class='innerWrapper'></div> */
-
-    var elementAfter = presenter.addClassToElement(this.elementBefore, className);
-
-    assertClassName("After calling addClassToElement() elementAfter should stay unchanged.", expectedClassName, elementAfter);
-};
