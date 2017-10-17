@@ -41,7 +41,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	}
 	
 	private void parsePage(String xml, Page page) throws SAXException, IOException {
-		PageFactoryMockup factory= new PageFactoryMockup(page);
+		PageFactoryMockup factory = new PageFactoryMockup(page);
 		factory.produce(xml, "");
 	}
 	
@@ -63,22 +63,21 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	}
 	
 	// Checking updating xmls
-	
 	@Test
 	public void updatingVersion2PageWithNoHeaders() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3NoHeaders.xml");
+		String expected = getFromFile("testdata/PageVersion4NoHeaders.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2HeadersFalse.xml");
 		
 		String result = page.toXML();
 		
-		Diff diff = new Diff(pageXML, result);
+		Diff diff = new Diff(expected, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingVersion2Page() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3.xml");
+		String pageXML = getFromFile("testdata/PageVersion4.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2.xml");
 		String result = page.toXML();
@@ -89,7 +88,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingPageWithoutVersion() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3.xml");
+		String pageXML = getFromFile("testdata/PageVersion4.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersion.xml");
 		String result = this.page.toXML();
@@ -100,7 +99,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingPageVersion3ToHeadersVersion() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3.xml");
+		String pageXML = getFromFile("testdata/PageVersion4.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersInModel.xml");
 		
 		String result = this.page.toXML();
@@ -117,12 +116,11 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		assertEquals(0, this.page.getWidth());
 		assertTrue(this.page.hasFooter());
 		assertTrue(this.page.hasHeader());
-		assertEquals("3", this.page.getVersion());
 	}
 	
 	@Test
 	public void updatingVersion2WithoutHeadersInModel() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3.xml");
+		String pageXML = getFromFile("testdata/PageVersion4.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2NoHeadersInModel.xml");
 		
 		String result = this.page.toXML();
@@ -133,22 +131,23 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingVersion2NoClassAndLayout() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3NoClassAndLayout.xml");
+		String expectedXML = getFromFile("testdata/PageVersion4NoClassAndLayout.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2NoClassAndLayout.xml");	
 		
 		String result = this.page.toXML();
-		Diff diff = new Diff(pageXML, result);
 		
+		Diff diff = new Diff(expectedXML, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingWithoutVersionNoClassAndLayout() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion3NoClassAndLayout.xml");
+		String expectedXML = getFromFile("testdata/PageVersion4NoClassAndLayout.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersionNoClassAndLayout.xml");	
 		
 		String result = this.page.toXML();
-		Diff diff = new Diff(pageXML, result);
+		
+		Diff diff = new Diff(expectedXML, result);
 		
 		XMLAssert.assertXMLEqual(diff, true);
 	}
@@ -156,16 +155,15 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	@Test
 	public void updatingPageVersion3WithManyLayouts() throws SAXException, IOException {
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersManyLayouts.xml");
-		String pageXML = getFromFile("testdata/PageVersion3ManyLayouts.xml");
+		String expectedXML = getFromFile("testdata/PageVersion4ManyLayouts.xml");
 		
 		String result = this.page.toXML();
-		Diff diff = new Diff(pageXML, result);
+		Diff diff = new Diff(expectedXML, result);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	// Checking page attributes
-	
 	@Test
 	public void checkingIfUpdatedVersion3WillHaveAttributes() throws Exception {
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersInModel.xml");
@@ -175,8 +173,6 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		
 		assertTrue(this.page.hasHeader());
 		assertTrue(this.page.hasFooter());
-		
-		assertEquals("3", this.page.getVersion());
 		
 		assertEquals(defaultSize.getID(), returnedSize.getID());
 		assertEquals(defaultSize.getHeight(), returnedSize.getHeight());
@@ -196,8 +192,6 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		assertTrue(this.page.hasHeader());
 		assertTrue(this.page.hasFooter());
 		
-		assertEquals("3", this.page.getVersion());
-		
 		assertEquals(defaultSize.getID(), returnedSize.getID());
 		assertEquals(defaultSize.getHeight(), returnedSize.getHeight());
 		assertEquals(defaultSize.getWidth(), returnedSize.getWidth());
@@ -215,8 +209,6 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		
 		assertFalse(this.page.hasHeader());
 		assertFalse(this.page.hasFooter());
-		
-		assertEquals("3", this.page.getVersion());
 		
 		assertEquals(defaultSize.getID(), returnedSize.getID());
 		assertEquals(defaultSize.getHeight(), returnedSize.getHeight());
@@ -236,7 +228,6 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		assertTrue(this.page.hasFooter());
 		assertTrue(this.page.hasHeader());
 
-		assertEquals("3", this.page.getVersion());
 		assertEquals(defaultSize.getID(), returnedSize.getID());
 		assertEquals(defaultSize.getHeight(), returnedSize.getHeight());
 		assertEquals(defaultSize.getWidth(), returnedSize.getWidth());
@@ -274,12 +265,12 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	@Test 
 	public void checkingV2XML() throws IOException, SAXException {
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2NoHeadersInModel.xml");
-		
 		String firstXML = this.page.toXML();
-		Page pageV3 = new Page("Page", "");
-		this.parsePage(firstXML, pageV3);
+
+		Page pageV4 = new Page("Page", "");
+		this.parsePage(firstXML, pageV4);
 		
-		String secondXML = pageV3.toXML();
+		String secondXML = pageV4.toXML();
 		XMLAssert.assertXMLEqual(firstXML, secondXML);
 	}
 	

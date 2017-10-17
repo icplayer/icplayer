@@ -177,7 +177,9 @@ public class TextModel extends BasicModuleModel {
 		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
 		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
 		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
-        text.setAttribute("langAttribute", this.langAttribute);
+		if (this.langAttribute.compareTo("") != 0) {
+			text.setAttribute("langAttribute", this.langAttribute);
+		}
 		text.setAttribute("valueType", this.valueType);
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
 

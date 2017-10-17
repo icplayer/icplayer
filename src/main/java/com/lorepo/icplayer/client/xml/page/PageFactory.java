@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.xml.page.parsers.IPageParser;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v0;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v1;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v2;
+import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v3;
 
 public class PageFactory extends XMLVersionAwareFactory {
 	
@@ -18,6 +19,7 @@ public class PageFactory extends XMLVersionAwareFactory {
 		this.addParser(new PageParser_v0());
 		this.addParser(new PageParser_v1());
 		this.addParser(new PageParser_v2());
+		this.addParser(new PageParser_v3());
 	}
 	
 	public void addParser(IPageParser parser) {

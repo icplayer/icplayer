@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Shooting_Range' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="definitions" displayName="Definitions" nameLabel="Shooting_Range_property_definitions" type="list">
+            <property name="definition" displayName="Definition" nameLabel="Shooting_Range_property_definition" type="html"/>
+            <property name="answer1" displayName="Answer" nameLabel="Shooting_Range_property_answer" type="string" />
+            <property name="answer2" displayName="Answer" nameLabel="Shooting_Range_property_answer" type="string" />
+            <property name="answer3" displayName="Answer" nameLabel="Shooting_Range_property_answer" type="string" />
+            <property name="correct_answers" displayName="Correct Answer(s)" nameLabel="Shooting_Range_property_correct_answer" type="string" />
+        </property>
+            <property name="initial_time_for_answer" displayName="Initial Time For Answer" nameLabel="Shooting_Range_property_initial_time_for_answer" type="string" />
+            <property name="time_for_last_answer" displayName="Time For Last Answer" nameLabel="Shooting_Range_property_time_for_last_answer" type="string" />
+    </model>
+</addon>

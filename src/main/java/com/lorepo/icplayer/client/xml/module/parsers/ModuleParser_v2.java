@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.xml.module.parsers;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
@@ -27,6 +28,15 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 				this.parseSingleLayout(childNode);
 			}
 		}
+	}
+	
+	@Override
+	public void parseModuleStyleAttributes(Element xml) {
+		String inlineStyle = StringUtils.unescapeXML(xml.getAttribute("style"));
+		String styleClass = StringUtils.unescapeXML(xml.getAttribute("class"));
+		
+		this.module.setDefaultInlineStyle(inlineStyle);
+		this.module.setDefaultStyleClass(styleClass);
 	}
 
 	private void parseSingleLayout(Node xml) {

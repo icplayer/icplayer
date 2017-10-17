@@ -25,6 +25,7 @@ public class OrderingModule extends BasicModuleModel {
 	private boolean isActivity = true;
 	private boolean allElementsHasSameWidth = false;
 	private boolean graduallyScore = false;
+	private boolean dontGenerateCorrectOrder = false;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -39,6 +40,7 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyIsActivity();
 		addPropertyAllElementHasSameWidth();
 		addPropertyGraduallyScore();
+		addPropertyDontGenerateCorrectOrder();
 	}
 
 	private void addItem(OrderingItem item) {
@@ -81,6 +83,7 @@ public class OrderingModule extends BasicModuleModel {
 			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
 			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
 			graduallyScore = XMLUtils.getAttributeAsBoolean(choice, "graduallyScore");
+			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(choice, "dontGenerateCorrectOrder");
 		}
 
 		// Read item nodes
@@ -125,6 +128,20 @@ public class OrderingModule extends BasicModuleModel {
 		catch (NumberFormatException e) {}
 	}
 
+	public String getItemsOrder() {
+		String order = "";
+		int last = 0;
+
+		for (OrderingItem item : items) {
+			order += item.getIndex();
+			last++;
+
+			if (last != items.size() )
+				order += ", ";
+		}
+		return order;
+	}
+
 	public void removeAllItems() {
 		items.clear();
 	}
@@ -141,13 +158,14 @@ public class OrderingModule extends BasicModuleModel {
 		Element orderingModule = XMLUtils.createElement("orderingModule");
 		this.setBaseXMLAttributes(orderingModule);
 		orderingModule.appendChild(this.getLayoutsXML());
-		
+
 		Element ordering = XMLUtils.createElement("ordering");
 
 		XMLUtils.setBooleanAttribute(ordering, "isVertical", isVertical);
 		XMLUtils.setBooleanAttribute(ordering, "isActivity", isActivity);
 		XMLUtils.setBooleanAttribute(ordering, "allElementsHasSameWidth", allElementsHasSameWidth);
 		XMLUtils.setBooleanAttribute(ordering, "graduallyScore", graduallyScore);
+		XMLUtils.setBooleanAttribute(ordering, "dontGenerateCorrectOrder", dontGenerateCorrectOrder);
 		ordering.setAttribute("optionalOrder", optionalOrder);
 		orderingModule.appendChild(ordering);
 
@@ -156,7 +174,7 @@ public class OrderingModule extends BasicModuleModel {
 			itemElement.appendChild(XMLUtils.createCDATASection(item.getText()));
 			orderingModule.appendChild(itemElement);
 		}
-		
+
 		return orderingModule.toString();
 	}
 
@@ -452,6 +470,49 @@ public class OrderingModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("ordering_gradually_score");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean isDontGenerateCorrectOrder() {
+		return dontGenerateCorrectOrder;
+	}
+
+	private void addPropertyDontGenerateCorrectOrder() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= dontGenerateCorrectOrder) {
+					dontGenerateCorrectOrder = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return dontGenerateCorrectOrder ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("dont_generate_correct_order");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("dont_generate_correct_order");
 			}
 
 			@Override

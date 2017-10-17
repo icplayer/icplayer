@@ -27,14 +27,13 @@ public class PageParser_v2 extends PageParserBase {
 				Size size = new Size(layoutID, width, height);
 				size.setIsDefault(isDefault);
 				page.addSize(layoutID, size);
+				
+				if (isDefault) {
+					page.setDefaultLayoutID(layoutID);
+				}
 			}
 		}
 		
 		return page;
-	}
-	
-	@Override
-	protected IPageBuilder loadPageAttributes(IPageBuilder page, Element xml) {
-		return this.page;
 	}
 }

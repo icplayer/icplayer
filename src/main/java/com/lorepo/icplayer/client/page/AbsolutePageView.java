@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;

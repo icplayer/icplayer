@@ -14,6 +14,11 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	protected IModuleModelBuilder module;
 	
 	public ModuleModelParser_base() {}
+	
+	@Override
+	public void setModule(IModuleModelBuilder module) {
+		this.module = module;
+	}
 
 	@Override
 	public String getVersion() {
@@ -22,10 +27,11 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 
 	@Override
 	public Object parse(Element xml) {
-		NodeList nodes = xml.getChildNodes();
 		this.parsePosition(xml);
 		this.parseModuleAttributes(xml);
+		this.parseModuleStyleAttributes(xml);
 		
+		NodeList nodes = xml.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
 			
@@ -35,10 +41,15 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 				this.module.loadLayout((Element) childNode);
 			} else if(childNode.getNodeName().compareTo("layouts") == 0 && childNode instanceof Element) {
 				this.parseLayouts((Element) childNode);
+			} else if(childNode.getNodeName().compareTo("styles") == 0 && childNode instanceof Element) {
+				this.parseStyles((Element) childNode);
 			}
 		}
+		
 		return this.module;
 	}
+
+	protected void parseStyles(Element childNode) {}
 
 	protected void parseLayouts(Element childNode) {}
 
@@ -61,10 +72,20 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 		this.module.setIsVisible(XMLUtils.getAttributeAsBoolean(xml, "isVisible", true));
 		this.module.setIsLocked(XMLUtils.getAttributeAsBoolean(xml, "isLocked", false));
 		this.module.setModuleInEditorVisibility(XMLUtils.getAttributeAsBoolean(xml, "isModuleVisibleInEditor", true));
-
+	}
+	
+	protected void parseModuleStyleAttributes(Element xml) {
 		String style = StringUtils.unescapeXML(xml.getAttribute("style"));
-		this.module.setInlineStyle(style);
-		this.module.setStyleClass(StringUtils.unescapeXML(xml.getAttribute("class") ));
+		String styleClass = StringUtils.unescapeXML(xml.getAttribute("class"));
+		
+		
+		if(style != null && style.trim().compareTo("") != 0) {
+			this.module.setInlineStyle(style);			
+		}
+
+		if(styleClass != null && styleClass.trim().compareTo("") != 0) {
+			this.module.setStyleClass(styleClass);	
+		}
 	}
 
 	protected String parseModuleID(Element xml) {
@@ -75,10 +96,5 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 			id = StringUtils.unescapeXML(id);
 		}
 		return id;
-	}
-
-	@Override
-	public void setModule(IModuleModelBuilder module) {
-		this.module = module;
 	}
 }

@@ -715,7 +715,8 @@ function AddonIWB_Toolbar_create() {
             'panelPosition': model['Fixed Position'] == 'True' ? 'absolute' : 'fixed',
 
             'showForPen': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forPen),
-            'showForMarker': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker)
+            'showForMarker': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker),
+            'closedPanelDrawing': ModelValidationUtils.validateBoolean(model["Closed panel drawing"])
         };
     }
 
@@ -1209,8 +1210,10 @@ function AddonIWB_Toolbar_create() {
         }
         if (presenter.isSupportCSSPointerEvents()) {
             if (!$(button).hasClass('pen') && !$(button).hasClass('marker') && !$(button).hasClass('eraser')){
-                presenter.$penMask.css('pointer-events', 'none');
-                presenter.$markerMask.css('pointer-events', 'none');
+                if(!presenter.config.closedPanelDrawing) {
+                    presenter.$penMask.css('pointer-events', 'none');
+                    presenter.$markerMask.css('pointer-events', 'none');
+                }
             }else{
                 presenter.$penMask.css('pointer-events', 'auto');
                 presenter.$markerMask.css('pointer-events', 'auto');

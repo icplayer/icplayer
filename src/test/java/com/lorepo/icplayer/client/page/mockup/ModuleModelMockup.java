@@ -281,4 +281,11 @@ public class ModuleModelMockup implements IModuleModel {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void syncSemiResponsiveStyles(
+			Set<PageLayout> actualSemiResponsiveLayouts) {
+		// TODO Auto-generated method stub
+		
+	}
 }

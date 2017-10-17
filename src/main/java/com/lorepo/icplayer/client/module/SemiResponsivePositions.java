@@ -50,6 +50,14 @@ public class SemiResponsivePositions {
 		this.ensureLayoutExistsOrFallbackToDefault(semiResponsiveLayoutID);
 	}
 	
+	public String getSemiResponsiveLayoutID () {
+		return this.semiResponsiveID;
+	}
+	
+	public String getDefaultSemiResponsiveLayoutID() {
+		return this.defaultLayoutID;
+	}
+	
 	public void setLayoutDefinition(String layoutSemiResponsiveID, LayoutDefinition layout) {
 		this.layoutsDefinitions.put(layoutSemiResponsiveID, layout);
 	}
@@ -67,7 +75,7 @@ public class SemiResponsivePositions {
 		this.syncDefaultLayoutID(actualSemiResponsiveLayouts);
 		this.deleteOldLayouts(actualSemiResponsiveLayouts);
 		this.addMissingLayouts(actualSemiResponsiveLayouts);
-		this.syncCurrentLayoudID();
+		this.syncCurrentLayoutID();
 	}
 
 	private void syncDefaultLayoutID(Set<PageLayout> actualSemiResponsiveLayouts) {
@@ -108,7 +116,7 @@ public class SemiResponsivePositions {
 	}
 	
 
-	private void syncCurrentLayoudID() {
+	private void syncCurrentLayoutID() {
 		if (!this.positions.containsKey(this.semiResponsiveID)) {
 			this.semiResponsiveID = this.defaultLayoutID;
 		}
@@ -151,7 +159,6 @@ public class SemiResponsivePositions {
 	}
 
 	private ModuleDimensions getDimensionsCopy(String layoutID) {
-		System.out.println("dimensions copy: " + this.positions.size());
 		ModuleDimensions layoutDimensions = this.positions.get(layoutID);
 		ModuleDimensions copyOfDefaultDimensions = ModuleDimensions.copy(layoutDimensions);
 		return copyOfDefaultDimensions;

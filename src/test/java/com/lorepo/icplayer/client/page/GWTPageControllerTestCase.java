@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.mockup.xml.PageFactoryMockup;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Group;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -22,14 +23,11 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
-import com.lorepo.icplayer.client.utils.XML;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPageControllerTestCase extends GwtTest {
 
 	private PageViewMockup display;
-	XML xmlUtils = new XML();
-	
 	
 	public PageController init(String dataPath) throws SAXException, IOException {
 		
@@ -39,7 +37,7 @@ public class GWTPageControllerTestCase extends GwtTest {
 		pageController.setView(display);
 		pageController.setModuleFactory(new ModuleFactoryMockup(pageController.getPlayerServices()));
 		
-		Page page = xmlUtils.loadPageFromFile_v2(new Page("Sizes", ""), dataPath);
+		Page page = new PageFactoryMockup(new Page("Sizes", "")).loadFromFile(dataPath);
 		
 		Content contentMock = Mockito.mock(Content.class);
 		when(contentMock.getActualSemiResponsiveLayoutID()).thenReturn("default");

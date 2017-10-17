@@ -180,6 +180,14 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	public void copyConfiguration(String lastSeenLayout) {
 		this.semiResponsivePositions.copyConfiguration(lastSeenLayout);
 	}
+	
+	protected String getSemiResponsiveID() {
+		return this.semiResponsivePositions.getSemiResponsiveLayoutID();
+	}
+	
+	protected String getDefaultSemiResponsiveID() {
+		return this.semiResponsivePositions.getDefaultSemiResponsiveLayoutID();
+	}
 
 
 	private void addPropertyLayout() {

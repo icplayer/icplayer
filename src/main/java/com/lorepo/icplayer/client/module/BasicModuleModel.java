@@ -91,14 +91,8 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
 
-		if (!this.getInlineStyle().isEmpty()) {
-			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
-			moduleXML.setAttribute("style", encodedStyle);
-		}
-
-		if (!getStyleClass().isEmpty()) {
-			String encodedStyleClass = StringUtils.escapeXML(getStyleClass());
-			moduleXML.setAttribute("class", encodedStyleClass);
+		if (this.haveStyles()) {
+			moduleXML.appendChild(this.stylesToXML());	
 		}
 
 		return moduleXML;

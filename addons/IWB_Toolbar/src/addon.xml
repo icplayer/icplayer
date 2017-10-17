@@ -11,5 +11,6 @@
         <property name="forPen" displayName="Show for pen" nameLabel="IWB_Toolbar_property_for_pen" type="{---, Color panel, Thickness panel}" />
         <property name="forMarker" displayName="Show for marker" nameLabel="IWB_Toolbar_property_for_marker" type="{---, Color panel, Thickness panel}" />
         <property name="keepStateAndPosition" displayName="Keep state and position" nameLabel="IWB_Toolbar_property_keep_state_and_position" type="boolean" />
+        <property name="Closed panel drawing" nameLabel="IWB_Toolbar_property_closed_panel_drawing" type="boolean" />
     </model>
 </addon>

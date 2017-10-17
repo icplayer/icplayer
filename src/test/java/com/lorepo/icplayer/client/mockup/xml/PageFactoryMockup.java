@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 import org.xml.sax.SAXException;
 
@@ -30,6 +31,7 @@ public class PageFactoryMockup extends PageFactory {
 			if (version.equals("")) {
 				version = "1";
 			}
+			
 			Object producedContent = this.parsersMap.get(version).parse(xml);
 			
 			return producedContent;
@@ -39,6 +41,21 @@ public class PageFactoryMockup extends PageFactory {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public String getFromFile(String path) throws IOException {
+		InputStream xmlStream = getClass().getResourceAsStream(path);
+		Scanner s = new Scanner(xmlStream).useDelimiter("\\A");
+		String result = s.hasNext() ? s.next() : "";
+		return result;
+	}
+	
+	public Page loadFromFile(String path) throws SAXException, IOException {
+		return (Page) this.produce(getFromFile(path), "");
+	}
+	
+	public Page loadFromString(String xml) {
+		return (Page) this.produce(xml, "");
 	}
 
 }

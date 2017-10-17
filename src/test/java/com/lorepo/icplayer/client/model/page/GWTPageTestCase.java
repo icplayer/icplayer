@@ -7,38 +7,42 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.mockup.xml.PageFactoryMockup;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
-import com.lorepo.icplayer.client.utils.XML;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPageTestCase extends GwtTest {
 	
-	private XML xmlUtils = new XML();
+	private Page loadFromString(Page page, String xml) {
+		return new PageFactoryMockup(page).loadFromString(xml);
+	}
+	
+	private Page loadFromFile(Page page, String path) throws SAXException, IOException {
+		InputStream xmlStream = getClass().getResourceAsStream(path);
+		Scanner s = new Scanner(xmlStream).useDelimiter("\\A");
+		String result = s.hasNext() ? s.next() : "";
+			
+		return new PageFactoryMockup(page).loadFromString(result);
+	}
 	
 	@Before
 	public void setUp() {
@@ -56,11 +60,13 @@ public class GWTPageTestCase extends GwtTest {
 	
 	@Test
 	public void saveScoringType() throws SAXException, IOException {
-		Page page = xmlUtils.loadPageFromFile_v2(new Page("Page 2", ""), "testdata/page4.xml");
 		
-		Page reloadedPage = xmlUtils.loadPageFromString(new Page("Page 2", ""), page.toXML());
+		Page page = this.loadFromFile(new Page("Page 2", ""), "testdata/page4.xml");
 		
-		assertTrue(reloadedPage.getScoringType() == Page.ScoringType.zeroOne);
+		String pageXML = page.toXML();
+		Page resultPage = this.loadFromString(new Page("Page 2", ""), pageXML);
+		
+		assertTrue(resultPage.getScoringType() == Page.ScoringType.zeroOne);
 	}
 	
 	/**
@@ -83,7 +89,7 @@ public class GWTPageTestCase extends GwtTest {
 		page.getModules().add(module);
 		String xml = page.toXML();
 		
-		parseXML(xml);
+		new PageFactoryMockup(new Page("Ala", "")).loadFromString(xml);
 	}
 	
 	@Test
@@ -119,7 +125,6 @@ public class GWTPageTestCase extends GwtTest {
 	 */
 	@Test
 	public void toXML() throws ParserConfigurationException, SAXException, IOException {
-		
 		Page page = new Page("ala", "kot");
 		IModuleModel module = new ShapeModule();
 		
@@ -130,7 +135,7 @@ public class GWTPageTestCase extends GwtTest {
 		page.getModules().add(module);
 		String xml = page.toXML();
 		
-		parseXML(xml);
+		this.loadFromString(new Page("ala", ""), xml);
 	}
 	
 	@Test
@@ -145,60 +150,34 @@ public class GWTPageTestCase extends GwtTest {
 		
 		String pageXML = page.toXML();
 
-		Page reloadedPage = xmlUtils.loadPageFromString(new Page("id", "path"), pageXML);
+		Page resultPage = this.loadFromString(new Page("id", "path"), pageXML);
 		
-		assertEquals(300, reloadedPage.getWidth());
-		assertEquals(400, reloadedPage.getHeight());
+		assertEquals(300, resultPage.getWidth());
+		assertEquals(400, resultPage.getHeight());
 	}
 	
 	@Test
 	public void saveLoadCssClass() throws Exception {
-		
 		Page page = new Page("Class test page", "");
 		page.setStyleClass("DemoClass");
 		
 		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
 		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
 
-		Page reloadedPage = xmlUtils.loadPageFromString(new Page("id", "path"), page.toXML());
+		Page resultPage = this.loadFromString(new Page("id", "path"), page.toXML());
 		
-		assertEquals("DemoClass", reloadedPage.getStyleClass());
+		assertEquals("DemoClass", resultPage.getStyleClass());
 	}
 
 	@Test
 	public void isReportableTrue() throws Exception {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
 		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
 		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
 
-		Page page = new Page("Page 1", "");
-		page.load(element, "");
-		String xml = page.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
+		Page page = this.loadFromFile(new Page("Page 1", ""), "testdata/page.xml");
 		
-		page = new Page("Page 2", "");
-		page.load(element, "");
+		Page resultPage = this.loadFromString(new Page("Page 2", ""), page.toXML());
 		
-		assertTrue(page.isReportable());
+		assertTrue(resultPage.isReportable());
 	}
-	
-	/**
-	 * Try to parse XML
-	 * @param xml
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
-	 */
-	private static void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException {
-		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder;
-		docBuilder = docBuilderFactory.newDocumentBuilder();
-		InputSource is = new InputSource(new StringReader(xml));
-        docBuilder.parse(is);
-	}
-
 }

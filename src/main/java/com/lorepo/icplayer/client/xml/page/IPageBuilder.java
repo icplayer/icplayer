@@ -6,6 +6,7 @@ import com.lorepo.icplayer.client.model.page.Page.LayoutType;
 import com.lorepo.icplayer.client.model.page.Page.PageScoreWeight;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.lorepo.icplayer.client.ui.Ruler;
@@ -32,4 +33,7 @@ public interface IPageBuilder {
 	public void setHasFooter(boolean value);
 	public void setHeaderId(String name);
 	public void setFooterId(String name);
+	public void setDefaultLayoutID(String defaultLayoutID);
+	public void setInlineStyles(HashMap<String, String> inlineStyles);
+	public void setStylesClasses(HashMap<String, String> stylesClasses);
 }

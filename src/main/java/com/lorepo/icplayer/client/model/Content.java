@@ -28,6 +28,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
+	public final static String version = "2";
 	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -47,7 +48,6 @@ public class Content implements IContentBuilder, IContent {
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 
 	private int maxPagesCount = 100;
-	private String version = "2";
 
 	public Content(){
 		this.pages = new PageList("root");
@@ -251,7 +251,7 @@ public class Content implements IContentBuilder, IContent {
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
 		String escapedName = StringUtils.escapeXML(name);
 		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "\'";
-		xml += " version=\"" + this.version + "\">";
+		xml += " version=\"" + Content.version + "\">";
 
 		// Metadata
 		xml += "<metadata>";

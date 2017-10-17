@@ -28,6 +28,7 @@ import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 import com.lorepo.icplayer.client.ui.Ruler;
 import com.lorepo.icplayer.client.xml.page.IPageBuilder;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
@@ -50,14 +51,15 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
+	public static final String version = "4";
+	
 	private String id;
 	private String name;
-	private String version = "3";
 	private final String href;
 	private LayoutType layout = LayoutType.pixels;
 	private ScoringType scoringType = ScoringType.percentage;
-	private String cssClass = "";
-	private String inlineStyles = "";
+	private SemiResponsiveStyles semiResponsiveStyles = new SemiResponsiveStyles();
+	
 	private final ModuleList modules = new ModuleList();
 	/** base url to this document with ending '/' */
 	private String baseURL = "";
@@ -90,6 +92,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private int pageCustomWeight = 1;
 	private String semiResponsiveLayoutID = "default";
 	public PageHeightModifications heightModifications = new PageHeightModifications();
+
+	private String defaultLayoutID;
 
 	public Page(String name, String url) {
 		super("Page");
@@ -203,10 +207,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		return name;
 	}
 
-	public String getVersion() {
-		return this.version;
-	}
-
 	public boolean isLoaded() {
 		return this.loaded;
 	}
@@ -249,23 +249,18 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += " name='" + StringUtils.escapeXML(name) + "'";
 		xml += " isReportable='" + reportable + "'";
 		xml += " scoring='" + scoringType + "'";
-		xml += " version='" + this.version +"'";
+		xml += " version='" + Page.version +"'";
 
 		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
 		xml += " hasHeader='" + this.hasHeader + "'";
 		xml += " footer='" + StringUtils.escapeXML(this.footerId) + "'";
 		xml += " hasFooter='" + this.hasFooter + "'";
-
-		if (!cssClass.isEmpty()) {
-			String encodedClass = StringUtils.escapeXML(cssClass);
-			xml += " class='" + encodedClass + "'";
-		}
-		if (!inlineStyles.isEmpty()) {
-			String encodedStyle = StringUtils.escapeXML(inlineStyles);
-			xml += " style='" + encodedStyle + "'";
-		}
 		xml += ">";
-
+		
+		if (this.semiResponsiveStyles.haveStyles()) {
+			Element stylesXML = this.semiResponsiveStyles.toXML();
+			xml += stylesXML.toString();
+		}
 		Element layouts = XMLUtils.createElement("layouts");
 		for (String key : this.pageSizes.keySet()) {
 			Element layout = XMLUtils.createElement("layout");
@@ -559,19 +554,19 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public String getInlineStyle() {
-		return inlineStyles;
+		return this.semiResponsiveStyles.getInlineStyle(this.semiResponsiveLayoutID, this.defaultLayoutID);
 	}
 
 	@Override
 	public String getStyleClass() {
-		return cssClass;
+		return this.semiResponsiveStyles.getStyleClass(this.semiResponsiveLayoutID, this.defaultLayoutID);
 	}
 
 	@Override
 	public void setInlineStyle(String inlineStyle) {
 
 		if (inlineStyle != null) {
-			this.inlineStyles = inlineStyle;
+			this.semiResponsiveStyles.setInlineStyle(this.semiResponsiveLayoutID, inlineStyle);
 			if (styleListener != null) {
 				styleListener.onStyleChanged();
 			}
@@ -580,14 +575,28 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public void setStyleClass(String styleClass) {
-
 		if (styleClass != null) {
-			this.cssClass = styleClass;
-
+			this.semiResponsiveStyles.setStyleClass(this.semiResponsiveLayoutID, styleClass);
 			if (styleListener != null) {
 				styleListener.onStyleChanged();
 			}
 		}
+	}
+	
+
+	@Override
+	public void syncSemiResponsiveStyles(Set<PageLayout> actualSemiResponsiveLayouts) {
+		this.semiResponsiveStyles.syncStyles(actualSemiResponsiveLayouts, this.defaultLayoutID);
+	}
+
+	@Override
+	public void setInlineStyles(HashMap<String, String> inlineStyles) {
+		this.semiResponsiveStyles.setInlineStyles(inlineStyles);
+	}
+
+	@Override
+	public void setStylesClasses(HashMap<String, String> stylesClasses) {
+		this.semiResponsiveStyles.setStylesClasses(stylesClasses);
 	}
 
 	@Override
@@ -841,13 +850,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	private void setScoreFromString(String scoreName) {
-		if (scoreName != null) {
-			for (ScoringType st : ScoringType.values()) {
-				if (st.toString().equals(scoreName)) {
-					this.scoringType = st;
-				}
-			}
+		if (scoreName == null || scoreName.trim().compareTo("") == 0) {
+			return;
 		}
+		
+		this.scoringType = ScoringType.valueOf(scoreName);
 	}
 
 	private PageScoreWeight setWeightFromString(String weight) {
@@ -989,6 +996,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void addSize(String sizeName, Size size) {
 		this.pageSizes.put(sizeName, size);
 	}
+	
+	@Override 
+	public void setDefaultLayoutID(String defaultLayoutID) {
+		this.defaultLayoutID = defaultLayoutID;
+	}
 
 	public String getSemiResponsiveLayoutID() {
 		return this.semiResponsiveLayoutID;
@@ -1006,6 +1018,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		this.ensureDefaultLayout(defaultLayoutID, defaultSizeBeforeSync);
 		this.removeUnsyncLayouts(actualIDs);
 		this.ensureNonSyncedLayouts(defaultLayoutID, actualIDs);
+		this.setDefaultLayoutID(defaultLayoutID);
 	}
 
 	private void ensureNonSyncedLayouts(String defaultLayoutID,
@@ -1108,4 +1121,5 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void setHasFooter(boolean value) {
 		this.hasFooter = value;
 	}
+
 }

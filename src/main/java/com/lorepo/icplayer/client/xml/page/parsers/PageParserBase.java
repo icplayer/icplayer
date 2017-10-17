@@ -34,20 +34,19 @@ public abstract class PageParserBase implements IPageParser{
 		return this.version;
 	}
 	
-
 	public Object parse(Element xml) {
 		this.page.clearModules();
 		this.page = this.loadPageAttributes(this.page, xml);
 		this.page = this.loadPageStyle(this.page, xml);
+		this.page = this.loadPageLayout(page, xml);
 		this.page = this.loadHeaderAndFooter(this.page, xml);
-		
+
 		int pageVersion = XMLUtils.getAttributeAsInt(xml, "version", 2);
 		NodeList children = xml.getChildNodes();
 		for(int i = 0; i < children.getLength(); i++) {
 			if (children.item(i) instanceof Element) {
 				Element child = (Element) children.item(i);
 				String name = child.getNodeName();
-				
 				if(name.compareTo("modules") == 0) {
 					this.page = this.loadModules(this.page, child, pageVersion);
 				} else if(name.compareTo("groups") == 0) {
@@ -56,6 +55,8 @@ public abstract class PageParserBase implements IPageParser{
 					this.page = this.loadWeight(this.page, child);
 				} else if (name.compareTo("layouts") == 0) {
 					this.page = this.loadLayouts(this.page, child);
+				} else if (name.compareTo("styles") == 0) {
+					this.page = this.loadStyles(this.page, child);
 				}
 				
 				this.page = this.loadRulers(this.page, xml);
@@ -66,6 +67,9 @@ public abstract class PageParserBase implements IPageParser{
 		return this.page;
 	}
 	
+	protected IPageBuilder loadStyles(IPageBuilder page, Element xml) {
+		throw new UnsupportedOperationException("Not available at this version of page" + this.version);
+	}
 
 	protected IPageBuilder loadLayouts(IPageBuilder page, Element child) {
 		return page;
@@ -174,13 +178,13 @@ public abstract class PageParserBase implements IPageParser{
 		Size size = new Size("default", width, height);
 		size.setIsDefault(true);
 		page.addSize("default", size);
+		page.setDefaultLayoutID("default");
+		
+		page.setScoring(XMLUtils.getAttributeAsString(xml, "scoring"));
 		return page;
 	}
 	
-	protected IPageBuilder loadPageStyle(IPageBuilder page, Element xml) {
-		page.setStyleCss(StringUtils.unescapeXML(xml.getAttribute("style")));
-		page.setStyleClass(xml.getAttribute("class"));
-
+	protected IPageBuilder loadPageLayout(IPageBuilder page, Element xml) {
 		String positioning = xml.getAttribute("layout");
 		if (positioning == null || positioning.isEmpty()) {
 			page.setLayout(LayoutType.percentage);
@@ -189,8 +193,13 @@ public abstract class PageParserBase implements IPageParser{
 		} else {
 			page.setLayout(LayoutType.pixels);
 		}
-
-		page.setScoring(XMLUtils.getAttributeAsString(xml, "scoring"));
+		
+		return page;
+	}
+	
+	protected IPageBuilder loadPageStyle(IPageBuilder page, Element xml) {
+		page.setStyleCss(StringUtils.unescapeXML(xml.getAttribute("style")));
+		page.setStyleClass(xml.getAttribute("class"));
 		
 		return page;
 	}

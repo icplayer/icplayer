@@ -144,13 +144,15 @@ public class PageController {
 		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
 		Set<PageLayout> actualSemiResponsiveLayouts = this.contentModel.getActualSemiResponsiveLayouts();
 
-		currentPage.syncPageSizes(actualSemiResponsiveLayouts);
-		for (IModuleModel module : currentPage.getModules()) {
+		this.currentPage.syncPageSizes(actualSemiResponsiveLayouts);
+		this.currentPage.syncSemiResponsiveStyles(actualSemiResponsiveLayouts);
+		for (IModuleModel module : this.currentPage.getModules()) {
+			module.syncSemiResponsiveStyles(actualSemiResponsiveLayouts);
 			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
 			module.setSemiResponsiveLayoutID(layoutID);
 		}
 
-		currentPage.setSemiResponsiveLayoutID(layoutID);
+		this.currentPage.setSemiResponsiveLayoutID(layoutID);
 	}
 
 	private void restoreOutstretchHeights() {

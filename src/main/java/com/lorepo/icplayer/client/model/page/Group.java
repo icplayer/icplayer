@@ -64,9 +64,7 @@ public class Group extends GroupPropertyProvider {
 
 		for (int j = 0; j < groupModuleElements.getLength(); j++) {
 			Element groupModule = (Element) groupModuleElements.item(j);
-			System.out.println(groupModule.toString());
 			String moduleID = groupModule.getAttribute("moduleID");
-			System.out.println("module ID: " + moduleID);
 			group.add(page.getModules().getModuleById(moduleID));
 		}
 
