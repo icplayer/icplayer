@@ -12,7 +12,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -20,6 +19,7 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+
 
 public class TextView extends HTML implements IDisplay, IWCAG {
 
@@ -32,8 +32,9 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
+	private boolean isWCAGon = false;
 	
-	public TextView(TextModel module, boolean isPreview) {
+	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
 	}
@@ -184,7 +185,9 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 	
 	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
 		for (int i=startingIndex; i<textElements.size(); i++) {
-			if (textElements.get(i).getGapType() == gapType) {
+			TextElementDisplay textElement = textElements.get(i);
+			String teGapType = textElement.getGapType() == "draggable" ? "gap" : textElement.getGapType();
+			if (teGapType == gapType) {
 				return i;
 			}
 		}
@@ -196,14 +199,16 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 		final List<String> gapsOrder = module.getGapsOrder();
 		
 		for (int i=0; i<textElements.size(); i++) {
-	    	final String gapType = gapsOrder.get(i);
+			final String gapType = gapsOrder.get(i);
 			final String currentGapType = textElements.get(i).getGapType();
 			
 			if (gapType != currentGapType) {
 				int correctElementId = getIndexOfNextGapType(i, gapType, textElements);
 				
-				textElements.add(i, textElements.get(correctElementId));
-				textElements.remove(correctElementId+1);
+				if (correctElementId != -1) {
+					textElements.add(i, textElements.get(correctElementId));
+					textElements.remove(correctElementId+1);
+				}
 			}
 		}
 	}
@@ -322,19 +327,6 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
 	}
 	
-	private void enter () {
-		if (textElements.size() > 0) {
-			activeGap = textElements.get(0);
-		}
-
-		if (activeGap != null && !moduleHasFocus) {
-			activeGap.setFocusGap(true);
-			moduleHasFocus = true;
-		}
-		
-		this.pageController.speak(module.rawTextNoGaps);
-	}
-	
 	private void removeAllSelections () {
 		for (TextElementDisplay element: this.textElements) {
 			element.deselect();
@@ -398,11 +390,11 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 			result += letter3;
 			
 			if (i >= 2) {
-				String letter1 = Character.toString ((char) module.rawTextNoGaps.charAt(i-2));
-				String letter2 = Character.toString ((char) module.rawTextNoGaps.charAt(i-1));
+				String letter1 = Character.toString((char) module.rawTextNoGaps.charAt(i-2));
+				String letter2 = Character.toString((char) module.rawTextNoGaps.charAt(i-1));
 				
 				if (letter1.equals("#") && letter3.equals("#") && (letter2.equals("1") || letter2.equals("2") || letter2.equals("3") || letter2.equals("4"))) {
-					result += " " + this.textElements.get(textElementIndex++).getTextValue();
+					result += "  " + this.textElements.get(textElementIndex++).getTextValue();
 				}
 			}
 		}
@@ -498,6 +490,15 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
+	}
+
+	@Override
+	public boolean isWCAGon() {
+		return this.isWCAGon;
+	}
+	
+	public void setIsWCAGSOn (boolean isOn) {
+		this.isWCAGon = isOn;
 	}
 
 }

@@ -225,18 +225,19 @@ public class GWTTextParserTestCase extends GwtTest{
 		
 		String inText = "<div>The sun is &nbsp;{{1:yellow 1|green 2|blue 3}}.</div><div>The grass is &nbsp;{{1:green 1|pink 2|black 3}}.</div>";
 		String expectedResult = "The sun is #2#.The grass is #2#.";
-		
 		assertEquals(expectedResult, parser.getRawTextSource(inText));
 		
 		inText = "Hello \\gap{answer} hello2 \\gap{answer}";
 		expectedResult = "Hello #1# hello2 #1#";
-		
 		assertEquals(expectedResult, parser.getRawTextSource(inText));
 		
 		inText = "Text Module can be used for gap filling activities.<br><ol><li>A dropdown gap: {{1:option 1|option 2|option 3}}.</li><li>An editable or a draggable gap: \\gap{answer}.</li><li>A gap with 2 correct options: \\gap{blue|navy}.</li><li>This is a filled gap: \\filledGap{initialtext|answer} awdnawd.</li></ol>";
 		expectedResult = "Text Module can be used for gap filling activities.A dropdown gap: #2#.An editable or a draggable gap: #1#.A gap with 2 correct options: #1#.This is a filled gap: #4# awdnawd.";
-		
 		assertEquals(expectedResult, parser.getRawTextSource(inText));
+		
+//		inText = "Kolejne wielkie wymieranie w \\gap{kredzie} objê³o oko³o \\gap{75%} gatunków ¿yj¹cych na Ziemi, w tym \\gap{dinozaury}. Najbardziej prawdopodobn¹ przyczyn¹ by³o \\gap{uderzenie planetoidy w} powierzchniê \\gap{oceanu}. Spowodowa³o to wyniesienie do atmosfery wielkiej iloœci \\gap{py³ów} ograniczaj¹cych na d³ugo mo¿liwoœæ \\gap{fotosyntezy}, a w konsekwencji za³amanie siê \\gap{³añcuchów pokarmowych}.";
+//		expectedResult = "Kolejne wielkie wymieranie w #1# objê³o oko³o #1# gatunków ¿yj¹cych na Ziemi, w tym #1#. Najbardziej prawdopodobn¹ przyczyn¹ by³o #1# powierzchniê #1#. Spowodowa³o to wyniesienie do atmosfery wielkiej iloœci #1# ograniczaj¹cych na d³ugo mo¿liwoœæ #1#, a w konsekwencji za³amanie siê #1#.";
+//		assertEquals(expectedResult, parser.getRawTextSource(inText));
 	}
 	
 }

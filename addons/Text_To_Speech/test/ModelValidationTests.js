@@ -6,6 +6,7 @@ TestCase("Model validation", {
             "ID": "Text_To_Speech1",
             "configuration": [{
                 ID: "Text1",
+                Area: "",
                 Title: "Title text 1",
                 Description: "Description text 1"
             }],
@@ -19,6 +20,7 @@ TestCase("Model validation", {
         assertTrue(validatedModel.isValid);
         assertEquals("Text_To_Speech1", validatedModel.ID);
         assertEquals("Text1", validatedModel.addOnsConfiguration[0].id);
+        assertEquals("main", validatedModel.addOnsConfiguration[0].area);
         assertEquals("Title text 1", validatedModel.addOnsConfiguration[0].title);
         assertEquals("Description text 1", validatedModel.addOnsConfiguration[0].description);
         assertEquals('en-US', validatedModel.language);

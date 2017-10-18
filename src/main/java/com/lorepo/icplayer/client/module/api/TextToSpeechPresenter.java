@@ -11,9 +11,9 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	}
 	
 	@Override
-	public void playTitle (String id) {
+	public void playTitle (String area, String id) {
 		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
-		activity.playTitle(id);
+		activity.playTitle(area, id);
 	}
 	
 	@Override
@@ -32,6 +32,18 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	public void readGap (String text, String currentGapContent, int gapNumber) {
 		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
 		activity.readGap(text, currentGapContent, gapNumber);
+	}
+	
+	@Override
+	public void readStartText() {
+		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
+		activity.readStartText();
+	}
+
+	@Override
+	public void readExitText() {
+		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
+		activity.readExitText();
 	}
 	
 	@Override

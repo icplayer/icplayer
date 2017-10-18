@@ -390,14 +390,14 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 
 	@Override
-	public void playTitle (String id) {
-		playTitle(jsObject, id, addonDescriptor.getAddonId());
+	public void playTitle (String area, String id) {
+		playTitle(jsObject, area, id, addonDescriptor.getAddonId());
 	}
 
-	private native void playTitle (JavaScriptObject obj, String id, String addonId) /*-{
+	private native void playTitle (JavaScriptObject obj, String area, String id, String addonId) /*-{
 		try {
 			if (obj.playTitle != undefined) {
-				obj.playTitle(id);
+				obj.playTitle(area, id);
 			}
 		} catch(err) {
 	  		alert("[" + addonId + "] Exception in playTitle(): \n" + err);
@@ -444,6 +444,34 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			}
 		} catch(err) {
 			alert("[" + addonId + "] Exception in readGap(): \n" + err);
+		}
+	}-*/;
+	
+	public void readStartText () {
+		readStartText(jsObject, addonDescriptor.getAddonId());
+	}
+	
+	private native void readStartText (JavaScriptObject obj, String addonId) /*-{
+		try {
+			if (obj.playStartText != undefined) {
+				obj.playStartText();
+			}
+		} catch(err) {
+			alert("[" + addonId + "] Exception in playStartText(): \n" + err);
+		}
+	}-*/;
+
+	public void readExitText () {
+		readExitText(jsObject, addonDescriptor.getAddonId());
+	}
+	
+	private native void readExitText (JavaScriptObject obj, String addonId) /*-{
+		try {
+			if (obj.playExitText != undefined) {
+				obj.playExitText();
+			}
+		} catch(err) {
+			alert("[" + addonId + "] Exception in playExitText(): \n" + err);
 		}
 	}-*/;
 
@@ -532,7 +560,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		return this.haveWCAGSupport(this.jsObject);
+		return isTextToSpeechOn || this.haveWCAGSupport(this.jsObject);
 	}
 
 
@@ -601,4 +629,5 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return false;
 	}
+
 }

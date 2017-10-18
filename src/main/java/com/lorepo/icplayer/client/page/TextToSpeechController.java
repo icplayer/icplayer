@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
 
 
@@ -14,9 +15,9 @@ public class TextToSpeechController {
 		this.textToSpeechModule = pc.getPageTextToSpeechModule();
 	}
 	
-	public void playTitle (String id) {
+	public void playTitle (String area, String id) {
 		if (this.isTextToSpeechModuleEnable()) {
-			this.textToSpeechModule.playTitle(id);
+			this.textToSpeechModule.playTitle(area, id);
 		}
 	}
 	
@@ -38,11 +39,23 @@ public class TextToSpeechController {
 		}
 	}
 	
-	public List<String> getModulesOrder () {
+	public void readStartText () {
 		if (this.isTextToSpeechModuleEnable()) {
-			return JavaScriptUtils.convertJsArrayToArrayList(this.textToSpeechModule.getAddOnsOrder());
+			this.textToSpeechModule.readStartText();
+		}
+	}
+	
+	public void readExitText () {
+		if (this.isTextToSpeechModuleEnable()) {
+			this.textToSpeechModule.readExitText();
+		}
+	}
+	
+	public List<NavigationModuleIndentifier> getModulesOrder () {
+		if (this.isTextToSpeechModuleEnable()) {
+			return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(this.textToSpeechModule.getAddOnsOrder());
 		} else {
-			List<String> result = new ArrayList<String>();
+			List<NavigationModuleIndentifier> result = new ArrayList<NavigationModuleIndentifier>();
 			return result;
 		}
 	}

@@ -1,7 +1,17 @@
 function AddonText_To_Speech_create() {
 
-    function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
-    function returnCorrectObject(v) { return { isValid: true, value: v }; }
+    function getErrorObject(ec) { return {isValid: false, errorCode: ec}; }
+
+    function getCorrectObject(v) { return {isValid: true, value: v}; }
+
+    function getConfObject (id, area, title, description) {
+        return {
+            id: id,
+            area: area,
+            title: title,
+            description: description
+        };
+    }
 
     var presenter = function () {};
 
@@ -16,7 +26,15 @@ function AddonText_To_Speech_create() {
     presenter.LANGUAGES_CODES = {
         English: 'en-US',
         Polski: 'pl-PL',
-        Deutsch: 'de-DE'
+        Deutsch: 'de-DE',
+        DEFAULT: 'English'
+    };
+
+    presenter.AREAS = {
+        Main: 'main',
+        Header: 'header',
+        Footer: 'footer',
+        DEFAULT: 'Main'
     };
 
     presenter.INPUTS_TRANSLATIONS = {
@@ -40,36 +58,38 @@ function AddonText_To_Speech_create() {
         }
     };
 
-    function parseConfiguration (configuration) {
+    function parseConfiguration(configuration) {
         if (!configuration) {
-            return returnErrorObject('C01');
+            return getErrorObject('C01');
         }
 
         var addOnsTextToSpeechData = [];
-        for (var i=0; i<configuration.length; i++) {
-            addOnsTextToSpeechData.push({
-                id: configuration[i].ID,
-                title: configuration[i].Title,
-                description: configuration[i].Description
-            });
+        for (var i = 0; i < configuration.length; i++) {
+            var conf = configuration[i];
+            addOnsTextToSpeechData.push(getConfObject(
+                conf.ID,
+                ModelValidationUtils.validateOption(presenter.AREAS, conf.Area),
+                conf.Title,
+                conf.Description
+            ));
         }
 
-        return returnCorrectObject(addOnsTextToSpeechData);
+        return getCorrectObject(addOnsTextToSpeechData);
     }
 
-    function parseLanguage (language) {
-        return returnCorrectObject(presenter.LANGUAGES_CODES[language || 'English']);
+    function parseLanguage(language) {
+        return getCorrectObject(presenter.LANGUAGES_CODES[language || 'English']);
     }
 
     presenter.validateModel = function (model) {
         var validatedConfiguration = parseConfiguration(model['configuration']);
         if (!validatedConfiguration.isValid) {
-            return returnErrorObject(validatedConfiguration.errorCode);
+            return getErrorObject(validatedConfiguration.errorCode);
         }
 
         var validatedLanguage = parseLanguage(model['language']);
         if (!validatedLanguage.isValid) {
-            return returnErrorObject(validatedLanguage.errorCode);
+            return getErrorObject(validatedLanguage.errorCode);
         }
 
         return {
@@ -78,17 +98,19 @@ function AddonText_To_Speech_create() {
             isValid: true,
 
             addOnsConfiguration: validatedConfiguration.value,
+            enterText: model['EnterText'],
+            exitText: model['ExitText'],
             language: validatedLanguage.value
         }
     };
 
-    function loadVoices () {
+    function loadVoices() {
         presenter.configuration.voices = window.speechSynthesis.getVoices();
     }
 
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
-        presenter.$view[0].addEventListener('DOMNodeRemoved', presenter.destroy);
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -120,13 +142,14 @@ function AddonText_To_Speech_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    function getAddOnConfiguration (id) {
+    function getAddOnConfiguration (area, id) {
         id = Array.isArray(id) ? id[0] : id;
+        area = Array.isArray(area) ? area[0] : area;
 
-        for (var i=0; i<presenter.configuration.addOnsConfiguration.length; i++) {
+        for (var i = 0; i < presenter.configuration.addOnsConfiguration.length; i++) {
             var conf = presenter.configuration.addOnsConfiguration[i];
 
-            if (conf.id === id) {
+            if (conf.id === id && conf.area === area) {
                 return conf;
             }
         }
@@ -134,7 +157,7 @@ function AddonText_To_Speech_create() {
         return {title: '', description: ''};
     }
 
-    function parseGaps (text) {
+    function parseGaps(text) {
         var gap = 0;
         var option = 0;
         var math = 0;
@@ -161,9 +184,9 @@ function AddonText_To_Speech_create() {
         return text;
     }
 
-    function getLanguageObject (lang) {
+    function getLanguageObject(lang) {
         loadVoices();
-        for (var i=0; i<presenter.configuration.voices.length; i++) {
+        for (var i = 0; i < presenter.configuration.voices.length; i++) {
             if (presenter.configuration.voices[i].lang === lang) {
                 return presenter.configuration.voices[i];
             }
@@ -175,49 +198,34 @@ function AddonText_To_Speech_create() {
     presenter.speak = function (text) {
         text = parseGaps(text);
 
-        // if (window.speechSynthesis.speaking) {
-        //     window.speechSynthesis.cancel();
-        // }
+        var languageCode = 'UK English Male';
 
-        var msg = new SpeechSynthesisUtterance(text);
-        msg.volume = parseFloat(1); // 0 - 1
-        msg.rate = parseFloat(1); // 0 - 10
-        msg.pitch = parseFloat(1); // 0 - 2
-        msg.voice = getLanguageObject(presenter.configuration.language);
+        switch (presenter.configuration.language) {
+            case 'en-US': languageCode = 'UK English Male'; break;
+            case 'pl-PL': languageCode = 'Polish Female'; break;
+            case 'de-DE': languageCode = 'Deutsch Female'; break;
+        }
 
-        window.speechSynthesis.speak(msg);
+        window.responsiveVoice.speak(text, languageCode);
     };
 
-    // var speakTimeout = null;
     // presenter.speak = function (text) {
     //     text = parseGaps(text);
     //
-    //     if (window.speechSynthesis.speaking) {
-    //         speechSynthesis.cancel();
+    //     var msg = new SpeechSynthesisUtterance(text);
+    //     msg.volume = parseFloat(1); // 0 - 1
+    //     msg.rate = parseFloat(1); // 0 - 10
+    //     msg.pitch = parseFloat(1); // 0 - 2
+    //     msg.voice = getLanguageObject(presenter.configuration.language);
     //
-    //         if (speakTimeout) {
-    //             clearTimeout(speakTimeout);
-    //         }
-    //
-    //         speakTimeout = setTimeout(function () { presenter.speak(text); }, 250);
-    //     } else {
-    //         var msg = new SpeechSynthesisUtterance(text);
-    //         msg.volume = parseFloat(1); // 0 - 1
-    //         msg.rate = parseFloat(1); // 0 - 10
-    //         msg.pitch = parseFloat(1); // 0 - 2
-    //         msg.voice = getLanguageObject(presenter.configuration.language);
-    //
-    //
-    //         window.speechSynthesis.speak(msg);
-    //         msg.onend = function () {};
-    //     }
+    //     window.speechSynthesis.speak(msg);
     // };
 
     presenter.getGapAppearanceAtIndexOfType = function (gaps, gapNumber) {
         var index = 0;
 
-        for (var i=0; i<gapNumber; i++) {
-            if (gaps[i] === gaps[gapNumber-1]) {
+        for (var i = 0; i < gapNumber; i++) {
+            if (gaps[i] === gaps[gapNumber - 1]) {
                 index++;
             }
         }
@@ -235,25 +243,36 @@ function AddonText_To_Speech_create() {
         presenter.speak(gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent);
     };
 
-    presenter.playTitle = function (id) {
-        if (id) {
-            presenter.speak(getAddOnConfiguration(id).title);
+    presenter.playTitle = function (area, id) {
+        if (area && id) {
+            presenter.speak(getAddOnConfiguration(area, id).title);
         }
     };
 
     presenter.playDescription = function (id) {
         if (id) {
-            presenter.speak(getAddOnConfiguration(id).description);
+            presenter.speak(getAddOnConfiguration('main', id).description);
         }
     };
 
-    presenter.getAddOnsOrder = function () {
+    presenter.playEnterText = function () {
+        presenter.speak(presenter.configuration.enterText);
+    };
+
+    presenter.playExitText = function () {
+        presenter.speak(presenter.configuration.exitText);
+    };
+
+    presenter.getModulesOrder = function () {
         return presenter.configuration.addOnsConfiguration.map(function (c) {
-            return c.id;
+            return {
+                id: c.id,
+                area: c.area
+            };
         });
     };
 
-    function parseMultiPartDescription (text) {
+    function parseMultiPartDescription(text) {
         if (text === '') {
             return [];
         }
@@ -293,14 +312,16 @@ function AddonText_To_Speech_create() {
             "playDescription": presenter.playDescription,
             "speak": presenter.speak,
             "readGap": presenter.readGap,
-            "getAddOnsOrder": presenter.getAddOnsOrder,
+            "playEnterText": presenter.playEnterText,
+            "playExitText": presenter.playExitText,
+            "getModulesOrder": presenter.getModulesOrder,
             "getMultiPartDescription": presenter.getMultiPartDescription
         };
 
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.getState = function() {
+    presenter.getState = function () {
         return JSON.stringify({
             addOnsConfiguration: presenter.configuration.addOnsConfiguration,
             language: presenter.configuration.language,

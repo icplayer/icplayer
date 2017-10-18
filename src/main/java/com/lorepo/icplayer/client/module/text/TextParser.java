@@ -110,7 +110,8 @@ public class TextParser {
 	}
 	
 	public String getRawTextSource (String text) {
-		final String availableCharsInGapContent = "[a-zA-Z0-9_ |:]+";
+//		final String availableCharsInGapContent = "[a-zA-Z0-9_ |:]+";
+		final String availableCharsInGapContent = "[^\\}]+";
 		
 		return text
 			.replaceAll("\\<.*?>", "").replaceAll("&nbsp;", "")

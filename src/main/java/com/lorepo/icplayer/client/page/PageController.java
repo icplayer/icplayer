@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Group;
@@ -18,6 +21,7 @@ import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
 import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -432,7 +436,7 @@ public class PageController implements ITextToSpeechController {
 		return null;
 	}
 
-	public IPage getPage() {
+	public IPage getPage () {
 		return currentPage;
 	}
 
@@ -480,59 +484,62 @@ public class PageController implements ITextToSpeechController {
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
 
-	@Override
-	public void playTitle (String id) {
-		if (this.isReadingOn && this.textToSpeechController != null) {
-			this.textToSpeechController.playTitle(id);
+	public void playTitle (String area, String id) {
+		if (this.isReadingOn) {
+			TextToSpeechAPI.playTitle(this.getTextToSpeechAPIJavaScriptObject(), area, id);
 		}
 	}
 
-	@Override
 	public void playDescription (String id) {
-		if (this.isReadingOn && this.textToSpeechController != null) {
-			this.textToSpeechController.playDescription(id);
+		if (this.isReadingOn) {
+			TextToSpeechAPI.playDescription(this.getTextToSpeechAPIJavaScriptObject(), id);
 		}
 	}
 
-	@Override
 	public void speak (String text) {
-		if (this.isReadingOn && this.textToSpeechController != null) {
-			this.textToSpeechController.speak(text);
+		if (this.isReadingOn) {
+			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text);
 		}
 	}
 
-	@Override
 	public void readGap (String text, String currentGapContent, int gapNumber) {
-		if (this.isReadingOn && this.textToSpeechController != null) {
-			this.textToSpeechController.readGap(text, currentGapContent, gapNumber);
+		if (this.isReadingOn) {
+			TextToSpeechAPI.readGap(this.getTextToSpeechAPIJavaScriptObject(), text, currentGapContent, gapNumber);
 		}
-	}
-
-	@Override
-	public List<String> getModulesOrder () {
-		if (this.textToSpeechController != null) {
-			return this.textToSpeechController.getModulesOrder();
-		}
-		
-		return null;
-	}
-
-	@Override
-	public List<String> getMultiPartDescription (String id) {
-		if (this.textToSpeechController != null) {
-			return this.textToSpeechController.getMultiPartDescription(id);
-		}
-		
-		return null;
 	}
 	
-	@Override
+	public void readStartText () {
+		if (this.isReadingOn) {
+			TextToSpeechAPI.playEnterText(this.getTextToSpeechAPIJavaScriptObject());
+		}
+	}
+	
+	public void readExitText () {
+		if (this.isReadingOn) {
+			TextToSpeechAPI.playExitText(this.getTextToSpeechAPIJavaScriptObject());
+		}
+	}
+
+	public List<NavigationModuleIndentifier> getModulesOrder () {
+		return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(TextToSpeechAPI.getModulesOrder(this.getTextToSpeechAPIJavaScriptObject()));
+	}
+
+	public List<String> getMultiPartDescription (String id) {
+		return JavaScriptUtils.convertJsArrayToArrayList(TextToSpeechAPI.getMultiPartDescription(this.getTextToSpeechAPIJavaScriptObject(), id));
+	}
+	
 	public boolean isTextToSpeechModuleEnable () {
-		if (this.textToSpeechController != null) {
-			return this.textToSpeechController.isTextToSpeechModuleEnable();
+		return this.getTextToSpeechAPIJavaScriptObject() != null;
+	}
+	
+	private JavaScriptObject getTextToSpeechAPIJavaScriptObject () {
+		AddonPresenter textToSpeechAPIModule = (AddonPresenter) this.findModule("Text_To_Speech1");
+		
+		if (textToSpeechAPIModule != null) {
+			return textToSpeechAPIModule.getJavaScriptObject();
 		}
 		
-		return false;
+		return null;
 	}
 	
 	public void setTextReading (boolean isReadingOn) {

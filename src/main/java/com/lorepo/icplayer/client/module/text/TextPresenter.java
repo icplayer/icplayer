@@ -90,6 +90,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElements(String id, String element);
 		void connectDOMNodeRemovedEvent(String id);
 		void sortGapsOrder();
+		boolean isWCAGon();
 	}
 
 	private final TextModel module;
@@ -119,7 +120,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = module.isVisible();
 		try{
 			connectHandlers();
-		}catch(Exception e){
+		} catch(Exception e) {
 			
 		}
 	}
@@ -253,7 +254,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.refreshMath();
 	}
 
-	private void hideAnswers() {
+	private void hideAnswers () {
+		JavaScriptUtils.log("[Text - TextPresenter] hideAnswers");
+		
+//		if (view.isWCAGon()) {
+//			return;
+//		}
+		
 		if (!module.isActivity()) {
 			for (int i = 0; i < view.getChildrenCount(); i++) {
 				TextElementDisplay child = view.getChild(i);
@@ -279,6 +286,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void setWorkMode() {
+		JavaScriptUtils.log("setWorkMode");
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -292,6 +300,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void setShowErrorsMode() {
+		JavaScriptUtils.log("setShowErrorsMode");
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -310,6 +319,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public String getState() {
+		JavaScriptUtils.log("getState");
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -460,6 +470,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void reset() {
+		JavaScriptUtils.log("reset");
 		if (module.isActivity() && isShowAnswers()) {
 			hideAnswers();
 		}
@@ -1119,7 +1130,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private Element getView() {
 		if (isShowAnswers()) {
-			hideAnswers();
+//			hideAnswers();
 		}
 
 		return view.getElement();
