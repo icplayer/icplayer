@@ -22,5 +22,12 @@
         <property name='unvisitedPageScoresLabel' displayName="Unvisited page scores label" nameLabel="Hierarchical_Lesson_Report_property_unvisited_page_scores_label" type="string" isLocalized="true" />
         <property name="scoredisabled" displayName="Disable score on pages" nameLabel="Hierarchical_Lesson_Report_property_score_disabled" type="string" />
         <property name="enablePages" displayName="Enable pages" nameLabel="Hierarchical_Lesson_Report_property_enable_pages" type="string" />
+
+        <property name="alternativePageTitles" displayName="Alternative page titles" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_titles" type="list" isLocalized="true">
+			<property name="alternativePageNumber" displayName="Index" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_number" type="string" isLocalized="true" />
+            <property name='alternativePageIsChapter' displayName="Is chapter" nameLabel="Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter" type="boolean" />
+			<property name="alternativePageName" displayName="Page name" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_name" type="html" isLocalized="true" />
+		</property>
+
     </model>
 </addon>

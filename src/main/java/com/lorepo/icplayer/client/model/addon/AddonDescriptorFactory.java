@@ -55,6 +55,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Points_To_Plot", "activities_menu");
 		addDescriptor("PointsLines", "activities_menu");
 		addDescriptor("Puzzle", "activities_menu");
+		addDescriptor("Quiz", "activities_menu");
+        addDescriptor("Shooting_Range", "activities_menu");
 		addDescriptor("Sudoku", "activities_menu");
 		addDescriptor("Table", "activities_menu");
 		addDescriptor("text_identification", "activities_menu");
@@ -62,6 +64,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Text_Selection", "activities_menu");
 		addDescriptor("TrueFalse", "activities_menu");
 		addDescriptor("WritingCalculations", "activities_menu");
+		addDescriptor("Catch", "activities_menu");
 
 		// REPORTING
 		addDescriptor("Animated_Lesson_Progress", "reporting_menu");

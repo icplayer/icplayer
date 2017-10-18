@@ -40,8 +40,8 @@ TestCase("[Video] callMetadataLoadedQueue", {
         assertTrue(stubs.fn2.calledOnce);
         assertTrue(stubs.fn3.calledOnce);
 
-        assertTrue(stubs.fn1.calledWith([1,2]));
-        assertTrue(stubs.fn2.calledWith([3, 4]));
-        assertTrue(stubs.fn3.calledWith(["a", "b"]));
+        assertTrue(stubs.fn1.calledWith(1,2));
+        assertTrue(stubs.fn2.calledWith(3, 4));
+        assertTrue(stubs.fn3.calledWith("a", "b"));
     }
 });

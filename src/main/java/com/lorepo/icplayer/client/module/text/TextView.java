@@ -46,6 +46,8 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
+		
+		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
 
 	public ITextViewListener getListener() {

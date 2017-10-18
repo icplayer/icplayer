@@ -88,7 +88,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 		}
 	}
 	
-	private void connectHandlers() {
+	protected void connectHandlers() {
 		addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {

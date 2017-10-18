@@ -1,4 +1,27 @@
-2017-09-19 Added sending event on text identification addon deselect and select.
+2017-10-16 Added sending events on select and deselect and corresponding property.
+2017-10-16 Load button for list property in editor showed only for iframe module.
+2017-10-12 Fixed test configuration in Quiz module
+2017-10-12 Fixed bug with TextAudio still playing sound after closing popup with it
+2017-10-11 Fixed Programming Code Prompt module - enter now creates a new line.
+2017-10-11 Added property to Ordering module, which disallows generating a correct ordering by random.
+2017-10-11 Fixed problem with errors in console in iFrame module
+2017-10-11 Added new addon Quiz
+2017-10-10 Added alternative name styling property in Hierarchical Lesson Report.
+2017-10-09 Added closed panel drawing property in IWB Toolbar module
+2017-10-05 Added shooting range addon.
+2017-10-05 Added language attribute in Text module and lesson
+2017-10-05 Fixed problem with too large page index
+2017-10-02 Fixed imageSource that got position zeroed when called reset() on it after PageLoaded event
+2017-10-02 Fixed problem with jumping video. Fixed problem with poster visibility.
+2017-10-02 Fixed problem with showing glossary popup in present view.
+2017-10-02 Fixed problem with auto play in Video module
+2017-09-29 Removed gap definition from html attributes in text module
+2017-09-28 Fixed accessing window.top properties
+2017-09-28 Fixed random order in Choice module
+2017-09-26 Added sendMessage command in iFrame module
+2017-09-25 Added alternative text and keyboard navigation in Zoom Image module
+2017-09-22 Fixed Assessments Navigation Bar page selecting and added keyboard navigation. Changed keyboard navigation in Navigation Bar.
+2017-09-22 Added new addon Catch
 2017-09-19 Added notification about setting header/footer.
 2017-09-18 Setting individual header and footer for pages.
 2017-09-15 Removed changing controls visibility in glossary addon

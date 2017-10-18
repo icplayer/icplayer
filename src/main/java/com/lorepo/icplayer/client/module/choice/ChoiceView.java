@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.choice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -91,9 +92,36 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 	    
+	private void shuffleArray(List<Integer> list) {
+        int n = list.size();
+        Random random = new Random();
+        random.nextInt();
+        for (int i = 0; i < n; i++) {
+            int change = i + random.nextInt(n - i);
+            swap(list, i, change);
+        }
+    }
+
+    private void swap(List<Integer> list, int i, int change) {
+        int helper = list.get(i);
+        list.set(i, list.get(change));
+        list.set(change, helper);
+    }
+	
+    private List<Integer> singlePerm(int size){
+		  
+		List<Integer> list = new ArrayList<Integer>();
+		for(int i = 0; i < size; i ++){
+			list.add(i);
+		}
+
+		shuffleArray(list);
+		return list;
+	}
+	
 	private void makeOrder(boolean isPreview) {
 		if (!isPreview && module.isRandomOrder()) {
-			List<Integer> tmp_order = RandomUtils.singlePermutation(module.getOptionCount());
+			List<Integer> tmp_order = singlePerm(module.getOptionCount());
 			order = new int[module.getOptionCount()];
 			for(int i = 0; i < module.getOptionCount(); i ++) {
 				order[i]=tmp_order.get(i);

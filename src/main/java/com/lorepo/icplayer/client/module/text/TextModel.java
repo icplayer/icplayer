@@ -47,7 +47,9 @@ public class TextModel extends BasicModuleModel {
 	private String textToSpeechDescription = "";
 	private List<String> gapsOrder;
 	public String rawTextNoGaps;
-	
+
+	private String langAttribute = "";
+
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
@@ -67,8 +69,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyBlockWrongAnswers();
 		addPropertyUserActionEvents();
 		addPropertyUseEscapeCharacterInGap();
-		addPropertyTextToSpeechTitle();
-		addPropertyTextToSpeechDescription();
+		addPropertyLangAttribute();
 	}
 
 	@Override
@@ -126,8 +127,7 @@ public class TextModel extends BasicModuleModel {
 					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 					userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 					this.useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
-					textToSpeechTitle = XMLUtils.getAttributeAsString(textElement, "textToSpeechTitle");
-					textToSpeechDescription = XMLUtils.getAttributeAsString(textElement, "textToSpeechDescription");
+					langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 					
 					if (rawText == null) {
 						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
@@ -189,8 +189,7 @@ public class TextModel extends BasicModuleModel {
 				"' blockWrongAnswers='" + blockWrongAnswers +
 				"' userActionEvents='" + userActionEvents +
 				"' useEscapeCharacterInGap='" + this.useEscapeCharacterInGap +
-				"' textToSpeechTitle='" + this.textToSpeechTitle +
-				"' textToSpeechDescription='" + this.textToSpeechDescription +
+				"' langAttribute='" + langAttribute +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 
@@ -805,67 +804,34 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
-	
-	private void addPropertyTextToSpeechTitle() {
+				
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
 
-		IHtmlProperty property = new IHtmlProperty() {
 			@Override
 			public void setValue(String newValue) {
-				textToSpeechTitle = newValue;
+				langAttribute = newValue;
 				sendPropertyChangedEvent(this);
 			}
 
 			@Override
 			public String getValue() {
-				return textToSpeechTitle;
+				return langAttribute;
 			}
 
 			@Override
 			public String getName() {
-				return "Text to speech title"; //DictionaryWrapper.get("text_module_text");
-			}
-
-			@Override
-			public String getDisplayName() {
-				return "Text to speech title"; //DictionaryWrapper.get("text_module_text");
+				return DictionaryWrapper.get("text_module_lang_attribute");
 			}
 
 			@Override
 			public boolean isDefault() {
 				return false;
 			}
-		};
-
-		addProperty(property);
-	}
-	
-	private void addPropertyTextToSpeechDescription() {
-
-		IHtmlProperty property = new IHtmlProperty() {
-			@Override
-			public void setValue(String newValue) {
-				textToSpeechDescription = newValue;
-				sendPropertyChangedEvent(this);
-			}
-
-			@Override
-			public String getValue() {
-				return textToSpeechDescription;
-			}
-
-			@Override
-			public String getName() {
-				return "Text to speech description"; //DictionaryWrapper.get("text_module_text");
-			}
 
 			@Override
 			public String getDisplayName() {
-				return "Text to speech description"; //DictionaryWrapper.get("text_module_text");
-			}
-
-			@Override
-			public boolean isDefault() {
-				return false;
+				return DictionaryWrapper.get("text_module_lang_attribute");
 			}
 		};
 
@@ -918,6 +884,10 @@ public class TextModel extends BasicModuleModel {
 	
 	public boolean isUsingEscapeCharacterInGap() {
 		return this.useEscapeCharacterInGap;
+	}
+	
+	public String getLangAttribute() {
+		return langAttribute;
 	}
 
 	public String getTextToSpeechTitle () {

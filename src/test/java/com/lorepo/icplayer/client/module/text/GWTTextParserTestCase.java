@@ -46,7 +46,7 @@ public class GWTTextParserTestCase extends GwtTest{
 		Iterator<LinkInfo> it = parsedText.linkInfos.iterator();
 		expectedText = expectedText.replace("'xcf-1'", "'" + it.next().getId() + "'");
 		expectedText = expectedText.replace("'xcf-2'", "'" + it.next().getId() + "'");
-
+		
 		assertEquals(expectedText, parsedText.parsedText);
 	}
 
@@ -219,6 +219,31 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertTrue(parsed.parsedText.indexOf("{{2:ala}}") > 0);
 	}
 	
+	public void parserIsInEditorModeAndAddAdditionalInformationsToElements() {
+		TextParser parser = new TextParser();
+		String srcText ="[[page1|Link do strony 1]] \\gap{answer1|answer2|answer3} \\gap{answer1|answer2|answer3} \\filledGap{initial text|answer} \\def{sÅ‚owko1}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText, true);
+		
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\gap{answer1|answer2|answer3}\"") > -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\filledGap{initial text|answer}\"") > -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value='\\def{sÅ‚owko1}'") > -1);
+	}
+	
+	@Test
+	public void parserIsNotInEditorModeWillNotAddAdditionalInformation () {
+		TextParser parser = new TextParser();
+		String srcText ="[[page1|Link do strony 1]] \\gap{answer1|answer2|answer3} \\gap{answer1|answer2|answer3} \\filledGap{initial text|answer} \\def{sÅ‚owko1}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText, false);
+		
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\gap{answer1|answer2|answer3}\"") == -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\filledGap{initial text|answer}\"") == -1);
+		assertTrue(parsed.parsedText.indexOf("data-gap-value='\\def{sÅ‚owko1}'") == -1);		
+	}
+	
 	@Test
 	public void gettingRawText () {
 		TextParser parser = new TextParser();
@@ -239,5 +264,4 @@ public class GWTTextParserTestCase extends GwtTest{
 //		expectedResult = "Kolejne wielkie wymieranie w #1# objê³o oko³o #1# gatunków ¿yj¹cych na Ziemi, w tym #1#. Najbardziej prawdopodobn¹ przyczyn¹ by³o #1# powierzchniê #1#. Spowodowa³o to wyniesienie do atmosfery wielkiej iloœci #1# ograniczaj¹cych na d³ugo mo¿liwoœæ #1#, a w konsekwencji za³amanie siê #1#.";
 //		assertEquals(expectedResult, parser.getRawTextSource(inText));
 	}
-	
 }

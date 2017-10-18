@@ -245,6 +245,7 @@ public class PlayerController implements IPlayerController{
 			page = this.contentModel.getPage(index);
 		}
 		else{
+			this.currentMainPageIndex = 0;
 			page = this.contentModel.getPage(0);
 		}
 
@@ -595,7 +596,7 @@ public class PlayerController implements IPlayerController{
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 	
-			if (data.indexOf('I_FRAME_SCROLL:') === 0) {
+			if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
 				iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
 				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
 			}

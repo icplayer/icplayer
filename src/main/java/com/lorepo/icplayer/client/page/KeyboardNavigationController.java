@@ -259,7 +259,7 @@ public final class KeyboardNavigationController {
 					return;
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					event.preventDefault();
 					activateModule();
 				}
@@ -439,6 +439,7 @@ public final class KeyboardNavigationController {
 			if (presenter.getModel() == savedPresenter.getModel()) {
 				this.actualSelectedModuleIndex = i;
 				this.initialSelect();
+				this.activateModule();
 				return;
 			}
 		}
