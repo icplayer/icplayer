@@ -100,6 +100,22 @@ function Addontext_identification_create(){
         $element.click(presenter.clickHandler);
     }
 
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeShouldSendEventsOnCommands(model);
+        return upgradedModel;
+    };
+
+    presenter.upgradeShouldSendEventsOnCommands = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model.shouldSendEventsOnCommands === undefined) {
+            upgradedModel["shouldSendEventsOnCommands"] = "false";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateModel = function (model) {
         return {
             addonID: model.ID,
@@ -108,7 +124,8 @@ function Addontext_identification_create(){
             shouldBeSelected: ModelValidationUtils.validateBoolean(model.SelectionCorrect),
             isSelected: false,
             isErrorCheckMode: false,
-            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers)
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
+            shouldSendEventsOnCommands: ModelValidationUtils.validateBoolean(model.shouldSendEventsOnCommands)
         };
     };
 
@@ -139,6 +156,7 @@ function Addontext_identification_create(){
         presenter.currentPageId = presenter.$view.parent('.ic_page').attr('id');
         var textSrc = model.Text;
         presenter.moduleID = model.ID;
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -185,15 +203,28 @@ function Addontext_identification_create(){
     };
 
     presenter.select = function () {
+        var wasSelected = presenter.configuration.isSelected;
+
         presenter.configuration.isSelected = true;
         presenter.executeUserEventCode();
         presenter.applySelectionStyle(true, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+
+        if (!wasSelected && presenter.configuration.shouldSendEventsOnCommands) {
+            this.triggerSelectionChangeEvent();
+        }
+
     };
 
     presenter.deselect = function () {
+        var wasSelected = presenter.configuration.isSelected;
+
         presenter.configuration.isSelected = false;
         presenter.executeUserEventCode();
         presenter.applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+
+        if (wasSelected && presenter.configuration.shouldSendEventsOnCommands) {
+            this.triggerSelectionChangeEvent();
+        }
     };
 
     presenter.isSelected = function () {

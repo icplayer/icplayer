@@ -1021,6 +1021,7 @@ var ice_dictionary_fr = {
 "text_identification_property_on_selected": "Si sélectionné",
 "text_identification_property_on_deselected": "Si désélectionné",
 "text_identification_property_block_wrong_answers": "Bloquer les mauvaises réponses",
+    "text_identification_property_send_event_on_command": "Send event on select/deselect",
 "TrueFalse_info": "Il s'agit d'une alternative au module Choix, qui permet d'insérer une activité à choix unique ou multiple dans une présentation. Dans le module Vrai/Faux, il est nécessaire de sélectionner au moins une question et deux options de réponse.",
 "TrueFalse_name": "Vrai/Faux",
 "TrueFalse_property_is_not_activity": "N'est pas un exercice",
