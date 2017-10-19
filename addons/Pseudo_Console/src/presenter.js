@@ -10,17 +10,22 @@ function AddonPseudo_Console_create() {
                [["string"],"\\\\.",        "return 'STRING'"],  // march \. <- escaped characters"
                [["string"],"$",            "return 'EOF_IN_STRING';"],
                [["string"],"[\"]",         "this.popState(); return 'END_STRING';"],
-               ["pocz\u0105tek",                "return 'BEGIN_BLOCK';"],
-               ["koniec",                  "return 'END_BLOCK';"], 
-               ["program",                 "return 'PROGRAM';"],
-               ["zmienna",                 "return 'VARIABLE_DEF';"],
-               ["dla",                     "return 'FOR';"],
-               ["od",                      "return 'FROM';"],
-               ["do",                      "return 'TO';"],
-               ["wykonuj",                 "return 'DO';"],
+               ["$begin$",                 "return 'BEGIN_BLOCK';"],
+               ["$end$",                   "return 'END_BLOCK';"], 
+               ["$program$",               "return 'PROGRAM';"],
+               ["$variable$",              "return 'VARIABLE_DEF';"],
+               ["$for$",                   "return 'FOR';"],
+               ["$from$",                  "return 'FROM';"],
+               ["$to$",                    "return 'TO';"],
+               ["$do$",                    "return 'DO';"],
+               ["$or$",                    "return 'OR';"],     //TODO
+               ["$while$",                 "return 'WHILE';"],  //TODO
                ["\\n+",                    "return 'NEW_LINE';"],
                ["$",                       "return 'EOF';"],
                ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
+               ["<=",                      "return '<=';"],     //TODO
+               [">=",                      "return '<=';"],     //TODO
+               ["!=",                      "return '!=';"],     //TODO
                ["\\*",                     "return '*';"],
                ["\\/",                     "return '/';"],
                ["-",                       "return '-';"],
@@ -41,11 +46,18 @@ function AddonPseudo_Console_create() {
             }
         },
     
-        "operators": [
+        "operators": [                  //Be sure, you added operators here to avoid problems with conflicts
             ["left", "+", "-"],
             ["left", "*", "/"],
             ["left", "^"],
-            ["left", "UMINUS"]
+            ["left", "UMINUS"],
+            ["left", "<="],
+            ["left", ">="],
+            ["left", "!="],
+            ["left", "OR"],
+            ["left", ")"],
+            ["left", "("]
+
         ],
     
         "bnf": {
@@ -94,7 +106,6 @@ function AddonPseudo_Console_create() {
             "code_block" : [
                 ["begin_block instructions end_block", "$$ = $2;"],
             ],
-
             "begin_block" : [
                 ["BEGIN_BLOCK end_line", "$$ = '';"],
             ],
@@ -110,17 +121,26 @@ function AddonPseudo_Console_create() {
 
             "instruction_list" : [
                 ["instruction", "yy.actualExecutionIndex++; $$ = $1;"],
-                ["instruction_list instruction", "yy.actualExecutionIndex++; $$ = $1.concat($2);"]
+                ["instruction_list instruction", "yy.actualExecutionIndex++; yy.actualExecutionIndex++; $$ = $1.concat($2);"]
             ],
 
             "instruction" : [
-                ['for_instruction', '$$ = $1;'],
-                ["instruction_name arguments end_line" , "$$ = [yy.presenterContext.generateExecuteObject(yy.presenterContext.dispatch($1, $2 || []))];"],
-                ["assign_value", ""]
+                ['for_instruction', 'yy.actualExecutionIndex++; $$ = $1;'],
+                ['while_instruction', 'yy.actualExecutionIndex++; $$ = $1;'],
+                ["instruction_name arguments end_line" , "yy.actualExecutionIndex++; $$ = [yy.presenterContext.generateExecuteObject(yy.presenterContext.dispatch($1, $2 || []))];"],
+                ["assign_value", ""]    //TODO
             ],
 
             "assign_value" : [
                 ['STATIC_VALUE = operation end_line', "$$ = [yy.presenterContext.generateExecuteObject($1 + '.value =' + $3)];"]
+            ],
+
+            "while_instruction" : [
+                ["while_header end_line code_block", "console.log($1); $$ = [];"]
+            ],
+
+            "while_header" : [
+                ["WHILE operation DO", "console.log($2); $$ = $$ = yy.presenterContext.generateWhileHeader(yy, $2);"]
             ],
 
             "for_instruction" : [
@@ -188,7 +208,11 @@ function AddonPseudo_Console_create() {
                 [ "- operation",             "$$ = '-' + $2;", {"prec": "UMINUS"} ],
                 [ "( operation )",           "$$ = '(' + $2 + ')';" ],
                 [ "NUMBER",                  "$$ = 'Number(' + yytext + ')';" ],
-                [ "STATIC_VALUE",            "$$ = yytext + '.value'"]
+                [ "STATIC_VALUE",            "$$ = yytext + '.value'"],
+                ["operation <= operation",   "$$ = $1 + '<=' + $3;"],
+                ["operation >= operation",   "$$ = $1 + '>=' + $3;"],
+                ["operation != operation",   "$$ = $1 + '!==' + $3;"],
+                ["operation OR operation", "$$ = '(' + $1 + '||' + $3 + ')'"],
             ]
         }
     }
@@ -246,6 +270,30 @@ function AddonPseudo_Console_create() {
         return execElements;
     }
 
+    presenter.generateWhileHeader = function (yy, expression) {
+        yy.labelsStack.push("while_" + yy.actualExecutionIndex);
+        yy.labelsStack.push("while_end_" + yy.actualExecutionIndex);
+
+        var execElements = [];
+
+        execElements.push(presenter.generateExecuteObject('', "while_" + yy.actualExecutionIndex));
+        execElements.push(presenter.generateJumpInstruction('Boolean(' + expression + ')', "while_end_" + yy.actualExecutionIndex));
+
+        return execElements;
+    }
+
+    presenter.generateWhileExiter = function (yy) {
+        var exitLabel = yy.labels.pop();
+        var startWhileLabel = yy.labels.pop();
+
+        var execElements = [];
+
+        execElements.push(presenter.generateJumpInstruction('true', startWhileLabel));
+        execElements.push(presenter.generateExecuteObject('', exitLabel));
+
+        return execElements;
+    }
+
     presenter.generateForExiter = function (yy) {
         var execElements = [];
 
@@ -267,10 +315,21 @@ function AddonPseudo_Console_create() {
         jqconsole: null,
         functions: {},
         codeGenerator: null,
-        consoleIframe: null
     };
 
     presenter.configuration = {
+        aliases: {
+            "begin": "begin",
+            "do": "do",
+            "end": "end",
+            "for": "for",
+            "from": "from",
+            "to": "to",
+            "variable": "variable",
+            "program": "program",
+            "while": "while",
+            "or": "or"
+        }
     };
 
     presenter.ERROR_CODES = {
@@ -291,24 +350,32 @@ function AddonPseudo_Console_create() {
         presenter.initialize(view, model, true);
     };
 
-    presenter.configureIframe = function () {
-        presenter.state.consoleIframe = $(view).find(".addon-Pseudo_Console-console")[0];
-        var contentWindow = presenter.state.consoleIframe.contentWindow;
-        contentWindow.window.$ = jQuery_3_2_1;
-        contentWindow.window.jQuery = jQuery_3_2_1;
-        contentWindow.window.$.fn.jqconsole = $.fn.jqconsole;
-        contentWindow.window.onLoadjqconsole = function (jqconsole) {
-            presenter.state.jqconsole = jqconsole;
-            presenter.objectForInstructions.console = jqconsole;
+    presenter.initializeGrammar = function () {
+        var rules = JISON_GRAMMAR.lex.rules;
+        var aliases = presenter.configuration.aliases;
+
+        for (var i = 0; i < rules.length; i++) {
+            var rule = rules[i][0];
+            if (rule.indexOf("$") > -1 && rule.lastIndexOf("$") !== rule.indexOf("$")) {    //We want to find words between "$" and replace them with aliases
+                var name = rule.substring(1, rule.length - 1);
+
+                if (aliases.hasOwnProperty(name)) {
+                    rules[i][0] = aliases[name];
+                }
+            }
+            
         }
-        var doc = contentWindow.document;
-        doc.open();
-        doc.write("<script>$(document).ready(function () {var jq = $(document.body).jqconsole('', '>>>'); console.log(window); window.onLoadjqconsole.call(this, jq);} );</script>");
-        doc.close();
+
+        console.log(JISON_GRAMMAR);
+
+        var parser = new Jison.Parser(JISON_GRAMMAR);
+        parser.yy.presenterContext = presenter;
+        presenter.state.codeGenerator = parser;
     }
-;
+
     presenter.initialize = function  (view, model, isPreview)  {
         presenter.configuration = presenter.validateModel(model);
+        
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
@@ -318,10 +385,9 @@ function AddonPseudo_Console_create() {
         presenter.state.view = view;
 
         if (!isPreview) {
-            presenter.configureIframe();
-            var parser = new Jison.Parser(JISON_GRAMMAR);
-            parser.yy.presenterContext = presenter;
-            presenter.state.codeGenerator = parser;
+            presenter.state.jqconsole = $(view).jqconsole('', '>>>');
+            presenter.objectForInstructions.console = presenter.state.jqconsole;
+            presenter.initializeGrammar();
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -386,7 +452,29 @@ function AddonPseudo_Console_create() {
         };
     };
 
+    presenter.validateAliases = function (aliases) {
+        var definedAliases = {};
+
+        for (var aliasKey in aliases) {
+            if (aliases.hasOwnProperty(aliasKey)) {
+                if (!ModelValidationUtils.isStringEmpty(aliases[aliasKey].name.trim())) {
+                    definedAliases[aliasKey] = aliases[aliasKey].name.trim();
+                }
+            }
+        }
+
+        return {
+            isValid: true,
+            value: definedAliases
+        }
+    }
+
     presenter.validateModel = function (model) {
+        var validatedAliases = presenter.validateAliases(model.default_aliases);
+        if (!validatedAliases.isValid) {
+            return validatedAliases;
+        }
+
         var validatedFunctions = presenter.validateFunctions(model.functionsList);
         if (!validatedFunctions.isValid) {
             return validatedFunctions;
@@ -396,7 +484,8 @@ function AddonPseudo_Console_create() {
             isValid: true,
             addonID: model['ID'],
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            functions: validatedFunctions.value
+            functions: validatedFunctions.value,
+            aliases: $.extend(presenter.configuration.aliases, validatedAliases.value)
         };
     };
 
@@ -488,6 +577,7 @@ function AddonPseudo_Console_create() {
     }
 
     presenter.codeExecutor = function (parsedData) {
+        console.log(parsedData);
         var actualIndex = 0;
         var code = parsedData.code;
         var timeoutId = 0;

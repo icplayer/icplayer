@@ -6,5 +6,37 @@
             <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             <property name="body" displayName="Function Body" nameLabel="Pseudo_Console_property_functions_body" type="text" />
         </property>
+        <property name="default_aliases" nameLabel="Pseudo_Code_property_default_aliases" type="staticlist" isDefault="true">
+            <property name="begin" displayName="Begin" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="end" displayName="End" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="variable" displayName="Variable" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="for" displayName="For" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="from" displayName="From" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="to" displayName="To" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="do" displayName="Do" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="program" displayName="Do" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="while" displayName="While" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="or" displayName="Or" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+        </property>
     </model>
 </addon>

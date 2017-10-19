@@ -7,7 +7,7 @@
         <property name="Color" nameLabel="Grid_Scene_property_color" type="string" />
         <property name="delay" nameLabel="Grid_Scene_property_delay" type="string" />
         <property name="default_commands" nameLabel="Grid_Scene_property_default_commands" type="staticlist" isDefault="true">
-            <property name="command_setColor" displayName="setColor(Color)" type="staticrow">
+            <property name="command_setColenor" displayName="setColor(Color)" type="staticrow">
                 <property name="alias" nameLabel="Grid_Scene_property_default_commands_command_alias" type="string"/>
                 <property name="arguments_aliases" nameLabel="Grid_Scene_property_default_commands_arguments_alias" type="string"/>
                 <property name="is_disabled" nameLabel="Grid_Scene_property_default_commands_is_disabled" type="boolean" />
