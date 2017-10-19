@@ -98,7 +98,6 @@ public class OrderingModelTestCase {
 		assertEquals(8, count);
 	}
 	
-	@Ignore("toXML need fix")
 	@Test
 	public void saveLoad() throws SAXException, IOException {
 		
