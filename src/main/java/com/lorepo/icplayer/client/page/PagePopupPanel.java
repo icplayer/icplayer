@@ -308,7 +308,10 @@ public class PagePopupPanel extends DialogBox {
 		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
 
+		JavaScriptUtils.log("close 1");
 		ValueChangedEvent valueEvent = new ValueChangedEvent("Popup", popupName, "closed", "");
+		JavaScriptUtils.log("close 2");
 		this.openingPageController.getPlayerServices().getEventBus().fireEvent(valueEvent);
+		JavaScriptUtils.log("close 3");
 	}
 }

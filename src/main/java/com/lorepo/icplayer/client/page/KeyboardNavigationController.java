@@ -48,7 +48,7 @@ public final class KeyboardNavigationController {
 	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
 		public boolean common = false;
-		private String area = "main";  // header, main, footer
+		private String area = "main";  // header, main, footer TODO create ENUM
 
 		PresenterEntry (IWCAGPresenter presenter, boolean isCommon) {
 			this.presenter = presenter;
@@ -396,15 +396,16 @@ public final class KeyboardNavigationController {
 		return moduleIsActivated;
 	}
 	
+	// TODO poprawic dzialanie dla 2 nawigacji
 	public void reset () {
 		if (this.presenters.size() == 0 && this.presentersOriginalOrder.size() == 0) {
 			return;
 		}
 		
-		final boolean isCommonModuleActivated1 = this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated();
-		final boolean isCommonModuleActivated2 = this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated();
+		final boolean isCommonModuleActivated1 = this.presenters.size() > 0 ? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
+		final boolean isCommonModuleActivated2 = this.presentersOriginalOrder.size() > 0 ? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
 
-		if (!isCommonModuleActivated1 && !isCommonModuleActivated2) {
+		if (!isCommonModuleActivated1 || !isCommonModuleActivated2) {
 			this.moduleIsActivated = false;
 			this.isInitiated = false;
 			this.actualSelectedModuleIndex = 0;

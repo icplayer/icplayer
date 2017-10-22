@@ -319,7 +319,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public String getState() {
-		JavaScriptUtils.log("getState");
 		if (isShowAnswers()) {
 			hideAnswers();
 		}

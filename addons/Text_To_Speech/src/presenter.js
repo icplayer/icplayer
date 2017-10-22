@@ -98,6 +98,7 @@ function AddonText_To_Speech_create() {
             isValid: true,
 
             addOnsConfiguration: validatedConfiguration.value,
+            startText: model['StartText'], // TODO remove
             enterText: model['EnterText'],
             exitText: model['ExitText'],
             language: validatedLanguage.value
@@ -256,7 +257,7 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.playEnterText = function () {
-        presenter.speak(presenter.configuration.enterText);
+        presenter.speak(presenter.configuration.enterText || presenter.configuration.startText || '');
     };
 
     presenter.playExitText = function () {

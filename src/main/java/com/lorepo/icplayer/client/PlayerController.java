@@ -263,7 +263,8 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 
-	public void switchToCommonPage(int index) {			
+	public void switchToCommonPage(int index) {
+		JavaScriptUtils.log("switchToCommonPage START");
 		this.closeCurrentPages();
 		IPage page;
 		if (this.pageController2 != null) {
@@ -289,6 +290,7 @@ public class PlayerController implements IPlayerController{
 				this.switchToPage(page, this.pageController2);
 			}
 		}
+		JavaScriptUtils.log("switchToCommonPage END");
 	}
 
 
@@ -338,24 +340,39 @@ public class PlayerController implements IPlayerController{
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
+		JavaScriptUtils.log("pageLoaded START");
 		this.keyboardController.save();
+		JavaScriptUtils.log("pageLoaded 1");
 		this.keyboardController.reset();
+		JavaScriptUtils.log("pageLoaded 2");
 
 		pageController.setPage(page);
+		JavaScriptUtils.log("pageLoaded 3");
 		
 		if (this.headerController != null && pageController != this.pageController2) {
+			JavaScriptUtils.log("pageLoaded 4");
 		    this.setHeader(page);
+		    JavaScriptUtils.log("pageLoaded 5");
 		}
+		JavaScriptUtils.log("pageLoaded 6");
 		this.keyboardController.addHeaderToNavigation(this.headerController);
+		JavaScriptUtils.log("pageLoaded 7");
 		
 		this.keyboardController.addMainToNavigation(this.pageController1);
+		JavaScriptUtils.log("pageLoaded 8");
 		this.keyboardController.addSecondToNavigation(this.pageController2);
+		JavaScriptUtils.log("pageLoaded 9");
 
 		if (this.footerController != null && pageController != this.pageController2) {
+			JavaScriptUtils.log("pageLoaded 10");
 			this.setFooter(page);
+			JavaScriptUtils.log("pageLoaded 11");
 		}
+		JavaScriptUtils.log("pageLoaded 12");
 		this.keyboardController.addFooterToNavigation(this.footerController);
+		JavaScriptUtils.log("pageLoaded 13");
 		this.keyboardController.restore();
+		JavaScriptUtils.log("pageLoaded END");
 	}
 
 	private static void scrollViewToBeggining() {
@@ -368,7 +385,6 @@ public class PlayerController implements IPlayerController{
 		});
 	}
 
-
 	private void closeCurrentPages() {
 		this.closePopup();
 		this.pageController1.updateScore(false);
@@ -379,9 +395,13 @@ public class PlayerController implements IPlayerController{
 
 		this.updateState();
 
+		JavaScriptUtils.log("closeCurrentPages 1");
 		this.pageController1.closePage();
+		JavaScriptUtils.log("closeCurrentPages 2");
 		if(this.isBookMode()){
+			JavaScriptUtils.log("closeCurrentPages 3");
 			this.pageController2.closePage();
+			JavaScriptUtils.log("closeCurrentPages 4");
 		}
 	}
 
