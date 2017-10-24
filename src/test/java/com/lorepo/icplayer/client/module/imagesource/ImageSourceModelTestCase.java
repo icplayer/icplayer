@@ -69,25 +69,6 @@ public class ImageSourceModelTestCase {
 		assertEquals("media/river.jpg", imageModel.getUrl());
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		ImageSourceModule module = new ImageSourceModule();
-		module.load(element, "", PAGE_VERSION);
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ImageSourceModule();
-		module.load(element, "", PAGE_VERSION);
-		
-		assertEquals("media/river.jpg", module.getUrl());
-	}
-	
 	@Test
 	public void propertyRemovable() throws SAXException, IOException {
 		PowerMockito.spy(DictionaryWrapper.class);

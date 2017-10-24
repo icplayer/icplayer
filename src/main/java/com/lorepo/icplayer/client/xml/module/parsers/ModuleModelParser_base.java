@@ -61,7 +61,6 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 		int width = XMLUtils.getAttributeAsInt(xml, "width");
 		int height = XMLUtils.getAttributeAsInt(xml, "height");
 
-		
 		ModuleDimensions dimensions = new ModuleDimensions(left, right, top, bottom, height, width);
 		this.module.addSemiResponsiveDimensions("default", dimensions);
 	}

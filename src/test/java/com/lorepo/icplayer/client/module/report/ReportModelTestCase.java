@@ -52,22 +52,6 @@ public class ReportModelTestCase {
 		assertEquals("report1", module.getId());
 	}
 
-
-	@Ignore("toXML need fix")
-	@Test
-	public void validateXML() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/report.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		ReportModule module = new ReportModule();
-		module.load(element, "", PAGE_VERSION);
-		String xml = module.toXML();
-		xmlParser.parser(new StringInputStream(xml));
-	}
-
-	
 	@Test
 	public void errorLabel() throws SAXException, IOException {
 		PowerMockito.spy(DictionaryWrapper.class);

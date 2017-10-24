@@ -142,20 +142,6 @@ public class OrderingModule extends BasicModuleModel {
 		return order;
 	}
 
-	public String getItemsOrder() {
-		String order = "";
-		int last = 0;
-
-		for (OrderingItem item : items) {
-			order += item.getIndex();
-			last++;
-
-			if (last != items.size() )
-				order += ", ";
-		}
-		return order;
-	}
-
 	public void removeAllItems() {
 		items.clear();
 	}

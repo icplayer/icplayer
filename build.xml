@@ -34,7 +34,6 @@
     </target>
 
     <target name="javac" depends="addons" description="Compile java source to bytecode">
-
         <mkdir dir="war/WEB-INF/classes"/>
         <javac srcdir="${src}" includes="**" encoding="utf-8"
                destdir="war/WEB-INF/classes"
@@ -88,8 +87,7 @@
     </target>
 
     <target name="javac.tests" depends="javac" description="Compiles test code">
-
-        <javac srcdir="${src-test}" includes="**" encoding="utf-8"
+<javac srcdir="${src-test}" includes="**" encoding="utf-8"
                source="1.6" target="1.6" nowarn="true"
                includeantruntime="false"
                destdir="war/WEB-INF/classes"
@@ -189,7 +187,7 @@
         <antcall target="test.addons" />
     </target>
 
-    <target name="build" depends="clean, test, gwtc" description="Build this project" />
+    <target name="build" depends="clean, gwtc" description="Build this project" />
     <!--<target name="build" depends="clean, test, gwtc" description="Build this project" />-->
 
     <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests" />

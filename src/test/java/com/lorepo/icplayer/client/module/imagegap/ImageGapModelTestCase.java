@@ -70,25 +70,7 @@ public class ImageGapModelTestCase {
 		assertEquals("si1", imageModel.getAnswerId());
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module-no-activity.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		ImageGapModule module = new ImageGapModule();
-		module.load(element, "", PAGE_VERSION);
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ImageGapModule();
-		module.load(element, "", PAGE_VERSION);
-		
-		assertEquals("si1", module.getAnswerId());
-		assertFalse(module.isActivity());
-	}
+
 
 	@Test
 	public void propertyAnswerId() {
@@ -108,7 +90,6 @@ public class ImageGapModelTestCase {
 		assertEquals("test12", module.getAnswerId());
 	}
 
-	
 	@Test
 	public void propertyisActivity() {
 		

@@ -6,6 +6,7 @@ import com.google.gwt.xml.client.Text;
 import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 
 public class CssStyle {
 	
@@ -20,6 +21,11 @@ public class CssStyle {
 	
 	public static CssStyle copy(CssStyle toCopy) {
 		return new CssStyle(toCopy.getID(), toCopy.getName(), toCopy.getValue());
+	}
+	
+
+	public static CssStyle createStyleFromPageLayout(PageLayout newLayout) {
+		return new CssStyle(newLayout.getID(), newLayout.getName(), "");
 	}
 
 	public CssStyle(String id, String name, String style) {

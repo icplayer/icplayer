@@ -6,6 +6,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,6 +20,7 @@ import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.mockup.xml.PageFactoryMockup;
 import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Group;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -39,8 +43,11 @@ public class GWTPageControllerTestCase extends GwtTest {
 		
 		Page page = new PageFactoryMockup(new Page("Sizes", "")).loadFromFile(dataPath);
 		
+		Set<PageLayout> pageLayouts = new HashSet<PageLayout>(Arrays.asList(PageLayout.createDefaultPageLayout()));
+		
 		Content contentMock = Mockito.mock(Content.class);
 		when(contentMock.getActualSemiResponsiveLayoutID()).thenReturn("default");
+		when(contentMock.getActualSemiResponsiveLayouts()).thenReturn(pageLayouts);
 		
 		pageController.setContent(contentMock);
 		
@@ -48,7 +55,6 @@ public class GWTPageControllerTestCase extends GwtTest {
 		return pageController;
 	}
 	
-	@Ignore
 	@Test
 	public void setDisplaySize() throws SAXException, IOException {
 		init("testdata/pagecontroller/page.xml");
@@ -57,7 +63,6 @@ public class GWTPageControllerTestCase extends GwtTest {
 		assertEquals(200, display.getHeight());
 	}
 
-	@Ignore
 	@Test
 	public void dontSetDisplaySize() throws SAXException, IOException {
 		init("testdata/pagecontroller/addon.page.xml");
@@ -66,7 +71,6 @@ public class GWTPageControllerTestCase extends GwtTest {
 		assertEquals(-1, display.getHeight());
 	}
 
-	@Ignore
 	@Test
 	public void findModule() throws SAXException, IOException {
 		PageController pageController = init("testdata/pagecontroller/page.xml");
@@ -75,7 +79,6 @@ public class GWTPageControllerTestCase extends GwtTest {
 		assertNotNull(presenter);
 	}
 	
-	@Ignore
 	@Test
 	public void createGroupPresenters() throws SAXException, IOException {
 		PageController pageController = init("testdata/pagecontroller/page.xml");

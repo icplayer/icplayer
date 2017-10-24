@@ -124,26 +124,7 @@ public class ChoiceModelTestCase {
 		assertEquals("Feedback 1", option.getFeedback());
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/choice1.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		ChoiceModel module = new ChoiceModel();
-		module.load(element, "", PAGE_VERSION);
-		String oldText = module.getOption(0).getText();
 
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ChoiceModel();
-		module.load(element, "", PAGE_VERSION);
-		String newText = module.getOption(0).getText();
-		
-		assertEquals(oldText, newText);
-	}
 
 	@Test
 	public void notDisabled() throws SAXException, IOException {

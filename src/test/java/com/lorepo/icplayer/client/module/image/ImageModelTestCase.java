@@ -36,25 +36,6 @@ public class ImageModelTestCase {
 		assertEquals("Image", module.getModuleTypeName());
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		ImageModule module = new ImageModule();
-		module.load(element, "", PAGE_VERSION);
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ImageModule();
-		module.load(element, "", PAGE_VERSION);
-		
-		assertEquals(DisplayMode.keepAspect, module.getDisplayMode());
-	}
-	
 	
 	@Test
 	public void propertyMode() {

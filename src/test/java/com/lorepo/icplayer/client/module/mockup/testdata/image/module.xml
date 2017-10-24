@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<imageModule left="35" top="65" width="30" height="30" style="border:1px solid red;">
+	<image src="media/river.jpg" mode="keepAspect"/>
+</imageModule>

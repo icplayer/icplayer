@@ -99,28 +99,6 @@ public class OrderingModelTestCase {
 	}
 	
 	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/ordering2.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		OrderingModule module = new OrderingModule();
-		module.load(element, "", PAGE_VERSION);
-		String oldText = module.getItem(0).getText();
-				
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new OrderingModule();
-		module.load(element, "", PAGE_VERSION);
-		String newText = module.getItem(0).getText();
-		
-		assertEquals(oldText, newText);
-		assertFalse(module.isActivity());
-	}
-
-
-	@Test
 	public void goToPageProperty() throws SAXException, IOException {
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/ordering.xml");

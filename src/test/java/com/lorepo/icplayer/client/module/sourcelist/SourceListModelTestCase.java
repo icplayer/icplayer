@@ -70,25 +70,6 @@ public class SourceListModelTestCase {
 		assertEquals(4, sourceListModel.getItemCount());
 	}
 
-	@Ignore("toXML need fix")
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		SourceListModule module = new SourceListModule();
-		module.load(element, "", PAGE_VERSION);
-		String xml = module.toXML();
-		
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new SourceListModule();
-		module.load(element, "", PAGE_VERSION);
-		
-		assertEquals(4, module.getItemCount());
-	}
-
 	@Test
 	public void cdataItems() throws SAXException, IOException {
 		

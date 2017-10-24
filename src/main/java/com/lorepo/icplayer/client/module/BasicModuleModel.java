@@ -73,7 +73,6 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		this.baseURL = baseUrl;
 		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
 		factory.produce(element, version);
-
 		this.parseModuleNode(element);
 	}
 

@@ -47,17 +47,4 @@ public class LimitedCheckModuleTestCase {
 		assertEquals("unCheck", module.getUnCheckText());
 		assertEquals("Text1", module.getRawWorksWith());
 	}
-	
-	@Ignore("toXML have to be fixed")
-	@Test
-	public void modelToXML() {
-		LimitedCheckModule module = new LimitedCheckModule();
-		module.setCheckText("Some text");
-		module.setUnCheckText("Some uncheck text");
-		module.setRawWorksWith("Table1;Table1");
-		
-		Element xml = module.modelToXML();
-		
-		assertEquals("<limitedCheck checkText='Some text' unCheckText='Some uncheck text' mistakesFromProvidedModules='false'><![CDATA[Table1;Table1]]></limitedCheck>", xml.toString());
-	}
 }

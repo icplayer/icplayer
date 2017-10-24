@@ -59,10 +59,10 @@ public class ImageModule extends BasicModuleModel {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			
+			
 			Node childNode = nodes.item(i);
 			if(childNode instanceof Element){
-				
-				if(childNode.getNodeName().compareTo("image") == 0 && childNode instanceof Element){
+				if(childNode.getNodeName().compareTo("image") == 0){
 					Element childElement = (Element) childNode;
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					String modeName = childElement.getAttribute("mode");
@@ -76,13 +76,8 @@ public class ImageModule extends BasicModuleModel {
 	
 
 	private void setModeFromString(String typeName) {
-		
-		if(typeName != null){
-			for(DisplayMode modeType : DisplayMode.values()){
-				if(modeType.toString().compareTo(typeName) == 0){
-					mode = modeType;
-				}
-			}
+		if (typeName != null) {
+			this.mode = DisplayMode.valueOf(typeName); 
 		}
 	}	
 
