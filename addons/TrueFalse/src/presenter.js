@@ -256,7 +256,7 @@ function AddonTrueFalse_create() {
             }
             var innerElement = document.createElement('div');
 
-            if (presenter.configuration.isTabindexEnabled) {
+            if (presenter.isTabindexEnabled) {
                 presenter.addTabindex($(innerElement), 0);
             }
 
@@ -359,7 +359,6 @@ function AddonTrueFalse_create() {
         eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
 
-        console.log(model);
         presenter.validateModel(model);
 
         presenter.addonID = model.ID;
