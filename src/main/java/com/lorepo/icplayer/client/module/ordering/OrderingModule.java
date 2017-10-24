@@ -26,7 +26,6 @@ public class OrderingModule extends BasicModuleModel {
 	private boolean allElementsHasSameWidth = false;
 	private boolean graduallyScore = false;
 	private boolean dontGenerateCorrectOrder = false;
-    private boolean isTabindexEnabled = false;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -42,7 +41,6 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyAllElementHasSameWidth();
 		addPropertyGraduallyScore();
 		addPropertyDontGenerateCorrectOrder();
-        this.addPropertyTabindex();
 	}
 
 	private void addItem(OrderingItem item) {
@@ -72,10 +70,6 @@ public class OrderingModule extends BasicModuleModel {
 	public String getOptionalOrder() {
 		return optionalOrder;
 	}
-	
-	public Boolean isTabindexEnabled() {
-		return this.isTabindexEnabled;
-	}
 
 	@Override
 	public void load(Element node, String baseUrl) {
@@ -92,7 +86,6 @@ public class OrderingModule extends BasicModuleModel {
 			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
 			graduallyScore = XMLUtils.getAttributeAsBoolean(choice, "graduallyScore");
 			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(choice, "dontGenerateCorrectOrder");
-            this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(choice, "isTabindexEnabled");
 		}
 
 		// Read item nodes
@@ -170,8 +163,7 @@ public class OrderingModule extends BasicModuleModel {
 		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" +
 				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + 
 				Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) +
-				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) +
-				"' isTabindexEnabled='" + this.isTabindexEnabled + "'/>";
+				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) + "'/>";
 
 		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
@@ -429,44 +421,6 @@ public class OrderingModule extends BasicModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("All_elements_has_same_width");
-			}
-
-			@Override
-			public boolean isDefault() {
-				return false;
-			}
-
-		};
-
-		addProperty(property);
-	}
-	
-	private void addPropertyTabindex() {
-		IProperty property = new IBooleanProperty() {
-
-			@Override
-			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0);
-
-				if(value!= isTabindexEnabled){
-					isTabindexEnabled = value;
-					sendPropertyChangedEvent(this);
-				}
-			}
-
-			@Override
-			public String getValue() {
-				return isTabindexEnabled ? "True" : "False";
-			}
-
-			@Override
-			public String getName() {
-				return DictionaryWrapper.get("ordering_property_is_tabindex_enabled");
-			}
-
-			@Override
-			public String getDisplayName() {
-				return DictionaryWrapper.get("ordering_property_is_tabindex_enabled");
 			}
 
 			@Override

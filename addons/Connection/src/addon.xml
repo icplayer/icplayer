@@ -30,6 +30,5 @@
         <property name="Show answers line color" nameLabel="Connection_property_show_answers_line_color" type="string" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Connection_property_block_wrong_answers" type="boolean" />
 		<property name="removeDraggedElement" displayName="Remove dragged element" nameLabel="Connection_property_remove_dragged_element" type="boolean" />
-		<property name="enableTabindex" displayName="Enable tabindex" nameLabel="Connection_property_enable_tabindex" type="boolean" />
 	</model>
 </addon>

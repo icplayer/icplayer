@@ -20,6 +20,5 @@
         <property name="Keep wrong marking" nameLabel="gamememo_property_keep_wrong_marking" type="boolean" />
         <property name="Time to solve" nameLabel="gamememo_property_time_to_solve" type="string" />
         <property name="Session ended message" nameLabel="gamememo_property_session_ended_message" type="html" />
-		<property name="Enable tabindex" nameLabel="gamememo_property_enable_tabindex" type="boolean" />
 	</model>
 </addon>
