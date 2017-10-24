@@ -255,6 +255,11 @@ function AddonTrueFalse_create() {
                 row.append('<td class="tf_' + presenter.type + '_image up"></td>');
             }
             var innerElement = document.createElement('div');
+
+            if (presenter.configuration.isTabindexEnabled) {
+                presenter.addTabindex($(innerElement), 0);
+            }
+
             $(row).find('td:last-child').append(innerElement);
         }
     }
@@ -288,10 +293,6 @@ function AddonTrueFalse_create() {
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
-
-        if (presenter.isTabindexEnabled) {
-            presenter.addTabindex($(view), "0");
-        }
 
         if (notAllRequiredParameters(questions, possibleChoices)) {
             return $(view).html(QUESTION_AND_CHOICES_REQUIRED);
@@ -349,24 +350,8 @@ function AddonTrueFalse_create() {
         presenter.isVisible = true;
     };
 
-    presenter.upgradeEnableTabindex = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-
-        if (upgradedModel["enableTabindex"] === undefined) {
-            upgradedModel["enableTabindex"] = "False";
-        }
-
-        return upgradedModel;
-    };
-
-    presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradeEnableTabindex(model);
-        return upgradedModel;
-    };
-
     presenter.validateModel = function(model) {
-        this.isTabindexEnabled = ModelValidationUtils.validateBoolean(model['enableTabindex']);
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
     };
 
     presenter.run = function (view, model) {
@@ -374,7 +359,7 @@ function AddonTrueFalse_create() {
         eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
 
-        model = presenter.upgradeModel(model);
+        console.log(model);
         presenter.validateModel(model);
 
         presenter.addonID = model.ID;

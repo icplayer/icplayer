@@ -78,9 +78,9 @@ public class SourceListModule extends BasicModuleModel{
 	
 	@Override
 	public String toXML() {
-		String xml = "<sourceListModule " + getBaseXML() + "'>" + getLayoutXML();
+		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>" ;
+		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>";
 		
 		for(String item : items){
 			xml += "<item><![CDATA[" + item + "]]></item>";

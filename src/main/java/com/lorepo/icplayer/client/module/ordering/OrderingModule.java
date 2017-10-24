@@ -163,7 +163,8 @@ public class OrderingModule extends BasicModuleModel {
 		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" +
 				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + 
 				Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) +
-				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) + "'/>";
+				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) +
+				"'/>";
 
 		for (OrderingItem item : items) {
 			xml += "<item><![CDATA[" + item.getText() + "]]></item>";

@@ -12,7 +12,7 @@ TestCase("[TrueFalse] Model validation tests", {
          'Choices': [{
              'Choice': "True"
          }],
-         'enableTabindex': "False"
+         'Is Tabindex Enabled': "False"
      };
    },
 
@@ -23,7 +23,7 @@ TestCase("[TrueFalse] Model validation tests", {
     },
 
     'test should set isTabindexEnabled to true': function () {
-        this.model['enableTabindex'] = "True";
+        this.model['Is Tabindex Enabled'] = "True";
         this.presenter.validateModel(this.model);
 
         assertTrue(this.presenter.isTabindexEnabled);

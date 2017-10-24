@@ -119,10 +119,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 		getElement().setId(module.getId());
 		
-		if (this.module.isTabindexEnabled()){
-			this.getElement().setTabIndex(0);
-		}
-		
 		getAsJavaScript();
 		if(!isPreview){
 			makeSortable(getElement(), jsObject, workMode);

@@ -28,23 +28,23 @@ TestCase("[Gamememo] Model validation tests", {
            'Keep wrong marking': "True",
            'Time to solve': 10,
            'Session ended message': "",
-           'Enable tabindex': "True"
+           'Is Tabindex Enabled': "True"
        }
    },
 
     'test should set isTabindexEnabled to true': function () {
-        var upgraded = this.presenter.readConfiguration(this.model);
+        var configuration = this.presenter.readConfiguration(this.model);
 
-        assertFalse(upgraded.isError);
-        assertTrue(this.presenter.isTabindexEnabled);
+        assertFalse(configuration.isError);
+        assertTrue(configuration.isTabindexEnabled);
     },
 
     'test should set isTabindexEnabled to false': function () {
-        this.model['Enable tabindex'] = "False";
+        this.model['Is Tabindex Enabled'] = "False";
 
-        var upgraded = this.presenter.readConfiguration(this.model);
+        var configuration = this.presenter.readConfiguration(this.model);
 
-        assertFalse(upgraded.isError);
-        assertFalse(this.presenter.isTabindexEnabled);
+        assertFalse(configuration.isError);
+        assertFalse(configuration.isTabindexEnabled);
     }
 });

@@ -509,7 +509,7 @@ public class AddonModelTestCase {
 		module = new AddonModel();
 		module.load(element, "");
 		
-		assertEquals(11, module.getPropertyCount());
+		assertEquals(12, module.getPropertyCount());
 	}
 	
 	

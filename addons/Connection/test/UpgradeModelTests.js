@@ -43,8 +43,7 @@ UpgradeModelTests.prototype.setUp = function() {
         "Default connection color": "",
         "Correct connection color": "",
         "Incorrect connection color": "",
-        "Connection thickness, string": "",
-        "enableTabindex": "False"
+        "Connection thickness, string": ""
     };
 };
 
@@ -66,19 +65,4 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
 
     assertEquals(this.currentModel, upgradedModel);
     assertNotEquals(this.model, upgradedModel);
-};
-
-UpgradeModelTests.prototype.testUpgradeEnableTabindex = function() {
-    var upgradedModel = this.presenter.upgradeModel(this.model);
-
-    assertEquals(this.currentModel, upgradedModel);
-    assertNotEquals(this.model, upgradedModel);
-    assertEquals("False", upgradedModel["enableTabindex"]);
-};
-
-UpgradeModelTests.prototype.testUpgradeEnableTabindexShouldLeaveProperValue = function() {
-    this.model["enableTabindex"] = "True";
-    var upgradedModel = this.presenter.upgradeModel(this.model);
-
-    assertEquals("True", upgradedModel["enableTabindex"]);
 };

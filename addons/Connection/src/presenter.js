@@ -40,10 +40,7 @@ function AddonConnection_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradeFrom_01(model);
-        upgradedModel = presenter.upgradeEnableTabindex(upgradedModel);
-
-        return upgradedModel;
+        return presenter.upgradeFrom_01(model);
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -58,17 +55,6 @@ function AddonConnection_create() {
                     right: ""
                 }
             ];
-        }
-
-        return upgradedModel;
-    };
-
-    presenter.upgradeEnableTabindex = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-
-        if (upgradedModel["enableTabindex"] === undefined) {
-            upgradedModel["enableTabindex"] = "False";
         }
 
         return upgradedModel;
@@ -281,7 +267,7 @@ function AddonConnection_create() {
     };
 
     presenter.validateTabindexEnabled = function (model) {
-        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["enableTabindex"]);
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
     };
 
     presenter.initialize = function (view, model, isPreview) {
@@ -305,10 +291,6 @@ function AddonConnection_create() {
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
 
         presenter.validateTabindexEnabled(model);
-
-        if (presenter.isTabindexEnabled) {
-            $(presenter.view).attr("tabindex", "0");
-        }
 
         if (isPreview) {
             this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
