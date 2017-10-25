@@ -124,7 +124,11 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter (boolean isExiting) {
+		if (isExiting) {
+			return;
+		}
+		
 		Widget buttonWidget = this.getWidget();
 		if (buttonWidget instanceof ExecutableButton) {
 			((ExecutableButton) buttonWidget).execute();
@@ -176,7 +180,6 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 	public void shiftTab() {
 
 	}
-
 
 	@Override
 	public String getName() {

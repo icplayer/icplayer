@@ -106,7 +106,6 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	public void setPage(Page page) {
-		JavaScriptUtils.log("setPage START");
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
@@ -124,7 +123,6 @@ public class PageController implements ITextToSpeechController {
 
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
-		JavaScriptUtils.log("setPage END");
 	}
 	
 	private void restoreOutstretchHeights() {
@@ -150,7 +148,6 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	private void initModules() {
-		JavaScriptUtils.log("initModules");
 		presenters.clear();
 		pageView.removeAllModules();
 		scriptingEngine.reset();
@@ -428,7 +425,6 @@ public class PageController implements ITextToSpeechController {
 	}
 	
 	public ITextToSpeechPresenter getPageTextToSpeechModule () {
-		JavaScriptUtils.log("getPageTextToSpeechModule");
 		for (IPresenter presenter : presenters) {
 			if (presenter.getModel().getId().compareTo(PAGE_TTS_MODULE_ID) == 0) {
 				return new TextToSpeechPresenter(presenter);
@@ -439,12 +435,10 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	public IPage getPage () {
-		JavaScriptUtils.log("getPage");
 		return currentPage;
 	}
 
 	public void closePage() {
-		JavaScriptUtils.log("closePage START");
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
@@ -456,7 +450,6 @@ public class PageController implements ITextToSpeechController {
 
 		pageView.removeAllModules();
 		presenters.clear();
-		JavaScriptUtils.log("closePage END");
 	}
 
 	public IPlayerServices getPlayerServices() {
@@ -468,7 +461,6 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	public List<IPresenter> getPresenters() {
-		JavaScriptUtils.log("getPresenters " + presenters.size());
 		return presenters;
 	}
 
@@ -481,14 +473,12 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	public void outstretchHeight(int y, int height, boolean dontMoveModules) {
-		JavaScriptUtils.log("outstretchHeight");
 		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
 		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 		this.playerController.fireOutstretchHeightEvent();
 	}
 
 	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
-		JavaScriptUtils.log("outstretchHeightWithoutAddingToModifications");
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
 
@@ -505,7 +495,6 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	public void speak (String text) {
-		JavaScriptUtils.log("speak");
 		if (this.isReadingOn) {
 			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text);
 		}
@@ -518,35 +507,26 @@ public class PageController implements ITextToSpeechController {
 	}
 	
 	public void readStartText () {
-		JavaScriptUtils.log("readStartText");
-		if (this.isReadingOn) {
-			TextToSpeechAPI.playEnterText(this.getTextToSpeechAPIJavaScriptObject());
-		}
+		TextToSpeechAPI.playEnterText(this.getTextToSpeechAPIJavaScriptObject());
 	}
 	
 	public void readExitText () {
-		if (this.isReadingOn) {
-			TextToSpeechAPI.playExitText(this.getTextToSpeechAPIJavaScriptObject());
-		}
+		TextToSpeechAPI.playExitText(this.getTextToSpeechAPIJavaScriptObject());
 	}
 
 	public List<NavigationModuleIndentifier> getModulesOrder () {
-		JavaScriptUtils.log("getModulesOrder");
 		return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(TextToSpeechAPI.getModulesOrder(this.getTextToSpeechAPIJavaScriptObject()));
 	}
 
 	public List<String> getMultiPartDescription (String id) {
-		JavaScriptUtils.log("getMultiPartDescription");
 		return JavaScriptUtils.convertJsArrayToArrayList(TextToSpeechAPI.getMultiPartDescription(this.getTextToSpeechAPIJavaScriptObject(), id));
 	}
 	
 	public boolean isTextToSpeechModuleEnable () {
-		JavaScriptUtils.log("isTextToSpeechModuleEnable");
 		return this.getTextToSpeechAPIJavaScriptObject() != null;
 	}
 	
 	private JavaScriptObject getTextToSpeechAPIJavaScriptObject () {
-		JavaScriptUtils.log("getTextToSpeechAPIJavaScriptObject");
 		AddonPresenter textToSpeechAPIModule = (AddonPresenter) this.findModule("Text_To_Speech1");
 		
 		if (textToSpeechAPIModule != null) {

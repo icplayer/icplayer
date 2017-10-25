@@ -47,7 +47,6 @@ public class TextModel extends BasicModuleModel {
 	private String textToSpeechDescription = "";
 	private List<String> gapsOrder;
 	public String rawTextNoGaps;
-
 	private String langAttribute = "";
 
 	public TextModel() {

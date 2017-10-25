@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -152,10 +153,20 @@ public final class KeyboardNavigationController {
 		}
 		
 		this.modeOn = !this.modeOn;
+		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		this.isWCAGSupportOn = isWCAGSupportOn;
 		
 		if (this.mainPageController != null) {
-			this.mainPageController.setTextReading(this.modeOn && this.isWCAGSupportOn);
+			final boolean isWCAGOn = this.modeOn && this.isWCAGSupportOn;
+			this.mainPageController.setTextReading(isWCAGOn);
+			
+			if (isWCAGOn) {
+				this.mainPageController.readStartText();
+			}
+			
+			if (isWCAGExit) {
+				this.mainPageController.readExitText();
+			}
 		}
 		
 		if (this.modeOn) {
@@ -165,14 +176,10 @@ public final class KeyboardNavigationController {
 			} else {
 				this.initialSelect();
 			}
-			
-			this.mainPageController.readStartText();
 		} else {
 			this.manageKey(event);
 			this.deselectCurrentModule();
 			this.deselectAllModules();
-			
-			this.mainPageController.readExitText();
 		}
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
@@ -259,7 +266,7 @@ public final class KeyboardNavigationController {
 					return;
 				}
 
-				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
 				}
@@ -396,16 +403,15 @@ public final class KeyboardNavigationController {
 		return moduleIsActivated;
 	}
 	
-	// TODO poprawic dzialanie dla 2 nawigacji
 	public void reset () {
 		if (this.presenters.size() == 0 && this.presentersOriginalOrder.size() == 0) {
 			return;
 		}
 		
-		final boolean isCommonModuleActivated1 = this.presenters.size() > 0 ? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
-		final boolean isCommonModuleActivated2 = this.presentersOriginalOrder.size() > 0 ? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
-
-		if (!isCommonModuleActivated1 || !isCommonModuleActivated2) {
+		final boolean isCommonModuleActivatedOriginalNavigation = this.presentersOriginalOrder.size() > 0 ? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
+		final boolean isCommonModuleActivatedWCAGNavigation = this.presenters.size() > 0 ? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
+		
+		if (!isCommonModuleActivatedOriginalNavigation && !isCommonModuleActivatedWCAGNavigation) {
 			this.moduleIsActivated = false;
 			this.isInitiated = false;
 			this.actualSelectedModuleIndex = 0;
