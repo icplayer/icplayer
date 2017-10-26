@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -60,6 +61,12 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option = module.getOption(order[i]);
 			OptionView widget;
 			widget = new OptionView(option, module.isMulti());
+			
+			if (!this.module.isTabindexEnabled()) {
+				// tabindex has to be set to -2, because GWT resets it to 0 in FocusWidget in onAttach
+				widget.setTabIndex(-2);
+			}
+			
 			widget.addValueChangeHandler(this);
 			optionWidgets.add(widget);
 			if(module.isHorizontalLayout()){

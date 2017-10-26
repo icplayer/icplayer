@@ -97,7 +97,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 				itemWidget.setWidthWithoutMargin(itemWidth);
 
 				if (this.module.isTabindexEnabled()){
-			    	itemWidget.getElement().setAttribute("tabindex", "0");
+			    	itemWidget.getElement().setTabIndex(0);
 			    }
 
 				addWidget(itemWidget);
@@ -118,7 +118,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		}
 
 		getElement().setId(module.getId());
-		
 		getAsJavaScript();
 		if(!isPreview){
 			makeSortable(getElement(), jsObject, workMode);
