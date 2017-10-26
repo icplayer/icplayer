@@ -34,13 +34,31 @@
             <property name="program" displayName="Program" type="staticrow">
                 <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
-            <property name="while" displayName="While" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
-            </property>
             <property name="or" displayName="Or" type="staticrow">
                 <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="and" displayName="And" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="if" displayName="If" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="then" displayName="Then" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="else" displayName="Else" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="case" displayName="Case" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="option" displayName="Option" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="function" displayName="Function" type="staticrow">
+                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="return" displayName="Return" type="staticrow">
                 <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
         </property>
