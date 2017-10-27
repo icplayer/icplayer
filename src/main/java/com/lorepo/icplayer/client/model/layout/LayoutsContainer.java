@@ -33,7 +33,7 @@ public class LayoutsContainer {
 		String defaultCssStyle = "";
 		
 		for (CssStyle style : styles.values()) {
-			if (style.isDefault) {
+			if (style.isDefault()) {
 				defaultCssStyle = style.getID();
 				break;
 			}
@@ -41,7 +41,7 @@ public class LayoutsContainer {
 		
 		for (String key : this.layoutsMap.keySet()) {
 			PageLayout pageLayout = this.layoutsMap.get(key);
-			if (pageLayout.isThisCssStyle(styleToDelete.id)) {
+			if (pageLayout.isThisCssStyle(styleToDelete.getID())) {
 				pageLayout.setCssID(defaultCssStyle);
 				this.layoutsMap.put(key, pageLayout);
 			}

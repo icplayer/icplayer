@@ -461,7 +461,7 @@ public class Content implements IContentBuilder, IContent {
 	}
 
 	public void setStyle(CssStyle style) {
-		this.styles.put(style.id, style);
+		this.styles.put(style.getID(), style);
 	}
 
 	@Override

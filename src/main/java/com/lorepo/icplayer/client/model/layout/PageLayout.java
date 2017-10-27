@@ -23,6 +23,16 @@ public class PageLayout implements PageLayoutBuilder {
 		this.isDefault = false;
 	}
 	
+	public static PageLayout copy(PageLayout pageLayout) {
+		PageLayout copy = new PageLayout(pageLayout.getID(), pageLayout.getName());
+		copy.setThreshold(pageLayout.getThreshold());
+		copy.setDeviceOrientation(pageLayout.getDeviceOrientation());
+		copy.useDeviceOrientation(pageLayout.useDeviceOrientation());
+		copy.setCssID(pageLayout.getStyleID());
+		
+		return copy;
+	}
+	
 	public static PageLayout createDefaultPageLayout() {
 		PageLayout defaultPageLayout = PageLayout.createPageLayout("default", PageLayout.MAX_TRESHOLD, "default");
 		defaultPageLayout.id = "default";
@@ -134,5 +144,24 @@ public class PageLayout implements PageLayoutBuilder {
 	
 	public DeviceOrientation getDeviceOrientation() {
 		return this.deviceOrientation;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		
+		if (other instanceof PageLayout) {
+			PageLayout otherPL = (PageLayout) other;
+			return this.id.compareTo(otherPL.getID()) == 0
+					&& this.name.compareTo(otherPL.getName()) == 0
+					&& this.threshold == otherPL.getThreshold()
+					&& this.isDefault == otherPL.isDefault()
+					&& this.deviceOrientation == otherPL.deviceOrientation
+					&& this.useDeviceOrientation == otherPL.useDeviceOrientation;
+		}
+		
+		return false;
 	}
 }

@@ -84,7 +84,13 @@ public abstract class ContentParserBase implements IContentParser {
 			}
 		}		
 
+		
+		this.onEndParsing(content);
 		return content;
+	}
+	
+	protected void onEndParsing(Content content) {
+		
 	}
 	
 	private void setContentDefaultStyle(Content content) {

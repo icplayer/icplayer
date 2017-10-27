@@ -1,8 +1,10 @@
 package com.lorepo.icplayer.client.xml.content.parsers;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.screen.DeviceOrientation;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
@@ -10,7 +12,6 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.xml.content.IContentBuilder;
-import com.google.gwt.xml.client.NodeList;
 
 
 public class ContentParser_v1 extends ContentParserBase {
@@ -19,6 +20,41 @@ public class ContentParser_v1 extends ContentParserBase {
 		this.version = "2";
 	}
 	
+	@Override
+	protected void onEndParsing(Content content) {
+		this.syncStylesAndLayoutsBeforeVersion3(content);
+	}
+	
+	private void syncStylesAndLayoutsBeforeVersion3(Content content) {
+		HashMap<String, CssStyle> styles = content.getStyles();
+		Set<PageLayout> layouts = content.getActualSemiResponsiveLayouts();
+		
+		HashMap<String, PageLayout> syncedLayouts = new HashMap<String, PageLayout>();
+		HashMap<String, CssStyle> syncedStyles = new HashMap<String, CssStyle>();
+		for(PageLayout pl : layouts) {
+			String styleID = pl.getStyleID();
+			CssStyle newStyle;
+			
+			if (styles.containsKey(styleID)) {
+				CssStyle pageLayoutOldStyle = styles.get(styleID);
+				newStyle = CssStyle.createStyleFromPageLayout(pl, pageLayoutOldStyle.getValue());	
+			} else {
+				newStyle = CssStyle.createStyleFromPageLayout(pl);	
+			}
+			
+			if (pl.isDefault()) {
+				newStyle.setIsDefault(true);
+			}
+			
+			pl.setCssID(newStyle.getID());
+			syncedLayouts.put(pl.getID(), pl);
+			syncedStyles.put(newStyle.getID(), newStyle);
+		}
+		
+		content.setStyles(syncedStyles);
+		content.setSemiResponsiveLayouts(syncedLayouts);
+	}
+
 	protected HashMap<String,CssStyle> parseStyles(Element rootElement) {
 		HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 

@@ -10,10 +10,10 @@ import com.lorepo.icplayer.client.model.layout.PageLayout;
 
 public class CssStyle {
 	
-	public String id;
-	public String name;
-	public String style;
-	public boolean isDefault = false;
+	private String id;
+	private String name;
+	private String style;
+	private boolean isDefault = false;
 	
 	public static CssStyle createNewStyle (String name) {
 		return new CssStyle(UUID.uuid(),name, "");
@@ -26,6 +26,10 @@ public class CssStyle {
 
 	public static CssStyle createStyleFromPageLayout(PageLayout newLayout) {
 		return new CssStyle(newLayout.getID(), newLayout.getName(), "");
+	}
+	
+	public static CssStyle createStyleFromPageLayout(PageLayout newLayout, String value) {
+		return new CssStyle(newLayout.getID(), newLayout.getName(), value);
 	}
 
 	public CssStyle(String id, String name, String style) {
@@ -73,5 +77,21 @@ public class CssStyle {
 		style.appendChild(node);
 		
 		return style;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		
+		if (other instanceof CssStyle) {
+			CssStyle otherStyle = (CssStyle) other;
+			return this.getID().compareTo(otherStyle.getID()) == 0
+					&& this.getName().compareTo(otherStyle.getName()) == 0
+					&& this.getValue().compareTo(otherStyle.getValue()) == 0;
+		}
+		
+		return false;
 	}
 }

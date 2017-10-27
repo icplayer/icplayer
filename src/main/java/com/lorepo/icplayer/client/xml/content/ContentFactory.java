@@ -19,7 +19,7 @@ import com.lorepo.icplayer.client.xml.content.parsers.IContentParser;
 public class ContentFactory extends XMLVersionAwareFactory {
 	private ArrayList<Integer> pagesSubset;
 	
-	private ContentFactory() {
+	protected ContentFactory() {
 		this.addParser(new ContentParser_v0());
 		this.addParser(new ContentParser_v1());
 	}
