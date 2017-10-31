@@ -149,6 +149,8 @@ function Addonmultiplegap_create(){
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var validatedRepetitions = presenter.validateRepetitions(model["Number of repetitions"]);
         var validateRepeatedElement = presenter.validateIdRepeatedElement(model["ID repeated element"]);
+
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
         
         if (validatedRepetitions.isError) {
             return validatedRepetitions;
@@ -173,7 +175,8 @@ function Addonmultiplegap_create(){
             repetitions: validatedRepetitions.value,
             repeatedElement: validateRepeatedElement.value,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model["Block wrong answers"]),
-            wrapItems: ModelValidationUtils.validateBoolean(model["wrapItems"])
+            wrapItems: ModelValidationUtils.validateBoolean(model["wrapItems"]),
+            isTabindexEnabled: isTabindexEnabled
         };
     };
     
@@ -196,6 +199,11 @@ function Addonmultiplegap_create(){
     
     presenter.createView = function Multiplegap_createView () {
         var container = $('<div class="multiplegap_container"></div>');
+
+        if (this.configuration.isTabindexEnabled) {
+            container.attr("tabindex", "0");
+        }
+
         container.click (function (event) {
             event.stopPropagation ();
             event.preventDefault ();
@@ -353,6 +361,10 @@ function Addonmultiplegap_create(){
         presenter.$view.find('.handler').show();
         presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+
+        if (presenter.configuration.isTabindexEnabled) {
+            presenter.container.removeAttr("tabindex");
+        }
     };
     
     presenter.maximumItemCountReached = function() {
@@ -518,6 +530,10 @@ function Addonmultiplegap_create(){
                 child = $('<p class="contents"></p>');
                 child.html(presenter.parseItemValue(item.value));
                 break;
+        }
+
+        if (presenter.configuration.isTabindexEnabled) {
+            child.attr("tabindex", "0");
         }
         
         placeholder
@@ -748,6 +764,10 @@ function Addonmultiplegap_create(){
         }
         presenter.performRemoveDraggable($(e.target));
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+
+        if(presenter.configuration.isTabindexEnabled && presenter.$view.find('.placeholder').length === 0) {
+            presenter.container.attr("tabindex", "0");
+        }
     };
     
     presenter.performRemoveDraggable = function(handler) {
