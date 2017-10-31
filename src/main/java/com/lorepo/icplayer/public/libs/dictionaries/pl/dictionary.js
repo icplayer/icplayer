@@ -254,7 +254,7 @@
 	"open_popup_button_menu" : "Otwórz okno",
 	"close_popup_button_menu" : "Zamknij okno",
 	"is_visible" : "Jest widoczny",
-	"is_tabindex_enabled": "Enable tabindex",
+	"is_tabindex_enabled": "Włącz tabindex",
 	"layout" : "Układ",
 	"top" : "Góra",
 	"bottom" : "Dół",
