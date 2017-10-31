@@ -246,4 +246,16 @@ public class ModuleModelMockup implements IModuleModel {
 		return null;
 	}
 
+	@Override
+	public boolean isTabindexEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setIsTabindexEnabled(boolean value) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

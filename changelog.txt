@@ -1,3 +1,4 @@
+2017-10-31 Added Tabindex property for modules. Added tabindex handling for Choice, Connection, TrueFalse, Ordering and Memo.
 2017-10-31 Fixed problem with adding scroll handlers in IWB Toolbar.
 2017-10-23 Fixed problem with defining functions in math. Fixed problem with calling build in functions in math.
 2017-10-23 Added keyboard navigation in Table of Contents module

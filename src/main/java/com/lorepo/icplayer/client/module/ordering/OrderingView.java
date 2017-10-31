@@ -86,7 +86,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	private void createUI(OrderingModule module, boolean isPreview) {
 		createWidgetPanel();
-		
+
 		String errorMessage = validate();
 		
 		if (isValid) {
@@ -95,11 +95,16 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			for (int index = 0; index < module.getItemCount(); index++ ) {
 				ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
 				itemWidget.setWidthWithoutMargin(itemWidth);
+
+				if (this.module.isTabindexEnabled()){
+			    	itemWidget.getElement().setTabIndex(0);
+			    }
+
 				addWidget(itemWidget);
 			}			
 		} else {
 			ItemWidget error = new ItemWidget( new OrderingItem(0, errorMessage, ""), module );
-			addWidget(error);			
+			addWidget(error);
 		}
 
 		initWidget(innerCellPanel);

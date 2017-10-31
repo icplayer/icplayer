@@ -237,7 +237,8 @@ function Addongamememo_create(){
             ID: model.ID,
             pairs: model['Pairs'],
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible'])
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
         };
     };
 
@@ -594,6 +595,9 @@ function Addongamememo_create(){
                     width : columnWidthPercent
                 });
 
+                if (presenter.configuration.isTabindexEnabled) {
+                    cell.attr("tabindex", "0");
+                }
 
                 if(!presenter.preview) {
                     cell.append(back).append(front);
