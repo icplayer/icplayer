@@ -70,10 +70,10 @@ function AddonMagic_Boxes_create() {
 
         return {
             border:{
-                top:parseInt(element.css('border-top-width'), 10),
-                bottom:parseInt(element.css('border-bottom-width'), 10),
-                left:parseInt(element.css('border-left-width'), 10),
-                right:parseInt(element.css('border-right-width'), 10)
+                top:Math.round(parseFloat(element.css('border-top-width'), 10)),
+                bottom:Math.round(parseFloat(element.css('border-bottom-width'), 10)),
+                left:Math.round(parseFloat(element.css('border-left-width'), 10)),
+                right:Math.round(parseFloat(element.css('border-right-width'), 10))
             },
             margin:{
                 top:parseInt(element.css('margin-top'), 10),
@@ -214,12 +214,12 @@ function AddonMagic_Boxes_create() {
             var selectedRow = parseInt(index / columns, 10);
             var selectedColumn = parseInt(index % columns, 10);
 
-            $(this).width(selectedColumn === columns - 1 ? wrapperWidth + horizontalGap : wrapperWidth);
-            $(this).height(selectedRow === rows - 1 ? wrapperHeight + verticalGap : wrapperHeight);
+            $(this).width(wrapperWidth + horizontalGap / columns);
+            $(this).height(wrapperHeight + verticalGap / rows);
 
             var selectableElement = $(this).find('.selectable-element:first');
-            selectableElement.width(selectedColumn === columns - 1 ? elementWidth + horizontalGap : elementWidth);
-            selectableElement.height(selectedRow === rows -1 ? elementHeight + verticalGap : elementHeight);
+            selectableElement.width(elementWidth + horizontalGap / columns);
+            selectableElement.height(elementHeight + verticalGap / rows);
             var lineHeight = selectedRow === rows -1 ? elementHeight + verticalGap : elementHeight;
             selectableElement.css('line-height', lineHeight + "px");
 
