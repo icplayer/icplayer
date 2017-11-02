@@ -104,6 +104,10 @@ function Addonfeedback_create() {
 
         presenter.configuration = presenter.validateModel(model);
 
+        if (presenter.configuration.isTabindexEnabled) {
+            presenter.$view.attr("tabindex", "0");
+        }
+
         for (var i = 0; i < model['Responses'].length; i++) {
             if (typeof(presenter.responses[model['Responses'][i]['Unique response ID']]) != "undefined") {
                 presenter.showErrorMessage(presenter.ERROR_MESSAGES.RESPONSE_ID_NOT_UNIQUE, { id: model['Responses'][i]['Unique response ID']});
@@ -194,7 +198,8 @@ function Addonfeedback_create() {
             centerVertically: ModelValidationUtils.validateBoolean(model['Center vertically']),
             isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity']),
             isVisible: validatedIsVisible,
-            isVisibleByDefault: validatedIsVisible
+            isVisibleByDefault: validatedIsVisible,
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled'])
         };
     };
 
